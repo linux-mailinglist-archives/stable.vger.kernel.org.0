@@ -2,162 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AD1B634FE6
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 07:00:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50DE6635010
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 07:08:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229479AbiKWGA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 01:00:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40674 "EHLO
+        id S235970AbiKWGIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 01:08:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229471AbiKWGAZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 01:00:25 -0500
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E545F2433
-        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 22:00:24 -0800 (PST)
-Received: by mail-pl1-x62d.google.com with SMTP id io19so15732886plb.8
-        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 22:00:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=HbeVeRVMsuUDNb87tmOjAAb4ax21K9XCtzzebt3+b/c=;
-        b=IA7jYCO+jsPTUKw6Ifl5XepPFq4dVmvv9SxyqFer/EaN23j8fOLw54OI5rQeyIdiOk
-         egksHxjuzpXQf8tOpT6gNURFf0xsDnbTZsYdOutwZVhf7bDdStoh/aW35pJLhX7azYph
-         MYoc4kxj3YE2JVrp2owdJZTaTyjLvvq7uPePv7GnetAmf38UyOku3KfZIr9Yg8giqLpi
-         jCQE0OMPCfGSSIgwQByg313HTyNxHTO0IfxOjBDtpXPya2AtoK5NlpFeoeIAv1e9CJyz
-         4r4d7nqpNrZ+ViaIvyDAgYH4AX9FAGedjsDnxlvWNLxiKKulpPbjN2wVdye1xbMgjzJu
-         CJaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=HbeVeRVMsuUDNb87tmOjAAb4ax21K9XCtzzebt3+b/c=;
-        b=zJJMwa0ZL1A863U/y1eMoloB237R+QBobLMzXQ6UXq+cCeXmwO8z1JviTIRwid+C6c
-         GL+xHZXJo1dHF7b50iAzx6i/IbgAjXKWHLKYjlOX5Ek1wnm0XV6e5t8RsEk/B52svW0d
-         +ytZThFoLzzx4QPzHhq6ogfd3XjcYTJ/jfJxNcD0VLFg+PebymEC6Xu0UkAYRKvShlIV
-         QFvftuz/6F28+kJ3X1cr04ubUq7ber2ulEOyV1ETdxhRGdxGEUC1fnNBesqdzrn1dhIQ
-         r9yupTy4+Ho484oSMCMnjYHc55zAej2q+EzYo4aK4Kk+9FLXlVQZbBZn53KZZjX3Vazv
-         +RrA==
-X-Gm-Message-State: ANoB5pmdtqxBFVdM4xEeKbxFMRs0ZCltkBIHqo7CTjhgXhLHVtHJuw7g
-        CjZfi7yTsKxQhDLuRZvzSCsiUHy8SuU+oWBAjLM=
-X-Google-Smtp-Source: AA0mqf5MWFUAQFug64eKy+pP40JKpcNwiFhJm9ocjK1Y6ch2GY21o+RXI0ZSkMrNDr3HDqqQKY5nwA==
-X-Received: by 2002:a17:902:ced1:b0:179:ee31:1527 with SMTP id d17-20020a170902ced100b00179ee311527mr20446358plg.138.1669183223504;
-        Tue, 22 Nov 2022 22:00:23 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d15-20020a63d70f000000b0047781f8ac17sm3868551pgg.77.2022.11.22.22.00.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Nov 2022 22:00:22 -0800 (PST)
-Message-ID: <637db6f6.630a0220.324ee.68da@mx.google.com>
-Date:   Tue, 22 Nov 2022 22:00:22 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S235980AbiKWGHk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 01:07:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C4AF8854
+        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 22:05:47 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC51461922
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 06:05:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCF9EC433C1;
+        Wed, 23 Nov 2022 06:05:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1669183546;
+        bh=IP5MVI56kooWfR009KVyeyTsh+/a5w0dWSLi0FmrSDI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XPUjMfJx+Ca3541RB0mQZ/j2gvlpn6oak67bnjPpAckGl7Iug4h3WoVC90t1QZc1K
+         4P2gyPTJLvbQXhPVay2FXOxXZbT43gUg0ILJHqNGGS0I3LVQT1ymb/+8nICVG3Z2Jm
+         2aP7dG5eIDmIBRMPmNFt7H656M3zz6meYJwTsLWA=
+Date:   Wed, 23 Nov 2022 07:05:43 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Rajan Shanmugavelu <rajan.shanmugavelu@oracle.com>
+Cc:     linux_uek_grp@oracle.com, stable@vger.kernel.org
+Subject: Re: [PATCH UEK5-U5] scsi: qla2xxx: Fix use after free in eh_abort
+ path
+Message-ID: <Y324N9L71QuEs/Ig@kroah.com>
+References: <1669165012-11899-1-git-send-email-rajan.shanmugavelu@oracle.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Kernel: v5.15.79-167-gdc4538c14814
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 139 runs,
- 2 regressions (v5.15.79-167-gdc4538c14814)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1669165012-11899-1-git-send-email-rajan.shanmugavelu@oracle.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 139 runs, 2 regressions (v5.15.79-167-gdc453=
-8c14814)
+On Tue, Nov 22, 2022 at 04:56:52PM -0800, Rajan Shanmugavelu wrote:
+> From: Quinn Tran <qutran@marvell.com>
+> 
+> In eh_abort path driver prematurely exits the call to upper layer. Check
+> whether command is aborted / completed by firmware before exiting the call.
+> 
+> 9 [ffff8b1ebf803c00] page_fault at ffffffffb0389778
+>   [exception RIP: qla2x00_status_entry+0x48d]
+>   RIP: ffffffffc04fa62d  RSP: ffff8b1ebf803cb0  RFLAGS: 00010082
+>   RAX: 00000000ffffffff  RBX: 00000000000e0000  RCX: 0000000000000000
+>   RDX: 0000000000000000  RSI: 00000000000013d8  RDI: fffff3253db78440
+>   RBP: ffff8b1ebf803dd0   R8: ffff8b1ebcd9b0c0   R9: 0000000000000000
+>   R10: ffff8b1e38a30808  R11: 0000000000001000  R12: 00000000000003e9
+>   R13: 0000000000000000  R14: ffff8b1ebcd9d740  R15: 0000000000000028
+>   ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+> 10 [ffff8b1ebf803cb0] enqueue_entity at ffffffffafce708f
+> 11 [ffff8b1ebf803d00] enqueue_task_fair at ffffffffafce7b88
+> 12 [ffff8b1ebf803dd8] qla24xx_process_response_queue at ffffffffc04fc9a6
+> [qla2xxx]
+> 13 [ffff8b1ebf803e78] qla24xx_msix_rsp_q at ffffffffc04ff01b [qla2xxx]
+> 14 [ffff8b1ebf803eb0] __handle_irq_event_percpu at ffffffffafd50714
+> 
+> Link: https://lore.kernel.org/r/20210908164622.19240-10-njavali@marvell.com
+> Fixes: f45bca8c5052 ("scsi: qla2xxx: Fix double scsi_done for abort path")
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+> Co-developed-by: David Jeffery <djeffery@redhat.com>
+> Signed-off-by: David Jeffery <djeffery@redhat.com>
+> Co-developed-by: Laurence Oberman <loberman@redhat.com>
+> Signed-off-by: Laurence Oberman <loberman@redhat.com>
+> Signed-off-by: Quinn Tran <qutran@marvell.com>
+> Signed-off-by: Nilesh Javali <njavali@marvell.com>
+> Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+> 
+> Orabug: 34813552
+> 
+> (cherry picked from commit 3d33b303d4f3b74a71bede5639ebba3cfd2a2b4d)
 
-Regressions Summary
--------------------
+This is already in the stable kernel releases, so why do you need it
+merged again?
 
-platform    | arch | lab     | compiler | defconfig           | regressions
-------------+------+---------+----------+---------------------+------------
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1          =
+thanks,
 
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | multi_v7_defconfig  | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.79-167-gdc4538c14814/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.79-167-gdc4538c14814
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      dc4538c1481407b95cd29c58f82e6d6e25a4dd06 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform    | arch | lab     | compiler | defconfig           | regressions
-------------+------+---------+----------+---------------------+------------
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/637d84e8d8e9befeaf2abd24
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.79-=
-167-gdc4538c14814/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
-vk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.79-=
-167-gdc4538c14814/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
-vk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221107.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/637d84e8d8e9befeaf2ab=
-d25
-        failing since 58 days (last pass: v5.15.70-117-g5ae36aa8ead6e, firs=
-t fail: v5.15.70-133-gbad831d5b9cf) =
-
- =
-
-
-
-platform    | arch | lab     | compiler | defconfig           | regressions
-------------+------+---------+----------+---------------------+------------
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | multi_v7_defconfig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/637d8998882a56a7152abd43
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.79-=
-167-gdc4538c14814/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
-k.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.79-=
-167-gdc4538c14814/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
-k.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221107.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/637d8998882a56a7152ab=
-d44
-        failing since 58 days (last pass: v5.15.69-44-g09c929d3da79, first =
-fail: v5.15.70-123-gaf951c1b9b36) =
-
- =20
+greg k-h
