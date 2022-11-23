@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1795635569
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CFC1635499
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237392AbiKWJST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:18:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58340 "EHLO
+        id S237151AbiKWJKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:10:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237395AbiKWJR6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:17:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 695F2D114
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:17:43 -0800 (PST)
+        with ESMTP id S237169AbiKWJKA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:10:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BCA8102E49
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:09:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 042EA61B10
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:17:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB78FC433C1;
-        Wed, 23 Nov 2022 09:17:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AAF35B81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:09:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9AD6C433D6;
+        Wed, 23 Nov 2022 09:09:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195062;
-        bh=yyRLcOZkVFdF4LGAYIWZzTY3gJNCP7TaUXIpFbcdzNE=;
+        s=korg; t=1669194596;
+        bh=dU0YEan+Dq5IMX06acglBjNA8ZbiM1WnuT3kY3iI5PQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hDqg10avqSWkdMwNCgP0oVhiU0+p9gy+QyAKn7Nh2qyrfHL7eQ5Ru6zN6++jeqDFv
-         jN+FBxcY52BIqA0LTjopzUxrcsHm80xPdKhyiR1Et0bUiJbym+IUw+uHRHjMoHUWVs
-         F6oRw9zTDkEeXXqcJ2YPpY+tE4z/lpEbx+oIec6c=
+        b=GwzOrz4WoDaPYysf9TRoYUI7h7VDuiSzFy4uuVzCobOCLm++QF7BKfJNTqDgQ+8dz
+         7DjMdYxJUZxBf1hTtXbxM1qyLFfD6PM62jRv/igJ1WSTmdvB4cULYPZSZTgE/TIZ56
+         1/+r47qhAkk1Cqj0P4+2qU3k2XjWCasjRV9+AFo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.4 137/156] docs: update mediator contact information in CoC doc
+        patches@lists.linux.dev,
+        syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Schspa Shi <schspa@gmail.com>
+Subject: [PATCH 4.19 107/114] 9p: trans_fd/p9_conn_cancel: drop client lock earlier
 Date:   Wed, 23 Nov 2022 09:51:34 +0100
-Message-Id: <20221123084602.861820450@linuxfoundation.org>
+Message-Id: <20221123084555.976383490@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,30 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Dominique Martinet <asmadeus@codewreck.org>
 
-commit 5fddf8962b429b8303c4a654291ecb6e61a7d747 upstream.
+commit 52f1c45dde9136f964d63a77d19826c8a74e2c7f upstream.
 
-Update mediator contact information in CoC interpretation document.
+syzbot reported a double-lock here and we no longer need this
+lock after requests have been moved off to local list:
+just drop the lock earlier.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20221011171417.34286-1-skhan@linuxfoundation.org
+Link: https://lkml.kernel.org/r/20220904064028.1305220-1-asmadeus@codewreck.org
+Reported-by: syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Tested-by: Schspa Shi <schspa@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/process/code-of-conduct-interpretation.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/9p/trans_fd.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/Documentation/process/code-of-conduct-interpretation.rst
-+++ b/Documentation/process/code-of-conduct-interpretation.rst
-@@ -51,7 +51,7 @@ the Technical Advisory Board (TAB) or ot
- uncertain how to handle situations that come up.  It will not be
- considered a violation report unless you want it to be.  If you are
- uncertain about approaching the TAB or any other maintainers, please
--reach out to our conflict mediator, Joanna Lee <joanna.lee@gesmer.com>.
-+reach out to our conflict mediator, Joanna Lee <jlee@linuxfoundation.org>.
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -220,6 +220,8 @@ static void p9_conn_cancel(struct p9_con
+ 		list_move(&req->req_list, &cancel_list);
+ 	}
  
- In the end, "be kind to each other" is really what the end goal is for
- everybody.  We know everyone is human and we all fail at times, but the
++	spin_unlock(&m->client->lock);
++
+ 	list_for_each_entry_safe(req, rtmp, &cancel_list, req_list) {
+ 		p9_debug(P9_DEBUG_ERROR, "call back req %p\n", req);
+ 		list_del(&req->req_list);
+@@ -227,7 +229,6 @@ static void p9_conn_cancel(struct p9_con
+ 			req->t_err = err;
+ 		p9_client_cb(m->client, req, REQ_STATUS_ERROR);
+ 	}
+-	spin_unlock(&m->client->lock);
+ }
+ 
+ static __poll_t
 
 
