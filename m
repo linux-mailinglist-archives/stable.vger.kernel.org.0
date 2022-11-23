@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EDBB635379
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B64A6353BA
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236729AbiKWIze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:55:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58760 "EHLO
+        id S236870AbiKWI7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:59:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236767AbiKWIzZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:55:25 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38C47F3936
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:55:18 -0800 (PST)
+        with ESMTP id S236850AbiKWI7A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:59:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB5FBFFAAF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:58:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2FCDACE20F0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:55:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E97F1C433C1;
-        Wed, 23 Nov 2022 08:55:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BB5D6185C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:58:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A95CC433C1;
+        Wed, 23 Nov 2022 08:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193714;
+        s=korg; t=1669193938;
         bh=zK2F6Mw2zBftqEBOqdpTfrRakmhduoWXjU7wPDMpOGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zG8OiT/B5fbUHEKyM6p2gyTIntVAErlo29Zu5YA/JMu7RQyP26qjnxm6ClqaYFZC1
-         Rzhu86nAQShK/gV+NQfiVt3ow7j0EBzkAHlqpIGPj2TnsP0B4JuuwxsxrhLK7Wlluz
-         hjwjG0nSMqRzTuvDureZ7LyQ/27jB5ULevx7DHyc=
+        b=G1CSNLdRZ1C+VwF65/Ep8Yfy1oQSOXXoL3PwoDek/FFq4SKhkZq3B60oz3Jcr3mgw
+         ft0JxOFLMvYY5Sc/L2tDuVz68OgBejCtOFF10hyeYwZdZZcA6MVTmZAIrSVGLKlc+v
+         QhvUk4e8RBDBASJO0Ls3xBVB99OFWNTUFNwLsLUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tudor Ambarus <tudor.ambarus@microchip.com>,
         Nicolas Ferre <nicolas.ferre@microchip.com>,
         Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.9 23/76] dmaengine: at_hdmac: Fix at_lli struct definition
-Date:   Wed, 23 Nov 2022 09:50:22 +0100
-Message-Id: <20221123084547.486278174@linuxfoundation.org>
+Subject: [PATCH 4.14 26/88] dmaengine: at_hdmac: Fix at_lli struct definition
+Date:   Wed, 23 Nov 2022 09:50:23 +0100
+Message-Id: <20221123084549.397788216@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
