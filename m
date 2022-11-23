@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 409ED635429
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BDF56358BF
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:04:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237010AbiKWJDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:03:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38966 "EHLO
+        id S236189AbiKWKDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:03:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236998AbiKWJDK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:03:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85D897819C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:03:08 -0800 (PST)
+        with ESMTP id S237082AbiKWKBs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:01:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF93CE9CB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:53:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 203D761B10
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:03:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11684C433D7;
-        Wed, 23 Nov 2022 09:03:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 750E5B81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:53:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C117BC433C1;
+        Wed, 23 Nov 2022 09:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194187;
-        bh=zlh4YqHE2NmRVcmxsBs+NFeT1WtJpyY4qXh7X7Re7Xw=;
+        s=korg; t=1669197229;
+        bh=mCmpBwT8Ioz8zoxuf/jc5cRTM5dhY4OjpjcHwzkIS2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mg2iJS3nH5LuNy2fkuKIDTD3cXfeqQ9uu5unDqmP60z9fRndoAU4MoMQSzgHZA2f7
-         YQLDlYsQTzKYoEqIcY8dk0wRQiKZooPfdu5VfLVcjHWdq1AxffsaCmsl/1Fln81qaw
-         Vt9dX5R4fxPTv6VznmJLtHVDm8UD7oZBE5UiFbfA=
+        b=G8XDCaj1CLUAU7QLBzwiOCySJY3qwUhpMfw1C1Fh2Q5cXDBNSDK2bld8gxqEDApQG
+         C/2Dukou9wG+JUefg9lLcOYgn2JkfS/teV3GDJC0CSzYPYLKiRWRVsNGLkO0ouRcJM
+         JIzqEmAboAT2qnuPjZow9edoniteWc5IDGNoxTnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Schspa Shi <schspa@gmail.com>
-Subject: [PATCH 4.14 81/88] 9p: trans_fd/p9_conn_cancel: drop client lock earlier
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Chuhong Yuan <hslester96@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        stable <stable@kernel.org>
+Subject: [PATCH 6.0 233/314] USB: bcma: Make GPIO explicitly optional
 Date:   Wed, 23 Nov 2022 09:51:18 +0100
-Message-Id: <20221123084551.479620236@linuxfoundation.org>
+Message-Id: <20221123084636.045448843@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominique Martinet <asmadeus@codewreck.org>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 52f1c45dde9136f964d63a77d19826c8a74e2c7f upstream.
+commit cd136706b4f925aa5d316642543babac90d45910 upstream.
 
-syzbot reported a double-lock here and we no longer need this
-lock after requests have been moved off to local list:
-just drop the lock earlier.
+What the code does is to not check the return value from
+devm_gpiod_get() and then avoid using an erroneous GPIO descriptor
+with IS_ERR_OR_NULL().
 
-Link: https://lkml.kernel.org/r/20220904064028.1305220-1-asmadeus@codewreck.org
-Reported-by: syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Tested-by: Schspa Shi <schspa@gmail.com>
+This will miss real errors from the GPIO core that should not be
+ignored, such as probe deferral.
+
+Instead request the GPIO as explicitly optional, which means that
+if it doesn't exist, the descriptor returned will be NULL.
+
+Then we can add error handling and also avoid just doing this on
+the device tree path, and simplify the site where the optional
+GPIO descriptor is used.
+
+There were some problems with cleaning up this GPIO descriptor
+use in the past, but this is the proper way to deal with it.
+
+Cc: Rafał Miłecki <rafal@milecki.pl>
+Cc: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20221107090753.1404679-1-linus.walleij@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/9p/trans_fd.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/bcma-hcd.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -219,6 +219,8 @@ static void p9_conn_cancel(struct p9_con
- 		list_move(&req->req_list, &cancel_list);
- 	}
+--- a/drivers/usb/host/bcma-hcd.c
++++ b/drivers/usb/host/bcma-hcd.c
+@@ -285,7 +285,7 @@ static void bcma_hci_platform_power_gpio
+ {
+ 	struct bcma_hcd_device *usb_dev = bcma_get_drvdata(dev);
  
-+	spin_unlock(&m->client->lock);
-+
- 	list_for_each_entry_safe(req, rtmp, &cancel_list, req_list) {
- 		p9_debug(P9_DEBUG_ERROR, "call back req %p\n", req);
- 		list_del(&req->req_list);
-@@ -226,7 +228,6 @@ static void p9_conn_cancel(struct p9_con
- 			req->t_err = err;
- 		p9_client_cb(m->client, req, REQ_STATUS_ERROR);
- 	}
--	spin_unlock(&m->client->lock);
- }
+-	if (IS_ERR_OR_NULL(usb_dev->gpio_desc))
++	if (!usb_dev->gpio_desc)
+ 		return;
  
- static int
+ 	gpiod_set_value(usb_dev->gpio_desc, val);
+@@ -406,9 +406,11 @@ static int bcma_hcd_probe(struct bcma_de
+ 		return -ENOMEM;
+ 	usb_dev->core = core;
+ 
+-	if (core->dev.of_node)
+-		usb_dev->gpio_desc = devm_gpiod_get(&core->dev, "vcc",
+-						    GPIOD_OUT_HIGH);
++	usb_dev->gpio_desc = devm_gpiod_get_optional(&core->dev, "vcc",
++						     GPIOD_OUT_HIGH);
++	if (IS_ERR(usb_dev->gpio_desc))
++		return dev_err_probe(&core->dev, PTR_ERR(usb_dev->gpio_desc),
++				     "error obtaining VCC GPIO");
+ 
+ 	switch (core->id.id) {
+ 	case BCMA_CORE_USB20_HOST:
 
 
