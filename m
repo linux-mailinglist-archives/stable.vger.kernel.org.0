@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD310635523
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D864D6355A2
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237264AbiKWJOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:14:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56078 "EHLO
+        id S237630AbiKWJYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:24:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237267AbiKWJOa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:14:30 -0500
+        with ESMTP id S237608AbiKWJX0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:23:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC1F108901
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:14:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48A222BB28
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E19AA61B14
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:14:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE992C433D7;
-        Wed, 23 Nov 2022 09:14:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC6D661B44
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB2DFC433C1;
+        Wed, 23 Nov 2022 09:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194868;
-        bh=jjtMGiW/60n+4V6Eqyt3dhA3e10NO5t2LnXBVN95Mrs=;
+        s=korg; t=1669195343;
+        bh=pnPC5Qo/EGH4PEMuh3sQfiQ1gv1AyJl2EdMDkGYeFQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EjWubO2QjGGkfPA9SzuNff2nAiIstilVhFOd6HF1gcu33r5i1iaFk/b/e9LOe+JiN
-         hotQrfKNXRNSvceuD+3q5DO+0PftRo93pNrylp2G+mBGbfH5XYMTaYRndQeuxO6OEC
-         qBIIOIyw85cIsOHZ6gkr+K72soOmRGIQcAkodYCQ=
+        b=vDbyickXATTW3nZdgqI3oHIgderjVLgFbBPacO7ZfMuTKiqkl37k5i/iD01fqYFV6
+         ASnXOMGrrFAAsq4U80AJL3dHqbuRb970UDvqTGAkE2/ci1F8YIMyZEYDeu396gMQVF
+         X1UteCdlFJEijmifYVbt0YcMlB4yjKcrAUpQqUJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
-        Mark Brown <broonie@kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 082/156] spi: stm32: Print summary callbacks suppressed message
+Subject: [PATCH 5.10 056/149] arm64: dts: imx8mm: Fix NAND controller size-cells
 Date:   Wed, 23 Nov 2022 09:50:39 +0100
-Message-Id: <20221123084600.971866381@linuxfoundation.org>
+Message-Id: <20221123084559.947273883@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +55,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 195583504be28df5d608a4677dd796117aea875f ]
+[ Upstream commit 1610233bc2c2cae2dff9e101e6ea5ef69cceb0e9 ]
 
-The original fix "spi: stm32: Rate-limit the 'Communication suspended' message"
-still leads to "stm32h7_spi_irq_thread: 1696 callbacks suppressed" spew in the
-kernel log. Since this 'Communication suspended' message is a debug print, add
-RATELIMIT_MSG_ON_RELEASE flag to inhibit the "callbacks suspended" part during
-normal operation and only print summary at the end.
+The NAND controller size-cells should be 0 per DT bindings.
+Fix the following warning produces by DT bindings check:
+"
+nand-controller@33002000: #size-cells:0:0: 0 was expected
+nand-controller@33002000: Unevaluated properties are not allowed ('#address-cells', '#size-cells' were unexpected)
+"
+Fix the missing space in node name too.
 
-Fixes: ea8be08cc9358 ("spi: stm32: Rate-limit the 'Communication suspended' message")
+Fixes: a05ea40eb384e ("arm64: dts: imx: Add i.mx8mm dtsi support")
 Signed-off-by: Marek Vasut <marex@denx.de>
-Link: https://lore.kernel.org/r/20221018183513.206706-1-marex@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/freescale/imx8mm.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index 9ae16092206d..a1961a973839 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -937,6 +937,7 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
- 		static DEFINE_RATELIMIT_STATE(rs,
- 					      DEFAULT_RATELIMIT_INTERVAL * 10,
- 					      1);
-+		ratelimit_set_flags(&rs, RATELIMIT_MSG_ON_RELEASE);
- 		if (__ratelimit(&rs))
- 			dev_dbg_ratelimited(spi->dev, "Communication suspended\n");
- 		if (!spi->cur_usedma && (spi->rx_buf && (spi->rx_len > 0)))
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm.dtsi b/arch/arm64/boot/dts/freescale/imx8mm.dtsi
+index f4d7bb75707d..3490619a9ba9 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm.dtsi
+@@ -939,10 +939,10 @@ dma_apbh: dma-controller@33000000 {
+ 			clocks = <&clk IMX8MM_CLK_NAND_USDHC_BUS_RAWNAND_CLK>;
+ 		};
+ 
+-		gpmi: nand-controller@33002000{
++		gpmi: nand-controller@33002000 {
+ 			compatible = "fsl,imx8mm-gpmi-nand", "fsl,imx7d-gpmi-nand";
+ 			#address-cells = <1>;
+-			#size-cells = <1>;
++			#size-cells = <0>;
+ 			reg = <0x33002000 0x2000>, <0x33004000 0x4000>;
+ 			reg-names = "gpmi-nand", "bch";
+ 			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
 -- 
 2.35.1
 
