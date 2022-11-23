@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 772E5635DDC
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:56:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAFC6635E69
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:57:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238046AbiKWMse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:48:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33316 "EHLO
+        id S238027AbiKWMsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:48:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238067AbiKWMrZ (ORCPT
+        with ESMTP id S238066AbiKWMrZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:47:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 169AC720AD;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2780A73404;
         Wed, 23 Nov 2022 04:43:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD3A1B81F31;
-        Wed, 23 Nov 2022 12:43:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93E5EC433D7;
-        Wed, 23 Nov 2022 12:43:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8CDD61C50;
+        Wed, 23 Nov 2022 12:43:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02873C433D6;
+        Wed, 23 Nov 2022 12:43:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207402;
-        bh=TMTOGyAMBT7FkcieUrUvsVMsN4GRwGti/n6MG7GcGKs=;
+        s=k20201202; t=1669207404;
+        bh=f3uNzbtxBejxTeKpbE1mNLwnn7z+V+wCPqaWED+HSO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=emus4FJ1KBFdr1dFwCM7872hRM1PGRP6fedm1q1rIEjGlE+avZILIDOcrK/zmXtPa
-         dOWvaWhVXyqJ3fxoA10D00evQ7qibQ5O2XJ6YfO0AWu8Cb6Z5mZCyVgdUZLkrgDAY+
-         5107mfrNl9FELiHRJmRsX8WSuMFGVNsdlmQpSMdoqR3pt3+REUcRrb/qfnWr6gOL5i
-         TutDZnojd5UI/CyEdkjJAEYBhxzF3k1qyS4NFV7ssaywbb1E2ui3aHHJQOOGx6vaIT
-         jQnQQTZtZDXOLq5oX4aXssJ/FQYO3NEM6ldsTvr8+9dmRAOKGdmMTtAx6xRIq5uk3N
-         R3RotZYerIGRA==
+        b=J3VUpROwTJN62efFqe3E7PO9+eJmSghfL+qv6cUrlO8B4lh6/iVgcsfr9ZecA9s/q
+         8QVnOJLsL4JjobYcCKxBWkbmUMLnckxKUZvpD/ePThuxhLHx7V4DyQALdc+WQ0MJE1
+         jdhLI4AzwqVAsV8oAPEEUgBRDumv1LNJQwvy3KlxU/vNIszDVx1fZJTtMBqHitIZOZ
+         y6QknQtApQHq86YZgV4W20uGKf9UbZIK1xojhwBpfBZromHCfPI7RmI8L7APSbB12M
+         vgCEAAlZHxa4Ca5cEV2M9b4ahCX0TQOvVWgZmpcr+kc1r6r5HWjUluktze59/6soWW
+         chcSa8wNx7cTQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnav Rawat <arnavr3@illinois.edu>, Meng Dong <whenov@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, ike.pan@canonical.com,
-        markgross@kernel.org, platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 21/31] platform/x86: ideapad-laptop: Fix interrupt storm on fn-lock toggle on some Yoga laptops
-Date:   Wed, 23 Nov 2022 07:42:22 -0500
-Message-Id: <20221123124234.265396-21-sashal@kernel.org>
+Cc:     Gleb Mazovetskiy <glex.spb@gmail.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, yoshfuji@linux-ipv6.org,
+        dsahern@kernel.org, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 22/31] tcp: configurable source port perturb table size
+Date:   Wed, 23 Nov 2022 07:42:23 -0500
+Message-Id: <20221123124234.265396-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124234.265396-1-sashal@kernel.org>
 References: <20221123124234.265396-1-sashal@kernel.org>
@@ -56,80 +58,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnav Rawat <arnavr3@illinois.edu>
+From: Gleb Mazovetskiy <glex.spb@gmail.com>
 
-[ Upstream commit 81a5603a0f50fd7cf17ff21d106052215eaf2028 ]
+[ Upstream commit aeac4ec8f46d610a10adbaeff5e2edf6a88ffc62 ]
 
-Commit 3ae86d2d4704 ("platform/x86: ideapad-laptop: Fix Legion 5 Fn lock
-LED") uses the WMI event-id for the fn-lock event on some Legion 5 laptops
-to manually toggle the fn-lock LED because the EC does not do it itself.
-However, the same WMI ID is also sent on some Yoga laptops. Here, setting
-the fn-lock state is not valid behavior, and causes the EC to spam
-interrupts until the laptop is rebooted.
+On embedded systems with little memory and no relevant
+security concerns, it is beneficial to reduce the size
+of the table.
 
-Add a set_fn_lock_led_list[] DMI-id list and only enable the workaround to
-manually set the LED on models on this list.
+Reducing the size from 2^16 to 2^8 saves 255 KiB
+of kernel RAM.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=212671
-Cc: Meng Dong <whenov@gmail.com>
-Signed-off-by: Arnav Rawat <arnavr3@illinois.edu>
-Link: https://lore.kernel.org/r/12093851.O9o76ZdvQC@fedora
-[hdegoede@redhat.com: Check DMI-id list only once and store the result]
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Makes the table size configurable as an expert option.
+
+The size was previously increased from 2^8 to 2^16
+in commit 4c2c8f03a5ab ("tcp: increase source port perturb table to
+2^16").
+
+Signed-off-by: Gleb Mazovetskiy <glex.spb@gmail.com>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/ideapad-laptop.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ net/ipv4/Kconfig           | 10 ++++++++++
+ net/ipv4/inet_hashtables.c | 10 +++++-----
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
-index e7a1299e3776..609ce8f0e0bf 100644
---- a/drivers/platform/x86/ideapad-laptop.c
-+++ b/drivers/platform/x86/ideapad-laptop.c
-@@ -136,6 +136,7 @@ struct ideapad_private {
- 		bool dytc                 : 1;
- 		bool fan_mode             : 1;
- 		bool fn_lock              : 1;
-+		bool set_fn_lock_led      : 1;
- 		bool hw_rfkill_switch     : 1;
- 		bool kbd_bl               : 1;
- 		bool touchpad_ctrl_via_ec : 1;
-@@ -1467,6 +1468,9 @@ static void ideapad_wmi_notify(u32 value, void *context)
- 		ideapad_input_report(priv, value);
- 		break;
- 	case 208:
-+		if (!priv->features.set_fn_lock_led)
-+			break;
+diff --git a/net/ipv4/Kconfig b/net/ipv4/Kconfig
+index 87983e70f03f..23b06063e1a5 100644
+--- a/net/ipv4/Kconfig
++++ b/net/ipv4/Kconfig
+@@ -403,6 +403,16 @@ config INET_IPCOMP
+ 
+ 	  If unsure, say Y.
+ 
++config INET_TABLE_PERTURB_ORDER
++	int "INET: Source port perturbation table size (as power of 2)" if EXPERT
++	default 16
++	help
++	  Source port perturbation table size (as power of 2) for
++	  RFC 6056 3.3.4.  Algorithm 4: Double-Hash Port Selection Algorithm.
 +
- 		if (!eval_hals(priv->adev->handle, &result)) {
- 			bool state = test_bit(HALS_FNLOCK_STATE_BIT, &result);
- 
-@@ -1480,6 +1484,18 @@ static void ideapad_wmi_notify(u32 value, void *context)
- }
- #endif
- 
-+/* On some models we need to call exec_sals(SALS_FNLOCK_ON/OFF) to set the LED */
-+static const struct dmi_system_id set_fn_lock_led_list[] = {
-+	{
-+		/* https://bugzilla.kernel.org/show_bug.cgi?id=212671 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo Legion R7000P2020H"),
-+		}
-+	},
-+	{}
-+};
++	  The default is almost always what you want.
++	  Only change this if you know what you are doing.
 +
- /*
-  * Some ideapads have a hardware rfkill switch, but most do not have one.
-  * Reading VPCCMD_R_RF always results in 0 on models without a hardware rfkill,
-@@ -1504,6 +1520,7 @@ static void ideapad_check_features(struct ideapad_private *priv)
- 	acpi_handle handle = priv->adev->handle;
- 	unsigned long val;
+ config INET_XFRM_TUNNEL
+ 	tristate
+ 	select INET_TUNNEL
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index ce6a3873f89e..0d378da4b1b1 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -721,13 +721,13 @@ EXPORT_SYMBOL_GPL(inet_unhash);
+  * Note that we use 32bit integers (vs RFC 'short integers')
+  * because 2^16 is not a multiple of num_ephemeral and this
+  * property might be used by clever attacker.
++ *
+  * RFC claims using TABLE_LENGTH=10 buckets gives an improvement, though
+- * attacks were since demonstrated, thus we use 65536 instead to really
+- * give more isolation and privacy, at the expense of 256kB of kernel
+- * memory.
++ * attacks were since demonstrated, thus we use 65536 by default instead
++ * to really give more isolation and privacy, at the expense of 256kB
++ * of kernel memory.
+  */
+-#define INET_TABLE_PERTURB_SHIFT 16
+-#define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
++#define INET_TABLE_PERTURB_SIZE (1 << CONFIG_INET_TABLE_PERTURB_ORDER)
+ static u32 *table_perturb;
  
-+	priv->features.set_fn_lock_led = dmi_check_system(set_fn_lock_led_list);
- 	priv->features.hw_rfkill_switch = dmi_check_system(hw_rfkill_list);
- 
- 	/* Most ideapads with ELAN0634 touchpad don't use EC touchpad switch */
+ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
 -- 
 2.35.1
 
