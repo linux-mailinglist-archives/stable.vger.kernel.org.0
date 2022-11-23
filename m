@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDEBF635E4C
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:57:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49C09635E50
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:57:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238078AbiKWMxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:53:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34572 "EHLO
+        id S238204AbiKWMxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:53:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238149AbiKWMvn (ORCPT
+        with ESMTP id S237922AbiKWMvn (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:51:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07BE885A07;
-        Wed, 23 Nov 2022 04:44:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9654B85EC2;
+        Wed, 23 Nov 2022 04:44:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A572CB81F73;
-        Wed, 23 Nov 2022 12:44:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31C20C433D6;
-        Wed, 23 Nov 2022 12:44:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0552BB81F75;
+        Wed, 23 Nov 2022 12:44:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFCB4C43153;
+        Wed, 23 Nov 2022 12:44:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207462;
-        bh=32JwF+5T8eFUXcCsM12zv8TYnKDw38lIf0unECxX/LA=;
+        s=k20201202; t=1669207463;
+        bh=g7IYyqYGwffsasbjp3k9ZP1HaqhXWwUWvgy9K4EY9qA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcTQY8GRguawQLauYB9pih2v+S72nKrd7BuNdi6QVaNj/F1kpxeGG3XJhRlsxKjdl
-         dBeDmVIjKGx+xTWGgT4xdoP+02H5lnPjqYJXZ1/bC6XfOhwQFyTJrOR8+nTCHP19EU
-         GYsSV7Ua9BbW57EbyzuwSVoUxQHHtwkJdxY4v86ZBVH1rEjB/XWz6Fk++QMRixdHB4
-         WeUS5BYlyWBX5oZM7SAqTgFZRbfY9zfCQY/OL6XUnq2V8079cDOg7C35HESytiJCQF
-         qjojaLifFzSOwBenNG4LRUnEkHJ9I7k2utKZSAqC1rCXCUsQN4Nm1CcgUf5Gyh4+C2
-         BeixVopdkNKYQ==
+        b=AD+ldrgaKXjccxydaV1e3FBiSORrf7VKTTS84wFH+6gvyCONdSMgwtclDCQ9xpFug
+         ryYpDyzfUfUvQRq6+NSv9CXFqbSJS0jiXDds50zldh+vH/0eE5UCFZpho52XK7oYJZ
+         csaxDTancNRUFZe/LrcBChJ5tOF866tsri/0iZuTjmqisfGjaEYm0uAMatSgbwGXnf
+         /2MGw/Vyylw4fWpmTl7J8oRzSdgDyt+QQTWZCBJr4T19AQaB8p1mWxrFFakuR1nYjh
+         8hD4nKlAeJzPeTMCVl+0fWqweGj6FqQyYC4VeFZ6WVpJvspiBKVWjfUtftDlydFIsc
+         PXiBuk0YTBYAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, thierry.reding@gmail.com,
-        airlied@gmail.com, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 20/22] gpu: host1x: Avoid trying to use GART on Tegra20
-Date:   Wed, 23 Nov 2022 07:43:35 -0500
-Message-Id: <20221123124339.265912-20-sashal@kernel.org>
+Cc:     Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, agk@redhat.com,
+        dm-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.10 21/22] dm integrity: flush the journal on suspend
+Date:   Wed, 23 Nov 2022 07:43:36 -0500
+Message-Id: <20221123124339.265912-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124339.265912-1-sashal@kernel.org>
 References: <20221123124339.265912-1-sashal@kernel.org>
@@ -59,59 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit c2418f911a31a266af4fbaca998dc73d3676475a ]
+[ Upstream commit 5e5dab5ec763d600fe0a67837dd9155bdc42f961 ]
 
-Since commit c7e3ca515e78 ("iommu/tegra: gart: Do not register with
-bus") quite some time ago, the GART driver has effectively disabled
-itself to avoid issues with the GPU driver expecting it to work in ways
-that it doesn't. As of commit 57365a04c921 ("iommu: Move bus setup to
-IOMMU device registration") that bodge no longer works, but really the
-GPU driver should be responsible for its own behaviour anyway. Make the
-workaround explicit.
+This commit flushes the journal on suspend. It is prerequisite for the
+next commit that enables activating dm integrity devices in read-only mode.
 
-Reported-by: Jon Hunter <jonathanh@nvidia.com>
-Suggested-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Note that we deliberately didn't flush the journal on suspend, so that the
+journal replay code would be tested. However, the dm-integrity code is 5
+years old now, so that journal replay is well-tested, and we can make this
+change now.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/drm.c | 4 ++++
- drivers/gpu/host1x/dev.c    | 4 ++++
- 2 files changed, 8 insertions(+)
+ drivers/md/dm-integrity.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/tegra/drm.c b/drivers/gpu/drm/tegra/drm.c
-index 2c6ebc328b24..318692ad9680 100644
---- a/drivers/gpu/drm/tegra/drm.c
-+++ b/drivers/gpu/drm/tegra/drm.c
-@@ -1042,6 +1042,10 @@ static bool host1x_drm_wants_iommu(struct host1x_device *dev)
- 	struct host1x *host1x = dev_get_drvdata(dev->dev.parent);
- 	struct iommu_domain *domain;
+diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
+index cdb6bee2352b..518116c1a716 100644
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -2470,10 +2470,6 @@ static void integrity_writer(struct work_struct *w)
  
-+	/* Our IOMMU usage policy doesn't currently play well with GART */
-+	if (of_machine_is_compatible("nvidia,tegra20"))
-+		return false;
-+
- 	/*
- 	 * If the Tegra DRM clients are backed by an IOMMU, push buffers are
- 	 * likely to be allocated beyond the 32-bit boundary if sufficient
-diff --git a/drivers/gpu/host1x/dev.c b/drivers/gpu/host1x/dev.c
-index 8659558b518d..9f674a8d5009 100644
---- a/drivers/gpu/host1x/dev.c
-+++ b/drivers/gpu/host1x/dev.c
-@@ -198,6 +198,10 @@ static void host1x_setup_sid_table(struct host1x *host)
+ 	unsigned prev_free_sectors;
  
- static bool host1x_wants_iommu(struct host1x *host1x)
- {
-+	/* Our IOMMU usage policy doesn't currently play well with GART */
-+	if (of_machine_is_compatible("nvidia,tegra20"))
-+		return false;
-+
- 	/*
- 	 * If we support addressing a maximum of 32 bits of physical memory
- 	 * and if the host1x firewall is enabled, there's no need to enable
+-	/* the following test is not needed, but it tests the replay code */
+-	if (unlikely(dm_post_suspending(ic->ti)) && !ic->meta_dev)
+-		return;
+-
+ 	spin_lock_irq(&ic->endio_wait.lock);
+ 	write_start = ic->committed_section;
+ 	write_sections = ic->n_committed_sections;
+@@ -2980,8 +2976,7 @@ static void dm_integrity_postsuspend(struct dm_target *ti)
+ 	drain_workqueue(ic->commit_wq);
+ 
+ 	if (ic->mode == 'J') {
+-		if (ic->meta_dev)
+-			queue_work(ic->writer_wq, &ic->writer_work);
++		queue_work(ic->writer_wq, &ic->writer_work);
+ 		drain_workqueue(ic->writer_wq);
+ 		dm_integrity_flush_buffers(ic, true);
+ 	}
 -- 
 2.35.1
 
