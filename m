@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A173D635672
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C84463581A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:50:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237812AbiKWJav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:30:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44274 "EHLO
+        id S238200AbiKWJum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:50:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237814AbiKWJac (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC948113724
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:28:45 -0800 (PST)
+        with ESMTP id S238203AbiKWJt4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7254311605C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:47:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7871561B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:28:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 626D0C433D6;
-        Wed, 23 Nov 2022 09:28:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 281C3B81E5E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:47:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 725B1C433C1;
+        Wed, 23 Nov 2022 09:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195724;
-        bh=hcWqM5dE67uuplVflQAGo4eIRyUeZr2rhyv1ReIeg28=;
+        s=korg; t=1669196828;
+        bh=pvm/wxrC9xlwI5h6SNgivKLBHRhQapDihpLNb8afBHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3U2LVPskyg9YxXncmKI4wlEBFJ3DCfBI0U0B4Epko8f7t1aknWiLZSU3tpK7iQvW
-         hOG7ZvG7P4Zr0LQ/AWHEVkne/cWrPDf8VoZBbus0AvmmPAjy+do3GDQD684/DB0dsi
-         UyNZCvMH8bxXkt8WArRF4dt3NpCJ/h1jGefub/y0=
+        b=L2AKJiBrhJrvQ6i0JH5bTWj73NphgnvD7fby8CELZI9hYFhUGSvnFY+EKnPRTqmJs
+         yc0Jk06AhGdzGQJ5VWvbFRWiQvFaoj7RB2H4hRY8GieeIkTm0OZuvhUbSIhaCGdXAO
+         FJEOqzdInonRWv5T+fmOmQGVfcOMH7D9Bj39q+I8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
-        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@igalia.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        patches@lists.linux.dev, Jingbo Xu <jefflexu@linux.alibaba.com>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Jia Zhu <zhujia.zj@bytedance.com>, Chao Yu <chao@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 016/181] selftests/futex: fix build for clang
+Subject: [PATCH 6.0 134/314] erofs: put metabuf in error path in fscache mode
 Date:   Wed, 23 Nov 2022 09:49:39 +0100
-Message-Id: <20221123084603.230400756@linuxfoundation.org>
+Message-Id: <20221123084631.602838712@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
 
-[ Upstream commit 03cab65a07e083b6c1010fbc8f9b817e9aca75d9 ]
+[ Upstream commit 75e43355cbe4d5948a79bd592f2ffecb9f75f75d ]
 
-Don't use the test-specific header files as source files to force a
-target dependency, as clang will complain if more than one source file
-is used for a compile command with a single '-o' flag.
+For tail packing layout, put metabuf when error is encountered.
 
-Use the proper Makefile variables instead as defined in
-tools/testing/selftests/lib.mk.
-
-Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Reviewed-by: André Almeida <andrealmeid@igalia.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 1ae9470c3e14 ("erofs: clean up .read_folio() and .readahead() in fscache mode")
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reviewed-by: Jia Zhu <zhujia.zj@bytedance.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Link: https://lore.kernel.org/r/20221104054028.52208-2-jefflexu@linux.alibaba.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/futex/functional/Makefile | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/erofs/fscache.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/futex/functional/Makefile b/tools/testing/selftests/futex/functional/Makefile
-index bd1fec59e010..ece2e38fbb0b 100644
---- a/tools/testing/selftests/futex/functional/Makefile
-+++ b/tools/testing/selftests/futex/functional/Makefile
-@@ -4,11 +4,11 @@ INCLUDES := -I../include -I../../ -I../../../../../usr/include/ \
- CFLAGS := $(CFLAGS) -g -O2 -Wall -D_GNU_SOURCE -pthread $(INCLUDES)
- LDLIBS := -lpthread -lrt
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index 8585e324298c..79af25f0a56c 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -281,8 +281,10 @@ static int erofs_fscache_data_read(struct address_space *mapping,
+ 			return PTR_ERR(src);
  
--HEADERS := \
-+LOCAL_HDRS := \
- 	../include/futextest.h \
- 	../include/atomic.h \
- 	../include/logging.h
--TEST_GEN_FILES := \
-+TEST_GEN_PROGS := \
- 	futex_wait_timeout \
- 	futex_wait_wouldblock \
- 	futex_requeue_pi \
-@@ -24,5 +24,3 @@ TEST_PROGS := run.sh
- top_srcdir = ../../../../..
- KSFT_KHDR_INSTALL := 1
- include ../../lib.mk
--
--$(TEST_GEN_FILES): $(HEADERS)
+ 		iov_iter_xarray(&iter, READ, &mapping->i_pages, pos, PAGE_SIZE);
+-		if (copy_to_iter(src + offset, size, &iter) != size)
++		if (copy_to_iter(src + offset, size, &iter) != size) {
++			erofs_put_metabuf(&buf);
+ 			return -EFAULT;
++		}
+ 		iov_iter_zero(PAGE_SIZE - size, &iter);
+ 		erofs_put_metabuf(&buf);
+ 		return PAGE_SIZE;
 -- 
 2.35.1
 
