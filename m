@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C754635DC4
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:47:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75B6D635DC7
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:47:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237892AbiKWMqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:46:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47732 "EHLO
+        id S237680AbiKWMq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:46:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237808AbiKWMpu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:45:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BDE3286F9;
-        Wed, 23 Nov 2022 04:42:48 -0800 (PST)
+        with ESMTP id S237860AbiKWMqY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:46:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CFA82CCA1;
+        Wed, 23 Nov 2022 04:42:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DDADB61C55;
-        Wed, 23 Nov 2022 12:42:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9335AC433B5;
-        Wed, 23 Nov 2022 12:42:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8476B81F59;
+        Wed, 23 Nov 2022 12:42:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35BFAC433D6;
+        Wed, 23 Nov 2022 12:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207367;
-        bh=HQnziATy9GXeouqLcZTi0GRYACLnIQvqj6pEI65EoMw=;
+        s=k20201202; t=1669207370;
+        bh=O8zwh85ohZxN4Q7/f/IMqeHdHzDByjDvVgEw5fDhrLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=saS32qREy/Ra3DmyLdcbQxG1oa81pwa3rGqr/iHx//e2z72uQ/bE0vRAdhUD9WN/U
-         sqqVmHerj34EjANgD96yxunvDygUXnEMpnnsBb94Tsq/XQMeynmzIdrxqxaJdZ5E/N
-         oKq1XdcEN6tX2uCtmJfDcxjpb7rZ4n1mAE7Yra4b0ivIeTuy1Fw2C5vwsxrx51JMU/
-         hHhdwtMlUB1DEQQ5puzIaksoiF1teKYxjXLdYAGtOMNu6Lq+80WtQoBTBKncw3/D0m
-         XK+EYwS6PCgx3qoZu2jc/gSHMyhlqC6K2siwZuKbywBuJCMmoVTK7kPwmdSmgRdwJ1
-         RYlP8enqlD3ig==
+        b=q5VJMTUEP9Cgx8rjatgAJ4nchwKHnLiLtfj4Jd+wi19cI3rEs54H59H15OrHHyeFL
+         HFpWjSl/iiVVkU2Jbso8TwRgvb/U7KwsPTn/KM+mFD0oaLNzEsD/tRhmaSW1Jpm0sD
+         SuewlgeaJoerQGSV9+oKauLYTqVkbO+u+N7LBEGX+I0Dp+qpD5uZJnz9p7u6cn3sVE
+         wpzbiFWzShORVzdOsJmXHoXmz7oaQomDT/7L1TIoy+jbzszoJ6yGdjNVi2yvRbAhmM
+         MMt9FtZ2s40HdQ9dF3PMWlfJCMfXhskVXfbDw1Pk5OuyWejtewGxNrhubqZUfikeOB
+         7WKVqNpG8vpbA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matti Vaittinen <mazziesaccount@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
-        linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 05/31] tools: iio: iio_generic_buffer: Fix read size
-Date:   Wed, 23 Nov 2022 07:42:06 -0500
-Message-Id: <20221123124234.265396-5-sashal@kernel.org>
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
+        tiwai@suse.com, kai.vehmanen@linux.intel.com, brent.lu@intel.com,
+        muralidhar.reddy@intel.com, amadeuszx.slawinski@linux.intel.com,
+        gongjun.song@intel.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 06/31] ASoC: hda: intel-dsp-config: add ES83x6 quirk for IceLake
+Date:   Wed, 23 Nov 2022 07:42:07 -0500
+Message-Id: <20221123124234.265396-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124234.265396-1-sashal@kernel.org>
 References: <20221123124234.265396-1-sashal@kernel.org>
@@ -56,60 +59,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matti Vaittinen <mazziesaccount@gmail.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 7c919b619bcc68158921b1bd968f0e704549bbb6 ]
+[ Upstream commit 5d73263f9e7c54ccb20814dc50809b9deb9e2bc7 ]
 
-When noevents is true and small buffer is used the allocated memory for
-holding the data may be smaller than the hard-coded 64 bytes. This can
-cause the iio_generic_buffer to crash.
+Yet another hardware variant we need to handle.
 
-Following was recorded on beagle bone black with v6.0 kernel and the
-digit fix patch:
-https://lore.kernel.org/all/Y0f+tKCz+ZAIoroQ@dc75zzyyyyyyyyyyyyycy-3.rev.dnainternet.fi/
-using valgrind;
-
-==339== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
-==339== Command: /iio_generic_buffer -n kx022-accel -T0 -e -l 10 -a -w 2000000
-==339== Parent PID: 307
-==339==
-==339== Syscall param read(buf) points to unaddressable byte(s)
-==339==    at 0x496BFA4: read (read.c:26)
-==339==    by 0x11699: main (iio_generic_buffer.c:724)
-==339==  Address 0x4ab3518 is 0 bytes after a block of size 160 alloc'd
-==339==    at 0x4864B70: malloc (vg_replace_malloc.c:381)
-==339==    by 0x115BB: main (iio_generic_buffer.c:677)
-
-Fix this by always using the same size for reading as was used for
-data storage allocation.
-
-Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
-Link: https://lore.kernel.org/r/Y0kMh0t5qUXJw3nQ@dc75zzyyyyyyyyyyyyycy-3.rev.dnainternet.fi
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Link: https://github.com/thesofproject/linux/issues/3873
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20221031195639.250062-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/iio/iio_generic_buffer.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/hda/intel-dsp-config.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/iio/iio_generic_buffer.c b/tools/iio/iio_generic_buffer.c
-index 2491c54a5e4f..f8deae4e26a1 100644
---- a/tools/iio/iio_generic_buffer.c
-+++ b/tools/iio/iio_generic_buffer.c
-@@ -715,12 +715,12 @@ int main(int argc, char **argv)
- 				continue;
- 			}
- 
--			toread = buf_len;
- 		} else {
- 			usleep(timedelay);
--			toread = 64;
+diff --git a/sound/hda/intel-dsp-config.c b/sound/hda/intel-dsp-config.c
+index 4208fa8a4db5..05af409f1a83 100644
+--- a/sound/hda/intel-dsp-config.c
++++ b/sound/hda/intel-dsp-config.c
+@@ -303,6 +303,11 @@ static const struct config_entry config_table[] = {
+ 			{}
  		}
- 
-+		toread = buf_len;
-+
- 		read_size = read(buf_fd, data, toread * scan_size);
- 		if (read_size < 0) {
- 			if (errno == EAGAIN) {
+ 	},
++	{
++		.flags = FLAG_SOF,
++		.device = 0x34c8,
++		.codec_hid =  &essx_83x6,
++	},
+ 	{
+ 		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
+ 		.device = 0x34c8,
 -- 
 2.35.1
 
