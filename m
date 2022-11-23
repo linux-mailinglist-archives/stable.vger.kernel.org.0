@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51E8F63518F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 08:53:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4428635192
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 08:53:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236060AbiKWHx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 02:53:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53336 "EHLO
+        id S236384AbiKWHxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 02:53:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236384AbiKWHxJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 02:53:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28926FDDBF
-        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 23:51:09 -0800 (PST)
+        with ESMTP id S236222AbiKWHxS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 02:53:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB734FF40B
+        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 23:51:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A2FE61ADE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 07:51:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64865C433C1;
-        Wed, 23 Nov 2022 07:51:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAA9AB81EDB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 07:51:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C5D1C433D6;
+        Wed, 23 Nov 2022 07:51:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669189868;
-        bh=HCR+UM3ayehiLcU1Acvofq2RrE7+BYADJiQZpc9epJo=;
+        s=korg; t=1669189872;
+        bh=Qu7RUBiiReqoug15RdADRvhok0r0yi3HCvmVsPNT/lk=;
         h=Subject:To:Cc:From:Date:From;
-        b=a7ZbykJL+XmokKq4fmz9aWpjnV6iBfLhfiMLreJWVZnw0zPBrsVjvZF6fK1MVssUE
-         r94fGhTVbZF6zqRcseXdT9p+Twz7X1luyZhs1lDZZGgKGAe9q6zwBDJJLTtwTqaYJu
-         A62cuXBOl4fXNBftAoAyvoHnzgDn5sk1uAihqeZI=
-Subject: FAILED: patch "[PATCH] tcp: Fix data races around icsk->icsk_af_ops." failed to apply to 6.0-stable tree
+        b=CJ9FrmOETV7nV8oFE1qmRqa19f01azCGqMgOBlqhpqVs6A7bBFA6bQBzgvS4wAtTE
+         yh4pB2qfN8T32ry+owfngPfzqMe2CmnL8z9ox9DhBhneQeqR2cZiy0gXipGUdg16Im
+         dm1m75ZrPR75rkKZouTSEDBuwUEZlMXhha/v0myw=
+Subject: FAILED: patch "[PATCH] tcp: Fix data races around icsk->icsk_af_ops." failed to apply to 5.15-stable tree
 To:     kuniyu@amazon.com, edumazet@google.com, kuba@kernel.org,
         syzkaller@googlegroups.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 23 Nov 2022 08:51:05 +0100
-Message-ID: <1669189865231209@kroah.com>
+Date:   Wed, 23 Nov 2022 08:51:06 +0100
+Message-ID: <166918986687120@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,9 @@ Possible dependencies:
 
 f49cd2f4d617 ("tcp: Fix data races around icsk->icsk_af_ops.")
 34704ef024ae ("bpf: net: Change do_tcp_getsockopt() to take the sockptr_t argument")
+086d49058cd8 ("ipv6: annotate some data-races around sk->sk_prot")
+b3cb764aa1d7 ("net: drop nopreempt requirement on sock_prot_inuse_add()")
+2a12ae5d433d ("net: inline sock_prot_inuse_add()")
 
 thanks,
 
