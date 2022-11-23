@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF39E63568A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE02635813
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:50:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237799AbiKWJbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:31:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44166 "EHLO
+        id S238244AbiKWJuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:50:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237795AbiKWJbA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:00 -0500
+        with ESMTP id S237953AbiKWJtr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EAF11B1CF
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:29:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13665115D07
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:46:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25A81B81EEB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:29:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61688C433D7;
-        Wed, 23 Nov 2022 09:29:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71780B81EF6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6952C433D6;
+        Wed, 23 Nov 2022 09:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195786;
-        bh=jO2UZuSzud97FDcqPrKZ8LFklPC/F2ao+GXAWdz8HMg=;
+        s=korg; t=1669196799;
+        bh=i9YKgbz66W62bTZZ/sYKnXQ31Al/E83J/H6hI2xMtM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+qcfO8FKpeYjAin5uTbI0eHjEw6TTOHoDdYexlZntovgD+Urg6/DI5mY9/wmGodG
-         xDQhGaIiyg/HWqA4/tvoxKU2Mo+34zRe2PlgAX87NGr40wLkAsCva3h0OZjT4NycgR
-         DOk4dHMsAMC2RBa1phrcSr0eBvOl3ARuNVyh5gIg=
+        b=ooJ920U/iNZQ/jOLvKGhBXNo5skgdIvxm4QjTeuG+IWtA8GVpye90jAQQmQvYVdNl
+         HGfNb2rb35JCSU8rKVeM6UmSNLR3LzT943x73lVSRMcmhu7urpoRnHe/xMJXteXfFq
+         2LK4nTF7MphFlMimoMD8gNw2UZmR+CyGjoUFmeBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Derek Fang <derek.fang@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 008/181] ASoC: rt1019: Fix the TDM settings
-Date:   Wed, 23 Nov 2022 09:49:31 +0100
-Message-Id: <20221123084602.987966266@linuxfoundation.org>
+Subject: [PATCH 6.0 127/314] drm/vc4: kms: Fix IS_ERR() vs NULL check for vc4_kms
+Date:   Wed, 23 Nov 2022 09:49:32 +0100
+Message-Id: <20221123084631.288197046@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,98 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Derek Fang <derek.fang@realtek.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit f2635d45a750182c6d5de15e2d6b059e0c302d7e ]
+[ Upstream commit dba9e3467425800f9d3a14e8b6a0f85c731c1650 ]
 
-Complete the missing and correct the TDM settings.
+The drm_atomic_get_new_private_obj_state() function returns NULL
+on error path, drm_atomic_get_old_private_obj_state() function
+returns NULL on error path, too, they does not return error pointers.
 
-Signed-off-by: Derek Fang <derek.fang@realtek.com>
-Link: https://lore.kernel.org/r/20221012030102.4042-1-derek.fang@realtek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+By the way, vc4_hvs_get_new/old_global_state() should return
+ERR_PTR(-EINVAL), otherwise there will be null-ptr-defer issue,
+such as follows:
+
+In function vc4_atomic_commit_tail():
+  |-- old_hvs_state = vc4_hvs_get_old_global_state(state); <-- return NULL
+  |-- if (WARN_ON(IS_ERR(old_hvs_state))) <-- no return
+  |-- unsigned long state_rate = max(old_hvs_state->core_clock_rate,
+	new_hvs_state->core_clock_rate); <-- null-ptr-defer
+
+Fixes: 9ec03d7f1ed3 ("drm/vc4: kms: Wait on previous FIFO users before a commit")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221110094445.2930509-6-cuigaosheng1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt1019.c | 20 +++++++++++---------
- sound/soc/codecs/rt1019.h |  6 ++++++
- 2 files changed, 17 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/vc4/vc4_kms.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/codecs/rt1019.c b/sound/soc/codecs/rt1019.c
-index 8c0b00242bb8..56e7c7ee98fd 100644
---- a/sound/soc/codecs/rt1019.c
-+++ b/sound/soc/codecs/rt1019.c
-@@ -391,18 +391,18 @@ static int rt1019_set_tdm_slot(struct snd_soc_dai *dai, unsigned int tx_mask,
- 			unsigned int rx_mask, int slots, int slot_width)
- {
- 	struct snd_soc_component *component = dai->component;
--	unsigned int val = 0, rx_slotnum;
-+	unsigned int cn = 0, cl = 0, rx_slotnum;
- 	int ret = 0, first_bit;
+diff --git a/drivers/gpu/drm/vc4/vc4_kms.c b/drivers/gpu/drm/vc4/vc4_kms.c
+index b45dcdfd7306..a3678178b022 100644
+--- a/drivers/gpu/drm/vc4/vc4_kms.c
++++ b/drivers/gpu/drm/vc4/vc4_kms.c
+@@ -198,8 +198,8 @@ vc4_hvs_get_new_global_state(struct drm_atomic_state *state)
+ 	struct drm_private_state *priv_state;
  
- 	switch (slots) {
- 	case 4:
--		val |= RT1019_I2S_TX_4CH;
-+		cn = RT1019_I2S_TX_4CH;
- 		break;
- 	case 6:
--		val |= RT1019_I2S_TX_6CH;
-+		cn = RT1019_I2S_TX_6CH;
- 		break;
- 	case 8:
--		val |= RT1019_I2S_TX_8CH;
-+		cn = RT1019_I2S_TX_8CH;
- 		break;
- 	case 2:
- 		break;
-@@ -412,16 +412,16 @@ static int rt1019_set_tdm_slot(struct snd_soc_dai *dai, unsigned int tx_mask,
+ 	priv_state = drm_atomic_get_new_private_obj_state(state, &vc4->hvs_channels);
+-	if (IS_ERR(priv_state))
+-		return ERR_CAST(priv_state);
++	if (!priv_state)
++		return ERR_PTR(-EINVAL);
  
- 	switch (slot_width) {
- 	case 20:
--		val |= RT1019_I2S_DL_20;
-+		cl = RT1019_TDM_CL_20;
- 		break;
- 	case 24:
--		val |= RT1019_I2S_DL_24;
-+		cl = RT1019_TDM_CL_24;
- 		break;
- 	case 32:
--		val |= RT1019_I2S_DL_32;
-+		cl = RT1019_TDM_CL_32;
- 		break;
- 	case 8:
--		val |= RT1019_I2S_DL_8;
-+		cl = RT1019_TDM_CL_8;
- 		break;
- 	case 16:
- 		break;
-@@ -470,8 +470,10 @@ static int rt1019_set_tdm_slot(struct snd_soc_dai *dai, unsigned int tx_mask,
- 		goto _set_tdm_err_;
- 	}
+ 	return to_vc4_hvs_state(priv_state);
+ }
+@@ -211,8 +211,8 @@ vc4_hvs_get_old_global_state(struct drm_atomic_state *state)
+ 	struct drm_private_state *priv_state;
  
-+	snd_soc_component_update_bits(component, RT1019_TDM_1,
-+		RT1019_TDM_CL_MASK, cl);
- 	snd_soc_component_update_bits(component, RT1019_TDM_2,
--		RT1019_I2S_CH_TX_MASK | RT1019_I2S_DF_MASK, val);
-+		RT1019_I2S_CH_TX_MASK, cn);
+ 	priv_state = drm_atomic_get_old_private_obj_state(state, &vc4->hvs_channels);
+-	if (IS_ERR(priv_state))
+-		return ERR_CAST(priv_state);
++	if (!priv_state)
++		return ERR_PTR(-EINVAL);
  
- _set_tdm_err_:
- 	return ret;
-diff --git a/sound/soc/codecs/rt1019.h b/sound/soc/codecs/rt1019.h
-index 64df831eeb72..48ba15efb48d 100644
---- a/sound/soc/codecs/rt1019.h
-+++ b/sound/soc/codecs/rt1019.h
-@@ -95,6 +95,12 @@
- #define RT1019_TDM_BCLK_MASK		(0x1 << 6)
- #define RT1019_TDM_BCLK_NORM		(0x0 << 6)
- #define RT1019_TDM_BCLK_INV			(0x1 << 6)
-+#define RT1019_TDM_CL_MASK			(0x7)
-+#define RT1019_TDM_CL_8				(0x4)
-+#define RT1019_TDM_CL_32			(0x3)
-+#define RT1019_TDM_CL_24			(0x2)
-+#define RT1019_TDM_CL_20			(0x1)
-+#define RT1019_TDM_CL_16			(0x0)
- 
- /* 0x0401 TDM Control-2 */
- #define RT1019_I2S_CH_TX_MASK		(0x3 << 6)
+ 	return to_vc4_hvs_state(priv_state);
+ }
 -- 
 2.35.1
 
