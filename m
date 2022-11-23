@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89BAD635590
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ED5D635636
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237348AbiKWJS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:18:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58544 "EHLO
+        id S237681AbiKWJ14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:27:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237465AbiKWJSm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:18:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B345E93715
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:18:08 -0800 (PST)
+        with ESMTP id S237715AbiKWJ07 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:26:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDA921121CD
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:26:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E62F61B10
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:18:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 594A0C433C1;
-        Wed, 23 Nov 2022 09:18:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8AFA3B81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:26:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E20C1C433D6;
+        Wed, 23 Nov 2022 09:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195087;
-        bh=jFx2ktiE7wCR7J1SNzvCBy1+3cm4HVp9vW43vuvI6Ws=;
+        s=korg; t=1669195559;
+        bh=+HtQsJXUD/tUXB4hJR5VdZXpy+wB3CM3oE5cDANrSwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pTKD4GEYChgJxnSmP4F+RwzxFWfRseiCdNaTddm1icaqQ5I53cH0c/yUClQCjdZg6
-         OZOD8j/1C91On0pUZRGVb+SLitgr5HWr4evNbPKJUpLMS7ByJlRs3VrsR8iTKKt+7l
-         5oqoUa1YTXe3+xmo9ck85XpisNGkQGb4Jtx2PyC8=
+        b=HkQ9Jpfy7D4Rt8GGM3R25oBqhIHbFxHHEsN4apQVwVlvDd6cfQP9NYYBRVe91Pb6p
+         pjTN2FYOLFhQ7sfh+GbaEVV8zU8Q2dsArmNVpKEBurx+UWwfGgV7oxWMK2IX7EVHSQ
+         ra2DbpVnEve6hlGgQ98xp5Z1Ejiy2zLJ5idxcDYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 144/156] macvlan: enforce a consistent minimal mtu
+        patches@lists.linux.dev, Tina Zhang <tina.zhang@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.10 118/149] iommu/vt-d: Set SRE bit only when hardware has SRS cap
 Date:   Wed, 23 Nov 2022 09:51:41 +0100
-Message-Id: <20221123084603.074606053@linuxfoundation.org>
+Message-Id: <20221123084602.191762733@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tina Zhang <tina.zhang@intel.com>
 
-commit b64085b00044bdf3cd1c9825e9ef5b2e0feae91a upstream.
+commit 7fc961cf7ffcb130c4e93ee9a5628134f9de700a upstream.
 
-macvlan should enforce a minimal mtu of 68, even at link creation.
+SRS cap is the hardware cap telling if the hardware IOMMU can support
+requests seeking supervisor privilege or not. SRE bit in scalable-mode
+PASID table entry is treated as Reserved(0) for implementation not
+supporting SRS cap.
 
-This patch avoids the current behavior (which could lead to crashes
-in ipv6 stack if the link is brought up)
+Checking SRS cap before setting SRE bit can avoid the non-recoverable
+fault of "Non-zero reserved field set in PASID Table Entry" caused by
+setting SRE bit while there is no SRS cap support. The fault messages
+look like below:
 
-$ ip link add macvlan1 link eno1 mtu 8 type macvlan  # This should fail !
-$ ip link sh dev macvlan1
-5: macvlan1@eno1: <BROADCAST,MULTICAST> mtu 8 qdisc noop
-    state DOWN mode DEFAULT group default qlen 1000
-    link/ether 02:47:6c:24:74:82 brd ff:ff:ff:ff:ff:ff
-$ ip link set macvlan1 mtu 67
-Error: mtu less than device minimum.
-$ ip link set macvlan1 mtu 68
-$ ip link set macvlan1 mtu 8
-Error: mtu less than device minimum.
+ DMAR: DRHD: handling fault status reg 2
+ DMAR: [DMA Read NO_PASID] Request device [00:0d.0] fault addr 0x1154e1000
+       [fault reason 0x5a]
+       SM: Non-zero reserved field set in PASID Table Entry
 
-Fixes: 91572088e3fd ("net: use core MTU range checking in core net infra")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 6f7db75e1c46 ("iommu/vt-d: Add second level page table interface")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tina Zhang <tina.zhang@intel.com>
+Link: https://lore.kernel.org/r/20221115070346.1112273-1-tina.zhang@intel.com
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20221116051544.26540-3-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macvlan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/intel/pasid.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -1166,7 +1166,7 @@ void macvlan_common_setup(struct net_dev
- {
- 	ether_setup(dev);
+--- a/drivers/iommu/intel/pasid.c
++++ b/drivers/iommu/intel/pasid.c
+@@ -669,7 +669,7 @@ int intel_pasid_setup_second_level(struc
+ 	 * Since it is a second level only translation setup, we should
+ 	 * set SRE bit as well (addresses are expected to be GPAs).
+ 	 */
+-	if (pasid != PASID_RID2PASID)
++	if (pasid != PASID_RID2PASID && ecap_srs(iommu->ecap))
+ 		pasid_set_sre(pte);
+ 	pasid_set_present(pte);
+ 	pasid_flush_caches(iommu, pte, pasid, did);
+@@ -704,7 +704,8 @@ int intel_pasid_setup_pass_through(struc
+ 	 * We should set SRE bit as well since the addresses are expected
+ 	 * to be GPAs.
+ 	 */
+-	pasid_set_sre(pte);
++	if (ecap_srs(iommu->ecap))
++		pasid_set_sre(pte);
+ 	pasid_set_present(pte);
+ 	pasid_flush_caches(iommu, pte, pasid, did);
  
--	dev->min_mtu		= 0;
-+	/* ether_setup() has set dev->min_mtu to ETH_MIN_MTU. */
- 	dev->max_mtu		= ETH_MAX_MTU;
- 	dev->priv_flags	       &= ~IFF_TX_SKB_SHARING;
- 	netif_keep_dst(dev);
 
 
