@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDE0B6357B8
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:46:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2810A6357B2
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:46:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238145AbiKWJpS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:45:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35788 "EHLO
+        id S238152AbiKWJpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:45:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238248AbiKWJo7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:44:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AC5C10579
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:42:35 -0800 (PST)
+        with ESMTP id S238154AbiKWJpA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:45:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 487651FCC0
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:42:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E77A4B81EF0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:42:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AC1EC433D6;
-        Wed, 23 Nov 2022 09:42:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA46BB81E54
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:42:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6BB6C433D6;
+        Wed, 23 Nov 2022 09:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196552;
-        bh=FOH9V6sTon2UB/EUH/j7qS5FK+cZfzbzoXKUKQ6sG1o=;
+        s=korg; t=1669196556;
+        bh=tHt+YtnEBQI4DI4rbzjAz+77/2jeNxo6qq8BeSOWjb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hjh0yWWFQYEn/Onj8Tm+vFKL/lMyxbz2v83QozL6zTGLkhi/gWC/2iF1sW2sFc8u1
-         muuBY+FzFFEvfNU1xAPNlsvn9eqa2FFCcv/EQQYKQNtI4/NGVhxBN/HBUZh8xX/7By
-         ZNN4DhJzYILs84sxA520c0EJqQIrALODY5IL9jx8=
+        b=iqHp0Hbqb/zWia7Q15zqmHX/5pJ1E/7umQdkiO75TQpRMlELihWu2/5WT+sFp3pC1
+         xFw9BRD0JRotiJaRLlADXdqcvS36Anbs0/C8xkVeHfy03SvtsS4uREgCmIc+1Ldeyo
+         4U4P3RC6Jqy6p40QYLXBHfFV4y6VDbxCo99kRzwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Rapoport <rppt@linux.ibm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
+        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 063/314] arm64/mm: fold check for KFENCE into can_set_direct_map()
-Date:   Wed, 23 Nov 2022 09:48:28 +0100
-Message-Id: <20221123084628.338225237@linuxfoundation.org>
+Subject: [PATCH 6.0 064/314] arm64: fix rodata=full again
+Date:   Wed, 23 Nov 2022 09:48:29 +0100
+Message-Id: <20221123084628.385340221@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -54,79 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit b9dd04a20f81333e4b99662f1bbaf7c9e3a1e137 ]
+[ Upstream commit 2081b3bd0c11757725dcab9ba5d38e1bddb03459 ]
 
-KFENCE requires linear map to be mapped at page granularity, so that it
-is possible to protect/unprotect single pages, just like with
-rodata_full and DEBUG_PAGEALLOC.
+Commit 2e8cff0a0eee87b2 ("arm64: fix rodata=full") addressed a couple of
+issues with the rodata= kernel command line option, which is not a
+simple boolean on arm64, and inadvertently got broken due to changes in
+the generic bool handling.
 
-Instead of repating
+Unfortunately, the resulting code never clears the rodata_full boolean
+variable if it defaults to true and rodata=on or rodata=off is passed,
+as the generic code is not aware of the existence of this variable.
 
-	can_set_direct_map() || IS_ENABLED(CONFIG_KFENCE)
+Given the way this code is plumbed together, clearing rodata_full when
+returning false from arch_parse_debug_rodata() may result in
+inconsistencies if the generic code decides that it cannot parse the
+right hand side, so the best way to deal with this is to only take
+rodata_full in account if rodata_enabled is also true.
 
-make can_set_direct_map() handle the KFENCE case.
-
-This also prevents potential false positives in kernel_page_present()
-that may return true for non-present page if CONFIG_KFENCE is enabled.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Link: https://lore.kernel.org/r/20220921074841.382615-1-rppt@kernel.org
+Fixes: 2e8cff0a0eee ("arm64: fix rodata=full")
+Cc: <stable@vger.kernel.org> # 6.0.x
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20221103170015.4124426-1-ardb@kernel.org
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Stable-dep-of: 2081b3bd0c11 ("arm64: fix rodata=full again")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/mmu.c      | 8 ++------
- arch/arm64/mm/pageattr.c | 8 +++++++-
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ arch/arm64/mm/pageattr.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index eb489302c28a..e8de94dd5a60 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -539,7 +539,7 @@ static void __init map_mem(pgd_t *pgdp)
- 	 */
- 	BUILD_BUG_ON(pgd_index(direct_map_end - 1) == pgd_index(direct_map_end));
- 
--	if (can_set_direct_map() || IS_ENABLED(CONFIG_KFENCE))
-+	if (can_set_direct_map())
- 		flags |= NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
- 
- 	/*
-@@ -1551,11 +1551,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
- 
- 	VM_BUG_ON(!mhp_range_allowed(start, size, true));
- 
--	/*
--	 * KFENCE requires linear map to be mapped at page granularity, so that
--	 * it is possible to protect/unprotect single pages in the KFENCE pool.
--	 */
--	if (can_set_direct_map() || IS_ENABLED(CONFIG_KFENCE))
-+	if (can_set_direct_map())
- 		flags |= NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
- 
- 	__create_pgd_mapping(swapper_pg_dir, start, __phys_to_virt(start),
 diff --git a/arch/arm64/mm/pageattr.c b/arch/arm64/mm/pageattr.c
-index 64e985eaa52d..d107c3d434e2 100644
+index d107c3d434e2..5922178d7a06 100644
 --- a/arch/arm64/mm/pageattr.c
 +++ b/arch/arm64/mm/pageattr.c
-@@ -21,7 +21,13 @@ bool rodata_full __ro_after_init = IS_ENABLED(CONFIG_RODATA_FULL_DEFAULT_ENABLED
- 
- bool can_set_direct_map(void)
- {
--	return rodata_full || debug_pagealloc_enabled();
-+	/*
-+	 * rodata_full, DEBUG_PAGEALLOC and KFENCE require linear map to be
-+	 * mapped at page granularity, so that it is possible to
-+	 * protect/unprotect single pages.
-+	 */
-+	return rodata_full || debug_pagealloc_enabled() ||
-+		IS_ENABLED(CONFIG_KFENCE);
+@@ -26,7 +26,7 @@ bool can_set_direct_map(void)
+ 	 * mapped at page granularity, so that it is possible to
+ 	 * protect/unprotect single pages.
+ 	 */
+-	return rodata_full || debug_pagealloc_enabled() ||
++	return (rodata_enabled && rodata_full) || debug_pagealloc_enabled() ||
+ 		IS_ENABLED(CONFIG_KFENCE);
  }
  
- static int change_page_range(pte_t *ptep, unsigned long addr, void *data)
+@@ -102,7 +102,8 @@ static int change_memory_common(unsigned long addr, int numpages,
+ 	 * If we are manipulating read-only permissions, apply the same
+ 	 * change to the linear mapping of the pages that back this VM area.
+ 	 */
+-	if (rodata_full && (pgprot_val(set_mask) == PTE_RDONLY ||
++	if (rodata_enabled &&
++	    rodata_full && (pgprot_val(set_mask) == PTE_RDONLY ||
+ 			    pgprot_val(clear_mask) == PTE_RDONLY)) {
+ 		for (i = 0; i < area->nr_pages; i++) {
+ 			__change_memory_common((u64)page_address(area->pages[i]),
 -- 
 2.35.1
 
