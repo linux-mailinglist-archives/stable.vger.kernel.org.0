@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 733FA6353A1
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92EB16353CD
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236741AbiKWIzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:55:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58268 "EHLO
+        id S236827AbiKWI76 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:59:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236730AbiKWIyt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:54:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB157EA126
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:54:48 -0800 (PST)
+        with ESMTP id S236869AbiKWI7f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:59:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3776E1001F7
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:59:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B393B81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:54:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 916EAC433C1;
-        Wed, 23 Nov 2022 08:54:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C71B361B10
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:59:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5FFFC433C1;
+        Wed, 23 Nov 2022 08:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193686;
-        bh=Qo6rh4RU7MYzl1T+wYKdrOqxVI39UBgwMWchG2Us1NA=;
+        s=korg; t=1669193974;
+        bh=8YAxI68VBNqC4Yhe+Mh1bkW30W4rhNNYDmWMxDWvRMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KsKjIqEsctmF9NzohRzDda2L3ytZCgo8feYH/pfq/cJMLt+uImZpbJYHzhIb46ADZ
-         4a1O0lQ8jB86LGmaQrkGZEbDtBpHC8fPnHEHePhGMglJMV1JyZ0nZu9sJxXdefxkU2
-         kBvivBopi2P1R2h1t/W0mTrqZuZUJ04XGRgYkH1Y=
+        b=Qtr/8sJVpRnxuQhoAsmsIAQUsdY/kbmYm/e0mhzxgw93kAilVMy9Bb7guo0gDI4rr
+         4KMQ4RxnaycSsawXYhVCnVphIsf6hKZj92MM6xXfYSGb2OF3mrrIOIEQhUkRMtfgMt
+         RW++G2osf8JJrOmxxbUlzrNWsz/UOO0LiNOwlGxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        llvm@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 33/76] ASoC: core: Fix use-after-free in snd_soc_exit()
+Subject: [PATCH 4.14 35/88] drm/imx: imx-tve: Fix return type of imx_tve_connector_mode_valid
 Date:   Wed, 23 Nov 2022 09:50:32 +0100
-Message-Id: <20221123084547.821814930@linuxfoundation.org>
+Message-Id: <20221123084549.696275709@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit 6ec27c53886c8963729885bcf2dd996eba2767a7 ]
+[ Upstream commit fc007fb815ab5395c3962c09b79a1630b0fbed9c ]
 
-KASAN reports a use-after-free:
+The mode_valid field in drm_connector_helper_funcs is expected to be of
+type:
+enum drm_mode_status (* mode_valid) (struct drm_connector *connector,
+                                     struct drm_display_mode *mode);
 
-BUG: KASAN: use-after-free in device_del+0xb5b/0xc60
-Read of size 8 at addr ffff888008655050 by task rmmod/387
-CPU: 2 PID: 387 Comm: rmmod
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-Call Trace:
-<TASK>
-dump_stack_lvl+0x79/0x9a
-print_report+0x17f/0x47b
-kasan_report+0xbb/0xf0
-device_del+0xb5b/0xc60
-platform_device_del.part.0+0x24/0x200
-platform_device_unregister+0x2e/0x40
-snd_soc_exit+0xa/0x22 [snd_soc_core]
-__do_sys_delete_module.constprop.0+0x34f/0x5b0
-do_syscall_64+0x3a/0x90
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-...
-</TASK>
+The mismatched return type breaks forward edge kCFI since the underlying
+function definition does not match the function hook definition.
 
-It's bacause in snd_soc_init(), snd_soc_util_init() is possble to fail,
-but its ret is ignored, which makes soc_dummy_dev unregistered twice.
+The return type of imx_tve_connector_mode_valid should be changed from
+int to enum drm_mode_status.
 
-snd_soc_init()
-    snd_soc_util_init()
-        platform_device_register_simple(soc_dummy_dev)
-        platform_driver_register() # fail
-    	platform_device_unregister(soc_dummy_dev)
-    platform_driver_register() # success
-...
-snd_soc_exit()
-    snd_soc_util_exit()
-    # soc_dummy_dev will be unregistered for second time
-
-To fix it, handle error and stop snd_soc_init() when util_init() fail.
-Also clean debugfs when util_init() or driver_register() fail.
-
-Fixes: fb257897bf20 ("ASoC: Work around allmodconfig failure")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221028031603.59416-1-chenzhongjin@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Dan Carpenter <error27@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1703
+Cc: llvm@lists.linux.dev
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220913205544.155106-1-nhuck@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/imx/imx-tve.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 81c3aa167038..033253de5d4b 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -3931,10 +3931,23 @@ EXPORT_SYMBOL_GPL(snd_soc_of_get_dai_link_codecs);
- 
- static int __init snd_soc_init(void)
- {
-+	int ret;
-+
- 	snd_soc_debugfs_init();
--	snd_soc_util_init();
-+	ret = snd_soc_util_init();
-+	if (ret)
-+		goto err_util_init;
- 
--	return platform_driver_register(&soc_driver);
-+	ret = platform_driver_register(&soc_driver);
-+	if (ret)
-+		goto err_register;
-+	return 0;
-+
-+err_register:
-+	snd_soc_util_exit();
-+err_util_init:
-+	snd_soc_debugfs_exit();
-+	return ret;
+diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
+index c22c3e6e9b7a..c4d67fc54c0b 100644
+--- a/drivers/gpu/drm/imx/imx-tve.c
++++ b/drivers/gpu/drm/imx/imx-tve.c
+@@ -243,8 +243,9 @@ static int imx_tve_connector_get_modes(struct drm_connector *connector)
+ 	return ret;
  }
- module_init(snd_soc_init);
  
+-static int imx_tve_connector_mode_valid(struct drm_connector *connector,
+-					struct drm_display_mode *mode)
++static enum drm_mode_status
++imx_tve_connector_mode_valid(struct drm_connector *connector,
++			     struct drm_display_mode *mode)
+ {
+ 	struct imx_tve *tve = con_to_tve(connector);
+ 	unsigned long rate;
 -- 
 2.35.1
 
