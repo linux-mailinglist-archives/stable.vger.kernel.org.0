@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C00F06357EA
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:48:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1DEA6357E4
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:48:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236031AbiKWJsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:48:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43770 "EHLO
+        id S237085AbiKWJsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:48:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238270AbiKWJrj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:47:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B12545C774
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:44:45 -0800 (PST)
+        with ESMTP id S238232AbiKWJr4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:47:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA8F31181C0
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:44:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EB7461B56
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:44:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 437B7C433C1;
-        Wed, 23 Nov 2022 09:44:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1609B81E5E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:44:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3840EC433D6;
+        Wed, 23 Nov 2022 09:44:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196684;
-        bh=5sg7FJFxsBgjY+3Z1NOrg4Je3ak7nFkk04p1Sa7/p+s=;
+        s=korg; t=1669196690;
+        bh=S/7J4RLUlv/oIrOL1v4t2auAxspCXRrjcpWtrLRDZ00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hBn/xoZePuqngpM5MVH2mcvcrU9BmtuIF+F18AhoGnOXkXBqw+Z9hNMBoCJmK9ybp
-         U7sHi1pXzAzTFIIzQH5fcezbb0rU+DaI4EmE1Yv7FyT8pDL2b6fr9vLSVmAibgJaKH
-         esirHOHGYJNPpWb7UZtCeyydCMCUU9UqpNhAsAwc=
+        b=O4AS9xgSb5tJ55b0vcplpO+4DhczsLMughHoujnIjH7g47xvm2Hd7D2TPD20wwbxf
+         b1Kdj4QUGJhxkc5utCSf32SWjEOGRNzNMAunePSOktvPUcelhhKQVT2JgjgEbDSv9L
+         WFJ5QWg95kJekN9guFpz08NgDaN2txOFYP5xUqV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        patches@lists.linux.dev, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 096/314] serial: 8250_omap: remove wait loop from Errata i202 workaround
-Date:   Wed, 23 Nov 2022 09:49:01 +0100
-Message-Id: <20221123084629.854097865@linuxfoundation.org>
+Subject: [PATCH 6.0 097/314] serial: 8250: omap: Fix unpaired pm_runtime_put_sync() in omap8250_remove()
+Date:   Wed, 23 Nov 2022 09:49:02 +0100
+Message-Id: <20221123084629.904038425@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -54,62 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit e828e56684d61b17317e0cfdef83791fa61cb76b ]
+[ Upstream commit e3f0c638f428fd66b5871154b62706772045f91a ]
 
-We were occasionally seeing the "Errata i202: timedout" on an AM335x
-board when repeatedly opening and closing a UART connected to an active
-sender. As new input may arrive at any time, it is possible to miss the
-"RX FIFO empty" condition, forcing the loop to wait until it times out.
+On remove, we get an error for "Runtime PM usage count underflow!". I guess
+this driver is mostly built-in, and this issue has gone unnoticed for a
+while. Somehow I did not catch this issue with my earlier fix done with
+commit 4e0f5cc65098 ("serial: 8250_omap: Fix probe and remove for PM
+runtime").
 
-Nothing in the i202 Advisory states that such a wait is even necessary;
-other FIFO clear functions like serial8250_clear_fifos() do not wait
-either. For this reason, it seems safe to remove the wait, fixing the
-mentioned issue.
-
-Fixes: 61929cf0169d ("tty: serial: Add 8250-core based omap driver")
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Link: https://lore.kernel.org/r/20221013112339.2540767-1-matthias.schiffer@ew.tq-group.com
+Fixes: 4e0f5cc65098 ("serial: 8250_omap: Fix probe and remove for PM runtime")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Depends-on: dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
+Link: https://lore.kernel.org/r/20221028105813.54290-1-tony@atomide.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 17 -----------------
- 1 file changed, 17 deletions(-)
+ drivers/tty/serial/8250/8250_omap.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index 03a026bdba3c..c772735035b5 100644
+index c772735035b5..3ba1526ccd20 100644
 --- a/drivers/tty/serial/8250/8250_omap.c
 +++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -211,27 +211,10 @@ static void omap8250_set_mctrl(struct uart_port *port, unsigned int mctrl)
- static void omap_8250_mdr1_errataset(struct uart_8250_port *up,
- 				     struct omap8250_priv *priv)
+@@ -1461,6 +1461,11 @@ static int omap8250_probe(struct platform_device *pdev)
+ static int omap8250_remove(struct platform_device *pdev)
  {
--	u8 timeout = 255;
--
- 	serial_out(up, UART_OMAP_MDR1, priv->mdr1);
- 	udelay(2);
- 	serial_out(up, UART_FCR, up->fcr | UART_FCR_CLEAR_XMIT |
- 			UART_FCR_CLEAR_RCVR);
--	/*
--	 * Wait for FIFO to empty: when empty, RX_FIFO_E bit is 0 and
--	 * TX_FIFO_E bit is 1.
--	 */
--	while (UART_LSR_THRE != (serial_in(up, UART_LSR) &
--				(UART_LSR_THRE | UART_LSR_DR))) {
--		timeout--;
--		if (!timeout) {
--			/* Should *never* happen. we warn and carry on */
--			dev_crit(up->port.dev, "Errata i202: timedout %x\n",
--				 serial_in(up, UART_LSR));
--			break;
--		}
--		udelay(1);
--	}
- }
+ 	struct omap8250_priv *priv = platform_get_drvdata(pdev);
++	int err;
++
++	err = pm_runtime_resume_and_get(&pdev->dev);
++	if (err)
++		return err;
  
- static void omap_8250_get_divisor(struct uart_port *port, unsigned int baud,
+ 	pm_runtime_dont_use_autosuspend(&pdev->dev);
+ 	pm_runtime_put_sync(&pdev->dev);
 -- 
 2.35.1
 
