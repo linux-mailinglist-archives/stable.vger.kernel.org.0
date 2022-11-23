@@ -2,93 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79A34635533
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4C9635700
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237278AbiKWJPN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:15:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56882 "EHLO
+        id S237893AbiKWJfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:35:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237284AbiKWJPK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:15:10 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5409D106111
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:15:09 -0800 (PST)
+        with ESMTP id S237897AbiKWJfM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:35:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2612053EE8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:33:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C2BB1CE20EC
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:15:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79A9EC433C1;
-        Wed, 23 Nov 2022 09:15:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A000BB81E54
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:33:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF43EC433C1;
+        Wed, 23 Nov 2022 09:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194906;
-        bh=XgcQvlaPLJP988e632tKd0TYX/OYQrFitBQUhphuV6M=;
+        s=korg; t=1669195981;
+        bh=Z/t2WIUtH9QT0d2f0LZkYeUFHquhDVIgAJjsp2OtCkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o89jDMQftYEgkOlp19ov60thAerLJ/OU20lYXpTaTeQG5cjEGDe7IrtEbdoJwnMRJ
-         K9C3jPBe/xWHE8gRf4Lhc/yCzdxx76ZVAeGKthsf+Ly+c7k7tV7s/YdZzuYVjlGDkS
-         y4trBsBUQrpzvtmNK9roXXCql0u1kWIlqMVHyZGg=
+        b=rL1hYEG36cEI2tsHI9Kt4u2vLNA+hEn1VTaBxbpkzR7APYwndF/6vabrFI9LO8WS2
+         kUbHyxvrwGU4MVUkymA1lYm2Ho6jmKbC/BWPTk6ZrDKdogTK4KnM38tSSOUGl7dqNE
+         JokH888oOaHENZyCTr6ZWLpPxZLMpbGP6hgldbFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        patches@lists.linux.dev, Chuang Wang <nashuiliang@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/156] parport_pc: Avoid FIFO port location truncation
+Subject: [PATCH 5.15 086/181] net: macvlan: Use built-in RCU list checking
 Date:   Wed, 23 Nov 2022 09:50:49 +0100
-Message-Id: <20221123084601.308059300@linuxfoundation.org>
+Message-Id: <20221123084606.045060823@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Chuang Wang <nashuiliang@gmail.com>
 
-[ Upstream commit ab126f51c93a15093df604f661c9480854c005a3 ]
+[ Upstream commit 5df1341ea822292275c56744aab9c536d75c33be ]
 
-Match the data type of a temporary holding a reference to the FIFO port
-with the type of the original reference coming from `struct parport',
-avoiding data truncation with LP64 ports such as SPARC64 that refer to
-PCI port I/O locations via their corresponding MMIO addresses and will
-therefore have non-zero bits in the high 32-bit part of the reference.
-And in any case it is cleaner to have the data types matching here.
+hlist_for_each_entry_rcu() has built-in RCU and lock checking.
 
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Link: https://lore.kernel.org/linux-pci/20220419033752.GA1101844@bhelgaas/
-Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209231912550.29493@angie.orcam.me.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Pass cond argument to hlist_for_each_entry_rcu() to silence false
+lockdep warning when CONFIG_PROVE_RCU_LIST is enabled.
+
+Execute as follow:
+
+ ip link add link eth0 type macvlan mode source macaddr add <MAC-ADDR>
+
+The rtnl_lock is held when macvlan_hash_lookup_source() or
+macvlan_fill_info_macaddr() are called in the non-RCU read side section.
+So, pass lockdep_rtnl_is_held() to silence false lockdep warning.
+
+Fixes: 79cf79abce71 ("macvlan: add source mode")
+Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parport/parport_pc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/macvlan.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
-index 1f17a39eabe8..3bc0027b7844 100644
---- a/drivers/parport/parport_pc.c
-+++ b/drivers/parport/parport_pc.c
-@@ -475,7 +475,7 @@ static size_t parport_pc_fifo_write_block_pio(struct parport *port,
- 	const unsigned char *bufp = buf;
- 	size_t left = length;
- 	unsigned long expire = jiffies + port->physport->cad->timeout;
--	const int fifo = FIFO(port);
-+	const unsigned long fifo = FIFO(port);
- 	int poll_for = 8; /* 80 usecs */
- 	const struct parport_pc_private *priv = port->physport->private_data;
- 	const int fifo_depth = priv->fifo_depth;
+diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
+index cdc238dda1e1..7fb0ead7b1ef 100644
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -141,7 +141,7 @@ static struct macvlan_source_entry *macvlan_hash_lookup_source(
+ 	u32 idx = macvlan_eth_hash(addr);
+ 	struct hlist_head *h = &vlan->port->vlan_source_hash[idx];
+ 
+-	hlist_for_each_entry_rcu(entry, h, hlist) {
++	hlist_for_each_entry_rcu(entry, h, hlist, lockdep_rtnl_is_held()) {
+ 		if (ether_addr_equal_64bits(entry->addr, addr) &&
+ 		    entry->vlan == vlan)
+ 			return entry;
+@@ -1635,7 +1635,7 @@ static int macvlan_fill_info_macaddr(struct sk_buff *skb,
+ 	struct hlist_head *h = &vlan->port->vlan_source_hash[i];
+ 	struct macvlan_source_entry *entry;
+ 
+-	hlist_for_each_entry_rcu(entry, h, hlist) {
++	hlist_for_each_entry_rcu(entry, h, hlist, lockdep_rtnl_is_held()) {
+ 		if (entry->vlan != vlan)
+ 			continue;
+ 		if (nla_put(skb, IFLA_MACVLAN_MACADDR, ETH_ALEN, entry->addr))
 -- 
 2.35.1
 
