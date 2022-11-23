@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D24DA6356FD
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F734635477
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237936AbiKWJgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:36:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53720 "EHLO
+        id S237060AbiKWJH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:07:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237789AbiKWJfh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:35:37 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DA9D79906
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:33:13 -0800 (PST)
+        with ESMTP id S237087AbiKWJGx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:06:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC65B105A96
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 76D60CE20F8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:33:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A9A9C433D6;
-        Wed, 23 Nov 2022 09:33:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6ED461B59
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AF29C433C1;
+        Wed, 23 Nov 2022 09:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195988;
-        bh=dK9aI4+GTmYx8RbS7O1E/uW9R1LSW26QIfZslMRmk0s=;
+        s=korg; t=1669194396;
+        bh=tjRqxWg8DJw3EIdIM+/0wijhcXXq8Sri1sHybxKolW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=amMyJLtW/nhDYPBwslYZ9iAFehut7hLNygHGuArCE36h7NCZ2OLrPBgA0hFcW1qqj
-         QTdXVraDbK9hrKU1T74r4TX5QzJVTvPbLBhYUB2vkdGA84hzhnbodQiHIyXzy8ZsXX
-         LPEjLW4CCg+kCYjxqKmWifyw6PeXIv3EA49nO60c=
+        b=yOePnSytoG+gY/Xx9iJwB+mfIZF2OMIfJ7NEA432nOn0CGeRAPmOFMCk/tDrUBpzP
+         w+pRGbhSeOCc091EXTYFqv9rRmS1N4guTlbMCHpY7ADyzo2LSjVtxKZM9SKkjRvocn
+         ehxlURy4ZuVIJIcjLzRS5shoMxQfD/p5ZqiUpfSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 088/181] bnxt_en: Remove debugfs when pci_register_driver failed
-Date:   Wed, 23 Nov 2022 09:50:51 +0100
-Message-Id: <20221123084606.137104415@linuxfoundation.org>
+Subject: [PATCH 4.19 065/114] net: bgmac: Drop free_netdev() from bgmac_enet_remove()
+Date:   Wed, 23 Nov 2022 09:50:52 +0100
+Message-Id: <20221123084554.488688463@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 991aef4ee4f6eb999924f429b943441a32835c8f ]
+[ Upstream commit 6f928ab8ee9bfbcb0e631c47ea8a16c3d5116ff1 ]
 
-When pci_register_driver failed, we need to remove debugfs,
-which will caused a resource leak, fix it.
+netdev is allocated in bgmac_alloc() with devm_alloc_etherdev() and will
+be auto released in ->remove and ->probe failure path. Using free_netdev()
+in bgmac_enet_remove() leads to double free.
 
-Resource leak logs as follows:
-[   52.184456] debugfs: Directory 'bnxt_en' with parent '/' already present!
+Fixes: 34a5102c3235 ("net: bgmac: allocate struct bgmac just once & don't copy it")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 
-Fixes: cabfb09d87bd ("bnxt_en: add debugfs support for DIM")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20221109150136.2991171-1-weiyongjun@huaweicloud.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bgmac.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index db1864a3f64a..117f5cc7c180 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -13697,8 +13697,16 @@ static struct pci_driver bnxt_pci_driver = {
- 
- static int __init bnxt_init(void)
- {
-+	int err;
-+
- 	bnxt_debug_init();
--	return pci_register_driver(&bnxt_pci_driver);
-+	err = pci_register_driver(&bnxt_pci_driver);
-+	if (err) {
-+		bnxt_debug_exit();
-+		return err;
-+	}
-+
-+	return 0;
+diff --git a/drivers/net/ethernet/broadcom/bgmac.c b/drivers/net/ethernet/broadcom/bgmac.c
+index 4c94d9218bba..50c5afc46eb0 100644
+--- a/drivers/net/ethernet/broadcom/bgmac.c
++++ b/drivers/net/ethernet/broadcom/bgmac.c
+@@ -1566,7 +1566,6 @@ void bgmac_enet_remove(struct bgmac *bgmac)
+ 	phy_disconnect(bgmac->net_dev->phydev);
+ 	netif_napi_del(&bgmac->napi);
+ 	bgmac_dma_free(bgmac);
+-	free_netdev(bgmac->net_dev);
  }
+ EXPORT_SYMBOL_GPL(bgmac_enet_remove);
  
- static void __exit bnxt_exit(void)
 -- 
 2.35.1
 
