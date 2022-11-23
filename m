@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE936355F9
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42DEC6354BA
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237478AbiKWJZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:25:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36498 "EHLO
+        id S237073AbiKWJJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:09:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237649AbiKWJZP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:25:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E267B2189F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:23:52 -0800 (PST)
+        with ESMTP id S237124AbiKWJI7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:08:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC132240B1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:08:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 789DE61B44
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:23:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BC45C433D6;
-        Wed, 23 Nov 2022 09:23:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88F7261B10
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:08:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84434C433C1;
+        Wed, 23 Nov 2022 09:08:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195431;
-        bh=8ILXLFUQJ9RxJyt1NBwnJdp7X+teEA3/v45/VsKH+as=;
+        s=korg; t=1669194537;
+        bh=6QqdkLRmgk+TgWmk16E7hamPY8XXEoMQdN8mYGlQn7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tp6TJHJMEW3+21lEczebACXXDmHSaTd2h6BuvyYm/zGBzOi3Od+zi8MwLCqJVyAS9
-         kF2NIcpEm3RHU1GAWsnqg/4fG9XNb+anie5nn4lfzzyJNaFXpDkiUB951qJV1Mqcb+
-         H/lO1q38M6wtEqhue5UwYPykNgWM5tIpScdLDcfU=
+        b=G0x6L+RLGyvOGRWAk+xUXEtFBjRM6IB4tJ1bY6Dg5IacS/pTxgl54a665OXAxcBLk
+         QnikCViObB6b1spK03KgXpdHi0VIMWlOPZ0+jpdOUg7ktP9aJj/LwIrjmQc/Ozwq3/
+         x5kYhu0dKh/eHKFYtZV3THniNXw7mUwyk3QNwjfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, mhiramat@kernel.org, mark.rutland@arm.com,
-        Wang Wensheng <wangwensheng4@huawei.com>,
+        patches@lists.linux.dev,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 082/149] ftrace: Fix the possible incorrect kernel message
+Subject: [PATCH 4.19 078/114] ring_buffer: Do not deactivate non-existant pages
 Date:   Wed, 23 Nov 2022 09:51:05 +0100
-Message-Id: <20221123084600.928259048@linuxfoundation.org>
+Message-Id: <20221123084554.984744927@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-commit 08948caebe93482db1adfd2154eba124f66d161d upstream.
+commit 56f4ca0a79a9f1af98f26c54b9b89ba1f9bcc6bd upstream.
 
-If the number of mcount entries is an integer multiple of
-ENTRIES_PER_PAGE, the page count showing on the console would be wrong.
+rb_head_page_deactivate() expects cpu_buffer to contain a valid list of
+->pages, so verify that the list is actually present before calling it.
 
-Link: https://lkml.kernel.org/r/20221109094434.84046-2-wangwensheng4@huawei.com
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
 
-Cc: <mhiramat@kernel.org>
-Cc: <mark.rutland@arm.com>
+Link: https://lkml.kernel.org/r/20221114143129.3534443-1-d-tatianin@yandex-team.ru
+
 Cc: stable@vger.kernel.org
-Fixes: 5821e1b74f0d0 ("function tracing: fix wrong pos computing when read buffer has been fulfilled")
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
+Fixes: 77ae365eca895 ("ring-buffer: make lockless")
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/ring_buffer.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -6877,7 +6877,7 @@ void __init ftrace_init(void)
- 	}
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -1328,9 +1328,9 @@ static void rb_free_cpu_buffer(struct ri
  
- 	pr_info("ftrace: allocating %ld entries in %ld pages\n",
--		count, count / ENTRIES_PER_PAGE + 1);
-+		count, DIV_ROUND_UP(count, ENTRIES_PER_PAGE));
+ 	free_buffer_page(cpu_buffer->reader_page);
  
- 	last_ftrace_enabled = ftrace_enabled = 1;
- 
+-	rb_head_page_deactivate(cpu_buffer);
+-
+ 	if (head) {
++		rb_head_page_deactivate(cpu_buffer);
++
+ 		list_for_each_entry_safe(bpage, tmp, head, list) {
+ 			list_del_init(&bpage->list);
+ 			free_buffer_page(bpage);
 
 
