@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ED5D635636
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3961A6358E8
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:05:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237681AbiKWJ14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:27:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44302 "EHLO
+        id S236851AbiKWKE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:04:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237715AbiKWJ07 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:26:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDA921121CD
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:26:01 -0800 (PST)
+        with ESMTP id S237082AbiKWKD1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:03:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B7C8C0B7
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:55:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8AFA3B81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:26:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E20C1C433D6;
-        Wed, 23 Nov 2022 09:25:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B37461B56
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:55:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C223C433C1;
+        Wed, 23 Nov 2022 09:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195559;
-        bh=+HtQsJXUD/tUXB4hJR5VdZXpy+wB3CM3oE5cDANrSwY=;
+        s=korg; t=1669197305;
+        bh=AaZEUOPEVCNu8SSax7Af4DD7Lyx32nmLqBE7HvFPhhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HkQ9Jpfy7D4Rt8GGM3R25oBqhIHbFxHHEsN4apQVwVlvDd6cfQP9NYYBRVe91Pb6p
-         pjTN2FYOLFhQ7sfh+GbaEVV8zU8Q2dsArmNVpKEBurx+UWwfGgV7oxWMK2IX7EVHSQ
-         ra2DbpVnEve6hlGgQ98xp5Z1Ejiy2zLJ5idxcDYI=
+        b=V++HwGaz7zPpOErrJT4wp5yCYrI4KYwomIIQTRW3lB5v2oHwfyZtitcuE5m39yzaD
+         q2ni9mX9eSb/miZmOYwj5nxhFLqd/3yNQUNKcFkeRgjokgLqRWLZ+2DUAusFeMBFgg
+         YaJv9ZT4DJAvvH4fz2NTCqFofuiHT3F6Gx4A+O+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tina Zhang <tina.zhang@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.10 118/149] iommu/vt-d: Set SRE bit only when hardware has SRS cap
+        patches@lists.linux.dev, Wentong Wu <wentong.wu@intel.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 6.0 256/314] serial: 8250_lpss: Use 16B DMA burst with Elkhart Lake
 Date:   Wed, 23 Nov 2022 09:51:41 +0100
-Message-Id: <20221123084602.191762733@linuxfoundation.org>
+Message-Id: <20221123084637.121521703@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tina Zhang <tina.zhang@intel.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 7fc961cf7ffcb130c4e93ee9a5628134f9de700a upstream.
+commit 7090abd6ad0610a144523ce4ffcb8560909bf2a8 upstream.
 
-SRS cap is the hardware cap telling if the hardware IOMMU can support
-requests seeking supervisor privilege or not. SRE bit in scalable-mode
-PASID table entry is treated as Reserved(0) for implementation not
-supporting SRS cap.
+Configure DMA to use 16B burst size with Elkhart Lake. This makes the
+bus use more efficient and works around an issue which occurs with the
+previously used 1B.
 
-Checking SRS cap before setting SRE bit can avoid the non-recoverable
-fault of "Non-zero reserved field set in PASID Table Entry" caused by
-setting SRE bit while there is no SRS cap support. The fault messages
-look like below:
+The fix was initially developed by Srikanth Thokala and Aman Kumar.
+This together with the previous config change is the cleaned up version
+of the original fix.
 
- DMAR: DRHD: handling fault status reg 2
- DMAR: [DMA Read NO_PASID] Request device [00:0d.0] fault addr 0x1154e1000
-       [fault reason 0x5a]
-       SM: Non-zero reserved field set in PASID Table Entry
-
-Fixes: 6f7db75e1c46 ("iommu/vt-d: Add second level page table interface")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tina Zhang <tina.zhang@intel.com>
-Link: https://lore.kernel.org/r/20221115070346.1112273-1-tina.zhang@intel.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20221116051544.26540-3-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 0a9410b981e9 ("serial: 8250_lpss: Enable DMA on Intel Elkhart Lake")
+Cc: <stable@vger.kernel.org> # serial: 8250_lpss: Configure DMA also w/o DMA filter
+Reported-by: Wentong Wu <wentong.wu@intel.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221108121952.5497-4-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel/pasid.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_lpss.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/iommu/intel/pasid.c
-+++ b/drivers/iommu/intel/pasid.c
-@@ -669,7 +669,7 @@ int intel_pasid_setup_second_level(struc
- 	 * Since it is a second level only translation setup, we should
- 	 * set SRE bit as well (addresses are expected to be GPAs).
+--- a/drivers/tty/serial/8250/8250_lpss.c
++++ b/drivers/tty/serial/8250/8250_lpss.c
+@@ -174,6 +174,8 @@ static int ehl_serial_setup(struct lpss8
  	 */
--	if (pasid != PASID_RID2PASID)
-+	if (pasid != PASID_RID2PASID && ecap_srs(iommu->ecap))
- 		pasid_set_sre(pte);
- 	pasid_set_present(pte);
- 	pasid_flush_caches(iommu, pte, pasid, did);
-@@ -704,7 +704,8 @@ int intel_pasid_setup_pass_through(struc
- 	 * We should set SRE bit as well since the addresses are expected
- 	 * to be GPAs.
- 	 */
--	pasid_set_sre(pte);
-+	if (ecap_srs(iommu->ecap))
-+		pasid_set_sre(pte);
- 	pasid_set_present(pte);
- 	pasid_flush_caches(iommu, pte, pasid, did);
+ 	up->dma = dma;
  
++	lpss->dma_maxburst = 16;
++
+ 	port->set_termios = dw8250_do_set_termios;
+ 
+ 	return 0;
 
 
