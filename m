@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B86D635460
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47E57635697
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237040AbiKWJFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:05:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43234 "EHLO
+        id S237795AbiKWJdz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:33:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237048AbiKWJFn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:05:43 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C85102E6F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:05:42 -0800 (PST)
+        with ESMTP id S237916AbiKWJdE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:33:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEF87D298A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7093CCE0FC8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:05:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B778C433C1;
-        Wed, 23 Nov 2022 09:05:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A51461B3B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84993C433D6;
+        Wed, 23 Nov 2022 09:31:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194338;
-        bh=B1CN7ugn0rpQiyuNdjWozjo19Q6e7W/9iWPda5/WdqU=;
+        s=korg; t=1669195899;
+        bh=QSbxve1qhHo5yWGBhiJaGqLwSC9xh5DOEBYCl3tq6Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNQZZs5bzu+OX9CmWZrNsRm1H6DxcMzKiCzxeyAT8rr2dfqJcghdDNUykMgGcuEOp
-         UrQxsGuSV6lHA8ZKAfYGOm8OJMV43JKtaBdWkZcnevQCEIfm8WqzH7fk4gY0G0aWo9
-         G5bZCtAXv8WeAdGhHOKJiNrDDadRa2NnqGagfQZw=
+        b=GdDCG9eQeabZlKDxcBDkzmcCDYwe4c/NAjfHm+cvAC0u3tR3KTx0d3IQlGLC6COUi
+         m8oe1vilGhGkCqpnyAqg3ksjYhPSYneIp7ZqcR+jrfInlrd+gz1Y3gom8PiX2D5NYI
+         2m0lxqxJ+gGrcggfe7doDPnIjtF4co1uHgddn/YE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Colin Ian King <colin.i.king@gmail.com>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 009/114] net: lapbether: fix issue of dev reference count leakage in lapbeth_device_event()
+Subject: [PATCH 5.15 033/181] ASoC: codecs: jz4725b: Fix spelling mistake "Sourc" -> "Source", "Routee" -> "Route"
 Date:   Wed, 23 Nov 2022 09:49:56 +0100
-Message-Id: <20221123084552.220941047@linuxfoundation.org>
+Message-Id: <20221123084603.819603299@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Colin Ian King <colin.i.king@gmail.com>
 
-[ Upstream commit 531705a765493655472c993627106e19f7e5a6d2 ]
+[ Upstream commit df496157a5afa1b6d1f4c46ad6549c2c346d1e59 ]
 
-When following tests are performed, it will cause dev reference counting
-leakage.
-a)ip link add bond2 type bond mode balance-rr
-b)ip link set bond2 up
-c)ifenslave -f bond2 rose1
-d)ip link del bond2
+There are two spelling mistakes in codec routing description. Fix it.
 
-When new bond device is created, the default type of the bond device is
-ether. And the bond device is up, lapbeth_device_event() receives the
-message and creates a new lapbeth device. In this case, the reference
-count value of dev is hold once. But after "ifenslave -f bond2 rose1"
-command is executed, the type of the bond device is changed to rose. When
-the bond device is unregistered, lapbeth_device_event() will not put the
-dev reference count.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
+Acked-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://lore.kernel.org/r/20221019071639.1003730-1-colin.i.king@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/lapbether.c | 2 +-
+ sound/soc/codecs/jz4725b.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index 3ec922bed2d8..6233805fc032 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -406,7 +406,7 @@ static int lapbeth_device_event(struct notifier_block *this,
- 	if (dev_net(dev) != &init_net)
- 		return NOTIFY_DONE;
+diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
+index d57c2c6a3add..71ea576f7e67 100644
+--- a/sound/soc/codecs/jz4725b.c
++++ b/sound/soc/codecs/jz4725b.c
+@@ -288,7 +288,7 @@ static const struct snd_soc_dapm_route jz4725b_codec_dapm_routes[] = {
  
--	if (!dev_is_ethdev(dev))
-+	if (!dev_is_ethdev(dev) && !lapbeth_get_x25_dev(dev))
- 		return NOTIFY_DONE;
- 
- 	switch (event) {
+ 	{"Mixer to ADC", NULL, "Mixer"},
+ 	{"ADC Source Capture Route", "Mixer", "Mixer to ADC"},
+-	{"ADC Sourc Capture Routee", "Line In", "Line In"},
++	{"ADC Source Capture Route", "Line In", "Line In"},
+ 	{"ADC Source Capture Route", "Mic 1", "Mic 1"},
+ 	{"ADC Source Capture Route", "Mic 2", "Mic 2"},
+ 	{"ADC", NULL, "ADC Source Capture Route"},
 -- 
 2.35.1
 
