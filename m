@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D46FB63569F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F03E635824
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:52:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237884AbiKWJdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:33:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53686 "EHLO
+        id S238271AbiKWJv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:51:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237880AbiKWJc5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:32:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80D283F079
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:32 -0800 (PST)
+        with ESMTP id S236390AbiKWJus (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:50:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888FB15700
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:47:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B73061B5C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F31D7C433C1;
-        Wed, 23 Nov 2022 09:31:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9667B81E5E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:47:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F004C433C1;
+        Wed, 23 Nov 2022 09:47:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195891;
-        bh=3rrB4DSeXqgBgmYgLkVpBE4d+QmXYAW5M8u0tbqCAfk=;
+        s=korg; t=1669196876;
+        bh=lSh7dWGbiTy18SerLpyw2sdeqDmywC414TJRby9OZEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=toB5zXB1o87P5KiGGFeU4wbtIRIstPlMx3IB48rHD27Y3luznJA5SZrdsniuOOGK3
-         juzkYrVgX0V3cu0W1rg6tZ9rRV/2d6VEfeXMFsb4719r/6+yOMVlp6jw1neNK/0LH+
-         uS9i5jUJZKsLGcJoRFSvp/LDTzkCOoAN33j881SU=
+        b=bjM/SJKjDjAH0Caiq5arYDegJp+D319TpiBGRYMZxRXo28QyoXeHHyX5LI/Tse4ib
+         xSC4gKnOEFlAGm1lDdozQkWor/rA8c9N2RJAmBtDvHft3kABVrvT/gXQPz3Gdc1a9o
+         BtanESxEc8zLfOXSv+lfisjqUNFr/vPZZeSj0TeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Tedd Ho-Jeong An <tedd.an@intel.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 031/181] Bluetooth: L2CAP: Fix l2cap_global_chan_by_psm
+Subject: [PATCH 6.0 149/314] mISDN: fix possible memory leak in mISDN_dsp_element_register()
 Date:   Wed, 23 Nov 2022 09:49:54 +0100
-Message-Id: <20221123084603.739545024@linuxfoundation.org>
+Message-Id: <20221123084632.311977948@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f937b758a188d6fd328a81367087eddbb2fce50f ]
+[ Upstream commit 98a2ac1ca8fd6eca6867726fe238d06e75eb1acd ]
 
-l2cap_global_chan_by_psm shall not return fixed channels as they are not
-meant to be connected by (S)PSM.
+Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+use put_device() to give up the reference, so that the name can be
+freed in kobject_cleanup() when the refcount is 0.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+The 'entry' is going to be freed in mISDN_dsp_dev_release(), so the
+kfree() is removed. list_del() is called in mISDN_dsp_dev_release(),
+so it need be initialized.
+
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221109132832.3270119-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/isdn/mISDN/dsp_pipeline.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 16f954a4802c..761efd7da514 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -1990,7 +1990,7 @@ static struct l2cap_chan *l2cap_global_chan_by_psm(int state, __le16 psm,
- 		if (link_type == LE_LINK && c->src_type == BDADDR_BREDR)
- 			continue;
+diff --git a/drivers/isdn/mISDN/dsp_pipeline.c b/drivers/isdn/mISDN/dsp_pipeline.c
+index c3b2c99b5cd5..cfbcd9e973c2 100644
+--- a/drivers/isdn/mISDN/dsp_pipeline.c
++++ b/drivers/isdn/mISDN/dsp_pipeline.c
+@@ -77,6 +77,7 @@ int mISDN_dsp_element_register(struct mISDN_dsp_element *elem)
+ 	if (!entry)
+ 		return -ENOMEM;
  
--		if (c->psm == psm) {
-+		if (c->chan_type != L2CAP_CHAN_FIXED && c->psm == psm) {
- 			int src_match, dst_match;
- 			int src_any, dst_any;
++	INIT_LIST_HEAD(&entry->list);
+ 	entry->elem = elem;
  
+ 	entry->dev.class = elements_class;
+@@ -107,7 +108,7 @@ int mISDN_dsp_element_register(struct mISDN_dsp_element *elem)
+ 	device_unregister(&entry->dev);
+ 	return ret;
+ err1:
+-	kfree(entry);
++	put_device(&entry->dev);
+ 	return ret;
+ }
+ EXPORT_SYMBOL(mISDN_dsp_element_register);
 -- 
 2.35.1
 
