@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 338B2635441
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84430635611
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237002AbiKWJDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:03:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39866 "EHLO
+        id S237590AbiKWJ0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:26:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236988AbiKWJDI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:03:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2246FA70A
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:03:06 -0800 (PST)
+        with ESMTP id S237637AbiKWJ0G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:26:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA4FC1F69
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:25:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EEAEB81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:03:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF478C433C1;
-        Wed, 23 Nov 2022 09:03:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6FC38B81EEB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:25:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8A47C433C1;
+        Wed, 23 Nov 2022 09:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194184;
-        bh=qN2kHtrKdNxXqy5f+2fE+D32x9gwI09D/dhNa7yXKrE=;
+        s=korg; t=1669195500;
+        bh=V17UdKcr17cJJO81G71Avd8cF26LZvzq6YnUjnmlBjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fD0he6/2KjFmaMwH1plD9A4xk/es4vBDGgdzzzKew8iMB2v2pEzOlclfLEqXgqEA5
-         qmrpEqdrj0kINp/CtLI03EZGqXHheNgrXm0cR3c6PDo7dpjqh4Nawsc6uJka7qw+Mw
-         GPo9hEffJ3yQCsCgRzdFYbP3U0rJjHJqMujiRgdQ=
+        b=MFmc8nQBDoIlYUrKv+BMIldS8pHlKfTnMG6LRHOdpZq6O4Y3SIBOQXPKa6SbFOR5t
+         J5O8CjTN3D+XLX0fOUrHQU9xto4I1tnQQUpHe4/LCHAxoRaaPQQMbWGE2n0ojp5Vsq
+         F9ybEQaQgw9yzz+1sR+00iDaVlLEmlt1Xk2ycb1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hawkins Jiawei <yin31149@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        "chenxiaosong (A)" <chenxiaosong2@huawei.com>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 88/88] ntfs: check overflow when iterating ATTR_RECORDs
+        patches@lists.linux.dev, Reinhard Speyerer <rspmn@arcor.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 102/149] USB: serial: option: add Fibocom FM160 0x0111 composition
 Date:   Wed, 23 Nov 2022 09:51:25 +0100
-Message-Id: <20221123084551.744086524@linuxfoundation.org>
+Message-Id: <20221123084601.657085987@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,52 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Reinhard Speyerer <rspmn@arcor.de>
 
-commit 63095f4f3af59322bea984a6ae44337439348fe0 upstream.
+commit 148f4b32b4504d8a32cf82049b7b9499a4b299ab upstream.
 
-Kernel iterates over ATTR_RECORDs in mft record in ntfs_attr_find().
-Because the ATTR_RECORDs are next to each other, kernel can get the next
-ATTR_RECORD from end address of current ATTR_RECORD, through current
-ATTR_RECORD length field.
+Add support for the following Fibocom FM160 composition:
 
-The problem is that during iteration, when kernel calculates the end
-address of current ATTR_RECORD, kernel may trigger an integer overflow bug
-in executing `a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))`.  This
-may wrap, leading to a forever iteration on 32bit systems.
+0x0111: MBIM + MODEM + DIAG + AT
 
-This patch solves it by adding some checks on calculating end address
-of current ATTR_RECORD during iteration.
+T:  Bus=01 Lev=02 Prnt=125 Port=01 Cnt=02 Dev#= 93 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2cb7 ProdID=0111 Rev= 5.04
+S:  Manufacturer=Fibocom
+S:  Product=Fibocom FM160 Modem_SN:12345678
+S:  SerialNumber=12345678
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
+E:  Ad=81(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
+I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+E:  Ad=86(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-Link: https://lkml.kernel.org/r/20220831160935.3409-4-yin31149@gmail.com
-Link: https://lore.kernel.org/all/20220827105842.GM2030@kadam/
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Cc: chenxiaosong (A) <chenxiaosong2@huawei.com>
-Cc: syzkaller-bugs <syzkaller-bugs@googlegroups.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs/attrib.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/usb/serial/option.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ntfs/attrib.c
-+++ b/fs/ntfs/attrib.c
-@@ -631,6 +631,14 @@ static int ntfs_attr_find(const ATTR_TYP
- 			return -ENOENT;
- 		if (unlikely(!a->length))
- 			break;
-+
-+		/* check whether ATTR_RECORD's length wrap */
-+		if ((u8 *)a + le32_to_cpu(a->length) < (u8 *)a)
-+			break;
-+		/* check whether ATTR_RECORD's length is within bounds */
-+		if ((u8 *)a + le32_to_cpu(a->length) > mrec_end)
-+			break;
-+
- 		if (a->type != type)
- 			continue;
- 		/*
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2179,6 +2179,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x010a, 0xff) },			/* Fibocom MA510 (ECM mode) */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
++	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0111, 0xff) },			/* Fibocom FM160 (MBIM mode) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a2, 0xff) },			/* Fibocom FM101-GL (laptop MBIM) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a4, 0xff),			/* Fibocom FM101-GL (laptop MBIM) */
 
 
