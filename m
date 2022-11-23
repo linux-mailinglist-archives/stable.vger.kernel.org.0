@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF44B635657
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4008635913
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237686AbiKWJ33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:29:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43806 "EHLO
+        id S236887AbiKWKGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:06:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237619AbiKWJ3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:29:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F620D100
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:27:19 -0800 (PST)
+        with ESMTP id S236871AbiKWKGK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70443125226
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AEBE661B40
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:27:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DF30C433D6;
-        Wed, 23 Nov 2022 09:27:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF128B81EE6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03130C433D6;
+        Wed, 23 Nov 2022 09:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195638;
-        bh=yYhp8Hn/124hrHXNT+nRAm36mEF9eGnbHttfrnpJ3Ts=;
+        s=korg; t=1669197385;
+        bh=EyGpCvExirL+SolXAuOtWHuYu+BCjYr33Yv0K9tZB5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=daVp4CrDMf41Og7Ok+WUia/lO9w0A/RKZROzQmiWsqzbZFcUBZLeCmXOXjCel8NMB
-         XdMWpnY8VK3wJmYSm1kSkS8w58B9LV40biI3w6V3gvNfVFifsJolYvZFnXqEHX0PfE
-         uc8E1PVnl9UkmGon29wmGJj8HPDd+2Qhkym9PWzo=
+        b=n58ofwlOdn7J9LAOVG9fEpewaH9flfsthILQPxjmlaGMaCmBBLlSqs8m+V+2qRx9F
+         j6ARclbHRXxULxz7IDYSg77QYb5zs3B4v5modWXmadFt37Ez5TLS5wilEW7dSZ4U2F
+         jIl1QmTcIMpM6ZEG6PJtq6H33/exClDOulWEofb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Schspa Shi <schspa@gmail.com>
-Subject: [PATCH 5.10 142/149] 9p: trans_fd/p9_conn_cancel: drop client lock earlier
+        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 6.0 280/314] perf/x86/intel/pt: Fix sampling using single range output
 Date:   Wed, 23 Nov 2022 09:52:05 +0100
-Message-Id: <20221123084603.032987856@linuxfoundation.org>
+Message-Id: <20221123084638.228224271@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominique Martinet <asmadeus@codewreck.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 52f1c45dde9136f964d63a77d19826c8a74e2c7f upstream.
+commit ce0d998be9274dd3a3d971cbeaa6fe28fd2c3062 upstream.
 
-syzbot reported a double-lock here and we no longer need this
-lock after requests have been moved off to local list:
-just drop the lock earlier.
+Deal with errata TGL052, ADL037 and RPL017 "Trace May Contain Incorrect
+Data When Configured With Single Range Output Larger Than 4KB" by
+disabling single range output whenever larger than 4KB.
 
-Link: https://lkml.kernel.org/r/20220904064028.1305220-1-asmadeus@codewreck.org
-Reported-by: syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Tested-by: Schspa Shi <schspa@gmail.com>
+Fixes: 670638477aed ("perf/x86/intel/pt: Opportunistically use single range output mode")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20221112151508.13768-1-adrian.hunter@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/9p/trans_fd.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/events/intel/pt.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -205,6 +205,8 @@ static void p9_conn_cancel(struct p9_con
- 		list_move(&req->req_list, &cancel_list);
- 	}
+--- a/arch/x86/events/intel/pt.c
++++ b/arch/x86/events/intel/pt.c
+@@ -1263,6 +1263,15 @@ static int pt_buffer_try_single(struct p
+ 	if (1 << order != nr_pages)
+ 		goto out;
  
-+	spin_unlock(&m->client->lock);
++	/*
++	 * Some processors cannot always support single range for more than
++	 * 4KB - refer errata TGL052, ADL037 and RPL017. Future processors might
++	 * also be affected, so for now rather than trying to keep track of
++	 * which ones, just disable it for all.
++	 */
++	if (nr_pages > 1)
++		goto out;
 +
- 	list_for_each_entry_safe(req, rtmp, &cancel_list, req_list) {
- 		p9_debug(P9_DEBUG_ERROR, "call back req %p\n", req);
- 		list_del(&req->req_list);
-@@ -212,7 +214,6 @@ static void p9_conn_cancel(struct p9_con
- 			req->t_err = err;
- 		p9_client_cb(m->client, req, REQ_STATUS_ERROR);
- 	}
--	spin_unlock(&m->client->lock);
- }
- 
- static __poll_t
+ 	buf->single = true;
+ 	buf->nr_pages = nr_pages;
+ 	ret = 0;
 
 
