@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1EF06356F4
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF6CF63548C
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237913AbiKWJfA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:35:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53114 "EHLO
+        id S237061AbiKWJGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:06:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237914AbiKWJe1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:34:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B3CA5F8D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:32:27 -0800 (PST)
+        with ESMTP id S237060AbiKWJF7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:05:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49D891055B6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:05:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6617961B71
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:32:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53313C433D7;
-        Wed, 23 Nov 2022 09:32:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E420FB81ECB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:05:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25E90C433D6;
+        Wed, 23 Nov 2022 09:05:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195946;
-        bh=fJ0lPZa0ylFVhACa79Ytd26siB75fd7+pfkuz5h4/NE=;
+        s=korg; t=1669194352;
+        bh=XbiBtFeER33Qkh6MpIYHaijb5Z6lPAWZRqnIAbyoYGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f005kb4DPck8A8BCg7PqeoTJO+vDRk4vUEO7BLfiIF6LnIzenUm9LFpeCW3pc3i28
-         xxNswP2kUAOFX5x/cch1Vbs7BdkSlq0waVnWTyLeZXnWTCBg/MG5HIVVvjQ/VET3Ut
-         LbRLiXIcbMTh8h5d0hc6hdHC5u5ceqWER7VCuOfM=
+        b=PQJfSBaMMozVIJoC/P25ZVqhHPdh/g7jonkt8TKcKbdL827+MS53dCGurDNMDqr3p
+         kwRLA1dpdKVJ6UhlqX2b2P8dJRest086FoerdQ8mac0ytsigTE+2fGdoiwEJFtRgLq
+         dtWq+Tdy+lbOOSqRtBuFg7vaCHT+Pr/296ODRnz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liao Chang <liaochang1@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 077/181] MIPS: Loongson64: Add WARN_ON on kexec related kmalloc failed
-Date:   Wed, 23 Nov 2022 09:50:40 +0100
-Message-Id: <20221123084605.681210545@linuxfoundation.org>
+Subject: [PATCH 4.19 054/114] ASoC: core: Fix use-after-free in snd_soc_exit()
+Date:   Wed, 23 Nov 2022 09:50:41 +0100
+Message-Id: <20221123084554.030508411@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +53,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liao Chang <liaochang1@huawei.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit fa706927f4722a2df723b2a28d139b1904a3e7fa ]
+[ Upstream commit 6ec27c53886c8963729885bcf2dd996eba2767a7 ]
 
-Add WARN_ON on kexec related kmalloc failed, avoid to pass NULL pointer
-to following memcpy and loongson_kexec_prepare.
+KASAN reports a use-after-free:
 
-Fixes: 6ce48897ce47 ("MIPS: Loongson64: Add kexec/kdump support")
-Signed-off-by: Liao Chang <liaochang1@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+BUG: KASAN: use-after-free in device_del+0xb5b/0xc60
+Read of size 8 at addr ffff888008655050 by task rmmod/387
+CPU: 2 PID: 387 Comm: rmmod
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+Call Trace:
+<TASK>
+dump_stack_lvl+0x79/0x9a
+print_report+0x17f/0x47b
+kasan_report+0xbb/0xf0
+device_del+0xb5b/0xc60
+platform_device_del.part.0+0x24/0x200
+platform_device_unregister+0x2e/0x40
+snd_soc_exit+0xa/0x22 [snd_soc_core]
+__do_sys_delete_module.constprop.0+0x34f/0x5b0
+do_syscall_64+0x3a/0x90
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+...
+</TASK>
+
+It's bacause in snd_soc_init(), snd_soc_util_init() is possble to fail,
+but its ret is ignored, which makes soc_dummy_dev unregistered twice.
+
+snd_soc_init()
+    snd_soc_util_init()
+        platform_device_register_simple(soc_dummy_dev)
+        platform_driver_register() # fail
+    	platform_device_unregister(soc_dummy_dev)
+    platform_driver_register() # success
+...
+snd_soc_exit()
+    snd_soc_util_exit()
+    # soc_dummy_dev will be unregistered for second time
+
+To fix it, handle error and stop snd_soc_init() when util_init() fail.
+Also clean debugfs when util_init() or driver_register() fail.
+
+Fixes: fb257897bf20 ("ASoC: Work around allmodconfig failure")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221028031603.59416-1-chenzhongjin@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/loongson64/reset.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/soc/soc-core.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/loongson64/reset.c b/arch/mips/loongson64/reset.c
-index 758d5d26aaaa..e420800043b0 100644
---- a/arch/mips/loongson64/reset.c
-+++ b/arch/mips/loongson64/reset.c
-@@ -16,6 +16,7 @@
- #include <asm/bootinfo.h>
- #include <asm/idle.h>
- #include <asm/reboot.h>
-+#include <asm/bug.h>
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 9ca7dff5593d..07875867f5c2 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -3863,10 +3863,23 @@ EXPORT_SYMBOL_GPL(snd_soc_of_get_dai_link_codecs);
  
- #include <loongson.h>
- #include <boot_param.h>
-@@ -159,8 +160,17 @@ static int __init mips_reboot_setup(void)
+ static int __init snd_soc_init(void)
+ {
++	int ret;
++
+ 	snd_soc_debugfs_init();
+-	snd_soc_util_init();
++	ret = snd_soc_util_init();
++	if (ret)
++		goto err_util_init;
  
- #ifdef CONFIG_KEXEC
- 	kexec_argv = kmalloc(KEXEC_ARGV_SIZE, GFP_KERNEL);
-+	if (WARN_ON(!kexec_argv))
-+		return -ENOMEM;
+-	return platform_driver_register(&soc_driver);
++	ret = platform_driver_register(&soc_driver);
++	if (ret)
++		goto err_register;
++	return 0;
 +
- 	kdump_argv = kmalloc(KEXEC_ARGV_SIZE, GFP_KERNEL);
-+	if (WARN_ON(!kdump_argv))
-+		return -ENOMEM;
-+
- 	kexec_envp = kmalloc(KEXEC_ENVP_SIZE, GFP_KERNEL);
-+	if (WARN_ON(!kexec_envp))
-+		return -ENOMEM;
-+
- 	fw_arg1 = KEXEC_ARGV_ADDR;
- 	memcpy(kexec_envp, (void *)fw_arg2, KEXEC_ENVP_SIZE);
++err_register:
++	snd_soc_util_exit();
++err_util_init:
++	snd_soc_debugfs_exit();
++	return ret;
+ }
+ module_init(snd_soc_init);
  
 -- 
 2.35.1
