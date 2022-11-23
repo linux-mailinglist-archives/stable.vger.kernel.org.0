@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8F9635525
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A31A6635475
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237283AbiKWJPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:15:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56824 "EHLO
+        id S237071AbiKWJGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:06:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237286AbiKWJOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:14:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91EFA107E4C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:14:48 -0800 (PST)
+        with ESMTP id S237057AbiKWJGc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:06:32 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD517105598
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 419EFB81EF9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:14:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ABBDC433D6;
-        Wed, 23 Nov 2022 09:14:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 18554CE0FBB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00A2EC433C1;
+        Wed, 23 Nov 2022 09:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194885;
-        bh=vvIEhiJa9pK2NM92hK7sLhClYHmJU5Y7fnE0VhGALmY=;
+        s=korg; t=1669194364;
+        bh=UqqAFhJHYuv9ZiGESkPL/MSim00a1cSb9ehfY9t3srM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYxjGt+eiFB9f6AlDhAbrql2jXz8OBCHTqdnlRdkeVuxUkRQkSUEt+dYrS3AuZLf8
-         SViLBRhAz3ogDQXS7uag0FQ8YI9NokSmkyWPQNv6hy3C7yqsH0ehZdw3MuYPa4m6jm
-         oLhAYfaSEit2TaLxezwTYgTnM9WffGPAqGbCqp4k=
+        b=uGrBV/SX6DoPpvRGNdOs1D5GOfP0N79bvUylKIYEph8YTpbtLSqeh1/TwFZ60De+t
+         Pvcgp3DPvB1/vRHUvlDsjC7RL2subFIhtVmF0hOn4ouEqVWFXjweoAPe2seiZ+Gswm
+         jvQ3wMQeS/bksZfj/GfJQ5hAdfuWVv8sAQAaJ48Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Martin Kaiser <martin@kaiser.cx>,
         Shawn Guo <shawn.guo@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/156] serial: imx: Add missing .thaw_noirq hook
+Subject: [PATCH 4.19 057/114] serial: imx: Add missing .thaw_noirq hook
 Date:   Wed, 23 Nov 2022 09:50:44 +0100
-Message-Id: <20221123084601.140404508@linuxfoundation.org>
+Message-Id: <20221123084554.161719377@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -130,10 +129,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index 8b41a783b37e..3f5878e367c7 100644
+index aeda1fe71eeb..819f340a8a7a 100644
 --- a/drivers/tty/serial/imx.c
 +++ b/drivers/tty/serial/imx.c
-@@ -2551,6 +2551,7 @@ static const struct dev_pm_ops imx_uart_pm_ops = {
+@@ -2510,6 +2510,7 @@ static const struct dev_pm_ops imx_uart_pm_ops = {
  	.suspend_noirq = imx_uart_suspend_noirq,
  	.resume_noirq = imx_uart_resume_noirq,
  	.freeze_noirq = imx_uart_suspend_noirq,
