@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B39B0634E09
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 03:53:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7500A634E0A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 03:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233346AbiKWCxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Nov 2022 21:53:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56084 "EHLO
+        id S235604AbiKWCxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Nov 2022 21:53:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234400AbiKWCxG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 21:53:06 -0500
+        with ESMTP id S235511AbiKWCxL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 21:53:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD6DE8DA42;
-        Tue, 22 Nov 2022 18:53:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EDC9D14E8;
+        Tue, 22 Nov 2022 18:53:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 353BA619FE;
-        Wed, 23 Nov 2022 02:53:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BCA2C433D6;
-        Wed, 23 Nov 2022 02:53:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCBE161886;
+        Wed, 23 Nov 2022 02:53:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CB7CC433D7;
+        Wed, 23 Nov 2022 02:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1669171983;
-        bh=mu0mvNqIlQRIuXWm5kRWsbhRDu6+mRnLMTLYiJ0Ybmo=;
+        s=korg; t=1669171989;
+        bh=0So1NgWUb/rCPnUB+1LP1VYAakaVyjG8IA9w3+4uLgs=;
         h=Date:To:From:Subject:From;
-        b=nfem2XCgL/T1iepQyyq9oDrY7970UeDQLESHyBCXrDIwHG/mGK96hV4lZbh/lS7BN
-         jk8i0BPG9SNJHZYlh8816+yCwAFYf1DO54MHq489abGlbSN/QJgcfBjgvOn1rGupMx
-         4Wt7Q0Mc1YXnCheOfR27h3Wf7eIITrk/ltJVsxJg=
-Date:   Tue, 22 Nov 2022 18:53:02 -0800
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        riel@surriel.com, mgorman@techsingularity.net,
-        iamjoonsoo.kim@lge.com, hughd@google.com, hannes@cmpxchg.org,
+        b=eNYyjjrS+F5hfRzH8PylRHMVubJkiN5kfv6kGHSqUQLbtcyoFbi17FNyYPTu19Ezo
+         v+4ij1Q1ZO3k4CWxnDsvMVGcT5iSLNyxVGTBVeDKX9l/a3Q9ucYXO4FfUlejUEOaRd
+         3zWShr/Sdpu29oVPhCKLp9fpDsbsNPtdCvDKKbSA=
+Date:   Tue, 22 Nov 2022 18:53:08 -0800
+To:     mm-commits@vger.kernel.org, trix@redhat.com,
+        stable@vger.kernel.org, oberpar@linux.ibm.com,
+        ndesaulniers@google.com, nathan@kernel.org, quic_mojha@quicinc.com,
         akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-vmscan-fix-extreme-overreclaim-and-swap-floods.patch removed from -mm tree
-Message-Id: <20221123025303.7BCA2C433D6@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] gcov-clang-fix-the-buffer-overflow-issue.patch removed from -mm tree
+Message-Id: <20221123025309.3CB7CC433D7@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -47,151 +47,99 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm: vmscan: fix extreme overreclaim and swap floods
+     Subject: gcov: clang: fix the buffer overflow issue
 has been removed from the -mm tree.  Its filename was
-     mm-vmscan-fix-extreme-overreclaim-and-swap-floods.patch
+     gcov-clang-fix-the-buffer-overflow-issue.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Johannes Weiner <hannes@cmpxchg.org>
-Subject: mm: vmscan: fix extreme overreclaim and swap floods
-Date: Tue, 2 Aug 2022 12:28:11 -0400
+From: Mukesh Ojha <quic_mojha@quicinc.com>
+Subject: gcov: clang: fix the buffer overflow issue
+Date: Thu, 10 Nov 2022 00:31:37 +0530
 
-During proactive reclaim, we sometimes observe severe overreclaim, with
-several thousand times more pages reclaimed than requested.
+Currently, in clang version of gcov code when module is getting removed
+gcov_info_add() incorrectly adds the sfn_ptr->counter to all the
+dst->functions and it result in the kernel panic in below crash report. 
+Fix this by properly handling it.
 
-This trace was obtained from shrink_lruvec() during such an instance:
+[    8.899094][  T599] Unable to handle kernel write to read-only memory at virtual address ffffff80461cc000
+[    8.899100][  T599] Mem abort info:
+[    8.899102][  T599]   ESR = 0x9600004f
+[    8.899103][  T599]   EC = 0x25: DABT (current EL), IL = 32 bits
+[    8.899105][  T599]   SET = 0, FnV = 0
+[    8.899107][  T599]   EA = 0, S1PTW = 0
+[    8.899108][  T599]   FSC = 0x0f: level 3 permission fault
+[    8.899110][  T599] Data abort info:
+[    8.899111][  T599]   ISV = 0, ISS = 0x0000004f
+[    8.899113][  T599]   CM = 0, WnR = 1
+[    8.899114][  T599] swapper pgtable: 4k pages, 39-bit VAs, pgdp=00000000ab8de000
+[    8.899116][  T599] [ffffff80461cc000] pgd=18000009ffcde003, p4d=18000009ffcde003, pud=18000009ffcde003, pmd=18000009ffcad003, pte=00600000c61cc787
+[    8.899124][  T599] Internal error: Oops: 9600004f [#1] PREEMPT SMP
+[    8.899265][  T599] Skip md ftrace buffer dump for: 0x1609e0
+....
+..,
+[    8.899544][  T599] CPU: 7 PID: 599 Comm: modprobe Tainted: G S         OE     5.15.41-android13-8-g38e9b1af6bce #1
+[    8.899547][  T599] Hardware name: XXX (DT)
+[    8.899549][  T599] pstate: 82400005 (Nzcv daif +PAN -UAO +TCO -DIT -SSBS BTYPE=--)
+[    8.899551][  T599] pc : gcov_info_add+0x9c/0xb8
+[    8.899557][  T599] lr : gcov_event+0x28c/0x6b8
+[    8.899559][  T599] sp : ffffffc00e733b00
+[    8.899560][  T599] x29: ffffffc00e733b00 x28: ffffffc00e733d30 x27: ffffffe8dc297470
+[    8.899563][  T599] x26: ffffffe8dc297000 x25: ffffffe8dc297000 x24: ffffffe8dc297000
+[    8.899566][  T599] x23: ffffffe8dc0a6200 x22: ffffff880f68bf20 x21: 0000000000000000
+[    8.899569][  T599] x20: ffffff880f68bf00 x19: ffffff8801babc00 x18: ffffffc00d7f9058
+[    8.899572][  T599] x17: 0000000000088793 x16: ffffff80461cbe00 x15: 9100052952800785
+[    8.899575][  T599] x14: 0000000000000200 x13: 0000000000000041 x12: 9100052952800785
+[    8.899577][  T599] x11: ffffffe8dc297000 x10: ffffffe8dc297000 x9 : ffffff80461cbc80
+[    8.899580][  T599] x8 : ffffff8801babe80 x7 : ffffffe8dc2ec000 x6 : ffffffe8dc2ed000
+[    8.899583][  T599] x5 : 000000008020001f x4 : fffffffe2006eae0 x3 : 000000008020001f
+[    8.899586][  T599] x2 : ffffff8027c49200 x1 : ffffff8801babc20 x0 : ffffff80461cb3a0
+[    8.899589][  T599] Call trace:
+[    8.899590][  T599]  gcov_info_add+0x9c/0xb8
+[    8.899592][  T599]  gcov_module_notifier+0xbc/0x120
+[    8.899595][  T599]  blocking_notifier_call_chain+0xa0/0x11c
+[    8.899598][  T599]  do_init_module+0x2a8/0x33c
+[    8.899600][  T599]  load_module+0x23cc/0x261c
+[    8.899602][  T599]  __arm64_sys_finit_module+0x158/0x194
+[    8.899604][  T599]  invoke_syscall+0x94/0x2bc
+[    8.899607][  T599]  el0_svc_common+0x1d8/0x34c
+[    8.899609][  T599]  do_el0_svc+0x40/0x54
+[    8.899611][  T599]  el0_svc+0x94/0x2f0
+[    8.899613][  T599]  el0t_64_sync_handler+0x88/0xec
+[    8.899615][  T599]  el0t_64_sync+0x1b4/0x1b8
+[    8.899618][  T599] Code: f905f56c f86e69ec f86e6a0f 8b0c01ec (f82e6a0c)
+[    8.899620][  T599] ---[ end trace ed5218e9e5b6e2e6 ]---
 
-    prio:0 anon_cost:1141521 file_cost:7767
-    nr_reclaimed:4387406 nr_to_reclaim:1047 (or_factor:4190)
-    nr=[7161123 345 578 1111]
-
-While he reclaimer requested 4M, vmscan reclaimed close to 16G, most of it
-by swapping.  These requests take over a minute, during which the write()
-to memory.reclaim is unkillably stuck inside the kernel.
-
-Digging into the source, this is caused by the proportional reclaim
-bailout logic.  This code tries to resolve a fundamental conflict: to
-reclaim roughly what was requested, while also aging all LRUs fairly and
-in accordance to their size, swappiness, refault rates etc.  The way it
-attempts fairness is that once the reclaim goal has been reached, it stops
-scanning the LRUs with the smaller remaining scan targets, and adjusts the
-remainder of the bigger LRUs according to how much of the smaller LRUs was
-scanned.  It then finishes scanning that remainder regardless of the
-reclaim goal.
-
-This works fine if priority levels are low and the LRU lists are
-comparable in size.  However, in this instance, the cgroup that is
-targeted by proactive reclaim has almost no files left - they've already
-been squeezed out by proactive reclaim earlier - and the remaining anon
-pages are hot.  Anon rotations cause the priority level to drop to 0,
-which results in reclaim targeting all of anon (a lot) and all of file
-(almost nothing).  By the time reclaim decides to bail, it has scanned
-most or all of the file target, and therefor must also scan most or all of
-the enormous anon target.  This target is thousands of times larger than
-the reclaim goal, thus causing the overreclaim.
-
-The bailout code hasn't changed in years, why is this failing now?  The
-most likely explanations are two other recent changes in anon reclaim:
-
-1. Before the series starting with commit 5df741963d52 ("mm: fix LRU
-   balancing effect of new transparent huge pages"), the VM was
-   overall relatively reluctant to swap at all, even if swap was
-   configured. This means the LRU balancing code didn't come into play
-   as often as it does now, and mostly in high pressure situations
-   where pronounced swap activity wouldn't be as surprising.
-
-2. For historic reasons, shrink_lruvec() loops on the scan targets of
-   all LRU lists except the active anon one, meaning it would bail if
-   the only remaining pages to scan were active anon - even if there
-   were a lot of them.
-
-   Before the series starting with commit ccc5dc67340c ("mm/vmscan:
-   make active/inactive ratio as 1:1 for anon lru"), most anon pages
-   would live on the active LRU; the inactive one would contain only a
-   handful of preselected reclaim candidates. After the series, anon
-   gets aged similarly to file, and the inactive list is the default
-   for new anon pages as well, making it often the much bigger list.
-
-   As a result, the VM is now more likely to actually finish large
-   anon targets than before.
-
-Change the code such that only one SWAP_CLUSTER_MAX-sized nudge toward the
-larger LRU lists is made before bailing out on a met reclaim goal.
-
-This fixes the extreme overreclaim problem.
-
-Fairness is more subtle and harder to evaluate.  No obvious misbehavior
-was observed on the test workload, in any case.  Conceptually, fairness
-should primarily be a cumulative effect from regular, lower priority
-scans.  Once the VM is in trouble and needs to escalate scan targets to
-make forward progress, fairness needs to take a backseat.  This is also
-acknowledged by the myriad exceptions in get_scan_count().  This patch
-makes fairness decrease gradually, as it keeps fairness work static over
-increasing priority levels with growing scan targets.  This should make
-more sense - although we may have to re-visit the exact values.
-
-Link: https://lkml.kernel.org/r/20220802162811.39216-1-hannes@cmpxchg.org
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Reviewed-by: Rik van Riel <riel@surriel.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/1668020497-13142-1-git-send-email-quic_mojha@quicinc.com
+Fixes: e178a5beb369 ("gcov: clang support")
+Signed-off-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Tested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Tom Rix <trix@redhat.com>
+Cc: <stable@vger.kernel.org>	[5.2+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/vmscan.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ kernel/gcov/clang.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/mm/vmscan.c~mm-vmscan-fix-extreme-overreclaim-and-swap-floods
-+++ a/mm/vmscan.c
-@@ -5844,8 +5844,8 @@ static void shrink_lruvec(struct lruvec
- 	enum lru_list lru;
- 	unsigned long nr_reclaimed = 0;
- 	unsigned long nr_to_reclaim = sc->nr_to_reclaim;
-+	bool proportional_reclaim;
- 	struct blk_plug plug;
--	bool scan_adjusted;
+--- a/kernel/gcov/clang.c~gcov-clang-fix-the-buffer-overflow-issue
++++ a/kernel/gcov/clang.c
+@@ -280,6 +280,8 @@ void gcov_info_add(struct gcov_info *dst
  
- 	if (lru_gen_enabled()) {
- 		lru_gen_shrink_lruvec(lruvec, sc);
-@@ -5868,8 +5868,8 @@ static void shrink_lruvec(struct lruvec
- 	 * abort proportional reclaim if either the file or anon lru has already
- 	 * dropped to zero at the first pass.
- 	 */
--	scan_adjusted = (!cgroup_reclaim(sc) && !current_is_kswapd() &&
--			 sc->priority == DEF_PRIORITY);
-+	proportional_reclaim = (!cgroup_reclaim(sc) && !current_is_kswapd() &&
-+				sc->priority == DEF_PRIORITY);
- 
- 	blk_start_plug(&plug);
- 	while (nr[LRU_INACTIVE_ANON] || nr[LRU_ACTIVE_FILE] ||
-@@ -5889,7 +5889,7 @@ static void shrink_lruvec(struct lruvec
- 
- 		cond_resched();
- 
--		if (nr_reclaimed < nr_to_reclaim || scan_adjusted)
-+		if (nr_reclaimed < nr_to_reclaim || proportional_reclaim)
- 			continue;
- 
- 		/*
-@@ -5940,8 +5940,6 @@ static void shrink_lruvec(struct lruvec
- 		nr_scanned = targets[lru] - nr[lru];
- 		nr[lru] = targets[lru] * (100 - percentage) / 100;
- 		nr[lru] -= min(nr[lru], nr_scanned);
--
--		scan_adjusted = true;
+ 		for (i = 0; i < sfn_ptr->num_counters; i++)
+ 			dfn_ptr->counters[i] += sfn_ptr->counters[i];
++
++		sfn_ptr = list_next_entry(sfn_ptr, head);
  	}
- 	blk_finish_plug(&plug);
- 	sc->nr_reclaimed += nr_reclaimed;
+ }
+ 
 _
 
-Patches currently in -mm which might be from hannes@cmpxchg.org are
+Patches currently in -mm which might be from quic_mojha@quicinc.com are
 
-mm-vmscan-split-khugepaged-stats-from-direct-reclaim-stats.patch
-zswap-fix-writeback-lock-ordering-for-zsmalloc.patch
-zpool-clean-out-dead-code.patch
 
