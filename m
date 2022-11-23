@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 572AF63579B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:46:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 244556357B5
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:46:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238147AbiKWJoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:44:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38290 "EHLO
+        id S238216AbiKWJo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:44:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238217AbiKWJoH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:44:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B570374ABC
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:42:10 -0800 (PST)
+        with ESMTP id S238159AbiKWJoI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:44:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D13055C774
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:42:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6609CB81EEB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:42:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AC86C433D6;
-        Wed, 23 Nov 2022 09:42:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DF3361B56
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:42:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C4D2C433C1;
+        Wed, 23 Nov 2022 09:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196528;
-        bh=Mw8TLCt2WFyOkNt3qgLi05EIYzHnLchcXcQJD7OwzqY=;
+        s=korg; t=1669196531;
+        bh=4JPnZ2MlGned0lCOIlKHPGB/jtAyKuzjcV6Fb4+haGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yiz8BQrrD+Mtr5s5z7aV2zupCsBg/1Wc33VpoGu5BxS+l3+MWOb+BPdRN4Yu+rkXT
-         Mvibjns6OnUaKHGQZMxa4lMoHIFlA765TaOgsWxr/u0OO3il7JZyJQ99kiRf4FBKk2
-         +/qcGAaEIdJ3J/wUXqLn6Uc9rqE8c8FLYq+ZGRIc=
+        b=HT/OTv4OyKy+p40uxy+wDgK/Plv0TQtyf2cIkBqLlijmJSb2kIXsIQDGAQwGyVXW8
+         Ev6aSbOBq5aefOIy2TjSZ3zib0x9px0mlvDkkj94iIFMY8yKK6i/rTyJCycr/hFzt8
+         weJiSLDteUK6oD1Df2CX9I6sRc3SyLbVj58n5cpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chaitanya Dhere <Chaitanya.Dhere@amd.com>,
-        Jasdeep Dhillon <jdhillon@amd.com>,
-        Alex Hung <alex.hung@amd.com>,
-        Nevenko Stupar <Nevenko.Stupar@amd.com>,
-        Mark Broadworth <mark.broadworth@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Tedd Ho-Jeong An <tedd.an@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 056/314] drm/amd/display: Investigate tool reported FCLK P-state deviations
-Date:   Wed, 23 Nov 2022 09:48:21 +0100
-Message-Id: <20221123084628.038013005@linuxfoundation.org>
+Subject: [PATCH 6.0 057/314] Bluetooth: L2CAP: Fix l2cap_global_chan_by_psm
+Date:   Wed, 23 Nov 2022 09:48:22 +0100
+Message-Id: <20221123084628.084558767@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -57,43 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nevenko Stupar <Nevenko.Stupar@amd.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 7461016c5706eb8c477752bf69e5c9f5a38f502b ]
+[ Upstream commit f937b758a188d6fd328a81367087eddbb2fce50f ]
 
-[Why]
-Fix for some of the tool reported modes for FCLK
-P-state deviations and UCLK P-state deviations that
-are coming from DSC terms and/or Scaling terms
-causing MinActiveFCLKChangeLatencySupported
-and MaxActiveDRAMClockChangeLatencySupported
-incorrectly calculated in DML for these configurations.
+l2cap_global_chan_by_psm shall not return fixed channels as they are not
+meant to be connected by (S)PSM.
 
-Reviewed-by: Chaitanya Dhere <Chaitanya.Dhere@amd.com>
-Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Nevenko Stupar <Nevenko.Stupar@amd.com>
-Tested-by: Mark Broadworth <mark.broadworth@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c
-index 6704465fe5b6..ea80874474e3 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c
-@@ -364,7 +364,8 @@ static void DISPCLKDPPCLKDCFCLKDeepSleepPrefetchParametersWatermarksAndPerforman
- 	for (k = 0; k < mode_lib->vba.NumberOfActiveSurfaces; ++k) {
- 		v->DSCDelay[k] = dml32_DSCDelayRequirement(mode_lib->vba.DSCEnabled[k],
- 				mode_lib->vba.ODMCombineEnabled[k], mode_lib->vba.DSCInputBitPerComponent[k],
--				mode_lib->vba.OutputBpp[k], mode_lib->vba.HActive[k], mode_lib->vba.HTotal[k],
-+				mode_lib->vba.OutputBppPerState[mode_lib->vba.VoltageLevel][k],
-+				mode_lib->vba.HActive[k], mode_lib->vba.HTotal[k],
- 				mode_lib->vba.NumberOfDSCSlices[k], mode_lib->vba.OutputFormat[k],
- 				mode_lib->vba.Output[k], mode_lib->vba.PixelClock[k],
- 				mode_lib->vba.PixelClockBackEnd[k]);
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 4df3d0ed6c80..9c24947aa41e 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -1990,7 +1990,7 @@ static struct l2cap_chan *l2cap_global_chan_by_psm(int state, __le16 psm,
+ 		if (link_type == LE_LINK && c->src_type == BDADDR_BREDR)
+ 			continue;
+ 
+-		if (c->psm == psm) {
++		if (c->chan_type != L2CAP_CHAN_FIXED && c->psm == psm) {
+ 			int src_match, dst_match;
+ 			int src_any, dst_any;
+ 
 -- 
 2.35.1
 
