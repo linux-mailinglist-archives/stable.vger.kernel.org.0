@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B006353CB
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFD3763535D
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:54:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236860AbiKWI6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:58:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34388 "EHLO
+        id S235838AbiKWIyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:54:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236810AbiKWI6l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:58:41 -0500
+        with ESMTP id S236459AbiKWIyR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:54:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5E972133
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:58:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F68DEA126
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:54:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F33EB81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:58:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79A2CC433D6;
-        Wed, 23 Nov 2022 08:58:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16DD4B81EED
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:54:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41AE1C433C1;
+        Wed, 23 Nov 2022 08:54:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193917;
-        bh=kzkDtoXdo/lXcEw2xk0RvA0tsuHthU4gYD8FH8U5rXQ=;
+        s=korg; t=1669193653;
+        bh=y9tngRf77j1cU8z9oOrbglHt8Cnay9hKUvBhPCl5gSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xMFB3rbc6aGkJtnm2ppOA+aBLv3uVGWu18DrN/xRLJ4zVssnCih5M+NAv/U60Hum0
-         wymEiVFlfYs0QtGLGwP2dDDicViyovJSTzD9TXtPTlSYxzsCTIUPZI0VGnZFOLqs1d
-         C1IMgzP6ZaQA7P6CZLrrzrlzvcasPfBGgCJD3AHY=
+        b=pQZwDOuH9adWui1I+ZWJ78NUMngw1JZMhzCbvzmYxn6Tz1Sf8IjEx6WJ9w+bGdmMf
+         M8Uqm3majf+BSfy/UjiH45DqDHlmL8uDuqdLeMwYo/TMcV7eYW7LeNf+HKh7mgQPZ5
+         ZL94klKG5TqJfviw1vGMkd3Y6BdTnPLg+SVGQT6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        "Andrew G. Morgan" <morgan@kernel.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/88] hamradio: fix issue of dev reference count leakage in bpq_device_event()
+Subject: [PATCH 4.9 05/76] capabilities: fix undefined behavior in bit shift for CAP_TO_MASK
 Date:   Wed, 23 Nov 2022 09:50:04 +0100
-Message-Id: <20221123084548.787684030@linuxfoundation.org>
+Message-Id: <20221123084546.918757427@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
+References: <20221123084546.742331901@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 85cbaf032d3cd9f595152625eda5d4ecb1d6d78d ]
+[ Upstream commit 46653972e3ea64f79e7f8ae3aa41a4d3fdb70a13 ]
 
-When following tests are performed, it will cause dev reference counting
-leakage.
-a)ip link add bond2 type bond mode balance-rr
-b)ip link set bond2 up
-c)ifenslave -f bond2 rose1
-d)ip link del bond2
+Shifting signed 32-bit value by 31 bits is undefined, so changing
+significant bit to unsigned. The UBSAN warning calltrace like below:
 
-When new bond device is created, the default type of the bond device is
-ether. And the bond device is up, bpq_device_event() receives the message
-and creates a new bpq device. In this case, the reference count value of
-dev is hold once. But after "ifenslave -f bond2 rose1" command is
-executed, the type of the bond device is changed to rose. When the bond
-device is unregistered, bpq_device_event() will not put the dev reference
-count.
+UBSAN: shift-out-of-bounds in security/commoncap.c:1252:2
+left shift of 1 by 31 places cannot be represented in type 'int'
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x7d/0xa5
+ dump_stack+0x15/0x1b
+ ubsan_epilogue+0xe/0x4e
+ __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
+ cap_task_prctl+0x561/0x6f0
+ security_task_prctl+0x5a/0xb0
+ __x64_sys_prctl+0x61/0x8f0
+ do_syscall_64+0x58/0x80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ </TASK>
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e338d263a76a ("Add 64-bit capability support to the kernel")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Acked-by: Andrew G. Morgan <morgan@kernel.org>
+Reviewed-by: Serge Hallyn <serge@hallyn.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/bpqether.c | 2 +-
+ include/uapi/linux/capability.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/hamradio/bpqether.c b/drivers/net/hamradio/bpqether.c
-index 7d94a7842557..5044ef45afda 100644
---- a/drivers/net/hamradio/bpqether.c
-+++ b/drivers/net/hamradio/bpqether.c
-@@ -551,7 +551,7 @@ static int bpq_device_event(struct notifier_block *this,
- 	if (!net_eq(dev_net(dev), &init_net))
- 		return NOTIFY_DONE;
+diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
+index 49bc06295398..0ba5b62a6aa0 100644
+--- a/include/uapi/linux/capability.h
++++ b/include/uapi/linux/capability.h
+@@ -359,7 +359,7 @@ struct vfs_cap_data {
+  */
  
--	if (!dev_is_ethdev(dev))
-+	if (!dev_is_ethdev(dev) && !bpq_get_ax25_dev(dev))
- 		return NOTIFY_DONE;
+ #define CAP_TO_INDEX(x)     ((x) >> 5)        /* 1 << 5 == bits in __u32 */
+-#define CAP_TO_MASK(x)      (1 << ((x) & 31)) /* mask for indexed __u32 */
++#define CAP_TO_MASK(x)      (1U << ((x) & 31)) /* mask for indexed __u32 */
  
- 	switch (event) {
+ 
+ #endif /* _UAPI_LINUX_CAPABILITY_H */
 -- 
 2.35.1
 
