@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 304F3635839
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:52:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B86D635460
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236987AbiKWJvn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:51:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44160 "EHLO
+        id S237040AbiKWJFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:05:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236704AbiKWJuy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:50:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A0753EEA
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:48:04 -0800 (PST)
+        with ESMTP id S237048AbiKWJFn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:05:43 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C85102E6F
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:05:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A419761B91
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:48:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC29AC433C1;
-        Wed, 23 Nov 2022 09:48:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7093CCE0FC8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:05:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B778C433C1;
+        Wed, 23 Nov 2022 09:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196883;
-        bh=1nDiu51BcouoQu9gSf8emitN7XxEOTSnRgz2cvPZO5U=;
+        s=korg; t=1669194338;
+        bh=B1CN7ugn0rpQiyuNdjWozjo19Q6e7W/9iWPda5/WdqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKyvHnFQOR1H4eOPUKhFsKxwejcDjgKyRZY6yzh9J819lhgrtqmX6vVdkBXA+FY/e
-         CJFaxcUto/Zk4xengr4mmv7Mg5B4z5tf8Oz1U7Isapdb2LvEOzLA2Uth/r29SvNtmJ
-         +cz2Bqq9cuhu5rZO522uXD0qtSepfKdq3dRgXlqQ=
+        b=tNQZZs5bzu+OX9CmWZrNsRm1H6DxcMzKiCzxeyAT8rr2dfqJcghdDNUykMgGcuEOp
+         UrQxsGuSV6lHA8ZKAfYGOm8OJMV43JKtaBdWkZcnevQCEIfm8WqzH7fk4gY0G0aWo9
+         G5bZCtAXv8WeAdGhHOKJiNrDDadRa2NnqGagfQZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 151/314] net: phy: dp83867: Fix SGMII FIFO depth for non OF devices
+Subject: [PATCH 4.19 009/114] net: lapbether: fix issue of dev reference count leakage in lapbeth_device_event()
 Date:   Wed, 23 Nov 2022 09:49:56 +0100
-Message-Id: <20221123084632.407753817@linuxfoundation.org>
+Message-Id: <20221123084552.220941047@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit e2a54350dc9642e7dfc07335ca355581caa9dbfe ]
+[ Upstream commit 531705a765493655472c993627106e19f7e5a6d2 ]
 
-Current driver code will read device tree node information,
-and set default values if there is no info provided.
+When following tests are performed, it will cause dev reference counting
+leakage.
+a)ip link add bond2 type bond mode balance-rr
+b)ip link set bond2 up
+c)ifenslave -f bond2 rose1
+d)ip link del bond2
 
-This is not done in non-OF devices leading to SGMII fifo depths being
-set to the smallest size.
+When new bond device is created, the default type of the bond device is
+ether. And the bond device is up, lapbeth_device_event() receives the
+message and creates a new lapbeth device. In this case, the reference
+count value of dev is hold once. But after "ifenslave -f bond2 rose1"
+command is executed, the type of the bond device is changed to rose. When
+the bond device is unregistered, lapbeth_device_event() will not put the
+dev reference count.
 
-This patch sets the value to the default value of the PHY as stated in the
-PHY datasheet.
-
-Fixes: 4dc08dcc9f6f ("net: phy: dp83867: introduce critical chip default init for non-of platform")
-Signed-off-by: Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20221110054938.925347-1-michael.wei.hong.sit@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83867.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/wan/lapbether.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index 417527f8bbf5..7446d5c6c714 100644
---- a/drivers/net/phy/dp83867.c
-+++ b/drivers/net/phy/dp83867.c
-@@ -682,6 +682,13 @@ static int dp83867_of_init(struct phy_device *phydev)
- 	 */
- 	dp83867->io_impedance = DP83867_IO_MUX_CFG_IO_IMPEDANCE_MIN / 2;
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 3ec922bed2d8..6233805fc032 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -406,7 +406,7 @@ static int lapbeth_device_event(struct notifier_block *this,
+ 	if (dev_net(dev) != &init_net)
+ 		return NOTIFY_DONE;
  
-+	/* For non-OF device, the RX and TX FIFO depths are taken from
-+	 * default value. So, we init RX & TX FIFO depths here
-+	 * so that it is configured correctly later in dp83867_config_init();
-+	 */
-+	dp83867->tx_fifo_depth = DP83867_PHYCR_FIFO_DEPTH_4_B_NIB;
-+	dp83867->rx_fifo_depth = DP83867_PHYCR_FIFO_DEPTH_4_B_NIB;
-+
- 	return 0;
- }
- #endif /* CONFIG_OF_MDIO */
+-	if (!dev_is_ethdev(dev))
++	if (!dev_is_ethdev(dev) && !lapbeth_get_x25_dev(dev))
+ 		return NOTIFY_DONE;
+ 
+ 	switch (event) {
 -- 
 2.35.1
 
