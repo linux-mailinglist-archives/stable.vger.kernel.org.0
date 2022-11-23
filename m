@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D64D6357BC
+	by mail.lfdr.de (Postfix) with ESMTP id 99ECB6357BD
 	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:46:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238151AbiKWJno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:43:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35564 "EHLO
+        id S238157AbiKWJnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:43:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238154AbiKWJnC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:43:02 -0500
+        with ESMTP id S238160AbiKWJnE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:43:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D29FC12D1C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:40:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 847F617056
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:40:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C53B61B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:40:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35253C433C1;
-        Wed, 23 Nov 2022 09:40:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BCC461B6F
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:40:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68010C433D6;
+        Wed, 23 Nov 2022 09:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196434;
-        bh=HTtkplH0Al1Xn/NgtjXg4+3UjrdAKVV8cT4XsQznA4M=;
+        s=korg; t=1669196437;
+        bh=KztOp8qiQQ6o2p8/9EWNV2l4Add6B6H4zZ667ATuFoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sH7MIGsR6LepnZxSVIZYk6gfhovryXFASZ8agR1u8S602KGADXeC1OevBE9fGA/Nn
-         Q9n5PTBiRd+K6/O/5BWNV4w+msXYeqzTnkljI+xp/d0m9g4sLS184nqhZh5s0VJGXC
-         xGTMYV65LGlC8EYQtMZQThdVn70tRxq229Hpka0k=
+        b=DxYBiut72tzC48X8MbwyVMIFpix65Z6En0nOTn14nKJKFGE8L5ydpV8BmHBT+nQfI
+         XfU2i88TQeYxDY3p7JBFyqXZ0bdFt4BQirkjSqxmbD3VEryLAg59Jn0z1p9D220Mhf
+         5pLI8rnrgWxAxq59kkZU/FtC/Udl5G7Ngoe79fxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Alvin Lee <Alvin.Lee2@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 029/314] drm/amd/display: Dont return false if no stream
-Date:   Wed, 23 Nov 2022 09:47:54 +0100
-Message-Id: <20221123084626.839143173@linuxfoundation.org>
+Subject: [PATCH 6.0 030/314] drm/scheduler: fix fence ref counting
+Date:   Wed, 23 Nov 2022 09:47:55 +0100
+Message-Id: <20221123084626.888062675@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -56,38 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvin Lee <Alvin.Lee2@amd.com>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit abe4d9f03fae76c9650b0d942faf6990b35c377b ]
+[ Upstream commit b3af84383e7abdc5e63435817bb73a268e7c3637 ]
 
-pipe_ctx[i] exists even if the pipe is not
-in use. If the pipe is not in use it will
-always have a null stream, so don't return
-false in this case.
+We leaked dependency fences when processes were beeing killed.
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Alvin Lee <Alvin.Lee2@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Additional to that grab a reference to the last scheduled fence.
+
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220929180151.139751-1-christian.koenig@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/scheduler/sched_entity.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c
-index 1f195c5b3377..13cd1f2e50ca 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c
-@@ -187,7 +187,7 @@ bool dcn32_all_pipes_have_stream_and_plane(struct dc *dc,
- 		struct pipe_ctx *pipe = &context->res_ctx.pipe_ctx[i];
+diff --git a/drivers/gpu/drm/scheduler/sched_entity.c b/drivers/gpu/drm/scheduler/sched_entity.c
+index 6b25b2f4f5a3..7ef1a086a6fb 100644
+--- a/drivers/gpu/drm/scheduler/sched_entity.c
++++ b/drivers/gpu/drm/scheduler/sched_entity.c
+@@ -207,6 +207,7 @@ static void drm_sched_entity_kill_jobs_cb(struct dma_fence *f,
+ 	struct drm_sched_job *job = container_of(cb, struct drm_sched_job,
+ 						 finish_cb);
  
- 		if (!pipe->stream)
--			return false;
-+			continue;
++	dma_fence_put(f);
+ 	INIT_WORK(&job->work, drm_sched_entity_kill_jobs_work);
+ 	schedule_work(&job->work);
+ }
+@@ -234,8 +235,10 @@ static void drm_sched_entity_kill_jobs(struct drm_sched_entity *entity)
+ 		struct drm_sched_fence *s_fence = job->s_fence;
  
- 		if (!pipe->plane_state)
- 			return false;
+ 		/* Wait for all dependencies to avoid data corruptions */
+-		while ((f = drm_sched_job_dependency(job, entity)))
++		while ((f = drm_sched_job_dependency(job, entity))) {
+ 			dma_fence_wait(f, false);
++			dma_fence_put(f);
++		}
+ 
+ 		drm_sched_fence_scheduled(s_fence);
+ 		dma_fence_set_error(&s_fence->finished, -ESRCH);
+@@ -250,6 +253,7 @@ static void drm_sched_entity_kill_jobs(struct drm_sched_entity *entity)
+ 			continue;
+ 		}
+ 
++		dma_fence_get(entity->last_scheduled);
+ 		r = dma_fence_add_callback(entity->last_scheduled,
+ 					   &job->finish_cb,
+ 					   drm_sched_entity_kill_jobs_cb);
 -- 
 2.35.1
 
