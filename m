@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 613566355DC
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED4D4635871
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:58:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237483AbiKWJY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:24:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36504 "EHLO
+        id S237064AbiKWJ5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:57:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237481AbiKWJYI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:24:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D0B23BD3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:46 -0800 (PST)
+        with ESMTP id S238255AbiKWJ5M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:57:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C14705E9D7
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:51:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28C6BB81EF8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60B54C433C1;
-        Wed, 23 Nov 2022 09:22:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 754AFB81EF1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:51:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99A5EC433D6;
+        Wed, 23 Nov 2022 09:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195363;
-        bh=11D0frR9o1KerfcfDxeXEfRTqdAKc6lEFS6JHA74m38=;
+        s=korg; t=1669197102;
+        bh=4jyIn4YoUOj/Xcn3qfyKUaQfbIVvRlVpgVTshiyEAv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ATY65OLyBWDJNwlv3zfOhLHHHMuVr8M9YaI3L1tCne4anzyhNvgBD56gyh83af+Y3
-         S0XymyIqiZgqY/gOCsfRecWrYe3aTk0HSOjorCgxlbnJJ8qL/29a0irMIY7GaiZYLe
-         VX65LFRxXPBumkNTdUmyjSrvBCoDIKqpIg97hK0o=
+        b=QZF5Sw4EjWmqN0BgdXnQomLuBBcZKJRKgS5vczPQpbfKH06Z81e+XyJCtOyMyFuqC
+         PhERpQNAT6vWdQWNh/Hs2XRMCrWJeyJ1TNZLQwvKotuSSvFwzOrvzjB5R5bUezENgH
+         1g213Of1C4x84mV6Ylcq5J6jVaNYCd8GAE0pWzWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        syzbot+278279efdd2730dd14bf@syzkaller.appspotmail.com,
+        shaozhengchao <shaozhengchao@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Tom Herbert <tom@herbertland.com>,
+        Cong Wang <cong.wang@bytedance.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 033/149] ASoC: core: Fix use-after-free in snd_soc_exit()
+Subject: [PATCH 6.0 171/314] kcm: close race conditions on sk_receive_queue
 Date:   Wed, 23 Nov 2022 09:50:16 +0100
-Message-Id: <20221123084559.180006129@linuxfoundation.org>
+Message-Id: <20221123084633.316460482@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,86 +57,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit 6ec27c53886c8963729885bcf2dd996eba2767a7 ]
+[ Upstream commit 5121197ecc5db58c07da95eb1ff82b98b121a221 ]
 
-KASAN reports a use-after-free:
+sk->sk_receive_queue is protected by skb queue lock, but for KCM
+sockets its RX path takes mux->rx_lock to protect more than just
+skb queue. However, kcm_recvmsg() still only grabs the skb queue
+lock, so race conditions still exist.
 
-BUG: KASAN: use-after-free in device_del+0xb5b/0xc60
-Read of size 8 at addr ffff888008655050 by task rmmod/387
-CPU: 2 PID: 387 Comm: rmmod
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-Call Trace:
-<TASK>
-dump_stack_lvl+0x79/0x9a
-print_report+0x17f/0x47b
-kasan_report+0xbb/0xf0
-device_del+0xb5b/0xc60
-platform_device_del.part.0+0x24/0x200
-platform_device_unregister+0x2e/0x40
-snd_soc_exit+0xa/0x22 [snd_soc_core]
-__do_sys_delete_module.constprop.0+0x34f/0x5b0
-do_syscall_64+0x3a/0x90
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-...
-</TASK>
+We can teach kcm_recvmsg() to grab mux->rx_lock too but this would
+introduce a potential performance regression as struct kcm_mux can
+be shared by multiple KCM sockets.
 
-It's bacause in snd_soc_init(), snd_soc_util_init() is possble to fail,
-but its ret is ignored, which makes soc_dummy_dev unregistered twice.
+So we have to enforce skb queue lock in requeue_rx_msgs() and handle
+skb peek case carefully in kcm_wait_data(). Fortunately,
+skb_recv_datagram() already handles it nicely and is widely used by
+other sockets, we can just switch to skb_recv_datagram() after
+getting rid of the unnecessary sock lock in kcm_recvmsg() and
+kcm_splice_read(). Side note: SOCK_DONE is not used by KCM sockets,
+so it is safe to get rid of this check too.
 
-snd_soc_init()
-    snd_soc_util_init()
-        platform_device_register_simple(soc_dummy_dev)
-        platform_driver_register() # fail
-    	platform_device_unregister(soc_dummy_dev)
-    platform_driver_register() # success
-...
-snd_soc_exit()
-    snd_soc_util_exit()
-    # soc_dummy_dev will be unregistered for second time
+I ran the original syzbot reproducer for 30 min without seeing any
+issue.
 
-To fix it, handle error and stop snd_soc_init() when util_init() fail.
-Also clean debugfs when util_init() or driver_register() fail.
-
-Fixes: fb257897bf20 ("ASoC: Work around allmodconfig failure")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221028031603.59416-1-chenzhongjin@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
+Reported-by: syzbot+278279efdd2730dd14bf@syzkaller.appspotmail.com
+Reported-by: shaozhengchao <shaozhengchao@huawei.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Tom Herbert <tom@herbertland.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/20221114005119.597905-1-xiyou.wangcong@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ net/kcm/kcmsock.c | 58 +++++------------------------------------------
+ 1 file changed, 6 insertions(+), 52 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index a6d6d10cd471..e9da95ebccc8 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -3178,10 +3178,23 @@ EXPORT_SYMBOL_GPL(snd_soc_of_get_dai_link_codecs);
+diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
+index befc62606cdf..9e4b40a30a72 100644
+--- a/net/kcm/kcmsock.c
++++ b/net/kcm/kcmsock.c
+@@ -222,7 +222,7 @@ static void requeue_rx_msgs(struct kcm_mux *mux, struct sk_buff_head *head)
+ 	struct sk_buff *skb;
+ 	struct kcm_sock *kcm;
  
- static int __init snd_soc_init(void)
- {
-+	int ret;
-+
- 	snd_soc_debugfs_init();
--	snd_soc_util_init();
-+	ret = snd_soc_util_init();
-+	if (ret)
-+		goto err_util_init;
- 
--	return platform_driver_register(&soc_driver);
-+	ret = platform_driver_register(&soc_driver);
-+	if (ret)
-+		goto err_register;
-+	return 0;
-+
-+err_register:
-+	snd_soc_util_exit();
-+err_util_init:
-+	snd_soc_debugfs_exit();
-+	return ret;
+-	while ((skb = __skb_dequeue(head))) {
++	while ((skb = skb_dequeue(head))) {
+ 		/* Reset destructor to avoid calling kcm_rcv_ready */
+ 		skb->destructor = sock_rfree;
+ 		skb_orphan(skb);
+@@ -1085,53 +1085,17 @@ static int kcm_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 	return err;
  }
- module_init(snd_soc_init);
+ 
+-static struct sk_buff *kcm_wait_data(struct sock *sk, int flags,
+-				     long timeo, int *err)
+-{
+-	struct sk_buff *skb;
+-
+-	while (!(skb = skb_peek(&sk->sk_receive_queue))) {
+-		if (sk->sk_err) {
+-			*err = sock_error(sk);
+-			return NULL;
+-		}
+-
+-		if (sock_flag(sk, SOCK_DONE))
+-			return NULL;
+-
+-		if ((flags & MSG_DONTWAIT) || !timeo) {
+-			*err = -EAGAIN;
+-			return NULL;
+-		}
+-
+-		sk_wait_data(sk, &timeo, NULL);
+-
+-		/* Handle signals */
+-		if (signal_pending(current)) {
+-			*err = sock_intr_errno(timeo);
+-			return NULL;
+-		}
+-	}
+-
+-	return skb;
+-}
+-
+ static int kcm_recvmsg(struct socket *sock, struct msghdr *msg,
+ 		       size_t len, int flags)
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct kcm_sock *kcm = kcm_sk(sk);
+ 	int err = 0;
+-	long timeo;
+ 	struct strp_msg *stm;
+ 	int copied = 0;
+ 	struct sk_buff *skb;
+ 
+-	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
+-
+-	lock_sock(sk);
+-
+-	skb = kcm_wait_data(sk, flags, timeo, &err);
++	skb = skb_recv_datagram(sk, flags, &err);
+ 	if (!skb)
+ 		goto out;
+ 
+@@ -1162,14 +1126,11 @@ static int kcm_recvmsg(struct socket *sock, struct msghdr *msg,
+ 			/* Finished with message */
+ 			msg->msg_flags |= MSG_EOR;
+ 			KCM_STATS_INCR(kcm->stats.rx_msgs);
+-			skb_unlink(skb, &sk->sk_receive_queue);
+-			kfree_skb(skb);
+ 		}
+ 	}
+ 
+ out:
+-	release_sock(sk);
+-
++	skb_free_datagram(sk, skb);
+ 	return copied ? : err;
+ }
+ 
+@@ -1179,7 +1140,6 @@ static ssize_t kcm_splice_read(struct socket *sock, loff_t *ppos,
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct kcm_sock *kcm = kcm_sk(sk);
+-	long timeo;
+ 	struct strp_msg *stm;
+ 	int err = 0;
+ 	ssize_t copied;
+@@ -1187,11 +1147,7 @@ static ssize_t kcm_splice_read(struct socket *sock, loff_t *ppos,
+ 
+ 	/* Only support splice for SOCKSEQPACKET */
+ 
+-	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
+-
+-	lock_sock(sk);
+-
+-	skb = kcm_wait_data(sk, flags, timeo, &err);
++	skb = skb_recv_datagram(sk, flags, &err);
+ 	if (!skb)
+ 		goto err_out;
+ 
+@@ -1219,13 +1175,11 @@ static ssize_t kcm_splice_read(struct socket *sock, loff_t *ppos,
+ 	 * finish reading the message.
+ 	 */
+ 
+-	release_sock(sk);
+-
++	skb_free_datagram(sk, skb);
+ 	return copied;
+ 
+ err_out:
+-	release_sock(sk);
+-
++	skb_free_datagram(sk, skb);
+ 	return err;
+ }
  
 -- 
 2.35.1
