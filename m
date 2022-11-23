@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 804E8635669
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 983296354BB
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237778AbiKWJ2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:28:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44390 "EHLO
+        id S237172AbiKWJIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:08:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237944AbiKWJ1m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:27:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C4DF1122F2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:26:32 -0800 (PST)
+        with ESMTP id S237045AbiKWJIT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:08:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D35CDDF59
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:08:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EDC361B49
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:26:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C3C1C433D6;
-        Wed, 23 Nov 2022 09:26:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 776FFB81EF1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:08:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB576C433D6;
+        Wed, 23 Nov 2022 09:08:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195591;
-        bh=XLhMLZb6XiLLtPgxe/0OyAMI6SvnqSR49NwowbBrBYg=;
+        s=korg; t=1669194495;
+        bh=CQ+PlXzDFOXkouK0/3gFcQ6GwP8g6Rv+E122HjBRdmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ddoc3wSl5iz2fnQtxhI1wdGTnRnCK9yhtBT9qAYhcUeCoyJcElxcDEv8BXK3H5TkK
-         kLEG/0Bn0jMIZeepljeX4eFsl2BLJwp7kWMcOBeSZTx05bdZTAffbj3Nvc1BHyxSB9
-         3ntYnmRDPB7M2/tj54gmFzTHt+txv6+d0xRlNOco=
+        b=z7pzqF+jkj8mp0QmIJ3ACbO6kUNaW8kWjKOAiCwLFdFMIY+U7JOPX36ZK/W5Dm+Cg
+         FEPjGutgEaH5RxVJs8qKHZH4N1z4TF7ZPPOtD/J3kWouTyGR+suz2LQRN15Abjjb42
+         hOZ9ZMU7zBiDVS1O54OfP6wbDJIOpYFBiwGZ7AFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Beno=C3=AEt=20Monin?= <benoit.monin@gmx.fr>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 098/149] USB: serial: option: add Sierra Wireless EM9191
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.19 094/114] serial: 8250_lpss: Configure DMA also w/o DMA filter
 Date:   Wed, 23 Nov 2022 09:51:21 +0100
-Message-Id: <20221123084601.522465722@linuxfoundation.org>
+Message-Id: <20221123084555.559595506@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoît Monin <benoit.monin@gmx.fr>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit df3414b0a245f43476061fddd78cee7d6cff797f upstream.
+commit 1bfcbe5805d0cfc83c3544dcd01e0a282c1f6790 upstream.
 
-Add support for the AT and diag ports, similar to other qualcomm SDX55
-modems. In QDL mode, the modem uses a different device ID and support
-is provided by qcserial in commit 11c52d250b34 ("USB: serial: qcserial:
-add EM9191 QDL support").
+If the platform doesn't use DMA device filter (as is the case with
+Elkhart Lake), whole lpss8250_dma_setup() setup is skipped. This
+results in skipping also *_maxburst setup which is undesirable.
+Refactor lpss8250_dma_setup() to configure DMA even if filter is not
+setup.
 
-T:  Bus=08 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
-P:  Vendor=1199 ProdID=90d3 Rev=00.06
-S:  Manufacturer=Sierra Wireless, Incorporated
-S:  Product=Sierra Wireless EM9191
-S:  SerialNumber=xxxxxxxxxxxxxxxx
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
-
-Signed-off-by: Benoît Monin <benoit.monin@gmx.fr>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221108121952.5497-3-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/tty/serial/8250/8250_lpss.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -581,6 +581,9 @@ static void option_instat_callback(struc
- #define OPPO_VENDOR_ID				0x22d9
- #define OPPO_PRODUCT_R11			0x276c
+--- a/drivers/tty/serial/8250/8250_lpss.c
++++ b/drivers/tty/serial/8250/8250_lpss.c
+@@ -246,8 +246,13 @@ static int lpss8250_dma_setup(struct lps
+ 	struct dw_dma_slave *rx_param, *tx_param;
+ 	struct device *dev = port->port.dev;
  
-+/* Sierra Wireless products */
-+#define SIERRA_VENDOR_ID			0x1199
-+#define SIERRA_PRODUCT_EM9191			0x90d3
+-	if (!lpss->dma_param.dma_dev)
++	if (!lpss->dma_param.dma_dev) {
++		dma = port->dma;
++		if (dma)
++			goto out_configuration_only;
++
+ 		return 0;
++	}
  
- /* Device flags */
+ 	rx_param = devm_kzalloc(dev, sizeof(*rx_param), GFP_KERNEL);
+ 	if (!rx_param)
+@@ -258,16 +263,18 @@ static int lpss8250_dma_setup(struct lps
+ 		return -ENOMEM;
  
-@@ -2176,6 +2179,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(OPPO_VENDOR_ID, OPPO_PRODUCT_R11, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(SIERRA_VENDOR_ID, SIERRA_PRODUCT_EM9191, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(SIERRA_VENDOR_ID, SIERRA_PRODUCT_EM9191, 0xff, 0, 0) },
- 	{ } /* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, option_ids);
+ 	*rx_param = lpss->dma_param;
+-	dma->rxconf.src_maxburst = lpss->dma_maxburst;
+-
+ 	*tx_param = lpss->dma_param;
+-	dma->txconf.dst_maxburst = lpss->dma_maxburst;
+ 
+ 	dma->fn = lpss8250_dma_filter;
+ 	dma->rx_param = rx_param;
+ 	dma->tx_param = tx_param;
+ 
+ 	port->dma = dma;
++
++out_configuration_only:
++	dma->rxconf.src_maxburst = lpss->dma_maxburst;
++	dma->txconf.dst_maxburst = lpss->dma_maxburst;
++
+ 	return 0;
+ }
+ 
 
 
