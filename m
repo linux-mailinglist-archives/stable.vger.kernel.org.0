@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B387B63548A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD84F635434
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237083AbiKWJH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:07:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45380 "EHLO
+        id S236989AbiKWJCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:02:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237181AbiKWJHE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:04 -0500
+        with ESMTP id S236991AbiKWJCa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:02:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A4C2102E7E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB7AB2DE6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:02:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8637AB81EF1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC421C433D6;
-        Wed, 23 Nov 2022 09:06:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BF06B81ECB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:02:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B2DBC433C1;
+        Wed, 23 Nov 2022 09:02:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194389;
-        bh=vB/f+8HfOGiH6qbwX0kUKIjkv3oXAruNrWdvCA/nlzU=;
+        s=korg; t=1669194146;
+        bh=My+juo3flgjCis09t/MObaxbHs+n5GvpiZetRIKpEyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QVDaI9nSAuqoXLqHcDTwb9wDEiveD/TANQJ5qmVTZa0b0m2mwQSBPEv5xYhBHY/U8
-         KH0Ia4gMJ6Vw9Af9EoL1C7iKPEit8CFx3eiW1a1bI7d47uPmFGggKbgbmQjkHX8Hvv
-         0qvFBj4YAOFaKPu6KEUqI2qLwPyogBFEUqpehBq0=
+        b=IMTkjBqTeRQjBNBguUX1xn64gCE0WLubAXGsXQACj2mQxqW7yT6ngTCA8ZMovdawe
+         hw5Y9WNO4aZ9sGnwh0ZCLzkMgtJqKD2WSBlVMOs71UAqO4cWTGPyhS+YvdJ0Zw4EGj
+         RKABouGXC/2soV4JAYiUK4p7gjNRGhHEOz/N9nXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 063/114] pinctrl: devicetree: fix null pointer dereferencing in pinctrl_dt_to_map
-Date:   Wed, 23 Nov 2022 09:50:50 +0100
-Message-Id: <20221123084554.398220150@linuxfoundation.org>
+        patches@lists.linux.dev, mhiramat@kernel.org, mark.rutland@arm.com,
+        Wang Wensheng <wangwensheng4@huawei.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 54/88] ftrace: Optimize the allocation for mcount entries
+Date:   Wed, 23 Nov 2022 09:50:51 +0100
+Message-Id: <20221123084550.409659235@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Heng <zengheng4@huawei.com>
+From: Wang Wensheng <wangwensheng4@huawei.com>
 
-[ Upstream commit 91d5c5060ee24fe8da88cd585bb43b843d2f0dce ]
+commit bcea02b096333dc74af987cb9685a4dbdd820840 upstream.
 
-Here is the BUG report by KASAN about null pointer dereference:
+If we can't allocate this size, try something smaller with half of the
+size. Its order should be decreased by one instead of divided by two.
 
-BUG: KASAN: null-ptr-deref in strcmp+0x2e/0x50
-Read of size 1 at addr 0000000000000000 by task python3/2640
-Call Trace:
- strcmp
- __of_find_property
- of_find_property
- pinctrl_dt_to_map
+Link: https://lkml.kernel.org/r/20221109094434.84046-3-wangwensheng4@huawei.com
 
-kasprintf() would return NULL pointer when kmalloc() fail to allocate.
-So directly return ENOMEM, if kasprintf() return NULL pointer.
-
-Fixes: 57291ce295c0 ("pinctrl: core device tree mapping table parsing support")
-Signed-off-by: Zeng Heng <zengheng4@huawei.com>
-Link: https://lore.kernel.org/r/20221110082056.2014898-1-zengheng4@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <mhiramat@kernel.org>
+Cc: <mark.rutland@arm.com>
+Cc: stable@vger.kernel.org
+Fixes: a79008755497d ("ftrace: Allocate the mcount record pages as groups")
+Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/devicetree.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/trace/ftrace.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/devicetree.c b/drivers/pinctrl/devicetree.c
-index 177ee1136e34..6f5acfcba57c 100644
---- a/drivers/pinctrl/devicetree.c
-+++ b/drivers/pinctrl/devicetree.c
-@@ -235,6 +235,8 @@ int pinctrl_dt_to_map(struct pinctrl *p, struct pinctrl_dev *pctldev)
- 	for (state = 0; ; state++) {
- 		/* Retrieve the pinctrl-* property */
- 		propname = kasprintf(GFP_KERNEL, "pinctrl-%d", state);
-+		if (!propname)
-+			return -ENOMEM;
- 		prop = of_find_property(np, propname, &size);
- 		kfree(propname);
- 		if (!prop) {
--- 
-2.35.1
-
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -3105,7 +3105,7 @@ static int ftrace_allocate_records(struc
+ 		/* if we can't allocate this size, try something smaller */
+ 		if (!order)
+ 			return -ENOMEM;
+-		order >>= 1;
++		order--;
+ 		goto again;
+ 	}
+ 
 
 
