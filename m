@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1C0863573A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 836EE635931
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:09:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237928AbiKWJjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:39:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56576 "EHLO
+        id S236777AbiKWKI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:08:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237915AbiKWJjf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:39:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C564115780
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:37:22 -0800 (PST)
+        with ESMTP id S235557AbiKWKH7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:07:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFBC751C18
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:57:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7527DB81E54
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:37:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84CA6C433B5;
-        Wed, 23 Nov 2022 09:37:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E309261B22
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:57:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9CC3C433C1;
+        Wed, 23 Nov 2022 09:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196240;
-        bh=fHXDeFhK45VnMTTNCv2wQtmdkU75+T7qWf1s9rN7QYg=;
+        s=korg; t=1669197475;
+        bh=fvi7DgZsAFoziIzV1E5G1QMyu9rduF3TerUbwBtOGFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b7XM5ZwhSR/mH1k37RUZ9fJ/azClJ7Bz+PFBGXcbXZnYRt3KsZreykjaxZdBoDwZj
-         Xyr0jKwjXAiqqndnWKX+OCBa0q/RTBTFGVVPIrPNJDRRqfSDgkVex7ew6NckIWaurn
-         SDlydF8GrVMEEKVKtXxMACxpgTXCh2s3XKJfpgUg=
+        b=JMhpH+de8R/fbUILrYW9ZLjWT4PPufnEG3SQeR94nBducGRDlbHPbFQ8NSrWBaPOB
+         9KHR47M8kB93G/BJ6ffyhsX+o/r3Yq9W7XnBGBOYMpqHt4zzTy29j2QPfrmvA6Wvds
+         henOofR4CEWFPVeV9m5t/eaSFAQjOjn0DXuAmSw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.15 156/181] perf/x86/intel/pt: Fix sampling using single range output
+        patches@lists.linux.dev,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: [PATCH 6.0 274/314] s390/dcssblk: fix deadlock when adding a DCSS
 Date:   Wed, 23 Nov 2022 09:51:59 +0100
-Message-Id: <20221123084609.077857548@linuxfoundation.org>
+Message-Id: <20221123084637.952977398@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit ce0d998be9274dd3a3d971cbeaa6fe28fd2c3062 upstream.
+commit a41a11b4009580edb6e2b4c76e5e2ee303f87157 upstream.
 
-Deal with errata TGL052, ADL037 and RPL017 "Trace May Contain Incorrect
-Data When Configured With Single Range Output Larger Than 4KB" by
-disabling single range output whenever larger than 4KB.
+After the rework from commit 1ebe2e5f9d68 ("block: remove
+GENHD_FL_EXT_DEVT"), when calling device_add_disk(), dcssblk will end up
+in disk_scan_partitions(), and not break out early w/o GENHD_FL_NO_PART.
+This will trigger implicit open/release via blkdev_get/put_whole()
+later. dcssblk_release() will then deadlock on dcssblk_devices_sem
+semaphore, which is already held from dcssblk_add_store() when calling
+device_add_disk().
 
-Fixes: 670638477aed ("perf/x86/intel/pt: Opportunistically use single range output mode")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20221112151508.13768-1-adrian.hunter@intel.com
+dcssblk does not support partitions (DCSSBLK_MINORS_PER_DISK == 1), and
+never scanned partitions before. Therefore restore the previous
+behavior, and explicitly disallow partition scanning by setting the
+GENHD_FL_NO_PART flag. This will also prevent this deadlock scenario.
+
+Fixes: 1ebe2e5f9d68 ("block: remove GENHD_FL_EXT_DEVT")
+Cc: <stable@vger.kernel.org> # 5.17+
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/pt.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/s390/block/dcssblk.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/events/intel/pt.c
-+++ b/arch/x86/events/intel/pt.c
-@@ -1247,6 +1247,15 @@ static int pt_buffer_try_single(struct p
- 	if (1 << order != nr_pages)
- 		goto out;
+diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
+index 93b80da60277..b392b9f5482e 100644
+--- a/drivers/s390/block/dcssblk.c
++++ b/drivers/s390/block/dcssblk.c
+@@ -636,6 +636,7 @@ dcssblk_add_store(struct device *dev, struct device_attribute *attr, const char
+ 	dev_info->gd->minors = DCSSBLK_MINORS_PER_DISK;
+ 	dev_info->gd->fops = &dcssblk_devops;
+ 	dev_info->gd->private_data = dev_info;
++	dev_info->gd->flags |= GENHD_FL_NO_PART;
+ 	blk_queue_logical_block_size(dev_info->gd->queue, 4096);
+ 	blk_queue_flag_set(QUEUE_FLAG_DAX, dev_info->gd->queue);
  
-+	/*
-+	 * Some processors cannot always support single range for more than
-+	 * 4KB - refer errata TGL052, ADL037 and RPL017. Future processors might
-+	 * also be affected, so for now rather than trying to keep track of
-+	 * which ones, just disable it for all.
-+	 */
-+	if (nr_pages > 1)
-+		goto out;
-+
- 	buf->single = true;
- 	buf->nr_pages = nr_pages;
- 	ret = 0;
+-- 
+2.38.1
+
 
 
