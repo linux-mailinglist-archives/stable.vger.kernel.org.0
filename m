@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 141966354D8
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:12:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6461635804
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:49:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236913AbiKWJLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:11:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51534 "EHLO
+        id S238239AbiKWJtf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:49:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237207AbiKWJLT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:11:19 -0500
+        with ESMTP id S236610AbiKWJtB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD2555587
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:11:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93E9111A724
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:46:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A19B6185C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:11:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50CA9C433D7;
-        Wed, 23 Nov 2022 09:11:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B952661B91
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA2A9C433B5;
+        Wed, 23 Nov 2022 09:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194677;
-        bh=n0NW3gTG2p2nOkbjrhCJuQx4QvPExat8Ld2yX9bAP+g=;
+        s=korg; t=1669196764;
+        bh=V4gVvRvmo0xjL8AeNN/q0if05nknZP0mi7pIcTVbnF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j+i1Y9lq1zcL5VCnhzhBOmK6G6+AhpfwOSC3LKK2yGL39MKXtTrzUx4aq5i3xm5oe
-         4/4bEYofMra3HB9O8B9OlXhvduU1JlAmQ3IXTpguiW8w275uULPkvamWNU7A5qv5I5
-         cI7bMGdisCJD4Cw7W0iLl7MTLRL9NFgCfWbf5skg=
+        b=HD0ypTh8MG5RqaSau6I2LGVnmmX7Q+X5VVArGNGPx8jfcerXZfWeb1chTPnT3lJ0G
+         ftTE7cFqAqKxzMZ8sbocRJVCh8ZZGpRB+hjUa1klzxHD8iEWMs0pI/6tHdCduP8kVq
+         GK30i5a1HWou/mf7ISoOJSUyT0IpgLBzb7k1W9bE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Sandeen <sandeen@redhat.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 005/156] xfs: preserve inode versioning across remounts
-Date:   Wed, 23 Nov 2022 09:49:22 +0100
-Message-Id: <20221123084558.041330504@linuxfoundation.org>
+        patches@lists.linux.dev, Dylan Yudaken <dylany@meta.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 118/314] io_uring: calculate CQEs from the user visible value
+Date:   Wed, 23 Nov 2022 09:49:23 +0100
+Message-Id: <20221123084630.860899497@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +52,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Sandeen <sandeen@redhat.com>
+From: Dylan Yudaken <dylany@meta.com>
 
-commit 4750a171c3290f9bbebca16c6372db723a4cfa3b upstream.
+[ Upstream commit 0fc8c2acbfc789a977a50a4a9812a8e4b37958ce ]
 
-[ For 5.4.y, SB_I_VERSION should be set in xfs_fs_remount() ]
+io_cqring_wait (and it's wake function io_has_work) used cached_cq_tail in
+order to calculate the number of CQEs. cached_cq_tail is set strictly
+before the user visible rings->cq.tail
 
-The MS_I_VERSION mount flag is exposed via the VFS, as documented
-in the mount manpages etc; see the iversion and noiversion mount
-options in mount(8).
+However as far as userspace is concerned,  if io_uring_enter(2) is called
+with a minimum number of events, they will verify by checking
+rings->cq.tail.
 
-As a result, mount -o remount looks for this option in /proc/mounts
-and will only send the I_VERSION flag back in during remount it it
-is present.  Since it's not there, a remount will /remove/ the
-I_VERSION flag at the vfs level, and iversion functionality is lost.
+It is therefore possible for io_uring_enter(2) to return early with fewer
+events visible to the user.
 
-xfs v5 superblocks intend to always have i_version enabled; it is
-set as a default at mount time, but is lost during remount for the
-reasons above.
+Instead make the wait functions read from the user visible value, so there
+will be no discrepency.
 
-The generic fix would be to expose this documented option in
-/proc/mounts, but since that was rejected, fix it up again in the
-xfs remount path instead, so that at least xfs won't suffer from
-this misbehavior.
+This is triggered eventually by the following reproducer:
 
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+struct io_uring_sqe *sqe;
+struct io_uring_cqe *cqe;
+unsigned int cqe_ready;
+struct io_uring ring;
+int ret, i;
+
+ret = io_uring_queue_init(N, &ring, 0);
+assert(!ret);
+while(true) {
+	for (i = 0; i < N; i++) {
+		sqe = io_uring_get_sqe(&ring);
+		io_uring_prep_nop(sqe);
+		sqe->flags |= IOSQE_ASYNC;
+	}
+	ret = io_uring_submit(&ring);
+	assert(ret == N);
+
+	do {
+		ret = io_uring_wait_cqes(&ring, &cqe, N, NULL, NULL);
+	} while(ret == -EINTR);
+	cqe_ready = io_uring_cq_ready(&ring);
+	assert(!ret);
+	assert(cqe_ready == N);
+	io_uring_cq_advance(&ring, N);
+}
+
+Fixes: ad3eb2c89fb2 ("io_uring: split overflow state into SQ and CQ side")
+Signed-off-by: Dylan Yudaken <dylany@meta.com>
+Link: https://lore.kernel.org/r/20221108153016.1854297-1-dylany@meta.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_super.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ io_uring/io_uring.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/xfs/xfs_super.c
-+++ b/fs/xfs/xfs_super.c
-@@ -1228,6 +1228,10 @@ xfs_fs_remount(
- 	char			*p;
- 	int			error;
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index d29f397f095e..f347e81e2d98 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -171,6 +171,11 @@ static inline unsigned int __io_cqring_events(struct io_ring_ctx *ctx)
+ 	return ctx->cached_cq_tail - READ_ONCE(ctx->rings->cq.head);
+ }
  
-+	/* version 5 superblocks always support version counters. */
-+	if (XFS_SB_VERSION_NUM(&mp->m_sb) == XFS_SB_VERSION_5)
-+		*flags |= SB_I_VERSION;
++static inline unsigned int __io_cqring_events_user(struct io_ring_ctx *ctx)
++{
++	return READ_ONCE(ctx->rings->cq.tail) - READ_ONCE(ctx->rings->cq.head);
++}
 +
- 	/* First, check for complete junk; i.e. invalid options */
- 	error = xfs_test_remount_options(sb, options);
- 	if (error)
+ static bool io_match_linked(struct io_kiocb *head)
+ {
+ 	struct io_kiocb *req;
+@@ -2163,7 +2168,7 @@ struct io_wait_queue {
+ static inline bool io_should_wake(struct io_wait_queue *iowq)
+ {
+ 	struct io_ring_ctx *ctx = iowq->ctx;
+-	int dist = ctx->cached_cq_tail - (int) iowq->cq_tail;
++	int dist = READ_ONCE(ctx->rings->cq.tail) - (int) iowq->cq_tail;
+ 
+ 	/*
+ 	 * Wake up if we have enough events, or if a timeout occurred since we
+@@ -2240,7 +2245,8 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+ 	do {
+ 		io_cqring_overflow_flush(ctx);
+ 
+-		if (io_cqring_events(ctx) >= min_events)
++		/* if user messes with these they will just get an early return */
++		if (__io_cqring_events_user(ctx) >= min_events)
+ 			return 0;
+ 		if (!io_run_task_work())
+ 			break;
+-- 
+2.35.1
+
 
 
