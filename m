@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B88AA635E6C
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:57:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1A6E635E62
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:57:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237777AbiKWMri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:47:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34712 "EHLO
+        id S237808AbiKWMrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:47:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237950AbiKWMrG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:47:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B936DCD5;
-        Wed, 23 Nov 2022 04:43:13 -0800 (PST)
+        with ESMTP id S238001AbiKWMrQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:47:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21362701B1;
+        Wed, 23 Nov 2022 04:43:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D316261C55;
+        by ams.source.kernel.org (Postfix) with ESMTPS id ACAD9B81F5F;
+        Wed, 23 Nov 2022 12:43:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2F53C433D7;
         Wed, 23 Nov 2022 12:43:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7271EC433C1;
-        Wed, 23 Nov 2022 12:43:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207392;
-        bh=/ED1fG4nL2P2dOOI7FTKK00ydHyVU0MsOeTbZJzQ1io=;
+        s=k20201202; t=1669207393;
+        bh=jdSi8O56kr6BHoi0bBJ5xcc78BdUEDR2Jgq7u1AbZGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OBnJwUJzAOmnuDCE8afoOgKcnwov0zTZuIuRat6Dyba7C1/lRZXaDefHkLKxGgocA
-         Hx8wrhZWyApFk0F3Is3OmHVlke8dCw1UuQ727D4xFTCcOLOXdJweBz0vFYGC+LrplN
-         GeKmEiRTAwJHFyc70ylqUzuaEoVlta3dZX4afN/tlnEhM8lA0rgc+/9jTpJQgtEIPb
-         990PUrL0frkOZLQ9xqflJRQr66bVjGWXw6r6U5CG6WCpicNM+nWfdLBh+/nu9yo1o0
-         eRpq9yrq2IC4EMpCDhFA6PuJx1DXnshMcp7gSl7SBC+3lzOxbP3tgPYxz1Pl42Bp63
-         Do2USUprL7z7g==
+        b=cF7oRbeHlackOWdHLzzO7uwvsYP/uhQgEuk/0UyZlOaHJdQlpwfsSdW3IQ27QFh4M
+         HedWG1qMM+Mgc8KVWz+12IgA5DwBDKCgMViobQ33+lP+njFxsAKXOgbKu5SksW+p/o
+         ax3hI+Pkf+CGMyWbot9RlnVg5Wxc15t4aCYz8ZyQXXOnEAlEbDXidThIqJYkDryck4
+         nrda3tim/sucfxkCwqnddKrjZ/Q71xhxMiuPf0fds7sVT6QookUaNPobtasPUHaaJA
+         RUpKBAT7eD9XB1VnEx3XKGPTIk4wY7spvaGRqg4lZBS4+Pg1TPhbQXiprgtfTPVEAz
+         MEIpyenczW6kA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, corentin.chary@gmail.com,
-        markgross@kernel.org, acpi4asus-user@lists.sourceforge.net,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 15/31] platform/x86: asus-wmi: add missing pci_dev_put() in asus_wmi_set_xusb2pr()
-Date:   Wed, 23 Nov 2022 07:42:16 -0500
-Message-Id: <20221123124234.265396-15-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Rudolf Polzer <rpolzer@google.com>,
+        Sasha Levin <sashal@kernel.org>, jlee@suse.com,
+        markgross@kernel.org, platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 16/31] platform/x86: acer-wmi: Enable SW_TABLET_MODE on Switch V 10 (SW5-017)
+Date:   Wed, 23 Nov 2022 07:42:17 -0500
+Message-Id: <20221123124234.265396-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124234.265396-1-sashal@kernel.org>
 References: <20221123124234.265396-1-sashal@kernel.org>
@@ -57,36 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit d0cdd85046b15089df71a50548617ac1025300d0 ]
+[ Upstream commit 1e817b889c7d8c14e7005258e15fec62edafe03c ]
 
-pci_get_device() will increase the reference count for the returned
-pci_dev. We need to use pci_dev_put() to decrease the reference count
-before asus_wmi_set_xusb2pr() returns.
+Like the Acer Switch 10 (SW5-012) and Acer Switch 10 (S1003) models
+the Acer Switch V 10 (SW5-017) supports reporting SW_TABLET_MODE
+through acer-wmi.
 
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221111100752.134311-1-wangxiongfeng2@huawei.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Add a DMI quirk for the SW5-017 setting force_caps to ACER_CAP_KBD_DOCK
+(these devices have no other acer-wmi based functionality).
+
+Cc: Rudolf Polzer <rpolzer@google.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20221111111639.35730-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-wmi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/platform/x86/acer-wmi.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-index e14fb5fa7324..f030ea97f126 100644
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -1511,6 +1511,8 @@ static void asus_wmi_set_xusb2pr(struct asus_wmi *asus)
- 	pci_write_config_dword(xhci_pdev, USB_INTEL_XUSB2PR,
- 				cpu_to_le32(ports_available));
- 
-+	pci_dev_put(xhci_pdev);
-+
- 	pr_info("set USB_INTEL_XUSB2PR old: 0x%04x, new: 0x%04x\n",
- 			orig_ports_available, ports_available);
- }
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index 8c2a73d5428d..82516796a53b 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -564,6 +564,15 @@ static const struct dmi_system_id acer_quirks[] __initconst = {
+ 		},
+ 		.driver_data = (void *)ACER_CAP_KBD_DOCK,
+ 	},
++	{
++		.callback = set_force_caps,
++		.ident = "Acer Aspire Switch V 10 SW5-017",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SW5-017"),
++		},
++		.driver_data = (void *)ACER_CAP_KBD_DOCK,
++	},
+ 	{
+ 		.callback = set_force_caps,
+ 		.ident = "Acer One 10 (S1003)",
 -- 
 2.35.1
 
