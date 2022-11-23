@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 632F8635847
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:54:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B558F635446
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236927AbiKWJyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:54:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44974 "EHLO
+        id S237043AbiKWJEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:04:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237050AbiKWJwd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:52:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A444CE634E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:49:30 -0800 (PST)
+        with ESMTP id S236993AbiKWJEI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:04:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0712105588
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:03:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F61F61B22
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:49:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28FEDC433D6;
-        Wed, 23 Nov 2022 09:49:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C15F61B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:03:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 528D2C433D6;
+        Wed, 23 Nov 2022 09:03:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196969;
-        bh=5PZ/evlJ9AABUGDOl7l32/xBqIDTrHueOeWbx50iCbs=;
+        s=korg; t=1669194229;
+        bh=Yid+yyW1qNKfxubp3qL6JxjdfX9WSQGXTsPmd5Q3Z4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZAcigLXIxNxsBHcMcoFqKOEKfBsOxG4EcZCQ90hHGZStDg5o4L+UhM+xP21G3tuk
-         O5j8uooaD4ktrW0K7+YJyiDsR3SREyvTYseHAJ8VJcdHjNusFxcsbpgMpLeegaNAPh
-         q9JQVSufpfmTbm+ypiStYI68c/sKbcS+uYRwQSLI=
+        b=f4Z1MrgA5VuFFJJoh7sTNe+nGCyvS/HWArze9pYlndxWidHvIaygpjBe58h3qo6xO
+         SXThyxkx6GdZ2UweIlgtosBt01BkcpW7KW2z1T3DaFTRPCyWcSV+VftnkJN4eIA240
+         rLur5JahnwfI8oGIHihtGDoLcSUXol94F1VSrgi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Chuang Wang <nashuiliang@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 161/314] octeon_ep: ensure octep_get_link_status() successfully before octep_link_up()
-Date:   Wed, 23 Nov 2022 09:50:06 +0100
-Message-Id: <20221123084632.870928021@linuxfoundation.org>
+Subject: [PATCH 4.19 020/114] net: macvlan: fix memory leaks of macvlan_common_newlink
+Date:   Wed, 23 Nov 2022 09:50:07 +0100
+Message-Id: <20221123084552.648272328@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Chuang Wang <nashuiliang@gmail.com>
 
-[ Upstream commit 9d3ff7131877fb092185c369fbb14b57ac4e7cec ]
+[ Upstream commit 23569b5652ee8e8e55a12f7835f59af6f3cefc30 ]
 
-octep_get_link_status() can fail because send mbox message failed, then
-octep_get_link_status() will return ret less than 0. Excute octep_link_up()
-as long as ret is not equal to 0 in octep_open() now. That is not correct.
+kmemleak reports memory leaks in macvlan_common_newlink, as follows:
 
-The value type of link.state is enum octep_ctrl_net_state. Positive value
-represents up. Excute octep_link_up() when ret is bigger than 0.
+ ip link add link eth0 name .. type macvlan mode source macaddr add
+ <MAC-ADDR>
 
-Fixes: 862cd659a6fb ("octeon_ep: Add driver framework and device initialization")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+kmemleak reports:
+
+unreferenced object 0xffff8880109bb140 (size 64):
+  comm "ip", pid 284, jiffies 4294986150 (age 430.108s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 b8 aa 5a 12 80 88 ff ff  ..........Z.....
+    80 1b fa 0d 80 88 ff ff 1e ff ac af c7 c1 6b 6b  ..............kk
+  backtrace:
+    [<ffffffff813e06a7>] kmem_cache_alloc_trace+0x1c7/0x300
+    [<ffffffff81b66025>] macvlan_hash_add_source+0x45/0xc0
+    [<ffffffff81b66a67>] macvlan_changelink_sources+0xd7/0x170
+    [<ffffffff81b6775c>] macvlan_common_newlink+0x38c/0x5a0
+    [<ffffffff81b6797e>] macvlan_newlink+0xe/0x20
+    [<ffffffff81d97f8f>] __rtnl_newlink+0x7af/0xa50
+    [<ffffffff81d98278>] rtnl_newlink+0x48/0x70
+    ...
+
+In the scenario where the macvlan mode is configured as 'source',
+macvlan_changelink_sources() will be execured to reconfigure list of
+remote source mac addresses, at the same time, if register_netdevice()
+return an error, the resource generated by macvlan_changelink_sources()
+is not cleaned up.
+
+Using this patch, in the case of an error, it will execute
+macvlan_flush_sources() to ensure that the resource is cleaned up.
+
+Fixes: aa5fd0fb7748 ("driver: macvlan: Destroy new macvlan port if macvlan_common_newlink failed.")
+Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
+Link: https://lore.kernel.org/r/20221109090735.690500-1-nashuiliang@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeon_ep/octep_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/macvlan.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeon_ep/octep_main.c b/drivers/net/ethernet/marvell/octeon_ep/octep_main.c
-index 7083c995d0c1..92ca3e502465 100644
---- a/drivers/net/ethernet/marvell/octeon_ep/octep_main.c
-+++ b/drivers/net/ethernet/marvell/octeon_ep/octep_main.c
-@@ -521,7 +521,7 @@ static int octep_open(struct net_device *netdev)
- 	octep_oq_dbell_init(oct);
- 
- 	ret = octep_get_link_status(oct);
--	if (ret)
-+	if (ret > 0)
- 		octep_link_up(netdev);
- 
- 	return 0;
+diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
+index e226a96da3a3..6c6fa821aad5 100644
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -1471,8 +1471,10 @@ int macvlan_common_newlink(struct net *src_net, struct net_device *dev,
+ 	/* the macvlan port may be freed by macvlan_uninit when fail to register.
+ 	 * so we destroy the macvlan port only when it's valid.
+ 	 */
+-	if (create && macvlan_port_get_rtnl(lowerdev))
++	if (create && macvlan_port_get_rtnl(lowerdev)) {
++		macvlan_flush_sources(port, vlan);
+ 		macvlan_port_destroy(port->dev);
++	}
+ 	return err;
+ }
+ EXPORT_SYMBOL_GPL(macvlan_common_newlink);
 -- 
 2.35.1
 
