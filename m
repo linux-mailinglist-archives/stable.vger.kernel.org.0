@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C307C63555A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5757A635474
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237393AbiKWJR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:17:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57980 "EHLO
+        id S237181AbiKWJIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:08:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237451AbiKWJQ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:16:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B43A7107E79
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:16:33 -0800 (PST)
+        with ESMTP id S237125AbiKWJHs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5B4BC75C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:07:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BA2DB81EF5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:16:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A81E1C433C1;
-        Wed, 23 Nov 2022 09:16:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A11161B56
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:07:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FE41C433B5;
+        Wed, 23 Nov 2022 09:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194991;
-        bh=wbXfRZVTjH/i5QxGGaPKDOz1HOqWrlVg/c9gTEMXxDU=;
+        s=korg; t=1669194466;
+        bh=V17UdKcr17cJJO81G71Avd8cF26LZvzq6YnUjnmlBjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/FnCM16fBpde/6UegAdpDz25Yk++bS9/d52WlcUE6tj2rFSEIiNX+E/9YJMQBI57
-         FFUwwX4mazMWf8HQhS3joU9HdT6K6n56ew4ipv9ae03yjTaP/hjYsMGLyULx1qun0o
-         xYhw0wV01mqeCwtjbQoxk7PSENUk2Q2lcUYWuav0=
+        b=dDrwqf2EpvLSwARwB6ffvZsdSzpd1w3IgP57M3W/uTWYv3h30cQymz/IVIyVAWoqs
+         v3+F2V18kKgLpt2pvlU1lbM8v8sSu1dil8I0kSSNMnD7iRiUPQDCGITtjE8QCTLAlg
+         mBNXcTi8Hr8wUB4QT/G/pvtC61cF+UYSCiARxal0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefan Agner <stefan@agner.ch>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.4 116/156] Revert "usb: dwc3: disable USB core PHY management"
+        patches@lists.linux.dev, Reinhard Speyerer <rspmn@arcor.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 086/114] USB: serial: option: add Fibocom FM160 0x0111 composition
 Date:   Wed, 23 Nov 2022 09:51:13 +0100
-Message-Id: <20221123084602.148126300@linuxfoundation.org>
+Message-Id: <20221123084555.280734950@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Reinhard Speyerer <rspmn@arcor.de>
 
-commit 5c294de36e7fb3e0cba0c4e1ef9a5f57bc080d0f upstream.
+commit 148f4b32b4504d8a32cf82049b7b9499a4b299ab upstream.
 
-This reverts commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea.
+Add support for the following Fibocom FM160 composition:
 
-The offending commit disabled the USB core PHY management as the dwc3
-already manages the PHYs in question.
+0x0111: MBIM + MODEM + DIAG + AT
 
-Unfortunately some platforms have started relying on having USB core
-also controlling the PHY and this is specifically currently needed on
-some Exynos platforms for PHY calibration or connected device may fail
-to enumerate.
+T:  Bus=01 Lev=02 Prnt=125 Port=01 Cnt=02 Dev#= 93 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2cb7 ProdID=0111 Rev= 5.04
+S:  Manufacturer=Fibocom
+S:  Product=Fibocom FM160 Modem_SN:12345678
+S:  SerialNumber=12345678
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
+E:  Ad=81(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
+I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+E:  Ad=86(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-The PHY calibration was previously handled in the dwc3 driver, but to
-work around some issues related to how the dwc3 driver interacts with
-xhci (e.g. using multiple drivers) this was moved to USB core by commits
-34c7ed72f4f0 ("usb: core: phy: add support for PHY calibration") and
-a0a465569b45 ("usb: dwc3: remove generic PHY calibrate() calls").
-
-The same PHY obviously should not be controlled from two different
-places, which for example do no agree on the PHY mode or power state
-during suspend, but as the offending patch was backported to stable,
-let's revert it for now.
-
-Reported-by: Stefan Agner <stefan@agner.ch>
-Link: https://lore.kernel.org/lkml/808bdba846bb60456adf10a3016911ee@agner.ch/
-Fixes: 6000b8d900cd ("usb: dwc3: disable USB core PHY management")
+Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/20221103144648.14197-1-johan+linaro@kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/host.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/usb/serial/option.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/dwc3/host.c
-+++ b/drivers/usb/dwc3/host.c
-@@ -9,13 +9,8 @@
- 
- #include <linux/platform_device.h>
- 
--#include "../host/xhci-plat.h"
- #include "core.h"
- 
--static const struct xhci_plat_priv dwc3_xhci_plat_priv = {
--	.quirks = XHCI_SKIP_PHY_INIT,
--};
--
- static int dwc3_host_get_irq(struct dwc3 *dwc)
- {
- 	struct platform_device	*dwc3_pdev = to_platform_device(dwc->dev);
-@@ -90,11 +85,6 @@ int dwc3_host_init(struct dwc3 *dwc)
- 		goto err;
- 	}
- 
--	ret = platform_device_add_data(xhci, &dwc3_xhci_plat_priv,
--					sizeof(dwc3_xhci_plat_priv));
--	if (ret)
--		goto err;
--
- 	memset(props, 0, sizeof(struct property_entry) * ARRAY_SIZE(props));
- 
- 	if (dwc->usb3_lpm_capable)
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2179,6 +2179,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x010a, 0xff) },			/* Fibocom MA510 (ECM mode) */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
++	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0111, 0xff) },			/* Fibocom FM160 (MBIM mode) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a2, 0xff) },			/* Fibocom FM101-GL (laptop MBIM) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a4, 0xff),			/* Fibocom FM101-GL (laptop MBIM) */
 
 
