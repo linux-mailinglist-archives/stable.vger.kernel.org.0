@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F06F6353DE
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0D9C635370
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:57:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236836AbiKWJAH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:00:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35748 "EHLO
+        id S236753AbiKWIzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:55:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236825AbiKWJAG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:00:06 -0500
+        with ESMTP id S236749AbiKWIz0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:55:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE4FEC09E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:00:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FE99EC0BF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:55:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C30BB81EF1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:00:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACEC7C433C1;
-        Wed, 23 Nov 2022 09:00:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D04AB81EEF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:55:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F1DC433D6;
+        Wed, 23 Nov 2022 08:55:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194002;
-        bh=tchkfE+5pcdYSQLUfY/mhppFV/Ys4URz6PLkwT8XoL8=;
+        s=korg; t=1669193721;
+        bh=uI8KDpWZIaQOgw6yOhJf5TOysUv+gHfWXnzZAap4mM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wFCCB/Ry4ZKA5qY/veMVigrs3MVAWsctwitxiQymISYPD8V5KFjRLrrY+3m6zDJ+x
-         JGgQhDjPhnLaBz14+16RKL5wCJuVTGzA2QPB5Gf/B+XTVwMY4FBafJ3NtwuOvSpNxn
-         qjBGe992+qJiqznBdof3PmC3JNFSMxMXvNpvWwBo=
+        b=pk8PagLp7TrjGn6pvJ1up8BmKV5yfYhfXHfyKd2qSBczqYMmtp26C3EGWmo9kka0D
+         c5eQtpbk0vLzvBSd1vgX8MyHdEqxHMLDwkTPx9Xvq4L8M9hmnnJxYFbMnEgSpH5S4L
+         Wp3RQlyqUsqRjBfzSnAyX2bqE/XHLog4105FuNCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 43/88] parport_pc: Avoid FIFO port location truncation
-Date:   Wed, 23 Nov 2022 09:50:40 +0100
-Message-Id: <20221123084549.997181592@linuxfoundation.org>
+Subject: [PATCH 4.9 42/76] net: caif: fix double disconnect client in chnl_net_open()
+Date:   Wed, 23 Nov 2022 09:50:41 +0100
+Message-Id: <20221123084548.113983592@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
+References: <20221123084546.742331901@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit ab126f51c93a15093df604f661c9480854c005a3 ]
+[ Upstream commit 8fbb53c8bfd8c56ecf1f78dc821778b58f505503 ]
 
-Match the data type of a temporary holding a reference to the FIFO port
-with the type of the original reference coming from `struct parport',
-avoiding data truncation with LP64 ports such as SPARC64 that refer to
-PCI port I/O locations via their corresponding MMIO addresses and will
-therefore have non-zero bits in the high 32-bit part of the reference.
-And in any case it is cleaner to have the data types matching here.
+When connecting to client timeout, disconnect client for twice in
+chnl_net_open(). Remove one. Compile tested only.
 
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Link: https://lore.kernel.org/linux-pci/20220419033752.GA1101844@bhelgaas/
-Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209231912550.29493@angie.orcam.me.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2aa40aef9deb ("caif: Use link layer MTU instead of fixed MTU")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parport/parport_pc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/caif/chnl_net.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
-index dee5b9e35ffd..d99ac73a1d89 100644
---- a/drivers/parport/parport_pc.c
-+++ b/drivers/parport/parport_pc.c
-@@ -474,7 +474,7 @@ static size_t parport_pc_fifo_write_block_pio(struct parport *port,
- 	const unsigned char *bufp = buf;
- 	size_t left = length;
- 	unsigned long expire = jiffies + port->physport->cad->timeout;
--	const int fifo = FIFO(port);
-+	const unsigned long fifo = FIFO(port);
- 	int poll_for = 8; /* 80 usecs */
- 	const struct parport_pc_private *priv = port->physport->private_data;
- 	const int fifo_depth = priv->fifo_depth;
+diff --git a/net/caif/chnl_net.c b/net/caif/chnl_net.c
+index 12063f333897..1bfcfcb68a26 100644
+--- a/net/caif/chnl_net.c
++++ b/net/caif/chnl_net.c
+@@ -316,9 +316,6 @@ static int chnl_net_open(struct net_device *dev)
+ 
+ 	if (result == 0) {
+ 		pr_debug("connect timeout\n");
+-		caif_disconnect_client(dev_net(dev), &priv->chnl);
+-		priv->state = CAIF_DISCONNECTED;
+-		pr_debug("state disconnected\n");
+ 		result = -ETIMEDOUT;
+ 		goto error;
+ 	}
 -- 
 2.35.1
 
