@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AF62635E3F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:57:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 863FF635E96
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:58:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237973AbiKWMvp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:51:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33746 "EHLO
+        id S238282AbiKWMxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:53:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237994AbiKWMvV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:51:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 248487EC8A;
-        Wed, 23 Nov 2022 04:44:16 -0800 (PST)
+        with ESMTP id S237719AbiKWMve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:51:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CCA884807;
+        Wed, 23 Nov 2022 04:44:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D1AE61CAC;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E915B81F6F;
+        Wed, 23 Nov 2022 12:44:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47039C43144;
         Wed, 23 Nov 2022 12:44:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0B17C433D6;
-        Wed, 23 Nov 2022 12:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207447;
-        bh=RW4HlKrC8HJ1IjGXRBDcvUafv7RxhxgfYV7vWL5KbOg=;
+        s=k20201202; t=1669207449;
+        bh=mb+pGKqyYHoKta2t0TvbE4ss9Y74jYvBeT3Shr+CzvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YKwsxoTfPXwjYPOAfpkBSTZ7MjKUFdJ38TGWkamu32/BWNk0lLY52sAjFRklqx+IE
-         2aFDlfqpZPc1k8lZjQptvza74vC5203tVRgMm9vZfQ7RT7Dhp6pjaUVFhs/iQ5JKH1
-         P2fR6m8kF9YnpRSduZUDHcVjIAyhsvIdbNXxWwLp2ljyeUqf3fN5lvldXQAs8Tlibf
-         aSvgGRtxZ3y5T1C6v8Tltq0p07ma4jpE0J6n6Xrg62clmsUGzuMqCikgcjUEfGltTk
-         +NsSl9aeWcfBQ+F/SO1GTln6t9IOa/YnPBIWhPTgVzKh7r9rhekcOOhti+qSyjK3YJ
-         PPMk9Vy+XzPFQ==
+        b=UikIHeENFjbRVUzZotK7gQxna3KCvWNSZ/5lcZy2lkqR9awgK1eAcmrX8dhMR76ME
+         QuT7QJI5DfARu4JkRId7ucqlkA2+pjxHbclDjBg8NXccPLmBHQ0ckzFHhbcZPXedQv
+         gNyGFgvX+XKK4lQOt2ROLsofSTUDoZ28V93a+wvVB6WCcn1l+unkr+p3oOGlLYMhLH
+         4hIMO2D6650Cu9vGzEIaony+t7ZNOsp4IFxlPuiHCm6bU/3jpDfjMVM95U8Y23RH3m
+         +o7dutyaAsI3LJS5KDVq61iVoRi0bsZfqsa9Ag05TdgbW6y4exo24s8htEB7ebZFSg
+         Gnei+cFAq9Pgw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Jan Beulich <jbeulich@suse.com>,
+Cc:     ruanjinjie <ruanjinjie@huawei.com>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
         Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>, sstabellini@kernel.org,
         xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 5.10 09/22] xen-pciback: Allow setting PCI_MSIX_FLAGS_MASKALL too
-Date:   Wed, 23 Nov 2022 07:43:24 -0500
-Message-Id: <20221123124339.265912-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 10/22] xen/platform-pci: add missing free_irq() in error path
+Date:   Wed, 23 Nov 2022 07:43:25 -0500
+Message-Id: <20221123124339.265912-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124339.265912-1-sashal@kernel.org>
 References: <20221123124339.265912-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,64 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+From: ruanjinjie <ruanjinjie@huawei.com>
 
-[ Upstream commit 5e29500eba2aa19e1323df46f64dafcd4a327092 ]
+[ Upstream commit c53717e1e3f0d0f9129b2e0dbc6dcc5e0a8132e9 ]
 
-When Xen domain configures MSI-X, the usual approach is to enable MSI-X
-together with masking all of them via the config space, then fill the
-table and only then clear PCI_MSIX_FLAGS_MASKALL. Allow doing this via
-QEMU running in a stub domain.
+free_irq() is missing in case of error in platform_pci_probe(), fix that.
 
-Previously, when changing PCI_MSIX_FLAGS_MASKALL was not allowed, the
-whole write was aborted, preventing change to the PCI_MSIX_FLAGS_ENABLE
-bit too.
-
-Note the Xen hypervisor intercepts this write anyway, and may keep the
-PCI_MSIX_FLAGS_MASKALL bit set if it wishes to. It will store the
-guest-requested state and will apply it eventually.
-
-Signed-off-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Link: https://lore.kernel.org/r/20221114103110.1519413-1-marmarek@invisiblethingslab.com
+Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
+Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Link: https://lore.kernel.org/r/20221114112124.1965611-1-ruanjinjie@huawei.com
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xen-pciback/conf_space_capability.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/xen/platform-pci.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/xen/xen-pciback/conf_space_capability.c b/drivers/xen/xen-pciback/conf_space_capability.c
-index 5e53b4817f16..097316a74126 100644
---- a/drivers/xen/xen-pciback/conf_space_capability.c
-+++ b/drivers/xen/xen-pciback/conf_space_capability.c
-@@ -190,13 +190,16 @@ static const struct config_field caplist_pm[] = {
- };
+diff --git a/drivers/xen/platform-pci.c b/drivers/xen/platform-pci.c
+index 9db557b76511..804d8f4d0e73 100644
+--- a/drivers/xen/platform-pci.c
++++ b/drivers/xen/platform-pci.c
+@@ -137,7 +137,7 @@ static int platform_pci_probe(struct pci_dev *pdev,
+ 		if (ret) {
+ 			dev_warn(&pdev->dev, "Unable to set the evtchn callback "
+ 					 "err=%d\n", ret);
+-			goto out;
++			goto irq_out;
+ 		}
+ 	}
  
- static struct msi_msix_field_config {
--	u16          enable_bit; /* bit for enabling MSI/MSI-X */
--	unsigned int int_type;   /* interrupt type for exclusiveness check */
-+	u16          enable_bit;   /* bit for enabling MSI/MSI-X */
-+	u16          allowed_bits; /* bits allowed to be changed */
-+	unsigned int int_type;     /* interrupt type for exclusiveness check */
- } msi_field_config = {
- 	.enable_bit	= PCI_MSI_FLAGS_ENABLE,
-+	.allowed_bits	= PCI_MSI_FLAGS_ENABLE,
- 	.int_type	= INTERRUPT_TYPE_MSI,
- }, msix_field_config = {
- 	.enable_bit	= PCI_MSIX_FLAGS_ENABLE,
-+	.allowed_bits	= PCI_MSIX_FLAGS_ENABLE | PCI_MSIX_FLAGS_MASKALL,
- 	.int_type	= INTERRUPT_TYPE_MSIX,
- };
- 
-@@ -229,7 +232,7 @@ static int msi_msix_flags_write(struct pci_dev *dev, int offset, u16 new_value,
- 		return 0;
- 
- 	if (!dev_data->allow_interrupt_control ||
--	    (new_value ^ old_value) & ~field_config->enable_bit)
-+	    (new_value ^ old_value) & ~field_config->allowed_bits)
- 		return PCIBIOS_SET_FAILED;
- 
- 	if (new_value & field_config->enable_bit) {
+@@ -145,13 +145,16 @@ static int platform_pci_probe(struct pci_dev *pdev,
+ 	grant_frames = alloc_xen_mmio(PAGE_SIZE * max_nr_gframes);
+ 	ret = gnttab_setup_auto_xlat_frames(grant_frames);
+ 	if (ret)
+-		goto out;
++		goto irq_out;
+ 	ret = gnttab_init();
+ 	if (ret)
+ 		goto grant_out;
+ 	return 0;
+ grant_out:
+ 	gnttab_free_auto_xlat_frames();
++irq_out:
++	if (!xen_have_vector_callback)
++		free_irq(pdev->irq, pdev);
+ out:
+ 	pci_release_region(pdev, 0);
+ mem_out:
 -- 
 2.35.1
 
