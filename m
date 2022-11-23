@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B83DD63537F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACE6763541B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236750AbiKWI4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:56:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59268 "EHLO
+        id S236964AbiKWJC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:02:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236754AbiKWI4B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:56:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBE1FE9315
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:55:59 -0800 (PST)
+        with ESMTP id S236978AbiKWJCZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:02:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFD5AFFAAB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:02:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93280B81EF2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:55:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6F16C433C1;
-        Wed, 23 Nov 2022 08:55:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A42BCB81EEE
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:02:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D87B8C433D6;
+        Wed, 23 Nov 2022 09:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193757;
-        bh=M1pDf2ryOH64RS4hj7gCVNQb7Z47DgJVBMWguwNNuIg=;
+        s=korg; t=1669194142;
+        bh=TTSyH9KpmVD0aSx13PgEXK5/9f1KxHg+JY4u3G4Iqow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pQjUT08HwqylDwmyFhLkJeAZLK3DKB5dVpVhI9vihc/FfYlZPQRiOrcvsGzBzz60g
-         V0cXkxILyoiulqkYMd54zdIZ0igJawWGZ07+UE/gry/QZ/ZnkvtbDN+6XThoxzaTIu
-         GvQp5/X+Azy8PUg7UL26H8ZFpfFbwtzMd7UADDPY=
+        b=tUqpyCP6v0EPp+vGSA51ZOKpCwN1fxLNNriHtqF2/Im+7DODK6OhV7i8mDy1IYme5
+         VFGQfaK+XIF8pP4otcy0Ko/Z0VaJL/0MlMHnaKYY6a8VGJPdagFhZ05q2b6ZDJcCK2
+         WnMCbLgR0z6mPYRVc0mEeqhYzSJQAukyO8PHWcIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Davide Tronchin <davide.tronchin.94@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 51/76] USB: serial: option: remove old LARA-R6 PID
+        patches@lists.linux.dev, mhiramat@kernel.org, mark.rutland@arm.com,
+        Wang Wensheng <wangwensheng4@huawei.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 53/88] ftrace: Fix the possible incorrect kernel message
 Date:   Wed, 23 Nov 2022 09:50:50 +0100
-Message-Id: <20221123084548.429339889@linuxfoundation.org>
+Message-Id: <20221123084550.365620167@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Tronchin <davide.tronchin.94@gmail.com>
+From: Wang Wensheng <wangwensheng4@huawei.com>
 
-commit 2ec106b96afc19698ff934323b633c0729d4c7f8 upstream.
+commit 08948caebe93482db1adfd2154eba124f66d161d upstream.
 
-Remove the UBLOX_PRODUCT_R6XX 0x90fa association since LARA-R6 00B final
-product uses a new USB composition with different PID. 0x90fa PID used
-only by LARA-R6 internal prototypes.
+If the number of mcount entries is an integer multiple of
+ENTRIES_PER_PAGE, the page count showing on the console would be wrong.
 
-Move 0x90fa PID directly in the option_ids array since used by other
-Qualcomm based modem vendors as pointed out in:
+Link: https://lkml.kernel.org/r/20221109094434.84046-2-wangwensheng4@huawei.com
 
-  https://lore.kernel.org/all/6572c4e6-d8bc-b8d3-4396-d879e4e76338@gmail.com
-
-Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
+Cc: <mhiramat@kernel.org>
+Cc: <mark.rutland@arm.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 5821e1b74f0d0 ("function tracing: fix wrong pos computing when read buffer has been fulfilled")
+Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ kernel/trace/ftrace.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -243,7 +243,6 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_UC15			0x9090
- /* These u-blox products use Qualcomm's vendor ID */
- #define UBLOX_PRODUCT_R410M			0x90b2
--#define UBLOX_PRODUCT_R6XX			0x90fa
- /* These Yuga products use Qualcomm's vendor ID */
- #define YUGA_PRODUCT_CLM920_NC5			0x9625
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -6015,7 +6015,7 @@ void __init ftrace_init(void)
+ 	}
  
-@@ -1118,7 +1117,7 @@ static const struct usb_device_id option
- 	/* u-blox products using Qualcomm vendor ID */
- 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
- 	  .driver_info = RSVD(1) | RSVD(3) },
--	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R6XX),
-+	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x90fa),
- 	  .driver_info = RSVD(3) },
- 	/* Quectel products using Quectel vendor ID */
- 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21),
+ 	pr_info("ftrace: allocating %ld entries in %ld pages\n",
+-		count, count / ENTRIES_PER_PAGE + 1);
++		count, DIV_ROUND_UP(count, ENTRIES_PER_PAGE));
+ 
+ 	last_ftrace_enabled = ftrace_enabled = 1;
+ 
 
 
