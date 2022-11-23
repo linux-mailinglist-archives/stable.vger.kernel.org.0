@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB2806353DF
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5EBC635400
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236881AbiKWJAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:00:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36384 "EHLO
+        id S236844AbiKWJAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:00:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236862AbiKWJAK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:00:10 -0500
+        with ESMTP id S236878AbiKWJAQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:00:16 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31584FFA8A
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:00:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C3681001C7
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:00:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA786B81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:00:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36DADC433D6;
-        Wed, 23 Nov 2022 09:00:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF10EB81EED
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:00:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 095BDC433D6;
+        Wed, 23 Nov 2022 09:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194005;
-        bh=rR/tcBFedu6lmjGKWGI5TLax5AWewwhyMivQ7SKYeLs=;
+        s=korg; t=1669194012;
+        bh=/nqSepyErWgRP2VcTCbPbZGVgx+8fBLV4/xK/uYDMdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2aWXpQFY9+d7dGsau8WpS6FFNyCMlk9+iZx14G2z+bP3k+80jgpnOpwVgt1WVP8Yw
-         7uh7JOLe8cZ29+WvJjIXxv/mTeZi26j3LwLa/wC3bbI1N1owFE3VcRKHiG8gAiOitK
-         kPefY+w/RfLdoLz8Y+aIxSXVhzAc81+G0uijC4rA=
+        b=Mt/quOpJk/qtZi22Xe+6D6xL/ysjfXkd9D/0bSP3BHfrVoeIUMUhNOxXWNDSjQ3Sk
+         8jh3BGTduFyYjno+5aeStQtrXTWsHpXfK1hDpYL8qJVgFK6D9lhMdDFCjS653AIO7+
+         0LFca6sktws4kflhKEAHlLWFiQmKizBCoj2Z+SFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 44/88] pinctrl: devicetree: fix null pointer dereferencing in pinctrl_dt_to_map
-Date:   Wed, 23 Nov 2022 09:50:41 +0100
-Message-Id: <20221123084550.040424593@linuxfoundation.org>
+Subject: [PATCH 4.14 45/88] net: bgmac: Drop free_netdev() from bgmac_enet_remove()
+Date:   Wed, 23 Nov 2022 09:50:42 +0100
+Message-Id: <20221123084550.083025245@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
 References: <20221123084548.535439312@linuxfoundation.org>
@@ -53,45 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Heng <zengheng4@huawei.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 91d5c5060ee24fe8da88cd585bb43b843d2f0dce ]
+[ Upstream commit 6f928ab8ee9bfbcb0e631c47ea8a16c3d5116ff1 ]
 
-Here is the BUG report by KASAN about null pointer dereference:
+netdev is allocated in bgmac_alloc() with devm_alloc_etherdev() and will
+be auto released in ->remove and ->probe failure path. Using free_netdev()
+in bgmac_enet_remove() leads to double free.
 
-BUG: KASAN: null-ptr-deref in strcmp+0x2e/0x50
-Read of size 1 at addr 0000000000000000 by task python3/2640
-Call Trace:
- strcmp
- __of_find_property
- of_find_property
- pinctrl_dt_to_map
+Fixes: 34a5102c3235 ("net: bgmac: allocate struct bgmac just once & don't copy it")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 
-kasprintf() would return NULL pointer when kmalloc() fail to allocate.
-So directly return ENOMEM, if kasprintf() return NULL pointer.
-
-Fixes: 57291ce295c0 ("pinctrl: core device tree mapping table parsing support")
-Signed-off-by: Zeng Heng <zengheng4@huawei.com>
-Link: https://lore.kernel.org/r/20221110082056.2014898-1-zengheng4@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20221109150136.2991171-1-weiyongjun@huaweicloud.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/devicetree.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/broadcom/bgmac.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/pinctrl/devicetree.c b/drivers/pinctrl/devicetree.c
-index 3a7c2d6e4d5f..b9a1080277b9 100644
---- a/drivers/pinctrl/devicetree.c
-+++ b/drivers/pinctrl/devicetree.c
-@@ -228,6 +228,8 @@ int pinctrl_dt_to_map(struct pinctrl *p, struct pinctrl_dev *pctldev)
- 	for (state = 0; ; state++) {
- 		/* Retrieve the pinctrl-* property */
- 		propname = kasprintf(GFP_KERNEL, "pinctrl-%d", state);
-+		if (!propname)
-+			return -ENOMEM;
- 		prop = of_find_property(np, propname, &size);
- 		kfree(propname);
- 		if (!prop) {
+diff --git a/drivers/net/ethernet/broadcom/bgmac.c b/drivers/net/ethernet/broadcom/bgmac.c
+index a4080f18135c..ae22f9f5761b 100644
+--- a/drivers/net/ethernet/broadcom/bgmac.c
++++ b/drivers/net/ethernet/broadcom/bgmac.c
+@@ -1565,7 +1565,6 @@ void bgmac_enet_remove(struct bgmac *bgmac)
+ 	phy_disconnect(bgmac->net_dev->phydev);
+ 	netif_napi_del(&bgmac->napi);
+ 	bgmac_dma_free(bgmac);
+-	free_netdev(bgmac->net_dev);
+ }
+ EXPORT_SYMBOL_GPL(bgmac_enet_remove);
+ 
 -- 
 2.35.1
 
