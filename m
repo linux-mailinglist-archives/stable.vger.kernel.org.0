@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F3AF635828
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:52:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1C23635591
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236736AbiKWJwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:52:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43588 "EHLO
+        id S237407AbiKWJUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:20:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238003AbiKWJvH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:51:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F2316E541
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:48:10 -0800 (PST)
+        with ESMTP id S237425AbiKWJTw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:19:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 084AE626F
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:19:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B04A361A02
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:48:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7251C433D6;
-        Wed, 23 Nov 2022 09:48:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99E4B61A00
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:19:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97AEEC433D6;
+        Wed, 23 Nov 2022 09:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196889;
-        bh=NcK/HYF5zVKL1UPy0hhsoZHe6zqmpWnoR9dwSxxFXsw=;
+        s=korg; t=1669195191;
+        bh=iH5pRu/Qm6PDTYS5IDVqIZpylnS22TVALPbkNjuUfwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jfna0n4fS6mx/J5f5xNmtnY5PuzruCmVd48SGGKNIIWUUwlafx1eLJX2VSK7mWK/U
-         H3tIyNIZ/x1o9yP6zrGPHBbc8dZdBnJa0ePj6+OfhxIlk1kQUMBubGxstKnTn7aM7w
-         oOXiqUIOJ4/JvYb9yeCdsQ0EgV85/BYuSggs3z9A=
+        b=yBifbZtc9dG0BjK5eKkRbWB+q3r15LGKK9D2axzx8lLov+glRwu72U/T3jrHxjt4B
+         cltqnON4TKe4MWT9tIX8iIyMJUrV1lZKZRkt362QY/uIfs713cQL8dJD2E36zY1Fsl
+         os0ZFkMPhXySYg8xJY8LdAzjhrjnd0I+b0XxBGwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Song Yoong Siang <yoong.siang.song@intel.com>,
-        Mohd Faizal Abdul Rahim <faizal.abdul.rahim@intel.com>,
-        Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Shuming Fan <shumingf@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 152/314] net: stmmac: ensure tx function is not running in stmmac_xdp_release()
-Date:   Wed, 23 Nov 2022 09:49:57 +0100
-Message-Id: <20221123084632.457436351@linuxfoundation.org>
+Subject: [PATCH 5.10 015/149] ASoC: rt1308-sdw: add the default value of some registers
+Date:   Wed, 23 Nov 2022 09:49:58 +0100
+Message-Id: <20221123084558.538500761@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohd Faizal Abdul Rahim <faizal.abdul.rahim@intel.com>
+From: Shuming Fan <shumingf@realtek.com>
 
-[ Upstream commit 77711683a50477de39757d67ab1a3638220d6860 ]
+[ Upstream commit 75d8b1662ca5c20cf8365575222abaef18ff1f50 ]
 
-When stmmac_xdp_release() is called, there is a possibility that tx
-function is still running on other queues which will lead to tx queue
-timed out and reset adapter.
+The driver missed the default value of register 0xc070/0xc360.
+This patch adds that default value to avoid invalid register access
+when the device doesn't be enumerated yet.
+BugLink: https://github.com/thesofproject/linux/issues/3924
 
-This commit ensure that tx function is not running xdp before release
-flow continue to run.
-
-Fixes: ac746c8520d9 ("net: stmmac: enhance XDP ZC driver level switching performance")
-Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
-Signed-off-by: Mohd Faizal Abdul Rahim <faizal.abdul.rahim@intel.com>
-Signed-off-by: Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>
-Link: https://lore.kernel.org/r/20221110064552.22504-1-noor.azura.ahmad.tarmizi@linux.intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Shuming Fan <shumingf@realtek.com>
+Link: https://lore.kernel.org/r/20221019095715.31082-1-shumingf@realtek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/rt1308-sdw.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index bc060ef558d3..02827829463f 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -6564,6 +6564,9 @@ void stmmac_xdp_release(struct net_device *dev)
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	u32 chan;
+diff --git a/sound/soc/codecs/rt1308-sdw.h b/sound/soc/codecs/rt1308-sdw.h
+index c5ce75666dcc..98293d73ebab 100644
+--- a/sound/soc/codecs/rt1308-sdw.h
++++ b/sound/soc/codecs/rt1308-sdw.h
+@@ -139,9 +139,11 @@ static const struct reg_default rt1308_reg_defaults[] = {
+ 	{ 0x3005, 0x23 },
+ 	{ 0x3008, 0x02 },
+ 	{ 0x300a, 0x00 },
++	{ 0xc000 | (RT1308_DATA_PATH << 4), 0x00 },
+ 	{ 0xc003 | (RT1308_DAC_SET << 4), 0x00 },
+ 	{ 0xc001 | (RT1308_POWER << 4), 0x00 },
+ 	{ 0xc002 | (RT1308_POWER << 4), 0x00 },
++	{ 0xc000 | (RT1308_POWER_STATUS << 4), 0x00 },
+ };
  
-+	/* Ensure tx function is not running */
-+	netif_tx_disable(dev);
-+
- 	/* Disable NAPI process */
- 	stmmac_disable_all_queues(priv);
- 
+ #define RT1308_SDW_OFFSET 0xc000
 -- 
 2.35.1
 
