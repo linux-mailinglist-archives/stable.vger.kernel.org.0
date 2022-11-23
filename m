@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FEB06353D5
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 493936353A4
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236838AbiKWJAA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:00:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35518 "EHLO
+        id S236717AbiKWIzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:55:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236908AbiKWI7l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:59:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A31AC100B00
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:59:40 -0800 (PST)
+        with ESMTP id S236727AbiKWIyz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:54:55 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11069EA114
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:54:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E204B81EEF
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:59:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A5F1C433D7;
-        Wed, 23 Nov 2022 08:59:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CC3D9CE2034
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:54:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CC41C433C1;
+        Wed, 23 Nov 2022 08:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193978;
-        bh=AvowpiZKw3BTNJT0xhVLI96/zStxMmZuE3bEptJGq4s=;
+        s=korg; t=1669193690;
+        bh=k5396sCD0FQY43oH0pcZGzw6uRXDPi91y2vkdhbN8a0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OBa6JLUoUiWXwUY3Sb5bCldqMNm3gwewS+GmJ+zAUBTNFrH/g7YbphYyBfSJ28YS1
-         76aUaAvhVKSz69dg1nvWn2X1zRKYqiHYUEhhZsIeBh7z9iQbWyXCFpPGX83zSQY0ke
-         JGy6aaWleGeZvpI+TdWGigsMdf02whmcNw9zhzYw=
+        b=u20Fn4rh1NV8Srr/5Umi5QM6hLYje3tkr7UYYpcnYpofQJYF6Fi8y8HwBpYj9iTeT
+         NhidMKVJtaK/mlxvFDgkemQUPrxxEGHrQ31RN/QAY2g5OMOuX3DtDaK5adCqQEhlYC
+         gjISJOn4QkqHJEFQ06vapIwZS9rEe6rst5zAI2MY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Tedd Ho-Jeong An <tedd.an@intel.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/88] Bluetooth: L2CAP: Fix l2cap_global_chan_by_psm
+Subject: [PATCH 4.9 34/76] serial: 8250_omap: remove wait loop from Errata i202 workaround
 Date:   Wed, 23 Nov 2022 09:50:33 +0100
-Message-Id: <20221123084549.745428831@linuxfoundation.org>
+Message-Id: <20221123084547.851390697@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
+References: <20221123084546.742331901@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-[ Upstream commit f937b758a188d6fd328a81367087eddbb2fce50f ]
+[ Upstream commit e828e56684d61b17317e0cfdef83791fa61cb76b ]
 
-l2cap_global_chan_by_psm shall not return fixed channels as they are not
-meant to be connected by (S)PSM.
+We were occasionally seeing the "Errata i202: timedout" on an AM335x
+board when repeatedly opening and closing a UART connected to an active
+sender. As new input may arrive at any time, it is possible to miss the
+"RX FIFO empty" condition, forcing the loop to wait until it times out.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Nothing in the i202 Advisory states that such a wait is even necessary;
+other FIFO clear functions like serial8250_clear_fifos() do not wait
+either. For this reason, it seems safe to remove the wait, fixing the
+mentioned issue.
+
+Fixes: 61929cf0169d ("tty: serial: Add 8250-core based omap driver")
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Link: https://lore.kernel.org/r/20221013112339.2540767-1-matthias.schiffer@ew.tq-group.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_omap.c | 17 -----------------
+ 1 file changed, 17 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 60bf8603ddc9..8b5b232294b5 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -1824,7 +1824,7 @@ static struct l2cap_chan *l2cap_global_chan_by_psm(int state, __le16 psm,
- 		if (link_type == LE_LINK && c->src_type == BDADDR_BREDR)
- 			continue;
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index c551407bee07..cecc266b3640 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -160,27 +160,10 @@ static void omap8250_set_mctrl(struct uart_port *port, unsigned int mctrl)
+ static void omap_8250_mdr1_errataset(struct uart_8250_port *up,
+ 				     struct omap8250_priv *priv)
+ {
+-	u8 timeout = 255;
+-
+ 	serial_out(up, UART_OMAP_MDR1, priv->mdr1);
+ 	udelay(2);
+ 	serial_out(up, UART_FCR, up->fcr | UART_FCR_CLEAR_XMIT |
+ 			UART_FCR_CLEAR_RCVR);
+-	/*
+-	 * Wait for FIFO to empty: when empty, RX_FIFO_E bit is 0 and
+-	 * TX_FIFO_E bit is 1.
+-	 */
+-	while (UART_LSR_THRE != (serial_in(up, UART_LSR) &
+-				(UART_LSR_THRE | UART_LSR_DR))) {
+-		timeout--;
+-		if (!timeout) {
+-			/* Should *never* happen. we warn and carry on */
+-			dev_crit(up->port.dev, "Errata i202: timedout %x\n",
+-				 serial_in(up, UART_LSR));
+-			break;
+-		}
+-		udelay(1);
+-	}
+ }
  
--		if (c->psm == psm) {
-+		if (c->chan_type != L2CAP_CHAN_FIXED && c->psm == psm) {
- 			int src_match, dst_match;
- 			int src_any, dst_any;
- 
+ static void omap_8250_get_divisor(struct uart_port *port, unsigned int baud,
 -- 
 2.35.1
 
