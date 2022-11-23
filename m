@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3944863536F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:57:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8004963540F
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236745AbiKWIzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:55:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58974 "EHLO
+        id S236887AbiKWJBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:01:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236749AbiKWIzo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:55:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9721CE932B
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:55:43 -0800 (PST)
+        with ESMTP id S236908AbiKWJB3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:01:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886AA100B0B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:01:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3399061B10
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:55:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CE67C433D7;
-        Wed, 23 Nov 2022 08:55:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A9ABB81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:01:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB680C433D7;
+        Wed, 23 Nov 2022 09:01:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193742;
-        bh=1RVzD4SAWU/WqbChixPy4VM0dNOktno0GCWcdiWHjZg=;
+        s=korg; t=1669194085;
+        bh=G68ezDfW2/Yn+3+TkEuZKc9w+waiy+oLGHeii3Kmrzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PhJlMUhEP/fJmTeGsCy2CI/oExnxG7D428b8gyKXGKW7t+/J8CukHaF6SLIiBWmD7
-         1ZatbhKut/bJrVHvt9VdWtdZUcL0vRvWRYnRS1yt7THovGNr/QYcm1xqgmKjjKkgRD
-         XjbejJFX2l1L5GEbk98XMYRd4kllPDzEQzpp3SHM=
+        b=PjTJEI6YxwfE0ejFQWR5SmnLseMlkBbRgFzuBOPyUy9lfOWvwsyTj9tZucDKu/P04
+         Ym4W7SC3AyUcVC48NqxqDsc3wlI40lvrSldPAceQHRMPf3Pq4RLeiSiIscJGqNC3Sr
+         DRLlnaVYVYk9WaF34HOZDCWex6Iop6qdbPPy2KSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 48/76] ring_buffer: Do not deactivate non-existant pages
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 50/88] drbd: use after free in drbd_create_device()
 Date:   Wed, 23 Nov 2022 09:50:47 +0100
-Message-Id: <20221123084548.317910865@linuxfoundation.org>
+Message-Id: <20221123084550.256465963@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Dan Carpenter <error27@gmail.com>
 
-commit 56f4ca0a79a9f1af98f26c54b9b89ba1f9bcc6bd upstream.
+[ Upstream commit a7a1598189228b5007369a9622ccdf587be0730f ]
 
-rb_head_page_deactivate() expects cpu_buffer to contain a valid list of
-->pages, so verify that the list is actually present before calling it.
+The drbd_destroy_connection() frees the "connection" so use the _safe()
+iterator to prevent a use after free.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
-
-Link: https://lkml.kernel.org/r/20221114143129.3534443-1-d-tatianin@yandex-team.ru
-
-Cc: stable@vger.kernel.org
-Fixes: 77ae365eca895 ("ring-buffer: make lockless")
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b6f85ef9538b ("drbd: Iterate over all connections")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Link: https://lore.kernel.org/r/Y3Jd5iZRbNQ9w6gm@kili
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ring_buffer.c |    4 ++--
+ drivers/block/drbd/drbd_main.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -1267,9 +1267,9 @@ static void rb_free_cpu_buffer(struct ri
- 
- 	free_buffer_page(cpu_buffer->reader_page);
- 
--	rb_head_page_deactivate(cpu_buffer);
--
- 	if (head) {
-+		rb_head_page_deactivate(cpu_buffer);
-+
- 		list_for_each_entry_safe(bpage, tmp, head, list) {
- 			list_del_init(&bpage->list);
- 			free_buffer_page(bpage);
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index 1e02cb60b65b..872e70f5b4d6 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -2804,7 +2804,7 @@ static int init_submitter(struct drbd_device *device)
+ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsigned int minor)
+ {
+ 	struct drbd_resource *resource = adm_ctx->resource;
+-	struct drbd_connection *connection;
++	struct drbd_connection *connection, *n;
+ 	struct drbd_device *device;
+ 	struct drbd_peer_device *peer_device, *tmp_peer_device;
+ 	struct gendisk *disk;
+@@ -2933,7 +2933,7 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
+ out_idr_remove_vol:
+ 	idr_remove(&connection->peer_devices, vnr);
+ out_idr_remove_from_resource:
+-	for_each_connection(connection, resource) {
++	for_each_connection_safe(connection, n, resource) {
+ 		peer_device = idr_remove(&connection->peer_devices, vnr);
+ 		if (peer_device)
+ 			kref_put(&connection->kref, drbd_destroy_connection);
+-- 
+2.35.1
+
 
 
