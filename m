@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43DB76356E1
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:37:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D054063546B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237929AbiKWJfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:35:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51480 "EHLO
+        id S237035AbiKWJHY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:07:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237661AbiKWJfJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:35:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EFDC3FBB0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:32:56 -0800 (PST)
+        with ESMTP id S237118AbiKWJGt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:06:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D576105ABF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 848A3B81E60
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:32:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E95E1C433C1;
-        Wed, 23 Nov 2022 09:32:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D95ED61B56
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1A23C433D6;
+        Wed, 23 Nov 2022 09:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195974;
-        bh=vqX4hgTmlunXbUXbK2XjDESzUQmqehiQqsnV9B0wU4k=;
+        s=korg; t=1669194375;
+        bh=f4pLl/Uqn47YMEhSAdGDwx5h+XhwTg49u/fqrZ00KiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d1gc0yH+SJOZrvNct+Cwj0G/zkBDljuBBuLriZ73PbwSUzdLrqHmKBTyaGxE35ZEx
-         FkpqdOmd13q2Kkq5E2DM02dP0bnKNsSRLVSGKfvwZ0QRrbMmvEr6yGmBWHhw0UyvXO
-         GfIz63BoxSty2iBcvKCpssCR/fpsTni8DZ1cbXQ8=
+        b=0Txz5vXDsTn/AIiXCyUyEnWs0Twf7Ku/XvJNJwPLOaQQ0EmBI6Ow85hQtv1X5IDZT
+         j6KJHXw4dOXWaJZ5HETx7XxpkDGMW+jbsYwqPlFVsTSSkyNQ3mHrsKgTAmdS9J1Pib
+         KJ5PrzuGTAiunsKoesthVhi/e5IjnzkGRAmMgtJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 084/181] net: liquidio: release resources when liquidio driver open failed
+Subject: [PATCH 4.19 060/114] block: sed-opal: kmalloc the cmd/resp buffers
 Date:   Wed, 23 Nov 2022 09:50:47 +0100
-Message-Id: <20221123084605.942478913@linuxfoundation.org>
+Message-Id: <20221123084554.277113196@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 8979f428a4afc215e390006e5ea19fd4e22c7ca9 ]
+[ Upstream commit f829230dd51974c1f4478900ed30bb77ba530b40 ]
 
-When liquidio driver open failed, it doesn't release resources. Compile
-tested only.
+In accordance with [1] the DMA-able memory buffers must be
+cacheline-aligned otherwise the cache writing-back and invalidation
+performed during the mapping may cause the adjacent data being lost. It's
+specifically required for the DMA-noncoherent platforms [2]. Seeing the
+opal_dev.{cmd,resp} buffers are implicitly used for DMAs in the NVME and
+SCSI/SD drivers in framework of the nvme_sec_submit() and sd_sec_submit()
+methods respectively they must be cacheline-aligned to prevent the denoted
+problem. One of the option to guarantee that is to kmalloc the buffers
+[2]. Let's explicitly allocate them then instead of embedding into the
+opal_dev structure instance.
 
-Fixes: 5b07aee11227 ("liquidio: MSIX support for CN23XX")
-Fixes: dbc97bfd3918 ("net: liquidio: Add missing null pointer checks")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Note this fix was inspired by the commit c94b7f9bab22 ("nvme-hwmon:
+kmalloc the NVME SMART log buffer").
+
+[1] Documentation/core-api/dma-api.rst
+[2] Documentation/core-api/dma-api-howto.rst
+
+Fixes: 455a7b238cd6 ("block: Add Sed-opal library")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20221107203944.31686-1-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/cavium/liquidio/lio_main.c   | 34 ++++++++++++++-----
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ block/sed-opal.c | 32 ++++++++++++++++++++++++++++----
+ 1 file changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/cavium/liquidio/lio_main.c b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-index 2907e13b9df6..7bd97d98afeb 100644
---- a/drivers/net/ethernet/cavium/liquidio/lio_main.c
-+++ b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-@@ -1798,13 +1798,10 @@ static int liquidio_open(struct net_device *netdev)
+diff --git a/block/sed-opal.c b/block/sed-opal.c
+index 119640897293..9651c40e093a 100644
+--- a/block/sed-opal.c
++++ b/block/sed-opal.c
+@@ -94,8 +94,8 @@ struct opal_dev {
+ 	u64 lowest_lba;
  
- 	ifstate_set(lio, LIO_IFSTATE_RUNNING);
+ 	size_t pos;
+-	u8 cmd[IO_BUFFER_LENGTH];
+-	u8 resp[IO_BUFFER_LENGTH];
++	u8 *cmd;
++	u8 *resp;
  
--	if (OCTEON_CN23XX_PF(oct)) {
--		if (!oct->msix_on)
--			if (setup_tx_poll_fn(netdev))
--				return -1;
--	} else {
--		if (setup_tx_poll_fn(netdev))
--			return -1;
-+	if (!OCTEON_CN23XX_PF(oct) || (OCTEON_CN23XX_PF(oct) && !oct->msix_on)) {
-+		ret = setup_tx_poll_fn(netdev);
-+		if (ret)
-+			goto err_poll;
- 	}
- 
- 	netif_tx_start_all_queues(netdev);
-@@ -1817,7 +1814,7 @@ static int liquidio_open(struct net_device *netdev)
- 	/* tell Octeon to start forwarding packets to host */
- 	ret = send_rx_ctrl_cmd(lio, 1);
- 	if (ret)
--		return ret;
-+		goto err_rx_ctrl;
- 
- 	/* start periodical statistics fetch */
- 	INIT_DELAYED_WORK(&lio->stats_wk.work, lio_fetch_stats);
-@@ -1828,6 +1825,27 @@ static int liquidio_open(struct net_device *netdev)
- 	dev_info(&oct->pci_dev->dev, "%s interface is opened\n",
- 		 netdev->name);
- 
-+	return 0;
-+
-+err_rx_ctrl:
-+	if (!OCTEON_CN23XX_PF(oct) || (OCTEON_CN23XX_PF(oct) && !oct->msix_on))
-+		cleanup_tx_poll_fn(netdev);
-+err_poll:
-+	if (lio->ptp_clock) {
-+		ptp_clock_unregister(lio->ptp_clock);
-+		lio->ptp_clock = NULL;
-+	}
-+
-+	if (oct->props[lio->ifidx].napi_enabled == 1) {
-+		list_for_each_entry_safe(napi, n, &netdev->napi_list, dev_list)
-+			napi_disable(napi);
-+
-+		oct->props[lio->ifidx].napi_enabled = 0;
-+
-+		if (OCTEON_CN23XX_PF(oct))
-+			oct->droq[0]->ops.poll_mode = 0;
-+	}
-+
- 	return ret;
+ 	struct parsed_resp parsed;
+ 	size_t prev_d_len;
+@@ -2028,6 +2028,8 @@ void free_opal_dev(struct opal_dev *dev)
+ 	if (!dev)
+ 		return;
+ 	clean_opal_dev(dev);
++	kfree(dev->resp);
++	kfree(dev->cmd);
+ 	kfree(dev);
  }
+ EXPORT_SYMBOL(free_opal_dev);
+@@ -2040,16 +2042,38 @@ struct opal_dev *init_opal_dev(void *data, sec_send_recv *send_recv)
+ 	if (!dev)
+ 		return NULL;
+ 
++	/*
++	 * Presumably DMA-able buffers must be cache-aligned. Kmalloc makes
++	 * sure the allocated buffer is DMA-safe in that regard.
++	 */
++	dev->cmd = kmalloc(IO_BUFFER_LENGTH, GFP_KERNEL);
++	if (!dev->cmd)
++		goto err_free_dev;
++
++	dev->resp = kmalloc(IO_BUFFER_LENGTH, GFP_KERNEL);
++	if (!dev->resp)
++		goto err_free_cmd;
++
+ 	INIT_LIST_HEAD(&dev->unlk_lst);
+ 	mutex_init(&dev->dev_lock);
+ 	dev->data = data;
+ 	dev->send_recv = send_recv;
+ 	if (check_opal_support(dev) != 0) {
+ 		pr_debug("Opal is not supported on this device\n");
+-		kfree(dev);
+-		return NULL;
++		goto err_free_resp;
+ 	}
+ 	return dev;
++
++err_free_resp:
++	kfree(dev->resp);
++
++err_free_cmd:
++	kfree(dev->cmd);
++
++err_free_dev:
++	kfree(dev);
++
++	return NULL;
+ }
+ EXPORT_SYMBOL(init_opal_dev);
  
 -- 
 2.35.1
