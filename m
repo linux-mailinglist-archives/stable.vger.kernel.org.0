@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7CF9635686
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A28B4635809
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:50:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237786AbiKWJbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:31:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44392 "EHLO
+        id S236799AbiKWJuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:50:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237785AbiKWJa6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:58 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EEFDE8A
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:29:37 -0800 (PST)
+        with ESMTP id S237229AbiKWJth (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D3AA1122FC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:46:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DAC7ACE20EC
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:29:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA935C433D6;
-        Wed, 23 Nov 2022 09:29:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D92861A02
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DA01C433D6;
+        Wed, 23 Nov 2022 09:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195773;
-        bh=0962/nnKhBf2bAmZiiQyeQHRPm1jDKsRvyc8iH052qE=;
+        s=korg; t=1669196781;
+        bh=XpwRcAo2jfwOpMnSgLEF1oXMai8/FPRyv23ruHXnGqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=evmwj2Myk4gABY2SqiWMZtYbYE8VyChwN1GzSg9O/dTA60QztOl188N3UPF8KjMsZ
-         u8fVyHYvswjG/nwHvkvu0BQVZPi7Mbtr9zYHH6tFVyV+DHAtCkO3jlnZLJLQIz293f
-         dRGiAWhKmVw4RtemDHVvRMmr6JrQSXllSYzXyGgM=
+        b=UVNp4bnDsNiGhMD9h+abUMQ+P5a0UEgWbOvjlJ2mvDLy9AuCwcfZL2HBYKgigc3L4
+         BWDHIT443K2FaW2BqURyOZXINjlEnwlNGVVzObWwbwy4dP4opozBra7iWrM488X3G/
+         st3vTxmuw6pNmvJjt4pN+iirWNF9puU07cLKlB9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 004/181] ASoC: wm5102: Revert "ASoC: wm5102: Fix PM disable depth imbalance in wm5102_probe"
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 122/314] siox: fix possible memory leak in siox_device_add()
 Date:   Wed, 23 Nov 2022 09:49:27 +0100
-Message-Id: <20221123084602.848489788@linuxfoundation.org>
+Message-Id: <20221123084631.044626604@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit de71d7567e358effd06dfc3e2a154b25f1331c10 ]
+[ Upstream commit 6e63153db50059fb78b8a8447b132664887d24e3 ]
 
-This reverts commit fcbb60820cd3008bb44334a0395e5e57ccb77329.
+If device_register() returns error in siox_device_add(),
+the name allocated by dev_set_name() need be freed. As
+comment of device_register() says, it should use put_device()
+to give up the reference in the error path. So fix this
+by calling put_device(), then the name can be freed in
+kobject_cleanup(), and sdevice is freed in siox_device_release(),
+set it to null in error path.
 
-The pm_runtime_disable is redundant when error returns in
-wm5102_probe, we just revert the old patch to fix it.
-
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20221010114852.88127-2-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: bbecb07fa0af ("siox: new driver framework for eckelmann SIOX")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20221104021334.618189-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm5102.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/siox/siox-core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
-index c8adce8936bc..621598608bf0 100644
---- a/sound/soc/codecs/wm5102.c
-+++ b/sound/soc/codecs/wm5102.c
-@@ -2087,6 +2087,9 @@ static int wm5102_probe(struct platform_device *pdev)
- 		regmap_update_bits(arizona->regmap, wm5102_digital_vu[i],
- 				   WM5102_DIG_VU, WM5102_DIG_VU);
+diff --git a/drivers/siox/siox-core.c b/drivers/siox/siox-core.c
+index 7c4f32d76966..561408583b2b 100644
+--- a/drivers/siox/siox-core.c
++++ b/drivers/siox/siox-core.c
+@@ -839,6 +839,8 @@ static struct siox_device *siox_device_add(struct siox_master *smaster,
  
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_idle(&pdev->dev);
-+
- 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
- 				  "ADSP2 Compressed IRQ", wm5102_adsp2_irq,
- 				  wm5102);
-@@ -2119,9 +2122,6 @@ static int wm5102_probe(struct platform_device *pdev)
- 		goto err_spk_irqs;
- 	}
+ err_device_register:
+ 	/* don't care to make the buffer smaller again */
++	put_device(&sdevice->dev);
++	sdevice = NULL;
  
--	pm_runtime_enable(&pdev->dev);
--	pm_runtime_idle(&pdev->dev);
--
- 	return ret;
- 
- err_spk_irqs:
+ err_buf_alloc:
+ 	siox_master_unlock(smaster);
 -- 
 2.35.1
 
