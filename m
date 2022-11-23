@@ -2,71 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA521635757
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B38635758
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237722AbiKWJlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238080AbiKWJlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 23 Nov 2022 04:41:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34942 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238030AbiKWJlD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66ADB5C774
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:38:28 -0800 (PST)
+        with ESMTP id S238027AbiKWJlF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42DAC1C10E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:38:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01888619F9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:38:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7966C433D6;
-        Wed, 23 Nov 2022 09:38:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00595B81EF6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:38:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBF2C433D6;
+        Wed, 23 Nov 2022 09:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196307;
-        bh=Yy+t0oE4BwigkjLGN22WUepdLztyr4IcIjCf1IkvnYU=;
+        s=korg; t=1669196310;
+        bh=Qu4yDC0ZW/6TZr8rCP5cMgAzWh/0eNhDMUxHwwy/HNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VE+OIbXc3qqo1CwIwVVTfc5dVVUWn/GwMyMDADnIhbfDN9zXYZaSS2/O7p7WLtqbE
-         WLPzAaKkeKKcyq01bQk5b3kB5f9FgQB50Pt+yXV9hrSDC+b0WCKU9NLHAgtG89XKQQ
-         IOdnXmggraoTX2iMu5oFlTL1mMAYFAEZSLrQv5SU=
+        b=UtPRcStwe5hxVQFmteJlLL3C4TaE4PUWCXweWoRROl0X9MaPFGz1pPID+mbZi1F7i
+         KK58ge/IvbF90mOZHcH0gmuNMRFUjNbbOF9KMjqGTSZVQN11dG1JmNbZ9Q8ilMJb1a
+         hG32l36EBBEZCdrKK0wUkUpvtbrAvvJq+QOLFocQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexander Potapenko <glider@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Lameter <cl@linux.com>,
-        David Rientjes <rientjes@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Marco Elver <elver@google.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vegard Nossum <vegard.nossum@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 177/181] mm: fs: initialize fsdata passed to write_begin/write_end interface
-Date:   Wed, 23 Nov 2022 09:52:20 +0100
-Message-Id: <20221123084609.999008225@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot <syzbot+2f20b523930c32c160cc@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.15 178/181] net/9p: use a dedicated spinlock for trans_fd
+Date:   Wed, 23 Nov 2022 09:52:21 +0100
+Message-Id: <20221123084610.043203934@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
 References: <20221123084602.707860461@linuxfoundation.org>
@@ -83,115 +55,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Dominique Martinet <asmadeus@codewreck.org>
 
-commit 1468c6f4558b1bcd92aa0400f2920f9dc7588402 upstream.
+commit 296ab4a813841ba1d5f40b03190fd1bd8f25aab0 upstream.
 
-Functions implementing the a_ops->write_end() interface accept the `void
-*fsdata` parameter that is supposed to be initialized by the corresponding
-a_ops->write_begin() (which accepts `void **fsdata`).
+Shamelessly copying the explanation from Tetsuo Handa's suggested
+patch[1] (slightly reworded):
+syzbot is reporting inconsistent lock state in p9_req_put()[2],
+for p9_tag_remove() from p9_req_put() from IRQ context is using
+spin_lock_irqsave() on "struct p9_client"->lock but trans_fd
+(not from IRQ context) is using spin_lock().
 
-However not all a_ops->write_begin() implementations initialize `fsdata`
-unconditionally, so it may get passed uninitialized to a_ops->write_end(),
-resulting in undefined behavior.
+Since the locks actually protect different things in client.c and in
+trans_fd.c, just replace trans_fd.c's lock by a new one specific to the
+transport (client.c's protect the idr for fid/tag allocations,
+while trans_fd.c's protects its own req list and request status field
+that acts as the transport's state machine)
 
-Fix this by initializing fsdata with NULL before the call to
-write_begin(), rather than doing so in all possible a_ops implementations.
-
-This patch covers only the following cases found by running x86 KMSAN
-under syzkaller:
-
- - generic_perform_write()
- - cont_expand_zero() and generic_cont_expand_simple()
- - page_symlink()
-
-Other cases of passing uninitialized fsdata may persist in the codebase.
-
-Link: https://lkml.kernel.org/r/20220915150417.722975-43-glider@google.com
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Eric Biggers <ebiggers@google.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vegard Nossum <vegard.nossum@oracle.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://lore.kernel.org/r/20220904112928.1308799-1-asmadeus@codewreck.org
+Link: https://lkml.kernel.org/r/2470e028-9b05-2013-7198-1fdad071d999@I-love.SAKURA.ne.jp [1]
+Link: https://syzkaller.appspot.com/bug?extid=2f20b523930c32c160cc [2]
+Reported-by: syzbot <syzbot+2f20b523930c32c160cc@syzkaller.appspotmail.com>
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/buffer.c  |    4 ++--
- fs/namei.c   |    2 +-
- mm/filemap.c |    2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ net/9p/trans_fd.c |   41 +++++++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
 
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -2352,7 +2352,7 @@ int generic_cont_expand_simple(struct in
- {
- 	struct address_space *mapping = inode->i_mapping;
- 	struct page *page;
--	void *fsdata;
-+	void *fsdata = NULL;
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -93,6 +93,7 @@ struct p9_poll_wait {
+  * @mux_list: list link for mux to manage multiple connections (?)
+  * @client: reference to client instance for this connection
+  * @err: error state
++ * @req_lock: lock protecting req_list and requests statuses
+  * @req_list: accounting for requests which have been sent
+  * @unsent_req_list: accounting for requests that haven't been sent
+  * @rreq: read request
+@@ -116,6 +117,7 @@ struct p9_conn {
+ 	struct list_head mux_list;
+ 	struct p9_client *client;
  	int err;
++	spinlock_t req_lock;
+ 	struct list_head req_list;
+ 	struct list_head unsent_req_list;
+ 	struct p9_req_t *rreq;
+@@ -191,10 +193,10 @@ static void p9_conn_cancel(struct p9_con
  
- 	err = inode_newsize_ok(inode, size);
-@@ -2378,7 +2378,7 @@ static int cont_expand_zero(struct file
- 	struct inode *inode = mapping->host;
- 	unsigned int blocksize = i_blocksize(inode);
- 	struct page *page;
--	void *fsdata;
-+	void *fsdata = NULL;
- 	pgoff_t index, curidx;
- 	loff_t curpos;
- 	unsigned zerofrom, offset, len;
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -5013,7 +5013,7 @@ int __page_symlink(struct inode *inode,
+ 	p9_debug(P9_DEBUG_ERROR, "mux %p err %d\n", m, err);
+ 
+-	spin_lock(&m->client->lock);
++	spin_lock(&m->req_lock);
+ 
+ 	if (m->err) {
+-		spin_unlock(&m->client->lock);
++		spin_unlock(&m->req_lock);
+ 		return;
+ 	}
+ 
+@@ -207,7 +209,7 @@ static void p9_conn_cancel(struct p9_con
+ 		list_move(&req->req_list, &cancel_list);
+ 	}
+ 
+-	spin_unlock(&m->client->lock);
++	spin_unlock(&m->req_lock);
+ 
+ 	list_for_each_entry_safe(req, rtmp, &cancel_list, req_list) {
+ 		p9_debug(P9_DEBUG_ERROR, "call back req %p\n", req);
+@@ -362,7 +364,7 @@ static void p9_read_work(struct work_str
+ 	if ((m->rreq) && (m->rc.offset == m->rc.capacity)) {
+ 		p9_debug(P9_DEBUG_TRANS, "got new packet\n");
+ 		m->rreq->rc.size = m->rc.offset;
+-		spin_lock(&m->client->lock);
++		spin_lock(&m->req_lock);
+ 		if (m->rreq->status == REQ_STATUS_SENT) {
+ 			list_del(&m->rreq->req_list);
+ 			p9_client_cb(m->client, m->rreq, REQ_STATUS_RCVD);
+@@ -371,14 +373,14 @@ static void p9_read_work(struct work_str
+ 			p9_debug(P9_DEBUG_TRANS,
+ 				 "Ignore replies associated with a cancelled request\n");
+ 		} else {
+-			spin_unlock(&m->client->lock);
++			spin_unlock(&m->req_lock);
+ 			p9_debug(P9_DEBUG_ERROR,
+ 				 "Request tag %d errored out while we were reading the reply\n",
+ 				 m->rc.tag);
+ 			err = -EIO;
+ 			goto error;
+ 		}
+-		spin_unlock(&m->client->lock);
++		spin_unlock(&m->req_lock);
+ 		m->rc.sdata = NULL;
+ 		m->rc.offset = 0;
+ 		m->rc.capacity = 0;
+@@ -456,10 +458,10 @@ static void p9_write_work(struct work_st
+ 	}
+ 
+ 	if (!m->wsize) {
+-		spin_lock(&m->client->lock);
++		spin_lock(&m->req_lock);
+ 		if (list_empty(&m->unsent_req_list)) {
+ 			clear_bit(Wworksched, &m->wsched);
+-			spin_unlock(&m->client->lock);
++			spin_unlock(&m->req_lock);
+ 			return;
+ 		}
+ 
+@@ -474,7 +476,7 @@ static void p9_write_work(struct work_st
+ 		m->wpos = 0;
+ 		p9_req_get(req);
+ 		m->wreq = req;
+-		spin_unlock(&m->client->lock);
++		spin_unlock(&m->req_lock);
+ 	}
+ 
+ 	p9_debug(P9_DEBUG_TRANS, "mux %p pos %d size %d\n",
+@@ -591,6 +593,7 @@ static void p9_conn_create(struct p9_cli
+ 	INIT_LIST_HEAD(&m->mux_list);
+ 	m->client = client;
+ 
++	spin_lock_init(&m->req_lock);
+ 	INIT_LIST_HEAD(&m->req_list);
+ 	INIT_LIST_HEAD(&m->unsent_req_list);
+ 	INIT_WORK(&m->rq, p9_read_work);
+@@ -672,10 +675,10 @@ static int p9_fd_request(struct p9_clien
+ 	if (m->err < 0)
+ 		return m->err;
+ 
+-	spin_lock(&client->lock);
++	spin_lock(&m->req_lock);
+ 	req->status = REQ_STATUS_UNSENT;
+ 	list_add_tail(&req->req_list, &m->unsent_req_list);
+-	spin_unlock(&client->lock);
++	spin_unlock(&m->req_lock);
+ 
+ 	if (test_and_clear_bit(Wpending, &m->wsched))
+ 		n = EPOLLOUT;
+@@ -690,11 +693,13 @@ static int p9_fd_request(struct p9_clien
+ 
+ static int p9_fd_cancel(struct p9_client *client, struct p9_req_t *req)
  {
- 	struct address_space *mapping = inode->i_mapping;
- 	struct page *page;
--	void *fsdata;
-+	void *fsdata = NULL;
- 	int err;
- 	unsigned int flags = 0;
- 	if (nofs)
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -3749,7 +3749,7 @@ ssize_t generic_perform_write(struct fil
- 		unsigned long offset;	/* Offset into pagecache page */
- 		unsigned long bytes;	/* Bytes to write to page */
- 		size_t copied;		/* Bytes copied from user */
--		void *fsdata;
-+		void *fsdata = NULL;
++	struct p9_trans_fd *ts = client->trans;
++	struct p9_conn *m = &ts->conn;
+ 	int ret = 1;
  
- 		offset = (pos & (PAGE_SIZE - 1));
- 		bytes = min_t(unsigned long, PAGE_SIZE - offset,
+ 	p9_debug(P9_DEBUG_TRANS, "client %p req %p\n", client, req);
+ 
+-	spin_lock(&client->lock);
++	spin_lock(&m->req_lock);
+ 
+ 	if (req->status == REQ_STATUS_UNSENT) {
+ 		list_del(&req->req_list);
+@@ -702,21 +707,24 @@ static int p9_fd_cancel(struct p9_client
+ 		p9_req_put(client, req);
+ 		ret = 0;
+ 	}
+-	spin_unlock(&client->lock);
++	spin_unlock(&m->req_lock);
+ 
+ 	return ret;
+ }
+ 
+ static int p9_fd_cancelled(struct p9_client *client, struct p9_req_t *req)
+ {
++	struct p9_trans_fd *ts = client->trans;
++	struct p9_conn *m = &ts->conn;
++
+ 	p9_debug(P9_DEBUG_TRANS, "client %p req %p\n", client, req);
+ 
+-	spin_lock(&client->lock);
++	spin_lock(&m->req_lock);
+ 	/* Ignore cancelled request if message has been received
+ 	 * before lock.
+ 	 */
+ 	if (req->status == REQ_STATUS_RCVD) {
+-		spin_unlock(&client->lock);
++		spin_unlock(&m->req_lock);
+ 		return 0;
+ 	}
+ 
+@@ -725,7 +733,8 @@ static int p9_fd_cancelled(struct p9_cli
+ 	 */
+ 	list_del(&req->req_list);
+ 	req->status = REQ_STATUS_FLSHD;
+-	spin_unlock(&client->lock);
++	spin_unlock(&m->req_lock);
++
+ 	p9_req_put(client, req);
+ 
+ 	return 0;
 
 
