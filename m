@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0736E63585C
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:56:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F23635503
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237191AbiKWJ4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:56:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52520 "EHLO
+        id S237200AbiKWJNn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:13:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237321AbiKWJy6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:54:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9359B112C53
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:50:42 -0800 (PST)
+        with ESMTP id S237210AbiKWJNk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:13:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26BB887578
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:13:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3110A61A02
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:50:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 166A9C433C1;
-        Wed, 23 Nov 2022 09:50:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B433661B59
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:13:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BA5DC433D7;
+        Wed, 23 Nov 2022 09:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197041;
-        bh=7d5BewuHH1C5Kdxp7VJsq/Kz7JDVqYS9OlK9uzjmLVo=;
+        s=korg; t=1669194819;
+        bh=dPYviG2x1KuTLEznEqp0BpXt7OOMBWQoC0Si/zlHnRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hhheZo4HjPA4b2hkGIZWCnkDGW+0d4SZm7pX9v94+aceqs80kYAb9kWP8nV14DAiS
-         Da6W5G5l9m7pxvUyM3ZpCqUbubmYKj+wKrxgauUCIPLPhvC7gJAULHrr7dASFSCq1o
-         M5cyYt2gXXSajtHCHJgnEARgNEriQpxE0XQmdmso=
+        b=J1n4nyNz461X88+f/78diTpg6/RZfDqpVpWSFEUoY1/BeJyewelo/elKHZWoQDURz
+         PCQQ17o7HpzDOKGE6yBIngzmJz8Kgm1OgvAYGjvqFv7B+/+JIIko8oH+Tg38bpvzVI
+         /8/kCqkPZXeoMotYoBxekr9xGc3DH8ZjyJHj9O5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anastasia Belova <abelova@astralinux.ru>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, Siarhei Volkau <lis8215@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 182/314] cifs: add check for returning value of SMB2_close_init
+Subject: [PATCH 5.4 070/156] ASoC: codecs: jz4725b: fix reported volume for Master ctl
 Date:   Wed, 23 Nov 2022 09:50:27 +0100
-Message-Id: <20221123084633.818072589@linuxfoundation.org>
+Message-Id: <20221123084600.491577640@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anastasia Belova <abelova@astralinux.ru>
+From: Siarhei Volkau <lis8215@gmail.com>
 
-[ Upstream commit d520de6cb42e88a1d008b54f935caf9fc05951da ]
+[ Upstream commit 088777bf65b98cfa4b5378119d0a7d49a58ece44 ]
 
-If the returning value of SMB2_close_init is an error-value,
-exit the function.
+DAC volume control is the Master Playback Volume at the moment
+and it reports wrong levels in alsamixer and other alsa apps.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+The patch fixes that, as stated in manual on the jz4725b SoC
+(16.6.3.4 Programmable attenuation: GOD) the ctl range varies
+from -22.5dB to 0dB with 1.5dB step.
 
-Fixes: 352d96f3acc6 ("cifs: multichannel: move channel selection above transport layer")
-
-Signed-off-by: Anastasia Belova <abelova@astralinux.ru>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
+Link: https://lore.kernel.org/r/20221016132648.3011729-3-lis8215@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/codecs/jz4725b.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index c258a7b122b6..86a1f282c8b4 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1133,6 +1133,8 @@ smb2_set_ea(const unsigned int xid, struct cifs_tcon *tcon,
- 	rqst[2].rq_nvec = 1;
- 	rc = SMB2_close_init(tcon, server,
- 			     &rqst[2], COMPOUND_FID, COMPOUND_FID, false);
-+	if (rc)
-+		goto sea_exit;
- 	smb2_set_related(&rqst[2]);
+diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
+index a04b8d5d1ded..1f7a234266b9 100644
+--- a/sound/soc/codecs/jz4725b.c
++++ b/sound/soc/codecs/jz4725b.c
+@@ -142,8 +142,8 @@ struct jz_icdc {
+ 	struct clk *clk;
+ };
  
- 	rc = compound_send_recv(xid, ses, server,
+-static const SNDRV_CTL_TLVD_DECLARE_DB_LINEAR(jz4725b_dac_tlv, -2250, 0);
+ static const SNDRV_CTL_TLVD_DECLARE_DB_LINEAR(jz4725b_line_tlv, -1500, 600);
++static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_dac_tlv, -2250, 150, 0);
+ 
+ static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
+ 	SOC_DOUBLE_TLV("Master Playback Volume",
 -- 
 2.35.1
 
