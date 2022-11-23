@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DBB0635918
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 484A363575D
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235641AbiKWKGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:06:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33118 "EHLO
+        id S238050AbiKWJll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:41:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236161AbiKWKGL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A2DC12522A
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:31 -0800 (PST)
+        with ESMTP id S238015AbiKWJlV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CAE492B5D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:38:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85430B81EF0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8357C433D6;
-        Wed, 23 Nov 2022 09:56:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB6C461A02
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:38:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92665C4347C;
+        Wed, 23 Nov 2022 09:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197389;
-        bh=Bh+0qot04Uekb+x/srQItX55tmV87W73TraLf0NtkqY=;
+        s=korg; t=1669196329;
+        bh=x4RWptu7xEAGucwfy0/VeIWFzLvk/NHNchCpSS/Wc7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LNK06R7aj5hnHDyvpa2uVUj5ah7Q1qG8Sh9JsHpC5YcI1qiUIkhJ8ERmqBZqvAYqz
-         F5G8tYWqb3nb2CHmkNQ2Z94PU0xuut/VJFfzGlxqOMftHdqH3yeN+8GddiToxcvxYn
-         05DAgS9kixffaukkZqs3Jx0Fm3oM/mimo6M/cQkw=
+        b=LVGFSftFRU0Lkw1gO25LT42earJ3h4cCwaJzNjE1o15R1YslXhSOTiyhzc2IVpUjs
+         YX+/W1O5pQS6kq5ODe4pyJ8JckI5Ao/I/yAKSjISdHX+f75Gjtanj1Zxav9mnarW2j
+         WNZpHjikuWtHGPnjfErpa3JvDxtB91eRA5PTAmTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 6.0 281/314] nvme: restrict management ioctls to admin
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 163/181] net: use struct_group to copy ip/ipv6 header addresses
 Date:   Wed, 23 Nov 2022 09:52:06 +0100
-Message-Id: <20221123084638.276777129@linuxfoundation.org>
+Message-Id: <20221123084609.387755447@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit 23e085b2dead13b51fe86d27069895b740f749c0 upstream.
+[ Upstream commit 58e0be1ef6118c5352b56a4d06e974c5599993a5 ]
 
-The passthrough commands already have this restriction, but the other
-operations do not. Require the same capabilities for all users as all of
-these operations, which include resets and rescans, can be disruptive.
+kernel test robot reported warnings when build bonding module with
+make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash drivers/net/bonding/:
 
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+                 from ../drivers/net/bonding/bond_main.c:35:
+In function ‘fortify_memcpy_chk’,
+    inlined from ‘iph_to_flow_copy_v4addrs’ at ../include/net/ip.h:566:2,
+    inlined from ‘bond_flow_ip’ at ../drivers/net/bonding/bond_main.c:3984:3:
+../include/linux/fortify-string.h:413:25: warning: call to ‘__read_overflow2_field’ declared with attribute warning: detected read beyond size of f
+ield (2nd parameter); maybe use struct_group()? [-Wattribute-warning]
+  413 |                         __read_overflow2_field(q_size_field, size);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function ‘fortify_memcpy_chk’,
+    inlined from ‘iph_to_flow_copy_v6addrs’ at ../include/net/ipv6.h:900:2,
+    inlined from ‘bond_flow_ip’ at ../drivers/net/bonding/bond_main.c:3994:3:
+../include/linux/fortify-string.h:413:25: warning: call to ‘__read_overflow2_field’ declared with attribute warning: detected read beyond size of f
+ield (2nd parameter); maybe use struct_group()? [-Wattribute-warning]
+  413 |                         __read_overflow2_field(q_size_field, size);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is because we try to copy the whole ip/ip6 address to the flow_key,
+while we only point the to ip/ip6 saddr. Note that since these are UAPI
+headers, __struct_group() is used to avoid the compiler warnings.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: c3f8324188fa ("net: Add full IPv6 addresses to flow_keys")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Link: https://lore.kernel.org/r/20221115142400.1204786-1-liuhangbin@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/ioctl.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ include/net/ip.h          | 2 +-
+ include/net/ipv6.h        | 2 +-
+ include/uapi/linux/ip.h   | 6 ++++--
+ include/uapi/linux/ipv6.h | 6 ++++--
+ 4 files changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/nvme/host/ioctl.c
-+++ b/drivers/nvme/host/ioctl.c
-@@ -764,11 +764,17 @@ long nvme_dev_ioctl(struct file *file, u
- 	case NVME_IOCTL_IO_CMD:
- 		return nvme_dev_user_cmd(ctrl, argp);
- 	case NVME_IOCTL_RESET:
-+		if (!capable(CAP_SYS_ADMIN))
-+			return -EACCES;
- 		dev_warn(ctrl->device, "resetting controller\n");
- 		return nvme_reset_ctrl_sync(ctrl);
- 	case NVME_IOCTL_SUBSYS_RESET:
-+		if (!capable(CAP_SYS_ADMIN))
-+			return -EACCES;
- 		return nvme_reset_subsystem(ctrl);
- 	case NVME_IOCTL_RESCAN:
-+		if (!capable(CAP_SYS_ADMIN))
-+			return -EACCES;
- 		nvme_queue_scan(ctrl);
- 		return 0;
- 	default:
+diff --git a/include/net/ip.h b/include/net/ip.h
+index 8462ced0c21e..6ae923c55cf4 100644
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -559,7 +559,7 @@ static inline void iph_to_flow_copy_v4addrs(struct flow_keys *flow,
+ 	BUILD_BUG_ON(offsetof(typeof(flow->addrs), v4addrs.dst) !=
+ 		     offsetof(typeof(flow->addrs), v4addrs.src) +
+ 			      sizeof(flow->addrs.v4addrs.src));
+-	memcpy(&flow->addrs.v4addrs, &iph->saddr, sizeof(flow->addrs.v4addrs));
++	memcpy(&flow->addrs.v4addrs, &iph->addrs, sizeof(flow->addrs.v4addrs));
+ 	flow->control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+ }
+ 
+diff --git a/include/net/ipv6.h b/include/net/ipv6.h
+index 359540dfc033..a5e18d65c82d 100644
+--- a/include/net/ipv6.h
++++ b/include/net/ipv6.h
+@@ -843,7 +843,7 @@ static inline void iph_to_flow_copy_v6addrs(struct flow_keys *flow,
+ 	BUILD_BUG_ON(offsetof(typeof(flow->addrs), v6addrs.dst) !=
+ 		     offsetof(typeof(flow->addrs), v6addrs.src) +
+ 		     sizeof(flow->addrs.v6addrs.src));
+-	memcpy(&flow->addrs.v6addrs, &iph->saddr, sizeof(flow->addrs.v6addrs));
++	memcpy(&flow->addrs.v6addrs, &iph->addrs, sizeof(flow->addrs.v6addrs));
+ 	flow->control.addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
+ }
+ 
+diff --git a/include/uapi/linux/ip.h b/include/uapi/linux/ip.h
+index e42d13b55cf3..d2f143393780 100644
+--- a/include/uapi/linux/ip.h
++++ b/include/uapi/linux/ip.h
+@@ -100,8 +100,10 @@ struct iphdr {
+ 	__u8	ttl;
+ 	__u8	protocol;
+ 	__sum16	check;
+-	__be32	saddr;
+-	__be32	daddr;
++	__struct_group(/* no tag */, addrs, /* no attrs */,
++		__be32	saddr;
++		__be32	daddr;
++	);
+ 	/*The options start here. */
+ };
+ 
+diff --git a/include/uapi/linux/ipv6.h b/include/uapi/linux/ipv6.h
+index b243a53fa985..62e5e16ef539 100644
+--- a/include/uapi/linux/ipv6.h
++++ b/include/uapi/linux/ipv6.h
+@@ -130,8 +130,10 @@ struct ipv6hdr {
+ 	__u8			nexthdr;
+ 	__u8			hop_limit;
+ 
+-	struct	in6_addr	saddr;
+-	struct	in6_addr	daddr;
++	__struct_group(/* no tag */, addrs, /* no attrs */,
++		struct	in6_addr	saddr;
++		struct	in6_addr	daddr;
++	);
+ };
+ 
+ 
+-- 
+2.35.1
+
 
 
