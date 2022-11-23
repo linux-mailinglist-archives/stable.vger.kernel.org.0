@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE8A463560A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0522F635550
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237665AbiKWJZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:25:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37052 "EHLO
+        id S237445AbiKWJSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:18:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237491AbiKWJYu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:24:50 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40784CB9F1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:23:30 -0800 (PST)
+        with ESMTP id S237453AbiKWJRk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:17:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C7CCE92
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:17:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9C5F0CE20F3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:23:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57073C433C1;
-        Wed, 23 Nov 2022 09:23:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 968ABB81E50
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:17:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDF62C433D6;
+        Wed, 23 Nov 2022 09:17:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195406;
-        bh=lVxztbdhR8r9C+L6fx7lC9VlKZ6hqZuFCXdNheytFPk=;
+        s=korg; t=1669195048;
+        bh=D28NUY+OgrZDPRI55/TXjC2f3gyGpINTmypgydaw21E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eOuyMASC8dqhjbCibirwy07M+IKqTHDY3iAlf0cs8eUGZj00dYl0kTAeeVCi/vjMJ
-         nK8J4nnxE219DmUkzABKvSHqDByJsfBqWeJdaB0SVckpUHmG+ASeHX+KgCfwNE8/di
-         M083MUYVBxHO8sqdnevlL/mXoD0a4Hh+8Oi0rPs4=
+        b=NUscDXL+kZiIx7HfKNp7HT7AWmWQ9N0Ais6Chj3ChA6C49Ul4YeQHfAxwzXNTbxbH
+         qA3/hjGepbUU3l00YpA10f/x13H5yXHwMY5b3wf73yFT4fRMQ5rIaipHfH+My4cESs
+         UJYI2pr+davEnumjszrgpYRuiLxBpCqeGoyGfTng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anastasia Belova <abelova@astralinux.ru>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 076/149] cifs: add check for returning value of SMB2_close_init
+Subject: [PATCH 5.4 102/156] net: caif: fix double disconnect client in chnl_net_open()
 Date:   Wed, 23 Nov 2022 09:50:59 +0100
-Message-Id: <20221123084600.687164709@linuxfoundation.org>
+Message-Id: <20221123084601.669918826@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anastasia Belova <abelova@astralinux.ru>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit d520de6cb42e88a1d008b54f935caf9fc05951da ]
+[ Upstream commit 8fbb53c8bfd8c56ecf1f78dc821778b58f505503 ]
 
-If the returning value of SMB2_close_init is an error-value,
-exit the function.
+When connecting to client timeout, disconnect client for twice in
+chnl_net_open(). Remove one. Compile tested only.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Fixes: 352d96f3acc6 ("cifs: multichannel: move channel selection above transport layer")
-
-Signed-off-by: Anastasia Belova <abelova@astralinux.ru>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 2aa40aef9deb ("caif: Use link layer MTU instead of fixed MTU")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/caif/chnl_net.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 11efd5289ec4..1cc823e96065 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1266,6 +1266,8 @@ smb2_set_ea(const unsigned int xid, struct cifs_tcon *tcon,
- 	rqst[2].rq_nvec = 1;
- 	rc = SMB2_close_init(tcon, server,
- 			     &rqst[2], COMPOUND_FID, COMPOUND_FID, false);
-+	if (rc)
-+		goto sea_exit;
- 	smb2_set_related(&rqst[2]);
+diff --git a/net/caif/chnl_net.c b/net/caif/chnl_net.c
+index 910f164dd20c..4dfac31f9466 100644
+--- a/net/caif/chnl_net.c
++++ b/net/caif/chnl_net.c
+@@ -314,9 +314,6 @@ static int chnl_net_open(struct net_device *dev)
  
- 	rc = compound_send_recv(xid, ses, server,
+ 	if (result == 0) {
+ 		pr_debug("connect timeout\n");
+-		caif_disconnect_client(dev_net(dev), &priv->chnl);
+-		priv->state = CAIF_DISCONNECTED;
+-		pr_debug("state disconnected\n");
+ 		result = -ETIMEDOUT;
+ 		goto error;
+ 	}
 -- 
 2.35.1
 
