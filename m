@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 484A363575D
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F54F63565B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238050AbiKWJll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:41:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35438 "EHLO
+        id S237671AbiKWJ3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:29:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238015AbiKWJlV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CAE492B5D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:38:50 -0800 (PST)
+        with ESMTP id S237777AbiKWJ3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:29:10 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 973F960EB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:27:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB6C461A02
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:38:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92665C4347C;
-        Wed, 23 Nov 2022 09:38:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 190E8CE0FC8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:27:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0196C433D6;
+        Wed, 23 Nov 2022 09:27:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196329;
-        bh=x4RWptu7xEAGucwfy0/VeIWFzLvk/NHNchCpSS/Wc7M=;
+        s=korg; t=1669195648;
+        bh=GOYcDVhZ7jfrsTZdANAjsfmoOyuJ3zC0Mbai4ur7/BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LVGFSftFRU0Lkw1gO25LT42earJ3h4cCwaJzNjE1o15R1YslXhSOTiyhzc2IVpUjs
-         YX+/W1O5pQS6kq5ODe4pyJ8JckI5Ao/I/yAKSjISdHX+f75Gjtanj1Zxav9mnarW2j
-         WNZpHjikuWtHGPnjfErpa3JvDxtB91eRA5PTAmTA=
+        b=SalWrUJPQ80TzcwOcgT3l55oSOYy7gvmqQtV+3RTgUsJMBy0D8cibT/Fs8Wrxy6mG
+         bGUesMRSWwLaN57oU2uDS08kXc/IJ2OugOKvif2+AeDdfpRBKRyX/AQ8fU7sl9Hy5t
+         E/rsPaIvXrrO7iWa1u+FXOCoqoGV3OXkHLyp/djc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 163/181] net: use struct_group to copy ip/ipv6 header addresses
-Date:   Wed, 23 Nov 2022 09:52:06 +0100
-Message-Id: <20221123084609.387755447@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 5.10 144/149] gfs2: Switch from strlcpy to strscpy
+Date:   Wed, 23 Nov 2022 09:52:07 +0100
+Message-Id: <20221123084603.092759876@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,108 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 58e0be1ef6118c5352b56a4d06e974c5599993a5 ]
+commit 204c0300c4e99707e9fb6e57840aa1127060e63f upstream.
 
-kernel test robot reported warnings when build bonding module with
-make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash drivers/net/bonding/:
+Switch from strlcpy to strscpy and make sure that @count is the size of
+the smaller of the source and destination buffers.  This prevents
+reading beyond the end of the source buffer when the source string isn't
+null terminated.
 
-                 from ../drivers/net/bonding/bond_main.c:35:
-In function ‘fortify_memcpy_chk’,
-    inlined from ‘iph_to_flow_copy_v4addrs’ at ../include/net/ip.h:566:2,
-    inlined from ‘bond_flow_ip’ at ../drivers/net/bonding/bond_main.c:3984:3:
-../include/linux/fortify-string.h:413:25: warning: call to ‘__read_overflow2_field’ declared with attribute warning: detected read beyond size of f
-ield (2nd parameter); maybe use struct_group()? [-Wattribute-warning]
-  413 |                         __read_overflow2_field(q_size_field, size);
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In function ‘fortify_memcpy_chk’,
-    inlined from ‘iph_to_flow_copy_v6addrs’ at ../include/net/ipv6.h:900:2,
-    inlined from ‘bond_flow_ip’ at ../drivers/net/bonding/bond_main.c:3994:3:
-../include/linux/fortify-string.h:413:25: warning: call to ‘__read_overflow2_field’ declared with attribute warning: detected read beyond size of f
-ield (2nd parameter); maybe use struct_group()? [-Wattribute-warning]
-  413 |                         __read_overflow2_field(q_size_field, size);
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Found by a modified version of syzkaller.
 
-This is because we try to copy the whole ip/ip6 address to the flow_key,
-while we only point the to ip/ip6 saddr. Note that since these are UAPI
-headers, __struct_group() is used to avoid the compiler warnings.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: c3f8324188fa ("net: Add full IPv6 addresses to flow_keys")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Link: https://lore.kernel.org/r/20221115142400.1204786-1-liuhangbin@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/ip.h          | 2 +-
- include/net/ipv6.h        | 2 +-
- include/uapi/linux/ip.h   | 6 ++++--
- include/uapi/linux/ipv6.h | 6 ++++--
- 4 files changed, 10 insertions(+), 6 deletions(-)
+ fs/gfs2/ops_fstype.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/include/net/ip.h b/include/net/ip.h
-index 8462ced0c21e..6ae923c55cf4 100644
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -559,7 +559,7 @@ static inline void iph_to_flow_copy_v4addrs(struct flow_keys *flow,
- 	BUILD_BUG_ON(offsetof(typeof(flow->addrs), v4addrs.dst) !=
- 		     offsetof(typeof(flow->addrs), v4addrs.src) +
- 			      sizeof(flow->addrs.v4addrs.src));
--	memcpy(&flow->addrs.v4addrs, &iph->saddr, sizeof(flow->addrs.v4addrs));
-+	memcpy(&flow->addrs.v4addrs, &iph->addrs, sizeof(flow->addrs.v4addrs));
- 	flow->control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
- }
+--- a/fs/gfs2/ops_fstype.c
++++ b/fs/gfs2/ops_fstype.c
+@@ -384,8 +384,10 @@ static int init_names(struct gfs2_sbd *s
+ 	if (!table[0])
+ 		table = sdp->sd_vfs->s_id;
  
-diff --git a/include/net/ipv6.h b/include/net/ipv6.h
-index 359540dfc033..a5e18d65c82d 100644
---- a/include/net/ipv6.h
-+++ b/include/net/ipv6.h
-@@ -843,7 +843,7 @@ static inline void iph_to_flow_copy_v6addrs(struct flow_keys *flow,
- 	BUILD_BUG_ON(offsetof(typeof(flow->addrs), v6addrs.dst) !=
- 		     offsetof(typeof(flow->addrs), v6addrs.src) +
- 		     sizeof(flow->addrs.v6addrs.src));
--	memcpy(&flow->addrs.v6addrs, &iph->saddr, sizeof(flow->addrs.v6addrs));
-+	memcpy(&flow->addrs.v6addrs, &iph->addrs, sizeof(flow->addrs.v6addrs));
- 	flow->control.addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
- }
+-	strlcpy(sdp->sd_proto_name, proto, GFS2_FSNAME_LEN);
+-	strlcpy(sdp->sd_table_name, table, GFS2_FSNAME_LEN);
++	BUILD_BUG_ON(GFS2_LOCKNAME_LEN > GFS2_FSNAME_LEN);
++
++	strscpy(sdp->sd_proto_name, proto, GFS2_LOCKNAME_LEN);
++	strscpy(sdp->sd_table_name, table, GFS2_LOCKNAME_LEN);
  
-diff --git a/include/uapi/linux/ip.h b/include/uapi/linux/ip.h
-index e42d13b55cf3..d2f143393780 100644
---- a/include/uapi/linux/ip.h
-+++ b/include/uapi/linux/ip.h
-@@ -100,8 +100,10 @@ struct iphdr {
- 	__u8	ttl;
- 	__u8	protocol;
- 	__sum16	check;
--	__be32	saddr;
--	__be32	daddr;
-+	__struct_group(/* no tag */, addrs, /* no attrs */,
-+		__be32	saddr;
-+		__be32	daddr;
-+	);
- 	/*The options start here. */
- };
+ 	table = sdp->sd_table_name;
+ 	while ((table = strchr(table, '/')))
+@@ -1417,13 +1419,13 @@ static int gfs2_parse_param(struct fs_co
  
-diff --git a/include/uapi/linux/ipv6.h b/include/uapi/linux/ipv6.h
-index b243a53fa985..62e5e16ef539 100644
---- a/include/uapi/linux/ipv6.h
-+++ b/include/uapi/linux/ipv6.h
-@@ -130,8 +130,10 @@ struct ipv6hdr {
- 	__u8			nexthdr;
- 	__u8			hop_limit;
- 
--	struct	in6_addr	saddr;
--	struct	in6_addr	daddr;
-+	__struct_group(/* no tag */, addrs, /* no attrs */,
-+		struct	in6_addr	saddr;
-+		struct	in6_addr	daddr;
-+	);
- };
- 
- 
--- 
-2.35.1
-
+ 	switch (o) {
+ 	case Opt_lockproto:
+-		strlcpy(args->ar_lockproto, param->string, GFS2_LOCKNAME_LEN);
++		strscpy(args->ar_lockproto, param->string, GFS2_LOCKNAME_LEN);
+ 		break;
+ 	case Opt_locktable:
+-		strlcpy(args->ar_locktable, param->string, GFS2_LOCKNAME_LEN);
++		strscpy(args->ar_locktable, param->string, GFS2_LOCKNAME_LEN);
+ 		break;
+ 	case Opt_hostdata:
+-		strlcpy(args->ar_hostdata, param->string, GFS2_LOCKNAME_LEN);
++		strscpy(args->ar_hostdata, param->string, GFS2_LOCKNAME_LEN);
+ 		break;
+ 	case Opt_spectator:
+ 		args->ar_spectator = 1;
 
 
