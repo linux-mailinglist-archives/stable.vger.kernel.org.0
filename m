@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A4F1635743
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43330635734
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238046AbiKWJjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:39:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59772 "EHLO
+        id S238018AbiKWJjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:39:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237978AbiKWJj1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:39:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D23F47307
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:37:09 -0800 (PST)
+        with ESMTP id S238017AbiKWJj2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:39:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE421D088A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:37:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 141C5CE20DB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:37:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BECC4C433D6;
-        Wed, 23 Nov 2022 09:37:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8603A61B44
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:37:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90690C433D6;
+        Wed, 23 Nov 2022 09:37:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196226;
-        bh=yyRLcOZkVFdF4LGAYIWZzTY3gJNCP7TaUXIpFbcdzNE=;
+        s=korg; t=1669196231;
+        bh=RsrxBSghMIT4uqZH8mhZ/Ys5yWsObvaYrQHpDecn6MA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B1mSchYr9x7YUA0Cg7gVW577kh4jk2z/IL4R76clpEEign3HmhkNrAt3STudiHJmA
-         ib6j4nbCZTEiAMmf+gB+EeuHBk+PbVerzfmfl6312i8F3bHj7VUubXn21sB6OYr7D4
-         z/HaXGhQY1tEn65wFwGuDRJG0uLKOCEZ3OjNpDVs=
+        b=zOznN0/eGOhbnUn43NN15jEDwDKbkkCHEs4bmvrlwMG1BXUCOoxuc/e8v4WDDJ+4+
+         +4LOg7GmyDIAqqhcrKoLYOCqLiuHZ+iUDe57PQshoOuKdYEY4+tG8Z0RHZZ68wstqd
+         t5jl/otkAx/hbCsr6BZjK1jOomOrMX6EHd2cfZR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.15 154/181] docs: update mediator contact information in CoC doc
-Date:   Wed, 23 Nov 2022 09:51:57 +0100
-Message-Id: <20221123084609.009910668@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+39be4da489ed2493ba25@syzkaller.appspotmail.com,
+        stable <stable@kernel.org>,
+        Alexander Potapenko <glider@google.com>,
+        Vishnu Dasa <vdasa@vmware.com>
+Subject: [PATCH 5.15 155/181] misc/vmw_vmci: fix an infoleak in vmci_host_do_receive_datagram()
+Date:   Wed, 23 Nov 2022 09:51:58 +0100
+Message-Id: <20221123084609.041518621@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
 References: <20221123084602.707860461@linuxfoundation.org>
@@ -51,30 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Alexander Potapenko <glider@google.com>
 
-commit 5fddf8962b429b8303c4a654291ecb6e61a7d747 upstream.
+commit e5b0d06d9b10f5f43101bd6598b076c347f9295f upstream.
 
-Update mediator contact information in CoC interpretation document.
+`struct vmci_event_qp` allocated by qp_notify_peer() contains padding,
+which may carry uninitialized data to the userspace, as observed by
+KMSAN:
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20221011171417.34286-1-skhan@linuxfoundation.org
+  BUG: KMSAN: kernel-infoleak in instrument_copy_to_user ./include/linux/instrumented.h:121
+   instrument_copy_to_user ./include/linux/instrumented.h:121
+   _copy_to_user+0x5f/0xb0 lib/usercopy.c:33
+   copy_to_user ./include/linux/uaccess.h:169
+   vmci_host_do_receive_datagram drivers/misc/vmw_vmci/vmci_host.c:431
+   vmci_host_unlocked_ioctl+0x33d/0x43d0 drivers/misc/vmw_vmci/vmci_host.c:925
+   vfs_ioctl fs/ioctl.c:51
+  ...
+
+  Uninit was stored to memory at:
+   kmemdup+0x74/0xb0 mm/util.c:131
+   dg_dispatch_as_host drivers/misc/vmw_vmci/vmci_datagram.c:271
+   vmci_datagram_dispatch+0x4f8/0xfc0 drivers/misc/vmw_vmci/vmci_datagram.c:339
+   qp_notify_peer+0x19a/0x290 drivers/misc/vmw_vmci/vmci_queue_pair.c:1479
+   qp_broker_attach drivers/misc/vmw_vmci/vmci_queue_pair.c:1662
+   qp_broker_alloc+0x2977/0x2f30 drivers/misc/vmw_vmci/vmci_queue_pair.c:1750
+   vmci_qp_broker_alloc+0x96/0xd0 drivers/misc/vmw_vmci/vmci_queue_pair.c:1940
+   vmci_host_do_alloc_queuepair drivers/misc/vmw_vmci/vmci_host.c:488
+   vmci_host_unlocked_ioctl+0x24fd/0x43d0 drivers/misc/vmw_vmci/vmci_host.c:927
+  ...
+
+  Local variable ev created at:
+   qp_notify_peer+0x54/0x290 drivers/misc/vmw_vmci/vmci_queue_pair.c:1456
+   qp_broker_attach drivers/misc/vmw_vmci/vmci_queue_pair.c:1662
+   qp_broker_alloc+0x2977/0x2f30 drivers/misc/vmw_vmci/vmci_queue_pair.c:1750
+
+  Bytes 28-31 of 48 are uninitialized
+  Memory access of size 48 starts at ffff888035155e00
+  Data copied to user address 0000000020000100
+
+Use memset() to prevent the infoleaks.
+
+Also speculatively fix qp_notify_peer_local(), which may suffer from the
+same problem.
+
+Reported-by: syzbot+39be4da489ed2493ba25@syzkaller.appspotmail.com
+Cc: stable <stable@kernel.org>
+Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+Link: https://lore.kernel.org/r/20221104175849.2782567-1-glider@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/process/code-of-conduct-interpretation.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/Documentation/process/code-of-conduct-interpretation.rst
-+++ b/Documentation/process/code-of-conduct-interpretation.rst
-@@ -51,7 +51,7 @@ the Technical Advisory Board (TAB) or ot
- uncertain how to handle situations that come up.  It will not be
- considered a violation report unless you want it to be.  If you are
- uncertain about approaching the TAB or any other maintainers, please
--reach out to our conflict mediator, Joanna Lee <joanna.lee@gesmer.com>.
-+reach out to our conflict mediator, Joanna Lee <jlee@linuxfoundation.org>.
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -854,6 +854,7 @@ static int qp_notify_peer_local(bool att
+ 	u32 context_id = vmci_get_context_id();
+ 	struct vmci_event_qp ev;
  
- In the end, "be kind to each other" is really what the end goal is for
- everybody.  We know everyone is human and we all fail at times, but the
++	memset(&ev, 0, sizeof(ev));
+ 	ev.msg.hdr.dst = vmci_make_handle(context_id, VMCI_EVENT_HANDLER);
+ 	ev.msg.hdr.src = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
+ 					  VMCI_CONTEXT_RESOURCE_ID);
+@@ -1467,6 +1468,7 @@ static int qp_notify_peer(bool attach,
+ 	 * kernel.
+ 	 */
+ 
++	memset(&ev, 0, sizeof(ev));
+ 	ev.msg.hdr.dst = vmci_make_handle(peer_id, VMCI_EVENT_HANDLER);
+ 	ev.msg.hdr.src = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
+ 					  VMCI_CONTEXT_RESOURCE_ID);
 
 
