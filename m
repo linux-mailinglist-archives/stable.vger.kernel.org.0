@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D28A63592D
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:09:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAC24635945
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:09:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237060AbiKWKJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:09:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33260 "EHLO
+        id S237089AbiKWKJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:09:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236871AbiKWKIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:08:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0E2959FC8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:58:16 -0800 (PST)
+        with ESMTP id S236901AbiKWKIr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:08:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8128E769FA
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:58:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F18561B5F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:58:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 294DFC433C1;
-        Wed, 23 Nov 2022 09:58:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E1AE619EB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:58:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BAF7C433D6;
+        Wed, 23 Nov 2022 09:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197495;
-        bh=Wsgk9B9ibQKnSKhxbQMpuw1MKUj0bTEKFbDa7TQjK4M=;
+        s=korg; t=1669197499;
+        bh=GzoWNf11BJbxgQ5dp8GhRgeAFnuO0L89kf0hVz/N4PM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MYhksMNsI2y3ck9wOLVgjPj7PQREiUaN3Ve50g773kumqE6x4JyqoGyZM5rwByTD6
-         Fa9x78pkqBH/Smg/R78wgMystWLyyc4CflcaNGejOVylBYmlXjgwbv5gqxZOBMjY1y
-         OeMNJY4C9sEgbEDuukKcFI6/2vrixfMicrO7X588=
+        b=UIQEWPiemKn1JAnBBgfc1kjoQtz6Kei42PZdg8kFkPuSPU1DGmrsHeq/2ITZLLT8v
+         9UBddOEHMMl5+p5t9AgeFWdLbyzBOiMLsFK7KLvaAfntHY3PD/MphMLtv0E7RrQfO7
+         o4WlyWjkWKgWNsk0q0FJzWlEQ4y+KFfcDZVCNl/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stanislav Fomichev <sdf@google.com>,
-        syzbot+2251879aa068ad9c960d@syzkaller.appspotmail.com,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 6.0 311/314] bpf: Prevent bpf program recursion for raw tracepoint probes
-Date:   Wed, 23 Nov 2022 09:52:36 +0100
-Message-Id: <20221123084639.677872088@linuxfoundation.org>
+        patches@lists.linux.dev, Hawkins Jiawei <yin31149@gmail.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        ChenXiaoSong <chenxiaosong2@huawei.com>,
+        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.0 312/314] ntfs: fix use-after-free in ntfs_attr_find()
+Date:   Wed, 23 Nov 2022 09:52:37 +0100
+Message-Id: <20221123084639.726906169@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -54,163 +56,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Hawkins Jiawei <yin31149@gmail.com>
 
-commit 05b24ff9b2cfabfcfd951daaa915a036ab53c9e1 upstream.
+commit d85a1bec8e8d552ab13163ca1874dcd82f3d1550 upstream.
 
-We got report from sysbot [1] about warnings that were caused by
-bpf program attached to contention_begin raw tracepoint triggering
-the same tracepoint by using bpf_trace_printk helper that takes
-trace_printk_lock lock.
+Patch series "ntfs: fix bugs about Attribute", v2.
 
- Call Trace:
-  <TASK>
-  ? trace_event_raw_event_bpf_trace_printk+0x5f/0x90
-  bpf_trace_printk+0x2b/0xe0
-  bpf_prog_a9aec6167c091eef_prog+0x1f/0x24
-  bpf_trace_run2+0x26/0x90
-  native_queued_spin_lock_slowpath+0x1c6/0x2b0
-  _raw_spin_lock_irqsave+0x44/0x50
-  bpf_trace_printk+0x3f/0xe0
-  bpf_prog_a9aec6167c091eef_prog+0x1f/0x24
-  bpf_trace_run2+0x26/0x90
-  native_queued_spin_lock_slowpath+0x1c6/0x2b0
-  _raw_spin_lock_irqsave+0x44/0x50
-  bpf_trace_printk+0x3f/0xe0
-  bpf_prog_a9aec6167c091eef_prog+0x1f/0x24
-  bpf_trace_run2+0x26/0x90
-  native_queued_spin_lock_slowpath+0x1c6/0x2b0
-  _raw_spin_lock_irqsave+0x44/0x50
-  bpf_trace_printk+0x3f/0xe0
-  bpf_prog_a9aec6167c091eef_prog+0x1f/0x24
-  bpf_trace_run2+0x26/0x90
-  native_queued_spin_lock_slowpath+0x1c6/0x2b0
-  _raw_spin_lock_irqsave+0x44/0x50
-  __unfreeze_partials+0x5b/0x160
-  ...
+This patchset fixes three bugs relative to Attribute in record:
 
-The can be reproduced by attaching bpf program as raw tracepoint on
-contention_begin tracepoint. The bpf prog calls bpf_trace_printk
-helper. Then by running perf bench the spin lock code is forced to
-take slow path and call contention_begin tracepoint.
+Patch 1 adds a sanity check to ensure that, attrs_offset field in first
+mft record loading from disk is within bounds.
 
-Fixing this by skipping execution of the bpf program if it's
-already running, Using bpf prog 'active' field, which is being
-currently used by trampoline programs for the same reason.
+Patch 2 moves the ATTR_RECORD's bounds checking earlier, to avoid
+dereferencing ATTR_RECORD before checking this ATTR_RECORD is within
+bounds.
 
-Moving bpf_prog_inc_misses_counter to syscall.c because
-trampoline.c is compiled in just for CONFIG_BPF_JIT option.
+Patch 3 adds an overflow checking to avoid possible forever loop in
+ntfs_attr_find().
 
-Reviewed-by: Stanislav Fomichev <sdf@google.com>
-Reported-by: syzbot+2251879aa068ad9c960d@syzkaller.appspotmail.com
-[1] https://lore.kernel.org/bpf/YxhFe3EwqchC%2FfYf@krava/T/#t
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Link: https://lore.kernel.org/r/20220916071914.7156-1-jolsa@kernel.org
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Without patch 1 and patch 2, the kernel triggersa KASAN use-after-free
+detection as reported by Syzkaller.
+
+Although one of patch 1 or patch 2 can fix this, we still need both of
+them.  Because patch 1 fixes the root cause, and patch 2 not only fixes
+the direct cause, but also fixes the potential out-of-bounds bug.
+
+
+This patch (of 3):
+
+Syzkaller reported use-after-free read as follows:
+==================================================================
+BUG: KASAN: use-after-free in ntfs_attr_find+0xc02/0xce0 fs/ntfs/attrib.c:597
+Read of size 2 at addr ffff88807e352009 by task syz-executor153/3607
+
+[...]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:317 [inline]
+ print_report.cold+0x2ba/0x719 mm/kasan/report.c:433
+ kasan_report+0xb1/0x1e0 mm/kasan/report.c:495
+ ntfs_attr_find+0xc02/0xce0 fs/ntfs/attrib.c:597
+ ntfs_attr_lookup+0x1056/0x2070 fs/ntfs/attrib.c:1193
+ ntfs_read_inode_mount+0x89a/0x2580 fs/ntfs/inode.c:1845
+ ntfs_fill_super+0x1799/0x9320 fs/ntfs/super.c:2854
+ mount_bdev+0x34d/0x410 fs/super.c:1400
+ legacy_get_tree+0x105/0x220 fs/fs_context.c:610
+ vfs_get_tree+0x89/0x2f0 fs/super.c:1530
+ do_new_mount fs/namespace.c:3040 [inline]
+ path_mount+0x1326/0x1e20 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ [...]
+ </TASK>
+
+The buggy address belongs to the physical page:
+page:ffffea0001f8d400 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x7e350
+head:ffffea0001f8d400 order:3 compound_mapcount:0 compound_pincount:0
+flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
+raw: 00fff00000010200 0000000000000000 dead000000000122 ffff888011842140
+raw: 0000000000000000 0000000000040004 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+Memory state around the buggy address:
+ ffff88807e351f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88807e351f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88807e352000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88807e352080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88807e352100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
+
+Kernel will loads $MFT/$DATA's first mft record in
+ntfs_read_inode_mount().
+
+Yet the problem is that after loading, kernel doesn't check whether
+attrs_offset field is a valid value.
+
+To be more specific, if attrs_offset field is larger than bytes_allocated
+field, then it may trigger the out-of-bounds read bug(reported as
+use-after-free bug) in ntfs_attr_find(), when kernel tries to access the
+corresponding mft record's attribute.
+
+This patch solves it by adding the sanity check between attrs_offset field
+and bytes_allocated field, after loading the first mft record.
+
+Link: https://lkml.kernel.org/r/20220831160935.3409-1-yin31149@gmail.com
+Link: https://lkml.kernel.org/r/20220831160935.3409-2-yin31149@gmail.com
+Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
+Cc: Anton Altaparmakov <anton@tuxera.com>
+Cc: ChenXiaoSong <chenxiaosong2@huawei.com>
+Cc: syzkaller-bugs <syzkaller-bugs@googlegroups.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/bpf.h      |    5 +++++
- kernel/bpf/syscall.c     |   11 +++++++++++
- kernel/bpf/trampoline.c  |   15 ++-------------
- kernel/trace/bpf_trace.c |    6 ++++++
- 4 files changed, 24 insertions(+), 13 deletions(-)
+ fs/ntfs/inode.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -1967,6 +1967,7 @@ static inline bool unprivileged_ebpf_ena
- 	return !sysctl_unprivileged_bpf_disabled;
- }
- 
-+void notrace bpf_prog_inc_misses_counter(struct bpf_prog *prog);
- #else /* !CONFIG_BPF_SYSCALL */
- static inline struct bpf_prog *bpf_prog_get(u32 ufd)
- {
-@@ -2305,6 +2306,10 @@ static inline int sock_map_bpf_prog_quer
- {
- 	return -EINVAL;
- }
-+
-+static inline void bpf_prog_inc_misses_counter(struct bpf_prog *prog)
-+{
-+}
- #endif /* CONFIG_BPF_SYSCALL */
- #endif /* CONFIG_NET && CONFIG_BPF_SYSCALL */
- 
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -2094,6 +2094,17 @@ struct bpf_prog_kstats {
- 	u64 misses;
- };
- 
-+void notrace bpf_prog_inc_misses_counter(struct bpf_prog *prog)
-+{
-+	struct bpf_prog_stats *stats;
-+	unsigned int flags;
-+
-+	stats = this_cpu_ptr(prog->stats);
-+	flags = u64_stats_update_begin_irqsave(&stats->syncp);
-+	u64_stats_inc(&stats->misses);
-+	u64_stats_update_end_irqrestore(&stats->syncp, flags);
-+}
-+
- static void bpf_prog_get_stats(const struct bpf_prog *prog,
- 			       struct bpf_prog_kstats *stats)
- {
---- a/kernel/bpf/trampoline.c
-+++ b/kernel/bpf/trampoline.c
-@@ -863,17 +863,6 @@ static __always_inline u64 notrace bpf_p
- 	return start;
- }
- 
--static void notrace inc_misses_counter(struct bpf_prog *prog)
--{
--	struct bpf_prog_stats *stats;
--	unsigned int flags;
--
--	stats = this_cpu_ptr(prog->stats);
--	flags = u64_stats_update_begin_irqsave(&stats->syncp);
--	u64_stats_inc(&stats->misses);
--	u64_stats_update_end_irqrestore(&stats->syncp, flags);
--}
--
- /* The logic is similar to bpf_prog_run(), but with an explicit
-  * rcu_read_lock() and migrate_disable() which are required
-  * for the trampoline. The macro is split into
-@@ -896,7 +885,7 @@ u64 notrace __bpf_prog_enter(struct bpf_
- 	run_ctx->saved_run_ctx = bpf_set_run_ctx(&run_ctx->run_ctx);
- 
- 	if (unlikely(this_cpu_inc_return(*(prog->active)) != 1)) {
--		inc_misses_counter(prog);
-+		bpf_prog_inc_misses_counter(prog);
- 		return 0;
- 	}
- 	return bpf_prog_start_time();
-@@ -967,7 +956,7 @@ u64 notrace __bpf_prog_enter_sleepable(s
- 	might_fault();
- 
- 	if (unlikely(this_cpu_inc_return(*(prog->active)) != 1)) {
--		inc_misses_counter(prog);
-+		bpf_prog_inc_misses_counter(prog);
- 		return 0;
+--- a/fs/ntfs/inode.c
++++ b/fs/ntfs/inode.c
+@@ -1829,6 +1829,13 @@ int ntfs_read_inode_mount(struct inode *
+ 		goto err_out;
  	}
  
---- a/kernel/trace/bpf_trace.c
-+++ b/kernel/trace/bpf_trace.c
-@@ -2058,9 +2058,15 @@ static __always_inline
- void __bpf_trace_run(struct bpf_prog *prog, u64 *args)
- {
- 	cant_sleep();
-+	if (unlikely(this_cpu_inc_return(*(prog->active)) != 1)) {
-+		bpf_prog_inc_misses_counter(prog);
-+		goto out;
++	/* Sanity check offset to the first attribute */
++	if (le16_to_cpu(m->attrs_offset) >= le32_to_cpu(m->bytes_allocated)) {
++		ntfs_error(sb, "Incorrect mft offset to the first attribute %u in superblock.",
++			       le16_to_cpu(m->attrs_offset));
++		goto err_out;
 +	}
- 	rcu_read_lock();
- 	(void) bpf_prog_run(prog, args);
- 	rcu_read_unlock();
-+out:
-+	this_cpu_dec(*(prog->active));
- }
++
+ 	/* Need this to sanity check attribute list references to $MFT. */
+ 	vi->i_generation = ni->seq_no = le16_to_cpu(m->sequence_number);
  
- #define UNPACK(...)			__VA_ARGS__
 
 
