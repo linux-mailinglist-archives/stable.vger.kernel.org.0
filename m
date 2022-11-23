@@ -2,95 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C17FC635744
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32858635930
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:09:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238042AbiKWJjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:39:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60536 "EHLO
+        id S236894AbiKWKIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:08:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237962AbiKWJjU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:39:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 476AF114486
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:37:01 -0800 (PST)
+        with ESMTP id S236992AbiKWKHF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:07:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EB622DFC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:57:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC58EB81E60
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:36:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 071ABC433D7;
-        Wed, 23 Nov 2022 09:36:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA4E3B81EE6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:57:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09D5BC433D6;
+        Wed, 23 Nov 2022 09:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196218;
-        bh=EKZ4cdmEZz25H9XGgwx9cNIJnnHiTuH/vUNa9qb7MUI=;
+        s=korg; t=1669197454;
+        bh=mzrBDLiKxHPK8Mz4w65f5wPk/h40VoYaqHIw7d/9g6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e5sNTm1xtP4EdRSTH5pxgSbcPk/yDl+0HcsaZfQC5NU/PlsnCe9XSPm/Es/cmHxiK
-         Y5uHPqX5fcCb91hX6TfXpfYCmvavUo0wu9SZQCF575bW0zmXSf6RG6/rxOtFDsC4tU
-         mGS0jVkG1s9LgGk7vr3E081iWBMarYpaEjyEjANA=
+        b=UwG3y+SSOnz8+C5X6sSQVkXABwJ4a8yM/BOHQwQBAdHX2LYf4OJE4rTMvU3X4f26R
+         OqEpzUujMcc9HaL776/Bw6SGP1WZbYrIc0fXde+yKWEqoEcjDwcwPkD+vrujSuwBSu
+         F7pwXX6830XSn+DYqrXm9LEWaEw8J3Lf6026PSPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chevron Li <chevron.li@bayhubtech.com>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 152/181] mmc: sdhci-pci-o2micro: fix card detect fail issue caused by CD# debounce timeout
-Date:   Wed, 23 Nov 2022 09:51:55 +0100
-Message-Id: <20221123084608.915508900@linuxfoundation.org>
+Subject: [PATCH 6.0 271/314] mmc: sdhci-pci: Fix possible memory leak caused by missing pci_dev_put()
+Date:   Wed, 23 Nov 2022 09:51:56 +0100
+Message-Id: <20221123084637.813669226@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chevron Li <chevron.li@bayhubtech.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-commit 096cc0cddf58232bded309336961784f1d1c85f8 upstream.
+commit 222cfa0118aa68687ace74aab8fdf77ce8fbd7e6 upstream.
 
-The SD card is recognized failed sometimes when resume from suspend.
-Because CD# debounce time too long then card present report wrong.
-Finally, card is recognized failed.
+pci_get_device() will increase the reference count for the returned
+pci_dev. We need to use pci_dev_put() to decrease the reference count
+before amd_probe() returns. There is no problem for the 'smbus_dev ==
+NULL' branch because pci_dev_put() can also handle the NULL input
+parameter case.
 
-Signed-off-by: Chevron Li <chevron.li@bayhubtech.com>
+Fixes: 659c9bc114a8 ("mmc: sdhci-pci: Build o2micro support in the same module")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221104095512.4068-1-chevron.li@bayhubtech.com
+Link: https://lore.kernel.org/r/20221114083100.149200-1-wangxiongfeng2@huawei.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-pci-o2micro.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/mmc/host/sdhci-pci-core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/mmc/host/sdhci-pci-o2micro.c
-+++ b/drivers/mmc/host/sdhci-pci-o2micro.c
-@@ -31,6 +31,7 @@
- #define O2_SD_CAPS		0xE0
- #define O2_SD_ADMA1		0xE2
- #define O2_SD_ADMA2		0xE7
-+#define O2_SD_MISC_CTRL2	0xF0
- #define O2_SD_INF_MOD		0xF1
- #define O2_SD_MISC_CTRL4	0xFC
- #define O2_SD_MISC_CTRL		0x1C0
-@@ -830,6 +831,12 @@ static int sdhci_pci_o2_probe(struct sdh
- 		/* Set Tuning Windows to 5 */
- 		pci_write_config_byte(chip->pdev,
- 				O2_SD_TUNING_CTRL, 0x55);
-+		//Adjust 1st and 2nd CD debounce time
-+		pci_read_config_dword(chip->pdev, O2_SD_MISC_CTRL2, &scratch_32);
-+		scratch_32 &= 0xFFE7FFFF;
-+		scratch_32 |= 0x00180000;
-+		pci_write_config_dword(chip->pdev, O2_SD_MISC_CTRL2, scratch_32);
-+		pci_write_config_dword(chip->pdev, O2_SD_DETECT_SETTING, 1);
- 		/* Lock WP */
- 		ret = pci_read_config_byte(chip->pdev,
- 					   O2_SD_LOCK_WP, &scratch);
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -1728,6 +1728,8 @@ static int amd_probe(struct sdhci_pci_ch
+ 		}
+ 	}
+ 
++	pci_dev_put(smbus_dev);
++
+ 	if (gen == AMD_CHIPSET_BEFORE_ML || gen == AMD_CHIPSET_CZ)
+ 		chip->quirks2 |= SDHCI_QUIRK2_CLEAR_TRANSFERMODE_REG_BEFORE_CMD;
+ 
 
 
