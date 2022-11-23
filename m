@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 593A8635E01
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:56:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A16A635E92
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:58:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238286AbiKWMxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:53:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47638 "EHLO
+        id S238272AbiKWMxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:53:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238511AbiKWMwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:52:45 -0500
+        with ESMTP id S238545AbiKWMwu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:52:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D97998C0B2;
-        Wed, 23 Nov 2022 04:44:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 205088B849;
+        Wed, 23 Nov 2022 04:45:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7BDBFB81F5E;
-        Wed, 23 Nov 2022 12:44:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DECBC43470;
-        Wed, 23 Nov 2022 12:44:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BAC24B81F3A;
+        Wed, 23 Nov 2022 12:45:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E0C6C433D6;
+        Wed, 23 Nov 2022 12:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207496;
-        bh=63cFL4qGdbiQrzoL+W7bkoZ13NJpz1qLs9hbjnKyjOE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hS8cRQDtnhV+ZEOGyrrCLUC/wDVmF8lamBvtpNYMEC9JSqvK9a+Pj/ruJ3aLuoBWB
-         acYLdkaY+/8FMzzbXBOsyIVfx9n8oAChY12jD9gYhYDK/decHUhFgrlwKxZ7dc2dh8
-         xzyhBjC73OXLkBae2RCVqD4PSieYu0uFiH6IhgYHgqQnCY42j816UxGS/XouR80eD/
-         BfPxWUYoPKO4+HBEi3NAsOeOTorVeCgh3SmIWJyKptk3YdlQ/YXnYSW5qnujePgJz8
-         kbGK9G6z60m6+/Y1EEFRlBGNZEK+XWrV9XyAUVt/sE2xzfa2BosHpe0spVZkJp+Hc8
-         RmTkhfzXgWRfg==
+        s=k20201202; t=1669207501;
+        bh=pjV+YzoeVY7nvyOqe8WbShBBG5zI+yI93RPzfb2bX6A=;
+        h=From:To:Cc:Subject:Date:From;
+        b=NoYdPI8YEfHHuewTa/FlWKV+fPYRUDxhV/+wQNorRG/ylYQcDSxiI+G4KxIqrbPg7
+         Bphbm6oDEE7nj+t/uyXl33wntzawuO8G/fWVmtNJOAI99MFek3bFRFPXcg1LIYmJ9g
+         uyTEM6gq3E5kjZdx21PPzs7hHNf7XZeEX4C88GGcEJs18AMxZUyoK448wBhjqeU1hx
+         g5dWqoDuCS/Ui81HwJAXCg/t7GgESEDP6goO6WDp+cX6XW6FAuyRXIp39b98gFbIj6
+         YDulRJvehMuWebBXL3sa4tynRBWCR0qWPdU3Vkh7rPpAg9g9e96IVbizeMq1BH9oTL
+         lk3p8IaZ+Wq/Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, agk@redhat.com,
-        dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.4 15/15] dm integrity: flush the journal on suspend
-Date:   Wed, 23 Nov 2022 07:44:25 -0500
-Message-Id: <20221123124427.266286-15-sashal@kernel.org>
+Cc:     Aman Dhoot <amandhoot12@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, markpearson@lenovo.com,
+        lyude@redhat.com, wsa+renesas@sang-engineering.com,
+        snafu109@gmail.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 01/11] Input: synaptics - switch touchpad on HP Laptop 15-da3001TU to RMI mode
+Date:   Wed, 23 Nov 2022 07:44:46 -0500
+Message-Id: <20221123124458.266492-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221123124427.266286-1-sashal@kernel.org>
-References: <20221123124427.266286-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,50 +55,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Aman Dhoot <amandhoot12@gmail.com>
 
-[ Upstream commit 5e5dab5ec763d600fe0a67837dd9155bdc42f961 ]
+[ Upstream commit ac5408991ea6b06e29129b4d4861097c4c3e0d59 ]
 
-This commit flushes the journal on suspend. It is prerequisite for the
-next commit that enables activating dm integrity devices in read-only mode.
+The device works fine in native RMI mode, there is no reason to use legacy
+PS/2 mode with it.
 
-Note that we deliberately didn't flush the journal on suspend, so that the
-journal replay code would be tested. However, the dm-integrity code is 5
-years old now, so that journal replay is well-tested, and we can make this
-change now.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Aman Dhoot <amandhoot12@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-integrity.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
-index b0f4311cb418..4f3622b11163 100644
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -2346,10 +2346,6 @@ static void integrity_writer(struct work_struct *w)
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index c6d393114502..7dc8ca5fd75f 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -192,6 +192,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"SYN3221", /* HP 15-ay000 */
+ 	"SYN323d", /* HP Spectre X360 13-w013dx */
+ 	"SYN3257", /* HP Envy 13-ad105ng */
++	"SYN3286", /* HP Laptop 15-da3001TU */
+ 	NULL
+ };
  
- 	unsigned prev_free_sectors;
- 
--	/* the following test is not needed, but it tests the replay code */
--	if (unlikely(dm_post_suspending(ic->ti)) && !ic->meta_dev)
--		return;
--
- 	spin_lock_irq(&ic->endio_wait.lock);
- 	write_start = ic->committed_section;
- 	write_sections = ic->n_committed_sections;
-@@ -2858,8 +2854,7 @@ static void dm_integrity_postsuspend(struct dm_target *ti)
- 	drain_workqueue(ic->commit_wq);
- 
- 	if (ic->mode == 'J') {
--		if (ic->meta_dev)
--			queue_work(ic->writer_wq, &ic->writer_work);
-+		queue_work(ic->writer_wq, &ic->writer_work);
- 		drain_workqueue(ic->writer_wq);
- 		dm_integrity_flush_buffers(ic, true);
- 	}
 -- 
 2.35.1
 
