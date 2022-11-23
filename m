@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0783B63539C
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D63376353F0
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236748AbiKWIzm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:55:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58918 "EHLO
+        id S236878AbiKWJA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:00:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236746AbiKWIzk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:55:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F4128E9315
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:55:39 -0800 (PST)
+        with ESMTP id S236880AbiKWJAw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:00:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6583E72097
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:00:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9283461B39
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:55:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 822A2C433C1;
-        Wed, 23 Nov 2022 08:55:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F32D16185C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:00:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFDD5C433C1;
+        Wed, 23 Nov 2022 09:00:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193739;
-        bh=K/qrV8p30cAXsF+unQKdgqR/ZkpyVwwfX13nqZBbX+Q=;
+        s=korg; t=1669194047;
+        bh=3ck9Xe5tg1QfdZeBDOx83UjQJzLEsPFRPeEwmuhrhc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y7eWrvG6mICZxpIu8WqGPAv0U30yP1Gw6n9l+GywNCXUksL9A4MZMiERtaiowxfy8
-         xyMEBWXFFOEcYpySiSzt/ZHqfcf/PcptXMD9BeCj7Eec2euWp8b0pALnGRpiFCS+22
-         H1956hvYCh7gqLmv5l/o+Uw0rrHPMcc14UHADOGg=
+        b=kQiZPa1n/yRQ/YXyJMom7mz4oDqbDx7rqrjiqzUynerCn7VFV0oQ56AKeF0RQHWGD
+         fVdxqpZtuEAEFLArxZIrF9DtM82AdW+TGQBWgnVc3Wuof2yZS/pc0S0YL71IeuoYsq
+         371U/OxgFXwW/252Zp7PWWLmxYpXDM1TQKg61idg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, mhiramat@kernel.org, mark.rutland@arm.com,
-        Wang Wensheng <wangwensheng4@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 47/76] ftrace: Optimize the allocation for mcount entries
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 49/88] xen/pcpu: fix possible memory leak in register_pcpu()
 Date:   Wed, 23 Nov 2022 09:50:46 +0100
-Message-Id: <20221123084548.286768674@linuxfoundation.org>
+Message-Id: <20221123084550.225519157@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit bcea02b096333dc74af987cb9685a4dbdd820840 upstream.
+[ Upstream commit da36a2a76b01b210ffaa55cdc2c99bc8783697c5 ]
 
-If we can't allocate this size, try something smaller with half of the
-size. Its order should be decreased by one instead of divided by two.
+In device_add(), dev_set_name() is called to allocate name, if it returns
+error, the name need be freed. As comment of device_register() says, it
+should use put_device() to give up the reference in the error path. So fix
+this by calling put_device(), then the name can be freed in kobject_cleanup().
 
-Link: https://lkml.kernel.org/r/20221109094434.84046-3-wangwensheng4@huawei.com
-
-Cc: <mhiramat@kernel.org>
-Cc: <mark.rutland@arm.com>
-Cc: stable@vger.kernel.org
-Fixes: a79008755497d ("ftrace: Allocate the mcount record pages as groups")
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f65c9bb3fb72 ("xen/pcpu: Xen physical cpus online/offline sys interface")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20221110152441.401630-1-yangyingliang@huawei.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c |    2 +-
+ drivers/xen/pcpu.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -3013,7 +3013,7 @@ static int ftrace_allocate_records(struc
- 		/* if we can't allocate this size, try something smaller */
- 		if (!order)
- 			return -ENOMEM;
--		order >>= 1;
-+		order--;
- 		goto again;
+diff --git a/drivers/xen/pcpu.c b/drivers/xen/pcpu.c
+index cdc6daa7a9f6..9cf7085a260b 100644
+--- a/drivers/xen/pcpu.c
++++ b/drivers/xen/pcpu.c
+@@ -228,7 +228,7 @@ static int register_pcpu(struct pcpu *pcpu)
+ 
+ 	err = device_register(dev);
+ 	if (err) {
+-		pcpu_release(dev);
++		put_device(dev);
+ 		return err;
  	}
  
+-- 
+2.35.1
+
 
 
