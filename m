@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A5086357CE
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:47:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFB3E635779
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238148AbiKWJoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:44:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38248 "EHLO
+        id S238007AbiKWJmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:42:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238152AbiKWJnp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:43:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A04FF12747
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:41:22 -0800 (PST)
+        with ESMTP id S237926AbiKWJlr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C204112C5C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:39:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E1BA61B3B
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:41:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28F33C433C1;
-        Wed, 23 Nov 2022 09:41:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD30361B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:39:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7E5FC43470;
+        Wed, 23 Nov 2022 09:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196481;
-        bh=L/nM+BqdI8CQ0JsCB003896I7ZgPq+TeFIFtwjcT/VQ=;
+        s=korg; t=1669196369;
+        bh=SEbJDdsdmwKw9dAbEUGy1EpC8jehBZKIIhAWQafT1OQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1xvj2mKInLaEZeINEZSTUNuIlIwkmDpixwrHYy0ZiH82ESkjwSpQ4lFsEbU2M+toz
-         eoClD48PbZ9GQ54pl16hZpzFNMzfVyEmA1vo0Yi2AyotBAO57rZcTf6ne2j6FeFImu
-         SHL45wjBeyFXtySf0F/yO52wGlovJWReiQk9kekI=
+        b=Mk1wdnP3VAxEIgfcRzcIy0cqXSENv28nYtKQzlXC0kcRFSm5qNku6QIVk6u3q8ES5
+         UyLqd1sBRwFs4OjO9g1acQQJ6HhxGkCtj3nVbmaA78Osf2lUUxSS7HMq9Gg821KXZC
+         JUxh20Rq5/8ubXiFdGA7fgm1LXgu543jqUwXW2FM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krishna Yarlagadda <kyarlagadda@nvidia.com>,
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 003/314] spi: tegra210-quad: Fix combined sequence
-Date:   Wed, 23 Nov 2022 09:47:28 +0100
-Message-Id: <20221123084625.639401875@linuxfoundation.org>
+Subject: [PATCH 6.0 004/314] ASoC: wm5102: Revert "ASoC: wm5102: Fix PM disable depth imbalance in wm5102_probe"
+Date:   Wed, 23 Nov 2022 09:47:29 +0100
+Message-Id: <20221123084625.687424602@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -54,38 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krishna Yarlagadda <kyarlagadda@nvidia.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 8777dd9dff4020bba66654ec92e4b0ab6367ad30 ]
+[ Upstream commit de71d7567e358effd06dfc3e2a154b25f1331c10 ]
 
-Return value should be updated to zero in combined sequence routine
-if transfer is completed successfully. Currently it holds timeout value
-resulting in errors.
+This reverts commit fcbb60820cd3008bb44334a0395e5e57ccb77329.
 
-Signed-off-by: Krishna Yarlagadda <kyarlagadda@nvidia.com>
-Link: https://lore.kernel.org/r/20221001122148.9158-1-kyarlagadda@nvidia.com
+The pm_runtime_disable is redundant when error returns in
+wm5102_probe, we just revert the old patch to fix it.
+
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20221010114852.88127-2-zhangqilong3@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra210-quad.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/codecs/wm5102.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-tegra210-quad.c b/drivers/spi/spi-tegra210-quad.c
-index c89592b21ffc..904972606bd4 100644
---- a/drivers/spi/spi-tegra210-quad.c
-+++ b/drivers/spi/spi-tegra210-quad.c
-@@ -1157,6 +1157,11 @@ static int tegra_qspi_combined_seq_xfer(struct tegra_qspi *tqspi,
- 		msg->actual_length += xfer->len;
- 		transfer_phase++;
- 	}
-+	if (!xfer->cs_change) {
-+		tegra_qspi_transfer_end(spi);
-+		spi_transfer_delay_exec(xfer);
-+	}
-+	ret = 0;
+diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
+index c09c9ac51b3e..af7d324e3352 100644
+--- a/sound/soc/codecs/wm5102.c
++++ b/sound/soc/codecs/wm5102.c
+@@ -2099,6 +2099,9 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		regmap_update_bits(arizona->regmap, wm5102_digital_vu[i],
+ 				   WM5102_DIG_VU, WM5102_DIG_VU);
  
- exit:
- 	msg->status = ret;
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_idle(&pdev->dev);
++
+ 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
+ 				  "ADSP2 Compressed IRQ", wm5102_adsp2_irq,
+ 				  wm5102);
+@@ -2131,9 +2134,6 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		goto err_spk_irqs;
+ 	}
+ 
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_idle(&pdev->dev);
+-
+ 	return ret;
+ 
+ err_spk_irqs:
 -- 
 2.35.1
 
