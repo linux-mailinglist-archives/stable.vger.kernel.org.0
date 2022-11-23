@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89C4963591F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C17FC635744
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236071AbiKWKHR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:07:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33340 "EHLO
+        id S238042AbiKWJjm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:39:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236746AbiKWKGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85B62F00D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:57 -0800 (PST)
+        with ESMTP id S237962AbiKWJjU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:39:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 476AF114486
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:37:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38202B81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5435C433C1;
-        Wed, 23 Nov 2022 09:56:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC58EB81E60
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:36:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 071ABC433D7;
+        Wed, 23 Nov 2022 09:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197415;
-        bh=G6hue6ehH9qHTe38OMAlsZguvfZF3JRc32DvI9h0NzU=;
+        s=korg; t=1669196218;
+        bh=EKZ4cdmEZz25H9XGgwx9cNIJnnHiTuH/vUNa9qb7MUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z6OD2h55k9mHg1oJPVCuLB3Tu2B1vA5gFg/NiEX2HR0xif+O2QJ4Sn0hQP4j//iG0
-         iD/0U4UH+k0K1o2OcB12+V9oh3UZouHKxbOeWCfETinXD+ClmnC5ZLGMyfNXUprqLZ
-         4H0IzZFrVEi3vldxZXc3xLLV+E84MQKoV6U47XSw=
+        b=e5sNTm1xtP4EdRSTH5pxgSbcPk/yDl+0HcsaZfQC5NU/PlsnCe9XSPm/Es/cmHxiK
+         Y5uHPqX5fcCb91hX6TfXpfYCmvavUo0wu9SZQCF575bW0zmXSf6RG6/rxOtFDsC4tU
+         mGS0jVkG1s9LgGk7vr3E081iWBMarYpaEjyEjANA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Chevron Li <chevron.li@bayhubtech.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.0 270/314] mmc: sdhci-pci-o2micro: fix card detect fail issue caused by CD# debounce timeout
+Subject: [PATCH 5.15 152/181] mmc: sdhci-pci-o2micro: fix card detect fail issue caused by CD# debounce timeout
 Date:   Wed, 23 Nov 2022 09:51:55 +0100
-Message-Id: <20221123084637.763652562@linuxfoundation.org>
+Message-Id: <20221123084608.915508900@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -71,7 +71,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/mmc/host/sdhci-pci-o2micro.c
 +++ b/drivers/mmc/host/sdhci-pci-o2micro.c
-@@ -32,6 +32,7 @@
+@@ -31,6 +31,7 @@
  #define O2_SD_CAPS		0xE0
  #define O2_SD_ADMA1		0xE2
  #define O2_SD_ADMA2		0xE7
@@ -79,7 +79,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #define O2_SD_INF_MOD		0xF1
  #define O2_SD_MISC_CTRL4	0xFC
  #define O2_SD_MISC_CTRL		0x1C0
-@@ -874,6 +875,12 @@ static int sdhci_pci_o2_probe(struct sdh
+@@ -830,6 +831,12 @@ static int sdhci_pci_o2_probe(struct sdh
  		/* Set Tuning Windows to 5 */
  		pci_write_config_byte(chip->pdev,
  				O2_SD_TUNING_CTRL, 0x55);
