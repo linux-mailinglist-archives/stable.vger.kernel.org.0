@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAD72635413
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39E756353AA
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236868AbiKWJAp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:00:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36798 "EHLO
+        id S236725AbiKWIyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:54:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236869AbiKWJAo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:00:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 633D972097
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:00:43 -0800 (PST)
+        with ESMTP id S236717AbiKWIyg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:54:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53792F3936
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:54:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19AD9B81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:00:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B969C433D7;
-        Wed, 23 Nov 2022 09:00:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D97E161B10
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:54:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8153C433D6;
+        Wed, 23 Nov 2022 08:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194040;
-        bh=0QohzFDRvLKtEGOb7zkuJ4sXW4Fzb1aWRGMjdoV3HU8=;
+        s=korg; t=1669193675;
+        bh=NgcgWbgq+NHzd1MVDmZVgA4UGHow7sBhCZKIKBlN88o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HKk2r5KU7l71m9HKXxwLjtLOxnzYNO5JBOA8oxofbLBTt8B5P+QZd622+ZvKBF1ft
-         Q2biHts+3LkPzX+3q7br2/ukK26lr2gnpLkDZv4wqyLZBkoMroa0HUSTdqveRpSlg5
-         9DaP1wazFllQCNY2dbWtKYOD2CqGLo6SwjE+6K/k=
+        b=0n+ZdTOtyhP3YRQGwL3IbbrubNkl8J/AyKgOoSfvRjTmLXTBeFQifDF+hOkPKjW87
+         Jr942yfgf77//LUwAxtQ7Qm5cuuWNQRT9qRHr6U1cpWnuehzyGcLoYfL/gzDBC/Q3Y
+         cinVS/pVgSe/3oxnuTao2xxt6A9ZoSY/gnfX+al8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+69c9fdccc6dd08961d34@syzkaller.appspotmail.com,
-        ZhangPeng <zhangpeng362@huawei.com>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.14 24/88] udf: Fix a slab-out-of-bounds write bug in udf_find_entry()
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 22/76] cert host tools: Stop complaining about deprecated OpenSSL functions
 Date:   Wed, 23 Nov 2022 09:50:21 +0100
-Message-Id: <20221123084549.337792714@linuxfoundation.org>
+Message-Id: <20221123084547.446750542@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
+References: <20221123084546.742331901@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,135 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit c8af247de385ce49afabc3bf1cf4fd455c94bfe8 upstream.
+commit 6bfb56e93bcef41859c2d5ab234ffd80b691be35 upstream.
 
-Syzbot reported a slab-out-of-bounds Write bug:
+OpenSSL 3.0 deprecated the OpenSSL's ENGINE API.  That is as may be, but
+the kernel build host tools still use it.  Disable the warning about
+deprecated declarations until somebody who cares fixes it.
 
-loop0: detected capacity change from 0 to 2048
-==================================================================
-BUG: KASAN: slab-out-of-bounds in udf_find_entry+0x8a5/0x14f0
-fs/udf/namei.c:253
-Write of size 105 at addr ffff8880123ff896 by task syz-executor323/3610
-
-CPU: 0 PID: 3610 Comm: syz-executor323 Not tainted
-6.1.0-rc2-syzkaller-00105-gb229b6ca5abb #0
-Hardware name: Google Compute Engine/Google Compute Engine, BIOS
-Google 10/11/2022
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
- print_address_description+0x74/0x340 mm/kasan/report.c:284
- print_report+0x107/0x1f0 mm/kasan/report.c:395
- kasan_report+0xcd/0x100 mm/kasan/report.c:495
- kasan_check_range+0x2a7/0x2e0 mm/kasan/generic.c:189
- memcpy+0x3c/0x60 mm/kasan/shadow.c:66
- udf_find_entry+0x8a5/0x14f0 fs/udf/namei.c:253
- udf_lookup+0xef/0x340 fs/udf/namei.c:309
- lookup_open fs/namei.c:3391 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x10e6/0x2df0 fs/namei.c:3710
- do_filp_open+0x264/0x4f0 fs/namei.c:3740
- do_sys_openat2+0x124/0x4e0 fs/open.c:1310
- do_sys_open fs/open.c:1326 [inline]
- __do_sys_creat fs/open.c:1402 [inline]
- __se_sys_creat fs/open.c:1396 [inline]
- __x64_sys_creat+0x11f/0x160 fs/open.c:1396
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7ffab0d164d9
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89
-f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
-f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffe1a7e6bb8 EFLAGS: 00000246 ORIG_RAX: 0000000000000055
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007ffab0d164d9
-RDX: 00007ffab0d164d9 RSI: 0000000000000000 RDI: 0000000020000180
-RBP: 00007ffab0cd5a10 R08: 0000000000000000 R09: 0000000000000000
-R10: 00005555573552c0 R11: 0000000000000246 R12: 00007ffab0cd5aa0
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
-
-Allocated by task 3610:
- kasan_save_stack mm/kasan/common.c:45 [inline]
- kasan_set_track+0x3d/0x60 mm/kasan/common.c:52
- ____kasan_kmalloc mm/kasan/common.c:371 [inline]
- __kasan_kmalloc+0x97/0xb0 mm/kasan/common.c:380
- kmalloc include/linux/slab.h:576 [inline]
- udf_find_entry+0x7b6/0x14f0 fs/udf/namei.c:243
- udf_lookup+0xef/0x340 fs/udf/namei.c:309
- lookup_open fs/namei.c:3391 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x10e6/0x2df0 fs/namei.c:3710
- do_filp_open+0x264/0x4f0 fs/namei.c:3740
- do_sys_openat2+0x124/0x4e0 fs/open.c:1310
- do_sys_open fs/open.c:1326 [inline]
- __do_sys_creat fs/open.c:1402 [inline]
- __se_sys_creat fs/open.c:1396 [inline]
- __x64_sys_creat+0x11f/0x160 fs/open.c:1396
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-The buggy address belongs to the object at ffff8880123ff800
- which belongs to the cache kmalloc-256 of size 256
-The buggy address is located 150 bytes inside of
- 256-byte region [ffff8880123ff800, ffff8880123ff900)
-
-The buggy address belongs to the physical page:
-page:ffffea000048ff80 refcount:1 mapcount:0 mapping:0000000000000000
-index:0x0 pfn:0x123fe
-head:ffffea000048ff80 order:1 compound_mapcount:0 compound_pincount:0
-flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000010200 ffffea00004b8500 dead000000000003 ffff888012041b40
-raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-page_owner tracks the page as allocated
-page last allocated via order 0, migratetype Unmovable, gfp_mask 0x0(),
-pid 1, tgid 1 (swapper/0), ts 1841222404, free_ts 0
- create_dummy_stack mm/page_owner.c:67 [inline]
- register_early_stack+0x77/0xd0 mm/page_owner.c:83
- init_page_owner+0x3a/0x731 mm/page_owner.c:93
- kernel_init_freeable+0x41c/0x5d5 init/main.c:1629
- kernel_init+0x19/0x2b0 init/main.c:1519
-page_owner free stack trace missing
-
-Memory state around the buggy address:
- ffff8880123ff780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff8880123ff800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff8880123ff880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06
-                                                                ^
- ffff8880123ff900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff8880123ff980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-==================================================================
-
-Fix this by changing the memory size allocated for copy_name from
-UDF_NAME_LEN(254) to UDF_NAME_LEN_CS0(255), because the total length
-(lfi) of subsequent memcpy can be up to 255.
-
-CC: stable@vger.kernel.org
-Reported-by: syzbot+69c9fdccc6dd08961d34@syzkaller.appspotmail.com
-Fixes: 066b9cded00b ("udf: Use separate buffer for copying split names")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221109013542.442790-1-zhangpeng362@huawei.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/namei.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/extract-cert.c |    7 +++++++
+ scripts/sign-file.c    |    7 +++++++
+ 2 files changed, 14 insertions(+)
 
---- a/fs/udf/namei.c
-+++ b/fs/udf/namei.c
-@@ -237,7 +237,7 @@ static struct fileIdentDesc *udf_find_en
- 						      poffset - lfi);
- 			else {
- 				if (!copy_name) {
--					copy_name = kmalloc(UDF_NAME_LEN,
-+					copy_name = kmalloc(UDF_NAME_LEN_CS0,
- 							    GFP_NOFS);
- 					if (!copy_name) {
- 						fi = ERR_PTR(-ENOMEM);
+--- a/scripts/extract-cert.c
++++ b/scripts/extract-cert.c
+@@ -23,6 +23,13 @@
+ #include <openssl/err.h>
+ #include <openssl/engine.h>
+ 
++/*
++ * OpenSSL 3.0 deprecates the OpenSSL's ENGINE API.
++ *
++ * Remove this if/when that API is no longer used
++ */
++#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
++
+ #define PKEY_ID_PKCS7 2
+ 
+ static __attribute__((noreturn))
+--- a/scripts/sign-file.c
++++ b/scripts/sign-file.c
+@@ -30,6 +30,13 @@
+ #include <openssl/engine.h>
+ 
+ /*
++ * OpenSSL 3.0 deprecates the OpenSSL's ENGINE API.
++ *
++ * Remove this if/when that API is no longer used
++ */
++#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
++
++/*
+  * Use CMS if we have openssl-1.0.0 or newer available - otherwise we have to
+  * assume that it's not available and its header file is missing and that we
+  * should use PKCS#7 instead.  Switching to the older PKCS#7 format restricts
 
 
