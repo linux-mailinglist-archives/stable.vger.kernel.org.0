@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 937396353F9
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35C11635384
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236959AbiKWJCL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:02:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38362 "EHLO
+        id S236746AbiKWIzs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:55:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236958AbiKWJCJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:02:09 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04FA61001DF
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:02:08 -0800 (PST)
+        with ESMTP id S236747AbiKWIzs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:55:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD8A748FE
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:55:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 143ECCE20F4
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:02:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECFF0C433D6;
-        Wed, 23 Nov 2022 09:02:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C33E61B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:55:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD9FBC433D6;
+        Wed, 23 Nov 2022 08:55:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194124;
-        bh=KrvNOB/jWRk0+sIQgnh6ZQSThFAyEoNxallyG23zNL4=;
+        s=korg; t=1669193746;
+        bh=v+rcOIAi86dmxDnAA+LxYWuevQXRR4pMmZ2C1W5rqxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGnUarTP9L8F4d6KXAIhTb4WVDyZOomDfu12eN4zSYnbrxFqhpUQTb8h0XbBC7qvu
-         W0p4VAKFFu1ySunulFg+e58QwMJrEPs9v3dnkHnXL5xv2ZRpINKSHwDT+409+4MqNi
-         MBWeo6L4tIvBxY2BVKi002nRr3+LCjDzlhCifbgE=
+        b=faQPmYhxNVMEt6St6lIApHVPyytbvdM9r8evleb3ISE5DlfN4BAZj3rN8hjRExz6A
+         ZroRAwj0ZKkMxO7wGgyRMZZiAI9pBGOylTAxqcFCOun73sRQ4Z+/UGmRePdqUJSpQh
+         3hEiqOmKJu7WaFdSVzuKbzRTG+61PMpKOfefT7KY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 51/88] net/x25: Fix skb leak in x25_lapb_receive_frame()
+        patches@lists.linux.dev,
+        syzbot+9abda841d636d86c41da@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 49/76] ALSA: usb-audio: Drop snd_BUG_ON() from snd_usbmidi_output_open()
 Date:   Wed, 23 Nov 2022 09:50:48 +0100
-Message-Id: <20221123084550.291854144@linuxfoundation.org>
+Message-Id: <20221123084548.359181018@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
+References: <20221123084546.742331901@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 2929cceb2fcf0ded7182562e4888afafece82cce ]
+commit ad72c3c3f6eb81d2cb189ec71e888316adada5df upstream.
 
-x25_lapb_receive_frame() using skb_copy() to get a private copy of
-skb, the new skb should be freed in the undersized/fragmented skb
-error handling path. Otherwise there is a memory leak.
+snd_usbmidi_output_open() has a check of the NULL port with
+snd_BUG_ON().  snd_BUG_ON() was used as this shouldn't have happened,
+but in reality, the NULL port may be seen when the device gives an
+invalid endpoint setup at the descriptor, hence the driver skips the
+allocation.  That is, the check itself is valid and snd_BUG_ON()
+should be dropped from there.  Otherwise it's confusing as if it were
+a real bug, as recently syzbot stumbled on it.
 
-Fixes: cb101ed2c3c7 ("x25: Handle undersized/fragmented skbs")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Martin Schiller <ms@dev.tdt.de>
-Link: https://lore.kernel.org/r/20221114110519.514538-1-weiyongjun@huaweicloud.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+9abda841d636d86c41da@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/syzbot+9abda841d636d86c41da@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20221112141223.6144-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/x25/x25_dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/midi.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/x25/x25_dev.c b/net/x25/x25_dev.c
-index 30f71620d4e3..24f2676e3b66 100644
---- a/net/x25/x25_dev.c
-+++ b/net/x25/x25_dev.c
-@@ -122,7 +122,7 @@ int x25_lapb_receive_frame(struct sk_buff *skb, struct net_device *dev,
+--- a/sound/usb/midi.c
++++ b/sound/usb/midi.c
+@@ -1148,10 +1148,8 @@ static int snd_usbmidi_output_open(struc
+ 					port = &umidi->endpoints[i].out->ports[j];
+ 					break;
+ 				}
+-	if (!port) {
+-		snd_BUG();
++	if (!port)
+ 		return -ENXIO;
+-	}
  
- 	if (!pskb_may_pull(skb, 1)) {
- 		x25_neigh_put(nb);
--		return 0;
-+		goto drop;
- 	}
- 
- 	switch (skb->data[0]) {
--- 
-2.35.1
-
+ 	substream->runtime->private_data = port;
+ 	port->state = STATE_UNKNOWN;
 
 
