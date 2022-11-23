@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6140C6357C6
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:46:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 756C36357B3
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:46:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238127AbiKWJoy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:44:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38204 "EHLO
+        id S238168AbiKWJpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:45:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238139AbiKWJoW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:44:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABBA6DEAEC
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:42:20 -0800 (PST)
+        with ESMTP id S238224AbiKWJoc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:44:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4403511092D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:42:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D7BB61B56
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:42:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DAE3C433D6;
-        Wed, 23 Nov 2022 09:42:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E081AB81E54
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:42:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AA6CC433C1;
+        Wed, 23 Nov 2022 09:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196539;
-        bh=IDovsT+QhP/9OK7dKsXTow+ChFDjK4jPLt6qQPOf2/c=;
+        s=korg; t=1669196542;
+        bh=TY/QL7RZPjYhDXIfImiAIztPqnnDlUBUe8/9nBwgU7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKqEgXVZlNL2MleduRIA2A+zAjeOJb9TW1yu3UUM9iXEnZIcoet3ZjKMJ0/iUXYPU
-         zal8HV+HpBEMjRXLUfE1452KVgjMaD9KuqEwJ2kqrOnOTvBFCZT5b2WtnvaMr256Iz
-         w8Qafbp29a7g4/xCtBepuMLR5H/98H2DLHIFQ9P4=
+        b=vaG+xXssMPyB8mDgRso4ceH0o6swDZ3QApC7n0ktOvYvInJEVZ7gnhxtUTsVRQEhO
+         NFgv1rmDffApGdeOJzjdtQqVYC8tyW4U3+fzcI5ychkU9kQXIsC4mQGpYn5nCvygf1
+         iWNqP1PIzhl0NnDpHmMrYuLTfoOIVA1AurqjCQXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tony Luck <tony.luck@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+        patches@lists.linux.dev, Dave Jiang <dave.jiang@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 059/314] x86/cpu: Add several Intel server CPU model numbers
-Date:   Wed, 23 Nov 2022 09:48:24 +0100
-Message-Id: <20221123084628.168614449@linuxfoundation.org>
+Subject: [PATCH 6.0 060/314] tools/testing/cxl: Fix some error exits
+Date:   Wed, 23 Nov 2022 09:48:25 +0100
+Message-Id: <20221123084628.203073675@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -54,59 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-[ Upstream commit 7beade0dd41d42d797ccb7791b134a77fcebf35b ]
+[ Upstream commit 86e86c3cb63325c12ea99fbce2cc5bafba86bb40 ]
 
-These servers are all on the public versions of the roadmap. The model
-numbers for Grand Ridge, Granite Rapids, and Sierra Forest were included
-in the September 2022 edition of the Instruction Set Extensions document.
+Fix a few typos where 'goto err_port' was used rather than the object
+specific cleanup.
 
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Link: https://lore.kernel.org/r/20221103203310.5058-1-tony.luck@intel.com
+Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+Link: https://lore.kernel.org/r/166752184255.947915.16163477849330181425.stgit@dwillia2-xfh.jf.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/intel-family.h | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ tools/testing/cxl/test/cxl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
-index 5d75fe229342..347707d459c6 100644
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -107,6 +107,11 @@
+diff --git a/tools/testing/cxl/test/cxl.c b/tools/testing/cxl/test/cxl.c
+index a072b2d3e726..133e4c73d370 100644
+--- a/tools/testing/cxl/test/cxl.c
++++ b/tools/testing/cxl/test/cxl.c
+@@ -695,7 +695,7 @@ static __init int cxl_test_init(void)
  
- #define INTEL_FAM6_SAPPHIRERAPIDS_X	0x8F	/* Golden Cove */
+ 		pdev = platform_device_alloc("cxl_switch_uport", i);
+ 		if (!pdev)
+-			goto err_port;
++			goto err_uport;
+ 		pdev->dev.parent = &root_port->dev;
  
-+#define INTEL_FAM6_EMERALDRAPIDS_X	0xCF
-+
-+#define INTEL_FAM6_GRANITERAPIDS_X	0xAD
-+#define INTEL_FAM6_GRANITERAPIDS_D	0xAE
-+
- #define INTEL_FAM6_ALDERLAKE		0x97	/* Golden Cove / Gracemont */
- #define INTEL_FAM6_ALDERLAKE_L		0x9A	/* Golden Cove / Gracemont */
- #define INTEL_FAM6_ALDERLAKE_N		0xBE
-@@ -118,7 +123,7 @@
- #define INTEL_FAM6_METEORLAKE		0xAC
- #define INTEL_FAM6_METEORLAKE_L		0xAA
+ 		rc = platform_device_add(pdev);
+@@ -713,7 +713,7 @@ static __init int cxl_test_init(void)
  
--/* "Small Core" Processors (Atom) */
-+/* "Small Core" Processors (Atom/E-Core) */
+ 		pdev = platform_device_alloc("cxl_switch_dport", i);
+ 		if (!pdev)
+-			goto err_port;
++			goto err_dport;
+ 		pdev->dev.parent = &uport->dev;
  
- #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
- #define INTEL_FAM6_ATOM_BONNELL_MID	0x26 /* Silverthorne, Lincroft */
-@@ -145,6 +150,10 @@
- #define INTEL_FAM6_ATOM_TREMONT		0x96 /* Elkhart Lake */
- #define INTEL_FAM6_ATOM_TREMONT_L	0x9C /* Jasper Lake */
- 
-+#define INTEL_FAM6_SIERRAFOREST_X	0xAF
-+
-+#define INTEL_FAM6_GRANDRIDGE		0xB6
-+
- /* Xeon Phi */
- 
- #define INTEL_FAM6_XEON_PHI_KNL		0x57 /* Knights Landing */
+ 		rc = platform_device_add(pdev);
 -- 
 2.35.1
 
