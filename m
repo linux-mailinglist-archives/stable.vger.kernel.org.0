@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0296063591B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98699635786
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236339AbiKWKHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:07:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60832 "EHLO
+        id S237930AbiKWJmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:42:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236414AbiKWKGX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62DDC25A
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:52 -0800 (PST)
+        with ESMTP id S238015AbiKWJlm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96D4FBE877
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:39:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3F8861B56
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 074D3C433D7;
-        Wed, 23 Nov 2022 09:56:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E775B81E5E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:39:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6756C433D6;
+        Wed, 23 Nov 2022 09:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197411;
-        bh=lPKHhzfzRA4VfQr5c8y5RM97W9VQYAEaAnU2/u+v8LE=;
+        s=korg; t=1669196351;
+        bh=s8o+5VebUTm5QWzTFnGs++UaP9ukdZ3FWneKVxeTHNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jcm4mkj6ZTjD/xui8Z+MPaG/leM0fJ+R7WM/N9m7uspewxLg75jYbXP7ixucYLaLM
-         Yquwc3nr/Th9d1isJ718yZvKSTkwe+Jp5RMxOgoFbn6LSFG3ZwLAPklG5cokrvzEVq
-         3gDD4ce3ZKgW6a2a4mo/x0EMO3BkAzApuQ5to7MQ=
+        b=16n6fhMIk0r0t1dLwshS0qImKZXIoJG758gKl7NPJvz7xSGlSyThz+a/71Vc6YIiv
+         fm2xJ8IHGGxnLWt2jvL6/hqbBh1ww4t5azn6MM1Wa9uzRRXXd/Su4rqZXpLuXtCdHA
+         DAWbn+bUF+ZH8r8knDwFUNH8beQ+H7BHFrylUQA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        Ravi Bangoria <ravi.bangoria@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 287/314] perf/x86/amd: Fix crash due to race between amd_pmu_enable_all, perf NMI and throttling
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 169/181] tcp: cdg: allow tcp_cdg_release() to be called multiple times
 Date:   Wed, 23 Nov 2022 09:52:12 +0100
-Message-Id: <20221123084638.533510476@linuxfoundation.org>
+Message-Id: <20221123084609.635660699@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,89 +53,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ravi Bangoria <ravi.bangoria@amd.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit baa014b9543c8e5e94f5d15b66abfe60750b8284 ]
+commit 72e560cb8c6f80fc2b4afc5d3634a32465e13a51 upstream.
 
-amd_pmu_enable_all() does:
+Apparently, mptcp is able to call tcp_disconnect() on an already
+disconnected flow. This is generally fine, unless current congestion
+control is CDG, because it might trigger a double-free [1]
 
-      if (!test_bit(idx, cpuc->active_mask))
-              continue;
+Instead of fixing MPTCP, and future bugs, we can make tcp_disconnect()
+more resilient.
 
-      amd_pmu_enable_event(cpuc->events[idx]);
+[1]
+BUG: KASAN: double-free in slab_free mm/slub.c:3539 [inline]
+BUG: KASAN: double-free in kfree+0xe2/0x580 mm/slub.c:4567
 
-A perf NMI of another event can come between these two steps. Perf NMI
-handler internally disables and enables _all_ events, including the one
-which nmi-intercepted amd_pmu_enable_all() was in process of enabling.
-If that unintentionally enabled event has very low sampling period and
-causes immediate successive NMI, causing the event to be throttled,
-cpuc->events[idx] and cpuc->active_mask gets cleared by x86_pmu_stop().
-This will result in amd_pmu_enable_event() getting called with event=NULL
-when amd_pmu_enable_all() resumes after handling the NMIs. This causes a
-kernel crash:
+CPU: 0 PID: 3645 Comm: kworker/0:7 Not tainted 6.0.0-syzkaller-02734-g0326074ff465 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
+Workqueue: events mptcp_worker
+Call Trace:
+<TASK>
+__dump_stack lib/dump_stack.c:88 [inline]
+dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+print_address_description mm/kasan/report.c:317 [inline]
+print_report.cold+0x2ba/0x719 mm/kasan/report.c:433
+kasan_report_invalid_free+0x81/0x190 mm/kasan/report.c:462
+____kasan_slab_free+0x18b/0x1c0 mm/kasan/common.c:356
+kasan_slab_free include/linux/kasan.h:200 [inline]
+slab_free_hook mm/slub.c:1759 [inline]
+slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1785
+slab_free mm/slub.c:3539 [inline]
+kfree+0xe2/0x580 mm/slub.c:4567
+tcp_disconnect+0x980/0x1e20 net/ipv4/tcp.c:3145
+__mptcp_close_ssk+0x5ca/0x7e0 net/mptcp/protocol.c:2327
+mptcp_do_fastclose net/mptcp/protocol.c:2592 [inline]
+mptcp_worker+0x78c/0xff0 net/mptcp/protocol.c:2627
+process_one_work+0x991/0x1610 kernel/workqueue.c:2289
+worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+kthread+0x2e4/0x3a0 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+</TASK>
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000198
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  [...]
-  Call Trace:
-   <TASK>
-   amd_pmu_enable_all+0x68/0xb0
-   ctx_resched+0xd9/0x150
-   event_function+0xb8/0x130
-   ? hrtimer_start_range_ns+0x141/0x4a0
-   ? perf_duration_warn+0x30/0x30
-   remote_function+0x4d/0x60
-   __flush_smp_call_function_queue+0xc4/0x500
-   flush_smp_call_function_queue+0x11d/0x1b0
-   do_idle+0x18f/0x2d0
-   cpu_startup_entry+0x19/0x20
-   start_secondary+0x121/0x160
-   secondary_startup_64_no_verify+0xe5/0xeb
-   </TASK>
+Allocated by task 3671:
+kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+kasan_set_track mm/kasan/common.c:45 [inline]
+set_alloc_info mm/kasan/common.c:437 [inline]
+____kasan_kmalloc mm/kasan/common.c:516 [inline]
+____kasan_kmalloc mm/kasan/common.c:475 [inline]
+__kasan_kmalloc+0xa9/0xd0 mm/kasan/common.c:525
+kmalloc_array include/linux/slab.h:640 [inline]
+kcalloc include/linux/slab.h:671 [inline]
+tcp_cdg_init+0x10d/0x170 net/ipv4/tcp_cdg.c:380
+tcp_init_congestion_control+0xab/0x550 net/ipv4/tcp_cong.c:193
+tcp_reinit_congestion_control net/ipv4/tcp_cong.c:217 [inline]
+tcp_set_congestion_control+0x96c/0xaa0 net/ipv4/tcp_cong.c:391
+do_tcp_setsockopt+0x505/0x2320 net/ipv4/tcp.c:3513
+tcp_setsockopt+0xd4/0x100 net/ipv4/tcp.c:3801
+mptcp_setsockopt+0x35f/0x2570 net/mptcp/sockopt.c:844
+__sys_setsockopt+0x2d6/0x690 net/socket.c:2252
+__do_sys_setsockopt net/socket.c:2263 [inline]
+__se_sys_setsockopt net/socket.c:2260 [inline]
+__x64_sys_setsockopt+0xba/0x150 net/socket.c:2260
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-amd_pmu_disable_all()/amd_pmu_enable_all() calls inside perf NMI handler
-were recently added as part of BRS enablement but I'm not sure whether
-we really need them. We can just disable BRS in the beginning and enable
-it back while returning from NMI. This will solve the issue by not
-enabling those events whose active_masks are set but are not yet enabled
-in hw pmu.
+Freed by task 16:
+kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+kasan_set_track+0x21/0x30 mm/kasan/common.c:45
+kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
+____kasan_slab_free mm/kasan/common.c:367 [inline]
+____kasan_slab_free+0x166/0x1c0 mm/kasan/common.c:329
+kasan_slab_free include/linux/kasan.h:200 [inline]
+slab_free_hook mm/slub.c:1759 [inline]
+slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1785
+slab_free mm/slub.c:3539 [inline]
+kfree+0xe2/0x580 mm/slub.c:4567
+tcp_cleanup_congestion_control+0x70/0x120 net/ipv4/tcp_cong.c:226
+tcp_v4_destroy_sock+0xdd/0x750 net/ipv4/tcp_ipv4.c:2254
+tcp_v6_destroy_sock+0x11/0x20 net/ipv6/tcp_ipv6.c:1969
+inet_csk_destroy_sock+0x196/0x440 net/ipv4/inet_connection_sock.c:1157
+tcp_done+0x23b/0x340 net/ipv4/tcp.c:4649
+tcp_rcv_state_process+0x40e7/0x4990 net/ipv4/tcp_input.c:6624
+tcp_v6_do_rcv+0x3fc/0x13c0 net/ipv6/tcp_ipv6.c:1525
+tcp_v6_rcv+0x2e8e/0x3830 net/ipv6/tcp_ipv6.c:1759
+ip6_protocol_deliver_rcu+0x2db/0x1950 net/ipv6/ip6_input.c:439
+ip6_input_finish+0x14c/0x2c0 net/ipv6/ip6_input.c:484
+NF_HOOK include/linux/netfilter.h:302 [inline]
+NF_HOOK include/linux/netfilter.h:296 [inline]
+ip6_input+0x9c/0xd0 net/ipv6/ip6_input.c:493
+dst_input include/net/dst.h:455 [inline]
+ip6_rcv_finish+0x193/0x2c0 net/ipv6/ip6_input.c:79
+ip_sabotage_in net/bridge/br_netfilter_hooks.c:874 [inline]
+ip_sabotage_in+0x1fa/0x260 net/bridge/br_netfilter_hooks.c:865
+nf_hook_entry_hookfn include/linux/netfilter.h:142 [inline]
+nf_hook_slow+0xc5/0x1f0 net/netfilter/core.c:614
+nf_hook.constprop.0+0x3ac/0x650 include/linux/netfilter.h:257
+NF_HOOK include/linux/netfilter.h:300 [inline]
+ipv6_rcv+0x9e/0x380 net/ipv6/ip6_input.c:309
+__netif_receive_skb_one_core+0x114/0x180 net/core/dev.c:5485
+__netif_receive_skb+0x1f/0x1c0 net/core/dev.c:5599
+netif_receive_skb_internal net/core/dev.c:5685 [inline]
+netif_receive_skb+0x12f/0x8d0 net/core/dev.c:5744
+NF_HOOK include/linux/netfilter.h:302 [inline]
+NF_HOOK include/linux/netfilter.h:296 [inline]
+br_pass_frame_up+0x303/0x410 net/bridge/br_input.c:68
+br_handle_frame_finish+0x909/0x1aa0 net/bridge/br_input.c:199
+br_nf_hook_thresh+0x2f8/0x3d0 net/bridge/br_netfilter_hooks.c:1041
+br_nf_pre_routing_finish_ipv6+0x695/0xef0 net/bridge/br_netfilter_ipv6.c:207
+NF_HOOK include/linux/netfilter.h:302 [inline]
+br_nf_pre_routing_ipv6+0x417/0x7c0 net/bridge/br_netfilter_ipv6.c:237
+br_nf_pre_routing+0x1496/0x1fe0 net/bridge/br_netfilter_hooks.c:507
+nf_hook_entry_hookfn include/linux/netfilter.h:142 [inline]
+nf_hook_bridge_pre net/bridge/br_input.c:255 [inline]
+br_handle_frame+0x9c9/0x12d0 net/bridge/br_input.c:399
+__netif_receive_skb_core+0x9fe/0x38f0 net/core/dev.c:5379
+__netif_receive_skb_one_core+0xae/0x180 net/core/dev.c:5483
+__netif_receive_skb+0x1f/0x1c0 net/core/dev.c:5599
+process_backlog+0x3a0/0x7c0 net/core/dev.c:5927
+__napi_poll+0xb3/0x6d0 net/core/dev.c:6494
+napi_poll net/core/dev.c:6561 [inline]
+net_rx_action+0x9c1/0xd90 net/core/dev.c:6672
+__do_softirq+0x1d0/0x9c8 kernel/softirq.c:571
 
-Fixes: ada543459cab ("perf/x86/amd: Add AMD Fam19h Branch Sampling support")
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Signed-off-by: Ravi Bangoria <ravi.bangoria@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20221114044029.373-1-ravi.bangoria@amd.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2b0a8c9eee81 ("tcp: add CDG congestion control")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/amd/core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ net/ipv4/tcp_cdg.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/events/amd/core.c b/arch/x86/events/amd/core.c
-index 9ac3718410ce..7e39c47d7759 100644
---- a/arch/x86/events/amd/core.c
-+++ b/arch/x86/events/amd/core.c
-@@ -896,8 +896,7 @@ static int amd_pmu_handle_irq(struct pt_regs *regs)
- 	pmu_enabled = cpuc->enabled;
- 	cpuc->enabled = 0;
+--- a/net/ipv4/tcp_cdg.c
++++ b/net/ipv4/tcp_cdg.c
+@@ -375,6 +375,7 @@ static void tcp_cdg_init(struct sock *sk
+ 	struct cdg *ca = inet_csk_ca(sk);
+ 	struct tcp_sock *tp = tcp_sk(sk);
  
--	/* stop everything (includes BRS) */
--	amd_pmu_disable_all();
-+	amd_brs_disable_all();
++	ca->gradients = NULL;
+ 	/* We silently fall back to window = 1 if allocation fails. */
+ 	if (window > 1)
+ 		ca->gradients = kcalloc(window, sizeof(ca->gradients[0]),
+@@ -388,6 +389,7 @@ static void tcp_cdg_release(struct sock
+ 	struct cdg *ca = inet_csk_ca(sk);
  
- 	/* Drain BRS is in use (could be inactive) */
- 	if (cpuc->lbr_users)
-@@ -908,7 +907,7 @@ static int amd_pmu_handle_irq(struct pt_regs *regs)
- 
- 	cpuc->enabled = pmu_enabled;
- 	if (pmu_enabled)
--		amd_pmu_enable_all(0);
-+		amd_brs_enable_all();
- 
- 	return amd_pmu_adjust_nmi_window(handled);
+ 	kfree(ca->gradients);
++	ca->gradients = NULL;
  }
--- 
-2.35.1
-
+ 
+ static struct tcp_congestion_ops tcp_cdg __read_mostly = {
 
 
