@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84430635611
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B80806354C5
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237590AbiKWJ0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:26:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43830 "EHLO
+        id S237129AbiKWJJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:09:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237637AbiKWJ0G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:26:06 -0500
+        with ESMTP id S237171AbiKWJIh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:08:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA4FC1F69
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:25:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9359662062
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:08:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6FC38B81EEB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:25:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8A47C433C1;
-        Wed, 23 Nov 2022 09:24:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E900AB81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D136C433D6;
+        Wed, 23 Nov 2022 09:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195500;
-        bh=V17UdKcr17cJJO81G71Avd8cF26LZvzq6YnUjnmlBjM=;
+        s=korg; t=1669194512;
+        bh=zue+Rx8CP1pQJoD6r0muK7P3ytO8Pb/RQQdDCuyYLsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MFmc8nQBDoIlYUrKv+BMIldS8pHlKfTnMG6LRHOdpZq6O4Y3SIBOQXPKa6SbFOR5t
-         J5O8CjTN3D+XLX0fOUrHQU9xto4I1tnQQUpHe4/LCHAxoRaaPQQMbWGE2n0ojp5Vsq
-         F9ybEQaQgw9yzz+1sR+00iDaVlLEmlt1Xk2ycb1o=
+        b=gVEXDoRoffkSBXi1uRz4f0N0awiVQDhth0kX1ir8tuDnmn9S77hvAa6lhVnXzVP1y
+         CF1YGUzE/iGslJKrFUfOxW0WzZvF1XUXOEIP7Z8IPUc6yxvDiNs6ogYQmo2r8lGnME
+         y6kADhiSbB+OYuQl+67vs+BTDer25dj3g9B85u/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Reinhard Speyerer <rspmn@arcor.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 102/149] USB: serial: option: add Fibocom FM160 0x0111 composition
+        patches@lists.linux.dev,
+        syzbot+39be4da489ed2493ba25@syzkaller.appspotmail.com,
+        stable <stable@kernel.org>,
+        Alexander Potapenko <glider@google.com>,
+        Vishnu Dasa <vdasa@vmware.com>
+Subject: [PATCH 4.19 098/114] misc/vmw_vmci: fix an infoleak in vmci_host_do_receive_datagram()
 Date:   Wed, 23 Nov 2022 09:51:25 +0100
-Message-Id: <20221123084601.657085987@linuxfoundation.org>
+Message-Id: <20221123084555.685494933@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,57 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinhard Speyerer <rspmn@arcor.de>
+From: Alexander Potapenko <glider@google.com>
 
-commit 148f4b32b4504d8a32cf82049b7b9499a4b299ab upstream.
+commit e5b0d06d9b10f5f43101bd6598b076c347f9295f upstream.
 
-Add support for the following Fibocom FM160 composition:
+`struct vmci_event_qp` allocated by qp_notify_peer() contains padding,
+which may carry uninitialized data to the userspace, as observed by
+KMSAN:
 
-0x0111: MBIM + MODEM + DIAG + AT
+  BUG: KMSAN: kernel-infoleak in instrument_copy_to_user ./include/linux/instrumented.h:121
+   instrument_copy_to_user ./include/linux/instrumented.h:121
+   _copy_to_user+0x5f/0xb0 lib/usercopy.c:33
+   copy_to_user ./include/linux/uaccess.h:169
+   vmci_host_do_receive_datagram drivers/misc/vmw_vmci/vmci_host.c:431
+   vmci_host_unlocked_ioctl+0x33d/0x43d0 drivers/misc/vmw_vmci/vmci_host.c:925
+   vfs_ioctl fs/ioctl.c:51
+  ...
 
-T:  Bus=01 Lev=02 Prnt=125 Port=01 Cnt=02 Dev#= 93 Spd=480  MxCh= 0
-D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=2cb7 ProdID=0111 Rev= 5.04
-S:  Manufacturer=Fibocom
-S:  Product=Fibocom FM160 Modem_SN:12345678
-S:  SerialNumber=12345678
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
-E:  Ad=81(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
-I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-E:  Ad=86(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+  Uninit was stored to memory at:
+   kmemdup+0x74/0xb0 mm/util.c:131
+   dg_dispatch_as_host drivers/misc/vmw_vmci/vmci_datagram.c:271
+   vmci_datagram_dispatch+0x4f8/0xfc0 drivers/misc/vmw_vmci/vmci_datagram.c:339
+   qp_notify_peer+0x19a/0x290 drivers/misc/vmw_vmci/vmci_queue_pair.c:1479
+   qp_broker_attach drivers/misc/vmw_vmci/vmci_queue_pair.c:1662
+   qp_broker_alloc+0x2977/0x2f30 drivers/misc/vmw_vmci/vmci_queue_pair.c:1750
+   vmci_qp_broker_alloc+0x96/0xd0 drivers/misc/vmw_vmci/vmci_queue_pair.c:1940
+   vmci_host_do_alloc_queuepair drivers/misc/vmw_vmci/vmci_host.c:488
+   vmci_host_unlocked_ioctl+0x24fd/0x43d0 drivers/misc/vmw_vmci/vmci_host.c:927
+  ...
 
-Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+  Local variable ev created at:
+   qp_notify_peer+0x54/0x290 drivers/misc/vmw_vmci/vmci_queue_pair.c:1456
+   qp_broker_attach drivers/misc/vmw_vmci/vmci_queue_pair.c:1662
+   qp_broker_alloc+0x2977/0x2f30 drivers/misc/vmw_vmci/vmci_queue_pair.c:1750
+
+  Bytes 28-31 of 48 are uninitialized
+  Memory access of size 48 starts at ffff888035155e00
+  Data copied to user address 0000000020000100
+
+Use memset() to prevent the infoleaks.
+
+Also speculatively fix qp_notify_peer_local(), which may suffer from the
+same problem.
+
+Reported-by: syzbot+39be4da489ed2493ba25@syzkaller.appspotmail.com
+Cc: stable <stable@kernel.org>
+Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+Link: https://lore.kernel.org/r/20221104175849.2782567-1-glider@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -2179,6 +2179,7 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x010a, 0xff) },			/* Fibocom MA510 (ECM mode) */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0111, 0xff) },			/* Fibocom FM160 (MBIM mode) */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a2, 0xff) },			/* Fibocom FM101-GL (laptop MBIM) */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a4, 0xff),			/* Fibocom FM101-GL (laptop MBIM) */
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -865,6 +865,7 @@ static int qp_notify_peer_local(bool att
+ 	u32 context_id = vmci_get_context_id();
+ 	struct vmci_event_qp ev;
+ 
++	memset(&ev, 0, sizeof(ev));
+ 	ev.msg.hdr.dst = vmci_make_handle(context_id, VMCI_EVENT_HANDLER);
+ 	ev.msg.hdr.src = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
+ 					  VMCI_CONTEXT_RESOURCE_ID);
+@@ -1476,6 +1477,7 @@ static int qp_notify_peer(bool attach,
+ 	 * kernel.
+ 	 */
+ 
++	memset(&ev, 0, sizeof(ev));
+ 	ev.msg.hdr.dst = vmci_make_handle(peer_id, VMCI_EVENT_HANDLER);
+ 	ev.msg.hdr.src = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
+ 					  VMCI_CONTEXT_RESOURCE_ID);
 
 
