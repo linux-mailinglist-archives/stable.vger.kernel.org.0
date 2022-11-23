@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30EDC635509
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12CD7635422
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237204AbiKWJN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:13:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
+        id S236990AbiKWJDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:03:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237236AbiKWJN1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:13:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE95985160
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:13:26 -0800 (PST)
+        with ESMTP id S236937AbiKWJDb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:03:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31F4F102E6E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:03:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7177FB81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:13:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC07CC433C1;
-        Wed, 23 Nov 2022 09:13:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A5BD61B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:03:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 871B6C433C1;
+        Wed, 23 Nov 2022 09:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194804;
-        bh=JhWGHc5kxOEzNLBMuZ2sJeHwhnDnhab1uDEcnsHFWwo=;
+        s=korg; t=1669194209;
+        bh=s5O5mpRq9Mu+XQB0sf0l35D8dEJdMq7Jo9hj3Q5E3BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5tabeitYvkVxcXmMsSniH5aQst+erTkRrE3lng5eib6+/1mpW/+TPvHkluSA9QwR
-         eQtOeQoO4SCTrGEUlaD0y9R9Pd6pJTzPhODvni741YfV4MoxqloxjSA5ubtDH184Jf
-         MN8671Hp959eC8rGjdO74SK4AAfMX0YVH5EngpbE=
+        b=D1Hr8/Zvy6X94JH36T7gwBLLzAOx09YRAzadSRApVaEhuIVGSjIVYzarjNPvpUdOn
+         p/23BoiZ3Xfl05ZaczazLvopi9D2uhh6QR4c3mXEOX7bJhpXwz5A+wBJK2SgbAbmDt
+         az9+UoVkRhx8Jored6liz5v43YmBQapA72fofyMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chuang Wang <nashuiliang@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Akshay Navgire <anavgire@purestorage.com>,
+        Alex Barba <alex.barba@broadcom.com>,
+        Andy Gospodarek <gospo@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 036/156] net: macvlan: fix memory leaks of macvlan_common_newlink
+Subject: [PATCH 4.19 006/114] bnxt_en: fix potentially incorrect return value for ndo_rx_flow_steer
 Date:   Wed, 23 Nov 2022 09:49:53 +0100
-Message-Id: <20221123084559.242441421@linuxfoundation.org>
+Message-Id: <20221123084552.101113316@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuang Wang <nashuiliang@gmail.com>
+From: Alex Barba <alex.barba@broadcom.com>
 
-[ Upstream commit 23569b5652ee8e8e55a12f7835f59af6f3cefc30 ]
+[ Upstream commit 02597d39145bb0aa81d04bf39b6a913ce9a9d465 ]
 
-kmemleak reports memory leaks in macvlan_common_newlink, as follows:
+In the bnxt_en driver ndo_rx_flow_steer returns '0' whenever an entry
+that we are attempting to steer is already found.  This is not the
+correct behavior.  The return code should be the value/index that
+corresponds to the entry.  Returning zero all the time causes the
+RFS records to be incorrect unless entry '0' is the correct one.  As
+flows migrate to different cores this can create entries that are not
+correct.
 
- ip link add link eth0 name .. type macvlan mode source macaddr add
- <MAC-ADDR>
-
-kmemleak reports:
-
-unreferenced object 0xffff8880109bb140 (size 64):
-  comm "ip", pid 284, jiffies 4294986150 (age 430.108s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 b8 aa 5a 12 80 88 ff ff  ..........Z.....
-    80 1b fa 0d 80 88 ff ff 1e ff ac af c7 c1 6b 6b  ..............kk
-  backtrace:
-    [<ffffffff813e06a7>] kmem_cache_alloc_trace+0x1c7/0x300
-    [<ffffffff81b66025>] macvlan_hash_add_source+0x45/0xc0
-    [<ffffffff81b66a67>] macvlan_changelink_sources+0xd7/0x170
-    [<ffffffff81b6775c>] macvlan_common_newlink+0x38c/0x5a0
-    [<ffffffff81b6797e>] macvlan_newlink+0xe/0x20
-    [<ffffffff81d97f8f>] __rtnl_newlink+0x7af/0xa50
-    [<ffffffff81d98278>] rtnl_newlink+0x48/0x70
-    ...
-
-In the scenario where the macvlan mode is configured as 'source',
-macvlan_changelink_sources() will be execured to reconfigure list of
-remote source mac addresses, at the same time, if register_netdevice()
-return an error, the resource generated by macvlan_changelink_sources()
-is not cleaned up.
-
-Using this patch, in the case of an error, it will execute
-macvlan_flush_sources() to ensure that the resource is cleaned up.
-
-Fixes: aa5fd0fb7748 ("driver: macvlan: Destroy new macvlan port if macvlan_common_newlink failed.")
-Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
-Link: https://lore.kernel.org/r/20221109090735.690500-1-nashuiliang@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Reported-by: Akshay Navgire <anavgire@purestorage.com>
+Signed-off-by: Alex Barba <alex.barba@broadcom.com>
+Signed-off-by: Andy Gospodarek <gospo@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macvlan.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
-index 07622cf8765a..253c0605f6e6 100644
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -1499,8 +1499,10 @@ int macvlan_common_newlink(struct net *src_net, struct net_device *dev,
- 	/* the macvlan port may be freed by macvlan_uninit when fail to register.
- 	 * so we destroy the macvlan port only when it's valid.
- 	 */
--	if (create && macvlan_port_get_rtnl(lowerdev))
-+	if (create && macvlan_port_get_rtnl(lowerdev)) {
-+		macvlan_flush_sources(port, vlan);
- 		macvlan_port_destroy(port->dev);
-+	}
- 	return err;
- }
- EXPORT_SYMBOL_GPL(macvlan_common_newlink);
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 5e30299bcf64..b49f8a97d753 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -8327,8 +8327,8 @@ static int bnxt_rx_flow_steer(struct net_device *dev, const struct sk_buff *skb,
+ 	rcu_read_lock();
+ 	hlist_for_each_entry_rcu(fltr, head, hash) {
+ 		if (bnxt_fltr_match(fltr, new_fltr)) {
++			rc = fltr->sw_id;
+ 			rcu_read_unlock();
+-			rc = 0;
+ 			goto err_free;
+ 		}
+ 	}
 -- 
 2.35.1
 
