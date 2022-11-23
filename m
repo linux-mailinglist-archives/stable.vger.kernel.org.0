@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF79063545E
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5AC635698
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237028AbiKWJFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:05:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42876 "EHLO
+        id S237767AbiKWJcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:32:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237039AbiKWJFd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:05:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AFC01025D3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:05:32 -0800 (PST)
+        with ESMTP id S237785AbiKWJbR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA082657C8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:30:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECA5761B49
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:05:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE1C0C433D7;
-        Wed, 23 Nov 2022 09:05:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7874BB81EF5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:30:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56075C433C1;
+        Wed, 23 Nov 2022 09:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194331;
-        bh=0ySm5KUYwryfFfOmTOcLeNeGg/b8HG+J/M+bavz2jRo=;
+        s=korg; t=1669195817;
+        bh=5ikBATPeMcYLEpQNI3iGqn8JpNSesuPwrDBwv4XOz+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pCk3yp1AReTvep8VkBEUHFYWaCredz+U/alQ3KU+fygkC7B+3e57pGTaLRCbQXX53
-         RY2NCkk2RQoutMT2PqTyZWtZ3dEn6+FifWEeM1VaAfx/kx/wK+dkQ8DB6j3Q1m4fTb
-         3XqSe/YkOxnWxLdKT7LFdzH/amPz0gbdH+sFr/b4=
+        b=2pAIghW7N3Y0JVk/90BRfu9JPEykaHYi0sv6ublsnpJOp6ZJpWp2IYzFz/rQrK5Go
+         jDEi81NnNp5NecyP1bdonDfNbMkmFrkj61BQ/ahejQeoMATY5IOAbkm5fQxbEm3fQB
+         2oW/Z8N1cGk94Gv+q/Q6t9hi7Q4LNvPSkIAFzO/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Douglas Anderson <dianders@chromium.org>,
+        Andrew Halaney <ahalaney@redhat.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 017/114] net: cxgb3_main: disable napi when bind qsets failed in cxgb_up()
+Subject: [PATCH 5.15 041/181] arm64: dts: qcom: sm8350-hdk: Specify which LDO modes are allowed
 Date:   Wed, 23 Nov 2022 09:50:04 +0100
-Message-Id: <20221123084552.547406641@linuxfoundation.org>
+Message-Id: <20221123084604.128139195@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +56,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit d75aed1428da787cbe42bc073d76f1354f364d92 ]
+[ Upstream commit 1ce8aaf6abdc35cde555924418b3d4516b4ec871 ]
 
-When failed to bind qsets in cxgb_up() for opening device, napi isn't
-disabled. When open cxgb3 device next time, it will trigger a BUG_ON()
-in napi_enable(). Compile tested only.
+This board uses RPMH, specifies "regulator-allow-set-load" for LDOs,
+but doesn't specify any modes with "regulator-allowed-modes".
 
-Fixes: 48c4b6dbb7e2 ("cxgb3 - fix port up/down error path")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221109021451.121490-1-shaozhengchao@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Prior to commit efb0cb50c427 ("regulator: qcom-rpmh: Implement
+get_optimum_mode(), not set_load()") the above meant that we were able
+to set either LPM or HPM mode. After that commit (and fixes [1]) we'll
+be stuck at the initial mode. Discussion of this has resulted in the
+decision that the old dts files were wrong and should be fixed to
+fully restore old functionality.
+
+Let's re-enable the old functionality by fixing the dts.
+
+[1] https://lore.kernel.org/r/20220824142229.RFT.v2.2.I6f77860e5cd98bf5c67208fa9edda4a08847c304@changeid
+
+Fixes: 9208c19f2124 ("arm64: dts: qcom: Introduce SM8350 HDK")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220829094903.v2.6.I6799be85cf36d3b494f803cba767a569080624f5@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/qcom/sm8350-hdk.dts | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
-index c82469ab7aba..2c72e716b973 100644
---- a/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb3/cxgb3_main.c
-@@ -1304,6 +1304,7 @@ static int cxgb_up(struct adapter *adap)
- 		if (ret < 0) {
- 			CH_ERR(adap, "failed to bind qsets, err %d\n", ret);
- 			t3_intr_disable(adap);
-+			quiesce_rx(adap);
- 			free_irq_resources(adap);
- 			err = ret;
- 			goto out;
+diff --git a/arch/arm64/boot/dts/qcom/sm8350-hdk.dts b/arch/arm64/boot/dts/qcom/sm8350-hdk.dts
+index 56093e260ddf..9ea0d7233add 100644
+--- a/arch/arm64/boot/dts/qcom/sm8350-hdk.dts
++++ b/arch/arm64/boot/dts/qcom/sm8350-hdk.dts
+@@ -108,6 +108,9 @@ vreg_l5b_0p88: ldo5 {
+ 			regulator-max-microvolt = <888000>;
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 			regulator-allow-set-load;
++			regulator-allowed-modes =
++			    <RPMH_REGULATOR_MODE_LPM
++			     RPMH_REGULATOR_MODE_HPM>;
+ 		};
+ 
+ 		vreg_l6b_1p2: ldo6 {
+@@ -116,6 +119,9 @@ vreg_l6b_1p2: ldo6 {
+ 			regulator-max-microvolt = <1208000>;
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 			regulator-allow-set-load;
++			regulator-allowed-modes =
++			    <RPMH_REGULATOR_MODE_LPM
++			     RPMH_REGULATOR_MODE_HPM>;
+ 		};
+ 
+ 		vreg_l7b_2p96: ldo7 {
+@@ -124,6 +130,9 @@ vreg_l7b_2p96: ldo7 {
+ 			regulator-max-microvolt = <2504000>;
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 			regulator-allow-set-load;
++			regulator-allowed-modes =
++			    <RPMH_REGULATOR_MODE_LPM
++			     RPMH_REGULATOR_MODE_HPM>;
+ 		};
+ 
+ 		vreg_l9b_1p2: ldo9 {
+@@ -132,6 +141,9 @@ vreg_l9b_1p2: ldo9 {
+ 			regulator-max-microvolt = <1200000>;
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 			regulator-allow-set-load;
++			regulator-allowed-modes =
++			    <RPMH_REGULATOR_MODE_LPM
++			     RPMH_REGULATOR_MODE_HPM>;
+ 		};
+ 	};
+ 
 -- 
 2.35.1
 
