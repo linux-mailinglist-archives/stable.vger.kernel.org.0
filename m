@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5C7063586A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:57:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67EEE635489
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236536AbiKWJ5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:57:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49400 "EHLO
+        id S237077AbiKWJIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:08:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237107AbiKWJ4I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:56:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AAC010573
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:51:09 -0800 (PST)
+        with ESMTP id S237079AbiKWJH2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9375E105582
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:07:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDF21B81EF3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BA50C433C1;
-        Wed, 23 Nov 2022 09:51:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E6F461B4C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:07:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29F89C433D6;
+        Wed, 23 Nov 2022 09:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197066;
-        bh=pI+t2qaAQ/nsC24gNRpl5Q/MEht6VRjnyWb4HNFljxw=;
+        s=korg; t=1669194435;
+        bh=17nVzYZDlxOShlzcokmJyNZashaE+MB7kmghc896PYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uZq9hw12xMImvIc5tR0o0UbNSAwBowfga3ZSgf1lGUXvp68EL8R9rlkG3VDvkUSrs
-         3eBGZPuWtefFxJ6QjHtDIuE0Ehr1+UDmtUqNLYnT2zwfgJJKn8UpvOzGHW9Dy6O7eY
-         iW4uTaiWABYs/O6X7UPfca7d1/qtwK+/mDserRkM=
+        b=seRVJ7ngoiahmY9gq9Mk6J2QtNnXvw0SA+4VM1jafVWiuiCLHnYxK/MQo0CpEEoaR
+         01jC8zY/obFhWo5B3+qnUIR1EF+nDkrdl7QS0y/e2voCpHu3K+M5j6/teEtkSfmLs/
+         Ah75xyzvpCv46zHDnxQQOYCi0U25dI0dfM+ps1xk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Mauro Lima <mauro.lima@eclypsium.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 188/314] net: lan966x: Fix potential null-ptr-deref in lan966x_stats_init()
+Subject: [PATCH 4.19 046/114] spi: intel: Fix the offset to get the 64K erase opcode
 Date:   Wed, 23 Nov 2022 09:50:33 +0100
-Message-Id: <20221123084634.087951589@linuxfoundation.org>
+Message-Id: <20221123084553.687405407@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Mauro Lima <mauro.lima@eclypsium.com>
 
-[ Upstream commit ba86af3733aece88dbcee0dfebf7e2dcfefb2be4 ]
+[ Upstream commit 6a43cd02ddbc597dc9a1f82c1e433f871a2f6f06 ]
 
-lan966x_stats_init() calls create_singlethread_workqueue() and not
-checked the ret value, which may return NULL. And a null-ptr-deref may
-happen:
+According to documentation, the 64K erase opcode is located in VSCC
+range [16:23] instead of [8:15].
+Use the proper value to shift the mask over the correct range.
 
-lan966x_stats_init()
-    create_singlethread_workqueue() # failed, lan966x->stats_queue is NULL
-    queue_delayed_work()
-        queue_delayed_work_on()
-            __queue_delayed_work()  # warning here, but continue
-                __queue_work()      # access wq->flags, null-ptr-deref
-
-Check the ret value and return -ENOMEM if it is NULL.
-
-Fixes: 12c2d0a5b8e2 ("net: lan966x: add ethtool configuration and statistics")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mauro Lima <mauro.lima@eclypsium.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Link: https://lore.kernel.org/r/20221012152135.28353-1-mauro.lima@eclypsium.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/lan966x/lan966x_ethtool.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mtd/spi-nor/intel-spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_ethtool.c b/drivers/net/ethernet/microchip/lan966x/lan966x_ethtool.c
-index fea42542be28..06811c60d598 100644
---- a/drivers/net/ethernet/microchip/lan966x/lan966x_ethtool.c
-+++ b/drivers/net/ethernet/microchip/lan966x/lan966x_ethtool.c
-@@ -716,6 +716,9 @@ int lan966x_stats_init(struct lan966x *lan966x)
- 	snprintf(queue_name, sizeof(queue_name), "%s-stats",
- 		 dev_name(lan966x->dev));
- 	lan966x->stats_queue = create_singlethread_workqueue(queue_name);
-+	if (!lan966x->stats_queue)
-+		return -ENOMEM;
-+
- 	INIT_DELAYED_WORK(&lan966x->stats_work, lan966x_check_stats_work);
- 	queue_delayed_work(lan966x->stats_queue, &lan966x->stats_work,
- 			   LAN966X_STATS_CHECK_DELAY);
+diff --git a/drivers/mtd/spi-nor/intel-spi.c b/drivers/mtd/spi-nor/intel-spi.c
+index d60cbf23d9aa..642a6f9071f2 100644
+--- a/drivers/mtd/spi-nor/intel-spi.c
++++ b/drivers/mtd/spi-nor/intel-spi.c
+@@ -116,7 +116,7 @@
+ #define ERASE_OPCODE_SHIFT		8
+ #define ERASE_OPCODE_MASK		(0xff << ERASE_OPCODE_SHIFT)
+ #define ERASE_64K_OPCODE_SHIFT		16
+-#define ERASE_64K_OPCODE_MASK		(0xff << ERASE_OPCODE_SHIFT)
++#define ERASE_64K_OPCODE_MASK		(0xff << ERASE_64K_OPCODE_SHIFT)
+ 
+ #define INTEL_SPI_TIMEOUT		5000 /* ms */
+ #define INTEL_SPI_FIFO_SZ		64
 -- 
 2.35.1
 
