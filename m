@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9118635620
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FF4C6355FD
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237637AbiKWJ0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:26:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43868 "EHLO
+        id S237641AbiKWJ0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:26:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237641AbiKWJ0I (ORCPT
+        with ESMTP id S237645AbiKWJ0I (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:26:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74457C4B4B
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:25:04 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9353BC4B51
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:25:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1202161B40
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:25:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E3CC433C1;
-        Wed, 23 Nov 2022 09:25:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EC0461B22
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:25:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41547C433C1;
+        Wed, 23 Nov 2022 09:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195503;
-        bh=JnJnvlZZy9vjTNKlPvZjDSsxAK8c+iBV6yQeRvO3Kug=;
+        s=korg; t=1669195506;
+        bh=8HKXCGGVFpmxdo+NKF8LQteVHYmNXwRyQa8UNM5udUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8o8aY7WeDwGSG6el5l4wA30DcHE9eM3p5G7rnsbturlmH3VCkfLDFsdXA4g7kLVZ
-         EcFXmMKlzLW/16JBNc+cLwAj4uS50B11HF9SjzMsFh0OM/breI0AaK4X1No8S1s/bW
-         /N+0vXEyn9Ezwb1thzgAEwSyHzqn/W5/ArnEwuuM=
+        b=mp8dxiJw79zdjEA9ZYYj8MNG/jEwjUhOB5ybq0awZVrPV7rYXDOi5XdQyp89sUMCJ
+         kW0uj9Nq3KVxoK2RTgfgFgeETvpVGOd947+G8uGYQjtN4aN60azWiNSobM0JKpxBet
+         yMLzAvaJ7h5fj/ezAxxgC0E2TfIRNzaaRUFKsV7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nicolas Dumazet <ndumazet@google.com>
-Subject: [PATCH 5.10 103/149] usb: add NO_LPM quirk for Realforce 87U Keyboard
-Date:   Wed, 23 Nov 2022 09:51:26 +0100
-Message-Id: <20221123084601.697642390@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Duoming Zhou <duoming@zju.edu.cn>
+Subject: [PATCH 5.10 104/149] usb: chipidea: fix deadlock in ci_otg_del_timer
+Date:   Wed, 23 Nov 2022 09:51:27 +0100
+Message-Id: <20221123084601.726975517@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
 References: <20221123084557.945845710@linuxfoundation.org>
@@ -51,50 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dumazet <ndumazet@google.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 181135bb20dcb184edd89817831b888eb8132741 upstream.
+commit 7a58b8d6021426b796eebfae80983374d9a80a75 upstream.
 
-Before adding this quirk, this (mechanical keyboard) device would not be
-recognized, logging:
+There is a deadlock in ci_otg_del_timer(), the process is
+shown below:
 
-  new full-speed USB device number 56 using xhci_hcd
-  unable to read config index 0 descriptor/start: -32
-  chopping to 0 config(s)
+    (thread 1)                  |        (thread 2)
+ci_otg_del_timer()              | ci_otg_hrtimer_func()
+  ...                           |
+  spin_lock_irqsave() //(1)     |  ...
+  ...                           |
+  hrtimer_cancel()              |  spin_lock_irqsave() //(2)
+  (block forever)
 
-It would take dozens of plugging/unpuggling cycles for the keyboard to
-be recognized. Keyboard seems to simply work after applying this quirk.
+We hold ci->lock in position (1) and use hrtimer_cancel() to
+wait ci_otg_hrtimer_func() to stop, but ci_otg_hrtimer_func()
+also need ci->lock in position (2). As a result, the
+hrtimer_cancel() in ci_otg_del_timer() will be blocked forever.
 
-This issue had been reported by users in two places already ([1], [2])
-but nobody tried upstreaming a patch yet. After testing I believe their
-suggested fix (DELAY_INIT + NO_LPM + DEVICE_QUALIFIER) was probably a
-little overkill. I assume this particular combination was tested because
-it had been previously suggested in [3], but only NO_LPM seems
-sufficient for this device.
+This patch extracts hrtimer_cancel() from the protection of
+spin_lock_irqsave() in order that the ci_otg_hrtimer_func()
+could obtain the ci->lock.
 
-[1]: https://qiita.com/float168/items/fed43d540c8e2201b543
-[2]: https://blog.kostic.dev/posts/making-the-realforce-87ub-work-with-usb30-on-Ubuntu/
-[3]: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1678477
+What`s more, there will be no race happen. Because the
+"next_timer" is always under the protection of
+spin_lock_irqsave() and we only check whether "next_timer"
+equals to NUM_OTG_FSM_TIMERS in the following code.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Nicolas Dumazet <ndumazet@google.com>
-Link: https://lore.kernel.org/r/20221109122946.706036-1-ndumazet@google.com
+Fixes: 3a316ec4c91c ("usb: chipidea: use hrtimer for otg fsm timers")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220918033312.94348-1-duoming@zju.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/chipidea/otg_fsm.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -362,6 +362,9 @@ static const struct usb_device_id usb_qu
- 	{ USB_DEVICE(0x0781, 0x5583), .driver_info = USB_QUIRK_NO_LPM },
- 	{ USB_DEVICE(0x0781, 0x5591), .driver_info = USB_QUIRK_NO_LPM },
- 
-+	/* Realforce 87U Keyboard */
-+	{ USB_DEVICE(0x0853, 0x011b), .driver_info = USB_QUIRK_NO_LPM },
-+
- 	/* M-Systems Flash Disk Pioneers */
- 	{ USB_DEVICE(0x08ec, 0x1000), .driver_info = USB_QUIRK_RESET_RESUME },
- 
+--- a/drivers/usb/chipidea/otg_fsm.c
++++ b/drivers/usb/chipidea/otg_fsm.c
+@@ -256,8 +256,10 @@ static void ci_otg_del_timer(struct ci_h
+ 	ci->enabled_otg_timer_bits &= ~(1 << t);
+ 	if (ci->next_otg_timer == t) {
+ 		if (ci->enabled_otg_timer_bits == 0) {
++			spin_unlock_irqrestore(&ci->lock, flags);
+ 			/* No enabled timers after delete it */
+ 			hrtimer_cancel(&ci->otg_fsm_hrtimer);
++			spin_lock_irqsave(&ci->lock, flags);
+ 			ci->next_otg_timer = NUM_OTG_FSM_TIMERS;
+ 		} else {
+ 			/* Find the next timer */
 
 
