@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 289FC635635
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 208B36354C3
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237674AbiKWJ1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:27:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44270 "EHLO
+        id S237105AbiKWJJy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:09:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237669AbiKWJ0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:26:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8931B110931
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:25:58 -0800 (PST)
+        with ESMTP id S237091AbiKWJJv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:09:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 390A31E3F0
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:09:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38BC7B81EA9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:25:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 959FFC433D7;
-        Wed, 23 Nov 2022 09:25:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CAA7F61B43
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:09:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0887C433C1;
+        Wed, 23 Nov 2022 09:09:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195556;
-        bh=154TcwyPVt+g65ceZCnhefTU3QL3rxZS0ntzshWrOGE=;
+        s=korg; t=1669194589;
+        bh=2OLNWatJJrSTJi1lrfP1du4PfQg8OKWnA/Yn+SZDzbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pe3fGoB7kE9FmItJLePJ2OX/7GPPh9qzbOPznCZKKgXpIh2/LetGtn5uvSpKdx8eS
-         kcC2o0t/NOeLleR3HGqF7Xj+h7BUEJuK3E5ys+OO8dPS17BecCnAAz6nMYIbIqd3XJ
-         +kaXn1UIkKU6Wvbn2sQXJHo11XTdzbwEA3oQfaZY=
+        b=igCI2kmfm74ylzNmsckYrtVxcSsldL3C32EiFdlB6qGTtrox1W+fAkUcCeppUPvCu
+         w/MdzbVp0PgqEnj1hOJB9pbKCQd5af1Nkc7Q9SBfoGjo9KW9cf+vrpQStlmYHtMpea
+         X+3yRf1IT23qZlWif9FiFaZbDl5d8wQkJotOf4Uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Benjamin Block <bblock@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 117/149] scsi: zfcp: Fix double free of FSF request when qdio send fails
+        patches@lists.linux.dev,
+        "chenxiaosong (A)" <chenxiaosong2@huawei.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Hawkins Jiawei <yin31149@gmail.com>,
+        syzbot+5f8dcabe4a3b2c51c607@syzkaller.appspotmail.com,
+        Anton Altaparmakov <anton@tuxera.com>,
+        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.19 113/114] ntfs: fix out-of-bounds read in ntfs_attr_find()
 Date:   Wed, 23 Nov 2022 09:51:40 +0100
-Message-Id: <20221123084602.150083968@linuxfoundation.org>
+Message-Id: <20221123084556.183281989@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,200 +58,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Block <bblock@linux.ibm.com>
+From: Hawkins Jiawei <yin31149@gmail.com>
 
-commit 0954256e970ecf371b03a6c9af2cf91b9c4085ff upstream.
+commit 36a4d82dddbbd421d2b8e79e1cab68c8126d5075 upstream.
 
-We used to use the wrong type of integer in 'zfcp_fsf_req_send()' to cache
-the FSF request ID when sending a new FSF request. This is used in case the
-sending fails and we need to remove the request from our internal hash
-table again (so we don't keep an invalid reference and use it when we free
-the request again).
+Kernel iterates over ATTR_RECORDs in mft record in ntfs_attr_find().  To
+ensure access on these ATTR_RECORDs are within bounds, kernel will do some
+checking during iteration.
 
-In 'zfcp_fsf_req_send()' we used to cache the ID as 'int' (signed and 32
-bit wide), but the rest of the zfcp code (and the firmware specification)
-handles the ID as 'unsigned long'/'u64' (unsigned and 64 bit wide [s390x
-ELF ABI]).  For one this has the obvious problem that when the ID grows
-past 32 bit (this can happen reasonably fast) it is truncated to 32 bit
-when storing it in the cache variable and so doesn't match the original ID
-anymore.  The second less obvious problem is that even when the original ID
-has not yet grown past 32 bit, as soon as the 32nd bit is set in the
-original ID (0x80000000 = 2'147'483'648) we will have a mismatch when we
-cast it back to 'unsigned long'. As the cached variable is of a signed
-type, the compiler will choose a sign-extending instruction to load the 32
-bit variable into a 64 bit register (e.g.: 'lgf %r11,188(%r15)'). So once
-we pass the cached variable into 'zfcp_reqlist_find_rm()' to remove the
-request again all the leading zeros will be flipped to ones to extend the
-sign and won't match the original ID anymore (this has been observed in
-practice).
+The problem is that during checking whether ATTR_RECORD's name is within
+bounds, kernel will dereferences the ATTR_RECORD name_offset field, before
+checking this ATTR_RECORD strcture is within bounds.  This problem may
+result out-of-bounds read in ntfs_attr_find(), reported by Syzkaller:
 
-If we can't successfully remove the request from the hash table again after
-'zfcp_qdio_send()' fails (this happens regularly when zfcp cannot notify
-the adapter about new work because the adapter is already gone during
-e.g. a ChpID toggle) we will end up with a double free.  We unconditionally
-free the request in the calling function when 'zfcp_fsf_req_send()' fails,
-but because the request is still in the hash table we end up with a stale
-memory reference, and once the zfcp adapter is either reset during recovery
-or shutdown we end up freeing the same memory twice.
+==================================================================
+BUG: KASAN: use-after-free in ntfs_attr_find+0xc02/0xce0 fs/ntfs/attrib.c:597
+Read of size 2 at addr ffff88807e352009 by task syz-executor153/3607
 
-The resulting stack traces vary depending on the kernel and have no direct
-correlation to the place where the bug occurs. Here are three examples that
-have been seen in practice:
+[...]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:317 [inline]
+ print_report.cold+0x2ba/0x719 mm/kasan/report.c:433
+ kasan_report+0xb1/0x1e0 mm/kasan/report.c:495
+ ntfs_attr_find+0xc02/0xce0 fs/ntfs/attrib.c:597
+ ntfs_attr_lookup+0x1056/0x2070 fs/ntfs/attrib.c:1193
+ ntfs_read_inode_mount+0x89a/0x2580 fs/ntfs/inode.c:1845
+ ntfs_fill_super+0x1799/0x9320 fs/ntfs/super.c:2854
+ mount_bdev+0x34d/0x410 fs/super.c:1400
+ legacy_get_tree+0x105/0x220 fs/fs_context.c:610
+ vfs_get_tree+0x89/0x2f0 fs/super.c:1530
+ do_new_mount fs/namespace.c:3040 [inline]
+ path_mount+0x1326/0x1e20 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ [...]
+ </TASK>
 
-  list_del corruption. next->prev should be 00000001b9d13800, but was 00000000dead4ead. (next=00000001bd131a00)
-  ------------[ cut here ]------------
-  kernel BUG at lib/list_debug.c:62!
-  monitor event: 0040 ilc:2 [#1] PREEMPT SMP
-  Modules linked in: ...
-  CPU: 9 PID: 1617 Comm: zfcperp0.0.1740 Kdump: loaded
-  Hardware name: ...
-  Krnl PSW : 0704d00180000000 00000003cbeea1f8 (__list_del_entry_valid+0x98/0x140)
-             R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
-  Krnl GPRS: 00000000916d12f1 0000000080000000 000000000000006d 00000003cb665cd6
-             0000000000000001 0000000000000000 0000000000000000 00000000d28d21e8
-             00000000d3844000 00000380099efd28 00000001bd131a00 00000001b9d13800
-             00000000d3290100 0000000000000000 00000003cbeea1f4 00000380099efc70
-  Krnl Code: 00000003cbeea1e8: c020004f68a7        larl    %r2,00000003cc8d7336
-             00000003cbeea1ee: c0e50027fd65        brasl   %r14,00000003cc3e9cb8
-            #00000003cbeea1f4: af000000            mc      0,0
-            >00000003cbeea1f8: c02000920440        larl    %r2,00000003cd12aa78
-             00000003cbeea1fe: c0e500289c25        brasl   %r14,00000003cc3fda48
-             00000003cbeea204: b9040043            lgr     %r4,%r3
-             00000003cbeea208: b9040051            lgr     %r5,%r1
-             00000003cbeea20c: b9040032            lgr     %r3,%r2
-  Call Trace:
-   [<00000003cbeea1f8>] __list_del_entry_valid+0x98/0x140
-  ([<00000003cbeea1f4>] __list_del_entry_valid+0x94/0x140)
-   [<000003ff7ff502fe>] zfcp_fsf_req_dismiss_all+0xde/0x150 [zfcp]
-   [<000003ff7ff49cd0>] zfcp_erp_strategy_do_action+0x160/0x280 [zfcp]
-   [<000003ff7ff4a22e>] zfcp_erp_strategy+0x21e/0xca0 [zfcp]
-   [<000003ff7ff4ad34>] zfcp_erp_thread+0x84/0x1a0 [zfcp]
-   [<00000003cb5eece8>] kthread+0x138/0x150
-   [<00000003cb557f3c>] __ret_from_fork+0x3c/0x60
-   [<00000003cc4172ea>] ret_from_fork+0xa/0x40
-  INFO: lockdep is turned off.
-  Last Breaking-Event-Address:
-   [<00000003cc3e9d04>] _printk+0x4c/0x58
-  Kernel panic - not syncing: Fatal exception: panic_on_oops
+The buggy address belongs to the physical page:
+page:ffffea0001f8d400 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x7e350
+head:ffffea0001f8d400 order:3 compound_mapcount:0 compound_pincount:0
+flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
+raw: 00fff00000010200 0000000000000000 dead000000000122 ffff888011842140
+raw: 0000000000000000 0000000000040004 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+Memory state around the buggy address:
+ ffff88807e351f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88807e351f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88807e352000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88807e352080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88807e352100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
 
-or:
+This patch solves it by moving the ATTR_RECORD strcture's bounds checking
+earlier, then checking whether ATTR_RECORD's name is within bounds.
+What's more, this patch also add some comments to improve its
+maintainability.
 
-  Unable to handle kernel pointer dereference in virtual kernel address space
-  Failing address: 6b6b6b6b6b6b6000 TEID: 6b6b6b6b6b6b6803
-  Fault in home space mode while using kernel ASCE.
-  AS:0000000063b10007 R3:0000000000000024
-  Oops: 0038 ilc:3 [#1] SMP
-  Modules linked in: ...
-  CPU: 10 PID: 0 Comm: swapper/10 Kdump: loaded
-  Hardware name: ...
-  Krnl PSW : 0404d00180000000 000003ff7febaf8e (zfcp_fsf_reqid_check+0x86/0x158 [zfcp])
-             R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
-  Krnl GPRS: 5a6f1cfa89c49ac3 00000000aff2c4c8 6b6b6b6b6b6b6b6b 00000000000002a8
-             0000000000000000 0000000000000055 0000000000000000 00000000a8515800
-             0700000000000000 00000000a6e14500 00000000aff2c000 000000008003c44c
-             000000008093c700 0000000000000010 00000380009ebba8 00000380009ebb48
-  Krnl Code: 000003ff7febaf7e: a7f4003d            brc     15,000003ff7febaff8
-             000003ff7febaf82: e32020000004        lg      %r2,0(%r2)
-            #000003ff7febaf88: ec2100388064        cgrj    %r2,%r1,8,000003ff7febaff8
-            >000003ff7febaf8e: e3b020100020        cg      %r11,16(%r2)
-             000003ff7febaf94: a774fff7            brc     7,000003ff7febaf82
-             000003ff7febaf98: ec280030007c        cgij    %r2,0,8,000003ff7febaff8
-             000003ff7febaf9e: e31020080004        lg      %r1,8(%r2)
-             000003ff7febafa4: e33020000004        lg      %r3,0(%r2)
-  Call Trace:
-   [<000003ff7febaf8e>] zfcp_fsf_reqid_check+0x86/0x158 [zfcp]
-   [<000003ff7febbdbc>] zfcp_qdio_int_resp+0x6c/0x170 [zfcp]
-   [<000003ff7febbf90>] zfcp_qdio_irq_tasklet+0xd0/0x108 [zfcp]
-   [<0000000061d90a04>] tasklet_action_common.constprop.0+0xdc/0x128
-   [<000000006292f300>] __do_softirq+0x130/0x3c0
-   [<0000000061d906c6>] irq_exit_rcu+0xfe/0x118
-   [<000000006291e818>] do_io_irq+0xc8/0x168
-   [<000000006292d516>] io_int_handler+0xd6/0x110
-   [<000000006292d596>] psw_idle_exit+0x0/0xa
-  ([<0000000061d3be50>] arch_cpu_idle+0x40/0xd0)
-   [<000000006292ceea>] default_idle_call+0x52/0xf8
-   [<0000000061de4fa4>] do_idle+0xd4/0x168
-   [<0000000061de51fe>] cpu_startup_entry+0x36/0x40
-   [<0000000061d4faac>] smp_start_secondary+0x12c/0x138
-   [<000000006292d88e>] restart_int_handler+0x6e/0x90
-  Last Breaking-Event-Address:
-   [<000003ff7febaf94>] zfcp_fsf_reqid_check+0x8c/0x158 [zfcp]
-  Kernel panic - not syncing: Fatal exception in interrupt
-
-or:
-
-  Unable to handle kernel pointer dereference in virtual kernel address space
-  Failing address: 523b05d3ae76a000 TEID: 523b05d3ae76a803
-  Fault in home space mode while using kernel ASCE.
-  AS:0000000077c40007 R3:0000000000000024
-  Oops: 0038 ilc:3 [#1] SMP
-  Modules linked in: ...
-  CPU: 3 PID: 453 Comm: kworker/3:1H Kdump: loaded
-  Hardware name: ...
-  Workqueue: kblockd blk_mq_run_work_fn
-  Krnl PSW : 0404d00180000000 0000000076fc0312 (__kmalloc+0xd2/0x398)
-             R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
-  Krnl GPRS: ffffffffffffffff 523b05d3ae76abf6 0000000000000000 0000000000092a20
-             0000000000000002 00000007e49b5cc0 00000007eda8f000 0000000000092a20
-             00000007eda8f000 00000003b02856b9 00000000000000a8 523b05d3ae76abf6
-             00000007dd662000 00000007eda8f000 0000000076fc02b2 000003e0037637a0
-  Krnl Code: 0000000076fc0302: c004000000d4	brcl	0,76fc04aa
-             0000000076fc0308: b904001b		lgr	%r1,%r11
-            #0000000076fc030c: e3106020001a	algf	%r1,32(%r6)
-            >0000000076fc0312: e31010000082	xg	%r1,0(%r1)
-             0000000076fc0318: b9040001		lgr	%r0,%r1
-             0000000076fc031c: e30061700082	xg	%r0,368(%r6)
-             0000000076fc0322: ec59000100d9	aghik	%r5,%r9,1
-             0000000076fc0328: e34003b80004	lg	%r4,952
-  Call Trace:
-   [<0000000076fc0312>] __kmalloc+0xd2/0x398
-   [<0000000076f318f2>] mempool_alloc+0x72/0x1f8
-   [<000003ff8027c5f8>] zfcp_fsf_req_create.isra.7+0x40/0x268 [zfcp]
-   [<000003ff8027f1bc>] zfcp_fsf_fcp_cmnd+0xac/0x3f0 [zfcp]
-   [<000003ff80280f1a>] zfcp_scsi_queuecommand+0x122/0x1d0 [zfcp]
-   [<000003ff800b4218>] scsi_queue_rq+0x778/0xa10 [scsi_mod]
-   [<00000000771782a0>] __blk_mq_try_issue_directly+0x130/0x208
-   [<000000007717a124>] blk_mq_request_issue_directly+0x4c/0xa8
-   [<000003ff801302e2>] dm_mq_queue_rq+0x2ea/0x468 [dm_mod]
-   [<0000000077178c12>] blk_mq_dispatch_rq_list+0x33a/0x818
-   [<000000007717f064>] __blk_mq_do_dispatch_sched+0x284/0x2f0
-   [<000000007717f44c>] __blk_mq_sched_dispatch_requests+0x1c4/0x218
-   [<000000007717fa7a>] blk_mq_sched_dispatch_requests+0x52/0x90
-   [<0000000077176d74>] __blk_mq_run_hw_queue+0x9c/0xc0
-   [<0000000076da6d74>] process_one_work+0x274/0x4d0
-   [<0000000076da7018>] worker_thread+0x48/0x560
-   [<0000000076daef18>] kthread+0x140/0x160
-   [<000000007751d144>] ret_from_fork+0x28/0x30
-  Last Breaking-Event-Address:
-   [<0000000076fc0474>] __kmalloc+0x234/0x398
-  Kernel panic - not syncing: Fatal exception: panic_on_oops
-
-To fix this, simply change the type of the cache variable to 'unsigned
-long', like the rest of zfcp and also the argument for
-'zfcp_reqlist_find_rm()'. This prevents truncation and wrong sign extension
-and so can successfully remove the request from the hash table.
-
-Fixes: e60a6d69f1f8 ("[SCSI] zfcp: Remove function zfcp_reqlist_find_safe")
-Cc: <stable@vger.kernel.org> #v2.6.34+
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
-Link: https://lore.kernel.org/r/979f6e6019d15f91ba56182f1aaf68d61bf37fc6.1668595505.git.bblock@linux.ibm.com
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lkml.kernel.org/r/20220831160935.3409-3-yin31149@gmail.com
+Link: https://lore.kernel.org/all/1636796c-c85e-7f47-e96f-e074fee3c7d3@huawei.com/
+Link: https://groups.google.com/g/syzkaller-bugs/c/t_XdeKPGTR4/m/LECAuIGcBgAJ
+Signed-off-by: chenxiaosong (A) <chenxiaosong2@huawei.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
+Reported-by: syzbot+5f8dcabe4a3b2c51c607@syzkaller.appspotmail.com
+Tested-by: syzbot+5f8dcabe4a3b2c51c607@syzkaller.appspotmail.com
+Cc: Anton Altaparmakov <anton@tuxera.com>
+Cc: syzkaller-bugs <syzkaller-bugs@googlegroups.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/scsi/zfcp_fsf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ntfs/attrib.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -866,7 +866,7 @@ static int zfcp_fsf_req_send(struct zfcp
- 	const bool is_srb = zfcp_fsf_req_is_status_read_buffer(req);
- 	struct zfcp_adapter *adapter = req->adapter;
- 	struct zfcp_qdio *qdio = adapter->qdio;
--	int req_id = req->req_id;
-+	unsigned long req_id = req->req_id;
- 
- 	zfcp_reqlist_add(adapter->req_list, req);
- 
+--- a/fs/ntfs/attrib.c
++++ b/fs/ntfs/attrib.c
+@@ -608,11 +608,23 @@ static int ntfs_attr_find(const ATTR_TYP
+ 	for (;;	a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))) {
+ 		u8 *mrec_end = (u8 *)ctx->mrec +
+ 		               le32_to_cpu(ctx->mrec->bytes_allocated);
+-		u8 *name_end = (u8 *)a + le16_to_cpu(a->name_offset) +
+-			       a->name_length * sizeof(ntfschar);
+-		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > mrec_end ||
+-		    name_end > mrec_end)
++		u8 *name_end;
++
++		/* check whether ATTR_RECORD wrap */
++		if ((u8 *)a < (u8 *)ctx->mrec)
+ 			break;
++
++		/* check whether Attribute Record Header is within bounds */
++		if ((u8 *)a > mrec_end ||
++		    (u8 *)a + sizeof(ATTR_RECORD) > mrec_end)
++			break;
++
++		/* check whether ATTR_RECORD's name is within bounds */
++		name_end = (u8 *)a + le16_to_cpu(a->name_offset) +
++			   a->name_length * sizeof(ntfschar);
++		if (name_end > mrec_end)
++			break;
++
+ 		ctx->attr = a;
+ 		if (unlikely(le32_to_cpu(a->type) > le32_to_cpu(type) ||
+ 				a->type == AT_END))
 
 
