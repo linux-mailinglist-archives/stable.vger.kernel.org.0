@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 272026357E8
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:48:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 250136357DC
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:48:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238252AbiKWJsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:48:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43940 "EHLO
+        id S238098AbiKWJsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:48:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237034AbiKWJr3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:47:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53CED5C77B
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:44:32 -0800 (PST)
+        with ESMTP id S238146AbiKWJre (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:47:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B11A5ADCB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:44:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E309361B6F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:44:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC0B7C433D6;
-        Wed, 23 Nov 2022 09:44:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CB2DB81E54
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:44:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5BB1C433C1;
+        Wed, 23 Nov 2022 09:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196671;
-        bh=bt+U0+RQChoFilcbIYKL1pVrSvg8SmRx5bItGCzlLug=;
+        s=korg; t=1669196674;
+        bh=zjvJCIM4Z1aOhRiOa3xvhxb1xG7C3/rYEdB3iBOBkMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mlmUAVoVnXXQJEzFfXIVXsWGyO9Sne4eVQ5oyNXdTjYxWtmfjbt4IxsE4A9kRY2HS
-         32nL6GHOKgDMyTzdRaADfFI9uP+XcLJXfUReHsry/qXw9uwYwloJLqQfcN25g5ctDU
-         aLvFKxKzDhnkQCRxr2lVXIPOMrsoANct39SzlhJM=
+        b=VsWGy2+JkwBweA3Fkfrw7OKuTRRTA7Z6DZ+u4l5pBdu7iECv6UTIv4URvFikUtDKO
+         tEYlS5hj1RPhpL8I4LPzRravqYjsqpw9Vyg9xhbBdjmc7rPZ1aRqpJsvkrOmwJ1sI2
+         0cM884YAAGhTlGgH4hGq8pmUcsGOKeg0+C1FalXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 092/314] ASoC: tas2764: Fix set_tdm_slot in case of single slot
-Date:   Wed, 23 Nov 2022 09:48:57 +0100
-Message-Id: <20221123084629.659838600@linuxfoundation.org>
+Subject: [PATCH 6.0 093/314] ASoC: tas2780: Fix set_tdm_slot in case of single slot
+Date:   Wed, 23 Nov 2022 09:48:58 +0100
+Message-Id: <20221123084629.708131966@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -56,7 +56,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit faac764ea1ea6898d93e46c403271fb105c0906e ]
+[ Upstream commit 6f934afa6a980bb8d3ce73836b1a9922685e50d7 ]
 
 There's a special branch in the set_tdm_slot op for the case of nslots
 being 1, but:
@@ -70,21 +70,21 @@ being 1, but:
 
 For those reasons remove the 'nslots being 1' special case.
 
-Fixes: 827ed8a0fa50 ("ASoC: tas2764: Add the driver for the TAS2764")
+Fixes: eae9f9ce181b ("ASoC: add tas2780 driver")
 Suggested-by: Jos Dehaes <jos.dehaes@gmail.com>
 Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20221027095800.16094-2-povik+lin@cutebit.org
+Link: https://lore.kernel.org/r/20221027095800.16094-3-povik+lin@cutebit.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tas2764.c | 19 ++++++-------------
+ sound/soc/codecs/tas2780.c | 19 ++++++-------------
  1 file changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/sound/soc/codecs/tas2764.c b/sound/soc/codecs/tas2764.c
-index 39902f77a2e0..6c87c3cf5ef7 100644
---- a/sound/soc/codecs/tas2764.c
-+++ b/sound/soc/codecs/tas2764.c
-@@ -386,20 +386,13 @@ static int tas2764_set_dai_tdm_slot(struct snd_soc_dai *dai,
+diff --git a/sound/soc/codecs/tas2780.c b/sound/soc/codecs/tas2780.c
+index a6db6f0e5431..afdf0c863aa1 100644
+--- a/sound/soc/codecs/tas2780.c
++++ b/sound/soc/codecs/tas2780.c
+@@ -380,20 +380,13 @@ static int tas2780_set_dai_tdm_slot(struct snd_soc_dai *dai,
  	if (tx_mask == 0 || rx_mask != 0)
  		return -EINVAL;
  
