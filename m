@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B6D26354D9
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:12:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B87A2635805
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:49:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237155AbiKWJLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:11:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51406 "EHLO
+        id S238268AbiKWJtv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:49:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237165AbiKWJLY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:11:24 -0500
+        with ESMTP id S238271AbiKWJtN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:13 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658FE11C1F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:11:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B294102E58
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:46:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BF26B81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:11:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65CA0C43145;
-        Wed, 23 Nov 2022 09:11:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1932EB81E54
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64DCEC433C1;
+        Wed, 23 Nov 2022 09:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194680;
-        bh=aoNIfstFJaw6s/CMJvUQSKT+Q2V32rZKbtW1JkDTiUs=;
+        s=korg; t=1669196767;
+        bh=WsIXFVNRibSQwsGOSyuuuzOYe11bjJTPVln2nNz7kfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRIMbtbqfJY/vzy0c5++CN+abfxkqoh7Q0J6b5Ju31QJykVXuXzb25Mkimio/+rC/
-         9jlmw6UtSe9b7w9jv/xN6W/lZfJDs0f1PkaZml8bpYspyBQtnYn3gFfI5izCyn1Cwm
-         8MG9YOqyVnAbcXWaSXGsYJ+e2bAUvGu08LYtKR20=
+        b=eC1Fin1WnAWAQ7pEdA4gEQXJreVyimucIQGYxWy54MUVWp/004cX6tyue3DUjaM0u
+         LfbmZW+gb9f7u5DUAlGm500CAf94Qwduisr1lF1X7gxPX6zS7Lm1KC2oEDRCGlPAdo
+         oVPP/PEYc0xkEF5nKE4BKL87B6NokKgxDyibPf7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Foster <bfoster@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 006/156] xfs: drain the buf delwri queue before xfsaild idles
-Date:   Wed, 23 Nov 2022 09:49:23 +0100
-Message-Id: <20221123084558.082635022@linuxfoundation.org>
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 119/314] pinctrl: mediatek: common-v2: Fix bias-disable for PULL_PU_PD_RSEL_TYPE
+Date:   Wed, 23 Nov 2022 09:49:24 +0100
+Message-Id: <20221123084630.900296046@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,98 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-commit f376b45e861d8b7b34bf0eceeecfdd00dbe65cde upstream.
+[ Upstream commit fed74d75277da865da9ba334d3f5d5e3e327971d ]
 
-xfsaild is racy with respect to transaction abort and shutdown in
-that the task can idle or exit with an empty AIL but buffers still
-on the delwri queue. This was partly addressed by cancelling the
-delwri queue before the task exits to prevent memory leaks, but it's
-also possible for xfsaild to empty and idle with buffers on the
-delwri queue. For example, a transaction that pins a buffer that
-also happens to sit on the AIL delwri queue will explicitly remove
-the associated log item from the AIL if the transaction aborts. The
-side effect of this is an unmount hang in xfs_wait_buftarg() as the
-associated buffers remain held by the delwri queue indefinitely.
-This is reproduced on repeated runs of generic/531 with an fs format
-(-mrmapbt=1 -bsize=1k) that happens to also reproduce transaction
-aborts.
+In pinctrl-paris we're calling the .bias_set_combo() callback when we
+are asked to set the pin bias to either pull up/down or pull disable.
 
-Update xfsaild to not idle until both the AIL and associated delwri
-queue are empty and update the push code to continue delwri queue
-submission attempts even when the AIL is empty. This allows the AIL
-to eventually release aborted buffers stranded on the delwri queue
-when they are unlocked by the associated transaction. This should
-have no significant effect on normal runtime behavior because the
-xfsaild currently idles only when the AIL is empty and in practice
-the AIL is rarely empty with a populated delwri queue. The items
-must be AIL resident to land in the queue in the first place and
-generally aren't removed until writeback completes.
+On newer platforms, this callback is mtk_pinconf_bias_set_combo(),
+located in pinctrl-mtk-common-v2.c: this will check the "pull type"
+assigned to the requested pin and in case said pin's pull type is
+MTK_PULL_PU_PD_RSEL_TYPE, this function will set RSEL first, PUPD
+last, which is fine.
 
-Note that the pre-existing delwri queue cancel logic in the exit
-path is retained because task stop is external, could technically
-come at any point, and xfsaild is still responsible to release its
-buffer references before it exits.
+The issue comes when we're requesting PIN_CONFIG_BIAS_DISABLE, as
+this does *not* require setting RSEL but only PU_PD: in this case,
+the arg is MTK_DISABLE (zero), which is not a supported RSEL, due
+to which function mtk_pinconf_bias_set_rsel() returns a failure;
+because of that, mtk_pinconf_bias_set_pu_pd() is never called,
+hence the pin bias is never set to DISABLE.
 
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix this issue, add a check to mtk_pinconf_bias_set_rsel(): if
+we are entering that function with no pullup requested and at the
+same time the arg is MTK_DISABLE, this means that we're trying to
+disable pin bias, hence it's safe to return cleanly without ever
+setting any RSEL register.
+This makes mtk_pinconf_bias_set_combo() happy, going on with setting
+the PU_PD registers, which is the only action to actually take to
+disable bias on a pin/pingroup.
+
+Fixes: fb34a9ae383a ("pinctrl: mediatek: support rsel feature")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221104105605.33720-1-angelogioacchino.delregno@collabora.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_trans_ail.c |   16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/xfs/xfs_trans_ail.c
-+++ b/fs/xfs/xfs_trans_ail.c
-@@ -402,16 +402,10 @@ xfsaild_push(
- 	target = ailp->ail_target;
- 	ailp->ail_target_prev = target;
+diff --git a/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.c b/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.c
+index e1ae3beb9f72..b7921b59eb7b 100644
+--- a/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.c
++++ b/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.c
+@@ -709,6 +709,9 @@ static int mtk_pinconf_bias_set_rsel(struct mtk_pinctrl *hw,
+ {
+ 	int err, rsel_val;
  
-+	/* we're done if the AIL is empty or our push has reached the end */
- 	lip = xfs_trans_ail_cursor_first(ailp, &cur, ailp->ail_last_pushed_lsn);
--	if (!lip) {
--		/*
--		 * If the AIL is empty or our push has reached the end we are
--		 * done now.
--		 */
--		xfs_trans_ail_cursor_done(&cur);
--		spin_unlock(&ailp->ail_lock);
-+	if (!lip)
- 		goto out_done;
--	}
- 
- 	XFS_STATS_INC(mp, xs_push_ail);
- 
-@@ -493,6 +487,8 @@ xfsaild_push(
- 			break;
- 		lsn = lip->li_lsn;
- 	}
++	if (!pullup && arg == MTK_DISABLE)
++		return 0;
 +
-+out_done:
- 	xfs_trans_ail_cursor_done(&cur);
- 	spin_unlock(&ailp->ail_lock);
- 
-@@ -500,7 +496,6 @@ xfsaild_push(
- 		ailp->ail_log_flush++;
- 
- 	if (!count || XFS_LSN_CMP(lsn, target) >= 0) {
--out_done:
- 		/*
- 		 * We reached the target or the AIL is empty, so wait a bit
- 		 * longer for I/O to complete and remove pushed items from the
-@@ -592,7 +587,8 @@ xfsaild(
- 		 */
- 		smp_rmb();
- 		if (!xfs_ail_min(ailp) &&
--		    ailp->ail_target == ailp->ail_target_prev) {
-+		    ailp->ail_target == ailp->ail_target_prev &&
-+		    list_empty(&ailp->ail_buf_list)) {
- 			spin_unlock(&ailp->ail_lock);
- 			freezable_schedule();
- 			tout = 0;
+ 	if (hw->rsel_si_unit) {
+ 		/* find pin rsel_index from pin_rsel array*/
+ 		err = mtk_hw_pin_rsel_lookup(hw, desc, pullup, arg, &rsel_val);
+-- 
+2.35.1
+
 
 
