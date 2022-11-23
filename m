@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECBA363574A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF250635673
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238055AbiKWJkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:40:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56934 "EHLO
+        id S237485AbiKWJ30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:29:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237668AbiKWJjw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:39:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6BEAE19
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:37:32 -0800 (PST)
+        with ESMTP id S237592AbiKWJ27 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:28:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F3CA11A12
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:27:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6307DB81E54
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:37:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3A74C433C1;
-        Wed, 23 Nov 2022 09:37:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C19B3B81EEB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:27:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF48C433D7;
+        Wed, 23 Nov 2022 09:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196250;
-        bh=Wm780JdXSbVE3bl+bwJfSmQibLKJzF9tiW4tKpyR8Ok=;
+        s=korg; t=1669195630;
+        bh=oLtCzsgJpL4Er8phRZ6LwZnW2PIre6o2F2zvXfB+kcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C8z2VA36JRWju1eI3sQgJudHTSGSOgFrPdMX7OVROEQ27HgPcUnHEj3iDPVsfeJT5
-         2O5SCL/DUKmEIEpzw71dbbTwI7gy1H4Bq+MfRrLLcCdDTgNVnAg3NrIekNOxxfRaMh
-         Eb4VbGxdwaPF7i27DjQBR1JmZeUchZzm3Pd3Z8q8=
+        b=tuotpj/OiKxxCKjpLGb6Tag34grPNNcFl7OB5LWFla/0W3aq5ZCjD4YI5gSLkQoIb
+         LrImJ3s7JG7J1NhixH7Fbedl8JPQk9WUhu2Gk82GWO1PLQlVmN4VFKqpWWaKjqNRvW
+         xCTWKhkerufxPruNePKKlAIcwK37o+Pp/5IZPWOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wentong Wu <wentong.wu@intel.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.15 159/181] serial: 8250_lpss: Use 16B DMA burst with Elkhart Lake
-Date:   Wed, 23 Nov 2022 09:52:02 +0100
-Message-Id: <20221123084609.219780620@linuxfoundation.org>
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Tom Herbert <tom@herbertland.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 140/149] kcm: avoid potential race in kcm_tx_work
+Date:   Wed, 23 Nov 2022 09:52:03 +0100
+Message-Id: <20221123084602.962428116@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 7090abd6ad0610a144523ce4ffcb8560909bf2a8 upstream.
+commit ec7eede369fe5b0d085ac51fdbb95184f87bfc6c upstream.
 
-Configure DMA to use 16B burst size with Elkhart Lake. This makes the
-bus use more efficient and works around an issue which occurs with the
-previously used 1B.
+syzbot found that kcm_tx_work() could crash [1] in:
 
-The fix was initially developed by Srikanth Thokala and Aman Kumar.
-This together with the previous config change is the cleaned up version
-of the original fix.
+	/* Primarily for SOCK_SEQPACKET sockets */
+	if (likely(sk->sk_socket) &&
+	    test_bit(SOCK_NOSPACE, &sk->sk_socket->flags)) {
+<<*>>	clear_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
+		sk->sk_write_space(sk);
+	}
 
-Fixes: 0a9410b981e9 ("serial: 8250_lpss: Enable DMA on Intel Elkhart Lake")
-Cc: <stable@vger.kernel.org> # serial: 8250_lpss: Configure DMA also w/o DMA filter
-Reported-by: Wentong Wu <wentong.wu@intel.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221108121952.5497-4-ilpo.jarvinen@linux.intel.com
+I think the reason is that another thread might concurrently
+run in kcm_release() and call sock_orphan(sk) while sk is not
+locked. kcm_tx_work() find sk->sk_socket being NULL.
+
+[1]
+BUG: KASAN: null-ptr-deref in instrument_atomic_write include/linux/instrumented.h:86 [inline]
+BUG: KASAN: null-ptr-deref in clear_bit include/asm-generic/bitops/instrumented-atomic.h:41 [inline]
+BUG: KASAN: null-ptr-deref in kcm_tx_work+0xff/0x160 net/kcm/kcmsock.c:742
+Write of size 8 at addr 0000000000000008 by task kworker/u4:3/53
+
+CPU: 0 PID: 53 Comm: kworker/u4:3 Not tainted 5.19.0-rc3-next-20220621-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: kkcmd kcm_tx_work
+Call Trace:
+<TASK>
+__dump_stack lib/dump_stack.c:88 [inline]
+dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+kasan_report+0xbe/0x1f0 mm/kasan/report.c:495
+check_region_inline mm/kasan/generic.c:183 [inline]
+kasan_check_range+0x13d/0x180 mm/kasan/generic.c:189
+instrument_atomic_write include/linux/instrumented.h:86 [inline]
+clear_bit include/asm-generic/bitops/instrumented-atomic.h:41 [inline]
+kcm_tx_work+0xff/0x160 net/kcm/kcmsock.c:742
+process_one_work+0x996/0x1610 kernel/workqueue.c:2289
+worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+kthread+0x2e9/0x3a0 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
+</TASK>
+
+Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Tom Herbert <tom@herbertland.com>
+Link: https://lore.kernel.org/r/20221012133412.519394-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_lpss.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/kcm/kcmsock.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_lpss.c
-+++ b/drivers/tty/serial/8250/8250_lpss.c
-@@ -177,6 +177,9 @@ static int ehl_serial_setup(struct lpss8
- 	 * matching with the registered General Purpose DMA controllers.
- 	 */
- 	up->dma = dma;
-+
-+	lpss->dma_maxburst = 16;
-+
- 	return 0;
- }
+--- a/net/kcm/kcmsock.c
++++ b/net/kcm/kcmsock.c
+@@ -1844,10 +1844,10 @@ static int kcm_release(struct socket *so
+ 	kcm = kcm_sk(sk);
+ 	mux = kcm->mux;
  
++	lock_sock(sk);
+ 	sock_orphan(sk);
+ 	kfree_skb(kcm->seq_skb);
+ 
+-	lock_sock(sk);
+ 	/* Purge queue under lock to avoid race condition with tx_work trying
+ 	 * to act when queue is nonempty. If tx_work runs after this point
+ 	 * it will just return.
 
 
