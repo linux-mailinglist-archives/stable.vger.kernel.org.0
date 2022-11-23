@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 910B86355C5
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D496356CC
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237436AbiKWJWL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:22:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36784 "EHLO
+        id S237826AbiKWJe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:34:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237492AbiKWJVo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:21:44 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1366742C7
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:21:26 -0800 (PST)
+        with ESMTP id S237827AbiKWJeA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:34:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CF6085A12
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BBAF3CE20EC
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:21:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 903D3C433C1;
-        Wed, 23 Nov 2022 09:21:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2625A61B66
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74192C433D6;
+        Wed, 23 Nov 2022 09:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195282;
-        bh=Gcm2vOwINZfHGnClrSruU8JdiWQJTCZzVKqmepiUpvs=;
+        s=korg; t=1669195916;
+        bh=XpwRcAo2jfwOpMnSgLEF1oXMai8/FPRyv23ruHXnGqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aegMUP9SOkj9zLsQ3ijzch+vWQJfpgm/QnbasLqyOXaM8/8a4DPaZ+NvGSHnBj1zR
-         cOWKZmK9c/U5NAaKyE0UcJDFS+UIO6XYSL8GfoVo2g5IeNQHZ5mpLt9j4jJvZY5lrd
-         PKakixi0N9jJDsKQvOVdposCqgIfMhQ8iXWtD7vU=
+        b=ZIf4JLfOBewM18GGTaR0qbqWDMJeJ3Q7smgMOt1c6M8FTO15Ry4r/d1sPpU/NaxzL
+         JbS71omyArvQ9zKHAAH1jpeHMq3e+4spg+1Qlf/R1xTOD12MpoNmYY9v/kdo3J6o4a
+         5+rLD1TJJI6EF6zbJcZY+CMP2NU44a4PD3SVrOnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin Kaiser <martin@kaiser.cx>,
-        Shawn Guo <shawn.guo@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/149] serial: imx: Add missing .thaw_noirq hook
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 061/181] siox: fix possible memory leak in siox_device_add()
 Date:   Wed, 23 Nov 2022 09:50:24 +0100
-Message-Id: <20221123084559.444713067@linuxfoundation.org>
+Message-Id: <20221123084605.006524154@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,93 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Guo <shawn.guo@linaro.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 4561d8008a467cb05ac632a215391d6b787f40aa ]
+[ Upstream commit 6e63153db50059fb78b8a8447b132664887d24e3 ]
 
-The following warning is seen with non-console UART instance when
-system hibernates.
+If device_register() returns error in siox_device_add(),
+the name allocated by dev_set_name() need be freed. As
+comment of device_register() says, it should use put_device()
+to give up the reference in the error path. So fix this
+by calling put_device(), then the name can be freed in
+kobject_cleanup(), and sdevice is freed in siox_device_release(),
+set it to null in error path.
 
-[   37.371969] ------------[ cut here ]------------
-[   37.376599] uart3_root_clk already disabled
-[   37.380810] WARNING: CPU: 0 PID: 296 at drivers/clk/clk.c:952 clk_core_disable+0xa4/0xb0
-...
-[   37.506986] Call trace:
-[   37.509432]  clk_core_disable+0xa4/0xb0
-[   37.513270]  clk_disable+0x34/0x50
-[   37.516672]  imx_uart_thaw+0x38/0x5c
-[   37.520250]  platform_pm_thaw+0x30/0x6c
-[   37.524089]  dpm_run_callback.constprop.0+0x3c/0xd4
-[   37.528972]  device_resume+0x7c/0x160
-[   37.532633]  dpm_resume+0xe8/0x230
-[   37.536036]  hibernation_snapshot+0x288/0x430
-[   37.540397]  hibernate+0x10c/0x2e0
-[   37.543798]  state_store+0xc4/0xd0
-[   37.547203]  kobj_attr_store+0x1c/0x30
-[   37.550953]  sysfs_kf_write+0x48/0x60
-[   37.554619]  kernfs_fop_write_iter+0x118/0x1ac
-[   37.559063]  new_sync_write+0xe8/0x184
-[   37.562812]  vfs_write+0x230/0x290
-[   37.566214]  ksys_write+0x68/0xf4
-[   37.569529]  __arm64_sys_write+0x20/0x2c
-[   37.573452]  invoke_syscall.constprop.0+0x50/0xf0
-[   37.578156]  do_el0_svc+0x11c/0x150
-[   37.581648]  el0_svc+0x30/0x140
-[   37.584792]  el0t_64_sync_handler+0xe8/0xf0
-[   37.588976]  el0t_64_sync+0x1a0/0x1a4
-[   37.592639] ---[ end trace 56e22eec54676d75 ]---
-
-On hibernating, pm core calls into related hooks in sequence like:
-
-    .freeze
-    .freeze_noirq
-    .thaw_noirq
-    .thaw
-
-With .thaw_noirq hook being absent, the clock will be disabled in a
-unbalanced call which results the warning above.
-
-    imx_uart_freeze()
-        clk_prepare_enable()
-    imx_uart_suspend_noirq()
-        clk_disable()
-    imx_uart_thaw
-        clk_disable_unprepare()
-
-Adding the missing .thaw_noirq hook as imx_uart_resume_noirq() will have
-the call sequence corrected as below and thus fix the warning.
-
-    imx_uart_freeze()
-        clk_prepare_enable()
-    imx_uart_suspend_noirq()
-        clk_disable()
-    imx_uart_resume_noirq()
-        clk_enable()
-    imx_uart_thaw
-        clk_disable_unprepare()
-
-Fixes: 09df0b3464e5 ("serial: imx: fix endless loop during suspend")
-Reviewed-by: Martin Kaiser <martin@kaiser.cx>
-Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-Link: https://lore.kernel.org/r/20221012121353.2346280-1-shawn.guo@linaro.org
+Fixes: bbecb07fa0af ("siox: new driver framework for eckelmann SIOX")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20221104021334.618189-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/imx.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/siox/siox-core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index cf3d53165776..164597e2e004 100644
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -2626,6 +2626,7 @@ static const struct dev_pm_ops imx_uart_pm_ops = {
- 	.suspend_noirq = imx_uart_suspend_noirq,
- 	.resume_noirq = imx_uart_resume_noirq,
- 	.freeze_noirq = imx_uart_suspend_noirq,
-+	.thaw_noirq = imx_uart_resume_noirq,
- 	.restore_noirq = imx_uart_resume_noirq,
- 	.suspend = imx_uart_suspend,
- 	.resume = imx_uart_resume,
+diff --git a/drivers/siox/siox-core.c b/drivers/siox/siox-core.c
+index 7c4f32d76966..561408583b2b 100644
+--- a/drivers/siox/siox-core.c
++++ b/drivers/siox/siox-core.c
+@@ -839,6 +839,8 @@ static struct siox_device *siox_device_add(struct siox_master *smaster,
+ 
+ err_device_register:
+ 	/* don't care to make the buffer smaller again */
++	put_device(&sdevice->dev);
++	sdevice = NULL;
+ 
+ err_buf_alloc:
+ 	siox_master_unlock(smaster);
 -- 
 2.35.1
 
