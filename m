@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 477946357D9
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:47:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 229746357EB
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:48:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236766AbiKWJrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:47:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35724 "EHLO
+        id S237235AbiKWJrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:47:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238199AbiKWJqq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:46:46 -0500
+        with ESMTP id S238003AbiKWJqs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:46:48 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71FFE5FC3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:43:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFCB81157BD
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:43:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19F25B81EF0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:43:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B7BFC43470;
-        Wed, 23 Nov 2022 09:43:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC1A3B81EF3
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:43:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8B10C433D6;
+        Wed, 23 Nov 2022 09:43:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196626;
-        bh=WQgWoIxcMvvnZZafRCxtiN5LFqGHXRKys8eheEvIfWY=;
+        s=korg; t=1669196630;
+        bh=dks9UQgC0TZgBkgbXyd+ksFi4atRYJN5DNMUNJF0bmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpdTSBoxDJt+yR/Dul1x7Y9PDpydmAWnmYSRu0SYbygM/4PQnUZ2rZ5iTr92AQoCo
-         5uWSvdHoieoBVekI4rX6stPxu7hdcJ+3NrXbuMtUXTay+cjrHwrQladoBLIq7qKyNA
-         75TeUCzqGdEVCdmXVpwPbYXEgnmRvMhSx462JUtA=
+        b=J1GGtd6oSKRtn2wrFtBMLnkvs521Asne8vzbiTDGScffgpj9sc71d5NwpskilYe0p
+         EVuMjFU/k+IszNWWkatSmyGgL4WI0iQEmn3NID/R1Awf6UKXQassN3eHfxjeFvLbqq
+         TRU19zAs/jsgPKEoBdY0mtaqepqE0m/fHaaGL0eU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        Brian Masney <bmasney@redhat.com>,
+        patches@lists.linux.dev, Satya Priya <quic_c_skakit@quicinc.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Andrew Halaney <ahalaney@redhat.com>
-Subject: [PATCH 6.0 084/314] arm64: dts: qcom: sc8280xp: fix UFS PHY serdes size
-Date:   Wed, 23 Nov 2022 09:48:49 +0100
-Message-Id: <20221123084629.273553742@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 085/314] arm64: dts: qcom: sc7280: Add the reset reg for lpass audiocc on SC7280
+Date:   Wed, 23 Nov 2022 09:48:50 +0100
+Message-Id: <20221123084629.326103231@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -55,48 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Satya Priya <quic_c_skakit@quicinc.com>
 
-[ Upstream commit 8703d55bd5eac642275fe91b34ac62ad0ad312b5 ]
+[ Upstream commit cb1d0aaa674e99957b85af570cb2730145af01df ]
 
-The size of the UFS PHY serdes register region is 0x1c8 and the
-corresponding 'reg' property should specifically not include the
-adjacent regions that are defined in the child node (e.g. tx and rx).
+Add the reset register offset for clock gating.
 
-Fixes: 152d1faf1e2f ("arm64: dts: qcom: add SC8280XP platform")
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Tested-by: Andrew Halaney <ahalaney@redhat.com> #Qdrive3/sa8540p-adp-ride
-Reviewed-by: Brian Masney <bmasney@redhat.com>
-Reviewed-by: Bjorn Andersson <andersson@kernel.org>
+Fixes: 9499240d15f2 ("arm64: dts: qcom: sc7280: Add lpasscore & lpassaudio clock controllers")
+Signed-off-by: Satya Priya <quic_c_skakit@quicinc.com>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220915141601.18435-1-johan+linaro@kernel.org
+Link: https://lore.kernel.org/r/1663674495-25748-1-git-send-email-quic_c_skakit@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc8280xp.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/sc7280.dtsi | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-index 2a702abcf51e..6d82dea3675b 100644
---- a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-@@ -885,7 +885,7 @@ ufs_mem_hc: ufs@1d84000 {
+diff --git a/arch/arm64/boot/dts/qcom/sc7280.dtsi b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+index 51ed691075ad..b3c3844f97a0 100644
+--- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+@@ -2177,7 +2177,8 @@ lpasscc: lpasscc@3000000 {
  
- 		ufs_mem_phy: phy@1d87000 {
- 			compatible = "qcom,sc8280xp-qmp-ufs-phy";
--			reg = <0 0x01d87000 0 0xe10>;
-+			reg = <0 0x01d87000 0 0x1c8>;
- 			#address-cells = <2>;
- 			#size-cells = <2>;
- 			ranges;
-@@ -953,7 +953,7 @@ ufs_card_hc: ufs@1da4000 {
- 
- 		ufs_card_phy: phy@1da7000 {
- 			compatible = "qcom,sc8280xp-qmp-ufs-phy";
--			reg = <0 0x01da7000 0 0xe10>;
-+			reg = <0 0x01da7000 0 0x1c8>;
- 			#address-cells = <2>;
- 			#size-cells = <2>;
- 			ranges;
+ 		lpass_audiocc: clock-controller@3300000 {
+ 			compatible = "qcom,sc7280-lpassaudiocc";
+-			reg = <0 0x03300000 0 0x30000>;
++			reg = <0 0x03300000 0 0x30000>,
++			      <0 0x032a9000 0 0x1000>;
+ 			clocks = <&rpmhcc RPMH_CXO_CLK>,
+ 			       <&lpass_aon LPASS_AON_CC_MAIN_RCG_CLK_SRC>;
+ 			clock-names = "bi_tcxo", "lpass_aon_cc_main_rcg_clk_src";
 -- 
 2.35.1
 
