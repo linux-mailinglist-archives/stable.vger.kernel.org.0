@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99BDD63587F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:58:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3401C6356BB
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237004AbiKWJ6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:58:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52462 "EHLO
+        id S237861AbiKWJdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:33:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237095AbiKWJ54 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:57:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B4C41173EE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:20 -0800 (PST)
+        with ESMTP id S237862AbiKWJcq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:32:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E29B0429B2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0ECD61B6F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCF73C433C1;
-        Wed, 23 Nov 2022 09:52:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BA14B81EF8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A992FC43470;
+        Wed, 23 Nov 2022 09:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197139;
-        bh=3Ge9i+CN2V7C7c6CJ9UoxWD1b320vv3joU0Fa0Ejk5E=;
+        s=korg; t=1669195887;
+        bh=i+svlwgfyazBfWgfYrV0oTcv5EMEiLtTVctGjOddZNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AWsMtefUvnTOufAA5gBh4MAAs08mp/SNd91W7nHB5QOyxb5wzzXuX5iiNvZIbwc9g
-         gCBRE1IYoFnDr0g2GcQgMAitNVMANiB54CmSdN9jBx5vA/X+nf38ruQKswVXcxMg88
-         hwJe9MinV8wqu6TpGFnhDnEi8uNfRo2TNOMopTJk=
+        b=gxE0Cz8MRDQk9EaVkEBYbkywmEuP5rigUfTPMxe8VTktO+0yiiCOMoYcol6ke5X5p
+         VrH7AtvzrLpofnYZGkj1tyZDilBhB83HGAASiQDNXZ58JOiqkreWysEatM7ebK0Sml
+         rDpPcCjA6CQOLxFRU1RWuL+3HNl8pbMieZx/J89U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 177/314] drbd: use after free in drbd_create_device()
+Subject: [PATCH 5.15 059/181] bpf: Fix memory leaks in __check_func_call
 Date:   Wed, 23 Nov 2022 09:50:22 +0100
-Message-Id: <20221123084633.599297403@linuxfoundation.org>
+Message-Id: <20221123084604.918492869@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit a7a1598189228b5007369a9622ccdf587be0730f ]
+[ Upstream commit eb86559a691cea5fa63e57a03ec3dc9c31e97955 ]
 
-The drbd_destroy_connection() frees the "connection" so use the _safe()
-iterator to prevent a use after free.
+kmemleak reports this issue:
 
-Fixes: b6f85ef9538b ("drbd: Iterate over all connections")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Link: https://lore.kernel.org/r/Y3Jd5iZRbNQ9w6gm@kili
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+unreferenced object 0xffff88817139d000 (size 2048):
+  comm "test_progs", pid 33246, jiffies 4307381979 (age 45851.820s)
+  hex dump (first 32 bytes):
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000045f075f0>] kmalloc_trace+0x27/0xa0
+    [<0000000098b7c90a>] __check_func_call+0x316/0x1230
+    [<00000000b4c3c403>] check_helper_call+0x172e/0x4700
+    [<00000000aa3875b7>] do_check+0x21d8/0x45e0
+    [<000000001147357b>] do_check_common+0x767/0xaf0
+    [<00000000b5a595b4>] bpf_check+0x43e3/0x5bc0
+    [<0000000011e391b1>] bpf_prog_load+0xf26/0x1940
+    [<0000000007f765c0>] __sys_bpf+0xd2c/0x3650
+    [<00000000839815d6>] __x64_sys_bpf+0x75/0xc0
+    [<00000000946ee250>] do_syscall_64+0x3b/0x90
+    [<0000000000506b7f>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+The root case here is: In function prepare_func_exit(), the callee is
+not released in the abnormal scenario after "state->curframe--;". To
+fix, move "state->curframe--;" to the very bottom of the function,
+right when we free callee and reset frame[] pointer to NULL, as Andrii
+suggested.
+
+In addition, function __check_func_call() has a similar problem. In
+the abnormal scenario before "state->curframe++;", the callee also
+should be released by free_func_state().
+
+Fixes: 69c087ba6225 ("bpf: Add bpf_for_each_map_elem() helper")
+Fixes: fd978bf7fd31 ("bpf: Add reference tracking to verifier")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Link: https://lore.kernel.org/r/1667884291-15666-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/bpf/verifier.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index f3e4db16fd07..8532b839a343 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -2672,7 +2672,7 @@ static int init_submitter(struct drbd_device *device)
- enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsigned int minor)
- {
- 	struct drbd_resource *resource = adm_ctx->resource;
--	struct drbd_connection *connection;
-+	struct drbd_connection *connection, *n;
- 	struct drbd_device *device;
- 	struct drbd_peer_device *peer_device, *tmp_peer_device;
- 	struct gendisk *disk;
-@@ -2789,7 +2789,7 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
- 	return NO_ERROR;
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 8a73a165ac76..cceb29b0585f 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5808,11 +5808,11 @@ static int __check_func_call(struct bpf_verifier_env *env, struct bpf_insn *insn
+ 	/* Transfer references to the callee */
+ 	err = copy_reference_state(callee, caller);
+ 	if (err)
+-		return err;
++		goto err_out;
  
- out_idr_remove_from_resource:
--	for_each_connection(connection, resource) {
-+	for_each_connection_safe(connection, n, resource) {
- 		peer_device = idr_remove(&connection->peer_devices, vnr);
- 		if (peer_device)
- 			kref_put(&connection->kref, drbd_destroy_connection);
+ 	err = set_callee_state_cb(env, caller, callee, *insn_idx);
+ 	if (err)
+-		return err;
++		goto err_out;
+ 
+ 	clear_caller_saved_regs(env, caller->regs);
+ 
+@@ -5829,6 +5829,11 @@ static int __check_func_call(struct bpf_verifier_env *env, struct bpf_insn *insn
+ 		print_verifier_state(env, callee);
+ 	}
+ 	return 0;
++
++err_out:
++	free_func_state(callee);
++	state->frame[state->curframe + 1] = NULL;
++	return err;
+ }
+ 
+ int map_set_for_each_callback_args(struct bpf_verifier_env *env,
+@@ -5966,8 +5971,7 @@ static int prepare_func_exit(struct bpf_verifier_env *env, int *insn_idx)
+ 		return -EINVAL;
+ 	}
+ 
+-	state->curframe--;
+-	caller = state->frame[state->curframe];
++	caller = state->frame[state->curframe - 1];
+ 	if (callee->in_callback_fn) {
+ 		/* enforce R0 return value range [0, 1]. */
+ 		struct tnum range = tnum_range(0, 1);
+@@ -6006,7 +6010,7 @@ static int prepare_func_exit(struct bpf_verifier_env *env, int *insn_idx)
+ 	}
+ 	/* clear everything in the callee */
+ 	free_func_state(callee);
+-	state->frame[state->curframe + 1] = NULL;
++	state->frame[state->curframe--] = NULL;
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
