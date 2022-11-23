@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51FB66355A8
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5CA66354F5
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237455AbiKWJVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:21:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36822 "EHLO
+        id S237223AbiKWJNX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:13:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237458AbiKWJUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:20:53 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D27821261
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:20:52 -0800 (PST)
+        with ESMTP id S237233AbiKWJNV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:13:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 188C6682A4
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:13:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8DFC6CE20F1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:20:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 424A6C433C1;
-        Wed, 23 Nov 2022 09:20:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A842661B10
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:13:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94224C433C1;
+        Wed, 23 Nov 2022 09:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195247;
-        bh=CmcmcPI2VcpXv3yrjN2gijnu1MKsTMCTQ/7zNYKHIAc=;
+        s=korg; t=1669194800;
+        bh=3TyFuUbIadTSaWQa+oB4zOqjtmiC5MLjAWD1/qWEbOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mE1WKbxoPOFtTAx2eZ9c/nRZAHHwjKKKflm/cclWT94GouGf5JZ1goOaoDt7mU1pS
-         PpXauraPF7PnNUxxqum6hhKXkycCinFYWiTfQfdnQqQQviuPNEboxtwJXp1FNwkdPV
-         unDVViUs0/U1p09ebAL8IupaseMOzek3bgqiMqOw=
+        b=cvx4tq+j4yGcXcQwv1s0aisdm1GlEiS2iO2XM/3xvAhu/IzUz/NUAdPvC4Ige/a1I
+         e6HVS4HrmmA7JEMgNbVhUKBleQxywLPhK+SD3P2HT2wqAkljDNsYrZ5rJ+5RxLWHRt
+         npiMDByrM54/GMf/Uk9R/R92yPIjKKa5eoUVLPes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Siarhei Volkau <lis8215@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 009/149] ASoC: codecs: jz4725b: use right control for Capture Volume
+Subject: [PATCH 5.4 035/156] ethernet: tundra: free irq when alloc ring failed in tsi108_open()
 Date:   Wed, 23 Nov 2022 09:49:52 +0100
-Message-Id: <20221123084558.310291236@linuxfoundation.org>
+Message-Id: <20221123084559.211613629@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siarhei Volkau <lis8215@gmail.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 1538e2c8c9b7e7a656effcc6e4e7cfe8c1b405fd ]
+[ Upstream commit acce40037041f97baad18142bb253064491ebde3 ]
 
-Line In Bypass control is used as Master Capture at the moment
-this is completely incorrect.
+When alloc tx/rx ring failed in tsi108_open(), it doesn't free irq. Fix
+it.
 
-Current control routed to Mixer instead of ADC, thus can't affect
-Capture path. ADC control shall be used instead.
-
-ADC volume control parameters are different, so the patch fixes that
-as well. Manual says (16.6.3.2 Programmable input attenuation amplifier:
-PGATM) that gain varies in range 0dB..22.5dB with 1.5dB step.
-
-Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
-Link: https://lore.kernel.org/r/20221016132648.3011729-4-lis8215@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 5e123b844a1c ("[PATCH] Add tsi108/9 On Chip Ethernet device driver support")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Link: https://lore.kernel.org/r/20221109044016.126866-1-shaozhengchao@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/jz4725b.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/tundra/tsi108_eth.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
-index 6f3d4ead9150..9dc8d76bf104 100644
---- a/sound/soc/codecs/jz4725b.c
-+++ b/sound/soc/codecs/jz4725b.c
-@@ -136,13 +136,16 @@ enum {
- #define REG_CGR3_GO1L_OFFSET		0
- #define REG_CGR3_GO1L_MASK		(0x1f << REG_CGR3_GO1L_OFFSET)
+diff --git a/drivers/net/ethernet/tundra/tsi108_eth.c b/drivers/net/ethernet/tundra/tsi108_eth.c
+index c62f474b6d08..fcebd2418dbd 100644
+--- a/drivers/net/ethernet/tundra/tsi108_eth.c
++++ b/drivers/net/ethernet/tundra/tsi108_eth.c
+@@ -1302,12 +1302,15 @@ static int tsi108_open(struct net_device *dev)
  
-+#define REG_CGR10_GIL_OFFSET		0
-+#define REG_CGR10_GIR_OFFSET		4
-+
- struct jz_icdc {
- 	struct regmap *regmap;
- 	void __iomem *base;
- 	struct clk *clk;
- };
+ 	data->rxring = dma_alloc_coherent(&data->pdev->dev, rxring_size,
+ 					  &data->rxdma, GFP_KERNEL);
+-	if (!data->rxring)
++	if (!data->rxring) {
++		free_irq(data->irq_num, dev);
+ 		return -ENOMEM;
++	}
  
--static const SNDRV_CTL_TLVD_DECLARE_DB_LINEAR(jz4725b_line_tlv, -1500, 600);
-+static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_adc_tlv,     0, 150, 0);
- static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_dac_tlv, -2250, 150, 0);
- 
- static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
-@@ -151,11 +154,11 @@ static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
- 		       REG_CGR1_GODL_OFFSET,
- 		       REG_CGR1_GODR_OFFSET,
- 		       0xf, 1, jz4725b_dac_tlv),
--	SOC_DOUBLE_R_TLV("Master Capture Volume",
--			 JZ4725B_CODEC_REG_CGR3,
--			 JZ4725B_CODEC_REG_CGR2,
--			 REG_CGR2_GO1R_OFFSET,
--			 0x1f, 1, jz4725b_line_tlv),
-+	SOC_DOUBLE_TLV("Master Capture Volume",
-+		       JZ4725B_CODEC_REG_CGR10,
-+		       REG_CGR10_GIL_OFFSET,
-+		       REG_CGR10_GIR_OFFSET,
-+		       0xf, 0, jz4725b_adc_tlv),
- 
- 	SOC_SINGLE("Master Playback Switch", JZ4725B_CODEC_REG_CR1,
- 		   REG_CR1_DAC_MUTE_OFFSET, 1, 1),
+ 	data->txring = dma_alloc_coherent(&data->pdev->dev, txring_size,
+ 					  &data->txdma, GFP_KERNEL);
+ 	if (!data->txring) {
++		free_irq(data->irq_num, dev);
+ 		dma_free_coherent(&data->pdev->dev, rxring_size, data->rxring,
+ 				    data->rxdma);
+ 		return -ENOMEM;
 -- 
 2.35.1
 
