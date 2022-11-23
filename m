@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA6CA635421
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3140635500
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237013AbiKWJD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:03:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40420 "EHLO
+        id S237243AbiKWJNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:13:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236374AbiKWJDi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:03:38 -0500
+        with ESMTP id S237235AbiKWJNa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:13:30 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33538105596
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:03:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50C097ECBF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:13:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C521A61B4A
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:03:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3A28C433D6;
-        Wed, 23 Nov 2022 09:03:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DAFBC61B4D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:13:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C362FC433D6;
+        Wed, 23 Nov 2022 09:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194212;
-        bh=JWmTcSD7wWrdXmdMeSdTL5qLhkJB0yZGhzBbLCJulIk=;
+        s=korg; t=1669194808;
+        bh=7yT/qy9CpyKuApulMTuLV7GxoWs9DfN329EH5pEAS10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zolz53V9AQoxmN+0CLjqj7iSUVNBBdz4mm7kyUJteF4bIAfQS2odSV4DkAj9mos8F
-         wcF6/1c6yQCnWARZRwRQ8BDrUfPDPr6GdKYniuaXXIclXRLpUHOC1mcXUoaHG7ydhI
-         cYEv2cVNNmpC34ljwegD0HtT7cRHsMzH4B6xaw4g=
+        b=ucYsgEg53w4viQ6nYau8y38KyP4TVdQApxX0C8bKJWYc3iKPSfIeohrOgFpSah0vi
+         TutEI+ihN5ZiTHbdawDuWasBC0eic6iO9oi+H7lNvyFuQzsIEPqgSleM3+w8rEMhQk
+         dYCdfgA+91ktpnBusYDCKQdU3eua7X5jwHOvoOIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Anderson <sean.anderson@seco.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
+        Guo Ren <guoren@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 007/114] net: fman: Unregister ethernet device on removal
+Subject: [PATCH 5.4 037/156] riscv: process: fix kernel info leakage
 Date:   Wed, 23 Nov 2022 09:49:54 +0100
-Message-Id: <20221123084552.141558996@linuxfoundation.org>
+Message-Id: <20221123084559.273096806@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+From: Jisheng Zhang <jszhang@kernel.org>
 
-[ Upstream commit b7cbc6740bd6ad5d43345a2504f7e4beff0d709f ]
+[ Upstream commit 6510c78490c490a6636e48b61eeaa6fb65981f4b ]
 
-When the mac device gets removed, it leaves behind the ethernet device.
-This will result in a segfault next time the ethernet device accesses
-mac_dev. Remove the ethernet device when we get removed to prevent
-this. This is not completely reversible, since some resources aren't
-cleaned up properly, but that can be addressed later.
+thread_struct's s[12] may contain random kernel memory content, which
+may be finally leaked to userspace. This is a security hole. Fix it
+by clearing the s[12] array in thread_struct when fork.
 
-Fixes: 3933961682a3 ("fsl/fman: Add FMan MAC driver")
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Link: https://lore.kernel.org/r/20221103182831.2248833-1-sean.anderson@seco.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+As for kthread case, it's better to clear the s[12] array as well.
+
+Fixes: 7db91e57a0ac ("RISC-V: Task implementation")
+Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+Tested-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/20221029113450.4027-1-jszhang@kernel.org
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/CAJF2gTSdVyAaM12T%2B7kXAdRPGS4VyuO08X1c7paE-n4Fr8OtRA@mail.gmail.com/
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fman/mac.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/riscv/kernel/process.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/fman/mac.c b/drivers/net/ethernet/freescale/fman/mac.c
-index 713abcd9371f..390849faf4cd 100644
---- a/drivers/net/ethernet/freescale/fman/mac.c
-+++ b/drivers/net/ethernet/freescale/fman/mac.c
-@@ -891,12 +891,21 @@ static int mac_probe(struct platform_device *_of_dev)
- 	return err;
- }
+diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
+index 330b34706aa0..9d4b4098874b 100644
+--- a/arch/riscv/kernel/process.c
++++ b/arch/riscv/kernel/process.c
+@@ -104,6 +104,8 @@ int copy_thread_tls(unsigned long clone_flags, unsigned long usp,
+ {
+ 	struct pt_regs *childregs = task_pt_regs(p);
  
-+static int mac_remove(struct platform_device *pdev)
-+{
-+	struct mac_device *mac_dev = platform_get_drvdata(pdev);
++	memset(&p->thread.s, 0, sizeof(p->thread.s));
 +
-+	platform_device_unregister(mac_dev->priv->eth_dev);
-+	return 0;
-+}
-+
- static struct platform_driver mac_driver = {
- 	.driver = {
- 		.name		= KBUILD_MODNAME,
- 		.of_match_table	= mac_match,
- 	},
- 	.probe		= mac_probe,
-+	.remove		= mac_remove,
- };
- 
- builtin_platform_driver(mac_driver);
+ 	/* p->thread holds context to be restored by __switch_to() */
+ 	if (unlikely(p->flags & PF_KTHREAD)) {
+ 		/* Kernel thread */
 -- 
 2.35.1
 
