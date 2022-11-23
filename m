@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B6A1635EBE
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:58:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 720EF635EB5
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:58:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238433AbiKWM6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:58:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50168 "EHLO
+        id S238369AbiKWM6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:58:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237573AbiKWM4h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:56:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A5490583;
-        Wed, 23 Nov 2022 04:45:44 -0800 (PST)
+        with ESMTP id S238421AbiKWM4E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:56:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAA63922EC;
+        Wed, 23 Nov 2022 04:45:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64FDFB81F71;
-        Wed, 23 Nov 2022 12:45:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA6C1C433C1;
-        Wed, 23 Nov 2022 12:45:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 013DE61CAF;
+        Wed, 23 Nov 2022 12:45:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DEEFC43470;
+        Wed, 23 Nov 2022 12:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207543;
-        bh=RGeNPl1q1Rd26khakiP04+aHQgUDACWNhheSntWR3UY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=h0C5OQ8f1bOBvHAYfQCxiV+UVKLrIGS9P0YtyKAa+kJR3ubcsnsvKveii9+ZzAZf0
-         KFvyNDEQWzWbtyv1UX70yAVwioR2jo5ruaQPldY6a+vgWgwSX1zcyqtEjngD8KM/Yq
-         M6PUd3abEGoUE0y/Bgaao90C1JhPAJx53kO4hgqASvtwYQBf0OvtaXtFIUz4Bu1lDp
-         VIf0564hw9e0zALWubi0Vjd6AwiH3ys3RC1BzcCcLVqGK09x8Yo91qDBvnSdVX6TFz
-         AqPhj4px3Bc9dIAlgRIKc2ZFJHt38YJZ1l5HXTs7/XLgpDj/A7rM0UlyO6j4u3O/bB
-         LOasv+pPUfxUQ==
+        s=k20201202; t=1669207544;
+        bh=Syc8Sdgco/obOHgr5TpFdObKEaPxMDPmIGv/HB5/1Zo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=FuGAmgu2w93dOO/5Rwq0l1Fs/lg+CsfwEAgsGbCkjZiUt2qz+QO01AR757NJ4gplj
+         JDnW7d1sg1yUXRqdfWgwlLjg7jO0EO5n0wQf5JmwJkmAnMerMC+5UFr1ZHSJvcTcbv
+         PTocfp9Uwu5ShTjMFFRmrFQYo7qHRRrEO18tzXri8OnQrGvE8mQH6zAlezJfqKTNJR
+         V6yctH67eZhcjCsu9zE2yO8wZ/W+Wh/EPEBmxusT3VRUqATm4jdGLz4VczJMDavtr0
+         z4lqJ11HLMzPNUZ+bEmXKRxtghWjRKWyCX0qXtnFuc6/gBxKp2L4m13WWpC9GXScoN
+         6mhGSfDgt6pzA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lukas Wunner <lukas@wunner.de>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Su Bao Cheng <baocheng.su@siemens.com>,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, jirislaby@kernel.org,
-        ilpo.jarvinen@linux.intel.com, tony@atomide.com,
-        andriy.shevchenko@linux.intel.com, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 1/5] serial: 8250: 8250_omap: Avoid RS485 RTS glitch on ->set_termios()
-Date:   Wed, 23 Nov 2022 07:45:33 -0500
-Message-Id: <20221123124540.266772-1-sashal@kernel.org>
+Cc:     ruanjinjie <ruanjinjie@huawei.com>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>, sstabellini@kernel.org,
+        xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 4.9 2/5] xen/platform-pci: add missing free_irq() in error path
+Date:   Wed, 23 Nov 2022 07:45:34 -0500
+Message-Id: <20221123124540.266772-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221123124540.266772-1-sashal@kernel.org>
+References: <20221123124540.266772-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,92 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: ruanjinjie <ruanjinjie@huawei.com>
 
-[ Upstream commit 038ee49fef18710bedd38b531d173ccd746b2d8d ]
+[ Upstream commit c53717e1e3f0d0f9129b2e0dbc6dcc5e0a8132e9 ]
 
-RS485-enabled UART ports on TI Sitara SoCs with active-low polarity
-exhibit a Transmit Enable glitch on ->set_termios():
+free_irq() is missing in case of error in platform_pci_probe(), fix that.
 
-omap8250_restore_regs(), which is called from omap_8250_set_termios(),
-sets the TCRTLR bit in the MCR register and clears all other bits,
-including RTS.  If RTS uses active-low polarity, it is now asserted
-for no reason.
-
-The TCRTLR bit is subsequently cleared by writing up->mcr to the MCR
-register.  That variable is always zero, so the RTS bit is still cleared
-(incorrectly so if RTS is active-high).
-
-(up->mcr is not, as one might think, a cache of the MCR register's
-current value.  Rather, it only caches a single bit of that register,
-the AFE bit.  And it only does so if the UART supports the AFE bit,
-which OMAP does not.  For details see serial8250_do_set_termios() and
-serial8250_do_set_mctrl().)
-
-Finally at the end of omap8250_restore_regs(), the MCR register is
-restored (and RTS deasserted) by a call to up->port.ops->set_mctrl()
-(which equals serial8250_set_mctrl()) and serial8250_em485_stop_tx().
-
-So there's an RTS glitch between setting TCRTLR and calling
-serial8250_em485_stop_tx().  Avoid by using a read-modify-write
-when setting TCRTLR.
-
-While at it, drop a redundant initialization of up->mcr.  As explained
-above, the variable isn't used by the driver and it is already
-initialized to zero because it is part of the static struct
-serial8250_ports[] declared in 8250_core.c.  (Static structs are
-initialized to zero per section 6.7.8 nr. 10 of the C99 standard.)
-
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Su Bao Cheng <baocheng.su@siemens.com>
-Tested-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/6554b0241a2c7fd50f32576fdbafed96709e11e8.1664278942.git.lukas@wunner.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
+Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Link: https://lore.kernel.org/r/20221114112124.1965611-1-ruanjinjie@huawei.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/xen/platform-pci.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index c551407bee07..7795e6401a93 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -259,6 +259,7 @@ static void omap8250_restore_regs(struct uart_8250_port *up)
- {
- 	struct omap8250_priv *priv = up->port.private_data;
- 	struct uart_8250_dma	*dma = up->dma;
-+	u8 mcr = serial8250_in_MCR(up);
+diff --git a/drivers/xen/platform-pci.c b/drivers/xen/platform-pci.c
+index cf9666680c8c..20365b01c36b 100644
+--- a/drivers/xen/platform-pci.c
++++ b/drivers/xen/platform-pci.c
+@@ -149,7 +149,7 @@ static int platform_pci_probe(struct pci_dev *pdev,
+ 		if (ret) {
+ 			dev_warn(&pdev->dev, "Unable to set the evtchn callback "
+ 					 "err=%d\n", ret);
+-			goto out;
++			goto irq_out;
+ 		}
+ 	}
  
- 	if (dma && dma->tx_running) {
- 		/*
-@@ -275,7 +276,7 @@ static void omap8250_restore_regs(struct uart_8250_port *up)
- 	serial_out(up, UART_EFR, UART_EFR_ECB);
- 
- 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_A);
--	serial8250_out_MCR(up, UART_MCR_TCRTLR);
-+	serial8250_out_MCR(up, mcr | UART_MCR_TCRTLR);
- 	serial_out(up, UART_FCR, up->fcr);
- 
- 	omap8250_update_scr(up, priv);
-@@ -291,7 +292,8 @@ static void omap8250_restore_regs(struct uart_8250_port *up)
- 	serial_out(up, UART_LCR, 0);
- 
- 	/* drop TCR + TLR access, we setup XON/XOFF later */
--	serial8250_out_MCR(up, up->mcr);
-+	serial8250_out_MCR(up, mcr);
-+
- 	serial_out(up, UART_IER, up->ier);
- 
- 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
-@@ -600,7 +602,6 @@ static int omap_8250_startup(struct uart_port *port)
- 
- 	pm_runtime_get_sync(port->dev);
- 
--	up->mcr = 0;
- 	serial_out(up, UART_FCR, UART_FCR_CLEAR_RCVR | UART_FCR_CLEAR_XMIT);
- 
- 	serial_out(up, UART_LCR, UART_LCR_WLEN8);
+@@ -157,7 +157,7 @@ static int platform_pci_probe(struct pci_dev *pdev,
+ 	grant_frames = alloc_xen_mmio(PAGE_SIZE * max_nr_gframes);
+ 	ret = gnttab_setup_auto_xlat_frames(grant_frames);
+ 	if (ret)
+-		goto out;
++		goto irq_out;
+ 	ret = gnttab_init();
+ 	if (ret)
+ 		goto grant_out;
+@@ -165,6 +165,9 @@ static int platform_pci_probe(struct pci_dev *pdev,
+ 	return 0;
+ grant_out:
+ 	gnttab_free_auto_xlat_frames();
++irq_out:
++	if (!xen_have_vector_callback)
++		free_irq(pdev->irq, pdev);
+ out:
+ 	pci_release_region(pdev, 0);
+ mem_out:
 -- 
 2.35.1
 
