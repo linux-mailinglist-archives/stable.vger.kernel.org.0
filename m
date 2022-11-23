@@ -2,106 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2912263594C
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:12:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F84635451
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237162AbiKWKJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:09:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33398 "EHLO
+        id S237005AbiKWJFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:05:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236289AbiKWKIu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:08:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556E3898F5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:58:29 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3295B81EF3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:58:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51C46C433D6;
-        Wed, 23 Nov 2022 09:58:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197506;
-        bh=9+ZLJWZ+edbJ5SV64rjAhzZBWoWw/nYmvN4vTgXSXP4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IaBSW+911wB9rjw8/E4OujBr7UQxpWw5tK58vtZHKs0bfblKB2mvTpDF22OsyR0lb
-         Hl7DkUxxNNknCb7gXeUCNb+ZLRZ3fLOOugwyv26KwfaDnVsTAammx5z1D2fHqdKcLh
-         RQemeXhu21jJPzig859iP5sk+aPMu3LsY63Oj9FE=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hawkins Jiawei <yin31149@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        "chenxiaosong (A)" <chenxiaosong2@huawei.com>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.0 314/314] ntfs: check overflow when iterating ATTR_RECORDs
-Date:   Wed, 23 Nov 2022 09:52:39 +0100
-Message-Id: <20221123084639.810779716@linuxfoundation.org>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S236994AbiKWJFF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:05:05 -0500
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com [209.85.166.200])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF4B8100B2A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:05:04 -0800 (PST)
+Received: by mail-il1-f200.google.com with SMTP id j20-20020a056e02219400b00300a22a7fe0so12531997ila.3
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:05:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=hOwaUP9SnaHg7GvHDtdq80VwQovF/jP7FuJHxUUIH1w=;
+        b=3q2CSDE0IYGt5TnpYEa1vs0QB3mpq/T3K7159FF/VwF8nzDNC8OMwQ+qK5vQWWFQkH
+         s0byjokIq6zpLI2wlaGJIHnjjsfHYpQWYzH8yYsFuv016MlQLrTKymA93tQSIS2cwEZJ
+         7GzhNnzx3LYFL0p+ztugnDCuDltTZxpxuYuaWSQBw5pBynnPFFJz5NbEIlmT7z6wFMHg
+         pGTcUi9z664707xolvKJ8jRc61GA1xXA8cfnL+7JAfzOO/VjSe7XnvNbbM+lOHaJ4f5u
+         3HOPfnuAyNIpBzFrlOlNxN3Ep/2579wAaAG4a+4EEn9Ive7bQYTW5DbgRWYB6xbw/4Gj
+         csKw==
+X-Gm-Message-State: ANoB5pmKhQzhK/n6i6kF1svXVinaqIHhhyb8Ky8C7y0OM6IT6yG+ZxrS
+        nHLgZAmYYk70ZaYFNuyMeWWG2xj1P0NB5cV1XNp92Najc3e8
+X-Google-Smtp-Source: AA0mqf7SdlyZACq4cXIrmJqHAqNcAdRgWSbuK5H6M+yoJ1JAc2cVG1j8G8YLFXsab5Beg4+24GIvpt0zW9qBCvmAblAA6gaEz4CG
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Received: by 2002:a5e:aa06:0:b0:6bc:614c:63c2 with SMTP id
+ s6-20020a5eaa06000000b006bc614c63c2mr5330231ioe.21.1669194304118; Wed, 23 Nov
+ 2022 01:05:04 -0800 (PST)
+Date:   Wed, 23 Nov 2022 01:05:04 -0800
+In-Reply-To: <20221123084552.337303067@linuxfoundation.org>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000008ee66405ee1f9570@google.com>
+Subject: Re: [PATCH 4.19 012/114] ipv6: addrlabel: fix infoleak when sending
+ struct ifaddrlblmsg to network
+From:   syzbot <syzbot+@syzkaller.appspotmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     davem@davemloft.net, dsahern@kernel.org, glider@google.com,
+        gregkh@linuxfoundation.org, patches@lists.linux.dev,
+        sashal@kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+> From: Alexander Potapenko <glider@google.com>
+>
+> [ Upstream commit c23fb2c82267638f9d206cb96bb93e1f93ad7828 ]
+>
+> When copying a `struct ifaddrlblmsg` to the network, __ifal_reserved
+> remained uninitialized, resulting in a 1-byte infoleak:
+>
+>   BUG: KMSAN: kernel-network-infoleak in __netdev_start_xmit ./include/linux/netdevice.h:4841
+>    __netdev_start_xmit ./include/linux/netdevice.h:4841
+>    netdev_start_xmit ./include/linux/netdevice.h:4857
+>    xmit_one net/core/dev.c:3590
+>    dev_hard_start_xmit+0x1dc/0x800 net/core/dev.c:3606
+>    __dev_queue_xmit+0x17e8/0x4350 net/core/dev.c:4256
+>    dev_queue_xmit ./include/linux/netdevice.h:3009
+>    __netlink_deliver_tap_skb net/netlink/af_netlink.c:307
+>    __netlink_deliver_tap+0x728/0xad0 net/netlink/af_netlink.c:325
+>    netlink_deliver_tap net/netlink/af_netlink.c:338
+>    __netlink_sendskb net/netlink/af_netlink.c:1263
+>    netlink_sendskb+0x1d9/0x200 net/netlink/af_netlink.c:1272
+>    netlink_unicast+0x56d/0xf50 net/netlink/af_netlink.c:1360
+>    nlmsg_unicast ./include/net/netlink.h:1061
+>    rtnl_unicast+0x5a/0x80 net/core/rtnetlink.c:758
+>    ip6addrlbl_get+0xfad/0x10f0 net/ipv6/addrlabel.c:628
+>    rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
+>   ...
+>   Uninit was created at:
+>    slab_post_alloc_hook+0x118/0xb00 mm/slab.h:742
+>    slab_alloc_node mm/slub.c:3398
+>    __kmem_cache_alloc_node+0x4f2/0x930 mm/slub.c:3437
+>    __do_kmalloc_node mm/slab_common.c:954
+>    __kmalloc_node_track_caller+0x117/0x3d0 mm/slab_common.c:975
+>    kmalloc_reserve net/core/skbuff.c:437
+>    __alloc_skb+0x27a/0xab0 net/core/skbuff.c:509
+>    alloc_skb ./include/linux/skbuff.h:1267
+>    nlmsg_new ./include/net/netlink.h:964
+>    ip6addrlbl_get+0x490/0x10f0 net/ipv6/addrlabel.c:608
+>    rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
+>    netlink_rcv_skb+0x299/0x550 net/netlink/af_netlink.c:2540
+>    rtnetlink_rcv+0x26/0x30 net/core/rtnetlink.c:6109
+>    netlink_unicast_kernel net/netlink/af_netlink.c:1319
+>    netlink_unicast+0x9ab/0xf50 net/netlink/af_netlink.c:1345
+>    netlink_sendmsg+0xebc/0x10f0 net/netlink/af_netlink.c:1921
+>   ...
+>
+> This patch ensures that the reserved field is always initialized.
+>
+> Reported-by: syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com
+> Fixes: 2a8cc6c89039 ("[IPV6] ADDRCONF: Support RFC3484 configurable address selection policy table.")
+> Signed-off-by: Alexander Potapenko <glider@google.com>
+> Reviewed-by: David Ahern <dsahern@kernel.org>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  net/ipv6/addrlabel.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/net/ipv6/addrlabel.c b/net/ipv6/addrlabel.c
+> index c7dc8b2de6c2..7fdd433b968e 100644
+> --- a/net/ipv6/addrlabel.c
+> +++ b/net/ipv6/addrlabel.c
+> @@ -437,6 +437,7 @@ static void ip6addrlbl_putmsg(struct nlmsghdr *nlh,
+>  {
+>  	struct ifaddrlblmsg *ifal = nlmsg_data(nlh);
+>  	ifal->ifal_family = AF_INET6;
+> +	ifal->__ifal_reserved = 0;
+>  	ifal->ifal_prefixlen = prefixlen;
+>  	ifal->ifal_flags = 0;
+>  	ifal->ifal_index = ifindex;
+> -- 
+> 2.35.1
+>
+>
+>
 
-commit 63095f4f3af59322bea984a6ae44337439348fe0 upstream.
-
-Kernel iterates over ATTR_RECORDs in mft record in ntfs_attr_find().
-Because the ATTR_RECORDs are next to each other, kernel can get the next
-ATTR_RECORD from end address of current ATTR_RECORD, through current
-ATTR_RECORD length field.
-
-The problem is that during iteration, when kernel calculates the end
-address of current ATTR_RECORD, kernel may trigger an integer overflow bug
-in executing `a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))`.  This
-may wrap, leading to a forever iteration on 32bit systems.
-
-This patch solves it by adding some checks on calculating end address
-of current ATTR_RECORD during iteration.
-
-Link: https://lkml.kernel.org/r/20220831160935.3409-4-yin31149@gmail.com
-Link: https://lore.kernel.org/all/20220827105842.GM2030@kadam/
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Cc: chenxiaosong (A) <chenxiaosong2@huawei.com>
-Cc: syzkaller-bugs <syzkaller-bugs@googlegroups.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/ntfs/attrib.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
-
---- a/fs/ntfs/attrib.c
-+++ b/fs/ntfs/attrib.c
-@@ -617,6 +617,14 @@ static int ntfs_attr_find(const ATTR_TYP
- 			return -ENOENT;
- 		if (unlikely(!a->length))
- 			break;
-+
-+		/* check whether ATTR_RECORD's length wrap */
-+		if ((u8 *)a + le32_to_cpu(a->length) < (u8 *)a)
-+			break;
-+		/* check whether ATTR_RECORD's length is within bounds */
-+		if ((u8 *)a + le32_to_cpu(a->length) > mrec_end)
-+			break;
-+
- 		if (a->type != type)
- 			continue;
- 		/*
-
+I see the command but can't find the corresponding bug.
+The email is sent to  syzbot+HASH@syzkaller.appspotmail.com address
+but the HASH does not correspond to any known bug.
+Please double check the address.
 
