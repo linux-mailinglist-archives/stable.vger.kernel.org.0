@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C95576353A2
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D32076353F3
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236697AbiKWI5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:57:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33254 "EHLO
+        id S236869AbiKWJBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:01:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236782AbiKWI5i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:57:38 -0500
+        with ESMTP id S236888AbiKWJBC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:01:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EC4E10FD4
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:57:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CA801001DF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:01:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FF9A61B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:57:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0375EC433D6;
-        Wed, 23 Nov 2022 08:57:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C45EB61B36
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:01:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA5A7C433D7;
+        Wed, 23 Nov 2022 09:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193856;
-        bh=j/JTQIAE1GWBAnBCJNbxGvmRrWSFsFWJpR/Z13Ya33Q=;
+        s=korg; t=1669194061;
+        bh=hvcud6CkPL+24ACJhOPu5m/hMilRA+lE2K6kETMhF8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IBYf3GCObc0Itj45MzjcFgUCvfYcv7xM0XHmbIB+u5BzB2lmCc2vsZdQ3finVKPFi
-         kZf5TaOLCaV7EctRzR55h5+1gZ5zC5BdcvoqSrSQPxdij78Y6gmeOrBsHFQpv7xzms
-         SBKTieRqvG+d+vGgHX0IRghiZzVytgGP5O2XbySo=
+        b=V9kqg6boDAFgQZMMqcKAtZONiI61IREjAWWChhTzBfCYTx4F1Iqk0B6yOMzPIpsl9
+         XKMlyaYkKim38zy8EEz91tV41hFyRWU+X2oxIZJ/hMpYKUpEwGmXTyvpgim0dNsqSf
+         ePMQuYBf4tkpYRvPdP8m7aqVckEvi4MEP3zvShQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mitja Spes <mitja@lxnav.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.9 59/76] iio: pressure: ms5611: changed hardcoded SPI speed to value limited
+        patches@lists.linux.dev,
+        Davide Tronchin <davide.tronchin.94@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 61/88] USB: serial: option: add u-blox LARA-L6 modem
 Date:   Wed, 23 Nov 2022 09:50:58 +0100
-Message-Id: <20221123084548.697977785@linuxfoundation.org>
+Message-Id: <20221123084550.697317063@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitja Spes <mitja@lxnav.com>
+From: Davide Tronchin <davide.tronchin.94@gmail.com>
 
-commit 741cec30cc52058d1c10d415f3b98319887e4f73 upstream.
+commit c1547f12df8b8e9ca2686accee43213ecd117efe upstream.
 
-Don't hardcode the ms5611 SPI speed, limit it instead.
+Add LARA-L6 PIDs for three different USB compositions.
 
-Signed-off-by: Mitja Spes <mitja@lxnav.com>
-Fixes: c0644160a8b5 ("iio: pressure: add support for MS5611 pressure and temperature sensor")
-Link: https://lore.kernel.org/r/20221021135827.1444793-3-mitja@lxnav.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+LARA-L6 module can be configured (by AT interface) in three different
+USB modes:
+* Default mode (Vendor ID: 0x1546 Product ID: 0x1341) with 4 serial
+interfaces
+* RmNet mode (Vendor ID: 0x1546 Product ID: 0x1342) with 4 serial
+interfaces and 1 RmNet virtual network interface
+* CDC-ECM mode (Vendor ID: 0x1546 Product ID: 0x1343) with 4 serial
+interface and 1 CDC-ECM virtual network interface
+
+In default mode LARA-L6 exposes the following interfaces:
+If 0: Diagnostic
+If 1: AT parser
+If 2: AT parser
+If 3: AT parser/alternative functions
+
+In RmNet mode LARA-L6 exposes the following interfaces:
+If 0: Diagnostic
+If 1: AT parser
+If 2: AT parser
+If 3: AT parset/alternative functions
+If 4: RMNET interface
+
+In CDC-ECM mode LARA-L6 exposes the following interfaces:
+If 0: Diagnostic
+If 1: AT parser
+If 2: AT parser
+If 3: AT parset/alternative functions
+If 4: CDC-ECM interface
+
+Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
+[ johan: drop PID defines in favour of comments ]
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/pressure/ms5611_spi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/iio/pressure/ms5611_spi.c
-+++ b/drivers/iio/pressure/ms5611_spi.c
-@@ -95,7 +95,7 @@ static int ms5611_spi_probe(struct spi_d
- 	spi_set_drvdata(spi, indio_dev);
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -165,6 +165,8 @@ static void option_instat_callback(struc
+ #define NOVATELWIRELESS_PRODUCT_G2		0xA010
+ #define NOVATELWIRELESS_PRODUCT_MC551		0xB001
  
- 	spi->mode = SPI_MODE_0;
--	spi->max_speed_hz = 20000000;
-+	spi->max_speed_hz = min(spi->max_speed_hz, 20000000U);
- 	spi->bits_per_word = 8;
- 	ret = spi_setup(spi);
- 	if (ret < 0)
++#define UBLOX_VENDOR_ID				0x1546
++
+ /* AMOI PRODUCTS */
+ #define AMOI_VENDOR_ID				0x1614
+ #define AMOI_PRODUCT_H01			0x0800
+@@ -1133,6 +1135,12 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x90fa),
+ 	  .driver_info = RSVD(3) },
++	/* u-blox products */
++	{ USB_DEVICE(UBLOX_VENDOR_ID, 0x1341) },	/* u-blox LARA-L6 */
++	{ USB_DEVICE(UBLOX_VENDOR_ID, 0x1342),		/* u-blox LARA-L6 (RMNET) */
++	  .driver_info = RSVD(4) },
++	{ USB_DEVICE(UBLOX_VENDOR_ID, 0x1343),		/* u-blox LARA-L6 (ECM) */
++	  .driver_info = RSVD(4) },
+ 	/* Quectel products using Quectel vendor ID */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0xff, 0xff),
+ 	  .driver_info = NUMEP2 },
 
 
