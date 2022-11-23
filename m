@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CE6263575F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A5086357CE
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:47:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238015AbiKWJmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:42:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59474 "EHLO
+        id S238148AbiKWJoH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:44:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238072AbiKWJlq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D7F112C53
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:39:23 -0800 (PST)
+        with ESMTP id S238152AbiKWJnp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:43:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A04FF12747
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:41:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86AE8B81E54
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:39:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC79AC433D6;
-        Wed, 23 Nov 2022 09:39:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E1BA61B3B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:41:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28F33C433C1;
+        Wed, 23 Nov 2022 09:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196361;
-        bh=aBETzMf0OclZ0SaVEPr4il3hPRXeVDkWT00EYqZWNXQ=;
+        s=korg; t=1669196481;
+        bh=L/nM+BqdI8CQ0JsCB003896I7ZgPq+TeFIFtwjcT/VQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D6Y/xLWrQVdTJ/dI86oTCnNP/sGnk1T3kFK0OoG3WQDJy2aiuroC57AL7GFmBxaqg
-         93RJr2+S3qcrVYsKTWnKy634G2jKUwb+fLmZwfJnPGyJwEyJQPESsddkuMbkVdp0Mm
-         4E6y8RDTO6HGgHm7eksOI7b4Kv9SfKDoA8ujTa+w=
+        b=1xvj2mKInLaEZeINEZSTUNuIlIwkmDpixwrHYy0ZiH82ESkjwSpQ4lFsEbU2M+toz
+         eoClD48PbZ9GQ54pl16hZpzFNMzfVyEmA1vo0Yi2AyotBAO57rZcTf6ne2j6FeFImu
+         SHL45wjBeyFXtySf0F/yO52wGlovJWReiQk9kekI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akhil P Oommen <quic_akhilpo@quicinc.com>,
-        Rob Clark <robdclark@chromium.org>,
+        patches@lists.linux.dev,
+        Krishna Yarlagadda <kyarlagadda@nvidia.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 002/314] drm/msm/gpu: Fix crash during system suspend after unbind
-Date:   Wed, 23 Nov 2022 09:47:27 +0100
-Message-Id: <20221123084625.591524745@linuxfoundation.org>
+Subject: [PATCH 6.0 003/314] spi: tegra210-quad: Fix combined sequence
+Date:   Wed, 23 Nov 2022 09:47:28 +0100
+Message-Id: <20221123084625.639401875@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -53,79 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akhil P Oommen <quic_akhilpo@quicinc.com>
+From: Krishna Yarlagadda <kyarlagadda@nvidia.com>
 
-[ Upstream commit 76efc2453d0e8e5d6692ef69981b183ad674edea ]
+[ Upstream commit 8777dd9dff4020bba66654ec92e4b0ab6367ad30 ]
 
-In adreno_unbind, we should clean up gpu device's drvdata to avoid
-accessing a stale pointer during system suspend. Also, check for NULL
-ptr in both system suspend/resume callbacks.
+Return value should be updated to zero in combined sequence routine
+if transfer is completed successfully. Currently it holds timeout value
+resulting in errors.
 
-Signed-off-by: Akhil P Oommen <quic_akhilpo@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/505075/
-Link: https://lore.kernel.org/r/20220928124830.2.I5ee0ac073ccdeb81961e5ec0cce5f741a7207a71@changeid
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Krishna Yarlagadda <kyarlagadda@nvidia.com>
+Link: https://lore.kernel.org/r/20221001122148.9158-1-kyarlagadda@nvidia.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/adreno_device.c | 10 +++++++++-
- drivers/gpu/drm/msm/msm_gpu.c              |  2 ++
- drivers/gpu/drm/msm/msm_gpu.h              |  4 ++++
- 3 files changed, 15 insertions(+), 1 deletion(-)
+ drivers/spi/spi-tegra210-quad.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/adreno_device.c b/drivers/gpu/drm/msm/adreno/adreno_device.c
-index 24b489b6129a..628806423f7d 100644
---- a/drivers/gpu/drm/msm/adreno/adreno_device.c
-+++ b/drivers/gpu/drm/msm/adreno/adreno_device.c
-@@ -679,6 +679,9 @@ static int adreno_system_suspend(struct device *dev)
- 	struct msm_gpu *gpu = dev_to_gpu(dev);
- 	int remaining, ret;
- 
-+	if (!gpu)
-+		return 0;
-+
- 	suspend_scheduler(gpu);
- 
- 	remaining = wait_event_timeout(gpu->retire_event,
-@@ -700,7 +703,12 @@ static int adreno_system_suspend(struct device *dev)
- 
- static int adreno_system_resume(struct device *dev)
- {
--	resume_scheduler(dev_to_gpu(dev));
-+	struct msm_gpu *gpu = dev_to_gpu(dev);
-+
-+	if (!gpu)
-+		return 0;
-+
-+	resume_scheduler(gpu);
- 	return pm_runtime_force_resume(dev);
- }
- 
-diff --git a/drivers/gpu/drm/msm/msm_gpu.c b/drivers/gpu/drm/msm/msm_gpu.c
-index c2bfcf3f1f40..01aae792ffa9 100644
---- a/drivers/gpu/drm/msm/msm_gpu.c
-+++ b/drivers/gpu/drm/msm/msm_gpu.c
-@@ -993,4 +993,6 @@ void msm_gpu_cleanup(struct msm_gpu *gpu)
+diff --git a/drivers/spi/spi-tegra210-quad.c b/drivers/spi/spi-tegra210-quad.c
+index c89592b21ffc..904972606bd4 100644
+--- a/drivers/spi/spi-tegra210-quad.c
++++ b/drivers/spi/spi-tegra210-quad.c
+@@ -1157,6 +1157,11 @@ static int tegra_qspi_combined_seq_xfer(struct tegra_qspi *tqspi,
+ 		msg->actual_length += xfer->len;
+ 		transfer_phase++;
  	}
++	if (!xfer->cs_change) {
++		tegra_qspi_transfer_end(spi);
++		spi_transfer_delay_exec(xfer);
++	}
++	ret = 0;
  
- 	msm_devfreq_cleanup(gpu);
-+
-+	platform_set_drvdata(gpu->pdev, NULL);
- }
-diff --git a/drivers/gpu/drm/msm/msm_gpu.h b/drivers/gpu/drm/msm/msm_gpu.h
-index 4d935fedd2ac..fd22cf4041af 100644
---- a/drivers/gpu/drm/msm/msm_gpu.h
-+++ b/drivers/gpu/drm/msm/msm_gpu.h
-@@ -282,6 +282,10 @@ struct msm_gpu {
- static inline struct msm_gpu *dev_to_gpu(struct device *dev)
- {
- 	struct adreno_smmu_priv *adreno_smmu = dev_get_drvdata(dev);
-+
-+	if (!adreno_smmu)
-+		return NULL;
-+
- 	return container_of(adreno_smmu, struct msm_gpu, adreno_smmu);
- }
- 
+ exit:
+ 	msg->status = ret;
 -- 
 2.35.1
 
