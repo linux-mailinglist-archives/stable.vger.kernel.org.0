@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 033106353BF
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5B006353CB
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236848AbiKWI6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:58:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34616 "EHLO
+        id S236860AbiKWI6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:58:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236852AbiKWI6i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:58:38 -0500
+        with ESMTP id S236810AbiKWI6l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:58:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F86872097
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:58:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5E972133
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:58:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22796B81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:58:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 593E9C433D6;
-        Wed, 23 Nov 2022 08:58:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F33EB81EEE
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:58:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79A2CC433D6;
+        Wed, 23 Nov 2022 08:58:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193914;
-        bh=B1CN7ugn0rpQiyuNdjWozjo19Q6e7W/9iWPda5/WdqU=;
+        s=korg; t=1669193917;
+        bh=kzkDtoXdo/lXcEw2xk0RvA0tsuHthU4gYD8FH8U5rXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T/k7XcfWaMNDvmmT+0mmJCTmY06SWz5WZzcJ0RCw5wVV80dWhkQ88PvqLofZ8KBOE
-         wIj+jFXFlD+FJLf+M2zMi8Jpo3Cb2T3wdkRFCMOfyJkeM6zjU7ZL89i+Dr97VAMM6u
-         XwpSGT0K4KVE4lIX58TRV+SPd7iMQrEGSbqJ/X7k=
+        b=xMFB3rbc6aGkJtnm2ppOA+aBLv3uVGWu18DrN/xRLJ4zVssnCih5M+NAv/U60Hum0
+         wymEiVFlfYs0QtGLGwP2dDDicViyovJSTzD9TXtPTlSYxzsCTIUPZI0VGnZFOLqs1d
+         C1IMgzP6ZaQA7P6CZLrrzrlzvcasPfBGgCJD3AHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/88] net: lapbether: fix issue of dev reference count leakage in lapbeth_device_event()
-Date:   Wed, 23 Nov 2022 09:50:03 +0100
-Message-Id: <20221123084548.756954773@linuxfoundation.org>
+Subject: [PATCH 4.14 07/88] hamradio: fix issue of dev reference count leakage in bpq_device_event()
+Date:   Wed, 23 Nov 2022 09:50:04 +0100
+Message-Id: <20221123084548.787684030@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
 References: <20221123084548.535439312@linuxfoundation.org>
@@ -55,7 +55,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 531705a765493655472c993627106e19f7e5a6d2 ]
+[ Upstream commit 85cbaf032d3cd9f595152625eda5d4ecb1d6d78d ]
 
 When following tests are performed, it will cause dev reference counting
 leakage.
@@ -65,31 +65,31 @@ c)ifenslave -f bond2 rose1
 d)ip link del bond2
 
 When new bond device is created, the default type of the bond device is
-ether. And the bond device is up, lapbeth_device_event() receives the
-message and creates a new lapbeth device. In this case, the reference
-count value of dev is hold once. But after "ifenslave -f bond2 rose1"
-command is executed, the type of the bond device is changed to rose. When
-the bond device is unregistered, lapbeth_device_event() will not put the
-dev reference count.
+ether. And the bond device is up, bpq_device_event() receives the message
+and creates a new bpq device. In this case, the reference count value of
+dev is hold once. But after "ifenslave -f bond2 rose1" command is
+executed, the type of the bond device is changed to rose. When the bond
+device is unregistered, bpq_device_event() will not put the dev reference
+count.
 
 Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/lapbether.c | 2 +-
+ drivers/net/hamradio/bpqether.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index 3ec922bed2d8..6233805fc032 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -406,7 +406,7 @@ static int lapbeth_device_event(struct notifier_block *this,
- 	if (dev_net(dev) != &init_net)
+diff --git a/drivers/net/hamradio/bpqether.c b/drivers/net/hamradio/bpqether.c
+index 7d94a7842557..5044ef45afda 100644
+--- a/drivers/net/hamradio/bpqether.c
++++ b/drivers/net/hamradio/bpqether.c
+@@ -551,7 +551,7 @@ static int bpq_device_event(struct notifier_block *this,
+ 	if (!net_eq(dev_net(dev), &init_net))
  		return NOTIFY_DONE;
  
 -	if (!dev_is_ethdev(dev))
-+	if (!dev_is_ethdev(dev) && !lapbeth_get_x25_dev(dev))
++	if (!dev_is_ethdev(dev) && !bpq_get_ax25_dev(dev))
  		return NOTIFY_DONE;
  
  	switch (event) {
