@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74A27635887
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5772635482
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236888AbiKWJ7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:59:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55502 "EHLO
+        id S237095AbiKWJHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:07:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236895AbiKWJ62 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:58:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56BF8D4
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:30 -0800 (PST)
+        with ESMTP id S237218AbiKWJHO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4C26105A85
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02FDA61B6F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E17C6C433C1;
-        Wed, 23 Nov 2022 09:52:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51E4A61B59
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46658C433C1;
+        Wed, 23 Nov 2022 09:06:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197149;
-        bh=2OI2APBd1jExr1h7zXHFoK56XBYgjQyI4naM7V0+Tx4=;
+        s=korg; t=1669194414;
+        bh=3ck9Xe5tg1QfdZeBDOx83UjQJzLEsPFRPeEwmuhrhc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KlVxnt6KGpycemHsznd43iTt2/lmcckh3Ne5p9R2I7I75aiC0GhgqpA/uTj/edvu5
-         oA6ulvVk9vuVr2eH+3cri9zyMpYmOvMU3NCUeCogUI/RqFjoeC4X7v0WVzoUgrg0Rw
-         UrxPWGuqQEdI/sdG0awgRm1FZwd42kSeIM6CrcPQ=
+        b=rXm1XIct4c7fCtyKSd0XABzqJfb6CWmXkbdXRke8PsXVRmSAzPZHMZ8rwiuXYd157
+         myx2QFlL4/CnN4chkHi0I3MOCvKz0fVdI+cANjuE9ecG244Et8FeHu3ZB+2NzN/0V/
+         E3hSvmjGkj469pn508VOt04scc9j335a+Ht1Fank=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Feifei Xu <Feifei.Xu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 212/314] drm/amd/pm: fix SMU13 runpm hang due to unintentional workaround
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 070/114] xen/pcpu: fix possible memory leak in register_pcpu()
 Date:   Wed, 23 Nov 2022 09:50:57 +0100
-Message-Id: <20221123084635.142971874@linuxfoundation.org>
+Message-Id: <20221123084554.677714252@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 4b14841c9a820e484bc8c4c3f5a6fed1bc528cbc upstream.
+[ Upstream commit da36a2a76b01b210ffaa55cdc2c99bc8783697c5 ]
 
-The workaround designed for some specific ASICs is wrongly applied
-to SMU13 ASICs. That leads to some runpm hang.
+In device_add(), dev_set_name() is called to allocate name, if it returns
+error, the name need be freed. As comment of device_register() says, it
+should use put_device() to give up the reference in the error path. So fix
+this by calling put_device(), then the name can be freed in kobject_cleanup().
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Reviewed-by: Feifei Xu <Feifei.Xu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f65c9bb3fb72 ("xen/pcpu: Xen physical cpus online/offline sys interface")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20221110152441.401630-1-yangyingliang@huawei.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c |   23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ drivers/xen/pcpu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-@@ -1131,22 +1131,21 @@ static int smu_smc_hw_setup(struct smu_c
- 	uint64_t features_supported;
- 	int ret = 0;
+diff --git a/drivers/xen/pcpu.c b/drivers/xen/pcpu.c
+index cdc6daa7a9f6..9cf7085a260b 100644
+--- a/drivers/xen/pcpu.c
++++ b/drivers/xen/pcpu.c
+@@ -228,7 +228,7 @@ static int register_pcpu(struct pcpu *pcpu)
  
--	if (adev->in_suspend && smu_is_dpm_running(smu)) {
--		dev_info(adev->dev, "dpm has been enabled\n");
--		/* this is needed specifically */
--		switch (adev->ip_versions[MP1_HWIP][0]) {
--		case IP_VERSION(11, 0, 7):
--		case IP_VERSION(11, 0, 11):
--		case IP_VERSION(11, 5, 0):
--		case IP_VERSION(11, 0, 12):
-+	switch (adev->ip_versions[MP1_HWIP][0]) {
-+	case IP_VERSION(11, 0, 7):
-+	case IP_VERSION(11, 0, 11):
-+	case IP_VERSION(11, 5, 0):
-+	case IP_VERSION(11, 0, 12):
-+		if (adev->in_suspend && smu_is_dpm_running(smu)) {
-+			dev_info(adev->dev, "dpm has been enabled\n");
- 			ret = smu_system_features_control(smu, true);
- 			if (ret)
- 				dev_err(adev->dev, "Failed system features control!\n");
--			break;
--		default:
--			break;
-+			return ret;
- 		}
--		return ret;
-+		break;
-+	default:
-+		break;
+ 	err = device_register(dev);
+ 	if (err) {
+-		pcpu_release(dev);
++		put_device(dev);
+ 		return err;
  	}
  
- 	ret = smu_init_display_count(smu, 0);
+-- 
+2.35.1
+
 
 
