@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3E22635909
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4676363577D
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236016AbiKWKG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:06:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33156 "EHLO
+        id S238030AbiKWJlo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:41:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236289AbiKWKGN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA9912520D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:35 -0800 (PST)
+        with ESMTP id S237886AbiKWJlZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53316D2372
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:38:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA776B81EF6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6ADAC433D7;
-        Wed, 23 Nov 2022 09:56:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE2E2B81E60
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:38:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46535C433D6;
+        Wed, 23 Nov 2022 09:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197392;
-        bh=d7Hhk7VphtiIXAElSfzEXVlxJlYqwByILYBXlIOPsSU=;
+        s=korg; t=1669196332;
+        bh=goSKSrtytpLC9w9m/Ga6oFKpblQyL4koo4DePb4zODk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OMuBTXFFq8EWIkCEWae0P13Q5Ez+FLa8nz4S+m9JD+3BPk2HEQ4uRxAf7eKE/rjDX
-         SPN2cDhrGFLiIIkua6UPRJKh1Cn0lttn7HF3PUlv9WUZDIN5V1jgLLYZ5kbXgPMulH
-         0SrUpxb9n8A6Qq/FANscfWWAqaXC9Gssj8uuawpc=
+        b=RfGvkmaAjQ1D8HKaocpCqJhq/VFHizHqONqhmy9ARn4gLzU73gzHr0jNgkvCl5Bmh
+         7xiDa1UsNXUV04LyU1RQ7Iu20jqY/RaQNCGPwkHMgywZ7RyP6e6hyQcMW/kGdsgNSY
+         qC2pL2fhY3ZB47PMwb/GQzNaLrX8sVMcVS6+n9WA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 6.0 282/314] nvme: ensure subsystem reset is single threaded
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Mike Christie <michael.chritie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 164/181] scsi: target: tcm_loop: Fix possible name leak in tcm_loop_setup_hba_bus()
 Date:   Wed, 23 Nov 2022 09:52:07 +0100
-Message-Id: <20221123084638.317209765@linuxfoundation.org>
+Message-Id: <20221123084609.436980853@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 1e866afd4bcdd01a70a5eddb4371158d3035ce03 upstream.
+[ Upstream commit bc68e428d4963af0201e92159629ab96948f0893 ]
 
-The subsystem reset writes to a register, so we have to ensure the
-device state is capable of handling that otherwise the driver may access
-unmapped registers. Use the state machine to ensure the subsystem reset
-doesn't try to write registers on a device already undergoing this type
-of reset.
+If device_register() fails in tcm_loop_setup_hba_bus(), the name allocated
+by dev_set_name() need be freed. As comment of device_register() says, it
+should use put_device() to give up the reference in the error path. So fix
+this by calling put_device(), then the name can be freed in kobject_cleanup().
+The 'tl_hba' will be freed in tcm_loop_release_adapter(), so it don't need
+goto error label in this case.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214771
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3703b2c5d041 ("[SCSI] tcm_loop: Add multi-fabric Linux/SCSI LLD fabric module")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221115015042.3652261-1-yangyingliang@huawei.com
+Reviewed-by: Mike Christie <michael.chritie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/nvme.h |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/target/loopback/tcm_loop.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -602,11 +602,23 @@ static inline void nvme_fault_inject_fin
- static inline void nvme_should_fail(struct request *req) {}
- #endif
+diff --git a/drivers/target/loopback/tcm_loop.c b/drivers/target/loopback/tcm_loop.c
+index 52db28d868d5..600a4d1ee45f 100644
+--- a/drivers/target/loopback/tcm_loop.c
++++ b/drivers/target/loopback/tcm_loop.c
+@@ -397,6 +397,7 @@ static int tcm_loop_setup_hba_bus(struct tcm_loop_hba *tl_hba, int tcm_loop_host
+ 	ret = device_register(&tl_hba->dev);
+ 	if (ret) {
+ 		pr_err("device_register() failed for tl_hba->dev: %d\n", ret);
++		put_device(&tl_hba->dev);
+ 		return -ENODEV;
+ 	}
  
-+bool nvme_wait_reset(struct nvme_ctrl *ctrl);
-+int nvme_try_sched_reset(struct nvme_ctrl *ctrl);
-+
- static inline int nvme_reset_subsystem(struct nvme_ctrl *ctrl)
- {
-+	int ret;
-+
- 	if (!ctrl->subsystem)
- 		return -ENOTTY;
--	return ctrl->ops->reg_write32(ctrl, NVME_REG_NSSR, 0x4E564D65);
-+	if (!nvme_wait_reset(ctrl))
-+		return -EBUSY;
-+
-+	ret = ctrl->ops->reg_write32(ctrl, NVME_REG_NSSR, 0x4E564D65);
-+	if (ret)
-+		return ret;
-+
-+	return nvme_try_sched_reset(ctrl);
- }
+@@ -1073,7 +1074,7 @@ static struct se_wwn *tcm_loop_make_scsi_hba(
+ 	 */
+ 	ret = tcm_loop_setup_hba_bus(tl_hba, tcm_loop_hba_no_cnt);
+ 	if (ret)
+-		goto out;
++		return ERR_PTR(ret);
  
- /*
-@@ -712,7 +724,6 @@ void nvme_cancel_tagset(struct nvme_ctrl
- void nvme_cancel_admin_tagset(struct nvme_ctrl *ctrl);
- bool nvme_change_ctrl_state(struct nvme_ctrl *ctrl,
- 		enum nvme_ctrl_state new_state);
--bool nvme_wait_reset(struct nvme_ctrl *ctrl);
- int nvme_disable_ctrl(struct nvme_ctrl *ctrl);
- int nvme_enable_ctrl(struct nvme_ctrl *ctrl);
- int nvme_shutdown_ctrl(struct nvme_ctrl *ctrl);
-@@ -802,7 +813,6 @@ int nvme_set_queue_count(struct nvme_ctr
- void nvme_stop_keep_alive(struct nvme_ctrl *ctrl);
- int nvme_reset_ctrl(struct nvme_ctrl *ctrl);
- int nvme_reset_ctrl_sync(struct nvme_ctrl *ctrl);
--int nvme_try_sched_reset(struct nvme_ctrl *ctrl);
- int nvme_delete_ctrl(struct nvme_ctrl *ctrl);
- void nvme_queue_scan(struct nvme_ctrl *ctrl);
- int nvme_get_log(struct nvme_ctrl *ctrl, u32 nsid, u8 log_page, u8 lsp, u8 csi,
+ 	sh = tl_hba->sh;
+ 	tcm_loop_hba_no_cnt++;
+-- 
+2.35.1
+
 
 
