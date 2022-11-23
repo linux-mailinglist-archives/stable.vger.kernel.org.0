@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F65635527
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C0563588D
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:00:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237301AbiKWJQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:16:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57842 "EHLO
+        id S237010AbiKWKAa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:00:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237344AbiKWJPt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:15:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E69F1108918
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:15:45 -0800 (PST)
+        with ESMTP id S237015AbiKWJ7e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:59:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B932011A70D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 820DFB81EEB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:15:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF898C433C1;
-        Wed, 23 Nov 2022 09:15:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5997A61B95
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46EACC433D6;
+        Wed, 23 Nov 2022 09:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194943;
-        bh=3ck9Xe5tg1QfdZeBDOx83UjQJzLEsPFRPeEwmuhrhc8=;
+        s=korg; t=1669197162;
+        bh=WO33uot3OR3TvqZxOp92NKrN7EgmYPBU7TzJwPjhVyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2OisEft1MH1NU6M4k4nHtYeLxej/xnI6hfiUelYI6/VnYR5yjZmyAVbIe8Ryy8YhS
-         zxEfnHi5MnIsT4qSvdJ3YvoKkcVvY7eyu6X2fe70PvDBPg/CFWpmP0KsLyt+mplENj
-         O8aERGN+/sZYud265DsxUgtBQg8svvIci6U5ncZY=
+        b=h8wE1mMDLABN9rXm7A8aC3yrqZcOnNWmvyo+rNsiMnOKl8wnEheh2TcfKyJ07A+zg
+         fLRW7f21lWNWaASg+joa94RPHPhfHukqkRmRu8QNhy7JULlIGRMGXLMzxlRJRxYWk+
+         7btc5yv+d5XMfa9FQ/8TNgPrfZFcMC0lE2cRj+bU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 104/156] xen/pcpu: fix possible memory leak in register_pcpu()
+        patches@lists.linux.dev, Wayne Lin <Wayne.Lin@amd.com>,
+        Tom Chung <chiahsuan.chung@amd.com>,
+        Stylon Wang <stylon.wang@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.0 216/314] drm/amd/display: Fix access timeout to DPIA AUX at boot time
 Date:   Wed, 23 Nov 2022 09:51:01 +0100
-Message-Id: <20221123084601.731003121@linuxfoundation.org>
+Message-Id: <20221123084635.331988949@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Stylon Wang <stylon.wang@amd.com>
 
-[ Upstream commit da36a2a76b01b210ffaa55cdc2c99bc8783697c5 ]
+commit 0d502ef8898b3983eef9e40f50dfe100a0de5d93 upstream.
 
-In device_add(), dev_set_name() is called to allocate name, if it returns
-error, the name need be freed. As comment of device_register() says, it
-should use put_device() to give up the reference in the error path. So fix
-this by calling put_device(), then the name can be freed in kobject_cleanup().
+[Why]
+Since introduction of patch "Query DPIA HPD status.", link detection at
+boot could be accessing DPIA AUX, which will not succeed until
+DMUB outbox messaging is enabled and results in below dmesg logs:
 
-Fixes: f65c9bb3fb72 ("xen/pcpu: Xen physical cpus online/offline sys interface")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221110152441.401630-1-yangyingliang@huawei.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[  160.840227] [drm:amdgpu_dm_process_dmub_aux_transfer_sync [amdgpu]] *ERROR* wait_for_completion_timeout timeout!
+
+[How]
+Enable DMUB outbox messaging before link detection at boot time.
+
+Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
+Acked-by: Tom Chung <chiahsuan.chung@amd.com>
+Signed-off-by: Stylon Wang <stylon.wang@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.0.x
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/pcpu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/xen/pcpu.c b/drivers/xen/pcpu.c
-index cdc6daa7a9f6..9cf7085a260b 100644
---- a/drivers/xen/pcpu.c
-+++ b/drivers/xen/pcpu.c
-@@ -228,7 +228,7 @@ static int register_pcpu(struct pcpu *pcpu)
- 
- 	err = device_register(dev);
- 	if (err) {
--		pcpu_release(dev);
-+		put_device(dev);
- 		return err;
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1645,12 +1645,6 @@ static int amdgpu_dm_init(struct amdgpu_
+ 		}
  	}
  
--- 
-2.35.1
-
+-	if (amdgpu_dm_initialize_drm_device(adev)) {
+-		DRM_ERROR(
+-		"amdgpu: failed to initialize sw for display support.\n");
+-		goto error;
+-	}
+-
+ 	/* Enable outbox notification only after IRQ handlers are registered and DMUB is alive.
+ 	 * It is expected that DMUB will resend any pending notifications at this point, for
+ 	 * example HPD from DPIA.
+@@ -1658,6 +1652,12 @@ static int amdgpu_dm_init(struct amdgpu_
+ 	if (dc_is_dmub_outbox_supported(adev->dm.dc))
+ 		dc_enable_dmub_outbox(adev->dm.dc);
+ 
++	if (amdgpu_dm_initialize_drm_device(adev)) {
++		DRM_ERROR(
++		"amdgpu: failed to initialize sw for display support.\n");
++		goto error;
++	}
++
+ 	/* create fake encoders for MST */
+ 	dm_dp_create_fake_mst_encoders(adev);
+ 
 
 
