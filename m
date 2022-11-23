@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E9A7635655
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 012CC635661
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237818AbiKWJaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:30:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44310 "EHLO
+        id S237821AbiKWJa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:30:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237658AbiKWJag (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:36 -0500
+        with ESMTP id S237792AbiKWJai (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:38 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28EB2112C53
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:28:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C1951122E6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:28:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFFC7B81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:28:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A6D9C433C1;
-        Wed, 23 Nov 2022 09:28:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C001EB81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:28:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F5CEC433D6;
+        Wed, 23 Nov 2022 09:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195728;
-        bh=5rig4E0gWQ2552DDEVY5T99PzN2A0F32cShy/T8DvYY=;
+        s=korg; t=1669195732;
+        bh=Ef68W4NwjGbsOzalRyCpru/gKH3exkvFkF3fKzhFOrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2M0Cc1J2oiXYaFXsjrbr3+4YLHdPyKtrOh/hf5K6nuXxwoXcy+lkifdPC7OvHSSwJ
-         0IeJGTWEENsw6RS9WIfqIZmUXLlNE5I2bcsHs5UeuGwjMpveQhpvozCSMypjPd2ebx
-         RnSOYY5dHacRM5AwmnuYg9gEMruEKPZABUkbXGus=
+        b=WVPsDXQ0itdRGnTFSIbzgHPm6RVC/JJfEcupzjg1pN7dqy+TTfM015G9VELJlCx4a
+         cA4Bb2sNe0Yj4Qer3qVSfZmG3IsPdPrZbE+Ty/LdF8aKrXwYQOH7AdmcVHRWJ8CKVC
+         2IG0sVUAZLGYLLXSH2nyqwpUvUh5WD+nABssRgf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 017/181] selftests/intel_pstate: fix build for ARCH=x86_64
-Date:   Wed, 23 Nov 2022 09:49:40 +0100
-Message-Id: <20221123084603.259809412@linuxfoundation.org>
+Subject: [PATCH 5.15 018/181] rtc: cmos: fix build on non-ACPI platforms
+Date:   Wed, 23 Nov 2022 09:49:41 +0100
+Message-Id: <20221123084603.289427026@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
 References: <20221123084602.707860461@linuxfoundation.org>
@@ -54,38 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit beb7d862ed4ac6aa14625418970f22a7d55b8615 ]
+[ Upstream commit db4e955ae333567dea02822624106c0b96a2f84f ]
 
-Handle the scenario where the build is launched with the ARCH envvar
-defined as x86_64.
+Now that rtc_wake_setup is called outside of cmos_wake_setup, it also need
+to be defined on non-ACPI platforms.
 
-Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20221018203512.2532407-1-alexandre.belloni@bootlin.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/intel_pstate/Makefile | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-cmos.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/testing/selftests/intel_pstate/Makefile b/tools/testing/selftests/intel_pstate/Makefile
-index 39f0fa2a8fd6..05d66ef50c97 100644
---- a/tools/testing/selftests/intel_pstate/Makefile
-+++ b/tools/testing/selftests/intel_pstate/Makefile
-@@ -2,10 +2,10 @@
- CFLAGS := $(CFLAGS) -Wall -D_GNU_SOURCE
- LDLIBS += -lm
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index b90a603d6b12..3e7b6834a7b0 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1296,6 +1296,9 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
+ {
+ }
  
--uname_M := $(shell uname -m 2>/dev/null || echo not)
--ARCH ?= $(shell echo $(uname_M) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
-+ARCH ?= $(shell uname -m 2>/dev/null || echo not)
-+ARCH_PROCESSED := $(shell echo $(ARCH) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
++static void rtc_wake_setup(struct device *dev)
++{
++}
+ #endif
  
--ifeq (x86,$(ARCH))
-+ifeq (x86,$(ARCH_PROCESSED))
- TEST_GEN_FILES := msr aperf
- endif
- 
+ #ifdef	CONFIG_PNP
 -- 
 2.35.1
 
