@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAAEC6356B7
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51FB66355A8
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237829AbiKWJcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:32:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50744 "EHLO
+        id S237455AbiKWJVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:21:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237830AbiKWJbX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:23 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92498E0AE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:30:41 -0800 (PST)
+        with ESMTP id S237458AbiKWJUx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:20:53 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D27821261
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:20:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 33BF3CE20E5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:30:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FF25C433D6;
-        Wed, 23 Nov 2022 09:30:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8DFC6CE20F1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:20:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 424A6C433C1;
+        Wed, 23 Nov 2022 09:20:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195838;
-        bh=ZvJmBRius+jMqI9fFzOtmo5ZpQc62MIL0f24ld1r+s0=;
+        s=korg; t=1669195247;
+        bh=CmcmcPI2VcpXv3yrjN2gijnu1MKsTMCTQ/7zNYKHIAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZDY+a7SKoaZVRFPtpmE0jxVUcOE3EU2BJ2SzkgaFO6pzMU0pPjLlhg6lQ0vnbJvjQ
-         dmNJLwq+cq3oJl6gaUoC1iTGesIOshG8uxVwH+YdHiF36F0v+H2VRrwIvd5atApbr0
-         2KiQAnkklgNqB68X0rEhsqxNMQb1tR5kfqRb2pX8=
+        b=mE1WKbxoPOFtTAx2eZ9c/nRZAHHwjKKKflm/cclWT94GouGf5JZ1goOaoDt7mU1pS
+         PpXauraPF7PnNUxxqum6hhKXkycCinFYWiTfQfdnQqQQviuPNEboxtwJXp1FNwkdPV
+         unDVViUs0/U1p09ebAL8IupaseMOzek3bgqiMqOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        llvm@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        patches@lists.linux.dev, Siarhei Volkau <lis8215@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 029/181] drm/imx: imx-tve: Fix return type of imx_tve_connector_mode_valid
+Subject: [PATCH 5.10 009/149] ASoC: codecs: jz4725b: use right control for Capture Volume
 Date:   Wed, 23 Nov 2022 09:49:52 +0100
-Message-Id: <20221123084603.662679406@linuxfoundation.org>
+Message-Id: <20221123084558.310291236@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Siarhei Volkau <lis8215@gmail.com>
 
-[ Upstream commit fc007fb815ab5395c3962c09b79a1630b0fbed9c ]
+[ Upstream commit 1538e2c8c9b7e7a656effcc6e4e7cfe8c1b405fd ]
 
-The mode_valid field in drm_connector_helper_funcs is expected to be of
-type:
-enum drm_mode_status (* mode_valid) (struct drm_connector *connector,
-                                     struct drm_display_mode *mode);
+Line In Bypass control is used as Master Capture at the moment
+this is completely incorrect.
 
-The mismatched return type breaks forward edge kCFI since the underlying
-function definition does not match the function hook definition.
+Current control routed to Mixer instead of ADC, thus can't affect
+Capture path. ADC control shall be used instead.
 
-The return type of imx_tve_connector_mode_valid should be changed from
-int to enum drm_mode_status.
+ADC volume control parameters are different, so the patch fixes that
+as well. Manual says (16.6.3.2 Programmable input attenuation amplifier:
+PGATM) that gain varies in range 0dB..22.5dB with 1.5dB step.
 
-Reported-by: Dan Carpenter <error27@gmail.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1703
-Cc: llvm@lists.linux.dev
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220913205544.155106-1-nhuck@google.com
+Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
+Link: https://lore.kernel.org/r/20221016132648.3011729-4-lis8215@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/imx-tve.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/soc/codecs/jz4725b.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
-index bc8c3f802a15..fbfb7adead0b 100644
---- a/drivers/gpu/drm/imx/imx-tve.c
-+++ b/drivers/gpu/drm/imx/imx-tve.c
-@@ -217,8 +217,9 @@ static int imx_tve_connector_get_modes(struct drm_connector *connector)
- 	return ret;
- }
+diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
+index 6f3d4ead9150..9dc8d76bf104 100644
+--- a/sound/soc/codecs/jz4725b.c
++++ b/sound/soc/codecs/jz4725b.c
+@@ -136,13 +136,16 @@ enum {
+ #define REG_CGR3_GO1L_OFFSET		0
+ #define REG_CGR3_GO1L_MASK		(0x1f << REG_CGR3_GO1L_OFFSET)
  
--static int imx_tve_connector_mode_valid(struct drm_connector *connector,
--					struct drm_display_mode *mode)
-+static enum drm_mode_status
-+imx_tve_connector_mode_valid(struct drm_connector *connector,
-+			     struct drm_display_mode *mode)
- {
- 	struct imx_tve *tve = con_to_tve(connector);
- 	unsigned long rate;
++#define REG_CGR10_GIL_OFFSET		0
++#define REG_CGR10_GIR_OFFSET		4
++
+ struct jz_icdc {
+ 	struct regmap *regmap;
+ 	void __iomem *base;
+ 	struct clk *clk;
+ };
+ 
+-static const SNDRV_CTL_TLVD_DECLARE_DB_LINEAR(jz4725b_line_tlv, -1500, 600);
++static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_adc_tlv,     0, 150, 0);
+ static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_dac_tlv, -2250, 150, 0);
+ 
+ static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
+@@ -151,11 +154,11 @@ static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
+ 		       REG_CGR1_GODL_OFFSET,
+ 		       REG_CGR1_GODR_OFFSET,
+ 		       0xf, 1, jz4725b_dac_tlv),
+-	SOC_DOUBLE_R_TLV("Master Capture Volume",
+-			 JZ4725B_CODEC_REG_CGR3,
+-			 JZ4725B_CODEC_REG_CGR2,
+-			 REG_CGR2_GO1R_OFFSET,
+-			 0x1f, 1, jz4725b_line_tlv),
++	SOC_DOUBLE_TLV("Master Capture Volume",
++		       JZ4725B_CODEC_REG_CGR10,
++		       REG_CGR10_GIL_OFFSET,
++		       REG_CGR10_GIR_OFFSET,
++		       0xf, 0, jz4725b_adc_tlv),
+ 
+ 	SOC_SINGLE("Master Playback Switch", JZ4725B_CODEC_REG_CR1,
+ 		   REG_CR1_DAC_MUTE_OFFSET, 1, 1),
 -- 
 2.35.1
 
