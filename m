@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F6906355F7
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:27:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0088F635878
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:58:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237692AbiKWJ0I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:26:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43868 "EHLO
+        id S236837AbiKWJ6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:58:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237652AbiKWJZo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:25:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19B44E0C1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:24:37 -0800 (PST)
+        with ESMTP id S235466AbiKWJ5S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:57:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2520470A1B;
+        Wed, 23 Nov 2022 01:52:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB2CC61B49
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:24:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FF0CC433C1;
-        Wed, 23 Nov 2022 09:24:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CDEDFB81EF6;
+        Wed, 23 Nov 2022 09:51:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E25FC433C1;
+        Wed, 23 Nov 2022 09:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195476;
-        bh=R5astfXp/esCPEfcdekGxcYhw4wFdzNjt4rXlUHWD2o=;
+        s=korg; t=1669197117;
+        bh=NTL4zNzGBVNwLVJXhb2ZeGTCX4f2rotC/aJta45h2nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z4EPknseaxd+M+v8RL1M5sERkbH0BlSva2poPOOjmlPz/V3sHYf5Rspwzo9bMoVi4
-         Nk89PXi7Xh9ECvSkd2Go2lv7/A1GyDjqsubw7onszBkOyw2V/IMwVtxdhBoKyJT4MM
-         c0VcI74DOa4PVhAi/A/x5H3yyXrnceC0aYNR5J/4=
+        b=NlhhNtSJnB/2glbGqspF6opzWGRd3iZsTwI6RUj9jSXHVkJj/2Ccya0w6a3FS04Hw
+         Dyri8cQCW+94C9JCPHieEGdY//kYfiP1CjVpbDdWHjzLHc3DLgvC6chj2JgvZju0Id
+         iwO2zc2Z5kM+qYaReMCZTe98i3f94G0iNKgPiAXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 063/149] net: bgmac: Drop free_netdev() from bgmac_enet_remove()
+        patches@lists.linux.dev,
+        Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Primiano Tucci <primiano@google.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 6.0 201/314] tracing/ring-buffer: Have polling block on watermark
 Date:   Wed, 23 Nov 2022 09:50:46 +0100
-Message-Id: <20221123084600.193330322@linuxfoundation.org>
+Message-Id: <20221123084634.660315514@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +56,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit 6f928ab8ee9bfbcb0e631c47ea8a16c3d5116ff1 ]
+commit 42fb0a1e84ff525ebe560e2baf9451ab69127e2b upstream.
 
-netdev is allocated in bgmac_alloc() with devm_alloc_etherdev() and will
-be auto released in ->remove and ->probe failure path. Using free_netdev()
-in bgmac_enet_remove() leads to double free.
+Currently the way polling works on the ring buffer is broken. It will
+return immediately if there's any data in the ring buffer whereas a read
+will block until the watermark (defined by the tracefs buffer_percent file)
+is hit.
 
-Fixes: 34a5102c3235 ("net: bgmac: allocate struct bgmac just once & don't copy it")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+That is, a select() or poll() will return as if there's data available,
+but then the following read will block. This is broken for the way
+select()s and poll()s are supposed to work.
 
-Link: https://lore.kernel.org/r/20221109150136.2991171-1-weiyongjun@huaweicloud.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Have the polling on the ring buffer also block the same way reads and
+splice does on the ring buffer.
+
+Link: https://lkml.kernel.org/r/20221020231427.41be3f26@gandalf.local.home
+
+Cc: Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Primiano Tucci <primiano@google.com>
+Cc: stable@vger.kernel.org
+Fixes: 1e0d6714aceb7 ("ring-buffer: Do not wake up a splice waiter when page is not full")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bgmac.c | 1 -
- 1 file changed, 1 deletion(-)
+ include/linux/ring_buffer.h |    2 -
+ kernel/trace/ring_buffer.c  |   55 ++++++++++++++++++++++++++++----------------
+ kernel/trace/trace.c        |    2 -
+ 3 files changed, 38 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bgmac.c b/drivers/net/ethernet/broadcom/bgmac.c
-index 6290d8bedc92..9960127f612e 100644
---- a/drivers/net/ethernet/broadcom/bgmac.c
-+++ b/drivers/net/ethernet/broadcom/bgmac.c
-@@ -1568,7 +1568,6 @@ void bgmac_enet_remove(struct bgmac *bgmac)
- 	phy_disconnect(bgmac->net_dev->phydev);
- 	netif_napi_del(&bgmac->napi);
- 	bgmac_dma_free(bgmac);
--	free_netdev(bgmac->net_dev);
- }
- EXPORT_SYMBOL_GPL(bgmac_enet_remove);
+--- a/include/linux/ring_buffer.h
++++ b/include/linux/ring_buffer.h
+@@ -100,7 +100,7 @@ __ring_buffer_alloc(unsigned long size,
  
--- 
-2.35.1
-
+ int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full);
+ __poll_t ring_buffer_poll_wait(struct trace_buffer *buffer, int cpu,
+-			  struct file *filp, poll_table *poll_table);
++			  struct file *filp, poll_table *poll_table, int full);
+ void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu);
+ 
+ #define RING_BUFFER_ALL_CPUS -1
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -907,6 +907,21 @@ size_t ring_buffer_nr_dirty_pages(struct
+ 	return cnt - read;
+ }
+ 
++static __always_inline bool full_hit(struct trace_buffer *buffer, int cpu, int full)
++{
++	struct ring_buffer_per_cpu *cpu_buffer = buffer->buffers[cpu];
++	size_t nr_pages;
++	size_t dirty;
++
++	nr_pages = cpu_buffer->nr_pages;
++	if (!nr_pages || !full)
++		return true;
++
++	dirty = ring_buffer_nr_dirty_pages(buffer, cpu);
++
++	return (dirty * 100) > (full * nr_pages);
++}
++
+ /*
+  * rb_wake_up_waiters - wake up tasks waiting for ring buffer input
+  *
+@@ -1046,22 +1061,20 @@ int ring_buffer_wait(struct trace_buffer
+ 		    !ring_buffer_empty_cpu(buffer, cpu)) {
+ 			unsigned long flags;
+ 			bool pagebusy;
+-			size_t nr_pages;
+-			size_t dirty;
++			bool done;
+ 
+ 			if (!full)
+ 				break;
+ 
+ 			raw_spin_lock_irqsave(&cpu_buffer->reader_lock, flags);
+ 			pagebusy = cpu_buffer->reader_page == cpu_buffer->commit_page;
+-			nr_pages = cpu_buffer->nr_pages;
+-			dirty = ring_buffer_nr_dirty_pages(buffer, cpu);
++			done = !pagebusy && full_hit(buffer, cpu, full);
++
+ 			if (!cpu_buffer->shortest_full ||
+ 			    cpu_buffer->shortest_full > full)
+ 				cpu_buffer->shortest_full = full;
+ 			raw_spin_unlock_irqrestore(&cpu_buffer->reader_lock, flags);
+-			if (!pagebusy &&
+-			    (!nr_pages || (dirty * 100) > full * nr_pages))
++			if (done)
+ 				break;
+ 		}
+ 
+@@ -1087,6 +1100,7 @@ int ring_buffer_wait(struct trace_buffer
+  * @cpu: the cpu buffer to wait on
+  * @filp: the file descriptor
+  * @poll_table: The poll descriptor
++ * @full: wait until the percentage of pages are available, if @cpu != RING_BUFFER_ALL_CPUS
+  *
+  * If @cpu == RING_BUFFER_ALL_CPUS then the task will wake up as soon
+  * as data is added to any of the @buffer's cpu buffers. Otherwise
+@@ -1096,14 +1110,15 @@ int ring_buffer_wait(struct trace_buffer
+  * zero otherwise.
+  */
+ __poll_t ring_buffer_poll_wait(struct trace_buffer *buffer, int cpu,
+-			  struct file *filp, poll_table *poll_table)
++			  struct file *filp, poll_table *poll_table, int full)
+ {
+ 	struct ring_buffer_per_cpu *cpu_buffer;
+ 	struct rb_irq_work *work;
+ 
+-	if (cpu == RING_BUFFER_ALL_CPUS)
++	if (cpu == RING_BUFFER_ALL_CPUS) {
+ 		work = &buffer->irq_work;
+-	else {
++		full = 0;
++	} else {
+ 		if (!cpumask_test_cpu(cpu, buffer->cpumask))
+ 			return -EINVAL;
+ 
+@@ -1111,8 +1126,14 @@ __poll_t ring_buffer_poll_wait(struct tr
+ 		work = &cpu_buffer->irq_work;
+ 	}
+ 
+-	poll_wait(filp, &work->waiters, poll_table);
+-	work->waiters_pending = true;
++	if (full) {
++		poll_wait(filp, &work->full_waiters, poll_table);
++		work->full_waiters_pending = true;
++	} else {
++		poll_wait(filp, &work->waiters, poll_table);
++		work->waiters_pending = true;
++	}
++
+ 	/*
+ 	 * There's a tight race between setting the waiters_pending and
+ 	 * checking if the ring buffer is empty.  Once the waiters_pending bit
+@@ -1128,6 +1149,9 @@ __poll_t ring_buffer_poll_wait(struct tr
+ 	 */
+ 	smp_mb();
+ 
++	if (full)
++		return full_hit(buffer, cpu, full) ? EPOLLIN | EPOLLRDNORM : 0;
++
+ 	if ((cpu == RING_BUFFER_ALL_CPUS && !ring_buffer_empty(buffer)) ||
+ 	    (cpu != RING_BUFFER_ALL_CPUS && !ring_buffer_empty_cpu(buffer, cpu)))
+ 		return EPOLLIN | EPOLLRDNORM;
+@@ -3155,10 +3179,6 @@ static void rb_commit(struct ring_buffer
+ static __always_inline void
+ rb_wakeups(struct trace_buffer *buffer, struct ring_buffer_per_cpu *cpu_buffer)
+ {
+-	size_t nr_pages;
+-	size_t dirty;
+-	size_t full;
+-
+ 	if (buffer->irq_work.waiters_pending) {
+ 		buffer->irq_work.waiters_pending = false;
+ 		/* irq_work_queue() supplies it's own memory barriers */
+@@ -3182,10 +3202,7 @@ rb_wakeups(struct trace_buffer *buffer,
+ 
+ 	cpu_buffer->last_pages_touch = local_read(&cpu_buffer->pages_touched);
+ 
+-	full = cpu_buffer->shortest_full;
+-	nr_pages = cpu_buffer->nr_pages;
+-	dirty = ring_buffer_nr_dirty_pages(buffer, cpu_buffer->cpu);
+-	if (full && nr_pages && (dirty * 100) <= full * nr_pages)
++	if (!full_hit(buffer, cpu_buffer->cpu, cpu_buffer->shortest_full))
+ 		return;
+ 
+ 	cpu_buffer->irq_work.wakeup_full = true;
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -6682,7 +6682,7 @@ trace_poll(struct trace_iterator *iter,
+ 		return EPOLLIN | EPOLLRDNORM;
+ 	else
+ 		return ring_buffer_poll_wait(iter->array_buffer->buffer, iter->cpu_file,
+-					     filp, poll_table);
++					     filp, poll_table, iter->tr->buffer_percent);
+ }
+ 
+ static __poll_t
 
 
