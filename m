@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F39EE635638
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2DCD635752
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237690AbiKWJ14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:27:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41750 "EHLO
+        id S238001AbiKWJi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:38:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237748AbiKWJ1E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:27:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABB4EE0C1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:26:06 -0800 (PST)
+        with ESMTP id S238004AbiKWJif (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:38:35 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BE5FFAE8D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:36:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2366B61A00
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:26:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A1E0C43470;
-        Wed, 23 Nov 2022 09:26:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F1463CE20E5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:36:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5C2BC433D6;
+        Wed, 23 Nov 2022 09:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195565;
-        bh=q/hmdjhSzgvkQTDsnu5dbUmamha4EVlShLlLDNXzeMI=;
+        s=korg; t=1669196173;
+        bh=rgv76EAj6y1TwWLL6HPev9a2GTSvsfHAMNWgjMhrsdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XAXv8ljObB2Q+14dLaCbGZGL35nF0D+y4IHBD0Ex1wS7ys2u8YiK9hW5ymyjWy8bE
-         LG4PAYMnS4vhuQKOn5fjFNNAloITI26Kjj5Naq0mZlMZUQSW1hWO/c/HCrJZIlMrAE
-         xcvCBN48tJkB3dwNNfHBVEWTsTKkuU6kf2z5Brl4=
+        b=nihAW5HVoH8uN/DaXo2lmCMS0qC6BPN/ytl3leGejoyS1kjWdigxLrc0s1+HGAnoP
+         ZfSe0luzITgciaWY4/sA2/aJBgziGz0Wp5ZlWxlTmyZZnIbJFhDNPdPZkw1qJiaauE
+         epvT0JsQyogu5z3rskkmNuM28/+xseiXSMsoG3+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yann Gautier <yann.gautier@foss.st.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 120/149] mmc: core: properly select voltage range without power cycle
+        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.15 140/181] dm ioctl: fix misbehavior if list_versions races with module loading
 Date:   Wed, 23 Nov 2022 09:51:43 +0100
-Message-Id: <20221123084602.254066159@linuxfoundation.org>
+Message-Id: <20221123084608.396027201@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +52,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yann Gautier <yann.gautier@foss.st.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 39a72dbfe188291b156dd6523511e3d5761ce775 upstream.
+commit 4fe1ec995483737f3d2a14c3fe1d8fe634972979 upstream.
 
-In mmc_select_voltage(), if there is no full power cycle, the voltage
-range selected at the end of the function will be on a single range
-(e.g. 3.3V/3.4V). To keep a range around the selected voltage (3.2V/3.4V),
-the mask shift should be reduced by 1.
+__list_versions will first estimate the required space using the
+"dm_target_iterate(list_version_get_needed, &needed)" call and then will
+fill the space using the "dm_target_iterate(list_version_get_info,
+&iter_info)" call. Each of these calls locks the targets using the
+"down_read(&_lock)" and "up_read(&_lock)" calls, however between the first
+and second "dm_target_iterate" there is no lock held and the target
+modules can be loaded at this point, so the second "dm_target_iterate"
+call may need more space than what was the first "dm_target_iterate"
+returned.
 
-This issue was triggered by using a specific SD-card (Verbatim Premium
-16GB UHS-1) on an STM32MP157C-DK2 board. This board cannot do UHS modes
-and there is no power cycle. And the card was failing to switch to
-high-speed mode. When adding the range 3.2V/3.3V for this card with the
-proposed shift change, the card can switch to high-speed mode.
+The code tries to handle this overflow (see the beginning of
+list_version_get_info), however this handling is incorrect.
 
-Fixes: ce69d37b7d8f ("mmc: core: Prevent violation of specs while initializing cards")
-Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
+The code sets "param->data_size = param->data_start + needed" and
+"iter_info.end = (char *)vers+len" - "needed" is the size returned by the
+first dm_target_iterate call; "len" is the size of the buffer allocated by
+userspace.
+
+"len" may be greater than "needed"; in this case, the code will write up
+to "len" bytes into the buffer, however param->data_size is set to
+"needed", so it may write data past the param->data_size value. The ioctl
+interface copies only up to param->data_size into userspace, thus part of
+the result will be truncated.
+
+Fix this bug by setting "iter_info.end = (char *)vers + needed;" - this
+guarantees that the second "dm_target_iterate" call will write only up to
+the "needed" buffer and it will exit with "DM_BUFFER_FULL_FLAG" if it
+overflows the "needed" space - in this case, userspace will allocate a
+larger buffer and retry.
+
+Note that there is also a bug in list_version_get_needed - we need to add
+"strlen(tt->name) + 1" to the needed size, not "strlen(tt->name)".
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221028073740.7259-1-yann.gautier@foss.st.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/core.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/md/dm-ioctl.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/core/core.c
-+++ b/drivers/mmc/core/core.c
-@@ -1128,7 +1128,13 @@ u32 mmc_select_voltage(struct mmc_host *
- 		mmc_power_cycle(host, ocr);
- 	} else {
- 		bit = fls(ocr) - 1;
--		ocr &= 3 << bit;
-+		/*
-+		 * The bit variable represents the highest voltage bit set in
-+		 * the OCR register.
-+		 * To keep a range of 2 values (e.g. 3.2V/3.3V and 3.3V/3.4V),
-+		 * we must shift the mask '3' with (bit - 1).
-+		 */
-+		ocr &= 3 << (bit - 1);
- 		if (bit != host->ios.vdd)
- 			dev_warn(mmc_dev(host), "exceeding card's volts\n");
- 	}
+--- a/drivers/md/dm-ioctl.c
++++ b/drivers/md/dm-ioctl.c
+@@ -655,7 +655,7 @@ static void list_version_get_needed(stru
+     size_t *needed = needed_param;
+ 
+     *needed += sizeof(struct dm_target_versions);
+-    *needed += strlen(tt->name);
++    *needed += strlen(tt->name) + 1;
+     *needed += ALIGN_MASK;
+ }
+ 
+@@ -720,7 +720,7 @@ static int __list_versions(struct dm_ioc
+ 	iter_info.old_vers = NULL;
+ 	iter_info.vers = vers;
+ 	iter_info.flags = 0;
+-	iter_info.end = (char *)vers+len;
++	iter_info.end = (char *)vers + needed;
+ 
+ 	/*
+ 	 * Now loop through filling out the names & versions.
 
 
