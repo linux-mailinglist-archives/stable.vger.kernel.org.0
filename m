@@ -2,74 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0643D635450
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67649635711
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236992AbiKWJDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:03:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39624 "EHLO
+        id S238048AbiKWJhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:37:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236995AbiKWJC6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:02:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0049172128
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:02:54 -0800 (PST)
+        with ESMTP id S237870AbiKWJhS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:18 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB10626E6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91C8961B4E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:02:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 070EAC433D6;
-        Wed, 23 Nov 2022 09:02:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DC8CDCE20E5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC581C433D6;
+        Wed, 23 Nov 2022 09:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194174;
-        bh=bfQyc+493sN0GCJ69O6/+VlNDyIJGQLhy2y+UlSK1wI=;
+        s=korg; t=1669196100;
+        bh=2g7KHx0bGG3A7D8aH3Cv+3Y1DAGiAvNqe1Ti5F1yeSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PXG3STXPnuCwHbbEoTXCudpdgy9Cztcm4QoajHM3LhYjnTZiQ6aJCFWcPwSdK6g/p
-         nFUPo/1G/ytyNcO/uIRoIJ0HJX5m3TDfVQgDh89v1R1x1iEePQEVEHObjBJzlK9Czl
-         Pkfq8hS0irhLXzz1rfukK7r2Pjxjs2JM78rUH22E=
+        b=eYxzDlnLfu5XUoQtfg74Wxla5z5xOjxH7HAW26LFNyz2NSyWcKC+f0CZ9XmOALnXv
+         L/Y9yWjcjEOEzl+UjK/vlvszthZs+fdzebZXvOcK1cmTW/4bszzSAhD4ceVmK8osG0
+         TdTlc/kVsXMQQ4hGg3WwAlGMV3Nvqol1b/UgHJhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexander Potapenko <glider@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Lameter <cl@linux.com>,
-        David Rientjes <rientjes@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Marco Elver <elver@google.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vegard Nossum <vegard.nossum@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 85/88] mm: fs: initialize fsdata passed to write_begin/write_end interface
+        patches@lists.linux.dev, Emil Flink <emil.flink@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 119/181] ALSA: hda/realtek: fix speakers for Samsung Galaxy Book Pro
 Date:   Wed, 23 Nov 2022 09:51:22 +0100
-Message-Id: <20221123084551.643743850@linuxfoundation.org>
+Message-Id: <20221123084607.520832104@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -83,115 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Emil Flink <emil.flink@gmail.com>
 
-commit 1468c6f4558b1bcd92aa0400f2920f9dc7588402 upstream.
+commit b18a456330e1c1ca207b57b45872f10336741388 upstream.
 
-Functions implementing the a_ops->write_end() interface accept the `void
-*fsdata` parameter that is supposed to be initialized by the corresponding
-a_ops->write_begin() (which accepts `void **fsdata`).
+The Samsung Galaxy Book Pro seems to have the same issue as a few
+other Samsung laptops, detailed in kernel bug report 207423. Sound from
+headphone jack works, but not the built-in speakers.
 
-However not all a_ops->write_begin() implementations initialize `fsdata`
-unconditionally, so it may get passed uninitialized to a_ops->write_end(),
-resulting in undefined behavior.
+alsa-info: http://alsa-project.org/db/?f=b40ba609dc6ae28dc84ad404a0d8a4bbcd8bea6d
 
-Fix this by initializing fsdata with NULL before the call to
-write_begin(), rather than doing so in all possible a_ops implementations.
-
-This patch covers only the following cases found by running x86 KMSAN
-under syzkaller:
-
- - generic_perform_write()
- - cont_expand_zero() and generic_cont_expand_simple()
- - page_symlink()
-
-Other cases of passing uninitialized fsdata may persist in the codebase.
-
-Link: https://lkml.kernel.org/r/20220915150417.722975-43-glider@google.com
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Eric Biggers <ebiggers@google.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vegard Nossum <vegard.nossum@oracle.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Emil Flink <emil.flink@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221115144500.7782-1-emil.flink@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/buffer.c  |    4 ++--
- fs/namei.c   |    2 +-
- mm/filemap.c |    2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -2378,7 +2378,7 @@ int generic_cont_expand_simple(struct in
- {
- 	struct address_space *mapping = inode->i_mapping;
- 	struct page *page;
--	void *fsdata;
-+	void *fsdata = NULL;
- 	int err;
- 
- 	err = inode_newsize_ok(inode, size);
-@@ -2404,7 +2404,7 @@ static int cont_expand_zero(struct file
- 	struct inode *inode = mapping->host;
- 	unsigned int blocksize = i_blocksize(inode);
- 	struct page *page;
--	void *fsdata;
-+	void *fsdata = NULL;
- 	pgoff_t index, curidx;
- 	loff_t curpos;
- 	unsigned zerofrom, offset, len;
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -4847,7 +4847,7 @@ int __page_symlink(struct inode *inode,
- {
- 	struct address_space *mapping = inode->i_mapping;
- 	struct page *page;
--	void *fsdata;
-+	void *fsdata = NULL;
- 	int err;
- 	unsigned int flags = 0;
- 	if (nofs)
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -3025,7 +3025,7 @@ ssize_t generic_perform_write(struct fil
- 		unsigned long offset;	/* Offset into pagecache page */
- 		unsigned long bytes;	/* Bytes to write to page */
- 		size_t copied;		/* Bytes copied from user */
--		void *fsdata;
-+		void *fsdata = NULL;
- 
- 		offset = (pos & (PAGE_SIZE - 1));
- 		bytes = min_t(unsigned long, PAGE_SIZE - offset,
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9078,6 +9078,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x144d, 0xc176, "Samsung Notebook 9 Pro (NP930MBE-K04US)", ALC298_FIXUP_SAMSUNG_AMP),
+ 	SND_PCI_QUIRK(0x144d, 0xc189, "Samsung Galaxy Flex Book (NT950QCG-X716)", ALC298_FIXUP_SAMSUNG_AMP),
+ 	SND_PCI_QUIRK(0x144d, 0xc18a, "Samsung Galaxy Book Ion (NP930XCJ-K01US)", ALC298_FIXUP_SAMSUNG_AMP),
++	SND_PCI_QUIRK(0x144d, 0xc1a3, "Samsung Galaxy Book Pro (NP935XDB-KC1SE)", ALC298_FIXUP_SAMSUNG_AMP),
+ 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
+ 	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_AMP),
+ 	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_AMP),
 
 
