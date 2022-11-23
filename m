@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFFC3635593
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C822635749
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237386AbiKWJTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:19:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35108 "EHLO
+        id S238012AbiKWJjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:39:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237367AbiKWJT0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:19:26 -0500
+        with ESMTP id S237780AbiKWJjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:39:31 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EB4023EB0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:19:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A29B0F1DBC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:37:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D85C5CE20EC
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:19:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94702C433B5;
-        Wed, 23 Nov 2022 09:19:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1A016CE0FC8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:37:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7FF4C433C1;
+        Wed, 23 Nov 2022 09:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195162;
-        bh=lF99DBn/bAt0yX+MWp29CCZr2RBmkxt0E00loTnWUi4=;
+        s=korg; t=1669196235;
+        bh=SiTJ9C3dPn9HvqBY93Akj6RRkHk43y2HXNtW85w7ibM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fwDCg+NTFrrI8KqVQGFotOw3f6zJs2D5QKFfqE47JpBzkyxpEiuXnx/5Tb7CaH+J+
-         ZDSsvqQiXKUBx6k/X1J1biP3J7eMrNSQ5ly85e4dBYbQJtVMKFh3UgKihlK6NrCKCc
-         q5TZ7sTTRvwPAFjKJBZ3SkNc3V9RKquTPraaZbxE=
+        b=VzbLi6/m27Zu1hBD33ytN8e98Gyznn579NFGRaVSfY++3JcMFWS0hEMI7sFHIxHLG
+         bChj3TaZP1ja+IxmcRCK9lQuIo5P8p6FSxwzE0d++7wWquAJFKa8ki4KEcHgIpKd9a
+         Yy8sARazF1RulEDTEhFNfaJaRVZIlw8QCtL1Cw1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chevron Li <chevron.li@bayhubtech.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 135/156] mmc: sdhci-pci-o2micro: fix card detect fail issue caused by CD# debounce timeout
+        patches@lists.linux.dev,
+        Davide Tronchin <davide.tronchin.94@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 129/181] USB: serial: option: add u-blox LARA-L6 modem
 Date:   Wed, 23 Nov 2022 09:51:32 +0100
-Message-Id: <20221123084602.796755059@linuxfoundation.org>
+Message-Id: <20221123084607.933780767@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chevron Li <chevron.li@bayhubtech.com>
+From: Davide Tronchin <davide.tronchin.94@gmail.com>
 
-commit 096cc0cddf58232bded309336961784f1d1c85f8 upstream.
+commit c1547f12df8b8e9ca2686accee43213ecd117efe upstream.
 
-The SD card is recognized failed sometimes when resume from suspend.
-Because CD# debounce time too long then card present report wrong.
-Finally, card is recognized failed.
+Add LARA-L6 PIDs for three different USB compositions.
 
-Signed-off-by: Chevron Li <chevron.li@bayhubtech.com>
+LARA-L6 module can be configured (by AT interface) in three different
+USB modes:
+* Default mode (Vendor ID: 0x1546 Product ID: 0x1341) with 4 serial
+interfaces
+* RmNet mode (Vendor ID: 0x1546 Product ID: 0x1342) with 4 serial
+interfaces and 1 RmNet virtual network interface
+* CDC-ECM mode (Vendor ID: 0x1546 Product ID: 0x1343) with 4 serial
+interface and 1 CDC-ECM virtual network interface
+
+In default mode LARA-L6 exposes the following interfaces:
+If 0: Diagnostic
+If 1: AT parser
+If 2: AT parser
+If 3: AT parser/alternative functions
+
+In RmNet mode LARA-L6 exposes the following interfaces:
+If 0: Diagnostic
+If 1: AT parser
+If 2: AT parser
+If 3: AT parset/alternative functions
+If 4: RMNET interface
+
+In CDC-ECM mode LARA-L6 exposes the following interfaces:
+If 0: Diagnostic
+If 1: AT parser
+If 2: AT parser
+If 3: AT parset/alternative functions
+If 4: CDC-ECM interface
+
+Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
+[ johan: drop PID defines in favour of comments ]
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221104095512.4068-1-chevron.li@bayhubtech.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-pci-o2micro.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/serial/option.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/mmc/host/sdhci-pci-o2micro.c
-+++ b/drivers/mmc/host/sdhci-pci-o2micro.c
-@@ -31,6 +31,7 @@
- #define O2_SD_CAPS		0xE0
- #define O2_SD_ADMA1		0xE2
- #define O2_SD_ADMA2		0xE7
-+#define O2_SD_MISC_CTRL2	0xF0
- #define O2_SD_INF_MOD		0xF1
- #define O2_SD_MISC_CTRL4	0xFC
- #define O2_SD_TUNING_CTRL	0x300
-@@ -777,6 +778,12 @@ int sdhci_pci_o2_probe(struct sdhci_pci_
- 		/* Set Tuning Windows to 5 */
- 		pci_write_config_byte(chip->pdev,
- 				O2_SD_TUNING_CTRL, 0x55);
-+		//Adjust 1st and 2nd CD debounce time
-+		pci_read_config_dword(chip->pdev, O2_SD_MISC_CTRL2, &scratch_32);
-+		scratch_32 &= 0xFFE7FFFF;
-+		scratch_32 |= 0x00180000;
-+		pci_write_config_dword(chip->pdev, O2_SD_MISC_CTRL2, scratch_32);
-+		pci_write_config_dword(chip->pdev, O2_SD_DETECT_SETTING, 1);
- 		/* Lock WP */
- 		ret = pci_read_config_byte(chip->pdev,
- 					   O2_SD_LOCK_WP, &scratch);
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -162,6 +162,8 @@ static void option_instat_callback(struc
+ #define NOVATELWIRELESS_PRODUCT_G2		0xA010
+ #define NOVATELWIRELESS_PRODUCT_MC551		0xB001
+ 
++#define UBLOX_VENDOR_ID				0x1546
++
+ /* AMOI PRODUCTS */
+ #define AMOI_VENDOR_ID				0x1614
+ #define AMOI_PRODUCT_H01			0x0800
+@@ -1130,6 +1132,12 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x90fa),
+ 	  .driver_info = RSVD(3) },
++	/* u-blox products */
++	{ USB_DEVICE(UBLOX_VENDOR_ID, 0x1341) },	/* u-blox LARA-L6 */
++	{ USB_DEVICE(UBLOX_VENDOR_ID, 0x1342),		/* u-blox LARA-L6 (RMNET) */
++	  .driver_info = RSVD(4) },
++	{ USB_DEVICE(UBLOX_VENDOR_ID, 0x1343),		/* u-blox LARA-L6 (ECM) */
++	  .driver_info = RSVD(4) },
+ 	/* Quectel products using Quectel vendor ID */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0xff, 0xff),
+ 	  .driver_info = NUMEP2 },
 
 
