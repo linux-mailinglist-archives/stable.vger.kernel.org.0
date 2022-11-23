@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8B9D635910
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 796EF6355E7
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:27:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236250AbiKWKGw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:06:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33094 "EHLO
+        id S237646AbiKWJ0l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:26:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236859AbiKWKGK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:10 -0500
+        with ESMTP id S237479AbiKWJ0K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:26:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA82D125233
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96D14C5607
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:25:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC464B81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15085C433D6;
-        Wed, 23 Nov 2022 09:56:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DEC0B81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:25:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD99FC433C1;
+        Wed, 23 Nov 2022 09:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197368;
-        bh=HIrx8m6Fx5PlbrksYrqOPKEpKdAbJVbC/M3xeQpmUQg=;
+        s=korg; t=1669195516;
+        bh=eF1j130c0SZailNo6oQfzBp+HT2TeZ5zTXO6Y/j4im8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DyKyh14vL5ermabWBAWzpY0pmo9+ciVwWq1nbI1FkQ7vgkOx8RNDwT9Tii2SMuiHy
-         LhzIMxx1+T+Ipo8TRQgC2ISUFvkZaY0n5/4xbYnJwrY7gVm7cGuwKOg9zzCbw7/27w
-         AXr19pz/fxrpqActM2KJfjrZoyYYep48G6HAYTYQ=
+        b=s8jP5AQyjq2RfJxJ89vvZ0bMY9kHV01EnMUUbQjQ8TtRqRjVsQbQJJZLmCkLNzni7
+         3xeJmN4gX40B1uDFkltdQ0FDeSvj7ZektYpizpkrJHhWohXeTMQ/HUtki/0Y9+cglF
+         J6j3EfcYAjUNFFw8Gp4EN6sWq+1rNoT/vPoxY0EM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Dan Robertson <dan@dlrobertson.com>, Stable@vger.kernel.org
-Subject: [PATCH 6.0 244/314] iio: accel: bma400: Ensure VDDIO is enable defore reading the chip ID.
-Date:   Wed, 23 Nov 2022 09:51:29 +0100
-Message-Id: <20221123084636.547800830@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 107/149] iio: trigger: sysfs: fix possible memory leak in iio_sysfs_trig_init()
+Date:   Wed, 23 Nov 2022 09:51:30 +0100
+Message-Id: <20221123084601.830892418@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 57572cacd36e6d4be7722d7770d23f4430219827 upstream.
+commit efa17e90e1711bdb084e3954fa44afb6647331c0 upstream.
 
-The regulator enables were after the check on the chip variant, which was
-very unlikely to return a correct value when not powered.
-Presumably all the device anyone is testing on have a regulator that
-is already powered up when this code runs for reasons beyond the scope
-of this driver. Move the read call down a few lines.
+dev_set_name() allocates memory for name, it need be freed
+when device_add() fails, call put_device() to give up the
+reference that hold in device_initialize(), so that it can
+be freed in kobject_cleanup() when the refcount hit to 0.
 
-Fixes: 3cf7ded15e40 ("iio: accel: bma400: basic regulator support")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Dan Robertson <dan@dlrobertson.com>
+Fault injection test can trigger this:
+
+unreferenced object 0xffff8e8340a7b4c0 (size 32):
+  comm "modprobe", pid 243, jiffies 4294678145 (age 48.845s)
+  hex dump (first 32 bytes):
+    69 69 6f 5f 73 79 73 66 73 5f 74 72 69 67 67 65  iio_sysfs_trigge
+    72 00 a7 40 83 8e ff ff 00 86 13 c4 f6 ee ff ff  r..@............
+  backtrace:
+    [<0000000074999de8>] __kmem_cache_alloc_node+0x1e9/0x360
+    [<00000000497fd30b>] __kmalloc_node_track_caller+0x44/0x1a0
+    [<000000003636c520>] kstrdup+0x2d/0x60
+    [<0000000032f84da2>] kobject_set_name_vargs+0x1e/0x90
+    [<0000000092efe493>] dev_set_name+0x4e/0x70
+
+Fixes: 1f785681a870 ("staging:iio:trigger sysfs userspace trigger rework.")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221002144133.3771029-1-jic23@kernel.org
+Link: https://lore.kernel.org/r/20221022074212.1386424-1-yangyingliang@huawei.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/bma400_core.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/iio/trigger/iio-trig-sysfs.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/accel/bma400_core.c
-+++ b/drivers/iio/accel/bma400_core.c
-@@ -737,18 +737,6 @@ static int bma400_init(struct bma400_dat
- 	unsigned int val;
- 	int ret;
+--- a/drivers/iio/trigger/iio-trig-sysfs.c
++++ b/drivers/iio/trigger/iio-trig-sysfs.c
+@@ -209,9 +209,13 @@ static int iio_sysfs_trigger_remove(int
  
--	/* Try to read chip_id register. It must return 0x90. */
--	ret = regmap_read(data->regmap, BMA400_CHIP_ID_REG, &val);
--	if (ret) {
--		dev_err(data->dev, "Failed to read chip id register\n");
--		return ret;
--	}
--
--	if (val != BMA400_ID_REG_VAL) {
--		dev_err(data->dev, "Chip ID mismatch\n");
--		return -ENODEV;
--	}
--
- 	data->regulators[BMA400_VDD_REGULATOR].supply = "vdd";
- 	data->regulators[BMA400_VDDIO_REGULATOR].supply = "vddio";
- 	ret = devm_regulator_bulk_get(data->dev,
-@@ -774,6 +762,18 @@ static int bma400_init(struct bma400_dat
- 	if (ret)
- 		return ret;
+ static int __init iio_sysfs_trig_init(void)
+ {
++	int ret;
+ 	device_initialize(&iio_sysfs_trig_dev);
+ 	dev_set_name(&iio_sysfs_trig_dev, "iio_sysfs_trigger");
+-	return device_add(&iio_sysfs_trig_dev);
++	ret = device_add(&iio_sysfs_trig_dev);
++	if (ret)
++		put_device(&iio_sysfs_trig_dev);
++	return ret;
+ }
+ module_init(iio_sysfs_trig_init);
  
-+	/* Try to read chip_id register. It must return 0x90. */
-+	ret = regmap_read(data->regmap, BMA400_CHIP_ID_REG, &val);
-+	if (ret) {
-+		dev_err(data->dev, "Failed to read chip id register\n");
-+		return ret;
-+	}
-+
-+	if (val != BMA400_ID_REG_VAL) {
-+		dev_err(data->dev, "Chip ID mismatch\n");
-+		return -ENODEV;
-+	}
-+
- 	ret = bma400_get_power_mode(data);
- 	if (ret) {
- 		dev_err(data->dev, "Failed to get the initial power-mode\n");
 
 
