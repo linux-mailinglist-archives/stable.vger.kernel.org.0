@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF6CF63548C
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 904216356E7
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:37:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237061AbiKWJGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:06:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43712 "EHLO
+        id S237842AbiKWJfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:35:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237060AbiKWJF7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:05:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49D891055B6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:05:55 -0800 (PST)
+        with ESMTP id S237329AbiKWJea (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:34:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B990B108E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:32:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E420FB81ECB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:05:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25E90C433D6;
-        Wed, 23 Nov 2022 09:05:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 576E061B56
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:32:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54708C433C1;
+        Wed, 23 Nov 2022 09:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194352;
-        bh=XbiBtFeER33Qkh6MpIYHaijb5Z6lPAWZRqnIAbyoYGs=;
+        s=korg; t=1669195950;
+        bh=FzlzNwFEQZf+iUksPz8L9P4mFXjh2drbjWh1XaP4tc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQJfSBaMMozVIJoC/P25ZVqhHPdh/g7jonkt8TKcKbdL827+MS53dCGurDNMDqr3p
-         kwRLA1dpdKVJ6UhlqX2b2P8dJRest086FoerdQ8mac0ytsigTE+2fGdoiwEJFtRgLq
-         dtWq+Tdy+lbOOSqRtBuFg7vaCHT+Pr/296ODRnz4=
+        b=mitcosYxp3pxp1dM32gf+A0/porIyjP0gUTuZqBsfBJMjhqYgbeVqCnQ2lNX5UyDR
+         W5fiYyYJZ9OZqTKiTJ8plt6lUP0DBVlCxI17QedFo91LtD8+HSGQr3ei3ttB0CgR6I
+         85Jzz01hHFYnqHUM0J8sRMw4aY/8oPms+ymW24Zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 054/114] ASoC: core: Fix use-after-free in snd_soc_exit()
+        patches@lists.linux.dev, Xu Kuohai <xukuohai@huawei.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 078/181] bpf: Initialize same number of free nodes for each pcpu_freelist
 Date:   Wed, 23 Nov 2022 09:50:41 +0100
-Message-Id: <20221123084554.030508411@linuxfoundation.org>
+Message-Id: <20221123084605.727587405@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,86 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Xu Kuohai <xukuohai@huawei.com>
 
-[ Upstream commit 6ec27c53886c8963729885bcf2dd996eba2767a7 ]
+[ Upstream commit 4b45cd81f737d79d0fbfc0d320a1e518e7f0bbf0 ]
 
-KASAN reports a use-after-free:
+pcpu_freelist_populate() initializes nr_elems / num_possible_cpus() + 1
+free nodes for some CPUs, and then possibly one CPU with fewer nodes,
+followed by remaining cpus with 0 nodes. For example, when nr_elems == 256
+and num_possible_cpus() == 32, CPU 0~27 each gets 9 free nodes, CPU 28 gets
+4 free nodes, CPU 29~31 get 0 free nodes, while in fact each CPU should get
+8 nodes equally.
 
-BUG: KASAN: use-after-free in device_del+0xb5b/0xc60
-Read of size 8 at addr ffff888008655050 by task rmmod/387
-CPU: 2 PID: 387 Comm: rmmod
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-Call Trace:
-<TASK>
-dump_stack_lvl+0x79/0x9a
-print_report+0x17f/0x47b
-kasan_report+0xbb/0xf0
-device_del+0xb5b/0xc60
-platform_device_del.part.0+0x24/0x200
-platform_device_unregister+0x2e/0x40
-snd_soc_exit+0xa/0x22 [snd_soc_core]
-__do_sys_delete_module.constprop.0+0x34f/0x5b0
-do_syscall_64+0x3a/0x90
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-...
-</TASK>
+This patch initializes nr_elems / num_possible_cpus() free nodes for each
+CPU firstly, then allocates the remaining free nodes by one for each CPU
+until no free nodes left.
 
-It's bacause in snd_soc_init(), snd_soc_util_init() is possble to fail,
-but its ret is ignored, which makes soc_dummy_dev unregistered twice.
-
-snd_soc_init()
-    snd_soc_util_init()
-        platform_device_register_simple(soc_dummy_dev)
-        platform_driver_register() # fail
-    	platform_device_unregister(soc_dummy_dev)
-    platform_driver_register() # success
-...
-snd_soc_exit()
-    snd_soc_util_exit()
-    # soc_dummy_dev will be unregistered for second time
-
-To fix it, handle error and stop snd_soc_init() when util_init() fail.
-Also clean debugfs when util_init() or driver_register() fail.
-
-Fixes: fb257897bf20 ("ASoC: Work around allmodconfig failure")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221028031603.59416-1-chenzhongjin@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: e19494edab82 ("bpf: introduce percpu_freelist")
+Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20221110122128.105214-1-xukuohai@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ kernel/bpf/percpu_freelist.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 9ca7dff5593d..07875867f5c2 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -3863,10 +3863,23 @@ EXPORT_SYMBOL_GPL(snd_soc_of_get_dai_link_codecs);
- 
- static int __init snd_soc_init(void)
+diff --git a/kernel/bpf/percpu_freelist.c b/kernel/bpf/percpu_freelist.c
+index 3d897de89061..bbab8bb4b2fd 100644
+--- a/kernel/bpf/percpu_freelist.c
++++ b/kernel/bpf/percpu_freelist.c
+@@ -102,22 +102,21 @@ void pcpu_freelist_populate(struct pcpu_freelist *s, void *buf, u32 elem_size,
+ 			    u32 nr_elems)
  {
-+	int ret;
-+
- 	snd_soc_debugfs_init();
--	snd_soc_util_init();
-+	ret = snd_soc_util_init();
-+	if (ret)
-+		goto err_util_init;
+ 	struct pcpu_freelist_head *head;
+-	int i, cpu, pcpu_entries;
++	unsigned int cpu, cpu_idx, i, j, n, m;
  
--	return platform_driver_register(&soc_driver);
-+	ret = platform_driver_register(&soc_driver);
-+	if (ret)
-+		goto err_register;
-+	return 0;
-+
-+err_register:
-+	snd_soc_util_exit();
-+err_util_init:
-+	snd_soc_debugfs_exit();
-+	return ret;
+-	pcpu_entries = nr_elems / num_possible_cpus() + 1;
+-	i = 0;
++	n = nr_elems / num_possible_cpus();
++	m = nr_elems % num_possible_cpus();
+ 
++	cpu_idx = 0;
+ 	for_each_possible_cpu(cpu) {
+-again:
+ 		head = per_cpu_ptr(s->freelist, cpu);
+-		/* No locking required as this is not visible yet. */
+-		pcpu_freelist_push_node(head, buf);
+-		i++;
+-		buf += elem_size;
+-		if (i == nr_elems)
+-			break;
+-		if (i % pcpu_entries)
+-			goto again;
++		j = n + (cpu_idx < m ? 1 : 0);
++		for (i = 0; i < j; i++) {
++			/* No locking required as this is not visible yet. */
++			pcpu_freelist_push_node(head, buf);
++			buf += elem_size;
++		}
++		cpu_idx++;
+ 	}
  }
- module_init(snd_soc_init);
  
 -- 
 2.35.1
