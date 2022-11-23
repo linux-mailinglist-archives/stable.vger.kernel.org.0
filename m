@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02B6F6355BB
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FDBD635486
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237595AbiKWJXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:23:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37118 "EHLO
+        id S237079AbiKWJIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:08:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237598AbiKWJWt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:22:49 -0500
+        with ESMTP id S237085AbiKWJHa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:30 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 598F910AD2D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 196DC28D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:07:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED0DE61B4C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E91E5C433D6;
-        Wed, 23 Nov 2022 09:22:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA38561B4C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:07:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5357C433D6;
+        Wed, 23 Nov 2022 09:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195325;
-        bh=Pgxsdvoa2KvgzRryZ9k7P8lB7Jk+R897S8XyFUhfWdQ=;
+        s=korg; t=1669194446;
+        bh=OCq411Ero81o/ji24Kw2gCP6jOBeej2cIJITZ6eOp2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1h3Yu3JITtUe5SO9WOfdL/99vAx0Quj5L3lW7GDSlwOwOiL/ut2CqnX8pz98RycrN
-         v9Og50v5OzrRA/vC7CutAaVX17H2ztBgyxAaN50c+OdrHN220PWdxiW9JlXa4q+Lfo
-         o6/Aju5LVtsZ7vsVBXdT5QzkUAvbwoMhYIfQ+e18=
+        b=QL4E9Ox785wRjRiggtpPKlNTY6MdSCza0dmxSDNMYFsdJsLCogxBjIYmBkX5tW38A
+         iB34S6/0IYK2W1cX3F5hlzK9uqmAhFJ2dK0VUF78QFyXxnBkmKimr864yOztxyxm8U
+         L1BGzwMXgZMmBAadvfx3fK4QFeIMeDvVCZWR528w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Aishwarya Kothari <aishwarya.kothari@toradex.com>,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Douglas Anderson <dianders@chromium.org>,
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 052/149] drm/panel: simple: set bpc field for logic technologies displays
-Date:   Wed, 23 Nov 2022 09:50:35 +0100
-Message-Id: <20221123084559.799206984@linuxfoundation.org>
+Subject: [PATCH 4.19 049/114] rtc: cmos: fix build on non-ACPI platforms
+Date:   Wed, 23 Nov 2022 09:50:36 +0100
+Message-Id: <20221123084553.817367803@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aishwarya Kothari <aishwarya.kothari@toradex.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit 876153ab068b2507a19aa3ef481f5b00a2cc780f ]
+[ Upstream commit db4e955ae333567dea02822624106c0b96a2f84f ]
 
-In case bpc is not set for a panel it then throws a WARN(). Add bpc to
-the panels logictechno_lt170410_2whc and logictechno_lt161010_2nh.
+Now that rtc_wake_setup is called outside of cmos_wake_setup, it also need
+to be defined on non-ACPI platforms.
 
-Fixes: 5728fe7fa539 ("drm/panel: simple: add display timings for logic technologies displays")
-Signed-off-by: Aishwarya Kothari <aishwarya.kothari@toradex.com>
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220831141622.39605-1-francesco.dolcini@toradex.com
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20221018203512.2532407-1-alexandre.belloni@bootlin.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-simple.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rtc/rtc-cmos.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index b7b37082a9d7..1a87cc445b5e 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -2655,6 +2655,7 @@ static const struct display_timing logictechno_lt161010_2nh_timing = {
- static const struct panel_desc logictechno_lt161010_2nh = {
- 	.timings = &logictechno_lt161010_2nh_timing,
- 	.num_timings = 1,
-+	.bpc = 6,
- 	.size = {
- 		.width = 154,
- 		.height = 86,
-@@ -2684,6 +2685,7 @@ static const struct display_timing logictechno_lt170410_2whc_timing = {
- static const struct panel_desc logictechno_lt170410_2whc = {
- 	.timings = &logictechno_lt170410_2whc_timing,
- 	.num_timings = 1,
-+	.bpc = 8,
- 	.size = {
- 		.width = 217,
- 		.height = 136,
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 8545f0da57fe..c6147d8b622f 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1294,6 +1294,9 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
+ {
+ }
+ 
++static void rtc_wake_setup(struct device *dev)
++{
++}
+ #endif
+ 
+ #ifdef	CONFIG_PNP
 -- 
 2.35.1
 
