@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D41DE635472
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF25C635520
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237116AbiKWJII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:08:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44900 "EHLO
+        id S237347AbiKWJQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:16:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237110AbiKWJHm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:42 -0500
+        with ESMTP id S237321AbiKWJPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:15:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25CBC5F60
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:07:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2BD810891E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:15:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F12C61B5A
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:07:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82EAEC433C1;
-        Wed, 23 Nov 2022 09:07:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D23A61B4C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:15:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECC5AC433D6;
+        Wed, 23 Nov 2022 09:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194460;
-        bh=SFLiyXJIsPNPOg/prYYiJnPLX7A1la6Ua8omJIwtJyM=;
+        s=korg; t=1669194949;
+        bh=OhVqUg8/S4pczckgxiJd6ilmCDLQnXigCBfeQCpfJuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m8IT87WcscgEPUNXJSPci7IjsCFS/ke0ytv262KZz0ElX+i11Hr9VCn7qEcOkohe9
-         BQucZc0qnT2UCmjLdyxD4LqkVmZSR12oRrpA13u5rkbADnQaLYab7fqC6H+oR3n2OM
-         q3o8G1GuhxTNDG14GumaKfUB9F1DHk13UqQKGEGk=
+        b=pcr06vaurw+UgPQIZrz4U6+1T8M1ILtj488OvvZV33ar4LY3wGh+JYbTnEbXswS8O
+         86+nwalJCj2loMnZJC3K1uROZD8yjlsqd2ESUw60r25/H5xHHGH8uw+/nRKuOA9vJA
+         ybnRv91OoTNrENPsloh3AkKe/+Hcf0SMK7BwqNGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, mhiramat@kernel.org, mark.rutland@arm.com,
-        Wang Wensheng <wangwensheng4@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 076/114] ftrace: Optimize the allocation for mcount entries
+        patches@lists.linux.dev,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        "David E. Box" <david.e.box@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 106/156] platform/x86/intel: pmc: Dont unconditionally attach Intel PMC when virtualized
 Date:   Wed, 23 Nov 2022 09:51:03 +0100
-Message-Id: <20221123084554.913782462@linuxfoundation.org>
+Message-Id: <20221123084601.815356743@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Roger Pau Monné <roger.pau@citrix.com>
 
-commit bcea02b096333dc74af987cb9685a4dbdd820840 upstream.
+[ Upstream commit 2dbfb3f33350e1e868d3d7ed4c176d8777150878 ]
 
-If we can't allocate this size, try something smaller with half of the
-size. Its order should be decreased by one instead of divided by two.
+The current logic in the Intel PMC driver will forcefully attach it
+when detecting any CPU on the intel_pmc_core_platform_ids array,
+even if the matching ACPI device is not present.
 
-Link: https://lkml.kernel.org/r/20221109094434.84046-3-wangwensheng4@huawei.com
+There's no checking in pmc_core_probe() to assert that the PMC device
+is present, and hence on virtualized environments the PMC device
+probes successfully, even if the underlying registers are not present.
+Before commit 21ae43570940 ("platform/x86: intel_pmc_core: Substitute PCI
+with CPUID enumeration") the driver would check for the presence of a
+specific PCI device, and that prevented the driver from attaching when
+running virtualized.
 
-Cc: <mhiramat@kernel.org>
-Cc: <mark.rutland@arm.com>
-Cc: stable@vger.kernel.org
-Fixes: a79008755497d ("ftrace: Allocate the mcount record pages as groups")
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix by only forcefully attaching the PMC device when not running
+virtualized.  Note that virtualized platforms can still get the device
+to load if the appropriate ACPI device is present on the tables
+provided to the VM.
+
+Make an exception for the Xen initial domain, which does have full
+hardware access, and hence can attach to the PMC if present.
+
+Fixes: 21ae43570940 ("platform/x86: intel_pmc_core: Substitute PCI with CPUID enumeration")
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Acked-by: David E. Box <david.e.box@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221110163145.80374-1-roger.pau@citrix.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/intel_pmc_core_pltdrv.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -3033,7 +3033,7 @@ static int ftrace_allocate_records(struc
- 		/* if we can't allocate this size, try something smaller */
- 		if (!order)
- 			return -ENOMEM;
--		order >>= 1;
-+		order--;
- 		goto again;
- 	}
+diff --git a/drivers/platform/x86/intel_pmc_core_pltdrv.c b/drivers/platform/x86/intel_pmc_core_pltdrv.c
+index e1266f5c6359..42ed02ab8a61 100644
+--- a/drivers/platform/x86/intel_pmc_core_pltdrv.c
++++ b/drivers/platform/x86/intel_pmc_core_pltdrv.c
+@@ -18,6 +18,8 @@
+ #include <asm/cpu_device_id.h>
+ #include <asm/intel-family.h>
  
++#include <xen/xen.h>
++
+ static void intel_pmc_core_release(struct device *dev)
+ {
+ 	/* Nothing to do. */
+@@ -56,6 +58,13 @@ static int __init pmc_core_platform_init(void)
+ 	if (acpi_dev_present("INT33A1", NULL, -1))
+ 		return -ENODEV;
+ 
++	/*
++	 * Skip forcefully attaching the device for VMs. Make an exception for
++	 * Xen dom0, which does have full hardware access.
++	 */
++	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR) && !xen_initial_domain())
++		return -ENODEV;
++
+ 	if (!x86_match_cpu(intel_pmc_core_platform_ids))
+ 		return -ENODEV;
+ 
+-- 
+2.35.1
+
 
 
