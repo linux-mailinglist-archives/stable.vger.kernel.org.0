@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2125D635473
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE8A463560A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237108AbiKWJHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:07:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45244 "EHLO
+        id S237665AbiKWJZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:25:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237268AbiKWJHU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E37661025FD
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:07:05 -0800 (PST)
+        with ESMTP id S237491AbiKWJYu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:24:50 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40784CB9F1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:23:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BCA161B4C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:07:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87FEAC433C1;
-        Wed, 23 Nov 2022 09:07:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9C5F0CE20F3
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:23:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57073C433C1;
+        Wed, 23 Nov 2022 09:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194425;
-        bh=KrvNOB/jWRk0+sIQgnh6ZQSThFAyEoNxallyG23zNL4=;
+        s=korg; t=1669195406;
+        bh=lVxztbdhR8r9C+L6fx7lC9VlKZ6hqZuFCXdNheytFPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8kGyNWhE+B1UevKH6GmFpfdEvxXsBLc859vxDtqEDE5oeJx1d/FOgl6v+FmGmvO2
-         UqxoZPbNPeOwAIAXQHNmLnIvhM50atPSFfmRi/4vy9LbQzlaXJvdzZbFHh1Dm5Xsrb
-         Q1RImgQ1c9hQRv3DRaXBDbffsuktj0EHYUY3Mz5M=
+        b=eOuyMASC8dqhjbCibirwy07M+IKqTHDY3iAlf0cs8eUGZj00dYl0kTAeeVCi/vjMJ
+         nK8J4nnxE219DmUkzABKvSHqDByJsfBqWeJdaB0SVckpUHmG+ASeHX+KgCfwNE8/di
+         M083MUYVBxHO8sqdnevlL/mXoD0a4Hh+8Oi0rPs4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Anastasia Belova <abelova@astralinux.ru>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 072/114] net/x25: Fix skb leak in x25_lapb_receive_frame()
+Subject: [PATCH 5.10 076/149] cifs: add check for returning value of SMB2_close_init
 Date:   Wed, 23 Nov 2022 09:50:59 +0100
-Message-Id: <20221123084554.759527007@linuxfoundation.org>
+Message-Id: <20221123084600.687164709@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Anastasia Belova <abelova@astralinux.ru>
 
-[ Upstream commit 2929cceb2fcf0ded7182562e4888afafece82cce ]
+[ Upstream commit d520de6cb42e88a1d008b54f935caf9fc05951da ]
 
-x25_lapb_receive_frame() using skb_copy() to get a private copy of
-skb, the new skb should be freed in the undersized/fragmented skb
-error handling path. Otherwise there is a memory leak.
+If the returning value of SMB2_close_init is an error-value,
+exit the function.
 
-Fixes: cb101ed2c3c7 ("x25: Handle undersized/fragmented skbs")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Martin Schiller <ms@dev.tdt.de>
-Link: https://lore.kernel.org/r/20221114110519.514538-1-weiyongjun@huaweicloud.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: 352d96f3acc6 ("cifs: multichannel: move channel selection above transport layer")
+
+Signed-off-by: Anastasia Belova <abelova@astralinux.ru>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/x25_dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/smb2ops.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/x25/x25_dev.c b/net/x25/x25_dev.c
-index 30f71620d4e3..24f2676e3b66 100644
---- a/net/x25/x25_dev.c
-+++ b/net/x25/x25_dev.c
-@@ -122,7 +122,7 @@ int x25_lapb_receive_frame(struct sk_buff *skb, struct net_device *dev,
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 11efd5289ec4..1cc823e96065 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1266,6 +1266,8 @@ smb2_set_ea(const unsigned int xid, struct cifs_tcon *tcon,
+ 	rqst[2].rq_nvec = 1;
+ 	rc = SMB2_close_init(tcon, server,
+ 			     &rqst[2], COMPOUND_FID, COMPOUND_FID, false);
++	if (rc)
++		goto sea_exit;
+ 	smb2_set_related(&rqst[2]);
  
- 	if (!pskb_may_pull(skb, 1)) {
- 		x25_neigh_put(nb);
--		return 0;
-+		goto drop;
- 	}
- 
- 	switch (skb->data[0]) {
+ 	rc = compound_send_recv(xid, ses, server,
 -- 
 2.35.1
 
