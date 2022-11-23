@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 551FE635619
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34066635718
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237462AbiKWJZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:25:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36530 "EHLO
+        id S237897AbiKWJh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:37:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237472AbiKWJYs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:24:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AB11C75AE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:23:24 -0800 (PST)
+        with ESMTP id S237926AbiKWJhY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:24 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 759EE6148
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0952961B40
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:23:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB0A2C433D6;
-        Wed, 23 Nov 2022 09:23:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 968B9CE20E5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CF6DC433D6;
+        Wed, 23 Nov 2022 09:35:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195403;
-        bh=ZDEjWfNXwpVT0d/r4wzQ9qp++kxgxyPEkOBZM8Wb6FM=;
+        s=korg; t=1669196113;
+        bh=y95hiEpU1E+Mm0GKGD7ZvHT8vZFZLFP4ZwJuKsKkSBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ya6EyJOqyyVsCuqV0DewgVIIgwJ4o2GK4IyEe/plpUffuM22gmkuHqr9qjMUhrJKR
-         fY6WyRDxieYJyFhg7G4muioUKUBv1d3Kbeb03eKTQNMXpe+A5tKzEou7g97gbBMmb2
-         cBt2ov3rizeGEavm3aYZ8uXdT93JP9hZsvnEIC6o=
+        b=qQNL5IOa4S3Q3p9w68apRWWrFVPe75k9EMqvhBlnfeRJH81y8iMY1x8QMVJbPimXP
+         mwb4XvWwdDgExL5STmIj+gPsfHQveNnp4ZHUEtk1ndtYMDApschs/2rf5biyoL4uFJ
+         EGE+iB6li/qPyxcZVDBkV99YMzfTz1N/phJramso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        "David E. Box" <david.e.box@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 075/149] platform/x86/intel: pmc: Dont unconditionally attach Intel PMC when virtualized
-Date:   Wed, 23 Nov 2022 09:50:58 +0100
-Message-Id: <20221123084600.568019262@linuxfoundation.org>
+Subject: [PATCH 5.15 096/181] drbd: use after free in drbd_create_device()
+Date:   Wed, 23 Nov 2022 09:50:59 +0100
+Message-Id: <20221123084606.478755160@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monné <roger.pau@citrix.com>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit 2dbfb3f33350e1e868d3d7ed4c176d8777150878 ]
+[ Upstream commit a7a1598189228b5007369a9622ccdf587be0730f ]
 
-The current logic in the Intel PMC driver will forcefully attach it
-when detecting any CPU on the intel_pmc_core_platform_ids array,
-even if the matching ACPI device is not present.
+The drbd_destroy_connection() frees the "connection" so use the _safe()
+iterator to prevent a use after free.
 
-There's no checking in pmc_core_probe() to assert that the PMC device
-is present, and hence on virtualized environments the PMC device
-probes successfully, even if the underlying registers are not present.
-Before commit 21ae43570940 ("platform/x86: intel_pmc_core: Substitute PCI
-with CPUID enumeration") the driver would check for the presence of a
-specific PCI device, and that prevented the driver from attaching when
-running virtualized.
-
-Fix by only forcefully attaching the PMC device when not running
-virtualized.  Note that virtualized platforms can still get the device
-to load if the appropriate ACPI device is present on the tables
-provided to the VM.
-
-Make an exception for the Xen initial domain, which does have full
-hardware access, and hence can attach to the PMC if present.
-
-Fixes: 21ae43570940 ("platform/x86: intel_pmc_core: Substitute PCI with CPUID enumeration")
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Acked-by: David E. Box <david.e.box@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221110163145.80374-1-roger.pau@citrix.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: b6f85ef9538b ("drbd: Iterate over all connections")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Link: https://lore.kernel.org/r/Y3Jd5iZRbNQ9w6gm@kili
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_pmc_core_pltdrv.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/block/drbd/drbd_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/intel_pmc_core_pltdrv.c b/drivers/platform/x86/intel_pmc_core_pltdrv.c
-index 15ca8afdd973..ddfba38c2104 100644
---- a/drivers/platform/x86/intel_pmc_core_pltdrv.c
-+++ b/drivers/platform/x86/intel_pmc_core_pltdrv.c
-@@ -18,6 +18,8 @@
- #include <asm/cpu_device_id.h>
- #include <asm/intel-family.h>
- 
-+#include <xen/xen.h>
-+
- static void intel_pmc_core_release(struct device *dev)
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index d59af26d7703..f4e38c208b9f 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -2699,7 +2699,7 @@ static int init_submitter(struct drbd_device *device)
+ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsigned int minor)
  {
- 	kfree(dev);
-@@ -53,6 +55,13 @@ static int __init pmc_core_platform_init(void)
- 	if (acpi_dev_present("INT33A1", NULL, -1))
- 		return -ENODEV;
+ 	struct drbd_resource *resource = adm_ctx->resource;
+-	struct drbd_connection *connection;
++	struct drbd_connection *connection, *n;
+ 	struct drbd_device *device;
+ 	struct drbd_peer_device *peer_device, *tmp_peer_device;
+ 	struct gendisk *disk;
+@@ -2815,7 +2815,7 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
+ 	return NO_ERROR;
  
-+	/*
-+	 * Skip forcefully attaching the device for VMs. Make an exception for
-+	 * Xen dom0, which does have full hardware access.
-+	 */
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR) && !xen_initial_domain())
-+		return -ENODEV;
-+
- 	if (!x86_match_cpu(intel_pmc_core_platform_ids))
- 		return -ENODEV;
- 
+ out_idr_remove_from_resource:
+-	for_each_connection(connection, resource) {
++	for_each_connection_safe(connection, n, resource) {
+ 		peer_device = idr_remove(&connection->peer_devices, vnr);
+ 		if (peer_device)
+ 			kref_put(&connection->kref, drbd_destroy_connection);
 -- 
 2.35.1
 
