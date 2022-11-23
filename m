@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 789696356C2
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9B1E635526
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237498AbiKWJdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:33:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52060 "EHLO
+        id S237273AbiKWJPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:15:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237849AbiKWJc2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:32:28 -0500
+        with ESMTP id S237287AbiKWJPL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:15:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B485B24BE0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AFB5107E53
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:15:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AE1F61B3B
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46646C4347C;
-        Wed, 23 Nov 2022 09:31:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBD8961B4D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:15:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FBB9C433D7;
+        Wed, 23 Nov 2022 09:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195883;
-        bh=Mbh//rgxz3VINRNhosHNkW5TiO1ag1/5pFNXo3aCBgU=;
+        s=korg; t=1669194910;
+        bh=QsbOPHdCc0XpSE+AJAJkwvXzmMbxdn3gOwMLqMDquC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fRlh7vfyc4wMkjZNAUf5EfMsUTIur8Q8q3RdmXwo8RRggJAZFyVJ2xlxxg8qZFViP
-         bb2nFU64Q1cLpvQ3KI50TeOcuKCzEOujbnpBYDUFOV73Ie3otEnFvzzI9Bjn0VPEH1
-         k81LC6mHGeX0XRjDhqJfjNcSi72HHWYcncAqZIDs=
+        b=GxG0d/su11A5tTENbd/vTKDHy3xVgvOqqAxmV9uwfShU+LIkLKfJ4iRzbqOzHhW3j
+         d8eXYFeCockDK9YrF/3TvwrsqB6gzmTRTKY+GbuV2n3j/pVOTthmyw5u1Q9cmh+mSg
+         +vBDlcEzsoYoi3zwU3r+osTiYGYl9LpX1uXLvsRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 058/181] block: sed-opal: kmalloc the cmd/resp buffers
+Subject: [PATCH 5.4 064/156] ASoC: wm5102: Revert "ASoC: wm5102: Fix PM disable depth imbalance in wm5102_probe"
 Date:   Wed, 23 Nov 2022 09:50:21 +0100
-Message-Id: <20221123084604.878333557@linuxfoundation.org>
+Message-Id: <20221123084600.259813537@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,103 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit f829230dd51974c1f4478900ed30bb77ba530b40 ]
+[ Upstream commit de71d7567e358effd06dfc3e2a154b25f1331c10 ]
 
-In accordance with [1] the DMA-able memory buffers must be
-cacheline-aligned otherwise the cache writing-back and invalidation
-performed during the mapping may cause the adjacent data being lost. It's
-specifically required for the DMA-noncoherent platforms [2]. Seeing the
-opal_dev.{cmd,resp} buffers are implicitly used for DMAs in the NVME and
-SCSI/SD drivers in framework of the nvme_sec_submit() and sd_sec_submit()
-methods respectively they must be cacheline-aligned to prevent the denoted
-problem. One of the option to guarantee that is to kmalloc the buffers
-[2]. Let's explicitly allocate them then instead of embedding into the
-opal_dev structure instance.
+This reverts commit fcbb60820cd3008bb44334a0395e5e57ccb77329.
 
-Note this fix was inspired by the commit c94b7f9bab22 ("nvme-hwmon:
-kmalloc the NVME SMART log buffer").
+The pm_runtime_disable is redundant when error returns in
+wm5102_probe, we just revert the old patch to fix it.
 
-[1] Documentation/core-api/dma-api.rst
-[2] Documentation/core-api/dma-api-howto.rst
-
-Fixes: 455a7b238cd6 ("block: Add Sed-opal library")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20221107203944.31686-1-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20221010114852.88127-2-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/sed-opal.c | 32 ++++++++++++++++++++++++++++----
- 1 file changed, 28 insertions(+), 4 deletions(-)
+ sound/soc/codecs/wm5102.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/block/sed-opal.c b/block/sed-opal.c
-index daafadbb88ca..0ac5a4f3f226 100644
---- a/block/sed-opal.c
-+++ b/block/sed-opal.c
-@@ -88,8 +88,8 @@ struct opal_dev {
- 	u64 lowest_lba;
+diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
+index c5667b149c70..d6d4b4121369 100644
+--- a/sound/soc/codecs/wm5102.c
++++ b/sound/soc/codecs/wm5102.c
+@@ -2084,6 +2084,9 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		regmap_update_bits(arizona->regmap, wm5102_digital_vu[i],
+ 				   WM5102_DIG_VU, WM5102_DIG_VU);
  
- 	size_t pos;
--	u8 cmd[IO_BUFFER_LENGTH];
--	u8 resp[IO_BUFFER_LENGTH];
-+	u8 *cmd;
-+	u8 *resp;
- 
- 	struct parsed_resp parsed;
- 	size_t prev_d_len;
-@@ -2134,6 +2134,8 @@ void free_opal_dev(struct opal_dev *dev)
- 		return;
- 
- 	clean_opal_dev(dev);
-+	kfree(dev->resp);
-+	kfree(dev->cmd);
- 	kfree(dev);
- }
- EXPORT_SYMBOL(free_opal_dev);
-@@ -2146,17 +2148,39 @@ struct opal_dev *init_opal_dev(void *data, sec_send_recv *send_recv)
- 	if (!dev)
- 		return NULL;
- 
-+	/*
-+	 * Presumably DMA-able buffers must be cache-aligned. Kmalloc makes
-+	 * sure the allocated buffer is DMA-safe in that regard.
-+	 */
-+	dev->cmd = kmalloc(IO_BUFFER_LENGTH, GFP_KERNEL);
-+	if (!dev->cmd)
-+		goto err_free_dev;
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_idle(&pdev->dev);
 +
-+	dev->resp = kmalloc(IO_BUFFER_LENGTH, GFP_KERNEL);
-+	if (!dev->resp)
-+		goto err_free_cmd;
-+
- 	INIT_LIST_HEAD(&dev->unlk_lst);
- 	mutex_init(&dev->dev_lock);
- 	dev->data = data;
- 	dev->send_recv = send_recv;
- 	if (check_opal_support(dev) != 0) {
- 		pr_debug("Opal is not supported on this device\n");
--		kfree(dev);
--		return NULL;
-+		goto err_free_resp;
+ 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
+ 				  "ADSP2 Compressed IRQ", wm5102_adsp2_irq,
+ 				  wm5102);
+@@ -2116,9 +2119,6 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		goto err_spk_irqs;
  	}
  
- 	return dev;
-+
-+err_free_resp:
-+	kfree(dev->resp);
-+
-+err_free_cmd:
-+	kfree(dev->cmd);
-+
-+err_free_dev:
-+	kfree(dev);
-+
-+	return NULL;
- }
- EXPORT_SYMBOL(init_opal_dev);
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_idle(&pdev->dev);
+-
+ 	return ret;
  
+ err_spk_irqs:
 -- 
 2.35.1
 
