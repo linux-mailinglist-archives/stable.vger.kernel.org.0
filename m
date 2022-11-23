@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4764635914
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CF1463576A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236562AbiKWKHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:07:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34054 "EHLO
+        id S238089AbiKWJlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:41:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236071AbiKWKGV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9300D1165A0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:50 -0800 (PST)
+        with ESMTP id S238087AbiKWJle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6103EFC738
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:39:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F0B1B81EF0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70BE7C433D7;
-        Wed, 23 Nov 2022 09:56:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3673A61B22
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:39:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EB11C433D6;
+        Wed, 23 Nov 2022 09:39:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197407;
-        bh=72+UI+ShCGzRSSfVYFVEB550oGrxiU/USo3+v9GyINs=;
+        s=korg; t=1669196347;
+        bh=+8AODrq2tiX3TsgZ4ShGAGAmb0PFxVzOIoEHdT7ao+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CHaBjpjN7jkw8IvuwTUE/tWA5pUWc8TZg56Dq3KvXCDDMm1AqDAuZtx/ShPWM15em
-         CUcV9B52uXSSW4wPyb4ZwxoZmiUjPJ1bq8YZTbouuqPGwHvrugypYPM0mL7YT7qCr0
-         Ml4pHRMtFCC2uLvsMtD3A5oDtulO4up1T5iUhfFQ=
+        b=zhx+aepzUNQ6D3XZH2Bqa7ifHnCRMJ/Jfl3/IA528eZrqD8ZjlYi80jnfXzj6qegh
+         qoTzjEigvCo1vgl3YEnNjYvWbLY8kDLC/r+1LrQYX3i0CYxJ3I7a486MLvnFGxaRVy
+         QLAwcX4MBY3EZ/tlajCCFYZmDB/bpd00eWp6AliQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 286/314] vfio: Split the register_device ops call into functions
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 168/181] macvlan: enforce a consistent minimal mtu
 Date:   Wed, 23 Nov 2022 09:52:11 +0100
-Message-Id: <20221123084638.498345686@linuxfoundation.org>
+Message-Id: <20221123084609.597223807@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 9446162e740aefff95c324ac0887f0b68c739695 ]
+commit b64085b00044bdf3cd1c9825e9ef5b2e0feae91a upstream.
 
-This is a container item.
+macvlan should enforce a minimal mtu of 68, even at link creation.
 
-A following patch will move the vfio_container functions to their own .c
-file.
+This patch avoids the current behavior (which could lead to crashes
+in ipv6 stack if the link is brought up)
 
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Link: https://lore.kernel.org/r/7-v3-297af71838d2+b9-vfio_container_split_jgg@nvidia.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-Stable-dep-of: 7fdba0011157 ("vfio: Fix container device registration life cycle")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+$ ip link add macvlan1 link eno1 mtu 8 type macvlan  # This should fail !
+$ ip link sh dev macvlan1
+5: macvlan1@eno1: <BROADCAST,MULTICAST> mtu 8 qdisc noop
+    state DOWN mode DEFAULT group default qlen 1000
+    link/ether 02:47:6c:24:74:82 brd ff:ff:ff:ff:ff:ff
+$ ip link set macvlan1 mtu 67
+Error: mtu less than device minimum.
+$ ip link set macvlan1 mtu 68
+$ ip link set macvlan1 mtu 8
+Error: mtu less than device minimum.
+
+Fixes: 91572088e3fd ("net: use core MTU range checking in core net infra")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vfio/vfio_main.c | 39 +++++++++++++++++++++++----------------
- 1 file changed, 23 insertions(+), 16 deletions(-)
+ drivers/net/macvlan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-index c555d497e9e8..48ceca04d9b8 100644
---- a/drivers/vfio/vfio_main.c
-+++ b/drivers/vfio/vfio_main.c
-@@ -1086,9 +1086,28 @@ static void vfio_device_unassign_container(struct vfio_device *device)
- 	up_write(&device->group->group_rwsem);
- }
- 
-+static void vfio_device_container_register(struct vfio_device *device)
-+{
-+	struct vfio_iommu_driver *iommu_driver =
-+		device->group->container->iommu_driver;
-+
-+	if (iommu_driver && iommu_driver->ops->register_device)
-+		iommu_driver->ops->register_device(
-+			device->group->container->iommu_data, device);
-+}
-+
-+static void vfio_device_container_unregister(struct vfio_device *device)
-+{
-+	struct vfio_iommu_driver *iommu_driver =
-+		device->group->container->iommu_driver;
-+
-+	if (iommu_driver && iommu_driver->ops->unregister_device)
-+		iommu_driver->ops->unregister_device(
-+			device->group->container->iommu_data, device);
-+}
-+
- static struct file *vfio_device_open(struct vfio_device *device)
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -1181,7 +1181,7 @@ void macvlan_common_setup(struct net_dev
  {
--	struct vfio_iommu_driver *iommu_driver;
- 	struct file *filep;
- 	int ret;
+ 	ether_setup(dev);
  
-@@ -1119,12 +1138,7 @@ static struct file *vfio_device_open(struct vfio_device *device)
- 			if (ret)
- 				goto err_undo_count;
- 		}
--
--		iommu_driver = device->group->container->iommu_driver;
--		if (iommu_driver && iommu_driver->ops->register_device)
--			iommu_driver->ops->register_device(
--				device->group->container->iommu_data, device);
--
-+		vfio_device_container_register(device);
- 		up_read(&device->group->group_rwsem);
- 	}
- 	mutex_unlock(&device->dev_set->lock);
-@@ -1162,10 +1176,7 @@ static struct file *vfio_device_open(struct vfio_device *device)
- 	if (device->open_count == 1 && device->ops->close_device) {
- 		device->ops->close_device(device);
- 
--		iommu_driver = device->group->container->iommu_driver;
--		if (iommu_driver && iommu_driver->ops->unregister_device)
--			iommu_driver->ops->unregister_device(
--				device->group->container->iommu_data, device);
-+		vfio_device_container_unregister(device);
- 	}
- err_undo_count:
- 	up_read(&device->group->group_rwsem);
-@@ -1361,7 +1372,6 @@ static const struct file_operations vfio_group_fops = {
- static int vfio_device_fops_release(struct inode *inode, struct file *filep)
- {
- 	struct vfio_device *device = filep->private_data;
--	struct vfio_iommu_driver *iommu_driver;
- 
- 	mutex_lock(&device->dev_set->lock);
- 	vfio_assert_device_open(device);
-@@ -1369,10 +1379,7 @@ static int vfio_device_fops_release(struct inode *inode, struct file *filep)
- 	if (device->open_count == 1 && device->ops->close_device)
- 		device->ops->close_device(device);
- 
--	iommu_driver = device->group->container->iommu_driver;
--	if (iommu_driver && iommu_driver->ops->unregister_device)
--		iommu_driver->ops->unregister_device(
--			device->group->container->iommu_data, device);
-+	vfio_device_container_unregister(device);
- 	up_read(&device->group->group_rwsem);
- 	device->open_count--;
- 	if (device->open_count == 0)
--- 
-2.35.1
-
+-	dev->min_mtu		= 0;
++	/* ether_setup() has set dev->min_mtu to ETH_MIN_MTU. */
+ 	dev->max_mtu		= ETH_MAX_MTU;
+ 	dev->priv_flags	       &= ~IFF_TX_SKB_SHARING;
+ 	netif_keep_dst(dev);
 
 
