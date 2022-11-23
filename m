@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40EA76355CA
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 360E0635444
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237413AbiKWJVE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:21:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58340 "EHLO
+        id S236938AbiKWJD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:03:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237454AbiKWJUl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:20:41 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8068147307
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:20:39 -0800 (PST)
+        with ESMTP id S237008AbiKWJDS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:03:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D847FCDE8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:03:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B8340CE20F1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:20:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2CDCC433C1;
-        Wed, 23 Nov 2022 09:20:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1BA6B81ECB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:03:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDA84C433D6;
+        Wed, 23 Nov 2022 09:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195235;
-        bh=1ORQlxAowSfhXvICF3tR/7GM3ipW9w9XtoSFsQVIZSo=;
+        s=korg; t=1669194194;
+        bh=szS3QkFqpIu8mbDgyz5/uhov/DHdsSLMaYVs/w94Yrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+EyLdm66I7jwlKkEJG9yoRsF2TdxrN5EzFUE0jUYk7QajWEdLjGfibTwauA/d2mP
-         WvwoyaJVyZn6KiWRnJgHNWgVbHY8eqxHFRQdSAvcuTKgETVjkERBywtKYFhASkFX0l
-         DYBgnb1D9hcyvSaakN8lxbAjkzL+Vvp7oXF1af3s=
+        b=op/7MZ5/Y91eoC9vYNtR2PuSA56pIHw16gSQMw/ttcfk/6ic4HYfp0MEjojt+2751
+         uUgipqsTa5rFbyYXFxjAxZd0mhiQLSds5KgrcErIPux0WZ2FpnbaJxMnu9ZgV3GF4F
+         jJeTQyDjXBwjpWltxapbyOUZq0OedWzWNlcZ06tA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiaolei Wang <xiaolei.wang@windriver.com>,
-        Adam Ford <aford173@gmail.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 005/149] ASoC: wm8962: Add an event handler for TEMP_HP and TEMP_SPK
-Date:   Wed, 23 Nov 2022 09:49:48 +0100
-Message-Id: <20221123084558.154578395@linuxfoundation.org>
+Subject: [PATCH 4.19 002/114] wifi: cfg80211: fix memory leak in query_regdb_file()
+Date:   Wed, 23 Nov 2022 09:49:49 +0100
+Message-Id: <20221123084551.955021281@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,114 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolei Wang <xiaolei.wang@windriver.com>
+From: Arend van Spriel <arend.vanspriel@broadcom.com>
 
-[ Upstream commit ee1aa2ae3eaa96e70229fa61deee87ef4528ffdf ]
+[ Upstream commit 57b962e627ec0ae53d4d16d7bd1033e27e67677a ]
 
-In wm8962 driver, the WM8962_ADDITIONAL_CONTROL_4 is used as a volatile
-register, but this register mixes a bunch of volatile status bits and a
-bunch of non-volatile control bits. The dapm widgets TEMP_HP and
-TEMP_SPK leverages the control bits in this register. After the wm8962
-probe, the regmap will bet set to cache only mode, then a read error
-like below would be triggered when trying to read the initial power
-state of the dapm widgets TEMP_HP and TEMP_SPK.
-  wm8962 0-001a: ASoC: error at soc_component_read_no_lock
-  on wm8962.0-001a: -16
+In the function query_regdb_file() the alpha2 parameter is duplicated
+using kmemdup() and subsequently freed in regdb_fw_cb(). However,
+request_firmware_nowait() can fail without calling regdb_fw_cb() and
+thus leak memory.
 
-In order to fix this issue, we add event handler to actually power
-up/down these widgets. With this change, we also need to explicitly
-power off these widgets in the wm8962 probe since they are enabled
-by default.
-
-Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
-Tested-by: Adam Ford <aford173@gmail.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20221010092014.2229246-1-xiaolei.wang@windriver.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 007f6c5e6eb4 ("cfg80211: support loading regulatory database as firmware file")
+Signed-off-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8962.c | 54 +++++++++++++++++++++++++++++++++++++--
- 1 file changed, 52 insertions(+), 2 deletions(-)
+ net/wireless/reg.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/wm8962.c b/sound/soc/codecs/wm8962.c
-index 38651022e3d5..21574447650c 100644
---- a/sound/soc/codecs/wm8962.c
-+++ b/sound/soc/codecs/wm8962.c
-@@ -1840,6 +1840,49 @@ SOC_SINGLE_TLV("SPKOUTR Mixer DACR Volume", WM8962_SPEAKER_MIXER_5,
- 	       4, 1, 0, inmix_tlv),
- };
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index dd8503a3ef1e..07d053603e3a 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -1050,6 +1050,8 @@ static void regdb_fw_cb(const struct firmware *fw, void *context)
  
-+static int tp_event(struct snd_soc_dapm_widget *w,
-+		    struct snd_kcontrol *kcontrol, int event)
-+{
-+	int ret, reg, val, mask;
-+	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
-+
-+	ret = pm_runtime_resume_and_get(component->dev);
-+	if (ret < 0) {
-+		dev_err(component->dev, "Failed to resume device: %d\n", ret);
-+		return ret;
-+	}
-+
-+	reg = WM8962_ADDITIONAL_CONTROL_4;
-+
-+	if (!strcmp(w->name, "TEMP_HP")) {
-+		mask = WM8962_TEMP_ENA_HP_MASK;
-+		val = WM8962_TEMP_ENA_HP;
-+	} else if (!strcmp(w->name, "TEMP_SPK")) {
-+		mask = WM8962_TEMP_ENA_SPK_MASK;
-+		val = WM8962_TEMP_ENA_SPK;
-+	} else {
-+		pm_runtime_put(component->dev);
-+		return -EINVAL;
-+	}
-+
-+	switch (event) {
-+	case SND_SOC_DAPM_POST_PMD:
-+		val = 0;
-+		fallthrough;
-+	case SND_SOC_DAPM_POST_PMU:
-+		ret = snd_soc_component_update_bits(component, reg, mask, val);
-+		break;
-+	default:
-+		WARN(1, "Invalid event %d\n", event);
-+		pm_runtime_put(component->dev);
-+		return -EINVAL;
-+	}
-+
-+	pm_runtime_put(component->dev);
-+
-+	return 0;
-+}
-+
- static int cp_event(struct snd_soc_dapm_widget *w,
- 		    struct snd_kcontrol *kcontrol, int event)
+ static int query_regdb_file(const char *alpha2)
  {
-@@ -2133,8 +2176,10 @@ SND_SOC_DAPM_SUPPLY("TOCLK", WM8962_ADDITIONAL_CONTROL_1, 0, 0, NULL, 0),
- SND_SOC_DAPM_SUPPLY_S("DSP2", 1, WM8962_DSP2_POWER_MANAGEMENT,
- 		      WM8962_DSP2_ENA_SHIFT, 0, dsp2_event,
- 		      SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_PRE_PMD),
--SND_SOC_DAPM_SUPPLY("TEMP_HP", WM8962_ADDITIONAL_CONTROL_4, 2, 0, NULL, 0),
--SND_SOC_DAPM_SUPPLY("TEMP_SPK", WM8962_ADDITIONAL_CONTROL_4, 1, 0, NULL, 0),
-+SND_SOC_DAPM_SUPPLY("TEMP_HP", SND_SOC_NOPM, 0, 0, tp_event,
-+		SND_SOC_DAPM_POST_PMU|SND_SOC_DAPM_POST_PMD),
-+SND_SOC_DAPM_SUPPLY("TEMP_SPK", SND_SOC_NOPM, 0, 0, tp_event,
-+		SND_SOC_DAPM_POST_PMU|SND_SOC_DAPM_POST_PMD),
- 
- SND_SOC_DAPM_MIXER("INPGAL", WM8962_LEFT_INPUT_PGA_CONTROL, 4, 0,
- 		   inpgal, ARRAY_SIZE(inpgal)),
-@@ -3760,6 +3805,11 @@ static int wm8962_i2c_probe(struct i2c_client *i2c,
- 	if (ret < 0)
- 		goto err_pm_runtime;
- 
-+	regmap_update_bits(wm8962->regmap, WM8962_ADDITIONAL_CONTROL_4,
-+			    WM8962_TEMP_ENA_HP_MASK, 0);
-+	regmap_update_bits(wm8962->regmap, WM8962_ADDITIONAL_CONTROL_4,
-+			    WM8962_TEMP_ENA_SPK_MASK, 0);
++	int err;
 +
- 	regcache_cache_only(wm8962->regmap, true);
+ 	ASSERT_RTNL();
  
- 	/* The drivers should power up as needed */
+ 	if (regdb)
+@@ -1059,9 +1061,13 @@ static int query_regdb_file(const char *alpha2)
+ 	if (!alpha2)
+ 		return -ENOMEM;
+ 
+-	return request_firmware_nowait(THIS_MODULE, true, "regulatory.db",
+-				       &reg_pdev->dev, GFP_KERNEL,
+-				       (void *)alpha2, regdb_fw_cb);
++	err = request_firmware_nowait(THIS_MODULE, true, "regulatory.db",
++				      &reg_pdev->dev, GFP_KERNEL,
++				      (void *)alpha2, regdb_fw_cb);
++	if (err)
++		kfree(alpha2);
++
++	return err;
+ }
+ 
+ int reg_reload_regdb(void)
 -- 
 2.35.1
 
