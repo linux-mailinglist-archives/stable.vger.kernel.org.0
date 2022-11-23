@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE3366355DA
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 235E1635881
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:58:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237587AbiKWJYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:24:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37160 "EHLO
+        id S236557AbiKWJ6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:58:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237591AbiKWJXz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:23:55 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14BA5FD33
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:39 -0800 (PST)
+        with ESMTP id S236563AbiKWJ6O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:58:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D4CC10B50
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 93800CE20F3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 363ACC433D7;
-        Wed, 23 Nov 2022 09:22:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05848B81EEB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52512C433C1;
+        Wed, 23 Nov 2022 09:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195353;
-        bh=l2lnmCp6I/uK53JeOurdsOlutHXBwtdH3QWWgMC808o=;
+        s=korg; t=1669197142;
+        bh=DVzPFYmPxRKKl19tDbqvP0y3Z//i1XNc7JEovN0SF9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H+mpNRpq6lkBkQKn7Y1nleKMWvKfZquBY3uRh59dgD1OxXL94OpKrnELI2wjQhvJD
-         2uR6N0/I7YZKAP+ungomSs5USv8nSBKPwe6y7YmKk79D87v3QLK1K6BaNhS1o5kcxc
-         4ggJtDegwWiH3QRMfjpK710Ek8ItEx0fKpzZvf7k=
+        b=rQgDO4mLpXaJIELWYQDM+Sa6B730KeJ9mNqi1pZEY5FxU4v8x4udiUzR4Ei9H6RJg
+         5Bblaur4v7HGiTM9W6USHGD+Jso+8yAuj0pVuVtXTYoWzFmMqc3HIu8MMQ6ttj5qEF
+         4f3T8hlo4rzoQevcNBu1OeJJMbM2DFk6+lgqzY8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guchun Chen <guchun.chen@amd.com>,
-        Lijo Lazar <lijo.lazar@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, David Howells <dhowells@redhat.com>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Jia Zhu <zhujia.zj@bytedance.com>,
+        Jingbo Xu <jefflexu@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 030/149] drm/amd/pm: disable BACO entry/exit completely on several sienna cichlid cards
+Subject: [PATCH 6.0 168/314] erofs: fix missing xas_retry() in fscache mode
 Date:   Wed, 23 Nov 2022 09:50:13 +0100
-Message-Id: <20221123084559.090275909@linuxfoundation.org>
+Message-Id: <20221123084633.181666314@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
 
-[ Upstream commit 7bb91228291aa95bfee3b9d5710887673711c74c ]
+[ Upstream commit 37020bbb71d911431e16c2c940b97cf86ae4f2f6 ]
 
-To avoid hardware intermittent failures.
+The xarray iteration only holds the RCU read lock and thus may encounter
+XA_RETRY_ENTRY if there's process modifying the xarray concurrently.
+This will cause oops when referring to the invalid entry.
 
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Stable-dep-of: 0c85c067c9d9 ("drm/amdgpu: disable BACO on special BEIGE_GOBY card")
+Fix this by adding the missing xas_retry(), which will make the
+iteration wind back to the root node if XA_RETRY_ENTRY is encountered.
+
+Fixes: d435d53228dd ("erofs: change to use asynchronous io for fscache readpage/readahead")
+Suggested-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reviewed-by: Jia Zhu <zhujia.zj@bytedance.com>
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20221114121943.29987-1-jefflexu@linux.alibaba.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c   | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ fs/erofs/fscache.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-index def32b6897f9..91026d0c1c79 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-@@ -309,6 +309,17 @@ static void sienna_cichlid_check_bxco_support(struct smu_context *smu)
- 		smu_baco->platform_support =
- 			(val & RCC_BIF_STRAP0__STRAP_PX_CAPABLE_MASK) ? true :
- 									false;
-+
-+		/*
-+		 * Disable BACO entry/exit completely on below SKUs to
-+		 * avoid hardware intermittent failures.
-+		 */
-+		if (((adev->pdev->device == 0x73A1) &&
-+		    (adev->pdev->revision == 0x00)) ||
-+		    ((adev->pdev->device == 0x73BF) &&
-+		    (adev->pdev->revision == 0xCF)))
-+			smu_baco->platform_support = false;
-+
- 	}
- }
+diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
+index 79af25f0a56c..46ab2b3f9a3c 100644
+--- a/fs/erofs/fscache.c
++++ b/fs/erofs/fscache.c
+@@ -69,11 +69,15 @@ static void erofs_fscache_rreq_unlock_folios(struct netfs_io_request *rreq)
  
+ 	rcu_read_lock();
+ 	xas_for_each(&xas, folio, last_page) {
+-		unsigned int pgpos =
+-			(folio_index(folio) - start_page) * PAGE_SIZE;
+-		unsigned int pgend = pgpos + folio_size(folio);
++		unsigned int pgpos, pgend;
+ 		bool pg_failed = false;
+ 
++		if (xas_retry(&xas, folio))
++			continue;
++
++		pgpos = (folio_index(folio) - start_page) * PAGE_SIZE;
++		pgend = pgpos + folio_size(folio);
++
+ 		for (;;) {
+ 			if (!subreq) {
+ 				pg_failed = true;
 -- 
 2.35.1
 
