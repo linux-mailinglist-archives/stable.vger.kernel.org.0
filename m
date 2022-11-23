@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9385663576B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84431635926
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238014AbiKWJlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:41:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60764 "EHLO
+        id S236336AbiKWKHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:07:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238003AbiKWJla (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:30 -0500
+        with ESMTP id S236562AbiKWKGQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7702EDEAE6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:39:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8D8FB1FF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8368C61B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:39:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A615C433C1;
-        Wed, 23 Nov 2022 09:39:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 119C961B5F
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D49CC433D6;
+        Wed, 23 Nov 2022 09:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196343;
-        bh=apa7HXC1Vf2N3cDfPVKE9OAdFl+cxw1TmKXAhubsPXY=;
+        s=korg; t=1669197404;
+        bh=4QEx52f9Bc8PgEJLUxctotmIwR6pQLd0IZ7U23Uu7nE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rd/DPGU31NQV+Ucp3c7l3uYfi8KkxiHpyN7R666jQQJOTmsKFGe2Nohz6U0siKMkB
-         +NpIYfw769cllwZ7UsxJAupdcxZBNI2QyOJoL3i6zHoKtX2SLBw8lUHyTO3eqkL4zY
-         BIaUsKdh75Oxa5WFnfnECVO3m0izxOFqPzttllHk=
+        b=ypBqAhBaJRdGCSEkf47tugAXFOZTgSq8PQWCSdefR8lqcO0twkiQTSZvWx6paJO/Z
+         xthqPwsXAUhCk7VCLxLDhbvuaEJmbEqh/cuHnUwbTCLrzj+Y7dYqPISRyULqreKaq/
+         Cnc+yTGPR2b+A4H8XVQ7/9D/KiDNZ6usfbypB8FI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Jun <chenjun102@huawei.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 167/181] Input: i8042 - fix leaking of platform device on module removal
+Subject: [PATCH 6.0 285/314] vfio: Rename vfio_ioctl_check_extension()
 Date:   Wed, 23 Nov 2022 09:52:10 +0100
-Message-Id: <20221123084609.549235800@linuxfoundation.org>
+Message-Id: <20221123084638.451232124@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Jun <chenjun102@huawei.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 81cd7e8489278d28794e7b272950c3e00c344e44 ]
+[ Upstream commit 1408640d578887d7860737221043d91fc6d5a723 ]
 
-Avoid resetting the module-wide i8042_platform_device pointer in
-i8042_probe() or i8042_remove(), so that the device can be properly
-destroyed by i8042_exit() on module unload.
+To vfio_container_ioctl_check_extension().
 
-Fixes: 9222ba68c3f4 ("Input: i8042 - add deferred probe support")
-Signed-off-by: Chen Jun <chenjun102@huawei.com>
-Link: https://lore.kernel.org/r/20221109034148.23821-1-chenjun102@huawei.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+A following patch will turn this into a non-static function, make it clear
+it is related to the container.
+
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Link: https://lore.kernel.org/r/6-v3-297af71838d2+b9-vfio_container_split_jgg@nvidia.com
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Stable-dep-of: 7fdba0011157 ("vfio: Fix container device registration life cycle")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/vfio/vfio_main.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 3fc0a89cc785..f132d6dfc25e 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -1543,8 +1543,6 @@ static int i8042_probe(struct platform_device *dev)
+diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+index 7cb56c382c97..c555d497e9e8 100644
+--- a/drivers/vfio/vfio_main.c
++++ b/drivers/vfio/vfio_main.c
+@@ -710,8 +710,9 @@ EXPORT_SYMBOL_GPL(vfio_unregister_group_dev);
+ /*
+  * VFIO base fd, /dev/vfio/vfio
+  */
+-static long vfio_ioctl_check_extension(struct vfio_container *container,
+-				       unsigned long arg)
++static long
++vfio_container_ioctl_check_extension(struct vfio_container *container,
++				     unsigned long arg)
  {
- 	int error;
+ 	struct vfio_iommu_driver *driver;
+ 	long ret = 0;
+@@ -868,7 +869,7 @@ static long vfio_fops_unl_ioctl(struct file *filep,
+ 		ret = VFIO_API_VERSION;
+ 		break;
+ 	case VFIO_CHECK_EXTENSION:
+-		ret = vfio_ioctl_check_extension(container, arg);
++		ret = vfio_container_ioctl_check_extension(container, arg);
+ 		break;
+ 	case VFIO_SET_IOMMU:
+ 		ret = vfio_ioctl_set_iommu(container, arg);
+@@ -1763,8 +1764,8 @@ bool vfio_file_enforced_coherent(struct file *file)
  
--	i8042_platform_device = dev;
--
- 	if (i8042_reset == I8042_RESET_ALWAYS) {
- 		error = i8042_controller_selftest();
- 		if (error)
-@@ -1582,7 +1580,6 @@ static int i8042_probe(struct platform_device *dev)
- 	i8042_free_aux_ports();	/* in case KBD failed but AUX not */
- 	i8042_free_irqs();
- 	i8042_controller_reset(false);
--	i8042_platform_device = NULL;
- 
- 	return error;
- }
-@@ -1592,7 +1589,6 @@ static int i8042_remove(struct platform_device *dev)
- 	i8042_unregister_ports();
- 	i8042_free_irqs();
- 	i8042_controller_reset(false);
--	i8042_platform_device = NULL;
- 
- 	return 0;
- }
+ 	down_read(&group->group_rwsem);
+ 	if (group->container) {
+-		ret = vfio_ioctl_check_extension(group->container,
+-						 VFIO_DMA_CC_IOMMU);
++		ret = vfio_container_ioctl_check_extension(group->container,
++							   VFIO_DMA_CC_IOMMU);
+ 	} else {
+ 		/*
+ 		 * Since the coherency state is determined only once a container
 -- 
 2.35.1
 
