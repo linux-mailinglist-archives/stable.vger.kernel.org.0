@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68D3C6356F0
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C47063546D
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237997AbiKWJhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:37:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57748 "EHLO
+        id S237096AbiKWJHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:07:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238037AbiKWJhL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:11 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7F8197A93
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:34:38 -0800 (PST)
+        with ESMTP id S237235AbiKWJHQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECB66105A87
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0067FCE20F3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:34:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3B3FC433C1;
-        Wed, 23 Nov 2022 09:34:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84D0361B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AA24C433D7;
+        Wed, 23 Nov 2022 09:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196075;
-        bh=U1ebpkQkY7eYJEuGv0yRvofLo51BOdq/7WgmmEI+SMY=;
+        s=korg; t=1669194417;
+        bh=o6rk69TqJwlX/1YvnOwi94I6eVeFaPzx3v6Ap0aXeaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J8AQbNiYuO3KVgD6uZvMAz7uYofbx6jlhj4Y/BZcx1SzWjh3x30EophMWfIE+Mr7e
-         8nN5uu8PlvlpuKFl4F4ae8+fDtl5XDNDCLMPmZWc4ypzypliMltuZUrn0mdu7Devg9
-         JnkDKrU32Fpbx/YUuhzvpnDACO554dve8bnbfKlM=
+        b=uwWmnzc8neXjPl7u3b4sMxpuzV0iQruQUcVIicwYdCp6w6NRhi9bwn0lsm9XEMZ58
+         ZLkmuTrXcD8ULdmkZMGs6wht7D2DfB2mnvn6AjDhb97cC3mEoIz6g5hVUGSIIMXwev
+         IF1c2BCrvqcbFJlBO2vi7PgtsDJLlYSJa79nCaaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vlad Buslov <vladbu@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 095/181] bridge: switchdev: Fix memory leaks when changing VLAN protocol
+Subject: [PATCH 4.19 071/114] drbd: use after free in drbd_create_device()
 Date:   Wed, 23 Nov 2022 09:50:58 +0100
-Message-Id: <20221123084606.436724108@linuxfoundation.org>
+Message-Id: <20221123084554.717895497@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,118 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit 9d45921ee4cb364910097e7d1b7558559c2f9fd2 ]
+[ Upstream commit a7a1598189228b5007369a9622ccdf587be0730f ]
 
-The bridge driver can offload VLANs to the underlying hardware either
-via switchdev or the 8021q driver. When the former is used, the VLAN is
-marked in the bridge driver with the 'BR_VLFLAG_ADDED_BY_SWITCHDEV'
-private flag.
+The drbd_destroy_connection() frees the "connection" so use the _safe()
+iterator to prevent a use after free.
 
-To avoid the memory leaks mentioned in the cited commit, the bridge
-driver will try to delete a VLAN via the 8021q driver if the VLAN is not
-marked with the previously mentioned flag.
-
-When the VLAN protocol of the bridge changes, switchdev drivers are
-notified via the 'SWITCHDEV_ATTR_ID_BRIDGE_VLAN_PROTOCOL' attribute, but
-the 8021q driver is also called to add the existing VLANs with the new
-protocol and delete them with the old protocol.
-
-In case the VLANs were offloaded via switchdev, the above behavior is
-both redundant and buggy. Redundant because the VLANs are already
-programmed in hardware and drivers that support VLAN protocol change
-(currently only mlx5) change the protocol upon the switchdev attribute
-notification. Buggy because the 8021q driver is called despite these
-VLANs being marked with 'BR_VLFLAG_ADDED_BY_SWITCHDEV'. This leads to
-memory leaks [1] when the VLANs are deleted.
-
-Fix by not calling the 8021q driver for VLANs that were already
-programmed via switchdev.
-
-[1]
-unreferenced object 0xffff8881f6771200 (size 256):
-  comm "ip", pid 446855, jiffies 4298238841 (age 55.240s)
-  hex dump (first 32 bytes):
-    00 00 7f 0e 83 88 ff ff 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000012819ac>] vlan_vid_add+0x437/0x750
-    [<00000000f2281fad>] __br_vlan_set_proto+0x289/0x920
-    [<000000000632b56f>] br_changelink+0x3d6/0x13f0
-    [<0000000089d25f04>] __rtnl_newlink+0x8ae/0x14c0
-    [<00000000f6276baf>] rtnl_newlink+0x5f/0x90
-    [<00000000746dc902>] rtnetlink_rcv_msg+0x336/0xa00
-    [<000000001c2241c0>] netlink_rcv_skb+0x11d/0x340
-    [<0000000010588814>] netlink_unicast+0x438/0x710
-    [<00000000e1a4cd5c>] netlink_sendmsg+0x788/0xc40
-    [<00000000e8992d4e>] sock_sendmsg+0xb0/0xe0
-    [<00000000621b8f91>] ____sys_sendmsg+0x4ff/0x6d0
-    [<000000000ea26996>] ___sys_sendmsg+0x12e/0x1b0
-    [<00000000684f7e25>] __sys_sendmsg+0xab/0x130
-    [<000000004538b104>] do_syscall_64+0x3d/0x90
-    [<0000000091ed9678>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Fixes: 279737939a81 ("net: bridge: Fix VLANs memory leak")
-Reported-by: Vlad Buslov <vladbu@nvidia.com>
-Tested-by: Vlad Buslov <vladbu@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-Link: https://lore.kernel.org/r/20221114084509.860831-1-idosch@nvidia.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: b6f85ef9538b ("drbd: Iterate over all connections")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Link: https://lore.kernel.org/r/Y3Jd5iZRbNQ9w6gm@kili
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_vlan.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/block/drbd/drbd_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 10e63ea6a13e..86441ff78a0f 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -904,6 +904,8 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto,
- 	list_for_each_entry(p, &br->port_list, list) {
- 		vg = nbp_vlan_group(p);
- 		list_for_each_entry(vlan, &vg->vlan_list, vlist) {
-+			if (vlan->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
-+				continue;
- 			err = vlan_vid_add(p->dev, proto, vlan->vid);
- 			if (err)
- 				goto err_filt;
-@@ -918,8 +920,11 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto,
- 	/* Delete VLANs for the old proto from the device filter. */
- 	list_for_each_entry(p, &br->port_list, list) {
- 		vg = nbp_vlan_group(p);
--		list_for_each_entry(vlan, &vg->vlan_list, vlist)
-+		list_for_each_entry(vlan, &vg->vlan_list, vlist) {
-+			if (vlan->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
-+				continue;
- 			vlan_vid_del(p->dev, oldproto, vlan->vid);
-+		}
- 	}
- 
- 	return 0;
-@@ -928,13 +933,19 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto,
- 	attr.u.vlan_protocol = ntohs(oldproto);
- 	switchdev_port_attr_set(br->dev, &attr, NULL);
- 
--	list_for_each_entry_continue_reverse(vlan, &vg->vlan_list, vlist)
-+	list_for_each_entry_continue_reverse(vlan, &vg->vlan_list, vlist) {
-+		if (vlan->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
-+			continue;
- 		vlan_vid_del(p->dev, proto, vlan->vid);
-+	}
- 
- 	list_for_each_entry_continue_reverse(p, &br->port_list, list) {
- 		vg = nbp_vlan_group(p);
--		list_for_each_entry(vlan, &vg->vlan_list, vlist)
-+		list_for_each_entry(vlan, &vg->vlan_list, vlist) {
-+			if (vlan->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
-+				continue;
- 			vlan_vid_del(p->dev, proto, vlan->vid);
-+		}
- 	}
- 
- 	return err;
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index c3e4f9d83b29..3ae718aa6b39 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -2770,7 +2770,7 @@ static int init_submitter(struct drbd_device *device)
+ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsigned int minor)
+ {
+ 	struct drbd_resource *resource = adm_ctx->resource;
+-	struct drbd_connection *connection;
++	struct drbd_connection *connection, *n;
+ 	struct drbd_device *device;
+ 	struct drbd_peer_device *peer_device, *tmp_peer_device;
+ 	struct gendisk *disk;
+@@ -2898,7 +2898,7 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
+ out_idr_remove_vol:
+ 	idr_remove(&connection->peer_devices, vnr);
+ out_idr_remove_from_resource:
+-	for_each_connection(connection, resource) {
++	for_each_connection_safe(connection, n, resource) {
+ 		peer_device = idr_remove(&connection->peer_devices, vnr);
+ 		if (peer_device)
+ 			kref_put(&connection->kref, drbd_destroy_connection);
 -- 
 2.35.1
 
