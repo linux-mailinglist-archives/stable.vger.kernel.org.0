@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDBDE63586E
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:58:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2972635484
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237094AbiKWJ5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:57:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52344 "EHLO
+        id S237066AbiKWJG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:06:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238286AbiKWJ5N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:57:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ADD21173D0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:51:47 -0800 (PST)
+        with ESMTP id S237065AbiKWJGU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:06:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA26105A9E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB440619EB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4114C433D7;
-        Wed, 23 Nov 2022 09:51:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21C1DB81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB8BC433D6;
+        Wed, 23 Nov 2022 09:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197106;
-        bh=42fREDXtixX5TmXMaOKDZj/4zOqal5lcLcf3aWuZGjE=;
+        s=korg; t=1669194360;
+        bh=wuJWHiB/xj696LBlF+zyBT8fZqHcArXBnnn52U7FBZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UuJDJ5vIFlCkEdaqkAMaUpN7opOF/9ZhakfB2FAFhjyN4VvMOJem4xcOKBW1wdHnB
-         ziYebBLP/b/x+AYP17m5DPdLMWuse5b/zo8FDfSxl8roLZN2aHjoR3fnsu7K4QaN9B
-         m1Mh/o4InqNckIohnQpfKbIFwZtBDFSDIjhdC3i4=
+        b=IpkqAxnB1njH4yXW+uZKTr8Ekr+6bxr5SeZwBnhytzRyiHHRI5XpyD7y6UNiBRD33
+         QeNp9A4IFZsPEQLSYWXjxbv4GN2jx4UKOZlBotzm9c4jCe4MvNoMSL28GrmhCbIsm5
+         RkQ7fGuQoocvt7l6pZIO2oLGEpjoTyhOuQ1QG5UQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.0 198/314] ftrace: Fix null pointer dereference in ftrace_add_mod()
+        patches@lists.linux.dev, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 056/114] serial: 8250: omap: Flush PM QOS work on remove
 Date:   Wed, 23 Nov 2022 09:50:43 +0100
-Message-Id: <20221123084634.525363408@linuxfoundation.org>
+Message-Id: <20221123084554.122258540@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,55 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 19ba6c8af9382c4c05dc6a0a79af3013b9a35cd0 upstream.
+[ Upstream commit d0b68629bd2fb61e0171a62f2e8da3db322f5cf6 ]
 
-The @ftrace_mod is allocated by kzalloc(), so both the members {prev,next}
-of @ftrace_mode->list are NULL, it's not a valid state to call list_del().
-If kstrdup() for @ftrace_mod->{func|module} fails, it goes to @out_free
-tag and calls free_ftrace_mod() to destroy @ftrace_mod, then list_del()
-will write prev->next and next->prev, where null pointer dereference
-happens.
+Rebinding 8250_omap in a loop will at some point produce a warning for
+kernel/power/qos.c:296 cpu_latency_qos_update_request() with error
+"cpu_latency_qos_update_request called for unknown object". Let's flush
+the possibly pending PM QOS work scheduled from omap8250_runtime_suspend()
+before we disable runtime PM.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000008
-Oops: 0002 [#1] PREEMPT SMP NOPTI
-Call Trace:
- <TASK>
- ftrace_mod_callback+0x20d/0x220
- ? do_filp_open+0xd9/0x140
- ftrace_process_regex.isra.51+0xbf/0x130
- ftrace_regex_write.isra.52.part.53+0x6e/0x90
- vfs_write+0xee/0x3a0
- ? __audit_filter_op+0xb1/0x100
- ? auditd_test_task+0x38/0x50
- ksys_write+0xa5/0xe0
- do_syscall_64+0x3a/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-Kernel panic - not syncing: Fatal exception
-
-So call INIT_LIST_HEAD() to initialize the list member to fix this issue.
-
-Link: https://lkml.kernel.org/r/20221116015207.30858-1-xiujianfeng@huawei.com
-
-Cc: stable@vger.kernel.org
-Fixes: 673feb9d76ab ("ftrace: Add :mod: caching infrastructure to trace_array")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: 61929cf0169d ("tty: serial: Add 8250-core based omap driver")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20221028110044.54719-1-tony@atomide.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c |    1 +
+ drivers/tty/serial/8250/8250_omap.c | 1 +
  1 file changed, 1 insertion(+)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -1289,6 +1289,7 @@ static int ftrace_add_mod(struct trace_a
- 	if (!ftrace_mod)
- 		return -ENOMEM;
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index b81fb44e2bd7..8cf4819312f5 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -1262,6 +1262,7 @@ static int omap8250_remove(struct platform_device *pdev)
  
-+	INIT_LIST_HEAD(&ftrace_mod->list);
- 	ftrace_mod->func = kstrdup(func, GFP_KERNEL);
- 	ftrace_mod->module = kstrdup(module, GFP_KERNEL);
- 	ftrace_mod->enable = enable;
+ 	pm_runtime_dont_use_autosuspend(&pdev->dev);
+ 	pm_runtime_put_sync(&pdev->dev);
++	flush_work(&priv->qos_work);
+ 	pm_runtime_disable(&pdev->dev);
+ 	serial8250_unregister_port(priv->line);
+ 	pm_qos_remove_request(&priv->pm_qos_request);
+-- 
+2.35.1
+
 
 
