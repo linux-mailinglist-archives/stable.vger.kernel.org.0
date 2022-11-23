@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB7076353AF
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9474E635402
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236797AbiKWI6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:58:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33746 "EHLO
+        id S236879AbiKWJBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:01:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236793AbiKWI5v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:57:51 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D081B5B594
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:57:47 -0800 (PST)
+        with ESMTP id S236888AbiKWJBP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:01:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63E7BFFABC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:01:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 16BCBCE20F6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:57:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C31C2C433D7;
-        Wed, 23 Nov 2022 08:57:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21098B81EEF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:01:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81778C433D6;
+        Wed, 23 Nov 2022 09:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193864;
-        bh=QkK/bqZVDzrOgR1YDlHi9pObIM2h74viCBDmfbxG328=;
+        s=korg; t=1669194071;
+        bh=jC5ctidMD+rvvvSf0jBUaX3iTZ9SEWA5HHJqBvOC/V0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S32azCQMHE8Da3jQPDuylfDgIlQ/mA8DO5Z26AraMf34tSc8JiewE85vUPjhSee+R
-         800LKc7hJOIAmq9RgN7lfHnWJ8VXoYiCZbfU2kHe5LWipUJVRgS5oupYIfDUthKP8Y
-         00SjJpnxneOJ0WOTO1bCV7Y/I4iemU0Eth8tKj18=
+        b=EO1KmgoKqy8OdNpVJ4rJjeY324hQ9IAgPzlWjoMhzLZCxSsLvCkXZuAaLyxC8Rgef
+         xn6jaKk5tTv2sY3rI9AulyZqRyWOfG3gfq52xRXmK48+27We5jzKAVlCZ/3ABBT+W1
+         n4gAT+/u3tv8U3SZleJyUx/Y5gpaBt2RgjA4cupU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Srikanth Thokala <srikanth.thokala@intel.com>,
-        Aman Kumar <aman.kumar@intel.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.9 61/76] serial: 8250: Fall back to non-DMA Rx if IIR_RDI occurs
-Date:   Wed, 23 Nov 2022 09:51:00 +0100
-Message-Id: <20221123084548.758534147@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Duoming Zhou <duoming@zju.edu.cn>
+Subject: [PATCH 4.14 64/88] usb: chipidea: fix deadlock in ci_otg_del_timer
+Date:   Wed, 23 Nov 2022 09:51:01 +0100
+Message-Id: <20221123084550.820537126@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit a931237cbea256aff13bb403da13a97b2d1605d9 upstream.
+commit 7a58b8d6021426b796eebfae80983374d9a80a75 upstream.
 
-DW UART sometimes triggers IIR_RDI during DMA Rx when IIR_RX_TIMEOUT
-should have been triggered instead. Since IIR_RDI has higher priority
-than IIR_RX_TIMEOUT, this causes the Rx to hang into interrupt loop.
-The problem seems to occur at least with some combinations of
-small-sized transfers (I've reproduced the problem on Elkhart Lake PSE
-UARTs).
+There is a deadlock in ci_otg_del_timer(), the process is
+shown below:
 
-If there's already an on-going Rx DMA and IIR_RDI triggers, fall
-graciously back to non-DMA Rx. That is, behave as if IIR_RX_TIMEOUT had
-occurred.
+    (thread 1)                  |        (thread 2)
+ci_otg_del_timer()              | ci_otg_hrtimer_func()
+  ...                           |
+  spin_lock_irqsave() //(1)     |  ...
+  ...                           |
+  hrtimer_cancel()              |  spin_lock_irqsave() //(2)
+  (block forever)
 
-8250_omap already considers IIR_RDI similar to this change so its
-nothing unheard of.
+We hold ci->lock in position (1) and use hrtimer_cancel() to
+wait ci_otg_hrtimer_func() to stop, but ci_otg_hrtimer_func()
+also need ci->lock in position (2). As a result, the
+hrtimer_cancel() in ci_otg_del_timer() will be blocked forever.
 
-Fixes: 75df022b5f89 ("serial: 8250_dma: Fix RX handling")
-Cc: <stable@vger.kernel.org>
-Co-developed-by: Srikanth Thokala <srikanth.thokala@intel.com>
-Signed-off-by: Srikanth Thokala <srikanth.thokala@intel.com>
-Co-developed-by: Aman Kumar <aman.kumar@intel.com>
-Signed-off-by: Aman Kumar <aman.kumar@intel.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221108121952.5497-2-ilpo.jarvinen@linux.intel.com
+This patch extracts hrtimer_cancel() from the protection of
+spin_lock_irqsave() in order that the ci_otg_hrtimer_func()
+could obtain the ci->lock.
+
+What`s more, there will be no race happen. Because the
+"next_timer" is always under the protection of
+spin_lock_irqsave() and we only check whether "next_timer"
+equals to NUM_OTG_FSM_TIMERS in the following code.
+
+Fixes: 3a316ec4c91c ("usb: chipidea: use hrtimer for otg fsm timers")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220918033312.94348-1-duoming@zju.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/chipidea/otg_fsm.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1798,6 +1798,10 @@ EXPORT_SYMBOL_GPL(serial8250_modem_statu
- static bool handle_rx_dma(struct uart_8250_port *up, unsigned int iir)
- {
- 	switch (iir & 0x3f) {
-+	case UART_IIR_RDI:
-+		if (!up->dma->rx_running)
-+			break;
-+		/* fall-through */
- 	case UART_IIR_RX_TIMEOUT:
- 		serial8250_rx_dma_flush(up);
- 		/* fall-through */
+--- a/drivers/usb/chipidea/otg_fsm.c
++++ b/drivers/usb/chipidea/otg_fsm.c
+@@ -260,8 +260,10 @@ static void ci_otg_del_timer(struct ci_h
+ 	ci->enabled_otg_timer_bits &= ~(1 << t);
+ 	if (ci->next_otg_timer == t) {
+ 		if (ci->enabled_otg_timer_bits == 0) {
++			spin_unlock_irqrestore(&ci->lock, flags);
+ 			/* No enabled timers after delete it */
+ 			hrtimer_cancel(&ci->otg_fsm_hrtimer);
++			spin_lock_irqsave(&ci->lock, flags);
+ 			ci->next_otg_timer = NUM_OTG_FSM_TIMERS;
+ 		} else {
+ 			/* Find the next timer */
 
 
