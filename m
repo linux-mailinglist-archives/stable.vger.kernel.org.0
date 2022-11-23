@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DD1A635D6D
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:46:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDE35635DB9
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:47:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237588AbiKWMpa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:45:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48708 "EHLO
+        id S237374AbiKWMpb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:45:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237701AbiKWMoa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:44:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A760A6F356;
-        Wed, 23 Nov 2022 04:42:23 -0800 (PST)
+        with ESMTP id S237618AbiKWMob (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:44:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A90E6F342;
+        Wed, 23 Nov 2022 04:42:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14FC8B81F59;
-        Wed, 23 Nov 2022 12:42:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15C84C43470;
-        Wed, 23 Nov 2022 12:42:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F0BDB81F40;
+        Wed, 23 Nov 2022 12:42:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28652C433D6;
+        Wed, 23 Nov 2022 12:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207340;
-        bh=HtuvYn1EQ5IHM4x16ZQTiO4cKQFCLzaTQZaxEJr+Qzs=;
+        s=k20201202; t=1669207341;
+        bh=T2hPKsWNW7abcrcjLBMijRjZLL8m3qgeJM8HhFt9LdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHV3TNq0v+DXCGI4adrN1iILRTbr+SH3RxzQj1xOBBs9nKXKpBhA+DaiMLSU97fqm
-         r4XNsVhltqfzPj9JeUZIx9hVjsqzxgDPDPRrYR89CBJHszYdbu62i2kI04KXlMQkdM
-         hIZvnT7z3qooU4kPxtNacsng7hnqzUpYl0MGOpLju6k2VQurrvyoduM/V8U1tjDsKA
-         JCMGzwkAPismewpZN5FTrbEQLgosO4qbRN29MtCmO2hgvVJykEpyPdYre3nDic4zq8
-         LfsHlFl0Tm+SIZFCWjDNXA//FE34erZFGME3CRW4cnkPAIyr7jNrBRGrJbFj+Dgjm0
-         52Q0z/0/5yLnA==
+        b=Axvfde1TsGyRckHKQ+rSbIzPWj1eUeUAJ/rtahApu/akOJfA7nCPh9X51q623AW8o
+         fZ4dOs5KbohCRhtjdd1dX2riNuCqd5r/O1KJu5ZaQUy/SHOF5eaRl7EFyn2ogVe/SB
+         yMkphynEQkAVjlwccPRwHdQYiLxMB+AKKFiWo0FldLff8H8oJ/yKXyWbVEvxV31ksA
+         o8tGb/0uyuTK5RcKo/cyaco8Ev2TphPWfD/GMRbleMHlVsweCz+a3g62SQSFw2iLoY
+         xZjmQqmsyGNoGspXNWS6ZbqarpzKJc1f1/1TjceHtJOoPpCZAeLWYuIq40E07funoi
+         Ds6Geh8MJqnIQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+Cc:     Keith Busch <kbusch@kernel.org>, Mike Snitzer <snitzer@kernel.org>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 36/44] block: make blk_set_default_limits() private
-Date:   Wed, 23 Nov 2022 07:40:45 -0500
-Message-Id: <20221123124057.264822-36-sashal@kernel.org>
+        agk@redhat.com, dm-devel@redhat.com
+Subject: [PATCH AUTOSEL 6.0 37/44] dm-integrity: set dma_alignment limit in io_hints
+Date:   Wed, 23 Nov 2022 07:40:46 -0500
+Message-Id: <20221123124057.264822-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124057.264822-1-sashal@kernel.org>
 References: <20221123124057.264822-1-sashal@kernel.org>
@@ -57,57 +57,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit b3228254bb6e91e57f920227f72a1a7d81925d81 ]
+[ Upstream commit 29aa778bb66795e6a78b1c99beadc83887827868 ]
 
-There are no external users of this function.
+This device mapper needs bio vectors to be sized and memory aligned to
+the logical block size. Set the minimum required queue limit
+accordingly.
 
 Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20221110184501.2451620-4-kbusch@meta.com
+Reviewed-by: Mike Snitzer <snitzer@kernel.org>
+Link: https://lore.kernel.org/r/20221110184501.2451620-5-kbusch@meta.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-settings.c   | 1 -
- block/blk.h            | 1 +
- include/linux/blkdev.h | 1 -
- 3 files changed, 1 insertion(+), 2 deletions(-)
+ drivers/md/dm-integrity.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/blk-settings.c b/block/blk-settings.c
-index 4949ed3ce7c9..8ac1038d0c79 100644
---- a/block/blk-settings.c
-+++ b/block/blk-settings.c
-@@ -59,7 +59,6 @@ void blk_set_default_limits(struct queue_limits *lim)
- 	lim->zone_write_granularity = 0;
- 	lim->dma_alignment = 511;
+diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
+index aaf2472df6e5..e1e7b205573f 100644
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -3370,6 +3370,7 @@ static void dm_integrity_io_hints(struct dm_target *ti, struct queue_limits *lim
+ 		limits->logical_block_size = ic->sectors_per_block << SECTOR_SHIFT;
+ 		limits->physical_block_size = ic->sectors_per_block << SECTOR_SHIFT;
+ 		blk_limits_io_min(limits, ic->sectors_per_block << SECTOR_SHIFT);
++		limits->dma_alignment = limits->logical_block_size - 1;
+ 	}
  }
--EXPORT_SYMBOL(blk_set_default_limits);
  
- /**
-  * blk_set_stacking_limits - set default limits for stacking devices
-diff --git a/block/blk.h b/block/blk.h
-index 52432eab621e..ff0bec16f0fa 100644
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -324,6 +324,7 @@ void blk_rq_set_mixed_merge(struct request *rq);
- bool blk_rq_merge_ok(struct request *rq, struct bio *bio);
- enum elv_merge blk_try_merge(struct request *rq, struct bio *bio);
- 
-+void blk_set_default_limits(struct queue_limits *lim);
- int blk_dev_init(void);
- 
- /*
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 79624711fda7..e6bf06dc0770 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -946,7 +946,6 @@ extern void blk_queue_io_min(struct request_queue *q, unsigned int min);
- extern void blk_limits_io_opt(struct queue_limits *limits, unsigned int opt);
- extern void blk_queue_io_opt(struct request_queue *q, unsigned int opt);
- extern void blk_set_queue_depth(struct request_queue *q, unsigned int depth);
--extern void blk_set_default_limits(struct queue_limits *lim);
- extern void blk_set_stacking_limits(struct queue_limits *lim);
- extern int blk_stack_limits(struct queue_limits *t, struct queue_limits *b,
- 			    sector_t offset);
 -- 
 2.35.1
 
