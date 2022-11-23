@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D41806358C8
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:04:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4458635571
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237216AbiKWKD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:03:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57302 "EHLO
+        id S237323AbiKWJTe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:19:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237558AbiKWKCS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:02:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE4BCE6353
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:54:28 -0800 (PST)
+        with ESMTP id S237340AbiKWJTW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:19:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B38A26DA
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:19:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B2A261B40
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:54:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D0B6C433D6;
-        Wed, 23 Nov 2022 09:54:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DEC2DB81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:19:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 365FBC433C1;
+        Wed, 23 Nov 2022 09:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197267;
-        bh=iW0tm0L4VBgJB0kmNtj/StBH9XTg9IJ8YplHsXuIx4M=;
+        s=korg; t=1669195158;
+        bh=HlCaUuMmHfxMuJ0ffJRVaWlQ19yPja1m2apHeFztfrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZSzQiV7vIYC+EcO5TNnbHTdgIu2zSUDyzpHd5dPejWF3g3+rJO1MSYtbf2Yxloswz
-         Yz8qsDaz9KxB5Fssotqj7QxmOIhH4rSd75ydZ+GbcBKNBmxn6zK6FSdoenotoBE+cO
-         Y3jMv5O9oGpk+f0kTuf3Y0kc812s/FViqX5COfiE=
+        b=LH/pQ8QtuuBRVAMDTuKHDba66dE3TSYaXOfSyQyQZ1JWB1NPLQZ/lXMvNZuXUwjva
+         N9B/aAG6ke2hmfAz4HNHlLAL0YHjeuMRTjy1UYB8esy2wG3Hz5vR6g0efu8EzI1nLp
+         GLMMrqJOyzfRAxN24cyz3P9vfWLgdbG6KfooOc3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.0 246/314] iio: trigger: sysfs: fix possible memory leak in iio_sysfs_trig_init()
+        patches@lists.linux.dev, Yann Gautier <yann.gautier@foss.st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 134/156] mmc: core: properly select voltage range without power cycle
 Date:   Wed, 23 Nov 2022 09:51:31 +0100
-Message-Id: <20221123084636.648902560@linuxfoundation.org>
+Message-Id: <20221123084602.763142352@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Yann Gautier <yann.gautier@foss.st.com>
 
-commit efa17e90e1711bdb084e3954fa44afb6647331c0 upstream.
+commit 39a72dbfe188291b156dd6523511e3d5761ce775 upstream.
 
-dev_set_name() allocates memory for name, it need be freed
-when device_add() fails, call put_device() to give up the
-reference that hold in device_initialize(), so that it can
-be freed in kobject_cleanup() when the refcount hit to 0.
+In mmc_select_voltage(), if there is no full power cycle, the voltage
+range selected at the end of the function will be on a single range
+(e.g. 3.3V/3.4V). To keep a range around the selected voltage (3.2V/3.4V),
+the mask shift should be reduced by 1.
 
-Fault injection test can trigger this:
+This issue was triggered by using a specific SD-card (Verbatim Premium
+16GB UHS-1) on an STM32MP157C-DK2 board. This board cannot do UHS modes
+and there is no power cycle. And the card was failing to switch to
+high-speed mode. When adding the range 3.2V/3.3V for this card with the
+proposed shift change, the card can switch to high-speed mode.
 
-unreferenced object 0xffff8e8340a7b4c0 (size 32):
-  comm "modprobe", pid 243, jiffies 4294678145 (age 48.845s)
-  hex dump (first 32 bytes):
-    69 69 6f 5f 73 79 73 66 73 5f 74 72 69 67 67 65  iio_sysfs_trigge
-    72 00 a7 40 83 8e ff ff 00 86 13 c4 f6 ee ff ff  r..@............
-  backtrace:
-    [<0000000074999de8>] __kmem_cache_alloc_node+0x1e9/0x360
-    [<00000000497fd30b>] __kmalloc_node_track_caller+0x44/0x1a0
-    [<000000003636c520>] kstrdup+0x2d/0x60
-    [<0000000032f84da2>] kobject_set_name_vargs+0x1e/0x90
-    [<0000000092efe493>] dev_set_name+0x4e/0x70
-
-Fixes: 1f785681a870 ("staging:iio:trigger sysfs userspace trigger rework.")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221022074212.1386424-1-yangyingliang@huawei.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: ce69d37b7d8f ("mmc: core: Prevent violation of specs while initializing cards")
+Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221028073740.7259-1-yann.gautier@foss.st.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/trigger/iio-trig-sysfs.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/mmc/core/core.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/trigger/iio-trig-sysfs.c
-+++ b/drivers/iio/trigger/iio-trig-sysfs.c
-@@ -203,9 +203,13 @@ static int iio_sysfs_trigger_remove(int
- 
- static int __init iio_sysfs_trig_init(void)
- {
-+	int ret;
- 	device_initialize(&iio_sysfs_trig_dev);
- 	dev_set_name(&iio_sysfs_trig_dev, "iio_sysfs_trigger");
--	return device_add(&iio_sysfs_trig_dev);
-+	ret = device_add(&iio_sysfs_trig_dev);
-+	if (ret)
-+		put_device(&iio_sysfs_trig_dev);
-+	return ret;
- }
- module_init(iio_sysfs_trig_init);
- 
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -1145,7 +1145,13 @@ u32 mmc_select_voltage(struct mmc_host *
+ 		mmc_power_cycle(host, ocr);
+ 	} else {
+ 		bit = fls(ocr) - 1;
+-		ocr &= 3 << bit;
++		/*
++		 * The bit variable represents the highest voltage bit set in
++		 * the OCR register.
++		 * To keep a range of 2 values (e.g. 3.2V/3.3V and 3.3V/3.4V),
++		 * we must shift the mask '3' with (bit - 1).
++		 */
++		ocr &= 3 << (bit - 1);
+ 		if (bit != host->ios.vdd)
+ 			dev_warn(mmc_dev(host), "exceeding card's volts\n");
+ 	}
 
 
