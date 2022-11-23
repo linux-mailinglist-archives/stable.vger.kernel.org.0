@@ -2,43 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C26635506
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B48E6356C1
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237212AbiKWJMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:12:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52438 "EHLO
+        id S237864AbiKWJbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:31:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237261AbiKWJME (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:12:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D22DF35
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:12:03 -0800 (PST)
+        with ESMTP id S237768AbiKWJbH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF2462FC12
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:30:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63FA4B81EF1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:12:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94D00C433C1;
-        Wed, 23 Nov 2022 09:12:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59CC661A02
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:30:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C799EC433C1;
+        Wed, 23 Nov 2022 09:30:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194721;
-        bh=6DBce3Np4iCU3dai7/tRp+8qyWX52YBi5mB9EWiI2+g=;
+        s=korg; t=1669195802;
+        bh=PyvGfMNO4eGVZEKytnxM1XElbL0QDh3Vv3c9PMIsKIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YcI2vf9ruQQx6v//08azbkDY4g89nBJ52oUJlivWUuNziD0nF9epj8WpzJjeg+5ro
-         B+nyttHrnfHtND6Lhc0hs5iHBNkqtX2E0RN14Cp66mIFu1SoFsTZBAaDvo+/eg4IHf
-         61yXJr7oKmSsFS+V7U26tP6GBmU7Xc2Q4Va+GrDo=
+        b=grit8xvfaXM4qoUM3vK+Df6VZA8iiYcaKmxm0xwtV63FAPM72d2TViaLEMHB8iz99
+         iAa1oGRMFE7h0tkZlC3kWnl8Q/foBY2Km8wQS0XGOFqvMfVQTHoG7M6ii1ObHdZSk5
+         hVUKP1nqHspXqUUYpjTnvA212209UP/9EcH9PN24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xian Wang <dev@xianwang.io>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 043/156] ALSA: hda/ca0132: add quirk for EVGA Z390 DARK
+        patches@lists.linux.dev, James Houghton <jthoughton@google.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 037/181] hugetlbfs: dont delete error page from pagecache
 Date:   Wed, 23 Nov 2022 09:50:00 +0100
-Message-Id: <20221123084559.468517675@linuxfoundation.org>
+Message-Id: <20221123084603.965798988@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +59,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xian Wang <dev@xianwang.io>
+From: James Houghton <jthoughton@google.com>
 
-commit 0c423e2ffa7edd3f8f9bcf17ce73fa9c7509b99e upstream.
+[ Upstream commit 8625147cafaa9ba74713d682f5185eb62cb2aedb ]
 
-The Z390 DARK mainboard uses a CA0132 audio controller. The quirk is
-needed to enable surround sound and 3.5mm headphone jack handling in
-the front audio connector as well as in the rear of the board when in
-stereo mode.
+This change is very similar to the change that was made for shmem [1], and
+it solves the same problem but for HugeTLBFS instead.
 
-Page 97 of the linked manual contains instructions to setup the
-controller.
+Currently, when poison is found in a HugeTLB page, the page is removed
+from the page cache.  That means that attempting to map or read that
+hugepage in the future will result in a new hugepage being allocated
+instead of notifying the user that the page was poisoned.  As [1] states,
+this is effectively memory corruption.
 
-Signed-off-by: Xian Wang <dev@xianwang.io>
-Cc: stable@vger.kernel.org
-Link: https://www.evga.com/support/manuals/files/131-CS-E399.pdf
-Link: https://lore.kernel.org/r/20221104202913.13904-1-dev@xianwang.io
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The fix is to leave the page in the page cache.  If the user attempts to
+use a poisoned HugeTLB page with a syscall, the syscall will fail with
+EIO, the same error code that shmem uses.  For attempts to map the page,
+the thread will get a BUS_MCEERR_AR SIGBUS.
+
+[1]: commit a76054266661 ("mm: shmem: don't truncate page if memory failure happens")
+
+Link: https://lkml.kernel.org/r/20221018200125.848471-1-jthoughton@google.com
+Signed-off-by: James Houghton <jthoughton@google.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Tested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: James Houghton <jthoughton@google.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/hugetlbfs/inode.c | 13 ++++++-------
+ mm/hugetlb.c         |  4 ++++
+ mm/memory-failure.c  |  5 ++++-
+ 3 files changed, 14 insertions(+), 8 deletions(-)
 
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -1182,6 +1182,7 @@ static const struct snd_pci_quirk ca0132
- 	SND_PCI_QUIRK(0x1458, 0xA026, "Gigabyte G1.Sniper Z97", QUIRK_R3DI),
- 	SND_PCI_QUIRK(0x1458, 0xA036, "Gigabyte GA-Z170X-Gaming 7", QUIRK_R3DI),
- 	SND_PCI_QUIRK(0x3842, 0x1038, "EVGA X99 Classified", QUIRK_R3DI),
-+	SND_PCI_QUIRK(0x3842, 0x1055, "EVGA Z390 DARK", QUIRK_R3DI),
- 	SND_PCI_QUIRK(0x1102, 0x0013, "Recon3D", QUIRK_R3D),
- 	SND_PCI_QUIRK(0x1102, 0x0018, "Recon3D", QUIRK_R3D),
- 	SND_PCI_QUIRK(0x1102, 0x0051, "Sound Blaster AE-5", QUIRK_AE5),
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index d74a49b188c2..be8deec29ebe 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -361,6 +361,12 @@ static ssize_t hugetlbfs_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 		} else {
+ 			unlock_page(page);
+ 
++			if (PageHWPoison(page)) {
++				put_page(page);
++				retval = -EIO;
++				break;
++			}
++
+ 			/*
+ 			 * We have the page, copy it to user space buffer.
+ 			 */
+@@ -984,13 +990,6 @@ static int hugetlbfs_migrate_page(struct address_space *mapping,
+ static int hugetlbfs_error_remove_page(struct address_space *mapping,
+ 				struct page *page)
+ {
+-	struct inode *inode = mapping->host;
+-	pgoff_t index = page->index;
+-
+-	remove_huge_page(page);
+-	if (unlikely(hugetlb_unreserve_pages(inode, index, index + 1, 1)))
+-		hugetlb_fix_reserve_counts(inode);
+-
+ 	return 0;
+ }
+ 
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index dbb63ec3b5fa..e7bd42f23667 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5350,6 +5350,10 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
+ 	ptl = huge_pte_lockptr(h, dst_mm, dst_pte);
+ 	spin_lock(ptl);
+ 
++	ret = -EIO;
++	if (PageHWPoison(page))
++		goto out_release_unlock;
++
+ 	/*
+ 	 * Recheck the i_size after holding PT lock to make sure not
+ 	 * to leave any page mapped (as page_mapped()) beyond the end
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index 85b1a77e3a99..2ad0f4580091 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1040,6 +1040,7 @@ static int me_huge_page(struct page_state *ps, struct page *p)
+ 	int res;
+ 	struct page *hpage = compound_head(p);
+ 	struct address_space *mapping;
++	bool extra_pins = false;
+ 
+ 	if (!PageHuge(hpage))
+ 		return MF_DELAYED;
+@@ -1047,6 +1048,8 @@ static int me_huge_page(struct page_state *ps, struct page *p)
+ 	mapping = page_mapping(hpage);
+ 	if (mapping) {
+ 		res = truncate_error_page(hpage, page_to_pfn(p), mapping);
++		/* The page is kept in page cache. */
++		extra_pins = true;
+ 		unlock_page(hpage);
+ 	} else {
+ 		res = MF_FAILED;
+@@ -1064,7 +1067,7 @@ static int me_huge_page(struct page_state *ps, struct page *p)
+ 		}
+ 	}
+ 
+-	if (has_extra_refcount(ps, p, false))
++	if (has_extra_refcount(ps, p, extra_pins))
+ 		res = MF_FAILED;
+ 
+ 	return res;
+-- 
+2.35.1
+
 
 
