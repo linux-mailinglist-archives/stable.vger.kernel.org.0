@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED4E5635E78
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:57:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9317A635DFD
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238174AbiKWMxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:53:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48416 "EHLO
+        id S238288AbiKWMxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:53:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238292AbiKWMwE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:52:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9252C86A57;
-        Wed, 23 Nov 2022 04:44:36 -0800 (PST)
+        with ESMTP id S238338AbiKWMwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:52:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E55A87576;
+        Wed, 23 Nov 2022 04:44:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2A2BB81F40;
-        Wed, 23 Nov 2022 12:44:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CF59C433D6;
-        Wed, 23 Nov 2022 12:44:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AACDDB81F5D;
+        Wed, 23 Nov 2022 12:44:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10865C433C1;
+        Wed, 23 Nov 2022 12:44:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207474;
-        bh=bmkuTam4/eCjQTwar69n3SQbEsGd/IeoaR1YFjfpgrM=;
+        s=k20201202; t=1669207478;
+        bh=ZrKRPU9q94od2dlVnuGKRBUEQxi8KNWdgov7/0ffFBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nunV72uzXVnkS5jRI+nCWVaUc31gNWz0BNpvdWsV448Dv5hlj8LKoOgGb3OeYeHD1
-         5CnZl/aiSANij9G/cssfRkERS1/U0cRK9+C7z0ecYKeyBgdWFBYdwzA1jHLQoap3+y
-         E4P+WxduJizofnfoyK3DHcTJ7NslQvg1xrvaFQzE3bINd3uwzRN/Y7hiJ85dE4laGM
-         cbht6r+nkxXFvZ6mi1mYfLm/WdsmiWLmnH3rlGprTYCPWNvE1BSY/ZYAdTP4CxLpsa
-         bbaC8SssI6orq06p0qyMDMnJZyvN5149jDPtTmuT31gvoeTapuH8X/X2U0ly6XdDbA
-         3Ny7SDVkt6TtA==
+        b=sQr9eAVPNH9FMSArqcTOTVTCAAKI76/LsmnPZ/HPcviPzssX/737nHuxtWO+6zrwi
+         ZQ6icc/tOD/PgJn6mHslTNImvS/Udacl2lBqLMVEyi/2rDAS62zMHRIijwbZDyuzjB
+         74d8d1S919sFUUevpvUNDGDJAKhMpx/mQsGUO3ELLJGL/lFTFAdYJCzBDp/BMDlFSo
+         iy9PEedT148/dDGfxdnGGXYW66y1FGDhnnP7Uouti1oS7q+hQNr2EOkDQ+XwgRfchu
+         2F5vWXhJmzmhPOi7I/N2vT9XdEhw00MJGOTVdNa+5BvwrCtycJ3k9MJnOvcEett9bT
+         2BMJ4CgRNjGfw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
         liam.r.girdwood@linux.intel.com, peter.ujfalusi@linux.intel.com,
-        yung-chuan.liao@linux.intel.com, ranjani.sridharan@linux.intel.com,
-        kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
-        fred.oh@linux.intel.com, akihiko.odaki@gmail.com,
-        ckeepax@opensource.cirrus.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 02/15] ASoC: Intel: bytcht_es8316: Add quirk for the Nanote UMPC-01
-Date:   Wed, 23 Nov 2022 07:44:12 -0500
-Message-Id: <20221123124427.266286-2-sashal@kernel.org>
+        ranjani.sridharan@linux.intel.com, kai.vehmanen@linux.intel.com,
+        perex@perex.cz, tiwai@suse.com, rander.wang@intel.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 03/15] ASoC: Intel: soc-acpi: add ES83x6 support to IceLake
+Date:   Wed, 23 Nov 2022 07:44:13 -0500
+Message-Id: <20221123124427.266286-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124427.266286-1-sashal@kernel.org>
 References: <20221123124427.266286-1-sashal@kernel.org>
@@ -61,40 +60,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 8bb0ac0e6f64ebdf15d963c26b028de391c9bcf9 ]
+[ Upstream commit 9a1d248bb4beaf1b43d17ba12481ee0629fa29b9 ]
 
-The Nanote UMPC-01 mini laptop has stereo speakers, while the default
-bytcht_es8316 settings assume a mono speaker setup. Add a quirk for this.
+Missing entry to find a machine driver for ES83x6-based platforms.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221025140942.509066-1-hdegoede@redhat.com
+Link: https://github.com/thesofproject/linux/issues/3873
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20221031195836.250193-1-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcht_es8316.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/soc/intel/common/soc-acpi-intel-icl-match.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/sound/soc/intel/boards/bytcht_es8316.c b/sound/soc/intel/boards/bytcht_es8316.c
-index ed332177b0f9..57d6d0b48068 100644
---- a/sound/soc/intel/boards/bytcht_es8316.c
-+++ b/sound/soc/intel/boards/bytcht_es8316.c
-@@ -446,6 +446,13 @@ static const struct dmi_system_id byt_cht_es8316_quirk_table[] = {
- 					| BYT_CHT_ES8316_INTMIC_IN2_MAP
- 					| BYT_CHT_ES8316_JD_INVERTED),
+diff --git a/sound/soc/intel/common/soc-acpi-intel-icl-match.c b/sound/soc/intel/common/soc-acpi-intel-icl-match.c
+index 38977669b576..4f5229b196ec 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-icl-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-icl-match.c
+@@ -10,6 +10,11 @@
+ #include <sound/soc-acpi-intel-match.h>
+ #include "../skylake/skl.h"
+ 
++static const struct snd_soc_acpi_codecs essx_83x6 = {
++	.num_codecs = 3,
++	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
++};
++
+ static struct skl_machine_pdata icl_pdata = {
+ 	.use_tplg_pcm = true,
+ };
+@@ -29,6 +34,14 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_icl_machines[] = {
+ 		.sof_fw_filename = "sof-icl.ri",
+ 		.sof_tplg_filename = "sof-icl-rt5682.tplg",
  	},
-+	{	/* Nanote UMPC-01 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "RWC CO.,LTD"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "UMPC-01"),
-+		},
-+		.driver_data = (void *)BYT_CHT_ES8316_INTMIC_IN1_MAP,
++	{
++		.comp_ids = &essx_83x6,
++		.drv_name = "sof-essx8336",
++		.sof_tplg_filename = "sof-icl-es8336", /* the tplg suffix is added at run time */
++		.tplg_quirk_mask = SND_SOC_ACPI_TPLG_INTEL_SSP_NUMBER |
++					SND_SOC_ACPI_TPLG_INTEL_SSP_MSB |
++					SND_SOC_ACPI_TPLG_INTEL_DMIC_NUMBER,
 +	},
- 	{	/* Teclast X98 Plus II */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "TECLAST"),
+ 	{},
+ };
+ EXPORT_SYMBOL_GPL(snd_soc_acpi_intel_icl_machines);
 -- 
 2.35.1
 
