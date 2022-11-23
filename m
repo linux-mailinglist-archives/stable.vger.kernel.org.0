@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CFC1635499
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1D29635612
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237151AbiKWJKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:10:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50480 "EHLO
+        id S237479AbiKWJ1n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:27:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237169AbiKWJKA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:10:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BCA8102E49
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:09:59 -0800 (PST)
+        with ESMTP id S237720AbiKWJ0m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:26:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5789B1095BC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:25:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AAF35B81EF2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:09:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9AD6C433D6;
-        Wed, 23 Nov 2022 09:09:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1109CB81EA9
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:25:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40021C433D6;
+        Wed, 23 Nov 2022 09:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194596;
-        bh=dU0YEan+Dq5IMX06acglBjNA8ZbiM1WnuT3kY3iI5PQ=;
+        s=korg; t=1669195535;
+        bh=gtYR++FiirfzN5RZRAJawT8wVcSsiAOXGbccMfLBFmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GwzOrz4WoDaPYysf9TRoYUI7h7VDuiSzFy4uuVzCobOCLm++QF7BKfJNTqDgQ+8dz
-         7DjMdYxJUZxBf1hTtXbxM1qyLFfD6PM62jRv/igJ1WSTmdvB4cULYPZSZTgE/TIZ56
-         1/+r47qhAkk1Cqj0P4+2qU3k2XjWCasjRV9+AFo8=
+        b=S56I4oKXP/7OVWAr4EmawARyDgZK7/Yf0Mhrn5VnZaBDAUmRU/XE/iw/7u5CKihMo
+         X2UxP9bn8/ZYtfPyRirI9h5SjhqRXEt5POOxxMfI49yD3eYrI6qE1yH5topb0H4TOI
+         KAXEWtq+Q/E6dwzqIcitSfnBd6axs8+ytKj5bR0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Schspa Shi <schspa@gmail.com>
-Subject: [PATCH 4.19 107/114] 9p: trans_fd/p9_conn_cancel: drop client lock earlier
+        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.10 111/149] dm ioctl: fix misbehavior if list_versions races with module loading
 Date:   Wed, 23 Nov 2022 09:51:34 +0100
-Message-Id: <20221123084555.976383490@linuxfoundation.org>
+Message-Id: <20221123084601.954174840@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +52,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominique Martinet <asmadeus@codewreck.org>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 52f1c45dde9136f964d63a77d19826c8a74e2c7f upstream.
+commit 4fe1ec995483737f3d2a14c3fe1d8fe634972979 upstream.
 
-syzbot reported a double-lock here and we no longer need this
-lock after requests have been moved off to local list:
-just drop the lock earlier.
+__list_versions will first estimate the required space using the
+"dm_target_iterate(list_version_get_needed, &needed)" call and then will
+fill the space using the "dm_target_iterate(list_version_get_info,
+&iter_info)" call. Each of these calls locks the targets using the
+"down_read(&_lock)" and "up_read(&_lock)" calls, however between the first
+and second "dm_target_iterate" there is no lock held and the target
+modules can be loaded at this point, so the second "dm_target_iterate"
+call may need more space than what was the first "dm_target_iterate"
+returned.
 
-Link: https://lkml.kernel.org/r/20220904064028.1305220-1-asmadeus@codewreck.org
-Reported-by: syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Tested-by: Schspa Shi <schspa@gmail.com>
+The code tries to handle this overflow (see the beginning of
+list_version_get_info), however this handling is incorrect.
+
+The code sets "param->data_size = param->data_start + needed" and
+"iter_info.end = (char *)vers+len" - "needed" is the size returned by the
+first dm_target_iterate call; "len" is the size of the buffer allocated by
+userspace.
+
+"len" may be greater than "needed"; in this case, the code will write up
+to "len" bytes into the buffer, however param->data_size is set to
+"needed", so it may write data past the param->data_size value. The ioctl
+interface copies only up to param->data_size into userspace, thus part of
+the result will be truncated.
+
+Fix this bug by setting "iter_info.end = (char *)vers + needed;" - this
+guarantees that the second "dm_target_iterate" call will write only up to
+the "needed" buffer and it will exit with "DM_BUFFER_FULL_FLAG" if it
+overflows the "needed" space - in this case, userspace will allocate a
+larger buffer and retry.
+
+Note that there is also a bug in list_version_get_needed - we need to add
+"strlen(tt->name) + 1" to the needed size, not "strlen(tt->name)".
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/9p/trans_fd.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/md/dm-ioctl.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -220,6 +220,8 @@ static void p9_conn_cancel(struct p9_con
- 		list_move(&req->req_list, &cancel_list);
- 	}
+--- a/drivers/md/dm-ioctl.c
++++ b/drivers/md/dm-ioctl.c
+@@ -573,7 +573,7 @@ static void list_version_get_needed(stru
+     size_t *needed = needed_param;
  
-+	spin_unlock(&m->client->lock);
-+
- 	list_for_each_entry_safe(req, rtmp, &cancel_list, req_list) {
- 		p9_debug(P9_DEBUG_ERROR, "call back req %p\n", req);
- 		list_del(&req->req_list);
-@@ -227,7 +229,6 @@ static void p9_conn_cancel(struct p9_con
- 			req->t_err = err;
- 		p9_client_cb(m->client, req, REQ_STATUS_ERROR);
- 	}
--	spin_unlock(&m->client->lock);
+     *needed += sizeof(struct dm_target_versions);
+-    *needed += strlen(tt->name);
++    *needed += strlen(tt->name) + 1;
+     *needed += ALIGN_MASK;
  }
  
- static __poll_t
+@@ -638,7 +638,7 @@ static int __list_versions(struct dm_ioc
+ 	iter_info.old_vers = NULL;
+ 	iter_info.vers = vers;
+ 	iter_info.flags = 0;
+-	iter_info.end = (char *)vers+len;
++	iter_info.end = (char *)vers + needed;
+ 
+ 	/*
+ 	 * Now loop through filling out the names & versions.
 
 
