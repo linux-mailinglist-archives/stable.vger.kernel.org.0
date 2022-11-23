@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB6F16354E5
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88E1D6355A1
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237215AbiKWJMt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:12:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53494 "EHLO
+        id S237464AbiKWJYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:24:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237222AbiKWJMs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:12:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E52176340
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:12:45 -0800 (PST)
+        with ESMTP id S237463AbiKWJXn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:23:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A52F3D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70EDF61B10
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:12:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61F0DC433D6;
-        Wed, 23 Nov 2022 09:12:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CAE9B81EA9
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A114C433D6;
+        Wed, 23 Nov 2022 09:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194764;
-        bh=dNQfRiqTqqFK6rGFyhBXQa9aLwkqh/0KfhUx3q3zvmo=;
+        s=korg; t=1669195347;
+        bh=f4dtExZz7IbpZ2d03WEirG3ykgL92dQUBS8IIbgta+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ivxKsMEe5T/FWBL7hRPkuaYnlQF0/10yOCR6/u3CEEx3hGXSRRc6NUVPZ+sbrqnY0
-         mPdoe0zQgs0ZQwJCuxhTzEMCIjZ/yI3h2pgeQnNUVOZPi2Vq7xNIyeH9Ju1tAxT86X
-         0gH1M4FD+gfZu5e/OuoP/l8Wi7lkimNUrx60v2WE=
+        b=qqSCZJOaPovG+qieQWAkOmK1TMOPJW9VQW6EV/k84OIG01Na8JuAy8DF0SwJJYcG4
+         N9PzSRXCfE9oa05673RckoVRdILyHk62Bz/n/AinaU9Y9v3fJnb2tFXd/x5SIA5+wL
+         oNRaZ2sTwjPrxJDS/quf+iGSsomR3sqOSkH/tKJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Oleksij Rempel <o.rempel@pengutronix.de>,
-        syzbot+d168ec0caca4697e03b1@syzkaller.appspotmail.com,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 054/156] can: j1939: j1939_send_one(): fix missing CAN header initialization
+        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 028/149] drm/amd/pm: support power source switch on Sienna Cichlid
 Date:   Wed, 23 Nov 2022 09:50:11 +0100
-Message-Id: <20221123084559.894454673@linuxfoundation.org>
+Message-Id: <20221123084559.028326540@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Evan Quan <evan.quan@amd.com>
 
-commit 3eb3d283e8579a22b81dd2ac3987b77465b2a22f upstream.
+[ Upstream commit 18a4b3de5fc1c63c80e3be0673886431a56e4307 ]
 
-The read access to struct canxl_frame::len inside of a j1939 created
-skbuff revealed a missing initialization of reserved and later filled
-elements in struct can_frame.
+Enable power source switch on Sienna Cichlid.
 
-This patch initializes the 8 byte CAN header with zero.
-
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Cc: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/linux-can/20221104052235.GA6474@pengutronix.de
-Reported-by: syzbot+d168ec0caca4697e03b1@syzkaller.appspotmail.com
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Link: https://lore.kernel.org/all/20221104075000.105414-1-socketcan@hartkopp.net
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Stable-dep-of: 0c85c067c9d9 ("drm/amdgpu: disable BACO on special BEIGE_GOBY card")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/main.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/can/j1939/main.c
-+++ b/net/can/j1939/main.c
-@@ -332,6 +332,9 @@ int j1939_send_one(struct j1939_priv *pr
- 	/* re-claim the CAN_HDR from the SKB */
- 	cf = skb_push(skb, J1939_CAN_HDR);
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+index 49d7fa1d0842..834ac633281c 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+@@ -301,6 +301,9 @@ static int sienna_cichlid_check_powerplay_table(struct smu_context *smu)
+ 		table_context->power_play_table;
+ 	struct smu_baco_context *smu_baco = &smu->smu_baco;
  
-+	/* initialize header structure */
-+	memset(cf, 0, J1939_CAN_HDR);
++	if (powerplay_table->platform_caps & SMU_11_0_7_PP_PLATFORM_CAP_HARDWAREDC)
++		smu->dc_controlled_by_gpio = true;
 +
- 	/* make it a full can frame again */
- 	skb_put(skb, J1939_CAN_FTR + (8 - dlc));
- 
+ 	if (powerplay_table->platform_caps & SMU_11_0_7_PP_PLATFORM_CAP_BACO ||
+ 	    powerplay_table->platform_caps & SMU_11_0_7_PP_PLATFORM_CAP_MACO)
+ 		smu_baco->platform_support = true;
+@@ -2806,6 +2809,7 @@ static const struct pptable_funcs sienna_cichlid_ppt_funcs = {
+ 	.get_dpm_ultimate_freq = sienna_cichlid_get_dpm_ultimate_freq,
+ 	.set_soft_freq_limited_range = smu_v11_0_set_soft_freq_limited_range,
+ 	.run_btc = sienna_cichlid_run_btc,
++	.set_power_source = smu_v11_0_set_power_source,
+ 	.get_pp_feature_mask = smu_cmn_get_pp_feature_mask,
+ 	.set_pp_feature_mask = smu_cmn_set_pp_feature_mask,
+ 	.get_gpu_metrics = sienna_cichlid_get_gpu_metrics,
+-- 
+2.35.1
+
 
 
