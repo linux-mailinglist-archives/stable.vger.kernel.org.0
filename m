@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A293263563A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 817806356FF
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237703AbiKWJ15 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:27:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44302 "EHLO
+        id S238024AbiKWJhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:37:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237821AbiKWJ1T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:27:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1465303F0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:26:09 -0800 (PST)
+        with ESMTP id S238052AbiKWJhO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86C37BF53
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:34:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DDCA61B49
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:26:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43411C433C1;
-        Wed, 23 Nov 2022 09:26:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32E9CB81E5E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:34:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70910C433D6;
+        Wed, 23 Nov 2022 09:34:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195568;
-        bh=3jjkmEEo7x4ZAG1NUt7AJvALdp+qBET0zfbfPrdKwnQ=;
+        s=korg; t=1669196085;
+        bh=OzWTM6DAHNbxr85UkBEjp6JoHpX9VpTLXfq2oyIaTFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CE+uxD4YnSFP1Ph0o64FAPBMawRybYdVJx428V+gcRhK5wL5svd0Jz071EKzbtOQi
-         ojJCA0fyolck/5rMm1h3B2kCkrnQn9KVkS68FX1haywIcpvLG4rhacxyLdn6W0NsAA
-         rYcQpKyiwfQnTl2/sRaPr0kE8YUCCwAXoILEurq4=
+        b=AKQPxhIZiTrupGVDf5P1tDIadzulBCT4OhQXVmGVPiWXTtIRMMwU4Zk4RcMADbbdu
+         /s5ZtavulOpKYP1uQfYoao3maX3VY13I6vnVgfN1Aazrf8ZM8Kg6mSU2jE27iOJhkj
+         9GymyQU1tlmMxLibVNz5rBYpP6oeJQkc1Eu95uic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefan Agner <stefan@agner.ch>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.10 094/149] Revert "usb: dwc3: disable USB core PHY management"
-Date:   Wed, 23 Nov 2022 09:51:17 +0100
-Message-Id: <20221123084601.366321060@linuxfoundation.org>
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
+Subject: [PATCH 5.15 115/181] tracing: kprobe: Fix potential null-ptr-deref on trace_event_file in kprobe_event_gen_test_exit()
+Date:   Wed, 23 Nov 2022 09:51:18 +0100
+Message-Id: <20221123084607.324012874@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +52,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-commit 5c294de36e7fb3e0cba0c4e1ef9a5f57bc080d0f upstream.
+commit e0d75267f59d7084e0468bd68beeb1bf9c71d7c0 upstream.
 
-This reverts commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea.
+When trace_get_event_file() failed, gen_kretprobe_test will be assigned
+as the error code. If module kprobe_event_gen_test is removed now, the
+null pointer dereference will happen in kprobe_event_gen_test_exit().
+Check if gen_kprobe_test or gen_kretprobe_test is error code or NULL
+before dereference them.
 
-The offending commit disabled the USB core PHY management as the dwc3
-already manages the PHYs in question.
+BUG: kernel NULL pointer dereference, address: 0000000000000012
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP PTI
+CPU: 3 PID: 2210 Comm: modprobe Not tainted
+6.1.0-rc1-00171-g2159299a3b74-dirty #217
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
+RIP: 0010:kprobe_event_gen_test_exit+0x1c/0xb5 [kprobe_event_gen_test]
+Code: Unable to access opcode bytes at 0xffffffff9ffffff2.
+RSP: 0018:ffffc900015bfeb8 EFLAGS: 00010246
+RAX: ffffffffffffffea RBX: ffffffffa0002080 RCX: 0000000000000000
+RDX: ffffffffa0001054 RSI: ffffffffa0001064 RDI: ffffffffdfc6349c
+RBP: ffffffffa0000000 R08: 0000000000000004 R09: 00000000001e95c0
+R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000800
+R13: ffffffffa0002420 R14: 0000000000000000 R15: 0000000000000000
+FS:  00007f56b75be540(0000) GS:ffff88813bc00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffff9ffffff2 CR3: 000000010874a006 CR4: 0000000000330ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __x64_sys_delete_module+0x206/0x380
+ ? lockdep_hardirqs_on_prepare+0xd8/0x190
+ ? syscall_enter_from_user_mode+0x1c/0x50
+ do_syscall_64+0x3f/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Unfortunately some platforms have started relying on having USB core
-also controlling the PHY and this is specifically currently needed on
-some Exynos platforms for PHY calibration or connected device may fail
-to enumerate.
+Link: https://lore.kernel.org/all/20221108015130.28326-2-shangxiaojing@huawei.com/
 
-The PHY calibration was previously handled in the dwc3 driver, but to
-work around some issues related to how the dwc3 driver interacts with
-xhci (e.g. using multiple drivers) this was moved to USB core by commits
-34c7ed72f4f0 ("usb: core: phy: add support for PHY calibration") and
-a0a465569b45 ("usb: dwc3: remove generic PHY calibrate() calls").
-
-The same PHY obviously should not be controlled from two different
-places, which for example do no agree on the PHY mode or power state
-during suspend, but as the offending patch was backported to stable,
-let's revert it for now.
-
-Reported-by: Stefan Agner <stefan@agner.ch>
-Link: https://lore.kernel.org/lkml/808bdba846bb60456adf10a3016911ee@agner.ch/
-Fixes: 6000b8d900cd ("usb: dwc3: disable USB core PHY management")
+Fixes: 64836248dda2 ("tracing: Add kprobe event command generation test module")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/20221103144648.14197-1-johan+linaro@kernel.org
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/host.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ kernel/trace/kprobe_event_gen_test.c |   44 ++++++++++++++++++++++-------------
+ 1 file changed, 28 insertions(+), 16 deletions(-)
 
---- a/drivers/usb/dwc3/host.c
-+++ b/drivers/usb/dwc3/host.c
-@@ -10,13 +10,8 @@
- #include <linux/acpi.h>
- #include <linux/platform_device.h>
+--- a/kernel/trace/kprobe_event_gen_test.c
++++ b/kernel/trace/kprobe_event_gen_test.c
+@@ -73,6 +73,10 @@ static struct trace_event_file *gen_kret
+ #define KPROBE_GEN_TEST_ARG3	NULL
+ #endif
  
--#include "../host/xhci-plat.h"
- #include "core.h"
++static bool trace_event_file_is_valid(struct trace_event_file *input)
++{
++	return input && !IS_ERR(input);
++}
  
--static const struct xhci_plat_priv dwc3_xhci_plat_priv = {
--	.quirks = XHCI_SKIP_PHY_INIT,
--};
--
- static int dwc3_host_get_irq(struct dwc3 *dwc)
- {
- 	struct platform_device	*dwc3_pdev = to_platform_device(dwc->dev);
-@@ -92,11 +87,6 @@ int dwc3_host_init(struct dwc3 *dwc)
- 		goto err;
+ /*
+  * Test to make sure we can create a kprobe event, then add more
+@@ -217,10 +221,12 @@ static int __init kprobe_event_gen_test_
+ 
+ 	ret = test_gen_kretprobe_cmd();
+ 	if (ret) {
+-		WARN_ON(trace_array_set_clr_event(gen_kretprobe_test->tr,
+-						  "kprobes",
+-						  "gen_kretprobe_test", false));
+-		trace_put_event_file(gen_kretprobe_test);
++		if (trace_event_file_is_valid(gen_kretprobe_test)) {
++			WARN_ON(trace_array_set_clr_event(gen_kretprobe_test->tr,
++							  "kprobes",
++							  "gen_kretprobe_test", false));
++			trace_put_event_file(gen_kretprobe_test);
++		}
+ 		WARN_ON(kprobe_event_delete("gen_kretprobe_test"));
  	}
  
--	ret = platform_device_add_data(xhci, &dwc3_xhci_plat_priv,
--					sizeof(dwc3_xhci_plat_priv));
--	if (ret)
--		goto err;
--
- 	memset(props, 0, sizeof(struct property_entry) * ARRAY_SIZE(props));
+@@ -229,24 +235,30 @@ static int __init kprobe_event_gen_test_
  
- 	if (dwc->usb3_lpm_capable)
+ static void __exit kprobe_event_gen_test_exit(void)
+ {
+-	/* Disable the event or you can't remove it */
+-	WARN_ON(trace_array_set_clr_event(gen_kprobe_test->tr,
+-					  "kprobes",
+-					  "gen_kprobe_test", false));
++	if (trace_event_file_is_valid(gen_kprobe_test)) {
++		/* Disable the event or you can't remove it */
++		WARN_ON(trace_array_set_clr_event(gen_kprobe_test->tr,
++						  "kprobes",
++						  "gen_kprobe_test", false));
++
++		/* Now give the file and instance back */
++		trace_put_event_file(gen_kprobe_test);
++	}
+ 
+-	/* Now give the file and instance back */
+-	trace_put_event_file(gen_kprobe_test);
+ 
+ 	/* Now unregister and free the event */
+ 	WARN_ON(kprobe_event_delete("gen_kprobe_test"));
+ 
+-	/* Disable the event or you can't remove it */
+-	WARN_ON(trace_array_set_clr_event(gen_kretprobe_test->tr,
+-					  "kprobes",
+-					  "gen_kretprobe_test", false));
++	if (trace_event_file_is_valid(gen_kretprobe_test)) {
++		/* Disable the event or you can't remove it */
++		WARN_ON(trace_array_set_clr_event(gen_kretprobe_test->tr,
++						  "kprobes",
++						  "gen_kretprobe_test", false));
++
++		/* Now give the file and instance back */
++		trace_put_event_file(gen_kretprobe_test);
++	}
+ 
+-	/* Now give the file and instance back */
+-	trace_put_event_file(gen_kretprobe_test);
+ 
+ 	/* Now unregister and free the event */
+ 	WARN_ON(kprobe_event_delete("gen_kretprobe_test"));
 
 
