@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFD3763535D
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:54:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DEC26353C1
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235838AbiKWIyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:54:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57710 "EHLO
+        id S236821AbiKWI6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:58:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236459AbiKWIyR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:54:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F68DEA126
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:54:16 -0800 (PST)
+        with ESMTP id S236793AbiKWI6n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:58:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EC19769CF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:58:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16DD4B81EED
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:54:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41AE1C433C1;
-        Wed, 23 Nov 2022 08:54:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F00B561B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:58:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAD05C433D6;
+        Wed, 23 Nov 2022 08:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193653;
-        bh=y9tngRf77j1cU8z9oOrbglHt8Cnay9hKUvBhPCl5gSE=;
+        s=korg; t=1669193921;
+        bh=t3hXwQq3L5B9fTd44C0XuYf3XzSZpJ5EgT9h6MXqXwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pQZwDOuH9adWui1I+ZWJ78NUMngw1JZMhzCbvzmYxn6Tz1Sf8IjEx6WJ9w+bGdmMf
-         M8Uqm3majf+BSfy/UjiH45DqDHlmL8uDuqdLeMwYo/TMcV7eYW7LeNf+HKh7mgQPZ5
-         ZL94klKG5TqJfviw1vGMkd3Y6BdTnPLg+SVGQT6Q=
+        b=GrR7s4VcrR39yRJplMzUbZGiw6ySiyIpTrc6/vUYbFZt4oD24LHJs982qtdlJ4MCr
+         4KgZ5rLkQ81Cc6/NHhJ6t6xwm8SFE0KGbU+GxzoKapqnTIxxx5MvbZEUVa/sbOPiCl
+         TEPMrL950UqGrmMw74CKOF4EHa2CQdk2fDqBr5qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        "Andrew G. Morgan" <morgan@kernel.org>,
-        Serge Hallyn <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 05/76] capabilities: fix undefined behavior in bit shift for CAP_TO_MASK
-Date:   Wed, 23 Nov 2022 09:50:04 +0100
-Message-Id: <20221123084546.918757427@linuxfoundation.org>
+Subject: [PATCH 4.14 08/88] drm/vc4: Fix missing platform_unregister_drivers() call in vc4_drm_register()
+Date:   Wed, 23 Nov 2022 09:50:05 +0100
+Message-Id: <20221123084548.817692871@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 46653972e3ea64f79e7f8ae3aa41a4d3fdb70a13 ]
+[ Upstream commit cf53db768a8790fdaae2fa3a81322b080285f7e5 ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+A problem about modprobe vc4 failed is triggered with the following log
+given:
 
-UBSAN: shift-out-of-bounds in security/commoncap.c:1252:2
-left shift of 1 by 31 places cannot be represented in type 'int'
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7d/0xa5
- dump_stack+0x15/0x1b
- ubsan_epilogue+0xe/0x4e
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
- cap_task_prctl+0x561/0x6f0
- security_task_prctl+0x5a/0xb0
- __x64_sys_prctl+0x61/0x8f0
- do_syscall_64+0x58/0x80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- </TASK>
+ [  420.327987] Error: Driver 'vc4_hvs' is already registered, aborting...
+ [  420.333904] failed to register platform driver vc4_hvs_driver [vc4]: -16
+ modprobe: ERROR: could not insert 'vc4': Device or resource busy
 
-Fixes: e338d263a76a ("Add 64-bit capability support to the kernel")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Acked-by: Andrew G. Morgan <morgan@kernel.org>
-Reviewed-by: Serge Hallyn <serge@hallyn.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+The reason is that vc4_drm_register() returns platform_driver_register()
+directly without checking its return value, if platform_driver_register()
+fails, it returns without unregistering all the vc4 drivers, resulting the
+vc4 can never be installed later.
+A simple call graph is shown as below:
+
+ vc4_drm_register()
+   platform_register_drivers() # all vc4 drivers are registered
+   platform_driver_register()
+     driver_register()
+       bus_add_driver()
+         priv = kzalloc(...) # OOM happened
+   # return without unregister drivers
+
+Fixing this problem by checking the return value of
+platform_driver_register() and do platform_unregister_drivers() if
+error happened.
+
+Fixes: c8b75bca92cb ("drm/vc4: Add KMS support for Raspberry Pi.")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221103014705.109322-1-yuancan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/capability.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_drv.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
-index 49bc06295398..0ba5b62a6aa0 100644
---- a/include/uapi/linux/capability.h
-+++ b/include/uapi/linux/capability.h
-@@ -359,7 +359,7 @@ struct vfs_cap_data {
-  */
+diff --git a/drivers/gpu/drm/vc4/vc4_drv.c b/drivers/gpu/drm/vc4/vc4_drv.c
+index 028dc2819a36..ad9e1fdf9fc8 100644
+--- a/drivers/gpu/drm/vc4/vc4_drv.c
++++ b/drivers/gpu/drm/vc4/vc4_drv.c
+@@ -364,7 +364,12 @@ static int __init vc4_drm_register(void)
+ 	if (ret)
+ 		return ret;
  
- #define CAP_TO_INDEX(x)     ((x) >> 5)        /* 1 << 5 == bits in __u32 */
--#define CAP_TO_MASK(x)      (1 << ((x) & 31)) /* mask for indexed __u32 */
-+#define CAP_TO_MASK(x)      (1U << ((x) & 31)) /* mask for indexed __u32 */
+-	return platform_driver_register(&vc4_platform_driver);
++	ret = platform_driver_register(&vc4_platform_driver);
++	if (ret)
++		platform_unregister_drivers(component_drivers,
++					    ARRAY_SIZE(component_drivers));
++
++	return ret;
+ }
  
- 
- #endif /* _UAPI_LINUX_CAPABILITY_H */
+ static void __exit vc4_drm_unregister(void)
 -- 
 2.35.1
 
