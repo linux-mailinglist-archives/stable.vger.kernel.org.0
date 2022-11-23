@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8CCF63593F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:09:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D25D1635932
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:09:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236921AbiKWKIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:08:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60832 "EHLO
+        id S236351AbiKWKIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:08:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237040AbiKWKHH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:07:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBD4271B
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:57:40 -0800 (PST)
+        with ESMTP id S236289AbiKWKHK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:07:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56B5012746
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:57:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E249B81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:57:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2397C433D6;
-        Wed, 23 Nov 2022 09:57:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E6E5361B22
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:57:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F9DC433D6;
+        Wed, 23 Nov 2022 09:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197458;
-        bh=rxD+kNMxCUOMAYgE0xEan8kZoKIajeVAmFMKv1OXqlo=;
+        s=korg; t=1669197461;
+        bh=s8o+5VebUTm5QWzTFnGs++UaP9ukdZ3FWneKVxeTHNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QdxvnedWArkObKkwTF6QB2Bm6ev8cYfqqISOMbDei+ufFRQpQhcBUplfEFGbqiNN+
-         sG1ZwZ7Q3sRR7iycikRJ7JW804NmelUDZDNpvv6HUZ9cTkc2vFkfJBpx0LzRJxTT4g
-         dLD2x2valxbX5QMAcLSQR68TbHO+ofqdCH1jZ+cI=
+        b=joNFRFHPNXSHrTxN0KXUVBwV5TUyXryzJAA/hdBZ5GAcAjucZLbge1SGyLJEODKq5
+         AhKdIjh1tvaIm1F6X81JmWcQmfJiHhnBtNF/eGoIvENqNjz1N9UzTD/YKV9OCTyDlf
+         m6H1gultZFqTpQY7dZHbNZIjRyDkjv8X8QPDEHDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
         Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 6.0 298/314] macvlan: enforce a consistent minimal mtu
-Date:   Wed, 23 Nov 2022 09:52:23 +0100
-Message-Id: <20221123084639.046672896@linuxfoundation.org>
+Subject: [PATCH 6.0 299/314] tcp: cdg: allow tcp_cdg_release() to be called multiple times
+Date:   Wed, 23 Nov 2022 09:52:24 +0100
+Message-Id: <20221123084639.095377542@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -55,43 +55,153 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-commit b64085b00044bdf3cd1c9825e9ef5b2e0feae91a upstream.
+commit 72e560cb8c6f80fc2b4afc5d3634a32465e13a51 upstream.
 
-macvlan should enforce a minimal mtu of 68, even at link creation.
+Apparently, mptcp is able to call tcp_disconnect() on an already
+disconnected flow. This is generally fine, unless current congestion
+control is CDG, because it might trigger a double-free [1]
 
-This patch avoids the current behavior (which could lead to crashes
-in ipv6 stack if the link is brought up)
+Instead of fixing MPTCP, and future bugs, we can make tcp_disconnect()
+more resilient.
 
-$ ip link add macvlan1 link eno1 mtu 8 type macvlan  # This should fail !
-$ ip link sh dev macvlan1
-5: macvlan1@eno1: <BROADCAST,MULTICAST> mtu 8 qdisc noop
-    state DOWN mode DEFAULT group default qlen 1000
-    link/ether 02:47:6c:24:74:82 brd ff:ff:ff:ff:ff:ff
-$ ip link set macvlan1 mtu 67
-Error: mtu less than device minimum.
-$ ip link set macvlan1 mtu 68
-$ ip link set macvlan1 mtu 8
-Error: mtu less than device minimum.
+[1]
+BUG: KASAN: double-free in slab_free mm/slub.c:3539 [inline]
+BUG: KASAN: double-free in kfree+0xe2/0x580 mm/slub.c:4567
 
-Fixes: 91572088e3fd ("net: use core MTU range checking in core net infra")
+CPU: 0 PID: 3645 Comm: kworker/0:7 Not tainted 6.0.0-syzkaller-02734-g0326074ff465 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
+Workqueue: events mptcp_worker
+Call Trace:
+<TASK>
+__dump_stack lib/dump_stack.c:88 [inline]
+dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+print_address_description mm/kasan/report.c:317 [inline]
+print_report.cold+0x2ba/0x719 mm/kasan/report.c:433
+kasan_report_invalid_free+0x81/0x190 mm/kasan/report.c:462
+____kasan_slab_free+0x18b/0x1c0 mm/kasan/common.c:356
+kasan_slab_free include/linux/kasan.h:200 [inline]
+slab_free_hook mm/slub.c:1759 [inline]
+slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1785
+slab_free mm/slub.c:3539 [inline]
+kfree+0xe2/0x580 mm/slub.c:4567
+tcp_disconnect+0x980/0x1e20 net/ipv4/tcp.c:3145
+__mptcp_close_ssk+0x5ca/0x7e0 net/mptcp/protocol.c:2327
+mptcp_do_fastclose net/mptcp/protocol.c:2592 [inline]
+mptcp_worker+0x78c/0xff0 net/mptcp/protocol.c:2627
+process_one_work+0x991/0x1610 kernel/workqueue.c:2289
+worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+kthread+0x2e4/0x3a0 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+</TASK>
+
+Allocated by task 3671:
+kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+kasan_set_track mm/kasan/common.c:45 [inline]
+set_alloc_info mm/kasan/common.c:437 [inline]
+____kasan_kmalloc mm/kasan/common.c:516 [inline]
+____kasan_kmalloc mm/kasan/common.c:475 [inline]
+__kasan_kmalloc+0xa9/0xd0 mm/kasan/common.c:525
+kmalloc_array include/linux/slab.h:640 [inline]
+kcalloc include/linux/slab.h:671 [inline]
+tcp_cdg_init+0x10d/0x170 net/ipv4/tcp_cdg.c:380
+tcp_init_congestion_control+0xab/0x550 net/ipv4/tcp_cong.c:193
+tcp_reinit_congestion_control net/ipv4/tcp_cong.c:217 [inline]
+tcp_set_congestion_control+0x96c/0xaa0 net/ipv4/tcp_cong.c:391
+do_tcp_setsockopt+0x505/0x2320 net/ipv4/tcp.c:3513
+tcp_setsockopt+0xd4/0x100 net/ipv4/tcp.c:3801
+mptcp_setsockopt+0x35f/0x2570 net/mptcp/sockopt.c:844
+__sys_setsockopt+0x2d6/0x690 net/socket.c:2252
+__do_sys_setsockopt net/socket.c:2263 [inline]
+__se_sys_setsockopt net/socket.c:2260 [inline]
+__x64_sys_setsockopt+0xba/0x150 net/socket.c:2260
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Freed by task 16:
+kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+kasan_set_track+0x21/0x30 mm/kasan/common.c:45
+kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
+____kasan_slab_free mm/kasan/common.c:367 [inline]
+____kasan_slab_free+0x166/0x1c0 mm/kasan/common.c:329
+kasan_slab_free include/linux/kasan.h:200 [inline]
+slab_free_hook mm/slub.c:1759 [inline]
+slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1785
+slab_free mm/slub.c:3539 [inline]
+kfree+0xe2/0x580 mm/slub.c:4567
+tcp_cleanup_congestion_control+0x70/0x120 net/ipv4/tcp_cong.c:226
+tcp_v4_destroy_sock+0xdd/0x750 net/ipv4/tcp_ipv4.c:2254
+tcp_v6_destroy_sock+0x11/0x20 net/ipv6/tcp_ipv6.c:1969
+inet_csk_destroy_sock+0x196/0x440 net/ipv4/inet_connection_sock.c:1157
+tcp_done+0x23b/0x340 net/ipv4/tcp.c:4649
+tcp_rcv_state_process+0x40e7/0x4990 net/ipv4/tcp_input.c:6624
+tcp_v6_do_rcv+0x3fc/0x13c0 net/ipv6/tcp_ipv6.c:1525
+tcp_v6_rcv+0x2e8e/0x3830 net/ipv6/tcp_ipv6.c:1759
+ip6_protocol_deliver_rcu+0x2db/0x1950 net/ipv6/ip6_input.c:439
+ip6_input_finish+0x14c/0x2c0 net/ipv6/ip6_input.c:484
+NF_HOOK include/linux/netfilter.h:302 [inline]
+NF_HOOK include/linux/netfilter.h:296 [inline]
+ip6_input+0x9c/0xd0 net/ipv6/ip6_input.c:493
+dst_input include/net/dst.h:455 [inline]
+ip6_rcv_finish+0x193/0x2c0 net/ipv6/ip6_input.c:79
+ip_sabotage_in net/bridge/br_netfilter_hooks.c:874 [inline]
+ip_sabotage_in+0x1fa/0x260 net/bridge/br_netfilter_hooks.c:865
+nf_hook_entry_hookfn include/linux/netfilter.h:142 [inline]
+nf_hook_slow+0xc5/0x1f0 net/netfilter/core.c:614
+nf_hook.constprop.0+0x3ac/0x650 include/linux/netfilter.h:257
+NF_HOOK include/linux/netfilter.h:300 [inline]
+ipv6_rcv+0x9e/0x380 net/ipv6/ip6_input.c:309
+__netif_receive_skb_one_core+0x114/0x180 net/core/dev.c:5485
+__netif_receive_skb+0x1f/0x1c0 net/core/dev.c:5599
+netif_receive_skb_internal net/core/dev.c:5685 [inline]
+netif_receive_skb+0x12f/0x8d0 net/core/dev.c:5744
+NF_HOOK include/linux/netfilter.h:302 [inline]
+NF_HOOK include/linux/netfilter.h:296 [inline]
+br_pass_frame_up+0x303/0x410 net/bridge/br_input.c:68
+br_handle_frame_finish+0x909/0x1aa0 net/bridge/br_input.c:199
+br_nf_hook_thresh+0x2f8/0x3d0 net/bridge/br_netfilter_hooks.c:1041
+br_nf_pre_routing_finish_ipv6+0x695/0xef0 net/bridge/br_netfilter_ipv6.c:207
+NF_HOOK include/linux/netfilter.h:302 [inline]
+br_nf_pre_routing_ipv6+0x417/0x7c0 net/bridge/br_netfilter_ipv6.c:237
+br_nf_pre_routing+0x1496/0x1fe0 net/bridge/br_netfilter_hooks.c:507
+nf_hook_entry_hookfn include/linux/netfilter.h:142 [inline]
+nf_hook_bridge_pre net/bridge/br_input.c:255 [inline]
+br_handle_frame+0x9c9/0x12d0 net/bridge/br_input.c:399
+__netif_receive_skb_core+0x9fe/0x38f0 net/core/dev.c:5379
+__netif_receive_skb_one_core+0xae/0x180 net/core/dev.c:5483
+__netif_receive_skb+0x1f/0x1c0 net/core/dev.c:5599
+process_backlog+0x3a0/0x7c0 net/core/dev.c:5927
+__napi_poll+0xb3/0x6d0 net/core/dev.c:6494
+napi_poll net/core/dev.c:6561 [inline]
+net_rx_action+0x9c1/0xd90 net/core/dev.c:6672
+__do_softirq+0x1d0/0x9c8 kernel/softirq.c:571
+
+Fixes: 2b0a8c9eee81 ("tcp: add CDG congestion control")
 Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macvlan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_cdg.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -1192,7 +1192,7 @@ void macvlan_common_setup(struct net_dev
- {
- 	ether_setup(dev);
+--- a/net/ipv4/tcp_cdg.c
++++ b/net/ipv4/tcp_cdg.c
+@@ -375,6 +375,7 @@ static void tcp_cdg_init(struct sock *sk
+ 	struct cdg *ca = inet_csk_ca(sk);
+ 	struct tcp_sock *tp = tcp_sk(sk);
  
--	dev->min_mtu		= 0;
-+	/* ether_setup() has set dev->min_mtu to ETH_MIN_MTU. */
- 	dev->max_mtu		= ETH_MAX_MTU;
- 	dev->priv_flags	       &= ~IFF_TX_SKB_SHARING;
- 	netif_keep_dst(dev);
++	ca->gradients = NULL;
+ 	/* We silently fall back to window = 1 if allocation fails. */
+ 	if (window > 1)
+ 		ca->gradients = kcalloc(window, sizeof(ca->gradients[0]),
+@@ -388,6 +389,7 @@ static void tcp_cdg_release(struct sock
+ 	struct cdg *ca = inet_csk_ca(sk);
+ 
+ 	kfree(ca->gradients);
++	ca->gradients = NULL;
+ }
+ 
+ static struct tcp_congestion_ops tcp_cdg __read_mostly = {
 
 
