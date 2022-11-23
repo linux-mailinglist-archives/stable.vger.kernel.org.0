@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64D666355F2
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:27:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1113F6356F8
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237569AbiKWJY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:24:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37216 "EHLO
+        id S237924AbiKWJgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:36:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237586AbiKWJYe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:24:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECC07C563C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:23:11 -0800 (PST)
+        with ESMTP id S237932AbiKWJf6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:35:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0345F72F1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:33:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A00A0B81EA9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:23:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1421C433D7;
-        Wed, 23 Nov 2022 09:23:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 538BA61B66
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:33:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43221C433B5;
+        Wed, 23 Nov 2022 09:33:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195389;
-        bh=3ck9Xe5tg1QfdZeBDOx83UjQJzLEsPFRPeEwmuhrhc8=;
+        s=korg; t=1669196002;
+        bh=Jau3y2sudsN1E+ARMnAzQIS/xvn7ldlaGKdO4aNb2EY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LRbZZxJUF5PmJp6My7Xptwk7rp/Eh7gcOnYWJSJZuKR30JUD1kDDNgSEx/toESvz9
-         38tyVK5qbnbRqnS3fOl0Wv1Je2mDp0SWMphOGjwZPR5e406e/iWZ3XnJU+g7kUBNhm
-         P1ht0dtpekvBmyHS2OgC6/Xrq7PJ+b/1BEYQsV14=
+        b=qle65CjX1Ao/otjqELSU74aHvxTqSX9pwyxoqe1TVDxIFUeMqHjK2aZCjtvDpa9ZG
+         JxCnFId/1+xuPO8piW7qSs6vx03Nb8npEqJ+BVTLR9ht2dEv74XAn1Emn2oWRWR9hS
+         7JPVoCW/WWRpi1mqoGofgEqW7MT+wKp3Rn0Uz38Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 071/149] xen/pcpu: fix possible memory leak in register_pcpu()
+Subject: [PATCH 5.15 091/181] xen/pcpu: fix possible memory leak in register_pcpu()
 Date:   Wed, 23 Nov 2022 09:50:54 +0100
-Message-Id: <20221123084600.448177645@linuxfoundation.org>
+Message-Id: <20221123084606.266644534@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -73,7 +74,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/xen/pcpu.c b/drivers/xen/pcpu.c
-index cdc6daa7a9f6..9cf7085a260b 100644
+index 47aa3a1ccaf5..fd3a644b0855 100644
 --- a/drivers/xen/pcpu.c
 +++ b/drivers/xen/pcpu.c
 @@ -228,7 +228,7 @@ static int register_pcpu(struct pcpu *pcpu)
