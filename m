@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1BE2635494
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 374A063554A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236161AbiKWJIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:08:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47082 "EHLO
+        id S237349AbiKWJRj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:17:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237117AbiKWJIO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:08:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36090CE3F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:08:13 -0800 (PST)
+        with ESMTP id S237344AbiKWJRQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:17:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EA0F109581
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:17:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4E8461B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:08:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E2CBC433D7;
-        Wed, 23 Nov 2022 09:08:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F048261B14
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:16:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1CE5C433C1;
+        Wed, 23 Nov 2022 09:16:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194492;
-        bh=FIaVw+Mc+JRjPSSvjYh3YAo8yh8b47CYLvD8AW9ufD8=;
+        s=korg; t=1669195019;
+        bh=V17UdKcr17cJJO81G71Avd8cF26LZvzq6YnUjnmlBjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cpw1acPi1LpHTfiGB8J0E5dtuY9GYtaafDui8tcRJnM65SEz8R4jfXMGShuqyEMz2
-         nLTA8uAtC/gbpO6GOItj3/Z6IaADVwkWw7s4lkD2aGncvuW6pYifVq1BgP98muzdZn
-         rmoR2La8+zi1w+wCShwQC2BwLdO839bUX/sANc/I=
+        b=egOeWw9UYZ0c7fhk25VfGgNR35MnKoim1j6ELsOkmCpl5o8pSrM0e+ylob81i20q4
+         XLK7LDzCOCYk5fDf/dxCO7+g707aR6s/DT2UP92Dtd8xkksQmohyaxbO7xEvt2ugqF
+         ydt/oAYHbitp7iPbd/QjiXCU0S2MZcvId5Pw8SgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Srikanth Thokala <srikanth.thokala@intel.com>,
-        Aman Kumar <aman.kumar@intel.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.19 093/114] serial: 8250: Fall back to non-DMA Rx if IIR_RDI occurs
+        patches@lists.linux.dev, Reinhard Speyerer <rspmn@arcor.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 123/156] USB: serial: option: add Fibocom FM160 0x0111 composition
 Date:   Wed, 23 Nov 2022 09:51:20 +0100
-Message-Id: <20221123084555.529538174@linuxfoundation.org>
+Message-Id: <20221123084602.388699646@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Reinhard Speyerer <rspmn@arcor.de>
 
-commit a931237cbea256aff13bb403da13a97b2d1605d9 upstream.
+commit 148f4b32b4504d8a32cf82049b7b9499a4b299ab upstream.
 
-DW UART sometimes triggers IIR_RDI during DMA Rx when IIR_RX_TIMEOUT
-should have been triggered instead. Since IIR_RDI has higher priority
-than IIR_RX_TIMEOUT, this causes the Rx to hang into interrupt loop.
-The problem seems to occur at least with some combinations of
-small-sized transfers (I've reproduced the problem on Elkhart Lake PSE
-UARTs).
+Add support for the following Fibocom FM160 composition:
 
-If there's already an on-going Rx DMA and IIR_RDI triggers, fall
-graciously back to non-DMA Rx. That is, behave as if IIR_RX_TIMEOUT had
-occurred.
+0x0111: MBIM + MODEM + DIAG + AT
 
-8250_omap already considers IIR_RDI similar to this change so its
-nothing unheard of.
+T:  Bus=01 Lev=02 Prnt=125 Port=01 Cnt=02 Dev#= 93 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=2cb7 ProdID=0111 Rev= 5.04
+S:  Manufacturer=Fibocom
+S:  Product=Fibocom FM160 Modem_SN:12345678
+S:  SerialNumber=12345678
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
+E:  Ad=81(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
+I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+E:  Ad=8e(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+E:  Ad=86(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-Fixes: 75df022b5f89 ("serial: 8250_dma: Fix RX handling")
-Cc: <stable@vger.kernel.org>
-Co-developed-by: Srikanth Thokala <srikanth.thokala@intel.com>
-Signed-off-by: Srikanth Thokala <srikanth.thokala@intel.com>
-Co-developed-by: Aman Kumar <aman.kumar@intel.com>
-Signed-off-by: Aman Kumar <aman.kumar@intel.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221108121952.5497-2-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/serial/option.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1865,6 +1865,10 @@ EXPORT_SYMBOL_GPL(serial8250_modem_statu
- static bool handle_rx_dma(struct uart_8250_port *up, unsigned int iir)
- {
- 	switch (iir & 0x3f) {
-+	case UART_IIR_RDI:
-+		if (!up->dma->rx_running)
-+			break;
-+		/* fall-through */
- 	case UART_IIR_RX_TIMEOUT:
- 		serial8250_rx_dma_flush(up);
- 		/* fall-through */
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2179,6 +2179,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x010a, 0xff) },			/* Fibocom MA510 (ECM mode) */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
++	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0111, 0xff) },			/* Fibocom FM160 (MBIM mode) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a2, 0xff) },			/* Fibocom FM101-GL (laptop MBIM) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a4, 0xff),			/* Fibocom FM101-GL (laptop MBIM) */
 
 
