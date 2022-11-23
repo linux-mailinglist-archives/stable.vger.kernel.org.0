@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E49F16353F7
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7042635395
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236876AbiKWJBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:01:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37036 "EHLO
+        id S236775AbiKWI5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:57:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236872AbiKWJA6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:00:58 -0500
+        with ESMTP id S236697AbiKWI5d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:57:33 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E681001C4
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:00:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABA736577
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:57:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0DBDAB81EF0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:00:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D20C433B5;
-        Wed, 23 Nov 2022 09:00:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3EA55B81EED
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:57:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CF8FC433D6;
+        Wed, 23 Nov 2022 08:57:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194050;
-        bh=UGUIHjAjz5dv9pOuDdViwc7DVG/GyVhrQf5n/HP54Zg=;
+        s=korg; t=1669193850;
+        bh=qNa6ZgqqhbvXTp/YjOxgoK9GO2CkeK9YAx27ryM4fMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTE7hHmUSa6NXT8CceA0qenp+oJgFXCGRNysNkd2ykfqO0PdRCtXdCUvHhBtjpWdk
-         yq/4FShdu3jOe8xeAn9T91zP1q48SVMPcVU/cAAgq1tskI87IpSYqumUzmwAXDCpoz
-         jkyQw+EEqdKJ12GSzrbMnUWwmZ2jNEJgy2i6F/Qs=
+        b=mo5xxIp9gzODY9cbeogDNNBlh4DQLyLp6s7Q/ziHteh1U0QAQeR04ssilWQCGv7W4
+         PiFbHyA/VyzaQ7Omioh5eGA52bihiMau5DEc3EU1naSO/GOE95WIIN9kdZLYH+CVR1
+         YCi6kMnlhv1n4wkz98DIptgrX7hKozDo44fR4OAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Beno=C3=AEt=20Monin?= <benoit.monin@gmx.fr>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 58/88] USB: serial: option: add Sierra Wireless EM9191
-Date:   Wed, 23 Nov 2022 09:50:55 +0100
-Message-Id: <20221123084550.575734005@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 57/76] iio: adc: at91_adc: fix possible memory leak in at91_adc_allocate_trigger()
+Date:   Wed, 23 Nov 2022 09:50:56 +0100
+Message-Id: <20221123084548.627779414@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
+References: <20221123084546.742331901@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoît Monin <benoit.monin@gmx.fr>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit df3414b0a245f43476061fddd78cee7d6cff797f upstream.
+commit 65f20301607d07ee279b0804d11a05a62a6c1a1c upstream.
 
-Add support for the AT and diag ports, similar to other qualcomm SDX55
-modems. In QDL mode, the modem uses a different device ID and support
-is provided by qcserial in commit 11c52d250b34 ("USB: serial: qcserial:
-add EM9191 QDL support").
+If iio_trigger_register() returns error, it should call iio_trigger_free()
+to give up the reference that hold in iio_trigger_alloc(), so that it can
+call iio_trig_release() to free memory when the refcount hit to 0.
 
-T:  Bus=08 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
-P:  Vendor=1199 ProdID=90d3 Rev=00.06
-S:  Manufacturer=Sierra Wireless, Incorporated
-S:  Product=Sierra Wireless EM9191
-S:  SerialNumber=xxxxxxxxxxxxxxxx
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
-
-Signed-off-by: Benoît Monin <benoit.monin@gmx.fr>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 0e589d5fb317 ("ARM: AT91: IIO: Add AT91 ADC driver.")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221024084511.815096-1-yangyingliang@huawei.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/iio/adc/at91_adc.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -584,6 +584,9 @@ static void option_instat_callback(struc
- #define OPPO_VENDOR_ID				0x22d9
- #define OPPO_PRODUCT_R11			0x276c
+--- a/drivers/iio/adc/at91_adc.c
++++ b/drivers/iio/adc/at91_adc.c
+@@ -617,8 +617,10 @@ static struct iio_trigger *at91_adc_allo
+ 	trig->ops = &at91_adc_trigger_ops;
  
-+/* Sierra Wireless products */
-+#define SIERRA_VENDOR_ID			0x1199
-+#define SIERRA_PRODUCT_EM9191			0x90d3
+ 	ret = iio_trigger_register(trig);
+-	if (ret)
++	if (ret) {
++		iio_trigger_free(trig);
+ 		return NULL;
++	}
  
- /* Device flags */
- 
-@@ -2178,6 +2181,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(OPPO_VENDOR_ID, OPPO_PRODUCT_R11, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(SIERRA_VENDOR_ID, SIERRA_PRODUCT_EM9191, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(SIERRA_VENDOR_ID, SIERRA_PRODUCT_EM9191, 0xff, 0, 0) },
- 	{ } /* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, option_ids);
+ 	return trig;
+ }
 
 
