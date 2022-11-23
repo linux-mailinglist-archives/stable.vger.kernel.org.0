@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 916A06354A5
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9BA463564E
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237107AbiKWJIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:08:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48778 "EHLO
+        id S237742AbiKWJ2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:28:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237125AbiKWJIa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:08:30 -0500
+        with ESMTP id S237754AbiKWJ2a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:28:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D445623BE9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:08:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEAA61122E6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:26:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6F386B81EF2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:08:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1C3EC433D7;
-        Wed, 23 Nov 2022 09:08:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E907B81EF7
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:26:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E047C433C1;
+        Wed, 23 Nov 2022 09:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194502;
-        bh=lN7LWd8fpUKRteACJxqs8EUEmMM5J6qINk4Mj9sT32o=;
+        s=korg; t=1669195595;
+        bh=QFGnn7q7ymSY6xi5+Jbc9Eit6+uYnFqG2uPeexq/A+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XeeROYqEDG2gao07I/QakkEHxc5oN9BGweQ1/zf0J8pjCjGBoNQfmlfxasQUijAP7
-         wlSbPy9g0nS0ryKOAHiIFRoyfiAhiz4UBEOvnCt3YHk2GzTF0P9uh4h9eqIgaNp/XC
-         /FKskcky9zwBMZgowMacnPitMJXT+oPGoyrksmz0=
+        b=hCdzS0/UhRLbbWTJ/VecfnFyOy3cLZlAttGd2UWi6QvF+ZesQj0riYCV01TcFeBg8
+         uIqLsH4vhkICH2zbI9Bj6clTgVqI+YDUk29VebSJIMtlF2rCHLrZExZeJCAVqVPUBt
+         aEVFHXwM8ppsvyepvdyGAEeGC2HCosvJuAfZBNYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yann Gautier <yann.gautier@foss.st.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 095/114] mmc: core: properly select voltage range without power cycle
+        patches@lists.linux.dev,
+        Davide Tronchin <davide.tronchin.94@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 099/149] USB: serial: option: remove old LARA-R6 PID
 Date:   Wed, 23 Nov 2022 09:51:22 +0100
-Message-Id: <20221123084555.589931514@linuxfoundation.org>
+Message-Id: <20221123084601.556910775@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yann Gautier <yann.gautier@foss.st.com>
+From: Davide Tronchin <davide.tronchin.94@gmail.com>
 
-commit 39a72dbfe188291b156dd6523511e3d5761ce775 upstream.
+commit 2ec106b96afc19698ff934323b633c0729d4c7f8 upstream.
 
-In mmc_select_voltage(), if there is no full power cycle, the voltage
-range selected at the end of the function will be on a single range
-(e.g. 3.3V/3.4V). To keep a range around the selected voltage (3.2V/3.4V),
-the mask shift should be reduced by 1.
+Remove the UBLOX_PRODUCT_R6XX 0x90fa association since LARA-R6 00B final
+product uses a new USB composition with different PID. 0x90fa PID used
+only by LARA-R6 internal prototypes.
 
-This issue was triggered by using a specific SD-card (Verbatim Premium
-16GB UHS-1) on an STM32MP157C-DK2 board. This board cannot do UHS modes
-and there is no power cycle. And the card was failing to switch to
-high-speed mode. When adding the range 3.2V/3.3V for this card with the
-proposed shift change, the card can switch to high-speed mode.
+Move 0x90fa PID directly in the option_ids array since used by other
+Qualcomm based modem vendors as pointed out in:
 
-Fixes: ce69d37b7d8f ("mmc: core: Prevent violation of specs while initializing cards")
-Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
+  https://lore.kernel.org/all/6572c4e6-d8bc-b8d3-4396-d879e4e76338@gmail.com
+
+Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221028073740.7259-1-yann.gautier@foss.st.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/core.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/mmc/core/core.c
-+++ b/drivers/mmc/core/core.c
-@@ -1461,7 +1461,13 @@ u32 mmc_select_voltage(struct mmc_host *
- 		mmc_power_cycle(host, ocr);
- 	} else {
- 		bit = fls(ocr) - 1;
--		ocr &= 3 << bit;
-+		/*
-+		 * The bit variable represents the highest voltage bit set in
-+		 * the OCR register.
-+		 * To keep a range of 2 values (e.g. 3.2V/3.3V and 3.3V/3.4V),
-+		 * we must shift the mask '3' with (bit - 1).
-+		 */
-+		ocr &= 3 << (bit - 1);
- 		if (bit != host->ios.vdd)
- 			dev_warn(mmc_dev(host), "exceeding card's volts\n");
- 	}
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -240,7 +240,6 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_UC15			0x9090
+ /* These u-blox products use Qualcomm's vendor ID */
+ #define UBLOX_PRODUCT_R410M			0x90b2
+-#define UBLOX_PRODUCT_R6XX			0x90fa
+ /* These Yuga products use Qualcomm's vendor ID */
+ #define YUGA_PRODUCT_CLM920_NC5			0x9625
+ 
+@@ -1127,7 +1126,7 @@ static const struct usb_device_id option
+ 	/* u-blox products using Qualcomm vendor ID */
+ 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
+ 	  .driver_info = RSVD(1) | RSVD(3) },
+-	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R6XX),
++	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x90fa),
+ 	  .driver_info = RSVD(3) },
+ 	/* Quectel products using Quectel vendor ID */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0xff, 0xff),
 
 
