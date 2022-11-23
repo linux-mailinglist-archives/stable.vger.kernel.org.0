@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EDC0635598
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B098635750
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237292AbiKWJTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:19:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60516 "EHLO
+        id S238026AbiKWJjD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:39:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237478AbiKWJSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:18:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73AEA13D5E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:18:28 -0800 (PST)
+        with ESMTP id S238033AbiKWJii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:38:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4562A1121D1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:36:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F86761B59
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:18:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02FEFC433D6;
-        Wed, 23 Nov 2022 09:18:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BF41B81EEB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:36:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA20EC433C1;
+        Wed, 23 Nov 2022 09:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195107;
-        bh=H9gLONszJRFPYN0AacQ7izxeamijTtFqmHlRCleTzhA=;
+        s=korg; t=1669196179;
+        bh=vtLOfw1ORakHyh1QAQuJ4HQVVBECxiZcr0Pvh/RNd60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3HCL0Hk/+xiazKUYqvT5Wm2uOGFxuj0t8TcfuytVMKB+skOoR2eZ9PkuGlnL14t4
-         ASX3mBhMfUYj3cf27v+XUrYO0lpfXgrVKwlAFRgn22O3ieb2RrnPNC/vZsWptgn5jT
-         DROjdIcareXmMQrkdnG4uy40drv2EBmNOpkLEOqQ=
+        b=wliCxO+7cPD8av8mSuQLoATngkMUrWLtpJI9I9CabotuEmQ3dNnzvWg9XWcxm/8Ey
+         akW/YJUoQjPwjDI7mzyDInxt6wwl+5jN+gqAdKnNT3P3vpOWlUwQRo6WWGarNAiAH6
+         ih9B508lToanqmBS0xLx1v8KJXv/SjHEn9blRewg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+278279efdd2730dd14bf@syzkaller.appspotmail.com,
-        shaozhengchao <shaozhengchao@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Tom Herbert <tom@herbertland.com>,
-        Cong Wang <cong.wang@bytedance.com>
-Subject: [PATCH 5.4 148/156] kcm: close race conditions on sk_receive_queue
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.15 142/181] serial: 8250: Flush DMA Rx on RLSI
 Date:   Wed, 23 Nov 2022 09:51:45 +0100
-Message-Id: <20221123084603.204685938@linuxfoundation.org>
+Message-Id: <20221123084608.477841393@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,165 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 5121197ecc5db58c07da95eb1ff82b98b121a221 upstream.
+commit 1980860e0c8299316cddaf0992dd9e1258ec9d88 upstream.
 
-sk->sk_receive_queue is protected by skb queue lock, but for KCM
-sockets its RX path takes mux->rx_lock to protect more than just
-skb queue. However, kcm_recvmsg() still only grabs the skb queue
-lock, so race conditions still exist.
+Returning true from handle_rx_dma() without flushing DMA first creates
+a data ordering hazard. If DMA Rx has handled any character at the
+point when RLSI occurs, the non-DMA path handles any pending characters
+jumping them ahead of those characters that are pending under DMA.
 
-We can teach kcm_recvmsg() to grab mux->rx_lock too but this would
-introduce a potential performance regression as struct kcm_mux can
-be shared by multiple KCM sockets.
-
-So we have to enforce skb queue lock in requeue_rx_msgs() and handle
-skb peek case carefully in kcm_wait_data(). Fortunately,
-skb_recv_datagram() already handles it nicely and is widely used by
-other sockets, we can just switch to skb_recv_datagram() after
-getting rid of the unnecessary sock lock in kcm_recvmsg() and
-kcm_splice_read(). Side note: SOCK_DONE is not used by KCM sockets,
-so it is safe to get rid of this check too.
-
-I ran the original syzbot reproducer for 30 min without seeing any
-issue.
-
-Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
-Reported-by: syzbot+278279efdd2730dd14bf@syzkaller.appspotmail.com
-Reported-by: shaozhengchao <shaozhengchao@huawei.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Tom Herbert <tom@herbertland.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/r/20221114005119.597905-1-xiyou.wangcong@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 75df022b5f89 ("serial: 8250_dma: Fix RX handling")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221108121952.5497-5-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/kcm/kcmsock.c |   60 +++++++-----------------------------------------------
- 1 file changed, 8 insertions(+), 52 deletions(-)
+ drivers/tty/serial/8250/8250_port.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/kcm/kcmsock.c
-+++ b/net/kcm/kcmsock.c
-@@ -221,7 +221,7 @@ static void requeue_rx_msgs(struct kcm_m
- 	struct sk_buff *skb;
- 	struct kcm_sock *kcm;
- 
--	while ((skb = __skb_dequeue(head))) {
-+	while ((skb = skb_dequeue(head))) {
- 		/* Reset destructor to avoid calling kcm_rcv_ready */
- 		skb->destructor = sock_rfree;
- 		skb_orphan(skb);
-@@ -1086,53 +1086,18 @@ out_error:
- 	return err;
- }
- 
--static struct sk_buff *kcm_wait_data(struct sock *sk, int flags,
--				     long timeo, int *err)
--{
--	struct sk_buff *skb;
--
--	while (!(skb = skb_peek(&sk->sk_receive_queue))) {
--		if (sk->sk_err) {
--			*err = sock_error(sk);
--			return NULL;
--		}
--
--		if (sock_flag(sk, SOCK_DONE))
--			return NULL;
--
--		if ((flags & MSG_DONTWAIT) || !timeo) {
--			*err = -EAGAIN;
--			return NULL;
--		}
--
--		sk_wait_data(sk, &timeo, NULL);
--
--		/* Handle signals */
--		if (signal_pending(current)) {
--			*err = sock_intr_errno(timeo);
--			return NULL;
--		}
--	}
--
--	return skb;
--}
--
- static int kcm_recvmsg(struct socket *sock, struct msghdr *msg,
- 		       size_t len, int flags)
- {
-+	int noblock = flags & MSG_DONTWAIT;
- 	struct sock *sk = sock->sk;
- 	struct kcm_sock *kcm = kcm_sk(sk);
- 	int err = 0;
--	long timeo;
- 	struct strp_msg *stm;
- 	int copied = 0;
- 	struct sk_buff *skb;
- 
--	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
--
--	lock_sock(sk);
--
--	skb = kcm_wait_data(sk, flags, timeo, &err);
-+	skb = skb_recv_datagram(sk, flags, noblock, &err);
- 	if (!skb)
- 		goto out;
- 
-@@ -1163,14 +1128,11 @@ msg_finished:
- 			/* Finished with message */
- 			msg->msg_flags |= MSG_EOR;
- 			KCM_STATS_INCR(kcm->stats.rx_msgs);
--			skb_unlink(skb, &sk->sk_receive_queue);
--			kfree_skb(skb);
- 		}
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1889,10 +1889,9 @@ static bool handle_rx_dma(struct uart_82
+ 		if (!up->dma->rx_running)
+ 			break;
+ 		fallthrough;
++	case UART_IIR_RLSI:
+ 	case UART_IIR_RX_TIMEOUT:
+ 		serial8250_rx_dma_flush(up);
+-		fallthrough;
+-	case UART_IIR_RLSI:
+ 		return true;
  	}
- 
- out:
--	release_sock(sk);
--
-+	skb_free_datagram(sk, skb);
- 	return copied ? : err;
- }
- 
-@@ -1178,9 +1140,9 @@ static ssize_t kcm_splice_read(struct so
- 			       struct pipe_inode_info *pipe, size_t len,
- 			       unsigned int flags)
- {
-+	int noblock = flags & MSG_DONTWAIT;
- 	struct sock *sk = sock->sk;
- 	struct kcm_sock *kcm = kcm_sk(sk);
--	long timeo;
- 	struct strp_msg *stm;
- 	int err = 0;
- 	ssize_t copied;
-@@ -1188,11 +1150,7 @@ static ssize_t kcm_splice_read(struct so
- 
- 	/* Only support splice for SOCKSEQPACKET */
- 
--	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
--
--	lock_sock(sk);
--
--	skb = kcm_wait_data(sk, flags, timeo, &err);
-+	skb = skb_recv_datagram(sk, flags, noblock, &err);
- 	if (!skb)
- 		goto err_out;
- 
-@@ -1220,13 +1178,11 @@ static ssize_t kcm_splice_read(struct so
- 	 * finish reading the message.
- 	 */
- 
--	release_sock(sk);
--
-+	skb_free_datagram(sk, skb);
- 	return copied;
- 
- err_out:
--	release_sock(sk);
--
-+	skb_free_datagram(sk, skb);
- 	return err;
- }
- 
+ 	return up->dma->rx_dma(up);
 
 
