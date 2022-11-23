@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A24A363571F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96ABD63588E
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:00:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238065AbiKWJiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:38:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57746 "EHLO
+        id S237086AbiKWKAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:00:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237993AbiKWJhi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AEF46328
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:39 -0800 (PST)
+        with ESMTP id S235568AbiKWJ7s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:59:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5686C77B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 503DAB81E5E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EDCFC433D6;
-        Wed, 23 Nov 2022 09:35:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76DD1B81EEB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3AC8C433D6;
+        Wed, 23 Nov 2022 09:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196137;
-        bh=6pClluBkmmB4aO4dR4XKqZqRJpy3bFqplyJWaqjgZw4=;
+        s=korg; t=1669197166;
+        bh=GylouvC0mD/Wmx9YJ2djSRQJ3H4H1N+tXd0yuKM8VKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1R9hwFIgR3UG/jE7K0IsmUoyANE2h4gJvAbrBJH6YrM2FmHzUYKJov+WsqnCzrmz
-         O/WjTd8IdfbKn6R123N1rpn3rvBNkzxEwGVvqUBhcUq4zQyuNu7WC0FWfO/QsqRdmg
-         BDjqauU7QBDdRR7cb5U9oY+DIIeXkni4JKc7htT8=
+        b=M3E2ZwUoD5Jz1QjZ2SMPJbCpRN0RSbKFY8NXOS8Cdlps5lkXPbiR9/inaPcCj7Zbq
+         awePSc8AHBgxpG7bvigfRkvNzFAZsqFBMwDRn/EUh9wjfC99JT4NVw4mECDMnRdGjY
+         NRDqhu+bRHP3k+9MAle5//WKX7W/KFHPk1lL19OU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anastasia Belova <abelova@astralinux.ru>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 099/181] cifs: add check for returning value of SMB2_close_init
+        patches@lists.linux.dev, Alvin Lee <Alvin.Lee2@amd.com>,
+        Tom Chung <chiahsuan.chung@amd.com>,
+        George Shen <george.shen@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.0 217/314] drm/amd/display: Support parsing VRAM info v3.0 from VBIOS
 Date:   Wed, 23 Nov 2022 09:51:02 +0100
-Message-Id: <20221123084606.615537670@linuxfoundation.org>
+Message-Id: <20221123084635.371789234@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anastasia Belova <abelova@astralinux.ru>
+From: George Shen <george.shen@amd.com>
 
-[ Upstream commit d520de6cb42e88a1d008b54f935caf9fc05951da ]
+commit 7e952a18eb978a3e51fc1704b752378be66226b2 upstream.
 
-If the returning value of SMB2_close_init is an error-value,
-exit the function.
+[Why]
+For DCN3.2 and DCN3.21, VBIOS has switch to using v3.0 of the VRAM
+info struct. We should read and override the VRAM info in driver with
+values provided by VBIOS to support memory downbin cases.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Fixes: 352d96f3acc6 ("cifs: multichannel: move channel selection above transport layer")
-
-Signed-off-by: Anastasia Belova <abelova@astralinux.ru>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+Acked-by: Tom Chung <chiahsuan.chung@amd.com>
+Signed-off-by: George Shen <george.shen@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.0.x
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2ops.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c |   30 +++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 2d31860d56e9..30b2efafa2de 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1371,6 +1371,8 @@ smb2_set_ea(const unsigned int xid, struct cifs_tcon *tcon,
- 	rqst[2].rq_nvec = 1;
- 	rc = SMB2_close_init(tcon, server,
- 			     &rqst[2], COMPOUND_FID, COMPOUND_FID, false);
-+	if (rc)
-+		goto sea_exit;
- 	smb2_set_related(&rqst[2]);
+--- a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
++++ b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
+@@ -2392,6 +2392,26 @@ static enum bp_result get_vram_info_v25(
+ 	return result;
+ }
  
- 	rc = compound_send_recv(xid, ses, server,
--- 
-2.35.1
-
++static enum bp_result get_vram_info_v30(
++	struct bios_parser *bp,
++	struct dc_vram_info *info)
++{
++	struct atom_vram_info_header_v3_0 *info_v30;
++	enum bp_result result = BP_RESULT_OK;
++
++	info_v30 = GET_IMAGE(struct atom_vram_info_header_v3_0,
++						DATA_TABLES(vram_info));
++
++	if (info_v30 == NULL)
++		return BP_RESULT_BADBIOSTABLE;
++
++	info->num_chans = info_v30->channel_num;
++	info->dram_channel_width_bytes = (1 << info_v30->channel_width) / 8;
++
++	return result;
++}
++
++
+ /*
+  * get_integrated_info_v11
+  *
+@@ -3022,6 +3042,16 @@ static enum bp_result bios_parser_get_vr
+ 				break;
+ 			default:
+ 				break;
++			}
++			break;
++
++		case 3:
++			switch (revision.minor) {
++			case 0:
++				result = get_vram_info_v30(bp, info);
++				break;
++			default:
++				break;
+ 			}
+ 			break;
+ 
 
 
