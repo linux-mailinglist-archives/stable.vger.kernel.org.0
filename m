@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98CCC6358C0
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:04:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D24DA6356FD
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236788AbiKWKDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:03:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55114 "EHLO
+        id S237936AbiKWJgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:36:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237194AbiKWKBw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:01:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63E2711E804
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:53:59 -0800 (PST)
+        with ESMTP id S237789AbiKWJfh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:35:37 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DA9D79906
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:33:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17059B81EF0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:53:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D9B8C433C1;
-        Wed, 23 Nov 2022 09:53:56 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 76D60CE20F8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:33:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A9A9C433D6;
+        Wed, 23 Nov 2022 09:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197236;
-        bh=yV2QOT6MGDCcTaSh3CAzCJBGTzQqCDEh7xEJW+bRV/4=;
+        s=korg; t=1669195988;
+        bh=dK9aI4+GTmYx8RbS7O1E/uW9R1LSW26QIfZslMRmk0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zFeE6KlLto9ICH/8zAKPz3aOixGmIRtf21uspdZ6iScSal8cH5PKHvT7SKTz/0ojr
-         yAMH4lrkO8Y+RDeM2x1acXdrRYa8kLDNLznNgVg4em4Glc0ZFzWS47arPwMZhfcY+g
-         r7y4Wjd/k+GUEtPR67Mfc97n4Dd6EfKHeM3GXylQ=
+        b=amMyJLtW/nhDYPBwslYZ9iAFehut7hLNygHGuArCE36h7NCZ2OLrPBgA0hFcW1qqj
+         QTdXVraDbK9hrKU1T74r4TX5QzJVTvPbLBhYUB2vkdGA84hzhnbodQiHIyXzy8ZsXX
+         LPEjLW4CCg+kCYjxqKmWifyw6PeXIv3EA49nO60c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
-Subject: [PATCH 6.0 206/314] tracing: kprobe: Fix potential null-ptr-deref on trace_array in kprobe_event_gen_test_exit()
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 088/181] bnxt_en: Remove debugfs when pci_register_driver failed
 Date:   Wed, 23 Nov 2022 09:50:51 +0100
-Message-Id: <20221123084634.879197861@linuxfoundation.org>
+Message-Id: <20221123084606.137104415@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,83 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-commit 22ea4ca9631eb137e64e5ab899e9c89cb6670959 upstream.
+[ Upstream commit 991aef4ee4f6eb999924f429b943441a32835c8f ]
 
-When test_gen_kprobe_cmd() failed after kprobe_event_gen_cmd_end(), it
-will goto delete, which will call kprobe_event_delete() and release the
-corresponding resource. However, the trace_array in gen_kretprobe_test
-will point to the invalid resource. Set gen_kretprobe_test to NULL
-after called kprobe_event_delete() to prevent null-ptr-deref.
+When pci_register_driver failed, we need to remove debugfs,
+which will caused a resource leak, fix it.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000070
-PGD 0 P4D 0
-Oops: 0000 [#1] SMP PTI
-CPU: 0 PID: 246 Comm: modprobe Tainted: G        W
-6.1.0-rc1-00174-g9522dc5c87da-dirty #248
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
-RIP: 0010:__ftrace_set_clr_event_nolock+0x53/0x1b0
-Code: e8 82 26 fc ff 49 8b 1e c7 44 24 0c ea ff ff ff 49 39 de 0f 84 3c
-01 00 00 c7 44 24 18 00 00 00 00 e8 61 26 fc ff 48 8b 6b 10 <44> 8b 65
-70 4c 8b 6d 18 41 f7 c4 00 02 00 00 75 2f
-RSP: 0018:ffffc9000159fe00 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: ffff88810971d268 RCX: 0000000000000000
-RDX: ffff8881080be600 RSI: ffffffff811b48ff RDI: ffff88810971d058
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000001
-R10: ffffc9000159fe58 R11: 0000000000000001 R12: ffffffffa0001064
-R13: ffffffffa000106c R14: ffff88810971d238 R15: 0000000000000000
-FS:  00007f89eeff6540(0000) GS:ffff88813b600000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000070 CR3: 000000010599e004 CR4: 0000000000330ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- __ftrace_set_clr_event+0x3e/0x60
- trace_array_set_clr_event+0x35/0x50
- ? 0xffffffffa0000000
- kprobe_event_gen_test_exit+0xcd/0x10b [kprobe_event_gen_test]
- __x64_sys_delete_module+0x206/0x380
- ? lockdep_hardirqs_on_prepare+0xd8/0x190
- ? syscall_enter_from_user_mode+0x1c/0x50
- do_syscall_64+0x3f/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f89eeb061b7
+Resource leak logs as follows:
+[   52.184456] debugfs: Directory 'bnxt_en' with parent '/' already present!
 
-Link: https://lore.kernel.org/all/20221108015130.28326-3-shangxiaojing@huawei.com/
-
-Fixes: 64836248dda2 ("tracing: Add kprobe event command generation test module")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Cc: stable@vger.kernel.org
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: cabfb09d87bd ("bnxt_en: add debugfs support for DIM")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/kprobe_event_gen_test.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/kprobe_event_gen_test.c
-+++ b/kernel/trace/kprobe_event_gen_test.c
-@@ -143,6 +143,8 @@ static int __init test_gen_kprobe_cmd(vo
- 	kfree(buf);
- 	return ret;
-  delete:
-+	if (trace_event_file_is_valid(gen_kprobe_test))
-+		gen_kprobe_test = NULL;
- 	/* We got an error after creating the event, delete it */
- 	ret = kprobe_event_delete("gen_kprobe_test");
- 	goto out;
-@@ -206,6 +208,8 @@ static int __init test_gen_kretprobe_cmd
- 	kfree(buf);
- 	return ret;
-  delete:
-+	if (trace_event_file_is_valid(gen_kretprobe_test))
-+		gen_kretprobe_test = NULL;
- 	/* We got an error after creating the event, delete it */
- 	ret = kprobe_event_delete("gen_kretprobe_test");
- 	goto out;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index db1864a3f64a..117f5cc7c180 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -13697,8 +13697,16 @@ static struct pci_driver bnxt_pci_driver = {
+ 
+ static int __init bnxt_init(void)
+ {
++	int err;
++
+ 	bnxt_debug_init();
+-	return pci_register_driver(&bnxt_pci_driver);
++	err = pci_register_driver(&bnxt_pci_driver);
++	if (err) {
++		bnxt_debug_exit();
++		return err;
++	}
++
++	return 0;
+ }
+ 
+ static void __exit bnxt_exit(void)
+-- 
+2.35.1
+
 
 
