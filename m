@@ -2,182 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB3C63809B
-	for <lists+stable@lfdr.de>; Thu, 24 Nov 2022 22:25:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4A3D6380D2
+	for <lists+stable@lfdr.de>; Thu, 24 Nov 2022 23:11:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229617AbiKXVZr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Nov 2022 16:25:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58972 "EHLO
+        id S229601AbiKXWLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Nov 2022 17:11:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229568AbiKXVZq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Nov 2022 16:25:46 -0500
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9B027046B
-        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 13:25:44 -0800 (PST)
-Received: by mail-wr1-x429.google.com with SMTP id g12so4124250wrs.10
-        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 13:25:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=kirJwAc8Joe5ZepLZx8T+pb8ok/cXjiQNGG9J+4Cwac=;
-        b=MTBNaTzbT6qf5yZy95jG7ZQTMU4tAvCQ8/wGCor1vado7/hkgqhoXSY0rGcimthZiM
-         jDQmsyceubYnf2yR7gzzGgNWj9ToCIkClJrotVw31FZ/WDs17nm9pqrBoK1Ldvi3UrLY
-         F0cBV5N+Myf2HAlKMcFW/6IMFdq1xebKLmUi/Xa22wtwCSr/4/fN5nRco+rMGZLqNt4y
-         W1CCRFlZSKquXys6HhgWiSNF3uiuSAvzD2KGV1CjZhgwZtgXth0CUtdp0iOHUAOLuGZT
-         OjCIKZq+ZFMSD/m9w1aiVdk2DOZbmn0oCMBgPePYfgPmgQDA9k+IbEwUupveWCgMTGvE
-         yx0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=kirJwAc8Joe5ZepLZx8T+pb8ok/cXjiQNGG9J+4Cwac=;
-        b=3r8yi0+FGEp+Jh0dN4mpZP8rCbvva9TCbgdffIWr4P7w7BXUjSNGCuPY8r8/YMmc6I
-         srcAxb8oUq4UNQGJIL85V8uI7lRDpbnaX9q6v7eY0OIlPXcG87825XEVWYy2saEo6cjE
-         NQBiqDC/KlOsuK8OQL0vYqwa96Dih86g09qG966uJkMoZMy3TbxzWS82Z8W9+Ce49T2k
-         ahgeNEECYIwx+0q2rcVj7MRxZElOEOBVn/oCj3MHMGjMilLWyOFwB7myOws1lL0rRFel
-         ijGI3nNoz9adssQgyBNqVyolaz9znh9GbpcIxOAhiQ+mpDaNlKH6EtdjRvncGOUKlfvq
-         d/rg==
-X-Gm-Message-State: ANoB5pn2vZRYh32OQUJBlu8nO1XajlzGXFvOzbEEhExJD5Le+of/+3JR
-        +4WNTSRuPBpm2eA0D3qWjnQRvemmkA8bM5IB
-X-Google-Smtp-Source: AA0mqf7bfoxryed0cFVOBn1ZlrjPLCZRUohj0qI7ybadOlD9MZltTJ3eD2PaAJoUTuNMs2+adt3XYA==
-X-Received: by 2002:a5d:4563:0:b0:22e:3df5:df2 with SMTP id a3-20020a5d4563000000b0022e3df50df2mr21344964wrc.572.1669325143093;
-        Thu, 24 Nov 2022 13:25:43 -0800 (PST)
-Received: from [192.168.0.161] (79-100-144-200.ip.btc-net.bg. [79.100.144.200])
-        by smtp.gmail.com with ESMTPSA id i17-20020adfe491000000b0022da3977ec5sm2158654wrm.113.2022.11.24.13.25.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 24 Nov 2022 13:25:42 -0800 (PST)
-Message-ID: <6698e600-cb3a-4b49-34e5-1407f9b193ec@blackwall.org>
-Date:   Thu, 24 Nov 2022 23:25:41 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.1
-Subject: Re: [PATCH net] ipv4: Fix route deletion when nexthop info is not
- specified
-Content-Language: en-US
-To:     Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
-        edumazet@google.com, dsahern@gmail.com, jonas.gorski@gmail.com,
-        mlxsw@nvidia.com, stable@vger.kernel.org
-References: <20221124210932.2470010-1-idosch@nvidia.com>
-From:   Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20221124210932.2470010-1-idosch@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229502AbiKXWLm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Nov 2022 17:11:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70720898C7;
+        Thu, 24 Nov 2022 14:11:41 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23998B82904;
+        Thu, 24 Nov 2022 22:11:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C08E6C433C1;
+        Thu, 24 Nov 2022 22:11:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1669327898;
+        bh=P4Nkni80swF4c00hCzUN3eDIZhvT+PaoaRZA8UFyfDA=;
+        h=Date:To:From:Subject:From;
+        b=fFE2Xtq1h3ZJU6uO+Nw18wfQNcJOs/USFKMtShwxdUGKPIYcntiQr88CJhpWyvbew
+         bAZeGgkZ3Z0CzOzmo3A9RjmAZ01Zu1O2g0xRxfruAQxi3LVOty6HpCdbyDGTgM8TrW
+         k/3NwTB6fDgOswyO+l1PugYfUfk9I2n/j9YNZHKk=
+Date:   Thu, 24 Nov 2022 14:11:37 -0800
+To:     mm-commits@vger.kernel.org, ziy@nvidia.com, zhenyzha@redhat.com,
+        william.kucharski@oracle.com, stable@vger.kernel.org,
+        kirill.shutemov@linux.intel.com, david@redhat.com,
+        gshan@redhat.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [to-be-updated] mm-migrate-fix-thps-mapcount-on-isolation.patch removed from -mm tree
+Message-Id: <20221124221138.C08E6C433C1@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 24/11/2022 23:09, Ido Schimmel wrote:
-> When the kernel receives a route deletion request from user space it
-> tries to delete a route that matches the route attributes specified in
-> the request.
-> 
-> If only prefix information is specified in the request, the kernel
-> should delete the first matching FIB alias regardless of its associated
-> FIB info. However, an error is currently returned when the FIB info is
-> backed by a nexthop object:
-> 
->  # ip nexthop add id 1 via 192.0.2.2 dev dummy10
->  # ip route add 198.51.100.0/24 nhid 1
->  # ip route del 198.51.100.0/24
->  RTNETLINK answers: No such process
-> 
-> Fix by matching on such a FIB info when legacy nexthop attributes are
-> not specified in the request. An earlier check already covers the case
-> where a nexthop ID is specified in the request.
-> 
-> Add tests that cover these flows. Before the fix:
-> 
->  # ./fib_nexthops.sh -t ipv4_fcnal
->  ...
->  TEST: Delete route when not specifying nexthop attributes           [FAIL]
-> 
->  Tests passed:  11
->  Tests failed:   1
-> 
-> After the fix:
-> 
->  # ./fib_nexthops.sh -t ipv4_fcnal
->  ...
->  TEST: Delete route when not specifying nexthop attributes           [ OK ]
-> 
->  Tests passed:  12
->  Tests failed:   0
-> 
-> No regressions in other tests:
-> 
->  # ./fib_nexthops.sh
->  ...
->  Tests passed: 228
->  Tests failed:   0
-> 
->  # ./fib_tests.sh
->  ...
->  Tests passed: 186
->  Tests failed:   0
-> 
-> Cc: stable@vger.kernel.org
-> Reported-by: Jonas Gorski <jonas.gorski@gmail.com>
-> Tested-by: Jonas Gorski <jonas.gorski@gmail.com>
-> Fixes: 493ced1ac47c ("ipv4: Allow routes to use nexthop objects")
-> Fixes: 6bf92d70e690 ("net: ipv4: fix route with nexthop object delete warning")
-> Fixes: 61b91eb33a69 ("ipv4: Handle attempt to delete multipath route when fib_info contains an nh reference")
-> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-> ---
->  net/ipv4/fib_semantics.c                    |  8 +++++---
->  tools/testing/selftests/net/fib_nexthops.sh | 11 +++++++++++
->  2 files changed, 16 insertions(+), 3 deletions(-)
-> 
 
-Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
+The quilt patch titled
+     Subject: mm: migrate: Fix THP's mapcount on isolation
+has been removed from the -mm tree.  Its filename was
+     mm-migrate-fix-thps-mapcount-on-isolation.patch
 
-> diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-> index f721c308248b..19a662003eef 100644
-> --- a/net/ipv4/fib_semantics.c
-> +++ b/net/ipv4/fib_semantics.c
-> @@ -888,9 +888,11 @@ int fib_nh_match(struct net *net, struct fib_config *cfg, struct fib_info *fi,
->  		return 1;
->  	}
->  
-> -	/* cannot match on nexthop object attributes */
-> -	if (fi->nh)
-> -		return 1;
-> +	if (fi->nh) {
-> +		if (cfg->fc_oif || cfg->fc_gw_family || cfg->fc_mp)
-> +			return 1;
-> +		return 0;
-> +	}
->  
->  	if (cfg->fc_oif || cfg->fc_gw_family) {
->  		struct fib_nh *nh;
-> diff --git a/tools/testing/selftests/net/fib_nexthops.sh b/tools/testing/selftests/net/fib_nexthops.sh
-> index ee5e98204d3d..a47b26ab48f2 100755
-> --- a/tools/testing/selftests/net/fib_nexthops.sh
-> +++ b/tools/testing/selftests/net/fib_nexthops.sh
-> @@ -1228,6 +1228,17 @@ ipv4_fcnal()
->  	run_cmd "$IP ro add 172.16.101.0/24 nhid 21"
->  	run_cmd "$IP ro del 172.16.101.0/24 nexthop via 172.16.1.7 dev veth1 nexthop via 172.16.1.8 dev veth1"
->  	log_test $? 2 "Delete multipath route with only nh id based entry"
-> +
-> +	run_cmd "$IP nexthop add id 22 via 172.16.1.6 dev veth1"
-> +	run_cmd "$IP ro add 172.16.102.0/24 nhid 22"
-> +	run_cmd "$IP ro del 172.16.102.0/24 dev veth1"
-> +	log_test $? 2 "Delete route when specifying only nexthop device"
-> +
-> +	run_cmd "$IP ro del 172.16.102.0/24 via 172.16.1.6"
-> +	log_test $? 2 "Delete route when specifying only gateway"
-> +
-> +	run_cmd "$IP ro del 172.16.102.0/24"
-> +	log_test $? 0 "Delete route when not specifying nexthop attributes"
->  }
->  
->  ipv4_grp_fcnal()
+This patch was dropped because an updated version will be merged
+
+------------------------------------------------------
+From: Gavin Shan <gshan@redhat.com>
+Subject: mm: migrate: Fix THP's mapcount on isolation
+Date: Wed, 23 Nov 2022 08:57:52 +0800
+
+The issue is reported when removing memory through virtio_mem device.  The
+transparent huge page, experienced copy-on-write fault, is wrongly
+regarded as pinned.  The transparent huge page is escaped from being
+isolated in isolate_migratepages_block().  The transparent huge page can't
+be migrated and the corresponding memory block can't be put into offline
+state.
+
+Fix it by replacing page_mapcount() with total_mapcount().  With this, the
+transparent huge page can be isolated and migrated, and the memory block
+can be put into offline state.
+
+Link: https://lkml.kernel.org/r/20221123005752.161003-1-gshan@redhat.com
+Fixes: 3917c80280c9 ("thp: change CoW semantics for anon-THP")
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Reported-by: Zhenyu Zhang <zhenyzha@redhat.com>
+Suggested-by: David Hildenbrand <david@redhat.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: William Kucharski <william.kucharski@oracle.com>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: <stable@vger.kernel.org>	[v5.8+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/compaction.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/compaction.c~mm-migrate-fix-thps-mapcount-on-isolation
++++ a/mm/compaction.c
+@@ -990,7 +990,7 @@ isolate_migratepages_block(struct compac
+ 		 * admittedly racy check.
+ 		 */
+ 		mapping = page_mapping(page);
+-		if (!mapping && page_count(page) > page_mapcount(page))
++		if (!mapping && page_count(page) > total_mapcount(page))
+ 			goto isolate_fail;
+ 
+ 		/*
+_
+
+Patches currently in -mm which might be from gshan@redhat.com are
+
 
