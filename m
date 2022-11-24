@@ -2,101 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42EA2637FDE
-	for <lists+stable@lfdr.de>; Thu, 24 Nov 2022 20:57:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5115E638068
+	for <lists+stable@lfdr.de>; Thu, 24 Nov 2022 22:07:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229679AbiKXT5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Nov 2022 14:57:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54864 "EHLO
+        id S229452AbiKXVHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Nov 2022 16:07:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229625AbiKXT5T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Nov 2022 14:57:19 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4F5F91C29
-        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 11:57:15 -0800 (PST)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1oyILS-0004db-1F
-        for stable@vger.kernel.org; Thu, 24 Nov 2022 20:57:14 +0100
-Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id 28F8D128977
-        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 19:57:12 +0000 (UTC)
-Received: from hardanger.blackshift.org (unknown [172.20.34.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id 073AD128943;
-        Thu, 24 Nov 2022 19:57:10 +0000 (UTC)
-Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 25ca0acd;
-        Thu, 24 Nov 2022 19:57:09 +0000 (UTC)
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de, Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Max Staudt <max@enpas.org>, stable@vger.kernel.org,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH net 1/8] can: can327: can327_feed_frame_to_netdev(): fix potential skb leak when netdev is down
-Date:   Thu, 24 Nov 2022 20:57:01 +0100
-Message-Id: <20221124195708.1473369-2-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221124195708.1473369-1-mkl@pengutronix.de>
-References: <20221124195708.1473369-1-mkl@pengutronix.de>
+        with ESMTP id S229448AbiKXVHD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Nov 2022 16:07:03 -0500
+Received: from wout2-smtp.messagingengine.com (wout2-smtp.messagingengine.com [64.147.123.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AE788FB13
+        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 13:07:02 -0800 (PST)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.west.internal (Postfix) with ESMTP id EF5613200A6B;
+        Thu, 24 Nov 2022 16:06:58 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Thu, 24 Nov 2022 16:07:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1669324018; x=1669410418; bh=8CEj2REjt/
+        Cpu9PVrcS0Ej8RlkM0BRcAByk9q/BqXCU=; b=saKmVkfpZdHEX5KQDqmUxhnhIP
+        F4zPAv7kBxLWx654QigXeb/aWQkonkpQB/pwniedEPvG8pxx3M/PurZ24xkA4TZj
+        FQIw9t+eNUI/Ya7YTTcLeYEFu3U8R9chwFmA6ay65Ne+DSM3I8ldTp3wNPP79ony
+        5ZkTJEkJwAttKgy3stgRjnOmLzy92wN5R2shi3HlIPVIWXrwo1qWHAmtxQ2s59Yc
+        FpgCXHupmVtw/uexzpbsNs5ubkHuiqQTOeRU8I0E+ojCLHjsk7LwV77jp5KdwEk3
+        76oy6CnmOuddIS+aXP/VCQqnOWX8Mg6N8YoPYpAuysSBYNi/Fbe4dQncx95w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; t=1669324018; x=1669410418; bh=8CEj2REjt/Cpu9PVrcS0Ej8RlkM0
+        BRcAByk9q/BqXCU=; b=RyI2/btNOsKbFyTyHllXwmdgsgr0SQJJlNsUpq69LXbp
+        VVcju08yMZlRZz5g1F0bYJ66vfmMp0K/vsl6/n9fNuAuWNYzzSrnobZl3xaCtbFP
+        rm6xfk2zkjiQJgMYkScogUKGADUre3FaRMVgXnqDuqctCAr42eXl+mo9+bY+P2oC
+        eOQshYWkT4kpsE2w6gzqaqq/rK1MX0Q93HF6+IdYfzsrI9joiruueGYMOYmPH/xv
+        AZBCqG9IqpiqP5WDoI0mtwnI3DA70DZW72kj+F5oh9grBIwHCdkqIUa+e2GQUinj
+        3CzGCebcDAEqNmWDxpWyc428/7RxrcSUKTDHeK+Siw==
+X-ME-Sender: <xms:8tx_Y008CyJxDq6suS6TQP6_AI6pAAYODdLbjc413_nyPhCAkWXWgw>
+    <xme:8tx_Y_H25zusX9iZphZJ1BgtLRpIBW32ye6T_m78nWmBTGW_ySTfUC3odnhZkygeV
+    m1ameFRdFOOOg>
+X-ME-Received: <xmr:8tx_Y84CLYWK464bAh0CwhLUMCddtP_ozrXuZSmluzrMs668weHa7q4I96Gvlmfly_m_Dh8GCSWngsIqmcvPRLJOrHHuHZUx>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrieefgddugeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepheegvd
+    evvdeljeeugfdtudduhfekledtiefhveejkeejuefhtdeufefhgfehkeetnecuvehluhhs
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    hhrdgtohhm
+X-ME-Proxy: <xmx:8tx_Y92xeqODs91Ot-CHQfBlFmgDH1WjNji57QJhbePcuq7B5vrIjw>
+    <xmx:8tx_Y3ENCrF0RI26tTUG_KsOObWLC3uUG-LPSeTMBcqLIgYs_juHCw>
+    <xmx:8tx_Y2_bbUwylathgJkWWJhl--JUsqwdU2G26zzkfQyJonY8ZiK-OQ>
+    <xmx:8tx_Y__dQg-VST0nsJSzyiwqBW4MS7DqAwrFPl4FfokqTnLbhI3LiQ>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 24 Nov 2022 16:06:57 -0500 (EST)
+Date:   Thu, 24 Nov 2022 22:06:55 +0100
+From:   Greg KH <greg@kroah.com>
+To:     John Aron <john@aronetics.com>
+Cc:     stable@vger.kernel.org, 'Mark Salter' <mark.salter@canonical.com>,
+        Mark Lewis <mark.lewis@canonical.com>,
+        regressions@lists.linux.dev, kernelnewbies@kernelnewbies.org
+Subject: Re: OBJTOOL Build error
+Message-ID: <Y3/c73nZVdHCBdZo@kroah.com>
+References: <041601d90035$4f738de0$ee5aa9a0$@aronetics.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <041601d90035$4f738de0$ee5aa9a0$@aronetics.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+On Thu, Nov 24, 2022 at 01:48:08PM -0500, John Aron wrote:
+> Hello -
+> 
+>  
+> 
+> I have an idea of where to begin: our kernel code compiles and works on Red
+> Hat, CentOS, and Fedora. In Ubuntu 20.04, I have an error.
+> 
+>  
+> 
+> root@form:/home/john/thor-linux/Kernel/ubuntu20.04# make
+> 
+> rmmod: ERROR: Module thor is not currently loaded
+> 
+> make: [Makefile:7: all] Error 1 (ignored)
+> 
+> make[1]: Entering directory '/usr/src/linux-headers-5.4.0-131-generic'
+> 
+>   CC [M]  /home/john/thor-linux/Kernel/ubuntu22.04/thor.o
+> 
+> /home/john/thor-linux/Kernel/ubuntu22.04/thor.o: warning: objtool:
+> _Controller_process_response_map()+0x1b3:    unreachable instruction
+> 
+>   Building modules, stage 2.
+> 
+>   MODPOST 1 modules
+> 
+>   CC [M]  /home/john/thor-linux/Kernel/ubuntu22.04/thor.mod.o
+> 
+>   LD [M]  /home/john/thor-linux/Kernel/ubuntu22.04/thor.ko
+> 
+> make[1]: Leaving directory '/usr/src/linux-headers-5.4.0-131-generic'
+> 
+> make[1]: Entering directory '/usr/src/linux-headers-5.4.0-131-generic'
+> 
+>   CLEAN   /home/john/thor-linux/Kernel/ubuntu22.04/Module.symvers
+> 
+> make[1]: Leaving directory '/usr/src/linux-headers-5.4.0-131-generic'
+> 
+> #@sudo dmesg -C
+> 
+> #@sudo insmod /usr/local/etc/thor.ko
+> 
+> filename:       /usr/local/etc/thor.ko
+> 
+> version:        0.1
+> 
+> description:    THOR KMOD
+> 
+> author:         Aronetics
+> 
+> license:        GPL
+> 
+> srcversion:     BC856FA85DB2FEFD38A1B2A
+> 
+> depends:
+> 
+> retpoline:      Y
+> 
+> name:           thor
+> 
+> vermagic:       5.4.0-131-generic SMP mod_unload modversions
+> 
+> #@sudo dmesg
+> 
+> root@form:/home/john/thor-linux/Kernel/ubuntu20.04#
+> <mailto:root@form:/home/john/thor-linux/Kernel/ubuntu20.04#> 
+> 
+>  
+> 
+> Every 2.0s: tail -n30 /var/lib/dkms/thor/1.0.1/build/make.log
+> 
+>  
+> 
+> DKMS make.log for thor-1.0.1 for kernel 5.4.0-131-generic (x86_64)
+> 
+> Thu 24 Nov 2022 01:10:33 PM EST
+> 
+> make: Entering directory '/usr/src/linux-headers-5.4.0-131-generic'
+> 
+>   CC [M]  /var/lib/dkms/thor/1.0.1/build/thor.o
+> 
+> /var/lib/dkms/thor/1.0.1/build/thor.o: warning: objtool:
+> _Controller_process_response_map()+0x1b3: unreachable instruction
+> 
+>   Building modules, stage 2.
+> 
+>   MODPOST 1 modules
+> 
+>   CC [M]  /var/lib/dkms/thor/1.0.1/build/thor.mod.o
+> 
+>   LD [M]  /var/lib/dkms/thor/1.0.1/build/thor.ko
+> 
+> make: Leaving directory '/usr/src/linux-headers-5.4.0-131-generic'
+> 
+>  
+> 
+> Is this an error in objtool on Ubuntu within
+> /usr/src/linux-headers-5.4.0-${26-130}/tools/objtool ?
 
-In can327_feed_frame_to_netdev(), it did not free the skb when netdev
-is down, and all callers of can327_feed_frame_to_netdev() did not free
-allocated skb too. That would trigger skb leak.
+Do you have a pointer to your code anywhere?  Do you have .S files in
+it, or is it all C files?
 
-Fix it by adding kfree_skb() in can327_feed_frame_to_netdev() when netdev
-is down. Not tested, just compiled.
+And did you ask the Canonical developers about this?  You should have a
+support contract you are paying for with them, so why not use that?
 
-Fixes: 43da2f07622f ("can: can327: CAN/ldisc driver for ELM327 based OBD-II adapters")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Link: https://lore.kernel.org/all/20221110061437.411525-1-william.xuanziyang@huawei.com
-Reviewed-by: Max Staudt <max@enpas.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- drivers/net/can/can327.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+thanks,
 
-diff --git a/drivers/net/can/can327.c b/drivers/net/can/can327.c
-index 094197780776..ed3d0b8989a0 100644
---- a/drivers/net/can/can327.c
-+++ b/drivers/net/can/can327.c
-@@ -263,8 +263,10 @@ static void can327_feed_frame_to_netdev(struct can327 *elm, struct sk_buff *skb)
- {
- 	lockdep_assert_held(&elm->lock);
- 
--	if (!netif_running(elm->dev))
-+	if (!netif_running(elm->dev)) {
-+		kfree_skb(skb);
- 		return;
-+	}
- 
- 	/* Queue for NAPI pickup.
- 	 * rx-offload will update stats and LEDs for us.
-
-base-commit: ad17c2a3f11b0f6b122e7842d8f7d9a5fcc7ac63
--- 
-2.35.1
-
-
+greg k-h
