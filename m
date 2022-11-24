@@ -2,220 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ECBD637481
-	for <lists+stable@lfdr.de>; Thu, 24 Nov 2022 09:54:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CFBE6374DF
+	for <lists+stable@lfdr.de>; Thu, 24 Nov 2022 10:12:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229865AbiKXIyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Nov 2022 03:54:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56236 "EHLO
+        id S229450AbiKXJMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Nov 2022 04:12:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229851AbiKXIya (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Nov 2022 03:54:30 -0500
-Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 493DB9A261
-        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 00:54:29 -0800 (PST)
-Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-3b10392c064so9907157b3.0
-        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 00:54:29 -0800 (PST)
+        with ESMTP id S229583AbiKXJMh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Nov 2022 04:12:37 -0500
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A623B51C17
+        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 01:12:36 -0800 (PST)
+Received: by mail-ed1-x52b.google.com with SMTP id y24so1669152edi.10
+        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 01:12:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=kYkoA/GomV2J1R+NfO0IwXHjKjxsC0Vb0ETBF00zbXI=;
-        b=ulH5JJlEBiyEJOyyzmDJEuovb470lZAyDOB5qNe/r+VBdnVulYNBQnNUSszcmHgA3r
-         bkj8uWQEGyLTC9K961wA9Hd37J/TC5kQb7emkDeK9EoFNll5qYS4vk6heKtzV7LtZ5Ig
-         yEM+B8eR3YKZQb7tMff3yRiIpfoqPEMZU1M0rBZ1BBG4FpNGBYtOtylj9MBmV5uQb/jY
-         9OwNpq12jh2E0hIEl+Pn5X2NNRtgABUL0VAmJBQrPdTXaJaPvRJetpCOVks/qeuMyj4a
-         G22/QjplaRtlbys6YMYSk5ljss+0SOoE6UMMY/RSLZfaElD1FEaXtS0xkEtbkRn18RxP
-         IGDA==
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:sender:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=h94amkrgHMvkPfBIkBV1KEw1F9jj2Brnk1qfqW9jmH4=;
+        b=P71LJSW2PFo2OzJDT2pf5wJJSLh2OU3+88Wfw5GHrZHLU0yo2m7QVkb68ivYbKWQ/N
+         fluDt4fx6KWK0I0US/A+OiHxCUSzLvILIgZybB9lcsvlYn5JKJTjB7VTbGMG5gfhkWDL
+         c+3gpdzR9eNO2oYOgEH5nYhF+jmYEUPxl8EA9jhqEa4ETb0qYTPjOmn9pgru/Db7nCQz
+         Q8dCSpnFPkXgymJcshzoaPSTcuO2nR/j8l5XujbEbi6qtcCCO0s+zuF1SjiLQlfeiilx
+         d9JVyVaEoNzSUYShWMBEv843oJ71x5o0gj3U8jjUiKhCsh2mef18m4sGR6qwWASRmr3Q
+         kGwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=kYkoA/GomV2J1R+NfO0IwXHjKjxsC0Vb0ETBF00zbXI=;
-        b=DjypjsQjufpBPLl6CjbdSMw0y3ZhTyJX2SxAjq/rubVMMXAupBFMM64jIw8msXyHrW
-         F/Qlujjn6/ESmw8qlZSvRNqy2BRXcwMsT+EJ0tNVZ4GJ05pWA18Y/ozrGUMCkQI5lCR8
-         3j89SIzOBxCKHZ1t6aEChFHVPM1mvlX6kLqza5houwUj490MyAJ1KyyK0w0OiZJwrhzI
-         IZyMXGVb2KkdwbFeTGYZGdv0ykvsM8bbS4I/JxuQCMHJgFlW0yVZ5dC/8WqWSFmr1nCY
-         Zh5vHPlvxR/P/TGbwC8ldlL6TDRyuuqq3TxkgkvLn1L4MFa1Ahjd371eSA8JAgRMkZF5
-         ZLGQ==
-X-Gm-Message-State: ANoB5pmOHLPoLOGkMeC1ise4FS96A3UoI7T2dXhA/UPLOLQFOp/gJj7/
-        hTCeW7TMPvUdmf3ICOKcR7hnVbhHsaoJ1hRvbcyRfw==
-X-Google-Smtp-Source: AA0mqf7PUjfLOTXJ/tlxRold+GNACKzGQPvC5qgYTBuKsbjof9rmRRzeEIro6Uscs431x2P0gTzIHHNWktmr0hWQxqU=
-X-Received: by 2002:a81:5945:0:b0:369:5494:75c0 with SMTP id
- n66-20020a815945000000b00369549475c0mr30631265ywb.448.1669280068349; Thu, 24
- Nov 2022 00:54:28 -0800 (PST)
+        h=to:subject:message-id:date:from:sender:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=h94amkrgHMvkPfBIkBV1KEw1F9jj2Brnk1qfqW9jmH4=;
+        b=bgQwNSf5fKmHnQuOd1+Ikk0+1CKYWGJlr6p/7a9lZ8cQECfDt51So6e2BEZKF9WrQ3
+         kHQ5cdT8kFHt6pL5DIYn0yYFw1HlRDnOzGn9TN3bt3CmyLZasOns2vBuOdJoDxO6KarD
+         cWSg4sJToFv1G6fjoJL9l13lM+XHUUpSROTZLuF2GDMmJwz7Ctp0fEIvSOqetXVZM2Co
+         o5T2xzSIOL66wp5bU8We+Hkk0y3NPB2l2yGluZKUkm2rJgyX0MZbDKib8NQeEYw1W1YM
+         q1K6QXV81/fmRVLeKk8bOXs++4G3ZrKZTDiR5/U4viLkHoIP+4dmG2fdLdiMAmCvnDN/
+         P6gg==
+X-Gm-Message-State: ANoB5pnDeS31lS1+FCFUVSGulSYeXPh2op8aSlBx6mDz0JFPL3ZQvz1K
+        7pvmgKpj8oBi7KUCS2rJ1LOaWG3IIB70l9ECHaQ=
+X-Google-Smtp-Source: AA0mqf6WL+9SU7VJ8pd/JKNRY0fIAgs4kfkO2zqAefB4p9VFErJ5DJoh7huYxTpzU+q8yKpX7/SeNE6Lcu3HnExJh5g=
+X-Received: by 2002:aa7:dc19:0:b0:461:f94:913 with SMTP id b25-20020aa7dc19000000b004610f940913mr14409883edu.102.1669281154932;
+ Thu, 24 Nov 2022 01:12:34 -0800 (PST)
 MIME-Version: 1.0
-References: <20221123084602.707860461@linuxfoundation.org>
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 24 Nov 2022 14:24:16 +0530
-Message-ID: <CA+G9fYtnHTdCS=RWNULkzENX=mtRrJzc6e++PfeprmFqrQBr9g@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/181] 5.15.80-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Sender: rev.benaldjoseph@gmail.com
+Received: by 2002:a17:906:199a:b0:7ad:c587:feb1 with HTTP; Thu, 24 Nov 2022
+ 01:12:33 -0800 (PST)
+From:   Doris David <mrs.doris.david02@gmail.com>
+Date:   Thu, 24 Nov 2022 01:12:33 -0800
+X-Google-Sender-Auth: bLvkWk9ZBaAymntIAYjKt-XxyTE
+Message-ID: <CALZVc+Tx_8pjGVjnOfYPKvidZobKjOswaVXK0KGiuH7PADPiXw@mail.gmail.com>
+Subject: Re: Greetings My Dear,
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: Yes, score=7.8 required=5.0 tests=ADVANCE_FEE_5_NEW_MONEY,
+        BAYES_80,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        FREEMAIL_FROM,LOTS_OF_MONEY,MONEY_FRAUD_8,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,UNDISC_MONEY autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2a00:1450:4864:20:0:0:0:52b listed in]
+        [list.dnswl.org]
+        *  2.0 BAYES_80 BODY: Bayes spam probability is 80 to 95%
+        *      [score: 0.8471]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [mrs.doris.david02[at]gmail.com]
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        *  0.0 MONEY_FRAUD_8 Lots of money and very many fraud phrases
+        *  3.0 ADVANCE_FEE_5_NEW_MONEY Advance Fee fraud and lots of money
+        *  3.0 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 23 Nov 2022 at 14:59, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.15.80 release.
-> There are 181 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 25 Nov 2022 08:45:20 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.80-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Greetings,
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I sent this mail praying it will find you in a good condition, since I
+myself am in a very critical health condition in which I sleep every
+night  without knowing if I may be alive to see the next day. I am Mrs
+David Doris, a widow suffering from a long time illness. I have
+some funds I  inherited from my late husband, the sum of ($11,000 000
+00) my Doctor told me recently that I have serious sickness which is a
+cancer problem. What disturbs me most is my stroke sickness. Having
+known my condition, I decided to donate this fund to
+a good person that will utilize it the way I am going to instruct
+herein. I need a very Honest God.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+fearing a person who can claim this money and use it for charity
+works, for orphanages, widows and also build schools for less
+privileges that will be named after my late husband if possible and to
+promote the word of God and the effort that the house of God is
+maintained. I do not want a situation where this money will be used in
+an ungodly manner. That's why I'making this decision. I'm not afraid
+of death so I know where I'm going. I accept this decision because I
+do not have any child who will inherit this money after I die. Please
+I want your sincere and urgent answer to know if you will be able to
+execute this project, and I will give you more information on how
+thunder will be transferred to your bank account. I am waiting for
+your reply.
 
-NOTE:
-As other reported arm: allmodconfig build failed due to
-
-rtc: cmos: fix build on non-ACPI platforms
-[ Upstream commit db4e955ae333567dea02822624106c0b96a2f84f ]
-
-Build error:
-drivers/rtc/rtc-cmos.c:1299:13: error: 'rtc_wake_setup' defined but
-not used [-Werror=unused-function]
- 1299 | static void rtc_wake_setup(struct device *dev)
-      |             ^~~~~~~~~~~~~~
-cc1: all warnings being treated as errors
-
-## Build
-* kernel: 5.15.80-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.15.y
-* git commit: 1ac88d934860fc481995accb27454e4fe906d4f6
-* git describe: v5.15.79-182-g1ac88d934860
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15.79-182-g1ac88d934860
-
-## Test Regressions (compared to v5.15.79)
-
-## Metric Regressions (compared to v5.15.79)
-
-## Test Fixes (compared to v5.15.79)
-
-## Metric Fixes (compared to v5.15.79)
-
-## Test result summary
-total: 145866, pass: 126226, fail: 3335, skip: 15985, xfail: 320
-
-## Build Summary
-* arc: 5 total, 5 passed, 0 failed
-* arm: 147 total, 146 passed, 1 failed
-* arm64: 45 total, 43 passed, 2 failed
-* i386: 35 total, 33 passed, 2 failed
-* mips: 27 total, 27 passed, 0 failed
-* parisc: 6 total, 6 passed, 0 failed
-* powerpc: 30 total, 30 passed, 0 failed
-* riscv: 10 total, 10 passed, 0 failed
-* s390: 12 total, 12 passed, 0 failed
-* sh: 12 total, 12 passed, 0 failed
-* sparc: 6 total, 6 passed, 0 failed
-* x86_64: 38 total, 36 passed, 2 failed
-
-## Test suites summary
-* boot
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-breakpoints
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-kvm
-* kselftest-lib
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-openat2
-* kselftest-seccomp
-* kselftest-timens
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simpl
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* perf
-* perf/Zstd-perf.data-compression
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+May God Bless you,
+Mrs David Doris,
