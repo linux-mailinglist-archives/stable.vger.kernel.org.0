@@ -2,135 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC1C16370B8
-	for <lists+stable@lfdr.de>; Thu, 24 Nov 2022 04:03:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BB5F6370B9
+	for <lists+stable@lfdr.de>; Thu, 24 Nov 2022 04:04:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229457AbiKXDD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 22:03:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53202 "EHLO
+        id S229618AbiKXDEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 22:04:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229475AbiKXDD5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 22:03:57 -0500
-Received: from out0.migadu.com (out0.migadu.com [94.23.1.103])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9188C285F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 19:03:56 -0800 (PST)
-Date:   Thu, 24 Nov 2022 12:03:45 +0900
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1669259034;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=h4H4uc+fqB74xMpI0j4ke//JC7+Z9czrxb/2KPqCmJs=;
-        b=xBQtZ5iCvqYUMO41yIkqupPKCwtg0VqwE62wcGaiszFQMdNzrY4czMLwSVL+aTiDRVA4gz
-        95ru1euia8P+R0u8UNC0VWu0eGKe3vKq/rrhQXuYDWWhjPAjNlrLMekey8Y4j6GyCytXrR
-        FtLzZk//yzMCajqW6fkF7m1GdhzkVZc=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Naoya Horiguchi <naoya.horiguchi@linux.dev>
-To:     Yang Shi <shy828301@gmail.com>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        HORIGUCHI =?utf-8?B?TkFPWUEo5aCA5Y+jIOebtOS5nyk=?= 
-        <naoya.horiguchi@nec.com>, Greg KH <gregkh@linuxfoundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        James Houghton <jthoughton@google.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: hwpoison, shmem: fix data lost issue for 5.15.y
-Message-ID: <20221124030345.GA1300899@u2004>
-References: <20221114131403.GA3807058@u2004>
- <Y3JotyM0Flj5ijVW@kroah.com>
- <20221114223900.GA3883066@u2004>
- <Y3LG/+wWSSj6ZYzl@monkey>
- <20221115011646.GA767662@hori.linux.bs1.fc.nec.co.jp>
- <Y31xw1DcqXGx86Fz@monkey>
- <CAHbLzkqhewJ27Er-nuhm18oSZtFxb0BE4a-SvGoZsc5M6+=yxQ@mail.gmail.com>
+        with ESMTP id S229475AbiKXDEP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 22:04:15 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 953CEB7396
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 19:04:14 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id g10so282093plo.11
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 19:04:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=bcMcGUNuoMJuSs4yU8yoVpNsIaTBx96zCmeIIsDGo68=;
+        b=yPb7+/K+P6R9y4XNrvde8BjXxPhUmP5TYP1hWozvBewVNwbjKqlTw2nBWw6o5a1ih0
+         2/YS36mdMqQlntlgtP9Zct3q2QWcQQVBTVyICUUch/yVTQ6HEW5Tq0qix2fu7Ci5hcAP
+         malPow8GUgwKDpsR9YNUOdJzCsLDXGxg0NBnbDbXNJl0rYaff7nXhJ1Kv3wdcsfK7PnE
+         b4MQkApZ/o84FuFyM3+GsrlzP4Iebwye/QaTs8eGZE9Kf/dmrGpzZk7LxqxykJfl0Tua
+         BgbZQffv/lJNVuMRwiH75iTUbXuBeJmrZ3tELFrGTDZQ0FABR8yBhSbBuq42VUqj/wkP
+         HaZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=bcMcGUNuoMJuSs4yU8yoVpNsIaTBx96zCmeIIsDGo68=;
+        b=AqXQVeXm4tcS3nANnpxZqz8CU9NycnKBEUstbiyiQS6/sr+beQ/9oNUQL3Trv9urSf
+         YF4h3BmB68lv47V2Ys/ab8Kc5QtOAzbX9PdYVEbzYazZ6hsoENNsWn/z56Pad6Zx9AqI
+         MtBFDa8W3NanGPo88i0UiyEhA7nFDOZVSPowSRlbc80OjXa3853Mb/4aEM3011kVrYay
+         f0fySRFFajpp+DkIvgp3gt70pVkiTt8WJyCoHFK7H0QwQIv+RWCi7raY0g/YdehPgt0S
+         KDYP156aprJmLjkAgFdJIYSPpI9ZLtLlBLrW4yl74UW3cWdRpRzD+UstMWIvD99IZpLA
+         X6Jw==
+X-Gm-Message-State: ANoB5pmibZ9yLJokm8+dT34aYe9ZEUrUdhBoZuezsXiA86XYB9Z39Dgw
+        lnqb6KtMxzqdGlLvtth4ayD9wIZk4EIuTeSP4RNZiA==
+X-Google-Smtp-Source: AA0mqf5Sti3acIR65O91VlbIeOfWaBO+XNp0ftttQVBhpZKJ5mlNWz3wC9fTxlzrC0bA44RAP1r/uPCUtYKRp9B6b2c=
+X-Received: by 2002:a17:90a:c286:b0:212:2098:fd2f with SMTP id
+ f6-20020a17090ac28600b002122098fd2fmr23316232pjt.162.1669259054027; Wed, 23
+ Nov 2022 19:04:14 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHbLzkqhewJ27Er-nuhm18oSZtFxb0BE4a-SvGoZsc5M6+=yxQ@mail.gmail.com>
-X-Migadu-Flow: FLOW_OUT
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+From:   =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
+Date:   Wed, 23 Nov 2022 21:04:02 -0600
+Message-ID: <CAEUSe7-vBpHrbEy+eQrNZ_LTeqHpn2eQEr3C7cmfNYjK1YL4Ww@mail.gmail.com>
+Subject: Stable backport request: tools and binutils' init_disassemble_info
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     linux- stable <stable@vger.kernel.org>, andres@anarazel.de,
+        Alexei Starovoitov <ast@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>, quentin@isovalent.com,
+        Jiri Olsa <jolsa@kernel.org>, benh@debian.org,
+        Daniel Borkmann <daniel@iogearbox.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 23, 2022 at 10:54:15AM -0800, Yang Shi wrote:
-> On Tue, Nov 22, 2022 at 5:05 PM Mike Kravetz <mike.kravetz@oracle.com> wrote:
-> >
-> > On 11/15/22 01:16, HORIGUCHI NAOYA(堀口 直也) wrote:
-> > > On Mon, Nov 14, 2022 at 02:53:51PM -0800, Mike Kravetz wrote:
-> > > > On 11/15/22 07:39, Naoya Horiguchi wrote:
-> > > > > On Mon, Nov 14, 2022 at 05:11:35PM +0100, Greg KH wrote:
-> > > > > > On Mon, Nov 14, 2022 at 10:14:03PM +0900, Naoya Horiguchi wrote:
-> > > > > > > Hi,
-> > > > > > >
-> > > > > > > I'd like to request the follow commits to be backported to 5.15.y.
-> > > > > > >
-> > > > > > > - dd0f230a0a80 ("mm: hwpoison: refactor refcount check handling")
-> > > > > > > - 4966455d9100 ("mm: hwpoison: handle non-anonymous THP correctly")
-> > > > > > > - a76054266661 ("mm: shmem: don't truncate page if memory failure happens")
-> > > > > > >
-> > > > > > > These patches fixed a data lost issue by preventing shmem pagecache from
-> > > > > > > being removed by memory error.  These were not tagged for stable originally,
-> > > > > > > but that's revisited recently.
-> > > > > >
-> > > > > > And have you tested that these all apply properly (and in which order?)
-> > > > >
-> > > > > Yes, I've checked that these cleanly apply (without any change) on
-> > > > > 5.15.78 in the above order (i.e. dd0f23 is first, 496645 comes next,
-> > > > > then a76054).
-> > > > >
-> > > > > > and work correctly?
-> > > > >
-> > > > > Yes, I ran related testcases in my test suite, and their status changed
-> > > > > FAIL to PASS with these patches.
-> > > >
-> > > > Hi Naoya,
-> > > >
-> > > > Just curious if you have plans to do backports for earlier releases?
-> > >
-> > > I didn't have a clear plan.  I just thought that we should backport to
-> > > earlier kernels if someone want and the patches are applicable easily
-> > > enough and well-tested.
-> > >
-> > > >
-> > > > If not, I can start that effort.  We have seen data loss/corruption because of
-> > > > this on a 4.14 based release.   So, I would go at least that far back.
-> > >
-> > > Thank you for raising hand, that's really helpful.
-> > >
-> > > Maybe dd0f230a0a80 ("[PATCH] hugetlbfs: don't delete error page from
-> > > pagecbache") should be considered to backport together, because it's
-> > > the similar issue and reported (a while ago) to fail to backport.
-> > > dd0f230a0a80 does not apply cleanly on top of 5.15.78 + the above 3 patches.
-> > > So I need check more and will update my current proposal for 5.15.y.
-> >
-> > When working with 5.10.y, I noticed that commit eac96c3efdb5 ("mm: filemap:
-> > check if THP has hwpoisoned subpage for PMD page fault") as well as the
-> > prereq commit c7cb42e94473 ("mm: hwpoison: remove the unnecessary THP check")
-> > were not backported to 5.10.y.  Without those patches, THP testing will
-> > fail.
-> >
-> > Naoya and Yang Shi, does that sound right?
->
-> Yes, since the hwpoisoned THP will be kept in page cache so the page
-> fault may happen on it again, without that commit the page fault won't
-> return -EHWPOISON if I remember correctly.
->
-> >
-> > I have backports for those as well but want to check if you think
-> > anything else is needed.
->
-> Thanks for backporting them. No more fix is needed AFAICT.
+Hello!
 
-I agree with Yang.  There seems no other commit related to current
-pagecache problem but not backported yet.
+Would the stable maintainers please consider backporting the following
+series of patches?:
+https://lore.kernel.org/lkml/20220801013834.156015-1-andres@anarazel.de/
 
-Thanks,
-Naoya Horiguchi
+Branches where this is needed are:
+* 5.4
+* 5.10
+* 5.15
+
+Branch 6.0.y is fine, as this series is present there.
+
+Failure is seen in this form:
+
+-----8<----------8<----------8<-----
+util/annotate.c: In function 'symbol__disassemble_bpf':
+util/annotate.c:1739:9: error: too few arguments to function
+'init_disassemble_info'
+ 1739 |         init_disassemble_info(&info, s,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+In file included from util/annotate.c:1692:
+/usr/include/dis-asm.h:472:13: note: declared here
+  472 | extern void init_disassemble_info (struct disassemble_info
+*dinfo, void *stream,
+      |             ^~~~~~~~~~~~~~~~~~~~~
+make[4]: *** [/builds/linux/tools/build/Makefile.build:96:
+/home/tuxbuild/.cache/tuxmake/builds/1/build/util/annotate.o] Error 1
+----->8---------->8---------->8-----
+
+The 5.15 backport is almost straight-forward, with patches 7 and 8
+requiring some small modifications. I could not get the 5.10 backport
+to build, and for 5.4 it was even more difficult to adapt.
+
+Thanks and greetings!
+
+Daniel D=C3=ADaz
+daniel.diaz@linaro.org
