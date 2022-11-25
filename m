@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A98C638CFD
-	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 16:06:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7334A638D05
+	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 16:07:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230252AbiKYPGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Nov 2022 10:06:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59586 "EHLO
+        id S230243AbiKYPG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Nov 2022 10:06:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230226AbiKYPGo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Nov 2022 10:06:44 -0500
+        with ESMTP id S230264AbiKYPGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Nov 2022 10:06:48 -0500
 Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F6A429A3;
-        Fri, 25 Nov 2022 07:06:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB2294219C;
+        Fri, 25 Nov 2022 07:06:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1669388803; x=1700924803;
+  t=1669388806; x=1700924806;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=sc7yv6l7w+mdzUT7XAZNvCklCr0OubkKRD1No7y/EJw=;
-  b=CwbWYN700bMLz9hiFeOYaSKqPAak5YM7mm2F0+u+NlwyGaNme2NwvGGz
-   Vrr5uGPzkSxQhEtLG+ti+/TkY7pWUAJ6Lfqb+rurL2hjAKsSblUr5QvC5
-   AHgEvw0+00yQGXJKQrDBsnii7bS4ceS+Q/XlfkazWRMtKQifHRcugvOjB
-   0gQh3snOuQamBkFkLhGTwJNcQqHR3F3hHdzsGUj4YCWzl8YZcT5NNdudj
-   KfElkPCoDN0L6r7vAkZt9gN0kKxfF2qu+no26wnw68iv7emiB1Wxp/x6n
-   r4jL8oYElExjJJ15J3BRXTlhUOviWepKmDkICPJFs927ieEE5uq9J4gke
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10542"; a="294881040"
+  bh=tGKyZdK+/g+LspCoOlXFm4pHY90Rxp2oIWc2gtPMg2Y=;
+  b=oF9LM0vGuP9PO2VmagPkN1tlczoCnxSLPoFd2L8KwZtKF+M4mu5Xwxkb
+   n5xIWxRlwljyAsephcmPsvEFuCJBbyy64n+I6NF+BJI+w8vP9pUtDwVr+
+   PYPooyD7qW6WA+/3sVs0zQqxuOySzrO48JKnVD7OlFnKYR9PS1me4li71
+   KUtQpkAYbg1aJMnuo7TwU3snN4synFzVvCxtH8+6kbClVGwXYWOzFUTcx
+   72kCNOzjkEHNqSNSbHg+xQW7817rjQmFJy3l8xHuvUJHf2MQ9KR1FKzqd
+   liLv4CL43ct1AmYFBfrXynCCBLQmbuEyQf71LMHsv9fG+hdi7p5leg/kw
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10542"; a="294881049"
 X-IronPort-AV: E=Sophos;i="5.96,193,1665471600"; 
-   d="scan'208";a="294881040"
+   d="scan'208";a="294881049"
 Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2022 07:06:43 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10542"; a="593240289"
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2022 07:06:46 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10542"; a="593240292"
 X-IronPort-AV: E=Sophos;i="5.96,193,1665471600"; 
-   d="scan'208";a="593240289"
+   d="scan'208";a="593240292"
 Received: from unknown (HELO localhost.localdomain.bj.intel.com) ([10.240.193.73])
-  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2022 07:06:41 -0800
+  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2022 07:06:43 -0800
 From:   Zhu Lingshan <lingshan.zhu@intel.com>
 To:     jasowang@redhat.com, mst@redhat.com
 Cc:     virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
         hang.yuan@intel.com, piotr.uminski@intel.com,
         Zhu Lingshan <lingshan.zhu@intel.com>, stable@vger.kernel.org
-Subject: [PATCH V2 08/12] vDPA/ifcvf: ifcvf_request_irq works on ifcvf_hw
-Date:   Fri, 25 Nov 2022 22:57:20 +0800
-Message-Id: <20221125145724.1129962-9-lingshan.zhu@intel.com>
+Subject: [PATCH V2 09/12] vDPA/ifcvf: manage ifcvf_hw in the mgmt_dev
+Date:   Fri, 25 Nov 2022 22:57:21 +0800
+Message-Id: <20221125145724.1129962-10-lingshan.zhu@intel.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20221125145724.1129962-1-lingshan.zhu@intel.com>
 References: <20221125145724.1129962-1-lingshan.zhu@intel.com>
@@ -59,40 +59,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-All ifcvf_request_irq's callees are refactored
-to work on ifcvf_hw, so it should be decoupled
-from the adapter as well
+This commit allocates the hw structure in the
+management device structure. So the hardware
+can be initialized once the management device
+is allocated in probe.
 
 Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 Cc: stable@vger.kernel.org
 ---
- drivers/vdpa/ifcvf/ifcvf_main.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/vdpa/ifcvf/ifcvf_base.h | 5 +++--
+ drivers/vdpa/ifcvf/ifcvf_main.c | 7 ++++---
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
+index e1fe947d61b7..25bd4e927b27 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_base.h
++++ b/drivers/vdpa/ifcvf/ifcvf_base.h
+@@ -39,7 +39,7 @@
+ #define IFCVF_INFO(pdev, fmt, ...)	dev_info(&pdev->dev, fmt, ##__VA_ARGS__)
+ 
+ #define ifcvf_private_to_vf(adapter) \
+-	(&((struct ifcvf_adapter *)adapter)->vf)
++	(((struct ifcvf_adapter *)adapter)->vf)
+ 
+ /* all vqs and config interrupt has its own vector */
+ #define MSIX_VECTOR_PER_VQ_AND_CONFIG		1
+@@ -95,7 +95,7 @@ struct ifcvf_hw {
+ struct ifcvf_adapter {
+ 	struct vdpa_device vdpa;
+ 	struct pci_dev *pdev;
+-	struct ifcvf_hw vf;
++	struct ifcvf_hw *vf;
+ };
+ 
+ struct ifcvf_vring_lm_cfg {
+@@ -110,6 +110,7 @@ struct ifcvf_lm_cfg {
+ 
+ struct ifcvf_vdpa_mgmt_dev {
+ 	struct vdpa_mgmt_dev mdev;
++	struct ifcvf_hw vf;
+ 	struct ifcvf_adapter *adapter;
+ 	struct pci_dev *pdev;
+ };
 diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index 8320bdacace8..cb3df395d3fb 100644
+index cb3df395d3fb..b6f5f7a3a767 100644
 --- a/drivers/vdpa/ifcvf/ifcvf_main.c
 +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -314,9 +314,8 @@ static int ifcvf_request_config_irq(struct ifcvf_hw *vf)
- 	return -EFAULT;
+@@ -402,7 +402,7 @@ static struct ifcvf_hw *vdpa_to_vf(struct vdpa_device *vdpa_dev)
+ {
+ 	struct ifcvf_adapter *adapter = vdpa_to_adapter(vdpa_dev);
+ 
+-	return &adapter->vf;
++	return adapter->vf;
  }
  
--static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
-+static int ifcvf_request_irq(struct ifcvf_hw *vf)
- {
--	struct ifcvf_hw *vf = &adapter->vf;
- 	int nvectors, ret, max_intr;
+ static u64 ifcvf_vdpa_get_device_features(struct vdpa_device *vdpa_dev)
+@@ -750,7 +750,7 @@ static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 		return -EOPNOTSUPP;
  
- 	nvectors = ifcvf_alloc_vectors(vf);
-@@ -468,7 +467,7 @@ static void ifcvf_vdpa_set_status(struct vdpa_device *vdpa_dev, u8 status)
+ 	adapter = ifcvf_mgmt_dev->adapter;
+-	vf = &adapter->vf;
++	vf = adapter->vf;
+ 	pdev = adapter->pdev;
+ 	vdpa_dev = &adapter->vdpa;
  
- 	if ((status & VIRTIO_CONFIG_S_DRIVER_OK) &&
- 	    !(status_old & VIRTIO_CONFIG_S_DRIVER_OK)) {
--		ret = ifcvf_request_irq(adapter);
-+		ret = ifcvf_request_irq(vf);
- 		if (ret) {
- 			status = ifcvf_get_status(vf);
- 			status |= VIRTIO_CONFIG_S_FAILED;
+@@ -838,10 +838,11 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
+ 	ifcvf_mgmt_dev->adapter = adapter;
+ 
+-	vf = &adapter->vf;
++	vf = &ifcvf_mgmt_dev->vf;
+ 	vf->dev_type = get_dev_type(pdev);
+ 	vf->base = pcim_iomap_table(pdev);
+ 	vf->pdev = pdev;
++	adapter->vf = vf;
+ 
+ 	ret = ifcvf_init_hw(vf, pdev);
+ 	if (ret) {
 -- 
 2.31.1
 
