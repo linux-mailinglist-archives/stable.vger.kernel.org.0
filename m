@@ -2,111 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E6D3638297
-	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 04:02:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 608956382E3
+	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 04:53:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbiKYDC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Nov 2022 22:02:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32820 "EHLO
+        id S229436AbiKYDxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Nov 2022 22:53:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbiKYDC4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Nov 2022 22:02:56 -0500
-X-Greylist: delayed 2915 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 24 Nov 2022 19:02:55 PST
-Received: from level.ms.sapientia.ro (mail.ms.sapientia.ro [193.16.218.95])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 80C941F612
-        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 19:02:55 -0800 (PST)
-Received: from localhost (level.ms.sapientia.ro [127.0.0.1])
-        by level.ms.sapientia.ro (Postfix) with ESMTP id 58771FAEA57;
-        Fri, 25 Nov 2022 03:21:29 +0200 (EET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 level.ms.sapientia.ro 58771FAEA57
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ms.sapientia.ro;
-        s=default; t=1669339289;
-        bh=JhoFTZyH7NV7eGe2T47ydbyz5xrk1QXnWQdNieuDhbs=;
-        h=Date:From:To:Subject:Reply-To:From;
-        b=pey7aCijrCj6bngv0slwZAGAdknGRnvLGZvu/wFMhUf5+LV6KZS6XkzHbVlIb7w/P
-         K0lvcuJf3UtibqkyxTuN0T3P6UtixbLxcBlWRuQqTI5D2A/bOnmL33qW19lLQhI4kF
-         iW5eI3TCRo5XlVe2BW1n2NjERxn8SxfJDGyf7WvY=
-X-Virus-Scanned: by B3 SapScan
-Received: from level.ms.sapientia.ro ([127.0.0.1])
-        by localhost (level.ms.sapientia.ro [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id I5RbvZdS8YmV; Fri, 25 Nov 2022 03:21:26 +0200 (EET)
-Received: from level.ms.sapientia.ro (level.ms.sapientia.ro [127.0.0.1])
-        by level.ms.sapientia.ro (Postfix) with ESMTPSA id 338F06FBE154;
-        Fri, 25 Nov 2022 03:19:18 +0200 (EET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 level.ms.sapientia.ro 338F06FBE154
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ms.sapientia.ro;
-        s=default; t=1669339161;
-        bh=JhoFTZyH7NV7eGe2T47ydbyz5xrk1QXnWQdNieuDhbs=;
-        h=Date:From:To:Subject:Reply-To:From;
-        b=aIVllG9fQpDvVyrwx5W9bxa74ySF/t8D1y8rNIKks4kvHBeDVVictZb5NfVq6MYQd
-         CPaQ05WVl7cw2sSQ2ooeu7uRad0gBZuSGLbY8edrLQCNT8Zy7Cri0mG3SuF4XPVHVH
-         Ivqfn+ynZWExqpG6wpV+dQiNla6J6B8P+1R4th2g=
+        with ESMTP id S229450AbiKYDxD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Nov 2022 22:53:03 -0500
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEAD92649C;
+        Thu, 24 Nov 2022 19:53:02 -0800 (PST)
+Received: by mail-pj1-x1031.google.com with SMTP id k5so2669718pjo.5;
+        Thu, 24 Nov 2022 19:53:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=FnlmNyQzk9MfR9lWgUpnq90vysCJsC3WalO4HSAXleM=;
+        b=PBzZtvYp6fpf1e9LRotvK9p5aMHF+3kIrQv8vKMz+Bwdyvm7eOwcplPYqERqNWj3W8
+         pq3hrvGAFzF5EsgUqwGjIEWBn+ecq1tnv42MJ+iR8Ci4v8Qfe9PWc8OcvL62+1w3gNcT
+         AxS7FPWM4qvFSXSfyG3Bx5hQ4bTi1pwPO/sZ1ldmhKyBfNMLDYGss20TdVa6cX0+ijm1
+         3MJ7HLKTRTPXFBPYQHDx8/3FEt3MS/Hff7G37KFYqFYpEWq2zmMZsf3kSb0Cl61mcmIc
+         3H9j3uUjM1qRr9/6l4/0v1XvzqCAR1Q/Zim0WOrDyh63UIYl6XnSRIkbdvM1pc2HoTby
+         ignw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=FnlmNyQzk9MfR9lWgUpnq90vysCJsC3WalO4HSAXleM=;
+        b=d9JVqqeE10cU5G77bougA711FKklIV83IDf28Wmxroo/yFJgzzYCH8jWPPUaumieOV
+         fslAEou4UcRL1vbcx6Eor4M4QKRPJAXMA3UhQbgu9q5hPP6+SOQ85QHbYmdgfCEIGzIB
+         /TD5MJ9s/JJc38ht7CFATqbuki8yHWM17KODdFOF1sdvOAAM+SfsL9n1x0aSW4CHPFwC
+         gaZoS8HL6ELCHeuHQ5QJblj4MkN+pOBjtCNKzWOVmSFMvS+WfkOc1nuTSRkvfQN3nojg
+         Gw4e5HsyR/uLvsSUt5QbbCCydSQOR9f5cCBWI754l6MFhIdFUPQGe7V0wpJodzvYyICy
+         XWTQ==
+X-Gm-Message-State: ANoB5pm4atl48HFsX0Be7cdn/s8Q63ZctiGq0rg9pbhJowuKgHmIYY1x
+        ABzXNts7MCss49WUWFuhL7E=
+X-Google-Smtp-Source: AA0mqf6/l3elvhemFsSxaWsFo42/+sUNA12CqR32uYhC8otcVLe/SNcx75MBLVPdZuFN2Rp9l5dk2g==
+X-Received: by 2002:a17:90a:d3ce:b0:218:7a66:64b9 with SMTP id d14-20020a17090ad3ce00b002187a6664b9mr35924059pjw.85.1669348382330;
+        Thu, 24 Nov 2022 19:53:02 -0800 (PST)
+Received: from ?IPV6:2600:8801:1c8b:7b00:adfe:487d:e345:f456? ([2600:8801:1c8b:7b00:adfe:487d:e345:f456])
+        by smtp.googlemail.com with ESMTPSA id k1-20020a170902c40100b00186c54188b4sm2125968plk.240.2022.11.24.19.53.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 24 Nov 2022 19:53:01 -0800 (PST)
+Message-ID: <2a367ac4-ba67-0d48-39e1-19ae5402f75d@gmail.com>
+Date:   Thu, 24 Nov 2022 19:52:59 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.13.1
+Subject: Re: [PATCH net] ipv4: Fix route deletion when nexthop info is not
+ specified
+Content-Language: en-US
+To:     Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+        edumazet@google.com, razor@blackwall.org, jonas.gorski@gmail.com,
+        mlxsw@nvidia.com, stable@vger.kernel.org
+References: <20221124210932.2470010-1-idosch@nvidia.com>
+From:   David Ahern <dsahern@gmail.com>
+In-Reply-To: <20221124210932.2470010-1-idosch@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Date:   Fri, 25 Nov 2022 02:19:17 +0100
-From:   Lukas <csaki.ildiko@ms.sapientia.ro>
-To:     undisclosed-recipients:;
-Subject: Please Review
-Reply-To: lukas@marineinzynieriagleam-jobs.com
-Mail-Reply-To: lukas@marineinzynieriagleam-jobs.com
-Message-ID: <ec618ed45b80e7d1035797d69c474f2f@ms.sapientia.ro>
-X-Sender: csaki.ildiko@ms.sapientia.ro
-User-Agent: Roundcube Webmail/1.3.4
-X-Spam-Status: No, score=3.9 required=5.0 tests=ADVANCE_FEE_3_NEW_MONEY,
-        BAYES_50,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,LOTS_OF_MONEY,
-        MONEY_FRAUD_5,NA_DOLLARS,SPF_HELO_PASS,SPF_PASS,UNDISC_MONEY,
-        XFER_LOTSA_MONEY autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ***
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello friend,
+On 11/24/22 2:09 PM, Ido Schimmel wrote:
+> When the kernel receives a route deletion request from user space it
+> tries to delete a route that matches the route attributes specified in
+> the request.
+> 
+> If only prefix information is specified in the request, the kernel
+> should delete the first matching FIB alias regardless of its associated
+> FIB info. However, an error is currently returned when the FIB info is
+> backed by a nexthop object:
+> 
+>  # ip nexthop add id 1 via 192.0.2.2 dev dummy10
+>  # ip route add 198.51.100.0/24 nhid 1
+>  # ip route del 198.51.100.0/24
+>  RTNETLINK answers: No such process
+> 
+> Fix by matching on such a FIB info when legacy nexthop attributes are
+> not specified in the request. An earlier check already covers the case
+> where a nexthop ID is specified in the request.
+> 
+> Add tests that cover these flows. Before the fix:
+> 
+>  # ./fib_nexthops.sh -t ipv4_fcnal
+>  ...
+>  TEST: Delete route when not specifying nexthop attributes           [FAIL]
+> 
+>  Tests passed:  11
+>  Tests failed:   1
+> 
+> After the fix:
+> 
+>  # ./fib_nexthops.sh -t ipv4_fcnal
+>  ...
+>  TEST: Delete route when not specifying nexthop attributes           [ OK ]
+> 
+>  Tests passed:  12
+>  Tests failed:   0
+> 
+> No regressions in other tests:
+> 
+>  # ./fib_nexthops.sh
+>  ...
+>  Tests passed: 228
+>  Tests failed:   0
+> 
+>  # ./fib_tests.sh
+>  ...
+>  Tests passed: 186
+>  Tests failed:   0
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: Jonas Gorski <jonas.gorski@gmail.com>
+> Tested-by: Jonas Gorski <jonas.gorski@gmail.com>
+> Fixes: 493ced1ac47c ("ipv4: Allow routes to use nexthop objects")
+> Fixes: 6bf92d70e690 ("net: ipv4: fix route with nexthop object delete warning")
+> Fixes: 61b91eb33a69 ("ipv4: Handle attempt to delete multipath route when fib_info contains an nh reference")
+> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+> ---
+>  net/ipv4/fib_semantics.c                    |  8 +++++---
+>  tools/testing/selftests/net/fib_nexthops.sh | 11 +++++++++++
+>  2 files changed, 16 insertions(+), 3 deletions(-)
+> 
 
-I am writing to you on behalf of my client Mr. Yusuf Habib. My name is 
-Lukas, I am an investment portfolio Manager at MetLife, and my client 
-(Mr. Yusuf Habib) has a large sum of money and he is looking for someone 
-to help him manage the funds.
+Reviewed-by: David Ahern <dsahern@kernel.org>
 
-The Saudi government filed charges against my-client Mr. Yusuf Habib 
-with the aim of keeping him in prison indefinitely. A variety of local 
-and foreign politicians, civil activists, and journalists consider the 
-process leading to the imprisonment of Mr. Yusuf to be politically 
-motivated. My client's involvement and financial support for Jamal Ahmad 
-Khashoggi posed the most challenge ever to Mohammed bin Salman Al Saud 
-who happens to be the current Crown Prince of Saudi Arabia. The money is 
-currently deposited in the name of an existing Investment entity.
 
-My client Mr. Yusuf Habib has presented a subtle offer that will need 
-the help of a partner like you to complete successfully. Mr. Yusuf Habib 
-is in a difficult situation, and he must immediately relocate certain 
-sums of money and this must be done in such a way that it must not be 
-tied to Mr. Yusuf Habib. The money is currently deposited in the name of 
-an existing Investment entity.
-Your role will be to:
-
-[1]. Act as the original beneficiary of the funds.
-[2]. Receive the funds into a business / private bank account.
-[3]. Invest / Manage the funds outside of Turkey
-[4]. Value of funds: 35 million US Dollars.
-
-See the website below to understand better the problem Mr. Yusuf Habib 
-faced all these past years:
-
-Everything will be done legally to ensure the rights to the funds are 
-transferred to you. If you agree to partner with Mr. Yusuf Habib in this 
-partnership business proposal, he will compensate you with 35% percent 
-of the total sum.
-Terms will be discussed when you show interest and if you aren't 
-interested and you know of someone looking for an investor, please give 
-him / her my contact.
-
-Should you prefer I re-contact you with more express facts. Then make 
-your interest known.
-
-Sincerely,
-Lukas.
