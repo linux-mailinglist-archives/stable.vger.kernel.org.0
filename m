@@ -2,70 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8B49638705
-	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 11:06:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E2CE638709
+	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 11:07:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229795AbiKYKGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Nov 2022 05:06:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59988 "EHLO
+        id S229762AbiKYKHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Nov 2022 05:07:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229762AbiKYKGD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Nov 2022 05:06:03 -0500
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B652227FD5
-        for <stable@vger.kernel.org>; Fri, 25 Nov 2022 02:06:01 -0800 (PST)
-Received: by mail-pl1-x635.google.com with SMTP id d6so3570230pll.7
-        for <stable@vger.kernel.org>; Fri, 25 Nov 2022 02:06:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=m6praLfBbS2+v6pmrTFqmzI9Vs0quL3UEZkZOQoQ1G4=;
-        b=ImpJVA1ZOkuP71vPXn3QRVrmlkdweoh5MMSXujD0XjeeV196SugvptennGAxqtOtXw
-         d7GsNDRR1MfMzDxaQ5faSRb6EpvqOKHVkOCxjUDQX5/uJ8WpTYd26h6/7a1B/VX+U8Xr
-         OQVR0qw7C33kFk7WFveWR0IB7XhBT+PGqibXbMT96QNM/yVWYqajZYjdVyfcLeDF2KEP
-         IPPxLcn/MyA55wk30SN0mziNVHzEq3CG6XQGscuaJ0gqSFyvk+ufMpy+Qo921uL6erLW
-         tTsaEXALnaXYffaJrKcrmhtAECR64lrepPz+xIU2GcmezUeFouhBvyDrpNYV9Lo0Zc9V
-         Yx3A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=m6praLfBbS2+v6pmrTFqmzI9Vs0quL3UEZkZOQoQ1G4=;
-        b=X9VCOo0rz1hlVRZBybhQdSNWdeFBMbUemYaYrJyH0r5VqeOqmvNibUP9Le/y+GKetN
-         VmgCiDzfoJo0EZgzl8o61UxNOKAU2CMC/CcM7PV2pxBVBh8Ng585kChUh+sKlPcHfGeY
-         qVKn76t4UleJ5fkJVCHNJWQcia6YnsN9u61UIZW46lK1Mq8okZLjwS6jTsOASzjnX+sC
-         L862PwK2N2pAK9kTolzfjcrsLKEvNIk3H4iJHBpU3MpclWeQICuCh6LxeGQgiXJXKIdB
-         eBRqKvpafH7eeb7AnZwaXCP6YHzPW9hErsq03B22LXyAhPuvTxKaNn5XFvafYrx8VZvN
-         zHHg==
-X-Gm-Message-State: ANoB5plLn1r6HUq29b6Zq3aH7ZoQ7j4cVYcs+ysJF6usd87iYbd4zWRP
-        tEIfS0CPOp5k5Xok0pngbo8YPzbd2EFNsHlMEBJalF6D66nT+3Dc
-X-Google-Smtp-Source: AA0mqf7NmSr60u1dmaFmBU2qRnGytlIU5rIrbfX2au0fwOaPjesO9nDK19/ZT7ao84id2lJtxOyyDAETVR+i/SFdOQ8=
-X-Received: by 2002:a17:902:9882:b0:188:7a1f:fb18 with SMTP id
- s2-20020a170902988200b001887a1ffb18mr18763087plp.0.1669370760989; Fri, 25 Nov
- 2022 02:06:00 -0800 (PST)
+        with ESMTP id S229568AbiKYKHU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Nov 2022 05:07:20 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE4E27FD5;
+        Fri, 25 Nov 2022 02:07:19 -0800 (PST)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1oyVc4-0007KE-Kv; Fri, 25 Nov 2022 11:07:16 +0100
+Message-ID: <fb66eabd-d0e5-ea15-5705-c2f95a98c3ac@leemhuis.info>
+Date:   Fri, 25 Nov 2022 11:07:15 +0100
 MIME-Version: 1.0
-Received: by 2002:a17:522:a604:b0:496:1699:2035 with HTTP; Fri, 25 Nov 2022
- 02:06:00 -0800 (PST)
-From:   Bc 10 <kubusik.berek@gmail.com>
-Date:   Fri, 25 Nov 2022 12:06:00 +0200
-Message-ID: <CABLWfbjcdZ4Uh3Yty7WXa7oCBVCddymPXZ8qjYbe8N-FAidS-w@mail.gmail.com>
-Subject: Fw:MICROSOFT PROMOTION 2013
-To:     stable <stable@vger.kernel.org>,
-        stacey mcpherson <stacey.mcpherson@amaisd.org>,
-        stacey tyson <stacey.tyson@morgan.edu>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=2.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SHORT_SHORTNER,SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,
-        T_PDS_SHORTFWD_URISHRT_FP,T_TONOM_EQ_TOLOC_SHRT_SHRTNER autolearn=no
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+Subject: Re: [PATCH net] ipv4: Fix route deletion when nexthop info is not
+ specified
+Content-Language: en-US, de-DE
+To:     Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+        edumazet@google.com, dsahern@gmail.com, razor@blackwall.org,
+        jonas.gorski@gmail.com, mlxsw@nvidia.com, stable@vger.kernel.org
+References: <20221124210932.2470010-1-idosch@nvidia.com>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <20221124210932.2470010-1-idosch@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1669370839;68fbbcc8;
+X-HE-SMSGID: 1oyVc4-0007KE-Kv
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
-X-Spam-Level: **
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Almost all problems should depart because of this https://bit.ly/3gAQnJC
- Yours truly,MICROSOFT PROMOTION 2013
+Hi, this is your Linux kernel regression tracker.
+
+On 24.11.22 22:09, Ido Schimmel wrote:
+> When the kernel receives a route deletion request from user space it
+> tries to delete a route that matches the route attributes specified in
+> the request.
+> [...]
+ > Cc: stable@vger.kernel.org
+> Reported-by: Jonas Gorski <jonas.gorski@gmail.com>
+
+Many thx for taking care of this. There is one small thing to improve,
+please add the following tags here:
+
+Link:
+https://lore.kernel.org/r/CAOiHx==ddZr6mvvbzgoAwwhJW76qGNVOcNsTG-6m79Ch%2B=aA5Q@mail.gmail.com/
+
+To explain: Linus[1] and others considered proper link tags in cases
+like important, as they allow anyone to look into the backstory weeks or
+years from now. That why they should be placed here, as outlined by the
+documentation[2]. I care personally, because these tags make my
+regression tracking efforts a whole lot easier, as they allow my
+tracking bot 'regzbot' to automatically connect reports with patches
+posted or committed to fix tracked regressions.
+
+Apropos regzbot, let me tell regzbot to monitor this thread:
+
+#regzbot ^backmonitor:
+https://lore.kernel.org/r/CAOiHx==ddZr6mvvbzgoAwwhJW76qGNVOcNsTG-6m79Ch%2B=aA5Q@mail.gmail.com/
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+
+P.S.: As the Linux kernel's regression tracker I deal with a lot of
+reports and sometimes miss something important when writing mails like
+this. If that's the case here, don't hesitate to tell me in a public
+reply, it's in everyone's interest to set the public record straight.
+
+[1] for details, see:
+https://lore.kernel.org/all/CAHk-=wjMmSZzMJ3Xnskdg4+GGz=5p5p+GSYyFBTh0f-DgvdBWg@mail.gmail.com/
+https://lore.kernel.org/all/CAHk-=wgs38ZrfPvy=nOwVkVzjpM3VFU1zobP37Fwd_h9iAD5JQ@mail.gmail.com/
+https://lore.kernel.org/all/CAHk-=wjxzafG-=J8oT30s7upn4RhBs6TX-uVFZ5rME+L5_DoJA@mail.gmail.com/
+
+[2] see Documentation/process/submitting-patches.rst
+(http://docs.kernel.org/process/submitting-patches.html) and
+Documentation/process/5.Posting.rst
+(https://docs.kernel.org/process/5.Posting.html)
