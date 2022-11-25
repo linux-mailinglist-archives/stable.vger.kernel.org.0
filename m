@@ -2,145 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F5986380E7
-	for <lists+stable@lfdr.de>; Thu, 24 Nov 2022 23:29:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81C666381E9
+	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 01:29:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229555AbiKXW3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Nov 2022 17:29:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40394 "EHLO
+        id S229645AbiKYA3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Nov 2022 19:29:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229455AbiKXW3Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Nov 2022 17:29:16 -0500
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09ADB8FB0A;
-        Thu, 24 Nov 2022 14:29:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1669328951; x=1700864951;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=RCRRDp08lZIx9uPRpzFvsZ4CNT2lsbwsHsXdZTgGwTE=;
-  b=bsWpOpWy4zovYpWqxnSMAbSBcpGFtV0aSxR5lOEMh/06mKWobS/zgvZS
-   GsP69ch6N+DeaAzRKyZhdVq9AFlp0c/FhYihJiUXakYdhPThk8TwbDly0
-   H8gU/EPsFKIgOvvhsrxuDzQQEGj/7LnaKD51BaCzKZZJeGfnjcJ1e9xlP
-   OKvrjw4IR6eYTuLPEKBc4dgaTwyRBydvpszrr3Iml4g3Gn1H+hUGVKRTh
-   FnuewuSzviPdj2/fIqGy2YHl4Iduoe8sBp6V3G678fU0yRHswKBMStdxn
-   j48n+ApEFZ9xLVfiAGNHl9CUbuadZEJZPO5KaoyEKFCJxGf9h76S9dqkl
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10541"; a="314407970"
-X-IronPort-AV: E=Sophos;i="5.96,191,1665471600"; 
-   d="scan'208";a="314407970"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Nov 2022 14:29:11 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10541"; a="644608935"
-X-IronPort-AV: E=Sophos;i="5.96,191,1665471600"; 
-   d="scan'208";a="644608935"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga007.fm.intel.com with ESMTP; 24 Nov 2022 14:29:09 -0800
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 604B9128; Fri, 25 Nov 2022 00:29:35 +0200 (EET)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andy@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        stable@vger.kernel.org, Dale Smith <dalepsmith@gmail.com>,
-        John Harris <jmharris@gmail.com>
-Subject: [PATCH v1 1/1] pinctrl: intel: Save and restore pins in "direct IRQ" mode
-Date:   Fri, 25 Nov 2022 00:29:26 +0200
-Message-Id: <20221124222926.72326-1-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S229613AbiKYA3N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Nov 2022 19:29:13 -0500
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 429A474AA4
+        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 16:29:11 -0800 (PST)
+Received: by mail-ot1-x32f.google.com with SMTP id p27-20020a056830319b00b0066d7a348e20so1766298ots.8
+        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 16:29:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rTkWTJr+jVo44z0ToVSWhOX33FwS2vLhzhC45GxZgmU=;
+        b=Qdjl+pr+iIz3S+2tn1Q0JU7ziR4GJ03sr352O+F4nFNUm1ZTG52sYXAn95iZZhHWA2
+         vfyvvqmSy/GXOB8bIDWNZaol5ovJUTOs+XSMPsjBBdwVwt5nfJGp+M/DyGLj3qCbT6nF
+         MIuRFfqjJ3qVcCymi6VGzNg03Rj4i/w1QMoF0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=rTkWTJr+jVo44z0ToVSWhOX33FwS2vLhzhC45GxZgmU=;
+        b=BNHmWk+AHhV42C+WeAzhIW9cpG+YKLLqdlsxew3IG5INsKJyc62aX6IiJZvpEKwTCB
+         HIBjatRNFdICfrRiMvArq/NZQfO5paibmqnydowYszzduu+1OXgxGpvCVxtnDTMuvsIE
+         AW3/oMEhBWhM5HXKTCkj4+ylqWYlS5c9zpDxRXPeRmduHERQ8DMkhTL+0VBK07TxzCsq
+         Ynk/WnB8APIQ5ofA5Ox4p4J9+0+ZMtfh48qJfFf4WjIOEz0h68xQLvLylGHDZ566uaYK
+         iqmiBU58ILq2P+2cEtcNXZK7ZMtY/2gbXc63U6u4yzu9ffDI9oo8jPdflqfNPCHGspGY
+         bFTw==
+X-Gm-Message-State: ANoB5pnPdM53VyoI9xFnNb9czbyuvwA7xnLr/6szC0ZP3nadxHNraL7M
+        cG2g/m9mysMIElG3rg2fMYQi4w==
+X-Google-Smtp-Source: AA0mqf5Up/gRWD0unDI43s9o/afyX5Cgl0YlLTTlVxTCX38dEV155pu9MJQMQWx1c5O2bS1YQcANXA==
+X-Received: by 2002:a05:6830:1604:b0:661:ef0:230a with SMTP id g4-20020a056830160400b006610ef0230amr9369057otr.235.1669336150530;
+        Thu, 24 Nov 2022 16:29:10 -0800 (PST)
+Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
+        by smtp.gmail.com with ESMTPSA id d16-20020a9d4f10000000b0066c8bf7f196sm972120otl.51.2022.11.24.16.29.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 24 Nov 2022 16:29:10 -0800 (PST)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Thu, 24 Nov 2022 18:29:08 -0600
+From:   Justin Forbes <jforbes@fedoraproject.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.0 000/314] 6.0.10-rc1 review
+Message-ID: <Y4AMVB9zUGgPQbLk@fedora64.linuxtx.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The firmware on some systems may configure GPIO pins to be
-an interrupt source in so called "direct IRQ" mode. In such
-cases the GPIO controller driver has no idea if those pins
-are being used or not. At the same time, there is a known bug
-in the firmwares that don't restore the pin settings correctly
-after suspend, i.e. by an unknown reason the Rx value becomes
-inverted.
+On Wed, Nov 23, 2022 at 09:47:25AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.10 release.
+> There are 314 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 25 Nov 2022 08:45:20 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.10-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Hence, let's save and restore the pins that are configured
-as GPIOs in the input mode with GPIROUTIOXAPIC bit set.
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: Dale Smith <dalepsmith@gmail.com>
-Reported-and-tested-by: John Harris <jmharris@gmail.com>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214749
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
-
-Linus, I hope that this can still make v6.1 release. I'm not going to
-send a PR for this change unless you insist.
-
- drivers/pinctrl/intel/pinctrl-intel.c | 27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
-index 739030e24093..57553ac77518 100644
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -446,9 +446,14 @@ static void __intel_gpio_set_direction(void __iomem *padcfg0, bool input)
- 	writel(value, padcfg0);
- }
- 
-+static int __intel_gpio_get_gpio_mode(u32 value)
-+{
-+	return (value & PADCFG0_PMODE_MASK) >> PADCFG0_PMODE_SHIFT;
-+}
-+
- static int intel_gpio_get_gpio_mode(void __iomem *padcfg0)
- {
--	return (readl(padcfg0) & PADCFG0_PMODE_MASK) >> PADCFG0_PMODE_SHIFT;
-+	return __intel_gpio_get_gpio_mode(readl(padcfg0));
- }
- 
- static void intel_gpio_set_gpio_mode(void __iomem *padcfg0)
-@@ -1705,6 +1710,7 @@ EXPORT_SYMBOL_GPL(intel_pinctrl_get_soc_data);
- static bool intel_pinctrl_should_save(struct intel_pinctrl *pctrl, unsigned int pin)
- {
- 	const struct pin_desc *pd = pin_desc_get(pctrl->pctldev, pin);
-+	u32 value;
- 
- 	if (!pd || !intel_pad_usable(pctrl, pin))
- 		return false;
-@@ -1719,6 +1725,25 @@ static bool intel_pinctrl_should_save(struct intel_pinctrl *pctrl, unsigned int
- 	    gpiochip_line_is_irq(&pctrl->chip, intel_pin_to_gpio(pctrl, pin)))
- 		return true;
- 
-+	/*
-+	 * The firmware on some systems may configure GPIO pins to be
-+	 * an interrupt source in so called "direct IRQ" mode. In such
-+	 * cases the GPIO controller driver has no idea if those pins
-+	 * are being used or not. At the same time, there is a known bug
-+	 * in the firmwares that don't restore the pin settings correctly
-+	 * after suspend, i.e. by an unknown reason the Rx value becomes
-+	 * inverted.
-+	 *
-+	 * Hence, let's save and restore the pins that are configured
-+	 * as GPIOs in the input mode with GPIROUTIOXAPIC bit set.
-+	 *
-+	 * See https://bugzilla.kernel.org/show_bug.cgi?id=214749.
-+	 */
-+	value = readl(intel_get_padcfg(pctrl, pin, PADCFG0));
-+	if ((value & PADCFG0_GPIROUTIOXAPIC) && (value & PADCFG0_GPIOTXDIS) &&
-+	    (__intel_gpio_get_gpio_mode(value) == PADCFG0_PMODE_GPIO))
-+		return true;
-+
- 	return false;
- }
- 
--- 
-2.35.1
-
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
