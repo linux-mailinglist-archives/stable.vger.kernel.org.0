@@ -2,96 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B364638EEA
-	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 18:19:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36091638F31
+	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 18:36:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230094AbiKYRTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Nov 2022 12:19:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55628 "EHLO
+        id S229675AbiKYRgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Nov 2022 12:36:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229650AbiKYRTC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Nov 2022 12:19:02 -0500
-Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B786350D52;
-        Fri, 25 Nov 2022 09:19:01 -0800 (PST)
-Received: by mail-oi1-x22b.google.com with SMTP id c129so5073345oia.0;
-        Fri, 25 Nov 2022 09:19:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=yarLPXmHDeaH9+KUncKUuS9FlG4hBfjikKw28uiKqyk=;
-        b=mQLpaCpq4PpsNMORSgcKAE18ILD/icf4FLG635gHxpfXzRf9niA7mhNA7Kx5WARmTF
-         i8zwwkdrslu3WTLo8pNfNTo1acuAKDQf7S9HzGmkIJeZT8tpUPASZMNMubX0dp0BP65y
-         Dawhwero9Gna8hwnli9tlrydOstXkiRxrzWRE2QEFibspXhwmvPi5iEDaDDnqcG6Dg56
-         aIEbAQw5VxvhX+1fesP0323q+JLIb7JA3wXCEEpSkQJuRICAPZn/wccd61dGf1U4SNQX
-         eaPF4dF2tGifcfSPeIl0u+A4l8lKgM+foqPUAjgqCeR++Z6AC61j3Li8bGffSikIP0dF
-         XpCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=yarLPXmHDeaH9+KUncKUuS9FlG4hBfjikKw28uiKqyk=;
-        b=6h7xOOk7tFjDhPpQYLey8dJvT/gORR8XcQcLRqDqz8pjRgE34oEF09t2PmzvqRpPs7
-         /eIyUEer7g88WF0hcJEjiVJrEleubJ/gO3Ipa4oHmoMaqDbSwEct+VUzsdXGjSyPF6dO
-         5oMl9RLkISt9FqxizgEYdgM7CxSYeicTQ6G4Eww+UthZISzfQ4OJgkJHlSstQtuuenxC
-         MspJ1DYAxYZbrhL7r7MibSavfF8VeblMPU94h7i+GqBuP56JLhhCXR6NbbGDfYiXdpFE
-         igri+62TCV0KYQ2HebbRJ/A8IiRGwQJFLZLFaE7bUMsF+kkwpdKXQACbJ2XrcKliJcp3
-         c5rw==
-X-Gm-Message-State: ANoB5pm3ai+xv/yB54MZINY6sko+/FsK6PHX1LE8nWi8XJ3xdAxpsy3h
-        yhQ6nzSvdX3v3DQdS96SBbk=
-X-Google-Smtp-Source: AA0mqf4C2GRgs1nz+zpZ+jGoH8K5jBbpfsknDI6yHCRjCwfaBM17eE3OKLhYNSO83CRBLbQyzXW/TA==
-X-Received: by 2002:aca:1704:0:b0:359:e535:84a2 with SMTP id j4-20020aca1704000000b00359e53584a2mr19068248oii.59.1669396741069;
-        Fri, 25 Nov 2022 09:19:01 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c21-20020a4ae255000000b0049fd5c02d25sm1747493oot.12.2022.11.25.09.19.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Nov 2022 09:19:00 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Fri, 25 Nov 2022 09:18:59 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.0 000/313] 6.0.10-rc2 review
-Message-ID: <20221125171859.GB1205540@roeck-us.net>
-References: <20221125075804.064161337@linuxfoundation.org>
+        with ESMTP id S229514AbiKYRgH (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Fri, 25 Nov 2022 12:36:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E26C551C24
+        for <Stable@vger.kernel.org>; Fri, 25 Nov 2022 09:36:05 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E7C9B8129E
+        for <Stable@vger.kernel.org>; Fri, 25 Nov 2022 17:36:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D59F2C433C1;
+        Fri, 25 Nov 2022 17:36:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1669397763;
+        bh=t4GCaUJ0ErppZTomgWbL+TqFlzvlvfKXhQ9rz3zsbDU=;
+        h=Subject:To:From:Date:From;
+        b=XbEWkVu7S1pWpJOaQYzAsTU2bjd8T/5Btx64j00jUfxMJ0J9WmZjhIsG4n6AvBnbe
+         VPArlY9C/gjLu+hFMzc8LA/egQujXl3Xp4uWRWgDnLhjh9tgBcBHMlfxMVt9sCWud6
+         wU+pQckvJro2+KGgamxSDLJwJtGDg9qMiC5CZnik=
+Subject: patch "iio: adc: ad_sigma_delta: do not use internal iio_dev lock" added to char-misc-testing
+To:     nuno.sa@analog.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, miquel.raynal@bootlin.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 25 Nov 2022 18:35:57 +0100
+Message-ID: <166939775791237@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221125075804.064161337@linuxfoundation.org>
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 25, 2022 at 08:58:38AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.10 release.
-> There are 313 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 27 Nov 2022 07:57:07 +0000.
-> Anything received after that time might be too late.
-> 
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 500 pass: 500 fail: 0
+This is a note to let you know that I've just added the patch titled
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+    iio: adc: ad_sigma_delta: do not use internal iio_dev lock
 
-Guenter
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 20228a1d5a55e7db0c6720840f2c7d2b48c55f69 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
+Date: Tue, 20 Sep 2022 13:28:07 +0200
+Subject: iio: adc: ad_sigma_delta: do not use internal iio_dev lock
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Drop 'mlock' usage by making use of iio_device_claim_direct_mode().
+This change actually makes sure we cannot do a single conversion while
+buffering is enable. Note there was a potential race in the previous
+code since we were only acquiring the lock after checking if the bus is
+enabled.
+
+Fixes: af3008485ea0 ("iio:adc: Add common code for ADI Sigma Delta devices")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: <Stable@vger.kernel.org> #No rush as race is very old.
+Link: https://lore.kernel.org/r/20220920112821.975359-2-nuno.sa@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+---
+ drivers/iio/adc/ad_sigma_delta.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/iio/adc/ad_sigma_delta.c b/drivers/iio/adc/ad_sigma_delta.c
+index 261a9a6b45e1..d8570f620785 100644
+--- a/drivers/iio/adc/ad_sigma_delta.c
++++ b/drivers/iio/adc/ad_sigma_delta.c
+@@ -281,10 +281,10 @@ int ad_sigma_delta_single_conversion(struct iio_dev *indio_dev,
+ 	unsigned int data_reg;
+ 	int ret = 0;
+ 
+-	if (iio_buffer_enabled(indio_dev))
+-		return -EBUSY;
++	ret = iio_device_claim_direct_mode(indio_dev);
++	if (ret)
++		return ret;
+ 
+-	mutex_lock(&indio_dev->mlock);
+ 	ad_sigma_delta_set_channel(sigma_delta, chan->address);
+ 
+ 	spi_bus_lock(sigma_delta->spi->master);
+@@ -323,7 +323,7 @@ int ad_sigma_delta_single_conversion(struct iio_dev *indio_dev,
+ 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
+ 	sigma_delta->bus_locked = false;
+ 	spi_bus_unlock(sigma_delta->spi->master);
+-	mutex_unlock(&indio_dev->mlock);
++	iio_device_release_direct_mode(indio_dev);
+ 
+ 	if (ret)
+ 		return ret;
+-- 
+2.38.1
+
+
