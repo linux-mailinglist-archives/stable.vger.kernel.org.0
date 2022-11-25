@@ -2,70 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81C666381E9
-	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 01:29:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 903C363825D
+	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 03:24:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229645AbiKYA3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Nov 2022 19:29:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42936 "EHLO
+        id S229679AbiKYCYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Nov 2022 21:24:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229613AbiKYA3N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Nov 2022 19:29:13 -0500
-Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 429A474AA4
-        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 16:29:11 -0800 (PST)
-Received: by mail-ot1-x32f.google.com with SMTP id p27-20020a056830319b00b0066d7a348e20so1766298ots.8
-        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 16:29:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxtx.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=rTkWTJr+jVo44z0ToVSWhOX33FwS2vLhzhC45GxZgmU=;
-        b=Qdjl+pr+iIz3S+2tn1Q0JU7ziR4GJ03sr352O+F4nFNUm1ZTG52sYXAn95iZZhHWA2
-         vfyvvqmSy/GXOB8bIDWNZaol5ovJUTOs+XSMPsjBBdwVwt5nfJGp+M/DyGLj3qCbT6nF
-         MIuRFfqjJ3qVcCymi6VGzNg03Rj4i/w1QMoF0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=rTkWTJr+jVo44z0ToVSWhOX33FwS2vLhzhC45GxZgmU=;
-        b=BNHmWk+AHhV42C+WeAzhIW9cpG+YKLLqdlsxew3IG5INsKJyc62aX6IiJZvpEKwTCB
-         HIBjatRNFdICfrRiMvArq/NZQfO5paibmqnydowYszzduu+1OXgxGpvCVxtnDTMuvsIE
-         AW3/oMEhBWhM5HXKTCkj4+ylqWYlS5c9zpDxRXPeRmduHERQ8DMkhTL+0VBK07TxzCsq
-         Ynk/WnB8APIQ5ofA5Ox4p4J9+0+ZMtfh48qJfFf4WjIOEz0h68xQLvLylGHDZ566uaYK
-         iqmiBU58ILq2P+2cEtcNXZK7ZMtY/2gbXc63U6u4yzu9ffDI9oo8jPdflqfNPCHGspGY
-         bFTw==
-X-Gm-Message-State: ANoB5pnPdM53VyoI9xFnNb9czbyuvwA7xnLr/6szC0ZP3nadxHNraL7M
-        cG2g/m9mysMIElG3rg2fMYQi4w==
-X-Google-Smtp-Source: AA0mqf5Up/gRWD0unDI43s9o/afyX5Cgl0YlLTTlVxTCX38dEV155pu9MJQMQWx1c5O2bS1YQcANXA==
-X-Received: by 2002:a05:6830:1604:b0:661:ef0:230a with SMTP id g4-20020a056830160400b006610ef0230amr9369057otr.235.1669336150530;
-        Thu, 24 Nov 2022 16:29:10 -0800 (PST)
-Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
-        by smtp.gmail.com with ESMTPSA id d16-20020a9d4f10000000b0066c8bf7f196sm972120otl.51.2022.11.24.16.29.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Nov 2022 16:29:10 -0800 (PST)
-Sender: Justin Forbes <jmforbes@linuxtx.org>
-Date:   Thu, 24 Nov 2022 18:29:08 -0600
-From:   Justin Forbes <jforbes@fedoraproject.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.0 000/314] 6.0.10-rc1 review
-Message-ID: <Y4AMVB9zUGgPQbLk@fedora64.linuxtx.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+        with ESMTP id S229682AbiKYCYi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Nov 2022 21:24:38 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9C1D1AF17
+        for <stable@vger.kernel.org>; Thu, 24 Nov 2022 18:23:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1669343019;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=u9r9NHOb4ra+Mf5QnW792ruIJGFPU0f/l9NNTHPvhbU=;
+        b=STyHwxpstMTwQmApNOMX3C0j5KqzDxjQHFe13m9Iole2+Fbk1jN8rjsHrS+C6vsBW9vn2s
+        atH9Lafx5xLDLHIP9UCuByKbTg+ufXEqDkUpdppECU+3fHD0r0gNzao3qSGSF5/QZ4poZJ
+        vpQZLknNl4tBASpQCILPdwPAMJ2PbQs=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-597-4tZ2cEygMSyJFltOmf9FTg-1; Thu, 24 Nov 2022 21:23:29 -0500
+X-MC-Unique: 4tZ2cEygMSyJFltOmf9FTg-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 17138803481;
+        Fri, 25 Nov 2022 02:23:29 +0000 (UTC)
+Received: from server.redhat.com (ovpn-12-152.pek2.redhat.com [10.72.12.152])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C482A1415114;
+        Fri, 25 Nov 2022 02:23:25 +0000 (UTC)
+From:   Cindy Lu <lulu@redhat.com>
+To:     lulu@redhat.com, jasowang@redhat.com, mst@redhat.com,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH v2] vhost_vdpa: fix the crash in unmap a large memory
+Date:   Fri, 25 Nov 2022 10:23:17 +0800
+Message-Id: <20221125022317.2157263-1-lulu@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -73,26 +57,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 23, 2022 at 09:47:25AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.10 release.
-> There are 314 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 25 Nov 2022 08:45:20 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.10-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+While testing in vIOMMU, sometimes guest will unmap very large memory,
+which will cause the crash. To fix this,Move the iommu_unmap to
+vhost_vdpa_pa_unmap/vhost_vdpa_va_unmap and only unmap the memory
+that saved in iotlb.
 
-Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
-s390x, x86_64), and boot tested x86_64. No regressions noted.
+Call Trace:
+[  647.820144] ------------[ cut here ]------------
+[  647.820848] kernel BUG at drivers/iommu/intel/iommu.c:1174!
+[  647.821486] invalid opcode: 0000 [#1] PREEMPT SMP PTI
+[  647.822082] CPU: 10 PID: 1181 Comm: qemu-system-x86 Not tainted 6.0.0-rc1home_lulu_2452_lulu7_vhost+ #62
+[  647.823139] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.15.0-29-g6a62e0cb0dfe-prebuilt.qem4
+[  647.824365] RIP: 0010:domain_unmap+0x48/0x110
+[  647.825424] Code: 48 89 fb 8d 4c f6 1e 39 c1 0f 4f c8 83 e9 0c 83 f9 3f 7f 18 48 89 e8 48 d3 e8 48 85 c0 75 59
+[  647.828064] RSP: 0018:ffffae5340c0bbf0 EFLAGS: 00010202
+[  647.828973] RAX: 0000000000000001 RBX: ffff921793d10540 RCX: 000000000000001b
+[  647.830083] RDX: 00000000080000ff RSI: 0000000000000001 RDI: ffff921793d10540
+[  647.831214] RBP: 0000000007fc0100 R08: ffffae5340c0bcd0 R09: 0000000000000003
+[  647.832388] R10: 0000007fc0100000 R11: 0000000000100000 R12: 00000000080000ff
+[  647.833668] R13: ffffae5340c0bcd0 R14: ffff921793d10590 R15: 0000008000100000
+[  647.834782] FS:  00007f772ec90640(0000) GS:ffff921ce7a80000(0000) knlGS:0000000000000000
+[  647.836004] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  647.836990] CR2: 00007f02c27a3a20 CR3: 0000000101b0c006 CR4: 0000000000372ee0
+[  647.838107] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  647.839283] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  647.840666] Call Trace:
+[  647.841437]  <TASK>
+[  647.842107]  intel_iommu_unmap_pages+0x93/0x140
+[  647.843112]  __iommu_unmap+0x91/0x1b0
+[  647.844003]  iommu_unmap+0x6a/0x95
+[  647.844885]  vhost_vdpa_unmap+0x1de/0x1f0 [vhost_vdpa]
+[  647.845985]  vhost_vdpa_process_iotlb_msg+0xf0/0x90b [vhost_vdpa]
+[  647.847235]  ? _raw_spin_unlock+0x15/0x30
+[  647.848181]  ? _copy_from_iter+0x8c/0x580
+[  647.849137]  vhost_chr_write_iter+0xb3/0x430 [vhost]
+[  647.850126]  vfs_write+0x1e4/0x3a0
+[  647.850897]  ksys_write+0x53/0xd0
+[  647.851688]  do_syscall_64+0x3a/0x90
+[  647.852508]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  647.853457] RIP: 0033:0x7f7734ef9f4f
+[  647.854408] Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 29 76 f8 ff 48 8b 54 24 18 48 8b 74 24 10 41 89 c8
+[  647.857217] RSP: 002b:00007f772ec8f040 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
+[  647.858486] RAX: ffffffffffffffda RBX: 00000000fef00000 RCX: 00007f7734ef9f4f
+[  647.859713] RDX: 0000000000000048 RSI: 00007f772ec8f090 RDI: 0000000000000010
+[  647.860942] RBP: 00007f772ec8f1a0 R08: 0000000000000000 R09: 0000000000000000
+[  647.862206] R10: 0000000000000001 R11: 0000000000000293 R12: 0000000000000010
+[  647.863446] R13: 0000000000000002 R14: 0000000000000000 R15: ffffffff01100000
+[  647.864692]  </TASK>
+[  647.865458] Modules linked in: rpcsec_gss_krb5 auth_rpcgss nfsv4 dns_resolver nfs lockd grace fscache netfs v]
+[  647.874688] ---[ end trace 0000000000000000 ]---
+[  647.876013] RIP: 0010:domain_unmap+0x48/0x110
+[  647.878306] Code: 48 89 fb 8d 4c f6 1e 39 c1 0f 4f c8 83 e9 0c 83 f9 3f 7f 18 48 89 e8 48 d3 e8 48 85 c0 75 59
+[  647.884581] RSP: 0018:ffffae5340c0bbf0 EFLAGS: 00010202
+[  647.886308] RAX: 0000000000000001 RBX: ffff921793d10540 RCX: 000000000000001b
+[  647.888775] RDX: 00000000080000ff RSI: 0000000000000001 RDI: ffff921793d10540
+[  647.890295] RBP: 0000000007fc0100 R08: ffffae5340c0bcd0 R09: 0000000000000003
+[  647.891660] R10: 0000007fc0100000 R11: 0000000000100000 R12: 00000000080000ff
+[  647.893019] R13: ffffae5340c0bcd0 R14: ffff921793d10590 R15: 0000008000100000
+[  647.894506] FS:  00007f772ec90640(0000) GS:ffff921ce7a80000(0000) knlGS:0000000000000000
+[  647.895963] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  647.897348] CR2: 00007f02c27a3a20 CR3: 0000000101b0c006 CR4: 0000000000372ee0
+[  647.898719] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
 
-Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
+Signed-off-by: Cindy Lu <lulu@redhat.com>
+---
+ drivers/vhost/vdpa.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 166044642fd5..e5a07751bf45 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -692,6 +692,8 @@ static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v,
+ 	struct vhost_iotlb_map *map;
+ 	struct page *page;
+ 	unsigned long pfn, pinned;
++	struct vdpa_device *vdpa = v->vdpa;
++	const struct vdpa_config_ops *ops = vdpa->config;
+ 
+ 	while ((map = vhost_iotlb_itree_first(iotlb, start, last)) != NULL) {
+ 		pinned = PFN_DOWN(map->size);
+@@ -703,6 +705,8 @@ static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v,
+ 			unpin_user_page(page);
+ 		}
+ 		atomic64_sub(PFN_DOWN(map->size), &dev->mm->pinned_vm);
++		if ((ops->dma_map == NULL) && (ops->set_map == NULL))
++			iommu_unmap(v->domain, map->start, map->size);
+ 		vhost_iotlb_map_free(iotlb, map);
+ 	}
+ }
+@@ -713,11 +717,15 @@ static void vhost_vdpa_va_unmap(struct vhost_vdpa *v,
+ {
+ 	struct vhost_iotlb_map *map;
+ 	struct vdpa_map_file *map_file;
++	struct vdpa_device *vdpa = v->vdpa;
++	const struct vdpa_config_ops *ops = vdpa->config;
+ 
+ 	while ((map = vhost_iotlb_itree_first(iotlb, start, last)) != NULL) {
+ 		map_file = (struct vdpa_map_file *)map->opaque;
+ 		fput(map_file->file);
+ 		kfree(map_file);
++		if (ops->set_map == NULL)
++			iommu_unmap(v->domain, map->start, map->size);
+ 		vhost_iotlb_map_free(iotlb, map);
+ 	}
+ }
+@@ -805,8 +813,6 @@ static void vhost_vdpa_unmap(struct vhost_vdpa *v,
+ 	} else if (ops->set_map) {
+ 		if (!v->in_batch)
+ 			ops->set_map(vdpa, asid, iotlb);
+-	} else {
+-		iommu_unmap(v->domain, iova, size);
+ 	}
+ 
+ 	/* If we are in the middle of batch processing, delay the free
+-- 
+2.34.3
+
