@@ -2,55 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 496D86384E1
-	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 09:00:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48C566384F0
+	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 09:05:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229804AbiKYIAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Nov 2022 03:00:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51608 "EHLO
+        id S229669AbiKYIFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Nov 2022 03:05:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229810AbiKYIAU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Nov 2022 03:00:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DDFC2FFF4;
-        Fri, 25 Nov 2022 00:00:18 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08959622D7;
-        Fri, 25 Nov 2022 08:00:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 61E4CC433B5;
-        Fri, 25 Nov 2022 08:00:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669363217;
-        bh=ruBqTWcWxHPaHlIDNK66y1xdcEMgPYn9mLhg1dwyEKM=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=Q+MYzveXuflfbpKh8a5IopVyfg783+H0dsZOXDZ4HFHsTJ4CfUATpaGBja5H8lfTQ
-         eA6fkQmDIVic2efTQN3C6MLpVQLL/RS4LdMgr6e/0qlzYcPQlHfyYa+IrdAtSuCUVM
-         ITO0zSAtTmv3Z1gMLsaKW+6b+tMOs/UB+zRW5zGu/eVupTKslbFQLpfkZGUA26HGCV
-         HnK8T8IvMXN0LtzHrmxnu204QTJYDCpvTzjcAX7ShB9tlZ5WP0bfOSbr4zel3YzTgm
-         X2QlNUyNav15xwQCXxLjAQh+0UoXr/NzbaA9Y9ujN5ien34sT7ZWMEN6DfyhRFGUUH
-         X5kBEZ7ai4oTg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 4D438E29F3C;
-        Fri, 25 Nov 2022 08:00:17 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229575AbiKYIFW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Nov 2022 03:05:22 -0500
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0A21218AC
+        for <stable@vger.kernel.org>; Fri, 25 Nov 2022 00:05:20 -0800 (PST)
+Received: by mail-yb1-xb2f.google.com with SMTP id 1so4206945ybl.7
+        for <stable@vger.kernel.org>; Fri, 25 Nov 2022 00:05:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=pnfIVSOrUJ3z+ilEDdymU1GO/STI0zxzNjpepGL0pvY=;
+        b=G9i0Y5NM3kY1yH6UILP1oYSOnKsIaZHoPRSN+B+o+PeOJWJv9HW74WfuUmfYFlaWX2
+         xb4e2tijSPZAn9AVQM3oEXa3TxO1DmGbTZa/Wu/Fq7MNy0R4vnfMKe1cve+r39I20f2R
+         BHmD1RbmEmcjRjWfAesitbIMwc+688tJMaHSaD37b8/dVQjQ3CPednoutLFpO60KiGGW
+         R/G7dPdqtKzyEkweEmE5c0J2Wepl43/Rfm2OdCAlLFBsd87DlPXeEN+MCSt2ugSKqcBR
+         aFUhn7WXyVcR8DOZ4Jo4fQie+TMU/nrBwNGafmFCdxu2tz/FmhUsAtw3lGmyjPL2s6E1
+         Hj6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=pnfIVSOrUJ3z+ilEDdymU1GO/STI0zxzNjpepGL0pvY=;
+        b=rVOImK+MuVHpEVznZE4kymws6vJGIC+kGJdjZvym+NLMm3u39zxl/VywErDMjIogZb
+         YH+RY5IViFCPbOxMwGzhGKNjW28tUXVWsZpQXrSzuCgAsyGbiTOaFqqdv7p77EygitnS
+         gAnT6sV1nLsTIJZIFNWY3NbeK3Xo9ErSbwiPZW9Lp6oWcN3kIcqX/5JVWSirVyuCfbAy
+         P7tRgkyVpx20n912Ou+iAFWNYLXNz1dPD6io/zcSRcocAfjTHZVODLzS5c/OWXI6maFg
+         cH//+dWo9uO+O0Av3JJC4xEDoPiF1aBwedPSskVPtbnX8etQdsYJy5BF9Ns2qk5NGM1g
+         BFPw==
+X-Gm-Message-State: ANoB5pn+1L5O2W2LGuIzrSi79yN0r+/XeRnZwinCKK8u63+YL3q9Hoz6
+        NY+j0RYTBPv77yrjaSKB5uAMJkSh8kYTQ6kX8MozCQ==
+X-Google-Smtp-Source: AA0mqf7OgJkiz3KAGFtHjIaNXzXenKiC0lfUTs2VaZpT60Y42LyT6mHG+ZY7pBZ6ToQai8QeKtDh5776ncDGQd5pifM=
+X-Received: by 2002:a25:9d8f:0:b0:6d0:155f:aa9e with SMTP id
+ v15-20020a259d8f000000b006d0155faa9emr15327691ybp.448.1669363519825; Fri, 25
+ Nov 2022 00:05:19 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 1/8] can: can327: can327_feed_frame_to_netdev(): fix
- potential skb leak when netdev is down
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <166936321731.29613.6776566910480934923.git-patchwork-notify@kernel.org>
-Date:   Fri, 25 Nov 2022 08:00:17 +0000
-References: <20221124195708.1473369-2-mkl@pengutronix.de>
-In-Reply-To: <20221124195708.1473369-2-mkl@pengutronix.de>
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        linux-can@vger.kernel.org, kernel@pengutronix.de,
-        william.xuanziyang@huawei.com, max@enpas.org,
-        stable@vger.kernel.org
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+References: <20221123084557.945845710@linuxfoundation.org> <CA+G9fYvKfbJHcMZtybf_0Ru3+6fKPg9HwWTOhdCLrOBXMaeG1A@mail.gmail.com>
+ <CA+G9fYvgaNKbr_EhWsh9hjnzCeVXGJoXX4to72ytdvZi8W0svA@mail.gmail.com> <Y4BuUU5yMI6PqCbb@kroah.com>
+In-Reply-To: <Y4BuUU5yMI6PqCbb@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 25 Nov 2022 13:35:08 +0530
+Message-ID: <CA+G9fYsXomPXcecPDzDydO3=i2qHDM2RTtGxr0p2YOS6=YcWng@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/149] 5.10.156-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        YueHaibing <yuehaibing@huawei.com>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
+        Netdev <netdev@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,44 +77,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+On Fri, 25 Nov 2022 at 12:57, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Thu, Nov 24, 2022 at 09:17:36PM +0530, Naresh Kamboju wrote:
+> > On Wed, 23 Nov 2022 at 19:30, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> > >
+> > > On Wed, 23 Nov 2022 at 14:50, Greg Kroah-Hartman
+> > > <gregkh@linuxfoundation.org> wrote:
+> > > >
+> > > > This is the start of the stable review cycle for the 5.10.156 release.
+> > > > There are 149 patches in this series, all will be posted as a response
+> > > > to this one.  If anyone has any issues with these being applied, please
+> > > > let me know.
+> > > >
+> > > > Responses should be made by Fri, 25 Nov 2022 08:45:20 +0000.
+> > > > Anything received after that time might be too late.
+> > > >
+> > > > The whole patch series can be found in one patch at:
+> > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.156-rc1.gz
+> > > > or in the git tree and branch at:
+> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> > > > and the diffstat can be found below.
+> > > >
+> > > > thanks,
+> > > >
+> > > > greg k-h
+> > >
+> > >
+> > > With stable rc 5.10.156-rc1 Raspberry Pi 4 Model B failed to boot due to
+> > > following warnings / errors [1]. The NFS mount failed and failed to boot.
+> > >
+> > > I have to bisect this problem.
+> >
+> > Daniel bisected this reported problem and found the first bad commit,
+> >
+> > YueHaibing <yuehaibing@huawei.com>
+> >     net: broadcom: Fix BCMGENET Kconfig
+>
+> But that is in 5.10.155, 5.15.79, 6.0.9, and 6.1-rc5.  It is not new to
+> this -rc release.
 
-This series was applied to netdev/net.git (master)
-by Marc Kleine-Budde <mkl@pengutronix.de>:
+It started from 5.10.155 and this is only seen on 5.10 and other
+branches 5.15, 6.0 and mainline are looking good.
 
-On Thu, 24 Nov 2022 20:57:01 +0100 you wrote:
-> From: Ziyang Xuan <william.xuanziyang@huawei.com>
-> 
-> In can327_feed_frame_to_netdev(), it did not free the skb when netdev
-> is down, and all callers of can327_feed_frame_to_netdev() did not free
-> allocated skb too. That would trigger skb leak.
-> 
-> Fix it by adding kfree_skb() in can327_feed_frame_to_netdev() when netdev
-> is down. Not tested, just compiled.
-> 
-> [...]
+>
+> What config options are being set because of this that cause the
+> problem?
 
-Here is the summary with links:
-  - [net,1/8] can: can327: can327_feed_frame_to_netdev(): fix potential skb leak when netdev is down
-    https://git.kernel.org/netdev/net/c/8fa452cfafed
-  - [net,2/8] can: sja1000: fix size of OCR_MODE_MASK define
-    https://git.kernel.org/netdev/net/c/26e8f6a75248
-  - [net,3/8] can: sja1000_isa: sja1000_isa_probe(): add missing free_sja1000dev()
-    https://git.kernel.org/netdev/net/c/92dfd9310a71
-  - [net,4/8] can: cc770: cc770_isa_probe(): add missing free_cc770dev()
-    https://git.kernel.org/netdev/net/c/62ec89e74099
-  - [net,5/8] can: etas_es58x: es58x_init_netdev(): free netdev when register_candev()
-    https://git.kernel.org/netdev/net/c/709cb2f9ed20
-  - [net,6/8] can: m_can: pci: add missing m_can_class_free_dev() in probe/remove methods
-    https://git.kernel.org/netdev/net/c/1eca1d4cc21b
-  - [net,7/8] can: m_can: Add check for devm_clk_get
-    https://git.kernel.org/netdev/net/c/68b4f9e0bdd0
-  - [net,8/8] can: mcba_usb: Fix termination command argument
-    https://git.kernel.org/netdev/net/c/1a8e3bd25f1e
+LKFT is built with arm64 defconfig + distro configs as described below.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+>   Should it just be reverted for 5.10.y, and not the other
+> branches?  Or for everywhere including Linus's tree?
 
+Reverting for 5.10 works for Rpi-4 to boot.
 
+Due to the problematic commit
+      # CONFIG_BROADCOM_PHY is not set
+and Raspberry Pi 4 boot failed only on 5.10.155 and later.
+
+--
+
+diff -Narub good-config bad-config
+--- good-config 2022-11-09 14:19:58.000000000 +0530
++++ bad-config 2022-11-16 15:50:36.000000000 +0530
+@@ -1,6 +1,6 @@
+ #
+ # Automatically generated file; DO NOT EDIT.
+-# Linux/arm64 5.10.154-rc2 Kernel Configuration
++# Linux/arm64 5.10.155 Kernel Configuration
+ #
+ CONFIG_CC_VERSION_TEXT="aarch64-linux-gnu-gcc (Debian 11.3.0-6) 11.3.0"
+ CONFIG_CC_IS_GCC=y
+@@ -2611,7 +2611,7 @@
+ # CONFIG_ADIN_PHY is not set
+ CONFIG_AQUANTIA_PHY=y
+ # CONFIG_AX88796B_PHY is not set
+-CONFIG_BROADCOM_PHY=y
++# CONFIG_BROADCOM_PHY is not set
+ # CONFIG_BCM54140_PHY is not set
+ CONFIG_BCM7XXX_PHY=y
+ # CONFIG_BCM84881_PHY is not set
+
+---
+
+# To install tuxmake on your system globally:
+# sudo pip3 install -U tuxmake
+#
+# See https://docs.tuxmake.org/ for complete documentation.
+# Original tuxmake command with fragments listed below.
+# tuxmake --runtime podman --target-arch arm64 --toolchain gcc-11
+--kconfig defconfig --kconfig-add
+https://raw.githubusercontent.com/Linaro/meta-lkft/kirkstone/meta/recipes-kernel/linux/files/lkft.config
+--kconfig-add https://raw.githubusercontent.com/Linaro/meta-lkft/kirkstone/meta/recipes-kernel/linux/files/lkft-crypto.config
+--kconfig-add https://raw.githubusercontent.com/Linaro/meta-lkft/kirkstone/meta/recipes-kernel/linux/files/distro-overrides.config
+--kconfig-add https://raw.githubusercontent.com/Linaro/meta-lkft/kirkstone/meta/recipes-kernel/linux/files/systemd.config
+--kconfig-add https://raw.githubusercontent.com/Linaro/meta-lkft/kirkstone/meta/recipes-kernel/linux/files/virtio.config
+--kconfig-add CONFIG_ARM64_MODULE_PLTS=y --kconfig-add
+CONFIG_SYN_COOKIES=y --kconfig-add CONFIG_SCHEDSTATS=y
+CROSS_COMPILE_COMPAT=arm-linux-gnueabihf-
+
+Bad config link,
+https://builds.tuxbuild.com/2HcnnvEDD3gSr1zmS5DHzqPG2cJ/config
+
+>
+> thanks,
+>
+> greg k-h
+
+- Naresh
