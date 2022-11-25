@@ -2,146 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11B00638D12
-	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 16:08:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 481CD638D92
+	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 16:40:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229480AbiKYPIw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Nov 2022 10:08:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59818 "EHLO
+        id S229675AbiKYPj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Nov 2022 10:39:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230254AbiKYPGv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Nov 2022 10:06:51 -0500
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B97627CFB;
-        Fri, 25 Nov 2022 07:06:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1669388809; x=1700924809;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=Xejal7SbyM3CZJX6CDhwfTq2ZC4W7X99THWP2G/YoKU=;
-  b=WuVyL8k+/aieG1/YrTeAqhUKpwgKREyB1mxelzm+kgb1Ej8dgIjoMIYj
-   2DRMtl0cIlEj8z5w6oh32zZQjp/lPSUtjC23vj6gEMejvfhM2scKK5oH1
-   mS3ecX5YNog7EniEhYna/lUnCTKFao+Zm8p19FX7RhOy3ZrRTauHoscvb
-   o+V5guML9cguZe9o0NOTF3IOsDi5xe85HNkccWR03iAalL0g/a4wOYV/d
-   io/qFvt450b+z114yYsOMebb/J2YlQta2sjw8ueceOZpwpi8AfDHNTntR
-   9IFLbEgs/57/H86ZhYsjS9funHg+8Ok/8lVHDWpkcsDo2JqDJxbj/Bmik
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10542"; a="294881059"
-X-IronPort-AV: E=Sophos;i="5.96,193,1665471600"; 
-   d="scan'208";a="294881059"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2022 07:06:49 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10542"; a="593240298"
-X-IronPort-AV: E=Sophos;i="5.96,193,1665471600"; 
-   d="scan'208";a="593240298"
-Received: from unknown (HELO localhost.localdomain.bj.intel.com) ([10.240.193.73])
-  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2022 07:06:46 -0800
-From:   Zhu Lingshan <lingshan.zhu@intel.com>
-To:     jasowang@redhat.com, mst@redhat.com
-Cc:     virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-        hang.yuan@intel.com, piotr.uminski@intel.com,
-        Zhu Lingshan <lingshan.zhu@intel.com>, stable@vger.kernel.org
-Subject: [PATCH V2 10/12] vDPA/ifcvf: allocate the adapter in dev_add()
-Date:   Fri, 25 Nov 2022 22:57:22 +0800
-Message-Id: <20221125145724.1129962-11-lingshan.zhu@intel.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20221125145724.1129962-1-lingshan.zhu@intel.com>
-References: <20221125145724.1129962-1-lingshan.zhu@intel.com>
+        with ESMTP id S229493AbiKYPjz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Nov 2022 10:39:55 -0500
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DDE92CCBE;
+        Fri, 25 Nov 2022 07:39:54 -0800 (PST)
+Received: by mail-wm1-f49.google.com with SMTP id 83-20020a1c0256000000b003d03017c6efso5791852wmc.4;
+        Fri, 25 Nov 2022 07:39:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+CLfEu0Ol4ZgCIM6GMFZLdKNFioBS7Wn2cy33xc4Fgk=;
+        b=fsTeudvekWBQDelGPR/HS2hagYcUfErYSLu65qns5/86uV9bvZlliWdS7fGlw+z43A
+         Dq1KrIv0S4jnoObW3KtIUxR9kvXXGsD0vsLadTZ1BZgcrTdFKfiDbA61h0663UJ9lJ/d
+         UXz05ESPGm8/KJySC7nxCPkK3ahpv1oRf9+YEp5RE5wE8ijiZ8EoJOONCNQqmEN975aQ
+         KJFnP1slpB63GwwhFTjuQjT1HXwvdG0s3/Yh0IIjFFvKguAPqQEZg86WR4XSObz3c4X/
+         AoX/Mq7MsM+gOv5bG24MsBwxX6cDsj+CeBLRPiVhj5vrGSEpN7NhtnWwSh3l7AZdz2Dq
+         lTXg==
+X-Gm-Message-State: ANoB5plNvvP4pzPfE9Y8wN5lQnY6h4sqQ9BeTiuAjy8TXoPrEUsTn2S+
+        1OYb+Q/PKY5ydmAu7CWxXuI=
+X-Google-Smtp-Source: AA0mqf5oTQD1Pkojn2mvb3FHJcD28lPaL2FsNVHWj3NUYllPAXUBdSn0nZJxW8R6VwYBEvIBNvH93A==
+X-Received: by 2002:a05:600c:5552:b0:3cf:9a16:456d with SMTP id iz18-20020a05600c555200b003cf9a16456dmr30671380wmb.100.1669390793238;
+        Fri, 25 Nov 2022 07:39:53 -0800 (PST)
+Received: from liuwe-devbox-debian-v2 ([51.145.34.42])
+        by smtp.gmail.com with ESMTPSA id a12-20020adfe5cc000000b0022cc3e67fc5sm3868947wrn.65.2022.11.25.07.39.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Nov 2022 07:39:52 -0800 (PST)
+Date:   Fri, 25 Nov 2022 15:39:50 +0000
+From:   Wei Liu <wei.liu@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Anirudh Rayabharam <anrayabh@linux.microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        KY Srinivasan <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 6.0 13/44] clocksource/drivers/hyperv: add data
+ structure for reference TSC MSR
+Message-ID: <Y4DhxthMYGtYByX4@liuwe-devbox-debian-v2>
+References: <20221119021124.1773699-1-sashal@kernel.org>
+ <20221119021124.1773699-13-sashal@kernel.org>
+ <SN6PR2101MB1693A83DF44A95B439532F9DD7089@SN6PR2101MB1693.namprd21.prod.outlook.com>
+ <Y3+S6j4GW0RrHgB2@sashalap>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y3+S6j4GW0RrHgB2@sashalap>
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The adapter is the container of the vdpa_device,
-this commits allocate the adapter in dev_add()
-rather than in probe(). So that the vdpa_device()
-could be re-created when the userspace creates
-the vdpa device, and free-ed in dev_del()
+On Thu, Nov 24, 2022 at 10:51:06AM -0500, Sasha Levin wrote:
+> On Sat, Nov 19, 2022 at 05:37:16AM +0000, Michael Kelley (LINUX) wrote:
+> > From: Sasha Levin <sashal@kernel.org> Sent: Friday, November 18, 2022 6:11 PM
+> > > 
+> > > From: Anirudh Rayabharam <anrayabh@linux.microsoft.com>
+> > > 
+> > > [ Upstream commit 4ad1aa571214e8d6468a1806794d987b374b5a08 ]
+> > > 
+> > > Add a data structure to represent the reference TSC MSR similar to
+> > > other MSRs. This simplifies the code for updating the MSR.
+> > > 
+> > > Signed-off-by: Anirudh Rayabharam <anrayabh@linux.microsoft.com>
+> > > Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+> > > Link: https://lore.kernel.org/all/20221027095729.1676394-2-anrayabh@linux.microsoft.com/
+> > > Signed-off-by: Wei Liu <wei.liu@kernel.org>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > 
+> > Sasha -- I don't think this patch needs to be backported to any stable versions.  Anirudh
+> > or Wei Liu, can you confirm?  The patch is more about enabling a new scenario than fixing a bug.
+> 
+> Ack, I'll drop both of the patches you've pointed out. Thanks!
 
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: stable@vger.kernel.org
----
- drivers/vdpa/ifcvf/ifcvf_main.c | 34 +++++++++++++--------------------
- 1 file changed, 13 insertions(+), 21 deletions(-)
+Sorry for the late reply -- I think you should keep this patch and the
+other one. The other patch fixes a real issue while kexec'ing in the
+Linux root partition. This patch is a prerequisite for that.
 
-diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index b6f5f7a3a767..4450ddb53806 100644
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -746,12 +746,20 @@ static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
- 	int ret;
- 
- 	ifcvf_mgmt_dev = container_of(mdev, struct ifcvf_vdpa_mgmt_dev, mdev);
--	if (!ifcvf_mgmt_dev->adapter)
--		return -EOPNOTSUPP;
-+	vf = &ifcvf_mgmt_dev->vf;
-+	pdev = vf->pdev;
-+	adapter = vdpa_alloc_device(struct ifcvf_adapter, vdpa,
-+				    &pdev->dev, &ifc_vdpa_ops, 1, 1, NULL, false);
-+	if (IS_ERR(adapter)) {
-+		IFCVF_ERR(pdev, "Failed to allocate vDPA structure");
-+		return PTR_ERR(adapter);
-+	}
- 
--	adapter = ifcvf_mgmt_dev->adapter;
--	vf = adapter->vf;
--	pdev = adapter->pdev;
-+	ifcvf_mgmt_dev->adapter = adapter;
-+	adapter->pdev = pdev;
-+	adapter->vdpa.dma_dev = &pdev->dev;
-+	adapter->vdpa.mdev = mdev;
-+	adapter->vf = vf;
- 	vdpa_dev = &adapter->vdpa;
- 
- 	if (name)
-@@ -769,7 +777,6 @@ static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
- 	return 0;
- }
- 
--
- static void ifcvf_vdpa_dev_del(struct vdpa_mgmt_dev *mdev, struct vdpa_device *dev)
- {
- 	struct ifcvf_vdpa_mgmt_dev *ifcvf_mgmt_dev;
-@@ -788,7 +795,6 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- {
- 	struct ifcvf_vdpa_mgmt_dev *ifcvf_mgmt_dev;
- 	struct device *dev = &pdev->dev;
--	struct ifcvf_adapter *adapter;
- 	struct ifcvf_hw *vf;
- 	u32 dev_type;
- 	int ret, i;
-@@ -825,24 +831,10 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		return -ENOMEM;
- 	}
- 
--	adapter = vdpa_alloc_device(struct ifcvf_adapter, vdpa,
--				    dev, &ifc_vdpa_ops, 1, 1, NULL, false);
--	if (IS_ERR(adapter)) {
--		IFCVF_ERR(pdev, "Failed to allocate vDPA structure");
--		ret = PTR_ERR(adapter);
--		goto err;
--	}
--
--	adapter->pdev = pdev;
--	adapter->vdpa.dma_dev = &pdev->dev;
--	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
--	ifcvf_mgmt_dev->adapter = adapter;
--
- 	vf = &ifcvf_mgmt_dev->vf;
- 	vf->dev_type = get_dev_type(pdev);
- 	vf->base = pcim_iomap_table(pdev);
- 	vf->pdev = pdev;
--	adapter->vf = vf;
- 
- 	ret = ifcvf_init_hw(vf, pdev);
- 	if (ret) {
--- 
-2.31.1
+Thanks,
+Wei.
 
+> 
+> -- 
+> Thanks,
+> Sasha
