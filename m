@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB8A4638CEF
-	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 16:06:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 226BC638CF0
+	for <lists+stable@lfdr.de>; Fri, 25 Nov 2022 16:06:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229835AbiKYPGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Nov 2022 10:06:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59184 "EHLO
+        id S229769AbiKYPGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Nov 2022 10:06:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229891AbiKYPGb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Nov 2022 10:06:31 -0500
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D2E63AC13;
-        Fri, 25 Nov 2022 07:06:30 -0800 (PST)
+        with ESMTP id S229778AbiKYPGe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Nov 2022 10:06:34 -0500
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 612814047A;
+        Fri, 25 Nov 2022 07:06:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1669388790; x=1700924790;
+  t=1669388793; x=1700924793;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=GfW1grE+W1yxIIEcRuvloaY402+gBkQ0YBkYnxhRSLg=;
-  b=il0ZuTuorqTQCKssNUK6z03O3nEeefM+QKOc3P6CBYyIhQvOYJoQrKJ6
-   H+f44VhtO6PcYBWKJLfOJnBtPncFI5bGcplXHmMgD5sMrPVLDCPqPbqP+
-   txPVIavApAFi9jbpvvEvuFQlSxr87L4UsI7vO5BsnWbO88EdsSNvIaBlM
-   OC8tw16yPYIc+m0ad3HzF9lQZUE/vrXcx8qhnkf4fxz2fDrfFlmH7EzfR
-   OUWa/fJxjp3Qt7rl83kcmBumM896P/4weUIykT38g8gbrlpzX13IHX9Y2
-   kxPX5epEzF/xuSC2ArCBOm5aXlwX32CKV+B48R23UxiJCkF/aWCJbtPdG
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10542"; a="302069182"
+  bh=HOdj0oUK3WbeLxjf51f9tIDc5rxKdwxZGte7o/oQccQ=;
+  b=UnY5/AwL9H6LKT/z4LyqjENRgq8ulnB5WfF7p+5g56S9X88TBWJeR6f+
+   cDqcGUvP7oM6aFMzgRI2v5/L5+M1ma3YrYzNMbBRjTvLJKLa9cIiBrg1d
+   9EAGCEYhhclO0QMYjBeyL/WVLk5ssVnHHzO4dsyMbefZJQlyMz3Ejd8Lr
+   d6eLM70GKbaoXU7Q6/fMrY4YkOw1WDF7HvVPsMt7x/aQPBzylMWFb1rHG
+   z0gd0xcQcN6QdbuG4+HQ987Mlc7nsoKhge7QQ1d6fmP4AI5rJRdJwsj+y
+   hgVxcZ2b6URAAKZQSA18eoVSYBma6wOBVRHSFXeuy+M/TtA2ZNP0hjRHc
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10542"; a="294880995"
 X-IronPort-AV: E=Sophos;i="5.96,193,1665471600"; 
-   d="scan'208";a="302069182"
+   d="scan'208";a="294880995"
 Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2022 07:06:30 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10542"; a="593240230"
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2022 07:06:32 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10542"; a="593240249"
 X-IronPort-AV: E=Sophos;i="5.96,193,1665471600"; 
-   d="scan'208";a="593240230"
+   d="scan'208";a="593240249"
 Received: from unknown (HELO localhost.localdomain.bj.intel.com) ([10.240.193.73])
-  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2022 07:06:27 -0800
+  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Nov 2022 07:06:30 -0800
 From:   Zhu Lingshan <lingshan.zhu@intel.com>
 To:     jasowang@redhat.com, mst@redhat.com
 Cc:     virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
         hang.yuan@intel.com, piotr.uminski@intel.com,
         Zhu Lingshan <lingshan.zhu@intel.com>, stable@vger.kernel.org
-Subject: [PATCH V2 03/12] vDPA/ifcvf: alloc the mgmt_dev before the adapter
-Date:   Fri, 25 Nov 2022 22:57:15 +0800
-Message-Id: <20221125145724.1129962-4-lingshan.zhu@intel.com>
+Subject: [PATCH V2 04/12] vDPA/ifcvf: decouple vq IRQ releasers from the adapter
+Date:   Fri, 25 Nov 2022 22:57:16 +0800
+Message-Id: <20221125145724.1129962-5-lingshan.zhu@intel.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20221125145724.1129962-1-lingshan.zhu@intel.com>
 References: <20221125145724.1129962-1-lingshan.zhu@intel.com>
@@ -52,96 +52,82 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This commit reverses the order of allocating the
-management device and the adapter. So that it would
-be possible to move the allocation of the adapter
-to dev_add().
+This commit decouples the IRQ releasers from the
+adapter, so that these functions could be
+safely invoked once probe
 
 Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 Cc: stable@vger.kernel.org
 ---
- drivers/vdpa/ifcvf/ifcvf_main.c | 31 ++++++++++++++-----------------
- 1 file changed, 14 insertions(+), 17 deletions(-)
+ drivers/vdpa/ifcvf/ifcvf_main.c | 21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index 28c82d796c90..306a57c05509 100644
+index 306a57c05509..7dac0285b71d 100644
 --- a/drivers/vdpa/ifcvf/ifcvf_main.c
 +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -831,22 +831,30 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+@@ -69,10 +69,9 @@ static void ifcvf_free_irq_vectors(void *data)
+ 	pci_free_irq_vectors(data);
+ }
+ 
+-static void ifcvf_free_per_vq_irq(struct ifcvf_adapter *adapter)
++static void ifcvf_free_per_vq_irq(struct ifcvf_hw *vf)
+ {
+-	struct pci_dev *pdev = adapter->pdev;
+-	struct ifcvf_hw *vf = &adapter->vf;
++	struct pci_dev *pdev = vf->pdev;
+ 	int i;
+ 
+ 	for (i = 0; i < vf->nr_vring; i++) {
+@@ -83,10 +82,9 @@ static void ifcvf_free_per_vq_irq(struct ifcvf_adapter *adapter)
  	}
+ }
  
- 	pci_set_master(pdev);
-+	ifcvf_mgmt_dev = kzalloc(sizeof(struct ifcvf_vdpa_mgmt_dev), GFP_KERNEL);
-+	if (!ifcvf_mgmt_dev) {
-+		IFCVF_ERR(pdev, "Failed to alloc memory for the vDPA management device\n");
-+		return -ENOMEM;
-+	}
+-static void ifcvf_free_vqs_reused_irq(struct ifcvf_adapter *adapter)
++static void ifcvf_free_vqs_reused_irq(struct ifcvf_hw *vf)
+ {
+-	struct pci_dev *pdev = adapter->pdev;
+-	struct ifcvf_hw *vf = &adapter->vf;
++	struct pci_dev *pdev = vf->pdev;
  
- 	adapter = vdpa_alloc_device(struct ifcvf_adapter, vdpa,
- 				    dev, &ifc_vdpa_ops, 1, 1, NULL, false);
- 	if (IS_ERR(adapter)) {
- 		IFCVF_ERR(pdev, "Failed to allocate vDPA structure");
--		return PTR_ERR(adapter);
-+		ret = PTR_ERR(adapter);
-+		goto err;
- 	}
+ 	if (vf->vqs_reused_irq != -EINVAL) {
+ 		devm_free_irq(&pdev->dev, vf->vqs_reused_irq, vf);
+@@ -95,14 +93,12 @@ static void ifcvf_free_vqs_reused_irq(struct ifcvf_adapter *adapter)
  
-+	adapter->pdev = pdev;
-+	adapter->vdpa.dma_dev = &pdev->dev;
-+	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
-+	ifcvf_mgmt_dev->adapter = adapter;
-+
- 	vf = &adapter->vf;
- 	vf->dev_type = get_dev_type(pdev);
- 	vf->base = pcim_iomap_table(pdev);
- 	vf->pdev = pdev;
+ }
  
--	adapter->pdev = pdev;
--	adapter->vdpa.dma_dev = &pdev->dev;
+-static void ifcvf_free_vq_irq(struct ifcvf_adapter *adapter)
++static void ifcvf_free_vq_irq(struct ifcvf_hw *vf)
+ {
+-	struct ifcvf_hw *vf = &adapter->vf;
 -
- 	ret = ifcvf_init_hw(vf, pdev);
- 	if (ret) {
- 		IFCVF_ERR(pdev, "Failed to init IFCVF hw\n");
-@@ -859,16 +867,6 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	vf->hw_features = ifcvf_get_hw_features(vf);
- 	vf->config_size = ifcvf_get_config_size(vf);
+ 	if (vf->msix_vector_status == MSIX_VECTOR_PER_VQ_AND_CONFIG)
+-		ifcvf_free_per_vq_irq(adapter);
++		ifcvf_free_per_vq_irq(vf);
+ 	else
+-		ifcvf_free_vqs_reused_irq(adapter);
++		ifcvf_free_vqs_reused_irq(vf);
+ }
  
--	ifcvf_mgmt_dev = kzalloc(sizeof(struct ifcvf_vdpa_mgmt_dev), GFP_KERNEL);
--	if (!ifcvf_mgmt_dev) {
--		IFCVF_ERR(pdev, "Failed to alloc memory for the vDPA management device\n");
--		return -ENOMEM;
--	}
--
--	ifcvf_mgmt_dev->mdev.ops = &ifcvf_vdpa_mgmt_dev_ops;
--	ifcvf_mgmt_dev->mdev.device = dev;
--	ifcvf_mgmt_dev->adapter = adapter;
--
- 	dev_type = get_dev_type(pdev);
- 	switch (dev_type) {
- 	case VIRTIO_ID_NET:
-@@ -883,12 +881,11 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		goto err;
- 	}
+ static void ifcvf_free_config_irq(struct ifcvf_adapter *adapter)
+@@ -126,8 +122,9 @@ static void ifcvf_free_config_irq(struct ifcvf_adapter *adapter)
+ static void ifcvf_free_irq(struct ifcvf_adapter *adapter)
+ {
+ 	struct pci_dev *pdev = adapter->pdev;
++	struct ifcvf_hw *vf = &adapter->vf;
  
-+	ifcvf_mgmt_dev->mdev.ops = &ifcvf_vdpa_mgmt_dev_ops;
-+	ifcvf_mgmt_dev->mdev.device = dev;
- 	ifcvf_mgmt_dev->mdev.max_supported_vqs = vf->nr_vring;
- 	ifcvf_mgmt_dev->mdev.supported_features = vf->hw_features;
- 
--	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
--
--
- 	ret = vdpa_mgmtdev_register(&ifcvf_mgmt_dev->mdev);
- 	if (ret) {
- 		IFCVF_ERR(pdev,
+-	ifcvf_free_vq_irq(adapter);
++	ifcvf_free_vq_irq(vf);
+ 	ifcvf_free_config_irq(adapter);
+ 	ifcvf_free_irq_vectors(pdev);
+ }
 -- 
 2.31.1
 
