@@ -2,111 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5F0A6394B3
-	for <lists+stable@lfdr.de>; Sat, 26 Nov 2022 09:55:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C97BF639568
+	for <lists+stable@lfdr.de>; Sat, 26 Nov 2022 11:42:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229464AbiKZIz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Nov 2022 03:55:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54478 "EHLO
+        id S229446AbiKZKmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Nov 2022 05:42:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbiKZIz5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Nov 2022 03:55:57 -0500
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36FCB1F62C;
-        Sat, 26 Nov 2022 00:55:57 -0800 (PST)
-Received: by mail-pg1-x52e.google.com with SMTP id r18so5662041pgr.12;
-        Sat, 26 Nov 2022 00:55:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=mjCyoWb61wdL81qcmSTAoCdIWg/CnPBXU24aGBaxwOM=;
-        b=GKxrnlQLxkL9Zl+l/xPdpODXepbcFe04+9KhbZqPCrUdhirdjzECqRG7Bho21ovFaz
-         I3YdMsdsZ0fbxpGtE1dKZEo6AjHoQ7zitma0vg5XFFnDExCg46EmBf0bRbi3EL8NMZ0V
-         xXCMos5IWLsaEHb0C4fGPnJBSE1smSkBJSFZwclaL6iMbo4nxn+i1Q56kXkPAJ27iH0I
-         YJ0uzsFlP+jOpDIbuiYNAhozku4OuzTGBZXerfPyPFesLfuaQecUDwGpyyZ/cuIKPyMd
-         sfxV78V5uXlyjsd7gBEwWgODn6zHnUHDZemDrk+QU3FdTE4u6jlE6f2YELumG+BvZJET
-         yhaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mjCyoWb61wdL81qcmSTAoCdIWg/CnPBXU24aGBaxwOM=;
-        b=i6/KBuaEop75RO0eTEIacEnowsUqU35bUVsxuUriuaoVsqMDC1GQHODYYvEKVx7QAq
-         SQYYyZhUG/4DhVaA0USJwFXESI/+5pjlVGxygj2GWQEJf7HRptcRYQjrJqMU2ZCcfvB6
-         R4RyWTRwibDmD2Nnn7qlHgS+Ot7US3lJiKp6NqXwIOdoN9C+eqTagTXQ8B21CFp6UiRL
-         HbIr6eEtP+gjDWypt68JkR6qE7/8zXwHm5wWXRyYBjdduWP8cTW+Dts2rmaor1BlDCK3
-         ZIJbJa2udUuAELu8bUofoeU9ZXOnA4r4JYVLi8kJhdZiDGWYdKSWHwn8E69eXCzkfnXD
-         pXhQ==
-X-Gm-Message-State: ANoB5pmuIOEsQIN6s9n+F4z9PEHSsD7taB38f7tIdlQoog556Z4+eRLK
-        cyGczVOn6vrxkLr1DQsUisg=
-X-Google-Smtp-Source: AA0mqf46aOZen8tAGbErQ9j6rmqHuNqXcVcwUnho3E5t1ejjZqVcNErb8tzEMFzSlpfLszqPUVgv3A==
-X-Received: by 2002:a05:6a00:1d21:b0:574:a486:cb with SMTP id a33-20020a056a001d2100b00574a48600cbmr9339894pfx.11.1669452956727;
-        Sat, 26 Nov 2022 00:55:56 -0800 (PST)
-Received: from debian.me (subs02-180-214-232-11.three.co.id. [180.214.232.11])
-        by smtp.gmail.com with ESMTPSA id l7-20020a170902f68700b0017f756563bcsm4892392plg.47.2022.11.26.00.55.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Nov 2022 00:55:56 -0800 (PST)
-Received: by debian.me (Postfix, from userid 1000)
-        id 7B41210436D; Sat, 26 Nov 2022 15:55:52 +0700 (WIB)
-Date:   Sat, 26 Nov 2022 15:55:51 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.0 000/313] 6.0.10-rc2 review
-Message-ID: <Y4HUl6gMvkDJxgA+@debian.me>
-References: <20221125075804.064161337@linuxfoundation.org>
+        with ESMTP id S229502AbiKZKmT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Nov 2022 05:42:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 592B128E31;
+        Sat, 26 Nov 2022 02:42:18 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11608B8119B;
+        Sat, 26 Nov 2022 10:42:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CF7BC433D6;
+        Sat, 26 Nov 2022 10:42:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1669459335;
+        bh=slQWqXMaJzUSxWeIEcuX/WIiJyoDdLAFAoGyCECDXz0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DDCqhtvnVFouEff+o76t1wMOWcYUiy8xgD++2mTlGz1k3s3bX3c5TjOku5eN5raYL
+         3LQfZs6ErRncUnT635UFx/0buAof0NEI6DzqIA6ybqLYgvIxjFs/Uh8VwY2KwXe+rG
+         RQFPw9jNnTw0g6CheDAYqO32WjgA09u+PhRiDG2M=
+Date:   Sat, 26 Nov 2022 08:04:11 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     linux-can@vger.kernel.org, Peter Fink <pfink@christ-es.de>,
+        stable@vger.kernel.org, Ryan Edwards <ryan.edwards@gmail.com>
+Subject: Re: [PATCH] can: gs_usb: fix size parameter to usb_free_coherent()
+ calls
+Message-ID: <Y4G6a4hlJFgH+iAy@kroah.com>
+References: <20221125201727.1558965-1-mkl@pengutronix.de>
+ <20221125203217.cuv63t4ijxwmqun7@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="1CcNYwqhgGfkxMEO"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221125075804.064161337@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <20221125203217.cuv63t4ijxwmqun7@pengutronix.de>
+X-Spam-Status: No, score=-5.5 required=5.0 tests=BAYES_00,DATE_IN_PAST_03_06,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Nov 25, 2022 at 09:32:17PM +0100, Marc Kleine-Budde wrote:
+> Hello Greg,
+> 
+> with v5.18-rc1 in commit
+> 
+> | c359931d2545 ("can: gs_usb: use union and FLEX_ARRAY for data in struct gs_host_frame")
+> 
+> a bug in the gs_usb driver in the usage of usb_free_coherent() was
+> introduced. With v6.1-rc1
+> 
+> | 62f102c0d156 ("can: gs_usb: remove dma allocations")
+> 
+> the DMA allocation was removed altogether from the driver, fixing the
+> bug unintentionally.
+> 
+> We can either cherry-pick 62f102c0d156 ("can: gs_usb: remove dma
+> allocations") on v6.0, v5.19, and v5.18 or apply this patch, which fixes
+> the usage of usb_free_coherent() only.
 
---1CcNYwqhgGfkxMEO
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+We should always take what is in Linus's tree, that's the best solution.
+Does the change backport cleanly?
 
-On Fri, Nov 25, 2022 at 08:58:38AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.10 release.
-> There are 313 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+And 5.19 and 5.18 are long end-of-life, no need to worry about them.
+Only 6.0 matters right now.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
+thanks,
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
---=20
-An old man doll... just what I always wanted! - Clara
-
---1CcNYwqhgGfkxMEO
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY4HUiwAKCRD2uYlJVVFO
-o6ybAP9NqLaB6L+lF2RF9TI+GtnoTjgX2+5JnN/BjIgquv4TbgD/UsPqydFI5nTo
-KP2Rnp0N4UkMCI2XWBSRcazJebcmnwk=
-=xTG3
------END PGP SIGNATURE-----
-
---1CcNYwqhgGfkxMEO--
+greg k-h
