@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A5CE639562
-	for <lists+stable@lfdr.de>; Sat, 26 Nov 2022 11:36:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CA03639563
+	for <lists+stable@lfdr.de>; Sat, 26 Nov 2022 11:37:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229610AbiKZKgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Nov 2022 05:36:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55770 "EHLO
+        id S229459AbiKZKhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Nov 2022 05:37:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229518AbiKZKgg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Nov 2022 05:36:36 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D165827161
-        for <stable@vger.kernel.org>; Sat, 26 Nov 2022 02:36:33 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id g10so5986906plo.11
-        for <stable@vger.kernel.org>; Sat, 26 Nov 2022 02:36:33 -0800 (PST)
+        with ESMTP id S229506AbiKZKhx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Nov 2022 05:37:53 -0500
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CBBC12AD1
+        for <stable@vger.kernel.org>; Sat, 26 Nov 2022 02:37:50 -0800 (PST)
+Received: by mail-pf1-x430.google.com with SMTP id z17so1363272pff.1
+        for <stable@vger.kernel.org>; Sat, 26 Nov 2022 02:37:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=qFcyLaCmY5DywnpVPOwsfNuWTtPjVkVXBPx3EqbF+ec=;
-        b=VgxNKh1RrPazzt5w7l81FBL1JmMFIro5GuM7I7vsSSBfvXDYLENP0FA9LunPSYkZSL
-         x/ruHJVL2h0ES2Gx5mlQu3Ch6GQmRFTNKNPclisSY9fCYS27Xr5DIEvZc6RVsrfngQCd
-         C/46XrXDULrpxA/porl7d9vPEadIchU+8Aix5djIAEGQZgLhUvWFYVN6xMmh5zX+6W2m
-         S7RUVlhiAoVyFeCGCfAD7KzrizbUX1Z+WHDH6k40zDdkQN6aLnIg3/heUeXpb0JGOmEp
-         I3FHdXmTBfcmhQXFlqyoUOCPcKcAVJSpfHRdlG5F37zAOVGb0unvNIVAFZ+tqqXcgCUD
-         6Kig==
+        bh=JMQIbTTyD7maxQJ+qvsLZPyL5b3i0B8AZNHTsBz7jyA=;
+        b=d7m85RQqsaFYZ2hhWtyCA7YFzUdEFfD0hW2O538XpSOMyXNAthxpIzflgEw984LLtN
+         RVTGZRVKDlsachZaun604UtQuHg/N3uz6Y1Dcswm9UfkhFTxPVWunx1mevoqpV5J8y3T
+         ij0Ys8rIqow+tAP2yJyNg4C3j8/+oHK3E7KQ77/ujenVw8XmL0+jfQK8bGRcLlSiIIfD
+         vK/VOvsn+Q/o/izMDHIKpk5B0KgmyeVscMLOG0dWTc655gM2LdcpRDIa3uippc+U5m8V
+         mFVWQ4gCStUvIqQZNO+Agad/MgGQHUDNEgFks+K1RNyFFvMg6ivPqSUK1hA1bu1OiSzW
+         G8zQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=qFcyLaCmY5DywnpVPOwsfNuWTtPjVkVXBPx3EqbF+ec=;
-        b=6X8oezRVIvDQJhrSRt171fQ+rJtdbcWk/8YJ/otvCoUbubeusvfCfYc4g51eyQIr1x
-         n0jMSjcex8FXiqQXD3GyunI02XtkclApVhOwedKOw8Abez2eYWrq9TLIFe0qnl5hDYrO
-         ioJwZoZaWVjwjXnU2mJTR9HHj0Y31aNMW8c51mePDoI2zuQJedTyqsWxZYRUKTlWQiDx
-         MaqaN6cqqf0+L1FRNL4Acwwm0pCykltcY3WxnTexHR29XS+xZEQ3vTImIK+h+NsXVW3v
-         WYrZDyANw/I36lEEFL2Zxd4LCG1ziLfZfhjjgb2rYqMx0J9e7eanArjEmepNb9HUf+3z
-         J/ZA==
-X-Gm-Message-State: ANoB5pnpUAEGaKVNIQW33gplhpyqdGFHyj6KgUq8O8R/WCqLOcOB8Evq
-        puiRKvxC13X55RhZOH2DzfSTMX9IXTpT/o/4hhw=
-X-Google-Smtp-Source: AA0mqf7BDrzx7MufKKZyDZBkOM9v6kM1c3SlFzuFixMKJcaxpups+d09M0fTxLs7fCOqlbPoClZdkg==
-X-Received: by 2002:a17:90b:1bc6:b0:218:4d16:cecf with SMTP id oa6-20020a17090b1bc600b002184d16cecfmr44104582pjb.96.1669458992032;
-        Sat, 26 Nov 2022 02:36:32 -0800 (PST)
+        bh=JMQIbTTyD7maxQJ+qvsLZPyL5b3i0B8AZNHTsBz7jyA=;
+        b=FHhXGJbioaAr8pzC8PVJ0VEN6gYBiwYaY+0rrTffcLoKQ2japd7adWX6vsqH8MiiTT
+         IYkQNV2QYpBLowmchYjiTZo63iiGezyrKwUvzJ7AG4Tot+DktxJYwZ51VyC+YV5AxVcf
+         9gnSai5HV2H+kx3FhB+5fKgnq/I1RZ6OtAP02nhzxbvQ2QxTKWed81C5tdXv3pGUezYa
+         4fNkB1e9DC3nSZM0QogSBWwOwzTA0zKOlaNV+OLQK1kMlzLsHa8chuCgpqQ1xcu/v59v
+         t33CkQ9SClZKOZWX4ENB78agf4+covJxp54VpznhFUcFswy+d/UmxbxDV1bWL8ewZekq
+         OYWw==
+X-Gm-Message-State: ANoB5plt3R1uqpRw/xPwoz3l0FrVOsPfV4guA1XaiPCr6TAAKIYEKIDF
+        GfxLTpdY1972tWgUZ34WfvqTuJ8iwyqMh/tfSOY=
+X-Google-Smtp-Source: AA0mqf6SG5mLBTKxp1XCBD8PzrhN64Gce3JUGRdC8ccd98Bnte+axnuVXP7kEEuxhQ2Fy2vE1cfxIQ==
+X-Received: by 2002:a63:2401:0:b0:477:f5ae:7322 with SMTP id k1-20020a632401000000b00477f5ae7322mr3016460pgk.16.1669459068717;
+        Sat, 26 Nov 2022 02:37:48 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id pl18-20020a17090b269200b00218f830c63esm4318599pjb.1.2022.11.26.02.36.31
+        by smtp.gmail.com with ESMTPSA id n8-20020a170902d2c800b00189327b022bsm4985384plc.286.2022.11.26.02.37.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Nov 2022 02:36:31 -0800 (PST)
-Message-ID: <6381ec2f.170a0220.28256.606f@mx.google.com>
-Date:   Sat, 26 Nov 2022 02:36:31 -0800 (PST)
+        Sat, 26 Nov 2022 02:37:48 -0800 (PST)
+Message-ID: <6381ec7c.170a0220.5cb27.6a08@mx.google.com>
+Date:   Sat, 26 Nov 2022 02:37:48 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.155-182-g71be344c40e8
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Kernel: v5.4.224-166-g7220da1487d5
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 build: 185 builds: 6 failed, 179 passed,
- 367 errors, 12 warnings (v5.10.155-182-g71be344c40e8)
+Subject: stable-rc/queue/5.4 build: 189 builds: 3 failed, 186 passed, 4 errors,
+ 34 warnings (v5.4.224-166-g7220da1487d5)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -71,28 +71,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 build: 185 builds: 6 failed, 179 passed, 367 errors, 1=
-2 warnings (v5.10.155-182-g71be344c40e8)
+stable-rc/queue/5.4 build: 189 builds: 3 failed, 186 passed, 4 errors, 34 w=
+arnings (v5.4.224-166-g7220da1487d5)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-0/kernel/v5.10.155-182-g71be344c40e8/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
+/kernel/v5.4.224-166-g7220da1487d5/
 
 Tree: stable-rc
-Branch: queue/5.10
-Git Describe: v5.10.155-182-g71be344c40e8
-Git Commit: 71be344c40e8bc342a5c761815b2873661550e3c
+Branch: queue/5.4
+Git Describe: v5.4.224-166-g7220da1487d5
+Git Commit: 7220da1487d53b019956ef68c580e1a745f401ad
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
 
 Build Failures Detected:
 
-arm64:
-    defconfig: (gcc-10) FAIL
-    defconfig+arm64-chromebook: (gcc-10) FAIL
-
 arm:
-    multi_v7_defconfig: (gcc-10) FAIL
     rpc_defconfig: (gcc-10) FAIL
 
 mips:
@@ -104,297 +99,75 @@ Errors and Warnings Detected:
 arc:
 
 arm64:
-    defconfig (gcc-10): 121 errors, 1 warning
-    defconfig+arm64-chromebook (gcc-10): 121 errors, 1 warning
+    defconfig (gcc-10): 2 warnings
+    defconfig+arm64-chromebook (gcc-10): 2 warnings
 
 arm:
-    multi_v7_defconfig (gcc-10): 121 errors, 1 warning
+    assabet_defconfig (gcc-10): 1 warning
+    collie_defconfig (gcc-10): 1 warning
+    h3600_defconfig (gcc-10): 1 warning
+    neponset_defconfig (gcc-10): 1 warning
     rpc_defconfig (gcc-10): 4 errors
+    shannon_defconfig (gcc-10): 1 warning
 
 i386:
+    allnoconfig (gcc-10): 2 warnings
+    i386_defconfig (gcc-10): 2 warnings
+    tinyconfig (gcc-10): 2 warnings
 
 mips:
-    32r2el_defconfig (gcc-10): 1 warning
-    decstation_64_defconfig (gcc-10): 1 warning
-    decstation_defconfig (gcc-10): 1 warning
-    decstation_r4k_defconfig (gcc-10): 1 warning
-    rm200_defconfig (gcc-10): 1 warning
+    mtx1_defconfig (gcc-10): 3 warnings
 
 riscv:
-    rv32_defconfig (gcc-10): 4 warnings
 
 x86_64:
+    allnoconfig (gcc-10): 4 warnings
+    tinyconfig (gcc-10): 4 warnings
+    x86_64_defconfig (gcc-10): 4 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 4 warnings
 
 Errors summary:
 
-    3    drivers/pinctrl/pinctrl-rockchip.c:959:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:958:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:957:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:956:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:955:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:951:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:950:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:949:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:948:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:947:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:946:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:945:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:944:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:943:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:942:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:941:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:940:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:936:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:935:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:934:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:933:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:932:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:931:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:930:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:929:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:928:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:927:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:926:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:925:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:924:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:923:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:922:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:921:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:920:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:919:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:918:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:917:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:916:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:915:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:914:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:913:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:912:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:911:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:907:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:906:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:902:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:901:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:900:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:899:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:898:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:897:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:896:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:895:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:894:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:893:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:892:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:891:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:890:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:889:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:888:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:887:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:886:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:885:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:881:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:880:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:876:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:875:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:874:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:873:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:872:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:871:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:870:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:866:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:865:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:864:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:863:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:862:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:861:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:860:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:859:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:858:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:857:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:856:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:855:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:854:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:853:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:852:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:851:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:850:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:849:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:848:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:847:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:846:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:845:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:844:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:843:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:842:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:841:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:840:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:839:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:838:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:837:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:836:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:835:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:834:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:833:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:832:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:831:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:830:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:829:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:828:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:827:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:826:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:825:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:824:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:823:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:822:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:821:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:820:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:819:2: error: initializer eleme=
-nt is not constant
-    3    drivers/pinctrl/pinctrl-rockchip.c:819:2: error: implicit declarat=
-ion of function =E2=80=98RK_MUXROUTE_SAME=E2=80=99 [-Werror=3Dimplicit-func=
-tion-declaration]
     2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
     2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
 h=3D=E2=80=99
 
 Warnings summary:
 
-    3    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_g=
-p_kthread=E2=80=99 defined but not used [-Wunused-function]
-    3    cc1: some warnings being treated as errors
-    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
--Wcpp]
-    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
-d [-Wcpp]
-    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
-    1    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved sy=
-mbol check will be entirely skipped.
+    7    ld: warning: creating DT_TEXTREL in a PIE
+    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
+min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+d-only section `.head.text'
+    4    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
+ to integer of different size [-Wpointer-to-int-cast]
+    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+d-only section `.head.text'
+    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    2    arch/x86/entry/entry_64.o: warning: objtool: If this is a retpolin=
+e, please patch it in with alternatives and annotate it with ANNOTATE_NOSPE=
+C_ALTERNATIVE.
+    2    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1: un=
+supported intra-function call
+    2    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: un=
+supported intra-function call
+    2    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
+    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
 
 Section mismatches summary:
 
-    1    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): S=
-ection mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to=
- the function .init.text:ixp4xx_irq_init()
-    1    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0):=
- Section mismatch in reference from the variable __ksymtab_prom_init_numa_m=
-emory to the function .init.text:prom_init_numa_memory()
+    10   WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section =
+mismatch in reference from the variable __ksymtab_vic_init_cascaded to the =
+function .init.text:vic_init_cascaded()
+    1    WARNING: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Section mi=
+smatch in reference from the variable __ksymtab_ixp4xx_irq_init to the func=
+tion .init.text:ixp4xx_irq_init()
+    1    WARNING: vmlinux.o(.text.unlikely+0x3a90): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -405,27 +178,37 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved symbol =
-check will be entirely skipped.
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
 n mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: unsuppo=
+rted intra-function call
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
+mismatches
+
+Warnings:
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
 allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -449,8 +232,12 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -539,6 +326,11 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
 cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -559,23 +351,17 @@ colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 
 ---------------------------------------------------------------------------=
 -----
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
 corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
----------------------------------------------------------------------------=
------
-cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -589,283 +375,23 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-decstation_64_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning,=
- 0 section mismatches
-
-Warnings:
-    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
-read=E2=80=99 defined but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
-read=E2=80=99 defined but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning=
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 , 0 section mismatches
 
-Warnings:
-    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
-read=E2=80=99 defined but not used [-Wunused-function]
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x3a90): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (arm64, gcc-10) =E2=80=94 FAIL, 121 errors, 1 warning, 0 section =
-mismatches
-
-Errors:
-    drivers/pinctrl/pinctrl-rockchip.c:819:2: error: implicit declaration o=
-f function =E2=80=98RK_MUXROUTE_SAME=E2=80=99 [-Werror=3Dimplicit-function-=
-declaration]
-    drivers/pinctrl/pinctrl-rockchip.c:819:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:820:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:821:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:822:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:823:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:824:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:825:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:826:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:827:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:828:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:829:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:830:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:831:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:832:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:833:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:834:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:835:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:836:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:837:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:838:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:839:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:840:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:841:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:842:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:843:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:844:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:845:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:846:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:847:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:848:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:849:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:850:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:851:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:852:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:853:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:854:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:855:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:856:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:857:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:858:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:859:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:860:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:861:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:862:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:863:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:864:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:865:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:866:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:870:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:871:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:872:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:873:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:874:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:875:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:876:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:880:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:881:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:885:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:886:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:887:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:888:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:889:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:890:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:891:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:892:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:893:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:894:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:895:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:896:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:897:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:898:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:899:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:900:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:901:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:902:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:906:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:907:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:911:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:912:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:913:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:914:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:915:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:916:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:917:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:918:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:919:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:920:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:921:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:922:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:923:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:924:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:925:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:926:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:927:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:928:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:929:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:930:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:931:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:932:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:933:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:934:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:935:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:936:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:940:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:941:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:942:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:943:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:944:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:945:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:946:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:947:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:948:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:949:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:950:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:951:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:955:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:956:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:957:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:958:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:959:2: error: initializer element is=
- not constant
-
-Warnings:
-    cc1: some warnings being treated as errors
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -874,256 +400,25 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 FAIL, 121 errors, 1 wa=
-rning, 0 section mismatches
-
-Errors:
-    drivers/pinctrl/pinctrl-rockchip.c:819:2: error: implicit declaration o=
-f function =E2=80=98RK_MUXROUTE_SAME=E2=80=99 [-Werror=3Dimplicit-function-=
-declaration]
-    drivers/pinctrl/pinctrl-rockchip.c:819:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:820:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:821:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:822:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:823:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:824:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:825:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:826:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:827:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:828:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:829:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:830:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:831:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:832:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:833:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:834:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:835:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:836:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:837:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:838:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:839:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:840:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:841:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:842:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:843:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:844:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:845:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:846:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:847:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:848:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:849:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:850:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:851:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:852:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:853:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:854:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:855:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:856:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:857:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:858:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:859:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:860:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:861:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:862:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:863:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:864:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:865:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:866:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:870:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:871:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:872:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:873:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:874:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:875:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:876:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:880:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:881:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:885:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:886:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:887:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:888:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:889:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:890:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:891:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:892:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:893:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:894:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:895:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:896:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:897:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:898:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:899:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:900:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:901:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:902:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:906:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:907:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:911:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:912:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:913:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:914:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:915:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:916:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:917:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:918:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:919:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:920:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:921:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:922:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:923:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:924:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:925:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:926:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:927:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:928:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:929:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:930:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:931:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:932:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:933:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:934:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:935:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:936:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:940:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:941:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:942:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:943:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:944:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:945:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:946:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:947:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:948:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:949:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:950:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:951:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:955:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:956:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:957:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:958:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:959:2: error: initializer element is=
- not constant
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
+ismatches
 
 Warnings:
-    cc1: some warnings being treated as errors
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+
+---------------------------------------------------------------------------=
+-----
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warn=
+ings, 0 section mismatches
+
+Warnings:
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1147,8 +442,18 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
 ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1192,8 +497,12 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1227,8 +536,13 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
 on mismatches
+
+Warnings:
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -1249,6 +563,11 @@ ection mismatches
 -----
 integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1281,9 +600,9 @@ ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 Section mismatches:
-    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Sectio=
-n mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to the =
-function .init.text:ixp4xx_irq_init()
+    WARNING: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Section mismatc=
+h in reference from the variable __ksymtab_ixp4xx_irq_init to the function =
+.init.text:ixp4xx_irq_init()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1312,6 +631,11 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
@@ -1329,11 +653,6 @@ loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 -----
 loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
-
-Section mismatches:
-    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0): Sect=
-ion mismatch in reference from the variable __ksymtab_prom_init_numa_memory=
- to the function .init.text:prom_init_numa_memory()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1412,6 +731,11 @@ maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 
 ---------------------------------------------------------------------------=
 -----
+markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
 milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
  0 section mismatches
 
@@ -1419,6 +743,11 @@ milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
 -----
 mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1442,8 +771,21 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
 on mismatches
+
+Warnings:
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1455,258 +797,15 @@ ection mismatches
 multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
+
 ---------------------------------------------------------------------------=
 -----
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 121 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    drivers/pinctrl/pinctrl-rockchip.c:819:2: error: implicit declaration o=
-f function =E2=80=98RK_MUXROUTE_SAME=E2=80=99 [-Werror=3Dimplicit-function-=
-declaration]
-    drivers/pinctrl/pinctrl-rockchip.c:819:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:820:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:821:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:822:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:823:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:824:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:825:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:826:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:827:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:828:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:829:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:830:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:831:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:832:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:833:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:834:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:835:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:836:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:837:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:838:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:839:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:840:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:841:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:842:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:843:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:844:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:845:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:846:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:847:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:848:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:849:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:850:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:851:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:852:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:853:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:854:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:855:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:856:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:857:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:858:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:859:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:860:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:861:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:862:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:863:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:864:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:865:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:866:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:870:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:871:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:872:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:873:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:874:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:875:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:876:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:880:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:881:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:885:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:886:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:887:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:888:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:889:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:890:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:891:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:892:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:893:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:894:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:895:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:896:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:897:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:898:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:899:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:900:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:901:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:902:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:906:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:907:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:911:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:912:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:913:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:914:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:915:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:916:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:917:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:918:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:919:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:920:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:921:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:922:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:923:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:924:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:925:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:926:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:927:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:928:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:929:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:930:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:931:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:932:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:933:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:934:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:935:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:936:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:940:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:941:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:942:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:943:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:944:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:945:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:946:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:947:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:948:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:949:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:950:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:951:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:955:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:956:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:957:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:958:2: error: initializer element is=
- not constant
-    drivers/pinctrl/pinctrl-rockchip.c:959:2: error: initializer element is=
- not constant
-
-Warnings:
-    cc1: some warnings being treated as errors
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1725,8 +824,12 @@ mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1737,6 +840,11 @@ ection mismatches
 -----
 nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1750,8 +858,13 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
+nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1815,6 +928,11 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
 prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -1870,11 +988,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1891,26 +1006,8 @@ Errors:
 
 ---------------------------------------------------------------------------=
 -----
-rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
 rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
----------------------------------------------------------------------------=
------
-rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sect=
-ion mismatches
-
-Warnings:
-    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
-    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1922,10 +1019,20 @@ tion mismatches
 s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
+
 ---------------------------------------------------------------------------=
 -----
 s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1939,8 +1046,12 @@ sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
 
 ---------------------------------------------------------------------------=
 -----
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1967,10 +1078,20 @@ ection mismatches
 spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
+
 ---------------------------------------------------------------------------=
 -----
 spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -2019,18 +1140,32 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
 ismatches
+
+Warnings:
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: unsuppo=
+rted intra-function call
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
 tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -2041,6 +1176,11 @@ ction mismatches
 -----
 u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -2061,6 +1201,11 @@ vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 -----
 versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -2094,13 +1239,33 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 s=
 ection mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1: unsuppo=
+rted intra-function call
+    arch/x86/entry/entry_64.o: warning: objtool: If this is a retpoline, pl=
+ease patch it in with alternatives and annotate it with ANNOTATE_NOSPEC_ALT=
+ERNATIVE.
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-0 warnings, 0 section mismatches
+4 warnings, 0 section mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1: unsuppo=
+rted intra-function call
+    arch/x86/entry/entry_64.o: warning: objtool: If this is a retpoline, pl=
+ease patch it in with alternatives and annotate it with ANNOTATE_NOSPEC_ALT=
+ERNATIVE.
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
