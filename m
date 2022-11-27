@@ -2,126 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E99A5639827
-	for <lists+stable@lfdr.de>; Sat, 26 Nov 2022 20:27:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F2F63997A
+	for <lists+stable@lfdr.de>; Sun, 27 Nov 2022 07:44:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229621AbiKZT1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Nov 2022 14:27:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34258 "EHLO
+        id S229496AbiK0Goa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Nov 2022 01:44:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229616AbiKZT1D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Nov 2022 14:27:03 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10D97140A3
-        for <stable@vger.kernel.org>; Sat, 26 Nov 2022 11:27:02 -0800 (PST)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1oz0pG-000232-Kd; Sat, 26 Nov 2022 20:26:58 +0100
-Received: from pengutronix.de (unknown [IPv6:2a03:f580:87bc:d400:5b51:dd55:b9e8:eb6e])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        (Authenticated sender: mkl-all@blackshift.org)
-        by smtp.blackshift.org (Postfix) with ESMTPSA id 5C1EC12A557;
-        Sat, 26 Nov 2022 19:26:57 +0000 (UTC)
-Date:   Sat, 26 Nov 2022 20:26:56 +0100
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-can@vger.kernel.org, Peter Fink <pfink@christ-es.de>,
-        stable@vger.kernel.org, Ryan Edwards <ryan.edwards@gmail.com>
-Subject: Re: [PATCH] can: gs_usb: fix size parameter to usb_free_coherent()
- calls
-Message-ID: <20221126192656.yb2v2sw6af57sa4f@pengutronix.de>
-References: <20221125201727.1558965-1-mkl@pengutronix.de>
- <20221125203217.cuv63t4ijxwmqun7@pengutronix.de>
- <Y4G6a4hlJFgH+iAy@kroah.com>
+        with ESMTP id S229493AbiK0Go3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Nov 2022 01:44:29 -0500
+Received: from mail-vk1-xa31.google.com (mail-vk1-xa31.google.com [IPv6:2607:f8b0:4864:20::a31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0521CDF79;
+        Sat, 26 Nov 2022 22:44:27 -0800 (PST)
+Received: by mail-vk1-xa31.google.com with SMTP id u9so3865817vkk.4;
+        Sat, 26 Nov 2022 22:44:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=9YAtr1f3rNJDTWizS2487hu89IqSvvQkFyG9LJcuC2s=;
+        b=ZzydsdnYFf/4lSPSjw25OYVJulSW0t61sJNgSlR9PtwT/D9ZXG93mCl9DOY8wyHwpO
+         Bwap5HFCHMs25M5ugFeczcNovjzUB2XKlXpqOi6HX6JwFbfF/QNadz0RV1njLEmgc+wW
+         iZNuzYc/vkpO3mt6+EBkZNPqHytFoin4z4diuG3nksxFAhnXWBbJHMynf5TTr5Ug17BJ
+         8BJqE1pkbI1OCW7Z6YCrDB5x++eOcrFC1PmATFqxja2qOZXACPw+7LNGSyQ7GMenBDNv
+         t6N7Kch4EJcaOxEwrCPFkbfkTzb0YNffk4yMM/vJYWAEeuhN+2a/UD+vFD2JzEkekQn1
+         qruw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9YAtr1f3rNJDTWizS2487hu89IqSvvQkFyG9LJcuC2s=;
+        b=e7edYeYchr7ovkGc9d51pPYnUbZ3hj6yQbXN4fZZN/Mb7EuIWzkWxmIhHdxGajvJZa
+         YXjFH25htB8GkDx4OjJiWcU+D2VNQzJnhp0ThF3okH3nM0qfcJI52YJwAQAEE/NIdc+H
+         yqFuuYAOW+RcvRVp6IYTmFktmppvLEAx8TaIpSJa3E7M1vclYFOdHv0vMPcYlZLpicHO
+         sJ6R00vgNyPKlHWa2AOvK0LUzrRmMnhrYgDbq5yB1fXk/PS9J5XueMhrs9VaWGw4MKYK
+         wAG21S379B2tEoJNH3ibFY/p3sS+/sWu7aP6QPEih9v7XFgzE8Wd2L58+8XcD0FAxhsq
+         7pWQ==
+X-Gm-Message-State: ANoB5pn5/5AImbsQDYCgalo14pJ0ZQzXfibo530wO33dgJ/mj4uW+5aT
+        vdFBhupx5UB35keiUMlWQugzvaGWht0tD+a5m2/nP66a
+X-Google-Smtp-Source: AA0mqf6ANzoWYoUxraYM/BDLBa02uJHpfX2DSQqRUvM/8oCxVyg5xVNrOJLONugRcmJJLFCIKZUNd8S/KvYD7B3q+oQ=
+X-Received: by 2002:a1f:2586:0:b0:3bc:99b5:21b with SMTP id
+ l128-20020a1f2586000000b003bc99b5021bmr12050263vkl.24.1669531465858; Sat, 26
+ Nov 2022 22:44:25 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="hat6s6lltkfdnn75"
-Content-Disposition: inline
-In-Reply-To: <Y4G6a4hlJFgH+iAy@kroah.com>
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+References: <20221122085138.332434-1-pawell@cadence.com>
+In-Reply-To: <20221122085138.332434-1-pawell@cadence.com>
+From:   Peter Chen <hzpeterchen@gmail.com>
+Date:   Sun, 27 Nov 2022 14:44:14 +0800
+Message-ID: <CAL411-remXzOE0JXy_j8ySOHYd=mk2hLXdr6d26yB9v6MFqYXA@mail.gmail.com>
+Subject: Re: [PATCH] usb: cdnsp: fix lack of ZLP for ep0
+To:     Pawel Laszczak <pawell@cadence.com>
+Cc:     peter.chen@kernel.org, gregkh@linuxfoundation.org,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Nov 22, 2022 at 4:52 PM Pawel Laszczak <pawell@cadence.com> wrote:
+>
+> Patch implements the handling of ZLP for control transfer.
+> To send the ZLP driver must prepare the extra TRB in TD with
+> length set to zero and TRB type to TRB_NORMAL.
+> The first TRB must have set TRB_CHAIN flag, TD_SIZE = 1
+> and TRB type to TRB_DATA.
+>
+> cc: <stable@vger.kernel.org>
+> Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
 
---hat6s6lltkfdnn75
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
 
-On 26.11.2022 08:04:11, Greg Kroah-Hartman wrote:
-> On Fri, Nov 25, 2022 at 09:32:17PM +0100, Marc Kleine-Budde wrote:
-> > Hello Greg,
-> >=20
-> > with v5.18-rc1 in commit
-> >=20
-> > | c359931d2545 ("can: gs_usb: use union and FLEX_ARRAY for data in stru=
-ct gs_host_frame")
-> >=20
-> > a bug in the gs_usb driver in the usage of usb_free_coherent() was
-> > introduced. With v6.1-rc1
-> >=20
-> > | 62f102c0d156 ("can: gs_usb: remove dma allocations")
-> >=20
-> > the DMA allocation was removed altogether from the driver, fixing the
-> > bug unintentionally.
-> >=20
-> > We can either cherry-pick 62f102c0d156 ("can: gs_usb: remove dma
-> > allocations") on v6.0, v5.19, and v5.18 or apply this patch, which fixes
-> > the usage of usb_free_coherent() only.
->=20
-> We should always take what is in Linus's tree, that's the best
-> solution.
+Peter
 
-Ok.
-
-> Does the change backport cleanly?
-
-ACK.
-
-> And 5.19 and 5.18 are long end-of-life, no need to worry about them.
-> Only 6.0 matters right now.
-
-Please queue 62f102c0d156 ("can: gs_usb: remove dma allocations") for
-v6.0.x and add the fixes tag:
-
-Fixes: c359931d2545 ("can: gs_usb: use union and FLEX_ARRAY for data in str=
-uct gs_host_frame")
-
-regards,
-Marc
-
---=20
-Pengutronix e.K.                 | Marc Kleine-Budde           |
-Embedded Linux                   | https://www.pengutronix.de  |
-Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
-
---hat6s6lltkfdnn75
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEBsvAIBsPu6mG7thcrX5LkNig010FAmOCaHwACgkQrX5LkNig
-012lxAf/do5yctOLIE5HyY35427dytnMxSHjX0UsXi8xKRTs6S1kD1jc4zPNQY8m
-xPA9Op5uSD6xuUxS2DwRE5nFYwb5lIKrguwstTdtAaqojUIEXIi8Nmxxsv1OQBGI
-Zey7c+u6LPnoCTiVfaAd0WyGt9rTLMV9CUCnSPcIS3pRLy3IE3RVZnwJIcc2nREn
-AKeR/hhr6orAVCLWmDu/LrMW43G+4aIrcwAurZ4pULuyJmiBkvOcP8gUJFJmUf5h
-eGDohaVrmdbeM8ySsWOEDSyfRgbD/+nUh/gXvuCY0UQoM7VC66lbYiQ5NVgXXbZM
-v301V9qna/OH1gI/hkoqjATNBxTX0A==
-=nJFD
------END PGP SIGNATURE-----
-
---hat6s6lltkfdnn75--
+> ---
+>  drivers/usb/cdns3/cdnsp-ring.c | 42 ++++++++++++++++++++++++++--------
+>  1 file changed, 32 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c
+> index 86e1141e150f..fa1fa9b2ff38 100644
+> --- a/drivers/usb/cdns3/cdnsp-ring.c
+> +++ b/drivers/usb/cdns3/cdnsp-ring.c
+> @@ -2006,10 +2006,11 @@ int cdnsp_queue_bulk_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq)
+>
+>  int cdnsp_queue_ctrl_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq)
+>  {
+> -       u32 field, length_field, remainder;
+> +       u32 field, length_field, zlp = 0;
+>         struct cdnsp_ep *pep = preq->pep;
+>         struct cdnsp_ring *ep_ring;
+>         int num_trbs;
+> +       u32 maxp;
+>         int ret;
+>
+>         ep_ring = cdnsp_request_to_transfer_ring(pdev, preq);
+> @@ -2019,26 +2020,33 @@ int cdnsp_queue_ctrl_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq)
+>         /* 1 TRB for data, 1 for status */
+>         num_trbs = (pdev->three_stage_setup) ? 2 : 1;
+>
+> +       maxp = usb_endpoint_maxp(pep->endpoint.desc);
+> +
+> +       if (preq->request.zero && preq->request.length &&
+> +           (preq->request.length % maxp == 0)) {
+> +               num_trbs++;
+> +               zlp = 1;
+> +       }
+> +
+>         ret = cdnsp_prepare_transfer(pdev, preq, num_trbs);
+>         if (ret)
+>                 return ret;
+>
+>         /* If there's data, queue data TRBs */
+> -       if (pdev->ep0_expect_in)
+> -               field = TRB_TYPE(TRB_DATA) | TRB_IOC;
+> -       else
+> -               field = TRB_ISP | TRB_TYPE(TRB_DATA) | TRB_IOC;
+> -
+>         if (preq->request.length > 0) {
+> -               remainder = cdnsp_td_remainder(pdev, 0, preq->request.length,
+> -                                              preq->request.length, preq, 1, 0);
+> +               field = TRB_TYPE(TRB_DATA);
+>
+> -               length_field = TRB_LEN(preq->request.length) |
+> -                               TRB_TD_SIZE(remainder) | TRB_INTR_TARGET(0);
+> +               if (zlp)
+> +                       field |= TRB_CHAIN;
+> +               else
+> +                       field |= TRB_IOC | (pdev->ep0_expect_in ? 0 : TRB_ISP);
+>
+>                 if (pdev->ep0_expect_in)
+>                         field |= TRB_DIR_IN;
+>
+> +               length_field = TRB_LEN(preq->request.length) |
+> +                              TRB_TD_SIZE(zlp) | TRB_INTR_TARGET(0);
+> +
+>                 cdnsp_queue_trb(pdev, ep_ring, true,
+>                                 lower_32_bits(preq->request.dma),
+>                                 upper_32_bits(preq->request.dma), length_field,
+> @@ -2046,6 +2054,20 @@ int cdnsp_queue_ctrl_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq)
+>                                 TRB_SETUPID(pdev->setup_id) |
+>                                 pdev->setup_speed);
+>
+> +               if (zlp) {
+> +                       field = TRB_TYPE(TRB_NORMAL) | TRB_IOC;
+> +
+> +                       if (!pdev->ep0_expect_in)
+> +                               field = TRB_ISP;
+> +
+> +                       cdnsp_queue_trb(pdev, ep_ring, true,
+> +                                       lower_32_bits(preq->request.dma),
+> +                                       upper_32_bits(preq->request.dma), 0,
+> +                                       field | ep_ring->cycle_state |
+> +                                       TRB_SETUPID(pdev->setup_id) |
+> +                                       pdev->setup_speed);
+> +               }
+> +
+>                 pdev->ep0_stage = CDNSP_DATA_STAGE;
+>         }
+>
+> --
+> 2.25.1
+>
