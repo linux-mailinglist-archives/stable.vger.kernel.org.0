@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9F69639B3E
-	for <lists+stable@lfdr.de>; Sun, 27 Nov 2022 15:08:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FA0D639B3F
+	for <lists+stable@lfdr.de>; Sun, 27 Nov 2022 15:09:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229600AbiK0OIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Nov 2022 09:08:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35186 "EHLO
+        id S229606AbiK0OJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Nov 2022 09:09:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229469AbiK0OIe (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sun, 27 Nov 2022 09:08:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C11CBF53
-        for <Stable@vger.kernel.org>; Sun, 27 Nov 2022 06:08:34 -0800 (PST)
+        with ESMTP id S229554AbiK0OJS (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sun, 27 Nov 2022 09:09:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA92CBF53
+        for <Stable@vger.kernel.org>; Sun, 27 Nov 2022 06:09:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4421B80ADD
-        for <Stable@vger.kernel.org>; Sun, 27 Nov 2022 14:08:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2285C433D6;
-        Sun, 27 Nov 2022 14:08:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61DDE60D28
+        for <Stable@vger.kernel.org>; Sun, 27 Nov 2022 14:09:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54152C433D6;
+        Sun, 27 Nov 2022 14:09:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669558111;
-        bh=2DrKf72EzdGYz+cBQA2HP92GfKLVqt/xQllwMTseEKc=;
+        s=korg; t=1669558156;
+        bh=QykoJ/4GscIqabKWDSW1uzTrsYg3is7s2o+2WE7IHwM=;
         h=Subject:To:From:Date:From;
-        b=lTwKLzwFbOu2Cs4sk+Ky/hUJqrVCDJGwU79zgV7MogprDVhYpOb3k59QwmQNxr0CY
-         Lhn7KudAnc4VeOivG+izTg5gD6E+abekPsD8b6PBRlRRHooDB6Tuv7wcmV3jmcoaUH
-         e8I9kPQX1PRAwIrjB7PQcuh7gWojowTAAO7RKqGA=
-Subject: patch "iio: addac: ad74413r: fix integer promotion bug in" added to char-misc-next
+        b=VLo+9QDkgAh11136VXncHJHCQg6fx37RhZ3GtjQ8MJr5TrOQ6qWP+4qtkpwxGut9e
+         mQUECS5KD7SeBuDMa2wJBnu01Tuq5SxU31/fg+aMpV2xD4ZWyLRW7wgx++MgREwO7C
+         E4RR9APVtQUcmrwct4S7c+qxhxQkZHmIOkar7f9Y=
+Subject: patch "iio: adc128s052: add proper .data members in adc128_of_match table" added to char-misc-next
 To:     linux@rasmusvillemoes.dk, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, nuno.sa@analog.com
+        Stable@vger.kernel.org, andriy.shevchenko@linux.intel.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 27 Nov 2022 14:49:27 +0100
-Message-ID: <166955696722139@kroah.com>
+Date:   Sun, 27 Nov 2022 14:49:35 +0100
+Message-ID: <166955697518270@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: addac: ad74413r: fix integer promotion bug in
+    iio: adc128s052: add proper .data members in adc128_of_match table
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,53 +64,56 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 980389d06d08442fad0139874bff455c76125e47 Mon Sep 17 00:00:00 2001
+From e2af60f5900c6ade53477b494ffb54690eee11f5 Mon Sep 17 00:00:00 2001
 From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Date: Fri, 18 Nov 2022 13:32:08 +0100
-Subject: iio: addac: ad74413r: fix integer promotion bug in
- ad74413_get_input_current_offset()
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Date: Tue, 15 Nov 2022 14:23:23 +0100
+Subject: iio: adc128s052: add proper .data members in adc128_of_match table
 
-The constant AD74413R_ADC_RESULT_MAX is defined via GENMASK, so its
-type is "unsigned long".
+Prior to commit bd5d54e4d49d ("iio: adc128s052: add ACPI _HID
+AANT1280"), the driver unconditionally used spi_get_device_id() to get
+the index into the adc128_config array.
 
-Hence in the expression voltage_offset * AD74413R_ADC_RESULT_MAX,
-voltage_offset is first promoted to unsigned long, and since it may be
-negative, that results in a garbage value. For example, when range is
-AD74413R_ADC_RANGE_5V_BI_DIR, voltage_offset is -2500 and
-voltage_range is 5000, so the RHS of this assignment is, depending on
-sizeof(long), either 826225UL or 3689348814709142UL, which after
-truncation to int then results in either 826225 or 1972216214 being
-the output from in_currentX_offset.
+However, with that commit, OF-based boards now incorrectly treat all
+supported sensors as if they are an adc128s052, because all the .data
+members of the adc128_of_match table are implicitly 0. Our board,
+which has an adc122s021, thus exposes 8 channels whereas it really
+only has two.
 
-Casting to int avoids that promotion and results in the correct -32767
-output.
-
+Fixes: bd5d54e4d49d ("iio: adc128s052: add ACPI _HID AANT1280")
 Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Fixes: fea251b6a5db (iio: addac: add AD74413R driver)
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20221118123209.1658420-1-linux@rasmusvillemoes.dk
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221115132324.1078169-1-linux@rasmusvillemoes.dk
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/addac/ad74413r.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/adc/ti-adc128s052.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/iio/addac/ad74413r.c b/drivers/iio/addac/ad74413r.c
-index 899bcd83f40b..e0e130ba9d3e 100644
---- a/drivers/iio/addac/ad74413r.c
-+++ b/drivers/iio/addac/ad74413r.c
-@@ -691,7 +691,7 @@ static int ad74413_get_input_current_offset(struct ad74413r_state *st,
- 	if (ret)
- 		return ret;
- 
--	*val = voltage_offset * AD74413R_ADC_RESULT_MAX / voltage_range;
-+	*val = voltage_offset * (int)AD74413R_ADC_RESULT_MAX / voltage_range;
- 
- 	return IIO_VAL_INT;
+diff --git a/drivers/iio/adc/ti-adc128s052.c b/drivers/iio/adc/ti-adc128s052.c
+index 622fd384983c..b3d5b9b7255b 100644
+--- a/drivers/iio/adc/ti-adc128s052.c
++++ b/drivers/iio/adc/ti-adc128s052.c
+@@ -181,13 +181,13 @@ static int adc128_probe(struct spi_device *spi)
  }
+ 
+ static const struct of_device_id adc128_of_match[] = {
+-	{ .compatible = "ti,adc128s052", },
+-	{ .compatible = "ti,adc122s021", },
+-	{ .compatible = "ti,adc122s051", },
+-	{ .compatible = "ti,adc122s101", },
+-	{ .compatible = "ti,adc124s021", },
+-	{ .compatible = "ti,adc124s051", },
+-	{ .compatible = "ti,adc124s101", },
++	{ .compatible = "ti,adc128s052", .data = (void*)0L, },
++	{ .compatible = "ti,adc122s021", .data = (void*)1L, },
++	{ .compatible = "ti,adc122s051", .data = (void*)1L, },
++	{ .compatible = "ti,adc122s101", .data = (void*)1L, },
++	{ .compatible = "ti,adc124s021", .data = (void*)2L, },
++	{ .compatible = "ti,adc124s051", .data = (void*)2L, },
++	{ .compatible = "ti,adc124s101", .data = (void*)2L, },
+ 	{ /* sentinel */ },
+ };
+ MODULE_DEVICE_TABLE(of, adc128_of_match);
 -- 
 2.38.1
 
