@@ -2,71 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AEA2639AFD
-	for <lists+stable@lfdr.de>; Sun, 27 Nov 2022 14:32:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34FC1639B25
+	for <lists+stable@lfdr.de>; Sun, 27 Nov 2022 14:53:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229527AbiK0NcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Nov 2022 08:32:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53402 "EHLO
+        id S229514AbiK0Nxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Nov 2022 08:53:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229518AbiK0NcB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Nov 2022 08:32:01 -0500
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53231EB7
-        for <stable@vger.kernel.org>; Sun, 27 Nov 2022 05:31:59 -0800 (PST)
-Received: by mail-ej1-x62a.google.com with SMTP id bj12so19883799ejb.13
-        for <stable@vger.kernel.org>; Sun, 27 Nov 2022 05:31:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:mime-version:from:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=biw1utCmNyI+ef9futimPqL2qrgw3YwY9eWMD1oBQZg=;
-        b=D580eeqoyjWFp+nV+WKI0I4Z8RZzhnxWvfClRX0nTzFXY/cQls1X9KBMPWfyzqT04k
-         JtnzXdlG+7nNIYiGvzseqabY24agvRWViVcZSEOb2ZuhyAeTgmLYj2cdbZHLSGmD6wdt
-         lcTUk6rLamvUZgMJ9K/d8RgvOje/tup3bI4oPTVdxYHoxbjXeXmQs7glp1NinS2Jkbpr
-         JY9kbCDQiYuXgQKq4yBhuWIcbb3OQBrCI9lTxXhwujVvIYjfvDesm2l2RPCHqJbRezaK
-         yxn4RfqzXKwz3nByITle6/WI1uf3TwGx8VLTU40uIgOw6HiXu1qdibPucQ2QQaB5tJqA
-         tjhw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:mime-version:from:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=biw1utCmNyI+ef9futimPqL2qrgw3YwY9eWMD1oBQZg=;
-        b=WwaspFZm+DIRHKmSQO93rJGEEhrBjGcaddpQqOJ7ZA5dMF628HT8q55lhnGe9NDLms
-         e+KRHIbOeBfmZ++dEu6WVksrNcF8Wbf+bv0VscEemOPfW834X5XOzu0RBtdMk0V8nSc2
-         zcVgHa/VqcGOgHRsR/AhCMBVO9mCXx/c+YHw9veb2n6CnuKaZ6zzyRasaxjBBMRmEfVw
-         hekCngvDqR+LKciibfGnckvApfJtoIvda6oq1lq3XQrwlnj9LvKtRyw1JNq4vQi+Nffd
-         ePKF+p7iKeC4Xxlm4BqervUoO7f7eoCJy6hvNKCalaWbamRVI7kzysMnwylSKz1i70Ei
-         9Ocg==
-X-Gm-Message-State: ANoB5pkY1VJqa2H/9c99xG9p2TYWElmpB8eO94RpG3RI9W3qDupN+evd
-        YgI49PPMo2nPPS6ONvIk//jNjSvs3QKlZLup8ejXfso7AEmXJA==
-X-Google-Smtp-Source: AA0mqf6hSl2k4QsWSN408cG26b2YlPLuvK4ztPP/FNiunrzclGqOPE2nOwwR91FRjT0GtBzYquQkSWyOgfyip58wL1E=
-X-Received: by 2002:a17:906:328e:b0:78d:7f22:2c53 with SMTP id
- 14-20020a170906328e00b0078d7f222c53mr23234935ejw.420.1669555917449; Sun, 27
- Nov 2022 05:31:57 -0800 (PST)
-Received: from 332509754669 named unknown by gmailapi.google.com with
- HTTPREST; Sun, 27 Nov 2022 05:31:57 -0800
-From:   Donald Clemons <Donaldclemons74@gmail.com>
-Mime-Version: 1.0
-Date:   Sun, 27 Nov 2022 05:31:57 -0800
-Message-ID: <CAF5AmZKbuBpzV97yjMO2VgzLMegvzTNvYkKnJDPGLFtDSjoy2Q@mail.gmail.com>
-Subject: HARD HAT
-To:     stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229450AbiK0Nxm (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sun, 27 Nov 2022 08:53:42 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68EFEB86E
+        for <Stable@vger.kernel.org>; Sun, 27 Nov 2022 05:53:41 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B242BCE0AE8
+        for <Stable@vger.kernel.org>; Sun, 27 Nov 2022 13:53:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81CAAC433C1;
+        Sun, 27 Nov 2022 13:53:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1669557217;
+        bh=3k87rHT+7ThR9JcI/j/yvOMgGw6BiYJRQak5S+Y39ZU=;
+        h=Subject:To:From:Date:From;
+        b=UqYBpdvcssyTYd6FpjeuLpqc67F4IUDvS/cMBfPohfapoSNx9J2rXyXIX4r7s0ePd
+         SQg6alocVKIigA6xNMiQibRdoro4AJKJ0C+HzRHqyXPjRld5FhotO1hH+JPEMfH6Ra
+         gt4GY/fyBtIJe5Ekl6Dbe/tft1z4RudrzysmPoE0=
+Subject: patch "iio: addac: ad74413r: fix integer promotion bug in" added to char-misc-testing
+To:     linux@rasmusvillemoes.dk, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, nuno.sa@analog.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 27 Nov 2022 14:45:07 +0100
+Message-ID: <1669556707166114@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-To whom it may concern,
-I would like to order HARD HAT . I would be glad if you could email me
-back with the types and pricing you carry at the moment .
 
-Regards ,
-Mr HAROLD COOPER
-PH: 813 750 7707
+This is a note to let you know that I've just added the patch titled
+
+    iio: addac: ad74413r: fix integer promotion bug in
+
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 980389d06d08442fad0139874bff455c76125e47 Mon Sep 17 00:00:00 2001
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Date: Fri, 18 Nov 2022 13:32:08 +0100
+Subject: iio: addac: ad74413r: fix integer promotion bug in
+ ad74413_get_input_current_offset()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The constant AD74413R_ADC_RESULT_MAX is defined via GENMASK, so its
+type is "unsigned long".
+
+Hence in the expression voltage_offset * AD74413R_ADC_RESULT_MAX,
+voltage_offset is first promoted to unsigned long, and since it may be
+negative, that results in a garbage value. For example, when range is
+AD74413R_ADC_RANGE_5V_BI_DIR, voltage_offset is -2500 and
+voltage_range is 5000, so the RHS of this assignment is, depending on
+sizeof(long), either 826225UL or 3689348814709142UL, which after
+truncation to int then results in either 826225 or 1972216214 being
+the output from in_currentX_offset.
+
+Casting to int avoids that promotion and results in the correct -32767
+output.
+
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Fixes: fea251b6a5db (iio: addac: add AD74413R driver)
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20221118123209.1658420-1-linux@rasmusvillemoes.dk
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+---
+ drivers/iio/addac/ad74413r.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/iio/addac/ad74413r.c b/drivers/iio/addac/ad74413r.c
+index 899bcd83f40b..e0e130ba9d3e 100644
+--- a/drivers/iio/addac/ad74413r.c
++++ b/drivers/iio/addac/ad74413r.c
+@@ -691,7 +691,7 @@ static int ad74413_get_input_current_offset(struct ad74413r_state *st,
+ 	if (ret)
+ 		return ret;
+ 
+-	*val = voltage_offset * AD74413R_ADC_RESULT_MAX / voltage_range;
++	*val = voltage_offset * (int)AD74413R_ADC_RESULT_MAX / voltage_range;
+ 
+ 	return IIO_VAL_INT;
+ }
+-- 
+2.38.1
+
+
