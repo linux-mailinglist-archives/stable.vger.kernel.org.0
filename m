@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A624639B4A
-	for <lists+stable@lfdr.de>; Sun, 27 Nov 2022 15:13:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 158BC639B4B
+	for <lists+stable@lfdr.de>; Sun, 27 Nov 2022 15:13:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229602AbiK0ON3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Nov 2022 09:13:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36126 "EHLO
+        id S229618AbiK0ONf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Nov 2022 09:13:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229612AbiK0ON2 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sun, 27 Nov 2022 09:13:28 -0500
+        with ESMTP id S229614AbiK0ONb (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sun, 27 Nov 2022 09:13:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 787A02ADC
-        for <Stable@vger.kernel.org>; Sun, 27 Nov 2022 06:13:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD3C16362
+        for <Stable@vger.kernel.org>; Sun, 27 Nov 2022 06:13:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CBFA60C98
-        for <Stable@vger.kernel.org>; Sun, 27 Nov 2022 14:13:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03DD9C433C1;
-        Sun, 27 Nov 2022 14:13:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5871960DCF
+        for <Stable@vger.kernel.org>; Sun, 27 Nov 2022 14:13:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 470BCC433D6;
+        Sun, 27 Nov 2022 14:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669558406;
-        bh=iZDUetSboenmHN8EXzJcOwFRO1bmPLQEOpTGrt4BshY=;
+        s=korg; t=1669558409;
+        bh=5BB1uokzk9hsgYpI0sGnFctU+Q06Gw+wkDeDqIb2AQs=;
         h=Subject:To:From:Date:From;
-        b=tgRGaa022NA0sjcRy7f5mzMy74Ls3siyn09N66Kuj6kI6NNykY6gYTl+iwSAS+af+
-         xzTb3lMFgMpJsFNug7U1fv5J0feJY4MG/5el+W4K6e/ajeYBuCpBRGfPDOIWxx/RoO
-         Rbue8E4SLeB22Vtf7ubERrOc5/DMJhqPtsvFqQcs=
-Subject: patch "iio: core: Fix entry not deleted when iio_register_sw_trigger_type()" added to char-misc-next
-To:     chenzhongjin@huawei.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=jK218dbvUuuuUh/1Gd3X4r0HRMco69VSYwMszWCiJ/PN8IFxinqrbb4CDZmcH8Kin
+         MbQZIy/O41j1wqGD8ghW5L4E59Ks+NjOF+0rv0QwCx4UpkUPz3qrnZBZ7v2L1/bO+X
+         zXpPCs+bXy8qCHjxbZs2OyILyRKnHQ04ApyTPyTg=
+Subject: patch "dt-bindings: iio: adc: Remove the property "aspeed,trim-data-valid"" added to char-misc-next
+To:     billy_tsai@aspeedtech.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, robh@kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 27 Nov 2022 15:06:10 +0100
-Message-ID: <16695579701983@kroah.com>
+Date:   Sun, 27 Nov 2022 15:06:11 +0100
+Message-ID: <166955797174150@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: core: Fix entry not deleted when iio_register_sw_trigger_type()
+    dt-bindings: iio: adc: Remove the property "aspeed,trim-data-valid"
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,56 +64,43 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 4ad09d956f8eacff61e67e5b13ba8ebec3232f76 Mon Sep 17 00:00:00 2001
-From: Chen Zhongjin <chenzhongjin@huawei.com>
-Date: Tue, 8 Nov 2022 11:28:02 +0800
-Subject: iio: core: Fix entry not deleted when iio_register_sw_trigger_type()
- fails
+From 398e3479874f381cca8726ca5d8a31e1bf35a3cd Mon Sep 17 00:00:00 2001
+From: Billy Tsai <billy_tsai@aspeedtech.com>
+Date: Mon, 14 Nov 2022 10:50:57 +0800
+Subject: dt-bindings: iio: adc: Remove the property "aspeed,trim-data-valid"
 
-In iio_register_sw_trigger_type(), configfs_register_default_group() is
-possible to fail, but the entry add to iio_trigger_types_list is not
-deleted.
+If the property is set on a device without valid trimming data in the OTP
+the ADC will not function correctly. Therefore, this patch drops the use
+of this property to avoid this scenario.
 
-This leaves wild in iio_trigger_types_list, which can cause page fault
-when module is loading again. So fix this by list_del(&t->list) in error
-path.
-
-BUG: unable to handle page fault for address: fffffbfff81d7400
-Call Trace:
-<TASK>
- iio_register_sw_trigger_type
- do_one_initcall
- do_init_module
- load_module
- ...
-
-Fixes: b662f809d410 ("iio: core: Introduce IIO software triggers")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221108032802.168623-1-chenzhongjin@huawei.com
+Fixes: 2bdb2f00a895 ("dt-bindings: iio: adc: Add ast2600-adc bindings")
+Signed-off-by: Billy Tsai <billy_tsai@aspeedtech.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20221114025057.10843-2-billy_tsai@aspeedtech.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/industrialio-sw-trigger.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/iio/adc/aspeed,ast2600-adc.yaml    | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/iio/industrialio-sw-trigger.c b/drivers/iio/industrialio-sw-trigger.c
-index 994f03a71520..d86a3305d9e8 100644
---- a/drivers/iio/industrialio-sw-trigger.c
-+++ b/drivers/iio/industrialio-sw-trigger.c
-@@ -58,8 +58,12 @@ int iio_register_sw_trigger_type(struct iio_sw_trigger_type *t)
+diff --git a/Documentation/devicetree/bindings/iio/adc/aspeed,ast2600-adc.yaml b/Documentation/devicetree/bindings/iio/adc/aspeed,ast2600-adc.yaml
+index b283c8ca2bbf..5c08d8b6e995 100644
+--- a/Documentation/devicetree/bindings/iio/adc/aspeed,ast2600-adc.yaml
++++ b/Documentation/devicetree/bindings/iio/adc/aspeed,ast2600-adc.yaml
+@@ -62,13 +62,6 @@ properties:
+     description:
+       Inform the driver that last channel will be used to sensor battery.
  
- 	t->group = configfs_register_default_group(iio_triggers_group, t->name,
- 						&iio_trigger_type_group_type);
--	if (IS_ERR(t->group))
-+	if (IS_ERR(t->group)) {
-+		mutex_lock(&iio_trigger_types_lock);
-+		list_del(&t->list);
-+		mutex_unlock(&iio_trigger_types_lock);
- 		ret = PTR_ERR(t->group);
-+	}
- 
- 	return ret;
- }
+-  aspeed,trim-data-valid:
+-    type: boolean
+-    description: |
+-      The ADC reference voltage can be calibrated to obtain the trimming
+-      data which will be stored in otp. This property informs the driver that
+-      the data store in the otp is valid.
+-
+ required:
+   - compatible
+   - reg
 -- 
 2.38.1
 
