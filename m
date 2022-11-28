@@ -2,100 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCBB663B388
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 21:42:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FAD863B3BB
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 21:55:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234043AbiK1Umq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 15:42:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51716 "EHLO
+        id S234352AbiK1Uzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 15:55:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234049AbiK1Uma (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 15:42:30 -0500
-Received: from mail-yw1-x112b.google.com (mail-yw1-x112b.google.com [IPv6:2607:f8b0:4864:20::112b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F18C2A249
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 12:42:29 -0800 (PST)
-Received: by mail-yw1-x112b.google.com with SMTP id 00721157ae682-3cbdd6c00adso24753877b3.11
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 12:42:29 -0800 (PST)
+        with ESMTP id S234359AbiK1Uzo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 15:55:44 -0500
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 698622F037;
+        Mon, 28 Nov 2022 12:55:39 -0800 (PST)
+Received: by mail-pl1-x629.google.com with SMTP id g10so11377368plo.11;
+        Mon, 28 Nov 2022 12:55:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=9XNZWTdwXKMxfdvP8XVrQ3AwvmDQFwgMMk54i8ewFlQ=;
-        b=NFaDxuhSPxiblhrcutZ+DlS8yXONDE32MflzeG2qIsWQqksFRmnsqhCPxhgCWKkmDE
-         iWkhKkP4yzQvGVcQSvf+QnrgguMe4tM/QGzeMlS6U5+DMLEnz/SCNT2HUFh+aWCMK5FK
-         auKnCuncKzsBtmHE+5KB9Epg4PDdLzcJwpcy/VfApVNPhEE2giswd5objQxrNHBSkqgN
-         kOEMNxczo7tj9GI3n21nkrLhY+2kq8jZVdtB8hm0U2l6HXtuv6Ce35H0IrF+svbymciW
-         Ybt8MwNWlV1aliIGbhy9jhO/tqq8F699EKGRtbfCrHvJ1Rhx4e9FoGCPMk+66d8vpdou
-         9/Wg==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Aq/k14hHxyqv+R/E0+ZIRLUsEK+p2/petQlrLB89kfU=;
+        b=K6bgp2Ndbt8cB0g+NYsOVuj9p8BADh8negD17Pb9B7vzIIu4nezQjaxRFY87IeZZVw
+         vJ7lsGhQBj6fb/UGdc+NY09xBP2tZ1u/KX6Xs7yz5V7JMEC90rlNP/VREF4ke0jMTNTz
+         BaJO9SeUFy6GD4Bq8pQcuXFfYDnZUbwpmQezqqslq0TRlaiWeGzDa9FBwsa22rYBdBxt
+         dkhQ63wrfvhHdGfSdXB2omz1Pex/ChXOcL23SV+bK+vAla/CG8e3RZ5kYptqN7MZLcFo
+         Pw+vouFfmW5itJtz0EiIAJQ4wkI0J21NZMWjDhfMn+cs2VRC3Vo/RLLVX5LzymLJi+Nv
+         wUVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9XNZWTdwXKMxfdvP8XVrQ3AwvmDQFwgMMk54i8ewFlQ=;
-        b=aLP6Dv2lfsOF9gpQxN6QDv0reUCh6eh65YSMS9XimEtXrJ72gs4WTVCMml5a27ME+J
-         IuXQfEgPIxwqtmclNCvKlIKtQCq2ZVeTR9umnrxI007JRgGKr80yvPfIfDZtoGcpjGav
-         m69KvMzLhixv+yxUYT2yLngPOuD77HmnZZJorxHBQFj6gx29HXIcejY4A5b472ey0fzI
-         kwoxaWtT0NoL/ESGTlsQ05C2z9cqOov9gLiyuDjtFcUQxnzF0X8Zfb6LGWJH3uDl832p
-         jQWzmjhJ2OLPZUMLVxZPQcHMp7GQI+hvUS3w0vSP0akNJQlCvuq54B21mlD13zP0w6V5
-         sNvg==
-X-Gm-Message-State: ANoB5pnPZf9gumPBoTw6HHmuX3141tB5oqQhNYhpymPb4tzwgzKryzvI
-        KzmfXfsw7qx3HB6/e3Xmg0JYTIWJ9yoXcT8ma6FbpZ7mH6U=
-X-Google-Smtp-Source: AA0mqf4EmE+lBmfS6cyx7PEKMJy3ChRF933leTXIgvZ5dLEbEdOAVVJpVULFQtWBQhgUQZ52/kYbSXj5dEx0yoW0jQE=
-X-Received: by 2002:a81:5748:0:b0:3b1:eee3:32a with SMTP id
- l69-20020a815748000000b003b1eee3032amr23603644ywb.325.1669668148485; Mon, 28
- Nov 2022 12:42:28 -0800 (PST)
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Aq/k14hHxyqv+R/E0+ZIRLUsEK+p2/petQlrLB89kfU=;
+        b=bGdWoH8iN4HZmlrg5NvBeOJdInP3F36+nqN62mJQ2i7kIJ4HdoOGUDjnSkxW0i5Xg5
+         WC9lBnGLcZHgCyaCMak64cmiPAYJOx93Il/m7zinx1RaWoUD1pjBRxl8kbIYZeGNcNrD
+         Em75nVzYfGLhPRnXk5McydMuzclb0uu4fJPwqwl8uiCu/UZ4YNEuCMycwsjo9K/U4pp7
+         LsHhvlW0W3KRy1HvJ7xyOVKTvNtrhG/hicVtYLaPKOAZTfmTfW3kUlVu3O4QZdc6K418
+         lGOvfKQZ4rmRPVPkLUtqTXVxIYzYpdpmrMK/IZJtnrYDzOSwTbfJDXlwGx08JdBLCZyB
+         nLfg==
+X-Gm-Message-State: ANoB5plGWPo/Mgacx8z8KfzjZyNzOy/yx4bThjtdraceqQLOsvCn+FRg
+        uZvpWrQL0XKQo6RPMhFI9RcW+mHe+i8=
+X-Google-Smtp-Source: AA0mqf4EmPJGQk9BL0tECBExCJGFn+d7sIW8KY71HLgIBfLHHjRTd0PRGwlA6xERrn4SCcY3sBVliA==
+X-Received: by 2002:a17:90a:5c85:b0:20a:92d2:226a with SMTP id r5-20020a17090a5c8500b0020a92d2226amr45039647pji.155.1669668938878;
+        Mon, 28 Nov 2022 12:55:38 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id b13-20020a170902d50d00b0017f73caf588sm9260002plg.218.2022.11.28.12.55.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Nov 2022 12:55:38 -0800 (PST)
+Message-ID: <1e5d85a0-6edc-bde4-6493-c2b2ac25c760@gmail.com>
+Date:   Mon, 28 Nov 2022 12:55:33 -0800
 MIME-Version: 1.0
-References: <20221124222926.72326-1-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20221124222926.72326-1-andriy.shevchenko@linux.intel.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Mon, 28 Nov 2022 21:42:16 +0100
-Message-ID: <CACRpkda1sdqxnP0Lc2qnWOq5PH4_8vTvNiwn3ibE7+uZwLv0Gg@mail.gmail.com>
-Subject: Re: [PATCH v1 1/1] pinctrl: intel: Save and restore pins in "direct
- IRQ" mode
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andy@kernel.org>, stable@vger.kernel.org,
-        Dale Smith <dalepsmith@gmail.com>,
-        John Harris <jmharris@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH 6.0 000/313] 6.0.10-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221125075804.064161337@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20221125075804.064161337@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 24, 2022 at 11:29 PM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
+On 11/24/22 23:58, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.10 release.
+> There are 313 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 27 Nov 2022 07:57:07 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.10-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-> The firmware on some systems may configure GPIO pins to be
-> an interrupt source in so called "direct IRQ" mode. In such
-> cases the GPIO controller driver has no idea if those pins
-> are being used or not. At the same time, there is a known bug
-> in the firmwares that don't restore the pin settings correctly
-> after suspend, i.e. by an unknown reason the Rx value becomes
-> inverted.
->
-> Hence, let's save and restore the pins that are configured
-> as GPIOs in the input mode with GPIROUTIOXAPIC bit set.
->
-> Cc: stable@vger.kernel.org
-> Reported-and-tested-by: Dale Smith <dalepsmith@gmail.com>
-> Reported-and-tested-by: John Harris <jmharris@gmail.com>
-> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214749
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->
-> Linus, I hope that this can still make v6.1 release. I'm not going to
-> send a PR for this change unless you insist.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-Patch applied for fixes, plan is to get it to Torvalds
-ASAP!
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
 
-Yours,
-Linus Walleij
