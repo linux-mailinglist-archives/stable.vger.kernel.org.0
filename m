@@ -2,51 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2DF063B08D
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:53:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC21B63B0CC
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 19:11:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233697AbiK1RxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:53:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48316 "EHLO
+        id S232845AbiK1SLR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 13:11:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233995AbiK1RvZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:51:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B5582EF11;
-        Mon, 28 Nov 2022 09:43:36 -0800 (PST)
+        with ESMTP id S234043AbiK1SK5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 13:10:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556B85EFA2
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 09:54:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AEC6EB80E9C;
-        Mon, 28 Nov 2022 17:43:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C5B6C43141;
-        Mon, 28 Nov 2022 17:43:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 348256133B
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 17:53:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97D59C433D7;
+        Mon, 28 Nov 2022 17:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669657414;
-        bh=mYDS8NhRtn6iHirANvokxO19PldCMN2N89AlLM3kj5s=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/2HPI6udJk+NmsRVsQLYP6owdJQ9/ItPQy6+KzwrtgtSdHqcngBzr0zkSTmgUmk5
-         DBikLAcJq3kWNn2jerVywa+vBkwqPGiUxtUTnBoA5iNklnrd0veEa36q2wSwP+cDst
-         mKFXhWySDeU9ekx27CgKZvrrJEtgkEhwOMl62JjrFHFz3HwpVvaA8YGB/lk2rCd0nX
-         g2gV9KDrk2Z8z3aZS260aoDpLUsLn8EXWq2lsJ2glDNTVIc0peSzilkOsCzIACBKb3
-         2KgTNGvF25ZU4lR6cDz2UwlbjK9zzIRUZIFFnTQdOSDhWyeKifnHRYuNeHDl3jjE+Z
-         subU+myQCxb/w==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 5/5] ASoC: soc-pcm: Add NULL check in BE reparenting
-Date:   Mon, 28 Nov 2022 12:43:23 -0500
-Message-Id: <20221128174324.1443132-5-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221128174324.1443132-1-sashal@kernel.org>
-References: <20221128174324.1443132-1-sashal@kernel.org>
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+        s=k20201202; t=1669658038;
+        bh=EhsVfBecwSf4r2sfundpSyy+AjgbHDp9TZz1guKHo/8=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=FpUhDf42GBY2vTM9bWaDxagJ6XbN2xZoezoyn9xk2CfLZtxXv4lJfg2EKbf17AWWd
+         n+cgMeKDNjPKWyYPm85ndL5HFBd9yzJpFq9HYkU5i9HAfw8mluxRv0t4dOu+jsPbwP
+         lFODMIl33ReFLjRG74ctSZDH5ef+55PQR9AZ+5QuuM7JpeLo0o2YtYgqjH63UN8d2s
+         WDXZN0thIgiLzwI/mvHsoRLLcufyOuyCSWcp+EtEcd0jaC3SwV55pl6w+iCmHaRr5W
+         iOiFnAaFiBVAxfmPKfY2x8N0ynJv9If7T3k4kDVXy5MZ/HYlXabl9a8YwBy5LPEWPT
+         iKTp2sas5VnvQ==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1oziKJ-009AmF-H8;
+        Mon, 28 Nov 2022 17:53:56 +0000
+Date:   Mon, 28 Nov 2022 17:53:55 +0000
+Message-ID: <86h6yjm0cs.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Luiz Capitulino <luizcap@amazon.com>
+Cc:     <stable@vger.kernel.org>, <tglx@linutronix.de>,
+        <lcapitulino@gmail.com>
+Subject: Re: [PATH stable 5.15,5.10 0/4] Fix EBS volume attach on AWS ARM instances
+In-Reply-To: <cover.1669655291.git.luizcap@amazon.com>
+References: <cover.1669655291.git.luizcap@amazon.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: luizcap@amazon.com, stable@vger.kernel.org, tglx@linutronix.de, lcapitulino@gmail.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -56,35 +64,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+On Mon, 28 Nov 2022 17:08:31 +0000,
+Luiz Capitulino <luizcap@amazon.com> wrote:
+> 
+> Hi,
+> 
+> [ Marc, can you help reviewing? Esp. the first patch? ]
+> 
+> This series of backports from upstream to stable 5.15 and 5.10 fixes an issue
+> we're seeing on AWS ARM instances where attaching an EBS volume (which is a
+> nvme device) to the instance after offlining CPUs causes the device to take
+> several minutes to show up and eventually nvme kworkers and other threads start
+> getting stuck.
+> 
+> This series fixes the issue for 5.15.79 and 5.10.155. I can't reproduce it
+> on 5.4. Also, I couldn't reproduce this on x86 even w/ affected kernels.
 
-[ Upstream commit db8f91d424fe0ea6db337aca8bc05908bbce1498 ]
+That's because x86 has a very different allocation policy compared to
+what the ITS does. The x86 vector space is tiny, so vectors are only
+allocated when required. In your case, that's when the CPUs are
+onlined.
 
-Add NULL check in dpcm_be_reparent API, to handle
-kernel NULL pointer dereference error.
-The issue occurred in fuzzing test.
+With the ITS, all the vectors are allocated upfront, as this is
+essentially free. But in the case of managed interrupts, these vectors
+are now pointing to offline CPUs. The ITS tries to fix that, but
+doesn't nearly have enough information. And the correct course of
+action is to keep these interrupts in the shutdown state, which is
+what the series is doing.
 
-Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
-Link: https://lore.kernel.org/r/1669098673-29703-1-git-send-email-quic_srivasam@quicinc.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- sound/soc/soc-pcm.c | 2 ++
- 1 file changed, 2 insertions(+)
+>
+> An easy reproducer is:
+> 
+> 1. Start an ARM instance with 32 CPUs
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 6c31a909845c..f6cebe2b3cbb 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1182,6 +1182,8 @@ static void dpcm_be_reparent(struct snd_soc_pcm_runtime *fe,
- 		return;
- 
- 	be_substream = snd_soc_dpcm_get_substream(be, stream);
-+	if (!be_substream)
-+		return;
- 
- 	list_for_each_entry(dpcm, &be->dpcm[stream].fe_clients, list_fe) {
- 		if (dpcm->fe == fe)
+To satisfy my own curiosity, is that in a guest or bare metal? It
+shouldn't make any difference, but hey...
+
+Anyway, patch #1 looks OK to me, but I haven't tried to dig further
+into something that is "oh so last year" ;-). Specially as we're
+rewriting the whole of the MSI stack! FWIW:
+
+Acked-by: Marc Zyngier <maz@kernel.org>
+
+	M.
+
 -- 
-2.35.1
-
+Without deviation from the norm, progress is not possible.
