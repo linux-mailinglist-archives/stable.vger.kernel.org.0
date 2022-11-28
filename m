@@ -2,52 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5059463AF7A
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:42:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 880C463AF8B
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:43:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233295AbiK1Rm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:42:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51224 "EHLO
+        id S233257AbiK1RnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 12:43:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233299AbiK1Rld (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:41:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A89EE18394;
-        Mon, 28 Nov 2022 09:39:40 -0800 (PST)
+        with ESMTP id S233348AbiK1Rm5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:42:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B37062AC72;
+        Mon, 28 Nov 2022 09:40:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 483B3612E9;
-        Mon, 28 Nov 2022 17:39:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE365C433C1;
-        Mon, 28 Nov 2022 17:39:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 640BBB80E94;
+        Mon, 28 Nov 2022 17:40:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 331ABC433D6;
+        Mon, 28 Nov 2022 17:40:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669657179;
-        bh=FdHzm1ZvsF1Ap/UO72Req/MoTEbJHBn8Dzxrp/8s6T8=;
+        s=k20201202; t=1669657212;
+        bh=11IYdSDU8ELMrE/5V/1SnEzjOh5sOIs/OJ+i9hIbrMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hutTi1Rj/MIaCD4pIu2e2kdgATMjsa464IMNFgLWB3iiB30eg1o1dp+0DgRPH/IRM
-         k3J37Hc0672HwqFIBPHNA4sLfF8Kqz1C60G3qDT4mgqDGKT9LmRrId0AlhLhcxIJ+c
-         yDvZUvX1QUpyepjd31ulNgM6icNmpvn3FROCRt+5sQ8hPqzCPE8QntPfZzgK1C5r8U
-         P01+KaMV63Rg6Azji6XTOkAC+groutkqe+h0zv86uMEp6jokaR2u1BoaRMObjeiPCO
-         vCabEKrCrEr9rmY/3SoonrquUYBxqg6GThq7pW7c+L0qf8/EXhIPNfqsWrI/+GGQM1
-         l+oSB1ueXNExA==
+        b=NRhSYwjGBMFJ2S2/RWCODOnzDvVlbCR9NrMxECHowS2Ax8f/I5zIggxRmU1gStKyE
+         6W7oYCSUB72oViGKqIhsD1ekK0w07Jqr3RS5MizfQ63nzxhSVhqikFY/RlU1PufraN
+         KtAUrzPDUMtgVHNzg6ah/09r9bt9ZHy4mpkVngFDNds+QojbU4xY3qv4/q6sf9Lye3
+         Y4KLuoDpwLEQuNi639G/J3yTQO3pE38KNrk4+cHujnx7XkXSbZv34/lH+yezND54+V
+         nEha4BruTEMX49sPucUJ8mjWX6n8JiIBBwrEaLRehHoFJi+Jn5Cy2LWacDr6uf83fS
+         FDk2XJ1N2dAdw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dillon Varone <Dillon.Varone@amd.com>,
-        Alvin Lee <Alvin.Lee2@amd.com>,
-        Martin Leung <Martin.Leung@amd.com>,
+Cc:     Taimur Hassan <Syed.Hassan@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
         Brian Chang <Brian.Chang@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
         sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
         christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, Jun.Lei@amd.com, Syed.Hassan@amd.com,
-        Ethan.Wellenreiter@amd.com, amd-gfx@lists.freedesktop.org,
+        daniel@ffwll.ch, jdhillon@amd.com, aurabindo.pillai@amd.com,
+        michael.strauss@amd.com, chris.park@amd.com, roman.li@amd.com,
+        Daniel.Miess@amd.com, chiahsuan.chung@amd.com,
+        andrealmeid@igalia.com, Alvin.Lee2@amd.com, eric.bernstein@amd.com,
+        george.shen@amd.com, Jun.Lei@amd.com, Samson.Tam@amd.com,
+        Martin.Leung@amd.com, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 36/39] drm/amd/display: Use viewport height for subvp mall allocation size
-Date:   Mon, 28 Nov 2022 12:36:16 -0500
-Message-Id: <20221128173642.1441232-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 37/39] drm/amd/display: Avoid setting pixel rate divider to N/A
+Date:   Mon, 28 Nov 2022 12:36:17 -0500
+Message-Id: <20221128173642.1441232-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221128173642.1441232-1-sashal@kernel.org>
 References: <20221128173642.1441232-1-sashal@kernel.org>
@@ -64,41 +67,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Varone <Dillon.Varone@amd.com>
+From: Taimur Hassan <Syed.Hassan@amd.com>
 
-[ Upstream commit dd2c028c1395d622df7ddd6837f8ab2dc94008ee ]
+[ Upstream commit 2a5dd86a69ea5435f1a837bdb7fafcda609a7c91 ]
 
-[WHY?]
-MALL allocation size depends on the viewport height, not the addressable
-vertical lines, which will not match when scaling.
+[Why]
+Pixel rate divider values should never be set to N/A (0xF) as the K1/K2
+field is only 1/2 bits wide.
 
-[HOW?]
-Base MALL allocation size calculations off viewport height.
+[How]
+Set valid divider values for virtual and FRL/DP2 cases.
 
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
-Reviewed-by: Martin Leung <Martin.Leung@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
 Acked-by: Brian Chang <Brian.Chang@amd.com>
-Signed-off-by: Dillon Varone <Dillon.Varone@amd.com>
+Signed-off-by: Taimur Hassan <Syed.Hassan@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c  | 7 +++++++
+ drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c | 3 ++-
+ drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c    | 4 +++-
+ drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c   | 1 +
+ 4 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c
-index 13cd1f2e50ca..902c69d126d5 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c
-@@ -101,7 +101,7 @@ uint32_t dcn32_helper_calculate_num_ways_for_subvp(struct dc *dc, struct dc_stat
- 			mall_alloc_width_blk_aligned = full_vp_width_blk_aligned;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c
+index fb729674953b..de9fa534b77a 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c
+@@ -96,6 +96,13 @@ static void dccg314_set_pixel_rate_div(
+ 	struct dcn_dccg *dccg_dcn = TO_DCN_DCCG(dccg);
+ 	enum pixel_rate_div cur_k1 = PIXEL_RATE_DIV_NA, cur_k2 = PIXEL_RATE_DIV_NA;
  
- 			/* mall_alloc_height_blk_aligned_l/c = CEILING(sub_vp_height_l/c - 1, blk_height_l/c) + blk_height_l/c */
--			mall_alloc_height_blk_aligned = (pipe->stream->timing.v_addressable - 1 + mblk_height - 1) /
-+			mall_alloc_height_blk_aligned = (pipe->plane_res.scl_data.viewport.height - 1 + mblk_height - 1) /
- 					mblk_height * mblk_height + mblk_height;
++	// Don't program 0xF into the register field. Not valid since
++	// K1 / K2 field is only 1 / 2 bits wide
++	if (k1 == PIXEL_RATE_DIV_NA || k2 == PIXEL_RATE_DIV_NA) {
++		BREAK_TO_DEBUGGER();
++		return;
++	}
++
+ 	dccg314_get_pixel_rate_div(dccg, otg_inst, &cur_k1, &cur_k2);
+ 	if (k1 == PIXEL_RATE_DIV_NA || k2 == PIXEL_RATE_DIV_NA || (k1 == cur_k1 && k2 == cur_k2))
+ 		return;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c
+index f4d1b83979fe..a0741794db62 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c
+@@ -349,6 +349,7 @@ unsigned int dcn314_calculate_dccg_k1_k2_values(struct pipe_ctx *pipe_ctx, unsig
+ 	odm_combine_factor = get_odm_config(pipe_ctx, NULL);
  
- 			/* full_mblk_width_ub_l/c = mall_alloc_width_blk_aligned_l/c;
+ 	if (is_dp_128b_132b_signal(pipe_ctx)) {
++		*k1_div = PIXEL_RATE_DIV_BY_1;
+ 		*k2_div = PIXEL_RATE_DIV_BY_1;
+ 	} else if (dc_is_hdmi_tmds_signal(pipe_ctx->stream->signal) || dc_is_dvi_signal(pipe_ctx->stream->signal)) {
+ 		*k1_div = PIXEL_RATE_DIV_BY_1;
+@@ -356,7 +357,7 @@ unsigned int dcn314_calculate_dccg_k1_k2_values(struct pipe_ctx *pipe_ctx, unsig
+ 			*k2_div = PIXEL_RATE_DIV_BY_2;
+ 		else
+ 			*k2_div = PIXEL_RATE_DIV_BY_4;
+-	} else if (dc_is_dp_signal(pipe_ctx->stream->signal)) {
++	} else if (dc_is_dp_signal(pipe_ctx->stream->signal) || dc_is_virtual_signal(pipe_ctx->stream->signal)) {
+ 		if (two_pix_per_container) {
+ 			*k1_div = PIXEL_RATE_DIV_BY_1;
+ 			*k2_div = PIXEL_RATE_DIV_BY_2;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
+index 6640d0ac4304..6dd8dadd68a5 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
+@@ -96,8 +96,10 @@ static void dccg32_set_pixel_rate_div(
+ 
+ 	// Don't program 0xF into the register field. Not valid since
+ 	// K1 / K2 field is only 1 / 2 bits wide
+-	if (k1 == PIXEL_RATE_DIV_NA || k2 == PIXEL_RATE_DIV_NA)
++	if (k1 == PIXEL_RATE_DIV_NA || k2 == PIXEL_RATE_DIV_NA) {
++		BREAK_TO_DEBUGGER();
+ 		return;
++	}
+ 
+ 	dccg32_get_pixel_rate_div(dccg, otg_inst, &cur_k1, &cur_k2);
+ 	if (k1 == cur_k1 && k2 == cur_k2)
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
+index c72166e096ba..ecdb730f2e96 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
+@@ -1186,6 +1186,7 @@ unsigned int dcn32_calculate_dccg_k1_k2_values(struct pipe_ctx *pipe_ctx, unsign
+ 	odm_combine_factor = get_odm_config(pipe_ctx, NULL);
+ 
+ 	if (is_dp_128b_132b_signal(pipe_ctx)) {
++		*k1_div = PIXEL_RATE_DIV_BY_1;
+ 		*k2_div = PIXEL_RATE_DIV_BY_1;
+ 	} else if (dc_is_hdmi_tmds_signal(pipe_ctx->stream->signal) || dc_is_dvi_signal(pipe_ctx->stream->signal)) {
+ 		*k1_div = PIXEL_RATE_DIV_BY_1;
 -- 
 2.35.1
 
