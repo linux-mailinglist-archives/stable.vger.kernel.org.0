@@ -2,122 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A627163AE92
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:10:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA5C863AEB4
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:17:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229629AbiK1RKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:10:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55680 "EHLO
+        id S232878AbiK1RR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 12:17:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232688AbiK1RJg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:09:36 -0500
-Received: from smtp-fw-80006.amazon.com (smtp-fw-80006.amazon.com [99.78.197.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD95427B11
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 09:09:09 -0800 (PST)
+        with ESMTP id S232900AbiK1RR2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:17:28 -0500
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1C3925E87
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 09:17:26 -0800 (PST)
+Received: by mail-pj1-x1034.google.com with SMTP id k2-20020a17090a4c8200b002187cce2f92so14679398pjh.2
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 09:17:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1669655350; x=1701191350;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=0mt2Omqkad23ADO64tmu+t9xP+SpCKirgM13ek68e8s=;
-  b=vhcg0By8Ped+VJp5RxXRAkJzGpaNw9SmYmujQEvaUixEy6BRr79pnd3I
-   nrdPW6dfYeVGtlCeRGtJrNgMtZ5kJZe6+iGCGuN8LDtaCHQvKtPLiifJG
-   2std2DcHD36AOVlzdAecBEwCx4RRKTv+mp2KbP8eTFM/Y4/d0njQf7tlQ
-   M=;
-X-IronPort-AV: E=Sophos;i="5.96,200,1665446400"; 
-   d="scan'208";a="155562109"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-iad-1d-m6i4x-f05d30a1.us-east-1.amazon.com) ([10.25.36.210])
-  by smtp-border-fw-80006.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Nov 2022 17:09:09 +0000
-Received: from EX13MTAUEE001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-iad-1d-m6i4x-f05d30a1.us-east-1.amazon.com (Postfix) with ESMTPS id 4230D8591E;
-        Mon, 28 Nov 2022 17:09:08 +0000 (UTC)
-Received: from EX19D028UEC003.ant.amazon.com (10.252.137.159) by
- EX13MTAUEE001.ant.amazon.com (10.43.62.226) with Microsoft SMTP Server (TLS)
- id 15.0.1497.42; Mon, 28 Nov 2022 17:09:07 +0000
-Received: from dev-dsk-luizcap-1d-af6a6fef.us-east-1.amazon.com
- (10.43.160.223) by EX19D028UEC003.ant.amazon.com (10.252.137.159) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.1118.20; Mon, 28 Nov
- 2022 17:09:06 +0000
-From:   Luiz Capitulino <luizcap@amazon.com>
-To:     <stable@vger.kernel.org>, <maz@kernel.org>
-CC:     <tglx@linutronix.de>, <lcapitulino@gmail.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Luiz Capitulino <luizcap@amazon.com>
-Subject: [PATH stable 5.15,5.10 4/4] genirq: Take the proposed affinity at face value if force==true
-Date:   Mon, 28 Nov 2022 17:08:35 +0000
-Message-ID: <56bb8afbb97c6ed2364ba49dd0695ce7681aa3ec.1669655291.git.luizcap@amazon.com>
-X-Mailer: git-send-email 2.37.1
-In-Reply-To: <cover.1669655291.git.luizcap@amazon.com>
-References: <cover.1669655291.git.luizcap@amazon.com>
+        d=chromium.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=DWFgfn7sl4yRxD6csRHBAYHMq81sRHzc2nkScUHiHKo=;
+        b=WTIMKifgTx7fIvYm6ryFKZeDz9eDqd4eUILvbSnXYv+qBvhCFbDN5WIzqgN1Ig0gGY
+         FrFkCuK9k61a2Ut7hudNt5CNn1qoMrE66Ggs+sQKYD+Ma3hrUQ1txkEz412JaNxnHrrH
+         wGZLhEyAK5D9hklt2yjpqybl2BxHqGdAqSVII=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=DWFgfn7sl4yRxD6csRHBAYHMq81sRHzc2nkScUHiHKo=;
+        b=GBj5ycreb/yOqtfnzpGmAvZxY9yd0VQtxgXJCGCaaNZ1EToVl3d5iVh89RkCl66k57
+         h33qZkLlADfLfoCczQfuJJfIafW2nkibR+e4SzmJFefByj6Y73NMk20uWjgg7o0XnX38
+         eICJaODrfT1TaZnzaXTYjdEauezYrczOSV/5mG2ZD9rMT1JmYApu77egfBKCbp1mmDL+
+         vx2XgLWBMR8LigFo2DieALrJjl3hWuMT1S7pDzLS2EWt6zt7fVghQM4os1l6vxb+ye8Z
+         UytyGcW9Vp4w2c0WUT0nFYPlx4AqA2vdmmIskFm7J+w050t+WfWAzem97Zxg3YL0TDyd
+         PvtQ==
+X-Gm-Message-State: ANoB5pnAXwepeqJlqWjEpMoeRO7bRhN3G1AGMUIeF1Ngsf+o1yYZf3j1
+        aGYL82Ljg+ny78cNZswiE/TxTjt4559fp2T4
+X-Google-Smtp-Source: AA0mqf5vbC/gLhWCMjfkn4LU6li/fR7OjWz4EV1GCfw5ayLiKzmRGJ0afiflkOUBJ/qkbST/vDPmeA==
+X-Received: by 2002:a17:902:ec01:b0:188:b8cf:83f with SMTP id l1-20020a170902ec0100b00188b8cf083fmr35545287pld.134.1669655845972;
+        Mon, 28 Nov 2022 09:17:25 -0800 (PST)
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com. [209.85.210.170])
+        by smtp.gmail.com with ESMTPSA id m14-20020a17090a34ce00b00218b47be793sm7776891pjf.3.2022.11.28.09.17.25
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Nov 2022 09:17:25 -0800 (PST)
+Received: by mail-pf1-f170.google.com with SMTP id 140so11137705pfz.6
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 09:17:25 -0800 (PST)
+X-Received: by 2002:a05:6e02:66d:b0:303:1196:96c7 with SMTP id
+ l13-20020a056e02066d00b00303119696c7mr2904256ilt.133.1669655452584; Mon, 28
+ Nov 2022 09:10:52 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.43.160.223]
-X-ClientProxiedBy: EX13D31UWC002.ant.amazon.com (10.43.162.220) To
- EX19D028UEC003.ant.amazon.com (10.252.137.159)
-X-Spam-Status: No, score=-11.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20221127-snd-freeze-v5-0-4ededeb08ba0@chromium.org> <alpine.DEB.2.22.394.2211281629120.3532114@eliteleevi.tm.intel.com>
+In-Reply-To: <alpine.DEB.2.22.394.2211281629120.3532114@eliteleevi.tm.intel.com>
+From:   Ricardo Ribalda <ribalda@chromium.org>
+Date:   Mon, 28 Nov 2022 18:10:41 +0100
+X-Gmail-Original-Message-ID: <CANiDSCtd52UX1WQDj4PLTuTogurr63ZdMXVWmYqJHCMo_kEoMQ@mail.gmail.com>
+Message-ID: <CANiDSCtd52UX1WQDj4PLTuTogurr63ZdMXVWmYqJHCMo_kEoMQ@mail.gmail.com>
+Subject: Re: [PATCH v5] ASoC: SOF: Fix deadlock when shutdown a frozen userspace
+To:     Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Cc:     Liam Girdwood <lgirdwood@gmail.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Alsa-devel <alsa-devel@alsa-project.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        sound-open-firmware@alsa-project.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+Hi Kay
 
-commit c48c8b829d2b966a6649827426bcdba082ccf922 upstream.
+Thanks for your review
 
-Although setting the affinity of an interrupt to a set of CPUs that doesn't
-have any online CPU is generally frowned apon, there are a few limited
-cases where such affinity is set from a CPUHP notifier, setting the
-affinity to a CPU that isn't online yet.
+On Mon, 28 Nov 2022 at 15:41, Kai Vehmanen <kai.vehmanen@linux.intel.com> wrote:
+>
+> Hi,
+>
+> On Mon, 28 Nov 2022, Ricardo Ribalda wrote:
+>
+> > During kexec(), the userspace is frozen. Therefore we cannot wait for it
+> > to complete.
+> >
+> > Avoid running snd_sof_machine_unregister during shutdown.
+> [...]
+> >       /*
+> > -      * make sure clients and machine driver(s) are unregistered to force
+> > -      * all userspace devices to be closed prior to the DSP shutdown sequence
+> > +      * make sure clients are unregistered prior to the DSP shutdown
+> > +      * sequence.
+> >        */
+> >       sof_unregister_clients(sdev);
+> >
+> > -     snd_sof_machine_unregister(sdev, pdata);
+> > -
+> >       if (sdev->fw_state == SOF_FW_BOOT_COMPLETE)
+>
+> this is problematic as removing that machine_unregister() call will (at
+> least) bring back an issue on Intel platforms (rare problem hitting S5 on
+> Chromebooks).
 
-The saving grace is that this is always done using the 'force' attribute,
-which gives a hint that the affinity setting can be outside of the online
-CPU mask and the callsite set this flag with the knowledge that the
-underlying interrupt controller knows to handle it.
+Do you know which devices were affected or how to trigger the issue?
 
-This restores the expected behaviour on Marek's system.
+I have access to the ChromeOS lab, so I can test on a big variety of devices
 
-Fixes: 33de0aa4bae9 ("genirq: Always limit the affinity to online CPUs")
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/4b7fc13c-887b-a664-26e8-45aed13f048a@samsung.com
-Link: https://lore.kernel.org/r/20220414140011.541725-1-maz@kernel.org
+Thanks!
 
-Signed-off-by: Luiz Capitulino <luizcap@amazon.com>
----
- kernel/irq/manage.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index a1727cdaebed..9862372e0f01 100644
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -266,10 +266,16 @@ int irq_do_set_affinity(struct irq_data *data, const struct cpumask *mask,
- 		prog_mask = mask;
- 	}
- 
--	/* Make sure we only provide online CPUs to the irqchip */
-+	/*
-+	 * Make sure we only provide online CPUs to the irqchip,
-+	 * unless we are being asked to force the affinity (in which
-+	 * case we do as we are told).
-+	 */
- 	cpumask_and(&tmp_mask, prog_mask, cpu_online_mask);
--	if (!cpumask_empty(&tmp_mask))
-+	if (!force && !cpumask_empty(&tmp_mask))
- 		ret = chip->irq_set_affinity(data, &tmp_mask, force);
-+	else if (force)
-+		ret = chip->irq_set_affinity(data, mask, force);
- 	else
- 		ret = -EINVAL;
- 
+>
+> Not sure how to solve this, but if that call needs to be removed
+> (unsafe to call at shutdown), then we need to rework how SOF
+> does the cleanup.
+>
+> Br, Kai
+
+
+
 -- 
-2.37.1
-
+Ricardo Ribalda
