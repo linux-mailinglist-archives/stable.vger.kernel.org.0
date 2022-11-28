@@ -2,50 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0434763AF51
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:40:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81FC163AF57
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:41:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231969AbiK1Rks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:40:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52828 "EHLO
+        id S231789AbiK1RlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 12:41:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233232AbiK1RkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:40:22 -0500
+        with ESMTP id S233009AbiK1Rk2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:40:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B5529821;
-        Mon, 28 Nov 2022 09:39:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B8D729822;
+        Mon, 28 Nov 2022 09:39:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91A8AB80E97;
-        Mon, 28 Nov 2022 17:39:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B0D6C43146;
-        Mon, 28 Nov 2022 17:39:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43895B80E96;
+        Mon, 28 Nov 2022 17:39:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEF55C433D7;
+        Mon, 28 Nov 2022 17:39:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669657147;
-        bh=wFJv/SIyttPLTWrKzL8P4VDK1X+3bsfYI2ibgv1F07I=;
+        s=k20201202; t=1669657148;
+        bh=JxZMR149k32CPh/jIPLId3L95+vHwgeJKoiJTP6aPNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iRywopb5iLgWmKM8X+Qof8N9lJga6mCW00b6QImfss65agDRC429RliWj4ctcYThu
-         xoVrgC86vxHlSfVEzaY9DgES7vdwB5SkpQQnPh9GcMDerU64hd7aFTd76+I5jEbuvv
-         /lpjn7fw/lGbIAkuo4x05ELrzL1PlguiIO1amZkTwxvR8btO0DVZHVhvfz+kebgz8t
-         +5A4GMIQ7uWiciES4lwtGSFwL20DhVfzCYJNL5cx4Q7HBumLp5MHbHAe5AL/Em7hbS
-         9b0TO3peZ8b4yqR7DRWCPTDXxci7zIovuhKnB0w6iwNDTUqTN1FxfmQXiwEakZ94y1
-         cUytOMUyO3O1w==
+        b=Yw5G9icFRAu2Wcpg8rdp0QRpR9aM/NQxWrRHyCZZdkEf/Qv7NrUqVaq+hcgDnkXbD
+         7gOK085Nae3Qtn5HkL56QUUY1oVh4pacKIk7e6l3juB/LPr+8luVp9M8z/5jXYEHh7
+         fFjs4zVWygRVSgm/Bbp6ZRgC0ZFW7o6svHrjRLkHAH2szMnGJX20SjO9AIr0k5B3Sd
+         7Po8QkCa1obNSmVJT4XyFF+ezSiNDOwvTyTNdfqFulVusZw3S2UuDXRoktWs1JafZH
+         znbmc/hpTQb9d1xa+ljYchCjb8IaNKMkmdszdyOQIzJaKZuxPYvnzss9uZ6/LfxAbQ
+         DHDOTQRpQ2Vsw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, shuah@kernel.org,
-        netdev@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 27/39] selftests/net: Find nettest in current directory
-Date:   Mon, 28 Nov 2022 12:36:07 -0500
-Message-Id: <20221128173642.1441232-27-sashal@kernel.org>
+Cc:     Filipe Manana <fdmanana@suse.com>, Boris Burkov <boris@bur.io>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, clm@fb.com,
+        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 28/39] btrfs: send: avoid unaligned encoded writes when attempting to clone range
+Date:   Mon, 28 Nov 2022 12:36:08 -0500
+Message-Id: <20221128173642.1441232-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221128173642.1441232-1-sashal@kernel.org>
 References: <20221128173642.1441232-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,88 +56,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Díaz <daniel.diaz@linaro.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit bd5e1e42826f18147afb0ba07e6a815f52cf8bcb ]
+[ Upstream commit a11452a3709e217492798cf3686ac2cc8eb3fb51 ]
 
-The `nettest` binary, built from `selftests/net/nettest.c`,
-was expected to be found in the path during test execution of
-`fcnal-test.sh` and `pmtu.sh`, leading to tests getting
-skipped when the binary is not installed in the system, as can
-be seen in these logs found in the wild [1]:
+When trying to see if we can clone a file range, there are cases where we
+end up sending two write operations in case the inode from the source root
+has an i_size that is not sector size aligned and the length from the
+current offset to its i_size is less than the remaining length we are
+trying to clone.
 
-  # TEST: vti4: PMTU exceptions                                         [SKIP]
-  [  350.600250] IPv6: ADDRCONF(NETDEV_CHANGE): veth_b: link becomes ready
-  [  350.607421] IPv6: ADDRCONF(NETDEV_CHANGE): veth_a: link becomes ready
-  # 'nettest' command not found; skipping tests
-  #   xfrm6udp not supported
-  # TEST: vti6: PMTU exceptions (ESP-in-UDP)                            [SKIP]
-  [  351.605102] IPv6: ADDRCONF(NETDEV_CHANGE): veth_b: link becomes ready
-  [  351.612243] IPv6: ADDRCONF(NETDEV_CHANGE): veth_a: link becomes ready
-  # 'nettest' command not found; skipping tests
-  #   xfrm4udp not supported
+Issuing two write operations when we could instead issue a single write
+operation is not incorrect. However it is not optimal, specially if the
+extents are compressed and the flag BTRFS_SEND_FLAG_COMPRESSED was passed
+to the send ioctl. In that case we can end up sending an encoded write
+with an offset that is not sector size aligned, which makes the receiver
+fallback to decompressing the data and writing it using regular buffered
+IO (so re-compressing the data in case the fs is mounted with compression
+enabled), because encoded writes fail with -EINVAL when an offset is not
+sector size aligned.
 
-The `unicast_extensions.sh` tests also rely on `nettest`, but
-it runs fine there because it looks for the binary in the
-current working directory [2]:
+The following example, which triggered a bug in the receiver code for the
+fallback logic of decompressing + regular buffer IO and is fixed by the
+patchset referred in a Link at the bottom of this changelog, is an example
+where we have the non-optimal behaviour due to an unaligned encoded write:
 
-The same mechanism that works for the Unicast extensions tests
-is here copied over to the PMTU and functional tests.
+   $ cat test.sh
+   #!/bin/bash
 
-[1] https://lkft.validation.linaro.org/scheduler/job/5839508#L6221
-[2] https://lkft.validation.linaro.org/scheduler/job/5839508#L7958
+   DEV=/dev/sdj
+   MNT=/mnt/sdj
 
-Signed-off-by: Daniel Díaz <daniel.diaz@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+   mkfs.btrfs -f $DEV > /dev/null
+   mount -o compress $DEV $MNT
+
+   # File foo has a size of 33K, not aligned to the sector size.
+   xfs_io -f -c "pwrite -S 0xab 0 33K" $MNT/foo
+
+   xfs_io -f -c "pwrite -S 0xcd 0 64K" $MNT/bar
+
+   # Now clone the first 32K of file bar into foo at offset 0.
+   xfs_io -c "reflink $MNT/bar 0 0 32K" $MNT/foo
+
+   # Snapshot the default subvolume and create a full send stream (v2).
+   btrfs subvolume snapshot -r $MNT $MNT/snap
+
+   btrfs send --compressed-data -f /tmp/test.send $MNT/snap
+
+   echo -e "\nFile bar in the original filesystem:"
+   od -A d -t x1 $MNT/snap/bar
+
+   umount $MNT
+   mkfs.btrfs -f $DEV > /dev/null
+   mount $DEV $MNT
+
+   echo -e "\nReceiving stream in a new filesystem..."
+   btrfs receive -f /tmp/test.send $MNT
+
+   echo -e "\nFile bar in the new filesystem:"
+   od -A d -t x1 $MNT/snap/bar
+
+   umount $MNT
+
+Before this patch, the send stream included one regular write and one
+encoded write for file 'bar', with the later being not sector size aligned
+and causing the receiver to fallback to decompression + buffered writes.
+The output of the btrfs receive command in verbose mode (-vvv):
+
+   (...)
+   mkfile o258-7-0
+   rename o258-7-0 -> bar
+   utimes
+   clone bar - source=foo source offset=0 offset=0 length=32768
+   write bar - offset=32768 length=1024
+   encoded_write bar - offset=33792, len=4096, unencoded_offset=33792, unencoded_file_len=31744, unencoded_len=65536, compression=1, encryption=0
+   encoded_write bar - falling back to decompress and write due to errno 22 ("Invalid argument")
+   (...)
+
+This patch avoids the regular write followed by an unaligned encoded write
+so that we end up sending a single encoded write that is aligned. So after
+this patch the stream content is (output of btrfs receive -vvv):
+
+   (...)
+   mkfile o258-7-0
+   rename o258-7-0 -> bar
+   utimes
+   clone bar - source=foo source offset=0 offset=0 length=32768
+   encoded_write bar - offset=32768, len=4096, unencoded_offset=32768, unencoded_file_len=32768, unencoded_len=65536, compression=1, encryption=0
+   (...)
+
+So we get more optimal behaviour and avoid the silent data loss bug in
+versions of btrfs-progs affected by the bug referred by the Link tag
+below (btrfs-progs v5.19, v5.19.1, v6.0 and v6.0.1).
+
+Link: https://lore.kernel.org/linux-btrfs/cover.1668529099.git.fdmanana@suse.com/
+Reviewed-by: Boris Burkov <boris@bur.io>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/fcnal-test.sh | 11 +++++++----
- tools/testing/selftests/net/pmtu.sh       | 10 ++++++----
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ fs/btrfs/send.c | 24 +++++++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/fcnal-test.sh b/tools/testing/selftests/net/fcnal-test.sh
-index 31c3b6ebd388..21ca91473c09 100755
---- a/tools/testing/selftests/net/fcnal-test.sh
-+++ b/tools/testing/selftests/net/fcnal-test.sh
-@@ -4196,10 +4196,13 @@ elif [ "$TESTS" = "ipv6" ]; then
- 	TESTS="$TESTS_IPV6"
- fi
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index e7671afcee4f..8cc038460bed 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -5615,6 +5615,7 @@ static int clone_range(struct send_ctx *sctx, struct btrfs_path *dst_path,
+ 		u64 ext_len;
+ 		u64 clone_len;
+ 		u64 clone_data_offset;
++		bool crossed_src_i_size = false;
  
--which nettest >/dev/null
--if [ $? -ne 0 ]; then
--	echo "'nettest' command not found; skipping tests"
--	exit $ksft_skip
-+# nettest can be run from PATH or from same directory as this selftest
-+if ! which nettest >/dev/null; then
-+	PATH=$PWD:$PATH
-+	if ! which nettest >/dev/null; then
-+		echo "'nettest' command not found; skipping tests"
-+		exit $ksft_skip
-+	fi
- fi
+ 		if (slot >= btrfs_header_nritems(leaf)) {
+ 			ret = btrfs_next_leaf(clone_root->root, path);
+@@ -5672,8 +5673,10 @@ static int clone_range(struct send_ctx *sctx, struct btrfs_path *dst_path,
+ 		if (key.offset >= clone_src_i_size)
+ 			break;
  
- declare -i nfail=0
-diff --git a/tools/testing/selftests/net/pmtu.sh b/tools/testing/selftests/net/pmtu.sh
-index 736e358dc549..dfe3d287f01d 100755
---- a/tools/testing/selftests/net/pmtu.sh
-+++ b/tools/testing/selftests/net/pmtu.sh
-@@ -686,10 +686,12 @@ setup_xfrm() {
- }
+-		if (key.offset + ext_len > clone_src_i_size)
++		if (key.offset + ext_len > clone_src_i_size) {
+ 			ext_len = clone_src_i_size - key.offset;
++			crossed_src_i_size = true;
++		}
  
- setup_nettest_xfrm() {
--	which nettest >/dev/null
--	if [ $? -ne 0 ]; then
--		echo "'nettest' command not found; skipping tests"
--	        return 1
-+	if ! which nettest >/dev/null; then
-+		PATH=$PWD:$PATH
-+		if ! which nettest >/dev/null; then
-+			echo "'nettest' command not found; skipping tests"
-+			return 1
-+		fi
- 	fi
- 
- 	[ ${1} -eq 6 ] && proto="-6" || proto=""
+ 		clone_data_offset = btrfs_file_extent_offset(leaf, ei);
+ 		if (btrfs_file_extent_disk_bytenr(leaf, ei) == disk_byte) {
+@@ -5734,6 +5737,25 @@ static int clone_range(struct send_ctx *sctx, struct btrfs_path *dst_path,
+ 				ret = send_clone(sctx, offset, clone_len,
+ 						 clone_root);
+ 			}
++		} else if (crossed_src_i_size && clone_len < len) {
++			/*
++			 * If we are at i_size of the clone source inode and we
++			 * can not clone from it, terminate the loop. This is
++			 * to avoid sending two write operations, one with a
++			 * length matching clone_len and the final one after
++			 * this loop with a length of len - clone_len.
++			 *
++			 * When using encoded writes (BTRFS_SEND_FLAG_COMPRESSED
++			 * was passed to the send ioctl), this helps avoid
++			 * sending an encoded write for an offset that is not
++			 * sector size aligned, in case the i_size of the source
++			 * inode is not sector size aligned. That will make the
++			 * receiver fallback to decompression of the data and
++			 * writing it using regular buffered IO, therefore while
++			 * not incorrect, it's not optimal due decompression and
++			 * possible re-compression at the receiver.
++			 */
++			break;
+ 		} else {
+ 			ret = send_extent_data(sctx, dst_path, offset,
+ 					       clone_len);
 -- 
 2.35.1
 
