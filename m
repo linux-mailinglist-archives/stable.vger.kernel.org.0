@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9658063B014
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:48:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7CA263B023
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:48:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233587AbiK1RsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:48:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35064 "EHLO
+        id S233757AbiK1RsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 12:48:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233743AbiK1RrL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:47:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E17F2DA97;
-        Mon, 28 Nov 2022 09:41:56 -0800 (PST)
+        with ESMTP id S233758AbiK1RrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:47:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CAB32DA9A;
+        Mon, 28 Nov 2022 09:41:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1637A612C4;
-        Mon, 28 Nov 2022 17:41:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D07DCC433B5;
-        Mon, 28 Nov 2022 17:41:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD14C612E9;
+        Mon, 28 Nov 2022 17:41:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE4C5C433C1;
+        Mon, 28 Nov 2022 17:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669657315;
-        bh=+ONobpLrDw5TROlXUBEEikrRoAPbBafYwvdqkA9idtY=;
+        s=k20201202; t=1669657317;
+        bh=uOCUYdXoD0VJBu4LImfvEZCjl2bDaUvrFCK0aez+zKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tx5diBUSdVOb+KRZFsvHaAJNeGM6lsoguu7HI3og7z0BcqKo6Cc1BgfuHo7prcoHC
-         tEDwkK6XiCfxDKgB6GDrwdCEkIu66MVQIEMHl+dh1MIwEkGEZSZkD/vrOuLaewJG5k
-         f7LnmYzwDkXdDx4kZia/LGw+wP1V2JXBrgCcy5wV1QJ63Bix2rA2K3aAarz+3+4Ke6
-         Hu00sXSie0hq1R4LcFitTXf2KpgxjyD2jQjvkmHKKMF+6RUGBv6XHWXHsdkPAVZjzE
-         9zD5pktZgJ83eWcZkVgh/71qfoD1tI4j1zq/gMfjGBgNoSmJi51mEseoYL9/JPZDX7
-         dvHzD7TlR2hIA==
+        b=GLMkTHGUkjAPmgsUzfAyNPCUFg4Aj6c9x91KxH29eSvZaiDwTh6mdcr2/M+XYVtRx
+         NRd+ubunJWm06Go/Q7iP9nfNGgoI3Gx2F+N+L78nbo+iutuRtMV/DQdYX2YyVS3UU5
+         pH3AIsy7OrZADvRojlwBELSGgjeILV3ZKpKdfKp/wt4wQ0H+bPujXMY0tkUb5kD9Xq
+         p0neku5u993nMO1RlCL3Bkz8edLwyd7eFK2CBccosdsgrBde0L9hlNVWPjB0v2j6Ge
+         iKlNJuTPqyIIAwRHtKMzoTq9FaUoUIO+P4I2WVF73XxRbiX0l7e7kjswyZDqvPlegO
+         GwTe7LdTbzy6Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 17/19] usb: dwc3: gadget: Disable GUSB2PHYCFG.SUSPHY for End Transfer
-Date:   Mon, 28 Nov 2022 12:41:17 -0500
-Message-Id: <20221128174120.1442235-17-sashal@kernel.org>
+Cc:     Dominique Martinet <asmadeus@codewreck.org>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        Sasha Levin <sashal@kernel.org>, ericvh@gmail.com,
+        lucho@ionkov.net, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com,
+        v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 18/19] 9p/xen: check logical size for buffer size
+Date:   Mon, 28 Nov 2022 12:41:18 -0500
+Message-Id: <20221128174120.1442235-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221128174120.1442235-1-sashal@kernel.org>
 References: <20221128174120.1442235-1-sashal@kernel.org>
@@ -56,45 +59,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Dominique Martinet <asmadeus@codewreck.org>
 
-[ Upstream commit 3aa07f72894d209fcf922ad686cbb28cf005aaad ]
+[ Upstream commit 391c18cf776eb4569ecda1f7794f360fe0a45a26 ]
 
-If there's a disconnection while operating in eSS, there may be a delay
-in VBUS drop response from the connector. In that case, the internal
-link state may drop to operate in usb2 speed while the controller thinks
-the VBUS is still high. The driver must make sure to disable
-GUSB2PHYCFG.SUSPHY when sending endpoint command while in usb2 speed.
-The End Transfer command may be called, and only that command needs to
-go through at this point. Let's keep it simple and unconditionally
-disable GUSB2PHYCFG.SUSPHY whenever we issue the command.
+trans_xen did not check the data fits into the buffer before copying
+from the xen ring, but we probably should.
+Add a check that just skips the request and return an error to
+userspace if it did not fit
 
-This scenario is not seen in real hardware. In a rare case, our
-prototype type-c controller/interface may have a slow response
-triggerring this issue.
-
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/5651117207803c26e2f22ddf4e5ce9e865dcf7c7.1668045468.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-by: Stefano Stabellini <sstabellini@kernel.org>
+Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+Link: https://lkml.kernel.org/r/20221118135542.63400-1-asmadeus@codewreck.org
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/9p/trans_xen.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 347ba7e4bd81..d48c52c21145 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -291,7 +291,8 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned int cmd,
- 	 *
- 	 * DWC_usb3 3.30a and DWC_usb31 1.90a programming guide section 3.2.2
- 	 */
--	if (dwc->gadget->speed <= USB_SPEED_HIGH) {
-+	if (dwc->gadget->speed <= USB_SPEED_HIGH ||
-+	    DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_ENDTRANSFER) {
- 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
- 		if (unlikely(reg & DWC3_GUSB2PHYCFG_SUSPHY)) {
- 			saved_config |= DWC3_GUSB2PHYCFG_SUSPHY;
+diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
+index 432ac5a16f2e..6c8a33f98f09 100644
+--- a/net/9p/trans_xen.c
++++ b/net/9p/trans_xen.c
+@@ -231,6 +231,14 @@ static void p9_xen_response(struct work_struct *work)
+ 			continue;
+ 		}
+ 
++		if (h.size > req->rc.capacity) {
++			dev_warn(&priv->dev->dev,
++				 "requested packet size too big: %d for tag %d with capacity %zd\n",
++				 h.size, h.tag, req->rc.capacity);
++			req->status = REQ_STATUS_ERROR;
++			goto recv_error;
++		}
++
+ 		memcpy(&req->rc, &h, sizeof(h));
+ 		req->rc.offset = 0;
+ 
+@@ -240,6 +248,7 @@ static void p9_xen_response(struct work_struct *work)
+ 				     masked_prod, &masked_cons,
+ 				     XEN_9PFS_RING_SIZE(ring));
+ 
++recv_error:
+ 		virt_mb();
+ 		cons += h.size;
+ 		ring->intf->in_cons = cons;
 -- 
 2.35.1
 
