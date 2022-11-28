@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0997463B034
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:49:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9787263B027
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:49:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233597AbiK1RtN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:49:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35020 "EHLO
+        id S233645AbiK1Rsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 12:48:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233852AbiK1RrZ (ORCPT
+        with ESMTP id S233857AbiK1RrZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:47:25 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A538BDE98;
-        Mon, 28 Nov 2022 09:42:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76ADA27FDD;
+        Mon, 28 Nov 2022 09:42:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60D36B80E9D;
-        Mon, 28 Nov 2022 17:42:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C077C433D6;
-        Mon, 28 Nov 2022 17:42:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C83FB80D1A;
+        Mon, 28 Nov 2022 17:42:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F2FDC43470;
+        Mon, 28 Nov 2022 17:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669657338;
-        bh=I2Akvl+ob+fZLN2ur53/RlotzPhrtZcMiScn6OptW1w=;
+        s=k20201202; t=1669657339;
+        bh=Z8F0hZv64L9U7HllT2FAD/SVLF4zGevn7Eh66ZOy9MI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nd/xG2eD9M4TOW4dWGUTAnM0VhexlonBlzRvGbin/8u78eD2fVuw/Yz8RRUHhjHDy
-         ZqwdqdYeZd7N5Q4B0cxpiTwgbtH53qLSLFIA3tMd+3opXkt22uLUECq105cC+F5MR8
-         LnxiB20hkGrk3w4SBiL6lQiJz1kcuvZvoAcJhspv2DLANSnhvm3hCY/417qSjZW2K7
-         m922s1W5DH5gAiygI/Fjeq+HPrA6leAH2qQZp8izHMhgiAxrMdM4KMTrAN7dK15kZX
-         W0oT0QgHFDY70MOD90uRI/mVRtR7Ib+LjXwIawIRPO+LvYC5jp7wKqdOYzzyLBAf1/
-         3ezr/aEaTkhtg==
+        b=mOGbkDzjKUP50dlbc6j8fesUMD21iyi61x8/5WfyO3fvMnqwtgaWTm5oeDIcRzEEB
+         46glF1lrwFYlwjiSKmdZYZTUM1DdrJ90NmrhiLtTZWAiE+F38o2yDzGFLmn4LNeRs6
+         ldWub/QEU/WTK4w5OWgPiyXJ0o19+4MPboLDe+zKpw0vSS7bZDK61o9LSZx+qFne2m
+         gpz51fn/lNRqkY4WTNAwWB+fReKNJnZDE7ZncDVyeIz6TfPBqbD5n/O86CNGJf3qB/
+         RoRt9fWefymjaf+xbmyoWyWjoMYVmaiNYxfnLJ/YiWYwuX6dR/9UWNY221YJ2/hWVA
+         7b6g8EQNipM0A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Jonker <jbx6244@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 07/16] ARM: dts: rockchip: disable arm_global_timer on rk3066 and rk3188
-Date:   Mon, 28 Nov 2022 12:41:50 -0500
-Message-Id: <20221128174201.1442499-7-sashal@kernel.org>
+Cc:     GUO Zihua <guozihua@huawei.com>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Sasha Levin <sashal@kernel.org>, ericvh@gmail.com,
+        lucho@ionkov.net, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com,
+        v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 08/16] 9p/fd: Use P9_HDRSZ for header size
+Date:   Mon, 28 Nov 2022 12:41:51 -0500
+Message-Id: <20221128174201.1442499-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221128174201.1442499-1-sashal@kernel.org>
 References: <20221128174201.1442499-1-sashal@kernel.org>
@@ -57,62 +59,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: GUO Zihua <guozihua@huawei.com>
 
-[ Upstream commit da74858a475782a3f16470907814c8cc5950ad68 ]
+[ Upstream commit 6854fadbeee10891ed74246bdc05031906b6c8cf ]
 
-The clock source and the sched_clock provided by the arm_global_timer
-on Rockchip rk3066a/rk3188 are quite unstable because their rates
-depend on the CPU frequency.
+Cleanup hardcoded header sizes to use P9_HDRSZ instead of '7'
 
-Recent changes to the arm_global_timer driver makes it impossible to use.
-
-On the other side, the arm_global_timer has a higher rating than the
-ROCKCHIP_TIMER, it will be selected by default by the time framework
-while we want to use the stable Rockchip clock source.
-
-Keep the arm_global_timer disabled in order to have the
-DW_APB_TIMER (rk3066a) or ROCKCHIP_TIMER (rk3188) selected by default.
-
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/f275ca8d-fd0a-26e5-b978-b7f3df815e0a@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lkml.kernel.org/r/20221117091159.31533-4-guozihua@huawei.com
+Signed-off-by: GUO Zihua <guozihua@huawei.com>
+Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+[Dominique: commit message adjusted to make sense after offset size
+adjustment got removed]
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3188.dtsi | 1 -
- arch/arm/boot/dts/rk3xxx.dtsi | 7 +++++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ net/9p/trans_fd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
-index 95d558dc163c..5e8ba80d7b4f 100644
---- a/arch/arm/boot/dts/rk3188.dtsi
-+++ b/arch/arm/boot/dts/rk3188.dtsi
-@@ -632,7 +632,6 @@ &emac {
+diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
+index b691871d9a02..05faded536cb 100644
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -118,7 +118,7 @@ struct p9_conn {
+ 	struct list_head unsent_req_list;
+ 	struct p9_req_t *rreq;
+ 	struct p9_req_t *wreq;
+-	char tmp_buf[7];
++	char tmp_buf[P9_HDRSZ];
+ 	struct p9_fcall rc;
+ 	int wpos;
+ 	int wsize;
+@@ -289,7 +289,7 @@ static void p9_read_work(struct work_struct *work)
+ 	if (!m->rc.sdata) {
+ 		m->rc.sdata = m->tmp_buf;
+ 		m->rc.offset = 0;
+-		m->rc.capacity = 7; /* start by reading header */
++		m->rc.capacity = P9_HDRSZ; /* start by reading header */
+ 	}
  
- &global_timer {
- 	interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
--	status = "disabled";
- };
+ 	clear_bit(Rpending, &m->wsched);
+@@ -312,7 +312,7 @@ static void p9_read_work(struct work_struct *work)
+ 		p9_debug(P9_DEBUG_TRANS, "got new header\n");
  
- &local_timer {
-diff --git a/arch/arm/boot/dts/rk3xxx.dtsi b/arch/arm/boot/dts/rk3xxx.dtsi
-index bce0b05ef7bf..0580eea90fbc 100644
---- a/arch/arm/boot/dts/rk3xxx.dtsi
-+++ b/arch/arm/boot/dts/rk3xxx.dtsi
-@@ -108,6 +108,13 @@ global_timer: global-timer@1013c200 {
- 		reg = <0x1013c200 0x20>;
- 		interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_EDGE_RISING)>;
- 		clocks = <&cru CORE_PERI>;
-+		status = "disabled";
-+		/* The clock source and the sched_clock provided by the arm_global_timer
-+		 * on Rockchip rk3066a/rk3188 are quite unstable because their rates
-+		 * depend on the CPU frequency.
-+		 * Keep the arm_global_timer disabled in order to have the
-+		 * DW_APB_TIMER (rk3066a) or ROCKCHIP_TIMER (rk3188) selected by default.
-+		 */
- 	};
- 
- 	local_timer: local-timer@1013c600 {
+ 		/* Header size */
+-		m->rc.size = 7;
++		m->rc.size = P9_HDRSZ;
+ 		err = p9_parse_header(&m->rc, &m->rc.size, NULL, NULL, 0);
+ 		if (err) {
+ 			p9_debug(P9_DEBUG_ERROR,
 -- 
 2.35.1
 
