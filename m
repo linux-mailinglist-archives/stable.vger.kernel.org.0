@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CE5E63B048
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:49:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D90AE63B03D
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:49:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233670AbiK1RtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:49:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34184 "EHLO
+        id S233805AbiK1RtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 12:49:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233925AbiK1Rrf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:47:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FF95167E6;
-        Mon, 28 Nov 2022 09:42:52 -0800 (PST)
+        with ESMTP id S233927AbiK1Rrg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:47:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FCAA1705E;
+        Mon, 28 Nov 2022 09:42:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42475B80E56;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A322E612F3;
+        Mon, 28 Nov 2022 17:42:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C749EC433C1;
         Mon, 28 Nov 2022 17:42:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC3C7C4347C;
-        Mon, 28 Nov 2022 17:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669657370;
-        bh=gri86OR9ATsXe3TfzHcfa345PcVbomYmI6akjvxvMp8=;
+        s=k20201202; t=1669657373;
+        bh=tWi8m0zIJyvdgVCG88lBeVWG25YXSJvsKgl/s+TMVZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erWrRND+yjZiNylGrRD3mM/tZNhc6nAzmi4IxcGixt17nUWfuwGN5IfH+OCYyWGvC
-         D35v/Jo9cGND42baF0ruR9eNOZLgPs3+Mzy0d/U3tg6rSkWU5xFXOhLkoO524PMBDt
-         LlDbMwxp3gMSNdmxg441au7k/yTkVrg2wwESJQ5TG3cd2a++0DAxgASFZ7f2rcF5jH
-         NwCm73J9M+9oEt52oMNRHkQvH2uSgUXgHQN7QoeYWRZB3QP0mA8pCU0GA1inBsGPZh
-         7qSUYKEVFOOSH7l8i5JPrn7DFavwgO4wtO7IOgap3TPaPNHUUAVa+7p8A5D+4eZkh/
-         Bj9Drj1hoWdRQ==
+        b=S5F2Ht4ycCc6MSCQtsKrVbmCkbH0oAiNZT2MNItydEffHu2mviFnoboHPNkqPC+A2
+         I8xBXrzUIcHFycmuyCMCU8S5peItfacq7mV1IfudihOrmI3twrLDoQzcjhaqI6kZDT
+         8BceOjIac/HK0xMxAMETOVIRNQ4RNX/bXkQis09S+ecP8L9aK6TG6lUqxvdcoQmlr8
+         ogJcfTYoFsaQz8M9SIOqnnvs5Gyn6l224iaC3qXO74qIUXEPdY7IyDSEPGhEUq+Yam
+         uAZEzc3WhMbZdjBJNlmqAE93NuMOvBaOXeQ3A0Yu9k7mIn0jKMdQszWN3n95KphXeO
+         Ohvf1HHXzkQ/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     GUO Zihua <guozihua@huawei.com>,
-        Christian Schoenebeck <linux_oss@crudebyte.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Sasha Levin <sashal@kernel.org>, ericvh@gmail.com,
-        lucho@ionkov.net, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com,
-        v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 06/12] 9p/fd: Use P9_HDRSZ for header size
-Date:   Mon, 28 Nov 2022 12:42:29 -0500
-Message-Id: <20221128174235.1442841-6-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        kernel test robot <lkp@intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        alsa-devel@alsa-project.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, nathan@kernel.org,
+        ndesaulniers@google.com, llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 4.19 07/12] ALSA: seq: Fix function prototype mismatch in snd_seq_expand_var_event
+Date:   Mon, 28 Nov 2022 12:42:30 -0500
+Message-Id: <20221128174235.1442841-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221128174235.1442841-1-sashal@kernel.org>
 References: <20221128174235.1442841-1-sashal@kernel.org>
@@ -59,54 +60,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GUO Zihua <guozihua@huawei.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 6854fadbeee10891ed74246bdc05031906b6c8cf ]
+[ Upstream commit 05530ef7cf7c7d700f6753f058999b1b5099a026 ]
 
-Cleanup hardcoded header sizes to use P9_HDRSZ instead of '7'
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed.
 
-Link: https://lkml.kernel.org/r/20221117091159.31533-4-guozihua@huawei.com
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-[Dominique: commit message adjusted to make sense after offset size
-adjustment got removed]
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+seq_copy_in_user() and seq_copy_in_kernel() did not have prototypes
+matching snd_seq_dump_func_t. Adjust this and remove the casts. There
+are not resulting binary output differences.
+
+This was found as a result of Clang's new -Wcast-function-type-strict
+flag, which is more sensitive than the simpler -Wcast-function-type,
+which only checks for type width mismatches.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202211041527.HD8TLSE1-lkp@intel.com
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: alsa-devel@alsa-project.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221118232346.never.380-kees@kernel.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_fd.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/core/seq/seq_memory.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
-index 7194ffa58d3e..689117c78deb 100644
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -133,7 +133,7 @@ struct p9_conn {
- 	struct list_head unsent_req_list;
- 	struct p9_req_t *rreq;
- 	struct p9_req_t *wreq;
--	char tmp_buf[7];
-+	char tmp_buf[P9_HDRSZ];
- 	struct p9_fcall rc;
- 	int wpos;
- 	int wsize;
-@@ -304,7 +304,7 @@ static void p9_read_work(struct work_struct *work)
- 	if (!m->rc.sdata) {
- 		m->rc.sdata = m->tmp_buf;
- 		m->rc.offset = 0;
--		m->rc.capacity = 7; /* start by reading header */
-+		m->rc.capacity = P9_HDRSZ; /* start by reading header */
+diff --git a/sound/core/seq/seq_memory.c b/sound/core/seq/seq_memory.c
+index 5b0388202bac..ac854beb8347 100644
+--- a/sound/core/seq/seq_memory.c
++++ b/sound/core/seq/seq_memory.c
+@@ -126,15 +126,19 @@ EXPORT_SYMBOL(snd_seq_dump_var_event);
+  * expand the variable length event to linear buffer space.
+  */
+ 
+-static int seq_copy_in_kernel(char **bufptr, const void *src, int size)
++static int seq_copy_in_kernel(void *ptr, void *src, int size)
+ {
++	char **bufptr = ptr;
++
+ 	memcpy(*bufptr, src, size);
+ 	*bufptr += size;
+ 	return 0;
+ }
+ 
+-static int seq_copy_in_user(char __user **bufptr, const void *src, int size)
++static int seq_copy_in_user(void *ptr, void *src, int size)
+ {
++	char __user **bufptr = ptr;
++
+ 	if (copy_to_user(*bufptr, src, size))
+ 		return -EFAULT;
+ 	*bufptr += size;
+@@ -163,8 +167,7 @@ int snd_seq_expand_var_event(const struct snd_seq_event *event, int count, char
+ 		return newlen;
  	}
- 
- 	clear_bit(Rpending, &m->wsched);
-@@ -327,7 +327,7 @@ static void p9_read_work(struct work_struct *work)
- 		p9_debug(P9_DEBUG_TRANS, "got new header\n");
- 
- 		/* Header size */
--		m->rc.size = 7;
-+		m->rc.size = P9_HDRSZ;
- 		err = p9_parse_header(&m->rc, &m->rc.size, NULL, NULL, 0);
- 		if (err) {
- 			p9_debug(P9_DEBUG_ERROR,
+ 	err = snd_seq_dump_var_event(event,
+-				     in_kernel ? (snd_seq_dump_func_t)seq_copy_in_kernel :
+-				     (snd_seq_dump_func_t)seq_copy_in_user,
++				     in_kernel ? seq_copy_in_kernel : seq_copy_in_user,
+ 				     &buf);
+ 	return err < 0 ? err : newlen;
+ }
 -- 
 2.35.1
 
