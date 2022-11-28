@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D61B663AF3A
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:40:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC1C963AF3E
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:40:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233206AbiK1RkA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:40:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51162 "EHLO
+        id S232996AbiK1RkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 12:40:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233017AbiK1Rjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:39:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA76728E21;
-        Mon, 28 Nov 2022 09:38:46 -0800 (PST)
+        with ESMTP id S233183AbiK1Rjg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:39:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FB6228E3D;
+        Mon, 28 Nov 2022 09:38:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0220AB80E96;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82842612FB;
         Mon, 28 Nov 2022 17:38:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 667D9C43141;
-        Mon, 28 Nov 2022 17:38:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DD54C433D6;
+        Mon, 28 Nov 2022 17:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669657118;
-        bh=qh+diS8m2BGEv5ddWX2xCTeXVn0xdFg5GgEqOy4x/9c=;
+        s=k20201202; t=1669657119;
+        bh=I5mzg9fFy1bW72TyvTZKG/bnL367pM9JALW3VqNVQrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uIKW8TIKGlVR57Wpv03cvGlB1coJSJ7W4PniBpAjXocM/M4aZvwPJGpwdCM0usGOm
-         cjDkNCC5ZnhjFpfjypJeIMEFI0x1gVD9t2Y2MArGTYrxX38VxsWatYsoY7ZSoQWr4g
-         A7L/ZXCSjVWCup0wABZvvu4GKi7WnfMhWHp0yurpAAMN7V+GePqPWLHDKFhCXEQG3M
-         MjTWIa1LkV8le/TYpHLCSCQMfjCcCAidiWjdPLCZzH4ls7HMP+daiirs5J7zMQMBsQ
-         cKPCmCX5QF52GSWg+kYu4KHofItVIdWUAtljUrWUHDvTz7+GOJXibbxybLmqpVsmLa
-         4oO1v9Tw7wNRg==
+        b=MqUjLs8qvXxWcixJ8hvUkJ9UdW16uRRwNaaNypaf96pI2Eb7WA3rP8UBjaG5VCrvf
+         pnJ72Ls/BxVfcqEPvdTOhHIse5Jnonmwh05QkiDBgTr6/txIaynVtfkH1zGfm5PK2e
+         QH8BOmWEzVR959pLmlYedrqifEAea4AuhGh2dik7SitdnJ2ZTBSUlDUKEY8SQeQvsq
+         npjGNefA+xGpTuVCgsUEs2yb4DMSth6HNYKybUx7gFZqVm45dFSKh5o2ImR7jbThSP
+         MnDfusNngErAyyiEMO9NrrxyJC1gTJ4cP/Z/COVJjVrKTgiJqUlXbIAYTOtufgkwmH
+         oUL5rYhsX2l1Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     GUO Zihua <guozihua@huawei.com>,
-        Christian Schoenebeck <linux_oss@crudebyte.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Sasha Levin <sashal@kernel.org>, ericvh@gmail.com,
-        lucho@ionkov.net, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com,
-        v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 20/39] 9p/fd: Use P9_HDRSZ for header size
-Date:   Mon, 28 Nov 2022 12:36:00 -0500
-Message-Id: <20221128173642.1441232-20-sashal@kernel.org>
+Cc:     Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        support.opensource@diasemi.com, lgirdwood@gmail.com
+Subject: [PATCH AUTOSEL 6.0 21/39] regulator: slg51000: Wait after asserting CS pin
+Date:   Mon, 28 Nov 2022 12:36:01 -0500
+Message-Id: <20221128173642.1441232-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221128173642.1441232-1-sashal@kernel.org>
 References: <20221128173642.1441232-1-sashal@kernel.org>
@@ -59,54 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GUO Zihua <guozihua@huawei.com>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit 6854fadbeee10891ed74246bdc05031906b6c8cf ]
+[ Upstream commit 0b24dfa587c6cc7484cfb170da5c7dd73451f670 ]
 
-Cleanup hardcoded header sizes to use P9_HDRSZ instead of '7'
+Sony's downstream driver [1], among some other changes, adds a
+seemingly random 10ms usleep_range, which turned out to be necessary
+for the hardware to function properly on at least Sony Xperia 1 IV.
+Without this, I2C transactions with the SLG51000 straight up fail.
 
-Link: https://lkml.kernel.org/r/20221117091159.31533-4-guozihua@huawei.com
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-[Dominique: commit message adjusted to make sense after offset size
-adjustment got removed]
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Relax (10-10ms -> 10-11ms) and add the aforementioned sleep to make
+sure the hardware has some time to wake up.
+
+(nagara-2.0.0-mlc/vendor/semc/hardware/camera-kernel-module/)
+[1] https://developer.sony.com/file/download/open-source-archive-for-64-0-m-4-29/
+
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Link: https://lore.kernel.org/r/20221118131035.54874-1-konrad.dybcio@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_fd.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/regulator/slg51000-regulator.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
-index 0191f22d1ec3..fd364f095ea7 100644
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -120,7 +120,7 @@ struct p9_conn {
- 	struct list_head unsent_req_list;
- 	struct p9_req_t *rreq;
- 	struct p9_req_t *wreq;
--	char tmp_buf[7];
-+	char tmp_buf[P9_HDRSZ];
- 	struct p9_fcall rc;
- 	int wpos;
- 	int wsize;
-@@ -291,7 +291,7 @@ static void p9_read_work(struct work_struct *work)
- 	if (!m->rc.sdata) {
- 		m->rc.sdata = m->tmp_buf;
- 		m->rc.offset = 0;
--		m->rc.capacity = 7; /* start by reading header */
-+		m->rc.capacity = P9_HDRSZ; /* start by reading header */
+diff --git a/drivers/regulator/slg51000-regulator.c b/drivers/regulator/slg51000-regulator.c
+index 75a941fb3c2b..1b2eee95ad3f 100644
+--- a/drivers/regulator/slg51000-regulator.c
++++ b/drivers/regulator/slg51000-regulator.c
+@@ -457,6 +457,8 @@ static int slg51000_i2c_probe(struct i2c_client *client)
+ 		chip->cs_gpiod = cs_gpiod;
  	}
  
- 	clear_bit(Rpending, &m->wsched);
-@@ -314,7 +314,7 @@ static void p9_read_work(struct work_struct *work)
- 		p9_debug(P9_DEBUG_TRANS, "got new header\n");
- 
- 		/* Header size */
--		m->rc.size = 7;
-+		m->rc.size = P9_HDRSZ;
- 		err = p9_parse_header(&m->rc, &m->rc.size, NULL, NULL, 0);
- 		if (err) {
- 			p9_debug(P9_DEBUG_ERROR,
++	usleep_range(10000, 11000);
++
+ 	i2c_set_clientdata(client, chip);
+ 	chip->chip_irq = client->irq;
+ 	chip->dev = dev;
 -- 
 2.35.1
 
