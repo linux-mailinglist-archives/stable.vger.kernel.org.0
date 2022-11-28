@@ -2,167 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E85063A9B7
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 14:36:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98BB163A9D1
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 14:43:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231764AbiK1Ng3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 08:36:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33560 "EHLO
+        id S230253AbiK1NnX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 08:43:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231968AbiK1NgL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 08:36:11 -0500
-X-Greylist: delayed 61 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 28 Nov 2022 05:36:04 PST
-Received: from outboundhk.mxmail.xiaomi.com (outboundhk.mxmail.xiaomi.com [207.226.244.122])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6F8916465
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 05:36:04 -0800 (PST)
-X-IronPort-AV: E=Sophos;i="5.96,200,1665417600"; 
-   d="scan'208";a="57652141"
-Received: from hk-mbx02.mioffice.cn (HELO xiaomi.com) ([10.56.8.122])
-  by outboundhk.mxmail.xiaomi.com with ESMTP; 28 Nov 2022 21:34:56 +0800
-Received: from BJ-MBX06.mioffice.cn (10.237.8.126) by HK-MBX02.mioffice.cn
- (10.56.8.122) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.36; Mon, 28 Nov
- 2022 21:34:48 +0800
-Received: from BJ-MBX04.mioffice.cn (10.237.8.124) by BJ-MBX06.mioffice.cn
- (10.237.8.126) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.36; Mon, 28 Nov
- 2022 21:34:48 +0800
-Received: from BJ-MBX04.mioffice.cn ([fe80::44a0:4515:f68b:f8b1]) by
- BJ-MBX04.mioffice.cn ([fe80::44a0:4515:f68b:f8b1%18]) with mapi id
- 15.02.0986.036; Mon, 28 Nov 2022 21:34:48 +0800
-From:   =?utf-8?B?RGF2aWQgV2FuZyDnjovmoIc=?= <wangbiao3@xiaomi.com>
-To:     Waiman Long <longman@redhat.com>, Ingo Molnar <mingo@redhat.com>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        "Daniel Bristot de Oliveira" <bristot@redhat.com>
-CC:     Phil Auld <pauld@redhat.com>,
-        Wenjie Li <wenjieli@qti.qualcomm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: =?utf-8?B?562U5aSNOiBbRXh0ZXJuYWwgTWFpbF1bUEFUQ0gtdGlwXSBzY2hlZDogRml4?=
- =?utf-8?B?IHVzZS1hZnRlci1mcmVlIGJ1ZyBpbiBkdXBfdXNlcl9jcHVzX3B0cigp?=
-Thread-Topic: [External Mail][PATCH-tip] sched: Fix use-after-free bug in
- dup_user_cpus_ptr()
-Thread-Index: AQHZAssNy10XwAaeOEOvH5Jk+DM0Hq5UU+6w
-Date:   Mon, 28 Nov 2022 13:34:48 +0000
-Message-ID: <63373bf9adfc4e0abd9480d40afa2c5a@xiaomi.com>
-References: <20221128014441.1264867-1-longman@redhat.com>
-In-Reply-To: <20221128014441.1264867-1-longman@redhat.com>
-Accept-Language: en-US, zh-CN
-Content-Language: zh-CN
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.237.8.11]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        with ESMTP id S231991AbiK1NnA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 08:43:00 -0500
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 359E71FCC9
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 05:42:55 -0800 (PST)
+Received: by mail-ej1-x62e.google.com with SMTP id ml11so984694ejb.6
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 05:42:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=8xdIjoOikGdAZKov94FlnwSjqEqsO1SC5byhX9Q9RLU=;
+        b=jEvKo4Xz7BCEk5NFMOWgRBT/TrETg2qR5X6hoc/aB/wXvdRIsbpe2NAzulkGQxZrHu
+         RLxjxQBfTIAxEHmK/FBOhhMItJbRKUaqD2gCLiH4qrTnyxOUpRQAAadH/5fX/rfkFySY
+         ZCD3BJnuyzNHoFJOjRR5/RFZmhAM7rd9nHyvg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8xdIjoOikGdAZKov94FlnwSjqEqsO1SC5byhX9Q9RLU=;
+        b=IAf5CcVRWLQmlHTaZts63n1uEDqKNBTf0kAjExNNN5uOtdsG2ziOAQ2Sp5J7LlY82I
+         9VX1Yn519cb2o4TalTRXKpRagV6gRhF9fs1UT0o5sWu+09AqpUY/hzfgHPQdG9Zm9FGl
+         shdKI2NeY+SV3HUZDHFdeDJT3eZQLPzILM5MzT+Kak4hDyDO/mgdP0SEf6kdn9VJYxQ2
+         cglbq0QX8CiAvgF4ZwIKup3qirPJIjPhc1XWEKrK4LZFezLAyaXkirI5iI1Ct6oHuR8r
+         XkCaPf0TKB4izZN9sOz4bAjo5T3g+r0lJNPPA10nGTtL1SX0+jYF9KNOuaGJ00V2yFqn
+         E/OA==
+X-Gm-Message-State: ANoB5plAdy1Jbk92FXG6SEd2hDijNJ2leL2ra025tvbtpjqrZo/xzwOT
+        A9uTM/OcIHJF04tM8O6jptrSPA==
+X-Google-Smtp-Source: AA0mqf6G9vDib77cW89TEqFeVynYGAWhQXTzNKEAXZ/8an8V7OwVpUyq4BDFXkDyZblg+YlHgxqGCA==
+X-Received: by 2002:a17:906:692:b0:7ad:49b8:1687 with SMTP id u18-20020a170906069200b007ad49b81687mr33385064ejb.407.1669642973563;
+        Mon, 28 Nov 2022 05:42:53 -0800 (PST)
+Received: from alco.roam.corp.google.com (80.71.134.83.ipv4.parknet.dk. [80.71.134.83])
+        by smtp.gmail.com with ESMTPSA id vt4-20020a170907a60400b0073d7b876621sm4959667ejc.205.2022.11.28.05.42.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Nov 2022 05:42:53 -0800 (PST)
+From:   Ricardo Ribalda <ribalda@chromium.org>
+Date:   Mon, 28 Nov 2022 14:42:49 +0100
+Subject: [PATCH v4] ALSA: core: Fix deadlock when shutdown a frozen userspace
 MIME-Version: 1.0
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20221127-snd-freeze-v4-0-51ca64b7f2ab@chromium.org>
+To:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Liam Girdwood <lgirdwood@gmail.com>
+Cc:     Ricardo Ribalda <ribalda@chromium.org>,
+        linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+        stable@vger.kernel.org, sound-open-firmware@alsa-project.org
+X-Mailer: b4 0.11.0-dev-696ae
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3529; i=ribalda@chromium.org;
+ h=from:subject:message-id; bh=CuZgvNcaSIcLqEhNVxL+uczDhS4EM71Cxydwohy6ArE=;
+ b=owEBbQKS/ZANAwAKAdE30T7POsSIAcsmYgBjhLraAkpShzLacNLIjWc+7CfukKCbU2FcaQSEkkOd
+ E8G3s4KJAjMEAAEKAB0WIQREDzjr+/4oCDLSsx7RN9E+zzrEiAUCY4S62gAKCRDRN9E+zzrEiGH7EA
+ CNcjEMcS8oZDbadEJ0IDQyhibQPQceQUEVYKPeBv62cDgSKswxDoYu7I21X8O3OW/ETvQDNB35/q+/
+ zePdiuhYJAeq1gaZ0ZIQp1gnjL9UXoYe06jde9gfB2aSfGhIhftVfaonKSf8Htyc/QMGq5D9oOZp4Q
+ dYHsRJz4U/vgGfQH+jw6e9OTfOrMPK3eYsBGj5KoLFHloSVasKuWkhbUew0gkoUwQ/alk1/D2wnc3x
+ +L7Hb+PaA81/r27oPmxZsAyS5j/b0a+MOZQHklYy057opBh2yFiBzxtHHVAaMkfWSDNkP1TlQb0G+k
+ yGL+d1q6+Tr20HenI6fYnRlZqLSsemE71t/IDYLqaqBzw3rb5HSgOE4Rvoflp0rvehq7SbPg5a4nBV
+ 0xqBwSM0EhLUmkO8uelk8FP36MCIEqMgb1f2WZk1tnKow0opnWYhYxVEI+S+glbxB0M6PnIThE8v+t
+ srJTQmnIL6SyHOYuPyixoYX74/acbjKa/aNBVtpVhI/9vImy2CcNVSJvs+iUfBcueS/D9bQd77BUb8
+ rp84vTCAMUWPQRwbZPWXYf7XbUjWrBerTZKGq3rD6omJ6zuReFxmAHWhCtr0kk4SFFGCauSoGeN63s
+ eaC7xewSghyIwwa1bFPaIqN0Hsd9ukkUo1nUInfZPdx3d5lQxv6NGnPBjCRg==
+X-Developer-Key: i=ribalda@chromium.org; a=openpgp;
+ fpr=9EC3BB66E2FC129A6F90B39556A0D81F9F782DA9
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGksIFdhaW1hbg0KDQpXZSB1c2UgMTQwIGRldmljZXMgdG8gdGVzdCB0aGlzIHBhdGNoIDcyIGhv
-dXJzLiAgVGhlIGlzc3VlIGNhbiBub3QgYmUgcmVwcm9kdWNlZC4gIElmIG5vIHRoaXMgcGF0Y2gs
-ICB0aGUgaXNzdWUgY2FuIGJlIHJlcHJvZHVjZWQuDQpDb3VsZCB5b3UgaGVscCBtZXJnZSB0aGlz
-IHBhdGNoIHRvIG1haWxpbmU/DQoNCmh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL2FsbC8yMDIyMTEy
-NTAyMzk0My4xMTE4NjAzLTEtbG9uZ21hbkByZWRoYXQuY29tLw0KDQpJZiB0aGlzIHBhdGNoIGlz
-IGFwcGxpZWQgdG8gdGhlIG1haW50YWluZXIncyB0cmVlLCAgd2UgY2FuIHJlcXVlc3QgZ29vZ2xl
-IHRvIGhlbHAgY2hlcnJ5cGljayB0byBBQ0sgdG8gZml4IGlzc3VlLg0KDQpUaGFua3MNCg0KLS0t
-LS3pgq7ku7bljp/ku7YtLS0tLQ0K5Y+R5Lu25Lq6OiBXYWltYW4gTG9uZyA8bG9uZ21hbkByZWRo
-YXQuY29tPg0K5Y+R6YCB5pe26Ze0OiAyMDIy5bm0MTHmnIgyOOaXpSA5OjQ1DQrmlLbku7bkuro6
-IEluZ28gTW9sbmFyIDxtaW5nb0ByZWRoYXQuY29tPjsgUGV0ZXIgWmlqbHN0cmEgPHBldGVyekBp
-bmZyYWRlYWQub3JnPjsgSnVyaSBMZWxsaSA8anVyaS5sZWxsaUByZWRoYXQuY29tPjsgVmluY2Vu
-dCBHdWl0dG90IDx2aW5jZW50Lmd1aXR0b3RAbGluYXJvLm9yZz47IERpZXRtYXIgRWdnZW1hbm4g
-PGRpZXRtYXIuZWdnZW1hbm5AYXJtLmNvbT47IFN0ZXZlbiBSb3N0ZWR0IDxyb3N0ZWR0QGdvb2Rt
-aXMub3JnPjsgQmVuIFNlZ2FsbCA8YnNlZ2FsbEBnb29nbGUuY29tPjsgTWVsIEdvcm1hbiA8bWdv
-cm1hbkBzdXNlLmRlPjsgRGFuaWVsIEJyaXN0b3QgZGUgT2xpdmVpcmEgPGJyaXN0b3RAcmVkaGF0
-LmNvbT4NCuaKhOmAgTogUGhpbCBBdWxkIDxwYXVsZEByZWRoYXQuY29tPjsgV2VuamllIExpIDx3
-ZW5qaWVsaUBxdGkucXVhbGNvbW0uY29tPjsgRGF2aWQgV2FuZyDnjovmoIcgPHdhbmdiaWFvM0B4
-aWFvbWkuY29tPjsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgV2FpbWFuIExvbmcgPGxv
-bmdtYW5AcmVkaGF0LmNvbT47IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcNCuS4u+mimDogW0V4dGVy
-bmFsIE1haWxdW1BBVENILXRpcF0gc2NoZWQ6IEZpeCB1c2UtYWZ0ZXItZnJlZSBidWcgaW4gZHVw
-X3VzZXJfY3B1c19wdHIoKQ0KDQpb5aSW6YOo6YKu5Lu2XSDmraTpgq7ku7bmnaXmupDkuo7lsI/n
-sbPlhazlj7jlpJbpg6jvvIzor7fosKjmhY7lpITnkIbjgILoi6Xlr7npgq7ku7blronlhajmgKfl
-rZjnlpHvvIzor7flsIbpgq7ku7bovazlj5Hnu5ltaXNlY0B4aWFvbWkuY29t6L+b6KGM5Y+N6aaI
-DQoNClNpbmNlIGNvbW1pdCAwN2VjNzdhMWQ0ZTggKCJzY2hlZDogQWxsb3cgdGFzayBDUFUgYWZm
-aW5pdHkgdG8gYmUgcmVzdHJpY3RlZCBvbiBhc3ltbWV0cmljIHN5c3RlbXMiKSwgdGhlIHNldHRp
-bmcgYW5kIGNsZWFyaW5nIG9mIHVzZXJfY3B1c19wdHIgYXJlIGRvbmUgdW5kZXIgcGlfbG9jayBm
-b3IgYXJtNjQgYXJjaGl0ZWN0dXJlLiBIb3dldmVyLA0KZHVwX3VzZXJfY3B1c19wdHIoKSBhY2Nl
-c3NlcyB1c2VyX2NwdXNfcHRyIHdpdGhvdXQgYW55IGxvY2sgcHJvdGVjdGlvbi4gV2hlbiByYWNp
-bmcgd2l0aCB0aGUgY2xlYXJpbmcgb2YgdXNlcl9jcHVzX3B0ciBpbiBfX3NldF9jcHVzX2FsbG93
-ZWRfcHRyX2xvY2tlZCgpLCBpdCBjYW4gbGVhZCB0byB1c2VyLWFmdGVyLWZyZWUgYW5kIGRvdWJs
-ZS1mcmVlIGluIGFybTY0IGtlcm5lbC4NCg0KQ29tbWl0IDhmOWVhODZmZGY5OSAoInNjaGVkOiBB
-bHdheXMgcHJlc2VydmUgdGhlIHVzZXIgcmVxdWVzdGVkDQpjcHVtYXNrIikgZml4ZXMgdGhpcyBw
-cm9ibGVtIGFzIHVzZXJfY3B1c19wdHIsIG9uY2Ugc2V0LCB3aWxsIG5ldmVyIGJlIGNsZWFyZWQg
-aW4gYSB0YXNrJ3MgbGlmZXRpbWUuIEhvd2V2ZXIsIHRoaXMgYnVnIHdhcyByZS1pbnRyb2R1Y2Vk
-IGluIGNvbW1pdCA4NTFhNzIzZTQ1ZDEgKCJzY2hlZDogQWx3YXlzIGNsZWFyIHVzZXJfY3B1c19w
-dHIgaW4NCmRvX3NldF9jcHVzX2FsbG93ZWQoKSIpIHdoaWNoIGFsbG93cyB0aGUgY2xlYXJpbmcg
-b2YgdXNlcl9jcHVzX3B0ciBpbiBkb19zZXRfY3B1c19hbGxvd2VkKCkuIFRoaXMgdGltZSwgaXQg
-d2lsbCBhZmZlY3QgYWxsIGFyY2hlcy4NCg0KRml4IHRoaXMgYnVnIGJ5IGFsd2F5cyBjbGVhcmlu
-ZyB0aGUgdXNlcl9jcHVzX3B0ciBvZiB0aGUgbmV3bHkgY2xvbmVkL2ZvcmtlZCB0YXNrIGJlZm9y
-ZSB0aGUgY29weWluZyBwcm9jZXNzIHN0YXJ0cyBhbmQgY2hlY2sgdGhlIHVzZXJfY3B1c19wdHIg
-c3RhdGUgb2YgdGhlIHNvdXJjZSB0YXNrIHVuZGVyIHBpX2xvY2suDQoNCk5vdGUgdG8gc3RhYmxl
-LCB0aGlzIHBhdGNoIHdvbid0IGJlIGFwcGxpY2FibGUgdG8gc3RhYmxlIHJlbGVhc2VzLg0KSnVz
-dCBjb3B5IHRoZSBuZXcgZHVwX3VzZXJfY3B1c19wdHIoKSBmdW5jdGlvbiBvdmVyLg0KDQpGaXhl
-czogMDdlYzc3YTFkNGU4ICgic2NoZWQ6IEFsbG93IHRhc2sgQ1BVIGFmZmluaXR5IHRvIGJlIHJl
-c3RyaWN0ZWQgb24gYXN5bW1ldHJpYyBzeXN0ZW1zIikNCkZpeGVzOiA4NTFhNzIzZTQ1ZDEgKCJz
-Y2hlZDogQWx3YXlzIGNsZWFyIHVzZXJfY3B1c19wdHIgaW4gZG9fc2V0X2NwdXNfYWxsb3dlZCgp
-IikNCkNDOiBzdGFibGVAdmdlci5rZXJuZWwub3JnDQpSZXBvcnRlZC1ieTogRGF2aWQgV2FuZyDn
-jovmoIcgPHdhbmdiaWFvM0B4aWFvbWkuY29tPg0KU2lnbmVkLW9mZi1ieTogV2FpbWFuIExvbmcg
-PGxvbmdtYW5AcmVkaGF0LmNvbT4NCi0tLQ0KIGtlcm5lbC9zY2hlZC9jb3JlLmMgfCAzMiArKysr
-KysrKysrKysrKysrKysrKysrKysrKysrLS0tLQ0KIDEgZmlsZSBjaGFuZ2VkLCAyOCBpbnNlcnRp
-b25zKCspLCA0IGRlbGV0aW9ucygtKQ0KDQpkaWZmIC0tZ2l0IGEva2VybmVsL3NjaGVkL2NvcmUu
-YyBiL2tlcm5lbC9zY2hlZC9jb3JlLmMgaW5kZXggOGRmNTFiMDhiYjM4Li5mMmI3NWZhYWY3MWEg
-MTAwNjQ0DQotLS0gYS9rZXJuZWwvc2NoZWQvY29yZS5jDQorKysgYi9rZXJuZWwvc2NoZWQvY29y
-ZS5jDQpAQCAtMjYyNCwxOSArMjYyNCw0MyBAQCB2b2lkIGRvX3NldF9jcHVzX2FsbG93ZWQoc3Ry
-dWN0IHRhc2tfc3RydWN0ICpwLCBjb25zdCBzdHJ1Y3QgY3B1bWFzayAqbmV3X21hc2spICBpbnQg
-ZHVwX3VzZXJfY3B1c19wdHIoc3RydWN0IHRhc2tfc3RydWN0ICpkc3QsIHN0cnVjdCB0YXNrX3N0
-cnVjdCAqc3JjLA0KICAgICAgICAgICAgICAgICAgICAgIGludCBub2RlKQ0KIHsNCisgICAgICAg
-Y3B1bWFza190ICp1c2VyX21hc2s7DQogICAgICAgIHVuc2lnbmVkIGxvbmcgZmxhZ3M7DQoNCisg
-ICAgICAgLyoNCisgICAgICAgICogQWx3YXlzIGNsZWFyIGRzdC0+dXNlcl9jcHVzX3B0ciBmaXJz
-dCBhcyB0aGVpciB1c2VyX2NwdXNfcHRyJ3MNCisgICAgICAgICogbWF5IGRpZmZlciBieSBub3cg
-ZHVlIHRvIHJhY2luZy4NCisgICAgICAgICovDQorICAgICAgIGRzdC0+dXNlcl9jcHVzX3B0ciA9
-IE5VTEw7DQorDQorICAgICAgIC8qDQorICAgICAgICAqIFRoaXMgY2hlY2sgaXMgcmFjeSBhbmQg
-bG9zaW5nIHRoZSByYWNlIGlzIGEgdmFsaWQgc2l0dWF0aW9uLg0KKyAgICAgICAgKiBJdCBpcyBu
-b3Qgd29ydGggdGhlIGV4dHJhIG92ZXJoZWFkIG9mIHRha2luZyB0aGUgcGlfbG9jayBvbg0KKyAg
-ICAgICAgKiBldmVyeSBmb3JrL2Nsb25lLg0KKyAgICAgICAgKi8NCiAgICAgICAgaWYgKCFzcmMt
-PnVzZXJfY3B1c19wdHIpDQogICAgICAgICAgICAgICAgcmV0dXJuIDA7DQoNCi0gICAgICAgZHN0
-LT51c2VyX2NwdXNfcHRyID0ga21hbGxvY19ub2RlKGNwdW1hc2tfc2l6ZSgpLCBHRlBfS0VSTkVM
-LCBub2RlKTsNCi0gICAgICAgaWYgKCFkc3QtPnVzZXJfY3B1c19wdHIpDQorICAgICAgIHVzZXJf
-bWFzayA9IGttYWxsb2Nfbm9kZShjcHVtYXNrX3NpemUoKSwgR0ZQX0tFUk5FTCwgbm9kZSk7DQor
-ICAgICAgIGlmICghdXNlcl9tYXNrKQ0KICAgICAgICAgICAgICAgIHJldHVybiAtRU5PTUVNOw0K
-DQotICAgICAgIC8qIFVzZSBwaV9sb2NrIHRvIHByb3RlY3QgY29udGVudCBvZiB1c2VyX2NwdXNf
-cHRyICovDQorICAgICAgIC8qDQorICAgICAgICAqIFVzZSBwaV9sb2NrIHRvIHByb3RlY3QgY29u
-dGVudCBvZiB1c2VyX2NwdXNfcHRyDQorICAgICAgICAqDQorICAgICAgICAqIFRob3VnaCB1bmxp
-a2VseSwgdXNlcl9jcHVzX3B0ciBjYW4gYmUgcmVzZXQgdG8gTlVMTCBieSBhIGNvbmN1cnJlbnQN
-CisgICAgICAgICogZG9fc2V0X2NwdXNfYWxsb3dlZCgpLg0KKyAgICAgICAgKi8NCiAgICAgICAg
-cmF3X3NwaW5fbG9ja19pcnFzYXZlKCZzcmMtPnBpX2xvY2ssIGZsYWdzKTsNCi0gICAgICAgY3B1
-bWFza19jb3B5KGRzdC0+dXNlcl9jcHVzX3B0ciwgc3JjLT51c2VyX2NwdXNfcHRyKTsNCisgICAg
-ICAgaWYgKHNyYy0+dXNlcl9jcHVzX3B0cikgew0KKyAgICAgICAgICAgICAgIHN3YXAoZHN0LT51
-c2VyX2NwdXNfcHRyLCB1c2VyX21hc2spOw0KKyAgICAgICAgICAgICAgIGNwdW1hc2tfY29weShk
-c3QtPnVzZXJfY3B1c19wdHIsIHNyYy0+dXNlcl9jcHVzX3B0cik7DQorICAgICAgIH0NCiAgICAg
-ICAgcmF3X3NwaW5fdW5sb2NrX2lycXJlc3RvcmUoJnNyYy0+cGlfbG9jaywgZmxhZ3MpOw0KKw0K
-KyAgICAgICBpZiAodW5saWtlbHkodXNlcl9tYXNrKSkNCisgICAgICAgICAgICAgICBrZnJlZSh1
-c2VyX21hc2spOw0KKw0KICAgICAgICByZXR1cm4gMDsNCiB9DQoNCi0tDQoyLjMxLjENCg0KIy8q
-KioqKirmnKzpgq7ku7blj4rlhbbpmYTku7blkKvmnInlsI/nsbPlhazlj7jnmoTkv53lr4bkv6Hm
-ga/vvIzku4XpmZDkuo7lj5HpgIHnu5nkuIrpnaLlnLDlnYDkuK3liJflh7rnmoTkuKrkurrmiJbn
-vqTnu4TjgILnpoHmraLku7vkvZXlhbbku5bkurrku6Xku7vkvZXlvaLlvI/kvb/nlKjvvIjljIXm
-i6zkvYbkuI3pmZDkuo7lhajpg6jmiJbpg6jliIblnLDms4TpnLLjgIHlpI3liLbjgIHmiJbmlaPl
-j5HvvInmnKzpgq7ku7bkuK3nmoTkv6Hmga/jgILlpoLmnpzmgqjplJnmlLbkuobmnKzpgq7ku7bv
-vIzor7fmgqjnq4vljbPnlLXor53miJbpgq7ku7bpgJrnn6Xlj5Hku7bkurrlubbliKDpmaTmnKzp
-gq7ku7bvvIEgVGhpcyBlLW1haWwgYW5kIGl0cyBhdHRhY2htZW50cyBjb250YWluIGNvbmZpZGVu
-dGlhbCBpbmZvcm1hdGlvbiBmcm9tIFhJQU9NSSwgd2hpY2ggaXMgaW50ZW5kZWQgb25seSBmb3Ig
-dGhlIHBlcnNvbiBvciBlbnRpdHkgd2hvc2UgYWRkcmVzcyBpcyBsaXN0ZWQgYWJvdmUuIEFueSB1
-c2Ugb2YgdGhlIGluZm9ybWF0aW9uIGNvbnRhaW5lZCBoZXJlaW4gaW4gYW55IHdheSAoaW5jbHVk
-aW5nLCBidXQgbm90IGxpbWl0ZWQgdG8sIHRvdGFsIG9yIHBhcnRpYWwgZGlzY2xvc3VyZSwgcmVw
-cm9kdWN0aW9uLCBvciBkaXNzZW1pbmF0aW9uKSBieSBwZXJzb25zIG90aGVyIHRoYW4gdGhlIGlu
-dGVuZGVkIHJlY2lwaWVudChzKSBpcyBwcm9oaWJpdGVkLiBJZiB5b3UgcmVjZWl2ZSB0aGlzIGUt
-bWFpbCBpbiBlcnJvciwgcGxlYXNlIG5vdGlmeSB0aGUgc2VuZGVyIGJ5IHBob25lIG9yIGVtYWls
-IGltbWVkaWF0ZWx5IGFuZCBkZWxldGUgaXQhKioqKioqLyMNCg==
+During kexec(), the userspace is frozen. Therefore we cannot wait for it
+to complete.
+
+Avoid running snd_sof_machine_unregister during shutdown.
+
+This fixes:
+
+[   84.943749] Freezing user space processes ... (elapsed 0.111 seconds) done.
+[  246.784446] INFO: task kexec-lite:5123 blocked for more than 122 seconds.
+[  246.819035] Call Trace:
+[  246.821782]  <TASK>
+[  246.824186]  __schedule+0x5f9/0x1263
+[  246.828231]  schedule+0x87/0xc5
+[  246.831779]  snd_card_disconnect_sync+0xb5/0x127
+...
+[  246.889249]  snd_sof_device_shutdown+0xb4/0x150
+[  246.899317]  pci_device_shutdown+0x37/0x61
+[  246.903990]  device_shutdown+0x14c/0x1d6
+[  246.908391]  kernel_kexec+0x45/0xb9
+
+And:
+
+[  246.893222] INFO: task kexec-lite:4891 blocked for more than 122 seconds.
+[  246.927709] Call Trace:
+[  246.930461]  <TASK>
+[  246.932819]  __schedule+0x5f9/0x1263
+[  246.936855]  ? fsnotify_grab_connector+0x5c/0x70
+[  246.942045]  schedule+0x87/0xc5
+[  246.945567]  schedule_timeout+0x49/0xf3
+[  246.949877]  wait_for_completion+0x86/0xe8
+[  246.954463]  snd_card_free+0x68/0x89
+...
+[  247.001080]  platform_device_unregister+0x12/0x35
+
+Cc: stable@vger.kernel.org
+Fixes: 83bfc7e793b5 ("ASoC: SOF: core: unregister clients and machine drivers in .shutdown")
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+---
+To: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+To: Liam Girdwood <lgirdwood@gmail.com>
+To: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+To: Bard Liao <yung-chuan.liao@linux.intel.com>
+To: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+To: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+To: Daniel Baluta <daniel.baluta@nxp.com>
+To: Mark Brown <broonie@kernel.org>
+To: Jaroslav Kysela <perex@perex.cz>
+To: Takashi Iwai <tiwai@suse.com>
+Cc: sound-open-firmware@alsa-project.org
+Cc: alsa-devel@alsa-project.org
+Cc: linux-kernel@vger.kernel.org
+---
+Changes in v4:
+- Do not call snd_sof_machine_unregister from shutdown.
+- Link to v3: https://lore.kernel.org/r/20221127-snd-freeze-v3-0-a2eda731ca14@chromium.org
+
+Changes in v3:
+- Wrap pm_freezing in a function
+- Link to v2: https://lore.kernel.org/r/20221127-snd-freeze-v2-0-d8a425ea9663@chromium.org
+
+Changes in v2:
+- Only use pm_freezing if CONFIG_FREEZER 
+- Link to v1: https://lore.kernel.org/r/20221127-snd-freeze-v1-0-57461a366ec2@chromium.org
+---
+ sound/soc/sof/core.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
+index 3e6141d03770..9616ba607ded 100644
+--- a/sound/soc/sof/core.c
++++ b/sound/soc/sof/core.c
+@@ -475,19 +475,16 @@ EXPORT_SYMBOL(snd_sof_device_remove);
+ int snd_sof_device_shutdown(struct device *dev)
+ {
+ 	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
+-	struct snd_sof_pdata *pdata = sdev->pdata;
+ 
+ 	if (IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE))
+ 		cancel_work_sync(&sdev->probe_work);
+ 
+ 	/*
+-	 * make sure clients and machine driver(s) are unregistered to force
+-	 * all userspace devices to be closed prior to the DSP shutdown sequence
++	 * make sure clients are unregistered prior to the DSP shutdown
++	 * sequence.
+ 	 */
+ 	sof_unregister_clients(sdev);
+ 
+-	snd_sof_machine_unregister(sdev, pdata);
+-
+ 	if (sdev->fw_state == SOF_FW_BOOT_COMPLETE)
+ 		return snd_sof_shutdown(sdev);
+ 
+
+---
+base-commit: 4312098baf37ee17a8350725e6e0d0e8590252d4
+change-id: 20221127-snd-freeze-1ee143228326
+
+Best regards,
+-- 
+Ricardo Ribalda <ribalda@chromium.org>
