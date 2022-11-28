@@ -2,156 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D782063B0F6
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 19:18:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3149B63B10F
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 19:20:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234207AbiK1SS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 13:18:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53704 "EHLO
+        id S234089AbiK1SUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 13:20:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233260AbiK1SSQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 13:18:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56CB3326EE
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 10:02:03 -0800 (PST)
+        with ESMTP id S234129AbiK1ST0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 13:19:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2BB82E9EB
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 10:04:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF0556133A
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 18:02:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEC84C433D7;
-        Mon, 28 Nov 2022 18:02:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669658522;
-        bh=YxQn2BWbzi76UAr5mFM0DS7NervTeYEux/HVG2YizvE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TY876M0N92ZnJ7GuMFzg9C/NQxXDSS+SAnV/QYLjpBwo0JENN/heav+cqwVvRc08T
-         4wiYtTRIkkKMxNq9MzuMyzUaW1s3iANyr/8EsjG7vTg8DB5NKR0s1yraYGcfrQ8Gs+
-         whWkcfQYPVfCHXKvozgij4/lBNvf81gBP7v/KcD0j/42aZ+bCS/xDrO0QZEkr5zpfE
-         +NLWs4MCv/gWK5o1RTSjluXTZML35FU/7KANtMEUxKECvf8822Ie50dRlCHZM9sDB9
-         Kuz2r76/agAU0q7LzL2sVsAQBYH74XGCFROx3HIXPIH9yll1hOkkmKo6p0ra34A2Fh
-         AaS/10zW7CQMQ==
-Date:   Mon, 28 Nov 2022 19:01:57 +0100
-From:   Greg KH <gregkh@kernel.org>
-To:     Vincent Donnefort <vdonnefort@google.com>
-Cc:     Marc Zyngier <maz@kernel.org>, stable@vger.kernel.org,
-        kernel-team@android.com
-Subject: Re: [PATCH] KVM: arm64: pkvm: Fixup boot mode to reflect that the
- kernel resumes from EL1
-Message-ID: <Y4T3lX3krEdzFVmH@kroah.com>
-References: <20221108100138.3887862-1-vdonnefort@google.com>
- <Y4TgCOFgjMWuTTWe@google.com>
- <Y4Ttk97B2Cpr9/yC@kroah.com>
- <Y4Tu2tdEBEvrFaAJ@google.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 608A461351
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 18:04:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4159AC433C1;
+        Mon, 28 Nov 2022 18:04:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1669658684;
+        bh=UMFJfCDbhNIea/iWj0ZWzfPCWktnTX6rDHaX/tmzUIk=;
+        h=Subject:To:From:Date:From;
+        b=RwjCkfMSig1fx+0G9fWQ49mmSTeNFEerTekLG0RgEmmGmTSqWsu4g7OrsTor18JV2
+         ABYGvwGLEqT1p3UEaolRywOl1tItWaHzUmzN53QSsCMf3VmJ1zfetCER7gjlsQ169y
+         c8jxAiQhCUeFuMJ6WVh2+ORVI5ogGK0Ecr6XgmT0=
+Subject: patch "usb: cdnsp: fix lack of ZLP for ep0" added to usb-testing
+To:     pawell@cadence.com, gregkh@linuxfoundation.org,
+        peter.chen@kernel.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 28 Nov 2022 19:04:42 +0100
+Message-ID: <16696586823672@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y4Tu2tdEBEvrFaAJ@google.com>
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 28, 2022 at 05:24:42PM +0000, Vincent Donnefort wrote:
-> On Mon, Nov 28, 2022 at 06:19:15PM +0100, Greg KH wrote:
-> > On Mon, Nov 28, 2022 at 04:21:28PM +0000, Vincent Donnefort wrote:
-> > > On Tue, Nov 08, 2022 at 10:01:38AM +0000, Vincent Donnefort wrote:
-> > > > From: Marc Zyngier <maz@kernel.org>
-> > > > 
-> > > > The kernel has an awfully complicated boot sequence in order to cope
-> > > > with the various EL2 configurations, including those that "enhanced"
-> > > > the architecture. We go from EL2 to EL1, then back to EL2, staying
-> > > > at EL2 if VHE capable and otherwise go back to EL1.
-> > > > 
-> > > > Here's a paracetamol tablet for you.
-> > > > 
-> > > > The cpu_resume path follows the same logic, because coming up with
-> > > > two versions of a square wheel is hard.
-> > > > 
-> > > > However, things aren't this straightforward with pKVM, as the host
-> > > > resume path is always proxied by the hypervisor, which means that
-> > > > the kernel is always entered at EL1. Which contradicts what the
-> > > > __boot_cpu_mode[] array contains (it obviously says EL2).
-> > > > 
-> > > > This thus triggers a HVC call from EL1 to EL2 in a vain attempt
-> > > > to upgrade from EL1 to EL2 VHE, which we are, funnily enough,
-> > > > reluctant to grant to the host kernel. This is also completely
-> > > > unexpected, and puzzles your average EL2 hacker.
-> > > > 
-> > > > Address it by fixing up the boot mode at the point the host gets
-> > > > deprivileged. is_hyp_mode_available() and co already have a static
-> > > > branch to deal with this, making it pretty safe.
-> > > > 
-> > > > Cc: <stable@vger.kernel.org> # 5.15+
-> > > > Reported-by: Vincent Donnefort <vdonnefort@google.com>
-> > > > Signed-off-by: Marc Zyngier <maz@kernel.org>
-> > > > Tested-by: Vincent Donnefort <vdonnefort@google.com>
-> > > > 
-> > > > --- 
-> > > > 
-> > > > This patch doesn't have an upstream version. It's been fixed by the side
-> > > > effect of another upstream patch. see conversation [1]
-> > > > 
-> > > > [1] https://lore.kernel.org/all/20221011165400.1241729-1-maz@kernel.org/
-> > > > 
-> > > > diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-> > > > index 4cb265e15361..3fe816c244ce 100644
-> > > > --- a/arch/arm64/kvm/arm.c
-> > > > +++ b/arch/arm64/kvm/arm.c
-> > > > @@ -2000,6 +2000,17 @@ static int pkvm_drop_host_privileges(void)
-> > > >  	 * once the host stage 2 is installed.
-> > > >  	 */
-> > > >  	static_branch_enable(&kvm_protected_mode_initialized);
-> > > > +
-> > > > +	/*
-> > > > +	 * Fixup the boot mode so that we don't take spurious round
-> > > > +	 * trips via EL2 on cpu_resume. Flush to the PoC for a good
-> > > > +	 * measure, so that it can be observed by a CPU coming out of
-> > > > +	 * suspend with the MMU off.
-> > > > +	 */
-> > > > +	__boot_cpu_mode[0] = __boot_cpu_mode[1] = BOOT_CPU_MODE_EL1;
-> > > > +	dcache_clean_poc((unsigned long)__boot_cpu_mode,
-> > > > +			 (unsigned long)(__boot_cpu_mode + 2));
-> > > > +
-> > > >  	on_each_cpu(_kvm_host_prot_finalize, &ret, 1);
-> > > >  	return ret;
-> > > >  }
-> > > > -- 
-> > > > 2.38.1.431.g37b22c650d-goog
-> > > >
-> > > 
-> > > Hi Greg,
-> > > 
-> > > Any chance to pick this fix for 5.15?
-> > 
-> > <formletter>
-> > 
-> > This is not the correct way to submit patches for inclusion in the
-> > stable kernel tree.  Please read:
-> >     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> > for how to do this properly.
-> > 
-> > </formletter>
-> 
-> Sadly this patch doesn't have an upstream version equivalent. The reason is it's
-> been fixed as a side effect of another feature introduction, hence the
-> stable-only fix made by Marc. [1]
-> 
-> Not sure how to handle that case.
 
-It needs to really really really document why this is not relevant for
-newer kernels and what commit fixed this instead and why this is all
-happening in the changelog text, AND give us a clue in maybe the subject
-line [PATCH 5.15] to show that this is only for a specific tree.
+This is a note to let you know that I've just added the patch titled
 
-it was not obvious here at all, sorry, I missed the --- comments in the
-normal flood of other patches.
+    usb: cdnsp: fix lack of ZLP for ep0
 
-thanks,
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
 
-gre gk-h
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From c4069289acc0ffd3b52cfb8a756ae8774a195bfd Mon Sep 17 00:00:00 2001
+From: Pawel Laszczak <pawell@cadence.com>
+Date: Tue, 22 Nov 2022 03:51:38 -0500
+Subject: usb: cdnsp: fix lack of ZLP for ep0
+
+Patch implements the handling of ZLP for control transfer.
+To send the ZLP driver must prepare the extra TRB in TD with
+length set to zero and TRB type to TRB_NORMAL.
+The first TRB must have set TRB_CHAIN flag, TD_SIZE = 1
+and TRB type to TRB_DATA.
+
+Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+cc: <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20221122085138.332434-1-pawell@cadence.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/cdns3/cdnsp-ring.c | 42 ++++++++++++++++++++++++++--------
+ 1 file changed, 32 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c
+index 2f29431f612e..b23e543b3a3d 100644
+--- a/drivers/usb/cdns3/cdnsp-ring.c
++++ b/drivers/usb/cdns3/cdnsp-ring.c
+@@ -2006,10 +2006,11 @@ int cdnsp_queue_bulk_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq)
+ 
+ int cdnsp_queue_ctrl_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq)
+ {
+-	u32 field, length_field, remainder;
++	u32 field, length_field, zlp = 0;
+ 	struct cdnsp_ep *pep = preq->pep;
+ 	struct cdnsp_ring *ep_ring;
+ 	int num_trbs;
++	u32 maxp;
+ 	int ret;
+ 
+ 	ep_ring = cdnsp_request_to_transfer_ring(pdev, preq);
+@@ -2019,26 +2020,33 @@ int cdnsp_queue_ctrl_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq)
+ 	/* 1 TRB for data, 1 for status */
+ 	num_trbs = (pdev->three_stage_setup) ? 2 : 1;
+ 
++	maxp = usb_endpoint_maxp(pep->endpoint.desc);
++
++	if (preq->request.zero && preq->request.length &&
++	    (preq->request.length % maxp == 0)) {
++		num_trbs++;
++		zlp = 1;
++	}
++
+ 	ret = cdnsp_prepare_transfer(pdev, preq, num_trbs);
+ 	if (ret)
+ 		return ret;
+ 
+ 	/* If there's data, queue data TRBs */
+-	if (pdev->ep0_expect_in)
+-		field = TRB_TYPE(TRB_DATA) | TRB_IOC;
+-	else
+-		field = TRB_ISP | TRB_TYPE(TRB_DATA) | TRB_IOC;
+-
+ 	if (preq->request.length > 0) {
+-		remainder = cdnsp_td_remainder(pdev, 0, preq->request.length,
+-					       preq->request.length, preq, 1, 0);
++		field = TRB_TYPE(TRB_DATA);
+ 
+-		length_field = TRB_LEN(preq->request.length) |
+-				TRB_TD_SIZE(remainder) | TRB_INTR_TARGET(0);
++		if (zlp)
++			field |= TRB_CHAIN;
++		else
++			field |= TRB_IOC | (pdev->ep0_expect_in ? 0 : TRB_ISP);
+ 
+ 		if (pdev->ep0_expect_in)
+ 			field |= TRB_DIR_IN;
+ 
++		length_field = TRB_LEN(preq->request.length) |
++			       TRB_TD_SIZE(zlp) | TRB_INTR_TARGET(0);
++
+ 		cdnsp_queue_trb(pdev, ep_ring, true,
+ 				lower_32_bits(preq->request.dma),
+ 				upper_32_bits(preq->request.dma), length_field,
+@@ -2046,6 +2054,20 @@ int cdnsp_queue_ctrl_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq)
+ 				TRB_SETUPID(pdev->setup_id) |
+ 				pdev->setup_speed);
+ 
++		if (zlp) {
++			field = TRB_TYPE(TRB_NORMAL) | TRB_IOC;
++
++			if (!pdev->ep0_expect_in)
++				field = TRB_ISP;
++
++			cdnsp_queue_trb(pdev, ep_ring, true,
++					lower_32_bits(preq->request.dma),
++					upper_32_bits(preq->request.dma), 0,
++					field | ep_ring->cycle_state |
++					TRB_SETUPID(pdev->setup_id) |
++					pdev->setup_speed);
++		}
++
+ 		pdev->ep0_stage = CDNSP_DATA_STAGE;
+ 	}
+ 
+-- 
+2.38.1
+
+
