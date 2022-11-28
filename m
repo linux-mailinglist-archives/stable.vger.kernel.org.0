@@ -2,103 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 224F063AB4C
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 15:42:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AB2563ACD4
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 16:44:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231975AbiK1Ol7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 09:41:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34828 "EHLO
+        id S232026AbiK1Po2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 10:44:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232636AbiK1Olx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 09:41:53 -0500
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F0541B7A0;
-        Mon, 28 Nov 2022 06:41:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1669646512; x=1701182512;
-  h=date:from:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=yns+R2HE+8EQwUjsmVT40C2yEbZABretYQlqqfAW/0c=;
-  b=Se/4FnUonha0Ujk70F8pZdiJLqT3UNDmFVQ1jBSaF9dKYeRk6Iz5Msy4
-   XcnMdvXphj1VjQVzP3bPd0g+rp0haDjUlA2EPvg74h5cW1e2jv1+zgruw
-   Q0zuEhYoiYPwhC3xR3WKRkPtSuDBFoIlt8x9sWyqt4rVYbp/b19MWQeKv
-   hkK8/yQJr0VNn6SZPe+0Q4c4Hna6xPdU5LxCJE2dylxC1JVMQ3tjPxnMw
-   bqZNvhdwCMt1SGuN6adRH0j8JoVcggUxwkZxSui/kk9/PHRhwbZ1yv/GE
-   cQUZ3J0pHPJzYPJ4IxpKQ/RpKy/hyKuKSEuNK7elnpA9XsG3UqRbhOUTU
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10545"; a="295232811"
-X-IronPort-AV: E=Sophos;i="5.96,200,1665471600"; 
-   d="scan'208";a="295232811"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Nov 2022 06:41:52 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10545"; a="972284888"
-X-IronPort-AV: E=Sophos;i="5.96,200,1665471600"; 
-   d="scan'208";a="972284888"
-Received: from eliteleevi.tm.intel.com ([10.237.54.20])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Nov 2022 06:41:49 -0800
-Date:   Mon, 28 Nov 2022 16:41:33 +0200 (EET)
-From:   Kai Vehmanen <kai.vehmanen@linux.intel.com>
-X-X-Sender: kvehmane@eliteleevi.tm.intel.com
-To:     Ricardo Ribalda <ribalda@chromium.org>
-cc:     Liam Girdwood <lgirdwood@gmail.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Alsa-devel <alsa-devel@alsa-project.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        sound-open-firmware@alsa-project.org
-Subject: Re: [PATCH v5] ASoC: SOF: Fix deadlock when shutdown a frozen
- userspace
-In-Reply-To: <20221127-snd-freeze-v5-0-4ededeb08ba0@chromium.org>
-Message-ID: <alpine.DEB.2.22.394.2211281629120.3532114@eliteleevi.tm.intel.com>
-References: <20221127-snd-freeze-v5-0-4ededeb08ba0@chromium.org>
-User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7 02160 Espoo
+        with ESMTP id S232198AbiK1PoS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 10:44:18 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4961DA61
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 07:43:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1669650197;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Kf5JsraFrf1EIzInt/eR+PAefoERXJjRW/gfIONg0yU=;
+        b=h46C0SG+PqydFYFDAUaZ9BipfCJ0fHVNlfDOfuUSa8ozyTLGiCSZAUdgAFv545W5OcXmuc
+        0MKtcPDGOKg0428mHD+ugt8xqVmTaXH6aLEGlMt/tzkEQHj4yIyH/RImZfp+xLnSKQbN/m
+        Paro0q/wqFNwm2t21/GthfDkghmt0Zk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-520-079oyaslMQOyBKwnN5LnbQ-1; Mon, 28 Nov 2022 10:43:14 -0500
+X-MC-Unique: 079oyaslMQOyBKwnN5LnbQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0BD168828C8;
+        Mon, 28 Nov 2022 15:43:13 +0000 (UTC)
+Received: from [10.22.10.34] (unknown [10.22.10.34])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D77282024CBB;
+        Mon, 28 Nov 2022 15:43:11 +0000 (UTC)
+Message-ID: <f5abd919-c996-6549-8d48-a93a66daaef8@redhat.com>
+Date:   Mon, 28 Nov 2022 10:43:09 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: =?UTF-8?B?UmU6IOetlOWkjTogW0V4dGVybmFsIE1haWxdW1BBVENILXRpcF0gc2No?=
+ =?UTF-8?Q?ed=3a_Fix_use-after-free_bug_in_dup=5fuser=5fcpus=5fptr=28=29?=
+Content-Language: en-US
+To:     =?UTF-8?B?RGF2aWQgV2FuZyDnjovmoIc=?= <wangbiao3@xiaomi.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>
+Cc:     Phil Auld <pauld@redhat.com>,
+        Wenjie Li <wenjieli@qti.qualcomm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20221128014441.1264867-1-longman@redhat.com>
+ <63373bf9adfc4e0abd9480d40afa2c5a@xiaomi.com>
+From:   Waiman Long <longman@redhat.com>
+In-Reply-To: <63373bf9adfc4e0abd9480d40afa2c5a@xiaomi.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-On Mon, 28 Nov 2022, Ricardo Ribalda wrote:
+On 11/28/22 08:34, David Wang 王标 wrote:
+> Hi, Waiman
+>
+> We use 140 devices to test this patch 72 hours.  The issue can not be reproduced.  If no this patch,  the issue can be reproduced.
+> Could you help merge this patch to mailine?
+>
+> https://lore.kernel.org/all/20221125023943.1118603-1-longman@redhat.com/
+>
+> If this patch is applied to the maintainer's tree,  we can request google to help cherrypick to ACK to fix issue.
 
-> During kexec(), the userspace is frozen. Therefore we cannot wait for it
-> to complete.
-> 
-> Avoid running snd_sof_machine_unregister during shutdown.
-[...]
->  	/*
-> -	 * make sure clients and machine driver(s) are unregistered to force
-> -	 * all userspace devices to be closed prior to the DSP shutdown sequence
-> +	 * make sure clients are unregistered prior to the DSP shutdown
-> +	 * sequence.
->  	 */
->  	sof_unregister_clients(sdev);
->  
-> -	snd_sof_machine_unregister(sdev, pdata);
-> -
->  	if (sdev->fw_state == SOF_FW_BOOT_COMPLETE)
+Just want to clarify if you are testing the patch using the latest tip 
+tree or on top of an existing linux version without the persistent user 
+requested affinity patchset.
 
-this is problematic as removing that machine_unregister() call will (at 
-least) bring back an issue on Intel platforms (rare problem hitting S5 on 
-Chromebooks).
+PeterZ is the scheduler maintainer who is responsible for merging 
+scheduler related patch. It is up to him as to when that will happen.
 
-Not sure how to solve this, but if that call needs to be removed 
-(unsafe to call at shutdown), then we need to rework how SOF 
-does the cleanup.
+Cheers,
+Longman
 
-Br, Kai
