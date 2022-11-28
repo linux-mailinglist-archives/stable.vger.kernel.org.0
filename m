@@ -2,59 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8218363AE8D
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:10:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99E7F63AE8B
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:10:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232441AbiK1RJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:09:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55620 "EHLO
+        id S231428AbiK1RJy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 12:09:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232942AbiK1RJT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:09:19 -0500
-Received: from smtp-fw-80006.amazon.com (smtp-fw-80006.amazon.com [99.78.197.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6750D27B05
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 09:09:05 -0800 (PST)
+        with ESMTP id S232487AbiK1RJ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:09:29 -0500
+Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D071275C2
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 09:09:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1669655345; x=1701191345;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=yzQStxVkgrd6zR6Bt7qtOQ75KSBOXSK/JVUGw7u/mYw=;
-  b=mEEVDvX4rlTyhoH4dHHiQm9NQNYgF9CwByAlKBC3sy868Vqy5Tsin6fy
-   PQCdkhFNC8ntnE4lSawhUQBDU3C1UyH6DgtNtcRa5liY37eATfTyv/ZHG
-   gQ+hiZdvaqL6xtmQf6cTSSlzwh0kAFiUh7KF5BTco8VN0i4R62KjuvHai
-   o=;
+  t=1669655349; x=1701191349;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=m7jccjQDK22hJQjvIBVSy+gXx3FWq7E32RsrW7B8V+c=;
+  b=HcB5JOUZXuRtry6ckQBHQPNmqQ4WO5FePNc1v2MkC/dMn//BORUIJwAe
+   OGRYYS7A98ZWZjUlQUtXovnqo3gglhPENnLvvLIWFaAXt1uleesz5+WA3
+   ogWXFEr2NprOstENaGJvrIV+3/KH2CkKD82HGxnFGkS9JD/brBDrifo2+
+   I=;
 X-IronPort-AV: E=Sophos;i="5.96,200,1665446400"; 
-   d="scan'208";a="155562076"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-iad-1e-m6i4x-245b69b1.us-east-1.amazon.com) ([10.25.36.210])
-  by smtp-border-fw-80006.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Nov 2022 17:09:04 +0000
-Received: from EX13MTAUEE001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-iad-1e-m6i4x-245b69b1.us-east-1.amazon.com (Postfix) with ESMTPS id 4836B341E0B;
-        Mon, 28 Nov 2022 17:09:02 +0000 (UTC)
+   d="scan'208";a="284759792"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-iad-1e-m6i4x-6e7a78d7.us-east-1.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Nov 2022 17:09:07 +0000
+Received: from EX13MTAUEE001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-iad-1e-m6i4x-6e7a78d7.us-east-1.amazon.com (Postfix) with ESMTPS id EF772815FE;
+        Mon, 28 Nov 2022 17:09:04 +0000 (UTC)
 Received: from EX19D028UEC003.ant.amazon.com (10.252.137.159) by
  EX13MTAUEE001.ant.amazon.com (10.43.62.226) with Microsoft SMTP Server (TLS)
- id 15.0.1497.42; Mon, 28 Nov 2022 17:09:02 +0000
+ id 15.0.1497.42; Mon, 28 Nov 2022 17:09:03 +0000
 Received: from dev-dsk-luizcap-1d-af6a6fef.us-east-1.amazon.com
  (10.43.160.223) by EX19D028UEC003.ant.amazon.com (10.252.137.159) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.1118.20; Mon, 28 Nov
- 2022 17:09:01 +0000
+ 2022 17:09:02 +0000
 From:   Luiz Capitulino <luizcap@amazon.com>
 To:     <stable@vger.kernel.org>, <maz@kernel.org>
 CC:     <tglx@linutronix.de>, <lcapitulino@gmail.com>,
-        Luiz Capitulino <luizcap@amazon.com>
-Subject: [PATH stable 5.15,5.10 0/4] Fix EBS volume attach on AWS ARM instances
-Date:   Mon, 28 Nov 2022 17:08:31 +0000
-Message-ID: <cover.1669655291.git.luizcap@amazon.com>
+        John Garry <john.garry@huawei.com>,
+        David Decotigny <ddecotig@google.com>,
+        "Luiz Capitulino" <luizcap@amazon.com>
+Subject: [PATH stable 5.15,5.10 1/4] genirq/msi: Shutdown managed interrupts with unsatifiable affinities
+Date:   Mon, 28 Nov 2022 17:08:32 +0000
+Message-ID: <987f78b332076edcf0b05d169bcd2694edee7c05.1669655291.git.luizcap@amazon.com>
 X-Mailer: git-send-email 2.37.1
+In-Reply-To: <cover.1669655291.git.luizcap@amazon.com>
+References: <cover.1669655291.git.luizcap@amazon.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 X-Originating-IP: [10.43.160.223]
 X-ClientProxiedBy: EX13D31UWC002.ant.amazon.com (10.43.162.220) To
  EX19D028UEC003.ant.amazon.com (10.252.137.159)
-X-Spam-Status: No, score=-11.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-14.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -63,78 +67,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Marc Zyngier <maz@kernel.org>
 
-[ Marc, can you help reviewing? Esp. the first patch? ]
+commit d802057c7c553ad426520a053da9f9fe08e2c35a upstream.
 
-This series of backports from upstream to stable 5.15 and 5.10 fixes an issue
-we're seeing on AWS ARM instances where attaching an EBS volume (which is a
-nvme device) to the instance after offlining CPUs causes the device to take
-several minutes to show up and eventually nvme kworkers and other threads start
-getting stuck.
+[ This commit is almost a rewrite because it conflicts with Thomas
+  Gleixner's refactoring of this code in v5.17-rc1. I wasn't sure if
+  I should drop all the s-o-bs (including Mark's), but decided
+  to keep as the original commit ]
 
-This series fixes the issue for 5.15.79 and 5.10.155. I can't reproduce it
-on 5.4. Also, I couldn't reproduce this on x86 even w/ affected kernels.
+When booting with maxcpus=<small number>, interrupt controllers
+such as the GICv3 ITS may not be able to satisfy the affinity of
+some managed interrupts, as some of the HW resources are simply
+not available.
 
-An easy reproducer is:
+The same thing happens when loading a driver using managed interrupts
+while CPUs are offline.
 
-1. Start an ARM instance with 32 CPUs
-2. Once the instance is booted, offline all CPUs but CPU 0. Eg:
-   # for i in $(seq 1 32); do chcpu -d $i; done
-3. Once the CPUs are offline, attach an EBS volume
-4. Watch lsblk and dmesg in the instance
+In order to deal with this, do not try to activate such interrupt
+if there is no online CPU capable of handling it. Instead, place
+it in shutdown state. Once a capable CPU shows up, it will be
+activated.
 
-Eventually, you get this stack trace:
+Reported-by: John Garry <john.garry@huawei.com>
+Reported-by: David Decotigny <ddecotig@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/20220405185040.206297-2-maz@kernel.org
 
-[   71.842974] pci 0000:00:1f.0: [1d0f:8061] type 00 class 0x010802
-[   71.843966] pci 0000:00:1f.0: reg 0x10: [mem 0x00000000-0x00003fff]
-[   71.845149] pci 0000:00:1f.0: PME# supported from D0 D1 D2 D3hot D3cold
-[   71.846694] pci 0000:00:1f.0: BAR 0: assigned [mem 0x8011c000-0x8011ffff]
-[   71.848458] ACPI: \_SB_.PCI0.GSI3: Enabled at IRQ 38
-[   71.850852] nvme nvme1: pci function 0000:00:1f.0
-[   71.851611] nvme 0000:00:1f.0: enabling device (0000 -> 0002)
-[  135.887787] nvme nvme1: I/O 22 QID 0 timeout, completion polled
-[  197.328276] nvme nvme1: I/O 23 QID 0 timeout, completion polled
-[  197.329221] nvme nvme1: 1/0/0 default/read/poll queues
-[  243.408619] INFO: task kworker/u64:2:275 blocked for more than 122 seconds.
-[  243.409674]       Not tainted 5.15.79 #1
-[  243.410270] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[  243.411389] task:kworker/u64:2   state:D stack:    0 pid:  275 ppid:     2 flags:0x00000008
-[  243.412602] Workqueue: events_unbound async_run_entry_fn
-[  243.413417] Call trace:
-[  243.413797]  __switch_to+0x15c/0x1a4
-[  243.414335]  __schedule+0x2bc/0x990
-[  243.414849]  schedule+0x68/0xf8
-[  243.415334]  schedule_timeout+0x184/0x340
-[  243.415946]  wait_for_completion+0xc8/0x220
-[  243.416543]  __flush_work.isra.43+0x240/0x2f0
-[  243.417179]  flush_work+0x20/0x2c
-[  243.417666]  nvme_async_probe+0x20/0x3c
-[  243.418228]  async_run_entry_fn+0x3c/0x1e0
-[  243.418858]  process_one_work+0x1bc/0x460
-[  243.419437]  worker_thread+0x164/0x528
-[  243.420030]  kthread+0x118/0x124
-[  243.420517]  ret_from_fork+0x10/0x20
-[  258.768771] nvme nvme1: I/O 20 QID 0 timeout, completion polled
-[  320.209266] nvme nvme1: I/O 21 QID 0 timeout, completion polled
+Signed-off-by: Luiz Capitulino <luizcap@amazon.com>
+---
+ kernel/irq/msi.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-For completion, I tested the same test-case on x86 with this series applied
-on 5.15.79 and 5.10.155 as well. It works as expected.
-
-Thanks,
-
-Marc Zyngier (4):
-  genirq/msi: Shutdown managed interrupts with unsatifiable affinities
-  genirq: Always limit the affinity to online CPUs
-  irqchip/gic-v3: Always trust the managed affinity provided by the core
-    code
-  genirq: Take the proposed affinity at face value if force==true
-
- drivers/irqchip/irq-gic-v3-its.c |  2 +-
- kernel/irq/manage.c              | 31 +++++++++++++++++++++++--------
- kernel/irq/msi.c                 |  7 +++++++
- 3 files changed, 31 insertions(+), 9 deletions(-)
-
+diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
+index 7f350ae59c5f..d75586dc584f 100644
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -596,6 +596,13 @@ int __msi_domain_alloc_irqs(struct irq_domain *domain, struct device *dev,
+ 			irqd_clr_can_reserve(irq_data);
+ 			if (domain->flags & IRQ_DOMAIN_MSI_NOMASK_QUIRK)
+ 				irqd_set_msi_nomask_quirk(irq_data);
++			if ((info->flags & MSI_FLAG_ACTIVATE_EARLY) &&
++				irqd_affinity_is_managed(irq_data) &&
++				!cpumask_intersects(irq_data_get_affinity_mask(irq_data),
++						    cpu_online_mask)) {
++				irqd_set_managed_shutdown(irq_data);
++				continue;
++			}
+ 		}
+ 		ret = irq_domain_activate_irq(irq_data, can_reserve);
+ 		if (ret)
 -- 
 2.37.1
 
