@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2FEF63B036
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:49:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8259763B001
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:48:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233642AbiK1RtP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:49:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34098 "EHLO
+        id S233575AbiK1RsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 12:48:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233692AbiK1RrG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:47:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C040F2DA81;
-        Mon, 28 Nov 2022 09:41:50 -0800 (PST)
+        with ESMTP id S233719AbiK1RrJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:47:09 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6169F2DA91;
+        Mon, 28 Nov 2022 09:41:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 612AE612F3;
+        by sin.source.kernel.org (Postfix) with ESMTPS id CF75FCE0FB1;
+        Mon, 28 Nov 2022 17:41:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44CE3C433D6;
         Mon, 28 Nov 2022 17:41:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED057C43155;
-        Mon, 28 Nov 2022 17:41:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669657309;
-        bh=r+M0HEP+Ms20Msc00++GW4FmaUoT610zznhTa2+T19I=;
+        s=k20201202; t=1669657311;
+        bh=bU25Nii84+2iHsLAjyvDjHvd8R4uQjmsRD9iQBkNt8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/JI3km0X6qN8YqRbZPi1TpRjQ1429UaprHmYShK82Wn4sRVd2PS9hMOnUyWahfqj
-         MGd/xZL3q+9j6sUuPfC6edLuNqMwJJ87uirsXEoOILmovagyVbU8aCboanYOfIHDsk
-         p0ROXGCrhEWngSt08OgGKFkV2n4URLGlc+p7gBD5CiT+squHOGXe+JGkmRevkgNZt9
-         blJImeIFTVB/tPb3dBgYLuLU2yaH3+wVQ9d8yAGFx2/dhFUEION79XQdmtzbDQITcx
-         +aJT8Yzud6zbIjTpU6sEtmk8EZxC7nTSretKgosyPQGni+kiu1nTXy5mWp90cuiDAf
-         3RAgFosMf0t2w==
+        b=n4Yz4yzJwmsGTzQu7f7to0cK8HIlczw+PGU29p3reA8j3sPgW55uQaxjLBgKPYeqW
+         6d3E6AIimrOm9FYOqz9zkaeiBY9Cnn3uUY//8R4Fsc4EOv5CYcsPcfKir74mGuSc3c
+         UUw4hDDXKK4CqjCO702+0bfyiW2aFCGQVCnP5doX5SEGPQ0bZ35yysH76Q5uxX8oRr
+         DP5PWdmrvexQzfaH4NNIej8CS9nBpRpyRieR14/qN3A5qsnocOcM8xgOYoZ5YxOPpu
+         8txW9gzkxK6YQKccngZXZFYrCXqYzQvskl+v9hk2moAMEtOMSRZd6N14k2YvokaOkT
+         LYmz4wnMG1w+Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
+Cc:     Andreas Kemnade <andreas@kemnade.info>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 14/19] ASoC: soc-pcm: Add NULL check in BE reparenting
-Date:   Mon, 28 Nov 2022 12:41:14 -0500
-Message-Id: <20221128174120.1442235-14-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, tony@atomide.com,
+        lgirdwood@gmail.com, linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 15/19] regulator: twl6030: fix get status of twl6032 regulators
+Date:   Mon, 28 Nov 2022 12:41:15 -0500
+Message-Id: <20221128174120.1442235-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221128174120.1442235-1-sashal@kernel.org>
 References: <20221128174120.1442235-1-sashal@kernel.org>
@@ -56,35 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+From: Andreas Kemnade <andreas@kemnade.info>
 
-[ Upstream commit db8f91d424fe0ea6db337aca8bc05908bbce1498 ]
+[ Upstream commit 31a6297b89aabc81b274c093a308a7f5b55081a7 ]
 
-Add NULL check in dpcm_be_reparent API, to handle
-kernel NULL pointer dereference error.
-The issue occurred in fuzzing test.
+Status is reported as always off in the 6032 case. Status
+reporting now matches the logic in the setters. Once of
+the differences to the 6030 is that there are no groups,
+therefore the state needs to be read out in the lower bits.
 
-Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
-Link: https://lore.kernel.org/r/1669098673-29703-1-git-send-email-quic_srivasam@quicinc.com
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+Link: https://lore.kernel.org/r/20221120221208.3093727-3-andreas@kemnade.info
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/regulator/twl6030-regulator.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 8b8a9aca2912..9a60d62f12fe 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1159,6 +1159,8 @@ static void dpcm_be_reparent(struct snd_soc_pcm_runtime *fe,
- 		return;
+diff --git a/drivers/regulator/twl6030-regulator.c b/drivers/regulator/twl6030-regulator.c
+index 430265c404d6..7ee05556d783 100644
+--- a/drivers/regulator/twl6030-regulator.c
++++ b/drivers/regulator/twl6030-regulator.c
+@@ -67,6 +67,7 @@ struct twlreg_info {
+ #define TWL6030_CFG_STATE_SLEEP	0x03
+ #define TWL6030_CFG_STATE_GRP_SHIFT	5
+ #define TWL6030_CFG_STATE_APP_SHIFT	2
++#define TWL6030_CFG_STATE_MASK		0x03
+ #define TWL6030_CFG_STATE_APP_MASK	(0x03 << TWL6030_CFG_STATE_APP_SHIFT)
+ #define TWL6030_CFG_STATE_APP(v)	(((v) & TWL6030_CFG_STATE_APP_MASK) >>\
+ 						TWL6030_CFG_STATE_APP_SHIFT)
+@@ -128,13 +129,14 @@ static int twl6030reg_is_enabled(struct regulator_dev *rdev)
+ 		if (grp < 0)
+ 			return grp;
+ 		grp &= P1_GRP_6030;
++		val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
++		val = TWL6030_CFG_STATE_APP(val);
+ 	} else {
++		val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
++		val &= TWL6030_CFG_STATE_MASK;
+ 		grp = 1;
+ 	}
  
- 	be_substream = snd_soc_dpcm_get_substream(be, stream);
-+	if (!be_substream)
-+		return;
+-	val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
+-	val = TWL6030_CFG_STATE_APP(val);
+-
+ 	return grp && (val == TWL6030_CFG_STATE_ON);
+ }
  
- 	for_each_dpcm_fe(be, stream, dpcm) {
- 		if (dpcm->fe == fe)
+@@ -187,7 +189,12 @@ static int twl6030reg_get_status(struct regulator_dev *rdev)
+ 
+ 	val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
+ 
+-	switch (TWL6030_CFG_STATE_APP(val)) {
++	if (info->features & TWL6032_SUBCLASS)
++		val &= TWL6030_CFG_STATE_MASK;
++	else
++		val = TWL6030_CFG_STATE_APP(val);
++
++	switch (val) {
+ 	case TWL6030_CFG_STATE_ON:
+ 		return REGULATOR_STATUS_NORMAL;
+ 
 -- 
 2.35.1
 
