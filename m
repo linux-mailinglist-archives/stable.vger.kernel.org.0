@@ -2,55 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04B4F63B4CF
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 23:28:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4113863B4DE
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 23:37:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232208AbiK1W2N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 17:28:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35356 "EHLO
+        id S233836AbiK1Whl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 17:37:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233660AbiK1W2M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 17:28:12 -0500
-Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E80EA24B;
-        Mon, 28 Nov 2022 14:28:10 -0800 (PST)
-Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2ASMS3cc017750
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Nov 2022 17:28:04 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
-        t=1669674485; bh=93sV9uF9firD2I2yjs8f7J69JyRyRKxsZzFKTMgpo+Q=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=pwBmEyO3XgD1rsAnMLjxB8wVG7geyPSPxRrNfE517cO/ImMwSo8wZc5Ca/oUVIKTw
-         5Y0AAlgYv43YPCIDnPmLu8I+FGroQijVrpq6VG0mhr75lgbLLQHtQGCdoaUihSrls5
-         KGU8CxwwRLVaQoqwhdG66gZDhdRE5Uh48aIjOt3HhVQwwkiatU8LGRfViX0l8QCyGy
-         ELbAawK9dCLowX8lMWiyMCDRb2Dpr3MsJqB8ufcGF3I01tjF1eBB8G1NNjVdU0AwNg
-         rUlYXFM8/NPONr+zJW0McAH49cZYiR/STAXsWRDpPhTN7RO7uMsIoC1jxkY+qjoW/m
-         2dhe0FDZ4Uypg==
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id 42D2615C3AA6; Mon, 28 Nov 2022 17:28:03 -0500 (EST)
-Date:   Mon, 28 Nov 2022 17:28:03 -0500
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     =?iso-8859-1?Q?Lu=EDs?= Henriques <lhenriques@suse.de>
-Cc:     Andreas Dilger <adilger.kernel@dilger.ca>,
-        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] ext4: fix a NULL pointer when validating an inode
- bitmap
-Message-ID: <Y4U18wly7K87fX9v@mit.edu>
-References: <20221010142035.2051-1-lhenriques@suse.de>
- <20221011155623.14840-1-lhenriques@suse.de>
- <Y2cAiLNIIJhm4goP@mit.edu>
- <Y2piZT22QwSjNso9@suse.de>
+        with ESMTP id S232919AbiK1Whk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 17:37:40 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE315B70;
+        Mon, 28 Nov 2022 14:37:37 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id 3-20020a17090a098300b00219041dcbe9so10397761pjo.3;
+        Mon, 28 Nov 2022 14:37:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=OyvJmG+hXWLOKHOTgZkR3mwK6h+cOOTU1MyibLq0rL8=;
+        b=d1O68c2jREVtAGf4fuehr56UzAoZaqFYlQscerX97Zbtc7zzgV1cGYNJlJxyH0KUUR
+         hNXpQWXwdqFZhGX9UhUBg/zDV7wkR92eAeM78G++8vjpZvZnbqHyB7bWie5xWj4/Hoqe
+         ZZpa4U3OshBZ0PkYzMAdg8nDedS4H3BhKh18tp31Qiq595CnrDmUj7Yej0ALrymDACSs
+         5ZqwfAxBNRz7I12LZ65C2KSWulKoLJBZRwO4SdIugZI0+pZZhaSSG6QrPgOsBPVxPyEy
+         Vs+Rz5JtNHDZLWz2ksiedKWvbGU4vs9CO40PuYUTIuJlB9E5xkXM296O2JIFxN4ltxH6
+         OFQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=OyvJmG+hXWLOKHOTgZkR3mwK6h+cOOTU1MyibLq0rL8=;
+        b=CwkrJWBcWAgHUupORDgToDDw/Bhgqe6a5890DYmf8+e9/pF58fve7HX753Q7iKO0sG
+         qKqMpCEf9okBDHoMfk+F4m/xyjb7yV27YjI50KNkhKkk3PQMd9Ki+I2MKwWmBGA8Rqco
+         2KqnGVqH+280e5h669XfaYsNTVUNwqDULiFNF6g7snoXF+hn1vrLKYU9QfTix2pmcaOp
+         TeMZqJlgUnZU7Gm5wGRDnrpT0LfBHCo4/NKsCZhVDG0Z07kabYBh2WoDPJiVHIWKzAV0
+         f11U0yuyktvgc5h2UepOCFyhvzxIxVnD9XP6zK8z6eT3Y3JAcX/G7pM3o3acc8BPX2CU
+         DQrA==
+X-Gm-Message-State: ANoB5pkg6Jo2ZeWGgCpn69geAftkbRrx3Q7gPpkG1ISMCyPqjDtTN1SC
+        55RSV3eJSsu7oLD/w3GxiXsGvLzK7p4=
+X-Google-Smtp-Source: AA0mqf7kc/v3b9KLCQ9a4qlUbo6+LOHUKgDLH3uwq/67IqdRSiE4NoAz0Lgb6k5EQJ30ADg2sjwldA==
+X-Received: by 2002:a17:90a:7d0d:b0:1fa:b51d:8d83 with SMTP id g13-20020a17090a7d0d00b001fab51d8d83mr35354570pjl.169.1669675057266;
+        Mon, 28 Nov 2022 14:37:37 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id pc16-20020a17090b3b9000b00212cf2fe8c3sm73446pjb.1.2022.11.28.14.37.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Nov 2022 14:37:36 -0800 (PST)
+Message-ID: <d87ecefc-0b71-fca6-2a0a-64f170d3d4d1@gmail.com>
+Date:   Mon, 28 Nov 2022 14:37:31 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Y2piZT22QwSjNso9@suse.de>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
-        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH 5.10 000/149] 5.10.156-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221123084557.945845710@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,20 +78,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 08, 2022 at 02:06:29PM +0000, Luís Henriques wrote:
-> > What makes you believe that?  Look at how s_group_info is initialized
-> > in ext4_mb_alloc_groupinfo() in fs/ext4/mballoc.c.  It's pretty
-> > careful to make sure this is not the case.
+On 11/23/22 00:49, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.156 release.
+> There are 149 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Right.  I may be missing something, but I don't think we get that far.
-> __ext4_fill_super() will first call ext4_setup_system_zone() (which is
-> where this bug occurs) and only after that ext4_mb_init() will be invoked
-> (which is where ext4_mb_alloc_groupinfo() will eventually be called).
+> Responses should be made by Fri, 25 Nov 2022 08:45:20 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.156-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-I finally got around to taking a closer look at this, and I have a
-much better understandign of what is going on.  For more details, and
-a suggested fix, please see:
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
 
-     https://bugzilla.kernel.org/show_bug.cgi?id=216541#c1
-
-						- Ted
