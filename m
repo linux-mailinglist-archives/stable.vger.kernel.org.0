@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A36F063AF37
+	by mail.lfdr.de (Postfix) with ESMTP id 45BBC63AF36
 	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:40:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232922AbiK1Rj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:39:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51708 "EHLO
+        id S231873AbiK1Rj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 12:39:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233145AbiK1Rj1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:39:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 310FA28E14;
+        with ESMTP id S233004AbiK1Rj2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:39:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D56128E18;
         Mon, 28 Nov 2022 09:38:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32144612E7;
-        Mon, 28 Nov 2022 17:38:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CF32C433C1;
-        Mon, 28 Nov 2022 17:38:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 854A0612F5;
+        Mon, 28 Nov 2022 17:38:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09140C43154;
+        Mon, 28 Nov 2022 17:38:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669657115;
-        bh=HOWAd5nwQ+lGF+ukq+i+s7e6yeo+kQXM8u2DmzBWNxI=;
+        s=k20201202; t=1669657117;
+        bh=PAxi6eeJkAJBPTiO6t6sK57HyXc9bdfpzD8eQdRXDQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fA0utH1n9tbRyGPb6cbtcHm8b6LbC1KxeoP/Ft6drkOPaLMu3ESObeOwIWZRL3Da1
-         72ex6Yz3uPIqigCfw4lGYWwU9fa2/Ng/oNW1PyTf6aCfGUvlzKe321GRrx4WNVr7li
-         rXjIc0w/huOs4PIpFZ9Py3b81zqpz1o8eSVt7EM5j4/5mNrwjA0zlNA6rq8uG9VIjp
-         b3KH/BtLDD+p/gjSk2JZ4Sl25wS7vc6MfOLtlncDy0rLYOwaQeybhUbPw0VAXc5zKR
-         9CAVmR0JbziMzC89NaMvr+UHy8escI8TrKCWAtdLl2IHRw65VCYH4ZG9oLxJIvfBE6
-         xbokIHzlQCWwA==
+        b=XLMjF2UjaenvdhCBrYuv0ecKju5kyfRXRYzqbbxY03txyy4IsyFZrxtUWghJVRxjS
+         ItDct9cBnACbB8mqXi4w/rM/WvjPAsfqMjYJUXyNLYatTu4yPa4uGoKRCe8OtE8TI/
+         h91LNWV/iUyvBfViPQbI+jfBwdglxVJuQQ2ptL5DgReEv9LUDN3st77k4Ocq2FQ1eC
+         xA34HYF7ESUSiMHR4oOU5GSXsp5GPCg5+vcNSyklhV5D9hKtkDWxKb+m9ozFU+IvSi
+         iTc4cUg5idZ36DpF/FCeBJFHCLFlOJknjvEyyqmsEmidI4V+uD0ZeMWUzuaSYcqcYL
+         YTKq97LgfNzig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Jonker <jbx6244@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 18/39] ARM: dts: rockchip: disable arm_global_timer on rk3066 and rk3188
-Date:   Mon, 28 Nov 2022 12:35:58 -0500
-Message-Id: <20221128173642.1441232-18-sashal@kernel.org>
+Cc:     Shuming Fan <shumingf@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.0 19/39] ASoC: rt711-sdca: fix the latency time of clock stop prepare state machine transitions
+Date:   Mon, 28 Nov 2022 12:35:59 -0500
+Message-Id: <20221128173642.1441232-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221128173642.1441232-1-sashal@kernel.org>
 References: <20221128173642.1441232-1-sashal@kernel.org>
@@ -57,62 +57,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Shuming Fan <shumingf@realtek.com>
 
-[ Upstream commit da74858a475782a3f16470907814c8cc5950ad68 ]
+[ Upstream commit c7d7d4e7bb1290cc473610b0bb96d9fa606d00e7 ]
 
-The clock source and the sched_clock provided by the arm_global_timer
-on Rockchip rk3066a/rk3188 are quite unstable because their rates
-depend on the CPU frequency.
+Due to the hardware behavior, it takes some time for CBJ detection/impedance sensing/de-bounce.
+The ClockStop_NotFinished flag will be raised until these functions are completed.
+In ClockStopMode0 mode case, the SdW controller might check this flag from D3 to D0 when the
+jack detection interrupt happened.
 
-Recent changes to the arm_global_timer driver makes it impossible to use.
-
-On the other side, the arm_global_timer has a higher rating than the
-ROCKCHIP_TIMER, it will be selected by default by the time framework
-while we want to use the stable Rockchip clock source.
-
-Keep the arm_global_timer disabled in order to have the
-DW_APB_TIMER (rk3066a) or ROCKCHIP_TIMER (rk3188) selected by default.
-
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/f275ca8d-fd0a-26e5-b978-b7f3df815e0a@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Shuming Fan <shumingf@realtek.com>
+Link: https://lore.kernel.org/r/20221116090318.5017-1-shumingf@realtek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3188.dtsi | 1 -
- arch/arm/boot/dts/rk3xxx.dtsi | 7 +++++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ sound/soc/codecs/rt711-sdca-sdw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
-index b8f34bef0efa..44b54af0bbf9 100644
---- a/arch/arm/boot/dts/rk3188.dtsi
-+++ b/arch/arm/boot/dts/rk3188.dtsi
-@@ -607,7 +607,6 @@ &emac {
+diff --git a/sound/soc/codecs/rt711-sdca-sdw.c b/sound/soc/codecs/rt711-sdca-sdw.c
+index a085b2f530aa..31e77d462ef3 100644
+--- a/sound/soc/codecs/rt711-sdca-sdw.c
++++ b/sound/soc/codecs/rt711-sdca-sdw.c
+@@ -230,7 +230,7 @@ static int rt711_sdca_read_prop(struct sdw_slave *slave)
+ 	}
  
- &global_timer {
- 	interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
--	status = "disabled";
- };
+ 	/* set the timeout values */
+-	prop->clk_stop_timeout = 20;
++	prop->clk_stop_timeout = 700;
  
- &local_timer {
-diff --git a/arch/arm/boot/dts/rk3xxx.dtsi b/arch/arm/boot/dts/rk3xxx.dtsi
-index 616a828e0c6e..17e89d30de78 100644
---- a/arch/arm/boot/dts/rk3xxx.dtsi
-+++ b/arch/arm/boot/dts/rk3xxx.dtsi
-@@ -76,6 +76,13 @@ global_timer: global-timer@1013c200 {
- 		reg = <0x1013c200 0x20>;
- 		interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_EDGE_RISING)>;
- 		clocks = <&cru CORE_PERI>;
-+		status = "disabled";
-+		/* The clock source and the sched_clock provided by the arm_global_timer
-+		 * on Rockchip rk3066a/rk3188 are quite unstable because their rates
-+		 * depend on the CPU frequency.
-+		 * Keep the arm_global_timer disabled in order to have the
-+		 * DW_APB_TIMER (rk3066a) or ROCKCHIP_TIMER (rk3188) selected by default.
-+		 */
- 	};
- 
- 	local_timer: local-timer@1013c600 {
+ 	/* wake-up event */
+ 	prop->wake_capable = 1;
 -- 
 2.35.1
 
