@@ -2,75 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3342D63B4AE
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 23:12:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B4F63B4CF
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 23:28:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233729AbiK1WM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 17:12:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53814 "EHLO
+        id S232208AbiK1W2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 17:28:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234462AbiK1WMx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 17:12:53 -0500
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C1A111A2B;
-        Mon, 28 Nov 2022 14:12:52 -0800 (PST)
-Received: by mail-pg1-x52d.google.com with SMTP id 82so3748236pgc.0;
-        Mon, 28 Nov 2022 14:12:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=7VnIiqkaLT/AOA+Uh3vYc89XGyhScngUhSEYmii9N7E=;
-        b=hf/Rd5cgspTnUYicP8bfp0SxkTZo9YWJxzNwarpU4xJULh5zWcfQXnuff3SuYQYzO2
-         1hUYiP8DJRkQP23pUYDWiUHSaT5pUDVGXcxNg/2asHYrasdRz1d5QLYVO2LBAdx1Dkqe
-         21Pf7WCRasOTddkVfVSFxdmDTpvc4zJMmNXI8SXYDGscpx0iwe0VCv1xLFwx9cPvqmoa
-         EavQ+dTGheMEqFf+eMklvPIy4rYjnvaoWdMRthxzrcPt9K+Vi6YANBMPD9vZy3k+bNlJ
-         sI/3o9p9RLgbGwGf0WvrhN3gY6iqLS01sIDVaV8bxJAMuqxx+w74yVtF/pC5Ymj7509+
-         ZeoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7VnIiqkaLT/AOA+Uh3vYc89XGyhScngUhSEYmii9N7E=;
-        b=RZRWgwLaVqU3UHbEFxeVYWAUZPvUHvM01367cvBqlWd83ygO0zRWpBsGsVssPE8jnH
-         9VKyJE/JZLTo3DfXuSPg6EVFtoplOmUNcC28YE0IS8omUyQTHrA84OWkqmA4qqkeDtHH
-         S5+Wwi64et3wQ3dFZJeDKzbS+HqbrnSTGd3NOZTVVOng/8bEwPEfGNDuhGlvJs21AF0r
-         wdDbrWO8cKZGWI4i8wsumMgq6pa+eu00KuvP/czoNEAlIPbyxUQrZr2JGB41Mnsh8uvW
-         brV9M+rFUB7rfbnbAkVhWrr9GaneEzx+QKK3G29jltHgd5J0MJuC3XWHplvqky1X1lSm
-         eRxg==
-X-Gm-Message-State: ANoB5pkBZ/nULrRqZLSAsJXvbGHE0M58W7pcATgHSUA0lESMOoFJvWcT
-        qCwUa+e0UJDB+1W8FyMjQX0=
-X-Google-Smtp-Source: AA0mqf7gi2938a6aMIhx7F3eopAf9BP6LPatYMG6aV5lHkMTn+qjJcYL7NMxg0OZsK+ou+Q0IcsCzQ==
-X-Received: by 2002:a62:84c5:0:b0:574:32ac:a47a with SMTP id k188-20020a6284c5000000b0057432aca47amr30644859pfd.7.1669673571506;
-        Mon, 28 Nov 2022 14:12:51 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id pc16-20020a17090b3b9000b00212cf2fe8c3sm40644pjb.1.2022.11.28.14.12.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 28 Nov 2022 14:12:51 -0800 (PST)
-Message-ID: <e6d08779-6e40-ef74-fdde-25335bcb9cc0@gmail.com>
-Date:   Mon, 28 Nov 2022 14:12:44 -0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH 5.4 000/156] 5.4.225-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        with ESMTP id S233660AbiK1W2M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 17:28:12 -0500
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E80EA24B;
+        Mon, 28 Nov 2022 14:28:10 -0800 (PST)
+Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2ASMS3cc017750
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Nov 2022 17:28:04 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+        t=1669674485; bh=93sV9uF9firD2I2yjs8f7J69JyRyRKxsZzFKTMgpo+Q=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To;
+        b=pwBmEyO3XgD1rsAnMLjxB8wVG7geyPSPxRrNfE517cO/ImMwSo8wZc5Ca/oUVIKTw
+         5Y0AAlgYv43YPCIDnPmLu8I+FGroQijVrpq6VG0mhr75lgbLLQHtQGCdoaUihSrls5
+         KGU8CxwwRLVaQoqwhdG66gZDhdRE5Uh48aIjOt3HhVQwwkiatU8LGRfViX0l8QCyGy
+         ELbAawK9dCLowX8lMWiyMCDRb2Dpr3MsJqB8ufcGF3I01tjF1eBB8G1NNjVdU0AwNg
+         rUlYXFM8/NPONr+zJW0McAH49cZYiR/STAXsWRDpPhTN7RO7uMsIoC1jxkY+qjoW/m
+         2dhe0FDZ4Uypg==
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id 42D2615C3AA6; Mon, 28 Nov 2022 17:28:03 -0500 (EST)
+Date:   Mon, 28 Nov 2022 17:28:03 -0500
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     =?iso-8859-1?Q?Lu=EDs?= Henriques <lhenriques@suse.de>
+Cc:     Andreas Dilger <adilger.kernel@dilger.ca>,
+        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20221123084557.816085212@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Subject: Re: [PATCH v2] ext4: fix a NULL pointer when validating an inode
+ bitmap
+Message-ID: <Y4U18wly7K87fX9v@mit.edu>
+References: <20221010142035.2051-1-lhenriques@suse.de>
+ <20221011155623.14840-1-lhenriques@suse.de>
+ <Y2cAiLNIIJhm4goP@mit.edu>
+ <Y2piZT22QwSjNso9@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Y2piZT22QwSjNso9@suse.de>
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,29 +58,20 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/23/22 00:49, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.225 release.
-> There are 156 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Nov 08, 2022 at 02:06:29PM +0000, Luís Henriques wrote:
+> > What makes you believe that?  Look at how s_group_info is initialized
+> > in ext4_mb_alloc_groupinfo() in fs/ext4/mballoc.c.  It's pretty
+> > careful to make sure this is not the case.
 > 
-> Responses should be made by Fri, 25 Nov 2022 08:45:20 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.225-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> Right.  I may be missing something, but I don't think we get that far.
+> __ext4_fill_super() will first call ext4_setup_system_zone() (which is
+> where this bug occurs) and only after that ext4_mb_init() will be invoked
+> (which is where ext4_mb_alloc_groupinfo() will eventually be called).
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+I finally got around to taking a closer look at this, and I have a
+much better understandign of what is going on.  For more details, and
+a suggested fix, please see:
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+     https://bugzilla.kernel.org/show_bug.cgi?id=216541#c1
 
+						- Ted
