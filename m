@@ -2,123 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1F2763B26E
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 20:42:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CE6063B2A7
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 20:58:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233110AbiK1Tm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 14:42:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37638 "EHLO
+        id S233877AbiK1T6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 14:58:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232405AbiK1TmX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 14:42:23 -0500
-Received: from mail-qv1-xf2b.google.com (mail-qv1-xf2b.google.com [IPv6:2607:f8b0:4864:20::f2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6D36120A7
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 11:42:22 -0800 (PST)
-Received: by mail-qv1-xf2b.google.com with SMTP id n12so8125359qvr.11
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 11:42:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :references:in-reply-to:reply-to:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=ce0NP0yhJmYwKDNo+UsVVXfSEFkzNycw3c4cnkVJ6mE=;
-        b=VWyA3QnQnIEVBhRbkZz7L8CaPHC1/fRRgK1aT2XsKGM3yCIjFuC8AweA9P2OOtxlRu
-         GyI+GKy/bxdMxdTBFgBUxx8+Epq8Ot53aQGQdPSs1d7GV+6J1Jvbk0vPrNtg3W3MFznH
-         62FYaRomfcrw8Ax0SnNkMSqsbANAjEPwMwPVoL2R4UXY8TLecETCYbFNSHvEuWcIs0qT
-         2UmVs8G7U8E4s08I+lNhZ4QB6lszf2mroTxcrER4Wfl54S4VaNRIIrEnO78Wd0Z1W0P6
-         IHDzyZb9TsrNEGXaS6WWhjIkR5jpXU4tVhG1yiH4w/LxMA7cfItoNeL5b+ZxKKKefhDX
-         TVOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :references:in-reply-to:reply-to:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ce0NP0yhJmYwKDNo+UsVVXfSEFkzNycw3c4cnkVJ6mE=;
-        b=Ge/17qsx5clIcPd9YekVyo5j7pDQZvCZET47NRzLXyDcyjLAwIi30KnSjZPyGxEiNS
-         sXCU9ZtDWGCh33+9PPn8KnWq8aXDOL5T+oTvZGz2nqEuEn981/tSwJONmTM4P10sxsQE
-         YDf3WybTYJ7i91OjoPa6pB676tn1U19doB0pFYhMnYgoIVbZn0JT+S5Omch3EJOMG76Q
-         Q1WzcqRivENhuR9GtksydgkmAqbxumGfdbuywGle8VJ4xE4PCKH/22XBu4bwHSqRL3hk
-         MPtDYtHPtG5h3f03v9smVWC3Es/lRrqO9KWpTUaSwOEMN20UZ77P0wUb6p+kqUUq9un0
-         3puw==
-X-Gm-Message-State: ANoB5pl0jjb2kqhcYuXnJwGjeIfitcHs7pz7LP5n0rG2pxI19qeQAweg
-        xeCNH85Zpy81hjD62Qh/ib+OQN5J9pdDOGRLn4k=
-X-Google-Smtp-Source: AA0mqf68PzjhrIptOkeFjjnEqF2HcNxsrsyT8nuoX2q1998LxF3g6g0jQ+p4E1XIRyJ/TvlHg7FmndIDYV3e2jXXa8s=
-X-Received: by 2002:a0c:edab:0:b0:4c6:b483:dbb1 with SMTP id
- h11-20020a0cedab000000b004c6b483dbb1mr31953364qvr.85.1669664541978; Mon, 28
- Nov 2022 11:42:21 -0800 (PST)
+        with ESMTP id S233872AbiK1T6A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 14:58:00 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F15D0B27;
+        Mon, 28 Nov 2022 11:57:58 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5BF85CE1054;
+        Mon, 28 Nov 2022 19:57:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D639DC433D7;
+        Mon, 28 Nov 2022 19:57:53 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="o7HB8omO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1669665472;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=m+iodXvVaGO3w4QAQvXUTnn8uFbQvqV8cvcIq17x8pk=;
+        b=o7HB8omOA47EFDy7hMWwqFoQfP8SzKI7Hiwr2zSXBF18xLG1dXIrU794PbLD82ro2flwU3
+        GjkuPKeUnKW52xqpxZdEmBK/RYtXZ+1o51MRD+t7AVl+vfpg28dep1gm5ya7cM+WDyTWza
+        SzfxbOW6IE9DGbhExXaD2cjPRnuYB3I=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id adff6e4d (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Mon, 28 Nov 2022 19:57:52 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     Vlastimil Babka <vbabka@suse.cz>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        =?UTF-8?q?Jan=20D=C4=85bro=C5=9B?= <jsd@semihalf.com>,
+        linux-integrity@vger.kernel.org, peterhuewe@gmx.de, jgg@ziepe.ca,
+        gregkh@linuxfoundation.org, arnd@arndb.de, rrangel@chromium.org,
+        timvp@google.com, apronin@google.com, mw@semihalf.com,
+        upstream@semihalf.com, linux-kernel@vger.kernel.org,
+        linux-crypto@vger.kernel.org
+Cc:     "Jason A . Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org
+Subject: [PATCH v3] char: tpm: Protect tpm_pm_suspend with locks
+Date:   Mon, 28 Nov 2022 20:56:51 +0100
+Message-Id: <20221128195651.322822-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Received: by 2002:ac8:7fd6:0:b0:3a6:6ad6:4442 with HTTP; Mon, 28 Nov 2022
- 11:42:21 -0800 (PST)
-Reply-To: davidtayo2007@gmail.com
-In-Reply-To: <CACoVRJT=aVCEJmqUmsPqQ7P4woV5n_Vcx10MLVYhMZALMGJKjw@mail.gmail.com>
-References: <CACoVRJTG7nZ2mxUpA0jvjL3YhuiP4ONCjEmBevggGd3gbwWgwA@mail.gmail.com>
- <CACoVRJS+5_x09=moHsXbOnLFRi9drjGUjEpc=tbxzStBAMSAnQ@mail.gmail.com>
- <CACoVRJTsVZ0EOTGUjVvM=g-dSf28U6r3jvdGzAuEwAMvZ6i9HA@mail.gmail.com>
- <CACoVRJQDwTLJy5BmDQzKETf+AsPrwbrwgKNrJfWEKUq0KWtLVQ@mail.gmail.com>
- <CACoVRJRedtXCMuX5xKcxL-wGPMO3m9Sy_yydOB5kd+V5nhcM8A@mail.gmail.com>
- <CACoVRJQq_z-7SZnEaXbe9rDfNw7RyBMg4LgF1TJsqZRNZg2=4Q@mail.gmail.com>
- <CACoVRJTmCwddzUJs=ysoVmXgUROJ7JLNmpW1sLMDF4-fjk=RHw@mail.gmail.com>
- <CACoVRJT9QYpa99hm8chJr9Ay0cU8E3=73=ZW=mAHz-uzjhVExw@mail.gmail.com>
- <CACoVRJQoTKUi=AoiY-0sVqRauVK2gXM04yp--CD1VXeuyON=Ew@mail.gmail.com>
- <CACoVRJSNRAM-rq0crEgc0CPgBfX4ZSbmkrwG_TmR1zixL7qXvw@mail.gmail.com>
- <CACoVRJS0ncuZYD9Q6ijm7m5WKyW_U-yFxw8id4Vzy5ZsGbOqrg@mail.gmail.com>
- <CACoVRJRbv_6Pa9scnJNFH3=+2ghx0jA7BXvo3-8wvnHoTKJTUQ@mail.gmail.com>
- <CACoVRJT7WZb81gBWGLEDWeVCaXdg=Yv4ddBM8EKjNaLtDgJ65w@mail.gmail.com>
- <CACoVRJTb-x6GCn6rS2PHwhZzZ4kVLr9VU8r5Lh+YD1+BcACULg@mail.gmail.com>
- <CACoVRJT==NQVUaN1FSnpFdk8K17Zt75cVemxRFxpoaJTvQo1_w@mail.gmail.com>
- <CACoVRJQB-YCxY0bWvPXNt9S4DsCUHXyk964=uo1rzvAZx00avg@mail.gmail.com>
- <CACoVRJSuRY16B9KwH==gFQArzCMtyw4L6Mrrt9ih5DFRrK6Veg@mail.gmail.com>
- <CACoVRJRmv4ZqrfH6PkuGRswEA=WTU-NYZJMYZqHBRsPXbhDyUw@mail.gmail.com>
- <CACoVRJSHRdQ-F7DEjjN5HWc8vQ=DA6=L7RN3Gjo481NzAhbGgQ@mail.gmail.com>
- <CACoVRJRN6Da0mLYmmdzfu_wjaK_eCqKU36rCgHSnpB_iaYbAbA@mail.gmail.com>
- <CACoVRJS9oiwA+Hi0veRXHfV6RHJmSMtpJefdDpXS=LkqUsTpBA@mail.gmail.com>
- <CACoVRJSiky9H3VSCEFJNvUORMik1R812Mu4E-9FYFDRE2A3eMQ@mail.gmail.com>
- <CACoVRJSyeOx=1tJy5PjqKNGcEaMpE_GT_KMKJYGQgdhRKB50UQ@mail.gmail.com>
- <CACoVRJTWrLbzZLvgdHGNR0654wR42XDjko=YoTacTkVCjtE7QQ@mail.gmail.com>
- <CACoVRJQJYRnpqYs++63Jt8eyxPkrwQVTWvVfeMA1RuxsGutjiA@mail.gmail.com>
- <CACoVRJQMDzgHGovyx5=DD=kkvb35XzSowN5tTM1CSthfat5tYA@mail.gmail.com>
- <CACoVRJQ8z-bgnTkdPc0Lh9tM17kezRSvBg2726mK5MrcGwhbDg@mail.gmail.com>
- <CACoVRJQBDJ97-x5-0oxe-8EbsifOC=sts8tD5+KBvciUiChxsQ@mail.gmail.com>
- <CACoVRJR6BEr34ord90_=Q2SuPbnXefYOYvRqueVOjvsxW2gjrg@mail.gmail.com>
- <CACoVRJQj+h1mBZp-52FCAvqe0bG_7r3fbyRF5dMiCvoedye3=w@mail.gmail.com>
- <CACoVRJR9HNtB=F4DYFBVznus8jP5=5_rhS3EU8Rk_gZiBt7HUw@mail.gmail.com>
- <CACoVRJRFD6DDBgMhZhLjO5vy++hJ44P3RRTZueM=OU_YTOu0tA@mail.gmail.com>
- <CACoVRJStnAm8Asnn7Dcs7DF7k0BE_wH+sr3wfQpuNQRr5eOezw@mail.gmail.com>
- <CACoVRJRiB8iDpoSvagVd8BsZtaDA9O_GBy5tM9sznX0BH-Tm6g@mail.gmail.com>
- <CACoVRJTTjuCk-veLsBPF9ZTJALUKkxa2ZOqEN-MX6021MV_6DA@mail.gmail.com>
- <CACoVRJSV+pwVSK7jDP7+UXeWsffnL=n6SX4FJXgXFaYcETSpyA@mail.gmail.com>
- <CACoVRJRSnNMM6-=+XwH9PfF2ir7euPcewmY4AAAV-djzCH=xHw@mail.gmail.com>
- <CACoVRJSE2AMHEO08utzVjZrYMFXXo91TbSK2SZ7QKuS2wbF12g@mail.gmail.com>
- <CACoVRJQ0X6gDbaFLf5zVizd0rwdgEoT-C3X=DYWe0wG6p4BYbQ@mail.gmail.com>
- <CACoVRJRqRqMbtjh8eR3HkFHQPSjp1rqqN-tZrVjtMXLj6w7f5g@mail.gmail.com>
- <CACoVRJS4pByOm7uue0oN8SSkXdj_xHkWp9QLOG1-AGAtni1RgA@mail.gmail.com>
- <CACoVRJTTU12XQzZ9c_9fvwkO4bT3VP8inrdh5UjzzKUMw-2VDg@mail.gmail.com>
- <CACoVRJRBXS2=AKekhPP+uba+-Q5474vz7cJ1DH8nPCVYmBfo+g@mail.gmail.com> <CACoVRJT=aVCEJmqUmsPqQ7P4woV5n_Vcx10MLVYhMZALMGJKjw@mail.gmail.com>
-From:   david tayo <matildamambo1956@gmail.com>
-Date:   Mon, 28 Nov 2022 20:42:21 +0100
-Message-ID: <CACoVRJRx88oq-TCOKy4-DFsN7VXe0iPSAOQSjpYOWkZmmmO6Hg@mail.gmail.com>
-Subject: =?UTF-8?Q?best=C3=A4tigen?=
-To:     davidtayo2007@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=2.1 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
-X-Spam-Level: **
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Lieber Freund
+From: Jan Dabros <jsd@semihalf.com>
 
-Ich dachte, wenn Sie die Ihnen zugesandten detaillierten Informationen
-=C3=BCber den Gesch=C3=A4ftsvorschlag erhalten haben, wenden Sie sich bitte=
- an
-mich, es ist sehr wichtig
+Currently tpm transactions are executed unconditionally in
+tpm_pm_suspend() function, which may lead to races with other tpm
+accessors in the system. Specifically, the hw_random tpm driver makes
+use of tpm_get_random(), and this function is called in a loop from a
+kthread, which means it's not frozen alongside userspace, and so can
+race with the work done during system suspend:
 
-Vielen Dank
-David Tayo
+[    3.277834] tpm tpm0: tpm_transmit: tpm_recv: error -52
+[    3.278437] tpm tpm0: invalid TPM_STS.x 0xff, dumping stack for forensics
+[    3.278445] CPU: 0 PID: 1 Comm: init Not tainted 6.1.0-rc5+ #135
+[    3.278450] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-20220807_005459-localhost 04/01/2014
+[    3.278453] Call Trace:
+[    3.278458]  <TASK>
+[    3.278460]  dump_stack_lvl+0x34/0x44
+[    3.278471]  tpm_tis_status.cold+0x19/0x20
+[    3.278479]  tpm_transmit+0x13b/0x390
+[    3.278489]  tpm_transmit_cmd+0x20/0x80
+[    3.278496]  tpm1_pm_suspend+0xa6/0x110
+[    3.278503]  tpm_pm_suspend+0x53/0x80
+[    3.278510]  __pnp_bus_suspend+0x35/0xe0
+[    3.278515]  ? pnp_bus_freeze+0x10/0x10
+[    3.278519]  __device_suspend+0x10f/0x350
+
+Fix this by calling tpm_try_get_ops(), which itself is a wrapper around
+tpm_chip_start(), but takes the appropriate mutex.
+
+Signed-off-by: Jan Dabros <jsd@semihalf.com>
+Reported-by: Vlastimil Babka <vbabka@suse.cz>
+Tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Tested-by: Vlastimil Babka <vbabka@suse.cz>
+Link: https://lore.kernel.org/all/c5ba47ef-393f-1fba-30bd-1230d1b4b592@suse.cz/
+Cc: stable@vger.kernel.org
+Fixes: e891db1a18bf ("tpm: turn on TPM on suspend for TPM 1.x")
+[Jason: reworked commit message, added metadata]
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ drivers/char/tpm/tpm-interface.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
+index 1621ce818705..d69905233aff 100644
+--- a/drivers/char/tpm/tpm-interface.c
++++ b/drivers/char/tpm/tpm-interface.c
+@@ -401,13 +401,14 @@ int tpm_pm_suspend(struct device *dev)
+ 	    !pm_suspend_via_firmware())
+ 		goto suspended;
+ 
+-	if (!tpm_chip_start(chip)) {
++	rc = tpm_try_get_ops(chip);
++	if (!rc) {
+ 		if (chip->flags & TPM_CHIP_FLAG_TPM2)
+ 			tpm2_shutdown(chip, TPM2_SU_STATE);
+ 		else
+ 			rc = tpm1_pm_suspend(chip, tpm_suspend_pcr);
+ 
+-		tpm_chip_stop(chip);
++		tpm_put_ops(chip);
+ 	}
+ 
+ suspended:
+-- 
+2.38.1
+
