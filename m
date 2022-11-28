@@ -2,66 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B921B63A2B3
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 09:20:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF4C963A587
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 10:59:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229629AbiK1ITz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 03:19:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34208 "EHLO
+        id S229958AbiK1J7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 04:59:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229851AbiK1ITx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 03:19:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E71C31180E;
-        Mon, 28 Nov 2022 00:18:54 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8142460FE7;
-        Mon, 28 Nov 2022 08:18:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEA40C43470;
-        Mon, 28 Nov 2022 08:18:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669623533;
-        bh=8fvSqyC5O7kIfnW0Kyq33j5dit6Z5CFYOeb+1myKFss=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=jylfX3gRUDIRl78mcgXqXQ3hPGGqN6r0iGnar94bW6COLNIN6I5XdxgDk8oM0qrAx
-         Lnj4SrwhzfbRP8ECsTg4ZihP4FG0a+32QTIQkutFWb28sv9POIo3dh0oBr1P/SLeP4
-         bHtXKOfipeUdemaf8YGKIS4BGWaavB79/qMzHuZFH7TUUeEauWUAzs630Ti/k7BIUN
-         xia+PHCdapvTeDHldeCe2YRouwErxoTAB8/KUSPJ1VL+HzoIlzgKF/xMocoNCDCcKR
-         4wET1oBSGtjids0dhr7OEVaj/vzerKnjmZJGYwmXezKDBd2ezLEm60iNjRlSW4DTLj
-         Fki0XgEHYWcQA==
-Received: by mail-ej1-f54.google.com with SMTP id b2so7509576eja.7;
-        Mon, 28 Nov 2022 00:18:53 -0800 (PST)
-X-Gm-Message-State: ANoB5plSl4h59le3ccIgzzM8Hw0/JiEQoZzGrNrg968nUC/QFNS6PjQ5
-        y9ae2CAtbo2yaRASQO+2WuKU2AWVEge2je4ygkc=
-X-Google-Smtp-Source: AA0mqf4+1cmRwSticidoMDLfF2SOB4WXxmURJljOM3sqd+ULavDUaLn5tkZ9YGNeduJcF2Uo7T2lIG95LDpRA7MUUBA=
-X-Received: by 2002:a17:907:9856:b0:780:8144:a41f with SMTP id
- jj22-20020a170907985600b007808144a41fmr43519094ejc.189.1669623532033; Mon, 28
- Nov 2022 00:18:52 -0800 (PST)
+        with ESMTP id S229961AbiK1J7T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 04:59:19 -0500
+Received: from mx0a-0064b401.pphosted.com (mx0a-0064b401.pphosted.com [205.220.166.238])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77A6819C15
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 01:59:17 -0800 (PST)
+Received: from pps.filterd (m0250810.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AS9q8gX009834;
+        Mon, 28 Nov 2022 01:59:11 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
+ subject : date : message-id : content-transfer-encoding : content-type :
+ mime-version; s=PPS06212021;
+ bh=mqBhtFSQi/1ack9omJSIgDwZyToduQgxrjX+5SMfTpw=;
+ b=b5f8ZX31Lx2j1QAgA7QnAivnwgt+XPlPzfoKMQAlh7op+GqFpcUasdAXKG80JSGgcFEg
+ VHMS1gEu8059wRZc3GgC7s/mXHmISQHkL8nlESVELu2MO4u+hAx/kWmQXxl837fyWJq0
+ z3oYOrr7GlQn6ZGf5FBukb30rKu8FMLvqvXWpafXb7+vHQicyOMiVXOyEHanb0lgH/sU
+ givyrP97PQEaBvxl4S5h39VEI/0NyhqHQC/l3PoxlfwDiaAgVMFdIGXvWPHO7MsuIZ9a
+ Co8C54MTvr/S+s5Qt958+Hrtnh6eqtibu/fIbvydFVisEVz9dEo6BVO+lNS7AH8bNAIh 8w== 
+Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2171.outbound.protection.outlook.com [104.47.57.171])
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3m3ey918g6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Nov 2022 01:59:11 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=TsSsSfBrUavcTTHbuvL6py2cEAGKmRc5XIZE2rQ03OgJ9DEgb93ACGNaz8/GWBvwg2l4GR6441kGvj8eLlRzATII1bkDlBSORZYa4gO9+ztBfucvhEK3KfAY0qZN+F9MuquKdcVshzlDg+3GXRhjVwguAF7bMDFqFVlVkAFDdn9Mtg4+YUKzGLxUr0uwcwrgqbo4ZYgWOFs0ChDq7p6Y/iu+q/CGXfIeEuAEuAitK4+HaefH8bKX4DNAF3RTtqlUaXPTdziq0KwxHGRP/opxNnUPluLvKqqUGWh9p1GyYX1s89RfE5eqJArN5rJXsvjgZ1Eq/JfH2rWsW3M3Q2MwDA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=mqBhtFSQi/1ack9omJSIgDwZyToduQgxrjX+5SMfTpw=;
+ b=Lr+1miRfpQL7qQziY0shI3vdtPCRjKy37BrNcWnwINxzJau2IPh1uhaZsAPRIFH6XSgc/EweV7c5DMNXye6EDpG2n4z3sC33N9huvjGZybT8+Cazx03s4HwLlQvX2vNe4zytjoPiTpfBn0rbxrCEgqbzu4myWK71Z1LPtfiFzeVV5SqcNrERpW5Eox6ng/JtS4QFzBysgzNMzkLgnud5OPxgYBveNESdVw00sj/m2gM6ZTBFr2Kr0BVXCKLdEwxYH25QrO6GdPkjs7TS6z5KrZz7uTkdpkSIC0TuUAVcp+MJ/qXrubBSYoO5RNUaEbxkeZdjvwYvBRoFZ+OQFpkTGw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=windriver.com; dmarc=pass action=none
+ header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
+Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
+ by BL1PR11MB5368.namprd11.prod.outlook.com (2603:10b6:208:311::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5857.23; Mon, 28 Nov
+ 2022 09:59:07 +0000
+Received: from DM4PR11MB5327.namprd11.prod.outlook.com
+ ([fe80::da82:93c2:307:df99]) by DM4PR11MB5327.namprd11.prod.outlook.com
+ ([fe80::da82:93c2:307:df99%7]) with mapi id 15.20.5857.023; Mon, 28 Nov 2022
+ 09:59:07 +0000
+From:   Ovidiu Panait <ovidiu.panait@windriver.com>
+To:     stable@vger.kernel.org
+Cc:     Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 1/2] nvme: restrict management ioctls to admin
+Date:   Mon, 28 Nov 2022 11:58:46 +0200
+Message-Id: <20221128095847.2555579-1-ovidiu.panait@windriver.com>
+X-Mailer: git-send-email 2.38.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: VI1PR08CA0187.eurprd08.prod.outlook.com
+ (2603:10a6:800:d2::17) To DM4PR11MB5327.namprd11.prod.outlook.com
+ (2603:10b6:5:392::22)
 MIME-Version: 1.0
-References: <20220714084136.570176-1-chenhuacai@loongson.cn>
- <20220714084136.570176-3-chenhuacai@loongson.cn> <CAAhV-H7uF85UHfbS+-sMcXbB=q3UO0Z8rO=poNQbEtaipi4PHQ@mail.gmail.com>
-In-Reply-To: <CAAhV-H7uF85UHfbS+-sMcXbB=q3UO0Z8rO=poNQbEtaipi4PHQ@mail.gmail.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Mon, 28 Nov 2022 16:18:40 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTT82uNmjfDcMrSodssZWsMSrN_476s03QCv__kmQH-6GQ@mail.gmail.com>
-Message-ID: <CAJF2gTT82uNmjfDcMrSodssZWsMSrN_476s03QCv__kmQH-6GQ@mail.gmail.com>
-Subject: Re: [PATCH V2 3/3] SH: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
-To:     Huacai Chen <chenhuacai@gmail.com>
-Cc:     Huacai Chen <chenhuacai@loongson.cn>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, loongarch@lists.linux.dev,
-        linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Xuerui Wang <kernel@xen0n.name>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-mips@vger.kernel.org, linux-sh@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM4PR11MB5327:EE_|BL1PR11MB5368:EE_
+X-MS-Office365-Filtering-Correlation-Id: e543532c-67fd-4085-43fe-08dad1273083
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Z9Zn2pNQx5RtyHnSUDeFfs+P2c/VBs5mm7EhJ7aiZHmJwV4zUkXQMzxCGkbOjEOySYRYklIJe8CQH/HCtMYx+zETVY4P4tAja1iMVq0k72apRXxg12SgeUnVqOi/52RY81bwqHdF/dVUvWD5a7NULyzWAEfkZ+c3PYqHbIh5TVmojnyPxuKfq/Z1S1c7KabeVX91HRGDX49i+IfbTGTXOVB+Zp4mxi3rZYAPkJBcst09lE1bmtQC7ZMMSpiTUFDvOuWwuNqHJWLYDiHhmL50DHCSvlCfQhlsBzZ2rFhtm+YDchIV+dHNKn78jAuthMLeJSmwMs07UxLYfQjrRle0L5gCbMWSY4WLvsYaBwKkMzIoZeUNof8hGPaQ2AsRI0RaPolG8z3KxTVU8SvyrZeglf8y5221/RyHNcRLx28EYPuPfeaADzw7pw2QeWwwhAtKMVrW+9lPl8oeut4cFXH29vjizXpOikVXO23YAmpdhOR4v9WzXvpGRChvCsML4DOz0vWJWadYdlcViUbWyUmQ4maQLP/LtR2uQugbaWRZLrt+OaBFqQ+9N0YWwfCc0b0NCpYOeu6wqnJTEI6caX7HxwenG/nugFQ2f0ARlIBU+FQu3hQOJIRrVBROnk0wPhzbP/Xv2vhbkrLeHtgSczIbFIHKEhYCUd35MsRnDR+1CHgK7L5LFoechfc+nGCPA8Iy
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(366004)(39850400004)(396003)(346002)(136003)(376002)(451199015)(8936002)(2906002)(83380400001)(41300700001)(2616005)(6512007)(26005)(66946007)(44832011)(52116002)(5660300002)(6666004)(107886003)(6506007)(36756003)(66556008)(66476007)(86362001)(186003)(4326008)(8676002)(1076003)(316002)(38100700002)(38350700002)(478600001)(6486002)(54906003)(6916009);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?qM4W5zYnILzdP7VyoAZz+OcYNETavYWfT1LX3MdcvmlXiXRcOUPZggR/hOGG?=
+ =?us-ascii?Q?wP3CmxT8g4zCBRBVnEvfg0UlIiOulKgoiiN7r4Nf6/q0XqS6KqbALAmL8bqa?=
+ =?us-ascii?Q?esqCj5mF4KEm36H0zexBESMEPhlSde+EGhJBhS8YptaRUqKwDOHWICbKHQg4?=
+ =?us-ascii?Q?U0+/fS+bkogXQMu6nL6720o4sgKTAxNjKWehejO9N+MGXmLMsy4ADwrIWB7R?=
+ =?us-ascii?Q?eu4LA0SMb/tW2XUv57gdPJsoOQ/n9UjgxsC6XgonhHz/bwYUI7K/esVix2ja?=
+ =?us-ascii?Q?ZXQ2g9aEyKH6+yMQyqvlrQ8aoiF/sy5/NLmwg1b0h4r0+vZeB147TErXnlkc?=
+ =?us-ascii?Q?uMVFtstGRocmJwW9eIVVBeO1BP3IlOrcRkqqY0LWoQyekeisjkJfsGv9IZGt?=
+ =?us-ascii?Q?5coAgEif+CtdpYO+sigXGlErhOQXFUZ+lkfBnuds0AKpuCOjRjZzx2pDKqoc?=
+ =?us-ascii?Q?RhAlYPIz/YLEd29uZ2OGOyJv9jOP50csIZtVCH7tNCVZ/LpVPEjuTkbJORdY?=
+ =?us-ascii?Q?UMlXkgLquTbedKMXt/ZlzGfbpXMDx+iGw34nBFJx+6hFEKmS/BnLo3PHYOtO?=
+ =?us-ascii?Q?+G11rPO8ghyKQ+WoRrHF8nsMRQiX8CjZ79Vf37djxsS1dJLU7HXFZJX+vUqC?=
+ =?us-ascii?Q?Zqm8bn44rge3iQd+kqz2TH7Q1qSBs3NRUAOF/3ugY/qkqgq4ZmkbOEvT+bJd?=
+ =?us-ascii?Q?7utlZU0Aimmk3aHhEiuumfm2ycXPB/nEelQPnBNndcUTzMxH2R2vBfVZe2ve?=
+ =?us-ascii?Q?nksjaOXcuilcLMo6QNhJi5nDbLCqAaOdS07RpUxvJa+4xXMgZ6PRbxmJ4Hx6?=
+ =?us-ascii?Q?Q44mVdyQcg97JZgigDbqanQPjZZuiut9oSSudYDcOJav9CCKWj1CmLVyLoxD?=
+ =?us-ascii?Q?e9OuExY9T2X5hV2yLghn5k/pBxsLCSPWeiOFiz9afmBus3PT/FTOWgixxyVM?=
+ =?us-ascii?Q?PXJ+or8ZJGa9FjzMZimwUppe/tl81nJQvmXym416abtCpI6qcK4AAZCTKoJI?=
+ =?us-ascii?Q?G62WFMFTEvYqogJm+h4ChaaYAl8xhe/1ikuugUyLHGFcKIF808QNQ//dxfa5?=
+ =?us-ascii?Q?9MyL0F8hO4MacCiSEFKA/4m0Vi8VqEOFyg21YuRdfvbHQIMPrBfmc/HhUSOl?=
+ =?us-ascii?Q?pEghuFxs8kjrrWe30PrMSATUQ+JkgfuwXIpNyfLgAaQFS0ufXpwmDQv1aVv6?=
+ =?us-ascii?Q?Az2iMJxMkUc6QdIm7TR3wQSETfK2gNQS1AXVLi2krzcm51WNQhX40cnq9xiY?=
+ =?us-ascii?Q?lvGLmX9ykzcHDlnNkjHTTNSElakDoTGOXkG9IriywM35gq/ye2Q7wa18sfgo?=
+ =?us-ascii?Q?wcMeLkzd2bYTmP4+4Mfkmww/DyL0sGPynnlvm8Ty3rQE+HNKC6/bQa0H8nZV?=
+ =?us-ascii?Q?+2lgtan9SZEA6sj9UZU/3Utv3+06j+DvlyTpizTeoggoVvlx6xhgX3jcUdxa?=
+ =?us-ascii?Q?HFz4rwjEX3fZRmW8AtCL10XKYgWplgtR3RviUnh3n044q2tSma9rh0cZ385i?=
+ =?us-ascii?Q?q58oxqM5lRZ6PCf3P38ZhAnbVBZcEYLAoE+jGiisraQtvwQ1i2R3HBVI9SPW?=
+ =?us-ascii?Q?cgp/OGdfvb5k6elBHS5/27lsv/XlHDXfXruD0WVq4rACsDps1ybW0I/YAKJc?=
+ =?us-ascii?Q?AQ=3D=3D?=
+X-OriginatorOrg: windriver.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e543532c-67fd-4085-43fe-08dad1273083
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Nov 2022 09:59:07.6923
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: giZC/cPauc/jr9PXMNMtYQd1PX7t+BDnLTNNOiHH9nGWHevJlGGaYkjhltveiw8EXK1PAev+/u8FFPcJ9SUkHBpLFzqDd0QoxpfPLq95EmU=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR11MB5368
+X-Proofpoint-GUID: 3HtgTPqrHUmxdFeCxvJtzttVVtVpbCqg
+X-Proofpoint-ORIG-GUID: 3HtgTPqrHUmxdFeCxvJtzttVVtVpbCqg
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-28_07,2022-11-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
+ spamscore=0 phishscore=0 suspectscore=0 priorityscore=1501 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 mlxscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
+ definitions=main-2211280077
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,73 +130,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 28, 2022 at 2:25 PM Huacai Chen <chenhuacai@gmail.com> wrote:
->
-> ping?
-Who can test?
+From: Keith Busch <kbusch@kernel.org>
 
->
-> On Thu, Jul 14, 2022 at 4:42 PM Huacai Chen <chenhuacai@loongson.cn> wrote:
-> >
-> > When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
-> > cpu_max_bits_warn() generates a runtime warning similar as below while
-> > we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
-> > instead of NR_CPUS to iterate CPUs.
-> >
-> > [    3.052463] ------------[ cut here ]------------
-> > [    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
-> > [    3.070072] Modules linked in: efivarfs autofs4
-> > [    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
-> > [    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
-> > [    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
-> > [    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
-> > [    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
-> > [    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
-> > [    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
-> > [    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
-> > [    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
-> > [    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
-> > [    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
-> > [    3.195868]         ...
-> > [    3.199917] Call Trace:
-> > [    3.203941] [<90000000002086d8>] show_stack+0x38/0x14c
-> > [    3.210666] [<9000000000cf846c>] dump_stack_lvl+0x60/0x88
-> > [    3.217625] [<900000000023d268>] __warn+0xd0/0x100
-> > [    3.223958] [<9000000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
-> > [    3.231150] [<9000000000210220>] show_cpuinfo+0x5e8/0x5f0
-> > [    3.238080] [<90000000004f578c>] seq_read_iter+0x354/0x4b4
-> > [    3.245098] [<90000000004c2e90>] new_sync_read+0x17c/0x1c4
-> > [    3.252114] [<90000000004c5174>] vfs_read+0x138/0x1d0
-> > [    3.258694] [<90000000004c55f8>] ksys_read+0x70/0x100
-> > [    3.265265] [<9000000000cfde9c>] do_syscall+0x7c/0x94
-> > [    3.271820] [<9000000000202fe4>] handle_syscall+0xc4/0x160
-> > [    3.281824] ---[ end trace 8b484262b4b8c24c ]---
-> >
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-> > ---
-> >  arch/sh/kernel/cpu/proc.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/arch/sh/kernel/cpu/proc.c b/arch/sh/kernel/cpu/proc.c
-> > index a306bcd6b341..5f6d0e827bae 100644
-> > --- a/arch/sh/kernel/cpu/proc.c
-> > +++ b/arch/sh/kernel/cpu/proc.c
-> > @@ -132,7 +132,7 @@ static int show_cpuinfo(struct seq_file *m, void *v)
-> >
-> >  static void *c_start(struct seq_file *m, loff_t *pos)
-> >  {
-> > -       return *pos < NR_CPUS ? cpu_data + *pos : NULL;
-> > +       return *pos < nr_cpu_ids ? cpu_data + *pos : NULL;
-> >  }
-> >  static void *c_next(struct seq_file *m, void *v, loff_t *pos)
-> >  {
-> > --
-> > 2.31.1
-> >
+commit 23e085b2dead13b51fe86d27069895b740f749c0 upstream.
 
+The passthrough commands already have this restriction, but the other
+operations do not. Require the same capabilities for all users as all of
+these operations, which include resets and rescans, can be disruptive.
 
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+---
+These backports are for CVE-2022-3169.
 
+ drivers/nvme/host/core.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 6627fb531f33..3b5e5fb158be 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3027,11 +3027,17 @@ static long nvme_dev_ioctl(struct file *file, unsigned int cmd,
+ 	case NVME_IOCTL_IO_CMD:
+ 		return nvme_dev_user_cmd(ctrl, argp);
+ 	case NVME_IOCTL_RESET:
++		if (!capable(CAP_SYS_ADMIN))
++			return -EACCES;
+ 		dev_warn(ctrl->device, "resetting controller\n");
+ 		return nvme_reset_ctrl_sync(ctrl);
+ 	case NVME_IOCTL_SUBSYS_RESET:
++		if (!capable(CAP_SYS_ADMIN))
++			return -EACCES;
+ 		return nvme_reset_subsystem(ctrl);
+ 	case NVME_IOCTL_RESCAN:
++		if (!capable(CAP_SYS_ADMIN))
++			return -EACCES;
+ 		nvme_queue_scan(ctrl);
+ 		return 0;
+ 	default:
 -- 
-Best Regards
- Guo Ren
+2.38.1
+
