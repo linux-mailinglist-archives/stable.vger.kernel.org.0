@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AB9963AFBE
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:45:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3AE963AFC0
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:45:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233480AbiK1RpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:45:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35176 "EHLO
+        id S233209AbiK1RpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 12:45:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233481AbiK1Roj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:44:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 236042C66F;
-        Mon, 28 Nov 2022 09:41:00 -0800 (PST)
+        with ESMTP id S233216AbiK1Ron (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:44:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F33C32CC94;
+        Mon, 28 Nov 2022 09:41:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD26B61300;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77DCE612E9;
+        Mon, 28 Nov 2022 17:41:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CADAC43148;
         Mon, 28 Nov 2022 17:40:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B187C43470;
-        Mon, 28 Nov 2022 17:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669657259;
-        bh=PAxi6eeJkAJBPTiO6t6sK57HyXc9bdfpzD8eQdRXDQ4=;
+        s=k20201202; t=1669657260;
+        bh=QzePb7CsgQTZB1swFe/2qKVN6LP9rmQuMqtAkHDNptc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zpmmo0XWD03iRQhJiAN7FX2l+jo3CTEWSzMvV7ND5QyeNlp8S1L1AeHOa94aGtBVj
-         ysAgr+j3gd2HS0mzOyf3m9BWj75FtSfbBzT+vjHNPofx7qPs6hEx6/pbd6tP5MCF69
-         ONfhoXSdvdk53bh7/3+Z6Gr2fs1gogaOCZHNGBPD75oPJPbJjKYodERZ8WB/Lso1Ud
-         /ZJzZAe1Od/b8NwZFGK8eIopz3F/HiNU9WElRUuGJci4/uIwB0DgiLfuFDvKBshZ7v
-         27jZ6pxyYAe7OU8gcHdWBgtU+0fDWeB4Emx/DCGxByc7RVzo55fCHlLPjbEV6LwaQ9
-         z9tZjwyne+9ow==
+        b=BD6836h/giTic4LzI60bk4ILI3qWP/mercqO+LaaXgf4621KpiSgpeNr+mlATSH60
+         DGBxRvssSXsZqJczxCB4335RxAagNn5TnooCfDHEsKap2PDDNzRNR7T4RjDVNMU3X+
+         xc2R/4YYGCB4Es135/f2hwJByo2QKwbIxnMu0oVUQQIygKFK6nJXYerCf106iC2u4L
+         hiTiu8f9eOiB4RKFDTKBDghDmwegSGo3OX1JeXfiiNZ22GkVyN/kfq50kxzKU1y/Cp
+         R4M5963D1qRP9eQER+xUqtmKBoD9QMB8jNG0R6vjsDc/s7/gu3avfzycJO1bCyumsU
+         1wU8t5s8TQgWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shuming Fan <shumingf@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 13/24] ASoC: rt711-sdca: fix the latency time of clock stop prepare state machine transitions
-Date:   Mon, 28 Nov 2022 12:40:13 -0500
-Message-Id: <20221128174027.1441921-13-sashal@kernel.org>
+Cc:     GUO Zihua <guozihua@huawei.com>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Sasha Levin <sashal@kernel.org>, ericvh@gmail.com,
+        lucho@ionkov.net, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com,
+        v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 14/24] 9p/fd: Use P9_HDRSZ for header size
+Date:   Mon, 28 Nov 2022 12:40:14 -0500
+Message-Id: <20221128174027.1441921-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221128174027.1441921-1-sashal@kernel.org>
 References: <20221128174027.1441921-1-sashal@kernel.org>
@@ -57,36 +59,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuming Fan <shumingf@realtek.com>
+From: GUO Zihua <guozihua@huawei.com>
 
-[ Upstream commit c7d7d4e7bb1290cc473610b0bb96d9fa606d00e7 ]
+[ Upstream commit 6854fadbeee10891ed74246bdc05031906b6c8cf ]
 
-Due to the hardware behavior, it takes some time for CBJ detection/impedance sensing/de-bounce.
-The ClockStop_NotFinished flag will be raised until these functions are completed.
-In ClockStopMode0 mode case, the SdW controller might check this flag from D3 to D0 when the
-jack detection interrupt happened.
+Cleanup hardcoded header sizes to use P9_HDRSZ instead of '7'
 
-Signed-off-by: Shuming Fan <shumingf@realtek.com>
-Link: https://lore.kernel.org/r/20221116090318.5017-1-shumingf@realtek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lkml.kernel.org/r/20221117091159.31533-4-guozihua@huawei.com
+Signed-off-by: GUO Zihua <guozihua@huawei.com>
+Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+[Dominique: commit message adjusted to make sense after offset size
+adjustment got removed]
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt711-sdca-sdw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/9p/trans_fd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/rt711-sdca-sdw.c b/sound/soc/codecs/rt711-sdca-sdw.c
-index a085b2f530aa..31e77d462ef3 100644
---- a/sound/soc/codecs/rt711-sdca-sdw.c
-+++ b/sound/soc/codecs/rt711-sdca-sdw.c
-@@ -230,7 +230,7 @@ static int rt711_sdca_read_prop(struct sdw_slave *slave)
+diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
+index a8c1f742148c..738d28917de8 100644
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -122,7 +122,7 @@ struct p9_conn {
+ 	struct list_head unsent_req_list;
+ 	struct p9_req_t *rreq;
+ 	struct p9_req_t *wreq;
+-	char tmp_buf[7];
++	char tmp_buf[P9_HDRSZ];
+ 	struct p9_fcall rc;
+ 	int wpos;
+ 	int wsize;
+@@ -293,7 +293,7 @@ static void p9_read_work(struct work_struct *work)
+ 	if (!m->rc.sdata) {
+ 		m->rc.sdata = m->tmp_buf;
+ 		m->rc.offset = 0;
+-		m->rc.capacity = 7; /* start by reading header */
++		m->rc.capacity = P9_HDRSZ; /* start by reading header */
  	}
  
- 	/* set the timeout values */
--	prop->clk_stop_timeout = 20;
-+	prop->clk_stop_timeout = 700;
+ 	clear_bit(Rpending, &m->wsched);
+@@ -316,7 +316,7 @@ static void p9_read_work(struct work_struct *work)
+ 		p9_debug(P9_DEBUG_TRANS, "got new header\n");
  
- 	/* wake-up event */
- 	prop->wake_capable = 1;
+ 		/* Header size */
+-		m->rc.size = 7;
++		m->rc.size = P9_HDRSZ;
+ 		err = p9_parse_header(&m->rc, &m->rc.size, NULL, NULL, 0);
+ 		if (err) {
+ 			p9_debug(P9_DEBUG_ERROR,
 -- 
 2.35.1
 
