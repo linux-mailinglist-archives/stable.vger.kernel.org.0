@@ -2,125 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CE6063B2A7
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 20:58:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBB663B388
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 21:42:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233877AbiK1T6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 14:58:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48308 "EHLO
+        id S234043AbiK1Umq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 15:42:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233872AbiK1T6A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 14:58:00 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F15D0B27;
-        Mon, 28 Nov 2022 11:57:58 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5BF85CE1054;
-        Mon, 28 Nov 2022 19:57:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D639DC433D7;
-        Mon, 28 Nov 2022 19:57:53 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="o7HB8omO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1669665472;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=m+iodXvVaGO3w4QAQvXUTnn8uFbQvqV8cvcIq17x8pk=;
-        b=o7HB8omOA47EFDy7hMWwqFoQfP8SzKI7Hiwr2zSXBF18xLG1dXIrU794PbLD82ro2flwU3
-        GjkuPKeUnKW52xqpxZdEmBK/RYtXZ+1o51MRD+t7AVl+vfpg28dep1gm5ya7cM+WDyTWza
-        SzfxbOW6IE9DGbhExXaD2cjPRnuYB3I=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id adff6e4d (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Mon, 28 Nov 2022 19:57:52 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Vlastimil Babka <vbabka@suse.cz>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        =?UTF-8?q?Jan=20D=C4=85bro=C5=9B?= <jsd@semihalf.com>,
-        linux-integrity@vger.kernel.org, peterhuewe@gmx.de, jgg@ziepe.ca,
-        gregkh@linuxfoundation.org, arnd@arndb.de, rrangel@chromium.org,
-        timvp@google.com, apronin@google.com, mw@semihalf.com,
-        upstream@semihalf.com, linux-kernel@vger.kernel.org,
-        linux-crypto@vger.kernel.org
-Cc:     "Jason A . Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org
-Subject: [PATCH v3] char: tpm: Protect tpm_pm_suspend with locks
-Date:   Mon, 28 Nov 2022 20:56:51 +0100
-Message-Id: <20221128195651.322822-1-Jason@zx2c4.com>
+        with ESMTP id S234049AbiK1Uma (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 15:42:30 -0500
+Received: from mail-yw1-x112b.google.com (mail-yw1-x112b.google.com [IPv6:2607:f8b0:4864:20::112b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F18C2A249
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 12:42:29 -0800 (PST)
+Received: by mail-yw1-x112b.google.com with SMTP id 00721157ae682-3cbdd6c00adso24753877b3.11
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 12:42:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=9XNZWTdwXKMxfdvP8XVrQ3AwvmDQFwgMMk54i8ewFlQ=;
+        b=NFaDxuhSPxiblhrcutZ+DlS8yXONDE32MflzeG2qIsWQqksFRmnsqhCPxhgCWKkmDE
+         iWkhKkP4yzQvGVcQSvf+QnrgguMe4tM/QGzeMlS6U5+DMLEnz/SCNT2HUFh+aWCMK5FK
+         auKnCuncKzsBtmHE+5KB9Epg4PDdLzcJwpcy/VfApVNPhEE2giswd5objQxrNHBSkqgN
+         kOEMNxczo7tj9GI3n21nkrLhY+2kq8jZVdtB8hm0U2l6HXtuv6Ce35H0IrF+svbymciW
+         Ybt8MwNWlV1aliIGbhy9jhO/tqq8F699EKGRtbfCrHvJ1Rhx4e9FoGCPMk+66d8vpdou
+         9/Wg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9XNZWTdwXKMxfdvP8XVrQ3AwvmDQFwgMMk54i8ewFlQ=;
+        b=aLP6Dv2lfsOF9gpQxN6QDv0reUCh6eh65YSMS9XimEtXrJ72gs4WTVCMml5a27ME+J
+         IuXQfEgPIxwqtmclNCvKlIKtQCq2ZVeTR9umnrxI007JRgGKr80yvPfIfDZtoGcpjGav
+         m69KvMzLhixv+yxUYT2yLngPOuD77HmnZZJorxHBQFj6gx29HXIcejY4A5b472ey0fzI
+         kwoxaWtT0NoL/ESGTlsQ05C2z9cqOov9gLiyuDjtFcUQxnzF0X8Zfb6LGWJH3uDl832p
+         jQWzmjhJ2OLPZUMLVxZPQcHMp7GQI+hvUS3w0vSP0akNJQlCvuq54B21mlD13zP0w6V5
+         sNvg==
+X-Gm-Message-State: ANoB5pnPZf9gumPBoTw6HHmuX3141tB5oqQhNYhpymPb4tzwgzKryzvI
+        KzmfXfsw7qx3HB6/e3Xmg0JYTIWJ9yoXcT8ma6FbpZ7mH6U=
+X-Google-Smtp-Source: AA0mqf4EmE+lBmfS6cyx7PEKMJy3ChRF933leTXIgvZ5dLEbEdOAVVJpVULFQtWBQhgUQZ52/kYbSXj5dEx0yoW0jQE=
+X-Received: by 2002:a81:5748:0:b0:3b1:eee3:32a with SMTP id
+ l69-20020a815748000000b003b1eee3032amr23603644ywb.325.1669668148485; Mon, 28
+ Nov 2022 12:42:28 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20221124222926.72326-1-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20221124222926.72326-1-andriy.shevchenko@linux.intel.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Mon, 28 Nov 2022 21:42:16 +0100
+Message-ID: <CACRpkda1sdqxnP0Lc2qnWOq5PH4_8vTvNiwn3ibE7+uZwLv0Gg@mail.gmail.com>
+Subject: Re: [PATCH v1 1/1] pinctrl: intel: Save and restore pins in "direct
+ IRQ" mode
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andy@kernel.org>, stable@vger.kernel.org,
+        Dale Smith <dalepsmith@gmail.com>,
+        John Harris <jmharris@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Dabros <jsd@semihalf.com>
+On Thu, Nov 24, 2022 at 11:29 PM Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
 
-Currently tpm transactions are executed unconditionally in
-tpm_pm_suspend() function, which may lead to races with other tpm
-accessors in the system. Specifically, the hw_random tpm driver makes
-use of tpm_get_random(), and this function is called in a loop from a
-kthread, which means it's not frozen alongside userspace, and so can
-race with the work done during system suspend:
+> The firmware on some systems may configure GPIO pins to be
+> an interrupt source in so called "direct IRQ" mode. In such
+> cases the GPIO controller driver has no idea if those pins
+> are being used or not. At the same time, there is a known bug
+> in the firmwares that don't restore the pin settings correctly
+> after suspend, i.e. by an unknown reason the Rx value becomes
+> inverted.
+>
+> Hence, let's save and restore the pins that are configured
+> as GPIOs in the input mode with GPIROUTIOXAPIC bit set.
+>
+> Cc: stable@vger.kernel.org
+> Reported-and-tested-by: Dale Smith <dalepsmith@gmail.com>
+> Reported-and-tested-by: John Harris <jmharris@gmail.com>
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214749
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>
+> Linus, I hope that this can still make v6.1 release. I'm not going to
+> send a PR for this change unless you insist.
 
-[    3.277834] tpm tpm0: tpm_transmit: tpm_recv: error -52
-[    3.278437] tpm tpm0: invalid TPM_STS.x 0xff, dumping stack for forensics
-[    3.278445] CPU: 0 PID: 1 Comm: init Not tainted 6.1.0-rc5+ #135
-[    3.278450] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-20220807_005459-localhost 04/01/2014
-[    3.278453] Call Trace:
-[    3.278458]  <TASK>
-[    3.278460]  dump_stack_lvl+0x34/0x44
-[    3.278471]  tpm_tis_status.cold+0x19/0x20
-[    3.278479]  tpm_transmit+0x13b/0x390
-[    3.278489]  tpm_transmit_cmd+0x20/0x80
-[    3.278496]  tpm1_pm_suspend+0xa6/0x110
-[    3.278503]  tpm_pm_suspend+0x53/0x80
-[    3.278510]  __pnp_bus_suspend+0x35/0xe0
-[    3.278515]  ? pnp_bus_freeze+0x10/0x10
-[    3.278519]  __device_suspend+0x10f/0x350
+Patch applied for fixes, plan is to get it to Torvalds
+ASAP!
 
-Fix this by calling tpm_try_get_ops(), which itself is a wrapper around
-tpm_chip_start(), but takes the appropriate mutex.
-
-Signed-off-by: Jan Dabros <jsd@semihalf.com>
-Reported-by: Vlastimil Babka <vbabka@suse.cz>
-Tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Tested-by: Vlastimil Babka <vbabka@suse.cz>
-Link: https://lore.kernel.org/all/c5ba47ef-393f-1fba-30bd-1230d1b4b592@suse.cz/
-Cc: stable@vger.kernel.org
-Fixes: e891db1a18bf ("tpm: turn on TPM on suspend for TPM 1.x")
-[Jason: reworked commit message, added metadata]
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- drivers/char/tpm/tpm-interface.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
-index 1621ce818705..d69905233aff 100644
---- a/drivers/char/tpm/tpm-interface.c
-+++ b/drivers/char/tpm/tpm-interface.c
-@@ -401,13 +401,14 @@ int tpm_pm_suspend(struct device *dev)
- 	    !pm_suspend_via_firmware())
- 		goto suspended;
- 
--	if (!tpm_chip_start(chip)) {
-+	rc = tpm_try_get_ops(chip);
-+	if (!rc) {
- 		if (chip->flags & TPM_CHIP_FLAG_TPM2)
- 			tpm2_shutdown(chip, TPM2_SU_STATE);
- 		else
- 			rc = tpm1_pm_suspend(chip, tpm_suspend_pcr);
- 
--		tpm_chip_stop(chip);
-+		tpm_put_ops(chip);
- 	}
- 
- suspended:
--- 
-2.38.1
-
+Yours,
+Linus Walleij
