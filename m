@@ -2,160 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2269363AECC
-	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:24:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A06D63AEE5
+	for <lists+stable@lfdr.de>; Mon, 28 Nov 2022 18:28:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232953AbiK1RYy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 12:24:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40794 "EHLO
+        id S231617AbiK1R2O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Nov 2022 12:28:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232926AbiK1RYt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:24:49 -0500
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94BD51F623
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 09:24:48 -0800 (PST)
-Received: by mail-wr1-x429.google.com with SMTP id b12so18052924wrn.2
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 09:24:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=RLQGyNQToAQOqzdT6njwVnHNhOX2lYC7Tz9OdPpVdh8=;
-        b=lKbcZRnCAiijH6V6tB7Kp7WQkDV5SieT/CyG6h3CJbUhNLHYGMGWFIdTUt1ykwWcF0
-         DDAcqwfmVlSYYbnVJSLtSPs5JEtKUG5WngT4dlh533Tf+BkP9rL1MLLIDo+Xcak4fvC3
-         RiBWuLWsTuwkk6iJkko+eD+aiJalVReeN6ieKVthfqB79n4GToCiUXP2BQX4AaQl8ud5
-         Wq+uJVpFVTXfpw0jNPUGhg6/g0kKax46zjwfkUabEOUVK+EvP8MCgIoVgnCxJGTxd7Sb
-         /fi8vl6n0l/ksnZadCiGfUMhCFK6eNFyiFERQnUV2eiOeHAIY75iug/mNBIpAcyZd98s
-         mueA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=RLQGyNQToAQOqzdT6njwVnHNhOX2lYC7Tz9OdPpVdh8=;
-        b=W9Vk2kr5Bcx+F4WbPigYDlpNfQwVjKs1DasWnLyDXj+jcbBPAG4p1TxLV9uGg2U0PA
-         6AvpXSvDi8zmdNNjUh2rVUhUeTOKPU5dawbsVXDjduxBRhlELkxpuFCnahy6yr5IbRYO
-         +i6HZi30I53CMK0Ft2U8/IZCERVtIo/Q91hjktfupZbPwqSfLw4llGcHZK1i0KjCCfle
-         A5SPtd1NubZwZ7EKrqGUlYxe1A6o0vCrcbT+5LW69GnHQ3IgCzZwEqrWgw1iv7Z+e6ya
-         jE7VSzG1YfQBQXVgigcyUh5+nl+OtBW7ckHJP70q036Iui4Aeu2G1OOOpjHGv6emLTnc
-         MkkA==
-X-Gm-Message-State: ANoB5pkT6060KZG5MPz8JfaCHc8z0ArmfQYKTPuYEejuGj+ZVdAk2qSU
-        EBB6DcXI8k/yTbXDSmzCJo53NKEZ8HF7Aw==
-X-Google-Smtp-Source: AA0mqf73u7YTUN38d47tkMCgJ3HTwaL3lwmPkMs3bb23ZnTlngKbUmsjZC/DaNjwgyOfZfqB1olFNg==
-X-Received: by 2002:adf:f54d:0:b0:242:9e6:ea4d with SMTP id j13-20020adff54d000000b0024209e6ea4dmr8748434wrp.251.1669656287112;
-        Mon, 28 Nov 2022 09:24:47 -0800 (PST)
-Received: from google.com (65.0.187.35.bc.googleusercontent.com. [35.187.0.65])
-        by smtp.gmail.com with ESMTPSA id n38-20020a05600c3ba600b003c6bbe910fdsm26696417wms.9.2022.11.28.09.24.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Nov 2022 09:24:46 -0800 (PST)
-Date:   Mon, 28 Nov 2022 17:24:42 +0000
-From:   Vincent Donnefort <vdonnefort@google.com>
-To:     Greg KH <gregkh@kernel.org>
-Cc:     Marc Zyngier <maz@kernel.org>, stable@vger.kernel.org,
-        kernel-team@android.com
-Subject: Re: [PATCH] KVM: arm64: pkvm: Fixup boot mode to reflect that the
- kernel resumes from EL1
-Message-ID: <Y4Tu2tdEBEvrFaAJ@google.com>
-References: <20221108100138.3887862-1-vdonnefort@google.com>
- <Y4TgCOFgjMWuTTWe@google.com>
- <Y4Ttk97B2Cpr9/yC@kroah.com>
+        with ESMTP id S232649AbiK1R2D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 12:28:03 -0500
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EA9A1126;
+        Mon, 28 Nov 2022 09:28:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1669656482; x=1701192482;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=nrsDFP8BBP5mUInCmEHU9yFx53lFUUUO0H+uum4Vgp0=;
+  b=QQSHbN1qoGTRwTt5biicOpNovCU8Yxj4opN5GJTxvJ3TaxpXpPdEg1m5
+   79e6Z3N/s8nW4Kf5WB9t7PO9DAsssfSdTRIAGlAIvXiX2wrkrF33p0LmL
+   g7NTVm5WYBEsCtDl0u4nBKRJuCZuKAihyQr+BVflu1tLgzy58sahKLDUI
+   5SOaWagDbYnb9NkiOW/Rue6ze5G1H52jShqMQkdpCufDU4DJOFMEYk5oV
+   o4Y39nqaKmLvBd5mYcQTRDpKuin5yau/A3VGr7OQ7I1tt5CdoWu2ZaY7R
+   FL1iVWiZGYwK5vonlY62AAuNQnrojXIk3RnyTP/0thMW6YDPDtL3n+jTM
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10545"; a="295281639"
+X-IronPort-AV: E=Sophos;i="5.96,200,1665471600"; 
+   d="scan'208";a="295281639"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Nov 2022 09:27:51 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10545"; a="888509538"
+X-IronPort-AV: E=Sophos;i="5.96,200,1665471600"; 
+   d="scan'208";a="888509538"
+Received: from kschjaer-mobl.amr.corp.intel.com (HELO [10.212.114.246]) ([10.212.114.246])
+  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Nov 2022 09:27:49 -0800
+Message-ID: <16ddcbb9-8afa-ff18-05f9-2e9e01baf3ea@linux.intel.com>
+Date:   Mon, 28 Nov 2022 11:26:03 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y4Ttk97B2Cpr9/yC@kroah.com>
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Firefox/102.0 Thunderbird/102.4.2
+Subject: Re: [PATCH v4] ALSA: core: Fix deadlock when shutdown a frozen
+ userspace
+Content-Language: en-US
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     alsa-devel@alsa-project.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.com>, stable@vger.kernel.org,
+        Mark Brown <broonie@kernel.org>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        linux-kernel@vger.kernel.org, sound-open-firmware@alsa-project.org
+References: <20221127-snd-freeze-v4-0-51ca64b7f2ab@chromium.org>
+ <5171929e-b750-d2f1-fec9-b34d76c18dcb@linux.intel.com>
+ <87mt8bqaca.wl-tiwai@suse.de>
+From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+In-Reply-To: <87mt8bqaca.wl-tiwai@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 28, 2022 at 06:19:15PM +0100, Greg KH wrote:
-> On Mon, Nov 28, 2022 at 04:21:28PM +0000, Vincent Donnefort wrote:
-> > On Tue, Nov 08, 2022 at 10:01:38AM +0000, Vincent Donnefort wrote:
-> > > From: Marc Zyngier <maz@kernel.org>
-> > > 
-> > > The kernel has an awfully complicated boot sequence in order to cope
-> > > with the various EL2 configurations, including those that "enhanced"
-> > > the architecture. We go from EL2 to EL1, then back to EL2, staying
-> > > at EL2 if VHE capable and otherwise go back to EL1.
-> > > 
-> > > Here's a paracetamol tablet for you.
-> > > 
-> > > The cpu_resume path follows the same logic, because coming up with
-> > > two versions of a square wheel is hard.
-> > > 
-> > > However, things aren't this straightforward with pKVM, as the host
-> > > resume path is always proxied by the hypervisor, which means that
-> > > the kernel is always entered at EL1. Which contradicts what the
-> > > __boot_cpu_mode[] array contains (it obviously says EL2).
-> > > 
-> > > This thus triggers a HVC call from EL1 to EL2 in a vain attempt
-> > > to upgrade from EL1 to EL2 VHE, which we are, funnily enough,
-> > > reluctant to grant to the host kernel. This is also completely
-> > > unexpected, and puzzles your average EL2 hacker.
-> > > 
-> > > Address it by fixing up the boot mode at the point the host gets
-> > > deprivileged. is_hyp_mode_available() and co already have a static
-> > > branch to deal with this, making it pretty safe.
-> > > 
-> > > Cc: <stable@vger.kernel.org> # 5.15+
-> > > Reported-by: Vincent Donnefort <vdonnefort@google.com>
-> > > Signed-off-by: Marc Zyngier <maz@kernel.org>
-> > > Tested-by: Vincent Donnefort <vdonnefort@google.com>
-> > > 
-> > > --- 
-> > > 
-> > > This patch doesn't have an upstream version. It's been fixed by the side
-> > > effect of another upstream patch. see conversation [1]
-> > > 
-> > > [1] https://lore.kernel.org/all/20221011165400.1241729-1-maz@kernel.org/
-> > > 
-> > > diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-> > > index 4cb265e15361..3fe816c244ce 100644
-> > > --- a/arch/arm64/kvm/arm.c
-> > > +++ b/arch/arm64/kvm/arm.c
-> > > @@ -2000,6 +2000,17 @@ static int pkvm_drop_host_privileges(void)
-> > >  	 * once the host stage 2 is installed.
-> > >  	 */
-> > >  	static_branch_enable(&kvm_protected_mode_initialized);
-> > > +
-> > > +	/*
-> > > +	 * Fixup the boot mode so that we don't take spurious round
-> > > +	 * trips via EL2 on cpu_resume. Flush to the PoC for a good
-> > > +	 * measure, so that it can be observed by a CPU coming out of
-> > > +	 * suspend with the MMU off.
-> > > +	 */
-> > > +	__boot_cpu_mode[0] = __boot_cpu_mode[1] = BOOT_CPU_MODE_EL1;
-> > > +	dcache_clean_poc((unsigned long)__boot_cpu_mode,
-> > > +			 (unsigned long)(__boot_cpu_mode + 2));
-> > > +
-> > >  	on_each_cpu(_kvm_host_prot_finalize, &ret, 1);
-> > >  	return ret;
-> > >  }
-> > > -- 
-> > > 2.38.1.431.g37b22c650d-goog
-> > >
-> > 
-> > Hi Greg,
-> > 
-> > Any chance to pick this fix for 5.15?
-> 
-> <formletter>
-> 
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
-> 
-> </formletter>
 
-Sadly this patch doesn't have an upstream version equivalent. The reason is it's
-been fixed as a side effect of another feature introduction, hence the
-stable-only fix made by Marc. [1]
 
-Not sure how to handle that case.
+On 11/28/22 11:04, Takashi Iwai wrote:
+> On Mon, 28 Nov 2022 17:49:20 +0100,
+> Pierre-Louis Bossart wrote:
+>>
+>>
+>>
+>> On 11/28/22 07:42, Ricardo Ribalda wrote:
+>>> During kexec(), the userspace is frozen. Therefore we cannot wait for it
+>>> to complete.
+>>>
+>>> Avoid running snd_sof_machine_unregister during shutdown.
+>>>
+>>> This fixes:
+>>>
+>>> [   84.943749] Freezing user space processes ... (elapsed 0.111 seconds) done.
+>>> [  246.784446] INFO: task kexec-lite:5123 blocked for more than 122 seconds.
+>>> [  246.819035] Call Trace:
+>>> [  246.821782]  <TASK>
+>>> [  246.824186]  __schedule+0x5f9/0x1263
+>>> [  246.828231]  schedule+0x87/0xc5
+>>> [  246.831779]  snd_card_disconnect_sync+0xb5/0x127
+>>> ...
+>>> [  246.889249]  snd_sof_device_shutdown+0xb4/0x150
+>>> [  246.899317]  pci_device_shutdown+0x37/0x61
+>>> [  246.903990]  device_shutdown+0x14c/0x1d6
+>>> [  246.908391]  kernel_kexec+0x45/0xb9
+>>>
+>>> And:
+>>>
+>>> [  246.893222] INFO: task kexec-lite:4891 blocked for more than 122 seconds.
+>>> [  246.927709] Call Trace:
+>>> [  246.930461]  <TASK>
+>>> [  246.932819]  __schedule+0x5f9/0x1263
+>>> [  246.936855]  ? fsnotify_grab_connector+0x5c/0x70
+>>> [  246.942045]  schedule+0x87/0xc5
+>>> [  246.945567]  schedule_timeout+0x49/0xf3
+>>> [  246.949877]  wait_for_completion+0x86/0xe8
+>>> [  246.954463]  snd_card_free+0x68/0x89
+>>> ...
+>>> [  247.001080]  platform_device_unregister+0x12/0x35
+>>>
+>>> Cc: stable@vger.kernel.org
+>>> Fixes: 83bfc7e793b5 ("ASoC: SOF: core: unregister clients and machine drivers in .shutdown")
+>>> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+>>> ---
+>>> To: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+>>> To: Liam Girdwood <lgirdwood@gmail.com>
+>>> To: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+>>> To: Bard Liao <yung-chuan.liao@linux.intel.com>
+>>> To: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+>>> To: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+>>> To: Daniel Baluta <daniel.baluta@nxp.com>
+>>> To: Mark Brown <broonie@kernel.org>
+>>> To: Jaroslav Kysela <perex@perex.cz>
+>>> To: Takashi Iwai <tiwai@suse.com>
+>>> Cc: sound-open-firmware@alsa-project.org
+>>> Cc: alsa-devel@alsa-project.org
+>>> Cc: linux-kernel@vger.kernel.org
+>>> ---
+>>> Changes in v4:
+>>> - Do not call snd_sof_machine_unregister from shutdown.
+>>> - Link to v3: https://lore.kernel.org/r/20221127-snd-freeze-v3-0-a2eda731ca14@chromium.org
+>>>
+>>> Changes in v3:
+>>> - Wrap pm_freezing in a function
+>>> - Link to v2: https://lore.kernel.org/r/20221127-snd-freeze-v2-0-d8a425ea9663@chromium.org
+>>>
+>>> Changes in v2:
+>>> - Only use pm_freezing if CONFIG_FREEZER 
+>>> - Link to v1: https://lore.kernel.org/r/20221127-snd-freeze-v1-0-57461a366ec2@chromium.org
+>>> ---
+>>>  sound/soc/sof/core.c | 7 ++-----
+>>>  1 file changed, 2 insertions(+), 5 deletions(-)
+>>>
+>>> diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
+>>> index 3e6141d03770..9616ba607ded 100644
+>>> --- a/sound/soc/sof/core.c
+>>> +++ b/sound/soc/sof/core.c
+>>> @@ -475,19 +475,16 @@ EXPORT_SYMBOL(snd_sof_device_remove);
+>>>  int snd_sof_device_shutdown(struct device *dev)
+>>>  {
+>>>  	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
+>>> -	struct snd_sof_pdata *pdata = sdev->pdata;
+>>>  
+>>>  	if (IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE))
+>>>  		cancel_work_sync(&sdev->probe_work);
+>>>  
+>>>  	/*
+>>> -	 * make sure clients and machine driver(s) are unregistered to force
+>>> -	 * all userspace devices to be closed prior to the DSP shutdown sequence
+>>> +	 * make sure clients are unregistered prior to the DSP shutdown
+>>> +	 * sequence.
+>>>  	 */
+>>>  	sof_unregister_clients(sdev);
+>>>  
+>>> -	snd_sof_machine_unregister(sdev, pdata);
+>>> -
+>>
+>> The comment clearly says that we do want all userspace devices to be
+>> closed. This was added in 83bfc7e793b5 ("ASoC: SOF: core: unregister
+>> clients and machine drivers in .shutdown") precisely to avoid a platform
+>> hang if the devices are used after the shutdown completes.
+> 
+> The problem is that it wants the *close* of the user-space programs
+> unnecessarily.  Basically the shutdown can be seen as a sort of device
+> hot unplug; i.e. the disconnection of the device files and the cleanup
+> of device state are the main task.  The difference is that the hot
+> unplug (unbind) usually follows the sync for the all processes being
+> closed (so that you can release all resources gracefully), while this
+> step is skipped for the shutdown (no need for resource-free).
+
+Sorry Takashi, I don't have enough background to follow your explanations.
+
+As Kai mentioned it, this step helped with a S5 issue earlier in 2022.
+Removing this will mechanically bring the issue back and break other
+Chromebooks.
