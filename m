@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB35763C5F1
-	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 18:00:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA4863C5F8
+	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 18:00:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236406AbiK2RAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Nov 2022 12:00:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58916 "EHLO
+        id S236498AbiK2RA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Nov 2022 12:00:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236318AbiK2Q76 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Nov 2022 11:59:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A32356D4AE
-        for <stable@vger.kernel.org>; Tue, 29 Nov 2022 08:55:40 -0800 (PST)
+        with ESMTP id S236543AbiK2RAQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Nov 2022 12:00:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F73F65E67
+        for <stable@vger.kernel.org>; Tue, 29 Nov 2022 08:57:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5726BB816EC
-        for <stable@vger.kernel.org>; Tue, 29 Nov 2022 16:55:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F242C433D6;
-        Tue, 29 Nov 2022 16:55:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B077B816ED
+        for <stable@vger.kernel.org>; Tue, 29 Nov 2022 16:57:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC01CC433D6;
+        Tue, 29 Nov 2022 16:57:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669740938;
-        bh=U802w8EnkL8JKGN3zVKGks0BUddZAgVf0IAsgR6atek=;
+        s=korg; t=1669741022;
+        bh=MXWviD/wRy3E0StAnsxBTGAAqKEMZRXzJeURc1zCfoE=;
         h=Subject:To:Cc:From:Date:From;
-        b=yBJMt5v44Q5cfMRmuzJqQAVBBT9ihi+EWBjA85Z4i9iABn4pWCIVGsoZxKb3aECYV
-         ZQAiCuQIZZ2dnYnY57iT5KtKz/KN3nTbuh0Q1iazy7LbhVHY+JK5fHJSaB5wDlV6QZ
-         1S4XiA9xK7CMoYY7X6QHOJDZvDP6BjRQ5e8YYDIA=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Clear ep descriptor last" failed to apply to 5.4-stable tree
-To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org
+        b=NQlGYnhpIBPBsAAHXmUfffBtimHaXLccG2iiI11aq37gkpM9XC7TqMfb3WrON7Gyt
+         /uwAYJApQUnAVnsFSr5kZsm+DZozt892vr3ZXlfeBeqSN4LBmxk1r123rIJ4QtmVTx
+         TgR8F3dddZFg/8061F+0NsA3xt/LWClPk0wIULiY=
+Subject: FAILED: patch "[PATCH] ext4: fix use-after-free in ext4_ext_shift_extents" failed to apply to 5.4-stable tree
+To:     libaokun1@huawei.com, chengzhihao1@huawei.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 29 Nov 2022 17:55:25 +0100
-Message-ID: <166974092515177@kroah.com>
+Date:   Tue, 29 Nov 2022 17:56:59 +0100
+Message-ID: <1669741019239144@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -54,18 +54,18 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-f90f5afd5083 ("usb: dwc3: gadget: Clear ep descriptor last")
-ffb9da4a04c6 ("usb: dwc3: gadget: Return -ESHUTDOWN on ep disable")
-b44c0e7fef51 ("usb: dwc3: gadget: conditionally remove requests")
-5aef629704ad ("usb: dwc3: gadget: Clear DEP flags after stop transfers in ep disable")
-f09ddcfcb8c5 ("usb: dwc3: gadget: Prevent EP queuing while stopping transfers")
-a1383b3537a7 ("usb: dwc3: gadget: Restart DWC3 gadget when enabling pullup")
-ae7e86108b12 ("usb: dwc3: Stop active transfers before halting the controller")
-140ca4cfea8a ("usb: dwc3: gadget: Handle stream transfers")
-e0d19563eb6c ("usb: dwc3: gadget: Wait for transfer completion")
-3eaecd0c2333 ("usb: dwc3: gadget: Handle XferComplete for streams")
-da10bcdd6f70 ("usb: dwc3: gadget: Delay starting transfer")
-d3abda5a98a1 ("usb: dwc3: gadget: Clear started flag for non-IOC")
+f6b1a1cf1c3e ("ext4: fix use-after-free in ext4_ext_shift_extents")
+1811bc401aa5 ("ext4: refresh the ext4_ext_path struct after dropping i_data_sem.")
+4268496e48dc ("ext4: ensure enough credits in ext4_ext_shift_path_extents")
+4756ee183f25 ("ext4: use true,false for bool variable")
+83448bdfb597 ("ext4: Reserve revoke credits for freed blocks")
+fdc3ef882a5d ("jbd2: Reserve space for revoke descriptor blocks")
+ec8b6f600e49 ("jbd2: Factor out common parts of stopping and restarting a handle")
+5559b2d81b51 ("jbd2: Drop pointless wakeup from jbd2_journal_stop()")
+dfaf5ffda227 ("jbd2: Reorganize jbd2_journal_stop()")
+a9a8344ee171 ("ext4, jbd2: Provide accessor function for handle credits")
+a413036791d0 ("ext4: Provide function to handle transaction restarts")
+6cb367c2d1f8 ("ext4: Use ext4_journal_extend() instead of jbd2_journal_extend()")
 
 thanks,
 
@@ -73,50 +73,99 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f90f5afd5083a7cb4aee13bd4cc0ae600bd381ca Mon Sep 17 00:00:00 2001
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Date: Tue, 15 Nov 2022 17:19:43 -0800
-Subject: [PATCH] usb: dwc3: gadget: Clear ep descriptor last
+From f6b1a1cf1c3ee430d3f5e47847047ce789a690aa Mon Sep 17 00:00:00 2001
+From: Baokun Li <libaokun1@huawei.com>
+Date: Thu, 22 Sep 2022 20:04:34 +0800
+Subject: [PATCH] ext4: fix use-after-free in ext4_ext_shift_extents
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Until the endpoint is disabled, its descriptors should remain valid.
-When its requests are removed from ep disable, the request completion
-routine may attempt to access the endpoint's descriptor. Don't clear the
-descriptors before that.
+If the starting position of our insert range happens to be in the hole
+between the two ext4_extent_idx, because the lblk of the ext4_extent in
+the previous ext4_extent_idx is always less than the start, which leads
+to the "extent" variable access across the boundary, the following UAF is
+triggered:
+==================================================================
+BUG: KASAN: use-after-free in ext4_ext_shift_extents+0x257/0x790
+Read of size 4 at addr ffff88819807a008 by task fallocate/8010
+CPU: 3 PID: 8010 Comm: fallocate Tainted: G            E     5.10.0+ #492
+Call Trace:
+ dump_stack+0x7d/0xa3
+ print_address_description.constprop.0+0x1e/0x220
+ kasan_report.cold+0x67/0x7f
+ ext4_ext_shift_extents+0x257/0x790
+ ext4_insert_range+0x5b6/0x700
+ ext4_fallocate+0x39e/0x3d0
+ vfs_fallocate+0x26f/0x470
+ ksys_fallocate+0x3a/0x70
+ __x64_sys_fallocate+0x4f/0x60
+ do_syscall_64+0x33/0x40
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+==================================================================
 
-Fixes: f09ddcfcb8c5 ("usb: dwc3: gadget: Prevent EP queuing while stopping transfers")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/45db7c83b209259115bf652af210f8b2b3b1a383.1668561364.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+For right shifts, we can divide them into the following situations：
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 8b4cfa07539d..6d524fa76443 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1024,12 +1024,6 @@ static int __dwc3_gadget_ep_disable(struct dwc3_ep *dep)
- 	reg &= ~DWC3_DALEPENA_EP(dep->number);
- 	dwc3_writel(dwc->regs, DWC3_DALEPENA, reg);
- 
--	/* Clear out the ep descriptors for non-ep0 */
--	if (dep->number > 1) {
--		dep->endpoint.comp_desc = NULL;
--		dep->endpoint.desc = NULL;
--	}
--
- 	dwc3_remove_requests(dwc, dep, -ESHUTDOWN);
- 
- 	dep->stream_capable = false;
-@@ -1044,6 +1038,12 @@ static int __dwc3_gadget_ep_disable(struct dwc3_ep *dep)
- 		mask |= (DWC3_EP_DELAY_STOP | DWC3_EP_TRANSFER_STARTED);
- 	dep->flags &= mask;
- 
-+	/* Clear out the ep descriptors for non-ep0 */
-+	if (dep->number > 1) {
-+		dep->endpoint.comp_desc = NULL;
-+		dep->endpoint.desc = NULL;
-+	}
+1. When the first ee_block of ext4_extent_idx is greater than or equal to
+   start, make right shifts directly from the first ee_block.
+    1) If it is greater than start, we need to continue searching in the
+       previous ext4_extent_idx.
+    2) If it is equal to start, we can exit the loop (iterator=NULL).
+
+2. When the first ee_block of ext4_extent_idx is less than start, then
+   traverse from the last extent to find the first extent whose ee_block
+   is less than start.
+    1) If extent is still the last extent after traversal, it means that
+       the last ee_block of ext4_extent_idx is less than start, that is,
+       start is located in the hole between idx and (idx+1), so we can
+       exit the loop directly (break) without right shifts.
+    2) Otherwise, make right shifts at the corresponding position of the
+       found extent, and then exit the loop (iterator=NULL).
+
+Fixes: 331573febb6a ("ext4: Add support FALLOC_FL_INSERT_RANGE for fallocate")
+Cc: stable@vger.kernel.org # v4.2+
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Link: https://lore.kernel.org/r/20220922120434.1294789-1-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+
+diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
+index f1956288307f..6c399a8b22b3 100644
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -5184,6 +5184,7 @@ ext4_ext_shift_extents(struct inode *inode, handle_t *handle,
+ 	 * and it is decreased till we reach start.
+ 	 */
+ again:
++	ret = 0;
+ 	if (SHIFT == SHIFT_LEFT)
+ 		iterator = &start;
+ 	else
+@@ -5227,14 +5228,21 @@ ext4_ext_shift_extents(struct inode *inode, handle_t *handle,
+ 					ext4_ext_get_actual_len(extent);
+ 		} else {
+ 			extent = EXT_FIRST_EXTENT(path[depth].p_hdr);
+-			if (le32_to_cpu(extent->ee_block) > 0)
++			if (le32_to_cpu(extent->ee_block) > start)
+ 				*iterator = le32_to_cpu(extent->ee_block) - 1;
+-			else
+-				/* Beginning is reached, end of the loop */
++			else if (le32_to_cpu(extent->ee_block) == start)
+ 				iterator = NULL;
+-			/* Update path extent in case we need to stop */
+-			while (le32_to_cpu(extent->ee_block) < start)
++			else {
++				extent = EXT_LAST_EXTENT(path[depth].p_hdr);
++				while (le32_to_cpu(extent->ee_block) >= start)
++					extent--;
 +
- 	return 0;
- }
- 
++				if (extent == EXT_LAST_EXTENT(path[depth].p_hdr))
++					break;
++
+ 				extent++;
++				iterator = NULL;
++			}
+ 			path[depth].p_ext = extent;
+ 		}
+ 		ret = ext4_ext_shift_path_extents(path, shift, inode,
 
