@@ -2,153 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98D8F63C1E4
-	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 15:08:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 182A363C24F
+	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 15:20:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234975AbiK2OIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Nov 2022 09:08:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42154 "EHLO
+        id S235666AbiK2OUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Nov 2022 09:20:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234493AbiK2OIa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Nov 2022 09:08:30 -0500
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4DBA59FF9;
-        Tue, 29 Nov 2022 06:08:29 -0800 (PST)
-Received: by mail-ej1-x636.google.com with SMTP id bj12so33990305ejb.13;
-        Tue, 29 Nov 2022 06:08:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=1kqCc7yU1YkarXWZbMyGs9nckGPiC+C/WANzHraoYew=;
-        b=L66GG3cxZiSHXPmfY77KORxMTN1uCF6q3lbtM9pAaMe+veBDm7pHAq8kd3mnoierSQ
-         RgzFwPPoHnbd8LmV7OO7DtUDXBcL4tiyEv2u6O2wJuGmpqZhu8+aYdXRw3Xl0G2ZznhC
-         /ymb2knTVCb+Dtu772Hn/LHymQgc31ywaCPXRcxPEUpCmeXBfBKIbov9VWn3j5Jkw2EQ
-         KpOMff6u0/wyDak6fp30xxL4DdQ/5t439H/5Kxy9wriGC/yhmAKalgWVEncwGRAU0GQI
-         1xFEtZU1ZslzqWLTlNMRM7rbMMP7HE6VyLppjBXdrMe3ODLXQl7J1XwtvG6OvUwAheDA
-         WHQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1kqCc7yU1YkarXWZbMyGs9nckGPiC+C/WANzHraoYew=;
-        b=uCVt6YUWkGD7xEeYOhq3F26Lf+ExJq8AsX2wH4W21ahKiwCzAwOWbl8FnnORECdSSS
-         8AZ2xpeomoPOihzlWe9Pa3dIyO33pIGlkIrYwh/8JDx6IcFFS+xfVqxCnnRXvwpp5q1s
-         BIg/FBcRW1T0Y0jfIHwVvFcTynZ50uev8ZRNMJHsEAFI/l3VeGZvlbqzU5qi0v6j5Jxx
-         3dHZsMuvF3b4uHxuAjcSjOhUvUAJlqWeiOw7hMUgWzLScLrm1FvPy1024g7jp21/77V9
-         03Ev50adG6dzLmaaEmpgtIFP6VAJ1FOG/hlqFidXX4Tagh4OXDxaOIEmCRFM/10TUqMY
-         NeHQ==
-X-Gm-Message-State: ANoB5pnqlReyXr8W6XyPyXa+rnUNbtvaP9fX8P1FJZMev8+cwJ4fmtCA
-        AOMHXsNRi1en9IyWZxtjuIxGhHL4sAyRCDG/NOvmxQkKc7U=
-X-Google-Smtp-Source: AA0mqf5socxeRVchDmD7ZKtmihUqV4WcGcBPOuTgcMmdtKmCPPnyt2pjxU4UV7a3cLG5SsszYuYfPi4zUfnj6j/dY28=
-X-Received: by 2002:a17:906:298c:b0:7c0:7d08:bfc with SMTP id
- x12-20020a170906298c00b007c07d080bfcmr6512317eje.72.1669730908013; Tue, 29
- Nov 2022 06:08:28 -0800 (PST)
+        with ESMTP id S235676AbiK2OUR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Nov 2022 09:20:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6AA32CC97;
+        Tue, 29 Nov 2022 06:17:58 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78E1A61761;
+        Tue, 29 Nov 2022 14:17:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB6A4C433C1;
+        Tue, 29 Nov 2022 14:17:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1669731477;
+        bh=B+EvtKvHdc8pXnOdn6vOMmv1YKZYwZ3wNOQZC//1McM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=UEmu3fikl1hZfs3H9AxBDuSK6Md2FGRmFxaruYa7cTRzvyYb+YrcA3sS7ruF6ldcw
+         qQ7SQYcLf6FHPL5hzGPE6Rp1F/b1MT+EpZqjJ2wX1G1d+RghDWCKPv3nTU8IA6V1PR
+         gEt/ZQ4BnLXnIxciQPgFto7ReuySt8xkqLvZeC1YqPuKrexzKj/zqwbq3TqwyXo0yW
+         xiY/k0jrYoWLVy2YmJ3HKygZNNSYP5tIbR+04CHl2S5Gvor8KSJ4cDQL9XatIMz1zF
+         iTG4BJRcW24pQWNCIQQEfxh+AAd39/R2EvyOFS3tGa2nPGAMbm5vu+F/0AUj/iByjp
+         2a9VPcP5CoGEA==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1p01Qs-0003yW-BE; Tue, 29 Nov 2022 15:17:58 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Ji-Ze Hong <hpeter@gmail.com>
+Subject: [PATCH] USB: serial: f81232: fix division by zero on line-speed change
+Date:   Tue, 29 Nov 2022 15:17:49 +0100
+Message-Id: <20221129141749.15270-1-johan@kernel.org>
+X-Mailer: git-send-email 2.37.4
 MIME-Version: 1.0
-References: <20220714084136.570176-1-chenhuacai@loongson.cn>
- <20220714084136.570176-3-chenhuacai@loongson.cn> <CAAhV-H7uF85UHfbS+-sMcXbB=q3UO0Z8rO=poNQbEtaipi4PHQ@mail.gmail.com>
- <CAJF2gTT82uNmjfDcMrSodssZWsMSrN_476s03QCv__kmQH-6GQ@mail.gmail.com>
-In-Reply-To: <CAJF2gTT82uNmjfDcMrSodssZWsMSrN_476s03QCv__kmQH-6GQ@mail.gmail.com>
-From:   Huacai Chen <chenhuacai@gmail.com>
-Date:   Tue, 29 Nov 2022 22:08:16 +0800
-Message-ID: <CAAhV-H6siOtVkZpkS4aABejgZCqTwp3TihA0+0HGZ1+mU3XAVA@mail.gmail.com>
-Subject: Re: [PATCH V2 3/3] SH: cpuinfo: Fix a warning for CONFIG_CPUMASK_OFFSTACK
-To:     Guo Ren <guoren@kernel.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc:     Huacai Chen <chenhuacai@loongson.cn>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, loongarch@lists.linux.dev,
-        linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Xuerui Wang <kernel@xen0n.name>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-mips@vger.kernel.org, linux-sh@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 28, 2022 at 4:18 PM Guo Ren <guoren@kernel.org> wrote:
->
-> On Mon, Nov 28, 2022 at 2:25 PM Huacai Chen <chenhuacai@gmail.com> wrote:
-> >
-> > ping?
-> Who can test?
-John said he can test. :)
+The driver leaves the line speed unchanged in case a requested speed is
+not supported. Make sure to handle the case where the current speed is
+B0 (hangup) without dividing by zero when determining the clock source.
 
-Huacai
->
-> >
-> > On Thu, Jul 14, 2022 at 4:42 PM Huacai Chen <chenhuacai@loongson.cn> wrote:
-> > >
-> > > When CONFIG_CPUMASK_OFFSTACK and CONFIG_DEBUG_PER_CPU_MAPS is selected,
-> > > cpu_max_bits_warn() generates a runtime warning similar as below while
-> > > we show /proc/cpuinfo. Fix this by using nr_cpu_ids (the runtime limit)
-> > > instead of NR_CPUS to iterate CPUs.
-> > >
-> > > [    3.052463] ------------[ cut here ]------------
-> > > [    3.059679] WARNING: CPU: 3 PID: 1 at include/linux/cpumask.h:108 show_cpuinfo+0x5e8/0x5f0
-> > > [    3.070072] Modules linked in: efivarfs autofs4
-> > > [    3.076257] CPU: 0 PID: 1 Comm: systemd Not tainted 5.19-rc5+ #1052
-> > > [    3.099465] Stack : 9000000100157b08 9000000000f18530 9000000000cf846c 9000000100154000
-> > > [    3.109127]         9000000100157a50 0000000000000000 9000000100157a58 9000000000ef7430
-> > > [    3.118774]         90000001001578e8 0000000000000040 0000000000000020 ffffffffffffffff
-> > > [    3.128412]         0000000000aaaaaa 1ab25f00eec96a37 900000010021de80 900000000101c890
-> > > [    3.138056]         0000000000000000 0000000000000000 0000000000000000 0000000000aaaaaa
-> > > [    3.147711]         ffff8000339dc220 0000000000000001 0000000006ab4000 0000000000000000
-> > > [    3.157364]         900000000101c998 0000000000000004 9000000000ef7430 0000000000000000
-> > > [    3.167012]         0000000000000009 000000000000006c 0000000000000000 0000000000000000
-> > > [    3.176641]         9000000000d3de08 9000000001639390 90000000002086d8 00007ffff0080286
-> > > [    3.186260]         00000000000000b0 0000000000000004 0000000000000000 0000000000071c1c
-> > > [    3.195868]         ...
-> > > [    3.199917] Call Trace:
-> > > [    3.203941] [<90000000002086d8>] show_stack+0x38/0x14c
-> > > [    3.210666] [<9000000000cf846c>] dump_stack_lvl+0x60/0x88
-> > > [    3.217625] [<900000000023d268>] __warn+0xd0/0x100
-> > > [    3.223958] [<9000000000cf3c90>] warn_slowpath_fmt+0x7c/0xcc
-> > > [    3.231150] [<9000000000210220>] show_cpuinfo+0x5e8/0x5f0
-> > > [    3.238080] [<90000000004f578c>] seq_read_iter+0x354/0x4b4
-> > > [    3.245098] [<90000000004c2e90>] new_sync_read+0x17c/0x1c4
-> > > [    3.252114] [<90000000004c5174>] vfs_read+0x138/0x1d0
-> > > [    3.258694] [<90000000004c55f8>] ksys_read+0x70/0x100
-> > > [    3.265265] [<9000000000cfde9c>] do_syscall+0x7c/0x94
-> > > [    3.271820] [<9000000000202fe4>] handle_syscall+0xc4/0x160
-> > > [    3.281824] ---[ end trace 8b484262b4b8c24c ]---
-> > >
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-> > > ---
-> > >  arch/sh/kernel/cpu/proc.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > diff --git a/arch/sh/kernel/cpu/proc.c b/arch/sh/kernel/cpu/proc.c
-> > > index a306bcd6b341..5f6d0e827bae 100644
-> > > --- a/arch/sh/kernel/cpu/proc.c
-> > > +++ b/arch/sh/kernel/cpu/proc.c
-> > > @@ -132,7 +132,7 @@ static int show_cpuinfo(struct seq_file *m, void *v)
-> > >
-> > >  static void *c_start(struct seq_file *m, loff_t *pos)
-> > >  {
-> > > -       return *pos < NR_CPUS ? cpu_data + *pos : NULL;
-> > > +       return *pos < nr_cpu_ids ? cpu_data + *pos : NULL;
-> > >  }
-> > >  static void *c_next(struct seq_file *m, void *v, loff_t *pos)
-> > >  {
-> > > --
-> > > 2.31.1
-> > >
->
->
->
-> --
-> Best Regards
->  Guo Ren
+Fixes: 268ddb5e9b62 ("USB: serial: f81232: add high baud rate support")
+Cc: stable@vger.kernel.org      # 5.2
+Cc: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/usb/serial/f81232.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/usb/serial/f81232.c b/drivers/usb/serial/f81232.c
+index 2dd58cd9f0cc..891fb1fe69df 100644
+--- a/drivers/usb/serial/f81232.c
++++ b/drivers/usb/serial/f81232.c
+@@ -130,9 +130,6 @@ static u8 const clock_table[] = { F81232_CLK_1_846_MHZ, F81232_CLK_14_77_MHZ,
+ 
+ static int calc_baud_divisor(speed_t baudrate, speed_t clockrate)
+ {
+-	if (!baudrate)
+-		return 0;
+-
+ 	return DIV_ROUND_CLOSEST(clockrate, baudrate);
+ }
+ 
+@@ -498,9 +495,14 @@ static void f81232_set_baudrate(struct tty_struct *tty,
+ 	speed_t baud_list[] = { baudrate, old_baudrate, F81232_DEF_BAUDRATE };
+ 
+ 	for (i = 0; i < ARRAY_SIZE(baud_list); ++i) {
+-		idx = f81232_find_clk(baud_list[i]);
++		baudrate = baud_list[i];
++		if (baudrate == 0) {
++			tty_encode_baud_rate(tty, 0, 0);
++			return;
++		}
++
++		idx = f81232_find_clk(baudrate);
+ 		if (idx >= 0) {
+-			baudrate = baud_list[i];
+ 			tty_encode_baud_rate(tty, baudrate, baudrate);
+ 			break;
+ 		}
+-- 
+2.37.4
+
