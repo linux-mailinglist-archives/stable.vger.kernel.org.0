@@ -2,99 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 607E163B8AC
-	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 04:18:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB0B63BA6D
+	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 08:13:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235455AbiK2DSl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Nov 2022 22:18:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44984 "EHLO
+        id S229962AbiK2HND (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Nov 2022 02:13:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235340AbiK2DSi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Nov 2022 22:18:38 -0500
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 339B427920;
-        Mon, 28 Nov 2022 19:18:37 -0800 (PST)
-Received: from dggpeml500021.china.huawei.com (unknown [172.30.72.55])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4NLnWG0ZxHzqSdp;
-        Tue, 29 Nov 2022 11:14:34 +0800 (CST)
-Received: from [10.174.177.174] (10.174.177.174) by
- dggpeml500021.china.huawei.com (7.185.36.21) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Tue, 29 Nov 2022 11:18:35 +0800
-Message-ID: <d357e15b-e44a-1e3b-41c3-0b732e4685ed@huawei.com>
-Date:   Tue, 29 Nov 2022 11:18:34 +0800
+        with ESMTP id S229907AbiK2HM7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Nov 2022 02:12:59 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29F4B2793D
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 23:12:59 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id 4so12576743pli.0
+        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 23:12:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=iwut+5qPNDsd1iiRIVzy1Jj8CkYNxLtclAHL7fg4d/Q=;
+        b=tfKjddDHjI1zuql538gz2AIdccGIZenGDzvlieLzvHpEza+Kn0DpG/2/e1etYzQyaD
+         EqT5otQR6xAxl0lZx73OD3jJ0sX50DlWF6ABUb8fTXOFbzRPJBVrcss77k0o1ny5EIdh
+         vLRKJYUd45CW+Qp7nYujjaN6s3CM2H3DimEAIbzV9VmHas41yYtCdZaZxOwxfIO9tAQ4
+         QDzuBTYxnbK6u1razdIjQ/2CuxU340eIGaZTyb9UVue2UzU54OiKPUHMm4/cVpbRJTv4
+         MLIpxc7bjzrO6k/E+p90/PZXzuVw0hEf8ajqd9cm/5P03RBymVX7RBd78I3NgXc1Q83z
+         N3QA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=iwut+5qPNDsd1iiRIVzy1Jj8CkYNxLtclAHL7fg4d/Q=;
+        b=P34YNu5QWyqo2zL/iYD8Yvc7vqNTjB/2t9wcRv+FdBZahnfSV+zs8cwhm1DZc81ji7
+         bFRx78qg7etPhORtoSxlVEy24G+Dy4Y0k2kMB1KnonYFbHdJh8Vb5DNCLgS3Ca5DnM9F
+         oNX2aPGeJ/JgAtEftJmhe0dsdthEAVwJLBgtPZOvtfeGvh1VfoSpg7jjlCePodSyeGri
+         gMCdCdgczc34mW/SMDXGyGAPSCSmitjO88VxwhZOyLyBcL4Kjb2lDq2+Ki8aAxLsHpRh
+         HSKdcb8RqtaDxq2kAzv3yicH8TL24SY+X1l7VxakCSLpgVHRwjqAXmD9Aw7V5/pr/nhi
+         aH4w==
+X-Gm-Message-State: ANoB5pkQAxfPMGRXJ3RBnaeVHcKD0jRybV+PzFvBKfvpGlArjHLRSOgU
+        aViP/t66QIwg94dafh5rNwAC
+X-Google-Smtp-Source: AA0mqf5dIL9XBKXsN/yojSbWwOleGPPnMHQbA0BiXERFWMHKD0IGGfo4geKrt/acpvblKsQ3P4O2Dg==
+X-Received: by 2002:a17:902:e849:b0:186:dd96:ce45 with SMTP id t9-20020a170902e84900b00186dd96ce45mr35804981plg.73.1669705978631;
+        Mon, 28 Nov 2022 23:12:58 -0800 (PST)
+Received: from localhost.localdomain ([117.248.1.95])
+        by smtp.gmail.com with ESMTPSA id u6-20020a170903124600b00188fc6766d6sm10009264plh.219.2022.11.28.23.12.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Nov 2022 23:12:57 -0800 (PST)
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     andersson@kernel.org, bp@alien8.de, mchehab@kernel.org
+Cc:     james.morse@arm.com, rric@kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-edac@vger.kernel.org,
+        linux-kernel@vger.kernel.org, quic_saipraka@quicinc.com,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH v5 1/3] soc: qcom: Select REMAP_MMIO for LLCC driver
+Date:   Tue, 29 Nov 2022 12:41:59 +0530
+Message-Id: <20221129071201.30024-2-manivannan.sadhasivam@linaro.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221129071201.30024-1-manivannan.sadhasivam@linaro.org>
+References: <20221129071201.30024-1-manivannan.sadhasivam@linaro.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.1.2
-Subject: Re: [PATCH v2] ext4: fix a NULL pointer when validating an inode
- bitmap
-Content-Language: en-US
-To:     Theodore Ts'o <tytso@mit.edu>,
-        =?UTF-8?Q?Lu=c3=ads_Henriques?= <lhenriques@suse.de>
-CC:     Andreas Dilger <adilger.kernel@dilger.ca>,
-        <linux-ext4@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-References: <20221010142035.2051-1-lhenriques@suse.de>
- <20221011155623.14840-1-lhenriques@suse.de> <Y2cAiLNIIJhm4goP@mit.edu>
- <Y2piZT22QwSjNso9@suse.de> <Y4U18wly7K87fX9v@mit.edu>
-From:   Baokun Li <libaokun1@huawei.com>
-In-Reply-To: <Y4U18wly7K87fX9v@mit.edu>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.177.174]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpeml500021.china.huawei.com (7.185.36.21)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022/11/29 6:28, Theodore Ts'o wrote:
-> On Tue, Nov 08, 2022 at 02:06:29PM +0000, Luís Henriques wrote:
->>> What makes you believe that?  Look at how s_group_info is initialized
->>> in ext4_mb_alloc_groupinfo() in fs/ext4/mballoc.c.  It's pretty
->>> careful to make sure this is not the case.
->> Right.  I may be missing something, but I don't think we get that far.
->> __ext4_fill_super() will first call ext4_setup_system_zone() (which is
->> where this bug occurs) and only after that ext4_mb_init() will be invoked
->> (which is where ext4_mb_alloc_groupinfo() will eventually be called).
-> I finally got around to taking a closer look at this, and I have a
-> much better understandign of what is going on.  For more details, and
-> a suggested fix, please see:
->
->       https://bugzilla.kernel.org/show_bug.cgi?id=216541#c1
->
-> 						- Ted
->
->
-Hi Theodore,
+LLCC driver uses REGMAP_MMIO for accessing the hardware registers. So
+select the dependency in Kconfig. Without this, there will be errors
+while building the driver with COMPILE_TEST only:
 
-In my opinion, the s_journal_inum should not be modified when the file 
-system is
-mounted, especially after we have successfully loaded and replayed the 
-journal with
-the current s_journal_inum. Even if the s_journal_inumon the disk is 
-modified, we should
-use the current one. This is how journal_devnum is handled in 
-ext4_load_journal():
+ERROR: modpost: "__devm_regmap_init_mmio_clk" [drivers/soc/qcom/llcc-qcom.ko] undefined!
+make[1]: *** [scripts/Makefile.modpost:126: Module.symvers] Error 1
+make: *** [Makefile:1944: modpost] Error 2
 
-          if (!really_read_only && journal_devnum &&
-              journal_devnum != le32_to_cpu(es->s_journal_dev)) {
-                  es->s_journal_dev = cpu_to_le32(journal_devnum);
+Cc: <stable@vger.kernel.org> # 4.19
+Fixes: a3134fb09e0b ("drivers: soc: Add LLCC driver")
+Reported-by: Borislav Petkov <bp@alien8.de>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+---
+ drivers/soc/qcom/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-                  /* Make sure we flush the recovery flag to disk. */
-                  ext4_commit_super(sb);
-          }
-
-We can avoid this problem by adding a similar check for journal_inum in 
-ext4_load_journal().
-
+diff --git a/drivers/soc/qcom/Kconfig b/drivers/soc/qcom/Kconfig
+index 024e420f1bb7..a6164b2d7b25 100644
+--- a/drivers/soc/qcom/Kconfig
++++ b/drivers/soc/qcom/Kconfig
+@@ -63,6 +63,7 @@ config QCOM_GSBI
+ config QCOM_LLCC
+ 	tristate "Qualcomm Technologies, Inc. LLCC driver"
+ 	depends on ARCH_QCOM || COMPILE_TEST
++	select REGMAP_MMIO
+ 	help
+ 	  Qualcomm Technologies, Inc. platform specific
+ 	  Last Level Cache Controller(LLCC) driver for platforms such as,
 -- 
-With Best Regards,
-Baokun Li
+2.25.1
 
