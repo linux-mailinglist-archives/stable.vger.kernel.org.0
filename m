@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8806863C5EA
-	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 18:00:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D5A863C5EF
+	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 18:00:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236528AbiK2RAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Nov 2022 12:00:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59510 "EHLO
+        id S236326AbiK2RAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Nov 2022 12:00:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236532AbiK2Q74 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Nov 2022 11:59:56 -0500
+        with ESMTP id S236334AbiK2Q75 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Nov 2022 11:59:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B30863CF4
-        for <stable@vger.kernel.org>; Tue, 29 Nov 2022 08:55:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F26A6DCD1
+        for <stable@vger.kernel.org>; Tue, 29 Nov 2022 08:55:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA408B816E6
-        for <stable@vger.kernel.org>; Tue, 29 Nov 2022 16:55:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12A4EC433D6;
-        Tue, 29 Nov 2022 16:55:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26548B816E6
+        for <stable@vger.kernel.org>; Tue, 29 Nov 2022 16:55:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69A47C433D6;
+        Tue, 29 Nov 2022 16:55:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669740927;
-        bh=0j6dJkCrKcEjoAsQigVkCwj6WFhVBZS9EYpqgpIC3FY=;
+        s=korg; t=1669740930;
+        bh=4JCwUH5vx6V1SM+0x5bjTD7Uyq3K49fUsFcwuRB4K/E=;
         h=Subject:To:Cc:From:Date:From;
-        b=pi3MVF8hbBOyQzjfCUYRwar0Rgpc2GtlLH1tU0lO+KWxF4U0dkeen4bTCF9I4plFX
-         qczBrMpQ6oLngPddHscE9bHr0YijpjhlJmK/MhGRmGEYCKQoAngAASr9bSnc501ikI
-         rI8AGZLBkOwD4EbocvVSy5QgauqfyqWrRnohEVLk=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Clear ep descriptor last" failed to apply to 5.15-stable tree
+        b=XVT+99ayLGjxEyxkuys93U5zNQDQLbAnYQIK68N5eRQej5DTwqWNPjrPUTq3z5y8K
+         eCN2DehrntP3AdXmV4jyrLDkDK3KYQYmgo+OT6THIZsftV3hgGMaQmSrKDTDuIdfPI
+         aWgK4yTwLBcjoclay9lvoX6mNv1Ou+boJq7tPHkM=
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Clear ep descriptor last" failed to apply to 6.0-stable tree
 To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 29 Nov 2022 17:55:23 +0100
-Message-ID: <166974092373148@kroah.com>
+Message-ID: <1669740923132247@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
