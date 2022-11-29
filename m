@@ -2,86 +2,212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 759AC63BAD9
-	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 08:40:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84F6763BAFE
+	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 08:52:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229896AbiK2Hke (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Nov 2022 02:40:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37092 "EHLO
+        id S229521AbiK2HwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Nov 2022 02:52:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229883AbiK2Hkd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Nov 2022 02:40:33 -0500
-Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D790F4FF8E
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 23:40:32 -0800 (PST)
-Received: by mail-lj1-x22b.google.com with SMTP id a7so15830639ljq.12
-        for <stable@vger.kernel.org>; Mon, 28 Nov 2022 23:40:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=cKBkjaGLrP+hJZHWPlY+tg6ZuyURt9SchAR6qmGbE1k=;
-        b=mm+0Kb3YA1Yz81IK4mWHnsINuNn0g1BQvrCfBDphg5hrUAZtpiIcaPAAyOuGDMkzol
-         AH4daSmuWhKC/1CPK13CeurHSzI+myQ4bAJe5S94ChJNODhhAPpZRhlxe9yTr6LjRrqd
-         EthmaObelQUuRKXLo1rmzzT61Bl1Bd4drhWaWE6SmCdHMWKWkReowG9sAnjnCaO3L6MD
-         bVWico4+Bt1XzVZo6LC25wiJVvo7mRSsdtEo6ZRMglJGK+xhnI7Kpw1NGj0eALg9etKN
-         Kj4FRDJ8uGFG22DwkVO+VLD2sm2SLTqW6f9As5T5syAyb5Ep3LPh0Og7ZgXeyvN36JAN
-         5M9w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=cKBkjaGLrP+hJZHWPlY+tg6ZuyURt9SchAR6qmGbE1k=;
-        b=k0YRkvOeaAOzQbiB6z7SYHFmr5nVAfsE2/nv2JtJlc61XSzLY87RLPSdmKO+Fj/yVX
-         1kPmxmxp+3dsr12j9Fs++tlRnOun0oRbTlm9gHS0OyNqotY67LiF945zen1QpOtEZ57f
-         Fhgn6P2mn6vEKVawLlBMuZXZ8DJcwwrcPECJi1w48OXIYCvtU9lJlL7uQMQfFW6xSwaP
-         Prp3xlIdbDLnFkir0adghjNTZg7IpC3vzgXRdl1oYTBCaNLX7t7waDL921UFc5Qv9WP6
-         6CEudC2HpqzfV7vU/MykOb5B/HejSRnLFhSGza5AN8/slGRnNESntZKk90ofSZVNvrpi
-         Cakg==
-X-Gm-Message-State: ANoB5pmsI6Wa1UwhSq79K30FvYpdLYP6wlbyOH4nxjiKfq2ZFLBbD5/y
-        pGDyB2s1xq75bTbRMPkXBvFptA==
-X-Google-Smtp-Source: AA0mqf5OJOej2rZM3WY0TlmkZzHNQ06DoIYrfWY2jiAevxbN1beNrVc2UNZHhG5OXXgk5fDAHpvnSw==
-X-Received: by 2002:a2e:7e05:0:b0:279:a6f9:e587 with SMTP id z5-20020a2e7e05000000b00279a6f9e587mr2667748ljc.89.1669707630976;
-        Mon, 28 Nov 2022 23:40:30 -0800 (PST)
-Received: from [192.168.0.20] (088156142067.dynamic-2-waw-k-3-2-0.vectranet.pl. [88.156.142.67])
-        by smtp.gmail.com with ESMTPSA id d15-20020ac2544f000000b004ac393ecc34sm2080102lfn.302.2022.11.28.23.40.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 28 Nov 2022 23:40:30 -0800 (PST)
-Message-ID: <29c3fe33-de57-832f-dbb7-ce50968af5d2@linaro.org>
-Date:   Tue, 29 Nov 2022 08:40:29 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: [PATCH] soc: qcom: Select REMAP_MMIO for ICC_BWMON driver
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        andersson@kernel.org
-Cc:     konrad.dybcio@somainline.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20221129072022.41962-1-manivannan.sadhasivam@linaro.org>
-Content-Language: en-US
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20221129072022.41962-1-manivannan.sadhasivam@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229777AbiK2HwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Nov 2022 02:52:17 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8132C51C2E;
+        Mon, 28 Nov 2022 23:52:16 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 383601FDE2;
+        Tue, 29 Nov 2022 07:52:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1669708335; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=UCtXcvqaOALnEXAnaeywfxvt3BaAGjAT6PCuZBjIu8U=;
+        b=w2WuPzBeAs1MfNmadXyGfVU7XEo/xH1XPlDu5ki2ZRFXbijfTybWEQ6idq1JEd7ez3I5Wk
+        vUg+i+5NrABlFQW/5l5WEREHF+IUO4iMjKjPfrkuMkydu1A0edIsnE5XrRV9pGgfR0M+er
+        HNLl5xkMERfEjnlgQEN83wbbrJ1xCAU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1669708335;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=UCtXcvqaOALnEXAnaeywfxvt3BaAGjAT6PCuZBjIu8U=;
+        b=jd4pQJztqijSHbDWUB9WprF7eznFZ0UG4K4ozQvp3E5JUKwj6c2aH8eCuaxNdAbG9E5mFA
+        QzJpEDCBLMnTgWBg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id E047413428;
+        Tue, 29 Nov 2022 07:52:14 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id EJcFNi66hWPEcAAAMHmgww
+        (envelope-from <tiwai@suse.de>); Tue, 29 Nov 2022 07:52:14 +0000
+Date:   Tue, 29 Nov 2022 08:52:14 +0100
+Message-ID: <87edtmqjtd.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Cc:     alsa-devel@alsa-project.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.com>, stable@vger.kernel.org,
+        Mark Brown <broonie@kernel.org>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        linux-kernel@vger.kernel.org, sound-open-firmware@alsa-project.org
+Subject: Re: [PATCH v4] ALSA: core: Fix deadlock when shutdown a frozen userspace
+In-Reply-To: <16ddcbb9-8afa-ff18-05f9-2e9e01baf3ea@linux.intel.com>
+References: <20221127-snd-freeze-v4-0-51ca64b7f2ab@chromium.org>
+        <5171929e-b750-d2f1-fec9-b34d76c18dcb@linux.intel.com>
+        <87mt8bqaca.wl-tiwai@suse.de>
+        <16ddcbb9-8afa-ff18-05f9-2e9e01baf3ea@linux.intel.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 29/11/2022 08:20, Manivannan Sadhasivam wrote:
-> ICC_BWMON driver uses REGMAP_MMIO for accessing the hardware registers.
-> So select the dependency in Kconfig. Without this, there will be errors
-> while building the driver with COMPILE_TEST only:
+On Mon, 28 Nov 2022 18:26:03 +0100,
+Pierre-Louis Bossart wrote:
 > 
+> 
+> 
+> On 11/28/22 11:04, Takashi Iwai wrote:
+> > On Mon, 28 Nov 2022 17:49:20 +0100,
+> > Pierre-Louis Bossart wrote:
+> >>
+> >>
+> >>
+> >> On 11/28/22 07:42, Ricardo Ribalda wrote:
+> >>> During kexec(), the userspace is frozen. Therefore we cannot wait for it
+> >>> to complete.
+> >>>
+> >>> Avoid running snd_sof_machine_unregister during shutdown.
+> >>>
+> >>> This fixes:
+> >>>
+> >>> [   84.943749] Freezing user space processes ... (elapsed 0.111 seconds) done.
+> >>> [  246.784446] INFO: task kexec-lite:5123 blocked for more than 122 seconds.
+> >>> [  246.819035] Call Trace:
+> >>> [  246.821782]  <TASK>
+> >>> [  246.824186]  __schedule+0x5f9/0x1263
+> >>> [  246.828231]  schedule+0x87/0xc5
+> >>> [  246.831779]  snd_card_disconnect_sync+0xb5/0x127
+> >>> ...
+> >>> [  246.889249]  snd_sof_device_shutdown+0xb4/0x150
+> >>> [  246.899317]  pci_device_shutdown+0x37/0x61
+> >>> [  246.903990]  device_shutdown+0x14c/0x1d6
+> >>> [  246.908391]  kernel_kexec+0x45/0xb9
+> >>>
+> >>> And:
+> >>>
+> >>> [  246.893222] INFO: task kexec-lite:4891 blocked for more than 122 seconds.
+> >>> [  246.927709] Call Trace:
+> >>> [  246.930461]  <TASK>
+> >>> [  246.932819]  __schedule+0x5f9/0x1263
+> >>> [  246.936855]  ? fsnotify_grab_connector+0x5c/0x70
+> >>> [  246.942045]  schedule+0x87/0xc5
+> >>> [  246.945567]  schedule_timeout+0x49/0xf3
+> >>> [  246.949877]  wait_for_completion+0x86/0xe8
+> >>> [  246.954463]  snd_card_free+0x68/0x89
+> >>> ...
+> >>> [  247.001080]  platform_device_unregister+0x12/0x35
+> >>>
+> >>> Cc: stable@vger.kernel.org
+> >>> Fixes: 83bfc7e793b5 ("ASoC: SOF: core: unregister clients and machine drivers in .shutdown")
+> >>> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+> >>> ---
+> >>> To: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+> >>> To: Liam Girdwood <lgirdwood@gmail.com>
+> >>> To: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+> >>> To: Bard Liao <yung-chuan.liao@linux.intel.com>
+> >>> To: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+> >>> To: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+> >>> To: Daniel Baluta <daniel.baluta@nxp.com>
+> >>> To: Mark Brown <broonie@kernel.org>
+> >>> To: Jaroslav Kysela <perex@perex.cz>
+> >>> To: Takashi Iwai <tiwai@suse.com>
+> >>> Cc: sound-open-firmware@alsa-project.org
+> >>> Cc: alsa-devel@alsa-project.org
+> >>> Cc: linux-kernel@vger.kernel.org
+> >>> ---
+> >>> Changes in v4:
+> >>> - Do not call snd_sof_machine_unregister from shutdown.
+> >>> - Link to v3: https://lore.kernel.org/r/20221127-snd-freeze-v3-0-a2eda731ca14@chromium.org
+> >>>
+> >>> Changes in v3:
+> >>> - Wrap pm_freezing in a function
+> >>> - Link to v2: https://lore.kernel.org/r/20221127-snd-freeze-v2-0-d8a425ea9663@chromium.org
+> >>>
+> >>> Changes in v2:
+> >>> - Only use pm_freezing if CONFIG_FREEZER 
+> >>> - Link to v1: https://lore.kernel.org/r/20221127-snd-freeze-v1-0-57461a366ec2@chromium.org
+> >>> ---
+> >>>  sound/soc/sof/core.c | 7 ++-----
+> >>>  1 file changed, 2 insertions(+), 5 deletions(-)
+> >>>
+> >>> diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
+> >>> index 3e6141d03770..9616ba607ded 100644
+> >>> --- a/sound/soc/sof/core.c
+> >>> +++ b/sound/soc/sof/core.c
+> >>> @@ -475,19 +475,16 @@ EXPORT_SYMBOL(snd_sof_device_remove);
+> >>>  int snd_sof_device_shutdown(struct device *dev)
+> >>>  {
+> >>>  	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
+> >>> -	struct snd_sof_pdata *pdata = sdev->pdata;
+> >>>  
+> >>>  	if (IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE))
+> >>>  		cancel_work_sync(&sdev->probe_work);
+> >>>  
+> >>>  	/*
+> >>> -	 * make sure clients and machine driver(s) are unregistered to force
+> >>> -	 * all userspace devices to be closed prior to the DSP shutdown sequence
+> >>> +	 * make sure clients are unregistered prior to the DSP shutdown
+> >>> +	 * sequence.
+> >>>  	 */
+> >>>  	sof_unregister_clients(sdev);
+> >>>  
+> >>> -	snd_sof_machine_unregister(sdev, pdata);
+> >>> -
+> >>
+> >> The comment clearly says that we do want all userspace devices to be
+> >> closed. This was added in 83bfc7e793b5 ("ASoC: SOF: core: unregister
+> >> clients and machine drivers in .shutdown") precisely to avoid a platform
+> >> hang if the devices are used after the shutdown completes.
+> > 
+> > The problem is that it wants the *close* of the user-space programs
+> > unnecessarily.  Basically the shutdown can be seen as a sort of device
+> > hot unplug; i.e. the disconnection of the device files and the cleanup
+> > of device state are the main task.  The difference is that the hot
+> > unplug (unbind) usually follows the sync for the all processes being
+> > closed (so that you can release all resources gracefully), while this
+> > step is skipped for the shutdown (no need for resource-free).
+> 
+> Sorry Takashi, I don't have enough background to follow your explanations.
+> 
+> As Kai mentioned it, this step helped with a S5 issue earlier in 2022.
+> Removing this will mechanically bring the issue back and break other
+> Chromebooks.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Yeah I don't mean that this fix is right, either.  But the earlier fix
+has apparently a problem and needs another fix.
 
-Best regards,
-Krzysztof
+Though, it's not clear why the full unregister of clients is needed at
+the first place; judging only from the patch description of commit
+83bfc7e793b5, what we want is only to shut up the further user space
+action?  If so, just call snd_card_disconnect() would suffice?
 
+
+Takashi
