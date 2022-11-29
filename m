@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D5A863C5EF
-	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 18:00:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A190263C5EE
+	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 18:00:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236326AbiK2RAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Nov 2022 12:00:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59052 "EHLO
+        id S236548AbiK2RAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Nov 2022 12:00:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236334AbiK2Q75 (ORCPT
+        with ESMTP id S236326AbiK2Q75 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 29 Nov 2022 11:59:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F26A6DCD1
-        for <stable@vger.kernel.org>; Tue, 29 Nov 2022 08:55:33 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A949B6DCCF
+        for <stable@vger.kernel.org>; Tue, 29 Nov 2022 08:55:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26548B816E6
-        for <stable@vger.kernel.org>; Tue, 29 Nov 2022 16:55:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69A47C433D6;
-        Tue, 29 Nov 2022 16:55:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4617161847
+        for <stable@vger.kernel.org>; Tue, 29 Nov 2022 16:55:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DD1CC433C1;
+        Tue, 29 Nov 2022 16:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669740930;
-        bh=4JCwUH5vx6V1SM+0x5bjTD7Uyq3K49fUsFcwuRB4K/E=;
+        s=korg; t=1669740933;
+        bh=Cpd17c6OVMEg4gLR64f271S7PD62Z4HXpOUYl0vfKnU=;
         h=Subject:To:Cc:From:Date:From;
-        b=XVT+99ayLGjxEyxkuys93U5zNQDQLbAnYQIK68N5eRQej5DTwqWNPjrPUTq3z5y8K
-         eCN2DehrntP3AdXmV4jyrLDkDK3KYQYmgo+OT6THIZsftV3hgGMaQmSrKDTDuIdfPI
-         aWgK4yTwLBcjoclay9lvoX6mNv1Ou+boJq7tPHkM=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Clear ep descriptor last" failed to apply to 6.0-stable tree
+        b=WiDIHAJU1g4uf3rFq4KEWyZrD0r5jjZ33X936z17Hf05sXIjLVCgdZnLM0UUIQU8Q
+         sSpI0hfLjsnp6hQHlCYu4P21tIQl5/LSLPUrgvghWQNCyC3lwO945XObCvC9gXBUo/
+         LFluIRMbxZAxoe8ILqJNDx1+noUwBjGNFBj1EzYg=
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Clear ep descriptor last" failed to apply to 5.10-stable tree
 To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 29 Nov 2022 17:55:23 +0100
-Message-ID: <1669740923132247@kroah.com>
+Date:   Tue, 29 Nov 2022 17:55:24 +0100
+Message-ID: <166974092454127@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,9 @@ Possible dependencies:
 f90f5afd5083 ("usb: dwc3: gadget: Clear ep descriptor last")
 ffb9da4a04c6 ("usb: dwc3: gadget: Return -ESHUTDOWN on ep disable")
 b44c0e7fef51 ("usb: dwc3: gadget: conditionally remove requests")
+5aef629704ad ("usb: dwc3: gadget: Clear DEP flags after stop transfers in ep disable")
+f09ddcfcb8c5 ("usb: dwc3: gadget: Prevent EP queuing while stopping transfers")
+a1383b3537a7 ("usb: dwc3: gadget: Restart DWC3 gadget when enabling pullup")
 
 thanks,
 
