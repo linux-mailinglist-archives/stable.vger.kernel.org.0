@@ -2,100 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1014763C254
-	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 15:20:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB9F63C2C5
+	for <lists+stable@lfdr.de>; Tue, 29 Nov 2022 15:37:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235694AbiK2OU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Nov 2022 09:20:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53492 "EHLO
+        id S235656AbiK2OhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Nov 2022 09:37:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235383AbiK2OUl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Nov 2022 09:20:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A7C268694;
-        Tue, 29 Nov 2022 06:18:32 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB1E46176F;
-        Tue, 29 Nov 2022 14:18:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 304C1C433C1;
-        Tue, 29 Nov 2022 14:18:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669731511;
-        bh=ksilrIsLtIQNg+osJth3VSYezKbX/p5M2jGxv4Rz5jI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=qtIhwVsxalVdPYtedK9PL8Z/2RUeeu1MHWuY51ZuO07+r9MJfE/xPnDTXCD+uwNTY
-         vdh4fl9WRfdeLj0G47t5BIjwvzmV/lz8206QMFl6mriKYXf8H1hyCJS3SsGpaRTVEV
-         P28suXZ1DoUMavy4TXzpSHsYKnW8eO9oNcogDO0eI7IUo/TytKzdY7RB9Wf6qXkxi+
-         psobVmV510vaDkOt60TKlkNYYoVu/uStMui1Mkl5vABgHO8Q8EU+8LmSje1+mOrqk3
-         4f9H53m045TlFIgxMSzpdX4ODNpdZqaH9Y6Gyzq+eGz4scM3L0rFeXA6MypRnNzG2l
-         VdebTS6tG4IYA==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1p01RP-0003z9-RF; Tue, 29 Nov 2022 15:18:31 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Ji-Ze Hong <hpeter@gmail.com>
-Subject: [PATCH] USB: serial: f81534: fix division by zero on line-speed change
-Date:   Tue, 29 Nov 2022 15:18:19 +0100
-Message-Id: <20221129141819.15310-1-johan@kernel.org>
-X-Mailer: git-send-email 2.37.4
+        with ESMTP id S235644AbiK2Ogy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Nov 2022 09:36:54 -0500
+X-Greylist: delayed 220 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 29 Nov 2022 06:36:51 PST
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64EEE3AF;
+        Tue, 29 Nov 2022 06:36:51 -0800 (PST)
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.95)
+          with esmtps (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1p01RU-003bu3-5l; Tue, 29 Nov 2022 15:18:36 +0100
+Received: from p5b13aed4.dip0.t-ipconnect.de ([91.19.174.212] helo=[192.168.178.81])
+          by inpost2.zedat.fu-berlin.de (Exim 4.95)
+          with esmtpsa (TLS1.3)
+          tls TLS_AES_128_GCM_SHA256
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1p01RT-003lZs-V8; Tue, 29 Nov 2022 15:18:36 +0100
+Message-ID: <90b31900-11a0-a18e-0900-bde72254f472@physik.fu-berlin.de>
+Date:   Tue, 29 Nov 2022 15:18:34 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Subject: Re: [PATCH V2 2/3] LoongArch: cpuinfo: Fix a warning for
+ CONFIG_CPUMASK_OFFSTACK
+Content-Language: en-US
+To:     Huacai Chen <chenhuacai@gmail.com>
+Cc:     Huacai Chen <chenhuacai@loongson.cn>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>, loongarch@lists.linux.dev,
+        linux-arch <linux-arch@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, Guo Ren <guoren@kernel.org>,
+        Xuerui Wang <kernel@xen0n.name>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        "open list:MIPS" <linux-mips@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+References: <20220714084136.570176-1-chenhuacai@loongson.cn>
+ <20220714084136.570176-2-chenhuacai@loongson.cn>
+ <CAAhV-H7W8V8XdJXX5FvyvvSCAbeTSgLEKhHLivm89T-Nd59Umw@mail.gmail.com>
+ <28f1be2e-ca7c-1c95-535a-2099ebf607f2@physik.fu-berlin.de>
+ <CAAhV-H4VEqkeXpwCmZE=VqB-TTtnteAqAxbTbeT+s38QHTGdig@mail.gmail.com>
+From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+In-Reply-To: <CAAhV-H4VEqkeXpwCmZE=VqB-TTtnteAqAxbTbeT+s38QHTGdig@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-Originating-IP: 91.19.174.212
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The driver leaves the line speed unchanged in case a requested speed is
-not supported. Make sure to handle the case where the current speed is
-B0 (hangup) without dividing by zero when determining the clock source.
+Hi Huacai!
 
-Fixes: 3aacac02f385 ("USB: serial: f81534: add high baud rate support")
-Cc: stable@vger.kernel.org      # 4.16
-Cc: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/serial/f81534.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+On 11/29/22 15:06, Huacai Chen wrote:
+> On Thu, Jul 28, 2022 at 8:53 PM John Paul Adrian Glaubitz
+> <glaubitz@physik.fu-berlin.de> wrote:
+>>
+>> Hi!
+>>
+>> On 7/28/22 14:42, Huacai Chen wrote:
+>>> Since the SH maintainer hasn't responded, I suppose it is better to
+>>> let both LoongArch fix and SH fix go through your asm-generic tree?
+>>
+>> I could test on actual SuperH hardware if needed. CC'ing Geert who has
+>> SH hardware as well.
+> Any updates?
 
-diff --git a/drivers/usb/serial/f81534.c b/drivers/usb/serial/f81534.c
-index ddfcd72eb0ae..4083ae961be4 100644
---- a/drivers/usb/serial/f81534.c
-+++ b/drivers/usb/serial/f81534.c
-@@ -536,9 +536,6 @@ static int f81534_submit_writer(struct usb_serial_port *port, gfp_t mem_flags)
- 
- static u32 f81534_calc_baud_divisor(u32 baudrate, u32 clockrate)
- {
--	if (!baudrate)
--		return 0;
--
- 	/* Round to nearest divisor */
- 	return DIV_ROUND_CLOSEST(clockrate, baudrate);
- }
-@@ -568,9 +565,14 @@ static int f81534_set_port_config(struct usb_serial_port *port,
- 	u32 baud_list[] = {baudrate, old_baudrate, F81534_DEFAULT_BAUD_RATE};
- 
- 	for (i = 0; i < ARRAY_SIZE(baud_list); ++i) {
--		idx = f81534_find_clk(baud_list[i]);
-+		baudrate = baud_list[i];
-+		if (baudrate == 0) {
-+			tty_encode_baud_rate(tty, 0, 0);
-+			return 0;
-+		}
-+
-+		idx = f81534_find_clk(baudrate);
- 		if (idx >= 0) {
--			baudrate = baud_list[i];
- 			tty_encode_baud_rate(tty, baudrate, baudrate);
- 			break;
- 		}
+Apologies. I completely forgot about this. I will test this later this week
+and report back.
+
+Adrian
+
 -- 
-2.37.4
+  .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer
+`. `'   Physicist
+   `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
 
