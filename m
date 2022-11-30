@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D73063DFFD
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:52:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4815863DEB4
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:39:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231440AbiK3Swt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:52:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40674 "EHLO
+        id S230509AbiK3Sjv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:39:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231555AbiK3SwX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:52:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A952FA3225
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:52:22 -0800 (PST)
+        with ESMTP id S231132AbiK3Sju (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:39:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9135D97031
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:39:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CE93B81CA9
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:52:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA109C433D6;
-        Wed, 30 Nov 2022 18:52:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29FFF61D6F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:39:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1058C433C1;
+        Wed, 30 Nov 2022 18:39:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834340;
-        bh=YDrjMdH5rSQYcDqKtDE6mnnLUWZkTUoWFVA7oM54EwE=;
+        s=korg; t=1669833588;
+        bh=WYsHhZJLiCJ6nU8qI57VyDOomQC5/9dowr7LoimCVrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SRGXWsI+5hugFAr12zk8MnZwuoMqCBgffZLophUSn+qX2oHqchfJHk19JuSEEqzB2
-         Oy3BVcju7z0oRfyhMJibPmTrqBJmDBg/Q1qXatdJAvEAEDxz3gfo5A4re8lCXcqiW8
-         jpjqleC2HGqvf/g7ZZXX/1M/5AT0k7dSorpQwYSc=
+        b=y9/UKLv8i783hR+tBTq+ueK0eWMfJww77OuEgSti4TxMGEloZnqzPufCI5lx3iyGf
+         7zTmYWLYucxbvwQ7cpE9Br+n+UBxNmjxruoOH9ls1awnWCtLQYpibkjX1gYah04OBP
+         EjRDMS6PviolqNgas7iIuJf/mpGhHu5OqPmFD8SU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Liguang <liliguang@baidu.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.0 217/289] mm: correctly charge compressed memory to its memcg
-Date:   Wed, 30 Nov 2022 19:23:22 +0100
-Message-Id: <20221130180549.038053487@linuxfoundation.org>
+        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 151/206] usb: dwc3: gadget: Return -ESHUTDOWN on ep disable
+Date:   Wed, 30 Nov 2022 19:23:23 +0100
+Message-Id: <20221130180536.876380329@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,45 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Liguang <liliguang@baidu.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit cd08d80ecdac577bad2e8d6805c7a3859fdefb8d upstream.
+[ Upstream commit ffb9da4a04c69567bad717707b6fdfbc4c216ef4 ]
 
-Kswapd will reclaim memory when memory pressure is high, the annonymous
-memory will be compressed and stored in the zpool if zswap is enabled.
-The memcg_kmem_bypass() in get_obj_cgroup_from_page() will bypass the
-kernel thread and cause the compressed memory not be charged to its memory
-cgroup.
+The usb_request API clearly noted that removed requests due to disabled
+endpoint should have -ESHUTDOWN status returned. Don't change this
+behavior.
 
-Remove the memcg_kmem_bypass() call and properly charge compressed memory
-to its corresponding memory cgroup.
-
-Link: https://lore.kernel.org/linux-mm/CALvZod4nnn8BHYqAM4xtcR0Ddo2-Wr8uKm9h_CHWUaXw7g_DCg@mail.gmail.com/
-Link: https://lkml.kernel.org/r/20221114194828.100822-1-hannes@cmpxchg.org
-Fixes: f4840ccfca25 ("zswap: memcg accounting")
-Signed-off-by: Li Liguang <liliguang@baidu.com>
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Roman Gushchin <roman.gushchin@linux.dev>
-Cc: <stable@vger.kernel.org>	[5.19+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: b44c0e7fef51 ("usb: dwc3: gadget: conditionally remove requests")
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/3421859485cb32d77e2068549679a6c07a7797bc.1667875427.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: f90f5afd5083 ("usb: dwc3: gadget: Clear ep descriptor last")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memcontrol.c |    2 +-
+ drivers/usb/dwc3/gadget.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -2971,7 +2971,7 @@ struct obj_cgroup *get_obj_cgroup_from_p
- {
- 	struct obj_cgroup *objcg;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index d735a713e0e1..515ace4c85cf 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1008,7 +1008,7 @@ static int __dwc3_gadget_ep_disable(struct dwc3_ep *dep)
+ 		dep->endpoint.desc = NULL;
+ 	}
  
--	if (!memcg_kmem_enabled() || memcg_kmem_bypass())
-+	if (!memcg_kmem_enabled())
- 		return NULL;
+-	dwc3_remove_requests(dwc, dep, -ECONNRESET);
++	dwc3_remove_requests(dwc, dep, -ESHUTDOWN);
  
- 	if (PageMemcgKmem(page)) {
+ 	dep->stream_capable = false;
+ 	dep->type = 0;
+-- 
+2.35.1
+
 
 
