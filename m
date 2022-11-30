@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32ADF63DD7F
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:28:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82F0C63DFB4
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:49:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229910AbiK3S2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:28:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59142 "EHLO
+        id S231431AbiK3Sto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:49:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230146AbiK3S1y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:27:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3DFD3885
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:27:52 -0800 (PST)
+        with ESMTP id S231424AbiK3Sth (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:49:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456784908C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:49:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71E09B81CA1
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:27:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5D38C433C1;
-        Wed, 30 Nov 2022 18:27:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0528FB81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:49:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DB1AC433D7;
+        Wed, 30 Nov 2022 18:49:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832870;
-        bh=JODpgBCq16X/gi/Ru6zvD83AxvADc7n8VSdvV+sftKk=;
+        s=korg; t=1669834174;
+        bh=+aAj8DqxD8MpJkGpAoauxx8CvUD8Kx3cZ7VXAqb4eFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNpZGMSTGsEjgtW1oRh0tDk8+Ly0y/Y1RP+roBkFQz0WoUjIo0oe7raTFxJ44yeEE
-         CqwdldaUtUrSR0zzXsr6Z2V7R24fYoIclvrszbMT1bQSdAMwmO2UG36jvZyy8/eQxE
-         7Zbweo4Yco8VClczabsOrMrQjzKNRIxZU7/7Z95Q=
+        b=itz7+DNswoJvss2e05nctl8+frTz/1BUzycjkRv5ps7KxBQmDNCVyTid5/s21Cl/a
+         o9qSaKClKfqF5wYeozm4HnRd3bBYhySlEtHWVbvNqRf5nT2d3rR3xKd9tLj5tVWvlY
+         Y5HGQ2AyJM33PUOykj76GkFfrAARXjBbhdmcAhrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        patches@lists.linux.dev,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/162] bus: sunxi-rsb: Support atomic transfers
+Subject: [PATCH 6.0 139/289] ipv4: Fix error return code in fib_table_insert()
 Date:   Wed, 30 Nov 2022 19:22:04 +0100
-Message-Id: <20221130180529.673975628@linuxfoundation.org>
+Message-Id: <20221130180547.288795207@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,90 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 077686da0e2162c4ea5ae0df205849c2a7a84479 ]
+[ Upstream commit 568fe84940ac0e4e0b2cd7751b8b4911f7b9c215 ]
 
-When communicating with a PMIC during system poweroff (pm_power_off()),
-IRQs are disabled and we are in a RCU read-side critical section, so we
-cannot use wait_for_completion_io_timeout(). Instead, poll the status
-register for transfer completion.
+In fib_table_insert(), if the alias was already inserted, but node not
+exist, the error code should be set before return from error handling path.
 
-Fixes: d787dcdb9c8f ("bus: sunxi-rsb: Add driver for Allwinner Reduced Serial Bus")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20221114015749.28490-3-samuel@sholland.org
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Fixes: a6c76c17df02 ("ipv4: Notify route after insertion to the routing table")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Link: https://lore.kernel.org/r/20221120072838.2167047-1-william.xuanziyang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/sunxi-rsb.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ net/ipv4/fib_trie.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bus/sunxi-rsb.c b/drivers/bus/sunxi-rsb.c
-index 9b1a5e62417c..f8c29b888e6b 100644
---- a/drivers/bus/sunxi-rsb.c
-+++ b/drivers/bus/sunxi-rsb.c
-@@ -268,6 +268,9 @@ EXPORT_SYMBOL_GPL(sunxi_rsb_driver_register);
- /* common code that starts a transfer */
- static int _sunxi_rsb_run_xfer(struct sunxi_rsb *rsb)
- {
-+	u32 int_mask, status;
-+	bool timeout;
-+
- 	if (readl(rsb->regs + RSB_CTRL) & RSB_CTRL_START_TRANS) {
- 		dev_dbg(rsb->dev, "RSB transfer still in progress\n");
- 		return -EBUSY;
-@@ -275,13 +278,23 @@ static int _sunxi_rsb_run_xfer(struct sunxi_rsb *rsb)
+diff --git a/net/ipv4/fib_trie.c b/net/ipv4/fib_trie.c
+index 452ff177e4da..f26d5ac117d6 100644
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
+@@ -1381,8 +1381,10 @@ int fib_table_insert(struct net *net, struct fib_table *tb,
  
- 	reinit_completion(&rsb->complete);
- 
--	writel(RSB_INTS_LOAD_BSY | RSB_INTS_TRANS_ERR | RSB_INTS_TRANS_OVER,
--	       rsb->regs + RSB_INTE);
-+	int_mask = RSB_INTS_LOAD_BSY | RSB_INTS_TRANS_ERR | RSB_INTS_TRANS_OVER;
-+	writel(int_mask, rsb->regs + RSB_INTE);
- 	writel(RSB_CTRL_START_TRANS | RSB_CTRL_GLOBAL_INT_ENB,
- 	       rsb->regs + RSB_CTRL);
- 
--	if (!wait_for_completion_io_timeout(&rsb->complete,
--					    msecs_to_jiffies(100))) {
-+	if (irqs_disabled()) {
-+		timeout = readl_poll_timeout_atomic(rsb->regs + RSB_INTS,
-+						    status, (status & int_mask),
-+						    10, 100000);
-+		writel(status, rsb->regs + RSB_INTS);
-+	} else {
-+		timeout = !wait_for_completion_io_timeout(&rsb->complete,
-+							  msecs_to_jiffies(100));
-+		status = rsb->status;
+ 	/* The alias was already inserted, so the node must exist. */
+ 	l = l ? l : fib_find_node(t, &tp, key);
+-	if (WARN_ON_ONCE(!l))
++	if (WARN_ON_ONCE(!l)) {
++		err = -ENOENT;
+ 		goto out_free_new_fa;
 +	}
-+
-+	if (timeout) {
- 		dev_dbg(rsb->dev, "RSB timeout\n");
  
- 		/* abort the transfer */
-@@ -293,18 +306,18 @@ static int _sunxi_rsb_run_xfer(struct sunxi_rsb *rsb)
- 		return -ETIMEDOUT;
- 	}
- 
--	if (rsb->status & RSB_INTS_LOAD_BSY) {
-+	if (status & RSB_INTS_LOAD_BSY) {
- 		dev_dbg(rsb->dev, "RSB busy\n");
- 		return -EBUSY;
- 	}
- 
--	if (rsb->status & RSB_INTS_TRANS_ERR) {
--		if (rsb->status & RSB_INTS_TRANS_ERR_ACK) {
-+	if (status & RSB_INTS_TRANS_ERR) {
-+		if (status & RSB_INTS_TRANS_ERR_ACK) {
- 			dev_dbg(rsb->dev, "RSB slave nack\n");
- 			return -EINVAL;
- 		}
- 
--		if (rsb->status & RSB_INTS_TRANS_ERR_DATA) {
-+		if (status & RSB_INTS_TRANS_ERR_DATA) {
- 			dev_dbg(rsb->dev, "RSB transfer data error\n");
- 			return -EIO;
- 		}
+ 	if (fib_find_alias(&l->leaf, new_fa->fa_slen, 0, 0, tb->tb_id, true) ==
+ 	    new_fa) {
 -- 
 2.35.1
 
