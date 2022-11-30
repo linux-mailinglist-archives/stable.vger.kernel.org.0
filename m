@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C894E63DDCC
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:30:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DCC963E001
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:52:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229774AbiK3Sam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:30:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36078 "EHLO
+        id S231365AbiK3Swx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:52:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229780AbiK3Sac (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:30:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D05A8DBF2
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:30:31 -0800 (PST)
+        with ESMTP id S231571AbiK3Swe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:52:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B064BB1
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:52:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16E58B81CA4
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:30:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6674EC433D7;
-        Wed, 30 Nov 2022 18:30:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC2A161D73
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:52:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD484C433C1;
+        Wed, 30 Nov 2022 18:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833028;
-        bh=KyLHJ6keqKq3hjw1KVLFhrymkPsM84M14ZlDI/6UAnU=;
+        s=korg; t=1669834351;
+        bh=3VdAy2PEBXUnn1HvDET1/q+F/baVPl6abTe7pVq/tPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0+25wJkc1J2i9HqJetOYssy7QDw6MjZIteTlofNqhY6dOFu4qqYB9gqy22hQecfog
-         HlBYVPSURMHpHyk7um8QpDIzG/mlRHRAdd33H+8cxOYfI6zdZfJnILDlFPezkN2+Z0
-         KZY3XByreaLtNVHn7xS3XKJgIa/LK+QdGhuA/pvs=
+        b=coXJBFYzAgaUnAa0v69Ft7ECvbXYMGQkKj5xmrmVLAdGsTg4QtcQhUfSUFQkT2BM8
+         rzf78umunoEyu6eH7v+FELfmnz+P5LM/40X+cr49fzLWgp4AeOz9omdHCnZnnoArEQ
+         mgUdSFdPZm4BqW7y/us0hsyH/SeS/22n4aNgeWtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martijn Coenen <maco@android.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Todd Kjos <tkjos@google.com>,
-        Carlos Llamas <cmllamas@google.com>
-Subject: [PATCH 5.10 125/162] binder: avoid potential data leakage when copying txn
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 6.0 221/289] ASoC: Intel: fix unused-variable warning in probe_codec
 Date:   Wed, 30 Nov 2022 19:23:26 +0100
-Message-Id: <20221130180531.880694262@linuxfoundation.org>
+Message-Id: <20221130180549.128057955@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,228 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@google.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-commit 6d98eb95b450a75adb4516a1d33652dc78d2b20c upstream.
+commit 515626a33a194c4caaf2879dbf9e00e882582af0 upstream.
 
-Transactions are copied from the sender to the target
-first and objects like BINDER_TYPE_PTR and BINDER_TYPE_FDA
-are then fixed up. This means there is a short period where
-the sender's version of these objects are visible to the
-target prior to the fixups.
+In configurations with CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC=n,
+gcc warns about an unused variable:
 
-Instead of copying all of the data first, copy data only
-after any needed fixups have been applied.
+sound/soc/intel/skylake/skl.c: In function ‘probe_codec’:
+sound/soc/intel/skylake/skl.c:729:18: error: unused variable ‘skl’ [-Werror=unused-variable]
+  struct skl_dev *skl = bus_to_skl(bus);
+                  ^~~
+cc1: all warnings being treated as errors
 
-Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
-Reviewed-by: Martijn Coenen <maco@android.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Link: https://lore.kernel.org/r/20211130185152.437403-3-tkjos@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[cmllamas: fix trivial merge conflict]
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
+Fixes: 3fd63658caed9 ("ASoC: Intel: Drop hdac_ext usage for codec device creation")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Acked-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20220822035133.2147381-1-cuigaosheng1@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder.c |   94 +++++++++++++++++++++++++++++++++++------------
- 1 file changed, 70 insertions(+), 24 deletions(-)
+ sound/soc/intel/skylake/skl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2008,15 +2008,21 @@ static void binder_cleanup_transaction(s
- /**
-  * binder_get_object() - gets object and checks for valid metadata
-  * @proc:	binder_proc owning the buffer
-+ * @u:		sender's user pointer to base of buffer
-  * @buffer:	binder_buffer that we're parsing.
-  * @offset:	offset in the @buffer at which to validate an object.
-  * @object:	struct binder_object to read into
-  *
-- * Return:	If there's a valid metadata object at @offset in @buffer, the
-+ * Copy the binder object at the given offset into @object. If @u is
-+ * provided then the copy is from the sender's buffer. If not, then
-+ * it is copied from the target's @buffer.
-+ *
-+ * Return:	If there's a valid metadata object at @offset, the
-  *		size of that object. Otherwise, it returns zero. The object
-  *		is read into the struct binder_object pointed to by @object.
-  */
- static size_t binder_get_object(struct binder_proc *proc,
-+				const void __user *u,
- 				struct binder_buffer *buffer,
- 				unsigned long offset,
- 				struct binder_object *object)
-@@ -2026,10 +2032,16 @@ static size_t binder_get_object(struct b
- 	size_t object_size = 0;
- 
- 	read_size = min_t(size_t, sizeof(*object), buffer->data_size - offset);
--	if (offset > buffer->data_size || read_size < sizeof(*hdr) ||
--	    binder_alloc_copy_from_buffer(&proc->alloc, object, buffer,
--					  offset, read_size))
-+	if (offset > buffer->data_size || read_size < sizeof(*hdr))
- 		return 0;
-+	if (u) {
-+		if (copy_from_user(object, u + offset, read_size))
-+			return 0;
-+	} else {
-+		if (binder_alloc_copy_from_buffer(&proc->alloc, object, buffer,
-+						  offset, read_size))
-+			return 0;
-+	}
- 
- 	/* Ok, now see if we read a complete object. */
- 	hdr = &object->hdr;
-@@ -2102,7 +2114,7 @@ static struct binder_buffer_object *bind
- 					  b, buffer_offset,
- 					  sizeof(object_offset)))
- 		return NULL;
--	object_size = binder_get_object(proc, b, object_offset, object);
-+	object_size = binder_get_object(proc, NULL, b, object_offset, object);
- 	if (!object_size || object->hdr.type != BINDER_TYPE_PTR)
- 		return NULL;
- 	if (object_offsetp)
-@@ -2167,7 +2179,8 @@ static bool binder_validate_fixup(struct
- 		unsigned long buffer_offset;
- 		struct binder_object last_object;
- 		struct binder_buffer_object *last_bbo;
--		size_t object_size = binder_get_object(proc, b, last_obj_offset,
-+		size_t object_size = binder_get_object(proc, NULL, b,
-+						       last_obj_offset,
- 						       &last_object);
- 		if (object_size != sizeof(*last_bbo))
- 			return false;
-@@ -2282,7 +2295,7 @@ static void binder_transaction_buffer_re
- 		if (!binder_alloc_copy_from_buffer(&proc->alloc, &object_offset,
- 						   buffer, buffer_offset,
- 						   sizeof(object_offset)))
--			object_size = binder_get_object(proc, buffer,
-+			object_size = binder_get_object(proc, NULL, buffer,
- 							object_offset, &object);
- 		if (object_size == 0) {
- 			pr_err("transaction release %d bad object at offset %lld, size %zd\n",
-@@ -2848,6 +2861,7 @@ static void binder_transaction(struct bi
- 	binder_size_t off_start_offset, off_end_offset;
- 	binder_size_t off_min;
- 	binder_size_t sg_buf_offset, sg_buf_end_offset;
-+	binder_size_t user_offset = 0;
- 	struct binder_proc *target_proc = NULL;
- 	struct binder_thread *target_thread = NULL;
- 	struct binder_node *target_node = NULL;
-@@ -2862,6 +2876,8 @@ static void binder_transaction(struct bi
- 	int t_debug_id = atomic_inc_return(&binder_last_id);
- 	char *secctx = NULL;
- 	u32 secctx_sz = 0;
-+	const void __user *user_buffer = (const void __user *)
-+				(uintptr_t)tr->data.ptr.buffer;
- 
- 	e = binder_transaction_log_add(&binder_transaction_log);
- 	e->debug_id = t_debug_id;
-@@ -3175,19 +3191,6 @@ static void binder_transaction(struct bi
- 
- 	if (binder_alloc_copy_user_to_buffer(
- 				&target_proc->alloc,
--				t->buffer, 0,
--				(const void __user *)
--					(uintptr_t)tr->data.ptr.buffer,
--				tr->data_size)) {
--		binder_user_error("%d:%d got transaction with invalid data ptr\n",
--				proc->pid, thread->pid);
--		return_error = BR_FAILED_REPLY;
--		return_error_param = -EFAULT;
--		return_error_line = __LINE__;
--		goto err_copy_data_failed;
--	}
--	if (binder_alloc_copy_user_to_buffer(
--				&target_proc->alloc,
- 				t->buffer,
- 				ALIGN(tr->data_size, sizeof(void *)),
- 				(const void __user *)
-@@ -3230,6 +3233,7 @@ static void binder_transaction(struct bi
- 		size_t object_size;
- 		struct binder_object object;
- 		binder_size_t object_offset;
-+		binder_size_t copy_size;
- 
- 		if (binder_alloc_copy_from_buffer(&target_proc->alloc,
- 						  &object_offset,
-@@ -3241,8 +3245,27 @@ static void binder_transaction(struct bi
- 			return_error_line = __LINE__;
- 			goto err_bad_offset;
- 		}
--		object_size = binder_get_object(target_proc, t->buffer,
--						object_offset, &object);
-+
-+		/*
-+		 * Copy the source user buffer up to the next object
-+		 * that will be processed.
-+		 */
-+		copy_size = object_offset - user_offset;
-+		if (copy_size && (user_offset > object_offset ||
-+				binder_alloc_copy_user_to_buffer(
-+					&target_proc->alloc,
-+					t->buffer, user_offset,
-+					user_buffer + user_offset,
-+					copy_size))) {
-+			binder_user_error("%d:%d got transaction with invalid data ptr\n",
-+					proc->pid, thread->pid);
-+			return_error = BR_FAILED_REPLY;
-+			return_error_param = -EFAULT;
-+			return_error_line = __LINE__;
-+			goto err_copy_data_failed;
-+		}
-+		object_size = binder_get_object(target_proc, user_buffer,
-+				t->buffer, object_offset, &object);
- 		if (object_size == 0 || object_offset < off_min) {
- 			binder_user_error("%d:%d got transaction with invalid offset (%lld, min %lld max %lld) or object.\n",
- 					  proc->pid, thread->pid,
-@@ -3254,6 +3277,11 @@ static void binder_transaction(struct bi
- 			return_error_line = __LINE__;
- 			goto err_bad_offset;
- 		}
-+		/*
-+		 * Set offset to the next buffer fragment to be
-+		 * copied
-+		 */
-+		user_offset = object_offset + object_size;
- 
- 		hdr = &object.hdr;
- 		off_min = object_offset + object_size;
-@@ -3349,9 +3377,14 @@ static void binder_transaction(struct bi
- 			}
- 			ret = binder_translate_fd_array(fda, parent, t, thread,
- 							in_reply_to);
--			if (ret < 0) {
-+			if (!ret)
-+				ret = binder_alloc_copy_to_buffer(&target_proc->alloc,
-+								  t->buffer,
-+								  object_offset,
-+								  fda, sizeof(*fda));
-+			if (ret) {
- 				return_error = BR_FAILED_REPLY;
--				return_error_param = ret;
-+				return_error_param = ret > 0 ? -EINVAL : ret;
- 				return_error_line = __LINE__;
- 				goto err_translate_failed;
- 			}
-@@ -3421,6 +3454,19 @@ static void binder_transaction(struct bi
- 			goto err_bad_object_type;
- 		}
- 	}
-+	/* Done processing objects, copy the rest of the buffer */
-+	if (binder_alloc_copy_user_to_buffer(
-+				&target_proc->alloc,
-+				t->buffer, user_offset,
-+				user_buffer + user_offset,
-+				tr->data_size - user_offset)) {
-+		binder_user_error("%d:%d got transaction with invalid data ptr\n",
-+				proc->pid, thread->pid);
-+		return_error = BR_FAILED_REPLY;
-+		return_error_param = -EFAULT;
-+		return_error_line = __LINE__;
-+		goto err_copy_data_failed;
-+	}
- 	tcomplete->type = BINDER_WORK_TRANSACTION_COMPLETE;
- 	t->work.type = BINDER_WORK_TRANSACTION;
- 
+--- a/sound/soc/intel/skylake/skl.c
++++ b/sound/soc/intel/skylake/skl.c
+@@ -726,8 +726,8 @@ static int probe_codec(struct hdac_bus *
+ 	unsigned int cmd = (addr << 28) | (AC_NODE_ROOT << 20) |
+ 		(AC_VERB_PARAMETERS << 8) | AC_PAR_VENDOR_ID;
+ 	unsigned int res = -1;
+-	struct skl_dev *skl = bus_to_skl(bus);
+ #if IS_ENABLED(CONFIG_SND_SOC_INTEL_SKYLAKE_HDAUDIO_CODEC)
++	struct skl_dev *skl = bus_to_skl(bus);
+ 	struct hdac_hda_priv *hda_codec;
+ #endif
+ 	struct hda_codec *codec;
 
 
