@@ -2,136 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3458063D644
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 14:06:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CFE163D66E
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 14:16:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233620AbiK3NGR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 08:06:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47682 "EHLO
+        id S235626AbiK3NQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 08:16:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233081AbiK3NGP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 08:06:15 -0500
-Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00402B871
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 05:06:13 -0800 (PST)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0AAD15C00C7;
-        Wed, 30 Nov 2022 08:06:10 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 30 Nov 2022 08:06:10 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
-         h=cc:cc:content-transfer-encoding:date:date:from:from
-        :in-reply-to:message-id:mime-version:reply-to:sender:subject
-        :subject:to:to; s=fm1; t=1669813570; x=1669899970; bh=n03KMEO/9c
-        voahW97c3DR62dVdR1Q9sWEupAej+/YVg=; b=k++w+PQKrX8BdFqoW3W2G5FoFG
-        qxBzT0hxPE56ua4Et/4/kY4ZsMELTrFhzWUFw9XiLCxDbzt5VIn5QsjNnAqfpZH6
-        wAwuKWpcL1y2PVqG7gECpgMJAzoSlvkfi6M1uF7udxuIq6L0Recfg6I/ZxjjfAhi
-        0L8+v0sN/KWJ7P0fjopNSqa/dgNTCqf6Og+WGnL9FwCwkuw0JcJFt8TXcYh62HXg
-        RKZ9JmpKr7RgJ/gqBgAmZ7bZZWrgfTX4HENhdKl1TgAG35gypz4GfZRdoBOzgE48
-        t6GTvk2VKagS05t9IxHiOPrQbRDMHXvqFZF6XRV7N0/t/HrtpOfUGSVxouNQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:message-id
-        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-        1669813570; x=1669899970; bh=n03KMEO/9cvoahW97c3DR62dVdR1Q9sWEup
-        Aej+/YVg=; b=Nl5EY1Wh3Kqa0SiWfYTWBgjLcSUv5ULU0VdZ0Ptzzx4N/w/b9Ku
-        d0pwadUGAYNSRYJUuVwcCD38aUznOfUVKjRnegevH1LsZZB5XEKIrl7jJfENG3kv
-        ojYMS6r7dIvWFVcIV7/fN7hJquALi/Cqi08MRnOsbXVpiLlvbTX7FtobuGh38Xjf
-        BnUdfWldmTaQF9X3PCRvw5gGnu3K/WTA0I3bxuzvMWkowl86Ze0RBJXsaFalIql9
-        dud5a6UIAQW+TpKUcc+HttchqzHiFqWe9SZrmfxBgMPWUDTY3Tb7TSrKzPBAIqZi
-        lobVsOfQxE0u/ukvbv9zbtY/BL0hpvLy0vg==
-X-ME-Sender: <xms:QVWHYxyYz_xmXTNlPlrq98pRwb5kyhuoPncRZMaE4mta4XQIMCYbGg>
-    <xme:QVWHYxQI0_BXxuqzVwBItGos1pB5NqOiknGYDV3xrLtTnvMggI2qxZDOY7DanEfN3
-    QMhPybT9jXiHyKKf1k>
-X-ME-Received: <xmr:QVWHY7XA7OTUEeuwHyaIG4IXkY96tJmQGAMoc3LQOERDh-rYFcYIITiU8SxtGdMl60gpoTZna6yU9e4ourjlFUn2XFQx4FVJQaJfsxPP_GuK0p9yQj-PpmA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrtdefgdeghecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhephffvvefufffkofgggfestdekredtre
-    dttdenucfhrhhomhepvfgrkhgrshhhihcuufgrkhgrmhhothhouceoohdqthgrkhgrshhh
-    ihesshgrkhgrmhhotggthhhirdhjpheqnecuggftrfgrthhtvghrnhepffdvueelffevke
-    duhfetjeduffeghfettdfguedtgfdvgfeufeduheevheevkeeknecuvehluhhsthgvrhfu
-    ihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepohdqthgrkhgrshhhihesshgrkh
-    grmhhotggthhhirdhjph
-X-ME-Proxy: <xmx:QVWHYzgXsA_ATLH2IS0uOIZaU25mkL9x6t1lv73-I1m2EwZR9xb8pQ>
-    <xmx:QVWHYzD3uRYZOA66iFM_ccbjcQpVYgSkThmNjScPyuyb5Z_Z2A96VQ>
-    <xmx:QVWHY8L7acKhp9srItPD9lfiqacTraHrPsq2kbUfIiMg2vukrHFu3w>
-    <xmx:QlWHY2O6OrXW9td8uz-ioO5utG7YJE9NKxE927HK376QHJU1yjWoPg>
-Feedback-ID: ie8e14432:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 30 Nov 2022 08:06:08 -0500 (EST)
-From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
-To:     tiwai@suse.de
-Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
-        stable@vger.kernel.org
-Subject: [PATCH] ALSA: dice: fix regression for Lexicon I-ONIX FW810S
-Date:   Wed, 30 Nov 2022 22:06:04 +0900
-Message-Id: <20221130130604.29774-1-o-takashi@sakamocchi.jp>
-X-Mailer: git-send-email 2.37.2
+        with ESMTP id S232519AbiK3NQi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 08:16:38 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BE7556D4B;
+        Wed, 30 Nov 2022 05:16:38 -0800 (PST)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id BE7B21F8D4;
+        Wed, 30 Nov 2022 13:16:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1669814196; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=InTVSiPNY3KgtbrUipVQFtm2qipHlsJxEeslMAjnJJE=;
+        b=BHU3Y2gSx5A154Ec4LapeBDMjO30vp7ImX6Pe0CIiWmpCzBx36Rav8CtnBHvJ9o09Iy2Sh
+        Eh5nxlF5Mi4lyF03rytpUKZ406LvN4ozuj3q0AkmlWC/P65NwZoBsAby16H3WFAXpkQIjf
+        Cjx2ulVvezXsLbJ6m5oMv98KyGPCE9w=
+Received: from suse.cz (unknown [10.100.208.146])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 9DCDA2C14F;
+        Wed, 30 Nov 2022 13:16:35 +0000 (UTC)
+Date:   Wed, 30 Nov 2022 14:16:32 +0100
+From:   Petr Mladek <pmladek@suse.com>
+To:     David Laight <David.Laight@aculab.com>
+Cc:     'Petr Pavlu' <petr.pavlu@suse.com>,
+        "mcgrof@kernel.org" <mcgrof@kernel.org>,
+        "prarit@redhat.com" <prarit@redhat.com>,
+        "david@redhat.com" <david@redhat.com>,
+        "mwilck@suse.com" <mwilck@suse.com>,
+        "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] module: Don't wait for GOING modules
+Message-ID: <Y4dXsNKve02fGGEl@alley>
+References: <20221123131226.24359-1-petr.pavlu@suse.com>
+ <Y348QNmO2AHh3eNr@alley>
+ <a26ed87f-9e4c-7c1f-515b-edaaff9140fd@suse.com>
+ <8224e68169eb49ec9866c253be84b09b@AcuMS.aculab.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8224e68169eb49ec9866c253be84b09b@AcuMS.aculab.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-For Lexicon I-ONIX FW810S, the call of ioctl(2) with
-SNDRV_PCM_IOCTL_HW_PARAMS can returns -ETIMEDOUT. This is a regression due
-to the commit 41319eb56e19 ("ALSA: dice: wait just for
-NOTIFY_CLOCK_ACCEPTED after GLOBAL_CLOCK_SELECT operation"). The device
-does not emit NOTIFY_CLOCK_ACCEPTED notification when accepting
-GLOBAL_CLOCK_SELECT operation with the same parameters as current ones.
+On Sun 2022-11-27 11:21:45, David Laight wrote:
+> From: Petr Pavlu
+> > Sent: 26 November 2022 14:43
+> > 
+> > On 11/23/22 16:29, Petr Mladek wrote:
+> > > On Wed 2022-11-23 14:12:26, Petr Pavlu wrote:
+> > >> During a system boot, it can happen that the kernel receives a burst of
+> > >> requests to insert the same module but loading it eventually fails
+> > >> during its init call. For instance, udev can make a request to insert
+> > >> a frequency module for each individual CPU when another frequency module
+> > >> is already loaded which causes the init function of the new module to
+> > >> return an error.
+> > >>
+> > >> Since commit 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for
+> > >> modules that have finished loading"), the kernel waits for modules in
+> > >> MODULE_STATE_GOING state to finish unloading before making another
+> > >> attempt to load the same module.
+> > >>
+> > >> This creates unnecessary work in the described scenario and delays the
+> > >> boot. In the worst case, it can prevent udev from loading drivers for
+> > >> other devices and might cause timeouts of services waiting on them and
+> > >> subsequently a failed boot.
+> > >>
+> > >> This patch attempts a different solution for the problem 6e6de3dee51a
+> > >> was trying to solve. Rather than waiting for the unloading to complete,
+> > >> it returns a different error code (-EBUSY) for modules in the GOING
+> > >> state. This should avoid the error situation that was described in
+> > >> 6e6de3dee51a (user space attempting to load a dependent module because
+> > >> the -EEXIST error code would suggest to user space that the first module
+> > >> had been loaded successfully), while avoiding the delay situation too.
+> > >>
+> 
+> While people have all this code cached in their brains
+> there is related problem I can easily hit.
+> 
+> If two processes create sctp sockets at the same time and sctp
+> module has to be loaded then the second process can enter the
+> module code before is it fully initialised.
+> This might be because the try_module_get() succeeds before the
+> module initialisation function returns.
 
-This commit fixes the regression. When receiving no notification, return
--ETIMEDOUT as long as operating for any change.
+Right, the race is there. And it is true that nobody should use
+the module until mod->init() succeeds.
 
-Fixes: 41319eb56e19 ("ALSA: dice: wait just for NOTIFY_CLOCK_ACCEPTED after GLOBAL_CLOCK_SELECT operation")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
----
- sound/firewire/dice/dice-stream.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+Well, I am not sure if there is an easy solution. It might require
+reviewing what all try_module_get() callers expect.
 
-diff --git a/sound/firewire/dice/dice-stream.c b/sound/firewire/dice/dice-stream.c
-index f99e00083141..4c677c8546c7 100644
---- a/sound/firewire/dice/dice-stream.c
-+++ b/sound/firewire/dice/dice-stream.c
-@@ -59,7 +59,7 @@ int snd_dice_stream_get_rate_mode(struct snd_dice *dice, unsigned int rate,
- 
- static int select_clock(struct snd_dice *dice, unsigned int rate)
- {
--	__be32 reg;
-+	__be32 reg, new;
- 	u32 data;
- 	int i;
- 	int err;
-@@ -83,15 +83,17 @@ static int select_clock(struct snd_dice *dice, unsigned int rate)
- 	if (completion_done(&dice->clock_accepted))
- 		reinit_completion(&dice->clock_accepted);
- 
--	reg = cpu_to_be32(data);
-+	new = cpu_to_be32(data);
- 	err = snd_dice_transaction_write_global(dice, GLOBAL_CLOCK_SELECT,
--						&reg, sizeof(reg));
-+						&new, sizeof(new));
- 	if (err < 0)
- 		return err;
- 
- 	if (wait_for_completion_timeout(&dice->clock_accepted,
--			msecs_to_jiffies(NOTIFICATION_TIMEOUT_MS)) == 0)
--		return -ETIMEDOUT;
-+			msecs_to_jiffies(NOTIFICATION_TIMEOUT_MS)) == 0) {
-+		if (reg != new)
-+			return -ETIMEDOUT;
-+	}
- 
- 	return 0;
- }
--- 
-2.37.2
+We could not easily wait. For example, __sock_create() calls
+try_module_get() under rcu_read_lock().
 
+And various callers might want special handing when the module
+is coming, going, and when it is not there at all.
+
+I guess that it would require adding some new API and update
+the various callers.
+
+> I've avoided the issue by ensuring the socket creates are serialised.
+
+I see. It would be great to have a clean solution, definitely.
+
+Sigh, there are more issues with the module life time. For example,
+kobjects might call the release() callback asynchronously and
+it might happen when the module/code has gone, see
+https://lore.kernel.org/all/20211105063710.4092936-1-ming.lei@redhat.com/
+
+Best Regards,
+PEtr
