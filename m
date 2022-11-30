@@ -2,84 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6626863D0FE
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 09:45:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2288A63D195
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 10:18:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236737AbiK3IpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 03:45:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50792 "EHLO
+        id S232607AbiK3JSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 04:18:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233580AbiK3IpB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 03:45:01 -0500
-X-Greylist: delayed 92 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 30 Nov 2022 00:44:49 PST
-Received: from o1.vendors.lashowroom.com (o1.vendors.lashowroom.com [168.245.61.215])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3A232AC74
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 00:44:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lashowroom.com;
-        h=subject:from:mime-version:to:content-type:content-transfer-encoding:
-        cc;
-        s=smtpapi; bh=5Ir51aKctXbeeVqfUyrJtV/u03YnCJhMntETy41Y8CA=;
-        b=c9eEKtTe85Q0yaQ9K7Kf7a5laL6RzPX90jPaeyG+zTQj7brtGmGn8nALdVL7C5qanZXO
-        IAXHuK/rc2s9IvQm1qZHE+WTSsJgcTj8XZe4me5zgfMUV1BrNK/Zqt7hsauPqdCehvWz6H
-        9imsWtmHgUxWdc/RuvaKr5q71m+c9E8v4=
-Received: by filterdrecv-8569859b9-tj4gr with SMTP id filterdrecv-8569859b9-tj4gr-1-638717A4-4
-        2022-11-30 08:43:16.113915151 +0000 UTC m=+1071389.681954905
-Received: from www.hautefox.com (unknown)
-        by geopod-ismtpd-5-0 (SG)
-        with ESMTP id pAGc0M7qQdaW-0tyovNg4g
-        for <stable@vger.kernel.org>;
-        Wed, 30 Nov 2022 08:43:15.905 +0000 (UTC)
-Message-ID: <617726e9a166199092139123caf70171@www.hautefox.com>
-Date:   Wed, 30 Nov 2022 08:43:16 +0000 (UTC)
-Subject: Thank you for Registering
-From:   Haute Fox | Contemporary and Plus Size Wholesaler 
-        <noreply@lashowroom.com>
+        with ESMTP id S230400AbiK3JST (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 04:18:19 -0500
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9630B391F8;
+        Wed, 30 Nov 2022 01:18:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1669799897; x=1701335897;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=wrWe/TQN+gS3dXYRn1q2aDPwtbTJKrb7lybWzRAK9PY=;
+  b=aH2qLVDwlp1RNOlVLd/YYC7WBCO/FmFIyVM7PDbx90gk0apNvjaQ9sUG
+   pZEtznNfZWIJTkHLLeqJ+pYBmaLxPlSoIx1LAuwCf/g1W7AAbr3O3r5Qq
+   8jrZxWGNTF/xiPkIE09IR5UTJPUpRu8YG0QTj8jALsxEu4wAH3aAb8/lY
+   7r0dzwE8AYpdFnnuPfzmbRE8/KQpt+1oBSFP4JBpzmOq5lmGKp//0KwQ8
+   xBnHhBWCH7h4t6vLlx+CuQ7SpdQlYeEvOKLO4iuloTJAyBi2LzES/O2Js
+   T7ya74HACwyTWjXCKEf82qg9io0hXP6UKAcLHu2rFVOlP5Mx4lWFWQIdM
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10546"; a="295711270"
+X-IronPort-AV: E=Sophos;i="5.96,205,1665471600"; 
+   d="scan'208";a="295711270"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Nov 2022 01:18:17 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10546"; a="674962701"
+X-IronPort-AV: E=Sophos;i="5.96,205,1665471600"; 
+   d="scan'208";a="674962701"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.199])
+  by orsmga008.jf.intel.com with ESMTP; 30 Nov 2022 01:18:15 -0800
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <linux-usb@vger.kernel.org>, Reka Norman <rekanorman@chromium.org>,
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 2/6] xhci: Apply XHCI_RESET_TO_DEFAULT quirk to ADL-N
+Date:   Wed, 30 Nov 2022 11:19:40 +0200
+Message-Id: <20221130091944.2171610-3-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221130091944.2171610-1-mathias.nyman@linux.intel.com>
+References: <20221130091944.2171610-1-mathias.nyman@linux.intel.com>
 MIME-Version: 1.0
-X-SG-EID: =?us-ascii?Q?cZTXg=2FC01yF9yMicON9KdZRqOe8kccXSHNQI1T=2F1s7XIh61Tvcm8fvlvQkAdD9?=
- =?us-ascii?Q?tOV7TERMPTwJ4XU7Hwgcdt3sfG5d1c+WMlOlOsM?=
- =?us-ascii?Q?8E6oql=2FkgTuuW8C16sNvH0g+0r2iSmOXqXUoIKR?=
- =?us-ascii?Q?Brrg6YyAGL7WLiaSWffKxxHBTWliJ=2F1WvRVf=2FtM?=
- =?us-ascii?Q?cn8O5yF5e+wJaiaE=2F6Q65U3XhImuFWxu9KV66rV?=
- =?us-ascii?Q?3ftFnfjviUeAaEoXu3LRbuDl+BovKycjSeVT2K1?=
- =?us-ascii?Q?ZPUEI3qm8CPC9065rpbyp1rwh3IntHpcPeUAFlA?= =?us-ascii?Q?wxI=3D?=
-To:     =?iso-8859-5?b?aHd4wedhY+Ji71/SYW1fMTU2NzVydWJs?= https:
-        "//telegra.ph/KF-730148-11-27#" <stable@vger.kernel.org>, ;
-Illegal-Object: Syntax error in To: address found on vger.kernel.org:
-        To:     ;
-                        ^-missing semicolon to end mail group, extraneous tokens in mailbox, missing end of mailbox
-X-Entity-ID: 8nMZDXlT8b+rQiNoWoyjuA==
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=0.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear hwx=D0=A1=D1=87ac=D1=82b=D1=8F_=D0=B2am_15675rubl
- https://telegra.ph/KF-730148-11-27#,
+From: Reka Norman <rekanorman@chromium.org>
 
-Thank you for your interest in shopping with us!
+ADL-N systems have the same issue as ADL-P, where a large boot firmware
+delay is seen if USB ports are left in U3 at shutdown. So apply the
+XHCI_RESET_TO_DEFAULT quirk to ADL-N as well.
 
-To complete the www.hautefox.com registration process, please email a legib=
-le copy/photo of your seller=E2=80=99s permit or business license to showro=
-om@hautefox.com. You may also fax it to 213-493-4291. We will send an appro=
-val notification upon verification.
+This patch depends on commit 34cd2db408d5 ("xhci: Add quirk to reset
+host back to default state at shutdown").
 
-If you have registered with www.hautefox.com in the past and are having tro=
-uble accessing the account, please email us the registered company name, th=
-e contact name, and email address. We will get back to you after reviewing =
-your account.
+The issue it fixes is a ~20s boot time delay when booting from S5. It
+affects ADL-N devices, and ADL-N support was added starting from v5.16.
 
-International retailers registering for the first time, please email us you=
-r website URL, invoices from other wholesalers, or a copy of your business =
-card, instead of the seller=EF=BF=BDs permit.
+Cc: stable@vger.kernel.org
+Signed-off-by: Reka Norman <rekanorman@chromium.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+ drivers/usb/host/xhci-pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-If you have any questions, please do not hesitate to contact us at showroom=
-@hautefox.com. It is our pleasure to help you!
-
-Have a great day!
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index 7bccbe50bab1..f98cf30a3c1a 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -59,6 +59,7 @@
+ #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
+ #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
+ #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI		0x51ed
++#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_PCH_XHCI	0x54ed
+ 
+ #define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
+@@ -246,7 +247,8 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 		xhci->quirks |= XHCI_MISSING_CAS;
+ 
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+-	    pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI)
++	    (pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_PCH_XHCI))
+ 		xhci->quirks |= XHCI_RESET_TO_DEFAULT;
+ 
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+-- 
+2.25.1
 
