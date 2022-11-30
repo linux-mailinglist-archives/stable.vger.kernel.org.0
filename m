@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D275663DEBB
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:40:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0193E63E006
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:53:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231136AbiK3SkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:40:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51442 "EHLO
+        id S231544AbiK3SxB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:53:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231128AbiK3SkN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:13 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D93397018
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:12 -0800 (PST)
+        with ESMTP id S231553AbiK3Swy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:52:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FC075595
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:52:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E65F9CE1AD3
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4CB5C433D6;
-        Wed, 30 Nov 2022 18:40:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B578D61D73
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:52:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0901C433C1;
+        Wed, 30 Nov 2022 18:52:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833609;
-        bh=c+lE0ZZZLKJZ0rR6vUXkQsCX6ojb+cTTXxbcLNlDigQ=;
+        s=korg; t=1669834362;
+        bh=wwNQnLOKV3Su2JrpkBV2pkUxadD8MRYDCSxAHiGhqx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pfFm43eyeI4EV9OL91jaApY7sh0Gt18f/rGM2Yimpq3CZPe9rOt3J7X7ImSbJA5Qd
-         ILXw/OPQiui5g2U+ZI4h2Af73J1nyz6/Z4e+/iuWstGT0VWogEPueVNovuy8XMp7PB
-         6AknRVVrQh7ikwvik6RtSO63YHOlLYzyV3EKODgU=
+        b=YlXiIgMxHik97faPPEY8exuGyTIaflWtyEl0/27SiQJQeE0MPIWTev76qDic01l4+
+         VWeHwD8SI2gAKpWBw4vJ0hlJtLE9sjb0MpdAsPCHiNtSxzFBNBSF1iJ0L0+N0ofuZA
+         J+xyqKBQNut+m96IPyr6ulNebGywg/r5TiCDppQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 157/206] KVM: x86: forcibly leave nested mode on vCPU reset
-Date:   Wed, 30 Nov 2022 19:23:29 +0100
-Message-Id: <20221130180537.028421738@linuxfoundation.org>
+        patches@lists.linux.dev, Brent Mendelsohn <mendiebm@gmail.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 225/289] ASoC: amd: yc: Add Alienware m17 R5 AMD into DMI table
+Date:   Wed, 30 Nov 2022 19:23:30 +0100
+Message-Id: <20221130180549.216179012@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,57 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Brent Mendelsohn <mendiebm@gmail.com>
 
-commit ed129ec9057f89d615ba0c81a4984a90345a1684 upstream.
+[ Upstream commit d40b6529c6269cd5afddb1116a383cab9f126694 ]
 
-While not obivous, kvm_vcpu_reset() leaves the nested mode by clearing
-'vcpu->arch.hflags' but it does so without all the required housekeeping.
+This model requires an additional detection quirk to enable the
+internal microphone - BIOS doesn't seem to support AcpDmicConnected
+(nothing in acpidump output).
 
-On SVM,	it is possible to have a vCPU reset while in guest mode because
-unlike VMX, on SVM, INIT's are not latched in SVM non root mode and in
-addition to that L1 doesn't have to intercept triple fault, which should
-also trigger L1's reset if happens in L2 while L1 didn't intercept it.
-
-If one of the above conditions happen, KVM will	continue to use vmcb02
-while not having in the guest mode.
-
-Later the IA32_EFER will be cleared which will lead to freeing of the
-nested guest state which will (correctly) free the vmcb02, but since
-KVM still uses it (incorrectly) this will lead to a use after free
-and kernel crash.
-
-This issue is assigned CVE-2022-3344
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20221103141351.50662-5-mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216590
+Signed-off-by: Brent Mendelsohn <mendiebm@gmail.com>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://lore.kernel.org/r/20221024174227.4160-1-mendiebm@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/soc/amd/yc/acp6x-mach.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -11111,8 +11111,18 @@ void kvm_vcpu_reset(struct kvm_vcpu *vcp
- 	unsigned long new_cr0;
- 	u32 eax, dummy;
+diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
+index 6c0f1de10429..d9715bea965e 100644
+--- a/sound/soc/amd/yc/acp6x-mach.c
++++ b/sound/soc/amd/yc/acp6x-mach.c
+@@ -206,6 +206,13 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "UM5302TA"),
+ 		}
+ 	},
++	{
++		.driver_data = &acp6x_card,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Alienware"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Alienware m17 R5 AMD"),
++		}
++	},
+ 	{}
+ };
  
-+	/*
-+	 * SVM doesn't unconditionally VM-Exit on INIT and SHUTDOWN, thus it's
-+	 * possible to INIT the vCPU while L2 is active.  Force the vCPU back
-+	 * into L1 as EFER.SVME is cleared on INIT (along with all other EFER
-+	 * bits), i.e. virtualization is disabled.
-+	 */
-+	if (is_guest_mode(vcpu))
-+		kvm_leave_nested(vcpu);
-+
- 	kvm_lapic_reset(vcpu, init_event);
- 
-+	WARN_ON_ONCE(is_guest_mode(vcpu) || is_smm(vcpu));
- 	vcpu->arch.hflags = 0;
- 
- 	vcpu->arch.smi_pending = 0;
+-- 
+2.35.1
+
 
 
