@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE55063DEE4
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:41:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1693763E026
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:54:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231175AbiK3Sl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:41:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53088 "EHLO
+        id S231547AbiK3SyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:54:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231228AbiK3Slh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8903799F3A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:35 -0800 (PST)
+        with ESMTP id S231520AbiK3SyB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:54:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37F7D25C74
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:53:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD08461D65
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:41:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2FE3C433D6;
-        Wed, 30 Nov 2022 18:41:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C95861D54
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:53:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E7D7C433C1;
+        Wed, 30 Nov 2022 18:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833694;
-        bh=DCzw2f8CSytR+NWAL1RRo8KPBCEtTUU7pH7EYX3VFTg=;
+        s=korg; t=1669834437;
+        bh=r8yFTYSWFA/iqpZMBC4HUeyzKbYz0Q+d25xqIGgYQUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cl/s8HsCZJ2MhKN5Jaes8v31qL0Z40QPmf+l+p8BCx3qM8TvURGLgCcNe35XNp42j
-         Lp9JA9vRZdNb+oJUG+4UDyX3F1J/dYcMehS/JSwZoyTBP3y60/xlT98OAHwQ70p837
-         NYJkGGM3klkgb4f2juS3XyJmY/HNOSGNC8WF61Ng=
+        b=djPq/6AuoV12xbeSCAsk0DshxkRUlq0Un+R1h0cHE2TA7OV5ohJkcOW4NJy5WqRxd
+         l+77FTEP7XDS3HuJK635Ep/kV7NQkkta2GbhcqxGi28lMcjeWV2Xh7ksqo04FhgFAF
+         RPd6Z2k77PF/14dWhe9INyssa0tvZG0RollDv250=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>,
+        patches@lists.linux.dev,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 186/206] dm integrity: clear the journal on suspend
+Subject: [PATCH 6.0 253/289] platform/x86: hp-wmi: Ignore Smart Experience App event
 Date:   Wed, 30 Nov 2022 19:23:58 +0100
-Message-Id: <20221130180537.750041402@linuxfoundation.org>
+Message-Id: <20221130180549.840575760@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 984bf2cc531e778e49298fdf6730e0396166aa21 ]
+[ Upstream commit 8b9b6a044b408283b086702b1d9e3cf4ba45b426 ]
 
-There was a problem that a user burned a dm-integrity image on CDROM
-and could not activate it because it had a non-empty journal.
+Sometimes hp-wmi driver complains on system resume:
+[ 483.116451] hp_wmi: Unknown event_id - 33 - 0x0
 
-Fix this problem by flushing the journal (done by the previous commit)
-and clearing the journal (done by this commit). Once the journal is
-cleared, dm-integrity won't attempt to replay it on the next
-activation.
+According to HP it's a feature called "HP Smart Experience App" and it's
+safe to be ignored.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20221114073842.205392-1-kai.heng.feng@canonical.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-integrity.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/platform/x86/hp-wmi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
-index bfdcb40f330a..9705f3c358dd 100644
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -259,6 +259,7 @@ struct dm_integrity_c {
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index 4fbe91769c91..788381e4c6a6 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -90,6 +90,7 @@ enum hp_wmi_event_ids {
+ 	HPWMI_PEAKSHIFT_PERIOD		= 0x0F,
+ 	HPWMI_BATTERY_CHARGE_PERIOD	= 0x10,
+ 	HPWMI_SANITIZATION_MODE		= 0x17,
++	HPWMI_SMART_EXPERIENCE_APP	= 0x21,
+ };
  
- 	struct completion crypto_backoff;
- 
-+	bool wrote_to_journal;
- 	bool journal_uptodate;
- 	bool just_formatted;
- 	bool recalculate_flag;
-@@ -2361,6 +2362,8 @@ static void integrity_commit(struct work_struct *w)
- 	if (!commit_sections)
- 		goto release_flush_bios;
- 
-+	ic->wrote_to_journal = true;
-+
- 	i = commit_start;
- 	for (n = 0; n < commit_sections; n++) {
- 		for (j = 0; j < ic->journal_section_entries; j++) {
-@@ -3084,6 +3087,14 @@ static void dm_integrity_postsuspend(struct dm_target *ti)
- 		queue_work(ic->writer_wq, &ic->writer_work);
- 		drain_workqueue(ic->writer_wq);
- 		dm_integrity_flush_buffers(ic, true);
-+		if (ic->wrote_to_journal) {
-+			init_journal(ic, ic->free_section,
-+				     ic->journal_sections - ic->free_section, ic->commit_seq);
-+			if (ic->free_section) {
-+				init_journal(ic, 0, ic->free_section,
-+					     next_commit_seq(ic->commit_seq));
-+			}
-+		}
- 	}
- 
- 	if (ic->mode == 'B') {
-@@ -3111,6 +3122,8 @@ static void dm_integrity_resume(struct dm_target *ti)
- 
- 	DEBUG_print("resume\n");
- 
-+	ic->wrote_to_journal = false;
-+
- 	if (ic->provided_data_sectors != old_provided_data_sectors) {
- 		if (ic->provided_data_sectors > old_provided_data_sectors &&
- 		    ic->mode == 'B' &&
+ /*
+@@ -857,6 +858,8 @@ static void hp_wmi_notify(u32 value, void *context)
+ 		break;
+ 	case HPWMI_SANITIZATION_MODE:
+ 		break;
++	case HPWMI_SMART_EXPERIENCE_APP:
++		break;
+ 	default:
+ 		pr_info("Unknown event_id - %d - 0x%x\n", event_id, event_data);
+ 		break;
 -- 
 2.35.1
 
