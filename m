@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1980C63DECC
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:41:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FD6163DDF9
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:32:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231151AbiK3SlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:41:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52240 "EHLO
+        id S230156AbiK3Sc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:32:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230505AbiK3Sk5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3017598962
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:56 -0800 (PST)
+        with ESMTP id S230158AbiK3ScZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:32:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B78508D660
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:32:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEB2CB81B82
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ED97C433C1;
-        Wed, 30 Nov 2022 18:40:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54B4A61AFE
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:32:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67337C433D6;
+        Wed, 30 Nov 2022 18:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833653;
-        bh=HQnziATy9GXeouqLcZTi0GRYACLnIQvqj6pEI65EoMw=;
+        s=korg; t=1669833143;
+        bh=mb+pGKqyYHoKta2t0TvbE4ss9Y74jYvBeT3Shr+CzvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pT+pbY8lGMwbjCBYmXHtEK7QGWrxQGoeiWkljL8JAZvFYb1O4hN0WX2H9CfuaGplQ
-         7O5ALE4W4N/SFGoOqCIYrqfPQdivCwn3mdQUPP83q6dB2VSNY2bq7D0/YqK6JEb+rE
-         h4UiYGo5hZm5+xL2h0zJJ2CTLjcTvC43edz+xKQU=
+        b=wf+FUCItyIpYw02/e0vtfzH+KBeeZvaA6hI3o2Uc8/PVScQ/02tvdl+eONFImcVr9
+         Six9R6IniBZEjg1GD3u5dFihRs5Qge/1QAd46g6JdEYmHqm/Ng62aulP2YhMMn8ulj
+         E0H5p9urWDo253O9zuby1FB54B4bbIXowMioOMbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matti Vaittinen <mazziesaccount@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        patches@lists.linux.dev, ruanjinjie <ruanjinjie@huawei.com>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 166/206] tools: iio: iio_generic_buffer: Fix read size
-Date:   Wed, 30 Nov 2022 19:23:38 +0100
-Message-Id: <20221130180537.253324399@linuxfoundation.org>
+Subject: [PATCH 5.10 138/162] xen/platform-pci: add missing free_irq() in error path
+Date:   Wed, 30 Nov 2022 19:23:39 +0100
+Message-Id: <20221130180532.225912160@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matti Vaittinen <mazziesaccount@gmail.com>
+From: ruanjinjie <ruanjinjie@huawei.com>
 
-[ Upstream commit 7c919b619bcc68158921b1bd968f0e704549bbb6 ]
+[ Upstream commit c53717e1e3f0d0f9129b2e0dbc6dcc5e0a8132e9 ]
 
-When noevents is true and small buffer is used the allocated memory for
-holding the data may be smaller than the hard-coded 64 bytes. This can
-cause the iio_generic_buffer to crash.
+free_irq() is missing in case of error in platform_pci_probe(), fix that.
 
-Following was recorded on beagle bone black with v6.0 kernel and the
-digit fix patch:
-https://lore.kernel.org/all/Y0f+tKCz+ZAIoroQ@dc75zzyyyyyyyyyyyyycy-3.rev.dnainternet.fi/
-using valgrind;
-
-==339== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
-==339== Command: /iio_generic_buffer -n kx022-accel -T0 -e -l 10 -a -w 2000000
-==339== Parent PID: 307
-==339==
-==339== Syscall param read(buf) points to unaddressable byte(s)
-==339==    at 0x496BFA4: read (read.c:26)
-==339==    by 0x11699: main (iio_generic_buffer.c:724)
-==339==  Address 0x4ab3518 is 0 bytes after a block of size 160 alloc'd
-==339==    at 0x4864B70: malloc (vg_replace_malloc.c:381)
-==339==    by 0x115BB: main (iio_generic_buffer.c:677)
-
-Fix this by always using the same size for reading as was used for
-data storage allocation.
-
-Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
-Link: https://lore.kernel.org/r/Y0kMh0t5qUXJw3nQ@dc75zzyyyyyyyyyyyyycy-3.rev.dnainternet.fi
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
+Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+Link: https://lore.kernel.org/r/20221114112124.1965611-1-ruanjinjie@huawei.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/iio/iio_generic_buffer.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/xen/platform-pci.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/tools/iio/iio_generic_buffer.c b/tools/iio/iio_generic_buffer.c
-index 2491c54a5e4f..f8deae4e26a1 100644
---- a/tools/iio/iio_generic_buffer.c
-+++ b/tools/iio/iio_generic_buffer.c
-@@ -715,12 +715,12 @@ int main(int argc, char **argv)
- 				continue;
- 			}
- 
--			toread = buf_len;
- 		} else {
- 			usleep(timedelay);
--			toread = 64;
+diff --git a/drivers/xen/platform-pci.c b/drivers/xen/platform-pci.c
+index 9db557b76511..804d8f4d0e73 100644
+--- a/drivers/xen/platform-pci.c
++++ b/drivers/xen/platform-pci.c
+@@ -137,7 +137,7 @@ static int platform_pci_probe(struct pci_dev *pdev,
+ 		if (ret) {
+ 			dev_warn(&pdev->dev, "Unable to set the evtchn callback "
+ 					 "err=%d\n", ret);
+-			goto out;
++			goto irq_out;
  		}
+ 	}
  
-+		toread = buf_len;
-+
- 		read_size = read(buf_fd, data, toread * scan_size);
- 		if (read_size < 0) {
- 			if (errno == EAGAIN) {
+@@ -145,13 +145,16 @@ static int platform_pci_probe(struct pci_dev *pdev,
+ 	grant_frames = alloc_xen_mmio(PAGE_SIZE * max_nr_gframes);
+ 	ret = gnttab_setup_auto_xlat_frames(grant_frames);
+ 	if (ret)
+-		goto out;
++		goto irq_out;
+ 	ret = gnttab_init();
+ 	if (ret)
+ 		goto grant_out;
+ 	return 0;
+ grant_out:
+ 	gnttab_free_auto_xlat_frames();
++irq_out:
++	if (!xen_have_vector_callback)
++		free_irq(pdev->irq, pdev);
+ out:
+ 	pci_release_region(pdev, 0);
+ mem_out:
 -- 
 2.35.1
 
