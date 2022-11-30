@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 437D563DE62
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:36:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29CBA63DD64
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:27:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230444AbiK3Sgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:36:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44214 "EHLO
+        id S229519AbiK3S1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:27:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230453AbiK3SgR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:36:17 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A64FA94934
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:36:16 -0800 (PST)
+        with ESMTP id S229941AbiK3S0p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F8F6260
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 20FC4CE1AD1
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:36:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD94BC433B5;
-        Wed, 30 Nov 2022 18:36:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B686B81CA1
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 759B5C433B5;
+        Wed, 30 Nov 2022 18:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833373;
-        bh=OvQ1e3jmtfV4wEihgDgauKDzIR3WutwV7g39nsP/k1o=;
+        s=korg; t=1669832802;
+        bh=KDw9EjK9+mwAfTvh1wRhZgqj6HHKnxmWbRovU+8NZ0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mvQ0KErSByPiEYTbTCS66B3jhNPrSU2vbQ1OhAc8et5i+fJj5xX55XxXT+NyNtxns
-         Frb3W9J4/3cTv5+A7muXg4S06YvdH2bQIpMeghZyByhZXgvTuIu1cp8j2+ivZrVxwE
-         VFsG4McREeHjPHd7QIW+EscUYgxaxc27WkubRw8M=
+        b=jzDAsZojHl93WFogipGsouA28pCX3q1MaksPzg4Lhw27paNYARaeNyPxWn+F7gW9j
+         MOBEXVktAaL1SP83asm01vKA45biXJXTLrvipgIugunv6JCZSrVOk4h5vdYlVZXCER
+         BqcYn1RuOu3BzgVacF3+2cFfl2g3F0v3J/jS/1TM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian King <brking@linux.vnet.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Jonas Jelonek <jelonek.jonas@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 045/206] scsi: ibmvfc: Avoid path failures during live migration
+Subject: [PATCH 5.10 016/162] wifi: mac80211_hwsim: fix debugfs attribute ps with rc table support
 Date:   Wed, 30 Nov 2022 19:21:37 +0100
-Message-Id: <20221130180534.148223421@linuxfoundation.org>
+Message-Id: <20221130180528.937927614@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian King <brking@linux.vnet.ibm.com>
+From: Jonas Jelonek <jelonek.jonas@gmail.com>
 
-[ Upstream commit 62fa3ce05d5d73c5eccc40b2db493f55fecfc446 ]
+[ Upstream commit 69188df5f6e4cecc6b76b958979ba363cd5240e8 ]
 
-Fix an issue reported when performing a live migration when multipath is
-configured with a short fast fail timeout of 5 seconds and also to have
-no_path_retry set to fail. In this scenario, all paths would go into the
-devloss state while the ibmvfc driver went through discovery to log back
-in. On a loaded system, the discovery might take longer than 5 seconds,
-which was resulting in all paths being marked failed, which then resulted
-in a read only filesystem.
+Fixes a warning that occurs when rc table support is enabled
+(IEEE80211_HW_SUPPORTS_RC_TABLE) in mac80211_hwsim and the PS mode
+is changed via the exported debugfs attribute.
 
-This patch changes the migration code in ibmvfc to avoid deleting rports at
-all in this scenario, so we avoid losing all paths.
+When the PS mode is changed, a packet is broadcasted via
+hwsim_send_nullfunc by creating and transmitting a plain skb with only
+header initialized. The ieee80211 rate array in the control buffer is
+zero-initialized. When ratetbl support is enabled, ieee80211_get_tx_rates
+is called for the skb with sta parameter set to NULL and thus no
+ratetbl can be used. The final rate array then looks like
+[-1,0; 0,0; 0,0; 0,0] which causes the warning in ieee80211_get_tx_rate.
 
-Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
-Link: https://lore.kernel.org/r/20221026181356.148517-1-brking@linux.vnet.ibm.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The issue is fixed by setting the count of the first rate with idx '0'
+to 1 and hence ieee80211_get_tx_rates won't overwrite it with idx '-1'.
+
+Signed-off-by: Jonas Jelonek <jelonek.jonas@gmail.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvfc.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/net/wireless/mac80211_hwsim.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index b3531065a438..45ef78f388dc 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -708,8 +708,13 @@ static void ibmvfc_init_host(struct ibmvfc_host *vhost)
- 		memset(vhost->async_crq.msgs.async, 0, PAGE_SIZE);
- 		vhost->async_crq.cur = 0;
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index a6d4ff4760ad..255286b2324e 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -775,6 +775,7 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
+ 	struct hwsim_vif_priv *vp = (void *)vif->drv_priv;
+ 	struct sk_buff *skb;
+ 	struct ieee80211_hdr *hdr;
++	struct ieee80211_tx_info *cb;
  
--		list_for_each_entry(tgt, &vhost->targets, queue)
--			ibmvfc_del_tgt(tgt);
-+		list_for_each_entry(tgt, &vhost->targets, queue) {
-+			if (vhost->client_migrated)
-+				tgt->need_login = 1;
-+			else
-+				ibmvfc_del_tgt(tgt);
-+		}
+ 	if (!vp->assoc)
+ 		return;
+@@ -796,6 +797,10 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
+ 	memcpy(hdr->addr2, mac, ETH_ALEN);
+ 	memcpy(hdr->addr3, vp->bssid, ETH_ALEN);
+ 
++	cb = IEEE80211_SKB_CB(skb);
++	cb->control.rates[0].count = 1;
++	cb->control.rates[1].idx = -1;
 +
- 		scsi_block_requests(vhost->host);
- 		ibmvfc_set_host_action(vhost, IBMVFC_HOST_ACTION_INIT);
- 		vhost->job_step = ibmvfc_npiv_login;
-@@ -3235,9 +3240,12 @@ static void ibmvfc_handle_crq(struct ibmvfc_crq *crq, struct ibmvfc_host *vhost,
- 			/* We need to re-setup the interpartition connection */
- 			dev_info(vhost->dev, "Partition migrated, Re-enabling adapter\n");
- 			vhost->client_migrated = 1;
-+
-+			scsi_block_requests(vhost->host);
- 			ibmvfc_purge_requests(vhost, DID_REQUEUE);
--			ibmvfc_link_down(vhost, IBMVFC_LINK_DOWN);
-+			ibmvfc_set_host_state(vhost, IBMVFC_LINK_DOWN);
- 			ibmvfc_set_host_action(vhost, IBMVFC_HOST_ACTION_REENABLE);
-+			wake_up(&vhost->work_wait_q);
- 		} else if (crq->format == IBMVFC_PARTNER_FAILED || crq->format == IBMVFC_PARTNER_DEREGISTER) {
- 			dev_err(vhost->dev, "Host partner adapter deregistered or failed (rc=%d)\n", crq->format);
- 			ibmvfc_purge_requests(vhost, DID_ERROR);
+ 	rcu_read_lock();
+ 	mac80211_hwsim_tx_frame(data->hw, skb,
+ 				rcu_dereference(vif->chanctx_conf)->def.chan);
 -- 
 2.35.1
 
