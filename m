@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C024763DE91
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:38:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5224263DD9F
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:29:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230192AbiK3SiU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:38:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48518 "EHLO
+        id S229830AbiK3S3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:29:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231128AbiK3SiJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:38:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F8E97017
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:38:08 -0800 (PST)
+        with ESMTP id S229845AbiK3S3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:29:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 831DC27B3C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:29:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86313B81CA6
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:38:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7B09C433D6;
-        Wed, 30 Nov 2022 18:38:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C3C0B81C9C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:29:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB1FFC433D6;
+        Wed, 30 Nov 2022 18:29:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833486;
-        bh=7HHyqSVc3soU3pnAogdgyP/51LucL/+SDqKgQ0nJNX8=;
+        s=korg; t=1669832941;
+        bh=z7m7ZFde/q678vPYOnqep7qAq055H2WNJPADW7CWmno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/qvcHMhebtvpDk5utqEu4Tif+OyEKMUwpFOOZZeorTeEgCko3lAurO0TFezXvsrW
-         LfKLAE84wzhd6qiwMzU20y3i6I9vD5poc5ge27xZ88jHBO7VNFVPi6vsRHN3sfI3BI
-         ALq9DfFeqJwBaUpYvjmhZL6z/NYF8PaBo8GmGl3w=
+        b=qJpo2hbGxWTlO8Btyl7WUizsHdflQMUTRIM1KxHrIOlUCFqXa83ZIGiduGjlyaZCr
+         L6V90C7TGqBZZehp0TFARridb4pgxmnwgQ4Up0XP9m7XCiGG8RmbISv3EBY5DxHvYq
+         wrMmGemtSi/uMERSCoTqEzf5VbT+1Sp9ZsP1FDFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 123/206] s390/dasd: fix no record found for raw_track_access
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 094/162] ext4: fix use-after-free in ext4_ext_shift_extents
 Date:   Wed, 30 Nov 2022 19:22:55 +0100
-Message-Id: <20221130180536.177059624@linuxfoundation.org>
+Message-Id: <20221130180531.042804699@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +52,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit 590ce6d96d6a224b470a3862c33a483d5022bfdb ]
+commit f6b1a1cf1c3ee430d3f5e47847047ce789a690aa upstream.
 
-For DASD devices in raw_track_access mode only full track images are
-read and written.
-For this purpose it is not necessary to do search operation in the
-locate record extended function. The documentation even states that
-this might fail if the searched record is not found on a track.
+If the starting position of our insert range happens to be in the hole
+between the two ext4_extent_idx, because the lblk of the ext4_extent in
+the previous ext4_extent_idx is always less than the start, which leads
+to the "extent" variable access across the boundary, the following UAF is
+triggered:
+==================================================================
+BUG: KASAN: use-after-free in ext4_ext_shift_extents+0x257/0x790
+Read of size 4 at addr ffff88819807a008 by task fallocate/8010
+CPU: 3 PID: 8010 Comm: fallocate Tainted: G            E     5.10.0+ #492
+Call Trace:
+ dump_stack+0x7d/0xa3
+ print_address_description.constprop.0+0x1e/0x220
+ kasan_report.cold+0x67/0x7f
+ ext4_ext_shift_extents+0x257/0x790
+ ext4_insert_range+0x5b6/0x700
+ ext4_fallocate+0x39e/0x3d0
+ vfs_fallocate+0x26f/0x470
+ ksys_fallocate+0x3a/0x70
+ __x64_sys_fallocate+0x4f/0x60
+ do_syscall_64+0x33/0x40
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+==================================================================
 
-Currently the driver sets a value of 1 in the search field for the first
-record after record zero. This is the default for disks not in
-raw_track_access mode but record 1 might be missing on a completely
-empty track.
+For right shifts, we can divide them into the following situations：
 
-There has not been any problem with this on IBM storage servers but it
-might lead to errors with DASD devices on other vendors storage servers.
+1. When the first ee_block of ext4_extent_idx is greater than or equal to
+   start, make right shifts directly from the first ee_block.
+    1) If it is greater than start, we need to continue searching in the
+       previous ext4_extent_idx.
+    2) If it is equal to start, we can exit the loop (iterator=NULL).
 
-Fix this by setting the search field to 0. Record zero is always available
-even on a completely empty track.
+2. When the first ee_block of ext4_extent_idx is less than start, then
+   traverse from the last extent to find the first extent whose ee_block
+   is less than start.
+    1) If extent is still the last extent after traversal, it means that
+       the last ee_block of ext4_extent_idx is less than start, that is,
+       start is located in the hole between idx and (idx+1), so we can
+       exit the loop directly (break) without right shifts.
+    2) Otherwise, make right shifts at the corresponding position of the
+       found extent, and then exit the loop (iterator=NULL).
 
-Fixes: e4dbb0f2b5dd ("[S390] dasd: Add support for raw ECKD access.")
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221123160719.3002694-4-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 331573febb6a ("ext4: Add support FALLOC_FL_INSERT_RANGE for fallocate")
+Cc: stable@vger.kernel.org # v4.2+
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Link: https://lore.kernel.org/r/20220922120434.1294789-1-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd_eckd.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/ext4/extents.c |   18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index ff7b7d470e96..57dfc92aa756 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -4696,7 +4696,6 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
- 	struct dasd_device *basedev;
- 	struct req_iterator iter;
- 	struct dasd_ccw_req *cqr;
--	unsigned int first_offs;
- 	unsigned int trkcount;
- 	unsigned long *idaws;
- 	unsigned int size;
-@@ -4730,7 +4729,6 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
- 	last_trk = (blk_rq_pos(req) + blk_rq_sectors(req) - 1) /
- 		DASD_RAW_SECTORS_PER_TRACK;
- 	trkcount = last_trk - first_trk + 1;
--	first_offs = 0;
- 
- 	if (rq_data_dir(req) == READ)
- 		cmd = DASD_ECKD_CCW_READ_TRACK;
-@@ -4774,13 +4772,13 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
- 
- 	if (use_prefix) {
- 		prefix_LRE(ccw++, data, first_trk, last_trk, cmd, basedev,
--			   startdev, 1, first_offs + 1, trkcount, 0, 0);
-+			   startdev, 1, 0, trkcount, 0, 0);
- 	} else {
- 		define_extent(ccw++, data, first_trk, last_trk, cmd, basedev, 0);
- 		ccw[-1].flags |= CCW_FLAG_CC;
- 
- 		data += sizeof(struct DE_eckd_data);
--		locate_record_ext(ccw++, data, first_trk, first_offs + 1,
-+		locate_record_ext(ccw++, data, first_trk, 0,
- 				  trkcount, cmd, basedev, 0, 0);
- 	}
- 
--- 
-2.35.1
-
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -5182,6 +5182,7 @@ ext4_ext_shift_extents(struct inode *ino
+ 	 * and it is decreased till we reach start.
+ 	 */
+ again:
++	ret = 0;
+ 	if (SHIFT == SHIFT_LEFT)
+ 		iterator = &start;
+ 	else
+@@ -5225,14 +5226,21 @@ again:
+ 					ext4_ext_get_actual_len(extent);
+ 		} else {
+ 			extent = EXT_FIRST_EXTENT(path[depth].p_hdr);
+-			if (le32_to_cpu(extent->ee_block) > 0)
++			if (le32_to_cpu(extent->ee_block) > start)
+ 				*iterator = le32_to_cpu(extent->ee_block) - 1;
+-			else
+-				/* Beginning is reached, end of the loop */
++			else if (le32_to_cpu(extent->ee_block) == start)
+ 				iterator = NULL;
+-			/* Update path extent in case we need to stop */
+-			while (le32_to_cpu(extent->ee_block) < start)
++			else {
++				extent = EXT_LAST_EXTENT(path[depth].p_hdr);
++				while (le32_to_cpu(extent->ee_block) >= start)
++					extent--;
++
++				if (extent == EXT_LAST_EXTENT(path[depth].p_hdr))
++					break;
++
+ 				extent++;
++				iterator = NULL;
++			}
+ 			path[depth].p_ext = extent;
+ 		}
+ 		ret = ext4_ext_shift_path_extents(path, shift, inode,
 
 
