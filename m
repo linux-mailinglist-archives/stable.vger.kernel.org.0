@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DC0C63DF45
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:45:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16E7563DF44
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:45:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231408AbiK3Spg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:45:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56764 "EHLO
+        id S231274AbiK3Spf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:45:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231299AbiK3SpL (ORCPT
+        with ESMTP id S231279AbiK3SpL (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:45:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA8782A268
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:45:08 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B37669490D
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:45:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CB60B81C9F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:45:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A53EFC433C1;
-        Wed, 30 Nov 2022 18:45:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4266461D76
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:45:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52857C433C1;
+        Wed, 30 Nov 2022 18:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833906;
-        bh=Q/oD89con3HfIF8UyBMoJI14EGHlr2hadrJ7ayPy84o=;
+        s=korg; t=1669833908;
+        bh=SUbytsKde2CDeqpsz1pWb4YZgYcdh3cfLuEOqFoD9Is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHTg5kxjhmrUNlevkuz9J2PvQ5Q3Z3j8fspGjoF7RKUyauwmDBlQuyJzVZQlxriHJ
-         9XDEA1f/CcTMsljY5MysFpQh2Asf6tsIxfkXlGV5bXH4ywT2dbBT61rRR4MxlMqKn0
-         jTI8cWknwG07jpguaT4hnwl35T6NOy60mSoq5N/w=
+        b=UvOz2wlOhdQ83ctpAXYYikHkmGPcgqXVv1dMR0QCbAqzEfXwG9crHezTMAn/pwV6z
+         VOepEivAGL6rAdGkqsO1wckoeoe5R/Iwpy0JpE/4exTK9k/yKwOyGvz//T1OlixWmK
+         L18CRRzpdn+kGQm1t2EHv9EKHMLbpuRQlt1oQIEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juan Tian <juantian@microsoft.com>,
+        patches@lists.linux.dev, Jeffrey Hugo <quic_jhugo@quicinc.com>,
+        Carl Vanderlip <quic_carlv@quicinc.com>,
+        Dexuan Cui <decui@microsoft.com>,
         Michael Kelley <mikelley@microsoft.com>,
         Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 058/289] scsi: storvsc: Fix handling of srb_status and capacity change events
-Date:   Wed, 30 Nov 2022 19:20:43 +0100
-Message-Id: <20221130180545.447121217@linuxfoundation.org>
+Subject: [PATCH 6.0 059/289] PCI: hv: Only reuse existing IRTE allocation for Multi-MSI
+Date:   Wed, 30 Nov 2022 19:20:44 +0100
+Message-Id: <20221130180545.469712939@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -53,146 +55,259 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit b8a5376c321b4669f7ffabc708fd30c3970f3084 ]
+[ Upstream commit c234ba8042920fa83635808dc5673f36869ca280 ]
 
-Current handling of the srb_status is incorrect. Commit 52e1b3b3daa9
-("scsi: storvsc: Correctly handle multiple flags in srb_status")
-is based on srb_status being a set of flags, when in fact only the
-2 high order bits are flags and the remaining 6 bits are an integer
-status. Because the integer values of interest mostly look like flags,
-the code actually works when treated that way.
+Jeffrey added Multi-MSI support to the pci-hyperv driver by the 4 patches:
+08e61e861a0e ("PCI: hv: Fix multi-MSI to allow more than one MSI vector")
+455880dfe292 ("PCI: hv: Fix hv_arch_irq_unmask() for multi-MSI")
+b4b77778ecc5 ("PCI: hv: Reuse existing IRTE allocation in compose_msi_msg()")
+a2bad844a67b ("PCI: hv: Fix interrupt mapping for multi-MSI")
 
-But in the interest of correctness going forward, fix this by treating
-the low 6 bits of srb_status as an integer status code. Add handling
-for SRB_STATUS_INVALID_REQUEST, which was the original intent of commit
-52e1b3b3daa9. Furthermore, treat the ERROR, ABORTED, and INVALID_REQUEST
-srb status codes as essentially equivalent for the cases we care about.
-There's no harm in doing so, and it isn't always clear which status code
-current or older versions of Hyper-V report for particular conditions.
+It turns out that the third patch (b4b77778ecc5) causes a performance
+regression because all the interrupts now happen on 1 physical CPU (or two
+pCPUs, if one pCPU doesn't have enough vectors). When a guest has many PCI
+devices, it may suffer from soft lockups if the workload is heavy, e.g.,
+see https://lwn.net/ml/linux-kernel/20220804025104.15673-1-decui@microsoft.com/
 
-Treating the srb status codes as equivalent has the additional benefit
-of ensuring that capacity change events result in an immediate rescan
-so that the new size is known to Linux. Existing code checks SCSI
-sense data for capacity change events when the srb status is ABORTED.
-But capacity change events are also being observed when Hyper-V reports
-the srb status as ERROR. Without the immediate rescan, the new size
-isn't known until something else causes a rescan (such as running
-fdisk to expand a partition), and in the meantime, tools such as "lsblk"
-continue to report the old size.
+Commit b4b77778ecc5 itself is good. The real issue is that the hypercall in
+hv_irq_unmask() -> hv_arch_irq_unmask() ->
+hv_do_hypercall(HVCALL_RETARGET_INTERRUPT...) only changes the target
+virtual CPU rather than physical CPU; with b4b77778ecc5, the pCPU is
+determined only once in hv_compose_msi_msg() where only vCPU0 is specified;
+consequently the hypervisor only uses 1 target pCPU for all the interrupts.
 
-Fixes: 52e1b3b3daa9 ("scsi: storvsc: Correctly handle multiple flags in srb_status")
-Reported-by: Juan Tian <juantian@microsoft.com>
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1668019722-1983-1-git-send-email-mikelley@microsoft.com
+Note: before b4b77778ecc5, the pCPU is determined twice, and when the pCPU
+is determined the second time, the vCPU in the effective affinity mask is
+used (i.e., it isn't always vCPU0), so the hypervisor chooses different
+pCPU for each interrupt.
+
+The hypercall will be fixed in future to update the pCPU as well, but
+that will take quite a while, so let's restore the old behavior in
+hv_compose_msi_msg(), i.e., don't reuse the existing IRTE allocation for
+single-MSI and MSI-X; for multi-MSI, we choose the vCPU in a round-robin
+manner for each PCI device, so the interrupts of different devices can
+happen on different pCPUs, though the interrupts of each device happen on
+some single pCPU.
+
+The hypercall fix may not be backported to all old versions of Hyper-V, so
+we want to have this guest side change forever (or at least till we're sure
+the old affected versions of Hyper-V are no longer supported).
+
+Fixes: b4b77778ecc5 ("PCI: hv: Reuse existing IRTE allocation in compose_msi_msg()")
+Co-developed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Co-developed-by: Carl Vanderlip <quic_carlv@quicinc.com>
+Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20221104222953.11356-1-decui@microsoft.com
 Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/storvsc_drv.c | 69 +++++++++++++++++++-------------------
- 1 file changed, 34 insertions(+), 35 deletions(-)
+ drivers/pci/controller/pci-hyperv.c | 90 ++++++++++++++++++++++++-----
+ 1 file changed, 75 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-index 8ced292c4b96..d93604318ecd 100644
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -300,16 +300,21 @@ enum storvsc_request_type {
- };
+diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
+index ba64284eaf9f..f1ec8931dfbc 100644
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -1613,7 +1613,7 @@ static void hv_pci_compose_compl(void *context, struct pci_response *resp,
+ }
  
+ static u32 hv_compose_msi_req_v1(
+-	struct pci_create_interrupt *int_pkt, const struct cpumask *affinity,
++	struct pci_create_interrupt *int_pkt,
+ 	u32 slot, u8 vector, u16 vector_count)
+ {
+ 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE;
+@@ -1631,6 +1631,35 @@ static u32 hv_compose_msi_req_v1(
+ 	return sizeof(*int_pkt);
+ }
+ 
++/*
++ * The vCPU selected by hv_compose_multi_msi_req_get_cpu() and
++ * hv_compose_msi_req_get_cpu() is a "dummy" vCPU because the final vCPU to be
++ * interrupted is specified later in hv_irq_unmask() and communicated to Hyper-V
++ * via the HVCALL_RETARGET_INTERRUPT hypercall. But the choice of dummy vCPU is
++ * not irrelevant because Hyper-V chooses the physical CPU to handle the
++ * interrupts based on the vCPU specified in message sent to the vPCI VSP in
++ * hv_compose_msi_msg(). Hyper-V's choice of pCPU is not visible to the guest,
++ * but assigning too many vPCI device interrupts to the same pCPU can cause a
++ * performance bottleneck. So we spread out the dummy vCPUs to influence Hyper-V
++ * to spread out the pCPUs that it selects.
++ *
++ * For the single-MSI and MSI-X cases, it's OK for hv_compose_msi_req_get_cpu()
++ * to always return the same dummy vCPU, because a second call to
++ * hv_compose_msi_msg() contains the "real" vCPU, causing Hyper-V to choose a
++ * new pCPU for the interrupt. But for the multi-MSI case, the second call to
++ * hv_compose_msi_msg() exits without sending a message to the vPCI VSP, so the
++ * original dummy vCPU is used. This dummy vCPU must be round-robin'ed so that
++ * the pCPUs are spread out. All interrupts for a multi-MSI device end up using
++ * the same pCPU, even though the vCPUs will be spread out by later calls
++ * to hv_irq_unmask(), but that is the best we can do now.
++ *
++ * With Hyper-V in Nov 2022, the HVCALL_RETARGET_INTERRUPT hypercall does *not*
++ * cause Hyper-V to reselect the pCPU based on the specified vCPU. Such an
++ * enhancement is planned for a future version. With that enhancement, the
++ * dummy vCPU selection won't matter, and interrupts for the same multi-MSI
++ * device will be spread across multiple pCPUs.
++ */
++
  /*
-- * SRB status codes and masks; a subset of the codes used here.
-+ * SRB status codes and masks. In the 8-bit field, the two high order bits
-+ * are flags, while the remaining 6 bits are an integer status code.  The
-+ * definitions here include only the subset of the integer status codes that
-+ * are tested for in this driver.
-  */
--
- #define SRB_STATUS_AUTOSENSE_VALID	0x80
- #define SRB_STATUS_QUEUE_FROZEN		0x40
--#define SRB_STATUS_INVALID_LUN	0x20
--#define SRB_STATUS_SUCCESS	0x01
--#define SRB_STATUS_ABORTED	0x02
--#define SRB_STATUS_ERROR	0x04
--#define SRB_STATUS_DATA_OVERRUN	0x12
+  * Create MSI w/ dummy vCPU set targeting just one vCPU, overwritten
+  * by subsequent retarget in hv_irq_unmask().
+@@ -1640,18 +1669,39 @@ static int hv_compose_msi_req_get_cpu(const struct cpumask *affinity)
+ 	return cpumask_first_and(affinity, cpu_online_mask);
+ }
+ 
+-static u32 hv_compose_msi_req_v2(
+-	struct pci_create_interrupt2 *int_pkt, const struct cpumask *affinity,
+-	u32 slot, u8 vector, u16 vector_count)
++/*
++ * Make sure the dummy vCPU values for multi-MSI don't all point to vCPU0.
++ */
++static int hv_compose_multi_msi_req_get_cpu(void)
+ {
++	static DEFINE_SPINLOCK(multi_msi_cpu_lock);
 +
-+/* SRB status integer codes */
-+#define SRB_STATUS_SUCCESS		0x01
-+#define SRB_STATUS_ABORTED		0x02
-+#define SRB_STATUS_ERROR		0x04
-+#define SRB_STATUS_INVALID_REQUEST	0x06
-+#define SRB_STATUS_DATA_OVERRUN		0x12
-+#define SRB_STATUS_INVALID_LUN		0x20
- 
- #define SRB_STATUS(status) \
- 	(status & ~(SRB_STATUS_AUTOSENSE_VALID | SRB_STATUS_QUEUE_FROZEN))
-@@ -966,38 +971,25 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
- 	void (*process_err_fn)(struct work_struct *work);
- 	struct hv_host_device *host_dev = shost_priv(host);
- 
--	/*
--	 * In some situations, Hyper-V sets multiple bits in the
--	 * srb_status, such as ABORTED and ERROR. So process them
--	 * individually, with the most specific bits first.
--	 */
--
--	if (vm_srb->srb_status & SRB_STATUS_INVALID_LUN) {
--		set_host_byte(scmnd, DID_NO_CONNECT);
--		process_err_fn = storvsc_remove_lun;
--		goto do_work;
--	}
-+	switch (SRB_STATUS(vm_srb->srb_status)) {
-+	case SRB_STATUS_ERROR:
-+	case SRB_STATUS_ABORTED:
-+	case SRB_STATUS_INVALID_REQUEST:
-+		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID) {
-+			/* Check for capacity change */
-+			if ((asc == 0x2a) && (ascq == 0x9)) {
-+				process_err_fn = storvsc_device_scan;
-+				/* Retry the I/O that triggered this. */
-+				set_host_byte(scmnd, DID_REQUEUE);
-+				goto do_work;
-+			}
- 
--	if (vm_srb->srb_status & SRB_STATUS_ABORTED) {
--		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID &&
--		    /* Capacity data has changed */
--		    (asc == 0x2a) && (ascq == 0x9)) {
--			process_err_fn = storvsc_device_scan;
- 			/*
--			 * Retry the I/O that triggered this.
-+			 * Otherwise, let upper layer deal with the
-+			 * error when sense message is present
- 			 */
--			set_host_byte(scmnd, DID_REQUEUE);
--			goto do_work;
--		}
--	}
--
--	if (vm_srb->srb_status & SRB_STATUS_ERROR) {
--		/*
--		 * Let upper layer deal with error when
--		 * sense message is present.
--		 */
--		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID)
- 			return;
-+		}
- 
- 		/*
- 		 * If there is an error; offline the device since all
-@@ -1020,6 +1012,13 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
- 		default:
- 			set_host_byte(scmnd, DID_ERROR);
- 		}
-+		return;
++	/* -1 means starting with CPU 0 */
++	static int cpu_next = -1;
 +
-+	case SRB_STATUS_INVALID_LUN:
-+		set_host_byte(scmnd, DID_NO_CONNECT);
-+		process_err_fn = storvsc_remove_lun;
-+		goto do_work;
++	unsigned long flags;
+ 	int cpu;
+ 
++	spin_lock_irqsave(&multi_msi_cpu_lock, flags);
 +
++	cpu_next = cpumask_next_wrap(cpu_next, cpu_online_mask, nr_cpu_ids,
++				     false);
++	cpu = cpu_next;
++
++	spin_unlock_irqrestore(&multi_msi_cpu_lock, flags);
++
++	return cpu;
++}
++
++static u32 hv_compose_msi_req_v2(
++	struct pci_create_interrupt2 *int_pkt, int cpu,
++	u32 slot, u8 vector, u16 vector_count)
++{
+ 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE2;
+ 	int_pkt->wslot.slot = slot;
+ 	int_pkt->int_desc.vector = vector;
+ 	int_pkt->int_desc.vector_count = vector_count;
+ 	int_pkt->int_desc.delivery_mode = DELIVERY_MODE;
+-	cpu = hv_compose_msi_req_get_cpu(affinity);
+ 	int_pkt->int_desc.processor_array[0] =
+ 		hv_cpu_number_to_vp_number(cpu);
+ 	int_pkt->int_desc.processor_count = 1;
+@@ -1660,18 +1710,15 @@ static u32 hv_compose_msi_req_v2(
+ }
+ 
+ static u32 hv_compose_msi_req_v3(
+-	struct pci_create_interrupt3 *int_pkt, const struct cpumask *affinity,
++	struct pci_create_interrupt3 *int_pkt, int cpu,
+ 	u32 slot, u32 vector, u16 vector_count)
+ {
+-	int cpu;
+-
+ 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE3;
+ 	int_pkt->wslot.slot = slot;
+ 	int_pkt->int_desc.vector = vector;
+ 	int_pkt->int_desc.reserved = 0;
+ 	int_pkt->int_desc.vector_count = vector_count;
+ 	int_pkt->int_desc.delivery_mode = DELIVERY_MODE;
+-	cpu = hv_compose_msi_req_get_cpu(affinity);
+ 	int_pkt->int_desc.processor_array[0] =
+ 		hv_cpu_number_to_vp_number(cpu);
+ 	int_pkt->int_desc.processor_count = 1;
+@@ -1715,12 +1762,18 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ 			struct pci_create_interrupt3 v3;
+ 		} int_pkts;
+ 	} __packed ctxt;
++	bool multi_msi;
+ 	u64 trans_id;
+ 	u32 size;
+ 	int ret;
++	int cpu;
++
++	msi_desc  = irq_data_get_msi_desc(data);
++	multi_msi = !msi_desc->pci.msi_attrib.is_msix &&
++		    msi_desc->nvec_used > 1;
+ 
+ 	/* Reuse the previous allocation */
+-	if (data->chip_data) {
++	if (data->chip_data && multi_msi) {
+ 		int_desc = data->chip_data;
+ 		msg->address_hi = int_desc->address >> 32;
+ 		msg->address_lo = int_desc->address & 0xffffffff;
+@@ -1728,7 +1781,6 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ 		return;
  	}
- 	return;
  
+-	msi_desc  = irq_data_get_msi_desc(data);
+ 	pdev = msi_desc_to_pci_dev(msi_desc);
+ 	dest = irq_data_get_effective_affinity_mask(data);
+ 	pbus = pdev->bus;
+@@ -1738,11 +1790,18 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ 	if (!hpdev)
+ 		goto return_null_message;
+ 
++	/* Free any previous message that might have already been composed. */
++	if (data->chip_data && !multi_msi) {
++		int_desc = data->chip_data;
++		data->chip_data = NULL;
++		hv_int_desc_free(hpdev, int_desc);
++	}
++
+ 	int_desc = kzalloc(sizeof(*int_desc), GFP_ATOMIC);
+ 	if (!int_desc)
+ 		goto drop_reference;
+ 
+-	if (!msi_desc->pci.msi_attrib.is_msix && msi_desc->nvec_used > 1) {
++	if (multi_msi) {
+ 		/*
+ 		 * If this is not the first MSI of Multi MSI, we already have
+ 		 * a mapping.  Can exit early.
+@@ -1767,9 +1826,11 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ 		 */
+ 		vector = 32;
+ 		vector_count = msi_desc->nvec_used;
++		cpu = hv_compose_multi_msi_req_get_cpu();
+ 	} else {
+ 		vector = hv_msi_get_int_vector(data);
+ 		vector_count = 1;
++		cpu = hv_compose_msi_req_get_cpu(dest);
+ 	}
+ 
+ 	/*
+@@ -1785,7 +1846,6 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ 	switch (hbus->protocol_version) {
+ 	case PCI_PROTOCOL_VERSION_1_1:
+ 		size = hv_compose_msi_req_v1(&ctxt.int_pkts.v1,
+-					dest,
+ 					hpdev->desc.win_slot.slot,
+ 					(u8)vector,
+ 					vector_count);
+@@ -1794,7 +1854,7 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ 	case PCI_PROTOCOL_VERSION_1_2:
+ 	case PCI_PROTOCOL_VERSION_1_3:
+ 		size = hv_compose_msi_req_v2(&ctxt.int_pkts.v2,
+-					dest,
++					cpu,
+ 					hpdev->desc.win_slot.slot,
+ 					(u8)vector,
+ 					vector_count);
+@@ -1802,7 +1862,7 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
+ 
+ 	case PCI_PROTOCOL_VERSION_1_4:
+ 		size = hv_compose_msi_req_v3(&ctxt.int_pkts.v3,
+-					dest,
++					cpu,
+ 					hpdev->desc.win_slot.slot,
+ 					vector,
+ 					vector_count);
 -- 
 2.35.1
 
