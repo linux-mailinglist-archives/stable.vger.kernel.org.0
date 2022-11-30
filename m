@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABFF363DFC3
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D821463DE6F
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:37:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229693AbiK3SuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:50:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37254 "EHLO
+        id S229810AbiK3ShC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:37:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231467AbiK3SuT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:50:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED3355C89
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:50:18 -0800 (PST)
+        with ESMTP id S230476AbiK3Sgv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:36:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C715994939
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:36:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0725B81CAA
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:50:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 135F4C433D6;
-        Wed, 30 Nov 2022 18:50:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EC4EB81B82
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:36:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA9A7C433C1;
+        Wed, 30 Nov 2022 18:36:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834215;
-        bh=W3VaSAIb0CuClyxjcVTCGSCdRW0GIgv/c7vRm1jJe28=;
+        s=korg; t=1669833407;
+        bh=2pz691OfsyP6cRZWoKAZ0660RZzdKn/bXNnKhcBx0/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0kcES9rPxHpMqR9O1g5BXWHR+TO4aSW73DXIpSsvBU4ZqVPa50YZI+elfEaDus9u/
-         Z3eWy+Yfzz4mQUbznAxFS5xx297swFAz0FFmI0p5oDpK2cTJVNKIsMjZ+GDdHwHDc6
-         9oxaxoFgboWbKsfvN44oRHGry7WO1sSEsLK+wPgY=
+        b=nPKnsDtwZN/BdRUROrYevAyXpS9axI6KvZgQJhaI+LK4ZMsZq/2H2BtMBPdyK/K2X
+         v6BRpDRzbFYDihLNW0gfnpOs0bQoR8wl+jOhK7pLF1Kdp2CeSQg0D+JMYQ24JK49Cn
+         MQd5Kt+rogNG32nqqmEASr6Thsm0yRBYGu8TQ0Tg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 144/289] s390/dasd: fix no record found for raw_track_access
+        patches@lists.linux.dev, David Howells <dhowells@redhat.com>,
+        zdi-disclosures@trendmicro.com,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 077/206] rxrpc: Fix race between conn bundle lookup and bundle removal [ZDI-CAN-15975]
 Date:   Wed, 30 Nov 2022 19:22:09 +0100
-Message-Id: <20221130180547.402275161@linuxfoundation.org>
+Message-Id: <20221130180534.956816054@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +56,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 590ce6d96d6a224b470a3862c33a483d5022bfdb ]
+[ Upstream commit 3bcd6c7eaa53b56c3f584da46a1f7652e759d0e5 ]
 
-For DASD devices in raw_track_access mode only full track images are
-read and written.
-For this purpose it is not necessary to do search operation in the
-locate record extended function. The documentation even states that
-this might fail if the searched record is not found on a track.
+After rxrpc_unbundle_conn() has removed a connection from a bundle, it
+checks to see if there are any conns with available channels and, if not,
+removes and attempts to destroy the bundle.
 
-Currently the driver sets a value of 1 in the search field for the first
-record after record zero. This is the default for disks not in
-raw_track_access mode but record 1 might be missing on a completely
-empty track.
+Whilst it does check after grabbing client_bundles_lock that there are no
+connections attached, this races with rxrpc_look_up_bundle() retrieving the
+bundle, but not attaching a connection for the connection to be attached
+later.
 
-There has not been any problem with this on IBM storage servers but it
-might lead to errors with DASD devices on other vendors storage servers.
+There is therefore a window in which the bundle can get destroyed before we
+manage to attach a new connection to it.
 
-Fix this by setting the search field to 0. Record zero is always available
-even on a completely empty track.
+Fix this by adding an "active" counter to struct rxrpc_bundle:
 
-Fixes: e4dbb0f2b5dd ("[S390] dasd: Add support for raw ECKD access.")
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221123160719.3002694-4-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+ (1) rxrpc_connect_call() obtains an active count by prepping/looking up a
+     bundle and ditches it before returning.
+
+ (2) If, during rxrpc_connect_call(), a connection is added to the bundle,
+     this obtains an active count, which is held until the connection is
+     discarded.
+
+ (3) rxrpc_deactivate_bundle() is created to drop an active count on a
+     bundle and destroy it when the active count reaches 0.  The active
+     count is checked inside client_bundles_lock() to prevent a race with
+     rxrpc_look_up_bundle().
+
+ (4) rxrpc_unbundle_conn() then calls rxrpc_deactivate_bundle().
+
+Fixes: 245500d853e9 ("rxrpc: Rewrite the client connection manager")
+Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-15975
+Signed-off-by: David Howells <dhowells@redhat.com>
+Tested-by: zdi-disclosures@trendmicro.com
+cc: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_eckd.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/rxrpc/ar-internal.h |  1 +
+ net/rxrpc/conn_client.c | 38 +++++++++++++++++++++++---------------
+ 2 files changed, 24 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 3cc93e2e4e15..2dec81e7e6ab 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -4681,7 +4681,6 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
- 	struct dasd_device *basedev;
- 	struct req_iterator iter;
- 	struct dasd_ccw_req *cqr;
--	unsigned int first_offs;
- 	unsigned int trkcount;
- 	unsigned long *idaws;
- 	unsigned int size;
-@@ -4715,7 +4714,6 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
- 	last_trk = (blk_rq_pos(req) + blk_rq_sectors(req) - 1) /
- 		DASD_RAW_SECTORS_PER_TRACK;
- 	trkcount = last_trk - first_trk + 1;
--	first_offs = 0;
+diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
+index 62c70709d798..e0123efa2a62 100644
+--- a/net/rxrpc/ar-internal.h
++++ b/net/rxrpc/ar-internal.h
+@@ -399,6 +399,7 @@ enum rxrpc_conn_proto_state {
+ struct rxrpc_bundle {
+ 	struct rxrpc_conn_parameters params;
+ 	refcount_t		ref;
++	atomic_t		active;		/* Number of active users */
+ 	unsigned int		debug_id;
+ 	bool			try_upgrade;	/* True if the bundle is attempting upgrade */
+ 	bool			alloc_conn;	/* True if someone's getting a conn */
+diff --git a/net/rxrpc/conn_client.c b/net/rxrpc/conn_client.c
+index 3c9eeb5b750c..bdb335cb2d05 100644
+--- a/net/rxrpc/conn_client.c
++++ b/net/rxrpc/conn_client.c
+@@ -40,6 +40,8 @@ __read_mostly unsigned long rxrpc_conn_idle_client_fast_expiry = 2 * HZ;
+ DEFINE_IDR(rxrpc_client_conn_ids);
+ static DEFINE_SPINLOCK(rxrpc_conn_id_lock);
  
- 	if (rq_data_dir(req) == READ)
- 		cmd = DASD_ECKD_CCW_READ_TRACK;
-@@ -4759,13 +4757,13 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
- 
- 	if (use_prefix) {
- 		prefix_LRE(ccw++, data, first_trk, last_trk, cmd, basedev,
--			   startdev, 1, first_offs + 1, trkcount, 0, 0);
-+			   startdev, 1, 0, trkcount, 0, 0);
- 	} else {
- 		define_extent(ccw++, data, first_trk, last_trk, cmd, basedev, 0);
- 		ccw[-1].flags |= CCW_FLAG_CC;
- 
- 		data += sizeof(struct DE_eckd_data);
--		locate_record_ext(ccw++, data, first_trk, first_offs + 1,
-+		locate_record_ext(ccw++, data, first_trk, 0,
- 				  trkcount, cmd, basedev, 0, 0);
++static void rxrpc_deactivate_bundle(struct rxrpc_bundle *bundle);
++
+ /*
+  * Get a connection ID and epoch for a client connection from the global pool.
+  * The connection struct pointer is then recorded in the idr radix tree.  The
+@@ -123,6 +125,7 @@ static struct rxrpc_bundle *rxrpc_alloc_bundle(struct rxrpc_conn_parameters *cp,
+ 		bundle->params = *cp;
+ 		rxrpc_get_peer(bundle->params.peer);
+ 		refcount_set(&bundle->ref, 1);
++		atomic_set(&bundle->active, 1);
+ 		spin_lock_init(&bundle->channel_lock);
+ 		INIT_LIST_HEAD(&bundle->waiting_calls);
  	}
+@@ -149,7 +152,7 @@ void rxrpc_put_bundle(struct rxrpc_bundle *bundle)
  
+ 	dead = __refcount_dec_and_test(&bundle->ref, &r);
+ 
+-	_debug("PUT B=%x %d", d, r);
++	_debug("PUT B=%x %d", d, r - 1);
+ 	if (dead)
+ 		rxrpc_free_bundle(bundle);
+ }
+@@ -338,6 +341,7 @@ static struct rxrpc_bundle *rxrpc_look_up_bundle(struct rxrpc_conn_parameters *c
+ 	rxrpc_free_bundle(candidate);
+ found_bundle:
+ 	rxrpc_get_bundle(bundle);
++	atomic_inc(&bundle->active);
+ 	spin_unlock(&local->client_bundles_lock);
+ 	_leave(" = %u [found]", bundle->debug_id);
+ 	return bundle;
+@@ -435,6 +439,7 @@ static void rxrpc_add_conn_to_bundle(struct rxrpc_bundle *bundle, gfp_t gfp)
+ 			if (old)
+ 				trace_rxrpc_client(old, -1, rxrpc_client_replace);
+ 			candidate->bundle_shift = shift;
++			atomic_inc(&bundle->active);
+ 			bundle->conns[i] = candidate;
+ 			for (j = 0; j < RXRPC_MAXCALLS; j++)
+ 				set_bit(shift + j, &bundle->avail_chans);
+@@ -725,6 +730,7 @@ int rxrpc_connect_call(struct rxrpc_sock *rx,
+ 	smp_rmb();
+ 
+ out_put_bundle:
++	rxrpc_deactivate_bundle(bundle);
+ 	rxrpc_put_bundle(bundle);
+ out:
+ 	_leave(" = %d", ret);
+@@ -900,9 +906,8 @@ void rxrpc_disconnect_client_call(struct rxrpc_bundle *bundle, struct rxrpc_call
+ static void rxrpc_unbundle_conn(struct rxrpc_connection *conn)
+ {
+ 	struct rxrpc_bundle *bundle = conn->bundle;
+-	struct rxrpc_local *local = bundle->params.local;
+ 	unsigned int bindex;
+-	bool need_drop = false, need_put = false;
++	bool need_drop = false;
+ 	int i;
+ 
+ 	_enter("C=%x", conn->debug_id);
+@@ -921,15 +926,22 @@ static void rxrpc_unbundle_conn(struct rxrpc_connection *conn)
+ 	}
+ 	spin_unlock(&bundle->channel_lock);
+ 
+-	/* If there are no more connections, remove the bundle */
+-	if (!bundle->avail_chans) {
+-		_debug("maybe unbundle");
+-		spin_lock(&local->client_bundles_lock);
++	if (need_drop) {
++		rxrpc_deactivate_bundle(bundle);
++		rxrpc_put_connection(conn);
++	}
++}
+ 
+-		for (i = 0; i < ARRAY_SIZE(bundle->conns); i++)
+-			if (bundle->conns[i])
+-				break;
+-		if (i == ARRAY_SIZE(bundle->conns) && !bundle->params.exclusive) {
++/*
++ * Drop the active count on a bundle.
++ */
++static void rxrpc_deactivate_bundle(struct rxrpc_bundle *bundle)
++{
++	struct rxrpc_local *local = bundle->params.local;
++	bool need_put = false;
++
++	if (atomic_dec_and_lock(&bundle->active, &local->client_bundles_lock)) {
++		if (!bundle->params.exclusive) {
+ 			_debug("erase bundle");
+ 			rb_erase(&bundle->local_node, &local->client_bundles);
+ 			need_put = true;
+@@ -939,10 +951,6 @@ static void rxrpc_unbundle_conn(struct rxrpc_connection *conn)
+ 		if (need_put)
+ 			rxrpc_put_bundle(bundle);
+ 	}
+-
+-	if (need_drop)
+-		rxrpc_put_connection(conn);
+-	_leave("");
+ }
+ 
+ /*
 -- 
 2.35.1
 
