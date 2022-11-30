@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2775363DE49
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F3963DF95
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230426AbiK3Sfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:35:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44292 "EHLO
+        id S231390AbiK3Ssv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:48:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230428AbiK3Sf0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:26 -0500
+        with ESMTP id S231452AbiK3Sse (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7BD394922
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DAD98945
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 758DD61D67
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74E0BC433C1;
-        Wed, 30 Nov 2022 18:35:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EE0361D59
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 528B7C433C1;
+        Wed, 30 Nov 2022 18:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833324;
-        bh=TomiSg0/tPM/eAFX4ziItQI0rSmeP5P5C+JLWpQJBwg=;
+        s=korg; t=1669834112;
+        bh=i0x02n2/XvUm6x0pXNdeboL9K1Bjk5zIPYRHwpW+QUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=necnLSXxvD5QS7f1lmvWUMwA0JXXijd4IGNr+JYZeXsGMn5z6C1y+u62sO1N3Xxco
-         +qSjWkVr6QKBxuBbfpugXZCOOX4qSGSflcRUVTHnt0UU2PB7bjyQTNiRNc2j1xgTBx
-         LvyB64gqUjYGZUJ8ajxlFu6JXQHUyCNbEWyI5FP8=
+        b=CwW1QQlGVIVtrAA4re0zI5SljyMxzApzOolV4IzYXlZUYK8pMozNC0Gcfywt1YaOS
+         qrUZ38wZ5LbtURyF2lXOyLHnlSSjXecZg0Jujzl8ax/GFWmFrmwFCUCpuvxDs8Hk7X
+         HPr7tikDHyYawyolQzF6RsExL9j1osZhDia/ft8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Li Hua <hucool.lihua@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 065/206] regulator: core: fix kobject release warning and memory leak in regulator_register()
-Date:   Wed, 30 Nov 2022 19:21:57 +0100
-Message-Id: <20221130180534.652714626@linuxfoundation.org>
+Subject: [PATCH 6.0 133/289] test_kprobes: fix implicit declaration error of test_kprobes
+Date:   Wed, 30 Nov 2022 19:21:58 +0100
+Message-Id: <20221130180547.153409055@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Heng <zengheng4@huawei.com>
+From: Li Hua <hucool.lihua@huawei.com>
 
-[ Upstream commit 5f4b204b6b8153923d5be8002c5f7082985d153f ]
+[ Upstream commit de3db3f883a82c4800f4af0ae2cc3b96a408ee9b ]
 
-Here is a warning report about lack of registered release()
-from kobject lib:
+If KPROBES_SANITY_TEST and ARCH_CORRECT_STACKTRACE_ON_KRETPROBE is enabled, but
+STACKTRACE is not set. Build failed as below:
 
-Device '(null)' does not have a release() function, it is broken and must be fixed.
-WARNING: CPU: 0 PID: 48430 at drivers/base/core.c:2332 device_release+0x104/0x120
-Call Trace:
- kobject_put+0xdc/0x180
- put_device+0x1b/0x30
- regulator_register+0x651/0x1170
- devm_regulator_register+0x4f/0xb0
+lib/test_kprobes.c: In function `stacktrace_return_handler':
+lib/test_kprobes.c:228:8: error: implicit declaration of function `stack_trace_save'; did you mean `stacktrace_driver'? [-Werror=implicit-function-declaration]
+  ret = stack_trace_save(stack_buf, STACK_BUF_SIZE, 0);
+        ^~~~~~~~~~~~~~~~
+        stacktrace_driver
+cc1: all warnings being treated as errors
+scripts/Makefile.build:250: recipe for target 'lib/test_kprobes.o' failed
+make[2]: *** [lib/test_kprobes.o] Error 1
 
-When regulator_register() returns fail and directly goto `clean` symbol,
-rdev->dev has not registered release() function yet (which is registered
-by regulator_class in the following), so rdev needs to be freed manually.
-If rdev->dev.of_node is not NULL, which means the of_node has gotten by
-regulator_of_get_init_data(), it needs to call of_node_put() to avoid
-refcount leak.
+To fix this error, Select STACKTRACE if ARCH_CORRECT_STACKTRACE_ON_KRETPROBE is enabled.
 
-Otherwise, only calling put_device() would lead memory leak of rdev
-in further:
-
-unreferenced object 0xffff88810d0b1000 (size 2048):
-  comm "107-i2c-rtq6752", pid 48430, jiffies 4342258431 (age 1341.780s)
-  backtrace:
-    kmalloc_trace+0x22/0x110
-    regulator_register+0x184/0x1170
-    devm_regulator_register+0x4f/0xb0
-
-When regulator_register() returns fail and goto `wash` symbol,
-rdev->dev has registered release() function, so directly call
-put_device() to cleanup everything.
-
-Fixes: d3c731564e09 ("regulator: plug of_node leak in regulator_register()'s error path")
-Signed-off-by: Zeng Heng <zengheng4@huawei.com>
-Link: https://lore.kernel.org/r/20221116074339.1024240-1-zengheng4@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lkml.kernel.org/r/20221121030620.63181-1-hucool.lihua@huawei.com
+Fixes: 1f6d3a8f5e39 ("kprobes: Add a test case for stacktrace from kretprobe handler")
+Signed-off-by: Li Hua <hucool.lihua@huawei.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ lib/Kconfig.debug | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index aa4d78b02483..fd61c5c54a07 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5549,11 +5549,15 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	mutex_lock(&regulator_list_mutex);
- 	regulator_ena_gpio_free(rdev);
- 	mutex_unlock(&regulator_list_mutex);
-+	put_device(&rdev->dev);
-+	rdev = NULL;
- clean:
- 	if (dangling_of_gpiod)
- 		gpiod_put(config->ena_gpiod);
-+	if (rdev && rdev->dev.of_node)
-+		of_node_put(rdev->dev.of_node);
-+	kfree(rdev);
- 	kfree(config);
--	put_device(&rdev->dev);
- rinse:
- 	if (dangling_cfg_gpiod)
- 		gpiod_put(cfg->ena_gpiod);
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index cb131fad117c..997d23641448 100644
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -2095,6 +2095,7 @@ config KPROBES_SANITY_TEST
+ 	depends on DEBUG_KERNEL
+ 	depends on KPROBES
+ 	depends on KUNIT
++	select STACKTRACE if ARCH_CORRECT_STACKTRACE_ON_KRETPROBE
+ 	default KUNIT_ALL_TESTS
+ 	help
+ 	  This option provides for testing basic kprobes functionality on
 -- 
 2.35.1
 
