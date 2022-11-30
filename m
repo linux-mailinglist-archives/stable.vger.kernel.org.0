@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3252163DF53
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:46:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BD5B63DE0C
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:33:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231378AbiK3SqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:46:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54066 "EHLO
+        id S230217AbiK3SdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:33:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231290AbiK3Spx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:45:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CD7849B5B
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:45:46 -0800 (PST)
+        with ESMTP id S230251AbiK3SdJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:33:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 236FA24F32
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:33:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21F15B81CA8
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:45:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78802C433D6;
-        Wed, 30 Nov 2022 18:45:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FF6A61D67
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:33:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B4D0C433D6;
+        Wed, 30 Nov 2022 18:33:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833943;
-        bh=uG6c1lc/og1fvW/1KyWnWBfb2fg1Q1t6nyDYTdGjZoM=;
+        s=korg; t=1669833186;
+        bh=6IvDh34C/rgwk7a536aughaCJNLONvfI5Yuq1vZeVls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sjcd0m6DlfHEONxGA1uqnS7Rlf4+2mQMV5I1yivvENyJnxDtVgouNGdRNoOGsW8mA
-         dCMgoHe4WQ77ZhSezI/8SWv9TpWIkBhvPJ8ahplXZU/ZF2hicpylJbjvEtephgyxe6
-         X8SPgDDVgjuqc2a3WtPWr2y/4iwHIGKw60uD3hxs=
+        b=m/LiHWmV+WQ1MqEv0wR3WADnii+zPPmssfuHHjlsYg9yGloDt/NhRHfhq5ch8DKwl
+         VMMuXLG5UABCF0T5KBmQQigtadvJz3lqiVcWVQ+APxxugomjnE7qyM/sXSem1aSWmQ
+         XYBBJhcF68gbKPkS3u+b47QKRT06nxY2IKr0m64Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 071/289] selftests: mptcp: gives slow test-case more time
-Date:   Wed, 30 Nov 2022 19:20:56 +0100
-Message-Id: <20221130180545.747100752@linuxfoundation.org>
+Subject: [PATCH 5.15 005/206] tty: serial: fsl_lpuart: dont break the on-going transfer when global reset
+Date:   Wed, 30 Nov 2022 19:20:57 +0100
+Message-Id: <20221130180533.124630598@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +52,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 22b29557aef3c9d673c887911b504c6d47009de4 ]
+[ Upstream commit 76bad3f88750f8cc465c489e6846249e0bc3d8f5 ]
 
-On slow or busy VM, some test-cases still fail because the
-data transfer completes before the endpoint manipulation
-actually took effect.
+lpuart_global_reset() shouldn't break the on-going transmit engine, need
+to recover the on-going data transfer after reset.
 
-Address the issue by artificially increasing the runtime for
-the relevant test-cases.
+This can help earlycon here, since commit 60f361722ad2 ("serial:
+fsl_lpuart: Reset prior to registration") moved lpuart_global_reset()
+before uart_add_one_port(), earlycon is writing during global reset,
+as global reset will disable the TX and clear the baud rate register,
+which caused the earlycon cannot work any more after reset, needs to
+restore the baud rate and re-enable the transmitter to recover the
+earlycon write.
 
-Fixes: ef360019db40 ("selftests: mptcp: signal addresses testcases")
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/309
-Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Also move the lpuart_global_reset() down, then we can reuse the
+lpuart32_tx_empty() without declaration.
+
+Fixes: bd5305dcabbc ("tty: serial: fsl_lpuart: do software reset for imx7ulp and imx8qxp")
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20221024085844.22786-1-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/mptcp/mptcp_join.sh | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c | 76 +++++++++++++++++++++------------
+ 1 file changed, 49 insertions(+), 27 deletions(-)
 
-diff --git a/tools/testing/selftests/net/mptcp/mptcp_join.sh b/tools/testing/selftests/net/mptcp/mptcp_join.sh
-index ff83ef426df5..e52b79440123 100755
---- a/tools/testing/selftests/net/mptcp/mptcp_join.sh
-+++ b/tools/testing/selftests/net/mptcp/mptcp_join.sh
-@@ -2105,7 +2105,7 @@ remove_tests()
- 		pm_nl_set_limits $ns2 1 3
- 		pm_nl_add_endpoint $ns2 10.0.3.2 flags subflow
- 		pm_nl_add_endpoint $ns2 10.0.4.2 flags subflow
--		run_tests $ns1 $ns2 10.0.1.1 0 -1 -2 slow
-+		run_tests $ns1 $ns2 10.0.1.1 0 -1 -2 speed_10
- 		chk_join_nr 3 3 3
- 		chk_add_nr 1 1
- 		chk_rm_nr 2 2
-@@ -2118,7 +2118,7 @@ remove_tests()
- 		pm_nl_add_endpoint $ns1 10.0.3.1 flags signal
- 		pm_nl_add_endpoint $ns1 10.0.4.1 flags signal
- 		pm_nl_set_limits $ns2 3 3
--		run_tests $ns1 $ns2 10.0.1.1 0 -3 0 slow
-+		run_tests $ns1 $ns2 10.0.1.1 0 -3 0 speed_10
- 		chk_join_nr 3 3 3
- 		chk_add_nr 3 3
- 		chk_rm_nr 3 3 invert
-@@ -2131,7 +2131,7 @@ remove_tests()
- 		pm_nl_add_endpoint $ns1 10.0.3.1 flags signal
- 		pm_nl_add_endpoint $ns1 10.0.14.1 flags signal
- 		pm_nl_set_limits $ns2 3 3
--		run_tests $ns1 $ns2 10.0.1.1 0 -3 0 slow
-+		run_tests $ns1 $ns2 10.0.1.1 0 -3 0 speed_10
- 		chk_join_nr 1 1 1
- 		chk_add_nr 3 3
- 		chk_rm_nr 3 1 invert
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 1d13d88ea363..595430aedc0d 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -12,6 +12,7 @@
+ #include <linux/dmaengine.h>
+ #include <linux/dmapool.h>
+ #include <linux/io.h>
++#include <linux/iopoll.h>
+ #include <linux/irq.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+@@ -395,33 +396,6 @@ static unsigned int lpuart_get_baud_clk_rate(struct lpuart_port *sport)
+ #define lpuart_enable_clks(x)	__lpuart_enable_clks(x, true)
+ #define lpuart_disable_clks(x)	__lpuart_enable_clks(x, false)
+ 
+-static int lpuart_global_reset(struct lpuart_port *sport)
+-{
+-	struct uart_port *port = &sport->port;
+-	void __iomem *global_addr;
+-	int ret;
+-
+-	if (uart_console(port))
+-		return 0;
+-
+-	ret = clk_prepare_enable(sport->ipg_clk);
+-	if (ret) {
+-		dev_err(sport->port.dev, "failed to enable uart ipg clk: %d\n", ret);
+-		return ret;
+-	}
+-
+-	if (is_imx7ulp_lpuart(sport) || is_imx8qxp_lpuart(sport)) {
+-		global_addr = port->membase + UART_GLOBAL - IMX_REG_OFF;
+-		writel(UART_GLOBAL_RST, global_addr);
+-		usleep_range(GLOBAL_RST_MIN_US, GLOBAL_RST_MAX_US);
+-		writel(0, global_addr);
+-		usleep_range(GLOBAL_RST_MIN_US, GLOBAL_RST_MAX_US);
+-	}
+-
+-	clk_disable_unprepare(sport->ipg_clk);
+-	return 0;
+-}
+-
+ static void lpuart_stop_tx(struct uart_port *port)
+ {
+ 	unsigned char temp;
+@@ -2649,6 +2623,54 @@ static const struct serial_rs485 lpuart_rs485_supported = {
+ 	/* delay_rts_* and RX_DURING_TX are not supported */
+ };
+ 
++static int lpuart_global_reset(struct lpuart_port *sport)
++{
++	struct uart_port *port = &sport->port;
++	void __iomem *global_addr;
++	unsigned long ctrl, bd;
++	unsigned int val = 0;
++	int ret;
++
++	ret = clk_prepare_enable(sport->ipg_clk);
++	if (ret) {
++		dev_err(sport->port.dev, "failed to enable uart ipg clk: %d\n", ret);
++		return ret;
++	}
++
++	if (is_imx7ulp_lpuart(sport) || is_imx8qxp_lpuart(sport)) {
++		/*
++		 * If the transmitter is used by earlycon, wait for transmit engine to
++		 * complete and then reset.
++		 */
++		ctrl = lpuart32_read(port, UARTCTRL);
++		if (ctrl & UARTCTRL_TE) {
++			bd = lpuart32_read(&sport->port, UARTBAUD);
++			if (read_poll_timeout(lpuart32_tx_empty, val, val, 1, 100000, false,
++					      port)) {
++				dev_warn(sport->port.dev,
++					 "timeout waiting for transmit engine to complete\n");
++				clk_disable_unprepare(sport->ipg_clk);
++				return 0;
++			}
++		}
++
++		global_addr = port->membase + UART_GLOBAL - IMX_REG_OFF;
++		writel(UART_GLOBAL_RST, global_addr);
++		usleep_range(GLOBAL_RST_MIN_US, GLOBAL_RST_MAX_US);
++		writel(0, global_addr);
++		usleep_range(GLOBAL_RST_MIN_US, GLOBAL_RST_MAX_US);
++
++		/* Recover the transmitter for earlycon. */
++		if (ctrl & UARTCTRL_TE) {
++			lpuart32_write(port, bd, UARTBAUD);
++			lpuart32_write(port, ctrl, UARTCTRL);
++		}
++	}
++
++	clk_disable_unprepare(sport->ipg_clk);
++	return 0;
++}
++
+ static int lpuart_probe(struct platform_device *pdev)
+ {
+ 	const struct lpuart_soc_data *sdata = of_device_get_match_data(&pdev->dev);
 -- 
 2.35.1
 
