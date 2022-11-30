@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 011F463DF9E
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:49:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9AB463DD36
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:25:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231363AbiK3StC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:49:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34858 "EHLO
+        id S229948AbiK3SZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:25:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231386AbiK3Ssx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB89A326D3
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:51 -0800 (PST)
+        with ESMTP id S230134AbiK3SZZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F613108C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:25:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DE01B81C9A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E002C433C1;
-        Wed, 30 Nov 2022 18:48:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0867261B43
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:25:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AC3BC433D6;
+        Wed, 30 Nov 2022 18:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834128;
-        bh=qTeA3oofInzsCnXMSbUnfXbnJ++E2L1je2Cb98SZBeM=;
+        s=korg; t=1669832723;
+        bh=w+z7ParHoUP/56qjdPm41IFmHvoOCWlANcPXR+UNbG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZnZTI+qHxmv2jvTDVSSpLqRdldocZpUswky71TBpHKjDxc0tC1LDMdlsWCoALhmm
-         wcmoOizBJXQS2jJJqLI3AnW/VT4st9z9ri+nw6ipi5mLvIlh/8b1Z2WL6spW2JVw/V
-         EV85tqcRNOXLBrFwaUJd8sFVPv1IxheSg32g5zy8=
+        b=Ydr3XS55yXj+dGgy9sF/ywChotk1Qnev78VZEzwg4Q7yR1yTI+NCyv8IDMW6vHXDs
+         +gdfCBZR/Fx+mo10TyRWFSdN20lTs2a+e5KEejwDNaLUGUAZlpx9IZGAPMy2N8scj8
+         SNUGZFGRJcn9rL5pUcgA2xbnm+ic5f0jjKE5E3iI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 113/289] tipc: set con sock in tipc_conn_alloc
-Date:   Wed, 30 Nov 2022 19:21:38 +0100
-Message-Id: <20221130180546.701227572@linuxfoundation.org>
+Subject: [PATCH 5.10 018/162] audit: fix undefined behavior in bit shift for AUDIT_BIT
+Date:   Wed, 30 Nov 2022 19:21:39 +0100
+Message-Id: <20221130180528.990994216@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,104 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 0e5d56c64afcd6fd2d132ea972605b66f8a7d3c4 ]
+[ Upstream commit 986d93f55bdeab1cac858d1e47b41fac10b2d7f6 ]
 
-A crash was reported by Wei Chen:
+Shifting signed 32-bit value by 31 bits is undefined, so changing
+significant bit to unsigned. The UBSAN warning calltrace like below:
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000018
-  RIP: 0010:tipc_conn_close+0x12/0x100
-  Call Trace:
-   tipc_topsrv_exit_net+0x139/0x320
-   ops_exit_list.isra.9+0x49/0x80
-   cleanup_net+0x31a/0x540
-   process_one_work+0x3fa/0x9f0
-   worker_thread+0x42/0x5c0
+UBSAN: shift-out-of-bounds in kernel/auditfilter.c:179:23
+left shift of 1 by 31 places cannot be represented in type 'int'
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x7d/0xa5
+ dump_stack+0x15/0x1b
+ ubsan_epilogue+0xe/0x4e
+ __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
+ audit_register_class+0x9d/0x137
+ audit_classes_init+0x4d/0xb8
+ do_one_initcall+0x76/0x430
+ kernel_init_freeable+0x3b3/0x422
+ kernel_init+0x24/0x1e0
+ ret_from_fork+0x1f/0x30
+ </TASK>
 
-It was caused by !con->sock in tipc_conn_close(). In tipc_topsrv_accept(),
-con is allocated in conn_idr then its sock is set:
-
-  con = tipc_conn_alloc();
-  ...                    <----[1]
-  con->sock = newsock;
-
-If tipc_conn_close() is called in anytime of [1], the null-pointer-def
-is triggered by con->sock->sk due to con->sock is not yet set.
-
-This patch fixes it by moving the con->sock setting to tipc_conn_alloc()
-under s->idr_lock. So that con->sock can never be NULL when getting the
-con from s->conn_idr. It will be also safer to move con->server and flag
-CF_CONNECTED setting under s->idr_lock, as they should all be set before
-tipc_conn_alloc() is called.
-
-Fixes: c5fa7b3cf3cb ("tipc: introduce new TIPC server infrastructure")
-Reported-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+[PM: remove bad 'Fixes' tag as issue predates git, added in v2.6.6-rc1]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/topsrv.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ include/uapi/linux/audit.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/tipc/topsrv.c b/net/tipc/topsrv.c
-index d92ec92f0b71..b0f9aa521670 100644
---- a/net/tipc/topsrv.c
-+++ b/net/tipc/topsrv.c
-@@ -176,7 +176,7 @@ static void tipc_conn_close(struct tipc_conn *con)
- 	conn_put(con);
- }
+diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
+index cd2d8279a5e4..cb4e8e6e86a9 100644
+--- a/include/uapi/linux/audit.h
++++ b/include/uapi/linux/audit.h
+@@ -182,7 +182,7 @@
+ #define AUDIT_MAX_KEY_LEN  256
+ #define AUDIT_BITMASK_SIZE 64
+ #define AUDIT_WORD(nr) ((__u32)((nr)/32))
+-#define AUDIT_BIT(nr)  (1 << ((nr) - AUDIT_WORD(nr)*32))
++#define AUDIT_BIT(nr)  (1U << ((nr) - AUDIT_WORD(nr)*32))
  
--static struct tipc_conn *tipc_conn_alloc(struct tipc_topsrv *s)
-+static struct tipc_conn *tipc_conn_alloc(struct tipc_topsrv *s, struct socket *sock)
- {
- 	struct tipc_conn *con;
- 	int ret;
-@@ -202,10 +202,11 @@ static struct tipc_conn *tipc_conn_alloc(struct tipc_topsrv *s)
- 	}
- 	con->conid = ret;
- 	s->idr_in_use++;
--	spin_unlock_bh(&s->idr_lock);
- 
- 	set_bit(CF_CONNECTED, &con->flags);
- 	con->server = s;
-+	con->sock = sock;
-+	spin_unlock_bh(&s->idr_lock);
- 
- 	return con;
- }
-@@ -467,7 +468,7 @@ static void tipc_topsrv_accept(struct work_struct *work)
- 		ret = kernel_accept(lsock, &newsock, O_NONBLOCK);
- 		if (ret < 0)
- 			return;
--		con = tipc_conn_alloc(srv);
-+		con = tipc_conn_alloc(srv, newsock);
- 		if (IS_ERR(con)) {
- 			ret = PTR_ERR(con);
- 			sock_release(newsock);
-@@ -479,7 +480,6 @@ static void tipc_topsrv_accept(struct work_struct *work)
- 		newsk->sk_data_ready = tipc_conn_data_ready;
- 		newsk->sk_write_space = tipc_conn_write_space;
- 		newsk->sk_user_data = con;
--		con->sock = newsock;
- 		write_unlock_bh(&newsk->sk_callback_lock);
- 
- 		/* Wake up receive process in case of 'SYN+' message */
-@@ -577,12 +577,11 @@ bool tipc_topsrv_kern_subscr(struct net *net, u32 port, u32 type, u32 lower,
- 	sub.filter = filter;
- 	*(u64 *)&sub.usr_handle = (u64)port;
- 
--	con = tipc_conn_alloc(tipc_topsrv(net));
-+	con = tipc_conn_alloc(tipc_topsrv(net), NULL);
- 	if (IS_ERR(con))
- 		return false;
- 
- 	*conid = con->conid;
--	con->sock = NULL;
- 	rc = tipc_conn_rcv_sub(tipc_topsrv(net), con, &sub);
- 	if (rc >= 0)
- 		return true;
+ #define AUDIT_SYSCALL_CLASSES 16
+ #define AUDIT_CLASS_DIR_WRITE 0
 -- 
 2.35.1
 
