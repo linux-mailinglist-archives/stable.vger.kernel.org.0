@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3B5563DE29
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:34:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7EF763DF76
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230359AbiK3Seh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:34:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43132 "EHLO
+        id S231252AbiK3SrW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:47:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230362AbiK3SeL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:34:11 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D575A6D7
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:34:09 -0800 (PST)
+        with ESMTP id S231292AbiK3SrS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D4DA92081
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 57006CE1AD7
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:34:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04727C433D6;
-        Wed, 30 Nov 2022 18:34:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AFA8061D59
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:47:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95987C433D6;
+        Wed, 30 Nov 2022 18:47:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833246;
-        bh=e8MJAnXiJiPw9MDKXJfPJGxHZl+edSl7NcOUqBXrNRI=;
+        s=korg; t=1669834037;
+        bh=58VhntbweTWsIryvu2HAcruVX0w5sRK6/prRhQR3Yag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jvsv8VjIzxAveojJm8aZL17ys3+iWQgryBbgid3SKQFsyjsKupP7D+k7fjukaeC7C
-         I/CQdUlEYnv6erxDZZ/bsX4F+q9ZI5lMH/+WccGexsjbRuxxEuyN4VeRA8KEOFLSeQ
-         dVd4ALtX7Mn0ZR/tC6DLWPAwOc3i37O4V7jJ/sy4=
+        b=2fu84hhH2Yojeg38g3cIgVCUBCemTJzIcYOkG777+/+vydFv/Q0X01Li1vQvxTQ0/
+         cUXBtiPEGmf8zAmxNVXJqA/2UiOiO+ZsyI6hKTnTruP+Oo7kGniFEhCDqJIC/6XSSE
+         OLvqdnhfJdIHYC2kfjQcmNudooeau6VaemCZFXKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Nyekjaer <sean@geanix.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Moshe Shemesh <moshe@nvidia.com>,
+        Feras Daoud <ferasda@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 038/206] spi: stm32: fix stm32_spi_prepare_mbr() that halves spi clk for every run
+Subject: [PATCH 6.0 105/289] net/mlx5: Fix FW tracer timestamp calculation
 Date:   Wed, 30 Nov 2022 19:21:30 +0100
-Message-Id: <20221130180533.963039846@linuxfoundation.org>
+Message-Id: <20221130180546.519537713@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Nyekjaer <sean@geanix.com>
+From: Moshe Shemesh <moshe@nvidia.com>
 
-[ Upstream commit 62aa1a344b0904549f6de7af958e8a1136fd5228 ]
+[ Upstream commit 61db3d7b99a367416e489ccf764cc5f9b00d62a1 ]
 
-When this driver is used with a driver that uses preallocated spi_transfer
-structs. The speed_hz is halved by every run. This results in:
+Fix a bug in calculation of FW tracer timestamp. Decreasing one in the
+calculation should effect only bits 52_7 and not effect bits 6_0 of the
+timestamp, otherwise bits 6_0 are always set in this calculation.
 
-spi_stm32 44004000.spi: SPI transfer setup failed
-ads7846 spi0.0: SPI transfer failed: -22
-
-Example when running with DIV_ROUND_UP():
-- First run; speed_hz = 1000000, spi->clk_rate 125000000
-  div 125 -> mbrdiv = 7, cur_speed = 976562
-- Second run; speed_hz = 976562
-  div 128,00007 (roundup to 129) -> mbrdiv = 8, cur_speed = 488281
-- Third run; speed_hz = 488281
-  div 256,000131072067109 (roundup to 257) and then -EINVAL is returned.
-
-Use DIV_ROUND_CLOSEST to allow to round down and allow us to keep the
-set speed.
-
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Link: https://lore.kernel.org/r/20221103080043.3033414-1-sean@geanix.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 70dd6fdb8987 ("net/mlx5: FW tracer, parse traces and kernel tracing support")
+Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
+Reviewed-by: Feras Daoud <ferasda@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32.c | 2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index 96a73f9e2677..3c6f201b5dd8 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -434,7 +434,7 @@ static int stm32_spi_prepare_mbr(struct stm32_spi *spi, u32 speed_hz,
- 	u32 div, mbrdiv;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+index 978a2bb8e122..21831386b26e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+@@ -638,7 +638,7 @@ static void mlx5_tracer_handle_timestamp_trace(struct mlx5_fw_tracer *tracer,
+ 			trace_timestamp = (timestamp_event.timestamp & MASK_52_7) |
+ 					  (str_frmt->timestamp & MASK_6_0);
+ 		else
+-			trace_timestamp = ((timestamp_event.timestamp & MASK_52_7) - 1) |
++			trace_timestamp = ((timestamp_event.timestamp - 1) & MASK_52_7) |
+ 					  (str_frmt->timestamp & MASK_6_0);
  
- 	/* Ensure spi->clk_rate is even */
--	div = DIV_ROUND_UP(spi->clk_rate & ~0x1, speed_hz);
-+	div = DIV_ROUND_CLOSEST(spi->clk_rate & ~0x1, speed_hz);
- 
- 	/*
- 	 * SPI framework set xfer->speed_hz to master->max_speed_hz if
+ 		mlx5_tracer_print_trace(str_frmt, dev, trace_timestamp);
 -- 
 2.35.1
 
