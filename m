@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA0D63DFE1
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:51:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 237B163DE97
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:38:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231401AbiK3Svh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:51:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38362 "EHLO
+        id S230496AbiK3Sio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:38:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231560AbiK3SvQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:51:16 -0500
+        with ESMTP id S230434AbiK3Sim (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:38:42 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 623A49FEFE
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:51:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B43197012
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:38:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 153EBB81CAA
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:51:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67CECC433C1;
-        Wed, 30 Nov 2022 18:51:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF143B81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:38:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 293F3C433D7;
+        Wed, 30 Nov 2022 18:38:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834272;
-        bh=Dl9iN3/Uw59lY5QvvZ+rLQGrSv0FcMLxreELFTDdWnc=;
+        s=korg; t=1669833516;
+        bh=hnDeOxY67/rhT8mtH1IlQcKERjAyvkPAUoZ1t041Nxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qaTJA16s5VEEr1mvDztczZ1BY8QRIDTRRNidkV46k3TTu7Ksux7tI8EOpaltTHpRg
-         JDTxFiwn5zgYsydgsjOd6Ha8A7IiCCYrHwwpyIHbdcgiMQRe96NaKWJ5/RJ63c0PuQ
-         WumHIX+tejGIxTVJC445QAqzuQKdBY0/0IvnAQvU=
+        b=0VOUfG+v3KN1PKCgCbhkfo78RIcpLo2bkqUIYxqXjsuDgKwN1YQ0WSoKbpZGCrsuP
+         enKRhwJiFdFJAEkOWMVYKALMPDlULwfeY7baGRmui0CEKqKnCqQnrn7yKanZLMU62h
+         MaUs0X/WEs0BYYbsKtnyYKRZyu/HU1/mdzgYPu5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        Denis Efremov <denis.e.efremov@oracle.com>,
+        Guenter Roeck <groeck@google.com>,
+        Martin Faltesek <mfaltesek@google.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 192/289] usb: dwc3: gadget: conditionally remove requests
+Subject: [PATCH 5.15 125/206] nfc: st-nci: fix memory leaks in EVT_TRANSACTION
 Date:   Wed, 30 Nov 2022 19:22:57 +0100
-Message-Id: <20221130180548.477097968@linuxfoundation.org>
+Message-Id: <20221130180536.226563305@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+From: Martin Faltesek <mfaltesek@google.com>
 
-[ Upstream commit b44c0e7fef51ee7e8ca8c6efbf706f5613787100 ]
+[ Upstream commit 440f2ae9c9f06e26f5dcea697a53717fc61a318c ]
 
-The functions stop_active_transfers and ep_disable are both calling
-remove_requests. This functions in both cases will giveback the requests
-with status ESHUTDOWN, which also represents an physical disconnection.
-For ep_disable this is not true. This patch adds the status parameter to
-remove_requests and sets the status to ECONNRESET on ep_disable.
+Error path does not free previously allocated memory. Add devm_kfree() to
+the failure path.
 
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Link: https://lore.kernel.org/r/20220720213523.1055897-1-m.grzeschik@pengutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: f90f5afd5083 ("usb: dwc3: gadget: Clear ep descriptor last")
+Reported-by: Denis Efremov <denis.e.efremov@oracle.com>
+Reviewed-by: Guenter Roeck <groeck@google.com>
+Fixes: 5d1ceb7f5e56 ("NFC: st21nfcb: Add HCI transaction event support")
+Signed-off-by: Martin Faltesek <mfaltesek@google.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/nfc/st-nci/se.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 0ed9826a4c47..ffff6f41d2ac 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -965,7 +965,7 @@ static int __dwc3_gadget_ep_enable(struct dwc3_ep *dep, unsigned int action)
- 	return 0;
- }
+diff --git a/drivers/nfc/st-nci/se.c b/drivers/nfc/st-nci/se.c
+index 522b7a128f4c..a915cad909b4 100644
+--- a/drivers/nfc/st-nci/se.c
++++ b/drivers/nfc/st-nci/se.c
+@@ -339,8 +339,10 @@ static int st_nci_hci_connectivity_event_received(struct nci_dev *ndev,
  
--static void dwc3_remove_requests(struct dwc3 *dwc, struct dwc3_ep *dep)
-+static void dwc3_remove_requests(struct dwc3 *dwc, struct dwc3_ep *dep, int status)
- {
- 	struct dwc3_request		*req;
+ 		/* Check next byte is PARAMETERS tag (82) */
+ 		if (skb->data[transaction->aid_len + 2] !=
+-		    NFC_EVT_TRANSACTION_PARAMS_TAG)
++		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
++			devm_kfree(dev, transaction);
+ 			return -EPROTO;
++		}
  
-@@ -975,19 +975,19 @@ static void dwc3_remove_requests(struct dwc3 *dwc, struct dwc3_ep *dep)
- 	while (!list_empty(&dep->started_list)) {
- 		req = next_request(&dep->started_list);
- 
--		dwc3_gadget_giveback(dep, req, -ESHUTDOWN);
-+		dwc3_gadget_giveback(dep, req, status);
- 	}
- 
- 	while (!list_empty(&dep->pending_list)) {
- 		req = next_request(&dep->pending_list);
- 
--		dwc3_gadget_giveback(dep, req, -ESHUTDOWN);
-+		dwc3_gadget_giveback(dep, req, status);
- 	}
- 
- 	while (!list_empty(&dep->cancelled_list)) {
- 		req = next_request(&dep->cancelled_list);
- 
--		dwc3_gadget_giveback(dep, req, -ESHUTDOWN);
-+		dwc3_gadget_giveback(dep, req, status);
- 	}
- }
- 
-@@ -1022,7 +1022,7 @@ static int __dwc3_gadget_ep_disable(struct dwc3_ep *dep)
- 		dep->endpoint.desc = NULL;
- 	}
- 
--	dwc3_remove_requests(dwc, dep);
-+	dwc3_remove_requests(dwc, dep, -ECONNRESET);
- 
- 	dep->stream_capable = false;
- 	dep->type = 0;
-@@ -2350,7 +2350,7 @@ static void dwc3_stop_active_transfers(struct dwc3 *dwc)
- 		if (!dep)
- 			continue;
- 
--		dwc3_remove_requests(dwc, dep);
-+		dwc3_remove_requests(dwc, dep, -ESHUTDOWN);
- 	}
- }
- 
+ 		transaction->params_len = skb->data[transaction->aid_len + 3];
+ 		memcpy(transaction->params, skb->data +
 -- 
 2.35.1
 
