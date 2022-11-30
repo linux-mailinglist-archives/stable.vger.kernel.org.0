@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87DFC63DD9A
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 775A463DE8E
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:38:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229514AbiK3S2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:28:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34536 "EHLO
+        id S230473AbiK3SiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:38:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229787AbiK3S2y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:28:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D89CE3E097
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:28:53 -0800 (PST)
+        with ESMTP id S231143AbiK3SiB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:38:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 929C5101E5
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:38:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70C7461D05
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:28:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8294AC433C1;
-        Wed, 30 Nov 2022 18:28:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3FAFEB81C9C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:37:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC146C433C1;
+        Wed, 30 Nov 2022 18:37:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832932;
-        bh=9lt7A/2BiShwRt9Sz/IHMwmx1PwzQhakLMoo1H6xU+Y=;
+        s=korg; t=1669833478;
+        bh=kj0K1L8KgiADotXKOebfiv3PcpAj71fxo0GW5gjfrBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQiqc7jw7Jk4UaQaQvGD2tfP8p+Y3r2EHuD7rWUvLjL81wzju2p3HkYJnKm9/yK4b
-         W+n+Mgh+9x4kBqkI/b2ca8kFYR1K2E43oDjQaalAxRm30vgHTtRt8BeFiXn9E6G5G8
-         z0Q/HBaeBhozRqaCO96UjjWqJ6FyKLSMLfpbC5Yw=
+        b=ilLB4lw/Z1bkZVY9xg8dYxjx7w1QwANrvuVACtP4Ho/JJ9znNm/aSU+RRDQ0GuKqG
+         Twfo8Vvx3q2NVA5tj5Y9X+oPpgG+/K0gdvepqok/mM9MGuL5k+YiW18rIeDtpmW9Aa
+         0+KaBuVo0WV3hQDtWtc6QlyJQJ4AxF9Cokqnk1Uo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Joanne Koong <joannelkoong@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 091/162] net: enetc: preserve TX ring priority across reconfiguration
+Subject: [PATCH 5.15 120/206] dccp/tcp: Reset saddr on failure after inet6?_hash_connect().
 Date:   Wed, 30 Nov 2022 19:22:52 +0100
-Message-Id: <20221130180530.963747586@linuxfoundation.org>
+Message-Id: <20221130180536.101370574@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,124 +55,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 290b5fe096e7dd0aad730d1af4f7f2d9fea43e11 ]
+[ Upstream commit 77934dc6db0d2b111a8f2759e9ad2fb67f5cffa5 ]
 
-In the blamed commit, a rudimentary reallocation procedure for RX buffer
-descriptors was implemented, for the situation when their format changes
-between normal (no PTP) and extended (PTP).
+When connect() is called on a socket bound to the wildcard address,
+we change the socket's saddr to a local address.  If the socket
+fails to connect() to the destination, we have to reset the saddr.
 
-enetc_hwtstamp_set() calls enetc_close() and enetc_open() in a sequence,
-and this sequence loses information which was previously configured in
-the TX BDR Mode Register, specifically via the enetc_set_bdr_prio() call.
-The TX ring priority is configured by tc-mqprio and tc-taprio, and
-affects important things for TSN such as the TX time of packets. The
-issue manifests itself most visibly by the fact that isochron --txtime
-reports premature packet transmissions when PTP is first enabled on an
-enetc interface.
+However, when an error occurs after inet_hash6?_connect() in
+(dccp|tcp)_v[46]_conect(), we forget to reset saddr and leave
+the socket bound to the address.
 
-Save the TX ring priority in a new field in struct enetc_bdr (occupies a
-2 byte hole on arm64) in order to make this survive a ring reconfiguration.
+>From the user's point of view, whether saddr is reset or not varies
+with errno.  Let's fix this inconsistent behaviour.
 
-Fixes: 434cebabd3a2 ("enetc: Add dynamic allocation of extended Rx BD rings")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Link: https://lore.kernel.org/r/20221122130936.1704151-1-vladimir.oltean@nxp.com
+Note that after this patch, the repro [0] will trigger the WARN_ON()
+in inet_csk_get_port() again, but this patch is not buggy and rather
+fixes a bug papering over the bhash2's bug for which we need another
+fix.
+
+For the record, the repro causes -EADDRNOTAVAIL in inet_hash6_connect()
+by this sequence:
+
+  s1 = socket()
+  s1.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+  s1.bind(('127.0.0.1', 10000))
+  s1.sendto(b'hello', MSG_FASTOPEN, (('127.0.0.1', 10000)))
+  # or s1.connect(('127.0.0.1', 10000))
+
+  s2 = socket()
+  s2.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+  s2.bind(('0.0.0.0', 10000))
+  s2.connect(('127.0.0.1', 10000))  # -EADDRNOTAVAIL
+
+  s2.listen(32)  # WARN_ON(inet_csk(sk)->icsk_bind2_hash != tb2);
+
+[0]: https://syzkaller.appspot.com/bug?extid=015d756bbd1f8b5c8f09
+
+Fixes: 3df80d9320bc ("[DCCP]: Introduce DCCPv6")
+Fixes: 7c657876b63c ("[DCCP]: Initial implementation")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Acked-by: Joanne Koong <joannelkoong@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc.c  |  8 ++++---
- drivers/net/ethernet/freescale/enetc/enetc.h  |  1 +
- .../net/ethernet/freescale/enetc/enetc_qos.c  | 21 ++++++++++++-------
- 3 files changed, 19 insertions(+), 11 deletions(-)
+ net/dccp/ipv4.c     | 2 ++
+ net/dccp/ipv6.c     | 2 ++
+ net/ipv4/tcp_ipv4.c | 2 ++
+ net/ipv6/tcp_ipv6.c | 2 ++
+ 4 files changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
-index 65fa21776a98..975762ccb66f 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.c
-@@ -1212,7 +1212,7 @@ static void enetc_setup_txbdr(struct enetc_hw *hw, struct enetc_bdr *tx_ring)
- 	/* enable Tx ints by setting pkt thr to 1 */
- 	enetc_txbdr_wr(hw, idx, ENETC_TBICR0, ENETC_TBICR0_ICEN | 0x1);
- 
--	tbmr = ENETC_TBMR_EN;
-+	tbmr = ENETC_TBMR_EN | ENETC_TBMR_SET_PRIO(tx_ring->prio);
- 	if (tx_ring->ndev->features & NETIF_F_HW_VLAN_CTAG_TX)
- 		tbmr |= ENETC_TBMR_VIH;
- 
-@@ -1583,7 +1583,8 @@ static int enetc_setup_tc_mqprio(struct net_device *ndev, void *type_data)
- 		/* Reset all ring priorities to 0 */
- 		for (i = 0; i < priv->num_tx_rings; i++) {
- 			tx_ring = priv->tx_ring[i];
--			enetc_set_bdr_prio(hw, tx_ring->index, 0);
-+			tx_ring->prio = 0;
-+			enetc_set_bdr_prio(hw, tx_ring->index, tx_ring->prio);
- 		}
- 
- 		return 0;
-@@ -1602,7 +1603,8 @@ static int enetc_setup_tc_mqprio(struct net_device *ndev, void *type_data)
+diff --git a/net/dccp/ipv4.c b/net/dccp/ipv4.c
+index 0ea29270d7e5..5bcfa1e9a941 100644
+--- a/net/dccp/ipv4.c
++++ b/net/dccp/ipv4.c
+@@ -137,6 +137,8 @@ int dccp_v4_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)
+ 	 * This unhashes the socket and releases the local port, if necessary.
  	 */
- 	for (i = 0; i < num_tc; i++) {
- 		tx_ring = priv->tx_ring[i];
--		enetc_set_bdr_prio(hw, tx_ring->index, i);
-+		tx_ring->prio = i;
-+		enetc_set_bdr_prio(hw, tx_ring->index, tx_ring->prio);
- 	}
+ 	dccp_set_state(sk, DCCP_CLOSED);
++	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
++		inet_reset_saddr(sk);
+ 	ip_rt_put(rt);
+ 	sk->sk_route_caps = 0;
+ 	inet->inet_dport = 0;
+diff --git a/net/dccp/ipv6.c b/net/dccp/ipv6.c
+index fa663518fa0e..071620622e1e 100644
+--- a/net/dccp/ipv6.c
++++ b/net/dccp/ipv6.c
+@@ -967,6 +967,8 @@ static int dccp_v6_connect(struct sock *sk, struct sockaddr *uaddr,
  
- 	/* Reset the number of netdev queues based on the TC count */
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.h b/drivers/net/ethernet/freescale/enetc/enetc.h
-index 38d8ea48b931..725c3d1cbb19 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.h
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.h
-@@ -58,6 +58,7 @@ struct enetc_bdr {
- 		void __iomem *rcir;
- 	};
- 	u16 index;
-+	u16 prio;
- 	int bd_count; /* # of BDs */
- 	int next_to_use;
- 	int next_to_clean;
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_qos.c b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-index d3a6367548a1..5841721c8119 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-@@ -144,6 +144,7 @@ int enetc_setup_tc_taprio(struct net_device *ndev, void *type_data)
- 	struct tc_taprio_qopt_offload *taprio = type_data;
- 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
- 	struct enetc_hw *hw = &priv->si->hw;
-+	struct enetc_bdr *tx_ring;
- 	int err;
- 	int i;
+ late_failure:
+ 	dccp_set_state(sk, DCCP_CLOSED);
++	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
++		inet_reset_saddr(sk);
+ 	__sk_dst_reset(sk);
+ failure:
+ 	inet->inet_dport = 0;
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index 42d4af632495..0e1fbad17dbe 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -324,6 +324,8 @@ int tcp_v4_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)
+ 	 * if necessary.
+ 	 */
+ 	tcp_set_state(sk, TCP_CLOSE);
++	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
++		inet_reset_saddr(sk);
+ 	ip_rt_put(rt);
+ 	sk->sk_route_caps = 0;
+ 	inet->inet_dport = 0;
+diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
+index 51f4d330e820..93b3e7c247ce 100644
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -339,6 +339,8 @@ static int tcp_v6_connect(struct sock *sk, struct sockaddr *uaddr,
  
-@@ -152,16 +153,20 @@ int enetc_setup_tc_taprio(struct net_device *ndev, void *type_data)
- 		if (priv->tx_ring[i]->tsd_enable)
- 			return -EBUSY;
- 
--	for (i = 0; i < priv->num_tx_rings; i++)
--		enetc_set_bdr_prio(hw, priv->tx_ring[i]->index,
--				   taprio->enable ? i : 0);
-+	for (i = 0; i < priv->num_tx_rings; i++) {
-+		tx_ring = priv->tx_ring[i];
-+		tx_ring->prio = taprio->enable ? i : 0;
-+		enetc_set_bdr_prio(hw, tx_ring->index, tx_ring->prio);
-+	}
- 
- 	err = enetc_setup_taprio(ndev, taprio);
--
--	if (err)
--		for (i = 0; i < priv->num_tx_rings; i++)
--			enetc_set_bdr_prio(hw, priv->tx_ring[i]->index,
--					   taprio->enable ? 0 : i);
-+	if (err) {
-+		for (i = 0; i < priv->num_tx_rings; i++) {
-+			tx_ring = priv->tx_ring[i];
-+			tx_ring->prio = taprio->enable ? 0 : i;
-+			enetc_set_bdr_prio(hw, tx_ring->index, tx_ring->prio);
-+		}
-+	}
- 
- 	return err;
- }
+ late_failure:
+ 	tcp_set_state(sk, TCP_CLOSE);
++	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
++		inet_reset_saddr(sk);
+ failure:
+ 	inet->inet_dport = 0;
+ 	sk->sk_route_caps = 0;
 -- 
 2.35.1
 
