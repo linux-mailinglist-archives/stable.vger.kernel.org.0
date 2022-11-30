@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F6563DDE1
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:31:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65EF363E018
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:53:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229984AbiK3Sb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:31:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37870 "EHLO
+        id S231511AbiK3Sxk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:53:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230057AbiK3Sb0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:31:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FA958D660
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:31:26 -0800 (PST)
+        with ESMTP id S230472AbiK3SxX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:53:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A7BD23381
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:53:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1C04B81B41
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:31:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 370E7C433C1;
-        Wed, 30 Nov 2022 18:31:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 079D461D4F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:53:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 170EDC433D7;
+        Wed, 30 Nov 2022 18:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833083;
-        bh=32JwF+5T8eFUXcCsM12zv8TYnKDw38lIf0unECxX/LA=;
+        s=korg; t=1669834402;
+        bh=9eK/YfM8SsXmkglH0WxqzhlfaZd4V7b6t66rSlpQoZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+BNIFpar31uait3845LCrvVBpVEMdyUHci3uFhg1S5UxaNxfRdKuqSk9Ya+KLWf4
-         AdiU40EK8YQnnly20FPee0AxElj9Fr6GohCIiSBJ3eC7E45YJCNFU+kuByehfIwzYT
-         52UT14+UCzePnZT3bvaOm1OTw0BwqV/uaf6V/4X8=
+        b=sIXkD6e32zWbNAyRITjur3Ja5vv36wpGnjsLZmeh7Pd2FEcklVhgB8iGNE+/2dc7T
+         IdCPy5qLeQi8HGiPaWEzmDUxLZgJ0fbkZ9W3Cj6NDsoo4Qtih5EXHt00vO8t/hvmlu
+         fFzJjARbEsXV9KsMtvwQeVlNpidvSZ8kNwRu56Yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jon Hunter <jonathanh@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Thierry Reding <treding@nvidia.com>,
+        patches@lists.linux.dev,
+        Olivier Moysan <olivier.moysan@foss.st.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 145/162] gpu: host1x: Avoid trying to use GART on Tegra20
+Subject: [PATCH 6.0 241/289] ASoC: stm32: dfsdm: manage cb buffers cleanup
 Date:   Wed, 30 Nov 2022 19:23:46 +0100
-Message-Id: <20221130180532.413479154@linuxfoundation.org>
+Message-Id: <20221130180549.573905141@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Olivier Moysan <olivier.moysan@foss.st.com>
 
-[ Upstream commit c2418f911a31a266af4fbaca998dc73d3676475a ]
+[ Upstream commit 7d945b046be3d2605dbb1806e73095aadd7ae129 ]
 
-Since commit c7e3ca515e78 ("iommu/tegra: gart: Do not register with
-bus") quite some time ago, the GART driver has effectively disabled
-itself to avoid issues with the GPU driver expecting it to work in ways
-that it doesn't. As of commit 57365a04c921 ("iommu: Move bus setup to
-IOMMU device registration") that bodge no longer works, but really the
-GPU driver should be responsible for its own behaviour anyway. Make the
-workaround explicit.
+Ensure that resources allocated by iio_channel_get_all_cb()
+are released on driver unbind.
 
-Reported-by: Jon Hunter <jonathanh@nvidia.com>
-Suggested-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
+Link: https://lore.kernel.org/r/20221109170849.273719-1-olivier.moysan@foss.st.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/drm.c | 4 ++++
- drivers/gpu/host1x/dev.c    | 4 ++++
- 2 files changed, 8 insertions(+)
+ sound/soc/stm/stm32_adfsdm.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/tegra/drm.c b/drivers/gpu/drm/tegra/drm.c
-index 2c6ebc328b24..318692ad9680 100644
---- a/drivers/gpu/drm/tegra/drm.c
-+++ b/drivers/gpu/drm/tegra/drm.c
-@@ -1042,6 +1042,10 @@ static bool host1x_drm_wants_iommu(struct host1x_device *dev)
- 	struct host1x *host1x = dev_get_drvdata(dev->dev.parent);
- 	struct iommu_domain *domain;
+diff --git a/sound/soc/stm/stm32_adfsdm.c b/sound/soc/stm/stm32_adfsdm.c
+index 643fc8a17018..837c1848d9bf 100644
+--- a/sound/soc/stm/stm32_adfsdm.c
++++ b/sound/soc/stm/stm32_adfsdm.c
+@@ -304,6 +304,11 @@ static int stm32_adfsdm_dummy_cb(const void *data, void *private)
+ 	return 0;
+ }
  
-+	/* Our IOMMU usage policy doesn't currently play well with GART */
-+	if (of_machine_is_compatible("nvidia,tegra20"))
-+		return false;
++static void stm32_adfsdm_cleanup(void *data)
++{
++	iio_channel_release_all_cb(data);
++}
 +
- 	/*
- 	 * If the Tegra DRM clients are backed by an IOMMU, push buffers are
- 	 * likely to be allocated beyond the 32-bit boundary if sufficient
-diff --git a/drivers/gpu/host1x/dev.c b/drivers/gpu/host1x/dev.c
-index 8659558b518d..9f674a8d5009 100644
---- a/drivers/gpu/host1x/dev.c
-+++ b/drivers/gpu/host1x/dev.c
-@@ -198,6 +198,10 @@ static void host1x_setup_sid_table(struct host1x *host)
+ static struct snd_soc_component_driver stm32_adfsdm_soc_platform = {
+ 	.open		= stm32_adfsdm_pcm_open,
+ 	.close		= stm32_adfsdm_pcm_close,
+@@ -350,6 +355,12 @@ static int stm32_adfsdm_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->iio_cb))
+ 		return PTR_ERR(priv->iio_cb);
  
- static bool host1x_wants_iommu(struct host1x *host1x)
- {
-+	/* Our IOMMU usage policy doesn't currently play well with GART */
-+	if (of_machine_is_compatible("nvidia,tegra20"))
-+		return false;
++	ret = devm_add_action_or_reset(&pdev->dev, stm32_adfsdm_cleanup, priv->iio_cb);
++	if (ret < 0)  {
++		dev_err(&pdev->dev, "Unable to add action\n");
++		return ret;
++	}
 +
- 	/*
- 	 * If we support addressing a maximum of 32 bits of physical memory
- 	 * and if the host1x firewall is enabled, there's no need to enable
+ 	component = devm_kzalloc(&pdev->dev, sizeof(*component), GFP_KERNEL);
+ 	if (!component)
+ 		return -ENOMEM;
 -- 
 2.35.1
 
