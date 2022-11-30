@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29CBA63DD64
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:27:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E37963DD62
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:27:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229519AbiK3S1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229558AbiK3S1B (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 30 Nov 2022 13:27:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57966 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229941AbiK3S0p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:45 -0500
+        with ESMTP id S229751AbiK3S0r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F8F6260
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6127CA45D
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B686B81CA1
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 759B5C433B5;
-        Wed, 30 Nov 2022 18:26:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15D25B81CA3
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63083C433D6;
+        Wed, 30 Nov 2022 18:26:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832802;
-        bh=KDw9EjK9+mwAfTvh1wRhZgqj6HHKnxmWbRovU+8NZ0E=;
+        s=korg; t=1669832804;
+        bh=/qVSnxrw2mWyqJbiY3yhpmb+MNySsgRc/MQGuuVCe98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jzDAsZojHl93WFogipGsouA28pCX3q1MaksPzg4Lhw27paNYARaeNyPxWn+F7gW9j
-         MOBEXVktAaL1SP83asm01vKA45biXJXTLrvipgIugunv6JCZSrVOk4h5vdYlVZXCER
-         BqcYn1RuOu3BzgVacF3+2cFfl2g3F0v3J/jS/1TM=
+        b=I69Cf8P66yvC13SXddjKDbRAmawEfjMWtzn1ML6RDc8Af+ioCpKdvPx35T5tGVF7K
+         eC5BFo/eaoydDytYFafYkN3enO339UVtEiqDtS/zyu7SmP7f7uBeBB/16clo0WqzxY
+         QMfaK7TAS71TyxP1FBj39peHmoNg35OXIzMetGQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jonas Jelonek <jelonek.jonas@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev,
+        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 016/162] wifi: mac80211_hwsim: fix debugfs attribute ps with rc table support
-Date:   Wed, 30 Nov 2022 19:21:37 +0100
-Message-Id: <20221130180528.937927614@linuxfoundation.org>
+Subject: [PATCH 5.10 017/162] riscv: dts: sifive unleashed: Add PWM controlled LEDs
+Date:   Wed, 30 Nov 2022 19:21:38 +0100
+Message-Id: <20221130180528.964859725@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
 References: <20221130180528.466039523@linuxfoundation.org>
@@ -53,55 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Jelonek <jelonek.jonas@gmail.com>
+From: Emil Renner Berthing <emil.renner.berthing@canonical.com>
 
-[ Upstream commit 69188df5f6e4cecc6b76b958979ba363cd5240e8 ]
+[ Upstream commit 8bc8824d30193eb7755043d5bb65fa7f0d11a595 ]
 
-Fixes a warning that occurs when rc table support is enabled
-(IEEE80211_HW_SUPPORTS_RC_TABLE) in mac80211_hwsim and the PS mode
-is changed via the exported debugfs attribute.
+This adds the 4 PWM controlled green LEDs to the HiFive Unleashed device
+tree. The schematic doesn't specify any special function for the LEDs,
+so they're added here without any default triggers and named d1, d2, d3
+and d4 just like in the schematic.
 
-When the PS mode is changed, a packet is broadcasted via
-hwsim_send_nullfunc by creating and transmitting a plain skb with only
-header initialized. The ieee80211 rate array in the control buffer is
-zero-initialized. When ratetbl support is enabled, ieee80211_get_tx_rates
-is called for the skb with sta parameter set to NULL and thus no
-ratetbl can be used. The final rate array then looks like
-[-1,0; 0,0; 0,0; 0,0] which causes the warning in ieee80211_get_tx_rate.
-
-The issue is fixed by setting the count of the first rate with idx '0'
-to 1 and hence ieee80211_get_tx_rates won't overwrite it with idx '-1'.
-
-Signed-off-by: Jonas Jelonek <jelonek.jonas@gmail.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Tested-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20221012110928.352910-1-emil.renner.berthing@canonical.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ .../boot/dts/sifive/hifive-unleashed-a00.dts  | 38 +++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index a6d4ff4760ad..255286b2324e 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -775,6 +775,7 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
- 	struct hwsim_vif_priv *vp = (void *)vif->drv_priv;
- 	struct sk_buff *skb;
- 	struct ieee80211_hdr *hdr;
-+	struct ieee80211_tx_info *cb;
+diff --git a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
+index 60846e88ae4b..dddabfbbc7a9 100644
+--- a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
++++ b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
+@@ -3,6 +3,8 @@
  
- 	if (!vp->assoc)
- 		return;
-@@ -796,6 +797,10 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
- 	memcpy(hdr->addr2, mac, ETH_ALEN);
- 	memcpy(hdr->addr3, vp->bssid, ETH_ALEN);
+ #include "fu540-c000.dtsi"
+ #include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/leds/common.h>
++#include <dt-bindings/pwm/pwm.h>
  
-+	cb = IEEE80211_SKB_CB(skb);
-+	cb->control.rates[0].count = 1;
-+	cb->control.rates[1].idx = -1;
+ /* Clock frequency (in Hz) of the PCB crystal for rtcclk */
+ #define RTCCLK_FREQ		1000000
+@@ -46,6 +48,42 @@
+ 		compatible = "gpio-restart";
+ 		gpios = <&gpio 10 GPIO_ACTIVE_LOW>;
+ 	};
 +
- 	rcu_read_lock();
- 	mac80211_hwsim_tx_frame(data->hw, skb,
- 				rcu_dereference(vif->chanctx_conf)->def.chan);
++	led-controller {
++		compatible = "pwm-leds";
++
++		led-d1 {
++			pwms = <&pwm0 0 7812500 PWM_POLARITY_INVERTED>;
++			active-low;
++			color = <LED_COLOR_ID_GREEN>;
++			max-brightness = <255>;
++			label = "d1";
++		};
++
++		led-d2 {
++			pwms = <&pwm0 1 7812500 PWM_POLARITY_INVERTED>;
++			active-low;
++			color = <LED_COLOR_ID_GREEN>;
++			max-brightness = <255>;
++			label = "d2";
++		};
++
++		led-d3 {
++			pwms = <&pwm0 2 7812500 PWM_POLARITY_INVERTED>;
++			active-low;
++			color = <LED_COLOR_ID_GREEN>;
++			max-brightness = <255>;
++			label = "d3";
++		};
++
++		led-d4 {
++			pwms = <&pwm0 3 7812500 PWM_POLARITY_INVERTED>;
++			active-low;
++			color = <LED_COLOR_ID_GREEN>;
++			max-brightness = <255>;
++			label = "d4";
++		};
++	};
+ };
+ 
+ &uart0 {
 -- 
 2.35.1
 
