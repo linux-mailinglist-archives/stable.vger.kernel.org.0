@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE4163E024
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:54:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7078063DDED
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:32:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231532AbiK3Sx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:53:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44184 "EHLO
+        id S230138AbiK3Sb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:31:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231556AbiK3Sx4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:53:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A623927902
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:53:55 -0800 (PST)
+        with ESMTP id S230154AbiK3Sb6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:31:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 412CF900E0
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:31:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5143B81CAA
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:53:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E20EC433B5;
-        Wed, 30 Nov 2022 18:53:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED9C7B81CA1
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:31:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A73EC433D6;
+        Wed, 30 Nov 2022 18:31:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834432;
-        bh=NJFLyNPH/A3xeKugc0ptEUSMtciv3YBsbxUtW+VLVbQ=;
+        s=korg; t=1669833114;
+        bh=7BsYg0Wu24udDsEfeVOVwU5rmbccxKV3SpG0/Fd7mGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GBICwmaELLieYGjJeOqLs6lQ+XzpnFHSNInq+KweVU9IkWlMaBC/PHIVOcRcZ/NkR
-         dbaMhRhNmiuA0g5nzNoVz9oTE9dcjW3idWf7vPiO6QZuH005Ov1cqONXCo36BRTYrq
-         dxle+U0dMmaea8qUHzf/mhAd82IW27RQP17ngqfY=
+        b=Rn9SejUhZtI4LLcDo+mHjB4hHCeRhb7aEyfe2QNy6Bx++0/DU7tq2i9xWB0awQP9B
+         0GO6ESTiHZRTBqFqywygU8k/BpvFa+0a62zgHBkFGWv/BSaxpyqRRJa5stsxu0WizD
+         BQ5E8ZKKJK0+BHXeAt5J0Tjte+EFLL+2ce1TeQMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 251/289] zonefs: fix zone report size in __zonefs_io_error()
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Luiz Capitulino <luizcap@amazon.com>
+Subject: [PATCH 5.10 155/162] genirq: Take the proposed affinity at face value if force==true
 Date:   Wed, 30 Nov 2022 19:23:56 +0100
-Message-Id: <20221130180549.795738873@linuxfoundation.org>
+Message-Id: <20221130180532.677827540@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,142 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Luiz Capitulino <luizcap@amazon.com>
 
-[ Upstream commit 7dd12d65ac646046a3fe0bbf9a4e86f4514207b3 ]
+From: Marc Zyngier <maz@kernel.org>
 
-When an IO error occurs, the function __zonefs_io_error() is used to
-issue a zone report to obtain the latest zone information from the
-device. This function gets a zone report for all zones used as storage
-for a file, which is always 1 zone except for files representing
-aggregated conventional zones.
+commit c48c8b829d2b966a6649827426bcdba082ccf922 upstream.
 
-The number of zones of a zone report for a file is calculated in
-__zonefs_io_error() by doing a bit-shift of the inode i_zone_size field,
-which is equal to or larger than the device zone size. However, this
-calculation does not take into account that the last zone of a zoned
-device may be smaller than the zone size reported by bdev_zone_sectors()
-(which is used to set the bit shift size). As a result, if an error
-occurs for an IO targetting such last smaller zone, the zone report will
-ask for 0 zones, leading to an invalid zone report.
+Although setting the affinity of an interrupt to a set of CPUs that doesn't
+have any online CPU is generally frowned apon, there are a few limited
+cases where such affinity is set from a CPUHP notifier, setting the
+affinity to a CPU that isn't online yet.
 
-Fix this by using the fact that all files require a 1 zone report,
-except if the inode i_zone_size field indicates a zone size larger than
-the device zone size. This exception case corresponds to a mount with
-aggregated conventional zones.
+The saving grace is that this is always done using the 'force' attribute,
+which gives a hint that the affinity setting can be outside of the online
+CPU mask and the callsite set this flag with the knowledge that the
+underlying interrupt controller knows to handle it.
 
-A check for this exception is added to the file inode initialization
-during mount. If an invalid setup is detected, emit an error and fail
-the mount (check contributed by Johannes Thumshirn).
+This restores the expected behaviour on Marek's system.
 
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 33de0aa4bae9 ("genirq: Always limit the affinity to online CPUs")
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/4b7fc13c-887b-a664-26e8-45aed13f048a@samsung.com
+Link: https://lore.kernel.org/r/20220414140011.541725-1-maz@kernel.org
+
+Signed-off-by: Luiz Capitulino <luizcap@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/zonefs/super.c | 37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ kernel/irq/manage.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/fs/zonefs/super.c b/fs/zonefs/super.c
-index dfe7d410d1e4..2c53fbb8d918 100644
---- a/fs/zonefs/super.c
-+++ b/fs/zonefs/super.c
-@@ -489,14 +489,22 @@ static void __zonefs_io_error(struct inode *inode, bool write)
- 	struct super_block *sb = inode->i_sb;
- 	struct zonefs_sb_info *sbi = ZONEFS_SB(sb);
- 	unsigned int noio_flag;
--	unsigned int nr_zones =
--		zi->i_zone_size >> (sbi->s_zone_sectors_shift + SECTOR_SHIFT);
-+	unsigned int nr_zones = 1;
- 	struct zonefs_ioerr_data err = {
- 		.inode = inode,
- 		.write = write,
- 	};
- 	int ret;
- 
-+	/*
-+	 * The only files that have more than one zone are conventional zone
-+	 * files with aggregated conventional zones, for which the inode zone
-+	 * size is always larger than the device zone size.
-+	 */
-+	if (zi->i_zone_size > bdev_zone_sectors(sb->s_bdev))
-+		nr_zones = zi->i_zone_size >>
-+			(sbi->s_zone_sectors_shift + SECTOR_SHIFT);
-+
- 	/*
- 	 * Memory allocations in blkdev_report_zones() can trigger a memory
- 	 * reclaim which may in turn cause a recursion into zonefs as well as
-@@ -1418,6 +1426,14 @@ static int zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
- 	zi->i_ztype = type;
- 	zi->i_zsector = zone->start;
- 	zi->i_zone_size = zone->len << SECTOR_SHIFT;
-+	if (zi->i_zone_size > bdev_zone_sectors(sb->s_bdev) << SECTOR_SHIFT &&
-+	    !(sbi->s_features & ZONEFS_F_AGGRCNV)) {
-+		zonefs_err(sb,
-+			   "zone size %llu doesn't match device's zone sectors %llu\n",
-+			   zi->i_zone_size,
-+			   bdev_zone_sectors(sb->s_bdev) << SECTOR_SHIFT);
-+		return -EINVAL;
-+	}
- 
- 	zi->i_max_size = min_t(loff_t, MAX_LFS_FILESIZE,
- 			       zone->capacity << SECTOR_SHIFT);
-@@ -1467,11 +1483,11 @@ static struct dentry *zonefs_create_inode(struct dentry *parent,
- 	struct inode *dir = d_inode(parent);
- 	struct dentry *dentry;
- 	struct inode *inode;
--	int ret;
-+	int ret = -ENOMEM;
- 
- 	dentry = d_alloc_name(parent, name);
- 	if (!dentry)
--		return NULL;
-+		return ERR_PTR(ret);
- 
- 	inode = new_inode(parent->d_sb);
- 	if (!inode)
-@@ -1496,7 +1512,7 @@ static struct dentry *zonefs_create_inode(struct dentry *parent,
- dput:
- 	dput(dentry);
- 
--	return NULL;
-+	return ERR_PTR(ret);
- }
- 
- struct zonefs_zone_data {
-@@ -1516,7 +1532,7 @@ static int zonefs_create_zgroup(struct zonefs_zone_data *zd,
- 	struct blk_zone *zone, *next, *end;
- 	const char *zgroup_name;
- 	char *file_name;
--	struct dentry *dir;
-+	struct dentry *dir, *dent;
- 	unsigned int n = 0;
- 	int ret;
- 
-@@ -1534,8 +1550,8 @@ static int zonefs_create_zgroup(struct zonefs_zone_data *zd,
- 		zgroup_name = "seq";
- 
- 	dir = zonefs_create_inode(sb->s_root, zgroup_name, NULL, type);
--	if (!dir) {
--		ret = -ENOMEM;
-+	if (IS_ERR(dir)) {
-+		ret = PTR_ERR(dir);
- 		goto free;
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -267,10 +267,16 @@ int irq_do_set_affinity(struct irq_data
+ 		prog_mask = mask;
  	}
  
-@@ -1581,8 +1597,9 @@ static int zonefs_create_zgroup(struct zonefs_zone_data *zd,
- 		 * Use the file number within its group as file name.
- 		 */
- 		snprintf(file_name, ZONEFS_NAME_MAX - 1, "%u", n);
--		if (!zonefs_create_inode(dir, file_name, zone, type)) {
--			ret = -ENOMEM;
-+		dent = zonefs_create_inode(dir, file_name, zone, type);
-+		if (IS_ERR(dent)) {
-+			ret = PTR_ERR(dent);
- 			goto free;
- 		}
+-	/* Make sure we only provide online CPUs to the irqchip */
++	/*
++	 * Make sure we only provide online CPUs to the irqchip,
++	 * unless we are being asked to force the affinity (in which
++	 * case we do as we are told).
++	 */
+ 	cpumask_and(&tmp_mask, prog_mask, cpu_online_mask);
+-	if (!cpumask_empty(&tmp_mask))
++	if (!force && !cpumask_empty(&tmp_mask))
+ 		ret = chip->irq_set_affinity(data, &tmp_mask, force);
++	else if (force)
++		ret = chip->irq_set_affinity(data, mask, force);
+ 	else
+ 		ret = -EINVAL;
  
--- 
-2.35.1
-
 
 
