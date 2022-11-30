@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EA4763DDF8
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:32:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1980C63DECC
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230000AbiK3ScY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:32:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39010 "EHLO
+        id S231151AbiK3SlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:41:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230156AbiK3ScY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:32:24 -0500
+        with ESMTP id S230505AbiK3Sk5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 414778D660
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:32:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3017598962
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E84E0B81C9C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:32:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DA36C433C1;
-        Wed, 30 Nov 2022 18:32:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DEB2CB81B82
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ED97C433C1;
+        Wed, 30 Nov 2022 18:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833140;
-        bh=RW4HlKrC8HJ1IjGXRBDcvUafv7RxhxgfYV7vWL5KbOg=;
+        s=korg; t=1669833653;
+        bh=HQnziATy9GXeouqLcZTi0GRYACLnIQvqj6pEI65EoMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=raGkzDJAR1Ut8NKYR7pQDfwx2oxK7O0XWz9lQYnPnDfPln/jKQl7uZcZY8bH1uHYu
-         gf7n4KOjYSSdhSi7qA3C2TH1JN021YS4FnRnOWJ2sDFQpIOVqPSNkdPKa/1Flq387z
-         WdK6t+YPjfjV6A6qgCfxZ62d7KydyzVHNP0Kc5ww=
+        b=pT+pbY8lGMwbjCBYmXHtEK7QGWrxQGoeiWkljL8JAZvFYb1O4hN0WX2H9CfuaGplQ
+         7O5ALE4W4N/SFGoOqCIYrqfPQdivCwn3mdQUPP83q6dB2VSNY2bq7D0/YqK6JEb+rE
+         h4UiYGo5hZm5+xL2h0zJJ2CTLjcTvC43edz+xKQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 137/162] xen-pciback: Allow setting PCI_MSIX_FLAGS_MASKALL too
+Subject: [PATCH 5.15 166/206] tools: iio: iio_generic_buffer: Fix read size
 Date:   Wed, 30 Nov 2022 19:23:38 +0100
-Message-Id: <20221130180532.198441421@linuxfoundation.org>
+Message-Id: <20221130180537.253324399@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+From: Matti Vaittinen <mazziesaccount@gmail.com>
 
-[ Upstream commit 5e29500eba2aa19e1323df46f64dafcd4a327092 ]
+[ Upstream commit 7c919b619bcc68158921b1bd968f0e704549bbb6 ]
 
-When Xen domain configures MSI-X, the usual approach is to enable MSI-X
-together with masking all of them via the config space, then fill the
-table and only then clear PCI_MSIX_FLAGS_MASKALL. Allow doing this via
-QEMU running in a stub domain.
+When noevents is true and small buffer is used the allocated memory for
+holding the data may be smaller than the hard-coded 64 bytes. This can
+cause the iio_generic_buffer to crash.
 
-Previously, when changing PCI_MSIX_FLAGS_MASKALL was not allowed, the
-whole write was aborted, preventing change to the PCI_MSIX_FLAGS_ENABLE
-bit too.
+Following was recorded on beagle bone black with v6.0 kernel and the
+digit fix patch:
+https://lore.kernel.org/all/Y0f+tKCz+ZAIoroQ@dc75zzyyyyyyyyyyyyycy-3.rev.dnainternet.fi/
+using valgrind;
 
-Note the Xen hypervisor intercepts this write anyway, and may keep the
-PCI_MSIX_FLAGS_MASKALL bit set if it wishes to. It will store the
-guest-requested state and will apply it eventually.
+==339== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==339== Command: /iio_generic_buffer -n kx022-accel -T0 -e -l 10 -a -w 2000000
+==339== Parent PID: 307
+==339==
+==339== Syscall param read(buf) points to unaddressable byte(s)
+==339==    at 0x496BFA4: read (read.c:26)
+==339==    by 0x11699: main (iio_generic_buffer.c:724)
+==339==  Address 0x4ab3518 is 0 bytes after a block of size 160 alloc'd
+==339==    at 0x4864B70: malloc (vg_replace_malloc.c:381)
+==339==    by 0x115BB: main (iio_generic_buffer.c:677)
 
-Signed-off-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Link: https://lore.kernel.org/r/20221114103110.1519413-1-marmarek@invisiblethingslab.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fix this by always using the same size for reading as was used for
+data storage allocation.
+
+Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Link: https://lore.kernel.org/r/Y0kMh0t5qUXJw3nQ@dc75zzyyyyyyyyyyyyycy-3.rev.dnainternet.fi
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xen-pciback/conf_space_capability.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ tools/iio/iio_generic_buffer.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/xen/xen-pciback/conf_space_capability.c b/drivers/xen/xen-pciback/conf_space_capability.c
-index 5e53b4817f16..097316a74126 100644
---- a/drivers/xen/xen-pciback/conf_space_capability.c
-+++ b/drivers/xen/xen-pciback/conf_space_capability.c
-@@ -190,13 +190,16 @@ static const struct config_field caplist_pm[] = {
- };
+diff --git a/tools/iio/iio_generic_buffer.c b/tools/iio/iio_generic_buffer.c
+index 2491c54a5e4f..f8deae4e26a1 100644
+--- a/tools/iio/iio_generic_buffer.c
++++ b/tools/iio/iio_generic_buffer.c
+@@ -715,12 +715,12 @@ int main(int argc, char **argv)
+ 				continue;
+ 			}
  
- static struct msi_msix_field_config {
--	u16          enable_bit; /* bit for enabling MSI/MSI-X */
--	unsigned int int_type;   /* interrupt type for exclusiveness check */
-+	u16          enable_bit;   /* bit for enabling MSI/MSI-X */
-+	u16          allowed_bits; /* bits allowed to be changed */
-+	unsigned int int_type;     /* interrupt type for exclusiveness check */
- } msi_field_config = {
- 	.enable_bit	= PCI_MSI_FLAGS_ENABLE,
-+	.allowed_bits	= PCI_MSI_FLAGS_ENABLE,
- 	.int_type	= INTERRUPT_TYPE_MSI,
- }, msix_field_config = {
- 	.enable_bit	= PCI_MSIX_FLAGS_ENABLE,
-+	.allowed_bits	= PCI_MSIX_FLAGS_ENABLE | PCI_MSIX_FLAGS_MASKALL,
- 	.int_type	= INTERRUPT_TYPE_MSIX,
- };
+-			toread = buf_len;
+ 		} else {
+ 			usleep(timedelay);
+-			toread = 64;
+ 		}
  
-@@ -229,7 +232,7 @@ static int msi_msix_flags_write(struct pci_dev *dev, int offset, u16 new_value,
- 		return 0;
- 
- 	if (!dev_data->allow_interrupt_control ||
--	    (new_value ^ old_value) & ~field_config->enable_bit)
-+	    (new_value ^ old_value) & ~field_config->allowed_bits)
- 		return PCIBIOS_SET_FAILED;
- 
- 	if (new_value & field_config->enable_bit) {
++		toread = buf_len;
++
+ 		read_size = read(buf_fd, data, toread * scan_size);
+ 		if (read_size < 0) {
+ 			if (errno == EAGAIN) {
 -- 
 2.35.1
 
