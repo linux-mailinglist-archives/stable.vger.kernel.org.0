@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 278A163DF66
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14DAA63DE35
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229820AbiK3Sq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:46:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56752 "EHLO
+        id S230402AbiK3SfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:35:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230378AbiK3Sqf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:46:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDC7D99F10
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:46:34 -0800 (PST)
+        with ESMTP id S230315AbiK3Seo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:34:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B5D920AC
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:34:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C9F461D70
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:46:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FC87C433D7;
-        Wed, 30 Nov 2022 18:46:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3C70B81C9C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:34:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38A2CC433C1;
+        Wed, 30 Nov 2022 18:34:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833993;
-        bh=GAMxbUYk8UprgOU1nHeR2JMofdOYLIDWAHDdqqF8g2M=;
+        s=korg; t=1669833280;
+        bh=OByJ1g1fR5CWqeLeZ6ni0Q4SURrBNXSzkliDVQC89Ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HXafsJaGf6zEM+dAWm1oAQ6Bkc8wVz0gTT8sgFm+lKZcyAbqP6ATZjpsqMYuO66yJ
-         b8C4+3nNq+V8JrTHjG4OujGMd9TQQ0K3Jt/8A4OySTbSSPWokgisWaOYtsskN8+nEk
-         ydjfbs0R17AqwDyMUO082B13SCCAD50U5Kz96mZs=
+        b=PNvKxfcx6rewZlA65cSYEr/thEKBVEHsjr8Zf/EPSQ+sNsO3bQrfspnpPBRTpb47c
+         bZ2yNi/aLRKbzPLhcsXEZq4VvgB7Q0CeywWX/2p2Jpj4yweYUEP2+/C3Z0owhXPC9h
+         tbFTlwNWE62nUENDDvonIAIQvHeKNUELWkZJC9pI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Jian <liujian56@huawei.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Mitja Spes <mitja@lxnav.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 090/289] net: ethernet: mtk_eth_soc: fix error handling in mtk_open()
+Subject: [PATCH 5.15 023/206] iio: pressure: ms5611: fixed value compensation bug
 Date:   Wed, 30 Nov 2022 19:21:15 +0100
-Message-Id: <20221130180546.185676725@linuxfoundation.org>
+Message-Id: <20221130180533.585673494@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Mitja Spes <mitja@lxnav.com>
 
-[ Upstream commit f70074140524c59a0935947b06dd6cb6e1ea642d ]
+[ Upstream commit 17f442e7e47579d3881fc4d47354eaef09302e6f ]
 
-If mtk_start_dma() fails, invoke phylink_disconnect_phy() to perform
-cleanup. phylink_disconnect_phy() contains the put_device action. If
-phylink_disconnect_phy is not performed, the Kref of netdev will leak.
+When using multiple instances of this driver the compensation PROM was
+overwritten by the last initialized sensor. Now each sensor has own PROM
+storage.
 
-Fixes: b8fc9f30821e ("net: ethernet: mediatek: Add basic PHYLINK support")
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Link: https://lore.kernel.org/r/20221117111356.161547-1-liujian56@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Mitja Spes <mitja@lxnav.com>
+Fixes: 9690d81a02dc ("iio: pressure: ms5611: add support for MS5607 temperature and pressure sensor")
+Link: https://lore.kernel.org/r/20221021135827.1444793-2-mitja@lxnav.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/pressure/ms5611.h      | 12 +++----
+ drivers/iio/pressure/ms5611_core.c | 51 ++++++++++++++++--------------
+ 2 files changed, 31 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index 84433f3a3e22..a75f5931f746 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -2979,8 +2979,10 @@ static int mtk_open(struct net_device *dev)
- 		u32 gdm_config = MTK_GDMA_TO_PDMA;
+diff --git a/drivers/iio/pressure/ms5611.h b/drivers/iio/pressure/ms5611.h
+index 345f3902e3e3..5e2d2d4d87b5 100644
+--- a/drivers/iio/pressure/ms5611.h
++++ b/drivers/iio/pressure/ms5611.h
+@@ -25,13 +25,6 @@ enum {
+ 	MS5607,
+ };
  
- 		err = mtk_start_dma(eth);
--		if (err)
-+		if (err) {
-+			phylink_disconnect_phy(mac->phylink);
- 			return err;
-+		}
+-struct ms5611_chip_info {
+-	u16 prom[MS5611_PROM_WORDS_NB];
+-
+-	int (*temp_and_pressure_compensate)(struct ms5611_chip_info *chip_info,
+-					    s32 *temp, s32 *pressure);
+-};
+-
+ /*
+  * OverSampling Rate descriptor.
+  * Warning: cmd MUST be kept aligned on a word boundary (see
+@@ -50,12 +43,15 @@ struct ms5611_state {
+ 	const struct ms5611_osr *pressure_osr;
+ 	const struct ms5611_osr *temp_osr;
  
- 		if (eth->soc->offload_version && mtk_ppe_start(eth->ppe) == 0)
- 			gdm_config = MTK_GDMA_TO_PPE;
++	u16 prom[MS5611_PROM_WORDS_NB];
++
+ 	int (*reset)(struct ms5611_state *st);
+ 	int (*read_prom_word)(struct ms5611_state *st, int index, u16 *word);
+ 	int (*read_adc_temp_and_pressure)(struct ms5611_state *st,
+ 					  s32 *temp, s32 *pressure);
+ 
+-	struct ms5611_chip_info *chip_info;
++	int (*compensate_temp_and_pressure)(struct ms5611_state *st, s32 *temp,
++					  s32 *pressure);
+ 	struct regulator *vdd;
+ };
+ 
+diff --git a/drivers/iio/pressure/ms5611_core.c b/drivers/iio/pressure/ms5611_core.c
+index 885ccb7914dc..874a73b3ea9d 100644
+--- a/drivers/iio/pressure/ms5611_core.c
++++ b/drivers/iio/pressure/ms5611_core.c
+@@ -85,7 +85,7 @@ static int ms5611_read_prom(struct iio_dev *indio_dev)
+ 	struct ms5611_state *st = iio_priv(indio_dev);
+ 
+ 	for (i = 0; i < MS5611_PROM_WORDS_NB; i++) {
+-		ret = st->read_prom_word(st, i, &st->chip_info->prom[i]);
++		ret = st->read_prom_word(st, i, &st->prom[i]);
+ 		if (ret < 0) {
+ 			dev_err(&indio_dev->dev,
+ 				"failed to read prom at %d\n", i);
+@@ -93,7 +93,7 @@ static int ms5611_read_prom(struct iio_dev *indio_dev)
+ 		}
+ 	}
+ 
+-	if (!ms5611_prom_is_valid(st->chip_info->prom, MS5611_PROM_WORDS_NB)) {
++	if (!ms5611_prom_is_valid(st->prom, MS5611_PROM_WORDS_NB)) {
+ 		dev_err(&indio_dev->dev, "PROM integrity check failed\n");
+ 		return -ENODEV;
+ 	}
+@@ -114,21 +114,20 @@ static int ms5611_read_temp_and_pressure(struct iio_dev *indio_dev,
+ 		return ret;
+ 	}
+ 
+-	return st->chip_info->temp_and_pressure_compensate(st->chip_info,
+-							   temp, pressure);
++	return st->compensate_temp_and_pressure(st, temp, pressure);
+ }
+ 
+-static int ms5611_temp_and_pressure_compensate(struct ms5611_chip_info *chip_info,
++static int ms5611_temp_and_pressure_compensate(struct ms5611_state *st,
+ 					       s32 *temp, s32 *pressure)
+ {
+ 	s32 t = *temp, p = *pressure;
+ 	s64 off, sens, dt;
+ 
+-	dt = t - (chip_info->prom[5] << 8);
+-	off = ((s64)chip_info->prom[2] << 16) + ((chip_info->prom[4] * dt) >> 7);
+-	sens = ((s64)chip_info->prom[1] << 15) + ((chip_info->prom[3] * dt) >> 8);
++	dt = t - (st->prom[5] << 8);
++	off = ((s64)st->prom[2] << 16) + ((st->prom[4] * dt) >> 7);
++	sens = ((s64)st->prom[1] << 15) + ((st->prom[3] * dt) >> 8);
+ 
+-	t = 2000 + ((chip_info->prom[6] * dt) >> 23);
++	t = 2000 + ((st->prom[6] * dt) >> 23);
+ 	if (t < 2000) {
+ 		s64 off2, sens2, t2;
+ 
+@@ -154,17 +153,17 @@ static int ms5611_temp_and_pressure_compensate(struct ms5611_chip_info *chip_inf
+ 	return 0;
+ }
+ 
+-static int ms5607_temp_and_pressure_compensate(struct ms5611_chip_info *chip_info,
++static int ms5607_temp_and_pressure_compensate(struct ms5611_state *st,
+ 					       s32 *temp, s32 *pressure)
+ {
+ 	s32 t = *temp, p = *pressure;
+ 	s64 off, sens, dt;
+ 
+-	dt = t - (chip_info->prom[5] << 8);
+-	off = ((s64)chip_info->prom[2] << 17) + ((chip_info->prom[4] * dt) >> 6);
+-	sens = ((s64)chip_info->prom[1] << 16) + ((chip_info->prom[3] * dt) >> 7);
++	dt = t - (st->prom[5] << 8);
++	off = ((s64)st->prom[2] << 17) + ((st->prom[4] * dt) >> 6);
++	sens = ((s64)st->prom[1] << 16) + ((st->prom[3] * dt) >> 7);
+ 
+-	t = 2000 + ((chip_info->prom[6] * dt) >> 23);
++	t = 2000 + ((st->prom[6] * dt) >> 23);
+ 	if (t < 2000) {
+ 		s64 off2, sens2, t2, tmp;
+ 
+@@ -342,15 +341,6 @@ static int ms5611_write_raw(struct iio_dev *indio_dev,
+ 
+ static const unsigned long ms5611_scan_masks[] = {0x3, 0};
+ 
+-static struct ms5611_chip_info chip_info_tbl[] = {
+-	[MS5611] = {
+-		.temp_and_pressure_compensate = ms5611_temp_and_pressure_compensate,
+-	},
+-	[MS5607] = {
+-		.temp_and_pressure_compensate = ms5607_temp_and_pressure_compensate,
+-	}
+-};
+-
+ static const struct iio_chan_spec ms5611_channels[] = {
+ 	{
+ 		.type = IIO_PRESSURE,
+@@ -433,7 +423,20 @@ int ms5611_probe(struct iio_dev *indio_dev, struct device *dev,
+ 	struct ms5611_state *st = iio_priv(indio_dev);
+ 
+ 	mutex_init(&st->lock);
+-	st->chip_info = &chip_info_tbl[type];
++
++	switch (type) {
++	case MS5611:
++		st->compensate_temp_and_pressure =
++			ms5611_temp_and_pressure_compensate;
++		break;
++	case MS5607:
++		st->compensate_temp_and_pressure =
++			ms5607_temp_and_pressure_compensate;
++		break;
++	default:
++		return -EINVAL;
++	}
++
+ 	st->temp_osr =
+ 		&ms5611_avail_temp_osr[ARRAY_SIZE(ms5611_avail_temp_osr) - 1];
+ 	st->pressure_osr =
 -- 
 2.35.1
 
