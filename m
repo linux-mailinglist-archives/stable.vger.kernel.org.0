@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6E0B63DE70
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:37:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BD1463DD7C
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:27:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230371AbiK3ShD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:37:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44320 "EHLO
+        id S229761AbiK3S16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:27:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230487AbiK3Sgx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:36:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEB56920AC
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:36:52 -0800 (PST)
+        with ESMTP id S230077AbiK3S1p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:27:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CA5912AD5
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:27:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 607EDB81B37
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:36:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B964BC433C1;
-        Wed, 30 Nov 2022 18:36:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E94ECB81C9C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:27:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EF4AC433D6;
+        Wed, 30 Nov 2022 18:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833410;
-        bh=EsUVsVx6mD3XOMejgN6JKWQ1ipoX1wokTvnHxaOBTto=;
+        s=korg; t=1669832861;
+        bh=K/u3V2OlxB5yoebDU8fARaMBepRe671yyLJ5LguK1Do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQpn9cUi1RgyUAzt8oPwd4mTM0UbRTD6Niy/CYZ3QJb0ZKNL2iDMP1Z3ZVnlgRrva
-         YGvT41fTh07r+4tGnIBL1THdYI7mIQv/ohvX3FRHuKv6cN1IC+hfjijwnrfO2x/eRR
-         PZrTinSvLkL3v6sC9l7YkF3h/GPbS+lMHBlmUSrA=
+        b=twnl7tYorkGKxJnY1I7zPEaOhquv3IPDzA4KmnEf85Ndrog+Wsx4ImFkwO1Cguh42
+         soRy6cjTlpgqo5T/C19CB2dp+aO/oiswU7sapr4vyhXQ1JZ2T7Wfzh0dvz5m9YMd7D
+         wVa8uEyqOueU4TEBnPXLXyrFdCgUKZTe+dPHJkwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Diana Wang <na.wang@corigine.com>,
-        Louis Peens <louis.peens@corigine.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Joshua Hunt <johunt@akamai.com>,
+        Vishwanath Pai <vpai@akamai.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 095/206] nfp: fill splittable of devlink_port_attrs correctly
+Subject: [PATCH 5.10 066/162] netfilter: ipset: regression in ip_set_hash_ip.c
 Date:   Wed, 30 Nov 2022 19:22:27 +0100
-Message-Id: <20221130180535.447194424@linuxfoundation.org>
+Message-Id: <20221130180530.293787883@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Diana Wang <na.wang@corigine.com>
+From: Vishwanath Pai <vpai@akamai.com>
 
-[ Upstream commit 4abd9600b9d15d3d92a9ac25cf200422a4c415ee ]
+[ Upstream commit c7aa1a76d4a0a3c401025b60c401412bbb60f8c6 ]
 
-The error is reflected in that it shows wrong splittable status of
-port when executing "devlink port show".
-The reason which leads the error is that the assigned operation of
-splittable is just a simple negation operation of split and it does
-not consider port lanes quantity. A splittable port should have
-several lanes that can be split(lanes quantity > 1).
-If without the judgement, it will show wrong message for some
-firmware, such as 2x25G, 2x10G.
+This patch introduced a regression: commit 48596a8ddc46 ("netfilter:
+ipset: Fix adding an IPv4 range containing more than 2^31 addresses")
 
-Fixes: a0f49b548652 ("devlink: Add a new devlink port split ability attribute and pass to netlink")
-Signed-off-by: Diana Wang <na.wang@corigine.com>
-Reviewed-by: Louis Peens <louis.peens@corigine.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The variable e.ip is passed to adtfn() function which finally adds the
+ip address to the set. The patch above refactored the for loop and moved
+e.ip = htonl(ip) to the end of the for loop.
+
+What this means is that if the value of "ip" changes between the first
+assignement of e.ip and the forloop, then e.ip is pointing to a
+different ip address than "ip".
+
+Test case:
+$ ipset create jdtest_tmp hash:ip family inet hashsize 2048 maxelem 100000
+$ ipset add jdtest_tmp 10.0.1.1/31
+ipset v6.21.1: Element cannot be added to the set: it's already added
+
+The value of ip gets updated inside the  "else if (tb[IPSET_ATTR_CIDR])"
+block but e.ip is still pointing to the old value.
+
+Fixes: 48596a8ddc46 ("netfilter: ipset: Fix adding an IPv4 range containing more than 2^31 addresses")
+Reviewed-by: Joshua Hunt <johunt@akamai.com>
+Signed-off-by: Vishwanath Pai <vpai@akamai.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfp_devlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/ipset/ip_set_hash_ip.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_devlink.c b/drivers/net/ethernet/netronome/nfp/nfp_devlink.c
-index bea978df7713..1647b6b180cc 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_devlink.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_devlink.c
-@@ -363,7 +363,7 @@ int nfp_devlink_port_register(struct nfp_app *app, struct nfp_port *port)
- 		return ret;
+diff --git a/net/netfilter/ipset/ip_set_hash_ip.c b/net/netfilter/ipset/ip_set_hash_ip.c
+index 361f4fd69bf4..d7a81b2250e7 100644
+--- a/net/netfilter/ipset/ip_set_hash_ip.c
++++ b/net/netfilter/ipset/ip_set_hash_ip.c
+@@ -150,18 +150,16 @@ hash_ip4_uadt(struct ip_set *set, struct nlattr *tb[],
+ 	if (((u64)ip_to - ip + 1) >> (32 - h->netmask) > IPSET_MAX_RANGE)
+ 		return -ERANGE;
  
- 	attrs.split = eth_port.is_split;
--	attrs.splittable = !attrs.split;
-+	attrs.splittable = eth_port.port_lanes > 1 && !attrs.split;
- 	attrs.lanes = eth_port.port_lanes;
- 	attrs.flavour = DEVLINK_PORT_FLAVOUR_PHYSICAL;
- 	attrs.phys.port_number = eth_port.label_port;
+-	if (retried) {
++	if (retried)
+ 		ip = ntohl(h->next.ip);
+-		e.ip = htonl(ip);
+-	}
+ 	for (; ip <= ip_to;) {
++		e.ip = htonl(ip);
+ 		ret = adtfn(set, &e, &ext, &ext, flags);
+ 		if (ret && !ip_set_eexist(ret, flags))
+ 			return ret;
+ 
+ 		ip += hosts;
+-		e.ip = htonl(ip);
+-		if (e.ip == 0)
++		if (ip == 0)
+ 			return 0;
+ 
+ 		ret = 0;
 -- 
 2.35.1
 
