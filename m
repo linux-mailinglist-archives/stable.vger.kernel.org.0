@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B612B63DEDF
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:41:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE4163E024
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:54:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231246AbiK3Slm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:41:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52708 "EHLO
+        id S231532AbiK3Sx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:53:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231173AbiK3Sl0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:26 -0500
+        with ESMTP id S231556AbiK3Sx4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:53:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B4599F05
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A623927902
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:53:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F6CAB81CA9
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:41:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1CABC433D7;
-        Wed, 30 Nov 2022 18:41:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5143B81CAA
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:53:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E20EC433B5;
+        Wed, 30 Nov 2022 18:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833683;
-        bh=HadPS6m+pVrsJNuaQ3ZS4WSXZB7phsZTAMFfdRfLCSc=;
+        s=korg; t=1669834432;
+        bh=NJFLyNPH/A3xeKugc0ptEUSMtciv3YBsbxUtW+VLVbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T1Lg+C9W2m9B0MGOuEKScX4j2mtQgFrUAKp93WUugq9fnMROP0VaKh9p+v2VE6stu
-         WYUjqg1oGVKJo14J2Mr9qaC+6ncikFHxkzZ1OOLwoze7SXIeb9LweNxaZS3EM2yEFE
-         7nNxk1s0miyeJkynmmZw4TFosqs8lsQdyXArpI3Q=
+        b=GBICwmaELLieYGjJeOqLs6lQ+XzpnFHSNInq+KweVU9IkWlMaBC/PHIVOcRcZ/NkR
+         dbaMhRhNmiuA0g5nzNoVz9oTE9dcjW3idWf7vPiO6QZuH005Ov1cqONXCo36BRTYrq
+         dxle+U0dMmaea8qUHzf/mhAd82IW27RQP17ngqfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhou Guanghui <zhouguanghui1@huawei.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 183/206] scsi: iscsi: Fix possible memory leak when device_register() failed
-Date:   Wed, 30 Nov 2022 19:23:55 +0100
-Message-Id: <20221130180537.674378633@linuxfoundation.org>
+Subject: [PATCH 6.0 251/289] zonefs: fix zone report size in __zonefs_io_error()
+Date:   Wed, 30 Nov 2022 19:23:56 +0100
+Message-Id: <20221130180549.795738873@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,134 +54,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Guanghui <zhouguanghui1@huawei.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit f014165faa7b953b81dcbf18835936e5f8d01f2a ]
+[ Upstream commit 7dd12d65ac646046a3fe0bbf9a4e86f4514207b3 ]
 
-If device_register() returns error, the name allocated by the
-dev_set_name() need be freed. As described in the comment of
-device_register(), we should use put_device() to give up the reference in
-the error path.
+When an IO error occurs, the function __zonefs_io_error() is used to
+issue a zone report to obtain the latest zone information from the
+device. This function gets a zone report for all zones used as storage
+for a file, which is always 1 zone except for files representing
+aggregated conventional zones.
 
-Fix this by calling put_device(), the name will be freed in the
-kobject_cleanup(), and this patch modified resources will be released by
-calling the corresponding callback function in the device_release().
+The number of zones of a zone report for a file is calculated in
+__zonefs_io_error() by doing a bit-shift of the inode i_zone_size field,
+which is equal to or larger than the device zone size. However, this
+calculation does not take into account that the last zone of a zoned
+device may be smaller than the zone size reported by bdev_zone_sectors()
+(which is used to set the bit shift size). As a result, if an error
+occurs for an IO targetting such last smaller zone, the zone report will
+ask for 0 zones, leading to an invalid zone report.
 
-Signed-off-by: Zhou Guanghui <zhouguanghui1@huawei.com>
-Link: https://lore.kernel.org/r/20221110033729.1555-1-zhouguanghui1@huawei.com
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix this by using the fact that all files require a 1 zone report,
+except if the inode i_zone_size field indicates a zone size larger than
+the device zone size. This exception case corresponds to a mount with
+aggregated conventional zones.
+
+A check for this exception is added to the file inode initialization
+during mount. If an invalid setup is detected, emit an error and fail
+the mount (check contributed by Johannes Thumshirn).
+
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 31 +++++++++++++++--------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+ fs/zonefs/super.c | 37 +++++++++++++++++++++++++++----------
+ 1 file changed, 27 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index f46ae5391758..cc39cbef9d7f 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -232,7 +232,7 @@ iscsi_create_endpoint(int dd_size)
- 	dev_set_name(&ep->dev, "ep-%d", id);
- 	err = device_register(&ep->dev);
-         if (err)
--		goto free_id;
-+		goto put_dev;
+diff --git a/fs/zonefs/super.c b/fs/zonefs/super.c
+index dfe7d410d1e4..2c53fbb8d918 100644
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -489,14 +489,22 @@ static void __zonefs_io_error(struct inode *inode, bool write)
+ 	struct super_block *sb = inode->i_sb;
+ 	struct zonefs_sb_info *sbi = ZONEFS_SB(sb);
+ 	unsigned int noio_flag;
+-	unsigned int nr_zones =
+-		zi->i_zone_size >> (sbi->s_zone_sectors_shift + SECTOR_SHIFT);
++	unsigned int nr_zones = 1;
+ 	struct zonefs_ioerr_data err = {
+ 		.inode = inode,
+ 		.write = write,
+ 	};
+ 	int ret;
  
- 	err = sysfs_create_group(&ep->dev.kobj, &iscsi_endpoint_group);
- 	if (err)
-@@ -246,10 +246,12 @@ iscsi_create_endpoint(int dd_size)
- 	device_unregister(&ep->dev);
- 	return NULL;
++	/*
++	 * The only files that have more than one zone are conventional zone
++	 * files with aggregated conventional zones, for which the inode zone
++	 * size is always larger than the device zone size.
++	 */
++	if (zi->i_zone_size > bdev_zone_sectors(sb->s_bdev))
++		nr_zones = zi->i_zone_size >>
++			(sbi->s_zone_sectors_shift + SECTOR_SHIFT);
++
+ 	/*
+ 	 * Memory allocations in blkdev_report_zones() can trigger a memory
+ 	 * reclaim which may in turn cause a recursion into zonefs as well as
+@@ -1418,6 +1426,14 @@ static int zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
+ 	zi->i_ztype = type;
+ 	zi->i_zsector = zone->start;
+ 	zi->i_zone_size = zone->len << SECTOR_SHIFT;
++	if (zi->i_zone_size > bdev_zone_sectors(sb->s_bdev) << SECTOR_SHIFT &&
++	    !(sbi->s_features & ZONEFS_F_AGGRCNV)) {
++		zonefs_err(sb,
++			   "zone size %llu doesn't match device's zone sectors %llu\n",
++			   zi->i_zone_size,
++			   bdev_zone_sectors(sb->s_bdev) << SECTOR_SHIFT);
++		return -EINVAL;
++	}
  
--free_id:
-+put_dev:
- 	mutex_lock(&iscsi_ep_idr_mutex);
- 	idr_remove(&iscsi_ep_idr, id);
- 	mutex_unlock(&iscsi_ep_idr_mutex);
-+	put_device(&ep->dev);
-+	return NULL;
- free_ep:
- 	kfree(ep);
- 	return NULL;
-@@ -767,7 +769,7 @@ iscsi_create_iface(struct Scsi_Host *shost, struct iscsi_transport *transport,
+ 	zi->i_max_size = min_t(loff_t, MAX_LFS_FILESIZE,
+ 			       zone->capacity << SECTOR_SHIFT);
+@@ -1467,11 +1483,11 @@ static struct dentry *zonefs_create_inode(struct dentry *parent,
+ 	struct inode *dir = d_inode(parent);
+ 	struct dentry *dentry;
+ 	struct inode *inode;
+-	int ret;
++	int ret = -ENOMEM;
  
- 	err = device_register(&iface->dev);
- 	if (err)
--		goto free_iface;
-+		goto put_dev;
+ 	dentry = d_alloc_name(parent, name);
+ 	if (!dentry)
+-		return NULL;
++		return ERR_PTR(ret);
  
- 	err = sysfs_create_group(&iface->dev.kobj, &iscsi_iface_group);
- 	if (err)
-@@ -781,9 +783,8 @@ iscsi_create_iface(struct Scsi_Host *shost, struct iscsi_transport *transport,
- 	device_unregister(&iface->dev);
- 	return NULL;
+ 	inode = new_inode(parent->d_sb);
+ 	if (!inode)
+@@ -1496,7 +1512,7 @@ static struct dentry *zonefs_create_inode(struct dentry *parent,
+ dput:
+ 	dput(dentry);
  
--free_iface:
--	put_device(iface->dev.parent);
--	kfree(iface);
-+put_dev:
-+	put_device(&iface->dev);
- 	return NULL;
+-	return NULL;
++	return ERR_PTR(ret);
  }
- EXPORT_SYMBOL_GPL(iscsi_create_iface);
-@@ -1252,15 +1253,15 @@ iscsi_create_flashnode_sess(struct Scsi_Host *shost, int index,
  
- 	err = device_register(&fnode_sess->dev);
- 	if (err)
--		goto free_fnode_sess;
-+		goto put_dev;
+ struct zonefs_zone_data {
+@@ -1516,7 +1532,7 @@ static int zonefs_create_zgroup(struct zonefs_zone_data *zd,
+ 	struct blk_zone *zone, *next, *end;
+ 	const char *zgroup_name;
+ 	char *file_name;
+-	struct dentry *dir;
++	struct dentry *dir, *dent;
+ 	unsigned int n = 0;
+ 	int ret;
  
- 	if (dd_size)
- 		fnode_sess->dd_data = &fnode_sess[1];
+@@ -1534,8 +1550,8 @@ static int zonefs_create_zgroup(struct zonefs_zone_data *zd,
+ 		zgroup_name = "seq";
  
- 	return fnode_sess;
+ 	dir = zonefs_create_inode(sb->s_root, zgroup_name, NULL, type);
+-	if (!dir) {
+-		ret = -ENOMEM;
++	if (IS_ERR(dir)) {
++		ret = PTR_ERR(dir);
+ 		goto free;
+ 	}
  
--free_fnode_sess:
--	kfree(fnode_sess);
-+put_dev:
-+	put_device(&fnode_sess->dev);
- 	return NULL;
- }
- EXPORT_SYMBOL_GPL(iscsi_create_flashnode_sess);
-@@ -1300,15 +1301,15 @@ iscsi_create_flashnode_conn(struct Scsi_Host *shost,
+@@ -1581,8 +1597,9 @@ static int zonefs_create_zgroup(struct zonefs_zone_data *zd,
+ 		 * Use the file number within its group as file name.
+ 		 */
+ 		snprintf(file_name, ZONEFS_NAME_MAX - 1, "%u", n);
+-		if (!zonefs_create_inode(dir, file_name, zone, type)) {
+-			ret = -ENOMEM;
++		dent = zonefs_create_inode(dir, file_name, zone, type);
++		if (IS_ERR(dent)) {
++			ret = PTR_ERR(dent);
+ 			goto free;
+ 		}
  
- 	err = device_register(&fnode_conn->dev);
- 	if (err)
--		goto free_fnode_conn;
-+		goto put_dev;
- 
- 	if (dd_size)
- 		fnode_conn->dd_data = &fnode_conn[1];
- 
- 	return fnode_conn;
- 
--free_fnode_conn:
--	kfree(fnode_conn);
-+put_dev:
-+	put_device(&fnode_conn->dev);
- 	return NULL;
- }
- EXPORT_SYMBOL_GPL(iscsi_create_flashnode_conn);
-@@ -4838,7 +4839,7 @@ iscsi_register_transport(struct iscsi_transport *tt)
- 	dev_set_name(&priv->dev, "%s", tt->name);
- 	err = device_register(&priv->dev);
- 	if (err)
--		goto free_priv;
-+		goto put_dev;
- 
- 	err = sysfs_create_group(&priv->dev.kobj, &iscsi_transport_group);
- 	if (err)
-@@ -4873,8 +4874,8 @@ iscsi_register_transport(struct iscsi_transport *tt)
- unregister_dev:
- 	device_unregister(&priv->dev);
- 	return NULL;
--free_priv:
--	kfree(priv);
-+put_dev:
-+	put_device(&priv->dev);
- 	return NULL;
- }
- EXPORT_SYMBOL_GPL(iscsi_register_transport);
 -- 
 2.35.1
 
