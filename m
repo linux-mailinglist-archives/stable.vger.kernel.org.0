@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C44463DF61
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:46:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D9F363DF43
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:45:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231388AbiK3Sqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:46:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57830 "EHLO
+        id S231359AbiK3SpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:45:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231289AbiK3Sq0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:46:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F0A992081
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:46:25 -0800 (PST)
+        with ESMTP id S231366AbiK3SpF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:45:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 656B391C1A;
+        Wed, 30 Nov 2022 10:45:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D412B81CA6
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:46:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F298AC433D6;
-        Wed, 30 Nov 2022 18:46:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E845361D72;
+        Wed, 30 Nov 2022 18:45:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04B25C433C1;
+        Wed, 30 Nov 2022 18:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833982;
-        bh=+0mCiMLXDuHKOibpJFG05HDbiqBQy6oz5ba9lzIm1xc=;
+        s=korg; t=1669833903;
+        bh=GIJWSieNXzkCReUUZPkRm/WaoB3VR46Y23qWuAXLJC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LUv9befKvQwm33N+4o6I+as3P0xdmbXR5jxL0fEHGKytcGmfJUum/1MFQO+SDXHHp
-         CSdr4LGTRrLG1rNOjGeyT02bsybXCp3kMAuztWFqS24MLN3yWnABXfZKrCkf8FJDZM
-         BdWigPufP34SDI8eukZVvh5aSzvpGHojL5LUxOXc=
+        b=ejVaeRJ9MP0Rutu4hsRycjP+lEq8fkvNq+QYivwFiCOUwWgp17JYmWzKW/1olSHNd
+         2ai0KxnPFFTrpjE8ttOBEsd7uRJ62mMHh6FY6nthlKgcGDsmzEWEXu69b25JcgiVy3
+         fpO70o4LO2a2jVXOTguSUlooC5cKV1x36N/sn8X0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ondrej Jirman <megi@xff.cz>,
-        Samuel Holland <samuel@sholland.org>,
+        patches@lists.linux.dev, phone-devel@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 048/289] power: supply: ip5xxx: Fix integer overflow in current_now calculation
-Date:   Wed, 30 Nov 2022 19:20:33 +0100
-Message-Id: <20221130180545.218325247@linuxfoundation.org>
+Subject: [PATCH 6.0 049/289] power: supply: ab8500: Defer thermal zone probe
+Date:   Wed, 30 Nov 2022 19:20:34 +0100
+Message-Id: <20221130180545.241177022@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -54,38 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Jirman <megi@xff.cz>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit f9be5cb6c1f0191f8bcf4413b7e17e58e8dfaaa1 ]
+[ Upstream commit 767e684367e4759d9855b184045b7a9d6b19acd2 ]
 
-When current is larger than ~2A, the multiplication in current_now
-property overflows and the kernel reports invalid negative current
-value. Change the numerator and denominator while preserving their
-ratio to allow up to +-6A before the overflow.
+The call thermal_zone_get_zone_by_name() used to return the
+thermal zone right away, but recent refactorings in the
+thermal core has changed this so the thermal zone used by
+the battery is probed later, and the call returns -ENODEV.
 
-Fixes: 75853406fa27 ("power: supply: Add a driver for Injoinic power bank ICs")
-Signed-off-by: Ondrej Jirman <megi@xff.cz>
-Reviewed-by: Samuel Holland <samuel@sholland.org>
-[use 149197/200 instead of 261095/350 as suggested by Samuel]
+This was always quite fragile. If we get -ENODEV, then
+return a -EPROBE_DEFER and try again later.
+
+Cc: phone-devel@vger.kernel.org
+Fixes: 2b0e7ac0841b ("power: supply: ab8500: Integrate thermal zone")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/ip5xxx_power.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/power/supply/ab8500_btemp.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/ip5xxx_power.c b/drivers/power/supply/ip5xxx_power.c
-index 218e8e689a3f..00221e9c0bfc 100644
---- a/drivers/power/supply/ip5xxx_power.c
-+++ b/drivers/power/supply/ip5xxx_power.c
-@@ -352,7 +352,7 @@ static int ip5xxx_battery_get_property(struct power_supply *psy,
- 		ret = ip5xxx_battery_read_adc(ip5xxx, IP5XXX_BATIADC_DAT0,
- 					      IP5XXX_BATIADC_DAT1, &raw);
- 
--		val->intval = DIV_ROUND_CLOSEST(raw * 745985, 1000);
-+		val->intval = DIV_ROUND_CLOSEST(raw * 149197, 200);
- 		return 0;
- 
- 	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT:
+diff --git a/drivers/power/supply/ab8500_btemp.c b/drivers/power/supply/ab8500_btemp.c
+index 863fabe05bdc..307ee6f71042 100644
+--- a/drivers/power/supply/ab8500_btemp.c
++++ b/drivers/power/supply/ab8500_btemp.c
+@@ -725,7 +725,14 @@ static int ab8500_btemp_probe(struct platform_device *pdev)
+ 	/* Get thermal zone and ADC */
+ 	di->tz = thermal_zone_get_zone_by_name("battery-thermal");
+ 	if (IS_ERR(di->tz)) {
+-		return dev_err_probe(dev, PTR_ERR(di->tz),
++		ret = PTR_ERR(di->tz);
++		/*
++		 * This usually just means we are probing before the thermal
++		 * zone, so just defer.
++		 */
++		if (ret == -ENODEV)
++			ret = -EPROBE_DEFER;
++		return dev_err_probe(dev, ret,
+ 				     "failed to get battery thermal zone\n");
+ 	}
+ 	di->bat_ctrl = devm_iio_channel_get(dev, "bat_ctrl");
 -- 
 2.35.1
 
