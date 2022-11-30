@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 955A363DF78
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8FC163DD57
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:26:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231287AbiK3Sr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:47:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59062 "EHLO
+        id S229938AbiK3S0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:26:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231237AbiK3Sr0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:26 -0500
+        with ESMTP id S229764AbiK3S0g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:36 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D44519C3C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C8E6DEA4
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED6DAB81CA6
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:47:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36487C433C1;
-        Wed, 30 Nov 2022 18:47:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05725B81C9D
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31620C433C1;
+        Wed, 30 Nov 2022 18:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834042;
-        bh=x2yTGj/fFb6Sb1QdNj+QCq1cNfH3NMhGrYyAF4JACWM=;
+        s=korg; t=1669832790;
+        bh=OByJ1g1fR5CWqeLeZ6ni0Q4SURrBNXSzkliDVQC89Ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cCj7eF0clmyNM5+hEPfI9hT4Ch6BlGKrepwrRiUF6vchfmk5np/4q3vm/zcQUPMYZ
-         VFJqKN11DlqMCbKW1NI7dVoLPR5Blbwagmh3yeIaHxSrJzxf5HNiuy7M4PnYAEdMFP
-         WImyAisyugW7lrt3tcRf6iHHojtwwspgwYo9HV80=
+        b=f3/ce1v66xn5TMWq91QhOm85qNuvJYVMy6vATT5Nnh6m6cM9HBHhDnp+9KLwytn5z
+         u+8NymQl4YYrNoMfFUbiGsDnz+/FFhGNr+t8ibhma/yPBTuRYvASky4z5ghVieDvcY
+         WyzWBN+49M0/Z0Bm2xlmvsHNRUweePfNMm9gTZQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Moshe Shemesh <moshe@nvidia.com>,
-        Shay Drory <shayd@nvidia.com>,
-        Maor Gottlieb <maorg@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Mitja Spes <mitja@lxnav.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 107/289] net/mlx5: cmdif, Print info on any firmware cmd failure to tracepoint
-Date:   Wed, 30 Nov 2022 19:21:32 +0100
-Message-Id: <20221130180546.565817387@linuxfoundation.org>
+Subject: [PATCH 5.10 012/162] iio: pressure: ms5611: fixed value compensation bug
+Date:   Wed, 30 Nov 2022 19:21:33 +0100
+Message-Id: <20221130180528.827834246@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,213 +54,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@nvidia.com>
+From: Mitja Spes <mitja@lxnav.com>
 
-[ Upstream commit 870c2481174b839e7159555127bc8b5a5d0699ba ]
+[ Upstream commit 17f442e7e47579d3881fc4d47354eaef09302e6f ]
 
-While moving to new CMD API (quiet API), some pre-existing flows may call the new API
-function that in case of error, returns the error instead of printing it as previously done.
-For such flows we bring back the print but to tracepoint this time for sys admins to
-have the ability to check for errors especially for commands using the new quiet API.
+When using multiple instances of this driver the compensation PROM was
+overwritten by the last initialized sensor. Now each sensor has own PROM
+storage.
 
-Tracepoint output example:
-         devlink-1333    [001] .....   822.746922: mlx5_cmd: ACCESS_REG(0x805) op_mod(0x0) failed, status bad resource(0x5), syndrome (0xb06e1f), err(-22)
-
-Fixes: f23519e542e5 ("net/mlx5: cmdif, Add new api for command execution")
-Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Shay Drory <shayd@nvidia.com>
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Mitja Spes <mitja@lxnav.com>
+Fixes: 9690d81a02dc ("iio: pressure: ms5611: add support for MS5607 temperature and pressure sensor")
+Link: https://lore.kernel.org/r/20221021135827.1444793-2-mitja@lxnav.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 41 +++++++++--------
- .../mellanox/mlx5/core/diag/cmd_tracepoint.h  | 45 +++++++++++++++++++
- include/linux/mlx5/driver.h                   |  1 +
- 3 files changed, 68 insertions(+), 19 deletions(-)
- create mode 100644 drivers/net/ethernet/mellanox/mlx5/core/diag/cmd_tracepoint.h
+ drivers/iio/pressure/ms5611.h      | 12 +++----
+ drivers/iio/pressure/ms5611_core.c | 51 ++++++++++++++++--------------
+ 2 files changed, 31 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-index 2e0d59ca62b5..df3e284ca5c6 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-@@ -45,6 +45,8 @@
- #include "mlx5_core.h"
- #include "lib/eq.h"
- #include "lib/tout.h"
-+#define CREATE_TRACE_POINTS
-+#include "diag/cmd_tracepoint.h"
- 
- enum {
- 	CMD_IF_REV = 5,
-@@ -785,27 +787,14 @@ EXPORT_SYMBOL(mlx5_cmd_out_err);
- static void cmd_status_print(struct mlx5_core_dev *dev, void *in, void *out)
- {
- 	u16 opcode, op_mod;
--	u32 syndrome;
--	u8  status;
- 	u16 uid;
--	int err;
--
--	syndrome = MLX5_GET(mbox_out, out, syndrome);
--	status = MLX5_GET(mbox_out, out, status);
- 
- 	opcode = MLX5_GET(mbox_in, in, opcode);
- 	op_mod = MLX5_GET(mbox_in, in, op_mod);
- 	uid    = MLX5_GET(mbox_in, in, uid);
- 
--	err = cmd_status_to_err(status);
--
- 	if (!uid && opcode != MLX5_CMD_OP_DESTROY_MKEY)
- 		mlx5_cmd_out_err(dev, opcode, op_mod, out);
--	else
--		mlx5_core_dbg(dev,
--			"%s(0x%x) op_mod(0x%x) uid(%d) failed, status %s(0x%x), syndrome (0x%x), err(%d)\n",
--			mlx5_command_str(opcode), opcode, op_mod, uid,
--			cmd_status_str(status), status, syndrome, err);
- }
- 
- int mlx5_cmd_check(struct mlx5_core_dev *dev, int err, void *in, void *out)
-@@ -1892,6 +1881,16 @@ static int cmd_exec(struct mlx5_core_dev *dev, void *in, int in_size, void *out,
- 	return err;
- }
- 
-+static void mlx5_cmd_err_trace(struct mlx5_core_dev *dev, u16 opcode, u16 op_mod, void *out)
-+{
-+	u32 syndrome = MLX5_GET(mbox_out, out, syndrome);
-+	u8 status = MLX5_GET(mbox_out, out, status);
-+
-+	trace_mlx5_cmd(mlx5_command_str(opcode), opcode, op_mod,
-+		       cmd_status_str(status), status, syndrome,
-+		       cmd_status_to_err(status));
-+}
-+
- static void cmd_status_log(struct mlx5_core_dev *dev, u16 opcode, u8 status,
- 			   u32 syndrome, int err)
- {
-@@ -1914,7 +1913,7 @@ static void cmd_status_log(struct mlx5_core_dev *dev, u16 opcode, u8 status,
- }
- 
- /* preserve -EREMOTEIO for outbox.status != OK, otherwise return err as is */
--static int cmd_status_err(struct mlx5_core_dev *dev, int err, u16 opcode, void *out)
-+static int cmd_status_err(struct mlx5_core_dev *dev, int err, u16 opcode, u16 op_mod, void *out)
- {
- 	u32 syndrome = MLX5_GET(mbox_out, out, syndrome);
- 	u8 status = MLX5_GET(mbox_out, out, status);
-@@ -1922,8 +1921,10 @@ static int cmd_status_err(struct mlx5_core_dev *dev, int err, u16 opcode, void *
- 	if (err == -EREMOTEIO) /* -EREMOTEIO is preserved */
- 		err = -EIO;
- 
--	if (!err && status != MLX5_CMD_STAT_OK)
-+	if (!err && status != MLX5_CMD_STAT_OK) {
- 		err = -EREMOTEIO;
-+		mlx5_cmd_err_trace(dev, opcode, op_mod, out);
-+	}
- 
- 	cmd_status_log(dev, opcode, status, syndrome, err);
- 	return err;
-@@ -1951,9 +1952,9 @@ int mlx5_cmd_do(struct mlx5_core_dev *dev, void *in, int in_size, void *out, int
- {
- 	int err = cmd_exec(dev, in, in_size, out, out_size, NULL, NULL, false);
- 	u16 opcode = MLX5_GET(mbox_in, in, opcode);
-+	u16 op_mod = MLX5_GET(mbox_in, in, op_mod);
- 
--	err = cmd_status_err(dev, err, opcode, out);
--	return err;
-+	return cmd_status_err(dev, err, opcode, op_mod, out);
- }
- EXPORT_SYMBOL(mlx5_cmd_do);
- 
-@@ -1997,8 +1998,9 @@ int mlx5_cmd_exec_polling(struct mlx5_core_dev *dev, void *in, int in_size,
- {
- 	int err = cmd_exec(dev, in, in_size, out, out_size, NULL, NULL, true);
- 	u16 opcode = MLX5_GET(mbox_in, in, opcode);
-+	u16 op_mod = MLX5_GET(mbox_in, in, op_mod);
- 
--	err = cmd_status_err(dev, err, opcode, out);
-+	err = cmd_status_err(dev, err, opcode, op_mod, out);
- 	return mlx5_cmd_check(dev, err, in, out);
- }
- EXPORT_SYMBOL(mlx5_cmd_exec_polling);
-@@ -2034,7 +2036,7 @@ static void mlx5_cmd_exec_cb_handler(int status, void *_work)
- 	struct mlx5_async_ctx *ctx;
- 
- 	ctx = work->ctx;
--	status = cmd_status_err(ctx->dev, status, work->opcode, work->out);
-+	status = cmd_status_err(ctx->dev, status, work->opcode, work->op_mod, work->out);
- 	work->user_callback(status, work);
- 	if (atomic_dec_and_test(&ctx->num_inflight))
- 		complete(&ctx->inflight_done);
-@@ -2049,6 +2051,7 @@ int mlx5_cmd_exec_cb(struct mlx5_async_ctx *ctx, void *in, int in_size,
- 	work->ctx = ctx;
- 	work->user_callback = callback;
- 	work->opcode = MLX5_GET(mbox_in, in, opcode);
-+	work->op_mod = MLX5_GET(mbox_in, in, op_mod);
- 	work->out = out;
- 	if (WARN_ON(!atomic_inc_not_zero(&ctx->num_inflight)))
- 		return -EIO;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/cmd_tracepoint.h b/drivers/net/ethernet/mellanox/mlx5/core/diag/cmd_tracepoint.h
-new file mode 100644
-index 000000000000..406ebe17405f
---- /dev/null
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/cmd_tracepoint.h
-@@ -0,0 +1,45 @@
-+/* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
-+/* Copyright (c) 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved. */
-+
-+#undef TRACE_SYSTEM
-+#define TRACE_SYSTEM mlx5
-+
-+#if !defined(_MLX5_CMD_TP_H_) || defined(TRACE_HEADER_MULTI_READ)
-+#define _MLX5_CMD_TP_H_
-+
-+#include <linux/tracepoint.h>
-+#include <linux/trace_seq.h>
-+
-+TRACE_EVENT(mlx5_cmd,
-+	    TP_PROTO(const char *command_str, u16 opcode, u16 op_mod,
-+		     const char *status_str, u8 status, u32 syndrome, int err),
-+	    TP_ARGS(command_str, opcode, op_mod, status_str, status, syndrome, err),
-+	    TP_STRUCT__entry(__string(command_str, command_str)
-+			     __field(u16, opcode)
-+			     __field(u16, op_mod)
-+			    __string(status_str, status_str)
-+			    __field(u8, status)
-+			    __field(u32, syndrome)
-+			    __field(int, err)
-+			    ),
-+	    TP_fast_assign(__assign_str(command_str, command_str);
-+			__entry->opcode = opcode;
-+			__entry->op_mod = op_mod;
-+			__assign_str(status_str, status_str);
-+			__entry->status = status;
-+			__entry->syndrome = syndrome;
-+			__entry->err = err;
-+	    ),
-+	    TP_printk("%s(0x%x) op_mod(0x%x) failed, status %s(0x%x), syndrome (0x%x), err(%d)",
-+		      __get_str(command_str), __entry->opcode, __entry->op_mod,
-+		      __get_str(status_str), __entry->status, __entry->syndrome,
-+		      __entry->err)
-+);
-+
-+#endif /* _MLX5_CMD_TP_H_ */
-+
-+#undef TRACE_INCLUDE_PATH
-+#define TRACE_INCLUDE_PATH ./diag
-+#undef TRACE_INCLUDE_FILE
-+#define TRACE_INCLUDE_FILE cmd_tracepoint
-+#include <trace/define_trace.h>
-diff --git a/include/linux/mlx5/driver.h b/include/linux/mlx5/driver.h
-index 454dab40baf6..2d56cfe0911d 100644
---- a/include/linux/mlx5/driver.h
-+++ b/include/linux/mlx5/driver.h
-@@ -984,6 +984,7 @@ struct mlx5_async_work {
- 	struct mlx5_async_ctx *ctx;
- 	mlx5_async_cbk_t user_callback;
- 	u16 opcode; /* cmd opcode */
-+	u16 op_mod; /* cmd op_mod */
- 	void *out; /* pointer to the cmd output buffer */
+diff --git a/drivers/iio/pressure/ms5611.h b/drivers/iio/pressure/ms5611.h
+index 345f3902e3e3..5e2d2d4d87b5 100644
+--- a/drivers/iio/pressure/ms5611.h
++++ b/drivers/iio/pressure/ms5611.h
+@@ -25,13 +25,6 @@ enum {
+ 	MS5607,
  };
  
+-struct ms5611_chip_info {
+-	u16 prom[MS5611_PROM_WORDS_NB];
+-
+-	int (*temp_and_pressure_compensate)(struct ms5611_chip_info *chip_info,
+-					    s32 *temp, s32 *pressure);
+-};
+-
+ /*
+  * OverSampling Rate descriptor.
+  * Warning: cmd MUST be kept aligned on a word boundary (see
+@@ -50,12 +43,15 @@ struct ms5611_state {
+ 	const struct ms5611_osr *pressure_osr;
+ 	const struct ms5611_osr *temp_osr;
+ 
++	u16 prom[MS5611_PROM_WORDS_NB];
++
+ 	int (*reset)(struct ms5611_state *st);
+ 	int (*read_prom_word)(struct ms5611_state *st, int index, u16 *word);
+ 	int (*read_adc_temp_and_pressure)(struct ms5611_state *st,
+ 					  s32 *temp, s32 *pressure);
+ 
+-	struct ms5611_chip_info *chip_info;
++	int (*compensate_temp_and_pressure)(struct ms5611_state *st, s32 *temp,
++					  s32 *pressure);
+ 	struct regulator *vdd;
+ };
+ 
+diff --git a/drivers/iio/pressure/ms5611_core.c b/drivers/iio/pressure/ms5611_core.c
+index 885ccb7914dc..874a73b3ea9d 100644
+--- a/drivers/iio/pressure/ms5611_core.c
++++ b/drivers/iio/pressure/ms5611_core.c
+@@ -85,7 +85,7 @@ static int ms5611_read_prom(struct iio_dev *indio_dev)
+ 	struct ms5611_state *st = iio_priv(indio_dev);
+ 
+ 	for (i = 0; i < MS5611_PROM_WORDS_NB; i++) {
+-		ret = st->read_prom_word(st, i, &st->chip_info->prom[i]);
++		ret = st->read_prom_word(st, i, &st->prom[i]);
+ 		if (ret < 0) {
+ 			dev_err(&indio_dev->dev,
+ 				"failed to read prom at %d\n", i);
+@@ -93,7 +93,7 @@ static int ms5611_read_prom(struct iio_dev *indio_dev)
+ 		}
+ 	}
+ 
+-	if (!ms5611_prom_is_valid(st->chip_info->prom, MS5611_PROM_WORDS_NB)) {
++	if (!ms5611_prom_is_valid(st->prom, MS5611_PROM_WORDS_NB)) {
+ 		dev_err(&indio_dev->dev, "PROM integrity check failed\n");
+ 		return -ENODEV;
+ 	}
+@@ -114,21 +114,20 @@ static int ms5611_read_temp_and_pressure(struct iio_dev *indio_dev,
+ 		return ret;
+ 	}
+ 
+-	return st->chip_info->temp_and_pressure_compensate(st->chip_info,
+-							   temp, pressure);
++	return st->compensate_temp_and_pressure(st, temp, pressure);
+ }
+ 
+-static int ms5611_temp_and_pressure_compensate(struct ms5611_chip_info *chip_info,
++static int ms5611_temp_and_pressure_compensate(struct ms5611_state *st,
+ 					       s32 *temp, s32 *pressure)
+ {
+ 	s32 t = *temp, p = *pressure;
+ 	s64 off, sens, dt;
+ 
+-	dt = t - (chip_info->prom[5] << 8);
+-	off = ((s64)chip_info->prom[2] << 16) + ((chip_info->prom[4] * dt) >> 7);
+-	sens = ((s64)chip_info->prom[1] << 15) + ((chip_info->prom[3] * dt) >> 8);
++	dt = t - (st->prom[5] << 8);
++	off = ((s64)st->prom[2] << 16) + ((st->prom[4] * dt) >> 7);
++	sens = ((s64)st->prom[1] << 15) + ((st->prom[3] * dt) >> 8);
+ 
+-	t = 2000 + ((chip_info->prom[6] * dt) >> 23);
++	t = 2000 + ((st->prom[6] * dt) >> 23);
+ 	if (t < 2000) {
+ 		s64 off2, sens2, t2;
+ 
+@@ -154,17 +153,17 @@ static int ms5611_temp_and_pressure_compensate(struct ms5611_chip_info *chip_inf
+ 	return 0;
+ }
+ 
+-static int ms5607_temp_and_pressure_compensate(struct ms5611_chip_info *chip_info,
++static int ms5607_temp_and_pressure_compensate(struct ms5611_state *st,
+ 					       s32 *temp, s32 *pressure)
+ {
+ 	s32 t = *temp, p = *pressure;
+ 	s64 off, sens, dt;
+ 
+-	dt = t - (chip_info->prom[5] << 8);
+-	off = ((s64)chip_info->prom[2] << 17) + ((chip_info->prom[4] * dt) >> 6);
+-	sens = ((s64)chip_info->prom[1] << 16) + ((chip_info->prom[3] * dt) >> 7);
++	dt = t - (st->prom[5] << 8);
++	off = ((s64)st->prom[2] << 17) + ((st->prom[4] * dt) >> 6);
++	sens = ((s64)st->prom[1] << 16) + ((st->prom[3] * dt) >> 7);
+ 
+-	t = 2000 + ((chip_info->prom[6] * dt) >> 23);
++	t = 2000 + ((st->prom[6] * dt) >> 23);
+ 	if (t < 2000) {
+ 		s64 off2, sens2, t2, tmp;
+ 
+@@ -342,15 +341,6 @@ static int ms5611_write_raw(struct iio_dev *indio_dev,
+ 
+ static const unsigned long ms5611_scan_masks[] = {0x3, 0};
+ 
+-static struct ms5611_chip_info chip_info_tbl[] = {
+-	[MS5611] = {
+-		.temp_and_pressure_compensate = ms5611_temp_and_pressure_compensate,
+-	},
+-	[MS5607] = {
+-		.temp_and_pressure_compensate = ms5607_temp_and_pressure_compensate,
+-	}
+-};
+-
+ static const struct iio_chan_spec ms5611_channels[] = {
+ 	{
+ 		.type = IIO_PRESSURE,
+@@ -433,7 +423,20 @@ int ms5611_probe(struct iio_dev *indio_dev, struct device *dev,
+ 	struct ms5611_state *st = iio_priv(indio_dev);
+ 
+ 	mutex_init(&st->lock);
+-	st->chip_info = &chip_info_tbl[type];
++
++	switch (type) {
++	case MS5611:
++		st->compensate_temp_and_pressure =
++			ms5611_temp_and_pressure_compensate;
++		break;
++	case MS5607:
++		st->compensate_temp_and_pressure =
++			ms5607_temp_and_pressure_compensate;
++		break;
++	default:
++		return -EINVAL;
++	}
++
+ 	st->temp_osr =
+ 		&ms5611_avail_temp_osr[ARRAY_SIZE(ms5611_avail_temp_osr) - 1];
+ 	st->pressure_osr =
 -- 
 2.35.1
 
