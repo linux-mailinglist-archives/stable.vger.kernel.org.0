@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0A0B63DD7E
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:28:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67B2663DFBC
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:50:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229678AbiK3S2B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:28:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59832 "EHLO
+        id S231477AbiK3SuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:50:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229853AbiK3S1v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:27:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35460D83
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:27:49 -0800 (PST)
+        with ESMTP id S231483AbiK3St6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:49:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 943FB9D819
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:49:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A27B5B81C9A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:27:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00E73C433C1;
-        Wed, 30 Nov 2022 18:27:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 315F261D54
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:49:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44C90C433D6;
+        Wed, 30 Nov 2022 18:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832867;
-        bh=Vg63VjB7VjkCEK/YPPOMaCXy/dJhx+HXH2uLJfRwXKU=;
+        s=korg; t=1669834196;
+        bh=QI+SsreTKs5rxJGhRrfDkvSaD0nLatiDiVuNdJNGZKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Db3XCvALPICwI1LZ5a2Trp1dzNR2fbGP1ZfqZRFnd3BY6se3bjrHU1uk2CXpR7XR2
-         Ss+GP6Q01PkuSbETTQKVdpH7KXYZ1J5cfQUFBywRuEcTRrqJS5j5eu/bGjqzYKRotk
-         jkZ5zZMK2q0sawgKA1JfeIYAfA35Sa2BB+2MYP9U=
+        b=a/9ZU3DrTPUf7x8gXNa36YL5eNkyMc1EhchuQh4WOk2i7PRpu5bJsWtL+HGKrkWk6
+         +HWAZ8i7NJtfp1HVz++ELgSRcmmNCwDySlqYMHYAypweHlKADHsEd43zOjW7oHZfnw
+         CgPE6wNZW1iy2tIzI8DFTwow9TZWbESbFIkl89rY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eran Ben Elisha <eranbe@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/162] net/mlx5: Fix handling of entry refcount when command is not issued to FW
+        patches@lists.linux.dev, Pawel Laszczak <pawell@cadence.com>,
+        Peter Chen <peter.chen@kernel.org>
+Subject: [PATCH 6.0 164/289] usb: cdnsp: fix issue with ZLP - added TD_SIZE = 1
 Date:   Wed, 30 Nov 2022 19:22:29 +0100
-Message-Id: <20221130180530.349292790@linuxfoundation.org>
+Message-Id: <20221130180547.851095856@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +52,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@nvidia.com>
+From: Pawel Laszczak <pawell@cadence.com>
 
-[ Upstream commit aaf2e65cac7f2e1ae729c2fbc849091df9699f96 ]
+commit 7a21b27aafa3edead79ed97e6f22236be6b9f447 upstream.
 
-In case command interface is down, or the command is not allowed, driver
-did not increment the entry refcount, but might have decrement as part
-of forced completion handling.
+Patch modifies the TD_SIZE in TRB before ZLP TRB.
+The TD_SIZE in TRB before ZLP TRB must be set to 1 to force
+processing ZLP TRB by controller.
 
-Fix that by always increment and decrement the refcount to make it
-symmetric for all flows.
-
-Fixes: 50b2412b7e78 ("net/mlx5: Avoid possible free of command entry while timeout comp handler")
-Signed-off-by: Eran Ben Elisha <eranbe@nvidia.com>
-Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
-Reported-by: Jack Wang <jinpu.wang@ionos.com>
-Tested-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+cc: <stable@vger.kernel.org>
+Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Link: https://lore.kernel.org/r/20221115092218.421267-1-pawell@cadence.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/cdns3/cdnsp-ring.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-index cf07318048df..c838d8698eab 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-@@ -959,6 +959,7 @@ static void cmd_work_handler(struct work_struct *work)
- 		cmd_ent_get(ent);
- 	set_bit(MLX5_CMD_ENT_STATE_PENDING_COMP, &ent->state);
+--- a/drivers/usb/cdns3/cdnsp-ring.c
++++ b/drivers/usb/cdns3/cdnsp-ring.c
+@@ -1763,10 +1763,15 @@ static u32 cdnsp_td_remainder(struct cdn
+ 			      int trb_buff_len,
+ 			      unsigned int td_total_len,
+ 			      struct cdnsp_request *preq,
+-			      bool more_trbs_coming)
++			      bool more_trbs_coming,
++			      bool zlp)
+ {
+ 	u32 maxp, total_packet_count;
  
-+	cmd_ent_get(ent); /* for the _real_ FW event on completion */
- 	/* Skip sending command to fw if internal error */
- 	if (mlx5_cmd_is_down(dev) || !opcode_allowed(&dev->cmd, ent->op)) {
- 		u8 status = 0;
-@@ -972,7 +973,6 @@ static void cmd_work_handler(struct work_struct *work)
- 		return;
- 	}
++	/* Before ZLP driver needs set TD_SIZE = 1. */
++	if (zlp)
++		return 1;
++
+ 	/* One TRB with a zero-length data packet. */
+ 	if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
+ 	    trb_buff_len == td_total_len)
+@@ -1960,7 +1965,8 @@ int cdnsp_queue_bulk_tx(struct cdnsp_dev
+ 		/* Set the TRB length, TD size, and interrupter fields. */
+ 		remainder = cdnsp_td_remainder(pdev, enqd_len, trb_buff_len,
+ 					       full_len, preq,
+-					       more_trbs_coming);
++					       more_trbs_coming,
++					       zero_len_trb);
  
--	cmd_ent_get(ent); /* for the _real_ FW event on completion */
- 	/* ring doorbell after the descriptor is valid */
- 	mlx5_core_dbg(dev, "writing 0x%x to command doorbell\n", 1 << ent->idx);
- 	wmb();
-@@ -1586,8 +1586,8 @@ static void mlx5_cmd_comp_handler(struct mlx5_core_dev *dev, u64 vec, bool force
- 				cmd_ent_put(ent); /* timeout work was canceled */
+ 		length_field = TRB_LEN(trb_buff_len) | TRB_TD_SIZE(remainder) |
+ 			TRB_INTR_TARGET(0);
+@@ -2025,7 +2031,7 @@ int cdnsp_queue_ctrl_tx(struct cdnsp_dev
  
- 			if (!forced || /* Real FW completion */
--			    pci_channel_offline(dev->pdev) || /* FW is inaccessible */
--			    dev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR)
-+			     mlx5_cmd_is_down(dev) || /* No real FW completion is expected */
-+			     !opcode_allowed(cmd, ent->op))
- 				cmd_ent_put(ent);
+ 	if (preq->request.length > 0) {
+ 		remainder = cdnsp_td_remainder(pdev, 0, preq->request.length,
+-					       preq->request.length, preq, 1);
++					       preq->request.length, preq, 1, 0);
  
- 			ent->ts2 = ktime_get_ns();
--- 
-2.35.1
-
+ 		length_field = TRB_LEN(preq->request.length) |
+ 				TRB_TD_SIZE(remainder) | TRB_INTR_TARGET(0);
+@@ -2226,7 +2232,7 @@ static int cdnsp_queue_isoc_tx(struct cd
+ 		/* Set the TRB length, TD size, & interrupter fields. */
+ 		remainder = cdnsp_td_remainder(pdev, running_total,
+ 					       trb_buff_len, td_len, preq,
+-					       more_trbs_coming);
++					       more_trbs_coming, 0);
+ 
+ 		length_field = TRB_LEN(trb_buff_len) | TRB_INTR_TARGET(0);
+ 
 
 
