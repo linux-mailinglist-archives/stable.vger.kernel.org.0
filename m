@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C756F63DF62
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:46:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 427D263DE07
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:33:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231290AbiK3Sql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:46:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58184 "EHLO
+        id S230256AbiK3SdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:33:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229695AbiK3Sq0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:46:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC5E25CB
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:46:26 -0800 (PST)
+        with ESMTP id S230270AbiK3SdF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:33:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3183925E81
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:32:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0FE561D41
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:46:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18E2C433D6;
-        Wed, 30 Nov 2022 18:46:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5408B81B22
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:32:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FC24C433D6;
+        Wed, 30 Nov 2022 18:32:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833985;
-        bh=ySY3bfJZa+Y94Shb1YKZowz2e4b70n9eIqhb8o1OkPQ=;
+        s=korg; t=1669833172;
+        bh=bn/WLBy6iZS92XUhnFfckXH0YBn3TknrxPrIJ+PyRxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLNP/xfTwKgy08ak2ouakYw0B+Hg+FX5IhSsbDYbB1VMzU5bgojan7g/Y/ZSdP26A
-         WrCuGkITxIpoJFpAP0J01rydK8owGDg7spTABSpqZUuCLBsPC7VnJnwUCXl2cF/Kfs
-         BSDyKBEGNNDqjw6cOL66rb7OycEtQads0IDGJ6M0=
+        b=oLY8ETf2SPZqNX8ou3uMzVprjbpMDUv6Rhcdq8HI2H5ymHBvQPnc1utFNj+cQJgnR
+         3YIPOJ79fK34MSZYkKU5Ga/DvHY2kVGlEwml6RoOj9rtskjGERG8yh9gMuo0cfX6LK
+         BJPfOD2M58GUZaySyXB9MCFt0Ti46g1r00nIMeg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+43475bf3cfbd6e41f5b7@syzkaller.appspotmail.com,
-        Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Niklas Cassel <niklas.cassel@wdc.com>,
+        John Garry <john.g.garry@oracle.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 079/289] nfc/nci: fix race with opening and closing
-Date:   Wed, 30 Nov 2022 19:21:04 +0100
-Message-Id: <20221130180545.934555514@linuxfoundation.org>
+Subject: [PATCH 5.15 013/206] ata: libata-core: do not issue non-internal commands once EH is pending
+Date:   Wed, 30 Nov 2022 19:21:05 +0100
+Message-Id: <20221130180533.333655278@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-[ Upstream commit 0ad6bded175e829c2ca261529c9dce39a32a042d ]
+[ Upstream commit e20e81a24a4d58744a29715aac2f795cd1651955 ]
 
-Previously we leverage NCI_UNREG and the lock inside nci_close_device to
-prevent the race condition between opening a device and closing a
-device. However, it still has problem because a failed opening command
-will erase the NCI_UNREG flag and allow another opening command to
-bypass the status checking.
+While the ATA specification states that a device should return command
+aborted for all commands queued after the device has entered error state,
+since ATA only keeps the sense data for the latest command (in non-NCQ
+case), we really don't want to send block layer commands to the device
+after it has entered error state. (Only ATA EH commands should be sent,
+to read the sense data etc.)
 
-This fix corrects that by making sure the NCI_UNREG is held.
+Currently, scsi_queue_rq() will check if scsi_host_in_recovery()
+(state is SHOST_RECOVERY), and if so, it will _not_ issue a command via:
+scsi_dispatch_cmd() -> host->hostt->queuecommand() (ata_scsi_queuecmd())
+-> __ata_scsi_queuecmd() -> ata_scsi_translate() -> ata_qc_issue()
 
-Reported-by: syzbot+43475bf3cfbd6e41f5b7@syzkaller.appspotmail.com
-Fixes: 48b71a9e66c2 ("NFC: add NCI_UNREG flag to eliminate the race")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Before commit e494f6a72839 ("[SCSI] improved eh timeout handler"),
+when receiving a TFES error IRQ, the call chain looked like this:
+ahci_error_intr() -> ata_port_abort() -> ata_do_link_abort() ->
+ata_qc_complete() -> ata_qc_schedule_eh() -> blk_abort_request() ->
+blk_rq_timed_out() -> q->rq_timed_out_fn() (scsi_times_out()) ->
+scsi_eh_scmd_add() -> scsi_host_set_state(shost, SHOST_RECOVERY)
+
+Which meant that as soon as an error IRQ was serviced, SHOST_RECOVERY
+would be set.
+
+However, after commit e494f6a72839 ("[SCSI] improved eh timeout handler"),
+scsi_times_out() will instead call scsi_abort_command() which will queue
+delayed work, and the worker function scmd_eh_abort_handler() will call
+scsi_eh_scmd_add(), which calls scsi_host_set_state(shost, SHOST_RECOVERY).
+
+So now, after the TFES error IRQ has been serviced, we need to wait for
+the SCSI workqueue to run its work before SHOST_RECOVERY gets set.
+
+It is worth noting that, even before commit e494f6a72839 ("[SCSI] improved
+eh timeout handler"), we could receive an error IRQ from the time when
+scsi_queue_rq() checks scsi_host_in_recovery(), to the time when
+ata_scsi_queuecmd() is actually called.
+
+In order to handle both the delayed setting of SHOST_RECOVERY and the
+window where we can receive an error IRQ, add a check against
+ATA_PFLAG_EH_PENDING (which gets set when servicing the error IRQ),
+inside ata_scsi_queuecmd() itself, while holding the ap->lock.
+(Since the ap->lock is held while servicing IRQs.)
+
+Fixes: e494f6a72839 ("[SCSI] improved eh timeout handler")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Tested-by: John Garry <john.g.garry@oracle.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/nci/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/libata-scsi.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
-index 6a193cce2a75..4ffdf2f45c44 100644
---- a/net/nfc/nci/core.c
-+++ b/net/nfc/nci/core.c
-@@ -542,7 +542,7 @@ static int nci_open_device(struct nci_dev *ndev)
- 		skb_queue_purge(&ndev->tx_q);
+diff --git a/drivers/ata/libata-scsi.c b/drivers/ata/libata-scsi.c
+index 61b7e0b0bbf6..061d2f8feeb5 100644
+--- a/drivers/ata/libata-scsi.c
++++ b/drivers/ata/libata-scsi.c
+@@ -3988,9 +3988,19 @@ void ata_scsi_dump_cdb(struct ata_port *ap, struct scsi_cmnd *cmd)
  
- 		ndev->ops->close(ndev);
--		ndev->flags = 0;
-+		ndev->flags &= BIT(NCI_UNREG);
- 	}
+ int __ata_scsi_queuecmd(struct scsi_cmnd *scmd, struct ata_device *dev)
+ {
++	struct ata_port *ap = dev->link->ap;
+ 	u8 scsi_op = scmd->cmnd[0];
+ 	ata_xlat_func_t xlat_func;
  
- done:
++	/*
++	 * scsi_queue_rq() will defer commands if scsi_host_in_recovery().
++	 * However, this check is done without holding the ap->lock (a libata
++	 * specific lock), so we can have received an error irq since then,
++	 * therefore we must check if EH is pending, while holding ap->lock.
++	 */
++	if (ap->pflags & (ATA_PFLAG_EH_PENDING | ATA_PFLAG_EH_IN_PROGRESS))
++		return SCSI_MLQUEUE_DEVICE_BUSY;
++
+ 	if (unlikely(!scmd->cmd_len))
+ 		goto bad_cdb_len;
+ 
 -- 
 2.35.1
 
