@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE08163DF88
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3298463DE3D
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231366AbiK3SsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:48:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34126 "EHLO
+        id S230362AbiK3SfP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:35:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231365AbiK3SsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C7C23EAE
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:04 -0800 (PST)
+        with ESMTP id S230395AbiK3Se6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:34:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A10191C27
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:34:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9A6F61D7F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAF4BC433B5;
-        Wed, 30 Nov 2022 18:48:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3C4CB81C9C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:34:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 352B9C433D6;
+        Wed, 30 Nov 2022 18:34:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834083;
-        bh=w6X6m7nbBQh0fdcY72VeFYIPyqxgox0B6TKZd7xtJV8=;
+        s=korg; t=1669833294;
+        bh=yt9ZsKQP4pmQxT0l0VAhKwGcgfrLjTMisVi1orUE8Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfXebbgo2PUZpuG/ZJnxElIdsfLQAdsLZuAUxqG5jlOkEO961uvoFL+DQh983Orz4
-         y/qDMnM6l/r6K1QWDIeaeBjjLQd24cL6TaNDXO0rT59ZaxE6+U4VJaQKswx35hi7nB
-         24/Rxt29hmxqSDhc8MtVuqn9p2VsZNabaJPw+g/Q=
+        b=Ibp2z3R0/HsKS41Wy1M55jCZ9YkVLg3Y3gRvQcdtiehKpcQGrw7oLLEkGi1tmcn22
+         4KCXjGPiQOAupG+tMqNNVbLAYJbDSV3ImBirpeXOaesQ7rPD+wXiY/pBqmamIKyaah
+         aR6/OtR2ydRHO4C0WDBN3qjXjUwe4lN5JNjcY1B8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+cdb9a427d1bc08815104@syzkaller.appspotmail.com,
-        Liu Shixin <liushixin2@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        Christian Langrock <christian.langrock@secunet.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 123/289] NFC: nci: fix memory leak in nci_rx_data_packet()
+Subject: [PATCH 5.15 056/206] xfrm: replay: Fix ESN wrap around for GSO
 Date:   Wed, 30 Nov 2022 19:21:48 +0100
-Message-Id: <20221130180546.929764349@linuxfoundation.org>
+Message-Id: <20221130180534.426499694@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Christian Langrock <christian.langrock@secunet.com>
 
-[ Upstream commit 53270fb0fd77fe786d8c07a0793981d797836b93 ]
+[ Upstream commit 4b549ccce941798703f159b227aa28c716aa78fa ]
 
-Syzbot reported a memory leak about skb:
+When using GSO it can happen that the wrong seq_hi is used for the last
+packets before the wrap around. This can lead to double usage of a
+sequence number. To avoid this, we should serialize this last GSO
+packet.
 
-unreferenced object 0xffff88810e144e00 (size 240):
-  comm "syz-executor284", pid 3701, jiffies 4294952403 (age 12.620s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff83ab79a9>] __alloc_skb+0x1f9/0x270 net/core/skbuff.c:497
-    [<ffffffff82a5cf64>] alloc_skb include/linux/skbuff.h:1267 [inline]
-    [<ffffffff82a5cf64>] virtual_ncidev_write+0x24/0xe0 drivers/nfc/virtual_ncidev.c:116
-    [<ffffffff815f6503>] do_loop_readv_writev fs/read_write.c:759 [inline]
-    [<ffffffff815f6503>] do_loop_readv_writev fs/read_write.c:743 [inline]
-    [<ffffffff815f6503>] do_iter_write+0x253/0x300 fs/read_write.c:863
-    [<ffffffff815f66ed>] vfs_writev+0xdd/0x240 fs/read_write.c:934
-    [<ffffffff815f68f6>] do_writev+0xa6/0x1c0 fs/read_write.c:977
-    [<ffffffff848802d5>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<ffffffff848802d5>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    [<ffffffff84a00087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-In nci_rx_data_packet(), if we don't get a valid conn_info, we will return
-directly but forget to release the skb.
-
-Reported-by: syzbot+cdb9a427d1bc08815104@syzkaller.appspotmail.com
-Fixes: 4aeee6871e8c ("NFC: nci: Add dynamic logical connections support")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Link: https://lore.kernel.org/r/20221118082419.239475-1-liushixin2@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: d7dbefc45cf5 ("xfrm: Add xfrm_replay_overflow functions for offloading")
+Co-developed-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Christian Langrock <christian.langrock@secunet.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/nci/data.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/ipv4/esp4_offload.c |  3 +++
+ net/ipv6/esp6_offload.c |  3 +++
+ net/xfrm/xfrm_device.c  | 15 ++++++++++++++-
+ net/xfrm/xfrm_replay.c  |  2 +-
+ 4 files changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/net/nfc/nci/data.c b/net/nfc/nci/data.c
-index aa5e712adf07..3d36ea5701f0 100644
---- a/net/nfc/nci/data.c
-+++ b/net/nfc/nci/data.c
-@@ -279,8 +279,10 @@ void nci_rx_data_packet(struct nci_dev *ndev, struct sk_buff *skb)
- 		 nci_plen(skb->data));
+diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
+index dad5d29a6a8d..2ddba1e2cf22 100644
+--- a/net/ipv4/esp4_offload.c
++++ b/net/ipv4/esp4_offload.c
+@@ -311,6 +311,9 @@ static int esp_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features_
+ 			xo->seq.low += skb_shinfo(skb)->gso_segs;
+ 	}
  
- 	conn_info = nci_get_conn_info_by_conn_id(ndev, nci_conn_id(skb->data));
--	if (!conn_info)
-+	if (!conn_info) {
-+		kfree_skb(skb);
- 		return;
-+	}
++	if (xo->seq.low < seq)
++		xo->seq.hi++;
++
+ 	esp.seqno = cpu_to_be64(seq + ((u64)xo->seq.hi << 32));
  
- 	/* strip the nci data header */
- 	skb_pull(skb, NCI_DATA_HDR_SIZE);
+ 	ip_hdr(skb)->tot_len = htons(skb->len);
+diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
+index 302170882382..4cc19acfc369 100644
+--- a/net/ipv6/esp6_offload.c
++++ b/net/ipv6/esp6_offload.c
+@@ -343,6 +343,9 @@ static int esp6_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features
+ 			xo->seq.low += skb_shinfo(skb)->gso_segs;
+ 	}
+ 
++	if (xo->seq.low < seq)
++		xo->seq.hi++;
++
+ 	esp.seqno = cpu_to_be64(xo->seq.low + ((u64)xo->seq.hi << 32));
+ 
+ 	len = skb->len - sizeof(struct ipv6hdr);
+diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
+index c255aac6b816..8b8e957a69c3 100644
+--- a/net/xfrm/xfrm_device.c
++++ b/net/xfrm/xfrm_device.c
+@@ -97,6 +97,18 @@ static void xfrm_outer_mode_prep(struct xfrm_state *x, struct sk_buff *skb)
+ 	}
+ }
+ 
++static inline bool xmit_xfrm_check_overflow(struct sk_buff *skb)
++{
++	struct xfrm_offload *xo = xfrm_offload(skb);
++	__u32 seq = xo->seq.low;
++
++	seq += skb_shinfo(skb)->gso_segs;
++	if (unlikely(seq < xo->seq.low))
++		return true;
++
++	return false;
++}
++
+ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t features, bool *again)
+ {
+ 	int err;
+@@ -134,7 +146,8 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
+ 		return skb;
+ 	}
+ 
+-	if (skb_is_gso(skb) && unlikely(x->xso.dev != dev)) {
++	if (skb_is_gso(skb) && (unlikely(x->xso.dev != dev) ||
++				unlikely(xmit_xfrm_check_overflow(skb)))) {
+ 		struct sk_buff *segs;
+ 
+ 		/* Packet got rerouted, fixup features and segment it. */
+diff --git a/net/xfrm/xfrm_replay.c b/net/xfrm/xfrm_replay.c
+index 9277d81b344c..49dd788859d8 100644
+--- a/net/xfrm/xfrm_replay.c
++++ b/net/xfrm/xfrm_replay.c
+@@ -714,7 +714,7 @@ static int xfrm_replay_overflow_offload_esn(struct xfrm_state *x, struct sk_buff
+ 			oseq += skb_shinfo(skb)->gso_segs;
+ 		}
+ 
+-		if (unlikely(oseq < replay_esn->oseq)) {
++		if (unlikely(xo->seq.low < replay_esn->oseq)) {
+ 			XFRM_SKB_CB(skb)->seq.output.hi = ++oseq_hi;
+ 			xo->seq.hi = oseq_hi;
+ 			replay_esn->oseq_hi = oseq_hi;
 -- 
 2.35.1
 
