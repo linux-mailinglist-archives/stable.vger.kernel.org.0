@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8106B63DEC4
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:40:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1014863E011
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:53:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231143AbiK3Skh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:40:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51742 "EHLO
+        id S231514AbiK3SxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:53:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230465AbiK3Skg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CA7E97012
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:35 -0800 (PST)
+        with ESMTP id S231585AbiK3SxG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:53:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A0471C93B
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:53:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA08361D61
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C34EAC433B5;
-        Wed, 30 Nov 2022 18:40:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB9BBB81CA6
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:53:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B797C433C1;
+        Wed, 30 Nov 2022 18:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833634;
-        bh=a6bHEQVEFd+aK+9YIuyHr0/Qthvk5OY9LIX39P389tM=;
+        s=korg; t=1669834383;
+        bh=QRMQNKU5WrmXKfWnnUxMxBy3de40RPScvOym+3sJIEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jAbd+LQpYPBG2p7KAKLLEpkevb7HlhGinJblmwLn4AXhIXkr32ig/V+amKVYjN86O
-         DFhT4fYAnjjLn9zR+CSXAOPRhSxlpq0bJ0266gTM6xZu4DSFWsgonofHUiYcLqrwon
-         8ImeQkCvux+/FO4ZOaPWw6Gcp6HJxYoXhPvUqGIc=
+        b=NdCh0CPa56JMDzBgaSU4Nav3CXmZPPX8bFrraoBCxicTZrUPDG3jh6Vop4i1FNfUa
+         vR1fCyRctOjpGiq4TpWGHgSjwWJ4HauL+91Hwb0Oj+XlSov04yhgfpCOFkLyUlArbX
+         ckZKM3IAZxe8oB+igwwau8x7wraYl9q2iqzdbzEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Norris <briannorris@chromium.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 139/206] mmc: sdhci-brcmstb: Fix SDHCI_RESET_ALL for CQHCI
+        patches@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: [PATCH 6.0 206/289] drm/i915/gvt: Get reference to KVM iff attachment to VM is successful
 Date:   Wed, 30 Nov 2022 19:23:11 +0100
-Message-Id: <20221130180536.577219246@linuxfoundation.org>
+Message-Id: <20221130180548.790451779@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 56baa208f91061ff27ec2d93fbc483f624d373b4 ]
+commit 9ed1fdee9ee324f3505ff066287ee53143caaaa2 upstream.
 
-[[ NOTE: this is completely untested by the author, but included solely
-    because, as noted in commit df57d73276b8 ("mmc: sdhci-pci: Fix
-    SDHCI_RESET_ALL for CQHCI for Intel GLK-based controllers"), "other
-    drivers using CQHCI might benefit from a similar change, if they
-    also have CQHCI reset by SDHCI_RESET_ALL." We've now seen the same
-    bug on at least MSM, Arasan, and Intel hardware. ]]
+Get a reference to KVM if and only if a vGPU is successfully attached to
+the VM to avoid leaking a reference if there's no available vGPU.  On
+open_device() failure, vfio_device_open() doesn't invoke close_device().
 
-SDHCI_RESET_ALL resets will reset the hardware CQE state, but we aren't
-tracking that properly in software. When out of sync, we may trigger
-various timeouts.
-
-It's not typical to perform resets while CQE is enabled, but this may
-occur in some suspend or error recovery scenarios.
-
-Include this fix by way of the new sdhci_and_cqhci_reset() helper.
-
-I only patch the bcm7216 variant even though others potentially *could*
-provide the 'supports-cqe' property (and thus enable CQHCI), because
-d46ba2d17f90 ("mmc: sdhci-brcmstb: Add support for Command Queuing
-(CQE)") and some Broadcom folks confirm that only the 7216 variant
-actually supports it.
-
-This patch depends on (and should not compile without) the patch
-entitled "mmc: cqhci: Provide helper for resetting both SDHCI and
-CQHCI".
-
-Fixes: d46ba2d17f90 ("mmc: sdhci-brcmstb: Add support for Command Queuing (CQE)")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: 421cfe6596f6 ("vfio: remove VFIO_GROUP_NOTIFY_SET_KVM")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221026124150.v4.3.I6a715feab6d01f760455865e968ecf0d85036018@changeid
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20221111002225.2418386-2-seanjc@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-brcmstb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gvt/kvmgt.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-brcmstb.c b/drivers/mmc/host/sdhci-brcmstb.c
-index 683d0c685748..4d42b1810ace 100644
---- a/drivers/mmc/host/sdhci-brcmstb.c
-+++ b/drivers/mmc/host/sdhci-brcmstb.c
-@@ -12,6 +12,7 @@
- #include <linux/bitops.h>
- #include <linux/delay.h>
+--- a/drivers/gpu/drm/i915/gvt/kvmgt.c
++++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+@@ -765,8 +765,6 @@ static int intel_vgpu_open_device(struct
+ 		return -ESRCH;
+ 	}
  
-+#include "sdhci-cqhci.h"
- #include "sdhci-pltfm.h"
- #include "cqhci.h"
+-	kvm_get_kvm(vgpu->vfio_device.kvm);
+-
+ 	if (__kvmgt_vgpu_exist(vgpu))
+ 		return -EEXIST;
  
-@@ -53,7 +54,7 @@ void brcmstb_reset(struct sdhci_host *host, u8 mask)
- 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
- 	struct sdhci_brcmstb_priv *priv = sdhci_pltfm_priv(pltfm_host);
+@@ -777,6 +775,7 @@ static int intel_vgpu_open_device(struct
  
--	sdhci_reset(host, mask);
-+	sdhci_and_cqhci_reset(host, mask);
+ 	vgpu->track_node.track_write = kvmgt_page_track_write;
+ 	vgpu->track_node.track_flush_slot = kvmgt_page_track_flush_slot;
++	kvm_get_kvm(vgpu->vfio_device.kvm);
+ 	kvm_page_track_register_notifier(vgpu->vfio_device.kvm,
+ 					 &vgpu->track_node);
  
- 	/* Reset will clear this, so re-enable it */
- 	if (priv->flags & BRCMSTB_PRIV_FLAGS_GATE_CLOCK)
--- 
-2.35.1
-
 
 
