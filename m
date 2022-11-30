@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BBCD63DDAC
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:29:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF34F63DEAB
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:39:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229952AbiK3S30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:29:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35228 "EHLO
+        id S230521AbiK3Sjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:39:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229973AbiK3S3Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:29:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 467078B1B9
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:29:24 -0800 (PST)
+        with ESMTP id S231124AbiK3Sja (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:39:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C49E297015
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:39:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD62961D54
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:29:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA90DC433D6;
-        Wed, 30 Nov 2022 18:29:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64DF161D6A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:39:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75D3DC433C1;
+        Wed, 30 Nov 2022 18:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832963;
-        bh=zhAZuG5onqBLrwOJxbrAd8JCzbn2CUUeCCZi5YKVDAA=;
+        s=korg; t=1669833565;
+        bh=Yl44QzgIoLY8kvdu7Fo5XROW6AuHdFYKOGpEmstkg3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h3wf2FyV5W3fgQr+1YFq1Hvr+bl2dPDxZIDZJCSx0iVdrfQ7M/SxUGvm2839ty3mm
-         lQrV8EDpRGQuTjzG2V0zAFMO5ArA8YVq+S7JhGo4/ry70cMlCZ+Nc3C0iEbkG95iDE
-         iMzEX/ez4Mo6dUwdXsVrybJdva82Eo4xEcKdDMms=
+        b=pQyyQL50gEs5zqPRRVLlKzRIUMY8+wlWJDTs1wYr4l7VD7evVe3zf9ZfA87kzp75R
+         +GUfRfA5urU8EZ9jYhHe7BxfTBl/8hQglWJHrvr3Ihdn0ybZvH6O7NwQPnRp/4SSrB
+         pERxwUmTFpCk0W7G2tT2tsNiSABASsm9QXzRpHC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+cdb9a427d1bc08815104@syzkaller.appspotmail.com,
-        Liu Shixin <liushixin2@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
+        Jon Maloy <jmaloy@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 075/162] NFC: nci: fix memory leak in nci_rx_data_packet()
-Date:   Wed, 30 Nov 2022 19:22:36 +0100
-Message-Id: <20221130180530.539680467@linuxfoundation.org>
+Subject: [PATCH 5.15 105/206] tipc: add an extra conn_get in tipc_conn_alloc
+Date:   Wed, 30 Nov 2022 19:22:37 +0100
+Message-Id: <20221130180535.717668187@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 53270fb0fd77fe786d8c07a0793981d797836b93 ]
+[ Upstream commit a7b42969d63f47320853a802efd879fbdc4e010e ]
 
-Syzbot reported a memory leak about skb:
+One extra conn_get() is needed in tipc_conn_alloc(), as after
+tipc_conn_alloc() is called, tipc_conn_close() may free this
+con before deferencing it in tipc_topsrv_accept():
 
-unreferenced object 0xffff88810e144e00 (size 240):
-  comm "syz-executor284", pid 3701, jiffies 4294952403 (age 12.620s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff83ab79a9>] __alloc_skb+0x1f9/0x270 net/core/skbuff.c:497
-    [<ffffffff82a5cf64>] alloc_skb include/linux/skbuff.h:1267 [inline]
-    [<ffffffff82a5cf64>] virtual_ncidev_write+0x24/0xe0 drivers/nfc/virtual_ncidev.c:116
-    [<ffffffff815f6503>] do_loop_readv_writev fs/read_write.c:759 [inline]
-    [<ffffffff815f6503>] do_loop_readv_writev fs/read_write.c:743 [inline]
-    [<ffffffff815f6503>] do_iter_write+0x253/0x300 fs/read_write.c:863
-    [<ffffffff815f66ed>] vfs_writev+0xdd/0x240 fs/read_write.c:934
-    [<ffffffff815f68f6>] do_writev+0xa6/0x1c0 fs/read_write.c:977
-    [<ffffffff848802d5>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<ffffffff848802d5>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    [<ffffffff84a00087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+   tipc_conn_alloc();
+   newsk = newsock->sk;
+                                 <---- tipc_conn_close();
+   write_lock_bh(&sk->sk_callback_lock);
+   newsk->sk_data_ready = tipc_conn_data_ready;
 
-In nci_rx_data_packet(), if we don't get a valid conn_info, we will return
-directly but forget to release the skb.
+Then an uaf issue can be triggered:
 
-Reported-by: syzbot+cdb9a427d1bc08815104@syzkaller.appspotmail.com
-Fixes: 4aeee6871e8c ("NFC: nci: Add dynamic logical connections support")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Link: https://lore.kernel.org/r/20221118082419.239475-1-liushixin2@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+  BUG: KASAN: use-after-free in tipc_topsrv_accept+0x1e7/0x370 [tipc]
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x33/0x46
+   print_report+0x178/0x4b0
+   kasan_report+0x8c/0x100
+   kasan_check_range+0x179/0x1e0
+   tipc_topsrv_accept+0x1e7/0x370 [tipc]
+   process_one_work+0x6a3/0x1030
+   worker_thread+0x8a/0xdf0
+
+This patch fixes it by holding it in tipc_conn_alloc(), then after
+all accessing in tipc_topsrv_accept() releasing it. Note when does
+this in tipc_topsrv_kern_subscr(), as tipc_conn_rcv_sub() returns
+0 or -1 only, we don't need to check for "> 0".
+
+Fixes: c5fa7b3cf3cb ("tipc: introduce new TIPC server infrastructure")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/nci/data.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/tipc/topsrv.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/net/nfc/nci/data.c b/net/nfc/nci/data.c
-index b002e18f38c8..b4548d887489 100644
---- a/net/nfc/nci/data.c
-+++ b/net/nfc/nci/data.c
-@@ -279,8 +279,10 @@ void nci_rx_data_packet(struct nci_dev *ndev, struct sk_buff *skb)
- 		 nci_plen(skb->data));
+diff --git a/net/tipc/topsrv.c b/net/tipc/topsrv.c
+index b0f9aa521670..e3b427a70398 100644
+--- a/net/tipc/topsrv.c
++++ b/net/tipc/topsrv.c
+@@ -206,6 +206,7 @@ static struct tipc_conn *tipc_conn_alloc(struct tipc_topsrv *s, struct socket *s
+ 	set_bit(CF_CONNECTED, &con->flags);
+ 	con->server = s;
+ 	con->sock = sock;
++	conn_get(con);
+ 	spin_unlock_bh(&s->idr_lock);
  
- 	conn_info = nci_get_conn_info_by_conn_id(ndev, nci_conn_id(skb->data));
--	if (!conn_info)
-+	if (!conn_info) {
-+		kfree_skb(skb);
- 		return;
-+	}
+ 	return con;
+@@ -484,6 +485,7 @@ static void tipc_topsrv_accept(struct work_struct *work)
  
- 	/* strip the nci data header */
- 	skb_pull(skb, NCI_DATA_HDR_SIZE);
+ 		/* Wake up receive process in case of 'SYN+' message */
+ 		newsk->sk_data_ready(newsk);
++		conn_put(con);
+ 	}
+ }
+ 
+@@ -583,10 +585,11 @@ bool tipc_topsrv_kern_subscr(struct net *net, u32 port, u32 type, u32 lower,
+ 
+ 	*conid = con->conid;
+ 	rc = tipc_conn_rcv_sub(tipc_topsrv(net), con, &sub);
+-	if (rc >= 0)
+-		return true;
++	if (rc)
++		conn_put(con);
++
+ 	conn_put(con);
+-	return false;
++	return !rc;
+ }
+ 
+ void tipc_topsrv_kern_unsubscr(struct net *net, int conid)
 -- 
 2.35.1
 
