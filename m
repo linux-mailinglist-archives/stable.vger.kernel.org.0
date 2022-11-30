@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88AFF63DDBF
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:30:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0410463DFF4
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:52:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229901AbiK3SaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:30:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35610 "EHLO
+        id S231480AbiK3SwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:52:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229978AbiK3SaB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:30:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09AE08D673
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:30:00 -0800 (PST)
+        with ESMTP id S231444AbiK3SwG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:52:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3A8E63D73
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:52:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE604B81CA3
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:29:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2394AC433C1;
-        Wed, 30 Nov 2022 18:29:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99EA161D4F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:52:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC053C433C1;
+        Wed, 30 Nov 2022 18:52:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832997;
-        bh=bQNqP7z+aHLa8KRBrxIYdiutNdROFHNEvXybjt2pv4s=;
+        s=korg; t=1669834321;
+        bh=Aph1UzH0p5kDxalQytBzj5SgY+FGJY9E+jZSvqrObqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sC/KEGLDRviLLRI/Wq1+D9inDbjK/l4rEFTkZSIjq42ABJLsBHno5DRI5Cq+WFmyE
-         NusMm5tUmz1dPbAWz9nE1kHtWzQmYstuOOI5jF8CybNx9wATvU0k/UZ3epHLLWD/vS
-         AaSn73bt8GFKFBj36Uje1EDRuIffFShRgwAbB5Mo=
+        b=IHBqrK2KtsnmvX++Jdc9pRCuVPsdCtqhQCj9suS81K1vIs3ZvOdRhvYG53LYEdcCA
+         Dn2z+P8Upts1wNbHPTVzfdThL1c+bo+otxQ5o8u/XEW5j3aws4C4jajxtVOnb209Wg
+         aoLHbKl9i66O6vZZR8agHdPyQ9ZIMoDfgjijU8QY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiubo Li <xiubli@redhat.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 115/162] ceph: fix NULL pointer dereference for req->r_session
+        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 6.0 211/289] KVM: x86: remove exit_int_info warning in svm_handle_exit
 Date:   Wed, 30 Nov 2022 19:23:16 +0100
-Message-Id: <20221130180531.607652634@linuxfoundation.org>
+Message-Id: <20221130180548.902841027@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,125 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-[ Upstream commit 5bd76b8de5b74fa941a6eafee87728a0fe072267 ]
+commit 05311ce954aebe75935d9ae7d38ac82b5b796e33 upstream.
 
-The request's r_session maybe changed when it was forwarded or
-resent. Both the forwarding and resending cases the requests will
-be protected by the mdsc->mutex.
+It is valid to receive external interrupt and have broken IDT entry,
+which will lead to #GP with exit_int_into that will contain the index of
+the IDT entry (e.g any value).
+
+Other exceptions can happen as well, like #NP or #SS
+(if stack switch fails).
+
+Thus this warning can be user triggred and has very little value.
 
 Cc: stable@vger.kernel.org
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2137955
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20221103141351.50662-10-mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/caps.c | 48 ++++++++++++------------------------------------
- 1 file changed, 12 insertions(+), 36 deletions(-)
+ arch/x86/kvm/svm/svm.c |   15 ---------------
+ 1 file changed, 15 deletions(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index 668be87ffee6..51562d36fa83 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -2297,7 +2297,6 @@ static int unsafe_request_wait(struct inode *inode)
- 	struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
- 	struct ceph_inode_info *ci = ceph_inode(inode);
- 	struct ceph_mds_request *req1 = NULL, *req2 = NULL;
--	unsigned int max_sessions;
- 	int ret, err = 0;
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -346,12 +346,6 @@ int svm_set_efer(struct kvm_vcpu *vcpu,
+ 	return 0;
+ }
  
- 	spin_lock(&ci->i_unsafe_lock);
-@@ -2315,28 +2314,24 @@ static int unsafe_request_wait(struct inode *inode)
- 	}
- 	spin_unlock(&ci->i_unsafe_lock);
- 
--	/*
--	 * The mdsc->max_sessions is unlikely to be changed
--	 * mostly, here we will retry it by reallocating the
--	 * sessions array memory to get rid of the mdsc->mutex
--	 * lock.
--	 */
--retry:
--	max_sessions = mdsc->max_sessions;
+-static int is_external_interrupt(u32 info)
+-{
+-	info &= SVM_EVTINJ_TYPE_MASK | SVM_EVTINJ_VALID;
+-	return info == (SVM_EVTINJ_VALID | SVM_EVTINJ_TYPE_INTR);
+-}
 -
- 	/*
- 	 * Trigger to flush the journal logs in all the relevant MDSes
- 	 * manually, or in the worst case we must wait at most 5 seconds
- 	 * to wait the journal logs to be flushed by the MDSes periodically.
- 	 */
--	if ((req1 || req2) && likely(max_sessions)) {
--		struct ceph_mds_session **sessions = NULL;
--		struct ceph_mds_session *s;
-+	if (req1 || req2) {
- 		struct ceph_mds_request *req;
-+		struct ceph_mds_session **sessions;
-+		struct ceph_mds_session *s;
-+		unsigned int max_sessions;
- 		int i;
+ static u32 svm_get_interrupt_shadow(struct kvm_vcpu *vcpu)
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
+@@ -3427,15 +3421,6 @@ static int svm_handle_exit(struct kvm_vc
+ 		return 0;
+ 	}
  
-+		mutex_lock(&mdsc->mutex);
-+		max_sessions = mdsc->max_sessions;
-+
- 		sessions = kcalloc(max_sessions, sizeof(s), GFP_KERNEL);
- 		if (!sessions) {
-+			mutex_unlock(&mdsc->mutex);
- 			err = -ENOMEM;
- 			goto out;
- 		}
-@@ -2348,16 +2343,6 @@ static int unsafe_request_wait(struct inode *inode)
- 				s = req->r_session;
- 				if (!s)
- 					continue;
--				if (unlikely(s->s_mds >= max_sessions)) {
--					spin_unlock(&ci->i_unsafe_lock);
--					for (i = 0; i < max_sessions; i++) {
--						s = sessions[i];
--						if (s)
--							ceph_put_mds_session(s);
--					}
--					kfree(sessions);
--					goto retry;
--				}
- 				if (!sessions[s->s_mds]) {
- 					s = ceph_get_mds_session(s);
- 					sessions[s->s_mds] = s;
-@@ -2370,16 +2355,6 @@ static int unsafe_request_wait(struct inode *inode)
- 				s = req->r_session;
- 				if (!s)
- 					continue;
--				if (unlikely(s->s_mds >= max_sessions)) {
--					spin_unlock(&ci->i_unsafe_lock);
--					for (i = 0; i < max_sessions; i++) {
--						s = sessions[i];
--						if (s)
--							ceph_put_mds_session(s);
--					}
--					kfree(sessions);
--					goto retry;
--				}
- 				if (!sessions[s->s_mds]) {
- 					s = ceph_get_mds_session(s);
- 					sessions[s->s_mds] = s;
-@@ -2391,11 +2366,12 @@ static int unsafe_request_wait(struct inode *inode)
- 		/* the auth MDS */
- 		spin_lock(&ci->i_ceph_lock);
- 		if (ci->i_auth_cap) {
--		      s = ci->i_auth_cap->session;
--		      if (!sessions[s->s_mds])
--			      sessions[s->s_mds] = ceph_get_mds_session(s);
-+			s = ci->i_auth_cap->session;
-+			if (!sessions[s->s_mds])
-+				sessions[s->s_mds] = ceph_get_mds_session(s);
- 		}
- 		spin_unlock(&ci->i_ceph_lock);
-+		mutex_unlock(&mdsc->mutex);
+-	if (is_external_interrupt(svm->vmcb->control.exit_int_info) &&
+-	    exit_code != SVM_EXIT_EXCP_BASE + PF_VECTOR &&
+-	    exit_code != SVM_EXIT_NPF && exit_code != SVM_EXIT_TASK_SWITCH &&
+-	    exit_code != SVM_EXIT_INTR && exit_code != SVM_EXIT_NMI)
+-		printk(KERN_ERR "%s: unexpected exit_int_info 0x%x "
+-		       "exit_code 0x%x\n",
+-		       __func__, svm->vmcb->control.exit_int_info,
+-		       exit_code);
+-
+ 	if (exit_fastpath != EXIT_FASTPATH_NONE)
+ 		return 1;
  
- 		/* send flush mdlog request to MDSes */
- 		for (i = 0; i < max_sessions; i++) {
--- 
-2.35.1
-
 
 
