@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4056963DED2
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:41:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6319D63DDE6
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:31:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230471AbiK3SlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:41:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52286 "EHLO
+        id S230119AbiK3Sbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:31:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230476AbiK3SlB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 257959894D
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:00 -0800 (PST)
+        with ESMTP id S230113AbiK3Sbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:31:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C13748DFFC
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:31:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA4C661D54
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9854C433C1;
-        Wed, 30 Nov 2022 18:40:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71B68B81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:31:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E11B9C433C1;
+        Wed, 30 Nov 2022 18:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833659;
-        bh=jdSi8O56kr6BHoi0bBJ5xcc78BdUEDR2Jgq7u1AbZGE=;
+        s=korg; t=1669833089;
+        bh=RtNyii3kKDoaQALeGFV8T9RXwEMfWeuIRa+OX7qggyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ubiK94iZsvF754J0T3uybhIrhCnLuGOEI/zB2YRRZup5f0T+XKZ9XZbP4+LyGiQtJ
-         EXtxlKVVUiztBtWlA9EabMrFjKrt2Yi3Qv5/ONpxUR/vjDviN/0tGttH0ALwu+RaDS
-         nXYmcgMS2/WaooxOlSLGJAFDlJyfZGsp4TtbRO5A=
+        b=OdELkm5aIaoXpMt+LKDtEYbCvY4jTtqhlqb52vmv/1frtHOPEVbM1TqQEHQWCIXnY
+         nN0fi4B8OUPa48b9nqyfWuNhBy2PPH4LkiulxeXJ4xNNjo4hab31n6fgvtijHHoXLU
+         C2hFkltmPiLS0C8BHgkw+c2vWW/33sGPL5XoJdyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rudolf Polzer <rpolzer@google.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 176/206] platform/x86: acer-wmi: Enable SW_TABLET_MODE on Switch V 10 (SW5-017)
+Subject: [PATCH 5.10 147/162] dm integrity: clear the journal on suspend
 Date:   Wed, 30 Nov 2022 19:23:48 +0100
-Message-Id: <20221130180537.502059926@linuxfoundation.org>
+Message-Id: <20221130180532.465121589@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 1e817b889c7d8c14e7005258e15fec62edafe03c ]
+[ Upstream commit 984bf2cc531e778e49298fdf6730e0396166aa21 ]
 
-Like the Acer Switch 10 (SW5-012) and Acer Switch 10 (S1003) models
-the Acer Switch V 10 (SW5-017) supports reporting SW_TABLET_MODE
-through acer-wmi.
+There was a problem that a user burned a dm-integrity image on CDROM
+and could not activate it because it had a non-empty journal.
 
-Add a DMI quirk for the SW5-017 setting force_caps to ACER_CAP_KBD_DOCK
-(these devices have no other acer-wmi based functionality).
+Fix this problem by flushing the journal (done by the previous commit)
+and clearing the journal (done by this commit). Once the journal is
+cleared, dm-integrity won't attempt to replay it on the next
+activation.
 
-Cc: Rudolf Polzer <rpolzer@google.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20221111111639.35730-1-hdegoede@redhat.com
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/acer-wmi.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/md/dm-integrity.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index 8c2a73d5428d..82516796a53b 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -564,6 +564,15 @@ static const struct dmi_system_id acer_quirks[] __initconst = {
- 		},
- 		.driver_data = (void *)ACER_CAP_KBD_DOCK,
- 	},
-+	{
-+		.callback = set_force_caps,
-+		.ident = "Acer Aspire Switch V 10 SW5-017",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SW5-017"),
-+		},
-+		.driver_data = (void *)ACER_CAP_KBD_DOCK,
-+	},
- 	{
- 		.callback = set_force_caps,
- 		.ident = "Acer One 10 (S1003)",
+diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
+index 847dfd682e20..2156a2d5ac70 100644
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -254,6 +254,7 @@ struct dm_integrity_c {
+ 
+ 	struct completion crypto_backoff;
+ 
++	bool wrote_to_journal;
+ 	bool journal_uptodate;
+ 	bool just_formatted;
+ 	bool recalculate_flag;
+@@ -2256,6 +2257,8 @@ static void integrity_commit(struct work_struct *w)
+ 	if (!commit_sections)
+ 		goto release_flush_bios;
+ 
++	ic->wrote_to_journal = true;
++
+ 	i = commit_start;
+ 	for (n = 0; n < commit_sections; n++) {
+ 		for (j = 0; j < ic->journal_section_entries; j++) {
+@@ -2979,6 +2982,14 @@ static void dm_integrity_postsuspend(struct dm_target *ti)
+ 		queue_work(ic->writer_wq, &ic->writer_work);
+ 		drain_workqueue(ic->writer_wq);
+ 		dm_integrity_flush_buffers(ic, true);
++		if (ic->wrote_to_journal) {
++			init_journal(ic, ic->free_section,
++				     ic->journal_sections - ic->free_section, ic->commit_seq);
++			if (ic->free_section) {
++				init_journal(ic, 0, ic->free_section,
++					     next_commit_seq(ic->commit_seq));
++			}
++		}
+ 	}
+ 
+ 	if (ic->mode == 'B') {
+@@ -3006,6 +3017,8 @@ static void dm_integrity_resume(struct dm_target *ti)
+ 
+ 	DEBUG_print("resume\n");
+ 
++	ic->wrote_to_journal = false;
++
+ 	if (ic->provided_data_sectors != old_provided_data_sectors) {
+ 		if (ic->provided_data_sectors > old_provided_data_sectors &&
+ 		    ic->mode == 'B' &&
 -- 
 2.35.1
 
