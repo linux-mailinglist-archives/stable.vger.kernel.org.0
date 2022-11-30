@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFAF063DBFC
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:31:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDC2D63DBFD
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:32:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229848AbiK3Rbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 12:31:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57400 "EHLO
+        id S229783AbiK3Rcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 12:32:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229810AbiK3Rbv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:31:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3088725E9F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:31:50 -0800 (PST)
+        with ESMTP id S229611AbiK3Rcd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:32:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50F78DA
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:32:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E28C7B81C4C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:31:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EE5CC433D6;
-        Wed, 30 Nov 2022 17:31:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E36B161D34
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:32:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFDD5C433C1;
+        Wed, 30 Nov 2022 17:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669829507;
-        bh=pyD6eYLxiAIkn+TDHzomeYMp+VVGa4bn1RqrFMgHadg=;
+        s=korg; t=1669829550;
+        bh=cJQbrOs28SKa6gPcg2CjYdLv1eh/3g0A1EUfc1/xvz0=;
         h=Subject:To:Cc:From:Date:From;
-        b=G9US9vX4FRqaxBe7W9pbX8D1B26HQP1B8h4k4V0ow2OtARmDjTNzTTBi1yBpS/EAm
-         49xtIKKRNpgLH+g8D3ljwREFwvsIj0FoQPU3nshdOKgLUtoocEcnOFZjExwSKQa+gA
-         yLh2N2GrS2ZALBSLlt0T6poWAE4oTauI2EAzTFug=
-Subject: FAILED: patch "[PATCH] btrfs: qgroup: fix sleep from invalid context bug in" failed to apply to 4.9-stable tree
-To:     chenxiaosong2@huawei.com, dsterba@suse.com, wqu@suse.com
+        b=Fzjtl4LGfjvMRTPXI80UCOcm27k4QJqPOV8gif3JDmMFvN/RDg+hMBmHAVuyNhAzb
+         uhcIUIuWbsJvEPq1IQ4IW9vVQxHBXbgrlq67yee3zg9WKhwHugGL55BD/ignuRQ6Us
+         ZtYpK5ec6NQWy8+MeOh0CnsO3cszkbRi0SY1e+Qc=
+Subject: FAILED: patch "[PATCH] drm/i915/ttm: never purge busy objects" failed to apply to 5.15-stable tree
+To:     matthew.auld@intel.com, Nirmoy.Das@intel.com,
+        andrzej.hajda@intel.com, niranjana.vishwanathapura@intel.com,
+        nirmoy.das@intel.com, stable@vger.kernel.org,
+        tvrtko.ursulin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Nov 2022 18:31:32 +0100
-Message-ID: <1669829492123254@kroah.com>
+Date:   Wed, 30 Nov 2022 18:32:27 +0100
+Message-ID: <166982954720123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +50,25 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-f7e942b5bb35 ("btrfs: qgroup: fix sleep from invalid context bug in btrfs_qgroup_inherit()")
-e562a8bdf652 ("btrfs: introduce BTRFS_QGROUP_RUNTIME_FLAG_CANCEL_RESCAN")
-db5df2541200 ("btrfs: move QUOTA_ENABLED check to rescan_should_stop from btrfs_qgroup_rescan_worker")
-8949b9a11401 ("btrfs: fix lock inversion problem when doing qgroup extent tracing")
-f3a84ccd28d0 ("btrfs: move the tree mod log code into its own file")
-dbcc7d57bffc ("btrfs: fix race when cloning extent buffer during rewind of an old root")
-cac06d843f25 ("btrfs: introduce the skeleton of btrfs_subpage structure")
-cb13eea3b490 ("btrfs: fix transaction leak and crash after RO remount caused by qgroup rescan")
-1b7ec85ef490 ("btrfs: pass root owner to read_tree_block")
-bfb484d922a3 ("btrfs: cleanup extent buffer readahead")
-ac5887c8e013 ("btrfs: locking: remove all the blocking helpers")
-196d59ab9ccc ("btrfs: switch extent buffer tree lock to rw_semaphore")
-bf77467a93bd ("btrfs: introduce BTRFS_NESTING_LEFT/BTRFS_NESTING_RIGHT")
-9631e4cc1a03 ("btrfs: introduce BTRFS_NESTING_COW for cow'ing blocks")
-fd7ba1c1202d ("btrfs: add nesting tags to the locking helpers")
-51899412dd95 ("btrfs: introduce btrfs_path::recurse")
-329ced799be8 ("btrfs: rename extent_buffer::lock_nested to extent_buffer::lock_recursed")
-d16c702fe4f2 ("btrfs: ctree: check key order before merging tree blocks")
-d3beaa253fd6 ("btrfs: set the lockdep class for log tree extent buffers")
-ad24466588ab ("btrfs: set the correct lockdep class for new nodes")
+00a6c36cca76 ("drm/i915/ttm: never purge busy objects")
+ab4911b7d411 ("drm/i915/ttm: ensure we unmap when purging")
+ffa3fe080c77 ("drm/i915: clean up shrinker_release_pages")
+9354417750e5 ("drm/i915: remove writeback hook")
+004746e4b119 ("drm/i915/ttm: Correctly handle waiting for gpu when shrinking")
+3589fdbd3b20 ("drm/i915/ttm: Reorganize the ttm move code")
+cad7109a2b5e ("drm/i915: Introduce refcounted sg-tables")
+ebd4a8ec7799 ("drm/i915/ttm: move shrinker management into adjust_lru")
+e25d1ea4b1dc ("drm/i915: add some kernel-doc for shrink_pin and friends")
+7ae034590cea ("drm/i915/ttm: add tt shmem backend")
+f05b985e6f76 ("drm/i915/gem: Break out some shmem backend utils")
+1176d15f0f6e ("Merge tag 'drm-intel-gt-next-2021-10-08' of git://anongit.freedesktop.org/drm/drm-intel into drm-next")
 
 thanks,
 
@@ -81,58 +76,90 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f7e942b5bb35d8e3af54053d19a6bf04143a3955 Mon Sep 17 00:00:00 2001
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
-Date: Wed, 16 Nov 2022 22:23:54 +0800
-Subject: [PATCH] btrfs: qgroup: fix sleep from invalid context bug in
- btrfs_qgroup_inherit()
+From 00a6c36cca760d0b659f894dee728555b193c5e1 Mon Sep 17 00:00:00 2001
+From: Matthew Auld <matthew.auld@intel.com>
+Date: Tue, 15 Nov 2022 10:46:20 +0000
+Subject: [PATCH] drm/i915/ttm: never purge busy objects
 
-Syzkaller reported BUG as follows:
+In i915_gem_madvise_ioctl() we immediately purge the object is not
+currently used, like when the mm.pages are NULL.  With shmem the pages
+might still be hanging around or are perhaps swapped out. Similarly with
+ttm we might still have the pages hanging around on the ttm resource,
+like with lmem or shmem, but here we need to be extra careful since
+async unbinds are possible as well as in-progress kernel moves. In
+i915_ttm_purge() we expect the pipeline-gutting to nuke the ttm resource
+for us, however if it's busy the memory is only moved to a ghost object,
+which then leads to broken behaviour when for example clearing the
+i915_tt->filp, since the actual ttm_tt is still alive and populated,
+even though it's been moved to the ghost object.  When we later destroy
+the ghost object we hit the following, since the filp is now NULL:
 
-  BUG: sleeping function called from invalid context at
-       include/linux/sched/mm.h:274
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0xcd/0x134
-   __might_resched.cold+0x222/0x26b
-   kmem_cache_alloc+0x2e7/0x3c0
-   update_qgroup_limit_item+0xe1/0x390
-   btrfs_qgroup_inherit+0x147b/0x1ee0
-   create_subvol+0x4eb/0x1710
-   btrfs_mksubvol+0xfe5/0x13f0
-   __btrfs_ioctl_snap_create+0x2b0/0x430
-   btrfs_ioctl_snap_create_v2+0x25a/0x520
-   btrfs_ioctl+0x2a1c/0x5ce0
-   __x64_sys_ioctl+0x193/0x200
-   do_syscall_64+0x35/0x80
+[  +0.006982] #PF: supervisor read access in kernel mode
+[  +0.005149] #PF: error_code(0x0000) - not-present page
+[  +0.005147] PGD 11631d067 P4D 11631d067 PUD 115972067 PMD 0
+[  +0.005676] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[  +0.012962] Workqueue: events ttm_device_delayed_workqueue [ttm]
+[  +0.006022] RIP: 0010:i915_ttm_tt_unpopulate+0x3a/0x70 [i915]
+[  +0.005879] Code: 89 fb 48 85 f6 74 11 8b 55 4c 48 8b 7d 30 45 31 c0 31 c9 e8 18 6a e5 e0 80 7d 60 00 74 20 48 8b 45 68
+8b 55 08 4c 89 e7 5b 5d <48> 8b 40 20 83 e2 01 41 5c 89 d1 48 8b 70
+ 30 e9 42 b2 ff ff 4c 89
+[  +0.018782] RSP: 0000:ffffc9000bf6fd70 EFLAGS: 00010202
+[  +0.005244] RAX: 0000000000000000 RBX: ffff8883e12ae380 RCX: 0000000000000000
+[  +0.007150] RDX: 000000008000000e RSI: ffffffff823559b4 RDI: ffff8883e12ae3c0
+[  +0.007142] RBP: ffff888103b65d48 R08: 0000000000000001 R09: 0000000000000001
+[  +0.007144] R10: 0000000000000001 R11: ffff88829c2c8040 R12: ffff8883e12ae3c0
+[  +0.007148] R13: 0000000000000001 R14: ffff888115184140 R15: ffff888115184248
+[  +0.007154] FS:  0000000000000000(0000) GS:ffff88844db00000(0000) knlGS:0000000000000000
+[  +0.008108] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  +0.005763] CR2: 0000000000000020 CR3: 000000013fdb4004 CR4: 00000000003706e0
+[  +0.007152] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  +0.007145] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  +0.007154] Call Trace:
+[  +0.002459]  <TASK>
+[  +0.002126]  ttm_tt_unpopulate.part.0+0x17/0x70 [ttm]
+[  +0.005068]  ttm_bo_tt_destroy+0x1c/0x50 [ttm]
+[  +0.004464]  ttm_bo_cleanup_memtype_use+0x25/0x40 [ttm]
+[  +0.005244]  ttm_bo_cleanup_refs+0x90/0x2c0 [ttm]
+[  +0.004721]  ttm_bo_delayed_delete+0x235/0x250 [ttm]
+[  +0.004981]  ttm_device_delayed_workqueue+0x13/0x40 [ttm]
+[  +0.005422]  process_one_work+0x248/0x560
+[  +0.004028]  worker_thread+0x4b/0x390
+[  +0.003682]  ? process_one_work+0x560/0x560
+[  +0.004199]  kthread+0xeb/0x120
+[  +0.003163]  ? kthread_complete_and_exit+0x20/0x20
+[  +0.004815]  ret_from_fork+0x1f/0x30
 
-Fix this by calling qgroup_dirty() on @dstqgroup, and update limit item in
-btrfs_run_qgroups() later outside of the spinlock context.
+v2:
+ - Just use ttm_bo_wait() directly (Niranjana)
+ - Add testcase reference
 
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Testcase: igt@gem_madvise@dontneed-evict-race
+Fixes: 213d50927763 ("drm/i915/ttm: Introduce a TTM i915 gem object backend")
+Reported-by: Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Andrzej Hajda <andrzej.hajda@intel.com>
+Cc: Nirmoy Das <nirmoy.das@intel.com>
+Cc: <stable@vger.kernel.org> # v5.15+
+Reviewed-by: Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>
+Acked-by: Nirmoy Das <Nirmoy.Das@intel.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221115104620.120432-1-matthew.auld@intel.com
+(cherry picked from commit 5524b5e52e08f675116a93296fe5bee60bc43c03)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 
-diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
-index 9334c3157c22..b74105a10f16 100644
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -2951,14 +2951,7 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
- 		dstgroup->rsv_rfer = inherit->lim.rsv_rfer;
- 		dstgroup->rsv_excl = inherit->lim.rsv_excl;
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_ttm.c b/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
+index 3d4305eea1aa..0d6d640225fc 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
+@@ -612,6 +612,10 @@ static int i915_ttm_truncate(struct drm_i915_gem_object *obj)
  
--		ret = update_qgroup_limit_item(trans, dstgroup);
--		if (ret) {
--			qgroup_mark_inconsistent(fs_info);
--			btrfs_info(fs_info,
--				   "unable to update quota limit for %llu",
--				   dstgroup->qgroupid);
--			goto unlock;
--		}
-+		qgroup_dirty(fs_info, dstgroup);
- 	}
+ 	WARN_ON_ONCE(obj->mm.madv == I915_MADV_WILLNEED);
  
- 	if (srcid) {
++	err = ttm_bo_wait(bo, true, false);
++	if (err)
++		return err;
++
+ 	err = i915_ttm_move_notify(bo);
+ 	if (err)
+ 		return err;
 
