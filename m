@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D6263E3B3
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 23:51:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57D7B63E3B5
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 23:51:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229717AbiK3Wv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 17:51:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58042 "EHLO
+        id S229713AbiK3Wv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 17:51:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229722AbiK3Wvv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 17:51:51 -0500
+        with ESMTP id S229539AbiK3Wvw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 17:51:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 044BD6034D;
-        Wed, 30 Nov 2022 14:51:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8855D1F609;
+        Wed, 30 Nov 2022 14:51:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93F1261E24;
-        Wed, 30 Nov 2022 22:51:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E93CFC433D7;
-        Wed, 30 Nov 2022 22:51:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 241DB61D53;
+        Wed, 30 Nov 2022 22:51:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79EF4C433D6;
+        Wed, 30 Nov 2022 22:51:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1669848709;
-        bh=k3BreU5Dijb+3js79bXG5+/BEld5nAFAxIy7ygp7OK0=;
+        s=korg; t=1669848710;
+        bh=YEXcZh2hOnrutTFjMcvXJ7B95vvTadjKtK+eduTf+yM=;
         h=Date:To:From:Subject:From;
-        b=NfIzyGRWmMeoy7h+ePo7H4LXax8cKMinV3NWKTYAEMDx2oohuq18xp8TBXM+dtwUp
-         PjuFnQ/OmKt+VrF1ul0tFNJyQSNZyheobBCJgXGzQrTrUV9Jir3Pkg1AllRJsxV+vt
-         jHCTBtxUZHlUiw1P6HR2dhQm+siSgt1fTrAqfMy4=
-Date:   Wed, 30 Nov 2022 14:51:48 -0800
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        shy828301@gmail.com, peterx@redhat.com, jhubbard@nvidia.com,
-        david@redhat.com, jannh@google.com, akpm@linux-foundation.org
+        b=hfnHqvIxhah1IDqb+dyw5CWGIO4bd9rPaalzdISur5aUSR9SgF1nOxIbUW1DJf6ox
+         hcks5GMl4JejUfvNjglh6Vq035rfh+/HJd0MYRP3CHQZL+c+h287Hzb5yJ5MqkH5xP
+         TUj5tpzSBR4yvlIfanh177sK9nx4eRu5+KceaeEQ=
+Date:   Wed, 30 Nov 2022 14:51:49 -0800
+To:     mm-commits@vger.kernel.org, Xinhui.Pan@amd.com,
+        tzimmermann@suse.de, trix@redhat.com, sunpeng.li@amd.com,
+        stable@vger.kernel.org, Rodrigo.Siqueira@amd.com,
+        ndesaulniers@google.com, nathan@kernel.org, mripard@kernel.org,
+        maarten.lankhorst@linux.intel.com, harry.wentland@amd.com,
+        daniel@ffwll.ch, christian.koenig@amd.com, arnd@arndb.de,
+        alexander.deucher@amd.com, airlied@gmail.com, lee@kernel.org,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-khugepaged-invoke-mmu-notifiers-in-shmem-file-collapse-paths.patch removed from -mm tree
-Message-Id: <20221130225148.E93CFC433D7@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] drm-amdgpu-temporarily-disable-broken-clang-builds-due-to-blown-stack-frame.patch removed from -mm tree
+Message-Id: <20221130225150.79EF4C433D6@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PP_MIME_FAKE_ASCII_TEXT,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -46,72 +52,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm/khugepaged: invoke MMU notifiers in shmem/file collapse paths
+     Subject: drm/amdgpu: temporarily disable broken Clang builds due to blown stack-frame
 has been removed from the -mm tree.  Its filename was
-     mm-khugepaged-invoke-mmu-notifiers-in-shmem-file-collapse-paths.patch
+     drm-amdgpu-temporarily-disable-broken-clang-builds-due-to-blown-stack-frame.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Jann Horn <jannh@google.com>
-Subject: mm/khugepaged: invoke MMU notifiers in shmem/file collapse paths
-Date: Fri, 25 Nov 2022 22:37:14 +0100
+From: Lee Jones <lee@kernel.org>
+Subject: drm/amdgpu: temporarily disable broken Clang builds due to blown stack-frame
+Date: Fri, 25 Nov 2022 12:07:49 +0000
 
-Any codepath that zaps page table entries must invoke MMU notifiers to
-ensure that secondary MMUs (like KVM) don't keep accessing pages which
-aren't mapped anymore.  Secondary MMUs don't hold their own references to
-pages that are mirrored over, so failing to notify them can lead to page
-use-after-free.
+Patch series "Fix a bunch of allmodconfig errors", v2.
 
-I'm marking this as addressing an issue introduced in commit f3f0e1d2150b
-("khugepaged: add support of collapse for tmpfs/shmem pages"), but most of
-the security impact of this only came in commit 27e1f8273113 ("khugepaged:
-enable collapse pmd for pte-mapped THP"), which actually omitted flushes
-for the removal of present PTEs, not just for the removal of empty page
-tables.
+Since b339ec9c229aa ("kbuild: Only default to -Werror if COMPILE_TEST")
+WERROR now defaults to COMPILE_TEST meaning that it's enabled for
+allmodconfig builds.  This leads to some interesting build failures when
+using Clang, each resolved in this set.
 
-Link: https://lkml.kernel.org/r/20221129154730.2274278-3-jannh@google.com
-Link: https://lkml.kernel.org/r/20221128180252.1684965-3-jannh@google.com
-Link: https://lkml.kernel.org/r/20221125213714.4115729-3-jannh@google.com
-Fixes: f3f0e1d2150b ("khugepaged: add support of collapse for tmpfs/shmem pages")
-Signed-off-by: Jann Horn <jannh@google.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Peter Xu <peterx@redhat.com>
+With this set applied, I am able to obtain a successful allmodconfig Arm
+build.
+
+
+This patch (of 2):
+
+calculate_bandwidth() is presently broken on all !(X86_64 || SPARC64 ||
+ARM64) architectures built with Clang (all released versions), whereby the
+stack frame gets blown up to well over 5k.  This would cause an immediate
+kernel panic on most architectures.  We'll revert this when the following
+bug report has been resolved:
+https://github.com/llvm/llvm-project/issues/41896.
+
+Link: https://lkml.kernel.org/r/20221125120750.3537134-1-lee@kernel.org
+Link: https://lkml.kernel.org/r/20221125120750.3537134-2-lee@kernel.org
+Signed-off-by: Lee Jones <lee@kernel.org>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: David Airlie <airlied@gmail.com>
+Cc: Harry Wentland <harry.wentland@amd.com>
+Cc: Lee Jones <lee@kernel.org>
+Cc: Leo Li <sunpeng.li@amd.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: "Pan, Xinhui" <Xinhui.Pan@amd.com>
+Cc: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Tom Rix <trix@redhat.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/khugepaged.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/amd/display/Kconfig |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/mm/khugepaged.c~mm-khugepaged-invoke-mmu-notifiers-in-shmem-file-collapse-paths
-+++ a/mm/khugepaged.c
-@@ -1399,6 +1399,7 @@ static void collapse_and_free_pmd(struct
- 				  unsigned long addr, pmd_t *pmdp)
- {
- 	pmd_t pmd;
-+	struct mmu_notifier_range range;
+--- a/drivers/gpu/drm/amd/display/Kconfig~drm-amdgpu-temporarily-disable-broken-clang-builds-due-to-blown-stack-frame
++++ a/drivers/gpu/drm/amd/display/Kconfig
+@@ -5,6 +5,7 @@ menu "Display Engine Configuration"
+ config DRM_AMD_DC
+ 	bool "AMD DC - Enable new display engine"
+ 	default y
++	depends on BROKEN || !CC_IS_CLANG || X86_64 || SPARC64 || ARM64
+ 	select SND_HDA_COMPONENT if SND_HDA_CORE
+ 	select DRM_AMD_DC_DCN if (X86 || PPC_LONG_DOUBLE_128)
+ 	help
+@@ -12,6 +13,12 @@ config DRM_AMD_DC
+ 	  support for AMDGPU. This adds required support for Vega and
+ 	  Raven ASICs.
  
- 	mmap_assert_write_locked(mm);
- 	if (vma->vm_file)
-@@ -1410,8 +1411,12 @@ static void collapse_and_free_pmd(struct
- 	if (vma->anon_vma)
- 		lockdep_assert_held_write(&vma->anon_vma->root->rwsem);
- 
-+	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, NULL, mm, addr,
-+				addr + HPAGE_PMD_SIZE);
-+	mmu_notifier_invalidate_range_start(&range);
- 	pmd = pmdp_collapse_flush(vma, addr, pmdp);
- 	tlb_remove_table_sync_one();
-+	mmu_notifier_invalidate_range_end(&range);
- 	mm_dec_nr_ptes(mm);
- 	page_table_check_pte_clear_range(mm, addr, pmd);
- 	pte_free(mm, pmd_pgtable(pmd));
++	  calculate_bandwidth() is presently broken on all !(X86_64 || SPARC64 || ARM64)
++	  architectures built with Clang (all released versions), whereby the stack
++	  frame gets blown up to well over 5k.  This would cause an immediate kernel
++	  panic on most architectures.  We'll revert this when the following bug report
++	  has been resolved: https://github.com/llvm/llvm-project/issues/41896.
++
+ config DRM_AMD_DC_DCN
+ 	def_bool n
+ 	help
 _
 
-Patches currently in -mm which might be from jannh@google.com are
+Patches currently in -mm which might be from lee@kernel.org are
 
 
