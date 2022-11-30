@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B09163E04B
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:55:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DB4C63DEEC
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:42:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231573AbiK3Szh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:55:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47082 "EHLO
+        id S231158AbiK3SmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:42:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231601AbiK3Szf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:55:35 -0500
+        with ESMTP id S230373AbiK3Sl5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:57 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 680B099F1F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:55:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D334099F0F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 024B561D41
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:55:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F228C433D6;
-        Wed, 30 Nov 2022 18:55:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 720C661D65
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:41:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83AE0C433C1;
+        Wed, 30 Nov 2022 18:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834533;
-        bh=bRLZHKh2zNHAUYhN/K+kEkdojDudkiQXqx8uEY36ZG4=;
+        s=korg; t=1669833715;
+        bh=/uWaWHaPrFtUP5djBJuJfzXOcoabazKHkybuFqIVIus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EzrXY6HMVZeZKcSlvxe6CiH4VF9Sw1LeJjY8euAXf8B12+qnEUjUubwEaFMrZg6AF
-         n1eLeekUEdx6euXe5PTXuYHxY4wIrPs+KzfNT19ljwt7kzinBdT8Jo+SMNhXry9r+0
-         ZltzF/1gh1xhoR7fWi6HhCz5lw5tU9rRknrxb90E=
+        b=rsCo8qITjKihb+/Tw88dvv1exBhxagOeBPas4CoxrJhWq1aU/tfNdhbkFA8B0MYsz
+         ogY20NLMEBrlxO0cLEq7vI3/dSBk+EhIbUHmr7Njpnvh9o1kqMgWm5k3ET42panMwP
+         w2qDvoxtClzHYDyaQ5TUgyG/4dr+9hJaxT87e8W8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 261/289] scsi: mpi3mr: Suppress command reply debug prints
+        patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Luiz Capitulino <luizcap@amazon.com>
+Subject: [PATCH 5.15 194/206] irqchip/gic-v3: Always trust the managed affinity provided by the core code
 Date:   Wed, 30 Nov 2022 19:24:06 +0100
-Message-Id: <20221130180550.018070844@linuxfoundation.org>
+Message-Id: <20221130180537.953218305@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Luiz Capitulino <luizcap@amazon.com>
 
-[ Upstream commit 7d21fcfb409500dc9b114567f0ef8d30b3190dee ]
+From: Marc Zyngier <maz@kernel.org>
 
-After it receives command reply, mpi3mr driver checks command result. If
-the result is not zero, it prints out command information. This debug
-information is confusing since they are printed even when the non-zero
-result is expected. "Power-on or device reset occurred" is printed for Test
-Unit Ready command at drive detection. Inquiry failure for unsupported VPD
-page header is also printed. They are harmless but look like failures.
+commit 3f893a5962d31c0164efdbf6174ed0784f1d7603 upstream.
 
-To avoid the confusion, print the command reply debug information only when
-the module parameter logging_level has value MPI3_DEBUG_SCSI_ERROR= 64, in
-same manner as mpt3sas driver.
+Now that the core code has been fixed to always give us an affinity
+that only includes online CPUs, directly use this affinity when
+computing a target CPU.
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Link: https://lore.kernel.org/r/20221111014449.1649968-1-shinichiro.kawasaki@wdc.com
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20220405185040.206297-4-maz@kernel.org
+
+Signed-off-by: Luiz Capitulino <luizcap@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/mpi3mr/mpi3mr_os.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-gic-v3-its.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/mpi3mr/mpi3mr_os.c b/drivers/scsi/mpi3mr/mpi3mr_os.c
-index bfa1165e23b6..1b4d1e562de8 100644
---- a/drivers/scsi/mpi3mr/mpi3mr_os.c
-+++ b/drivers/scsi/mpi3mr/mpi3mr_os.c
-@@ -2930,7 +2930,8 @@ void mpi3mr_process_op_reply_desc(struct mpi3mr_ioc *mrioc,
- 	}
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -1620,7 +1620,7 @@ static int its_select_cpu(struct irq_dat
  
- 	if (scmd->result != (DID_OK << 16) && (scmd->cmnd[0] != ATA_12) &&
--	    (scmd->cmnd[0] != ATA_16)) {
-+	    (scmd->cmnd[0] != ATA_16) &&
-+	    mrioc->logging_level & MPI3_DEBUG_SCSI_ERROR) {
- 		ioc_info(mrioc, "%s :scmd->result 0x%x\n", __func__,
- 		    scmd->result);
- 		scsi_print_command(scmd);
--- 
-2.35.1
-
+ 		cpu = cpumask_pick_least_loaded(d, tmpmask);
+ 	} else {
+-		cpumask_and(tmpmask, irq_data_get_affinity_mask(d), cpu_online_mask);
++		cpumask_copy(tmpmask, aff_mask);
+ 
+ 		/* If we cannot cross sockets, limit the search to that node */
+ 		if ((its_dev->its->flags & ITS_FLAGS_WORKAROUND_CAVIUM_23144) &&
 
 
