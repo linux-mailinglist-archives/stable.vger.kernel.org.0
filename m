@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E857263DC2A
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:38:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B96A63DC2B
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:38:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229605AbiK3Ric (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 12:38:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36104 "EHLO
+        id S229628AbiK3Rif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 12:38:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229700AbiK3Rib (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:38:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5C033721E
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:38:29 -0800 (PST)
+        with ESMTP id S229780AbiK3Rid (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:38:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 629F93721E
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:38:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 550B961D3F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:38:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 666F2C433D6;
-        Wed, 30 Nov 2022 17:38:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F216461D01
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:38:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1173BC433D7;
+        Wed, 30 Nov 2022 17:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669829908;
-        bh=UiYAnelo8qL1ozod/QcYLQcA+BrZ9zDxN3dfZhHdhzg=;
+        s=korg; t=1669829911;
+        bh=xlzButZ1Q4MzuDg/zeEOQjsHwmxO0xmlbSr3Oz7VIcc=;
         h=Subject:To:Cc:From:Date:From;
-        b=vJiCQQKrRUGDLwfHcWORVtGynSq1P5VIdk2p1A25GWgG+wLq5pcB0uUV99IO3gkcC
-         UA4OFFfNfwIq1DFx2CXpsC4QCHupOmh3x/tSEF44LLkikWedjrftZIoo9vl6TLVygY
-         r7oDzxt62vpYWVguR5pDzK9KPDyp2gcUCzXZN10c=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: fix userptr HMM range handling v2" failed to apply to 5.15-stable tree
+        b=FvXedW1aXKUMC+/OYUtEimEdBaiPnTMW8qFhGm1MuCaR7bROFKtZVHJhC3pYTkHWy
+         T1gWdlcoyBH55qEmd2T+uP63+1WmKfr0Lsmhbp06P+hRDbBylkPoOB4k+wMT86WzFp
+         2M40Fjch9dc1enBSd51cUTUGj1sZR/S6iwPHyXx0=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: fix userptr HMM range handling v2" failed to apply to 5.10-stable tree
 To:     christian.koenig@amd.com, Felix.Kuehling@amd.com,
         alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Nov 2022 18:38:16 +0100
-Message-ID: <1669829896164149@kroah.com>
+Date:   Wed, 30 Nov 2022 18:38:17 +0100
+Message-ID: <16698298973862@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
