@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B068663DF57
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:46:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CDF963DE10
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:33:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231189AbiK3SqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:46:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56794 "EHLO
+        id S230238AbiK3Sd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:33:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231279AbiK3Sp5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:45:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 912F15DB97
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:45:55 -0800 (PST)
+        with ESMTP id S230237AbiK3SdT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:33:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEB01248E2
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:33:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E70861D59
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:45:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43D43C433D6;
-        Wed, 30 Nov 2022 18:45:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D775B81B82
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:33:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E458C433C1;
+        Wed, 30 Nov 2022 18:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833954;
-        bh=XcSzRWqW0B4aUdTFiS3pjydaXAg11V6kt3WtwX4EGd0=;
+        s=korg; t=1669833195;
+        bh=3iks4pyKQbBxx5OPkeB21/BEmVJwOls7wqnK5JgVhIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RASvFSuKUQa4o328h0n/Q+lzFBAi0Pj+nfZlrte+O2gdrdJH9s609eZ+rwPU4bN3E
-         dg8Sb0UkdHkrgRCWTlg4x4bN24VAmnBiEj1dwMm79MyrDTaRO9FjdXE+6CeGNpJDdh
-         3IoR8C/9HYqLI410txpTLpj/qt8CpBQpfYGaXW5g=
+        b=NUqJSKkkT6h5uX1vCtIgGkxcUPoiUAK1Zr2mBss5WGPdc40VjEXwfECf+XS+4hbZY
+         A7gD2e/4TEgupaT6DmBwfR5qUbsWNdLg9WKDAay3532YwzyVJOPvHKmEjdz5UAuBjg
+         qXGt9n6Or39+l0oVhF5EkxTmpm1Zt7h6rPF82Rjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Shyam Prasad N <sprasad@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 075/289] net: neigh: decrement the family specific qlen
+Subject: [PATCH 5.15 008/206] cifs: introduce new helper for cifs_reconnect()
 Date:   Wed, 30 Nov 2022 19:21:00 +0100
-Message-Id: <20221130180545.841413547@linuxfoundation.org>
+Message-Id: <20221130180533.204728493@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,169 +54,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>
+From: Paulo Alcantara <pc@cjr.nz>
 
-[ Upstream commit 8207f253a097fe15c93d85ac15ebb73c5e39e1e1 ]
+[ Upstream commit 43b459aa5e222cb6610dac8723b40c19532ea00d ]
 
-Commit 0ff4eb3d5ebb ("neighbour: make proxy_queue.qlen limit
-per-device") introduced the length counter qlen in struct neigh_parms.
-There are separate neigh_parms instances for IPv4/ARP and IPv6/ND, and
-while the family specific qlen is incremented in pneigh_enqueue(), the
-mentioned commit decrements always the IPv4/ARP specific qlen,
-regardless of the currently processed family, in pneigh_queue_purge()
-and neigh_proxy_process().
+Create cifs_mark_tcp_ses_conns_for_reconnect() helper to mark all
+sessions and tcons for reconnect when reconnecting tcp server.
 
-As a result, with IPv6/ND, the family specific qlen is only incremented
-(and never decremented) until it exceeds PROXY_QLEN, and then, according
-to the check in pneigh_enqueue(), neighbor solicitations are not
-answered anymore. As an example, this is noted when using the
-subnet-router anycast address to access a Linux router. After a certain
-amount of time (in the observed case, qlen exceeded PROXY_QLEN after two
-days), the Linux router stops answering neighbor solicitations for its
-subnet-router anycast address and effectively becomes unreachable.
-
-Another result with IPv6/ND is that the IPv4/ARP specific qlen is
-decremented more often than incremented. This leads to negative qlen
-values, as a signed integer has been used for the length counter qlen,
-and potentially to an integer overflow.
-
-Fix this by introducing the helper function neigh_parms_qlen_dec(),
-which decrements the family specific qlen. Thereby, make use of the
-existing helper function neigh_get_dev_parms_rcu(), whose definition
-therefore needs to be placed earlier in neighbour.c. Take the family
-member from struct neigh_table to determine the currently processed
-family and appropriately call neigh_parms_qlen_dec() from
-pneigh_queue_purge() and neigh_proxy_process().
-
-Additionally, use an unsigned integer for the length counter qlen.
-
-Fixes: 0ff4eb3d5ebb ("neighbour: make proxy_queue.qlen limit per-device")
-Signed-off-by: Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Stable-dep-of: 1dcdf5f5b213 ("cifs: Fix connections leak when tlink setup failed")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/neighbour.h |  2 +-
- net/core/neighbour.c    | 58 +++++++++++++++++++++--------------------
- 2 files changed, 31 insertions(+), 29 deletions(-)
+ fs/cifs/connect.c | 139 +++++++++++++++++++++++++---------------------
+ 1 file changed, 75 insertions(+), 64 deletions(-)
 
-diff --git a/include/net/neighbour.h b/include/net/neighbour.h
-index 3827a6b395fd..bce6b228cf56 100644
---- a/include/net/neighbour.h
-+++ b/include/net/neighbour.h
-@@ -83,7 +83,7 @@ struct neigh_parms {
- 	struct rcu_head rcu_head;
- 
- 	int	reachable_time;
--	int	qlen;
-+	u32	qlen;
- 	int	data[NEIGH_VAR_DATA_MAX];
- 	DECLARE_BITMAP(data_state, NEIGH_VAR_DATA_MAX);
- };
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 84755db81e9d..35f5a3125808 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -307,7 +307,31 @@ static int neigh_del_timer(struct neighbour *n)
- 	return 0;
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index ad5c935f7f06..ed429a442808 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -199,80 +199,29 @@ static inline int reconn_setup_dfs_targets(struct cifs_sb_info *cifs_sb,
  }
+ #endif
  
--static void pneigh_queue_purge(struct sk_buff_head *list, struct net *net)
-+static struct neigh_parms *neigh_get_dev_parms_rcu(struct net_device *dev,
-+						   int family)
-+{
-+	switch (family) {
-+	case AF_INET:
-+		return __in_dev_arp_parms_get_rcu(dev);
-+	case AF_INET6:
-+		return __in6_dev_nd_parms_get_rcu(dev);
-+	}
-+	return NULL;
-+}
-+
-+static void neigh_parms_qlen_dec(struct net_device *dev, int family)
-+{
-+	struct neigh_parms *p;
-+
-+	rcu_read_lock();
-+	p = neigh_get_dev_parms_rcu(dev, family);
-+	if (p)
-+		p->qlen--;
-+	rcu_read_unlock();
-+}
-+
-+static void pneigh_queue_purge(struct sk_buff_head *list, struct net *net,
-+			       int family)
+-/*
+- * cifs tcp session reconnection
++/**
++ * Mark all sessions and tcons for reconnect.
+  *
+- * mark tcp session as reconnecting so temporarily locked
+- * mark all smb sessions as reconnecting for tcp session
+- * reconnect tcp session
+- * wake up waiters on reconnection? - (not needed currently)
++ * @server needs to be previously set to CifsNeedReconnect.
+  */
+-int
+-cifs_reconnect(struct TCP_Server_Info *server)
++static void cifs_mark_tcp_ses_conns_for_reconnect(struct TCP_Server_Info *server)
  {
- 	struct sk_buff_head tmp;
- 	unsigned long flags;
-@@ -321,13 +345,7 @@ static void pneigh_queue_purge(struct sk_buff_head *list, struct net *net)
- 		struct net_device *dev = skb->dev;
+-	int rc = 0;
+ 	struct list_head *tmp, *tmp2;
+ 	struct cifs_ses *ses;
+ 	struct cifs_tcon *tcon;
+ 	struct mid_q_entry *mid_entry;
+ 	struct list_head retry_list;
+-#ifdef CONFIG_CIFS_DFS_UPCALL
+-	struct super_block *sb = NULL;
+-	struct cifs_sb_info *cifs_sb = NULL;
+-	struct dfs_cache_tgt_list tgt_list = DFS_CACHE_TGT_LIST_INIT(tgt_list);
+-	struct dfs_cache_tgt_iterator *tgt_it = NULL;
+-#endif
  
- 		if (net == NULL || net_eq(dev_net(dev), net)) {
--			struct in_device *in_dev;
--
--			rcu_read_lock();
--			in_dev = __in_dev_get_rcu(dev);
--			if (in_dev)
--				in_dev->arp_parms->qlen--;
--			rcu_read_unlock();
-+			neigh_parms_qlen_dec(dev, family);
- 			__skb_unlink(skb, list);
- 			__skb_queue_tail(&tmp, skb);
- 		}
-@@ -409,7 +427,8 @@ static int __neigh_ifdown(struct neigh_table *tbl, struct net_device *dev,
- 	write_lock_bh(&tbl->lock);
- 	neigh_flush_dev(tbl, dev, skip_perm);
- 	pneigh_ifdown_and_unlock(tbl, dev);
--	pneigh_queue_purge(&tbl->proxy_queue, dev ? dev_net(dev) : NULL);
-+	pneigh_queue_purge(&tbl->proxy_queue, dev ? dev_net(dev) : NULL,
-+			   tbl->family);
- 	if (skb_queue_empty_lockless(&tbl->proxy_queue))
- 		del_timer_sync(&tbl->proxy_timer);
- 	return 0;
-@@ -1621,13 +1640,8 @@ static void neigh_proxy_process(struct timer_list *t)
- 
- 		if (tdif <= 0) {
- 			struct net_device *dev = skb->dev;
--			struct in_device *in_dev;
- 
--			rcu_read_lock();
--			in_dev = __in_dev_get_rcu(dev);
--			if (in_dev)
--				in_dev->arp_parms->qlen--;
--			rcu_read_unlock();
-+			neigh_parms_qlen_dec(dev, tbl->family);
- 			__skb_unlink(skb, &tbl->proxy_queue);
- 
- 			if (tbl->proxy_redo && netif_running(dev)) {
-@@ -1821,7 +1835,7 @@ int neigh_table_clear(int index, struct neigh_table *tbl)
- 	cancel_delayed_work_sync(&tbl->managed_work);
- 	cancel_delayed_work_sync(&tbl->gc_work);
- 	del_timer_sync(&tbl->proxy_timer);
--	pneigh_queue_purge(&tbl->proxy_queue, NULL);
-+	pneigh_queue_purge(&tbl->proxy_queue, NULL, tbl->family);
- 	neigh_ifdown(tbl, NULL);
- 	if (atomic_read(&tbl->entries))
- 		pr_crit("neighbour leakage\n");
-@@ -3542,18 +3556,6 @@ static int proc_unres_qlen(struct ctl_table *ctl, int write,
- 	return ret;
- }
- 
--static struct neigh_parms *neigh_get_dev_parms_rcu(struct net_device *dev,
--						   int family)
--{
--	switch (family) {
--	case AF_INET:
--		return __in_dev_arp_parms_get_rcu(dev);
--	case AF_INET6:
--		return __in6_dev_nd_parms_get_rcu(dev);
+-	spin_lock(&GlobalMid_Lock);
+-	server->nr_targets = 1;
+-#ifdef CONFIG_CIFS_DFS_UPCALL
+-	spin_unlock(&GlobalMid_Lock);
+-	sb = cifs_get_tcp_super(server);
+-	if (IS_ERR(sb)) {
+-		rc = PTR_ERR(sb);
+-		cifs_dbg(FYI, "%s: will not do DFS failover: rc = %d\n",
+-			 __func__, rc);
+-		sb = NULL;
+-	} else {
+-		cifs_sb = CIFS_SB(sb);
+-		rc = reconn_setup_dfs_targets(cifs_sb, &tgt_list);
+-		if (rc) {
+-			cifs_sb = NULL;
+-			if (rc != -EOPNOTSUPP) {
+-				cifs_server_dbg(VFS, "%s: no target servers for DFS failover\n",
+-						__func__);
+-			}
+-		} else {
+-			server->nr_targets = dfs_cache_get_nr_tgts(&tgt_list);
+-		}
 -	}
--	return NULL;
--}
+-	cifs_dbg(FYI, "%s: will retry %d target(s)\n", __func__,
+-		 server->nr_targets);
+-	spin_lock(&GlobalMid_Lock);
+-#endif
+-	if (server->tcpStatus == CifsExiting) {
+-		/* the demux thread will exit normally
+-		next time through the loop */
+-		spin_unlock(&GlobalMid_Lock);
+-#ifdef CONFIG_CIFS_DFS_UPCALL
+-		dfs_cache_free_tgts(&tgt_list);
+-		cifs_put_tcp_super(sb);
+-#endif
+-		wake_up(&server->response_q);
+-		return rc;
+-	} else
+-		server->tcpStatus = CifsNeedReconnect;
+-	spin_unlock(&GlobalMid_Lock);
+ 	server->maxBuf = 0;
+ 	server->max_read = 0;
+ 
+ 	cifs_dbg(FYI, "Mark tcp session as need reconnect\n");
+ 	trace_smb3_reconnect(server->CurrentMid, server->conn_id, server->hostname);
 -
- static void neigh_copy_dflt_parms(struct net *net, struct neigh_parms *p,
- 				  int index)
- {
+-	/* before reconnecting the tcp session, mark the smb session (uid)
+-		and the tid bad so they are not used until reconnected */
+-	cifs_dbg(FYI, "%s: marking sessions and tcons for reconnect\n",
+-		 __func__);
++	/*
++	 * before reconnecting the tcp session, mark the smb session (uid) and the tid bad so they
++	 * are not used until reconnected.
++	 */
++	cifs_dbg(FYI, "%s: marking sessions and tcons for reconnect\n", __func__);
+ 	spin_lock(&cifs_tcp_ses_lock);
+ 	list_for_each(tmp, &server->smb_ses_list) {
+ 		ses = list_entry(tmp, struct cifs_ses, smb_ses_list);
+@@ -290,11 +239,11 @@ cifs_reconnect(struct TCP_Server_Info *server)
+ 	cifs_dbg(FYI, "%s: tearing down socket\n", __func__);
+ 	mutex_lock(&server->srv_mutex);
+ 	if (server->ssocket) {
+-		cifs_dbg(FYI, "State: 0x%x Flags: 0x%lx\n",
+-			 server->ssocket->state, server->ssocket->flags);
++		cifs_dbg(FYI, "State: 0x%x Flags: 0x%lx\n", server->ssocket->state,
++			 server->ssocket->flags);
+ 		kernel_sock_shutdown(server->ssocket, SHUT_WR);
+-		cifs_dbg(FYI, "Post shutdown state: 0x%x Flags: 0x%lx\n",
+-			 server->ssocket->state, server->ssocket->flags);
++		cifs_dbg(FYI, "Post shutdown state: 0x%x Flags: 0x%lx\n", server->ssocket->state,
++			 server->ssocket->flags);
+ 		sock_release(server->ssocket);
+ 		server->ssocket = NULL;
+ 	}
+@@ -333,6 +282,68 @@ cifs_reconnect(struct TCP_Server_Info *server)
+ 		smbd_destroy(server);
+ 		mutex_unlock(&server->srv_mutex);
+ 	}
++}
++
++/*
++ * cifs tcp session reconnection
++ *
++ * mark tcp session as reconnecting so temporarily locked
++ * mark all smb sessions as reconnecting for tcp session
++ * reconnect tcp session
++ * wake up waiters on reconnection? - (not needed currently)
++ */
++int
++cifs_reconnect(struct TCP_Server_Info *server)
++{
++	int rc = 0;
++#ifdef CONFIG_CIFS_DFS_UPCALL
++	struct super_block *sb = NULL;
++	struct cifs_sb_info *cifs_sb = NULL;
++	struct dfs_cache_tgt_list tgt_list = DFS_CACHE_TGT_LIST_INIT(tgt_list);
++	struct dfs_cache_tgt_iterator *tgt_it = NULL;
++#endif
++
++	spin_lock(&GlobalMid_Lock);
++	server->nr_targets = 1;
++#ifdef CONFIG_CIFS_DFS_UPCALL
++	spin_unlock(&GlobalMid_Lock);
++	sb = cifs_get_tcp_super(server);
++	if (IS_ERR(sb)) {
++		rc = PTR_ERR(sb);
++		cifs_dbg(FYI, "%s: will not do DFS failover: rc = %d\n",
++			 __func__, rc);
++		sb = NULL;
++	} else {
++		cifs_sb = CIFS_SB(sb);
++		rc = reconn_setup_dfs_targets(cifs_sb, &tgt_list);
++		if (rc) {
++			cifs_sb = NULL;
++			if (rc != -EOPNOTSUPP) {
++				cifs_server_dbg(VFS, "%s: no target servers for DFS failover\n",
++						__func__);
++			}
++		} else {
++			server->nr_targets = dfs_cache_get_nr_tgts(&tgt_list);
++		}
++	}
++	cifs_dbg(FYI, "%s: will retry %d target(s)\n", __func__,
++		 server->nr_targets);
++	spin_lock(&GlobalMid_Lock);
++#endif
++	if (server->tcpStatus == CifsExiting) {
++		/* the demux thread will exit normally next time through the loop */
++		spin_unlock(&GlobalMid_Lock);
++#ifdef CONFIG_CIFS_DFS_UPCALL
++		dfs_cache_free_tgts(&tgt_list);
++		cifs_put_tcp_super(sb);
++#endif
++		wake_up(&server->response_q);
++		return rc;
++	} else
++		server->tcpStatus = CifsNeedReconnect;
++	spin_unlock(&GlobalMid_Lock);
++
++	cifs_mark_tcp_ses_conns_for_reconnect(server);
+ 
+ 	do {
+ 		try_to_freeze();
 -- 
 2.35.1
 
