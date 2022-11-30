@@ -2,75 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 787D163E235
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 21:35:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 840DD63E255
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 21:52:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229568AbiK3Uf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 15:35:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49896 "EHLO
+        id S229609AbiK3UwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 15:52:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229472AbiK3Ufz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 15:35:55 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD7A1119;
-        Wed, 30 Nov 2022 12:35:54 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id w4-20020a17090ac98400b002186f5d7a4cso3156812pjt.0;
-        Wed, 30 Nov 2022 12:35:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=gSEjPF93GMI3z5E1hQkgEscxi559x8HTBtezk/0B3sM=;
-        b=F0XixuXZEk2UTAsNqC7vceNho1K4AE+FJ0RvADRizDnWeTE9clf7X6O8B2gy6wUnZV
-         JHGZ8sB0kSijDJfB9lOYv/za7yVGmeWvMgKrh5h9/ocxd6zpBh4iH8+Ac8kGiKA24S7S
-         LDy4WxejU6DA3oRZvhxGdEddA+imoExbJvbnBQKAuAhJUy+zpTENRyQYUWu4tjcRjMOR
-         EcYR8wPn8kAnMP2yWcbI0ZctL8KIHcCd5rjAw2M5jW7vjMvmutDMz62AmRmk57v7JLAg
-         h7SWjFNNJst8+tNLfUklZAS0izR4pQikWoge3vmcJbQ5lqToZ9XnHHGuCupUs8ZvaEJ9
-         POIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=gSEjPF93GMI3z5E1hQkgEscxi559x8HTBtezk/0B3sM=;
-        b=OF0hXfCoJcrjwNqf4vjOIq/EuH5it78YxMaEYbT+7Bx6iCrZUYRtPzM+Jg+CNr8I05
-         Lhmpq14M+4H+dUbILatn6CF85CCdzerIXIegUK9NPtWZPE7mKH8eZNktLsvN0tNP7y4V
-         KMy3XoBVBepVYcaxcce0ND1Dj1HO3zdLYnYRhwaQ38nvnzaqupr6RY4YQBiBARmRMoKD
-         CI9rBz0Xak6nUzINRzMHUcM7wlJN1SfhJPNcudA0aIFBswJGgOSNM89ZQhIqLRxJ30aY
-         iGmrwoyjFhGJuGpS3th1fnbwTNuSQXngUSkQUlMqpR0BSd38U+334d1vQjGAKjYP80KK
-         XtsA==
-X-Gm-Message-State: ANoB5pndtoYDbqbLGAQcQqQyo12FvT4HBXNjOvtsHBNwwMssWOzYeWx8
-        zbAzCQP6tFo70Qg3ycCXkZc=
-X-Google-Smtp-Source: AA0mqf5DhFdlnhKi8U10qOmeowf+5XiyAAeogl4c6RW380zZBR5Wev9gOPnGQJ36tCRMNA49oIvJvg==
-X-Received: by 2002:a17:903:32ca:b0:189:9031:675c with SMTP id i10-20020a17090332ca00b001899031675cmr14548535plr.139.1669840554198;
-        Wed, 30 Nov 2022 12:35:54 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id c1-20020a63d501000000b004351358f056sm1333987pgg.85.2022.11.30.12.35.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 30 Nov 2022 12:35:53 -0800 (PST)
-Message-ID: <8a1564c1-3321-e180-7340-f70cdddd40fd@gmail.com>
-Date:   Wed, 30 Nov 2022 12:35:49 -0800
+        with ESMTP id S229499AbiK3UwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 15:52:09 -0500
+Received: from smtp-out-12.comm2000.it (smtp-out-12.comm2000.it [212.97.32.82])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0573181396;
+        Wed, 30 Nov 2022 12:52:05 -0800 (PST)
+Received: from francesco-nb.int.toradex.com (93-49-2-63.ip317.fastwebnet.it [93.49.2.63])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: francesco@dolcini.it)
+        by smtp-out-12.comm2000.it (Postfix) with ESMTPSA id 0FC08BA2DD0;
+        Wed, 30 Nov 2022 21:51:54 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailserver.it;
+        s=mailsrv; t=1669841524;
+        bh=nxWoIyAMvb8egvK3q38abf0ft7Y/V4LZTzXrMooLikc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To;
+        b=nzhY3zjsYBg9cmCrCkvZmiGIcx+ehlDe0uSqPScV02zeYP97gaYMV0Amw7+GVwzZ1
+         jgMQDtW87E0XUOg160e5myBBTim7NDV9Ag/E2s4fHOm4qAlQwPTDLr5qHGq6Mo0Wx+
+         RK1FkniXtMOZYwOwHSL6CXJus97MhuPW7N0ygF+hriE8GHsokbKPMfTDAmFvM69uUf
+         UDzp8MDNzzEGylkokZG0qxZn6Y7bUqjqxjfpJvi27Qk83EWnQ+paIbUmmwg8c/P/J9
+         tUim0nbJJG12BuDBu3sIMZYmB2EeteX4kp2H1YqbNTXXtIOKf3RkakU2o9n3JEYiQq
+         n7zMJiUBtrDvA==
+Date:   Wed, 30 Nov 2022 21:51:50 +0100
+From:   Francesco Dolcini <francesco@dolcini.it>
+To:     Marek Vasut <marex@denx.de>
+Cc:     Francesco Dolcini <francesco@dolcini.it>,
+        Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        devicetree@vger.kernel.org, stable@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: Boot failure regression on 6.0.10 stable kernel on iMX7
+Message-ID: <Y4fCZmjDMtMMyu+E@francesco-nb.int.toradex.com>
+References: <Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com>
+ <12f7fbb7-8252-4520-89c2-c5138931a696@denx.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH 6.0 000/289] 6.0.11-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20221130180544.105550592@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12f7fbb7-8252-4520-89c2-c5138931a696@denx.de>
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,29 +59,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/30/22 10:19, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.11 release.
-> There are 289 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Wed, Nov 30, 2022 at 03:41:13PM +0100, Marek Vasut wrote:
+> On 11/30/22 14:52, Francesco Dolcini wrote:
+> > [    0.000000] Booting Linux on physical CPU 0x0
+> > [    0.000000] Linux version 6.0.10 (francesco@francesco-nb) (arm-linux-gnueabihf-gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.
+> > 4.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #36 SMP Wed Nov 30 14:07:15 CET 2022
+> > ...
+> > [    4.407499] gpmi-nand: error parsing ofpart partition /soc/nand-controller@33002000/partition@0 (/soc/nand-controller
+> > @33002000)
+> > [    4.438401] gpmi-nand 33002000.nand-controller: driver registered.
+> > ...
+> > [    5.933906] VFS: Cannot open root device "ubi0:rootfs" or unknown-block(0,0): error -19
+> > [    5.946504] Please append a correct "root=" boot option; here are the available partitions:
+> > ...
+> > 
+> > Any idea? I'm not familiar with the gpmi-nand driver and I would just revert it, but
+> > maybe you have a better idea.
 > 
-> Responses should be made by Fri, 02 Dec 2022 18:05:05 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.11-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> Can you share the relevant snippet of your nand controller DT node ?
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+We just have 
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+from imx7-colibri.dtsi,
+
+  &gpmi {
+  	fsl,use-minimum-ecc;
+  	nand-ecc-mode = "hw";
+  	nand-on-flash-bbt;
+  	pinctrl-names = "default";
+  	pinctrl-0 = <&pinctrl_gpmi_nand>;
+  };
+
+OF partition are created by U-Boot from
+  mtdparts=mtdparts=gpmi-nand:512k(mx7-bcb),1536k(u-boot1)ro,1536k(u-boot2)ro,512k(u-boot-env),-(ubi)
+env variables calling fdt_fixup_mtdparts from colibri_imx7.c
+
+Everything is available in the upstream Linux/U-Boot git, no downstream
+repo of any sort.
+
+> Probably up to first partition is enough. I suspect you need to fill in the
+> correct address-cells/size-cells there, which might be currently missing in
+> your DT and worked by chance.
+
+This is generated by U-Boot, I would need to dump what he did generate
+from the standard fdt_fixup_mtdparts(). I will try to do it tomorrow
+unless what I wrote here is already enough to understand what's going
+on.
+
+Francesco
 
