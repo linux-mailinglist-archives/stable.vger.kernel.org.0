@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA06A63DD98
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:28:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E912663DE8D
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:38:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229783AbiK3S2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:28:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34448 "EHLO
+        id S230511AbiK3SiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:38:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229787AbiK3S2s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:28:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E504927B3C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:28:47 -0800 (PST)
+        with ESMTP id S230512AbiK3SiA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:38:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E071725C4D
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:37:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8271961B7C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:28:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92E58C433D6;
-        Wed, 30 Nov 2022 18:28:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66B33B81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:37:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C829AC433D7;
+        Wed, 30 Nov 2022 18:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832926;
-        bh=bzJT0WFc9yKXSXQq5AHikRpsfx4SBA9onIOSQR3H7R8=;
+        s=korg; t=1669833475;
+        bh=5mapLmXspd7Q3ev6ebEvK9hPfCj01WNkCJWr9OAEpPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PptY5yNHHtHdrGubg14peMYv8LWpZsb78NC31jSOMTH8GbTn9jSN6KI9dpsIqGwJU
-         WGKTWNTV+4rBUCaavlmMgkn2iP66ML8drCxTHS2pVBHzmySLtZTz66h+8YN0VDbbvh
-         cc7TRGCI2O6D/E9+T6QcEsAfhWyOZKyTnUZc2uDU=
+        b=R6oq5f3bXXWQHSFNmkqadMkx7pdNUkamjVvhN3+S7fhKmt7wBndcvsjKJaQ3O/hpF
+         RQpbd/sDqV0b0yXHNLDoUV2o8qBu6HlFHaYeP3ovhflQjsAPcptCK3ziXkNAiwh5CB
+         I2LU9THW3TLR6vHwER2Bcy1lTrf8uRR4KDdr/kVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 089/162] net: enetc: manage ENETC_F_QBV in priv->active_offloads only when enabled
-Date:   Wed, 30 Nov 2022 19:22:50 +0100
-Message-Id: <20221130180530.911190990@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+6ba92bd00d5093f7e371@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>,
+        Svyatoslav Feldsherov <feldsherov@google.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 119/206] fs: do not update freeing inode i_io_list
+Date:   Wed, 30 Nov 2022 19:22:51 +0100
+Message-Id: <20221130180536.070740242@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Svyatoslav Feldsherov <feldsherov@google.com>
 
-[ Upstream commit 32bf8e1f6fb9f6dc334b2b98dffc2e5dcd51e513 ]
+[ Upstream commit 4e3c51f4e805291b057d12f5dda5aeb50a538dc4 ]
 
-Future work in this driver would like to look at priv->active_offloads &
-ENETC_F_QBV to determine whether a tc-taprio qdisc offload was
-installed, but this does not produce the intended effect.
+After commit cbfecb927f42 ("fs: record I_DIRTY_TIME even if inode
+already has I_DIRTY_INODE") writeback_single_inode can push inode with
+I_DIRTY_TIME set to b_dirty_time list. In case of freeing inode with
+I_DIRTY_TIME set this can happen after deletion of inode from i_io_list
+at evict. Stack trace is following.
 
-All the other flags in priv->active_offloads are managed dynamically,
-except ENETC_F_QBV which is set statically based on the probed SI capability.
+evict
+fat_evict_inode
+fat_truncate_blocks
+fat_flush_inodes
+writeback_inode
+sync_inode_metadata(inode, sync=0)
+writeback_single_inode(inode, wbc) <- wbc->sync_mode == WB_SYNC_NONE
 
-This change makes priv->active_offloads & ENETC_F_QBV really track the
-presence of a tc-taprio schedule on the port.
+This will lead to use after free in flusher thread.
 
-Some existing users, like the enetc_sched_speed_set() call from
-phylink_mac_link_up(), are best kept using the old logic: the tc-taprio
-offload does not re-trigger another link mode resolve, so the scheduler
-needs to be functional from the get go, as long as Qbv is supported at
-all on the port. So to preserve functionality there, look at the static
-station interface capability from pf->si->hw_features instead.
+Similar issue can be triggered if writeback_single_inode in the
+stack trace update inode->i_io_list. Add explicit check to avoid it.
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Stable-dep-of: 290b5fe096e7 ("net: enetc: preserve TX ring priority across reconfiguration")
+Fixes: cbfecb927f42 ("fs: record I_DIRTY_TIME even if inode already has I_DIRTY_INODE")
+Reported-by: syzbot+6ba92bd00d5093f7e371@syzkaller.appspotmail.com
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Svyatoslav Feldsherov <feldsherov@google.com>
+Link: https://lore.kernel.org/r/20221115202001.324188-1-feldsherov@google.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc_pf.c  | 6 ++----
- drivers/net/ethernet/freescale/enetc/enetc_qos.c | 6 ++++++
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ fs/fs-writeback.c | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_pf.c b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-index 6904e10dd46b..515db7e6e649 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -748,9 +748,6 @@ static void enetc_pf_netdev_setup(struct enetc_si *si, struct net_device *ndev,
- 
- 	ndev->priv_flags |= IFF_UNICAST_FLT;
- 
--	if (si->hw_features & ENETC_SI_F_QBV)
--		priv->active_offloads |= ENETC_F_QBV;
--
- 	if (si->hw_features & ENETC_SI_F_PSFP && !enetc_psfp_enable(priv)) {
- 		priv->active_offloads |= ENETC_F_QCI;
- 		ndev->features |= NETIF_F_HW_TC;
-@@ -996,7 +993,8 @@ static void enetc_pl_mac_link_up(struct phylink_config *config,
- 	struct enetc_ndev_priv *priv;
- 
- 	priv = netdev_priv(pf->si->ndev);
--	if (priv->active_offloads & ENETC_F_QBV)
-+
-+	if (pf->si->hw_features & ENETC_SI_F_QBV)
- 		enetc_sched_speed_set(priv, speed);
- 
- 	if (!phylink_autoneg_inband(mode) &&
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_qos.c b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-index 62efe1aebf86..b0e278e1f4ad 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-@@ -69,6 +69,9 @@ static int enetc_setup_taprio(struct net_device *ndev,
- 		enetc_wr(&priv->si->hw,
- 			 ENETC_QBV_PTGCR_OFFSET,
- 			 tge & (~ENETC_QBV_TGE));
-+
-+		priv->active_offloads &= ~ENETC_F_QBV;
-+
- 		return 0;
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index 2a27f0256fa3..f4a5a0c2858a 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -1739,18 +1739,26 @@ static int writeback_single_inode(struct inode *inode,
+ 	wb = inode_to_wb_and_lock_list(inode);
+ 	spin_lock(&inode->i_lock);
+ 	/*
+-	 * If the inode is now fully clean, then it can be safely removed from
+-	 * its writeback list (if any).  Otherwise the flusher threads are
+-	 * responsible for the writeback lists.
++	 * If the inode is freeing, its i_io_list shoudn't be updated
++	 * as it can be finally deleted at this moment.
+ 	 */
+-	if (!(inode->i_state & I_DIRTY_ALL))
+-		inode_cgwb_move_to_attached(inode, wb);
+-	else if (!(inode->i_state & I_SYNC_QUEUED)) {
+-		if ((inode->i_state & I_DIRTY))
+-			redirty_tail_locked(inode, wb);
+-		else if (inode->i_state & I_DIRTY_TIME) {
+-			inode->dirtied_when = jiffies;
+-			inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
++	if (!(inode->i_state & I_FREEING)) {
++		/*
++		 * If the inode is now fully clean, then it can be safely
++		 * removed from its writeback list (if any). Otherwise the
++		 * flusher threads are responsible for the writeback lists.
++		 */
++		if (!(inode->i_state & I_DIRTY_ALL))
++			inode_cgwb_move_to_attached(inode, wb);
++		else if (!(inode->i_state & I_SYNC_QUEUED)) {
++			if ((inode->i_state & I_DIRTY))
++				redirty_tail_locked(inode, wb);
++			else if (inode->i_state & I_DIRTY_TIME) {
++				inode->dirtied_when = jiffies;
++				inode_io_list_move_locked(inode,
++							  wb,
++							  &wb->b_dirty_time);
++			}
+ 		}
  	}
- 
-@@ -135,6 +138,9 @@ static int enetc_setup_taprio(struct net_device *ndev,
- 	dma_unmap_single(&priv->si->pdev->dev, dma, data_size, DMA_TO_DEVICE);
- 	kfree(gcl_data);
- 
-+	if (!err)
-+		priv->active_offloads |= ENETC_F_QBV;
-+
- 	return err;
- }
  
 -- 
 2.35.1
