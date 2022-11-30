@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4430B63DFDA
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:51:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 587A363DDA6
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:29:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231501AbiK3SvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:51:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38486 "EHLO
+        id S229853AbiK3S3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:29:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231516AbiK3SvD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:51:03 -0500
+        with ESMTP id S229708AbiK3S3T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:29:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44A38A3203
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:50:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0B355EFBB
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:29:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC5FF61D73
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:50:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D978DC433C1;
-        Wed, 30 Nov 2022 18:50:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C41761B7C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:29:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C343C433D6;
+        Wed, 30 Nov 2022 18:29:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834256;
-        bh=HsLGXRRJQ/APUtlGd+ovyydURbfrIHWxOV9hO6z8EaA=;
+        s=korg; t=1669832957;
+        bh=/0psIQho1RFC+D5g8y9yrHyJwjM0n9XsrIY1ssCZiKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bYwgpPp+gcn/B4CEcEgzLiljPVZ3zb0vwd9WD8vT+zjF6RU2IeuMXxv4C9OZKOvL0
-         z5hyi/w4i3X2AAl/YjKdzCm3GhCy+oBSPtGeZHBZhKNDfM/RSu5SWBRKanoh/j6CDV
-         sUy87lB1K6XvDXGEplpV+KGNymt36/8Stx7uT1sE=
+        b=qDhBQGP3BS2WveBQq/HvQwSl2xCMiyphOXrL/dCfOEKJx38p2LxORWPtDFIIsGLGu
+         Ov/s+hMyZXEZmAQrTJPklrrBAHU9noQkz1GkX0+sefj/blFXcMqAcXKn24RO9j7sE6
+         3IvPKRKmFV2Uw7nST62RSoporPPVjmTYdkghHNgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>,
-        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 6.0 169/289] arm64: dts: rockchip: lower rk3399-puma-haikou SD controller clock frequency
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Martin Habets <habetsm.xilinx@gmail.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 073/162] sfc: fix potential memleak in __ef100_hard_start_xmit()
 Date:   Wed, 30 Nov 2022 19:22:34 +0100
-Message-Id: <20221130180547.964339480@linuxfoundation.org>
+Message-Id: <20221130180530.487500128@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 91e8b74fe6381e083f8aa55217bb0562785ab398 upstream.
+[ Upstream commit aad98abd5cb8133507f22654f56bcb443aaa2d89 ]
 
-CRC errors (code -84 EILSEQ) have been observed for some SanDisk
-Ultra A1 cards when running at 50MHz.
+The __ef100_hard_start_xmit() returns NETDEV_TX_OK without freeing skb
+in error handling case, add dev_kfree_skb_any() to fix it.
 
-Waveform analysis suggest that the level shifters that are used on the
-RK3399-Q7 module for voltage translation between 3.0 and 3.3V don't
-handle clock rates at or above 48MHz properly. Back off to 40MHz for
-some safety margin.
-
-Cc: stable@vger.kernel.org
-Fixes: 60fd9f72ce8a ("arm64: dts: rockchip: add Haikou baseboard with RK3399-Q7 SoM")
-Signed-off-by: Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
-Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
-Link: https://lore.kernel.org/r/20221019-upstream-puma-sd-40mhz-v1-0-754a76421518@theobroma-systems.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 51b35a454efd ("sfc: skeleton EF100 PF driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/1668671409-10909-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/sfc/ef100_netdev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-puma-haikou.dts
-@@ -207,7 +207,7 @@
- 	cap-sd-highspeed;
- 	cd-gpios = <&gpio0 RK_PA7 GPIO_ACTIVE_LOW>;
- 	disable-wp;
--	max-frequency = <150000000>;
-+	max-frequency = <40000000>;
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&sdmmc_clk &sdmmc_cmd &sdmmc_cd &sdmmc_bus4>;
- 	vmmc-supply = <&vcc3v3_baseboard>;
+diff --git a/drivers/net/ethernet/sfc/ef100_netdev.c b/drivers/net/ethernet/sfc/ef100_netdev.c
+index 67fe44db6b61..63a44ee763be 100644
+--- a/drivers/net/ethernet/sfc/ef100_netdev.c
++++ b/drivers/net/ethernet/sfc/ef100_netdev.c
+@@ -200,6 +200,7 @@ static netdev_tx_t ef100_hard_start_xmit(struct sk_buff *skb,
+ 		   skb->len, skb->data_len, channel->channel);
+ 	if (!efx->n_channels || !efx->n_tx_channels || !channel) {
+ 		netif_stop_queue(net_dev);
++		dev_kfree_skb_any(skb);
+ 		goto err;
+ 	}
+ 
+-- 
+2.35.1
+
 
 
