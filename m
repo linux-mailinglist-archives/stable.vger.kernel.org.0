@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9527E63DDAA
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:29:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD3063DE79
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:37:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229917AbiK3S3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:29:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35288 "EHLO
+        id S230440AbiK3ShT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:37:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229953AbiK3S3X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:29:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C5C78BD17
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:29:23 -0800 (PST)
+        with ESMTP id S230434AbiK3ShR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:37:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7723129810
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:37:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8561B81C9C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:29:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 252B1C433D6;
-        Wed, 30 Nov 2022 18:29:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13B6361D6A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:37:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24EA4C433C1;
+        Wed, 30 Nov 2022 18:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832960;
-        bh=MParWbmd7+bweXazyzr3Uficig2HbVrkR/7htE4luG8=;
+        s=korg; t=1669833435;
+        bh=qTeA3oofInzsCnXMSbUnfXbnJ++E2L1je2Cb98SZBeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JIRtaAhRLWaID754H6AAQgVEOHjwSIo33kH7elsrVpufw3RX1xLNeiNM6TfgKzAL8
-         goD4nuSw7gltnSUlt4LRNS/IuW2nKJPLyhSVoHZuLs4sgKaV4DXyrcF9RSRCSVqSsq
-         6pJDt9qO4s8MMJFQQB0YpHaGVSxpJWUJEN1Udrbw=
+        b=Hx3uC35OONeMX9twIi0+UPPfEIme8Tva78QsWhsMBiARx4HAl6TbOSPdSF/B2cuk+
+         7ytgRpVaG2LslsEpXezZGQc3pETEVF5JT26S84fa8GHJGS67COOiUiG3x8kEMebL2M
+         KO92xYN7LYlSzvPC1qjZm4gZ4WYVQYQXdzaBsDrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/162] net: sched: allow act_ct to be built without NF_NAT
-Date:   Wed, 30 Nov 2022 19:22:35 +0100
-Message-Id: <20221130180530.513694824@linuxfoundation.org>
+Subject: [PATCH 5.15 104/206] tipc: set con sock in tipc_conn_alloc
+Date:   Wed, 30 Nov 2022 19:22:36 +0100
+Message-Id: <20221130180535.692176705@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +56,102 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 8427fd100c7b7793650e212a81e42f1cf124613d ]
+[ Upstream commit 0e5d56c64afcd6fd2d132ea972605b66f8a7d3c4 ]
 
-In commit f11fe1dae1c4 ("net/sched: Make NET_ACT_CT depends on NF_NAT"),
-it fixed the build failure when NF_NAT is m and NET_ACT_CT is y by
-adding depends on NF_NAT for NET_ACT_CT. However, it would also cause
-NET_ACT_CT cannot be built without NF_NAT, which is not expected. This
-patch fixes it by changing to use "(!NF_NAT || NF_NAT)" as the depend.
+A crash was reported by Wei Chen:
 
-Fixes: f11fe1dae1c4 ("net/sched: Make NET_ACT_CT depends on NF_NAT")
+  BUG: kernel NULL pointer dereference, address: 0000000000000018
+  RIP: 0010:tipc_conn_close+0x12/0x100
+  Call Trace:
+   tipc_topsrv_exit_net+0x139/0x320
+   ops_exit_list.isra.9+0x49/0x80
+   cleanup_net+0x31a/0x540
+   process_one_work+0x3fa/0x9f0
+   worker_thread+0x42/0x5c0
+
+It was caused by !con->sock in tipc_conn_close(). In tipc_topsrv_accept(),
+con is allocated in conn_idr then its sock is set:
+
+  con = tipc_conn_alloc();
+  ...                    <----[1]
+  con->sock = newsock;
+
+If tipc_conn_close() is called in anytime of [1], the null-pointer-def
+is triggered by con->sock->sk due to con->sock is not yet set.
+
+This patch fixes it by moving the con->sock setting to tipc_conn_alloc()
+under s->idr_lock. So that con->sock can never be NULL when getting the
+con from s->conn_idr. It will be also safer to move con->server and flag
+CF_CONNECTED setting under s->idr_lock, as they should all be set before
+tipc_conn_alloc() is called.
+
+Fixes: c5fa7b3cf3cb ("tipc: introduce new TIPC server infrastructure")
+Reported-by: Wei Chen <harperchen1110@gmail.com>
 Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/b6386f28d1ba34721795fb776a91cbdabb203447.1668807183.git.lucien.xin@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/tipc/topsrv.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/net/sched/Kconfig b/net/sched/Kconfig
-index d762e89ab74f..bc4e5da76fa6 100644
---- a/net/sched/Kconfig
-+++ b/net/sched/Kconfig
-@@ -976,7 +976,7 @@ config NET_ACT_TUNNEL_KEY
+diff --git a/net/tipc/topsrv.c b/net/tipc/topsrv.c
+index d92ec92f0b71..b0f9aa521670 100644
+--- a/net/tipc/topsrv.c
++++ b/net/tipc/topsrv.c
+@@ -176,7 +176,7 @@ static void tipc_conn_close(struct tipc_conn *con)
+ 	conn_put(con);
+ }
  
- config NET_ACT_CT
- 	tristate "connection tracking tc action"
--	depends on NET_CLS_ACT && NF_CONNTRACK && NF_NAT && NF_FLOW_TABLE
-+	depends on NET_CLS_ACT && NF_CONNTRACK && (!NF_NAT || NF_NAT) && NF_FLOW_TABLE
- 	help
- 	  Say Y here to allow sending the packets to conntrack module.
+-static struct tipc_conn *tipc_conn_alloc(struct tipc_topsrv *s)
++static struct tipc_conn *tipc_conn_alloc(struct tipc_topsrv *s, struct socket *sock)
+ {
+ 	struct tipc_conn *con;
+ 	int ret;
+@@ -202,10 +202,11 @@ static struct tipc_conn *tipc_conn_alloc(struct tipc_topsrv *s)
+ 	}
+ 	con->conid = ret;
+ 	s->idr_in_use++;
+-	spin_unlock_bh(&s->idr_lock);
  
+ 	set_bit(CF_CONNECTED, &con->flags);
+ 	con->server = s;
++	con->sock = sock;
++	spin_unlock_bh(&s->idr_lock);
+ 
+ 	return con;
+ }
+@@ -467,7 +468,7 @@ static void tipc_topsrv_accept(struct work_struct *work)
+ 		ret = kernel_accept(lsock, &newsock, O_NONBLOCK);
+ 		if (ret < 0)
+ 			return;
+-		con = tipc_conn_alloc(srv);
++		con = tipc_conn_alloc(srv, newsock);
+ 		if (IS_ERR(con)) {
+ 			ret = PTR_ERR(con);
+ 			sock_release(newsock);
+@@ -479,7 +480,6 @@ static void tipc_topsrv_accept(struct work_struct *work)
+ 		newsk->sk_data_ready = tipc_conn_data_ready;
+ 		newsk->sk_write_space = tipc_conn_write_space;
+ 		newsk->sk_user_data = con;
+-		con->sock = newsock;
+ 		write_unlock_bh(&newsk->sk_callback_lock);
+ 
+ 		/* Wake up receive process in case of 'SYN+' message */
+@@ -577,12 +577,11 @@ bool tipc_topsrv_kern_subscr(struct net *net, u32 port, u32 type, u32 lower,
+ 	sub.filter = filter;
+ 	*(u64 *)&sub.usr_handle = (u64)port;
+ 
+-	con = tipc_conn_alloc(tipc_topsrv(net));
++	con = tipc_conn_alloc(tipc_topsrv(net), NULL);
+ 	if (IS_ERR(con))
+ 		return false;
+ 
+ 	*conid = con->conid;
+-	con->sock = NULL;
+ 	rc = tipc_conn_rcv_sub(tipc_topsrv(net), con, &sub);
+ 	if (rc >= 0)
+ 		return true;
 -- 
 2.35.1
 
