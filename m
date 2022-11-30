@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 203AC63DF92
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A25C263DE44
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231421AbiK3Ssq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:48:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34622 "EHLO
+        id S230282AbiK3Sfa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:35:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231489AbiK3Ss1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9617F9B7B3
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:25 -0800 (PST)
+        with ESMTP id S230368AbiK3SfU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:20 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A21A9208F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 339C861D82
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45532C433D6;
-        Wed, 30 Nov 2022 18:48:24 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 87866CE1AD4
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 739B8C433D6;
+        Wed, 30 Nov 2022 18:35:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834104;
-        bh=kGdTftkyRf/A7l8ShioqwzSVWTIsZffc9+QvzwfEPB8=;
+        s=korg; t=1669833315;
+        bh=2s58fFrnqMZFkiRCCbLRc1a5vOX+U+Hl2Bb5grK4jfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dmafrW1cK3pFiyRghKgDTVo97k2q4J28EwmgDORvxCSsfrjGv3o9SynFj7hkCmcwt
-         K78woy/0hPg6JZMh9FDVNsBGmGENYVaeg7LthN42P1+FkJnyU1SdRAfYrRo/gIBPTD
-         hD7d54rcEkGnuV0jpZ3qLInUmVxEgwOJYyNFvND4=
+        b=hGWGSzGsPUII3MVMRURo2LrRL4axpSG6UCTdy5dXJAlB+MxpfRXL6PSO2r2VRS9kz
+         VZpy7k6Y63o79HQsVzbMjvwZqeh1ch7z6NnGkh6a4Dor9WPPuBN5HyyrmEybDV+/Pz
+         t2A9u9+SmxY2MbA0iGwCTgMQJ9GK0EbiosLSsB6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chad Monroe <chad.monroe@smartrg.com>,
-        Felix Fietkau <nbd@nbd.name>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 130/289] netfilter: flowtable_offload: add missing locking
+        patches@lists.linux.dev, Juan Tian <juantian@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 063/206] scsi: storvsc: Fix handling of srb_status and capacity change events
 Date:   Wed, 30 Nov 2022 19:21:55 +0100
-Message-Id: <20221130180547.086434328@linuxfoundation.org>
+Message-Id: <20221130180534.603779824@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +53,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit bcd9e3c1656d0f7dd9743598c65c3ae24efb38d0 ]
+[ Upstream commit b8a5376c321b4669f7ffabc708fd30c3970f3084 ]
 
-nf_flow_table_block_setup and the driver TC_SETUP_FT call can modify the flow
-block cb list while they are being traversed elsewhere, causing a crash.
-Add a write lock around the calls to protect readers
+Current handling of the srb_status is incorrect. Commit 52e1b3b3daa9
+("scsi: storvsc: Correctly handle multiple flags in srb_status")
+is based on srb_status being a set of flags, when in fact only the
+2 high order bits are flags and the remaining 6 bits are an integer
+status. Because the integer values of interest mostly look like flags,
+the code actually works when treated that way.
 
-Fixes: c29f74e0df7a ("netfilter: nf_flow_table: hardware offload support")
-Reported-by: Chad Monroe <chad.monroe@smartrg.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+But in the interest of correctness going forward, fix this by treating
+the low 6 bits of srb_status as an integer status code. Add handling
+for SRB_STATUS_INVALID_REQUEST, which was the original intent of commit
+52e1b3b3daa9. Furthermore, treat the ERROR, ABORTED, and INVALID_REQUEST
+srb status codes as essentially equivalent for the cases we care about.
+There's no harm in doing so, and it isn't always clear which status code
+current or older versions of Hyper-V report for particular conditions.
+
+Treating the srb status codes as equivalent has the additional benefit
+of ensuring that capacity change events result in an immediate rescan
+so that the new size is known to Linux. Existing code checks SCSI
+sense data for capacity change events when the srb status is ABORTED.
+But capacity change events are also being observed when Hyper-V reports
+the srb status as ERROR. Without the immediate rescan, the new size
+isn't known until something else causes a rescan (such as running
+fdisk to expand a partition), and in the meantime, tools such as "lsblk"
+continue to report the old size.
+
+Fixes: 52e1b3b3daa9 ("scsi: storvsc: Correctly handle multiple flags in srb_status")
+Reported-by: Juan Tian <juantian@microsoft.com>
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/1668019722-1983-1-git-send-email-mikelley@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_offload.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/storvsc_drv.c | 69 +++++++++++++++++++-------------------
+ 1 file changed, 34 insertions(+), 35 deletions(-)
 
-diff --git a/net/netfilter/nf_flow_table_offload.c b/net/netfilter/nf_flow_table_offload.c
-index b04645ced89b..00b522890d77 100644
---- a/net/netfilter/nf_flow_table_offload.c
-+++ b/net/netfilter/nf_flow_table_offload.c
-@@ -1098,6 +1098,7 @@ static int nf_flow_table_block_setup(struct nf_flowtable *flowtable,
- 	struct flow_block_cb *block_cb, *next;
- 	int err = 0;
+diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
+index 3d03e1ca5820..6110dfd903f7 100644
+--- a/drivers/scsi/storvsc_drv.c
++++ b/drivers/scsi/storvsc_drv.c
+@@ -344,16 +344,21 @@ enum storvsc_request_type {
+ };
  
-+	down_write(&flowtable->flow_block_lock);
- 	switch (cmd) {
- 	case FLOW_BLOCK_BIND:
- 		list_splice(&bo->cb_list, &flowtable->flow_block.cb_list);
-@@ -1112,6 +1113,7 @@ static int nf_flow_table_block_setup(struct nf_flowtable *flowtable,
- 		WARN_ON_ONCE(1);
- 		err = -EOPNOTSUPP;
+ /*
+- * SRB status codes and masks; a subset of the codes used here.
++ * SRB status codes and masks. In the 8-bit field, the two high order bits
++ * are flags, while the remaining 6 bits are an integer status code.  The
++ * definitions here include only the subset of the integer status codes that
++ * are tested for in this driver.
+  */
+-
+ #define SRB_STATUS_AUTOSENSE_VALID	0x80
+ #define SRB_STATUS_QUEUE_FROZEN		0x40
+-#define SRB_STATUS_INVALID_LUN	0x20
+-#define SRB_STATUS_SUCCESS	0x01
+-#define SRB_STATUS_ABORTED	0x02
+-#define SRB_STATUS_ERROR	0x04
+-#define SRB_STATUS_DATA_OVERRUN	0x12
++
++/* SRB status integer codes */
++#define SRB_STATUS_SUCCESS		0x01
++#define SRB_STATUS_ABORTED		0x02
++#define SRB_STATUS_ERROR		0x04
++#define SRB_STATUS_INVALID_REQUEST	0x06
++#define SRB_STATUS_DATA_OVERRUN		0x12
++#define SRB_STATUS_INVALID_LUN		0x20
+ 
+ #define SRB_STATUS(status) \
+ 	(status & ~(SRB_STATUS_AUTOSENSE_VALID | SRB_STATUS_QUEUE_FROZEN))
+@@ -1032,38 +1037,25 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
+ 	void (*process_err_fn)(struct work_struct *work);
+ 	struct hv_host_device *host_dev = shost_priv(host);
+ 
+-	/*
+-	 * In some situations, Hyper-V sets multiple bits in the
+-	 * srb_status, such as ABORTED and ERROR. So process them
+-	 * individually, with the most specific bits first.
+-	 */
+-
+-	if (vm_srb->srb_status & SRB_STATUS_INVALID_LUN) {
+-		set_host_byte(scmnd, DID_NO_CONNECT);
+-		process_err_fn = storvsc_remove_lun;
+-		goto do_work;
+-	}
++	switch (SRB_STATUS(vm_srb->srb_status)) {
++	case SRB_STATUS_ERROR:
++	case SRB_STATUS_ABORTED:
++	case SRB_STATUS_INVALID_REQUEST:
++		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID) {
++			/* Check for capacity change */
++			if ((asc == 0x2a) && (ascq == 0x9)) {
++				process_err_fn = storvsc_device_scan;
++				/* Retry the I/O that triggered this. */
++				set_host_byte(scmnd, DID_REQUEUE);
++				goto do_work;
++			}
+ 
+-	if (vm_srb->srb_status & SRB_STATUS_ABORTED) {
+-		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID &&
+-		    /* Capacity data has changed */
+-		    (asc == 0x2a) && (ascq == 0x9)) {
+-			process_err_fn = storvsc_device_scan;
+ 			/*
+-			 * Retry the I/O that triggered this.
++			 * Otherwise, let upper layer deal with the
++			 * error when sense message is present
+ 			 */
+-			set_host_byte(scmnd, DID_REQUEUE);
+-			goto do_work;
+-		}
+-	}
+-
+-	if (vm_srb->srb_status & SRB_STATUS_ERROR) {
+-		/*
+-		 * Let upper layer deal with error when
+-		 * sense message is present.
+-		 */
+-		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID)
+ 			return;
++		}
+ 
+ 		/*
+ 		 * If there is an error; offline the device since all
+@@ -1086,6 +1078,13 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
+ 		default:
+ 			set_host_byte(scmnd, DID_ERROR);
+ 		}
++		return;
++
++	case SRB_STATUS_INVALID_LUN:
++		set_host_byte(scmnd, DID_NO_CONNECT);
++		process_err_fn = storvsc_remove_lun;
++		goto do_work;
++
  	}
-+	up_write(&flowtable->flow_block_lock);
- 
- 	return err;
- }
-@@ -1168,7 +1170,9 @@ static int nf_flow_table_offload_cmd(struct flow_block_offload *bo,
- 
- 	nf_flow_table_block_offload_init(bo, dev_net(dev), cmd, flowtable,
- 					 extack);
-+	down_write(&flowtable->flow_block_lock);
- 	err = dev->netdev_ops->ndo_setup_tc(dev, TC_SETUP_FT, bo);
-+	up_write(&flowtable->flow_block_lock);
- 	if (err < 0)
- 		return err;
+ 	return;
  
 -- 
 2.35.1
