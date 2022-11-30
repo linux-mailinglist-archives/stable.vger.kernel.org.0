@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA8EC63DF6E
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97DFB63DF79
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230250AbiK3SrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:47:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57830 "EHLO
+        id S231292AbiK3Sr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:47:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231469AbiK3Sq6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:46:58 -0500
+        with ESMTP id S231237AbiK3Sr3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:29 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B50C119C3C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:46:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED11D99F3A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67C82B81CA8
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:46:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18C0C433D6;
-        Wed, 30 Nov 2022 18:46:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A280FB81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:47:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 115DCC433D6;
+        Wed, 30 Nov 2022 18:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834015;
-        bh=eTAkZkSSRtU12a+7nXV0pg43EjNz48A0xuoApEqWF50=;
+        s=korg; t=1669834045;
+        bh=7dHZJmFJG/j5evOZe0xzlY320tlTbBLwd/v+rdY3Fc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5zBe71RziuCEylssMe25O0NHSCzTSVGY7b1eKJKlAeDst+ByslfzulpzPJOClF84
-         6/u7LHhXakR8EIwleiGzz4lc1mn90JvDkMLTftQkk9Bl3vLSVQ/FBYukdxrb45xJcd
-         H9TiGJjDeujITE5jn9+FThBc16IGQy8oT8FH82fY=
+        b=wTkIEpY8WApxGerxnnvMBjaonKfIQH7jQJup7Ztba2DUjQA1wCNtSRe/SWhpoKQ5W
+         7LmEUwiw5oE51SyN5Z5QMHOXKl22ITb0t3UnU1E6u3LBwZgp3VUAGm4zn/1s1LvqwO
+         4yX32gsNbIPkoNIrv6xWRaE4ap4ZPOlINpahiBmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Hai <wanghai38@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        syzbot+9b69b8d10ab4a7d88056@syzkaller.appspotmail.com,
+        Zhengchao Shao <shaozhengchao@huawei.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 080/289] net: pch_gbe: fix potential memleak in pch_gbe_tx_queue()
-Date:   Wed, 30 Nov 2022 19:21:05 +0100
-Message-Id: <20221130180545.957042249@linuxfoundation.org>
+Subject: [PATCH 6.0 081/289] 9p/fd: fix issue of list_del corruption in p9_fd_cancel()
+Date:   Wed, 30 Nov 2022 19:21:06 +0100
+Message-Id: <20221130180545.980920485@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -53,36 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 2360f9b8c4e81d242d4cbf99d630a2fffa681fab ]
+[ Upstream commit 11c10956515b8ec44cf4f2a7b9d8bf8b9dc05ec4 ]
 
-In pch_gbe_xmit_frame(), NETDEV_TX_OK will be returned whether
-pch_gbe_tx_queue() sends data successfully or not, so pch_gbe_tx_queue()
-needs to free skb before returning. But pch_gbe_tx_queue() returns without
-freeing skb in case of dma_map_single() fails. Add dev_kfree_skb_any()
-to fix it.
+Syz reported the following issue:
+kernel BUG at lib/list_debug.c:53!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+RIP: 0010:__list_del_entry_valid.cold+0x5c/0x72
+Call Trace:
+<TASK>
+p9_fd_cancel+0xb1/0x270
+p9_client_rpc+0x8ea/0xba0
+p9_client_create+0x9c0/0xed0
+v9fs_session_init+0x1e0/0x1620
+v9fs_mount+0xba/0xb80
+legacy_get_tree+0x103/0x200
+vfs_get_tree+0x89/0x2d0
+path_mount+0x4c0/0x1ac0
+__x64_sys_mount+0x33b/0x430
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+</TASK>
 
-Fixes: 77555ee72282 ("net: Add Gigabit Ethernet driver of Topcliff PCH")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The process is as follows:
+Thread A:                       Thread B:
+p9_poll_workfn()                p9_client_create()
+...                                 ...
+    p9_conn_cancel()                p9_fd_cancel()
+        list_del()                      ...
+        ...                             list_del()  //list_del
+                                                      corruption
+There is no lock protection when deleting list in p9_conn_cancel(). After
+deleting list in Thread A, thread B will delete the same list again. It
+will cause issue of list_del corruption.
+
+Setting req->status to REQ_STATUS_ERROR under lock prevents other
+cleanup paths from trying to manipulate req_list.
+The other thread can safely check req->status because it still holds a
+reference to req at this point.
+
+Link: https://lkml.kernel.org/r/20221110122606.383352-1-shaozhengchao@huawei.com
+Fixes: 52f1c45dde91 ("9p: trans_fd/p9_conn_cancel: drop client lock earlier")
+Reported-by: syzbot+9b69b8d10ab4a7d88056@syzkaller.appspotmail.com
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+[Dominique: add description of the fix in commit message]
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/9p/trans_fd.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-index 46da937ad27f..98792907a4c3 100644
---- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-+++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-@@ -1143,6 +1143,7 @@ static void pch_gbe_tx_queue(struct pch_gbe_adapter *adapter,
- 		buffer_info->dma = 0;
- 		buffer_info->time_stamp = 0;
- 		tx_ring->next_to_use = ring_num;
-+		dev_kfree_skb_any(skb);
- 		return;
+diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
+index 0191f22d1ec3..8487321c1fc7 100644
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -202,9 +202,11 @@ static void p9_conn_cancel(struct p9_conn *m, int err)
+ 
+ 	list_for_each_entry_safe(req, rtmp, &m->req_list, req_list) {
+ 		list_move(&req->req_list, &cancel_list);
++		req->status = REQ_STATUS_ERROR;
  	}
- 	buffer_info->mapped = true;
+ 	list_for_each_entry_safe(req, rtmp, &m->unsent_req_list, req_list) {
+ 		list_move(&req->req_list, &cancel_list);
++		req->status = REQ_STATUS_ERROR;
+ 	}
+ 
+ 	spin_unlock(&m->req_lock);
 -- 
 2.35.1
 
