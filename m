@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EB1463DF13
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:43:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3607163DF14
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:43:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231281AbiK3Snj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:43:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55544 "EHLO
+        id S231210AbiK3Snl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:43:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231163AbiK3Sn2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:43:28 -0500
+        with ESMTP id S231221AbiK3Snb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:43:31 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B848B65BC
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:43:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BC571BEAE
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:43:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 636F7B81CA8
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:43:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0D31C433C1;
-        Wed, 30 Nov 2022 18:43:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2914FB81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:43:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88FCAC433D6;
+        Wed, 30 Nov 2022 18:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833805;
-        bh=FV9cKpXU40ig1PLuoNySucKUItQdqkjAvnyrw0XqHSw=;
+        s=korg; t=1669833807;
+        bh=uwVoDLx9EELOFvfhEKxjq6PnRru0ru5IPNbS2FWvSsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kkn+ssDlE6LRcWC1AEURULJj89Jjgd+yKDIx1dEN7ci32GHL7/+fvGHO755DRiohF
-         g0S/D1KS9tkTGYTi7+4CSPnPkJ55Hf1zKvNxxO4Th5z2hsY4e9jhZEzukheQjDvG+W
-         TQVuT6x4/CxSKaX+LdX2O14ADqX9voFuyVoBr85Q=
+        b=CAX7ONoOE4Vqca6E15BoNDpdnju3utEtX5gZtV7EP7Jmv3DpVrZMsT+r4Ml5m+/2U
+         s0flaig0SRsI3Bc7MJv6wHJsdu9TmZIuQmVAz7VjCr6NciG6x0A7AzpvDMS0vp43zg
+         T1Zqy5vNPjowGNGJRvgZSKhKyLWOK7iRpY51/Cg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Zhang <quic_paulz@quicinc.com>,
+        patches@lists.linux.dev, Jonas Jelonek <jelonek.jonas@gmail.com>,
         Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 005/289] wifi: cfg80211: Fix bitrates overflow issue
-Date:   Wed, 30 Nov 2022 19:19:50 +0100
-Message-Id: <20221130180544.238892050@linuxfoundation.org>
+Subject: [PATCH 6.0 006/289] wifi: mac80211_hwsim: fix debugfs attribute ps with rc table support
+Date:   Wed, 30 Nov 2022 19:19:51 +0100
+Message-Id: <20221130180544.262095178@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -53,69 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Zhang <quic_paulz@quicinc.com>
+From: Jonas Jelonek <jelonek.jonas@gmail.com>
 
-[ Upstream commit 18429c51c7ff6e6bfd627316c54670230967a7e5 ]
+[ Upstream commit 69188df5f6e4cecc6b76b958979ba363cd5240e8 ]
 
-When invoking function cfg80211_calculate_bitrate_eht about
-(320 MHz, EHT-MCS 13, EHT-NSS 2, EHT-GI 0), which means the
-parameters as flags: 0x80, bw: 7, mcs: 13, eht_gi: 0, nss: 2,
-this formula (result * rate->nss) will overflow and causes
-the returned bitrate to be 3959 when it should be 57646.
+Fixes a warning that occurs when rc table support is enabled
+(IEEE80211_HW_SUPPORTS_RC_TABLE) in mac80211_hwsim and the PS mode
+is changed via the exported debugfs attribute.
 
-Here is the explanation:
- u64 tmp;
- u32 result;
- …
- /* tmp = result = 4 * rates_996[0]
-  *     = 4 * 480388888 = 0x72889c60
-  */
- tmp = result;
+When the PS mode is changed, a packet is broadcasted via
+hwsim_send_nullfunc by creating and transmitting a plain skb with only
+header initialized. The ieee80211 rate array in the control buffer is
+zero-initialized. When ratetbl support is enabled, ieee80211_get_tx_rates
+is called for the skb with sta parameter set to NULL and thus no
+ratetbl can be used. The final rate array then looks like
+[-1,0; 0,0; 0,0; 0,0] which causes the warning in ieee80211_get_tx_rate.
 
- /* tmp = 0x72889c60 * 6144 = 0xabccea90000 */
- tmp *= SCALE;
+The issue is fixed by setting the count of the first rate with idx '0'
+to 1 and hence ieee80211_get_tx_rates won't overwrite it with idx '-1'.
 
- /* tmp = 0xabccea90000 / mcs_divisors[13]
-  *     = 0xabccea90000 / 5120 = 0x8970bba6
-  */
- do_div(tmp, mcs_divisors[rate->mcs]);
-
- /* result = 0x8970bba6 */
- result = tmp;
-
- /* normally (result * rate->nss) = 0x8970bba6 * 2 = 0x112e1774c,
-  * but since result is u32, (result * rate->nss) = 0x12e1774c,
-  * overflow happens and it loses the highest bit.
-  * Then result =  0x12e1774c / 8 = 39595753,
-  */
- result = (result * rate->nss) / 8;
-
-Signed-off-by: Paul Zhang <quic_paulz@quicinc.com>
+Signed-off-by: Jonas Jelonek <jelonek.jonas@gmail.com>
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/util.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mac80211_hwsim.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/wireless/util.c b/net/wireless/util.c
-index 775836f6785a..450d609b512a 100644
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -1555,10 +1555,12 @@ static u32 cfg80211_calculate_bitrate_eht(struct rate_info *rate)
- 	tmp = result;
- 	tmp *= SCALE;
- 	do_div(tmp, mcs_divisors[rate->mcs]);
--	result = tmp;
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index a074552bcec3..3179682daca7 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -910,6 +910,7 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
+ 	struct hwsim_vif_priv *vp = (void *)vif->drv_priv;
+ 	struct sk_buff *skb;
+ 	struct ieee80211_hdr *hdr;
++	struct ieee80211_tx_info *cb;
  
- 	/* and take NSS */
--	result = (result * rate->nss) / 8;
-+	tmp *= rate->nss;
-+	do_div(tmp, 8);
+ 	if (!vp->assoc)
+ 		return;
+@@ -931,6 +932,10 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
+ 	memcpy(hdr->addr2, mac, ETH_ALEN);
+ 	memcpy(hdr->addr3, vp->bssid, ETH_ALEN);
+ 
++	cb = IEEE80211_SKB_CB(skb);
++	cb->control.rates[0].count = 1;
++	cb->control.rates[1].idx = -1;
 +
-+	result = tmp;
- 
- 	return result / 10000;
- }
+ 	rcu_read_lock();
+ 	mac80211_hwsim_tx_frame(data->hw, skb,
+ 				rcu_dereference(vif->bss_conf.chanctx_conf)->def.chan);
 -- 
 2.35.1
 
