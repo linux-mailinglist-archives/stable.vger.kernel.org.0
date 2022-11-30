@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E4D163DEDA
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:41:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01C6E63DDE9
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:31:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231200AbiK3Sl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:41:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52648 "EHLO
+        id S229613AbiK3Sb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:31:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231207AbiK3SlU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D50999F1C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:18 -0800 (PST)
+        with ESMTP id S230158AbiK3Sbp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:31:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FDD8900ED
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:31:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 993B5CE1AD1
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:41:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75BE3C433D6;
-        Wed, 30 Nov 2022 18:41:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EF3961D67
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:31:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FC2FC433D6;
+        Wed, 30 Nov 2022 18:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833674;
-        bh=gnmLveGgCUVL3hBGtEXcixl4w48f/V1uI3GxD5XOKC0=;
+        s=korg; t=1669833103;
+        bh=cgXQrMsTEYl76HiYtky5TCUyXRmQmGWJY9whWklzyRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2PshWbzT3klfpulNXZiS1CCM+CmA9Gxc7dweX2UJ+wLVft4GyQPvOr/10Y25y7j6N
-         pRnBS7bJRZZgaXZUioOBcxef6fEfAPuTMNy4JciJdmkYNKuqg/xQzf/elDfYql2Qg/
-         75jX7aqMxRMIFACesRBOWA0n0c9lKWlMVWFxYsaY=
+        b=K0KpoEchLFgxSqe7QgdAUN+kNNj7h/FqUXhs+u3NVcLyckoorIDASoDzEUFlIXTjI
+         tkZEw/gR7XV7lJlPEYfbufUyE+zVWgDJGQ4xnHAm/DirH0J3glg4t80FvqJNWf/E1n
+         kmS3D7QQGzz8PiZQGOeLeCEj+HPcbVHOBtXuqA6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Meng Dong <whenov@gmail.com>,
-        Arnav Rawat <arnavr3@illinois.edu>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 180/206] platform/x86: ideapad-laptop: Fix interrupt storm on fn-lock toggle on some Yoga laptops
+        patches@lists.linux.dev, Phil Turnbull <philipturnbull@github.com>,
+        Ajay Kathat <ajay.kathat@microchip.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.10 151/162] wifi: wilc1000: validate number of channels
 Date:   Wed, 30 Nov 2022 19:23:52 +0100
-Message-Id: <20221130180537.599102094@linuxfoundation.org>
+Message-Id: <20221130180532.568886977@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,82 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnav Rawat <arnavr3@illinois.edu>
+From: Phil Turnbull <philipturnbull@github.com>
 
-[ Upstream commit 81a5603a0f50fd7cf17ff21d106052215eaf2028 ]
+commit 0cdfa9e6f0915e3d243e2393bfa8a22e12d553b0 upstream.
 
-Commit 3ae86d2d4704 ("platform/x86: ideapad-laptop: Fix Legion 5 Fn lock
-LED") uses the WMI event-id for the fn-lock event on some Legion 5 laptops
-to manually toggle the fn-lock LED because the EC does not do it itself.
-However, the same WMI ID is also sent on some Yoga laptops. Here, setting
-the fn-lock state is not valid behavior, and causes the EC to spam
-interrupts until the laptop is rebooted.
+There is no validation of 'e->no_of_channels' which can trigger an
+out-of-bounds write in the following 'memset' call. Validate that the
+number of channels does not extends beyond the size of the channel list
+element.
 
-Add a set_fn_lock_led_list[] DMI-id list and only enable the workaround to
-manually set the LED on models on this list.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=212671
-Cc: Meng Dong <whenov@gmail.com>
-Signed-off-by: Arnav Rawat <arnavr3@illinois.edu>
-Link: https://lore.kernel.org/r/12093851.O9o76ZdvQC@fedora
-[hdegoede@redhat.com: Check DMI-id list only once and store the result]
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Phil Turnbull <philipturnbull@github.com>
+Tested-by: Ajay Kathat <ajay.kathat@microchip.com>
+Acked-by: Ajay Kathat <ajay.kathat@microchip.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221123153543.8568-5-philipturnbull@github.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/ideapad-laptop.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/net/wireless/microchip/wilc1000/cfg80211.c |   23 +++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
-index ab4dfff2174b..7c553581e870 100644
---- a/drivers/platform/x86/ideapad-laptop.c
-+++ b/drivers/platform/x86/ideapad-laptop.c
-@@ -136,6 +136,7 @@ struct ideapad_private {
- 		bool dytc                 : 1;
- 		bool fan_mode             : 1;
- 		bool fn_lock              : 1;
-+		bool set_fn_lock_led      : 1;
- 		bool hw_rfkill_switch     : 1;
- 		bool kbd_bl               : 1;
- 		bool touchpad_ctrl_via_ec : 1;
-@@ -1467,6 +1468,9 @@ static void ideapad_wmi_notify(u32 value, void *context)
- 		ideapad_input_report(priv, value);
- 		break;
- 	case 208:
-+		if (!priv->features.set_fn_lock_led)
-+			break;
+--- a/drivers/net/wireless/microchip/wilc1000/cfg80211.c
++++ b/drivers/net/wireless/microchip/wilc1000/cfg80211.c
+@@ -961,19 +961,30 @@ static inline void wilc_wfi_cfg_parse_ch
+ 	}
+ 
+ 	if (ch_list_idx) {
+-		u16 attr_size;
+-		struct wilc_ch_list_elem *e;
+-		int i;
++		unsigned int i;
++		u16 elem_size;
+ 
+ 		ch_list = (struct wilc_attr_ch_list *)&buf[ch_list_idx];
+-		attr_size = le16_to_cpu(ch_list->attr_len);
+-		for (i = 0; i < attr_size;) {
++		/* the number of bytes following the final 'elem' member */
++		elem_size = le16_to_cpu(ch_list->attr_len) -
++			(sizeof(*ch_list) - sizeof(struct wilc_attr_entry));
++		for (i = 0; i < elem_size;) {
++			struct wilc_ch_list_elem *e;
 +
- 		if (!eval_hals(priv->adev->handle, &result)) {
- 			bool state = test_bit(HALS_FNLOCK_STATE_BIT, &result);
- 
-@@ -1480,6 +1484,18 @@ static void ideapad_wmi_notify(u32 value, void *context)
- }
- #endif
- 
-+/* On some models we need to call exec_sals(SALS_FNLOCK_ON/OFF) to set the LED */
-+static const struct dmi_system_id set_fn_lock_led_list[] = {
-+	{
-+		/* https://bugzilla.kernel.org/show_bug.cgi?id=212671 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo Legion R7000P2020H"),
-+		}
-+	},
-+	{}
-+};
+ 			e = (struct wilc_ch_list_elem *)(ch_list->elem + i);
 +
- /*
-  * Some ideapads have a hardware rfkill switch, but most do not have one.
-  * Reading VPCCMD_R_RF always results in 0 on models without a hardware rfkill,
-@@ -1522,6 +1538,7 @@ static void ideapad_check_features(struct ideapad_private *priv)
- 	acpi_handle handle = priv->adev->handle;
- 	unsigned long val;
++			i += sizeof(*e);
++			if (i > elem_size)
++				break;
++
++			i += e->no_of_channels;
++			if (i > elem_size)
++				break;
++
+ 			if (e->op_class == WILC_WLAN_OPERATING_CLASS_2_4GHZ) {
+ 				memset(e->ch_list, sta_ch, e->no_of_channels);
+ 				break;
+ 			}
+-			i += e->no_of_channels;
+ 		}
+ 	}
  
-+	priv->features.set_fn_lock_led = dmi_check_system(set_fn_lock_led_list);
- 	priv->features.hw_rfkill_switch = dmi_check_system(hw_rfkill_list);
- 
- 	/* Most ideapads with ELAN0634 touchpad don't use EC touchpad switch */
--- 
-2.35.1
-
 
 
