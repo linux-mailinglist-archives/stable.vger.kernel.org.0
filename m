@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7502963DE38
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F5063DF7B
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230172AbiK3SfI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:35:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40684 "EHLO
+        id S231237AbiK3Srg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:47:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230298AbiK3Set (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:34:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADBF72612C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:34:48 -0800 (PST)
+        with ESMTP id S231307AbiK3Srf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7084BA4
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63501B81C9A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:34:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A435DC433C1;
-        Wed, 30 Nov 2022 18:34:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3936B81B37
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:47:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F9DCC433D6;
+        Wed, 30 Nov 2022 18:47:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833286;
-        bh=Dx/JRLHBnP/KP931JmuIqKXx4TjyT17GNgZETmUH2oY=;
+        s=korg; t=1669834050;
+        bh=nH/slBNpjmJnHrRrpF8e1Im2AvXLgxli+uQOzxpKcFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cQAA/p+BCNDmc+1bFlG5tGFq4iYCLHUOfzM21TFHwpY1mcluUc71FoQcU0jkTJKxR
-         qzdca74WJR6j51pHGpVIjBo/GSAkq+n+KbthycNFC9jQBa8Dm8vTCeJapgS3oNCAF2
-         YM+0XrpUOTwLwZYdjYL2tTdbfsX2+62gcsz5YxKE=
+        b=qz8MucHnOij8T9Pa7/e5ZcxNIrHeNrlF12Df01kSPZ8wpirNcHEkOARDrZ2v/KuiZ
+         nydIRYWTN3FEAyOqpZMIZdzuCIEUivdkVXjpzSdFJg+ilN7CwKXZo08lSxhZ0rhbk6
+         29oEkOjrImmMMkecvy9vjLxe1S0t3tV/xqSxmVZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Leo Savernik <l.savernik@aon.at>,
-        Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 015/206] nvme: add a bogus subsystem NQN quirk for Micron MTFDKBA2T0TFH
-Date:   Wed, 30 Nov 2022 19:21:07 +0100
-Message-Id: <20221130180533.386128055@linuxfoundation.org>
+        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 083/289] netfilter: nf_tables: do not set up extensions for end interval
+Date:   Wed, 30 Nov 2022 19:21:08 +0100
+Message-Id: <20221130180546.027653943@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Savernik <l.savernik@aon.at>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 41f38043f884c66af4114a7109cf540d6222f450 ]
+[ Upstream commit 33c7aba0b4ffd6d7cdab862a034eb582a5120a38 ]
 
-The Micron MTFDKBA2T0TFH device reports the same subsysem NQN for
-all devices.  Add a quick to ignore it.
+Elements with an end interval flag set on do not store extensions. The
+global set definition is currently setting on the timeout and stateful
+expression for end interval elements.
 
-Signed-off-by: Leo Savernik <l.savernik@aon.at>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Stable-dep-of: d5ceb4d1c507 ("nvme-pci: add NVME_QUIRK_BOGUS_NID for Micron Nitro")
+This leads to skipping end interval elements from the set->ops->walk()
+path as the expired check bogusly reports true.
+
+Moreover, do not set up stateful expressions for elements with end
+interval flag set on since this is never used.
+
+Fixes: 65038428b2c6 ("netfilter: nf_tables: allow to specify stateful expression in set definition")
+Fixes: 8d8540c4f5e0 ("netfilter: nft_set_rbtree: add timeout support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/netfilter/nf_tables_api.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index e9f3701dda3f..4fa2955dbf6c 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3351,6 +3351,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 	{ PCI_DEVICE(0x1cc1, 0x8201),   /* ADATA SX8200PNP 512GB */
- 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS |
- 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
-+	 { PCI_DEVICE(0x1344, 0x5407), /* Micron Technology Inc NVMe SSD */
-+		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN },
- 	{ PCI_DEVICE(0x1c5c, 0x1504),   /* SK Hynix PC400 */
- 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
- 	{ PCI_DEVICE(0x15b7, 0x2001),   /*  Sandisk Skyhawk */
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 42e370575c30..0a6f3c1e9ab7 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -5958,7 +5958,8 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+ 					    &timeout);
+ 		if (err)
+ 			return err;
+-	} else if (set->flags & NFT_SET_TIMEOUT) {
++	} else if (set->flags & NFT_SET_TIMEOUT &&
++		   !(flags & NFT_SET_ELEM_INTERVAL_END)) {
+ 		timeout = set->timeout;
+ 	}
+ 
+@@ -6024,7 +6025,8 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+ 			err = -EOPNOTSUPP;
+ 			goto err_set_elem_expr;
+ 		}
+-	} else if (set->num_exprs > 0) {
++	} else if (set->num_exprs > 0 &&
++		   !(flags & NFT_SET_ELEM_INTERVAL_END)) {
+ 		err = nft_set_elem_expr_clone(ctx, set, expr_array);
+ 		if (err < 0)
+ 			goto err_set_elem_expr_clone;
 -- 
 2.35.1
 
