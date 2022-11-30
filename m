@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFD9B63DF2A
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:44:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D7063DF2C
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:44:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231294AbiK3Son (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:44:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55540 "EHLO
+        id S231217AbiK3Soq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:44:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231296AbiK3SoV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:44:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BC9B99F58
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:44:11 -0800 (PST)
+        with ESMTP id S231304AbiK3SoY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:44:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53D532BB14
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:44:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22637B81CA8
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:44:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 810E6C433D6;
-        Wed, 30 Nov 2022 18:44:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E5FC861D76
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:44:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 035F6C433D6;
+        Wed, 30 Nov 2022 18:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833848;
-        bh=gGLteT8K6TxzFC9zMhFubn3DVHcCYF7LsJcYHZfDbXY=;
+        s=korg; t=1669833854;
+        bh=nSqaoTuAp7ixxWx2uU45tc3fXGYqyn+7fl8a/mxvdqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yFfoT9dWuAWuP1hkgDLYmLDsw8jei3ohewsaV5LPkt3FpwF/DF/CyTrBdMoHPdTJO
-         1k+NiSgNHlFaXIVHohxHJd17/2YwnoAaYbFkSX+aIsmaZZLOf/xsiBi1QTYRQohwH7
-         ++ERDT38nJj/zQpCW7vvvmIXt3DKQQsQw+YRAc4g=
+        b=kvPKQFv/1GB8SPi8gYHxwyYUn/jNvANwn80mQNQ2GIiMfcMd3GhwVZRLA4WlJSn4G
+         JV35GJhgWNhxXaaCLjijbcnq6qsrUZcYCDsVeB8VJu/ZNkNhMyk+rD8mDyKczPPkL6
+         CWKE2B7Tgul15JWYtZDuof7J7pi6maFksti3Txdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Asher Song <Asher.Song@amd.com>,
-        Guchun Chen <guchun.chen@amd.com>,
+        patches@lists.linux.dev, Philip Yang <Philip.Yang@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 037/289] Revert "drm/amdgpu: Revert "drm/amdgpu: getting fan speed pwm for vega10 properly""
-Date:   Wed, 30 Nov 2022 19:20:22 +0100
-Message-Id: <20221130180544.973962153@linuxfoundation.org>
+Subject: [PATCH 6.0 038/289] drm/amdgpu: Drop eviction lock when allocating PT BO
+Date:   Wed, 30 Nov 2022 19:20:23 +0100
+Message-Id: <20221130180544.995989131@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -54,62 +54,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Asher Song <Asher.Song@amd.com>
+From: Philip Yang <Philip.Yang@amd.com>
 
-[ Upstream commit 30b8e7b8ee3be003e0df85c857c5cd0e0bd58b82 ]
+[ Upstream commit e034a0d9aaee5c9129d5dfdfdfcab988a953412d ]
 
-This reverts commit 4545ae2ed3f2f7c3f615a53399c9c8460ee5bca7.
+Re-take the eviction lock immediately again after the allocation is
+completed, to fix circular locking warning with drm_buddy allocator.
 
-The origin patch "drm/amdgpu: getting fan speed pwm for vega10 properly" works fine.
-Test failure is caused by test case self.
+Move amdgpu_vm_eviction_lock/unlock/trylock to amdgpu_vm.h as they are
+called from multiple files.
 
-Signed-off-by: Asher Song <Asher.Song@amd.com>
-Reviewed-by: Guchun Chen <guchun.chen@amd.com>
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../amd/pm/powerplay/hwmgr/vega10_thermal.c   | 25 +++++++++----------
- 1 file changed, 12 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c    | 26 -----------------------
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.h    | 26 +++++++++++++++++++++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm_pt.c |  2 ++
+ 3 files changed, 28 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_thermal.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_thermal.c
-index dad3e3741a4e..190af79f3236 100644
---- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_thermal.c
-+++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_thermal.c
-@@ -67,22 +67,21 @@ int vega10_fan_ctrl_get_fan_speed_info(struct pp_hwmgr *hwmgr,
- int vega10_fan_ctrl_get_fan_speed_pwm(struct pp_hwmgr *hwmgr,
- 		uint32_t *speed)
- {
--	uint32_t current_rpm;
--	uint32_t percent = 0;
--
--	if (hwmgr->thermal_controller.fanInfo.bNoFan)
--		return 0;
-+	struct amdgpu_device *adev = hwmgr->adev;
-+	uint32_t duty100, duty;
-+	uint64_t tmp64;
- 
--	if (vega10_get_current_rpm(hwmgr, &current_rpm))
--		return -1;
-+	duty100 = REG_GET_FIELD(RREG32_SOC15(THM, 0, mmCG_FDO_CTRL1),
-+				CG_FDO_CTRL1, FMAX_DUTY100);
-+	duty = REG_GET_FIELD(RREG32_SOC15(THM, 0, mmCG_THERMAL_STATUS),
-+				CG_THERMAL_STATUS, FDO_PWM_DUTY);
- 
--	if (hwmgr->thermal_controller.
--			advanceFanControlParameters.usMaxFanRPM != 0)
--		percent = current_rpm * 255 /
--			hwmgr->thermal_controller.
--			advanceFanControlParameters.usMaxFanRPM;
-+	if (!duty100)
-+		return -EINVAL;
- 
--	*speed = MIN(percent, 255);
-+	tmp64 = (uint64_t)duty * 255;
-+	do_div(tmp64, duty100);
-+	*speed = MIN((uint32_t)tmp64, 255);
- 
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+index 04130f8813ef..369c0d03e3c6 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+@@ -143,32 +143,6 @@ int amdgpu_vm_set_pasid(struct amdgpu_device *adev, struct amdgpu_vm *vm,
  	return 0;
  }
+ 
+-/*
+- * vm eviction_lock can be taken in MMU notifiers. Make sure no reclaim-FS
+- * happens while holding this lock anywhere to prevent deadlocks when
+- * an MMU notifier runs in reclaim-FS context.
+- */
+-static inline void amdgpu_vm_eviction_lock(struct amdgpu_vm *vm)
+-{
+-	mutex_lock(&vm->eviction_lock);
+-	vm->saved_flags = memalloc_noreclaim_save();
+-}
+-
+-static inline int amdgpu_vm_eviction_trylock(struct amdgpu_vm *vm)
+-{
+-	if (mutex_trylock(&vm->eviction_lock)) {
+-		vm->saved_flags = memalloc_noreclaim_save();
+-		return 1;
+-	}
+-	return 0;
+-}
+-
+-static inline void amdgpu_vm_eviction_unlock(struct amdgpu_vm *vm)
+-{
+-	memalloc_noreclaim_restore(vm->saved_flags);
+-	mutex_unlock(&vm->eviction_lock);
+-}
+-
+ /**
+  * amdgpu_vm_bo_evicted - vm_bo is evicted
+  *
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.h
+index 278512535b51..39d2898caede 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.h
+@@ -503,4 +503,30 @@ static inline uint64_t amdgpu_vm_tlb_seq(struct amdgpu_vm *vm)
+ 	return atomic64_read(&vm->tlb_seq);
+ }
+ 
++/*
++ * vm eviction_lock can be taken in MMU notifiers. Make sure no reclaim-FS
++ * happens while holding this lock anywhere to prevent deadlocks when
++ * an MMU notifier runs in reclaim-FS context.
++ */
++static inline void amdgpu_vm_eviction_lock(struct amdgpu_vm *vm)
++{
++	mutex_lock(&vm->eviction_lock);
++	vm->saved_flags = memalloc_noreclaim_save();
++}
++
++static inline bool amdgpu_vm_eviction_trylock(struct amdgpu_vm *vm)
++{
++	if (mutex_trylock(&vm->eviction_lock)) {
++		vm->saved_flags = memalloc_noreclaim_save();
++		return true;
++	}
++	return false;
++}
++
++static inline void amdgpu_vm_eviction_unlock(struct amdgpu_vm *vm)
++{
++	memalloc_noreclaim_restore(vm->saved_flags);
++	mutex_unlock(&vm->eviction_lock);
++}
++
+ #endif
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_pt.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_pt.c
+index 88de9f0d4728..983899574464 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_pt.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm_pt.c
+@@ -597,7 +597,9 @@ static int amdgpu_vm_pt_alloc(struct amdgpu_device *adev,
+ 	if (entry->bo)
+ 		return 0;
+ 
++	amdgpu_vm_eviction_unlock(vm);
+ 	r = amdgpu_vm_pt_create(adev, vm, cursor->level, immediate, &pt);
++	amdgpu_vm_eviction_lock(vm);
+ 	if (r)
+ 		return r;
+ 
 -- 
 2.35.1
 
