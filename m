@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C07363E032
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:54:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1D6063DDDC
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:31:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231566AbiK3Syg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:54:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45268 "EHLO
+        id S229978AbiK3SbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:31:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231570AbiK3Sye (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:54:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 020A963D41
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:54:28 -0800 (PST)
+        with ESMTP id S229984AbiK3SbS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:31:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C3818FD5C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:31:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD629B81CA9
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:54:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23485C433D6;
-        Wed, 30 Nov 2022 18:54:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01F86B81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:31:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FB61C433C1;
+        Wed, 30 Nov 2022 18:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834465;
-        bh=NP08Bu41lnXELqkflD2hs9IQL0DrhHcjsLCdz4Yc2as=;
+        s=korg; t=1669833071;
+        bh=rLxlVDAiLFYqKwd50WpY4lApK6RTMDbrbj5wiERgHpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5wo2rM+c77omhdnKWj1jrQrgrEud9ShRjkJDkLNuQ21Yi5ic/2TyF26UowqY9UUB
-         nS4xZaffPau+iW6NiILIhlfJgIgmfeGgmU6IKpx17kC1xjQ+XjP+iE5spyBROo/yIQ
-         mIMEFc29fhNLn1djVvNoq2Q149kMLMarHwfAhvfA=
+        b=KkU3rS7500XcT1hzfNwRXts/30VQwVbu0VAQNMErrly/hdsxj2L4nYHJkjlbguyU0
+         lrUQdCZDHl9mZ46RYLNvhdKFUiY4u4+IkLqw4OK3sBxmyQf+n/dEKy5HqwME+hzpXg
+         N4X7vWsJR1D0RS4cpytZq/OB6iwGpcAK52yWsOOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhu Ning <zhuning@everest-semi.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 236/289] ASoC: sof_es8336: reduce pop noise on speaker
-Date:   Wed, 30 Nov 2022 19:23:41 +0100
-Message-Id: <20221130180549.461699381@linuxfoundation.org>
+Subject: [PATCH 5.10 141/162] zonefs: fix zone report size in __zonefs_io_error()
+Date:   Wed, 30 Nov 2022 19:23:42 +0100
+Message-Id: <20221130180532.304530894@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,136 +54,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Ning <zhuning0077@gmail.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 89cdb224f2abe37ec4ac21ba0d9ddeb5a6a9cf68 ]
+[ Upstream commit 7dd12d65ac646046a3fe0bbf9a4e86f4514207b3 ]
 
-The Speaker GPIO needs to be turned on slightly behind the codec turned on.
-It also need to be turned off slightly before the codec turned down.
-Current code uses delay in DAPM_EVENT to do it but the mdelay delays the
-DAPM itself and thus has no effect. A delayed_work is added to turn on the
-speaker.
-The Speaker is turned off in .trigger since trigger is called slightly
-before the DAPM events.
+When an IO error occurs, the function __zonefs_io_error() is used to
+issue a zone report to obtain the latest zone information from the
+device. This function gets a zone report for all zones used as storage
+for a file, which is always 1 zone except for files representing
+aggregated conventional zones.
 
-Signed-off-by: Zhu Ning <zhuning@everest-semi.com>
+The number of zones of a zone report for a file is calculated in
+__zonefs_io_error() by doing a bit-shift of the inode i_zone_size field,
+which is equal to or larger than the device zone size. However, this
+calculation does not take into account that the last zone of a zoned
+device may be smaller than the zone size reported by bdev_zone_sectors()
+(which is used to set the bit shift size). As a result, if an error
+occurs for an IO targetting such last smaller zone, the zone report will
+ask for 0 zones, leading to an invalid zone report.
 
-------------
+Fix this by using the fact that all files require a 1 zone report,
+except if the inode i_zone_size field indicates a zone size larger than
+the device zone size. This exception case corresponds to a mount with
+aggregated conventional zones.
 
-v1: cancel delayed work while disabling speaker.
-Link: https://lore.kernel.org/r/20221028020456.90286-1-zhuning0077@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+A check for this exception is added to the file inode initialization
+during mount. If an invalid setup is detected, emit an error and fail
+the mount (check contributed by Johannes Thumshirn).
+
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_es8336.c | 60 ++++++++++++++++++++++-------
- 1 file changed, 46 insertions(+), 14 deletions(-)
+ fs/zonefs/super.c | 37 +++++++++++++++++++++++++++----------
+ 1 file changed, 27 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
-index 606cc3242a60..5c218a39ca20 100644
---- a/sound/soc/intel/boards/sof_es8336.c
-+++ b/sound/soc/intel/boards/sof_es8336.c
-@@ -63,6 +63,7 @@ struct sof_es8336_private {
- 	struct snd_soc_jack jack;
- 	struct list_head hdmi_pcm_list;
- 	bool speaker_en;
-+	struct delayed_work pcm_pop_work;
- };
+diff --git a/fs/zonefs/super.c b/fs/zonefs/super.c
+index bf5cb6efb8c0..475d23a4f8da 100644
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -440,14 +440,22 @@ static void __zonefs_io_error(struct inode *inode, bool write)
+ 	struct super_block *sb = inode->i_sb;
+ 	struct zonefs_sb_info *sbi = ZONEFS_SB(sb);
+ 	unsigned int noio_flag;
+-	unsigned int nr_zones =
+-		zi->i_zone_size >> (sbi->s_zone_sectors_shift + SECTOR_SHIFT);
++	unsigned int nr_zones = 1;
+ 	struct zonefs_ioerr_data err = {
+ 		.inode = inode,
+ 		.write = write,
+ 	};
+ 	int ret;
  
- struct sof_hdmi_pcm {
-@@ -111,6 +112,46 @@ static void log_quirks(struct device *dev)
- 		dev_info(dev, "quirk headset at mic1 port enabled\n");
- }
- 
-+static void pcm_pop_work_events(struct work_struct *work)
-+{
-+	struct sof_es8336_private *priv =
-+		container_of(work, struct sof_es8336_private, pcm_pop_work.work);
++	/*
++	 * The only files that have more than one zone are conventional zone
++	 * files with aggregated conventional zones, for which the inode zone
++	 * size is always larger than the device zone size.
++	 */
++	if (zi->i_zone_size > bdev_zone_sectors(sb->s_bdev))
++		nr_zones = zi->i_zone_size >>
++			(sbi->s_zone_sectors_shift + SECTOR_SHIFT);
 +
-+	gpiod_set_value_cansleep(priv->gpio_speakers, priv->speaker_en);
-+
-+	if (quirk & SOF_ES8336_HEADPHONE_GPIO)
-+		gpiod_set_value_cansleep(priv->gpio_headphone, priv->speaker_en);
-+
-+}
-+
-+static int sof_8336_trigger(struct snd_pcm_substream *substream, int cmd)
-+{
-+	struct snd_soc_pcm_runtime *rtd = asoc_substream_to_rtd(substream);
-+	struct snd_soc_card *card = rtd->card;
-+	struct sof_es8336_private *priv = snd_soc_card_get_drvdata(card);
-+
-+	switch (cmd) {
-+	case SNDRV_PCM_TRIGGER_START:
-+	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
-+	case SNDRV_PCM_TRIGGER_RESUME:
-+		break;
-+
-+	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
-+	case SNDRV_PCM_TRIGGER_SUSPEND:
-+	case SNDRV_PCM_TRIGGER_STOP:
-+		if (priv->speaker_en == false)
-+			if (substream->stream == 0) {
-+				cancel_delayed_work(&priv->pcm_pop_work);
-+				gpiod_set_value_cansleep(priv->gpio_speakers, true);
-+			}
-+		break;
-+	default:
+ 	/*
+ 	 * Memory allocations in blkdev_report_zones() can trigger a memory
+ 	 * reclaim which may in turn cause a recursion into zonefs as well as
+@@ -1364,6 +1372,14 @@ static int zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
+ 	zi->i_ztype = type;
+ 	zi->i_zsector = zone->start;
+ 	zi->i_zone_size = zone->len << SECTOR_SHIFT;
++	if (zi->i_zone_size > bdev_zone_sectors(sb->s_bdev) << SECTOR_SHIFT &&
++	    !(sbi->s_features & ZONEFS_F_AGGRCNV)) {
++		zonefs_err(sb,
++			   "zone size %llu doesn't match device's zone sectors %llu\n",
++			   zi->i_zone_size,
++			   bdev_zone_sectors(sb->s_bdev) << SECTOR_SHIFT);
 +		return -EINVAL;
 +	}
-+
-+	return 0;
-+}
-+
- static int sof_es8316_speaker_power_event(struct snd_soc_dapm_widget *w,
- 					  struct snd_kcontrol *kcontrol, int event)
- {
-@@ -122,19 +163,7 @@ static int sof_es8316_speaker_power_event(struct snd_soc_dapm_widget *w,
  
- 	priv->speaker_en = !SND_SOC_DAPM_EVENT_ON(event);
+ 	zi->i_max_size = min_t(loff_t, MAX_LFS_FILESIZE,
+ 			       zone->capacity << SECTOR_SHIFT);
+@@ -1406,11 +1422,11 @@ static struct dentry *zonefs_create_inode(struct dentry *parent,
+ 	struct inode *dir = d_inode(parent);
+ 	struct dentry *dentry;
+ 	struct inode *inode;
+-	int ret;
++	int ret = -ENOMEM;
  
--	if (SND_SOC_DAPM_EVENT_ON(event))
--		msleep(70);
--
--	gpiod_set_value_cansleep(priv->gpio_speakers, priv->speaker_en);
--
--	if (!(quirk & SOF_ES8336_HEADPHONE_GPIO))
--		return 0;
--
--	if (SND_SOC_DAPM_EVENT_ON(event))
--		msleep(70);
--
--	gpiod_set_value_cansleep(priv->gpio_headphone, priv->speaker_en);
--
-+	queue_delayed_work(system_wq, &priv->pcm_pop_work, msecs_to_jiffies(70));
- 	return 0;
+ 	dentry = d_alloc_name(parent, name);
+ 	if (!dentry)
+-		return NULL;
++		return ERR_PTR(ret);
+ 
+ 	inode = new_inode(parent->d_sb);
+ 	if (!inode)
+@@ -1435,7 +1451,7 @@ static struct dentry *zonefs_create_inode(struct dentry *parent,
+ dput:
+ 	dput(dentry);
+ 
+-	return NULL;
++	return ERR_PTR(ret);
  }
  
-@@ -344,6 +373,7 @@ static int sof_es8336_hw_params(struct snd_pcm_substream *substream,
- /* machine stream operations */
- static struct snd_soc_ops sof_es8336_ops = {
- 	.hw_params = sof_es8336_hw_params,
-+	.trigger = sof_8336_trigger,
- };
+ struct zonefs_zone_data {
+@@ -1455,7 +1471,7 @@ static int zonefs_create_zgroup(struct zonefs_zone_data *zd,
+ 	struct blk_zone *zone, *next, *end;
+ 	const char *zgroup_name;
+ 	char *file_name;
+-	struct dentry *dir;
++	struct dentry *dir, *dent;
+ 	unsigned int n = 0;
+ 	int ret;
  
- static struct snd_soc_dai_link_component platform_component[] = {
-@@ -722,7 +752,8 @@ static int sof_es8336_probe(struct platform_device *pdev)
+@@ -1473,8 +1489,8 @@ static int zonefs_create_zgroup(struct zonefs_zone_data *zd,
+ 		zgroup_name = "seq";
+ 
+ 	dir = zonefs_create_inode(sb->s_root, zgroup_name, NULL, type);
+-	if (!dir) {
+-		ret = -ENOMEM;
++	if (IS_ERR(dir)) {
++		ret = PTR_ERR(dir);
+ 		goto free;
  	}
  
- 	INIT_LIST_HEAD(&priv->hdmi_pcm_list);
--
-+	INIT_DELAYED_WORK(&priv->pcm_pop_work,
-+				pcm_pop_work_events);
- 	snd_soc_card_set_drvdata(card, priv);
+@@ -1520,8 +1536,9 @@ static int zonefs_create_zgroup(struct zonefs_zone_data *zd,
+ 		 * Use the file number within its group as file name.
+ 		 */
+ 		snprintf(file_name, ZONEFS_NAME_MAX - 1, "%u", n);
+-		if (!zonefs_create_inode(dir, file_name, zone, type)) {
+-			ret = -ENOMEM;
++		dent = zonefs_create_inode(dir, file_name, zone, type);
++		if (IS_ERR(dent)) {
++			ret = PTR_ERR(dent);
+ 			goto free;
+ 		}
  
- 	if (mach->mach_params.dmic_num > 0) {
-@@ -751,6 +782,7 @@ static int sof_es8336_remove(struct platform_device *pdev)
- 	struct snd_soc_card *card = platform_get_drvdata(pdev);
- 	struct sof_es8336_private *priv = snd_soc_card_get_drvdata(card);
- 
-+	cancel_delayed_work(&priv->pcm_pop_work);
- 	gpiod_put(priv->gpio_speakers);
- 	device_remove_software_node(priv->codec_dev);
- 	put_device(priv->codec_dev);
 -- 
 2.35.1
 
