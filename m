@@ -2,168 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41C1D63DFA9
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:49:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0270263DE82
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:37:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231470AbiK3Std (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:49:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35996 "EHLO
+        id S230220AbiK3Sht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:37:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231503AbiK3StO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:49:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7500D9D80C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:49:12 -0800 (PST)
+        with ESMTP id S230438AbiK3Shq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:37:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C54169491A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:37:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5715B81CA8
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:49:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01F71C433C1;
-        Wed, 30 Nov 2022 18:49:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 659AA61D74
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:37:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FE89C433C1;
+        Wed, 30 Nov 2022 18:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834150;
-        bh=qkO3y6NykYbxOWkZMVCRpb0Ayei80GRW3G7RyxODvMI=;
+        s=korg; t=1669833446;
+        bh=xEWTVGyJfFpbD4hWXOp2L+zNR4YYuDtukWOaBEupzks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HDfmS1IWdGS4L5E/guA2MumvsjnPSD6jINhDnFJgOONrsPcu2io7OcIvzbA0S3X3q
-         hN9FZxpu9uuRlGghZs6tIbKhwnjOA7NuHS9FU+rCNcNVCC//pc1eDbBLQRWf7qB5Ei
-         OOTiNdh47JQN/5ixGQnOWv283r21HWdLgNErTVFU=
+        b=duqI+ZU8wy+O1W37aZdyJ4F22PDFsSURoo0w5aZ/zRvcwpn/ODTM+k421UJNW+jdW
+         DULMZe3u6cr2bCELxy3RCWooIHhlaH4EbnYtJi0zqguEI2/svqQU7U3jsxDmUmHyAh
+         PYL127pLbLUPMErotNy7KTqQ6rdBDY5IWdhXH1vY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Denis Efremov <denis.e.efremov@oracle.com>,
-        Guenter Roeck <groeck@google.com>,
-        Martin Faltesek <mfaltesek@google.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        syzbot+9b69b8d10ab4a7d88056@syzkaller.appspotmail.com,
+        Zhengchao Shao <shaozhengchao@huawei.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 148/289] nfc: st-nci: fix incorrect sizing calculations in EVT_TRANSACTION
+Subject: [PATCH 5.15 081/206] 9p/fd: fix issue of list_del corruption in p9_fd_cancel()
 Date:   Wed, 30 Nov 2022 19:22:13 +0100
-Message-Id: <20221130180547.491951744@linuxfoundation.org>
+Message-Id: <20221130180535.061270250@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Faltesek <mfaltesek@google.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 0254f31a7df3bb3b90c2d9dd2d4052f7b95eb287 ]
+[ Upstream commit 11c10956515b8ec44cf4f2a7b9d8bf8b9dc05ec4 ]
 
-The transaction buffer is allocated by using the size of the packet buf,
-and subtracting two which seems intended to remove the two tags which are
-not present in the target structure. This calculation leads to under
-counting memory because of differences between the packet contents and the
-target structure. The aid_len field is a u8 in the packet, but a u32 in
-the structure, resulting in at least 3 bytes always being under counted.
-Further, the aid data is a variable length field in the packet, but fixed
-in the structure, so if this field is less than the max, the difference is
-added to the under counting.
+Syz reported the following issue:
+kernel BUG at lib/list_debug.c:53!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+RIP: 0010:__list_del_entry_valid.cold+0x5c/0x72
+Call Trace:
+<TASK>
+p9_fd_cancel+0xb1/0x270
+p9_client_rpc+0x8ea/0xba0
+p9_client_create+0x9c0/0xed0
+v9fs_session_init+0x1e0/0x1620
+v9fs_mount+0xba/0xb80
+legacy_get_tree+0x103/0x200
+vfs_get_tree+0x89/0x2d0
+path_mount+0x4c0/0x1ac0
+__x64_sys_mount+0x33b/0x430
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+</TASK>
 
-To fix, perform validation checks progressively to safely reach the
-next field, to determine the size of both buffers and verify both tags.
-Once all validation checks pass, allocate the buffer and copy the data.
-This eliminates freeing memory on the error path, as validation checks are
-moved ahead of memory allocation.
+The process is as follows:
+Thread A:                       Thread B:
+p9_poll_workfn()                p9_client_create()
+...                                 ...
+    p9_conn_cancel()                p9_fd_cancel()
+        list_del()                      ...
+        ...                             list_del()  //list_del
+                                                      corruption
+There is no lock protection when deleting list in p9_conn_cancel(). After
+deleting list in Thread A, thread B will delete the same list again. It
+will cause issue of list_del corruption.
 
-Reported-by: Denis Efremov <denis.e.efremov@oracle.com>
-Reviewed-by: Guenter Roeck <groeck@google.com>
-Fixes: 5d1ceb7f5e56 ("NFC: st21nfcb: Add HCI transaction event support")
-Signed-off-by: Martin Faltesek <mfaltesek@google.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Setting req->status to REQ_STATUS_ERROR under lock prevents other
+cleanup paths from trying to manipulate req_list.
+The other thread can safely check req->status because it still holds a
+reference to req at this point.
+
+Link: https://lkml.kernel.org/r/20221110122606.383352-1-shaozhengchao@huawei.com
+Fixes: 52f1c45dde91 ("9p: trans_fd/p9_conn_cancel: drop client lock earlier")
+Reported-by: syzbot+9b69b8d10ab4a7d88056@syzkaller.appspotmail.com
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+[Dominique: add description of the fix in commit message]
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st-nci/se.c | 51 +++++++++++++++++++++++++++++------------
- 1 file changed, 36 insertions(+), 15 deletions(-)
+ net/9p/trans_fd.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nfc/st-nci/se.c b/drivers/nfc/st-nci/se.c
-index fc59916ae5ae..ec87dd21e054 100644
---- a/drivers/nfc/st-nci/se.c
-+++ b/drivers/nfc/st-nci/se.c
-@@ -312,6 +312,8 @@ static int st_nci_hci_connectivity_event_received(struct nci_dev *ndev,
- 	int r = 0;
- 	struct device *dev = &ndev->nfc_dev->dev;
- 	struct nfc_evt_transaction *transaction;
-+	u32 aid_len;
-+	u8 params_len;
+diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
+index a8c1f742148c..31f2026514f3 100644
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -204,9 +204,11 @@ static void p9_conn_cancel(struct p9_conn *m, int err)
  
- 	pr_debug("connectivity gate event: %x\n", event);
+ 	list_for_each_entry_safe(req, rtmp, &m->req_list, req_list) {
+ 		list_move(&req->req_list, &cancel_list);
++		req->status = REQ_STATUS_ERROR;
+ 	}
+ 	list_for_each_entry_safe(req, rtmp, &m->unsent_req_list, req_list) {
+ 		list_move(&req->req_list, &cancel_list);
++		req->status = REQ_STATUS_ERROR;
+ 	}
  
-@@ -325,28 +327,47 @@ static int st_nci_hci_connectivity_event_received(struct nci_dev *ndev,
- 		 * Description  Tag     Length
- 		 * AID          81      5 to 16
- 		 * PARAMETERS   82      0 to 255
-+		 *
-+		 * The key differences are aid storage length is variably sized
-+		 * in the packet, but fixed in nfc_evt_transaction, and that
-+		 * the aid_len is u8 in the packet, but u32 in the structure,
-+		 * and the tags in the packet are not included in
-+		 * nfc_evt_transaction.
-+		 *
-+		 * size(b):  1          1       5-16 1             1           0-255
-+		 * offset:   0          1       2    aid_len + 2   aid_len + 3 aid_len + 4
-+		 * mem name: aid_tag(M) aid_len aid  params_tag(M) params_len  params
-+		 * example:  0x81       5-16    X    0x82          0-255       X
- 		 */
--		if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
--		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
-+		if (skb->len < 2 || skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
- 			return -EPROTO;
- 
--		transaction = devm_kzalloc(dev, skb->len - 2, GFP_KERNEL);
--		if (!transaction)
--			return -ENOMEM;
-+		aid_len = skb->data[1];
- 
--		transaction->aid_len = skb->data[1];
--		memcpy(transaction->aid, &skb->data[2], transaction->aid_len);
-+		if (skb->len < aid_len + 4 ||
-+		    aid_len > sizeof(transaction->aid))
-+			return -EPROTO;
- 
--		/* Check next byte is PARAMETERS tag (82) */
--		if (skb->data[transaction->aid_len + 2] !=
--		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
--			devm_kfree(dev, transaction);
-+		params_len = skb->data[aid_len + 3];
-+
-+		/* Verify PARAMETERS tag is (82), and final check that there is
-+		 * enough space in the packet to read everything.
-+		 */
-+		if (skb->data[aid_len + 2] != NFC_EVT_TRANSACTION_PARAMS_TAG ||
-+		    skb->len < aid_len + 4 + params_len)
- 			return -EPROTO;
--		}
- 
--		transaction->params_len = skb->data[transaction->aid_len + 3];
--		memcpy(transaction->params, skb->data +
--		       transaction->aid_len + 4, transaction->params_len);
-+		transaction = devm_kzalloc(dev, sizeof(*transaction) +
-+					   params_len, GFP_KERNEL);
-+		if (!transaction)
-+			return -ENOMEM;
-+
-+		transaction->aid_len = aid_len;
-+		transaction->params_len = params_len;
-+
-+		memcpy(transaction->aid, &skb->data[2], aid_len);
-+		memcpy(transaction->params, &skb->data[aid_len + 4],
-+		       params_len);
- 
- 		r = nfc_se_transaction(ndev->nfc_dev, host, transaction);
- 		break;
+ 	spin_unlock(&m->req_lock);
 -- 
 2.35.1
 
