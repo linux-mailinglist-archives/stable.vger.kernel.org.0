@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BA8663DFE0
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:51:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CD9F63DE93
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230150AbiK3Svh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:51:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38836 "EHLO
+        id S230455AbiK3Sid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:38:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231401AbiK3SvP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:51:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19F209FEE7
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:51:11 -0800 (PST)
+        with ESMTP id S230461AbiK3Sic (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:38:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF0F223EB9
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:38:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAF2E61D84
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:51:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7E79C433D6;
-        Wed, 30 Nov 2022 18:51:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A9A361D6F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:38:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18A7DC433C1;
+        Wed, 30 Nov 2022 18:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834270;
-        bh=RYiL9DUddLCPgw9J51Sa4l2kovyOTMBBMqb6P5ZaWec=;
+        s=korg; t=1669833510;
+        bh=ZPDmWSaOqn5huWzPEXF+kprFKieBxgNMfANb1/7wSNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLfA3RiVNGIuGp+nBCFP8FBU4DFyFaSn8judcswlMnbhxYu8eyPNEt1UJtjKU0TjT
-         srmzm9mbIjfK0z1qC/UWw2vUhabxVG8SRQvyaXa2CF7suVxcJMkUGEUGyNSey83omx
-         okE9bTxDY4uvOP+GCmrFgvHZdlHwWYV1NkHj/EjI=
+        b=dZ8+V7bqDGESlXJXY4KnYk9FCRACscrBZx8dZk8AF91DHzkdmJRA7jbq37rX8oO2b
+         0IN1zUqvoGacpRrwu/r2XqkEQpgbg//tdW9plpM5hx2mjbZvlUcOnVLvAqr+pPRb0g
+         hpUrv/qS1jhCDXv10BV70Pi6OSkjwRW+JlXBdggw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alvin Lee <Alvin.Lee2@amd.com>,
-        Tom Chung <chiahsuan.chung@amd.com>,
-        George Shen <george.shen@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev,
+        Denis Efremov <denis.e.efremov@oracle.com>,
+        Guenter Roeck <groeck@google.com>,
+        Martin Faltesek <mfaltesek@google.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 191/289] drm/amd/display: Fix calculation for cursor CAB allocation
+Subject: [PATCH 5.15 124/206] nfc: st-nci: fix incorrect validating logic in EVT_TRANSACTION
 Date:   Wed, 30 Nov 2022 19:22:56 +0100
-Message-Id: <20221130180548.453712583@linuxfoundation.org>
+Message-Id: <20221130180536.202052667@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,70 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Shen <george.shen@amd.com>
+From: Martin Faltesek <mfaltesek@google.com>
 
-[ Upstream commit 4d285241230676ba8b888701b89684b4e0360fcc ]
+[ Upstream commit c60c152230828825c06e62a8f1ce956d4b659266 ]
 
-[Why]
-The cursor size (in memory) is currently incorrectly calculated,
-resulting not enough CAB being allocated for static screen cursor
-in MALL refresh. This results in cursor image corruption.
+The first validation check for EVT_TRANSACTION has two different checks
+tied together with logical AND. One is a check for minimum packet length,
+and the other is for a valid aid_tag. If either condition is true (fails),
+then an error should be triggered. The fix is to change && to ||.
 
-[How]
-Use cursor pitch instead of cursor width when calculating cursor size.
-Update num cache lines calculation to use the result of the cursor size
-calculation instead of manually recalculating again.
-
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
-Acked-by: Tom Chung <chiahsuan.chung@amd.com>
-Signed-off-by: George Shen <george.shen@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.0.x
+Reported-by: Denis Efremov <denis.e.efremov@oracle.com>
+Reviewed-by: Guenter Roeck <groeck@google.com>
+Fixes: 5d1ceb7f5e56 ("NFC: st21nfcb: Add HCI transaction event support")
+Signed-off-by: Martin Faltesek <mfaltesek@google.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ drivers/nfc/st-nci/se.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
-index 84a20ce9bd36..bbc0bfbec6c4 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
-@@ -284,8 +284,7 @@ static uint32_t dcn32_calculate_cab_allocation(struct dc *dc, struct dc_state *c
- 			using the max for calculation */
+diff --git a/drivers/nfc/st-nci/se.c b/drivers/nfc/st-nci/se.c
+index 5fd89f72969d..522b7a128f4c 100644
+--- a/drivers/nfc/st-nci/se.c
++++ b/drivers/nfc/st-nci/se.c
+@@ -326,7 +326,7 @@ static int st_nci_hci_connectivity_event_received(struct nci_dev *ndev,
+ 		 * AID          81      5 to 16
+ 		 * PARAMETERS   82      0 to 255
+ 		 */
+-		if (skb->len < NFC_MIN_AID_LENGTH + 2 &&
++		if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
+ 		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
+ 			return -EPROTO;
  
- 		if (hubp->curs_attr.width > 0) {
--				// Round cursor width to next multiple of 64
--				cursor_size = (((hubp->curs_attr.width + 63) / 64) * 64) * hubp->curs_attr.height;
-+				cursor_size = hubp->curs_attr.pitch * hubp->curs_attr.height;
- 
- 				switch (pipe->stream->cursor_attributes.color_format) {
- 				case CURSOR_MODE_MONO:
-@@ -310,9 +309,9 @@ static uint32_t dcn32_calculate_cab_allocation(struct dc *dc, struct dc_state *c
- 						cursor_size > 16384) {
- 					/* cursor_num_mblk = CEILING(num_cursors*cursor_width*cursor_width*cursor_Bpe/mblk_bytes, 1)
- 					 */
--					cache_lines_used += (((hubp->curs_attr.width * hubp->curs_attr.height * cursor_bpp +
--										DCN3_2_MALL_MBLK_SIZE_BYTES - 1) / DCN3_2_MALL_MBLK_SIZE_BYTES) *
--										DCN3_2_MALL_MBLK_SIZE_BYTES) / dc->caps.cache_line_size + 2;
-+					cache_lines_used += (((cursor_size + DCN3_2_MALL_MBLK_SIZE_BYTES - 1) /
-+							DCN3_2_MALL_MBLK_SIZE_BYTES) * DCN3_2_MALL_MBLK_SIZE_BYTES) /
-+							dc->caps.cache_line_size + 2;
- 				}
- 				break;
- 			}
-@@ -730,10 +729,7 @@ void dcn32_update_mall_sel(struct dc *dc, struct dc_state *context)
- 		struct hubp *hubp = pipe->plane_res.hubp;
- 
- 		if (pipe->stream && pipe->plane_state && hubp && hubp->funcs->hubp_update_mall_sel) {
--			//Round cursor width up to next multiple of 64
--			int cursor_width = ((hubp->curs_attr.width + 63) / 64) * 64;
--			int cursor_height = hubp->curs_attr.height;
--			int cursor_size = cursor_width * cursor_height;
-+			int cursor_size = hubp->curs_attr.pitch * hubp->curs_attr.height;
- 
- 			switch (hubp->curs_attr.color_format) {
- 			case CURSOR_MODE_MONO:
 -- 
 2.35.1
 
