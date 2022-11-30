@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01B6B63DF0A
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:43:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84EE563DF09
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:43:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231220AbiK3SnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:43:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54034 "EHLO
+        id S231219AbiK3SnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:43:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231221AbiK3SnD (ORCPT
+        with ESMTP id S231220AbiK3SnD (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:43:03 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 634DDD48
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68EAEEB7
         for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:43:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BA9D0CE1AC1
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:42:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8899C433D6;
-        Wed, 30 Nov 2022 18:42:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BCB061D6A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:43:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FD9AC433C1;
+        Wed, 30 Nov 2022 18:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833778;
-        bh=S+z5YfB3i4OEKPPY2KBWgFeIQbit3Q3Tk4lqP7UErRQ=;
+        s=korg; t=1669833780;
+        bh=X9pQl7qPJKt05DQwZOx/8QIpcMaJKUUJ9Xb+hErQcoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmmjVHuA89514xy5RzREFZWrfMm4AqqTANQ6oceNrKAFipV9mgRjcO4odtmnbQYmv
-         67xxTFjgKuR2yXAEAxpstvMxgb528LDXIScWHUfWqzQKFr8D7gx8CIZLwBuK74Yv+i
-         B/4bUC1+lcZZ/D9ZPhDx58/f9TzK3NL35kXVWZ+I=
+        b=cyc+8gJtjZsvRX8JysR5O6bSuz/z999Fv7e3NescKz3lJZVlPvh4VkUJw2beNMtUF
+         QLvIdS6cPmRnlcPSIYib8Dcw7RQqJGcdbwLLiJzNvjcCUoWLTfn8YNNj1Lvl02G0io
+         yHo7dXWXAKOwBznMHqe1wU5+NvD6zWBIqgKf8qko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nicolas Cavallari <nicolas.cavallari@green-communications.fr>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 011/289] wifi: mac80211: Fix ack frame idr leak when mesh has no route
-Date:   Wed, 30 Nov 2022 19:19:56 +0100
-Message-Id: <20221130180544.388862367@linuxfoundation.org>
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 012/289] selftests/net: dont tests batched TCP io_uring zc
+Date:   Wed, 30 Nov 2022 19:19:57 +0100
+Message-Id: <20221130180544.412360280@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -54,39 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 39e7b5de9853bd92ddbfa4b14165babacd7da0ba ]
+[ Upstream commit 9921d5013a6e51892623bf2f1c5b49eaecda55ac ]
 
-When trying to transmit an data frame with tx_status to a destination
-that have no route in the mesh, then it is dropped without recrediting
-the ack_status_frames idr.
+It doesn't make sense batch submitting io_uring requests to a single TCP
+socket without linking or some other kind of ordering. Moreover, it
+causes spurious -EINTR fails due to interaction with task_work. Disable
+it for now and keep queue depth=1.
 
-Once it is exhausted, wpa_supplicant starts failing to do SAE with
-NL80211_CMD_FRAME and logs "nl80211: Frame command failed".
-
-Use ieee80211_free_txskb() instead of kfree_skb() to fix it.
-
-Signed-off-by: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
-Link: https://lore.kernel.org/r/20221027140133.1504-1-nicolas.cavallari@green-communications.fr
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/b547698d5938b1b1a898af1c260188d8546ded9a.1666700897.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_pathtbl.c | 2 +-
+ tools/testing/selftests/net/io_uring_zerocopy_tx.sh | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
-index acc1c299f1ae..69d5e1ec6ede 100644
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -710,7 +710,7 @@ int mesh_path_send_to_gates(struct mesh_path *mpath)
- void mesh_path_discard_frame(struct ieee80211_sub_if_data *sdata,
- 			     struct sk_buff *skb)
- {
--	kfree_skb(skb);
-+	ieee80211_free_txskb(&sdata->local->hw, skb);
- 	sdata->u.mesh.mshstats.dropped_frames_no_route++;
- }
+diff --git a/tools/testing/selftests/net/io_uring_zerocopy_tx.sh b/tools/testing/selftests/net/io_uring_zerocopy_tx.sh
+index 32aa6e9dacc2..9ac4456d48fc 100755
+--- a/tools/testing/selftests/net/io_uring_zerocopy_tx.sh
++++ b/tools/testing/selftests/net/io_uring_zerocopy_tx.sh
+@@ -29,7 +29,7 @@ if [[ "$#" -eq "0" ]]; then
+ 	for IP in "${IPs[@]}"; do
+ 		for mode in $(seq 1 3); do
+ 			$0 "$IP" udp -m "$mode" -t 1 -n 32
+-			$0 "$IP" tcp -m "$mode" -t 1 -n 32
++			$0 "$IP" tcp -m "$mode" -t 1 -n 1
+ 		done
+ 	done
  
 -- 
 2.35.1
