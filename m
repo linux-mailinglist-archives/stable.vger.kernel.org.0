@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEB4763DE4D
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E0E63DD53
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230374AbiK3Sfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:35:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43370 "EHLO
+        id S229735AbiK3S03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:26:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230252AbiK3Sfd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 503C494901
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:31 -0800 (PST)
+        with ESMTP id S229816AbiK3S01 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 404D226569
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF75861D72
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0C16C433D6;
-        Wed, 30 Nov 2022 18:35:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7447161D05
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7915DC433D6;
+        Wed, 30 Nov 2022 18:26:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833330;
-        bh=OJnxrvhC00TdDRyoSmbHI3IJXHB/vjfqcIwwsMP5QiY=;
+        s=korg; t=1669832784;
+        bh=T/JNdIwIo6UzgdF5WlTwOUXXb/5183hznI0RTYMs1WY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+V4w+ptS/1wtWVB7NQsbx5o+Y05HSBdtey9eeM17uOqmE6LXR+hahfLTqIL1Q3jq
-         bny28t3s7Ot8j39OptOW/2YGTpfLH+C3Zer93sUeAiKBBL9RJ+Ks2tUBdF/c+1MqCf
-         oeKwHJlevYBqLWtzEqIu9MTwQwY83w1atIHgmYHA=
+        b=TnZgQDLG1ZjovEMMC+ICx3iBg40gY3o0kFv1+WE0ZeWJHHvlv5x7i0NQs3dalJ7En
+         nTlEGDyBReF76wH1DonTDl8pygZE2EqIC0bQJ6zlHexMrkgPAr5b7oW6uGk6JYMfB4
+         kACz5wvqD441QeHhNMISBQUL/xIWY4S+8Obh03/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 067/206] regulator: core: fix UAF in destroy_regulator()
+Subject: [PATCH 5.10 038/162] ASoC: soc-pcm: Dont zero TDM masks in __soc_pcm_open()
 Date:   Wed, 30 Nov 2022 19:21:59 +0100
-Message-Id: <20221130180534.704196860@linuxfoundation.org>
+Message-Id: <20221130180529.538227423@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,130 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 1f386d6894d0f1b7de8ef640c41622ddd698e7ab ]
+[ Upstream commit 39bd801d6908900e9ab0cdc2655150f95ddd4f1a ]
 
-I got a UAF report as following:
+The DAI tx_mask and rx_mask are set by snd_soc_dai_set_tdm_slot()
+and used by later code that depends on the TDM settings. So
+__soc_pcm_open() should not be obliterating those mask values.
 
-==================================================================
-BUG: KASAN: use-after-free in __lock_acquire+0x935/0x2060
-Read of size 8 at addr ffff88810e838220 by task python3/268
-Call Trace:
- <TASK>
- dump_stack_lvl+0x67/0x83
- print_report+0x178/0x4b0
- kasan_report+0x90/0x190
- __lock_acquire+0x935/0x2060
- lock_acquire+0x156/0x400
- _raw_spin_lock+0x2a/0x40
- lockref_get+0x11/0x30
- simple_recursive_removal+0x41/0x440
- debugfs_remove.part.12+0x32/0x50
- debugfs_remove+0x29/0x30
- _regulator_put.cold.54+0x3e/0x27f
- regulator_put+0x1f/0x30
- release_nodes+0x6a/0xa0
- devres_release_all+0xf8/0x150
+The code in __soc_pcm_hw_params() uses these masks to calculate the
+active channels so that only the AIF_IN/AIF_OUT widgets for the
+active TDM slots are enabled. The zeroing of the masks in
+__soc_pcm_open() disables this functionality so all AIF widgets
+were enabled even for channels that are not assigned to a TDM slot.
 
-Allocated by task 37:
- kasan_save_stack+0x1c/0x40
- kasan_set_track+0x21/0x30
- __kasan_slab_alloc+0x5d/0x70
- slab_post_alloc_hook+0x62/0x510
- kmem_cache_alloc_lru+0x222/0x5a0
- __d_alloc+0x31/0x440
- d_alloc+0x30/0xf0
- d_alloc_parallel+0xc4/0xd20
- __lookup_slow+0x15e/0x2f0
- lookup_one_len+0x13a/0x150
- start_creating+0xea/0x190
- debugfs_create_dir+0x1e/0x210
- create_regulator+0x254/0x4e0
- _regulator_get+0x2a1/0x467
- _devm_regulator_get+0x5a/0xb0
- regulator_virtual_probe+0xb9/0x1a0
-
-Freed by task 30:
- kasan_save_stack+0x1c/0x40
- kasan_set_track+0x21/0x30
- kasan_save_free_info+0x2a/0x50
- __kasan_slab_free+0x102/0x190
- kmem_cache_free+0xf6/0x600
- rcu_core+0x54c/0x12b0
- __do_softirq+0xf2/0x5e3
-
-Last potentially related work creation:
- kasan_save_stack+0x1c/0x40
- __kasan_record_aux_stack+0x98/0xb0
- call_rcu+0x42/0x700
- dentry_free+0x6c/0xd0
- __dentry_kill+0x23b/0x2d0
- dput.part.31+0x431/0x780
- simple_recursive_removal+0xa9/0x440
- debugfs_remove.part.12+0x32/0x50
- debugfs_remove+0x29/0x30
- regulator_unregister+0xe3/0x230
- release_nodes+0x6a/0xa0
-
-==================================================================
-
-Here is how happened:
-
-processor A					processor B
-regulator_register()
-  rdev_init_debugfs()
-    rdev->debugfs = debugfs_create_dir()
-						devm_regulator_get()
-						  rdev = regulator_dev_lookup()
-						  create_regulator(rdev)
-						    // using rdev->debugfs as parent
-						    debugfs_create_dir(rdev->debugfs)
-
-mfd_remove_devices_fn()
-  release_nodes()
-    regulator_unregister()
-      // free rdev->debugfs
-      debugfs_remove_recursive(rdev->debugfs)
-						release_nodes()
-						  destroy_regulator()
-						    debugfs_remove_recursive() <- causes UAF
-
-In devm_regulator_get(), after getting rdev, the refcount
-is get, so fix this by moving debugfs_remove_recursive()
-to regulator_dev_release(), then it can be proctected by
-the refcount, the 'rdev->debugfs' can not be freed until
-the refcount is 0.
-
-Fixes: 5de705194e98 ("regulator: Add basic per consumer debugfs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221116033706.3595812-1-yangyingliang@huawei.com
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Fixes: 2e5894d73789 ("ASoC: pcm: Add support for DAI multicodec")
+Link: https://lore.kernel.org/r/20221104132213.121847-1-rf@opensource.cirrus.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-pcm.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index fd61c5c54a07..221ae807b379 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5071,6 +5071,7 @@ static void regulator_dev_release(struct device *dev)
- {
- 	struct regulator_dev *rdev = dev_get_drvdata(dev);
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 8b8a9aca2912..0e2261ee07b6 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -723,11 +723,6 @@ static int soc_pcm_open(struct snd_pcm_substream *substream)
+ 		ret = snd_soc_dai_startup(dai, substream);
+ 		if (ret < 0)
+ 			goto err;
+-
+-		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+-			dai->tx_mask = 0;
+-		else
+-			dai->rx_mask = 0;
+ 	}
  
-+	debugfs_remove_recursive(rdev->debugfs);
- 	kfree(rdev->constraints);
- 	of_node_put(rdev->dev.of_node);
- 	kfree(rdev);
-@@ -5586,7 +5587,6 @@ void regulator_unregister(struct regulator_dev *rdev)
- 
- 	mutex_lock(&regulator_list_mutex);
- 
--	debugfs_remove_recursive(rdev->debugfs);
- 	WARN_ON(rdev->open_count);
- 	regulator_remove_coupling(rdev);
- 	unset_regulator_supplies(rdev);
+ 	/* Dynamic PCM DAI links compat checks use dynamic capabilities */
 -- 
 2.35.1
 
