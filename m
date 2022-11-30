@@ -2,61 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5266C63DA9C
+	by mail.lfdr.de (Postfix) with ESMTP id 9DBCE63DA9D
 	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 17:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230185AbiK3Q3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 11:29:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49876 "EHLO
+        id S230203AbiK3Q3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 11:29:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229621AbiK3Q3p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 11:29:45 -0500
+        with ESMTP id S229631AbiK3Q3q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 11:29:46 -0500
 Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B25C7BFAF
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB74F84DD7
         for <stable@vger.kernel.org>; Wed, 30 Nov 2022 08:29:44 -0800 (PST)
-Received: by mail-ej1-x62a.google.com with SMTP id e27so42654317ejc.12
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 08:29:43 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id ha10so42722262ejb.3
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 08:29:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=cc:to:message-id:date:from:content-transfer-encoding:mime-version
-         :subject:from:to:cc:subject:date:message-id:reply-to;
-        bh=Pw5kShSF3E0E3sfHSq2rS1swDqNHSyrtWf4koh3J7SU=;
-        b=Kk+o2yEg5yzW1D+dnF/cIcgc8Gk9rEgcTR8uPovDjDPf1PkKrRWq/BDqdOQ2U4PJof
-         ZYGyAjHsFgdoX7pMpAU4oGFrUDqQMiu5dEU45Q/vOO5Tz9XhHc2ar79+I0QgPDAmMc8x
-         s4z36cBy3fIOu4yKj4AB0btoe+F32/JxNjF18=
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=j66AM6yEw+h2e5Qpe0Paz47YsLXnYSCCs7ToLjEkFbE=;
+        b=n0aRt/pdbaNOD5yGncwAgWDPkLo4jlUKxpzjr6sOKj98U8h4lH/BuCf4E3aibhIRBJ
+         mgsFuYISxGomjVjanltzfkXr0OmE8zIMPNJVZmWtULUGeuvNnWRKvfo7UYAzQrT/XiKP
+         pFNUvT7rXmw2LZ9GHzQ1Ro0ndCmzNOfulp4PU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:message-id:date:from:content-transfer-encoding:mime-version
-         :subject:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Pw5kShSF3E0E3sfHSq2rS1swDqNHSyrtWf4koh3J7SU=;
-        b=69sxN6MKw7PTuGqFNS4BDMQi4zg4t6TjrqSIqRp3Az8eE63sJqleQe7nYeT4OxlUlJ
-         wm/S2eLGlq3AF5xdRpNfM9/y6BB37kK0gFDKd8ZYK0qC4YWuG2IoSYUn6HfrVBCP+IY5
-         KcJfDQOsTPmuBiDz3+zRMqvAero4yrEwmiVjOkUqfU6x5tfeF/yS+/CcIz5vz4dqpBuh
-         ihHkam/whSx9EHaP4xh6hdB7nGi+78FjH/Cq3LWfpvVSMSR6SnxNpgFrExJfNZ45S2iR
-         eulPgr64irmSPcqQq4l5HJHTMNjd1qDRLF/2Jc1Z6uLR+w1hkQp4CoYSKrZF9MayvkIH
-         ipPg==
-X-Gm-Message-State: ANoB5pnPBrt+2vCgAbfA++7NnX6kfPfhWfBcQhZMm0On/0yCpah3vKXJ
-        Ot0zON2m/lNut9pxWyR+O2n5Eg==
-X-Google-Smtp-Source: AA0mqf5Uqj/CD0/FukZXXIc0vRyTLddNiAbe2JXdXsEHuMwbmXDMwhTREvJcq30MxLXV+1w0b73ssg==
-X-Received: by 2002:a17:906:2302:b0:7b9:de77:f0ef with SMTP id l2-20020a170906230200b007b9de77f0efmr31418299eja.5.1669825782653;
-        Wed, 30 Nov 2022 08:29:42 -0800 (PST)
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=j66AM6yEw+h2e5Qpe0Paz47YsLXnYSCCs7ToLjEkFbE=;
+        b=FLcY60SnO7ci9NIFv1qvX8novzVSdBZZprU/XHnc+HGowuEKIj4qx5BwEyRsShTG7p
+         hsiMISpu9Ar0p0z8z0Ft9sLLgVaf4WcuPuww8taTECuSikpvmAQKEcWT8u7ZR8jasyxv
+         LSgauRRo5qNBw4zIkXn/tJyeDq+jRb9NKm0lSANbfT1pBHUMz0B67nTwAQRh0C891jbH
+         jxe8zbZbX9kkVcxSvfvlIiIs7O8CapGKQsMgydReDquFAPv1JxetE7ZRAzrUby8Vs0NA
+         YUoLlTPzV+cw/lv3Ky1XUi6v90MQwmsoCO8gBaKJnobcCwR9j0gIuPnbXLZIp8YW0SLC
+         3uqA==
+X-Gm-Message-State: ANoB5pmFSc5xMZRtn9pCfx24+DhPshb6b6D6dQzuIz1qihzcFRDDfhUw
+        jWlRciHr6V6QzWUnu/6LtrX7Vw==
+X-Google-Smtp-Source: AA0mqf5t+AxtPgn9XE9oAuO13iEBvxrVJRUaFve2VxlhVUExpKerWrweeRvgV18uCHkh3j71qtM0WA==
+X-Received: by 2002:a17:906:d281:b0:782:7790:f132 with SMTP id ay1-20020a170906d28100b007827790f132mr36684458ejb.649.1669825783467;
+        Wed, 30 Nov 2022 08:29:43 -0800 (PST)
 Received: from alco.roam.corp.google.com (80.71.134.83.ipv4.parknet.dk. [80.71.134.83])
-        by smtp.gmail.com with ESMTPSA id cz15-20020a0564021caf00b004589da5e5cesm786114edb.41.2022.11.30.08.29.41
+        by smtp.gmail.com with ESMTPSA id cz15-20020a0564021caf00b004589da5e5cesm786114edb.41.2022.11.30.08.29.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Nov 2022 08:29:42 -0800 (PST)
-Subject: [PATCH v7 0/2] ASoC: SOF: Fix deadlock when shutdown a frozen userspace
+        Wed, 30 Nov 2022 08:29:43 -0800 (PST)
+From:   Ricardo Ribalda <ribalda@chromium.org>
+Date:   Wed, 30 Nov 2022 17:29:20 +0100
+Subject: [PATCH v7 1/2] kexec: Introduce kexec_with_frozen_processes
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAN+Eh2MC/3XOzWrDMAwH8FcpPs/Dlr/SnvYeYwfZVhpDm4C9Br
- aSd5+247DRQfwFP0lP0agWauJyeopKe2llWzmEl5NIC65XkiVzFqAAtIYg25rlXIm+SWoibQ3AZM
- ALBhEbyVhxTQuT9XG78XAp7XOrX38Hds3tvbtr11JJF6zXaLynBG9pqdu9PO6vW72KD960w1gD6z
- yhBUd49t50tBlrwxqBMgajE2rb0Xas7e/n7LyNYQaMHe3G2rG2lLmimiKqjvZj7VkbOivnzOwtun
- /6OI4f1ZmnceIBAAA=
-From:   Ricardo Ribalda <ribalda@chromium.org>
-Date:   Wed, 30 Nov 2022 17:29:19 +0100
-Message-Id: <20221127-snd-freeze-v7-0-127c582f1ca4@chromium.org>
+Message-Id: <20221127-snd-freeze-v7-1-127c582f1ca4@chromium.org>
+References: <20221127-snd-freeze-v7-0-127c582f1ca4@chromium.org>
+In-Reply-To: <20221127-snd-freeze-v7-0-127c582f1ca4@chromium.org>
 To:     Steven Rostedt <rostedt@goodmis.org>,
         Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
@@ -75,19 +73,19 @@ Cc:     alsa-devel@alsa-project.org, sound-open-firmware@alsa-project.org,
         Ricardo Ribalda <ribalda@chromium.org>,
         linux-kernel@vger.kernel.org
 X-Mailer: b4 0.11.0-dev-696ae
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2556; i=ribalda@chromium.org;
- h=from:subject:message-id; bh=fWR7ZhQQr5ar1fWGLk9Z4Z/KnsEAhZyZVnGAD/1s2QE=;
- b=owEBbQKS/ZANAwAKAdE30T7POsSIAcsmYgBjh4Tj1YJB5e2N7FcWhOjD8LaBqVFgwZ6IzdIM0xvp
- aiGFuduJAjMEAAEKAB0WIQREDzjr+/4oCDLSsx7RN9E+zzrEiAUCY4eE4wAKCRDRN9E+zzrEiCKbD/
- 9ABaeeu+udLacBhMTu+U8I0v2fMtTFzWs53fP+KTDnJE63jhi466UEK2Eu6YjLxuiFFGwoA1H9rm2F
- K2d3T8RyD7FP9KkvaYEU3hdCAqEoYCWqTpseaJwBD1p0TGN2KlklISkClKwEecScrguxuDnBpNc0AO
- IguSucJL9GHuRLPh2bmPzfqk9fXTmWHuXvMQSEbTFm08p7/8tnXD6c4DrF8y2kEkP8UOMYwRvlL3IL
- jQClmEBBVFU9iGyCJlDnZufqBXd2FKl0G/Lle5yT9G4Aa8mXz0vTp7S4ESFrFPTVuZ6cr9a4BeDxF1
- j/q77JY7hvMgmblwDTVpIZPgjoMeNhRvryvPDahtEaj1ysEwkwVR75y7sOPJipu/zHaL/G+c2hL8sf
- efcLlAxITUlGn+K0htYH8F5Rwc3rgK+wmpd/KyshA1HS0vjx9os/T4qJXAoPcLo5v7rXB4nJs/udeN
- NcI98QsNdnRVKpAjwvU8n+jhscLK4Mjf6WXo6ho5aWnkGpRU/bBcaw9IprIt8saDDtjAElFH7/nEL/
- nAx/38CAt8kk5W9Ps6ixILZQLU0QpH9FGz9idFMKpPOQBQaCxbAGub5JOXKA971+4QARa0ecT9mNoh
- HunOaLUT93bmfokQX9++oCdDrS1PKPCPc5SCFGB0AR0a2iI5fzOf3jzWj4Sg==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1993; i=ribalda@chromium.org;
+ h=from:subject:message-id; bh=1Eimjbcycq7qNsawd2rnV+J25oc3+SKoshi04EAzFkY=;
+ b=owEBbQKS/ZANAwAKAdE30T7POsSIAcsmYgBjh4Tx9PZMNMSbqgT4Zoi7Sgxh6fRc9tbmVbCyGYlc
+ GC5OS5KJAjMEAAEKAB0WIQREDzjr+/4oCDLSsx7RN9E+zzrEiAUCY4eE8QAKCRDRN9E+zzrEiGYkD/
+ 92N9Y4V14IUNRrC8n+NTCv5nr0Wh9MTAk9THEm+4TIUCb3UqoCmq2H9bF+N8XEN7J+RjxcUMQ0l/xe
+ eA1eVXygt0w07oYoesMwZ8P7LTlvhN2Jkm9ePDQAcWLVFjgGixsThZokKgDa52sWE+eccR9biUr/Mu
+ C4mLr7I+i1qYzVsANymbClIuaNEJPCGeHNqRSGCBOocwyqSWkSZEqHGIifb6LBHiecliMPwC4p36F0
+ yAhSh//F1oavhYQ/FQ2LMRG2/JMI6bTknYSGNyH/fTctVslP9foINRXJ3hAChrfxKlytpyG9mDWxfk
+ UVN/LaV9JBwmwyJ2qwiqUB+l4s9LYU9QV+lwwOHZX15hcCfmZyB0AtcroP6Z48I6ERTbXa7Ng1Y5jJ
+ V2A9QJAeZat9nfEwQsxpJxi1TLPsmQgBcjuTUZaYWxbjymLBC7u+4RWeJDjvSi0m29D8XhOgD+igKV
+ aswBMZwtgA6SkzeIY/fP3el9EjPT8GQTYKoK2b//ArUC0pW5UCPiJ1OK4JzJkkF9E6P20/8dvtJk9h
+ 2hFLnUS8s8iJ7aTazJ2WGGRPmRzzaDaK/YPbNZOiz7fbHWMbEB+spCGEX25Dgajb/qft6Ed3s1Aphi
+ Fw++kttBHt8qnh2ZGuWwVaNdTPJY6vGashuAdgbrvcW/Pj/Jis2FalTkK9qA==
 X-Developer-Key: i=ribalda@chromium.org; a=openpgp;
  fpr=9EC3BB66E2FC129A6F90B39556A0D81F9F782DA9
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -99,70 +97,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since: 83bfc7e793b5 ("ASoC: SOF: core: unregister clients and machine drivers in .shutdown")
-we wait for all the workloads to be completed during shutdown. This was done to 
-avoid a stall once the device is started again.
+Drivers running .shutdown() might want to wait for userspace to complete
+before exiting.
 
-Unfortunately this has the side effect of stalling kexec(), if the userspace
-is frozen. Let's handle that case.
+If userspace is frozen and we are running kexec they will stall the
+computer.
 
-To: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-To: Liam Girdwood <lgirdwood@gmail.com>
-To: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-To: Bard Liao <yung-chuan.liao@linux.intel.com>
-To: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-To: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-To: Daniel Baluta <daniel.baluta@nxp.com>
-To: Mark Brown <broonie@kernel.org>
-To: Jaroslav Kysela <perex@perex.cz>
-To: Takashi Iwai <tiwai@suse.com>
-To: Eric Biederman <ebiederm@xmission.com>
-To: Chromeos Kdump <chromeos-kdump@google.com>
-To: Steven Rostedt <rostedt@goodmis.org>
+Add a way for them to figure out if they should just skip waiting for
+userspace.
+
 Cc: stable@vger.kernel.org
-Cc: sound-open-firmware@alsa-project.org
-Cc: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Cc: kexec@lists.infradead.org
+Fixes: 83bfc7e793b5 ("ASoC: SOF: core: unregister clients and machine drivers in .shutdown")
 Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 ---
-Changes in v7:
-- Fix commit message (Thanks Pierre-Louis).
-- Link to v6: https://lore.kernel.org/r/20221127-snd-freeze-v6-0-3e90553f64a5@chromium.org
-
-Changes in v6:
-- Check if we are in kexec with the userspace frozen.
-- Link to v5: https://lore.kernel.org/r/20221127-snd-freeze-v5-0-4ededeb08ba0@chromium.org
-
-Changes in v5:
-- Edit subject prefix.
-- Link to v4: https://lore.kernel.org/r/20221127-snd-freeze-v4-0-51ca64b7f2ab@chromium.org
-
-Changes in v4:
-- Do not call snd_sof_machine_unregister from shutdown.
-- Link to v3: https://lore.kernel.org/r/20221127-snd-freeze-v3-0-a2eda731ca14@chromium.org
-
-Changes in v3:
-- Wrap pm_freezing in a function.
-- Link to v2: https://lore.kernel.org/r/20221127-snd-freeze-v2-0-d8a425ea9663@chromium.org
-
-Changes in v2:
-- Only use pm_freezing if CONFIG_FREEZER .
-- Link to v1: https://lore.kernel.org/r/20221127-snd-freeze-v1-0-57461a366ec2@chromium.org
-
----
-Ricardo Ribalda (2):
-      kexec: Introduce kexec_with_frozen_processes
-      ASoC: SOF: Fix deadlock when shutdown a frozen userspace
-
  include/linux/kexec.h | 3 +++
  kernel/kexec_core.c   | 5 +++++
- sound/soc/sof/core.c  | 4 +++-
- 3 files changed, 11 insertions(+), 1 deletion(-)
----
-base-commit: 4312098baf37ee17a8350725e6e0d0e8590252d4
-change-id: 20221127-snd-freeze-1ee143228326
+ 2 files changed, 8 insertions(+)
 
-Best regards,
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index 41a686996aaa..c22711e0f7b5 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -426,6 +426,8 @@ extern int kexec_load_disabled;
+ /* flag to track if kexec reboot is in progress */
+ extern bool kexec_in_progress;
+ 
++bool kexec_with_frozen_processes(void);
++
+ int crash_shrink_memory(unsigned long new_size);
+ ssize_t crash_get_memory_size(void);
+ 
+@@ -507,6 +509,7 @@ static inline void __crash_kexec(struct pt_regs *regs) { }
+ static inline void crash_kexec(struct pt_regs *regs) { }
+ static inline int kexec_should_crash(struct task_struct *p) { return 0; }
+ static inline int kexec_crash_loaded(void) { return 0; }
++static inline bool kexec_with_frozen_processes(void) { return false; }
+ #define kexec_in_progress false
+ #endif /* CONFIG_KEXEC_CORE */
+ 
+diff --git a/kernel/kexec_core.c b/kernel/kexec_core.c
+index ca2743f9c634..8bc8257ee7ca 100644
+--- a/kernel/kexec_core.c
++++ b/kernel/kexec_core.c
+@@ -54,6 +54,11 @@ note_buf_t __percpu *crash_notes;
+ /* Flag to indicate we are going to kexec a new kernel */
+ bool kexec_in_progress = false;
+ 
++bool kexec_with_frozen_processes(void)
++{
++	return kexec_in_progress && pm_freezing;
++}
++EXPORT_SYMBOL(kexec_with_frozen_processes);
+ 
+ /* Location of the reserved area for the crash kernel */
+ struct resource crashk_res = {
+
 -- 
-Ricardo Ribalda <ribalda@chromium.org>
+2.38.1.584.g0f3c55d4c2-goog-b4-0.11.0-dev-696ae
