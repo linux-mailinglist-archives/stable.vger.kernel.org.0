@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAF4863DD40
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:25:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D445C63DF84
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230199AbiK3SZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:25:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56898 "EHLO
+        id S231397AbiK3Sr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:47:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229735AbiK3SZm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3EC60DF
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:25:39 -0800 (PST)
+        with ESMTP id S231365AbiK3Srz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2593815FCE
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E700B81C9C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:25:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD2D0C433D6;
-        Wed, 30 Nov 2022 18:25:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B658361D74
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:47:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C46E2C433D7;
+        Wed, 30 Nov 2022 18:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832737;
-        bh=1UBLBsTenWnHkOJqx3f6bdHXzK3ohnLPjO9Q/7P4CC0=;
+        s=korg; t=1669834072;
+        bh=pghWzr987WErM7R0k86Xmm4qfYwvkEnvraBvVp1CQeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lbOeUYv/a1BRfQeuip3as1kEkXf5Oq8o+o2K0ubFoqb45Z07bmadjGSiaPnnrM5Mp
-         cVl4RmQ5fxE8rqdoVflC07JFp7KJao35NoTqTXDDC0LMAmsjJqgUEG/VnXRFgvX3tK
-         9kKLNkyr7HOurZTk6/QtdcmXnwy4QkwybWOw6X0g=
+        b=YOG+0xwvVzyLY3HGffzav2/gFQUoZFGT3fY/W4JN8mMRSEgYJRqOGepaZvG62LVy/
+         QYAwjdlUcN6+um54xlnLThW3eCEfgZnVlj60kwXyMIV8DMxnuT8+NhSmLrgkjVi+Et
+         UCPyovJVBdJF44Duj0YwjG0C4e4ep3fk+jY5U+Cw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sabrina Dubroca <sd@queasysnail.net>,
-        Antoine Tenart <atenart@kernel.org>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 023/162] Revert "net: macsec: report real_dev features when HW offloading is enabled"
+Subject: [PATCH 6.0 119/289] net: wwan: iosm: use ACPI_FREE() but not kfree() in ipc_pcie_read_bios_cfg()
 Date:   Wed, 30 Nov 2022 19:21:44 +0100
-Message-Id: <20221130180529.122818433@linuxfoundation.org>
+Message-Id: <20221130180546.838021766@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,111 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-[ Upstream commit 8bcd560ae8784da57c610d857118c5d6576b1a8f ]
+[ Upstream commit e541dd7763fc34aec2f93f652a396cc2e7b92d8d ]
 
-This reverts commit c850240b6c4132574a00f2da439277ab94265b66.
+acpi_evaluate_dsm() should be coupled with ACPI_FREE() to free the ACPI
+memory, because we need to track the allocation of acpi_object when
+ACPI_DBG_TRACK_ALLOCATIONS enabled, so use ACPI_FREE() instead of kfree().
 
-That commit tried to improve the performance of macsec offload by
-taking advantage of some of the NIC's features, but in doing so, broke
-macsec offload when the lower device supports both macsec and ipsec
-offload, as the ipsec offload feature flags (mainly NETIF_F_HW_ESP)
-were copied from the real device. Since the macsec device doesn't
-provide xdo_* ops, the XFRM core rejects the registration of the new
-macsec device in xfrm_api_check.
-
-Example perf trace when running
-  ip link add link eni1np1 type macsec port 4 offload mac
-
-    ip   737 [003]   795.477676: probe:xfrm_dev_event__REGISTER      name="macsec0" features=0x1c000080014869
-              xfrm_dev_event+0x3a
-              notifier_call_chain+0x47
-              register_netdevice+0x846
-              macsec_newlink+0x25a
-
-    ip   737 [003]   795.477687:   probe:xfrm_dev_event__return      ret=0x8002 (NOTIFY_BAD)
-             notifier_call_chain+0x47
-             register_netdevice+0x846
-             macsec_newlink+0x25a
-
-dev->features includes NETIF_F_HW_ESP (0x04000000000000), so
-xfrm_api_check returns NOTIFY_BAD because we don't have
-dev->xfrmdev_ops on the macsec device.
-
-We could probably propagate GSO and a few other features from the
-lower device, similar to macvlan. This will be done in a future patch.
-
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Reviewed-by: Antoine Tenart <atenart@kernel.org>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d38a648d2d6c ("net: wwan: iosm: fix memory leak in ipc_pcie_read_bios_cfg")
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Link: https://lore.kernel.org/r/20221118062447.2324881-1-bobo.shaobowang@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 27 ++++-----------------------
- 1 file changed, 4 insertions(+), 23 deletions(-)
+ drivers/net/wwan/iosm/iosm_ipc_pcie.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index f84e3cc0d3ec..c20ebf44acfe 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -2648,11 +2648,6 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
- 	if (ret)
- 		goto rollback;
+diff --git a/drivers/net/wwan/iosm/iosm_ipc_pcie.c b/drivers/net/wwan/iosm/iosm_ipc_pcie.c
+index 97cb6846c6ae..f604d4a01e1b 100644
+--- a/drivers/net/wwan/iosm/iosm_ipc_pcie.c
++++ b/drivers/net/wwan/iosm/iosm_ipc_pcie.c
+@@ -249,7 +249,7 @@ static enum ipc_pcie_sleep_state ipc_pcie_read_bios_cfg(struct device *dev)
+ 	if (object->integer.value == 3)
+ 		sleep_state = IPC_PCIE_D3L2;
  
--	/* Force features update, since they are different for SW MACSec and
--	 * HW offloading cases.
--	 */
--	netdev_update_features(dev);
--
- 	rtnl_unlock();
- 	return 0;
+-	kfree(object);
++	ACPI_FREE(object);
  
-@@ -3420,16 +3415,9 @@ static netdev_tx_t macsec_start_xmit(struct sk_buff *skb,
- 	return ret;
- }
- 
--#define SW_MACSEC_FEATURES \
-+#define MACSEC_FEATURES \
- 	(NETIF_F_SG | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST)
- 
--/* If h/w offloading is enabled, use real device features save for
-- *   VLAN_FEATURES - they require additional ops
-- *   HW_MACSEC - no reason to report it
-- */
--#define REAL_DEV_FEATURES(dev) \
--	((dev)->features & ~(NETIF_F_VLAN_FEATURES | NETIF_F_HW_MACSEC))
--
- static int macsec_dev_init(struct net_device *dev)
- {
- 	struct macsec_dev *macsec = macsec_priv(dev);
-@@ -3446,12 +3434,8 @@ static int macsec_dev_init(struct net_device *dev)
- 		return err;
- 	}
- 
--	if (macsec_is_offloaded(macsec)) {
--		dev->features = REAL_DEV_FEATURES(real_dev);
--	} else {
--		dev->features = real_dev->features & SW_MACSEC_FEATURES;
--		dev->features |= NETIF_F_LLTX | NETIF_F_GSO_SOFTWARE;
--	}
-+	dev->features = real_dev->features & MACSEC_FEATURES;
-+	dev->features |= NETIF_F_LLTX | NETIF_F_GSO_SOFTWARE;
- 
- 	dev->needed_headroom = real_dev->needed_headroom +
- 			       MACSEC_NEEDED_HEADROOM;
-@@ -3480,10 +3464,7 @@ static netdev_features_t macsec_fix_features(struct net_device *dev,
- 	struct macsec_dev *macsec = macsec_priv(dev);
- 	struct net_device *real_dev = macsec->real_dev;
- 
--	if (macsec_is_offloaded(macsec))
--		return REAL_DEV_FEATURES(real_dev);
--
--	features &= (real_dev->features & SW_MACSEC_FEATURES) |
-+	features &= (real_dev->features & MACSEC_FEATURES) |
- 		    NETIF_F_GSO_SOFTWARE | NETIF_F_SOFT_FEATURES;
- 	features |= NETIF_F_LLTX;
- 
+ default_ret:
+ 	return sleep_state;
 -- 
 2.35.1
 
