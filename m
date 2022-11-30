@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 296DE63DEC3
+	by mail.lfdr.de (Postfix) with ESMTP id 8106B63DEC4
 	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:40:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231137AbiK3Skh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231143AbiK3Skh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 30 Nov 2022 13:40:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51748 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231145AbiK3Ske (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E262497021
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:33 -0800 (PST)
+        with ESMTP id S230465AbiK3Skg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CA7E97012
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9598AB81B22
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0309FC433D6;
-        Wed, 30 Nov 2022 18:40:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA08361D61
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C34EAC433B5;
+        Wed, 30 Nov 2022 18:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833631;
-        bh=aMN0ODm9/+ic3zIBhwAGdEfUsgdV3cDgwPG4ESolaJA=;
+        s=korg; t=1669833634;
+        bh=a6bHEQVEFd+aK+9YIuyHr0/Qthvk5OY9LIX39P389tM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2CN3w/4ZhlpxjNFY8mIFdmMwTy8uGxwKve7MhVfSeMsKh7/LXIpvsaKW5s9XKeReZ
-         ExQOgGhbk0EQg3apQaGbQ8TjNuKyWJfHBukac9VgqaYl290sfrnTceS2TFxkW4z1Gq
-         tYtgE36+ZIAyUSCIKIBS+O6SNb/0oT80vNVbU7d4=
+        b=jAbd+LQpYPBG2p7KAKLLEpkevb7HlhGinJblmwLn4AXhIXkr32ig/V+amKVYjN86O
+         DFhT4fYAnjjLn9zR+CSXAOPRhSxlpq0bJ0266gTM6xZu4DSFWsgonofHUiYcLqrwon
+         8ImeQkCvux+/FO4ZOaPWw6Gcp6HJxYoXhPvUqGIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Al Cooper <alcooperx@gmail.com>,
-        Kamal Dasu <kdasu.kdev@gmail.com>,
+        patches@lists.linux.dev, Brian Norris <briannorris@chromium.org>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 138/206] mmc: sdhci-brcmstb: Enable Clock Gating to save power
-Date:   Wed, 30 Nov 2022 19:23:10 +0100
-Message-Id: <20221130180536.550537786@linuxfoundation.org>
+Subject: [PATCH 5.15 139/206] mmc: sdhci-brcmstb: Fix SDHCI_RESET_ALL for CQHCI
+Date:   Wed, 30 Nov 2022 19:23:11 +0100
+Message-Id: <20221130180536.577219246@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
 References: <20221130180532.974348590@linuxfoundation.org>
@@ -56,108 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Cooper <alcooperx@gmail.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 6bcc55fe648b860ef0c2b8dc23adc05bcddb93c2 ]
+[ Upstream commit 56baa208f91061ff27ec2d93fbc483f624d373b4 ]
 
-Enabling this feature will allow the controller to stop the bus
-clock when the bus is idle. The feature is not part of the standard
-and is unique to newer Arasan cores and is enabled with a bit in a
-vendor specific register. This feature will only be enabled for
-non-removable devices because they don't switch the voltage and
-clock gating breaks SD Card volatge switching.
+[[ NOTE: this is completely untested by the author, but included solely
+    because, as noted in commit df57d73276b8 ("mmc: sdhci-pci: Fix
+    SDHCI_RESET_ALL for CQHCI for Intel GLK-based controllers"), "other
+    drivers using CQHCI might benefit from a similar change, if they
+    also have CQHCI reset by SDHCI_RESET_ALL." We've now seen the same
+    bug on at least MSM, Arasan, and Intel hardware. ]]
 
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
-Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+SDHCI_RESET_ALL resets will reset the hardware CQE state, but we aren't
+tracking that properly in software. When out of sync, we may trigger
+various timeouts.
+
+It's not typical to perform resets while CQE is enabled, but this may
+occur in some suspend or error recovery scenarios.
+
+Include this fix by way of the new sdhci_and_cqhci_reset() helper.
+
+I only patch the bcm7216 variant even though others potentially *could*
+provide the 'supports-cqe' property (and thus enable CQHCI), because
+d46ba2d17f90 ("mmc: sdhci-brcmstb: Add support for Command Queuing
+(CQE)") and some Broadcom folks confirm that only the 7216 variant
+actually supports it.
+
+This patch depends on (and should not compile without) the patch
+entitled "mmc: cqhci: Provide helper for resetting both SDHCI and
+CQHCI".
+
+Fixes: d46ba2d17f90 ("mmc: sdhci-brcmstb: Add support for Command Queuing (CQE)")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20220427180853.35970-3-kdasu.kdev@gmail.com
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221026124150.v4.3.I6a715feab6d01f760455865e968ecf0d85036018@changeid
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Stable-dep-of: 56baa208f910 ("mmc: sdhci-brcmstb: Fix SDHCI_RESET_ALL for CQHCI")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-brcmstb.c | 35 +++++++++++++++++++++++++++++++-
- 1 file changed, 34 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-brcmstb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/mmc/host/sdhci-brcmstb.c b/drivers/mmc/host/sdhci-brcmstb.c
-index 244780481193..683d0c685748 100644
+index 683d0c685748..4d42b1810ace 100644
 --- a/drivers/mmc/host/sdhci-brcmstb.c
 +++ b/drivers/mmc/host/sdhci-brcmstb.c
-@@ -17,11 +17,14 @@
+@@ -12,6 +12,7 @@
+ #include <linux/bitops.h>
+ #include <linux/delay.h>
  
- #define SDHCI_VENDOR 0x78
- #define  SDHCI_VENDOR_ENHANCED_STRB 0x1
-+#define  SDHCI_VENDOR_GATE_SDCLK_EN 0x2
++#include "sdhci-cqhci.h"
+ #include "sdhci-pltfm.h"
+ #include "cqhci.h"
  
- #define BRCMSTB_MATCH_FLAGS_NO_64BIT		BIT(0)
- #define BRCMSTB_MATCH_FLAGS_BROKEN_TIMEOUT	BIT(1)
-+#define BRCMSTB_MATCH_FLAGS_HAS_CLOCK_GATE	BIT(2)
+@@ -53,7 +54,7 @@ void brcmstb_reset(struct sdhci_host *host, u8 mask)
+ 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+ 	struct sdhci_brcmstb_priv *priv = sdhci_pltfm_priv(pltfm_host);
  
- #define BRCMSTB_PRIV_FLAGS_HAS_CQE		BIT(0)
-+#define BRCMSTB_PRIV_FLAGS_GATE_CLOCK		BIT(1)
+-	sdhci_reset(host, mask);
++	sdhci_and_cqhci_reset(host, mask);
  
- #define SDHCI_ARASAN_CQE_BASE_ADDR		0x200
- 
-@@ -36,6 +39,27 @@ struct brcmstb_match_priv {
- 	const unsigned int flags;
- };
- 
-+static inline void enable_clock_gating(struct sdhci_host *host)
-+{
-+	u32 reg;
-+
-+	reg = sdhci_readl(host, SDHCI_VENDOR);
-+	reg |= SDHCI_VENDOR_GATE_SDCLK_EN;
-+	sdhci_writel(host, reg, SDHCI_VENDOR);
-+}
-+
-+void brcmstb_reset(struct sdhci_host *host, u8 mask)
-+{
-+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
-+	struct sdhci_brcmstb_priv *priv = sdhci_pltfm_priv(pltfm_host);
-+
-+	sdhci_reset(host, mask);
-+
-+	/* Reset will clear this, so re-enable it */
-+	if (priv->flags & BRCMSTB_PRIV_FLAGS_GATE_CLOCK)
-+		enable_clock_gating(host);
-+}
-+
- static void sdhci_brcmstb_hs400es(struct mmc_host *mmc, struct mmc_ios *ios)
- {
- 	struct sdhci_host *host = mmc_priv(mmc);
-@@ -131,7 +155,7 @@ static struct sdhci_ops sdhci_brcmstb_ops = {
- static struct sdhci_ops sdhci_brcmstb_ops_7216 = {
- 	.set_clock = sdhci_brcmstb_set_clock,
- 	.set_bus_width = sdhci_set_bus_width,
--	.reset = sdhci_reset,
-+	.reset = brcmstb_reset,
- 	.set_uhs_signaling = sdhci_brcmstb_set_uhs_signaling,
- };
- 
-@@ -147,6 +171,7 @@ static struct brcmstb_match_priv match_priv_7445 = {
- };
- 
- static const struct brcmstb_match_priv match_priv_7216 = {
-+	.flags = BRCMSTB_MATCH_FLAGS_HAS_CLOCK_GATE,
- 	.hs400es = sdhci_brcmstb_hs400es,
- 	.ops = &sdhci_brcmstb_ops_7216,
- };
-@@ -273,6 +298,14 @@ static int sdhci_brcmstb_probe(struct platform_device *pdev)
- 	if (res)
- 		goto err;
- 
-+	/*
-+	 * Automatic clock gating does not work for SD cards that may
-+	 * voltage switch so only enable it for non-removable devices.
-+	 */
-+	if ((match_priv->flags & BRCMSTB_MATCH_FLAGS_HAS_CLOCK_GATE) &&
-+	    (host->mmc->caps & MMC_CAP_NONREMOVABLE))
-+		priv->flags |= BRCMSTB_PRIV_FLAGS_GATE_CLOCK;
-+
- 	/*
- 	 * If the chip has enhanced strobe and it's enabled, add
- 	 * callback
+ 	/* Reset will clear this, so re-enable it */
+ 	if (priv->flags & BRCMSTB_PRIV_FLAGS_GATE_CLOCK)
 -- 
 2.35.1
 
