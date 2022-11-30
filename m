@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 744B363DC2D
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:38:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8563463DC2C
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:38:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229711AbiK3Rik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 12:38:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36306 "EHLO
+        id S229579AbiK3Rij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 12:38:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229682AbiK3Rii (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:38:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 074DD43AD6
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:38:38 -0800 (PST)
+        with ESMTP id S229793AbiK3Rih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:38:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8BFF4A053
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:38:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9993B61D21
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:38:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADDC5C433C1;
-        Wed, 30 Nov 2022 17:38:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71FAFB81C56
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:38:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFAD7C433D7;
+        Wed, 30 Nov 2022 17:38:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669829917;
-        bh=mPTVArNDitgazeC/AYIb050Zcph3hsHXJ2tHfl07Qcs=;
+        s=korg; t=1669829914;
+        bh=C49pVOc7jdbvkmNJJ2OocAwY7NfaUPkEFNkM4rf/DlU=;
         h=Subject:To:Cc:From:Date:From;
-        b=huEE6hWgXKYpZWIAtbYtc4y1+VwFzolB2uBGHs5g01cjjiy0LePT/Rs3i3DiGNrDo
-         vr5CO8ovTqnhtSgEVJfv2Psll0Mf5DNp0WwuVtCqmmyNE+SaxBmHjhasVMnUixgVxA
-         NecTGgRtSbFjSBhPiIYbqA0leFxQPBWtLml4iij8=
-Subject: FAILED: patch "[PATCH] drm/amdgpu/dm/mst: Fix uninitialized var in" failed to apply to 6.0-stable tree
+        b=Gzvu2D0E4ts5NRVMIWXgL9UENBAx1L/mwB5ZiyATOEpxGReTPeEAPYFqgwjh6LaE8
+         oceiCxtYMvLZFQDnrWCwmyE3k4wJNt2YJV4NOvI45KwcWDSLhO22EJRRII4RHWPH54
+         rKSMKCeE0tgYrJ3LBnmWTgiTETI7PlrYyHQ9Lssk=
+Subject: FAILED: patch "[PATCH] drm/amdgpu/dm/mst: Fix uninitialized var in" failed to apply to 5.15-stable tree
 To:     lyude@redhat.com, alexander.deucher@amd.com, harry.wentland@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 30 Nov 2022 18:38:21 +0100
-Message-ID: <16698299015117@kroah.com>
+Message-ID: <166982990122629@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -66,6 +66,14 @@ df78f7f660cd ("drm/display/dp_mst: Call them time slots, not VCPI slots")
 48b6b3726fb7 ("drm/display/dp_mst: Rename drm_dp_mst_vcpi_allocation")
 dbaadb3cebaa ("drm/amdgpu/dm/mst: Rename get_payload_table()")
 8c5e9bbb3662 ("drm/amdgpu/dc/mst: Rename dp_mst_stream_allocation(_table)")
+25f7cde8bad9 ("drm/amd/display: Add tags for indicating mst progress status")
+8b076fa7c5be ("drm/amd/display: Add is_mst_connector debugfs entry")
+922e7ee31def ("drm/amd/display: Clear edid when unplug mst connector")
+990cad0e4a9d ("drm/amd/display: extract update stream allocation to link_hwss")
+84a8b3908285 ("drm/amd/display: Release remote dc_sink under mst scenario")
+71be4b16d39a ("drm/amd/display: dsc validate fail not pass to atomic check")
+453b0016a054 ("drm/amd/display: Detect dpcd_rev when hotplug mst monitor")
+00df0514ab13 ("Merge tag 'amd-drm-next-5.19-2022-05-18' of https://gitlab.freedesktop.org/agd5f/linux into drm-next")
 
 thanks,
 
