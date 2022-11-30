@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B2C463DF02
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:43:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27FCC63E037
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:54:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231264AbiK3Sm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:42:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53886 "EHLO
+        id S231558AbiK3Syr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:54:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231269AbiK3Smn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:42:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4B161CFC8
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:42:42 -0800 (PST)
+        with ESMTP id S231580AbiK3Sym (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:54:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FDBC63D79
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:54:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63DF461D77
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:42:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E330C433C1;
-        Wed, 30 Nov 2022 18:42:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38857B81CB6
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:54:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7638C433B5;
+        Wed, 30 Nov 2022 18:54:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833761;
-        bh=q2Ld8eZeF8pN943m2bD3B9oYPtCEkqbrEETlJgiQNEw=;
+        s=korg; t=1669834479;
+        bh=Ztmm5tBxVU2YX1xM0/FeB5ZhroqaYvlHtXob7ShX+Ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=flrbiXvLgWAByLJ3jMnrL+kskkZtHcsAqMc1QqCs6chm06wym4Nuw/KDzQxWdmS3O
-         9/+MwWGTn99j9Ukodhpe8PYk9LGj+7m/ip2VFPPdOcS3aEKjlPOX0+QtQ4DVGG8zL5
-         rK+uid+fI8KPs69HFzoq7bIHeX38fRXV1mErU2Nk=
+        b=1d1da6zHHC6MGvSIMluvqxx1w2xLVo90+ADrr/oQCKLdDaWxjaTkLbGu8Il4K3pq7
+         PZNTfwqKuWy9Hd91r4nKK/49vp7jzBslF6oS6qu1UIn/8sGfytcFGtABD+cQRXuXFX
+         aaALghuLMjgYz++XGxchdrH9iMRMmSRyl+N9B8Lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lyude Paul <lyude@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 202/206] drm/amd/dc/dce120: Fix audio register mapping, stop triggering KASAN
+        patches@lists.linux.dev, Phil Turnbull <philipturnbull@github.com>,
+        Ajay Kathat <ajay.kathat@microchip.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 6.0 269/289] wifi: wilc1000: validate length of IEEE80211_P2P_ATTR_CHANNEL_LIST attribute
 Date:   Wed, 30 Nov 2022 19:24:14 +0100
-Message-Id: <20221130180538.162575346@linuxfoundation.org>
+Message-Id: <20221130180550.196420972@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,43 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Phil Turnbull <philipturnbull@github.com>
 
-commit 44035ec2fde1114254ee465f9ba3bb246b0b6283 upstream.
+commit f9b62f9843c7b0afdaecabbcebf1dbba18599408 upstream.
 
-There's been a very long running bug that seems to have been neglected for
-a while, where amdgpu consistently triggers a KASAN error at start:
+Validate that the IEEE80211_P2P_ATTR_CHANNEL_LIST attribute contains
+enough space for a 'struct wilc_attr_oper_ch'. If the attribute is too
+small then it can trigger an out-of-bounds write later in the function.
 
-  BUG: KASAN: global-out-of-bounds in read_indirect_azalia_reg+0x1d4/0x2a0 [amdgpu]
-  Read of size 4 at addr ffffffffc2274b28 by task modprobe/1889
+'struct wilc_attr_oper_ch' is variable sized so also check 'attr_len'
+does not extend beyond the end of 'buf'.
 
-After digging through amd's rather creative method for accessing registers,
-I eventually discovered the problem likely has to do with the fact that on
-my dce120 GPU there are supposedly 7 sets of audio registers. But we only
-define a register mapping for 6 sets.
-
-So, fix this and fix the KASAN warning finally.
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Phil Turnbull <philipturnbull@github.com>
+Tested-by: Ajay Kathat <ajay.kathat@microchip.com>
+Acked-by: Ajay Kathat <ajay.kathat@microchip.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221123153543.8568-4-philipturnbull@github.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c |    3 ++-
+ drivers/net/wireless/microchip/wilc1000/cfg80211.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
-@@ -361,7 +361,8 @@ static const struct dce_audio_registers
- 	audio_regs(2),
- 	audio_regs(3),
- 	audio_regs(4),
--	audio_regs(5)
-+	audio_regs(5),
-+	audio_regs(6),
- };
+--- a/drivers/net/wireless/microchip/wilc1000/cfg80211.c
++++ b/drivers/net/wireless/microchip/wilc1000/cfg80211.c
+@@ -964,7 +964,8 @@ static inline void wilc_wfi_cfg_parse_ch
+ 		if (index + sizeof(*e) + attr_size > len)
+ 			return;
  
- #define DCE120_AUD_COMMON_MASK_SH_LIST(mask_sh)\
+-		if (e->attr_type == IEEE80211_P2P_ATTR_CHANNEL_LIST)
++		if (e->attr_type == IEEE80211_P2P_ATTR_CHANNEL_LIST &&
++		    attr_size >= (sizeof(struct wilc_attr_ch_list) - sizeof(*e)))
+ 			ch_list_idx = index;
+ 		else if (e->attr_type == IEEE80211_P2P_ATTR_OPER_CHANNEL &&
+ 			 attr_size == (sizeof(struct wilc_attr_oper_ch) - sizeof(*e)))
 
 
