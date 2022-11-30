@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DBDB63DEBC
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:40:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C6763DDFC
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:32:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231128AbiK3SkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:40:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51454 "EHLO
+        id S230133AbiK3Scb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:32:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231134AbiK3SkN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE12D97021
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:12 -0800 (PST)
+        with ESMTP id S230193AbiK3Sc3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:32:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E524B900E6
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:32:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7830F61D61
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87424C433D7;
-        Wed, 30 Nov 2022 18:40:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2B03B81CA4
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:32:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09687C433C1;
+        Wed, 30 Nov 2022 18:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833611;
-        bh=/dbgTvWo33goEaOSymjCLg5CDw/PZfpG2fvpuDNfdpQ=;
+        s=korg; t=1669833146;
+        bh=mdl75R+gU7RwTuXafW+aDi9m0pjNtWkhPNnYRGQi85c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IpC1J/cxwE3it8nbIQGZ6czoBJjcWRWyFPF+DDqUIkedUYo4xxHEq9q5p2iSJ1msR
-         xEV6mCvnTGx0O6ddoteKjA4QcVoXn1dcFbOpxc5Miw925Vw6e6VzjMJBmv3TcmV7Yc
-         tHzxnK8UC0zO+p9gzGDCRH/+6fhN0pksIYwCUHK8=
+        b=hUtC5IQ8GUTCzv1YUOUP3+XOM1zD3bprEKEt7Mq9IMG5MbUF089BxQ9Qt9CLeRPVh
+         SOcOUsX4ZlUjuYjSW0mkkAiIzDcGCpSmsJp2UoS48ZMbIQ4/xy9+oFWiExb3J59ALc
+         CF9XLbm5UzgJDSVdB57YOzjh2iEMQJJakCrkzgtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 158/206] KVM: x86: nSVM: harden svm_free_nested against freeing vmcb02 while still in use
+        patches@lists.linux.dev, Todd Kjos <tkjos@google.com>,
+        stable <stable@kernel.org>,
+        Alessandro Astone <ales.astone@gmail.com>,
+        Carlos Llamas <cmllamas@google.com>
+Subject: [PATCH 5.10 129/162] binder: Address corner cases in deferred copy and fixup
 Date:   Wed, 30 Nov 2022 19:23:30 +0100
-Message-Id: <20221130180537.053175220@linuxfoundation.org>
+Message-Id: <20221130180531.987664469@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Alessandro Astone <ales.astone@gmail.com>
 
-commit 16ae56d7e0528559bf8dc9070e3bfd8ba3de80df upstream.
+commit 2d1746e3fda0c3612143d7c06f8e1d1830c13e23 upstream.
 
-Make sure that KVM uses vmcb01 before freeing nested state, and warn if
-that is not the case.
+When handling BINDER_TYPE_FDA object we are pushing a parent fixup
+with a certain skip_size but no scatter-gather copy object, since
+the copy is handled standalone.
+If BINDER_TYPE_FDA is the last children the scatter-gather copy
+loop will never stop to skip it, thus we are left with an item in
+the parent fixup list. This will trigger the BUG_ON().
 
-This is a minimal fix for CVE-2022-3344 making the kernel print a warning
-instead of a kernel panic.
+This is reproducible in android when playing a video.
+We receive a transaction that looks like this:
+    obj[0] BINDER_TYPE_PTR, parent
+    obj[1] BINDER_TYPE_PTR, child
+    obj[2] BINDER_TYPE_PTR, child
+    obj[3] BINDER_TYPE_FDA, child
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20221103141351.50662-3-mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 09184ae9b575 ("binder: defer copies of pre-patched txn data")
+Acked-by: Todd Kjos <tkjos@google.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Alessandro Astone <ales.astone@gmail.com>
+Link: https://lore.kernel.org/r/20220415120015.52684-2-ales.astone@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/nested.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/android/binder.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/svm/nested.c
-+++ b/arch/x86/kvm/svm/nested.c
-@@ -919,6 +919,9 @@ void svm_free_nested(struct vcpu_svm *sv
- 	if (!svm->nested.initialized)
- 		return;
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -2695,6 +2695,7 @@ static int binder_do_deferred_txn_copies
+ {
+ 	int ret = 0;
+ 	struct binder_sg_copy *sgc, *tmpsgc;
++	struct binder_ptr_fixup *tmppf;
+ 	struct binder_ptr_fixup *pf =
+ 		list_first_entry_or_null(pf_head, struct binder_ptr_fixup,
+ 					 node);
+@@ -2749,7 +2750,11 @@ static int binder_do_deferred_txn_copies
+ 		list_del(&sgc->node);
+ 		kfree(sgc);
+ 	}
+-	BUG_ON(!list_empty(pf_head));
++	list_for_each_entry_safe(pf, tmppf, pf_head, node) {
++		BUG_ON(pf->skip_size == 0);
++		list_del(&pf->node);
++		kfree(pf);
++	}
+ 	BUG_ON(!list_empty(sgc_head));
  
-+	if (WARN_ON_ONCE(svm->vmcb != svm->vmcb01.ptr))
-+		svm_switch_vmcb(svm, &svm->vmcb01);
-+
- 	svm_vcpu_free_msrpm(svm->nested.msrpm);
- 	svm->nested.msrpm = NULL;
- 
+ 	return ret > 0 ? -EINVAL : ret;
 
 
