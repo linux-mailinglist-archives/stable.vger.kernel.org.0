@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3524063DEF6
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:42:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75E7963DDDF
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:31:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231180AbiK3Sm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:42:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52418 "EHLO
+        id S230039AbiK3SbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:31:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231218AbiK3SmL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:42:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F43599F34
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:42:10 -0800 (PST)
+        with ESMTP id S230059AbiK3SbX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:31:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DB98FD5C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:31:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D817261D76
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:42:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E66AFC433D6;
-        Wed, 30 Nov 2022 18:42:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B208B81C9C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:31:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C871EC433D6;
+        Wed, 30 Nov 2022 18:31:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833729;
-        bh=vxQEmq6QOTh8Aq/SoTk5RoDWRPXf0GWAr+VGwhZm6q8=;
+        s=korg; t=1669833078;
+        bh=VsE/HWjQxRSXID5Fj3p9heuzQWh+w9K33zN3bgvPy6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GMpZ73Pr0iGAtBZL+r5woFyB8CTVWB2XvxbZJNkJsQ0E/EpTw3YhSiQlE6A+ydu1+
-         ZuFFX9VdTXYvdZeHxgIDNCBA22TQfy17cQx8M0VO3pn7id78/UN1jsyYHrdqsA6ZOr
-         8PVl3PO0XEuuCb3ffe7m8+ZX5SOwf/K4m16X5Of8=
+        b=inwFYzw0Vi0pmtbxRKXVgUs+Wm6eJAX1LF/+rN9K9OsnfG/t0PXH3C5+AJdp+nBhw
+         evipdNAHQJmVkjETWxRsiAj8rBTsMINi3AWxNvOGxmPDKJ9oyBCW8fUZ/oddPcJ6vj
+         53uqHcn0y6VtAvAKbpK37Q/ioD8vD1B428w3RR9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Olivier Moysan <olivier.moysan@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Gleb Mazovetskiy <glex.spb@gmail.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 172/206] ASoC: stm32: dfsdm: manage cb buffers cleanup
+Subject: [PATCH 5.10 143/162] tcp: configurable source port perturb table size
 Date:   Wed, 30 Nov 2022 19:23:44 +0100
-Message-Id: <20221130180537.402790108@linuxfoundation.org>
+Message-Id: <20221130180532.361159510@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Moysan <olivier.moysan@foss.st.com>
+From: Gleb Mazovetskiy <glex.spb@gmail.com>
 
-[ Upstream commit 7d945b046be3d2605dbb1806e73095aadd7ae129 ]
+[ Upstream commit aeac4ec8f46d610a10adbaeff5e2edf6a88ffc62 ]
 
-Ensure that resources allocated by iio_channel_get_all_cb()
-are released on driver unbind.
+On embedded systems with little memory and no relevant
+security concerns, it is beneficial to reduce the size
+of the table.
 
-Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
-Link: https://lore.kernel.org/r/20221109170849.273719-1-olivier.moysan@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reducing the size from 2^16 to 2^8 saves 255 KiB
+of kernel RAM.
+
+Makes the table size configurable as an expert option.
+
+The size was previously increased from 2^8 to 2^16
+in commit 4c2c8f03a5ab ("tcp: increase source port perturb table to
+2^16").
+
+Signed-off-by: Gleb Mazovetskiy <glex.spb@gmail.com>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/stm/stm32_adfsdm.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/ipv4/Kconfig           | 10 ++++++++++
+ net/ipv4/inet_hashtables.c | 10 +++++-----
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/stm/stm32_adfsdm.c b/sound/soc/stm/stm32_adfsdm.c
-index e6078f50e508..1e9b4b1df69e 100644
---- a/sound/soc/stm/stm32_adfsdm.c
-+++ b/sound/soc/stm/stm32_adfsdm.c
-@@ -303,6 +303,11 @@ static int stm32_adfsdm_dummy_cb(const void *data, void *private)
- 	return 0;
- }
+diff --git a/net/ipv4/Kconfig b/net/ipv4/Kconfig
+index 87983e70f03f..23b06063e1a5 100644
+--- a/net/ipv4/Kconfig
++++ b/net/ipv4/Kconfig
+@@ -403,6 +403,16 @@ config INET_IPCOMP
  
-+static void stm32_adfsdm_cleanup(void *data)
-+{
-+	iio_channel_release_all_cb(data);
-+}
-+
- static struct snd_soc_component_driver stm32_adfsdm_soc_platform = {
- 	.open		= stm32_adfsdm_pcm_open,
- 	.close		= stm32_adfsdm_pcm_close,
-@@ -349,6 +354,12 @@ static int stm32_adfsdm_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->iio_cb))
- 		return PTR_ERR(priv->iio_cb);
+ 	  If unsure, say Y.
  
-+	ret = devm_add_action_or_reset(&pdev->dev, stm32_adfsdm_cleanup, priv->iio_cb);
-+	if (ret < 0)  {
-+		dev_err(&pdev->dev, "Unable to add action\n");
-+		return ret;
-+	}
++config INET_TABLE_PERTURB_ORDER
++	int "INET: Source port perturbation table size (as power of 2)" if EXPERT
++	default 16
++	help
++	  Source port perturbation table size (as power of 2) for
++	  RFC 6056 3.3.4.  Algorithm 4: Double-Hash Port Selection Algorithm.
 +
- 	component = devm_kzalloc(&pdev->dev, sizeof(*component), GFP_KERNEL);
- 	if (!component)
- 		return -ENOMEM;
++	  The default is almost always what you want.
++	  Only change this if you know what you are doing.
++
+ config INET_XFRM_TUNNEL
+ 	tristate
+ 	select INET_TUNNEL
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index c0de655fffd7..c68a1dae25ca 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -721,13 +721,13 @@ EXPORT_SYMBOL_GPL(inet_unhash);
+  * Note that we use 32bit integers (vs RFC 'short integers')
+  * because 2^16 is not a multiple of num_ephemeral and this
+  * property might be used by clever attacker.
++ *
+  * RFC claims using TABLE_LENGTH=10 buckets gives an improvement, though
+- * attacks were since demonstrated, thus we use 65536 instead to really
+- * give more isolation and privacy, at the expense of 256kB of kernel
+- * memory.
++ * attacks were since demonstrated, thus we use 65536 by default instead
++ * to really give more isolation and privacy, at the expense of 256kB
++ * of kernel memory.
+  */
+-#define INET_TABLE_PERTURB_SHIFT 16
+-#define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
++#define INET_TABLE_PERTURB_SIZE (1 << CONFIG_INET_TABLE_PERTURB_ORDER)
+ static u32 *table_perturb;
+ 
+ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
 -- 
 2.35.1
 
