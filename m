@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 181BE63D56F
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:22:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3126663D570
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:22:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234719AbiK3MV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 07:21:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36994 "EHLO
+        id S234653AbiK3MWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 07:22:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234531AbiK3MV6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:21:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8906674636
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:21:57 -0800 (PST)
+        with ESMTP id S234531AbiK3MWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:22:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91B3A73BA3
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:21:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F114B81B32
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:21:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99983C433C1;
-        Wed, 30 Nov 2022 12:21:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F4C361B8D
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:21:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43975C433C1;
+        Wed, 30 Nov 2022 12:21:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669810915;
-        bh=0+0hR8WMMvWkJKk1xHvJkUrVYQCsxbrGeVXygu5UAmA=;
+        s=korg; t=1669810918;
+        bh=igEuiQMhozSkRexJyEejrkgAB5ywyeeQmCqIg137olo=;
         h=Subject:To:Cc:From:Date:From;
-        b=joypip7hmCcztUiZZ7DIV0f7yUN/pCm1OPjjN9u+xOqDO77mtKPfCybopIpNgjGSG
-         rbuPZyu0StUVWIWOi5P15NatB0OLuwww5PBEHooa+EqPb+Zb7KDQnGP8idWTVgKEO4
-         FaZPwt1v0241RxCCsg1LPVRQRDIb70jg40vIRNp4=
-Subject: FAILED: patch "[PATCH] KVM: x86: forcibly leave nested mode on vCPU reset" failed to apply to 4.14-stable tree
+        b=nBpyzGtSWaceDfF0CexP3Hi2Z6hQTQGPZ6yg3I12swT37CCuVkCfKnM5sWZ3grfd5
+         eWi2jMupBryKiHMbZAJd8R0zSS3WOmnjPRru+waqib96MC48+RoT6i2wsPfW14drs4
+         H/9UH87ebeHY/Lb33U8+iRoLVZ/bkRuuwmv4qp30=
+Subject: FAILED: patch "[PATCH] KVM: x86: forcibly leave nested mode on vCPU reset" failed to apply to 4.9-stable tree
 To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Nov 2022 13:21:46 +0100
-Message-ID: <1669810906116@kroah.com>
+Date:   Wed, 30 Nov 2022 13:21:47 +0100
+Message-ID: <1669810907200118@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
