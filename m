@@ -2,128 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CFE163D66E
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 14:16:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 900F963D765
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 15:01:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235626AbiK3NQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 08:16:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53942 "EHLO
+        id S229483AbiK3OBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 09:01:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232519AbiK3NQi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 08:16:38 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BE7556D4B;
-        Wed, 30 Nov 2022 05:16:38 -0800 (PST)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id BE7B21F8D4;
-        Wed, 30 Nov 2022 13:16:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1669814196; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=InTVSiPNY3KgtbrUipVQFtm2qipHlsJxEeslMAjnJJE=;
-        b=BHU3Y2gSx5A154Ec4LapeBDMjO30vp7ImX6Pe0CIiWmpCzBx36Rav8CtnBHvJ9o09Iy2Sh
-        Eh5nxlF5Mi4lyF03rytpUKZ406LvN4ozuj3q0AkmlWC/P65NwZoBsAby16H3WFAXpkQIjf
-        Cjx2ulVvezXsLbJ6m5oMv98KyGPCE9w=
-Received: from suse.cz (unknown [10.100.208.146])
+        with ESMTP id S229448AbiK3OBh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 09:01:37 -0500
+X-Greylist: delayed 563 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 30 Nov 2022 06:01:35 PST
+Received: from smtp-out-12.comm2000.it (smtp-out-12.comm2000.it [212.97.32.82])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A25528E17;
+        Wed, 30 Nov 2022 06:01:35 -0800 (PST)
+Received: from francesco-nb.int.toradex.com (93-49-2-63.ip317.fastwebnet.it [93.49.2.63])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 9DCDA2C14F;
-        Wed, 30 Nov 2022 13:16:35 +0000 (UTC)
-Date:   Wed, 30 Nov 2022 14:16:32 +0100
-From:   Petr Mladek <pmladek@suse.com>
-To:     David Laight <David.Laight@aculab.com>
-Cc:     'Petr Pavlu' <petr.pavlu@suse.com>,
-        "mcgrof@kernel.org" <mcgrof@kernel.org>,
-        "prarit@redhat.com" <prarit@redhat.com>,
-        "david@redhat.com" <david@redhat.com>,
-        "mwilck@suse.com" <mwilck@suse.com>,
-        "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] module: Don't wait for GOING modules
-Message-ID: <Y4dXsNKve02fGGEl@alley>
-References: <20221123131226.24359-1-petr.pavlu@suse.com>
- <Y348QNmO2AHh3eNr@alley>
- <a26ed87f-9e4c-7c1f-515b-edaaff9140fd@suse.com>
- <8224e68169eb49ec9866c253be84b09b@AcuMS.aculab.com>
+        (Authenticated sender: francesco@dolcini.it)
+        by smtp-out-12.comm2000.it (Postfix) with ESMTPSA id A26D5BA4158;
+        Wed, 30 Nov 2022 14:52:09 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailserver.it;
+        s=mailsrv; t=1669816330;
+        bh=pcIv7hJRQNuZYsBE+Cp2em/Jodkzbz5zoqpa315x034=;
+        h=Date:From:To:Cc:Subject;
+        b=cXhNocGTWt2Nr8ouAL8y7TnBnl3z3pr3rU+5N/qzSlTnToLORs78kRNeWI54XuXoA
+         nOw/7/5toNmmQheiBdCPix8t5LpHtY8uA21gP1TQ1xEo54gd4+lcrAxnQ8nGCyjxYn
+         8RdHpcjV7EG2zAmvV2c7Ex/mnuTse1cciYaJpIUa7ik2zdNpNJ7/FTen97Obk6bw8a
+         5ZCx2ao33Iq3hQO/ffx5OH0GwRLaH2l5Ba6nvajCPyc3GK5NUbjel0aylpskCc3ecB
+         kma0dK4VPkFb9JiCopzDrlUXByeqB7VkN/i12gtz5S6SoFbBMssEBp2+ntAnx67/6Q
+         8bdQxmyrZUNVQ==
+Date:   Wed, 30 Nov 2022 14:52:05 +0100
+From:   Francesco Dolcini <francesco@dolcini.it>
+To:     Marek Vasut <marex@denx.de>, Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        devicetree@vger.kernel.org, stable@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: Boot failure regression on 6.0.10 stable kernel on iMX7
+Message-ID: <Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8224e68169eb49ec9866c253be84b09b@AcuMS.aculab.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun 2022-11-27 11:21:45, David Laight wrote:
-> From: Petr Pavlu
-> > Sent: 26 November 2022 14:43
-> > 
-> > On 11/23/22 16:29, Petr Mladek wrote:
-> > > On Wed 2022-11-23 14:12:26, Petr Pavlu wrote:
-> > >> During a system boot, it can happen that the kernel receives a burst of
-> > >> requests to insert the same module but loading it eventually fails
-> > >> during its init call. For instance, udev can make a request to insert
-> > >> a frequency module for each individual CPU when another frequency module
-> > >> is already loaded which causes the init function of the new module to
-> > >> return an error.
-> > >>
-> > >> Since commit 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for
-> > >> modules that have finished loading"), the kernel waits for modules in
-> > >> MODULE_STATE_GOING state to finish unloading before making another
-> > >> attempt to load the same module.
-> > >>
-> > >> This creates unnecessary work in the described scenario and delays the
-> > >> boot. In the worst case, it can prevent udev from loading drivers for
-> > >> other devices and might cause timeouts of services waiting on them and
-> > >> subsequently a failed boot.
-> > >>
-> > >> This patch attempts a different solution for the problem 6e6de3dee51a
-> > >> was trying to solve. Rather than waiting for the unloading to complete,
-> > >> it returns a different error code (-EBUSY) for modules in the GOING
-> > >> state. This should avoid the error situation that was described in
-> > >> 6e6de3dee51a (user space attempting to load a dependent module because
-> > >> the -EEXIST error code would suggest to user space that the first module
-> > >> had been loaded successfully), while avoiding the delay situation too.
-> > >>
-> 
-> While people have all this code cached in their brains
-> there is related problem I can easily hit.
-> 
-> If two processes create sctp sockets at the same time and sctp
-> module has to be loaded then the second process can enter the
-> module code before is it fully initialised.
-> This might be because the try_module_get() succeeds before the
-> module initialisation function returns.
+Hello Marek,
+it looks like commit 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller
+size-cells"), that was backported to stable 6.0.10, introduce a boot
+regression on colibri-imx7, at least.
 
-Right, the race is there. And it is true that nobody should use
-the module until mod->init() succeeds.
+What I get is
 
-Well, I am not sure if there is an easy solution. It might require
-reviewing what all try_module_get() callers expect.
+[    0.000000] Booting Linux on physical CPU 0x0
+[    0.000000] Linux version 6.0.10 (francesco@francesco-nb) (arm-linux-gnueabihf-gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.
+4.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #36 SMP Wed Nov 30 14:07:15 CET 2022
+...
+[    4.407499] gpmi-nand: error parsing ofpart partition /soc/nand-controller@33002000/partition@0 (/soc/nand-controller
+@33002000)
+[    4.438401] gpmi-nand 33002000.nand-controller: driver registered.
+...
+[    5.933906] VFS: Cannot open root device "ubi0:rootfs" or unknown-block(0,0): error -19
+[    5.946504] Please append a correct "root=" boot option; here are the available partitions:
+...
 
-We could not easily wait. For example, __sock_create() calls
-try_module_get() under rcu_read_lock().
+Any idea? I'm not familiar with the gpmi-nand driver and I would just revert it, but
+maybe you have a better idea.
 
-And various callers might want special handing when the module
-is coming, going, and when it is not there at all.
+Francesco
 
-I guess that it would require adding some new API and update
-the various callers.
 
-> I've avoided the issue by ensuring the socket creates are serialised.
-
-I see. It would be great to have a clean solution, definitely.
-
-Sigh, there are more issues with the module life time. For example,
-kobjects might call the release() callback asynchronously and
-it might happen when the module/code has gone, see
-https://lore.kernel.org/all/20211105063710.4092936-1-ming.lei@redhat.com/
-
-Best Regards,
-PEtr
