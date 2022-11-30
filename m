@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B1263DE1E
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:34:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F47D63DD30
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:25:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230323AbiK3SeS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:34:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42960 "EHLO
+        id S229671AbiK3SZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:25:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230337AbiK3SeA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:34:00 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3F67900FE
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:33:55 -0800 (PST)
+        with ESMTP id S230033AbiK3SZL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C992E102B
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:25:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3AA0ACE1AC1
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:33:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17412C433D6;
-        Wed, 30 Nov 2022 18:33:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88A14B81CA3
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:25:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3F53C433C1;
+        Wed, 30 Nov 2022 18:25:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833232;
-        bh=KBla2T1u1IXm/WEkLDbWo9TEJ9Bv7mjXDp8ams7vGLM=;
+        s=korg; t=1669832708;
+        bh=9IeXYuqFLKTIBIisciMvF2DPlCmQSlBrqChoV2t5joc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iO+kd59t94kV6gFWLaWJXF4jfxKhWSYgHEDCwgVuBjJ3yRI9fAQx/pib4PyXDjntG
-         fvOTtm4ZxfU/nvjt5dBW/F2svyfFvyPmkR48Q0V+GpODcbF71PUtEIr6u3nVlfjOaq
-         bQ6mfBPgY2xYeRhaGYr8qKSoIY7fpcgcBfVF2tFs=
+        b=E4F+CCDdfxP0f5JbA+hY3vNBn2UjXhOcRbG+1ugSWANyeQAwmHitxgJWfMofatTdA
+         3h1NGmTVyRb7VQ+MW6YOiJBMjkWV5T0AeVENVgh0bCbePCGKnBhWWj2OAR3PDdLmar
+         fjvr5u+/lsQxsz43DLlHI4XjRfoK6EGbxRhk/j8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Paul Moore <paul@paul-moore.com>,
+        patches@lists.linux.dev, Vlad Buslov <vladbu@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Nikolay Aleksandrov <razor@blackwall.org>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 034/206] audit: fix undefined behavior in bit shift for AUDIT_BIT
+Subject: [PATCH 5.10 005/162] bridge: switchdev: Fix memory leaks when changing VLAN protocol
 Date:   Wed, 30 Nov 2022 19:21:26 +0100
-Message-Id: <20221130180533.861182914@linuxfoundation.org>
+Message-Id: <20221130180528.630625164@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +55,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 986d93f55bdeab1cac858d1e47b41fac10b2d7f6 ]
+[ Upstream commit 9d45921ee4cb364910097e7d1b7558559c2f9fd2 ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+The bridge driver can offload VLANs to the underlying hardware either
+via switchdev or the 8021q driver. When the former is used, the VLAN is
+marked in the bridge driver with the 'BR_VLFLAG_ADDED_BY_SWITCHDEV'
+private flag.
 
-UBSAN: shift-out-of-bounds in kernel/auditfilter.c:179:23
-left shift of 1 by 31 places cannot be represented in type 'int'
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7d/0xa5
- dump_stack+0x15/0x1b
- ubsan_epilogue+0xe/0x4e
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
- audit_register_class+0x9d/0x137
- audit_classes_init+0x4d/0xb8
- do_one_initcall+0x76/0x430
- kernel_init_freeable+0x3b3/0x422
- kernel_init+0x24/0x1e0
- ret_from_fork+0x1f/0x30
- </TASK>
+To avoid the memory leaks mentioned in the cited commit, the bridge
+driver will try to delete a VLAN via the 8021q driver if the VLAN is not
+marked with the previously mentioned flag.
 
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-[PM: remove bad 'Fixes' tag as issue predates git, added in v2.6.6-rc1]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+When the VLAN protocol of the bridge changes, switchdev drivers are
+notified via the 'SWITCHDEV_ATTR_ID_BRIDGE_VLAN_PROTOCOL' attribute, but
+the 8021q driver is also called to add the existing VLANs with the new
+protocol and delete them with the old protocol.
+
+In case the VLANs were offloaded via switchdev, the above behavior is
+both redundant and buggy. Redundant because the VLANs are already
+programmed in hardware and drivers that support VLAN protocol change
+(currently only mlx5) change the protocol upon the switchdev attribute
+notification. Buggy because the 8021q driver is called despite these
+VLANs being marked with 'BR_VLFLAG_ADDED_BY_SWITCHDEV'. This leads to
+memory leaks [1] when the VLANs are deleted.
+
+Fix by not calling the 8021q driver for VLANs that were already
+programmed via switchdev.
+
+[1]
+unreferenced object 0xffff8881f6771200 (size 256):
+  comm "ip", pid 446855, jiffies 4298238841 (age 55.240s)
+  hex dump (first 32 bytes):
+    00 00 7f 0e 83 88 ff ff 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000012819ac>] vlan_vid_add+0x437/0x750
+    [<00000000f2281fad>] __br_vlan_set_proto+0x289/0x920
+    [<000000000632b56f>] br_changelink+0x3d6/0x13f0
+    [<0000000089d25f04>] __rtnl_newlink+0x8ae/0x14c0
+    [<00000000f6276baf>] rtnl_newlink+0x5f/0x90
+    [<00000000746dc902>] rtnetlink_rcv_msg+0x336/0xa00
+    [<000000001c2241c0>] netlink_rcv_skb+0x11d/0x340
+    [<0000000010588814>] netlink_unicast+0x438/0x710
+    [<00000000e1a4cd5c>] netlink_sendmsg+0x788/0xc40
+    [<00000000e8992d4e>] sock_sendmsg+0xb0/0xe0
+    [<00000000621b8f91>] ____sys_sendmsg+0x4ff/0x6d0
+    [<000000000ea26996>] ___sys_sendmsg+0x12e/0x1b0
+    [<00000000684f7e25>] __sys_sendmsg+0xab/0x130
+    [<000000004538b104>] do_syscall_64+0x3d/0x90
+    [<0000000091ed9678>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Fixes: 279737939a81 ("net: bridge: Fix VLANs memory leak")
+Reported-by: Vlad Buslov <vladbu@nvidia.com>
+Tested-by: Vlad Buslov <vladbu@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+Link: https://lore.kernel.org/r/20221114084509.860831-1-idosch@nvidia.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/audit.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/br_vlan.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
-index daa481729e9b..27799acd0e5e 100644
---- a/include/uapi/linux/audit.h
-+++ b/include/uapi/linux/audit.h
-@@ -182,7 +182,7 @@
- #define AUDIT_MAX_KEY_LEN  256
- #define AUDIT_BITMASK_SIZE 64
- #define AUDIT_WORD(nr) ((__u32)((nr)/32))
--#define AUDIT_BIT(nr)  (1 << ((nr) - AUDIT_WORD(nr)*32))
-+#define AUDIT_BIT(nr)  (1U << ((nr) - AUDIT_WORD(nr)*32))
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 7e5968e7aad5..1dc5db07650c 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -878,6 +878,8 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
+ 	list_for_each_entry(p, &br->port_list, list) {
+ 		vg = nbp_vlan_group(p);
+ 		list_for_each_entry(vlan, &vg->vlan_list, vlist) {
++			if (vlan->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
++				continue;
+ 			err = vlan_vid_add(p->dev, proto, vlan->vid);
+ 			if (err)
+ 				goto err_filt;
+@@ -892,8 +894,11 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
+ 	/* Delete VLANs for the old proto from the device filter. */
+ 	list_for_each_entry(p, &br->port_list, list) {
+ 		vg = nbp_vlan_group(p);
+-		list_for_each_entry(vlan, &vg->vlan_list, vlist)
++		list_for_each_entry(vlan, &vg->vlan_list, vlist) {
++			if (vlan->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
++				continue;
+ 			vlan_vid_del(p->dev, oldproto, vlan->vid);
++		}
+ 	}
  
- #define AUDIT_SYSCALL_CLASSES 16
- #define AUDIT_CLASS_DIR_WRITE 0
+ 	return 0;
+@@ -902,13 +907,19 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto)
+ 	attr.u.vlan_protocol = ntohs(oldproto);
+ 	switchdev_port_attr_set(br->dev, &attr);
+ 
+-	list_for_each_entry_continue_reverse(vlan, &vg->vlan_list, vlist)
++	list_for_each_entry_continue_reverse(vlan, &vg->vlan_list, vlist) {
++		if (vlan->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
++			continue;
+ 		vlan_vid_del(p->dev, proto, vlan->vid);
++	}
+ 
+ 	list_for_each_entry_continue_reverse(p, &br->port_list, list) {
+ 		vg = nbp_vlan_group(p);
+-		list_for_each_entry(vlan, &vg->vlan_list, vlist)
++		list_for_each_entry(vlan, &vg->vlan_list, vlist) {
++			if (vlan->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
++				continue;
+ 			vlan_vid_del(p->dev, proto, vlan->vid);
++		}
+ 	}
+ 
+ 	return err;
 -- 
 2.35.1
 
