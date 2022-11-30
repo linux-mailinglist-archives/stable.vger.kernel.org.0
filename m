@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD3AC63DEEF
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:42:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E682263DDDA
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:31:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230503AbiK3SmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:42:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53402 "EHLO
+        id S229840AbiK3SbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:31:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231209AbiK3SmC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:42:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5237499F2F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:42:02 -0800 (PST)
+        with ESMTP id S230092AbiK3SbM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:31:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6D378DBD3
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:31:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA90361D76
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:42:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD6E0C43144;
-        Wed, 30 Nov 2022 18:42:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31890B81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:31:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A83FC433C1;
+        Wed, 30 Nov 2022 18:31:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833721;
-        bh=yo4vx89wcKuh+ZbIVTuXWYGqPrrUOxpS8eEJxC3Dpec=;
+        s=korg; t=1669833069;
+        bh=bvxefQTvaK5KtzYdS8OroZp3L97TDlXZv1Iqvn5SU2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQ4mHwwN0IUCmgj1A8ty/AztLerNSuPAC3kyDA+SzM49mJ+b9k60FgrIG6wh21Zov
-         ql6aaq76EwRHE5S6xEncfHWupCOR3jnUnXu0frsFyMFZIKodBYo6xzqdzlM1pLmNTx
-         aQ23fWToi2aXkPXKTeyddNA4FsIZQSKREOTkdSAQ=
+        b=jqIQFPlgNHtbZjFmlRxAJO0z+jonVuZB2Eedfkdj3MSLYJIwwIbtryu6kQgTqKQn2
+         7Kyx/1fiMpuqnwvLHBzZRypVMoolnTEpXAQINmaGyEw5i18gopuaWguX/OUeVGjoWN
+         7AOl0Pn1dMuSXt5+YRNWSKcLRCHGjYMrgadKThts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev, Rudolf Polzer <rpolzer@google.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 169/206] Input: soc_button_array - add use_low_level_irq module parameter
+Subject: [PATCH 5.10 140/162] platform/x86: acer-wmi: Enable SW_TABLET_MODE on Switch V 10 (SW5-017)
 Date:   Wed, 30 Nov 2022 19:23:41 +0100
-Message-Id: <20221130180537.327372930@linuxfoundation.org>
+Message-Id: <20221130180532.278131749@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +55,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 8e9ada1d0e72b4737df400fe1bba48dc42a68df7 ]
+[ Upstream commit 1e817b889c7d8c14e7005258e15fec62edafe03c ]
 
-It seems that the Windows drivers for the ACPI0011 soc_button_array
-device use low level triggered IRQs rather then using edge triggering.
+Like the Acer Switch 10 (SW5-012) and Acer Switch 10 (S1003) models
+the Acer Switch V 10 (SW5-017) supports reporting SW_TABLET_MODE
+through acer-wmi.
 
-Some ACPI tables depend on this, directly poking the GPIO controller's
-registers to clear the trigger type when closing a laptop's/2-in-1's lid
-and re-instating the trigger when opening the lid again.
+Add a DMI quirk for the SW5-017 setting force_caps to ACER_CAP_KBD_DOCK
+(these devices have no other acer-wmi based functionality).
 
-Linux sets the edge/level on which to trigger to both low+high since
-it is using edge type IRQs, the ACPI tables then ends up also setting
-the bit for level IRQs and since both low and high level have been
-selected by Linux we get an IRQ storm leading to soft lockups.
-
-As a workaround for this the soc_button_array already contains
-a DMI quirk table with device models known to have this issue.
-
-Add a module parameter for this so that users can easily test if their
-device is affected too and so that they can use the module parameter
-as a workaround.
-
+Cc: Rudolf Polzer <rpolzer@google.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20221106215320.67109-1-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20221111111639.35730-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/soc_button_array.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/platform/x86/acer-wmi.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index efffcf0ebd3b..46ba8218de99 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -18,6 +18,10 @@
- #include <linux/gpio.h>
- #include <linux/platform_device.h>
- 
-+static bool use_low_level_irq;
-+module_param(use_low_level_irq, bool, 0444);
-+MODULE_PARM_DESC(use_low_level_irq, "Use low-level triggered IRQ instead of edge triggered");
-+
- struct soc_button_info {
- 	const char *name;
- 	int acpi_index;
-@@ -164,7 +168,8 @@ soc_button_device_create(struct platform_device *pdev,
- 		}
- 
- 		/* See dmi_use_low_level_irq[] comment */
--		if (!autorepeat && dmi_check_system(dmi_use_low_level_irq)) {
-+		if (!autorepeat && (use_low_level_irq ||
-+				    dmi_check_system(dmi_use_low_level_irq))) {
- 			irq_set_irq_type(irq, IRQ_TYPE_LEVEL_LOW);
- 			gpio_keys[n_buttons].irq = irq;
- 			gpio_keys[n_buttons].gpio = -ENOENT;
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index 8e696262215f..ebec49957ed0 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -536,6 +536,15 @@ static const struct dmi_system_id acer_quirks[] __initconst = {
+ 		},
+ 		.driver_data = (void *)ACER_CAP_KBD_DOCK,
+ 	},
++	{
++		.callback = set_force_caps,
++		.ident = "Acer Aspire Switch V 10 SW5-017",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SW5-017"),
++		},
++		.driver_data = (void *)ACER_CAP_KBD_DOCK,
++	},
+ 	{
+ 		.callback = set_force_caps,
+ 		.ident = "Acer One 10 (S1003)",
 -- 
 2.35.1
 
