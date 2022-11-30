@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B5463E03F
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:55:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7C8063DEEB
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:42:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231580AbiK3SzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:55:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46084 "EHLO
+        id S231178AbiK3SmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:42:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231582AbiK3SzC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:55:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7C4D93A55
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:55:01 -0800 (PST)
+        with ESMTP id S231158AbiK3Sl5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:57 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7152F98978
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5724461D4F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:55:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B33AC433D6;
-        Wed, 30 Nov 2022 18:55:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DF7EDCE1AC1
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:41:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3371C433D7;
+        Wed, 30 Nov 2022 18:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834500;
-        bh=YV/g4gHeGL9nPftnW7aDWYSFRYJ/FYEbVp5rDMcHxy4=;
+        s=korg; t=1669833713;
+        bh=1u4EPi2tGOxWGBv2nc4NhWl2UScG263CSd7/Lm7oZD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zbge9bP+TDWfKP84NDmmTrmOf4EuD312BFyVerMWD/vT5ydnpA/dIBrxpqKl53XyP
-         Kc00y7RKg17K1EFMyWc8SOKDU8a0CYO6QzsMdr6fUmBy0qP7acrG3Wgwn00yysby2h
-         UIT8315LV8xiaBpOc4huOm4w1/paEJ85Y/eJLokE=
+        b=gwkbQw0h7c1xbUE39eMY6yEliwvAZuALbzS4vnyf3PPI6M9ehib1wUs2bbGSnGVHJ
+         p/AfsfX03YCbR/qyOD6+DwopwtdkD/pjob1QYKaUoJWNmoWAaxuRlX5FuGlwOxl4No
+         MhmIpg+ztX3gsMVST7cJLm2KNFUx4XWqibQEhkRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
-        Mike Snitzer <snitzer@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 259/289] dm-log-writes: set dma_alignment limit in io_hints
-Date:   Wed, 30 Nov 2022 19:24:04 +0100
-Message-Id: <20221130180549.974631689@linuxfoundation.org>
+        patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Luiz Capitulino <luizcap@amazon.com>
+Subject: [PATCH 5.15 193/206] genirq: Always limit the affinity to online CPUs
+Date:   Wed, 30 Nov 2022 19:24:05 +0100
+Message-Id: <20221130180537.928391815@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Luiz Capitulino <luizcap@amazon.com>
 
-[ Upstream commit 50a893359cd2643ee1afc96eedc9e7084cab49fa ]
+From: Marc Zyngier <maz@kernel.org>
 
-This device mapper needs bio vectors to be sized and memory aligned to
-the logical block size. Set the minimum required queue limit
-accordingly.
+commit 33de0aa4bae982ed6f7c777f86b5af3e627ac937 upstream.
 
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Mike Snitzer <snitzer@kernel.org>
-Link: https://lore.kernel.org/r/20221110184501.2451620-6-kbusch@meta.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[ Fixed small conflicts due to the HK_FLAG_MANAGED_IRQ flag been
+  renamed on upstream ]
+
+When booting with maxcpus=<small number> (or even loading a driver
+while most CPUs are offline), it is pretty easy to observe managed
+affinities containing a mix of online and offline CPUs being passed
+to the irqchip driver.
+
+This means that the irqchip cannot trust the affinity passed down
+from the core code, which is a bit annoying and requires (at least
+in theory) all drivers to implement some sort of affinity narrowing.
+
+In order to address this, always limit the cpumask to the set of
+online CPUs.
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20220405185040.206297-3-maz@kernel.org
+
+Signed-off-by: Luiz Capitulino <luizcap@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-log-writes.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/irq/manage.c |   25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/md/dm-log-writes.c b/drivers/md/dm-log-writes.c
-index 20fd688f72e7..178e13a5b059 100644
---- a/drivers/md/dm-log-writes.c
-+++ b/drivers/md/dm-log-writes.c
-@@ -875,6 +875,7 @@ static void log_writes_io_hints(struct dm_target *ti, struct queue_limits *limit
- 	limits->logical_block_size = bdev_logical_block_size(lc->dev->bdev);
- 	limits->physical_block_size = bdev_physical_block_size(lc->dev->bdev);
- 	limits->io_min = limits->physical_block_size;
-+	limits->dma_alignment = limits->logical_block_size - 1;
- }
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -222,11 +222,16 @@ int irq_do_set_affinity(struct irq_data
+ {
+ 	struct irq_desc *desc = irq_data_to_desc(data);
+ 	struct irq_chip *chip = irq_data_get_irq_chip(data);
++	const struct cpumask  *prog_mask;
+ 	int ret;
  
- #if IS_ENABLED(CONFIG_FS_DAX)
--- 
-2.35.1
-
++	static DEFINE_RAW_SPINLOCK(tmp_mask_lock);
++	static struct cpumask tmp_mask;
++
+ 	if (!chip || !chip->irq_set_affinity)
+ 		return -EINVAL;
+ 
++	raw_spin_lock(&tmp_mask_lock);
+ 	/*
+ 	 * If this is a managed interrupt and housekeeping is enabled on
+ 	 * it check whether the requested affinity mask intersects with
+@@ -248,24 +253,28 @@ int irq_do_set_affinity(struct irq_data
+ 	 */
+ 	if (irqd_affinity_is_managed(data) &&
+ 	    housekeeping_enabled(HK_FLAG_MANAGED_IRQ)) {
+-		const struct cpumask *hk_mask, *prog_mask;
+-
+-		static DEFINE_RAW_SPINLOCK(tmp_mask_lock);
+-		static struct cpumask tmp_mask;
++		const struct cpumask *hk_mask;
+ 
+ 		hk_mask = housekeeping_cpumask(HK_FLAG_MANAGED_IRQ);
+ 
+-		raw_spin_lock(&tmp_mask_lock);
+ 		cpumask_and(&tmp_mask, mask, hk_mask);
+ 		if (!cpumask_intersects(&tmp_mask, cpu_online_mask))
+ 			prog_mask = mask;
+ 		else
+ 			prog_mask = &tmp_mask;
+-		ret = chip->irq_set_affinity(data, prog_mask, force);
+-		raw_spin_unlock(&tmp_mask_lock);
+ 	} else {
+-		ret = chip->irq_set_affinity(data, mask, force);
++		prog_mask = mask;
+ 	}
++
++	/* Make sure we only provide online CPUs to the irqchip */
++	cpumask_and(&tmp_mask, prog_mask, cpu_online_mask);
++	if (!cpumask_empty(&tmp_mask))
++		ret = chip->irq_set_affinity(data, &tmp_mask, force);
++	else
++		ret = -EINVAL;
++
++	raw_spin_unlock(&tmp_mask_lock);
++
+ 	switch (ret) {
+ 	case IRQ_SET_MASK_OK:
+ 	case IRQ_SET_MASK_OK_DONE:
 
 
