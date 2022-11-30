@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD4AB63DF8D
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A2B163DE41
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231443AbiK3Ssb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:48:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34314 "EHLO
+        id S230209AbiK3SfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:35:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231379AbiK3SsQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFFCC26128
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:13 -0800 (PST)
+        with ESMTP id S230404AbiK3SfJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDBE293A5B
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69F1BB81B37
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2B13C433C1;
-        Wed, 30 Nov 2022 18:48:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E96CB81CA4
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF320C433D6;
+        Wed, 30 Nov 2022 18:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834091;
-        bh=sTXKwoIwrmBKPGu/Yp8Rqee3FuXZ0Ejd9Z9fdqONnbg=;
+        s=korg; t=1669833306;
+        bh=njObzzihETDEyRFwwlBVKg3ZyPlZClxXNh1sTuzSlOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hCEeLwrRhvH+SneWwozFpmytOfUgdFSr/EeVzQWDnWL/qHykZwAk2MjqFALXb/sEY
-         rO5H5FJyuK0eHIwz8Ko2qOxa3La0nJyTeKjOU7UwDZ3WQfuVwF1uJp/RKdSa2TbgqP
-         cozCkmutgAq2VJN51wmOx2b4bcOQi61kmjmopvF4=
+        b=aRK/z0FzSntURLI0wKkJa0g7Uqwvz2yV6zm9YSGrcYnul1OiDAA86iEThSblm32V7
+         YwjNLoo3+Q+YdGy0FAsKW1bjWhd73FemzqBpbMBfwzwCZOX473qbPLjKk3mzg8UXqo
+         k7VW+mZ0jLrjgj4hM6fy8r8Jfgi2KzkjlCk8FuRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dawei Li <set_pte_at@outlook.com>,
-        Andrew Davis <afd@ti.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
+        patches@lists.linux.dev,
+        Detlev Casanova <detlev.casanova@collabora.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 126/289] dma-buf: fix racing conflict of dma_heap_add()
-Date:   Wed, 30 Nov 2022 19:21:51 +0100
-Message-Id: <20221130180546.997188139@linuxfoundation.org>
+Subject: [PATCH 5.15 060/206] ASoC: sgtl5000: Reset the CHIP_CLK_CTRL reg on remove
+Date:   Wed, 30 Nov 2022 19:21:52 +0100
+Message-Id: <20221130180534.530369200@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,89 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dawei Li <set_pte_at@outlook.com>
+From: Detlev Casanova <detlev.casanova@collabora.com>
 
-[ Upstream commit 432e25902b9651622578c6248e549297d03caf66 ]
+[ Upstream commit 0bb8e9b36b5b7f2e77892981ff6c27ee831d8026 ]
 
-Racing conflict could be:
-task A                 task B
-list_for_each_entry
-strcmp(h->name))
-                       list_for_each_entry
-                       strcmp(h->name)
-kzalloc                kzalloc
-......                 .....
-device_create          device_create
-list_add
-                       list_add
+Since commit bf2aebccddef ("ASoC: sgtl5000: Fix noise on shutdown/remove"),
+the device power control registers are reset when the driver is
+removed/shutdown.
 
-The root cause is that task B has no idea about the fact someone
-else(A) has inserted heap with same name when it calls list_add,
-so a potential collision occurs.
+This is an issue when the device is configured to use the PLL clock. The
+device will stop responding if it is still configured to use the PLL
+clock but the PLL clock is powered down.
 
-Fixes: c02a81fba74f ("dma-buf: Add dma-buf heaps framework")
-Signed-off-by: Dawei Li <set_pte_at@outlook.com>
-Acked-by: Andrew Davis <afd@ti.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Sumit Semwal <sumit.semwal@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/TYCP286MB2323873BBDF88020781FB986CA3B9@TYCP286MB2323.JPNP286.PROD.OUTLOOK.COM
+When rebooting linux, the probe function will show:
+sgtl5000 0-000a: Error reading chip id -11
+
+Make sure that the CHIP_CLK_CTRL is reset to its default value before
+powering down the device.
+
+Fixes: bf2aebccddef ("ASoC: sgtl5000: Fix noise on shutdown/remove")
+Signed-off-by: Detlev Casanova <detlev.casanova@collabora.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20221110190612.1341469-1-detlev.casanova@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/dma-heap.c | 28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ sound/soc/codecs/sgtl5000.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma-buf/dma-heap.c b/drivers/dma-buf/dma-heap.c
-index 8f5848aa144f..59d158873f4c 100644
---- a/drivers/dma-buf/dma-heap.c
-+++ b/drivers/dma-buf/dma-heap.c
-@@ -233,18 +233,6 @@ struct dma_heap *dma_heap_add(const struct dma_heap_export_info *exp_info)
- 		return ERR_PTR(-EINVAL);
- 	}
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index dc56e6c6b668..3c5a4fe2fad6 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -1797,6 +1797,7 @@ static int sgtl5000_i2c_remove(struct i2c_client *client)
+ {
+ 	struct sgtl5000_priv *sgtl5000 = i2c_get_clientdata(client);
  
--	/* check the name is unique */
--	mutex_lock(&heap_list_lock);
--	list_for_each_entry(h, &heap_list, list) {
--		if (!strcmp(h->name, exp_info->name)) {
--			mutex_unlock(&heap_list_lock);
--			pr_err("dma_heap: Already registered heap named %s\n",
--			       exp_info->name);
--			return ERR_PTR(-EINVAL);
--		}
--	}
--	mutex_unlock(&heap_list_lock);
--
- 	heap = kzalloc(sizeof(*heap), GFP_KERNEL);
- 	if (!heap)
- 		return ERR_PTR(-ENOMEM);
-@@ -283,13 +271,27 @@ struct dma_heap *dma_heap_add(const struct dma_heap_export_info *exp_info)
- 		err_ret = ERR_CAST(dev_ret);
- 		goto err2;
- 	}
--	/* Add heap to the list */
-+
- 	mutex_lock(&heap_list_lock);
-+	/* check the name is unique */
-+	list_for_each_entry(h, &heap_list, list) {
-+		if (!strcmp(h->name, exp_info->name)) {
-+			mutex_unlock(&heap_list_lock);
-+			pr_err("dma_heap: Already registered heap named %s\n",
-+			       exp_info->name);
-+			err_ret = ERR_PTR(-EINVAL);
-+			goto err3;
-+		}
-+	}
-+
-+	/* Add heap to the list */
- 	list_add(&heap->list, &heap_list);
- 	mutex_unlock(&heap_list_lock);
++	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_CLK_CTRL, SGTL5000_CHIP_CLK_CTRL_DEFAULT);
+ 	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_DIG_POWER, SGTL5000_DIG_POWER_DEFAULT);
+ 	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, SGTL5000_ANA_POWER_DEFAULT);
  
- 	return heap;
- 
-+err3:
-+	device_destroy(dma_heap_class, heap->heap_devt);
- err2:
- 	cdev_del(&heap->heap_cdev);
- err1:
 -- 
 2.35.1
 
