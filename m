@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2643263DF93
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2DB363DE45
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231367AbiK3Ssu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:48:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34792 "EHLO
+        id S229794AbiK3Sfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:35:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231370AbiK3Ssb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E236F55C89
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:29 -0800 (PST)
+        with ESMTP id S230372AbiK3SfU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DF0193A79
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88B9CB81CA6
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1A9AC433D7;
-        Wed, 30 Nov 2022 18:48:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B3FD61D6F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BE5FC433C1;
+        Wed, 30 Nov 2022 18:35:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834107;
-        bh=e1+IPermuFw4Yw3pOuO4vGYU2ZVKupHQgopAVJll2vw=;
+        s=korg; t=1669833318;
+        bh=ZAwl0ACzd3+G4lbTVx/VqBe3fLgAPj+hpodVWq+QNA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1XQWC3sfxUNWnpd8K+mu5oPVpGlv6NxYs/TmEG7tki8CoZboAShGtC+//ca/ndCQ
-         eMA+UiI2e0IwIWBDBuxCgcxkf4icmns4TCMh7Zuf5PMSBTfZEnWesFKDMwRgXKbhKP
-         rjYkXaQIrKTtdkYNTWoDOk5IcCLvUNGVnG0GQ0VU=
+        b=Bb4GxVn4qAzTUVFv6X617snY2fKBm5UZIqzjb7IcxLatJ5mziltsyYly484HYNUK0
+         O+xBTKJrDFmaAMK6A0Sw9SYa8bMnsxoyDnvSx4zQ2rRfNJT0WN3TNoqy0u68tbpGub
+         3PlkmOM+EtmauXT7GmxSyiizw1BPBMYwuOwGjtg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+6ba92bd00d5093f7e371@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>,
-        Svyatoslav Feldsherov <feldsherov@google.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 131/289] fs: do not update freeing inode i_io_list
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 064/206] ASoC: max98373: Add checks for devm_kcalloc
 Date:   Wed, 30 Nov 2022 19:21:56 +0100
-Message-Id: <20221130180547.109020051@linuxfoundation.org>
+Message-Id: <20221130180534.627991536@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,82 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Svyatoslav Feldsherov <feldsherov@google.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 4e3c51f4e805291b057d12f5dda5aeb50a538dc4 ]
+[ Upstream commit 60591bbf6d5eb44f275eb733943b7757325c1b60 ]
 
-After commit cbfecb927f42 ("fs: record I_DIRTY_TIME even if inode
-already has I_DIRTY_INODE") writeback_single_inode can push inode with
-I_DIRTY_TIME set to b_dirty_time list. In case of freeing inode with
-I_DIRTY_TIME set this can happen after deletion of inode from i_io_list
-at evict. Stack trace is following.
+As the devm_kcalloc may return NULL pointer,
+it should be better to check the return value
+in order to avoid NULL poineter dereference.
 
-evict
-fat_evict_inode
-fat_truncate_blocks
-fat_flush_inodes
-writeback_inode
-sync_inode_metadata(inode, sync=0)
-writeback_single_inode(inode, wbc) <- wbc->sync_mode == WB_SYNC_NONE
-
-This will lead to use after free in flusher thread.
-
-Similar issue can be triggered if writeback_single_inode in the
-stack trace update inode->i_io_list. Add explicit check to avoid it.
-
-Fixes: cbfecb927f42 ("fs: record I_DIRTY_TIME even if inode already has I_DIRTY_INODE")
-Reported-by: syzbot+6ba92bd00d5093f7e371@syzkaller.appspotmail.com
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Svyatoslav Feldsherov <feldsherov@google.com>
-Link: https://lore.kernel.org/r/20221115202001.324188-1-feldsherov@google.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 349dd23931d1 ("ASoC: max98373: don't access volatile registers in bias level off")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20221116082508.17418-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fs-writeback.c | 30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+ sound/soc/codecs/max98373-i2c.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index 443f83382b9b..9958d4020771 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -1712,18 +1712,26 @@ static int writeback_single_inode(struct inode *inode,
- 	wb = inode_to_wb_and_lock_list(inode);
- 	spin_lock(&inode->i_lock);
- 	/*
--	 * If the inode is now fully clean, then it can be safely removed from
--	 * its writeback list (if any).  Otherwise the flusher threads are
--	 * responsible for the writeback lists.
-+	 * If the inode is freeing, its i_io_list shoudn't be updated
-+	 * as it can be finally deleted at this moment.
- 	 */
--	if (!(inode->i_state & I_DIRTY_ALL))
--		inode_cgwb_move_to_attached(inode, wb);
--	else if (!(inode->i_state & I_SYNC_QUEUED)) {
--		if ((inode->i_state & I_DIRTY))
--			redirty_tail_locked(inode, wb);
--		else if (inode->i_state & I_DIRTY_TIME) {
--			inode->dirtied_when = jiffies;
--			inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
-+	if (!(inode->i_state & I_FREEING)) {
-+		/*
-+		 * If the inode is now fully clean, then it can be safely
-+		 * removed from its writeback list (if any). Otherwise the
-+		 * flusher threads are responsible for the writeback lists.
-+		 */
-+		if (!(inode->i_state & I_DIRTY_ALL))
-+			inode_cgwb_move_to_attached(inode, wb);
-+		else if (!(inode->i_state & I_SYNC_QUEUED)) {
-+			if ((inode->i_state & I_DIRTY))
-+				redirty_tail_locked(inode, wb);
-+			else if (inode->i_state & I_DIRTY_TIME) {
-+				inode->dirtied_when = jiffies;
-+				inode_io_list_move_locked(inode,
-+							  wb,
-+							  &wb->b_dirty_time);
-+			}
- 		}
- 	}
+diff --git a/sound/soc/codecs/max98373-i2c.c b/sound/soc/codecs/max98373-i2c.c
+index ddb6436835d7..68497a4521dd 100644
+--- a/sound/soc/codecs/max98373-i2c.c
++++ b/sound/soc/codecs/max98373-i2c.c
+@@ -551,6 +551,10 @@ static int max98373_i2c_probe(struct i2c_client *i2c,
+ 	max98373->cache = devm_kcalloc(&i2c->dev, max98373->cache_num,
+ 				       sizeof(*max98373->cache),
+ 				       GFP_KERNEL);
++	if (!max98373->cache) {
++		ret = -ENOMEM;
++		return ret;
++	}
  
+ 	for (i = 0; i < max98373->cache_num; i++)
+ 		max98373->cache[i].reg = max98373_i2c_cache_reg[i];
 -- 
 2.35.1
 
