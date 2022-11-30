@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0067663DE83
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:37:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB74563DD6C
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:27:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230452AbiK3Shy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:37:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47718 "EHLO
+        id S229919AbiK3S1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:27:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230455AbiK3Shr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:37:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4945793A6C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:37:31 -0800 (PST)
+        with ESMTP id S229751AbiK3S1G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:27:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBE901D642
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:27:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC3D661D74
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:37:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8CADC433C1;
-        Wed, 30 Nov 2022 18:37:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55A7CB81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:27:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3B31C433D7;
+        Wed, 30 Nov 2022 18:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833450;
-        bh=wL1xaC113PvE2J5w+3W6BPgUrjjX3ocirXkapXJrH38=;
+        s=korg; t=1669832822;
+        bh=QMotDFDS3QNzbPUG8NeItMuLlRLLKHRqIZWoKbXWEfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vDgTPxI7MIKJSZWlkr9yAEFUs9dzOVqY+OQ6XhyJuPwjF4EiOyIPJzgW1d6FrgNwW
-         9fDp5/8xH/chuRd9Td1kFhEx3FKZ0i4YSa14/vCl0u1foorVq8PnRxvBCsQOw2nnEs
-         koNSSVB394yRX0r2UfWTa+BTSTtLKJ253tj2DqR0=
+        b=2n0lQUun4vwyhAhA2/E1GuQDnJL13ep4f1CLEWkL5yEsp1xCCyAKeRD2B7ddqju1p
+         xJpFD2mG8gBgouJ4RucXTMeQAKDnqALWlgmR0W/lP9aJv3h6Ix9vzQgwEXw9f5BxXF
+         hbIzjbKqYorG0npx4PRMGmyMHF5WibavsYVrcHN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Daniel Xu <dxu@dxuuu.xyz>,
         Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 082/206] netfilter: conntrack: Fix data-races around ct mark
+Subject: [PATCH 5.10 053/162] netfilter: conntrack: Fix data-races around ct mark
 Date:   Wed, 30 Nov 2022 19:22:14 +0100
-Message-Id: <20221130180535.088144105@linuxfoundation.org>
+Message-Id: <20221130180529.946901355@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -81,10 +80,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  11 files changed, 45 insertions(+), 39 deletions(-)
 
 diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
-index 1c34e2266578..1d230f041386 100644
+index ed120828c7e2..b8d082f55718 100644
 --- a/net/core/flow_dissector.c
 +++ b/net/core/flow_dissector.c
-@@ -270,7 +270,7 @@ skb_flow_dissect_ct(const struct sk_buff *skb,
+@@ -263,7 +263,7 @@ skb_flow_dissect_ct(const struct sk_buff *skb,
  	key->ct_zone = ct->zone.id;
  #endif
  #if IS_ENABLED(CONFIG_NF_CONNTRACK_MARK)
@@ -94,10 +93,10 @@ index 1c34e2266578..1d230f041386 100644
  
  	cl = nf_ct_labels_find(ct);
 diff --git a/net/ipv4/netfilter/ipt_CLUSTERIP.c b/net/ipv4/netfilter/ipt_CLUSTERIP.c
-index b518f20c9a24..34737b1d6526 100644
+index 1088564d4dbc..77e3b67e8790 100644
 --- a/net/ipv4/netfilter/ipt_CLUSTERIP.c
 +++ b/net/ipv4/netfilter/ipt_CLUSTERIP.c
-@@ -435,7 +435,7 @@ clusterip_tg(struct sk_buff *skb, const struct xt_action_param *par)
+@@ -424,7 +424,7 @@ clusterip_tg(struct sk_buff *skb, const struct xt_action_param *par)
  
  	switch (ctinfo) {
  	case IP_CT_NEW:
@@ -106,7 +105,7 @@ index b518f20c9a24..34737b1d6526 100644
  		break;
  	case IP_CT_RELATED:
  	case IP_CT_RELATED_REPLY:
-@@ -452,7 +452,7 @@ clusterip_tg(struct sk_buff *skb, const struct xt_action_param *par)
+@@ -441,7 +441,7 @@ clusterip_tg(struct sk_buff *skb, const struct xt_action_param *par)
  #ifdef DEBUG
  	nf_ct_dump_tuple_ip(&ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple);
  #endif
@@ -116,10 +115,10 @@ index b518f20c9a24..34737b1d6526 100644
  		pr_debug("not responsible\n");
  		return NF_DROP;
 diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index 9da5ee6c50cd..43ea8cfd374b 100644
+index 8369af0c50ea..193a18bfddc0 100644
 --- a/net/netfilter/nf_conntrack_core.c
 +++ b/net/netfilter/nf_conntrack_core.c
-@@ -1735,7 +1735,7 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
+@@ -1598,7 +1598,7 @@ init_conntrack(struct net *net, struct nf_conn *tmpl,
  			}
  
  #ifdef CONFIG_NF_CONNTRACK_MARK
@@ -129,10 +128,10 @@ index 9da5ee6c50cd..43ea8cfd374b 100644
  #ifdef CONFIG_NF_CONNTRACK_SECMARK
  			ct->secmark = exp->master->secmark;
 diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index ef0a78aa9ba9..1727a4c4764f 100644
+index 9e6898164199..c402283e7545 100644
 --- a/net/netfilter/nf_conntrack_netlink.c
 +++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -322,9 +322,9 @@ ctnetlink_dump_timestamp(struct sk_buff *skb, const struct nf_conn *ct)
+@@ -317,9 +317,9 @@ ctnetlink_dump_timestamp(struct sk_buff *skb, const struct nf_conn *ct)
  }
  
  #ifdef CONFIG_NF_CONNTRACK_MARK
@@ -144,7 +143,7 @@ index ef0a78aa9ba9..1727a4c4764f 100644
  		goto nla_put_failure;
  	return 0;
  
-@@ -537,7 +537,7 @@ static int ctnetlink_dump_extinfo(struct sk_buff *skb,
+@@ -532,7 +532,7 @@ static int ctnetlink_dump_extinfo(struct sk_buff *skb,
  static int ctnetlink_dump_info(struct sk_buff *skb, struct nf_conn *ct)
  {
  	if (ctnetlink_dump_status(skb, ct) < 0 ||
@@ -153,7 +152,7 @@ index ef0a78aa9ba9..1727a4c4764f 100644
  	    ctnetlink_dump_secctx(skb, ct) < 0 ||
  	    ctnetlink_dump_id(skb, ct) < 0 ||
  	    ctnetlink_dump_use(skb, ct) < 0 ||
-@@ -716,6 +716,7 @@ ctnetlink_conntrack_event(unsigned int events, const struct nf_ct_event *item)
+@@ -711,6 +711,7 @@ ctnetlink_conntrack_event(unsigned int events, struct nf_ct_event *item)
  	struct sk_buff *skb;
  	unsigned int type;
  	unsigned int flags = 0, group;
@@ -161,7 +160,7 @@ index ef0a78aa9ba9..1727a4c4764f 100644
  	int err;
  
  	if (events & (1 << IPCT_DESTROY)) {
-@@ -820,8 +821,9 @@ ctnetlink_conntrack_event(unsigned int events, const struct nf_ct_event *item)
+@@ -811,8 +812,9 @@ ctnetlink_conntrack_event(unsigned int events, struct nf_ct_event *item)
  	}
  
  #ifdef CONFIG_NF_CONNTRACK_MARK
@@ -173,7 +172,7 @@ index ef0a78aa9ba9..1727a4c4764f 100644
  		goto nla_put_failure;
  #endif
  	nlmsg_end(skb, nlh);
-@@ -1148,7 +1150,7 @@ static int ctnetlink_filter_match(struct nf_conn *ct, void *data)
+@@ -1099,7 +1101,7 @@ static int ctnetlink_filter_match(struct nf_conn *ct, void *data)
  	}
  
  #ifdef CONFIG_NF_CONNTRACK_MARK
@@ -181,8 +180,8 @@ index ef0a78aa9ba9..1727a4c4764f 100644
 +	if ((READ_ONCE(ct->mark) & filter->mark.mask) != filter->mark.val)
  		goto ignore_entry;
  #endif
- 	status = (u32)READ_ONCE(ct->status);
-@@ -2016,9 +2018,9 @@ static void ctnetlink_change_mark(struct nf_conn *ct,
+ 
+@@ -1979,9 +1981,9 @@ static void ctnetlink_change_mark(struct nf_conn *ct,
  		mask = ~ntohl(nla_get_be32(cda[CTA_MARK_MASK]));
  
  	mark = ntohl(nla_get_be32(cda[CTA_MARK]));
@@ -195,7 +194,7 @@ index ef0a78aa9ba9..1727a4c4764f 100644
  }
  #endif
  
-@@ -2690,6 +2692,7 @@ static int __ctnetlink_glue_build(struct sk_buff *skb, struct nf_conn *ct)
+@@ -2669,6 +2671,7 @@ static int __ctnetlink_glue_build(struct sk_buff *skb, struct nf_conn *ct)
  {
  	const struct nf_conntrack_zone *zone;
  	struct nlattr *nest_parms;
@@ -203,7 +202,7 @@ index ef0a78aa9ba9..1727a4c4764f 100644
  
  	zone = nf_ct_zone(ct);
  
-@@ -2751,7 +2754,8 @@ static int __ctnetlink_glue_build(struct sk_buff *skb, struct nf_conn *ct)
+@@ -2726,7 +2729,8 @@ static int __ctnetlink_glue_build(struct sk_buff *skb, struct nf_conn *ct)
  		goto nla_put_failure;
  
  #ifdef CONFIG_NF_CONNTRACK_MARK
@@ -214,10 +213,10 @@ index ef0a78aa9ba9..1727a4c4764f 100644
  #endif
  	if (ctnetlink_dump_labels(skb, ct) < 0)
 diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
-index 55aa55b252b2..4d85368203e0 100644
+index 313d1c8ff066..a7f88cdf3f87 100644
 --- a/net/netfilter/nf_conntrack_standalone.c
 +++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -363,7 +363,7 @@ static int ct_seq_show(struct seq_file *s, void *v)
+@@ -360,7 +360,7 @@ static int ct_seq_show(struct seq_file *s, void *v)
  		goto release;
  
  #if defined(CONFIG_NF_CONNTRACK_MARK)
@@ -227,7 +226,7 @@ index 55aa55b252b2..4d85368203e0 100644
  
  	ct_show_secctx(s, ct);
 diff --git a/net/netfilter/nft_ct.c b/net/netfilter/nft_ct.c
-index 9c7472af9e4a..bd468e955a21 100644
+index 781118465d46..14093d86e682 100644
 --- a/net/netfilter/nft_ct.c
 +++ b/net/netfilter/nft_ct.c
 @@ -97,7 +97,7 @@ static void nft_ct_get_eval(const struct nft_expr *expr,
@@ -239,7 +238,7 @@ index 9c7472af9e4a..bd468e955a21 100644
  		return;
  #endif
  #ifdef CONFIG_NF_CONNTRACK_SECMARK
-@@ -296,8 +296,8 @@ static void nft_ct_set_eval(const struct nft_expr *expr,
+@@ -294,8 +294,8 @@ static void nft_ct_set_eval(const struct nft_expr *expr,
  	switch (priv->key) {
  #ifdef CONFIG_NF_CONNTRACK_MARK
  	case NFT_CT_MARK:
@@ -311,7 +310,7 @@ index e5ebc0810675..ad3c033db64e 100644
  
  static int connmark_mt_check(const struct xt_mtchk_param *par)
 diff --git a/net/openvswitch/conntrack.c b/net/openvswitch/conntrack.c
-index dc86f03309c1..7106ce231a2d 100644
+index 41f248895a87..0f0f380e81a4 100644
 --- a/net/openvswitch/conntrack.c
 +++ b/net/openvswitch/conntrack.c
 @@ -150,7 +150,7 @@ static u8 ovs_ct_get_state(enum ip_conntrack_info ctinfo)
@@ -323,7 +322,7 @@ index dc86f03309c1..7106ce231a2d 100644
  #else
  	return 0;
  #endif
-@@ -338,9 +338,9 @@ static int ovs_ct_set_mark(struct nf_conn *ct, struct sw_flow_key *key,
+@@ -336,9 +336,9 @@ static int ovs_ct_set_mark(struct nf_conn *ct, struct sw_flow_key *key,
  #if IS_ENABLED(CONFIG_NF_CONNTRACK_MARK)
  	u32 new_mark;
  
@@ -337,7 +336,7 @@ index dc86f03309c1..7106ce231a2d 100644
  			nf_conntrack_event_cache(IPCT_MARK, ct);
  		key->ct.mark = new_mark;
 diff --git a/net/sched/act_connmark.c b/net/sched/act_connmark.c
-index 94e78ac7a748..032ef927d0eb 100644
+index e19885d7fe2c..31d268eedf3f 100644
 --- a/net/sched/act_connmark.c
 +++ b/net/sched/act_connmark.c
 @@ -62,7 +62,7 @@ static int tcf_connmark_act(struct sk_buff *skb, const struct tc_action *a,
@@ -359,7 +358,7 @@ index 94e78ac7a748..032ef927d0eb 100644
  
  out:
 diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
-index d85fdefe5730..81a2d6cbfb44 100644
+index f7e88d7466c3..2d41d866de3e 100644
 --- a/net/sched/act_ct.c
 +++ b/net/sched/act_ct.c
 @@ -177,7 +177,7 @@ static void tcf_ct_flow_table_add_action_meta(struct nf_conn *ct,
@@ -371,7 +370,7 @@ index d85fdefe5730..81a2d6cbfb44 100644
  #endif
  	ctinfo = dir == IP_CT_DIR_ORIGINAL ? IP_CT_ESTABLISHED :
  					     IP_CT_ESTABLISHED_REPLY;
-@@ -856,9 +856,9 @@ static void tcf_ct_act_set_mark(struct nf_conn *ct, u32 mark, u32 mask)
+@@ -843,9 +843,9 @@ static void tcf_ct_act_set_mark(struct nf_conn *ct, u32 mark, u32 mask)
  	if (!mask)
  		return;
  
@@ -385,7 +384,7 @@ index d85fdefe5730..81a2d6cbfb44 100644
  			nf_conntrack_event_cache(IPCT_MARK, ct);
  	}
 diff --git a/net/sched/act_ctinfo.c b/net/sched/act_ctinfo.c
-index 549374a2d008..2d75fe1223ac 100644
+index b20c8ce59905..06c74f22ab98 100644
 --- a/net/sched/act_ctinfo.c
 +++ b/net/sched/act_ctinfo.c
 @@ -33,7 +33,7 @@ static void tcf_ctinfo_dscp_set(struct nf_conn *ct, struct tcf_ctinfo *ca,
