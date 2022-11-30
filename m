@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D5D63E054
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:56:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0647163E052
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:55:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231612AbiK3S4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:56:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47430 "EHLO
+        id S231605AbiK3Szz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:55:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231613AbiK3S4A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:56:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B3619702F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:56:00 -0800 (PST)
+        with ESMTP id S231613AbiK3Szx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:55:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5841A63D75
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:55:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0AA43B81C9F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:55:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61058C433D7;
-        Wed, 30 Nov 2022 18:55:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA69561D56
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:55:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08CB7C433D6;
+        Wed, 30 Nov 2022 18:55:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834557;
-        bh=hBl+MQzg+vnQyk7oLpejZTMbi+ab51BURHBW7g1Q3Xk=;
+        s=korg; t=1669834552;
+        bh=3ZKDYn4TXzPdV99ktQiPeVb2rB0u5wdZ2/vq/tGf8dc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MHGF3HtKLluoVp6DCSfHQjeFytvMId7DM2cGZ1uVXvLvLoiHiuyLUnB8BaTjBTHvy
-         Rje7rqTLq1FKdghL2SdpeJtlg2RoPBazS1ffcVzHwu0aZvkHXxIjwuNxdJMPTEjaBu
-         1nmK9pn+2Nr5KYgeJnxKdB0iu7et5+TV6b68NZ/M=
+        b=VJsn+H9hHuzlYtPS4p1RuNebTRBTODtvYKJgFanv9jI6bRqUbJns57xJRAEkWbga/
+         5HLpaQhG8zCSP+uIEwORZ4GhY51Wu+81yVpAafcs1iXaFFutsZS/DBKEUftey3qRCG
+         1NbwzTG6FVfa4q0XHdluzy/TXx9EzJKo48gTrx6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>
-Subject: [PATCH 6.0 287/289] drm/amdgpu: always register an MMU notifier for userptr
-Date:   Wed, 30 Nov 2022 19:24:32 +0100
-Message-Id: <20221130180550.608594714@linuxfoundation.org>
+        patches@lists.linux.dev, Claudio Suarez <cssk@net-c.es>,
+        Luben Tuikov <luben.tuikov@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.0 288/289] drm/amdgpu: Partially revert "drm/amdgpu: update drm_display_info correctly when the edid is read"
+Date:   Wed, 30 Nov 2022 19:24:33 +0100
+Message-Id: <20221130180550.631852007@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -54,39 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit b39df63b16b64a3af42695acb9bc567aad144776 upstream.
+commit 602ad43c3cd8f15cbb25ce9bb494129edb2024ed upstream.
 
-Since switching to HMM we always need that because we no longer grab
-references to the pages.
+This partially reverts 20543be93ca45968f344261c1a997177e51bd7e1.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Acked-by: Felix Kuehling <Felix.Kuehling@amd.com>
-CC: stable@vger.kernel.org
+Calling drm_connector_update_edid_property() in
+amdgpu_connector_free_edid() causes a noticeable pause in
+the system every 10 seconds on polled outputs so revert this
+part of the change.
+
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2257
+Cc: Claudio Suarez <cssk@net-c.es>
+Acked-by: Luben Tuikov <luben.tuikov@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-@@ -413,11 +413,9 @@ int amdgpu_gem_userptr_ioctl(struct drm_
- 	if (r)
- 		goto release_object;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -328,7 +328,6 @@ static void amdgpu_connector_free_edid(s
  
--	if (args->flags & AMDGPU_GEM_USERPTR_REGISTER) {
--		r = amdgpu_mn_register(bo, args->addr);
--		if (r)
--			goto release_object;
--	}
-+	r = amdgpu_mn_register(bo, args->addr);
-+	if (r)
-+		goto release_object;
+ 	kfree(amdgpu_connector->edid);
+ 	amdgpu_connector->edid = NULL;
+-	drm_connector_update_edid_property(connector, NULL);
+ }
  
- 	if (args->flags & AMDGPU_GEM_USERPTR_VALIDATE) {
- 		r = amdgpu_ttm_tt_get_user_pages(bo, bo->tbo.ttm->pages);
+ static int amdgpu_connector_ddc_get_modes(struct drm_connector *connector)
 
 
