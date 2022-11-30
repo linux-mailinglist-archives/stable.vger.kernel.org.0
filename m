@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AF2563DDB8
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:30:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C37B063DEC5
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:40:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229661AbiK3SaB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:30:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35840 "EHLO
+        id S231146AbiK3Skl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:40:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229900AbiK3S3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:29:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40A298DBDB
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:29:48 -0800 (PST)
+        with ESMTP id S231145AbiK3Skk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFF4597012
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D306B81CA1
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:29:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D61D9C433C1;
-        Wed, 30 Nov 2022 18:29:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67DADB81CA6
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0148C433D7;
+        Wed, 30 Nov 2022 18:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832986;
-        bh=pc4BtaUrD98jt9H/7KGSKKaWznqoptWwvMgCmmOT+A0=;
+        s=korg; t=1669833637;
+        bh=zAQpQivTUrQeULADrqynRP/ht9xmNo+DvDiRY6+dG7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tm1sb+qghxZZ0+6Ur1kCWhy/hXrLz0VG9upRXb6zNYu57WuUC9WaEPdUg48EuecEY
-         1pJG9083hGC0V3/If/LVhORIB3fXHiwv4bQJ72Y8+LG98QZcUgg0mIl61kMsBh2cY5
-         C9UZs0w0E8YJFUSb9y1BjhiDCusHwqG+t/7W5PvI=
+        b=sj3tWcXuTQX+WrSVA8bLaSn1+lZapqf5FuajxhT3hSfnU5+YllZE9y0pbUao/Yfuy
+         U7+0aUmtmEZoQXv5mUkOlzdUhuJ+sGdTlGytEVY1mMUpQJubhU7dxOmf0Z6wOEA0BY
+         EbEg/yxZGCtwm6OLk290nG578R8WMzMr3Uhb8nns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 111/162] ceph: fix off by one bugs in unsafe_request_wait()
+        patches@lists.linux.dev, Vincent Donnefort <vdonnefort@google.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.15 140/206] KVM: arm64: pkvm: Fixup boot mode to reflect that the kernel resumes from EL1
 Date:   Wed, 30 Nov 2022 19:23:12 +0100
-Message-Id: <20221130180531.497679959@linuxfoundation.org>
+Message-Id: <20221130180536.601894233@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +52,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 708c87168b6121abc74b2a57d0c498baaf70cbea ]
+The kernel has an awfully complicated boot sequence in order to cope
+with the various EL2 configurations, including those that "enhanced"
+the architecture. We go from EL2 to EL1, then back to EL2, staying
+at EL2 if VHE capable and otherwise go back to EL1.
 
-The "> max" tests should be ">= max" to prevent an out of bounds access
-on the next lines.
+Here's a paracetamol tablet for you.
 
-Fixes: e1a4541ec0b9 ("ceph: flush the mdlog before waiting on unsafe reqs")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Stable-dep-of: 5bd76b8de5b7 ("ceph: fix NULL pointer dereference for req->r_session")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The cpu_resume path follows the same logic, because coming up with
+two versions of a square wheel is hard.
+
+However, things aren't this straightforward with pKVM, as the host
+resume path is always proxied by the hypervisor, which means that
+the kernel is always entered at EL1. Which contradicts what the
+__boot_cpu_mode[] array contains (it obviously says EL2).
+
+This thus triggers a HVC call from EL1 to EL2 in a vain attempt
+to upgrade from EL1 to EL2 VHE, which we are, funnily enough,
+reluctant to grant to the host kernel. This is also completely
+unexpected, and puzzles your average EL2 hacker.
+
+Address it by fixing up the boot mode at the point the host gets
+deprivileged. is_hyp_mode_available() and co already have a static
+branch to deal with this, making it pretty safe.
+
+This stable fix doesn't have an upstream version. The entire bootflow
+has been reworked from 6.0 and that fixed the boot mode at the same
+time, from commit 005e12676af0 ("arm64: head: record CPU boot mode after
+enabling the MMU") to be precise. However, the latter is part of a 20
+patches long series and can't be simply cherry-pick'ed.
+
+Link: https://lore.kernel.org/r/20220624150651.1358849-1-ardb@kernel.org/
+Link: https://lore.kernel.org/r/20221011165400.1241729-1-maz@kernel.org/
+Cc: <stable@vger.kernel.org> # 5.15+
+Reported-by: Vincent Donnefort <vdonnefort@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Tested-by: Vincent Donnefort <vdonnefort@google.com>
+[Vincent: Add a paragraph about why this patch is for stable only]
+Signed-off-by: Vincent Donnefort <vdonnefort@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/ceph/caps.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kvm/arm.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index 2fa6b7cc0cc4..f14d52848b91 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -2343,7 +2343,7 @@ static int unsafe_request_wait(struct inode *inode)
- 			list_for_each_entry(req, &ci->i_unsafe_dirops,
- 					    r_unsafe_dir_item) {
- 				s = req->r_session;
--				if (unlikely(s->s_mds > max)) {
-+				if (unlikely(s->s_mds >= max)) {
- 					spin_unlock(&ci->i_unsafe_lock);
- 					goto retry;
- 				}
-@@ -2357,7 +2357,7 @@ static int unsafe_request_wait(struct inode *inode)
- 			list_for_each_entry(req, &ci->i_unsafe_iops,
- 					    r_unsafe_target_item) {
- 				s = req->r_session;
--				if (unlikely(s->s_mds > max)) {
-+				if (unlikely(s->s_mds >= max)) {
- 					spin_unlock(&ci->i_unsafe_lock);
- 					goto retry;
- 				}
--- 
-2.35.1
-
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -2000,6 +2000,17 @@ static int pkvm_drop_host_privileges(voi
+ 	 * once the host stage 2 is installed.
+ 	 */
+ 	static_branch_enable(&kvm_protected_mode_initialized);
++
++	/*
++	 * Fixup the boot mode so that we don't take spurious round
++	 * trips via EL2 on cpu_resume. Flush to the PoC for a good
++	 * measure, so that it can be observed by a CPU coming out of
++	 * suspend with the MMU off.
++	 */
++	__boot_cpu_mode[0] = __boot_cpu_mode[1] = BOOT_CPU_MODE_EL1;
++	dcache_clean_poc((unsigned long)__boot_cpu_mode,
++			 (unsigned long)(__boot_cpu_mode + 2));
++
+ 	on_each_cpu(_kvm_host_prot_finalize, &ret, 1);
+ 	return ret;
+ }
 
 
