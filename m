@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6588063DEEA
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:42:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50B5463E03F
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:55:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231243AbiK3SmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:42:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53096 "EHLO
+        id S231580AbiK3SzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:55:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231279AbiK3Slw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:52 -0500
+        with ESMTP id S231582AbiK3SzC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:55:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5808399F3D
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7C4D93A55
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:55:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC44461D6A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:41:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D5EAC433C1;
-        Wed, 30 Nov 2022 18:41:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5724461D4F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:55:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B33AC433D6;
+        Wed, 30 Nov 2022 18:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833710;
-        bh=7X/tpGPMgjn01yQH3ZFjnJV3b6p+RjCmoHrHfl/i6p8=;
+        s=korg; t=1669834500;
+        bh=YV/g4gHeGL9nPftnW7aDWYSFRYJ/FYEbVp5rDMcHxy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VueiLn0XsM1MaRIlOEz5eLWgM+g5blHqUGS9eCk7BlNYZoKhjQTRpgWwsC/7B3oD3
-         amPV2p+ztHNiVZ2cUE57daNQeXI/TPkbKLiFBj4kaL/Jtk1X8CxL0dnZwZcqVJuyo0
-         tr7Nha2k2QHxr0NzhEbqOnFcMi1g0X9UrAd0x/80=
+        b=zbge9bP+TDWfKP84NDmmTrmOf4EuD312BFyVerMWD/vT5ydnpA/dIBrxpqKl53XyP
+         Kc00y7RKg17K1EFMyWc8SOKDU8a0CYO6QzsMdr6fUmBy0qP7acrG3Wgwn00yysby2h
+         UIT8315LV8xiaBpOc4huOm4w1/paEJ85Y/eJLokE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Garry <john.garry@huawei.com>,
-        David Decotigny <ddecotig@google.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Luiz Capitulino <luizcap@amazon.com>
-Subject: [PATCH 5.15 192/206] genirq/msi: Shutdown managed interrupts with unsatifiable affinities
+        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 259/289] dm-log-writes: set dma_alignment limit in io_hints
 Date:   Wed, 30 Nov 2022 19:24:04 +0100
-Message-Id: <20221130180537.901616591@linuxfoundation.org>
+Message-Id: <20221130180549.974631689@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Capitulino <luizcap@amazon.com>
+From: Keith Busch <kbusch@kernel.org>
 
-From: Marc Zyngier <maz@kernel.org>
+[ Upstream commit 50a893359cd2643ee1afc96eedc9e7084cab49fa ]
 
-commit d802057c7c553ad426520a053da9f9fe08e2c35a upstream.
+This device mapper needs bio vectors to be sized and memory aligned to
+the logical block size. Set the minimum required queue limit
+accordingly.
 
-[ This commit is almost a rewrite because it conflicts with Thomas
-  Gleixner's refactoring of this code in v5.17-rc1. I wasn't sure if
-  I should drop all the s-o-bs (including Mark's), but decided
-  to keep as the original commit ]
-
-When booting with maxcpus=<small number>, interrupt controllers
-such as the GICv3 ITS may not be able to satisfy the affinity of
-some managed interrupts, as some of the HW resources are simply
-not available.
-
-The same thing happens when loading a driver using managed interrupts
-while CPUs are offline.
-
-In order to deal with this, do not try to activate such interrupt
-if there is no online CPU capable of handling it. Instead, place
-it in shutdown state. Once a capable CPU shows up, it will be
-activated.
-
-Reported-by: John Garry <john.garry@huawei.com>
-Reported-by: David Decotigny <ddecotig@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: John Garry <john.garry@huawei.com>
-Link: https://lore.kernel.org/r/20220405185040.206297-2-maz@kernel.org
-
-Signed-off-by: Luiz Capitulino <luizcap@amazon.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Mike Snitzer <snitzer@kernel.org>
+Link: https://lore.kernel.org/r/20221110184501.2451620-6-kbusch@meta.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/msi.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/md/dm-log-writes.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/irq/msi.c
-+++ b/kernel/irq/msi.c
-@@ -596,6 +596,13 @@ int __msi_domain_alloc_irqs(struct irq_d
- 			irqd_clr_can_reserve(irq_data);
- 			if (domain->flags & IRQ_DOMAIN_MSI_NOMASK_QUIRK)
- 				irqd_set_msi_nomask_quirk(irq_data);
-+			if ((info->flags & MSI_FLAG_ACTIVATE_EARLY) &&
-+				irqd_affinity_is_managed(irq_data) &&
-+				!cpumask_intersects(irq_data_get_affinity_mask(irq_data),
-+						    cpu_online_mask)) {
-+				irqd_set_managed_shutdown(irq_data);
-+				continue;
-+			}
- 		}
- 		ret = irq_domain_activate_irq(irq_data, can_reserve);
- 		if (ret)
+diff --git a/drivers/md/dm-log-writes.c b/drivers/md/dm-log-writes.c
+index 20fd688f72e7..178e13a5b059 100644
+--- a/drivers/md/dm-log-writes.c
++++ b/drivers/md/dm-log-writes.c
+@@ -875,6 +875,7 @@ static void log_writes_io_hints(struct dm_target *ti, struct queue_limits *limit
+ 	limits->logical_block_size = bdev_logical_block_size(lc->dev->bdev);
+ 	limits->physical_block_size = bdev_physical_block_size(lc->dev->bdev);
+ 	limits->io_min = limits->physical_block_size;
++	limits->dma_alignment = limits->logical_block_size - 1;
+ }
+ 
+ #if IS_ENABLED(CONFIG_FS_DAX)
+-- 
+2.35.1
+
 
 
