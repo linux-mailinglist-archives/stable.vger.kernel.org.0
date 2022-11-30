@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E805363DFF6
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:52:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3A163DDC1
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:30:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231503AbiK3SwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:52:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40578 "EHLO
+        id S229503AbiK3SaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:30:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231531AbiK3SwJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:52:09 -0500
+        with ESMTP id S229869AbiK3SaF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:30:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 866A863D5E
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:52:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E28BE8DBD2
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:30:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 561EC61D76
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:52:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61802C433D7;
-        Wed, 30 Nov 2022 18:52:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FE2A61D4D
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:30:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 958F0C433D6;
+        Wed, 30 Nov 2022 18:30:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834323;
-        bh=o0uxAipM25by0a+gwbClrNqPdRAEy9a5R+C3h/9t9Dw=;
+        s=korg; t=1669833002;
+        bh=FPLOjXZRIAtHZU0j4WJHYCBtqQ8dRg0C54C/wxXpl2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HdEJMy1RvHjPS3lVdzb7e324FivfLZEgrj4E3Oa+DO8s7GtiQdfSDhT+ZZQ4wcvpZ
-         NZcF29fzHQG+5o6qhD18ZfgtK6nrKpjrNXx3eHdd4D+IWKrCRFLghh9hwq1U85IcH3
-         1E17x6ZpopfEvjHy1UMslD4tRki9tlPL50HEaMJA=
+        b=BhDpw1JRAYC27ZMlU28bzff/K5voxasFaeD07R5TVojQbNql5V2itOrCB9ChFzc+O
+         5wvg0piCmVK0IIbU7BhSjWZoB7XjrGxMNqKi72nsVgIZ5cl+5hzT4JB+UZduksQ6PQ
+         lw7boO2atlILFM5x/bGLQk6e/FAIrak/8flTmTv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Woodhouse <dwmw@amazon.co.uk>,
-        Paul Durrant <paul@xen.org>,
-        Sean Christopherson <seanjc@google.com>, stable@kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.0 212/289] KVM: Update gfn_to_pfn_cache khva when it moves within the same page
-Date:   Wed, 30 Nov 2022 19:23:17 +0100
-Message-Id: <20221130180548.925232534@linuxfoundation.org>
+        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 117/162] usb: dwc3: gadget: Return -ESHUTDOWN on ep disable
+Date:   Wed, 30 Nov 2022 19:23:18 +0100
+Message-Id: <20221130180531.662641208@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Woodhouse <dwmw@amazon.co.uk>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 8332f0ed4f187c7b700831bd7cc83ce180a944b9 upstream.
+[ Upstream commit ffb9da4a04c69567bad717707b6fdfbc4c216ef4 ]
 
-In the case where a GPC is refreshed to a different location within the
-same page, we didn't bother to update it. Mostly we don't need to, but
-since the ->khva field also includes the offset within the page, that
-does have to be updated.
+The usb_request API clearly noted that removed requests due to disabled
+endpoint should have -ESHUTDOWN status returned. Don't change this
+behavior.
 
-Fixes: 3ba2c95ea180 ("KVM: Do not incorporate page offset into gfn=>pfn cache user address")
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-Reviewed-by: Paul Durrant <paul@xen.org>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Cc: stable@kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: b44c0e7fef51 ("usb: dwc3: gadget: conditionally remove requests")
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/3421859485cb32d77e2068549679a6c07a7797bc.1667875427.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: f90f5afd5083 ("usb: dwc3: gadget: Clear ep descriptor last")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/pfncache.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/virt/kvm/pfncache.c
-+++ b/virt/kvm/pfncache.c
-@@ -297,7 +297,12 @@ int kvm_gfn_to_pfn_cache_refresh(struct
- 	if (!gpc->valid || old_uhva != gpc->uhva) {
- 		ret = hva_to_pfn_retry(kvm, gpc);
- 	} else {
--		/* If the HVA→PFN mapping was already valid, don't unmap it. */
-+		/*
-+		 * If the HVA→PFN mapping was already valid, don't unmap it.
-+		 * But do update gpc->khva because the offset within the page
-+		 * may have changed.
-+		 */
-+		gpc->khva = old_khva + page_offset;
- 		old_pfn = KVM_PFN_ERR_FAULT;
- 		old_khva = NULL;
- 		ret = 0;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index c753d889ae1c..2b4e1c0d02d5 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -809,7 +809,7 @@ static int __dwc3_gadget_ep_disable(struct dwc3_ep *dep)
+ 		dep->endpoint.desc = NULL;
+ 	}
+ 
+-	dwc3_remove_requests(dwc, dep, -ECONNRESET);
++	dwc3_remove_requests(dwc, dep, -ESHUTDOWN);
+ 
+ 	dep->stream_capable = false;
+ 	dep->type = 0;
+-- 
+2.35.1
+
 
 
