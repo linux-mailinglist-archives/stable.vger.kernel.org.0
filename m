@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF9763DFE7
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:51:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BBCD63DDAC
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:29:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231455AbiK3Svm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:51:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38670 "EHLO
+        id S229952AbiK3S30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:29:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231444AbiK3Sva (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:51:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7BB14666D
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:51:29 -0800 (PST)
+        with ESMTP id S229973AbiK3S3Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:29:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 467078B1B9
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:29:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8472161D56
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:51:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94034C433C1;
-        Wed, 30 Nov 2022 18:51:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD62961D54
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:29:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA90DC433D6;
+        Wed, 30 Nov 2022 18:29:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834288;
-        bh=/YSZ8nbcA/DXPP9n/JqT/uG4NdyF9vNqvUJGcGQ4pEo=;
+        s=korg; t=1669832963;
+        bh=zhAZuG5onqBLrwOJxbrAd8JCzbn2CUUeCCZi5YKVDAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vdxiXcq9wIMPD1mWOKwR+j1Smg3ex/Z+og4SKFmvHE+PjY2Mp5vVDSe8nFIDhra23
-         pBABtfWiucK2Zq8dPP2HtvdffcXTspOwBgq6StLc3DG37S63UCMOkmAStbXZ2PJVXb
-         oypHEhoqvsZcqHqS/jaXDQ+ffy8Dqp7JjFWdsrHE=
+        b=h3wf2FyV5W3fgQr+1YFq1Hvr+bl2dPDxZIDZJCSx0iVdrfQ7M/SxUGvm2839ty3mm
+         lQrV8EDpRGQuTjzG2V0zAFMO5ArA8YVq+S7JhGo4/ry70cMlCZ+Nc3C0iEbkG95iDE
+         iMzEX/ez4Mo6dUwdXsVrybJdva82Eo4xEcKdDMms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Billy Tsai <billy_tsai@aspeedtech.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.0 171/289] iio: adc: aspeed: Remove the trim valid dts property.
+        patches@lists.linux.dev,
+        syzbot+cdb9a427d1bc08815104@syzkaller.appspotmail.com,
+        Liu Shixin <liushixin2@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 075/162] NFC: nci: fix memory leak in nci_rx_data_packet()
 Date:   Wed, 30 Nov 2022 19:22:36 +0100
-Message-Id: <20221130180548.008181553@linuxfoundation.org>
+Message-Id: <20221130180530.539680467@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Billy Tsai <billy_tsai@aspeedtech.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-commit fdd0d6b2eb35c83d6b1226ad20b346a4b45ddfb8 upstream.
+[ Upstream commit 53270fb0fd77fe786d8c07a0793981d797836b93 ]
 
-The dts property "aspeed,trim-data-valid" is currently used to determine
-whether to read trimming data from the OTP register. If this is set on
-a device without valid trimming data in the OTP the ADC will not function
-correctly. This patch drops the use of this property and instead uses the
-default (unprogrammed) OTP value of 0 to detect when a fallback value of
-0x8 should be used rather then the value read from the OTP.
+Syzbot reported a memory leak about skb:
 
-Fixes: d0a4c17b4073 ("iio: adc: aspeed: Get and set trimming data.")
-Signed-off-by: Billy Tsai <billy_tsai@aspeedtech.com>
-Link: https://lore.kernel.org/r/20221114025057.10843-1-billy_tsai@aspeedtech.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+unreferenced object 0xffff88810e144e00 (size 240):
+  comm "syz-executor284", pid 3701, jiffies 4294952403 (age 12.620s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff83ab79a9>] __alloc_skb+0x1f9/0x270 net/core/skbuff.c:497
+    [<ffffffff82a5cf64>] alloc_skb include/linux/skbuff.h:1267 [inline]
+    [<ffffffff82a5cf64>] virtual_ncidev_write+0x24/0xe0 drivers/nfc/virtual_ncidev.c:116
+    [<ffffffff815f6503>] do_loop_readv_writev fs/read_write.c:759 [inline]
+    [<ffffffff815f6503>] do_loop_readv_writev fs/read_write.c:743 [inline]
+    [<ffffffff815f6503>] do_iter_write+0x253/0x300 fs/read_write.c:863
+    [<ffffffff815f66ed>] vfs_writev+0xdd/0x240 fs/read_write.c:934
+    [<ffffffff815f68f6>] do_writev+0xa6/0x1c0 fs/read_write.c:977
+    [<ffffffff848802d5>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff848802d5>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff84a00087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+In nci_rx_data_packet(), if we don't get a valid conn_info, we will return
+directly but forget to release the skb.
+
+Reported-by: syzbot+cdb9a427d1bc08815104@syzkaller.appspotmail.com
+Fixes: 4aeee6871e8c ("NFC: nci: Add dynamic logical connections support")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Link: https://lore.kernel.org/r/20221118082419.239475-1-liushixin2@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/aspeed_adc.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ net/nfc/nci/data.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/aspeed_adc.c
-+++ b/drivers/iio/adc/aspeed_adc.c
-@@ -202,6 +202,8 @@ static int aspeed_adc_set_trim_data(stru
- 				((scu_otp) &
- 				 (data->model_data->trim_locate->field)) >>
- 				__ffs(data->model_data->trim_locate->field);
-+			if (!trimming_val)
-+				trimming_val = 0x8;
- 		}
- 		dev_dbg(data->dev,
- 			"trimming val = %d, offset = %08x, fields = %08x\n",
-@@ -563,12 +565,9 @@ static int aspeed_adc_probe(struct platf
- 	if (ret)
- 		return ret;
+diff --git a/net/nfc/nci/data.c b/net/nfc/nci/data.c
+index b002e18f38c8..b4548d887489 100644
+--- a/net/nfc/nci/data.c
++++ b/net/nfc/nci/data.c
+@@ -279,8 +279,10 @@ void nci_rx_data_packet(struct nci_dev *ndev, struct sk_buff *skb)
+ 		 nci_plen(skb->data));
  
--	if (of_find_property(data->dev->of_node, "aspeed,trim-data-valid",
--			     NULL)) {
--		ret = aspeed_adc_set_trim_data(indio_dev);
--		if (ret)
--			return ret;
--	}
-+	ret = aspeed_adc_set_trim_data(indio_dev);
-+	if (ret)
-+		return ret;
+ 	conn_info = nci_get_conn_info_by_conn_id(ndev, nci_conn_id(skb->data));
+-	if (!conn_info)
++	if (!conn_info) {
++		kfree_skb(skb);
+ 		return;
++	}
  
- 	if (of_find_property(data->dev->of_node, "aspeed,battery-sensing",
- 			     NULL)) {
+ 	/* strip the nci data header */
+ 	skb_pull(skb, NCI_DATA_HDR_SIZE);
+-- 
+2.35.1
+
 
 
