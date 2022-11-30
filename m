@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDC2D63DBFD
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:32:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70CF163DC00
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:33:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229783AbiK3Rcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 12:32:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57780 "EHLO
+        id S229908AbiK3RdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 12:33:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229611AbiK3Rcd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:32:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50F78DA
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:32:31 -0800 (PST)
+        with ESMTP id S229611AbiK3Rcw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:32:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7147C192AC
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:32:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E36B161D34
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:32:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFDD5C433C1;
-        Wed, 30 Nov 2022 17:32:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B8E761D34
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:32:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C54AC433D7;
+        Wed, 30 Nov 2022 17:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669829550;
-        bh=cJQbrOs28SKa6gPcg2CjYdLv1eh/3g0A1EUfc1/xvz0=;
+        s=korg; t=1669829570;
+        bh=mWRkVto4PY2zlO1dOeecS+JA7b42piBHhjJoDj6h1SY=;
         h=Subject:To:Cc:From:Date:From;
-        b=Fzjtl4LGfjvMRTPXI80UCOcm27k4QJqPOV8gif3JDmMFvN/RDg+hMBmHAVuyNhAzb
-         uhcIUIuWbsJvEPq1IQ4IW9vVQxHBXbgrlq67yee3zg9WKhwHugGL55BD/ignuRQ6Us
-         ZtYpK5ec6NQWy8+MeOh0CnsO3cszkbRi0SY1e+Qc=
-Subject: FAILED: patch "[PATCH] drm/i915/ttm: never purge busy objects" failed to apply to 5.15-stable tree
-To:     matthew.auld@intel.com, Nirmoy.Das@intel.com,
-        andrzej.hajda@intel.com, niranjana.vishwanathapura@intel.com,
-        nirmoy.das@intel.com, stable@vger.kernel.org,
-        tvrtko.ursulin@intel.com
+        b=DtFBjG15OOznS9u9Uk1iFWmpqN+xrorEc5MLPx8TzxemPill9BEaflS7wbpKKWRuP
+         hwfPa63uYEqCyCnilI/1sggAwfduvKBFXmDGOA3CQ/rwgpV8S227tWm5DA93pIR72x
+         ADDJHcbSKIBJvGHCq2DpSIHzflqznSyqvviCV0dw=
+Subject: FAILED: patch "[PATCH] drm/display/dp_mst: Fix drm_dp_mst_add_affected_dsc_crtcs()" failed to apply to 5.15-stable tree
+To:     lyude@redhat.com, Wayne.Lin@amd.com, alexander.deucher@amd.com,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Nov 2022 18:32:27 +0100
-Message-ID: <166982954720123@kroah.com>
+Date:   Wed, 30 Nov 2022 18:32:47 +0100
+Message-ID: <166982956714552@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,18 +55,7 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-00a6c36cca76 ("drm/i915/ttm: never purge busy objects")
-ab4911b7d411 ("drm/i915/ttm: ensure we unmap when purging")
-ffa3fe080c77 ("drm/i915: clean up shrinker_release_pages")
-9354417750e5 ("drm/i915: remove writeback hook")
-004746e4b119 ("drm/i915/ttm: Correctly handle waiting for gpu when shrinking")
-3589fdbd3b20 ("drm/i915/ttm: Reorganize the ttm move code")
-cad7109a2b5e ("drm/i915: Introduce refcounted sg-tables")
-ebd4a8ec7799 ("drm/i915/ttm: move shrinker management into adjust_lru")
-e25d1ea4b1dc ("drm/i915: add some kernel-doc for shrink_pin and friends")
-7ae034590cea ("drm/i915/ttm: add tt shmem backend")
-f05b985e6f76 ("drm/i915/gem: Break out some shmem backend utils")
-1176d15f0f6e ("Merge tag 'drm-intel-gt-next-2021-10-08' of git://anongit.freedesktop.org/drm/drm-intel into drm-next")
+2f3a1273862c ("drm/display/dp_mst: Fix drm_dp_mst_add_affected_dsc_crtcs() return code")
 
 thanks,
 
@@ -76,90 +63,35 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 00a6c36cca760d0b659f894dee728555b193c5e1 Mon Sep 17 00:00:00 2001
-From: Matthew Auld <matthew.auld@intel.com>
-Date: Tue, 15 Nov 2022 10:46:20 +0000
-Subject: [PATCH] drm/i915/ttm: never purge busy objects
+From 2f3a1273862cb82cca227630cc7f04ce0c94b6bb Mon Sep 17 00:00:00 2001
+From: Lyude Paul <lyude@redhat.com>
+Date: Mon, 14 Nov 2022 17:17:53 -0500
+Subject: [PATCH] drm/display/dp_mst: Fix drm_dp_mst_add_affected_dsc_crtcs()
+ return code
 
-In i915_gem_madvise_ioctl() we immediately purge the object is not
-currently used, like when the mm.pages are NULL.  With shmem the pages
-might still be hanging around or are perhaps swapped out. Similarly with
-ttm we might still have the pages hanging around on the ttm resource,
-like with lmem or shmem, but here we need to be extra careful since
-async unbinds are possible as well as in-progress kernel moves. In
-i915_ttm_purge() we expect the pipeline-gutting to nuke the ttm resource
-for us, however if it's busy the memory is only moved to a ghost object,
-which then leads to broken behaviour when for example clearing the
-i915_tt->filp, since the actual ttm_tt is still alive and populated,
-even though it's been moved to the ghost object.  When we later destroy
-the ghost object we hit the following, since the filp is now NULL:
+Looks like that we're accidentally dropping a pretty important return code
+here. For some reason, we just return -EINVAL if we fail to get the MST
+topology state. This is wrong: error codes are important and should never
+be squashed without being handled, which here seems to have the potential
+to cause a deadlock.
 
-[  +0.006982] #PF: supervisor read access in kernel mode
-[  +0.005149] #PF: error_code(0x0000) - not-present page
-[  +0.005147] PGD 11631d067 P4D 11631d067 PUD 115972067 PMD 0
-[  +0.005676] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[  +0.012962] Workqueue: events ttm_device_delayed_workqueue [ttm]
-[  +0.006022] RIP: 0010:i915_ttm_tt_unpopulate+0x3a/0x70 [i915]
-[  +0.005879] Code: 89 fb 48 85 f6 74 11 8b 55 4c 48 8b 7d 30 45 31 c0 31 c9 e8 18 6a e5 e0 80 7d 60 00 74 20 48 8b 45 68
-8b 55 08 4c 89 e7 5b 5d <48> 8b 40 20 83 e2 01 41 5c 89 d1 48 8b 70
- 30 e9 42 b2 ff ff 4c 89
-[  +0.018782] RSP: 0000:ffffc9000bf6fd70 EFLAGS: 00010202
-[  +0.005244] RAX: 0000000000000000 RBX: ffff8883e12ae380 RCX: 0000000000000000
-[  +0.007150] RDX: 000000008000000e RSI: ffffffff823559b4 RDI: ffff8883e12ae3c0
-[  +0.007142] RBP: ffff888103b65d48 R08: 0000000000000001 R09: 0000000000000001
-[  +0.007144] R10: 0000000000000001 R11: ffff88829c2c8040 R12: ffff8883e12ae3c0
-[  +0.007148] R13: 0000000000000001 R14: ffff888115184140 R15: ffff888115184248
-[  +0.007154] FS:  0000000000000000(0000) GS:ffff88844db00000(0000) knlGS:0000000000000000
-[  +0.008108] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  +0.005763] CR2: 0000000000000020 CR3: 000000013fdb4004 CR4: 00000000003706e0
-[  +0.007152] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  +0.007145] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  +0.007154] Call Trace:
-[  +0.002459]  <TASK>
-[  +0.002126]  ttm_tt_unpopulate.part.0+0x17/0x70 [ttm]
-[  +0.005068]  ttm_bo_tt_destroy+0x1c/0x50 [ttm]
-[  +0.004464]  ttm_bo_cleanup_memtype_use+0x25/0x40 [ttm]
-[  +0.005244]  ttm_bo_cleanup_refs+0x90/0x2c0 [ttm]
-[  +0.004721]  ttm_bo_delayed_delete+0x235/0x250 [ttm]
-[  +0.004981]  ttm_device_delayed_workqueue+0x13/0x40 [ttm]
-[  +0.005422]  process_one_work+0x248/0x560
-[  +0.004028]  worker_thread+0x4b/0x390
-[  +0.003682]  ? process_one_work+0x560/0x560
-[  +0.004199]  kthread+0xeb/0x120
-[  +0.003163]  ? kthread_complete_and_exit+0x20/0x20
-[  +0.004815]  ret_from_fork+0x1f/0x30
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
+Fixes: 8ec046716ca8 ("drm/dp_mst: Add helper to trigger modeset on affected DSC MST CRTCs")
+Cc: <stable@vger.kernel.org> # v5.6+
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 
-v2:
- - Just use ttm_bo_wait() directly (Niranjana)
- - Add testcase reference
-
-Testcase: igt@gem_madvise@dontneed-evict-race
-Fixes: 213d50927763 ("drm/i915/ttm: Introduce a TTM i915 gem object backend")
-Reported-by: Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Andrzej Hajda <andrzej.hajda@intel.com>
-Cc: Nirmoy Das <nirmoy.das@intel.com>
-Cc: <stable@vger.kernel.org> # v5.15+
-Reviewed-by: Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>
-Acked-by: Nirmoy Das <Nirmoy.Das@intel.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221115104620.120432-1-matthew.auld@intel.com
-(cherry picked from commit 5524b5e52e08f675116a93296fe5bee60bc43c03)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_ttm.c b/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
-index 3d4305eea1aa..0d6d640225fc 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
-@@ -612,6 +612,10 @@ static int i915_ttm_truncate(struct drm_i915_gem_object *obj)
+diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+index ecd22c038c8c..51a46689cda7 100644
+--- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+@@ -5186,7 +5186,7 @@ int drm_dp_mst_add_affected_dsc_crtcs(struct drm_atomic_state *state, struct drm
+ 	mst_state = drm_atomic_get_mst_topology_state(state, mgr);
  
- 	WARN_ON_ONCE(obj->mm.madv == I915_MADV_WILLNEED);
+ 	if (IS_ERR(mst_state))
+-		return -EINVAL;
++		return PTR_ERR(mst_state);
  
-+	err = ttm_bo_wait(bo, true, false);
-+	if (err)
-+		return err;
-+
- 	err = i915_ttm_move_notify(bo);
- 	if (err)
- 		return err;
+ 	list_for_each_entry(pos, &mst_state->payloads, next) {
+ 
 
