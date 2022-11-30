@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9673763DE30
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:34:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BECB63DF7E
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230341AbiK3Sex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:34:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43422 "EHLO
+        id S231307AbiK3Srm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:47:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230394AbiK3Sec (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:34:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F373593A45
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:34:31 -0800 (PST)
+        with ESMTP id S230194AbiK3Srl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C15438BE
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EBDBB81C9C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:34:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BA65C433C1;
-        Wed, 30 Nov 2022 18:34:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F18F61D73
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:47:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BE15C433C1;
+        Wed, 30 Nov 2022 18:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833268;
-        bh=hnqfAvvuwqhTB3UswK6hiJWwGAjjVGEy7Br6R1WbXxU=;
+        s=korg; t=1669834058;
+        bh=tvvS7rGrVp9+aAGXSNka3A9XunDVMnGZzk6TWHgY8Yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rHnWvbce29yzZJqHYMfJa7d990Fviv/1Ts9qLRFP+q6B+QnFlArLiNFVrrcLNf5W2
-         XmIrbw0mZtH2h9kB63a5I0O5ljTHfCBxL3/bLVcSBLD7IzVccav705/eSlHA40PR5H
-         qXvv+z2U0I8W1VTmGdkPwY0mL1q0jbQgEYz+HXgU=
+        b=1ADR4l+IoEwoy9xJ4JPknowv8h0rlfa8ggfvcWX7wlUfeUVmRD4Ye+RjGt48EXLBw
+         D+14beTW/wzQWBQP4p5PXxnpMymEm5AJCevwQxAXM77Sx8pFIl+GIcU9bOdzlJ4m9x
+         WB9GD6wRDiqu2gkOzPFUqgBLHZRbswj6BY9K0n28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tiago Dias Ferreira <tiagodfer@gmail.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 019/206] nvme-pci: add NVME_QUIRK_BOGUS_NID for Netac NV7000
+        patches@lists.linux.dev, Stefan Assmann <sassmann@kpanic.de>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 086/289] iavf: remove INITIAL_MAC_SET to allow gARP to work properly
 Date:   Wed, 30 Nov 2022 19:21:11 +0100
-Message-Id: <20221130180533.485492614@linuxfoundation.org>
+Message-Id: <20221130180546.095313002@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiago Dias Ferreira <tiagodfer@gmail.com>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-[ Upstream commit 8d6e38f636ac063e8062a21e7616f7d9bf0df5d8 ]
+[ Upstream commit bb861c14f1b8cb9cbf03a132db7f22ec4e692b91 ]
 
-Added a quirk to fix the Netac NV7000 SSD reporting duplicate NGUIDs.
+IAVF_FLAG_INITIAL_MAC_SET prevents waiting on iavf_is_mac_set_handled()
+the first time the MAC is set. This breaks gratuitous ARP because the
+MAC address has not been updated yet when the gARP packet is sent out.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tiago Dias Ferreira <tiagodfer@gmail.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Current behaviour:
+$ echo 1 > /sys/class/net/ens4f0/device/sriov_numvfs
+iavf 0000:88:02.0: MAC address: ee:04:19:14:ec:ea
+$ ip addr add 192.168.1.1/24 dev ens4f0v0
+$ ip link set dev ens4f0v0 up
+$ echo 1 > /proc/sys/net/ipv4/conf/ens4f0v0/arp_notify
+$ ip link set ens4f0v0 addr 00:11:22:33:44:55
+07:23:41.676611 ee:04:19:14:ec:ea > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 192.168.1.1 tell 192.168.1.1, length 28
+
+With IAVF_FLAG_INITIAL_MAC_SET removed:
+$ echo 1 > /sys/class/net/ens4f0/device/sriov_numvfs
+iavf 0000:88:02.0: MAC address: 3e:8a:16:a2:37:6d
+$ ip addr add 192.168.1.1/24 dev ens4f0v0
+$ ip link set dev ens4f0v0 up
+$ echo 1 > /proc/sys/net/ipv4/conf/ens4f0v0/arp_notify
+$ ip link set ens4f0v0 addr 00:11:22:33:44:55
+07:28:01.836608 00:11:22:33:44:55 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 192.168.1.1 tell 192.168.1.1, length 28
+
+Fixes: 35a2443d0910 ("iavf: Add waiting for response from PF in set mac")
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/iavf/iavf.h      | 1 -
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 8 --------
+ 2 files changed, 9 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index a1a803b3105a..772bdc6845fb 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3375,6 +3375,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
- 	{ PCI_DEVICE(0x2646, 0x501E),   /* KINGSTON OM3PGP4xxxxQ OS21011 NVMe SSD */
- 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
-+	{ PCI_DEVICE(0x1f40, 0x5236),   /* Netac Technologies Co. NV7000 NVMe SSD */
-+		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x1e4B, 0x1001),   /* MAXIO MAP1001 */
- 		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x1e4B, 0x1002),   /* MAXIO MAP1002 */
+diff --git a/drivers/net/ethernet/intel/iavf/iavf.h b/drivers/net/ethernet/intel/iavf/iavf.h
+index 3f6187c16424..0d1bab4ac1b0 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf.h
++++ b/drivers/net/ethernet/intel/iavf/iavf.h
+@@ -298,7 +298,6 @@ struct iavf_adapter {
+ #define IAVF_FLAG_QUEUES_DISABLED		BIT(17)
+ #define IAVF_FLAG_SETUP_NETDEV_FEATURES		BIT(18)
+ #define IAVF_FLAG_REINIT_MSIX_NEEDED		BIT(20)
+-#define IAVF_FLAG_INITIAL_MAC_SET		BIT(23)
+ /* duplicates for common code */
+ #define IAVF_FLAG_DCB_ENABLED			0
+ 	/* flags for admin queue service task */
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index f59b725785eb..005bb8378c76 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -1087,12 +1087,6 @@ static int iavf_set_mac(struct net_device *netdev, void *p)
+ 	if (ret)
+ 		return ret;
+ 
+-	/* If this is an initial set MAC during VF spawn do not wait */
+-	if (adapter->flags & IAVF_FLAG_INITIAL_MAC_SET) {
+-		adapter->flags &= ~IAVF_FLAG_INITIAL_MAC_SET;
+-		return 0;
+-	}
+-
+ 	ret = wait_event_interruptible_timeout(adapter->vc_waitqueue,
+ 					       iavf_is_mac_set_handled(netdev, addr->sa_data),
+ 					       msecs_to_jiffies(2500));
+@@ -2605,8 +2599,6 @@ static void iavf_init_config_adapter(struct iavf_adapter *adapter)
+ 		ether_addr_copy(netdev->perm_addr, adapter->hw.mac.addr);
+ 	}
+ 
+-	adapter->flags |= IAVF_FLAG_INITIAL_MAC_SET;
+-
+ 	adapter->tx_desc_count = IAVF_DEFAULT_TXD;
+ 	adapter->rx_desc_count = IAVF_DEFAULT_RXD;
+ 	err = iavf_init_interrupt_scheme(adapter);
 -- 
 2.35.1
 
