@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F08463DF91
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A199B63DD4D
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:26:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231410AbiK3Ssn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:48:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35018 "EHLO
+        id S229626AbiK3S0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:26:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231487AbiK3SsY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2BDA9B791
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:22 -0800 (PST)
+        with ESMTP id S229816AbiK3S0M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB4A14039
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DF0061D6F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 971A1C43150;
-        Wed, 30 Nov 2022 18:48:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 397C1B81C9C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93694C433D6;
+        Wed, 30 Nov 2022 18:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834102;
-        bh=Vl+l30PNm7DGAvMfDdo/f6LIv20ZQSLQ2bzBnUgKRR4=;
+        s=korg; t=1669832767;
+        bh=l1xllPJ4B6TNy4qLQl6IDmc57DRfuWx8yoJWqi5+u/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v2veLknRwZbIWOw7c5fmjA6NeGhNvj/LHh3x/DgeZ5defuP7JL52JD/vuSFpyjEYD
-         oHbQhBxemtstE8Xw+OgwJokhxDWGaCSdhO3RD80v6C2kocLzZ0gR0KbJergcdl+F9y
-         FJTOVCxUtUiYjTQ0Vi2PRpY/ZkbSCUdgHYSRHTsA=
+        b=aWzsNx6y5wh7fCkucPRRnGmHz0e7h/daf3zaX7lNXL/nnfCCwgA+DTmMKYov94P4a
+         Vg/bGSu3T0se/lErHmG30dJFp15YT8dEnOY87vrnF9h6nbDPny5SEZfg9XPrmvT7bU
+         htkHFv0t/LZgFq9o9+TVD/SGTZCWixTHSr1UaiYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev,
+        Christian Langrock <christian.langrock@secunet.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 129/289] netfilter: ipset: restore allowing 64 clashing elements in hash:net,iface
+Subject: [PATCH 5.10 033/162] xfrm: replay: Fix ESN wrap around for GSO
 Date:   Wed, 30 Nov 2022 19:21:54 +0100
-Message-Id: <20221130180547.064477700@linuxfoundation.org>
+Message-Id: <20221130180529.401421543@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jozsef Kadlecsik <kadlec@netfilter.org>
+From: Christian Langrock <christian.langrock@secunet.com>
 
-[ Upstream commit 6a66ce44a51bdfc47721f0c591137df2d4b21247 ]
+[ Upstream commit 4b549ccce941798703f159b227aa28c716aa78fa ]
 
-The commit 510841da1fcc ("netfilter: ipset: enforce documented limit to
-prevent allocating huge memory") was too strict and prevented to add up to
-64 clashing elements to a hash:net,iface type of set. This patch fixes the
-issue and now the type behaves as documented.
+When using GSO it can happen that the wrong seq_hi is used for the last
+packets before the wrap around. This can lead to double usage of a
+sequence number. To avoid this, we should serialize this last GSO
+packet.
 
-Fixes: 510841da1fcc ("netfilter: ipset: enforce documented limit to prevent allocating huge memory")
-Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: d7dbefc45cf5 ("xfrm: Add xfrm_replay_overflow functions for offloading")
+Co-developed-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Christian Langrock <christian.langrock@secunet.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipset/ip_set_hash_gen.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/esp4_offload.c |  3 +++
+ net/ipv6/esp6_offload.c |  3 +++
+ net/xfrm/xfrm_device.c  | 15 ++++++++++++++-
+ net/xfrm/xfrm_replay.c  |  2 +-
+ 4 files changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/ipset/ip_set_hash_gen.h b/net/netfilter/ipset/ip_set_hash_gen.h
-index 3adc291d9ce1..7499192af586 100644
---- a/net/netfilter/ipset/ip_set_hash_gen.h
-+++ b/net/netfilter/ipset/ip_set_hash_gen.h
-@@ -916,7 +916,7 @@ mtype_add(struct ip_set *set, void *value, const struct ip_set_ext *ext,
- #ifdef IP_SET_HASH_WITH_MULTI
- 		if (h->bucketsize >= AHASH_MAX_TUNED)
- 			goto set_full;
--		else if (h->bucketsize < multi)
-+		else if (h->bucketsize <= multi)
- 			h->bucketsize += AHASH_INIT_SIZE;
- #endif
- 		if (n->size >= AHASH_MAX(h)) {
+diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
+index 3450c9ba2728..84257678160a 100644
+--- a/net/ipv4/esp4_offload.c
++++ b/net/ipv4/esp4_offload.c
+@@ -312,6 +312,9 @@ static int esp_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features_
+ 			xo->seq.low += skb_shinfo(skb)->gso_segs;
+ 	}
+ 
++	if (xo->seq.low < seq)
++		xo->seq.hi++;
++
+ 	esp.seqno = cpu_to_be64(seq + ((u64)xo->seq.hi << 32));
+ 
+ 	ip_hdr(skb)->tot_len = htons(skb->len);
+diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
+index 1c3f02d05d2b..7608be04d0f5 100644
+--- a/net/ipv6/esp6_offload.c
++++ b/net/ipv6/esp6_offload.c
+@@ -343,6 +343,9 @@ static int esp6_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features
+ 			xo->seq.low += skb_shinfo(skb)->gso_segs;
+ 	}
+ 
++	if (xo->seq.low < seq)
++		xo->seq.hi++;
++
+ 	esp.seqno = cpu_to_be64(xo->seq.low + ((u64)xo->seq.hi << 32));
+ 
+ 	len = skb->len - sizeof(struct ipv6hdr);
+diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
+index c255aac6b816..8b8e957a69c3 100644
+--- a/net/xfrm/xfrm_device.c
++++ b/net/xfrm/xfrm_device.c
+@@ -97,6 +97,18 @@ static void xfrm_outer_mode_prep(struct xfrm_state *x, struct sk_buff *skb)
+ 	}
+ }
+ 
++static inline bool xmit_xfrm_check_overflow(struct sk_buff *skb)
++{
++	struct xfrm_offload *xo = xfrm_offload(skb);
++	__u32 seq = xo->seq.low;
++
++	seq += skb_shinfo(skb)->gso_segs;
++	if (unlikely(seq < xo->seq.low))
++		return true;
++
++	return false;
++}
++
+ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t features, bool *again)
+ {
+ 	int err;
+@@ -134,7 +146,8 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
+ 		return skb;
+ 	}
+ 
+-	if (skb_is_gso(skb) && unlikely(x->xso.dev != dev)) {
++	if (skb_is_gso(skb) && (unlikely(x->xso.dev != dev) ||
++				unlikely(xmit_xfrm_check_overflow(skb)))) {
+ 		struct sk_buff *segs;
+ 
+ 		/* Packet got rerouted, fixup features and segment it. */
+diff --git a/net/xfrm/xfrm_replay.c b/net/xfrm/xfrm_replay.c
+index c6a4338a0d08..65d009e3b6bb 100644
+--- a/net/xfrm/xfrm_replay.c
++++ b/net/xfrm/xfrm_replay.c
+@@ -657,7 +657,7 @@ static int xfrm_replay_overflow_offload_esn(struct xfrm_state *x, struct sk_buff
+ 			oseq += skb_shinfo(skb)->gso_segs;
+ 		}
+ 
+-		if (unlikely(oseq < replay_esn->oseq)) {
++		if (unlikely(xo->seq.low < replay_esn->oseq)) {
+ 			XFRM_SKB_CB(skb)->seq.output.hi = ++oseq_hi;
+ 			xo->seq.hi = oseq_hi;
+ 			replay_esn->oseq_hi = oseq_hi;
 -- 
 2.35.1
 
