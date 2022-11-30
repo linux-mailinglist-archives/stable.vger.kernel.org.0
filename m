@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B357963DE1D
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:34:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D974D63DF71
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230316AbiK3SeR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:34:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40238 "EHLO
+        id S231289AbiK3SrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:47:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230332AbiK3Sd7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:33:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA0F593A76
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:33:52 -0800 (PST)
+        with ESMTP id S231310AbiK3SrF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E05431F9E
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1BA3B81C95
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:33:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32648C433D6;
-        Wed, 30 Nov 2022 18:33:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9E7D61D59
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:47:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE15C433D6;
+        Wed, 30 Nov 2022 18:47:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833229;
-        bh=x7MgMSBYsh7ZsW8NjRE23dg4v8oznSggoiJ1A8oIq7M=;
+        s=korg; t=1669834023;
+        bh=Zn6RLBflghdpehnMevu43IDm9YMOqhkLX6/6gXQpHlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qK5977oJ1FJVWgLPABplnI9OUKlWCouo4DiteWXmqypPoGc0LflRL5iiSLZr2J/nh
-         7ZBhnHVkJZMws6B8jt6y9Za/m5XOV45l+cyRV2i169fjmgxIY6pZdvOTlH8Iihg8Up
-         sZiGY80mR4ca3KzZYoLdqjc6ukyqi4fPEFMwdA1g=
+        b=2F3/K7ucE13rTT5UbLJ0cYm9QgikWmbGcAeKG2xKw9juAIrprrH3sPE3Exmm5XPdw
+         i6Cib1Er3EjqP5O1n26GFGfkff8I0p04IU2QADjaJIMDZ7hgdck9LjXhsq4hi3ReiE
+         Dui38z/s64HckHvw52eX653GmfW3VIG7FgKzPFg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        Imre Deak <imre.deak@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 033/206] riscv: dts: sifive unleashed: Add PWM controlled LEDs
+Subject: [PATCH 6.0 100/289] drm/i915: Fix warn in intel_display_power_*_domain() functions
 Date:   Wed, 30 Nov 2022 19:21:25 +0100
-Message-Id: <20221130180533.833711872@linuxfoundation.org>
+Message-Id: <20221130180546.407492987@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +57,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Renner Berthing <emil.renner.berthing@canonical.com>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit 8bc8824d30193eb7755043d5bb65fa7f0d11a595 ]
+[ Upstream commit ebbaa4392e36521fb893973d8a0fcb32f3b6d5eb ]
 
-This adds the 4 PWM controlled green LEDs to the HiFive Unleashed device
-tree. The schematic doesn't specify any special function for the LEDs,
-so they're added here without any default triggers and named d1, d2, d3
-and d4 just like in the schematic.
+The intel_display_power_*_domain() functions should always warn if a
+default domain is returned as a fallback, fix this up. Spotted by Ville.
 
-Signed-off-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Tested-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/20221012110928.352910-1-emil.renner.berthing@canonical.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: 979e1b32e0e2 ("drm/i915: Sanitize the port -> DDI/AUX power domain mapping for each platform")
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Jouni Högander <jouni.hogander@intel.com>
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221114122251.21327-2-imre.deak@intel.com
+(cherry picked from commit 10b85f0e1d922210ae857afed6d012ec32c4b6cb)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/sifive/hifive-unleashed-a00.dts  | 38 +++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ drivers/gpu/drm/i915/display/intel_display_power.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-index 22f971e97161..2f4d677c9c4f 100644
---- a/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-+++ b/arch/riscv/boot/dts/sifive/hifive-unleashed-a00.dts
-@@ -3,6 +3,8 @@
+diff --git a/drivers/gpu/drm/i915/display/intel_display_power.c b/drivers/gpu/drm/i915/display/intel_display_power.c
+index 589af257edeb..3bb113b42cfa 100644
+--- a/drivers/gpu/drm/i915/display/intel_display_power.c
++++ b/drivers/gpu/drm/i915/display/intel_display_power.c
+@@ -2427,7 +2427,7 @@ intel_display_power_ddi_io_domain(struct drm_i915_private *i915, enum port port)
+ {
+ 	const struct intel_ddi_port_domains *domains = intel_port_domains_for_port(i915, port);
  
- #include "fu540-c000.dtsi"
- #include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/leds/common.h>
-+#include <dt-bindings/pwm/pwm.h>
+-	if (drm_WARN_ON(&i915->drm, !domains) || domains->ddi_io == POWER_DOMAIN_INVALID)
++	if (drm_WARN_ON(&i915->drm, !domains || domains->ddi_io == POWER_DOMAIN_INVALID))
+ 		return POWER_DOMAIN_PORT_DDI_IO_A;
  
- /* Clock frequency (in Hz) of the PCB crystal for rtcclk */
- #define RTCCLK_FREQ		1000000
-@@ -46,6 +48,42 @@ gpio-restart {
- 		compatible = "gpio-restart";
- 		gpios = <&gpio 10 GPIO_ACTIVE_LOW>;
- 	};
-+
-+	led-controller {
-+		compatible = "pwm-leds";
-+
-+		led-d1 {
-+			pwms = <&pwm0 0 7812500 PWM_POLARITY_INVERTED>;
-+			active-low;
-+			color = <LED_COLOR_ID_GREEN>;
-+			max-brightness = <255>;
-+			label = "d1";
-+		};
-+
-+		led-d2 {
-+			pwms = <&pwm0 1 7812500 PWM_POLARITY_INVERTED>;
-+			active-low;
-+			color = <LED_COLOR_ID_GREEN>;
-+			max-brightness = <255>;
-+			label = "d2";
-+		};
-+
-+		led-d3 {
-+			pwms = <&pwm0 2 7812500 PWM_POLARITY_INVERTED>;
-+			active-low;
-+			color = <LED_COLOR_ID_GREEN>;
-+			max-brightness = <255>;
-+			label = "d3";
-+		};
-+
-+		led-d4 {
-+			pwms = <&pwm0 3 7812500 PWM_POLARITY_INVERTED>;
-+			active-low;
-+			color = <LED_COLOR_ID_GREEN>;
-+			max-brightness = <255>;
-+			label = "d4";
-+		};
-+	};
- };
+ 	return domains->ddi_io + (int)(port - domains->port_start);
+@@ -2438,7 +2438,7 @@ intel_display_power_ddi_lanes_domain(struct drm_i915_private *i915, enum port po
+ {
+ 	const struct intel_ddi_port_domains *domains = intel_port_domains_for_port(i915, port);
  
- &uart0 {
+-	if (drm_WARN_ON(&i915->drm, !domains) || domains->ddi_lanes == POWER_DOMAIN_INVALID)
++	if (drm_WARN_ON(&i915->drm, !domains || domains->ddi_lanes == POWER_DOMAIN_INVALID))
+ 		return POWER_DOMAIN_PORT_DDI_LANES_A;
+ 
+ 	return domains->ddi_lanes + (int)(port - domains->port_start);
+@@ -2464,7 +2464,7 @@ intel_display_power_legacy_aux_domain(struct drm_i915_private *i915, enum aux_ch
+ {
+ 	const struct intel_ddi_port_domains *domains = intel_port_domains_for_aux_ch(i915, aux_ch);
+ 
+-	if (drm_WARN_ON(&i915->drm, !domains) || domains->aux_legacy_usbc == POWER_DOMAIN_INVALID)
++	if (drm_WARN_ON(&i915->drm, !domains || domains->aux_legacy_usbc == POWER_DOMAIN_INVALID))
+ 		return POWER_DOMAIN_AUX_A;
+ 
+ 	return domains->aux_legacy_usbc + (int)(aux_ch - domains->aux_ch_start);
+@@ -2475,7 +2475,7 @@ intel_display_power_tbt_aux_domain(struct drm_i915_private *i915, enum aux_ch au
+ {
+ 	const struct intel_ddi_port_domains *domains = intel_port_domains_for_aux_ch(i915, aux_ch);
+ 
+-	if (drm_WARN_ON(&i915->drm, !domains) || domains->aux_tbt == POWER_DOMAIN_INVALID)
++	if (drm_WARN_ON(&i915->drm, !domains || domains->aux_tbt == POWER_DOMAIN_INVALID))
+ 		return POWER_DOMAIN_AUX_TBT1;
+ 
+ 	return domains->aux_tbt + (int)(aux_ch - domains->aux_ch_start);
 -- 
 2.35.1
 
