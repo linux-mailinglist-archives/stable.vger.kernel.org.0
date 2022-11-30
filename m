@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EF6163DD4B
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:26:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E53D863DF90
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230143AbiK3S0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:26:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56942 "EHLO
+        id S231396AbiK3Ssm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:48:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229923AbiK3S0E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B7D86257
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:03 -0800 (PST)
+        with ESMTP id S231414AbiK3SsW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8D8E9B7B4
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC65561D41
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C49E7C433D6;
-        Wed, 30 Nov 2022 18:26:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 62B1AB81B37
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6B5AC433D6;
+        Wed, 30 Nov 2022 18:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832762;
-        bh=kTrLym0Zt7CUv9DpQFsNg8OhVuZybzyAwzKOAgNgc1A=;
+        s=korg; t=1669834099;
+        bh=NX8DFexWJh1/E/nR91ZWF5kGhB/3R59QU5Z+wx7iR7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1efPDnxtC/T8/oXro/Or80z/Yqejlpo4mG5IoF938BsDq3AEaQZ1sibY4Nzi4l66
-         LQ4pw1Mjh59csEfhjbdqZq1yBAFAJdYwi0aGdL4rki0iF4AiJdhklsLWs6dpemKtGr
-         9O9QMEGx3NRQcP6KJ+ideWJL8mjJf7d3pPnu1LI0=
+        b=zVF6jCsYAFsn6MMVObGyydibX0t6Dl0v0AFlXzCvjTTzKRaHKNenNsMmhNvy2OA+m
+         wXrZR7jAnuw6lci7ywoRw3PVJ1PuNps84cj6+3XnIPqXSMPTAF/xjIZ47eXCv9P+Ic
+         y+ls1RidVrd1Ofy/BskXg9ZUJPOfqjS9DkFahCSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        patches@lists.linux.dev, Huang Rui <ray.huang@amd.com>,
+        "Gautham R. Shenoy" <gautham.shenoy@amd.com>,
+        Wyes Karny <wyes.karny@amd.com>,
+        Perry Yuan <Perry.Yuan@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 031/162] MIPS: pic32: treat port as signed integer
-Date:   Wed, 30 Nov 2022 19:21:52 +0100
-Message-Id: <20221130180529.348059288@linuxfoundation.org>
+Subject: [PATCH 6.0 128/289] cpufreq: amd-pstate: change amd-pstate driver to be built-in type
+Date:   Wed, 30 Nov 2022 19:21:53 +0100
+Message-Id: <20221130180547.041616390@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,103 +56,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Perry Yuan <Perry.Yuan@amd.com>
 
-[ Upstream commit 648060902aa302331b5d6e4f26d8ee0761d239ab ]
+[ Upstream commit 456ca88d8a5258fc66edc42a10053ac8473de2b1 ]
 
-get_port_from_cmdline() returns an int, yet is assigned to a char, which
-is wrong in its own right, but also, with char becoming unsigned, this
-poses problems, because -1 is used as an error value. Further
-complicating things, fw_init_early_console() is only ever called with a
--1 argument. Fix this up by removing the unused argument from
-fw_init_early_console() and treating port as a proper signed integer.
+Currently when the amd-pstate and acpi_cpufreq are both built into
+kernel as module driver, amd-pstate will not be loaded by default
+in this case.
 
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Change amd-pstate driver as built-in type, it will resolve the loading
+sequence problem to allow user to make amd-pstate driver as the default
+cpufreq scaling driver.
+
+Acked-by: Huang Rui <ray.huang@amd.com>
+Reviewed-by: Gautham R. Shenoy <gautham.shenoy@amd.com>
+Tested-by: Wyes Karny <wyes.karny@amd.com>
+Signed-off-by: Perry Yuan <Perry.Yuan@amd.com>
+Fixes: ec437d71db77 ("cpufreq: amd-pstate: Introduce a new AMD P-State driver to support future processors")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/fw/fw.h             |  2 +-
- arch/mips/pic32/pic32mzda/early_console.c | 13 ++++++-------
- arch/mips/pic32/pic32mzda/init.c          |  2 +-
- 3 files changed, 8 insertions(+), 9 deletions(-)
+ drivers/cpufreq/Kconfig.x86  |  2 +-
+ drivers/cpufreq/amd-pstate.c | 11 +----------
+ 2 files changed, 2 insertions(+), 11 deletions(-)
 
-diff --git a/arch/mips/include/asm/fw/fw.h b/arch/mips/include/asm/fw/fw.h
-index d0ef8b4892bb..d0494ce4b337 100644
---- a/arch/mips/include/asm/fw/fw.h
-+++ b/arch/mips/include/asm/fw/fw.h
-@@ -26,6 +26,6 @@ extern char *fw_getcmdline(void);
- extern void fw_meminit(void);
- extern char *fw_getenv(char *name);
- extern unsigned long fw_getenvl(char *name);
--extern void fw_init_early_console(char port);
-+extern void fw_init_early_console(void);
+diff --git a/drivers/cpufreq/Kconfig.x86 b/drivers/cpufreq/Kconfig.x86
+index 55516043b656..8184378f67ef 100644
+--- a/drivers/cpufreq/Kconfig.x86
++++ b/drivers/cpufreq/Kconfig.x86
+@@ -35,7 +35,7 @@ config X86_PCC_CPUFREQ
+ 	  If in doubt, say N.
  
- #endif /* __ASM_FW_H_ */
-diff --git a/arch/mips/pic32/pic32mzda/early_console.c b/arch/mips/pic32/pic32mzda/early_console.c
-index 25372e62783b..3cd1b408fa1c 100644
---- a/arch/mips/pic32/pic32mzda/early_console.c
-+++ b/arch/mips/pic32/pic32mzda/early_console.c
-@@ -27,7 +27,7 @@
- #define U_BRG(x)	(UART_BASE(x) + 0x40)
+ config X86_AMD_PSTATE
+-	tristate "AMD Processor P-State driver"
++	bool "AMD Processor P-State driver"
+ 	depends on X86 && ACPI
+ 	select ACPI_PROCESSOR
+ 	select ACPI_CPPC_LIB if X86_64
+diff --git a/drivers/cpufreq/amd-pstate.c b/drivers/cpufreq/amd-pstate.c
+index d63a28c5f95a..e808d2b3ef57 100644
+--- a/drivers/cpufreq/amd-pstate.c
++++ b/drivers/cpufreq/amd-pstate.c
+@@ -718,16 +718,7 @@ static int __init amd_pstate_init(void)
  
- static void __iomem *uart_base;
--static char console_port = -1;
-+static int console_port = -1;
- 
- static int __init configure_uart_pins(int port)
- {
-@@ -47,7 +47,7 @@ static int __init configure_uart_pins(int port)
- 	return 0;
+ 	return ret;
  }
+-
+-static void __exit amd_pstate_exit(void)
+-{
+-	cpufreq_unregister_driver(&amd_pstate_driver);
+-
+-	amd_pstate_enable(false);
+-}
+-
+-module_init(amd_pstate_init);
+-module_exit(amd_pstate_exit);
++device_initcall(amd_pstate_init);
  
--static void __init configure_uart(char port, int baud)
-+static void __init configure_uart(int port, int baud)
- {
- 	u32 pbclk;
- 
-@@ -60,7 +60,7 @@ static void __init configure_uart(char port, int baud)
- 		     uart_base + PIC32_SET(U_STA(port)));
- }
- 
--static void __init setup_early_console(char port, int baud)
-+static void __init setup_early_console(int port, int baud)
- {
- 	if (configure_uart_pins(port))
- 		return;
-@@ -130,16 +130,15 @@ static int __init get_baud_from_cmdline(char *arch_cmdline)
- 	return baud;
- }
- 
--void __init fw_init_early_console(char port)
-+void __init fw_init_early_console(void)
- {
- 	char *arch_cmdline = pic32_getcmdline();
--	int baud = -1;
-+	int baud, port;
- 
- 	uart_base = ioremap(PIC32_BASE_UART, 0xc00);
- 
- 	baud = get_baud_from_cmdline(arch_cmdline);
--	if (port == -1)
--		port = get_port_from_cmdline(arch_cmdline);
-+	port = get_port_from_cmdline(arch_cmdline);
- 
- 	if (port == -1)
- 		port = EARLY_CONSOLE_PORT;
-diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
-index f232c77ff526..488c0bee7ebf 100644
---- a/arch/mips/pic32/pic32mzda/init.c
-+++ b/arch/mips/pic32/pic32mzda/init.c
-@@ -60,7 +60,7 @@ void __init plat_mem_setup(void)
- 		strlcpy(arcs_cmdline, boot_command_line, COMMAND_LINE_SIZE);
- 
- #ifdef CONFIG_EARLY_PRINTK
--	fw_init_early_console(-1);
-+	fw_init_early_console();
- #endif
- 	pic32_config_init();
- }
+ MODULE_AUTHOR("Huang Rui <ray.huang@amd.com>");
+ MODULE_DESCRIPTION("AMD Processor P-state Frequency Driver");
 -- 
 2.35.1
 
