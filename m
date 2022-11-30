@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDA2563DEFA
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:42:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A1B063E04E
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:55:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231232AbiK3Smk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:42:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54134 "EHLO
+        id S231591AbiK3Szn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:55:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231284AbiK3SmZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:42:25 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A90B598956
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:42:23 -0800 (PST)
+        with ESMTP id S231603AbiK3Szn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:55:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98E2899F11
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:55:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BB011CE1AD4
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:42:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96DA0C433D6;
-        Wed, 30 Nov 2022 18:42:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3417A61CEB
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:55:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44A1EC433D6;
+        Wed, 30 Nov 2022 18:55:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833740;
-        bh=fOIwbabummO6hIm51sdPoCYQ96PSs65Ox7DRLIx6kvQ=;
+        s=korg; t=1669834541;
+        bh=xpvXkyQlEKmboJ7ilPWe03Vcs70M+1dNdMMgtpK8SWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E9e6rRzr+1h4vvodQmsyFzRlgsgRVGf6b1JWKljejKIN4r5DgNcG2AxFO241MUoHP
-         eDygZQG88oMP9NxXt3v1ADja7fHAHlmGzVyScBGrh/cPO5gnREosW06NY8Jw+s4A+p
-         ga3SAaTLkd0jJpF19s/THscuyvzyQbRmqIHJkCDs=
+        b=rev9smtED4i6YSbAfwz2VKms8PBXbDO/c2PWJT9DkwT47pbTyrBNv/8XipP+453MH
+         1T/CMYw1afK7+3AUwfJ9B0KMIksEUmJHjNsnRjHbur5KFDLHyNcK9uovMCcE8hsqEC
+         Vdub8HNaarpComZ07YD+PXSTMVo8iAIH76va3USU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+4ef9e52e464c6ff47d9d@syzkaller.appspotmail.com,
-        Anand Jain <anand.jain@oracle.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 196/206] btrfs: free btrfs_path before copying root refs to userspace
-Date:   Wed, 30 Nov 2022 19:24:08 +0100
-Message-Id: <20221130180538.005653841@linuxfoundation.org>
+        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 264/289] dm integrity: flush the journal on suspend
+Date:   Wed, 30 Nov 2022 19:24:09 +0100
+Message-Id: <20221130180550.084731870@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,210 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit b740d806166979488e798e41743aaec051f2443f upstream.
+[ Upstream commit 5e5dab5ec763d600fe0a67837dd9155bdc42f961 ]
 
-Syzbot reported the following lockdep splat
+This commit flushes the journal on suspend. It is prerequisite for the
+next commit that enables activating dm integrity devices in read-only mode.
 
-======================================================
-WARNING: possible circular locking dependency detected
-6.0.0-rc7-syzkaller-18095-gbbed346d5a96 #0 Not tainted
-------------------------------------------------------
-syz-executor307/3029 is trying to acquire lock:
-ffff0000c02525d8 (&mm->mmap_lock){++++}-{3:3}, at: __might_fault+0x54/0xb4 mm/memory.c:5576
+Note that we deliberately didn't flush the journal on suspend, so that the
+journal replay code would be tested. However, the dm-integrity code is 5
+years old now, so that journal replay is well-tested, and we can make this
+change now.
 
-but task is already holding lock:
-ffff0000c958a608 (btrfs-root-00){++++}-{3:3}, at: __btrfs_tree_read_lock fs/btrfs/locking.c:134 [inline]
-ffff0000c958a608 (btrfs-root-00){++++}-{3:3}, at: btrfs_tree_read_lock fs/btrfs/locking.c:140 [inline]
-ffff0000c958a608 (btrfs-root-00){++++}-{3:3}, at: btrfs_read_lock_root_node+0x13c/0x1c0 fs/btrfs/locking.c:279
-
-which lock already depends on the new lock.
-
-the existing dependency chain (in reverse order) is:
-
--> #3 (btrfs-root-00){++++}-{3:3}:
-       down_read_nested+0x64/0x84 kernel/locking/rwsem.c:1624
-       __btrfs_tree_read_lock fs/btrfs/locking.c:134 [inline]
-       btrfs_tree_read_lock fs/btrfs/locking.c:140 [inline]
-       btrfs_read_lock_root_node+0x13c/0x1c0 fs/btrfs/locking.c:279
-       btrfs_search_slot_get_root+0x74/0x338 fs/btrfs/ctree.c:1637
-       btrfs_search_slot+0x1b0/0xfd8 fs/btrfs/ctree.c:1944
-       btrfs_update_root+0x6c/0x5a0 fs/btrfs/root-tree.c:132
-       commit_fs_roots+0x1f0/0x33c fs/btrfs/transaction.c:1459
-       btrfs_commit_transaction+0x89c/0x12d8 fs/btrfs/transaction.c:2343
-       flush_space+0x66c/0x738 fs/btrfs/space-info.c:786
-       btrfs_async_reclaim_metadata_space+0x43c/0x4e0 fs/btrfs/space-info.c:1059
-       process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
-       worker_thread+0x340/0x610 kernel/workqueue.c:2436
-       kthread+0x12c/0x158 kernel/kthread.c:376
-       ret_from_fork+0x10/0x20 arch/arm64/kernel/entry.S:860
-
--> #2 (&fs_info->reloc_mutex){+.+.}-{3:3}:
-       __mutex_lock_common+0xd4/0xca8 kernel/locking/mutex.c:603
-       __mutex_lock kernel/locking/mutex.c:747 [inline]
-       mutex_lock_nested+0x38/0x44 kernel/locking/mutex.c:799
-       btrfs_record_root_in_trans fs/btrfs/transaction.c:516 [inline]
-       start_transaction+0x248/0x944 fs/btrfs/transaction.c:752
-       btrfs_start_transaction+0x34/0x44 fs/btrfs/transaction.c:781
-       btrfs_create_common+0xf0/0x1b4 fs/btrfs/inode.c:6651
-       btrfs_create+0x8c/0xb0 fs/btrfs/inode.c:6697
-       lookup_open fs/namei.c:3413 [inline]
-       open_last_lookups fs/namei.c:3481 [inline]
-       path_openat+0x804/0x11c4 fs/namei.c:3688
-       do_filp_open+0xdc/0x1b8 fs/namei.c:3718
-       do_sys_openat2+0xb8/0x22c fs/open.c:1313
-       do_sys_open fs/open.c:1329 [inline]
-       __do_sys_openat fs/open.c:1345 [inline]
-       __se_sys_openat fs/open.c:1340 [inline]
-       __arm64_sys_openat+0xb0/0xe0 fs/open.c:1340
-       __invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
-       invoke_syscall arch/arm64/kernel/syscall.c:52 [inline]
-       el0_svc_common+0x138/0x220 arch/arm64/kernel/syscall.c:142
-       do_el0_svc+0x48/0x164 arch/arm64/kernel/syscall.c:206
-       el0_svc+0x58/0x150 arch/arm64/kernel/entry-common.c:636
-       el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:654
-       el0t_64_sync+0x18c/0x190 arch/arm64/kernel/entry.S:581
-
--> #1 (sb_internal#2){.+.+}-{0:0}:
-       percpu_down_read include/linux/percpu-rwsem.h:51 [inline]
-       __sb_start_write include/linux/fs.h:1826 [inline]
-       sb_start_intwrite include/linux/fs.h:1948 [inline]
-       start_transaction+0x360/0x944 fs/btrfs/transaction.c:683
-       btrfs_join_transaction+0x30/0x40 fs/btrfs/transaction.c:795
-       btrfs_dirty_inode+0x50/0x140 fs/btrfs/inode.c:6103
-       btrfs_update_time+0x1c0/0x1e8 fs/btrfs/inode.c:6145
-       inode_update_time fs/inode.c:1872 [inline]
-       touch_atime+0x1f0/0x4a8 fs/inode.c:1945
-       file_accessed include/linux/fs.h:2516 [inline]
-       btrfs_file_mmap+0x50/0x88 fs/btrfs/file.c:2407
-       call_mmap include/linux/fs.h:2192 [inline]
-       mmap_region+0x7fc/0xc14 mm/mmap.c:1752
-       do_mmap+0x644/0x97c mm/mmap.c:1540
-       vm_mmap_pgoff+0xe8/0x1d0 mm/util.c:552
-       ksys_mmap_pgoff+0x1cc/0x278 mm/mmap.c:1586
-       __do_sys_mmap arch/arm64/kernel/sys.c:28 [inline]
-       __se_sys_mmap arch/arm64/kernel/sys.c:21 [inline]
-       __arm64_sys_mmap+0x58/0x6c arch/arm64/kernel/sys.c:21
-       __invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
-       invoke_syscall arch/arm64/kernel/syscall.c:52 [inline]
-       el0_svc_common+0x138/0x220 arch/arm64/kernel/syscall.c:142
-       do_el0_svc+0x48/0x164 arch/arm64/kernel/syscall.c:206
-       el0_svc+0x58/0x150 arch/arm64/kernel/entry-common.c:636
-       el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:654
-       el0t_64_sync+0x18c/0x190 arch/arm64/kernel/entry.S:581
-
--> #0 (&mm->mmap_lock){++++}-{3:3}:
-       check_prev_add kernel/locking/lockdep.c:3095 [inline]
-       check_prevs_add kernel/locking/lockdep.c:3214 [inline]
-       validate_chain kernel/locking/lockdep.c:3829 [inline]
-       __lock_acquire+0x1530/0x30a4 kernel/locking/lockdep.c:5053
-       lock_acquire+0x100/0x1f8 kernel/locking/lockdep.c:5666
-       __might_fault+0x7c/0xb4 mm/memory.c:5577
-       _copy_to_user include/linux/uaccess.h:134 [inline]
-       copy_to_user include/linux/uaccess.h:160 [inline]
-       btrfs_ioctl_get_subvol_rootref+0x3a8/0x4bc fs/btrfs/ioctl.c:3203
-       btrfs_ioctl+0xa08/0xa64 fs/btrfs/ioctl.c:5556
-       vfs_ioctl fs/ioctl.c:51 [inline]
-       __do_sys_ioctl fs/ioctl.c:870 [inline]
-       __se_sys_ioctl fs/ioctl.c:856 [inline]
-       __arm64_sys_ioctl+0xd0/0x140 fs/ioctl.c:856
-       __invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
-       invoke_syscall arch/arm64/kernel/syscall.c:52 [inline]
-       el0_svc_common+0x138/0x220 arch/arm64/kernel/syscall.c:142
-       do_el0_svc+0x48/0x164 arch/arm64/kernel/syscall.c:206
-       el0_svc+0x58/0x150 arch/arm64/kernel/entry-common.c:636
-       el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:654
-       el0t_64_sync+0x18c/0x190 arch/arm64/kernel/entry.S:581
-
-other info that might help us debug this:
-
-Chain exists of:
-  &mm->mmap_lock --> &fs_info->reloc_mutex --> btrfs-root-00
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(btrfs-root-00);
-                               lock(&fs_info->reloc_mutex);
-                               lock(btrfs-root-00);
-  lock(&mm->mmap_lock);
-
- *** DEADLOCK ***
-
-1 lock held by syz-executor307/3029:
- #0: ffff0000c958a608 (btrfs-root-00){++++}-{3:3}, at: __btrfs_tree_read_lock fs/btrfs/locking.c:134 [inline]
- #0: ffff0000c958a608 (btrfs-root-00){++++}-{3:3}, at: btrfs_tree_read_lock fs/btrfs/locking.c:140 [inline]
- #0: ffff0000c958a608 (btrfs-root-00){++++}-{3:3}, at: btrfs_read_lock_root_node+0x13c/0x1c0 fs/btrfs/locking.c:279
-
-stack backtrace:
-CPU: 0 PID: 3029 Comm: syz-executor307 Not tainted 6.0.0-rc7-syzkaller-18095-gbbed346d5a96 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/30/2022
-Call trace:
- dump_backtrace+0x1c4/0x1f0 arch/arm64/kernel/stacktrace.c:156
- show_stack+0x2c/0x54 arch/arm64/kernel/stacktrace.c:163
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x104/0x16c lib/dump_stack.c:106
- dump_stack+0x1c/0x58 lib/dump_stack.c:113
- print_circular_bug+0x2c4/0x2c8 kernel/locking/lockdep.c:2053
- check_noncircular+0x14c/0x154 kernel/locking/lockdep.c:2175
- check_prev_add kernel/locking/lockdep.c:3095 [inline]
- check_prevs_add kernel/locking/lockdep.c:3214 [inline]
- validate_chain kernel/locking/lockdep.c:3829 [inline]
- __lock_acquire+0x1530/0x30a4 kernel/locking/lockdep.c:5053
- lock_acquire+0x100/0x1f8 kernel/locking/lockdep.c:5666
- __might_fault+0x7c/0xb4 mm/memory.c:5577
- _copy_to_user include/linux/uaccess.h:134 [inline]
- copy_to_user include/linux/uaccess.h:160 [inline]
- btrfs_ioctl_get_subvol_rootref+0x3a8/0x4bc fs/btrfs/ioctl.c:3203
- btrfs_ioctl+0xa08/0xa64 fs/btrfs/ioctl.c:5556
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:870 [inline]
- __se_sys_ioctl fs/ioctl.c:856 [inline]
- __arm64_sys_ioctl+0xd0/0x140 fs/ioctl.c:856
- __invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
- invoke_syscall arch/arm64/kernel/syscall.c:52 [inline]
- el0_svc_common+0x138/0x220 arch/arm64/kernel/syscall.c:142
- do_el0_svc+0x48/0x164 arch/arm64/kernel/syscall.c:206
- el0_svc+0x58/0x150 arch/arm64/kernel/entry-common.c:636
- el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:654
- el0t_64_sync+0x18c/0x190 arch/arm64/kernel/entry.S:581
-
-We do generally the right thing here, copying the references into a
-temporary buffer, however we are still holding the path when we do
-copy_to_user from the temporary buffer.  Fix this by freeing the path
-before we copy to user space.
-
-Reported-by: syzbot+4ef9e52e464c6ff47d9d@syzkaller.appspotmail.com
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ioctl.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/md/dm-integrity.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -2880,6 +2880,8 @@ static int btrfs_ioctl_get_subvol_rootre
+diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
+index e1e7b205573f..f26a6cd09e0c 100644
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -2591,10 +2591,6 @@ static void integrity_writer(struct work_struct *w)
+ 
+ 	unsigned prev_free_sectors;
+ 
+-	/* the following test is not needed, but it tests the replay code */
+-	if (unlikely(dm_post_suspending(ic->ti)) && !ic->meta_dev)
+-		return;
+-
+ 	spin_lock_irq(&ic->endio_wait.lock);
+ 	write_start = ic->committed_section;
+ 	write_sections = ic->n_committed_sections;
+@@ -3101,8 +3097,7 @@ static void dm_integrity_postsuspend(struct dm_target *ti)
+ 	drain_workqueue(ic->commit_wq);
+ 
+ 	if (ic->mode == 'J') {
+-		if (ic->meta_dev)
+-			queue_work(ic->writer_wq, &ic->writer_work);
++		queue_work(ic->writer_wq, &ic->writer_work);
+ 		drain_workqueue(ic->writer_wq);
+ 		dm_integrity_flush_buffers(ic, true);
  	}
- 
- out:
-+	btrfs_free_path(path);
-+
- 	if (!ret || ret == -EOVERFLOW) {
- 		rootrefs->num_items = found;
- 		/* update min_treeid for next search */
-@@ -2891,7 +2893,6 @@ out:
- 	}
- 
- 	kfree(rootrefs);
--	btrfs_free_path(path);
- 
- 	return ret;
- }
+-- 
+2.35.1
+
 
 
