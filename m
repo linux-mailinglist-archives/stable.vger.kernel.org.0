@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BC1063DF77
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D50EB63DE2A
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:34:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231282AbiK3SrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:47:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56470 "EHLO
+        id S230419AbiK3Sek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:34:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231237AbiK3SrX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED8C2BB14
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:22 -0800 (PST)
+        with ESMTP id S230369AbiK3SeM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:34:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 144DE91C3F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:34:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11D9BB81B37
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:47:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D4FEC433C1;
-        Wed, 30 Nov 2022 18:47:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E0E0161D3D
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:34:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2C63C433D6;
+        Wed, 30 Nov 2022 18:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834039;
-        bh=yZ7aF3Mp1Bylz7DgT3GKYun4oXjlEmEgO8GyOXdR5a4=;
+        s=korg; t=1669833249;
+        bh=oxIeOyDs26nJxQVeeqhMhw4FTnnZDug10URneihCHq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AKhYIDeg1hVbusJ48uGYNHRyjZrYvnqCouwO3XB4ghszGLBVIOB2xEfsvM+p0WJwj
-         vAnH2420Ll/KkmajAOUYUUXm7m1RQ+StFnY4UKCYWIwOQO2P/LbSV6xjOAUkavF1JW
-         T4RiEi4cIFw4HyyUUKFqrMEwsHBrTuGyNZPdu5kE=
+        b=ZaKmI2tqFnXshmjfZJvvxa4v3MkrA1U5ukYdmhQBbLDbPEDah1PGIVNVPOpeuqTzw
+         rcXWBLj2hHRx5JmgkJEuv2rHyiPWDfCDS0YlBfGJt/WxFwZG3iMaxuTF0dXffKSDJR
+         7TwYHJDgZniL9lqdfW3oP0s0LwU/Yas7Ow3XFijk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
-        Parav Pandit <parav@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Youlin Li <liulin063@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 106/289] net/mlx5: SF: Fix probing active SFs during driver probe phase
+Subject: [PATCH 5.15 039/206] selftests/bpf: Add verifier test for release_reference()
 Date:   Wed, 30 Nov 2022 19:21:31 +0100
-Message-Id: <20221130180546.542343915@linuxfoundation.org>
+Message-Id: <20221130180533.988252421@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,171 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@nvidia.com>
+From: Youlin Li <liulin063@gmail.com>
 
-[ Upstream commit 4f57332d6a551185ba729617f04455e83fbe4e41 ]
+[ Upstream commit 475244f5e06beeda7b557d9dde46a5f439bf3379 ]
 
-When SF devices and SF port representors are located on different
-functions, unloading and reloading of SF parent driver doesn't recreate
-the existing SF present in the device.
-Fix it by querying SFs and probe active SFs during driver probe phase.
+Add a test case to ensure that released pointer registers will not be
+leaked into the map.
 
-Fixes: 90d010b8634b ("net/mlx5: SF, Add auxiliary device support")
-Signed-off-by: Shay Drory <shayd@nvidia.com>
-Reviewed-by: Parav Pandit <parav@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Before fix:
+
+  ./test_verifier 984
+    984/u reference tracking: try to leak released ptr reg FAIL
+    Unexpected success to load!
+    verification time 67 usec
+    stack depth 4
+    processed 23 insns (limit 1000000) max_states_per_insn 0 total_states 2
+    peak_states 2 mark_read 1
+    984/p reference tracking: try to leak released ptr reg OK
+    Summary: 1 PASSED, 0 SKIPPED, 1 FAILED
+
+After fix:
+
+  ./test_verifier 984
+    984/u reference tracking: try to leak released ptr reg OK
+    984/p reference tracking: try to leak released ptr reg OK
+    Summary: 2 PASSED, 0 SKIPPED, 0 FAILED
+
+Signed-off-by: Youlin Li <liulin063@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20221103093440.3161-2-liulin063@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/mellanox/mlx5/core/sf/dev/dev.c  | 88 +++++++++++++++++++
- 1 file changed, 88 insertions(+)
+ .../selftests/bpf/verifier/ref_tracking.c     | 36 +++++++++++++++++++
+ 1 file changed, 36 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/dev.c b/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/dev.c
-index 7da012ff0d41..8e2abbab05f0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/dev.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/dev.c
-@@ -18,6 +18,10 @@ struct mlx5_sf_dev_table {
- 	phys_addr_t base_address;
- 	u64 sf_bar_length;
- 	struct notifier_block nb;
-+	struct mutex table_lock; /* Serializes sf life cycle and vhca state change handler */
-+	struct workqueue_struct *active_wq;
-+	struct work_struct work;
-+	u8 stop_active_wq:1;
- 	struct mlx5_core_dev *dev;
- };
- 
-@@ -168,6 +172,7 @@ mlx5_sf_dev_state_change_handler(struct notifier_block *nb, unsigned long event_
- 		return 0;
- 
- 	sf_index = event->function_id - base_id;
-+	mutex_lock(&table->table_lock);
- 	sf_dev = xa_load(&table->devices, sf_index);
- 	switch (event->new_vhca_state) {
- 	case MLX5_VHCA_STATE_INVALID:
-@@ -191,6 +196,7 @@ mlx5_sf_dev_state_change_handler(struct notifier_block *nb, unsigned long event_
- 	default:
- 		break;
- 	}
-+	mutex_unlock(&table->table_lock);
- 	return 0;
- }
- 
-@@ -215,6 +221,78 @@ static int mlx5_sf_dev_vhca_arm_all(struct mlx5_sf_dev_table *table)
- 	return 0;
- }
- 
-+static void mlx5_sf_dev_add_active_work(struct work_struct *work)
+diff --git a/tools/testing/selftests/bpf/verifier/ref_tracking.c b/tools/testing/selftests/bpf/verifier/ref_tracking.c
+index 3b6ee009c00b..4a768b130d61 100644
+--- a/tools/testing/selftests/bpf/verifier/ref_tracking.c
++++ b/tools/testing/selftests/bpf/verifier/ref_tracking.c
+@@ -905,3 +905,39 @@
+ 	.result_unpriv = REJECT,
+ 	.errstr_unpriv = "unknown func",
+ },
 +{
-+	struct mlx5_sf_dev_table *table = container_of(work, struct mlx5_sf_dev_table, work);
-+	u32 out[MLX5_ST_SZ_DW(query_vhca_state_out)] = {};
-+	struct mlx5_core_dev *dev = table->dev;
-+	u16 max_functions;
-+	u16 function_id;
-+	u16 sw_func_id;
-+	int err = 0;
-+	u8 state;
-+	int i;
++	"reference tracking: try to leak released ptr reg",
++	.insns = {
++		BPF_MOV64_IMM(BPF_REG_0, 0),
++		BPF_STX_MEM(BPF_W, BPF_REG_10, BPF_REG_0, -4),
++		BPF_MOV64_REG(BPF_REG_2, BPF_REG_10),
++		BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, -4),
++		BPF_LD_MAP_FD(BPF_REG_1, 0),
++		BPF_EMIT_CALL(BPF_FUNC_map_lookup_elem),
++		BPF_JMP_IMM(BPF_JNE, BPF_REG_0, 0, 1),
++		BPF_EXIT_INSN(),
++		BPF_MOV64_REG(BPF_REG_9, BPF_REG_0),
 +
-+	max_functions = mlx5_sf_max_functions(dev);
-+	function_id = MLX5_CAP_GEN(dev, sf_base_id);
-+	for (i = 0; i < max_functions; i++, function_id++) {
-+		if (table->stop_active_wq)
-+			return;
-+		err = mlx5_cmd_query_vhca_state(dev, function_id, out, sizeof(out));
-+		if (err)
-+			/* A failure of specific vhca doesn't mean others will
-+			 * fail as well.
-+			 */
-+			continue;
-+		state = MLX5_GET(query_vhca_state_out, out, vhca_state_context.vhca_state);
-+		if (state != MLX5_VHCA_STATE_ACTIVE)
-+			continue;
++		BPF_MOV64_IMM(BPF_REG_0, 0),
++		BPF_LD_MAP_FD(BPF_REG_1, 0),
++		BPF_MOV64_IMM(BPF_REG_2, 8),
++		BPF_MOV64_IMM(BPF_REG_3, 0),
++		BPF_EMIT_CALL(BPF_FUNC_ringbuf_reserve),
++		BPF_JMP_IMM(BPF_JNE, BPF_REG_0, 0, 1),
++		BPF_EXIT_INSN(),
++		BPF_MOV64_REG(BPF_REG_8, BPF_REG_0),
 +
-+		sw_func_id = MLX5_GET(query_vhca_state_out, out, vhca_state_context.sw_function_id);
-+		mutex_lock(&table->table_lock);
-+		/* Don't probe device which is already probe */
-+		if (!xa_load(&table->devices, i))
-+			mlx5_sf_dev_add(dev, i, function_id, sw_func_id);
-+		/* There is a race where SF got inactive after the query
-+		 * above. e.g.: the query returns that the state of the
-+		 * SF is active, and after that the eswitch manager set it to
-+		 * inactive.
-+		 * This case cannot be managed in SW, since the probing of the
-+		 * SF is on one system, and the inactivation is on a different
-+		 * system.
-+		 * If the inactive is done after the SF perform init_hca(),
-+		 * the SF will fully probe and then removed. If it was
-+		 * done before init_hca(), the SF probe will fail.
-+		 */
-+		mutex_unlock(&table->table_lock);
-+	}
-+}
++		BPF_MOV64_REG(BPF_REG_1, BPF_REG_8),
++		BPF_MOV64_IMM(BPF_REG_2, 0),
++		BPF_EMIT_CALL(BPF_FUNC_ringbuf_discard),
++		BPF_MOV64_IMM(BPF_REG_0, 0),
 +
-+/* In case SFs are generated externally, probe active SFs */
-+static int mlx5_sf_dev_queue_active_work(struct mlx5_sf_dev_table *table)
-+{
-+	if (MLX5_CAP_GEN(table->dev, eswitch_manager))
-+		return 0; /* the table is local */
-+
-+	/* Use a workqueue to probe active SFs, which are in large
-+	 * quantity and may take up to minutes to probe.
-+	 */
-+	table->active_wq = create_singlethread_workqueue("mlx5_active_sf");
-+	if (!table->active_wq)
-+		return -ENOMEM;
-+	INIT_WORK(&table->work, &mlx5_sf_dev_add_active_work);
-+	queue_work(table->active_wq, &table->work);
-+	return 0;
-+}
-+
-+static void mlx5_sf_dev_destroy_active_work(struct mlx5_sf_dev_table *table)
-+{
-+	if (table->active_wq) {
-+		table->stop_active_wq = true;
-+		destroy_workqueue(table->active_wq);
-+	}
-+}
-+
- void mlx5_sf_dev_table_create(struct mlx5_core_dev *dev)
- {
- 	struct mlx5_sf_dev_table *table;
-@@ -240,11 +318,17 @@ void mlx5_sf_dev_table_create(struct mlx5_core_dev *dev)
- 	table->base_address = pci_resource_start(dev->pdev, 2);
- 	table->max_sfs = max_sfs;
- 	xa_init(&table->devices);
-+	mutex_init(&table->table_lock);
- 	dev->priv.sf_dev_table = table;
- 
- 	err = mlx5_vhca_event_notifier_register(dev, &table->nb);
- 	if (err)
- 		goto vhca_err;
-+
-+	err = mlx5_sf_dev_queue_active_work(table);
-+	if (err)
-+		goto add_active_err;
-+
- 	err = mlx5_sf_dev_vhca_arm_all(table);
- 	if (err)
- 		goto arm_err;
-@@ -252,6 +336,8 @@ void mlx5_sf_dev_table_create(struct mlx5_core_dev *dev)
- 	return;
- 
- arm_err:
-+	mlx5_sf_dev_destroy_active_work(table);
-+add_active_err:
- 	mlx5_vhca_event_notifier_unregister(dev, &table->nb);
- vhca_err:
- 	table->max_sfs = 0;
-@@ -279,7 +365,9 @@ void mlx5_sf_dev_table_destroy(struct mlx5_core_dev *dev)
- 	if (!table)
- 		return;
- 
-+	mlx5_sf_dev_destroy_active_work(table);
- 	mlx5_vhca_event_notifier_unregister(dev, &table->nb);
-+	mutex_destroy(&table->table_lock);
- 
- 	/* Now that event handler is not running, it is safe to destroy
- 	 * the sf device without race.
++		BPF_STX_MEM(BPF_DW, BPF_REG_9, BPF_REG_8, 0),
++		BPF_EXIT_INSN()
++	},
++	.fixup_map_array_48b = { 4 },
++	.fixup_map_ringbuf = { 11 },
++	.result = ACCEPT,
++	.result_unpriv = REJECT,
++	.errstr_unpriv = "R8 !read_ok"
++},
 -- 
 2.35.1
 
