@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2325363DE3A
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B61AD63DD44
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:25:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230324AbiK3SfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:35:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43420 "EHLO
+        id S229968AbiK3SZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:25:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230349AbiK3Sez (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:34:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AB6894910
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:34:54 -0800 (PST)
+        with ESMTP id S230123AbiK3SZt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F7CAF593
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:25:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FDCBB81C9F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:34:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 818ACC433C1;
-        Wed, 30 Nov 2022 18:34:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F38B4B81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:25:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51BD4C433C1;
+        Wed, 30 Nov 2022 18:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833291;
-        bh=3FEH4svVzkYeoaa6ZutCgXlK7jfyfHYi9LMUFaXwG4Q=;
+        s=korg; t=1669832745;
+        bh=wMoAmFrAKqCRnCDoXLuanE2Lmzf9mTTi195NSVnTMOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ga9y3eovc2gtOfTZsP+PMj6p6LrQurDU1ZbkniSiGk/Y8104uOYHMyNd4N0NJSgxK
-         jwpBNLa44jT/g8+eF4o0AuhF8UkL+32SBQ/wV5xYQ0qN9GGzvR68+nVWuwkbJh+MMw
-         nPVB5X10sdxA51SOWdOGz7TLkhQiJhoRAb1U4rSI=
+        b=JSjHmGuFaze28PVe5VRxtD8TI0x29HmTeStfSvqwmeULPhqQC5dYa0njiskiddkH2
+         YYvD39tSJD28we5CYicklgro8obh2b/ZOJXOurxbdt7cPL1wmPbJxn/P/DpxSYR1jr
+         g6f5Vsb3gJnT+D5fndXAR+OsKRnkwBrWlV8XVt9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Monil Patel <monil191989@gmail.com>,
-        Eyal Birger <eyal.birger@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        patches@lists.linux.dev, Douglas Gilbert <dgilbert@interlog.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 055/206] xfrm: fix "disable_policy" on ipv4 early demux
+Subject: [PATCH 5.10 026/162] scsi: scsi_debug: Make the READ CAPACITY response compliant with ZBC
 Date:   Wed, 30 Nov 2022 19:21:47 +0100
-Message-Id: <20221130180534.399820717@linuxfoundation.org>
+Message-Id: <20221130180529.214763570@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eyal Birger <eyal.birger@gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 3a5913183aa1b14148c723bda030e6102ad73008 ]
+[ Upstream commit ecb8c2580d37dbb641451049376d80c8afaa387f ]
 
-The commit in the "Fixes" tag tried to avoid a case where policy check
-is ignored due to dst caching in next hops.
+>From ZBC-1:
 
-However, when the traffic is locally consumed, the dst may be cached
-in a local TCP or UDP socket as part of early demux. In this case the
-"disable_policy" flag is not checked as ip_route_input_noref() was only
-called before caching, and thus, packets after the initial packet in a
-flow will be dropped if not matching policies.
+ - RC BASIS = 0: The RETURNED LOGICAL BLOCK ADDRESS field indicates the
+   highest LBA of a contiguous range of zones that are not sequential write
+   required zones starting with the first zone.
 
-Fix by checking the "disable_policy" flag also when a valid dst is
-already available.
+ - RC BASIS = 1: The RETURNED LOGICAL BLOCK ADDRESS field indicates the LBA
+   of the last logical block on the logical unit.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216557
-Reported-by: Monil Patel <monil191989@gmail.com>
-Fixes: e6175a2ed1f1 ("xfrm: fix "disable_policy" flag use when arriving from different devices")
-Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
+The current scsi_debug READ CAPACITY response does not comply with the
+above if there are one or more sequential write required zones. SCSI
+initiators need a way to retrieve the largest valid LBA from SCSI
+devices. Reporting the largest valid LBA if there are one or more
+sequential zones requires to set the RC BASIS field in the READ CAPACITY
+response to one. Hence this patch.
 
-----
-
-v2: use dev instead of skb->dev
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Douglas Gilbert <dgilbert@interlog.com>
+Cc: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Suggested-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/20221102193248.3177608-1-bvanassche@acm.org
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_input.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/scsi/scsi_debug.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/ipv4/ip_input.c b/net/ipv4/ip_input.c
-index 459d7e630cb0..124bf8fdf924 100644
---- a/net/ipv4/ip_input.c
-+++ b/net/ipv4/ip_input.c
-@@ -364,6 +364,11 @@ static int ip_rcv_finish_core(struct net *net, struct sock *sk,
- 					   iph->tos, dev);
- 		if (unlikely(err))
- 			goto drop_error;
-+	} else {
-+		struct in_device *in_dev = __in_dev_get_rcu(dev);
-+
-+		if (in_dev && IN_DEV_ORCONF(in_dev, NOPOLICY))
-+			IPCB(skb)->flags |= IPSKB_NOPOLICY;
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 261b915835b4..cc20621bb49d 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -1878,6 +1878,13 @@ static int resp_readcap16(struct scsi_cmnd *scp,
+ 			arr[14] |= 0x40;
  	}
  
- #ifdef CONFIG_IP_ROUTE_CLASSID
++	/*
++	 * Since the scsi_debug READ CAPACITY implementation always reports the
++	 * total disk capacity, set RC BASIS = 1 for host-managed ZBC devices.
++	 */
++	if (devip->zmodel == BLK_ZONED_HM)
++		arr[12] |= 1 << 4;
++
+ 	arr[15] = sdebug_lowest_aligned & 0xff;
+ 
+ 	if (have_dif_prot) {
 -- 
 2.35.1
 
