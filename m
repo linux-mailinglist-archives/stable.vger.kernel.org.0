@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1166E63DD46
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:26:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BC1063DF77
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229609AbiK3S0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:26:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56878 "EHLO
+        id S231282AbiK3SrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:47:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229961AbiK3SZy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A31C8CC1
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:25:53 -0800 (PST)
+        with ESMTP id S231237AbiK3SrX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED8C2BB14
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 456A8B81C9A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:25:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB7F3C433D6;
-        Wed, 30 Nov 2022 18:25:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11D9BB81B37
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:47:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D4FEC433C1;
+        Wed, 30 Nov 2022 18:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832751;
-        bh=tcP/3rZBDihPO2WK1ana31KjdfofLbh/3e2EEQwsl/g=;
+        s=korg; t=1669834039;
+        bh=yZ7aF3Mp1Bylz7DgT3GKYun4oXjlEmEgO8GyOXdR5a4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ISZdoqk9/N9qiDOzpHg2wrlY+oz3ZTsuKgAcccggmixOvRBLqzUcgQC3BHlh0GwlY
-         ap0+hslwiwxLRcBvrBGQbZjP59uq5eBB9EUgydF1QUuNluVNhNU5DzQqv7/hheED7y
-         c6CCBCuuGGZvHSVCxDoX6kuptVn1ZLTyxqZMXwGY=
+        b=AKhYIDeg1hVbusJ48uGYNHRyjZrYvnqCouwO3XB4ghszGLBVIOB2xEfsvM+p0WJwj
+         vAnH2420Ll/KkmajAOUYUUXm7m1RQ+StFnY4UKCYWIwOQO2P/LbSV6xjOAUkavF1JW
+         T4RiEi4cIFw4HyyUUKFqrMEwsHBrTuGyNZPdu5kE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?=C4=90o=C3=A0n=20Tr=E1=BA=A7n=20C=C3=B4ng=20Danh?= 
-        <congdanhqx@gmail.com>,
-        Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        stable <stable@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 010/162] speakup: replace utils u_char with unsigned char
+        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
+        Parav Pandit <parav@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 106/289] net/mlx5: SF: Fix probing active SFs during driver probe phase
 Date:   Wed, 30 Nov 2022 19:21:31 +0100
-Message-Id: <20221130180528.772325383@linuxfoundation.org>
+Message-Id: <20221130180546.542343915@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Đoàn Trần Công Danh <congdanhqx@gmail.com>
+From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit 92ca969ff8815f3feef2645199bd39bf594e5eeb ]
+[ Upstream commit 4f57332d6a551185ba729617f04455e83fbe4e41 ]
 
-drivers/accessibility/speakup/utils.h will be used to compile host tool
-to generate metadata.
+When SF devices and SF port representors are located on different
+functions, unloading and reloading of SF parent driver doesn't recreate
+the existing SF present in the device.
+Fix it by querying SFs and probe active SFs during driver probe phase.
 
-"u_char" is a non-standard type, which is defined to "unsigned char"
-on glibc but not defined by some libc, e.g. musl.
-
-Let's replace "u_char" with "unsigned char"
-
-Signed-off-by: Đoàn Trần Công Danh <congdanhqx@gmail.com>
-Reviewed-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/b75743026aaee2d81efe3d7f2e8fa47f7d0b8ea7.1665736571.git.congdanhqx@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 90d010b8634b ("net/mlx5: SF, Add auxiliary device support")
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Reviewed-by: Parav Pandit <parav@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/accessibility/speakup/utils.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../ethernet/mellanox/mlx5/core/sf/dev/dev.c  | 88 +++++++++++++++++++
+ 1 file changed, 88 insertions(+)
 
-diff --git a/drivers/accessibility/speakup/utils.h b/drivers/accessibility/speakup/utils.h
-index 4bf2ee8ac246..4ce9a12f7664 100644
---- a/drivers/accessibility/speakup/utils.h
-+++ b/drivers/accessibility/speakup/utils.h
-@@ -54,7 +54,7 @@ static inline int oops(const char *msg, const char *info)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/dev.c b/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/dev.c
+index 7da012ff0d41..8e2abbab05f0 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/dev.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/dev.c
+@@ -18,6 +18,10 @@ struct mlx5_sf_dev_table {
+ 	phys_addr_t base_address;
+ 	u64 sf_bar_length;
+ 	struct notifier_block nb;
++	struct mutex table_lock; /* Serializes sf life cycle and vhca state change handler */
++	struct workqueue_struct *active_wq;
++	struct work_struct work;
++	u8 stop_active_wq:1;
+ 	struct mlx5_core_dev *dev;
+ };
  
- static inline struct st_key *hash_name(char *name)
+@@ -168,6 +172,7 @@ mlx5_sf_dev_state_change_handler(struct notifier_block *nb, unsigned long event_
+ 		return 0;
+ 
+ 	sf_index = event->function_id - base_id;
++	mutex_lock(&table->table_lock);
+ 	sf_dev = xa_load(&table->devices, sf_index);
+ 	switch (event->new_vhca_state) {
+ 	case MLX5_VHCA_STATE_INVALID:
+@@ -191,6 +196,7 @@ mlx5_sf_dev_state_change_handler(struct notifier_block *nb, unsigned long event_
+ 	default:
+ 		break;
+ 	}
++	mutex_unlock(&table->table_lock);
+ 	return 0;
+ }
+ 
+@@ -215,6 +221,78 @@ static int mlx5_sf_dev_vhca_arm_all(struct mlx5_sf_dev_table *table)
+ 	return 0;
+ }
+ 
++static void mlx5_sf_dev_add_active_work(struct work_struct *work)
++{
++	struct mlx5_sf_dev_table *table = container_of(work, struct mlx5_sf_dev_table, work);
++	u32 out[MLX5_ST_SZ_DW(query_vhca_state_out)] = {};
++	struct mlx5_core_dev *dev = table->dev;
++	u16 max_functions;
++	u16 function_id;
++	u16 sw_func_id;
++	int err = 0;
++	u8 state;
++	int i;
++
++	max_functions = mlx5_sf_max_functions(dev);
++	function_id = MLX5_CAP_GEN(dev, sf_base_id);
++	for (i = 0; i < max_functions; i++, function_id++) {
++		if (table->stop_active_wq)
++			return;
++		err = mlx5_cmd_query_vhca_state(dev, function_id, out, sizeof(out));
++		if (err)
++			/* A failure of specific vhca doesn't mean others will
++			 * fail as well.
++			 */
++			continue;
++		state = MLX5_GET(query_vhca_state_out, out, vhca_state_context.vhca_state);
++		if (state != MLX5_VHCA_STATE_ACTIVE)
++			continue;
++
++		sw_func_id = MLX5_GET(query_vhca_state_out, out, vhca_state_context.sw_function_id);
++		mutex_lock(&table->table_lock);
++		/* Don't probe device which is already probe */
++		if (!xa_load(&table->devices, i))
++			mlx5_sf_dev_add(dev, i, function_id, sw_func_id);
++		/* There is a race where SF got inactive after the query
++		 * above. e.g.: the query returns that the state of the
++		 * SF is active, and after that the eswitch manager set it to
++		 * inactive.
++		 * This case cannot be managed in SW, since the probing of the
++		 * SF is on one system, and the inactivation is on a different
++		 * system.
++		 * If the inactive is done after the SF perform init_hca(),
++		 * the SF will fully probe and then removed. If it was
++		 * done before init_hca(), the SF probe will fail.
++		 */
++		mutex_unlock(&table->table_lock);
++	}
++}
++
++/* In case SFs are generated externally, probe active SFs */
++static int mlx5_sf_dev_queue_active_work(struct mlx5_sf_dev_table *table)
++{
++	if (MLX5_CAP_GEN(table->dev, eswitch_manager))
++		return 0; /* the table is local */
++
++	/* Use a workqueue to probe active SFs, which are in large
++	 * quantity and may take up to minutes to probe.
++	 */
++	table->active_wq = create_singlethread_workqueue("mlx5_active_sf");
++	if (!table->active_wq)
++		return -ENOMEM;
++	INIT_WORK(&table->work, &mlx5_sf_dev_add_active_work);
++	queue_work(table->active_wq, &table->work);
++	return 0;
++}
++
++static void mlx5_sf_dev_destroy_active_work(struct mlx5_sf_dev_table *table)
++{
++	if (table->active_wq) {
++		table->stop_active_wq = true;
++		destroy_workqueue(table->active_wq);
++	}
++}
++
+ void mlx5_sf_dev_table_create(struct mlx5_core_dev *dev)
  {
--	u_char *pn = (u_char *)name;
-+	unsigned char *pn = (unsigned char *)name;
- 	int hash = 0;
+ 	struct mlx5_sf_dev_table *table;
+@@ -240,11 +318,17 @@ void mlx5_sf_dev_table_create(struct mlx5_core_dev *dev)
+ 	table->base_address = pci_resource_start(dev->pdev, 2);
+ 	table->max_sfs = max_sfs;
+ 	xa_init(&table->devices);
++	mutex_init(&table->table_lock);
+ 	dev->priv.sf_dev_table = table;
  
- 	while (*pn) {
+ 	err = mlx5_vhca_event_notifier_register(dev, &table->nb);
+ 	if (err)
+ 		goto vhca_err;
++
++	err = mlx5_sf_dev_queue_active_work(table);
++	if (err)
++		goto add_active_err;
++
+ 	err = mlx5_sf_dev_vhca_arm_all(table);
+ 	if (err)
+ 		goto arm_err;
+@@ -252,6 +336,8 @@ void mlx5_sf_dev_table_create(struct mlx5_core_dev *dev)
+ 	return;
+ 
+ arm_err:
++	mlx5_sf_dev_destroy_active_work(table);
++add_active_err:
+ 	mlx5_vhca_event_notifier_unregister(dev, &table->nb);
+ vhca_err:
+ 	table->max_sfs = 0;
+@@ -279,7 +365,9 @@ void mlx5_sf_dev_table_destroy(struct mlx5_core_dev *dev)
+ 	if (!table)
+ 		return;
+ 
++	mlx5_sf_dev_destroy_active_work(table);
+ 	mlx5_vhca_event_notifier_unregister(dev, &table->nb);
++	mutex_destroy(&table->table_lock);
+ 
+ 	/* Now that event handler is not running, it is safe to destroy
+ 	 * the sf device without race.
 -- 
 2.35.1
 
