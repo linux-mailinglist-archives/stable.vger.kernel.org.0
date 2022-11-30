@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90AE263DE66
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:36:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E15E63DD73
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:27:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230364AbiK3Sgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:36:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45782 "EHLO
+        id S229658AbiK3S1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:27:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230465AbiK3Sg2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:36:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 854159208A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:36:27 -0800 (PST)
+        with ESMTP id S230228AbiK3S1V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:27:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CC428B197
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:27:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37237B81B37
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:36:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AE0AC433D6;
-        Wed, 30 Nov 2022 18:36:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD30061D61
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:27:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFA7BC433D6;
+        Wed, 30 Nov 2022 18:27:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833384;
-        bh=igflZgYMzKeilMrkzZu32VaQSFE3nYNVYzSKS3WcPG4=;
+        s=korg; t=1669832839;
+        bh=WW48Xsib3YIMnNeVmR9bDtsdTUT9I/sJTO3iES/GE3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZtibVVbdVExT2zelRvYPWLjj/u0W35J2PbHR4lsgiBS3gqQ+yS/JmPQYhVaBl+ki
-         HDmVpt7ZhMD8YUqpEZz4lHek8hQ7CxDR/y5H5rzPO98Yld7oUBSFQtvMCvhQGW1LLc
-         K33km7tEWTz7G23660SnRrc35T6bBYTxfbwsNWBA=
+        b=eO7g39eMhFOzLztRM1HDfyuTHl3+3TdL3kruR/fFw5rDhKqUedz44epEVPfzqsY9D
+         116iTuF3gocqt/a6OGf+XXseiVYLeptPnPrfcIR3cH4QVyjxbUIrdMB6mrvQtGp3hw
+         7inSLbT6dpZTkMbYVOVR1Y8t8pyqfkr14WWu4/80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 087/206] ARM: mxs: fix memory leak in mxs_machine_init()
-Date:   Wed, 30 Nov 2022 19:22:19 +0100
-Message-Id: <20221130180535.221437228@linuxfoundation.org>
+Subject: [PATCH 5.10 059/162] net: pch_gbe: fix pci device refcount leak while module exiting
+Date:   Wed, 30 Nov 2022 19:22:20 +0100
+Message-Id: <20221130180530.109182109@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f31e3c204d1844b8680a442a48868af5ac3d5481 ]
+[ Upstream commit 5619537284f1017e9f6c7500b02b859b3830a06d ]
 
-If of_property_read_string() failed, 'soc_dev_attr' should be
-freed before return. Otherwise there is a memory leak.
+As comment of pci_get_domain_bus_and_slot() says, it returns
+a pci device with refcount increment, when finish using it,
+the caller must decrement the reference count by calling
+pci_dev_put().
 
-Fixes: 2046338dcbc6 ("ARM: mxs: Use soc bus infrastructure")
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+In pch_gbe_probe(), pci_get_domain_bus_and_slot() is called,
+so in error path in probe() and remove() function, pci_dev_put()
+should be called to avoid refcount leak. Compile tested only.
+
+Fixes: 1a0bdadb4e36 ("net/pch_gbe: supports eg20t ptp clock")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221117135148.301014-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-mxs/mach-mxs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-mxs/mach-mxs.c b/arch/arm/mach-mxs/mach-mxs.c
-index 25c9d184fa4c..1c57ac401649 100644
---- a/arch/arm/mach-mxs/mach-mxs.c
-+++ b/arch/arm/mach-mxs/mach-mxs.c
-@@ -393,8 +393,10 @@ static void __init mxs_machine_init(void)
+diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+index 3361166e56de..bde32f0845ca 100644
+--- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
++++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+@@ -2482,6 +2482,7 @@ static void pch_gbe_remove(struct pci_dev *pdev)
+ 	unregister_netdev(netdev);
  
- 	root = of_find_node_by_path("/");
- 	ret = of_property_read_string(root, "model", &soc_dev_attr->machine);
--	if (ret)
-+	if (ret) {
-+		kfree(soc_dev_attr);
- 		return;
-+	}
+ 	pch_gbe_phy_hw_reset(&adapter->hw);
++	pci_dev_put(adapter->ptp_pdev);
  
- 	soc_dev_attr->family = "Freescale MXS Family";
- 	soc_dev_attr->soc_id = mxs_get_soc_id();
+ 	free_netdev(netdev);
+ }
+@@ -2563,7 +2564,7 @@ static int pch_gbe_probe(struct pci_dev *pdev,
+ 	/* setup the private structure */
+ 	ret = pch_gbe_sw_init(adapter);
+ 	if (ret)
+-		goto err_free_netdev;
++		goto err_put_dev;
+ 
+ 	/* Initialize PHY */
+ 	ret = pch_gbe_init_phy(adapter);
+@@ -2621,6 +2622,8 @@ static int pch_gbe_probe(struct pci_dev *pdev,
+ 
+ err_free_adapter:
+ 	pch_gbe_phy_hw_reset(&adapter->hw);
++err_put_dev:
++	pci_dev_put(adapter->ptp_pdev);
+ err_free_netdev:
+ 	free_netdev(netdev);
+ 	return ret;
 -- 
 2.35.1
 
