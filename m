@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1347F63DF5D
+	by mail.lfdr.de (Postfix) with ESMTP id CCE3E63DF5E
 	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:46:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231372AbiK3Sqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:46:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56766 "EHLO
+        id S231384AbiK3Sqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:46:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231386AbiK3SqO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:46:14 -0500
+        with ESMTP id S231273AbiK3SqR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:46:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 152F099F10
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:46:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A83AF93A52
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:46:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCDFBB81C9A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:46:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 164A1C433C1;
-        Wed, 30 Nov 2022 18:46:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E8F6B81C9F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:46:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C28A7C433C1;
+        Wed, 30 Nov 2022 18:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833971;
-        bh=2z3bj6nM9WFam+l0h/dCY2Z+Vtd75k0vrtm2KbQOGfU=;
+        s=korg; t=1669833974;
+        bh=7g38hSjFP5RlxXsVtB2ZzBkjVaOgNGJkWzLe/QAQTh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gyt+TYsYglsBo3plPMigALO0myrjOP3Dihg2u9vjel4qp1lfbnZUOKXU+WSZY50Lp
-         uTaVNB9zuP6DdiWZGIQvul/+2/AOGxh7thcfBWG50inJ7m0gtlA001JyL+StU787Z9
-         IGXbmv185lskZEqYRvR8awDrE99fDyl+Yx7gIhzs=
+        b=0j9MQX2t8hHmfg2n9jFz3+dkwPsh8Mvvn+A+Uto5ADZRFfDFRVwFp2x7zL12tglpY
+         JgmCI/QFRlPAPYEPKScnaRHhwesSrrPexN5fEfHmV62LyB8fFpzqDGQkr5PPRfDD7O
+         RGxRwFuqZ85fjJ+JSErqtlgr7wdWQYNoG47UngrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Junxiao Chang <junxiao.chang@intel.com>,
-        Furong Zhou <furong.zhou@intel.com>,
+        Detlev Casanova <detlev.casanova@collabora.com>,
+        Fabio Estevam <festevam@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 054/289] ASoC: hdac_hda: fix hda pcm buffer overflow issue
-Date:   Wed, 30 Nov 2022 19:20:39 +0100
-Message-Id: <20221130180545.355668082@linuxfoundation.org>
+Subject: [PATCH 6.0 055/289] ASoC: sgtl5000: Reset the CHIP_CLK_CTRL reg on remove
+Date:   Wed, 30 Nov 2022 19:20:40 +0100
+Message-Id: <20221130180545.378288779@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -57,63 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Chang <junxiao.chang@intel.com>
+From: Detlev Casanova <detlev.casanova@collabora.com>
 
-[ Upstream commit 37882100cd0629d830db430a8cee0b724fe1fea3 ]
+[ Upstream commit 0bb8e9b36b5b7f2e77892981ff6c27ee831d8026 ]
 
-When KASAN is enabled, below log might be dumped with Intel EHL hardware:
-[   48.583597] ==================================================================
-[   48.585921] BUG: KASAN: slab-out-of-bounds in hdac_hda_dai_hw_params+0x20a/0x22b [snd_soc_hdac_hda]
-[   48.587995] Write of size 4 at addr ffff888103489708 by task pulseaudio/759
+Since commit bf2aebccddef ("ASoC: sgtl5000: Fix noise on shutdown/remove"),
+the device power control registers are reset when the driver is
+removed/shutdown.
 
-[   48.589237] CPU: 2 PID: 759 Comm: pulseaudio Tainted: G     U      E     5.15.71-intel-ese-standard-lts #9
-[   48.591272] Hardware name: Intel Corporation Elkhart Lake Embedded Platform/ElkhartLake LPDDR4x T3 CRB, BIOS EHLSFWI1.R00.4251.A01.2206130432 06/13/2022
-[   48.593010] Call Trace:
-[   48.593648]  <TASK>
-[   48.593852]  dump_stack_lvl+0x34/0x48
-[   48.594404]  print_address_description.constprop.0+0x1f/0x140
-[   48.595174]  ? hdac_hda_dai_hw_params+0x20a/0x22b [snd_soc_hdac_hda]
-[   48.595868]  ? hdac_hda_dai_hw_params+0x20a/0x22b [snd_soc_hdac_hda]
-[   48.596519]  kasan_report.cold+0x7f/0x11b
-[   48.597003]  ? hdac_hda_dai_hw_params+0x20a/0x22b [snd_soc_hdac_hda]
-[   48.597885]  hdac_hda_dai_hw_params+0x20a/0x22b [snd_soc_hdac_hda]
+This is an issue when the device is configured to use the PLL clock. The
+device will stop responding if it is still configured to use the PLL
+clock but the PLL clock is powered down.
 
-HDAC_LAST_DAI_ID is last index id, pcm buffer array size should
-be +1 to avoid out of bound access.
+When rebooting linux, the probe function will show:
+sgtl5000 0-000a: Error reading chip id -11
 
-Fixes: 608b8c36c371 ("ASoC: hdac_hda: add support for HDMI/DP as a HDA codec")
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Junxiao Chang <junxiao.chang@intel.com>
-Signed-off-by: Furong Zhou <furong.zhou@intel.com>
-Link: https://lore.kernel.org/r/20221109234023.3111035-1-junxiao.chang@intel.com
+Make sure that the CHIP_CLK_CTRL is reset to its default value before
+powering down the device.
+
+Fixes: bf2aebccddef ("ASoC: sgtl5000: Fix noise on shutdown/remove")
+Signed-off-by: Detlev Casanova <detlev.casanova@collabora.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20221110190612.1341469-1-detlev.casanova@collabora.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdac_hda.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/sgtl5000.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/hdac_hda.h b/sound/soc/codecs/hdac_hda.h
-index fc19c34ca00e..b65560981abb 100644
---- a/sound/soc/codecs/hdac_hda.h
-+++ b/sound/soc/codecs/hdac_hda.h
-@@ -14,7 +14,7 @@ enum {
- 	HDAC_HDMI_1_DAI_ID,
- 	HDAC_HDMI_2_DAI_ID,
- 	HDAC_HDMI_3_DAI_ID,
--	HDAC_LAST_DAI_ID = HDAC_HDMI_3_DAI_ID,
-+	HDAC_DAI_ID_NUM
- };
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index 3fafd9fc5cfd..75a45ad55aa8 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -1794,6 +1794,7 @@ static int sgtl5000_i2c_remove(struct i2c_client *client)
+ {
+ 	struct sgtl5000_priv *sgtl5000 = i2c_get_clientdata(client);
  
- struct hdac_hda_pcm {
-@@ -24,7 +24,7 @@ struct hdac_hda_pcm {
- 
- struct hdac_hda_priv {
- 	struct hda_codec *codec;
--	struct hdac_hda_pcm pcm[HDAC_LAST_DAI_ID];
-+	struct hdac_hda_pcm pcm[HDAC_DAI_ID_NUM];
- 	bool need_display_power;
- };
++	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_CLK_CTRL, SGTL5000_CHIP_CLK_CTRL_DEFAULT);
+ 	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_DIG_POWER, SGTL5000_DIG_POWER_DEFAULT);
+ 	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, SGTL5000_ANA_POWER_DEFAULT);
  
 -- 
 2.35.1
