@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D08963DE2B
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:34:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1E5B63DD52
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230369AbiK3Sek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:34:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41928 "EHLO
+        id S229717AbiK3S01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:26:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230311AbiK3SeO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:34:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1283A9209B
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:34:13 -0800 (PST)
+        with ESMTP id S229720AbiK3S00 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94FFEA45D
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A37A861D51
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:34:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4552C433D6;
-        Wed, 30 Nov 2022 18:34:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E977B81CA1
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94F00C433C1;
+        Wed, 30 Nov 2022 18:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833252;
-        bh=KL84In0degbvFKcazDHO6LiPWMuucBN9sek+Ljtq1vY=;
+        s=korg; t=1669832781;
+        bh=VT+ufyxzhoyzgS1pec8+6SCEwZPpcuChxGenKlO/9/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u4npkQOFx/wVu5TQjLJxCAY07xpCFCcFJ9iFXdlMy0BS9RiNKjlkeYm3Xn22AXLmc
-         8tjPs0kqh0wLeMXiCv/zNw+PI3l7h7VDJEsE/7Su5A6zs6tZSBSsTJryLwt5TF/pUN
-         i+ORrWeg5RPrNhw4mdJ4W+i4W5zntuWVhZQZJWQ4=
+        b=O7rwxxkBMbZrG0zlRJB+YUIZgAgo3cMNHwDnjh7mcG1gMMJBf707XNQ/OWhtswha6
+         YAvMiWVTwHtcNQgqX3DX5x9n3mejDRNm1aBj5egLFkzBt/K1SZnQt0ldgKvJmyu4cK
+         T85sMh5dVjKrTAAxG/0FOn0rhJ6FtksEn+Wa5VuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sabrina Dubroca <sd@queasysnail.net>,
-        Antoine Tenart <atenart@kernel.org>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 040/206] Revert "net: macsec: report real_dev features when HW offloading is enabled"
+Subject: [PATCH 5.10 011/162] iio: ms5611: Simplify IO callback parameters
 Date:   Wed, 30 Nov 2022 19:21:32 +0100
-Message-Id: <20221130180534.015296108@linuxfoundation.org>
+Message-Id: <20221130180528.802270950@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,111 +53,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit 8bcd560ae8784da57c610d857118c5d6576b1a8f ]
+[ Upstream commit dc19fa63ad80a636fdbc1a02153d1ab140cb901f ]
 
-This reverts commit c850240b6c4132574a00f2da439277ab94265b66.
+The ms5611 passes &indio_dev->dev as a parameter to all its IO callbacks
+only to directly cast the struct device back to struct iio_dev. And the
+struct iio_dev is then only used to get the drivers state struct.
 
-That commit tried to improve the performance of macsec offload by
-taking advantage of some of the NIC's features, but in doing so, broke
-macsec offload when the lower device supports both macsec and ipsec
-offload, as the ipsec offload feature flags (mainly NETIF_F_HW_ESP)
-were copied from the real device. Since the macsec device doesn't
-provide xdo_* ops, the XFRM core rejects the registration of the new
-macsec device in xfrm_api_check.
+Simplify this a bit by passing the state struct directly. This makes it a
+bit easier to follow what the code is doing.
 
-Example perf trace when running
-  ip link add link eni1np1 type macsec port 4 offload mac
-
-    ip   737 [003]   795.477676: probe:xfrm_dev_event__REGISTER      name="macsec0" features=0x1c000080014869
-              xfrm_dev_event+0x3a
-              notifier_call_chain+0x47
-              register_netdevice+0x846
-              macsec_newlink+0x25a
-
-    ip   737 [003]   795.477687:   probe:xfrm_dev_event__return      ret=0x8002 (NOTIFY_BAD)
-             notifier_call_chain+0x47
-             register_netdevice+0x846
-             macsec_newlink+0x25a
-
-dev->features includes NETIF_F_HW_ESP (0x04000000000000), so
-xfrm_api_check returns NOTIFY_BAD because we don't have
-dev->xfrmdev_ops on the macsec device.
-
-We could probably propagate GSO and a few other features from the
-lower device, similar to macvlan. This will be done in a future patch.
-
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Reviewed-by: Antoine Tenart <atenart@kernel.org>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20211020142110.7060-1-lars@metafoo.de
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Stable-dep-of: 17f442e7e475 ("iio: pressure: ms5611: fixed value compensation bug")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 27 ++++-----------------------
- 1 file changed, 4 insertions(+), 23 deletions(-)
+ drivers/iio/pressure/ms5611.h      |  6 +++---
+ drivers/iio/pressure/ms5611_core.c |  7 +++----
+ drivers/iio/pressure/ms5611_i2c.c  | 11 ++++-------
+ drivers/iio/pressure/ms5611_spi.c  | 17 +++++++----------
+ 4 files changed, 17 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 4811bd1f3d74..f1961d7f9db2 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -2644,11 +2644,6 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
- 	if (ret)
- 		goto rollback;
+diff --git a/drivers/iio/pressure/ms5611.h b/drivers/iio/pressure/ms5611.h
+index bc06271fa38b..345f3902e3e3 100644
+--- a/drivers/iio/pressure/ms5611.h
++++ b/drivers/iio/pressure/ms5611.h
+@@ -50,9 +50,9 @@ struct ms5611_state {
+ 	const struct ms5611_osr *pressure_osr;
+ 	const struct ms5611_osr *temp_osr;
  
--	/* Force features update, since they are different for SW MACSec and
--	 * HW offloading cases.
--	 */
--	netdev_update_features(dev);
+-	int (*reset)(struct device *dev);
+-	int (*read_prom_word)(struct device *dev, int index, u16 *word);
+-	int (*read_adc_temp_and_pressure)(struct device *dev,
++	int (*reset)(struct ms5611_state *st);
++	int (*read_prom_word)(struct ms5611_state *st, int index, u16 *word);
++	int (*read_adc_temp_and_pressure)(struct ms5611_state *st,
+ 					  s32 *temp, s32 *pressure);
+ 
+ 	struct ms5611_chip_info *chip_info;
+diff --git a/drivers/iio/pressure/ms5611_core.c b/drivers/iio/pressure/ms5611_core.c
+index 214b0d25f598..885ccb7914dc 100644
+--- a/drivers/iio/pressure/ms5611_core.c
++++ b/drivers/iio/pressure/ms5611_core.c
+@@ -85,8 +85,7 @@ static int ms5611_read_prom(struct iio_dev *indio_dev)
+ 	struct ms5611_state *st = iio_priv(indio_dev);
+ 
+ 	for (i = 0; i < MS5611_PROM_WORDS_NB; i++) {
+-		ret = st->read_prom_word(&indio_dev->dev,
+-					 i, &st->chip_info->prom[i]);
++		ret = st->read_prom_word(st, i, &st->chip_info->prom[i]);
+ 		if (ret < 0) {
+ 			dev_err(&indio_dev->dev,
+ 				"failed to read prom at %d\n", i);
+@@ -108,7 +107,7 @@ static int ms5611_read_temp_and_pressure(struct iio_dev *indio_dev,
+ 	int ret;
+ 	struct ms5611_state *st = iio_priv(indio_dev);
+ 
+-	ret = st->read_adc_temp_and_pressure(&indio_dev->dev, temp, pressure);
++	ret = st->read_adc_temp_and_pressure(st, temp, pressure);
+ 	if (ret < 0) {
+ 		dev_err(&indio_dev->dev,
+ 			"failed to read temperature and pressure\n");
+@@ -196,7 +195,7 @@ static int ms5611_reset(struct iio_dev *indio_dev)
+ 	int ret;
+ 	struct ms5611_state *st = iio_priv(indio_dev);
+ 
+-	ret = st->reset(&indio_dev->dev);
++	ret = st->reset(st);
+ 	if (ret < 0) {
+ 		dev_err(&indio_dev->dev, "failed to reset device\n");
+ 		return ret;
+diff --git a/drivers/iio/pressure/ms5611_i2c.c b/drivers/iio/pressure/ms5611_i2c.c
+index 7c04f730430c..cccc40f7df0b 100644
+--- a/drivers/iio/pressure/ms5611_i2c.c
++++ b/drivers/iio/pressure/ms5611_i2c.c
+@@ -20,17 +20,15 @@
+ 
+ #include "ms5611.h"
+ 
+-static int ms5611_i2c_reset(struct device *dev)
++static int ms5611_i2c_reset(struct ms5611_state *st)
+ {
+-	struct ms5611_state *st = iio_priv(dev_to_iio_dev(dev));
 -
- 	rtnl_unlock();
- 	return 0;
- 
-@@ -3416,16 +3411,9 @@ static netdev_tx_t macsec_start_xmit(struct sk_buff *skb,
- 	return ret;
+ 	return i2c_smbus_write_byte(st->client, MS5611_RESET);
  }
  
--#define SW_MACSEC_FEATURES \
-+#define MACSEC_FEATURES \
- 	(NETIF_F_SG | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST)
- 
--/* If h/w offloading is enabled, use real device features save for
-- *   VLAN_FEATURES - they require additional ops
-- *   HW_MACSEC - no reason to report it
-- */
--#define REAL_DEV_FEATURES(dev) \
--	((dev)->features & ~(NETIF_F_VLAN_FEATURES | NETIF_F_HW_MACSEC))
--
- static int macsec_dev_init(struct net_device *dev)
+-static int ms5611_i2c_read_prom_word(struct device *dev, int index, u16 *word)
++static int ms5611_i2c_read_prom_word(struct ms5611_state *st, int index,
++				     u16 *word)
  {
- 	struct macsec_dev *macsec = macsec_priv(dev);
-@@ -3442,12 +3430,8 @@ static int macsec_dev_init(struct net_device *dev)
- 		return err;
- 	}
+ 	int ret;
+-	struct ms5611_state *st = iio_priv(dev_to_iio_dev(dev));
  
--	if (macsec_is_offloaded(macsec)) {
--		dev->features = REAL_DEV_FEATURES(real_dev);
--	} else {
--		dev->features = real_dev->features & SW_MACSEC_FEATURES;
--		dev->features |= NETIF_F_LLTX | NETIF_F_GSO_SOFTWARE;
--	}
-+	dev->features = real_dev->features & MACSEC_FEATURES;
-+	dev->features |= NETIF_F_LLTX | NETIF_F_GSO_SOFTWARE;
+ 	ret = i2c_smbus_read_word_swapped(st->client,
+ 			MS5611_READ_PROM_WORD + (index << 1));
+@@ -57,11 +55,10 @@ static int ms5611_i2c_read_adc(struct ms5611_state *st, s32 *val)
+ 	return 0;
+ }
  
- 	dev->needed_headroom = real_dev->needed_headroom +
- 			       MACSEC_NEEDED_HEADROOM;
-@@ -3476,10 +3460,7 @@ static netdev_features_t macsec_fix_features(struct net_device *dev,
- 	struct macsec_dev *macsec = macsec_priv(dev);
- 	struct net_device *real_dev = macsec->real_dev;
+-static int ms5611_i2c_read_adc_temp_and_pressure(struct device *dev,
++static int ms5611_i2c_read_adc_temp_and_pressure(struct ms5611_state *st,
+ 						 s32 *temp, s32 *pressure)
+ {
+ 	int ret;
+-	struct ms5611_state *st = iio_priv(dev_to_iio_dev(dev));
+ 	const struct ms5611_osr *osr = st->temp_osr;
  
--	if (macsec_is_offloaded(macsec))
--		return REAL_DEV_FEATURES(real_dev);
--
--	features &= (real_dev->features & SW_MACSEC_FEATURES) |
-+	features &= (real_dev->features & MACSEC_FEATURES) |
- 		    NETIF_F_GSO_SOFTWARE | NETIF_F_SOFT_FEATURES;
- 	features |= NETIF_F_LLTX;
+ 	ret = i2c_smbus_write_byte(st->client, osr->cmd);
+diff --git a/drivers/iio/pressure/ms5611_spi.c b/drivers/iio/pressure/ms5611_spi.c
+index f7743ee3318f..3039fe8aa2a2 100644
+--- a/drivers/iio/pressure/ms5611_spi.c
++++ b/drivers/iio/pressure/ms5611_spi.c
+@@ -15,18 +15,17 @@
  
+ #include "ms5611.h"
+ 
+-static int ms5611_spi_reset(struct device *dev)
++static int ms5611_spi_reset(struct ms5611_state *st)
+ {
+ 	u8 cmd = MS5611_RESET;
+-	struct ms5611_state *st = iio_priv(dev_to_iio_dev(dev));
+ 
+ 	return spi_write_then_read(st->client, &cmd, 1, NULL, 0);
+ }
+ 
+-static int ms5611_spi_read_prom_word(struct device *dev, int index, u16 *word)
++static int ms5611_spi_read_prom_word(struct ms5611_state *st, int index,
++				     u16 *word)
+ {
+ 	int ret;
+-	struct ms5611_state *st = iio_priv(dev_to_iio_dev(dev));
+ 
+ 	ret = spi_w8r16be(st->client, MS5611_READ_PROM_WORD + (index << 1));
+ 	if (ret < 0)
+@@ -37,11 +36,10 @@ static int ms5611_spi_read_prom_word(struct device *dev, int index, u16 *word)
+ 	return 0;
+ }
+ 
+-static int ms5611_spi_read_adc(struct device *dev, s32 *val)
++static int ms5611_spi_read_adc(struct ms5611_state *st, s32 *val)
+ {
+ 	int ret;
+ 	u8 buf[3] = { MS5611_READ_ADC };
+-	struct ms5611_state *st = iio_priv(dev_to_iio_dev(dev));
+ 
+ 	ret = spi_write_then_read(st->client, buf, 1, buf, 3);
+ 	if (ret < 0)
+@@ -52,11 +50,10 @@ static int ms5611_spi_read_adc(struct device *dev, s32 *val)
+ 	return 0;
+ }
+ 
+-static int ms5611_spi_read_adc_temp_and_pressure(struct device *dev,
++static int ms5611_spi_read_adc_temp_and_pressure(struct ms5611_state *st,
+ 						 s32 *temp, s32 *pressure)
+ {
+ 	int ret;
+-	struct ms5611_state *st = iio_priv(dev_to_iio_dev(dev));
+ 	const struct ms5611_osr *osr = st->temp_osr;
+ 
+ 	/*
+@@ -68,7 +65,7 @@ static int ms5611_spi_read_adc_temp_and_pressure(struct device *dev,
+ 		return ret;
+ 
+ 	usleep_range(osr->conv_usec, osr->conv_usec + (osr->conv_usec / 10UL));
+-	ret = ms5611_spi_read_adc(dev, temp);
++	ret = ms5611_spi_read_adc(st, temp);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -78,7 +75,7 @@ static int ms5611_spi_read_adc_temp_and_pressure(struct device *dev,
+ 		return ret;
+ 
+ 	usleep_range(osr->conv_usec, osr->conv_usec + (osr->conv_usec / 10UL));
+-	return ms5611_spi_read_adc(dev, pressure);
++	return ms5611_spi_read_adc(st, pressure);
+ }
+ 
+ static int ms5611_spi_probe(struct spi_device *spi)
 -- 
 2.35.1
 
