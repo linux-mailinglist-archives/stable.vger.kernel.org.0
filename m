@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9502A63DFE5
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:51:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7158A63DE9C
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:38:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231487AbiK3Svl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:51:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38590 "EHLO
+        id S230242AbiK3Six (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:38:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231514AbiK3Sv1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:51:27 -0500
+        with ESMTP id S230479AbiK3Siv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:38:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19F07A322B
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:51:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8AD123175
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:38:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9110B81C9F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:51:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31DF3C433D6;
-        Wed, 30 Nov 2022 18:51:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F3C5B81CA6
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:38:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96321C433C1;
+        Wed, 30 Nov 2022 18:38:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834283;
-        bh=sF5DUyQuX3s7ZH9I+27R45aJbbL3a//E7JnNavXSbCg=;
+        s=korg; t=1669833528;
+        bh=n08oViknEQD3fwcUPZQqDWE0HI97CuExlf8sx/s+2RY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B+NDkRXjlIQBcOnPB/PWla7cHJXFirfT4NvMuKTpvHw9HV8iNUAN4Q+tC7/OhRRPb
-         7i6t3ijXQq86tF9Dh52+CVo3y9KRRjRTE2+hWvHVU598BXl7f4uzHFj6W0W3hjw8JL
-         Z2wWZuUE34et0xVRnxfNNXcB2rV+NVjRZujzTZE4=
+        b=0eg1OzV4lUEcJv2ZiwywqLiep+yfhxkTF1cPdUjv32d1MzzN1nR1hCE7TzCXG9484
+         Y8Pmf0zwD5NF4X+pg9HgZbz5LlTu362HTP67qbiJFe7oo1y0h5DZOkSiMR+fax3F4Y
+         BKmmjyN6nDGd2m2JsoCwzeQE9kueSSw7KvmsrmKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lin Ma <linma@zju.edu.cn>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.0 196/289] io_uring: make poll refs more robust
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 129/206] net: enetc: preserve TX ring priority across reconfiguration
 Date:   Wed, 30 Nov 2022 19:23:01 +0100
-Message-Id: <20221130180548.564361784@linuxfoundation.org>
+Message-Id: <20221130180536.327142270@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,101 +54,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit a26a35e9019fd70bf3cf647dcfdae87abc7bacea upstream.
+[ Upstream commit 290b5fe096e7dd0aad730d1af4f7f2d9fea43e11 ]
 
-poll_refs carry two functions, the first is ownership over the request.
-The second is notifying the io_poll_check_events() that there was an
-event but wake up couldn't grab the ownership, so io_poll_check_events()
-should retry.
+In the blamed commit, a rudimentary reallocation procedure for RX buffer
+descriptors was implemented, for the situation when their format changes
+between normal (no PTP) and extended (PTP).
 
-We want to make poll_refs more robust against overflows. Instead of
-always incrementing it, which covers two purposes with one atomic, check
-if poll_refs is elevated enough and if so set a retry flag without
-attempts to grab ownership. The gap between the bias check and following
-atomics may seem racy, but we don't need it to be strict. Moreover there
-might only be maximum 4 parallel updates: by the first and the second
-poll entries, __io_arm_poll_handler() and cancellation. From those four,
-only poll wake ups may be executed multiple times, but they're protected
-by a spin.
+enetc_hwtstamp_set() calls enetc_close() and enetc_open() in a sequence,
+and this sequence loses information which was previously configured in
+the TX BDR Mode Register, specifically via the enetc_set_bdr_prio() call.
+The TX ring priority is configured by tc-mqprio and tc-taprio, and
+affects important things for TSN such as the TX time of packets. The
+issue manifests itself most visibly by the fact that isochron --txtime
+reports premature packet transmissions when PTP is first enabled on an
+enetc interface.
 
-Cc: stable@vger.kernel.org
-Reported-by: Lin Ma <linma@zju.edu.cn>
-Fixes: aa43477b04025 ("io_uring: poll rework")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/c762bc31f8683b3270f3587691348a7119ef9c9d.1668963050.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Save the TX ring priority in a new field in struct enetc_bdr (occupies a
+2 byte hole on arm64) in order to make this survive a ring reconfiguration.
+
+Fixes: 434cebabd3a2 ("enetc: Add dynamic allocation of extended Rx BD rings")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Link: https://lore.kernel.org/r/20221122130936.1704151-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/poll.c |   36 +++++++++++++++++++++++++++++++++++-
- 1 file changed, 35 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/enetc/enetc.c  |  8 ++++---
+ drivers/net/ethernet/freescale/enetc/enetc.h  |  1 +
+ .../net/ethernet/freescale/enetc/enetc_qos.c  | 21 ++++++++++++-------
+ 3 files changed, 19 insertions(+), 11 deletions(-)
 
---- a/io_uring/poll.c
-+++ b/io_uring/poll.c
-@@ -40,7 +40,14 @@ struct io_poll_table {
- };
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
+index 0ced688bf9ba..222a250fba84 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -1768,7 +1768,7 @@ static void enetc_setup_txbdr(struct enetc_hw *hw, struct enetc_bdr *tx_ring)
+ 	/* enable Tx ints by setting pkt thr to 1 */
+ 	enetc_txbdr_wr(hw, idx, ENETC_TBICR0, ENETC_TBICR0_ICEN | 0x1);
  
- #define IO_POLL_CANCEL_FLAG	BIT(31)
--#define IO_POLL_REF_MASK	GENMASK(30, 0)
-+#define IO_POLL_RETRY_FLAG	BIT(30)
-+#define IO_POLL_REF_MASK	GENMASK(29, 0)
-+
-+/*
-+ * We usually have 1-2 refs taken, 128 is more than enough and we want to
-+ * maximise the margin between this amount and the moment when it overflows.
-+ */
-+#define IO_POLL_REF_BIAS	128
+-	tbmr = ENETC_TBMR_EN;
++	tbmr = ENETC_TBMR_EN | ENETC_TBMR_SET_PRIO(tx_ring->prio);
+ 	if (tx_ring->ndev->features & NETIF_F_HW_VLAN_CTAG_TX)
+ 		tbmr |= ENETC_TBMR_VIH;
  
- #define IO_WQE_F_DOUBLE		1
+@@ -2171,7 +2171,8 @@ int enetc_setup_tc_mqprio(struct net_device *ndev, void *type_data)
+ 		/* Reset all ring priorities to 0 */
+ 		for (i = 0; i < priv->num_tx_rings; i++) {
+ 			tx_ring = priv->tx_ring[i];
+-			enetc_set_bdr_prio(hw, tx_ring->index, 0);
++			tx_ring->prio = 0;
++			enetc_set_bdr_prio(hw, tx_ring->index, tx_ring->prio);
+ 		}
  
-@@ -58,6 +65,21 @@ static inline bool wqe_is_double(struct
- 	return priv & IO_WQE_F_DOUBLE;
- }
+ 		return 0;
+@@ -2190,7 +2191,8 @@ int enetc_setup_tc_mqprio(struct net_device *ndev, void *type_data)
+ 	 */
+ 	for (i = 0; i < num_tc; i++) {
+ 		tx_ring = priv->tx_ring[i];
+-		enetc_set_bdr_prio(hw, tx_ring->index, i);
++		tx_ring->prio = i;
++		enetc_set_bdr_prio(hw, tx_ring->index, tx_ring->prio);
+ 	}
  
-+static bool io_poll_get_ownership_slowpath(struct io_kiocb *req)
-+{
-+	int v;
-+
-+	/*
-+	 * poll_refs are already elevated and we don't have much hope for
-+	 * grabbing the ownership. Instead of incrementing set a retry flag
-+	 * to notify the loop that there might have been some change.
-+	 */
-+	v = atomic_fetch_or(IO_POLL_RETRY_FLAG, &req->poll_refs);
-+	if (v & IO_POLL_REF_MASK)
-+		return false;
-+	return !(atomic_fetch_inc(&req->poll_refs) & IO_POLL_REF_MASK);
-+}
-+
- /*
-  * If refs part of ->poll_refs (see IO_POLL_REF_MASK) is 0, it's free. We can
-  * bump it and acquire ownership. It's disallowed to modify requests while not
-@@ -66,6 +88,8 @@ static inline bool wqe_is_double(struct
-  */
- static inline bool io_poll_get_ownership(struct io_kiocb *req)
- {
-+	if (unlikely(atomic_read(&req->poll_refs) >= IO_POLL_REF_BIAS))
-+		return io_poll_get_ownership_slowpath(req);
- 	return !(atomic_fetch_inc(&req->poll_refs) & IO_POLL_REF_MASK);
- }
+ 	/* Reset the number of netdev queues based on the TC count */
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.h b/drivers/net/ethernet/freescale/enetc/enetc.h
+index 7ec807bd9828..a3b936375c56 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.h
++++ b/drivers/net/ethernet/freescale/enetc/enetc.h
+@@ -91,6 +91,7 @@ struct enetc_bdr {
+ 		void __iomem *rcir;
+ 	};
+ 	u16 index;
++	u16 prio;
+ 	int bd_count; /* # of BDs */
+ 	int next_to_use;
+ 	int next_to_clean;
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc_qos.c b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
+index 6baf2619a51e..ba51fb381f0c 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc_qos.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
+@@ -145,6 +145,7 @@ int enetc_setup_tc_taprio(struct net_device *ndev, void *type_data)
+ 	struct tc_taprio_qopt_offload *taprio = type_data;
+ 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
+ 	struct enetc_hw *hw = &priv->si->hw;
++	struct enetc_bdr *tx_ring;
+ 	int err;
+ 	int i;
  
-@@ -235,6 +259,16 @@ static int io_poll_check_events(struct i
- 		 */
- 		if ((v & IO_POLL_REF_MASK) != 1)
- 			req->cqe.res = 0;
-+		if (v & IO_POLL_RETRY_FLAG) {
-+			req->cqe.res = 0;
-+			/*
-+			 * We won't find new events that came in between
-+			 * vfs_poll and the ref put unless we clear the flag
-+			 * in advance.
-+			 */
-+			atomic_andnot(IO_POLL_RETRY_FLAG, &req->poll_refs);
-+			v &= ~IO_POLL_RETRY_FLAG;
+@@ -153,16 +154,20 @@ int enetc_setup_tc_taprio(struct net_device *ndev, void *type_data)
+ 		if (priv->tx_ring[i]->tsd_enable)
+ 			return -EBUSY;
+ 
+-	for (i = 0; i < priv->num_tx_rings; i++)
+-		enetc_set_bdr_prio(hw, priv->tx_ring[i]->index,
+-				   taprio->enable ? i : 0);
++	for (i = 0; i < priv->num_tx_rings; i++) {
++		tx_ring = priv->tx_ring[i];
++		tx_ring->prio = taprio->enable ? i : 0;
++		enetc_set_bdr_prio(hw, tx_ring->index, tx_ring->prio);
++	}
+ 
+ 	err = enetc_setup_taprio(ndev, taprio);
+-
+-	if (err)
+-		for (i = 0; i < priv->num_tx_rings; i++)
+-			enetc_set_bdr_prio(hw, priv->tx_ring[i]->index,
+-					   taprio->enable ? 0 : i);
++	if (err) {
++		for (i = 0; i < priv->num_tx_rings; i++) {
++			tx_ring = priv->tx_ring[i];
++			tx_ring->prio = taprio->enable ? 0 : i;
++			enetc_set_bdr_prio(hw, tx_ring->index, tx_ring->prio);
 +		}
++	}
  
- 		/* the mask was stashed in __io_poll_execute */
- 		if (!req->cqe.res) {
+ 	return err;
+ }
+-- 
+2.35.1
+
 
 
