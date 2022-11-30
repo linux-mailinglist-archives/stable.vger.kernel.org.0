@@ -2,125 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFCD063D44B
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 12:20:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E3C963D45B
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 12:22:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234552AbiK3LUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 06:20:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41550 "EHLO
+        id S234399AbiK3LW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 06:22:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234336AbiK3LTt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 06:19:49 -0500
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 360E87B4F3
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 03:19:13 -0800 (PST)
-Received: by mail-wr1-x429.google.com with SMTP id g12so26520395wrs.10
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 03:19:13 -0800 (PST)
+        with ESMTP id S234912AbiK3LVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 06:21:39 -0500
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67F177721E
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 03:21:23 -0800 (PST)
+Received: by mail-wm1-x333.google.com with SMTP id ja4-20020a05600c556400b003cf6e77f89cso1325475wmb.0
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 03:21:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=ffwll.ch; s=google;
         h=in-reply-to:content-disposition:mime-version:references
          :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=I3RzUia69JsX3Kd3MgvLd201iv7H9LUlNLNFTBAG1oE=;
-        b=XJZu8B6AZ1y/nps845IKPVxnobpz0UM/T0N4yqGpYy/4vgMkfsdVoCES1tjIPjUpzE
-         O6MXwZGObIqUaTG77wWEK44TfgoE/XQWuBy0SIj2Pa7tShPt12REbD4PsqZEMlaWzUJN
-         0yTvZ1l8SN1B9qSc0npZ3FMGslDYTp42W8ry4=
+        bh=RuSCu6Sc5O77Oj3wELaaUy6VtrciSxnoo8y2CPFyY+U=;
+        b=M5OU+UwmCE1dEQUm9MGdXnRpdzmbCWLfqjalSYP23MuqwTZ9RwFy/pfMOsPhuvK6s3
+         RiK7JxFxDC/TRdJDjog5UlAx3+QHvvk+4eHlFtUCvbrEYR1WO7WCBR59V08EJk4u9QnO
+         N8B08dkiBlp3ZJc8e7cHv8OxsGRBeXy47Ce3k=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references
          :mail-followup-to:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=I3RzUia69JsX3Kd3MgvLd201iv7H9LUlNLNFTBAG1oE=;
-        b=ALNy2RvPTZvX1k9XAik+B94N9Z3GDPLze1gBm5NOJXHkRRaOM58Pa5305NqwtaUKFi
-         qcfCbwy+/sNI2bKPAEDCE2egnoBL+sVQ7pldfRR8xR16J5F6+uUSH0VHnJaEu/pmiaAU
-         FUlPGQ4IisSDodTAUUiR6MlOvVjXxoJx/zPvIFB6Dt5iCLsJs/+aanxv9MlrPckmfDnp
-         dZAcbBWczxgTvGSYTRy4slnDlPUPau+xm2mkrsK03tBi0UFIj6VmOeiRJuUicpaJJ8QM
-         BZLqg8CuGxWEn2N/93jG9qT4g5UsxBGlQXW7VZ4Je1aZ2Ah35xpnGsiB2Vnd8mLaHPmA
-         cz4g==
-X-Gm-Message-State: ANoB5pkmBVi6j9b688dTxEAw74Qse2hyj6exRGTQRB2oDFH+wK0ZkLkA
-        0nhxcmdgnB0Opbn+GuO0/qRzlw==
-X-Google-Smtp-Source: AA0mqf48e1fWgDwzk3rs0tRqwfO8D57O3sN1m1tha8i3SLpnlU69XIlzUcMxeWApDhPF71SViK70Hw==
-X-Received: by 2002:a5d:4dc5:0:b0:242:1d11:f990 with SMTP id f5-20020a5d4dc5000000b002421d11f990mr7107346wru.686.1669807151744;
-        Wed, 30 Nov 2022 03:19:11 -0800 (PST)
+        bh=RuSCu6Sc5O77Oj3wELaaUy6VtrciSxnoo8y2CPFyY+U=;
+        b=U1YhQxYOexpQfqrB2c0ZyHFUor/Z9e+nON5vcrnv+ofFiFlUBm0iixFSpFMFdIZrOI
+         mxwAmGDNZ3ryYbycDesL0fEdX0zqv/Cn5TTniDZARkbnBi2ZUkJVHq4qMwU1RjcOGbWR
+         DBWG4MdO4chK+S/kf0dxe8Jzrg6U2U6DwTILEoTULeAnRl/e5ywBFDVdXfe2OPS2rQoF
+         3SdaBgFJyB2KUMphN7dVIw/4Bp/+34RpTZW8TvAjzhNtnXFOLd0PTjD9Hss0Z7vk1e/C
+         GGLjHi/9bI/m+zMMi3ZUHEwx2K/nqeHxmpvwtNHcXxjXCji5KZcAd/L4B+J2bhk6T/kK
+         Grdg==
+X-Gm-Message-State: ANoB5pmkJrGj7C7UiCjKGbMMxidjZhLMREY5IwoUj5YvgKq0qMa+bV2t
+        EgWTJbNZlVeKPTGrXkuVq4BgXg==
+X-Google-Smtp-Source: AA0mqf7Y6ivv5bQ1OH3MnYDxUtlCUbzKEC1tIMe0iHw9hdRx5C5HeGZP24b3Lywyd5EKm1ITulLBpg==
+X-Received: by 2002:a05:600c:2241:b0:3cf:9ced:dce4 with SMTP id a1-20020a05600c224100b003cf9ceddce4mr43768262wmm.120.1669807281946;
+        Wed, 30 Nov 2022 03:21:21 -0800 (PST)
 Received: from phenom.ffwll.local (212-51-149-33.fiber7.init7.net. [212.51.149.33])
-        by smtp.gmail.com with ESMTPSA id y2-20020adfdf02000000b0023657e1b980sm1235585wrl.53.2022.11.30.03.19.10
+        by smtp.gmail.com with ESMTPSA id f11-20020a05600c154b00b003c6f3e5ba42sm5960234wmg.46.2022.11.30.03.21.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Nov 2022 03:19:10 -0800 (PST)
-Date:   Wed, 30 Nov 2022 12:19:08 +0100
+        Wed, 30 Nov 2022 03:21:21 -0800 (PST)
+Date:   Wed, 30 Nov 2022 12:21:19 +0100
 From:   Daniel Vetter <daniel@ffwll.ch>
 To:     Rob Clark <robdclark@gmail.com>
-Cc:     dri-devel@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>,
-        Rob Clark <robdclark@chromium.org>, stable@vger.kernel.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@gmail.com>,
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Rob Clark <robdclark@chromium.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Eric Anholt <eric@anholt.net>,
+        Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>,
+        dri-devel@lists.freedesktop.org,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [2/2] drm/shmem-helper: Avoid vm_open error paths
+Message-ID: <Y4c8r0fxjI+WsvhM@phenom.ffwll.local>
+Mail-Followup-To: Rob Clark <robdclark@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Clark <robdclark@chromium.org>,
+        open list <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
         Eric Anholt <eric@anholt.net>,
         Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>,
-        Rob Herring <robh@kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] drm/shmem-helper: Remove errant put in error path
-Message-ID: <Y4c8LMIkGPoPGy+4@phenom.ffwll.local>
-Mail-Followup-To: Rob Clark <robdclark@gmail.com>,
-        dri-devel@lists.freedesktop.org, Rob Clark <robdclark@chromium.org>,
-        stable@vger.kernel.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@gmail.com>, Eric Anholt <eric@anholt.net>,
-        Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>,
-        Rob Herring <robh@kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-References: <20221129200242.298120-1-robdclark@gmail.com>
- <20221129200242.298120-2-robdclark@gmail.com>
+        dri-devel@lists.freedesktop.org,
+        Thomas Zimmermann <tzimmermann@suse.de>
+References: <20221129200242.298120-3-robdclark@gmail.com>
+ <20221129203205.GA2132357@roeck-us.net>
+ <CAF6AEGuK4jv25cQ4p-rrytx9Qn4JZdRRfkVJn9T3nf7vJmG5VQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221129200242.298120-2-robdclark@gmail.com>
-X-Operating-System: Linux phenom 5.19.0-2-amd64
+In-Reply-To: <CAF6AEGuK4jv25cQ4p-rrytx9Qn4JZdRRfkVJn9T3nf7vJmG5VQ@mail.gmail.com>
+X-Operating-System: Linux phenom 5.19.0-2-amd64 
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 29, 2022 at 12:02:41PM -0800, Rob Clark wrote:
-> From: Rob Clark <robdclark@chromium.org>
+On Tue, Nov 29, 2022 at 12:47:42PM -0800, Rob Clark wrote:
+> On Tue, Nov 29, 2022 at 12:32 PM Guenter Roeck <linux@roeck-us.net> wrote:
+> >
+> > On Tue, Nov 29, 2022 at 12:02:42PM -0800, Rob Clark wrote:
+> > > From: Rob Clark <robdclark@chromium.org>
+> > >
+> > > vm_open() is not allowed to fail.  Fortunately we are guaranteed that
+> > > the pages are already pinned, and only need to increment the refcnt.  So
+> > > just increment it directly.
+> >
+> > I don't know anything about drm or gem, but I am wondering _how_
+> > this would be guaranteed. Would it be through the pin function ?
+> > Just wondering, because that function does not seem to be mandatory.
 > 
-> drm_gem_shmem_mmap() doesn't own this reference!
+> We've pinned the pages already in mmap.. vm->open() is perhaps not the
+> best name for the callback function, but it is called for copying an
+> existing vma into a new process (and for some other cases which do not
+> apply here because VM_DONTEXPAND).
 > 
-> Fixes: 2194a63a818d ("drm: Add library for shmem backed GEM objects")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Rob Clark <robdclark@chromium.org>
+> (Other drivers pin pages in the fault handler, where there is actually
+> potential to return an error, but that change was a bit more like
+> re-writing shmem helper ;-))
 
-With Guenter's nits addressed:
+Yhea vm_ops->open should really be called vm_ops->dupe or ->copy or
+something like that ...
+-Daniel
 
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-
-> ---
->  drivers/gpu/drm/drm_gem_shmem_helper.c | 1 -
->  1 file changed, 1 deletion(-)
 > 
-> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> index 35138f8a375c..110a9eac2af8 100644
-> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> @@ -623,7 +623,6 @@ int drm_gem_shmem_mmap(struct drm_gem_shmem_object *shmem, struct vm_area_struct
->  
->  	ret = drm_gem_shmem_get_pages(shmem);
->  	if (ret) {
-> -		drm_gem_vm_close(vma);
->  		return ret;
->  	}
->  
-> -- 
-> 2.38.1
+> BR,
+> -R
 > 
+> > >
+> > > Fixes: 2194a63a818d ("drm: Add library for shmem backed GEM objects")
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: Rob Clark <robdclark@chromium.org>
+> > > ---
+> > >  drivers/gpu/drm/drm_gem_shmem_helper.c | 14 +++++++++++---
+> > >  1 file changed, 11 insertions(+), 3 deletions(-)
+> > >
+> > > diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> > > index 110a9eac2af8..9885ba64127f 100644
+> > > --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> > > +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> > > @@ -571,12 +571,20 @@ static void drm_gem_shmem_vm_open(struct vm_area_struct *vma)
+> > >  {
+> > >       struct drm_gem_object *obj = vma->vm_private_data;
+> > >       struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
+> > > -     int ret;
+> > >
+> > >       WARN_ON(shmem->base.import_attach);
+> > >
+> > > -     ret = drm_gem_shmem_get_pages(shmem);
+> > > -     WARN_ON_ONCE(ret != 0);
+> > > +     mutex_lock(&shmem->pages_lock);
+> > > +
+> > > +     /*
+> > > +      * We should have already pinned the pages, vm_open() just grabs
+> >
+> > should or guaranteed ? This sounds a bit weaker than the commit
+> > description.
+> >
+> > > +      * an additional reference for the new mm the vma is getting
+> > > +      * copied into.
+> > > +      */
+> > > +     WARN_ON_ONCE(!shmem->pages_use_count);
+> > > +
+> > > +     shmem->pages_use_count++;
+> > > +     mutex_unlock(&shmem->pages_lock);
+> >
+> > The previous code, in that situation, would not increment pages_use_count,
+> > and it would not set not set shmem->pages. Hopefully, it would not try to
+> > do anything with the pages it was unable to get. The new code assumes that
+> > shmem->pages is valid even if pages_use_count is 0, while at the same time
+> > taking into account that this can possibly happen (or the WARN_ON_ONCE
+> > would not be needed).
+> >
+> > Again, I don't know anything about gem and drm, but it seems to me that
+> > there might now be a severe problem later on if the WARN_ON_ONCE()
+> > ever triggers.
+> >
+> > Thanks,
+> > Guenter
+> >
+> > >
+> > >       drm_gem_vm_open(vma);
+> > >  }
 
 -- 
 Daniel Vetter
