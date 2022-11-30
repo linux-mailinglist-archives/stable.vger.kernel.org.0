@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BF7C63E020
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:53:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE18663DDEA
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:31:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231528AbiK3Sxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:53:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40344 "EHLO
+        id S230121AbiK3Sb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:31:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231552AbiK3Sxt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:53:49 -0500
+        with ESMTP id S230138AbiK3Sbt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:31:49 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5936C20198
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:53:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D868D672
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:31:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C66AAB81CA9
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:53:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7AFDC433D6;
-        Wed, 30 Nov 2022 18:53:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8501BB81CA1
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:31:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E92F4C433D6;
+        Wed, 30 Nov 2022 18:31:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834424;
-        bh=1Rfb2oc7NrSB4db+j1UuO7mUlYzt+qjigoSBnL2+3Ng=;
+        s=korg; t=1669833106;
+        bh=7f6QaxeuafeUdEKArzcO1nFsB+hyUgHQRJV/v3MQNys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGL8q/9W7Km1gWngh+nTvBEwOuBqCyhT5EBvccM4nOOsotj8mc0IWsVnfBtz+wmNr
-         +B9MnRAwlUts70WvNC3XjybnXUauJIriObJ7V0Kmk75dapOGOq/qbJBTrmUpqC5JAk
-         lQeBT3usjl/xY71P/ioExnrMwoG6F9CR7IT6agUE=
+        b=s9KkiTCb7N3e/GM9tYdCUVExFqklLrmeiYMxvIVb0jNafl5ZykznvW3+mbbc9z8ci
+         eH2KDJbt7aAA77YnbjCl//AYH/iCzq0/pxwsIW3/U7rN3MyA2BW1DY2hvVonY5TJYN
+         fxINV09GUWPtL6lW4Behnoki65HkgGSU8CCfqBgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jun Lei <Jun.Lei@amd.com>,
-        Tom Chung <chiahsuan.chung@amd.com>,
-        Dillon Varone <Dillon.Varone@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 248/289] drm/amd/display: use uclk pstate latency for fw assisted mclk validation dcn32
+        patches@lists.linux.dev, John Garry <john.garry@huawei.com>,
+        David Decotigny <ddecotig@google.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Luiz Capitulino <luizcap@amazon.com>
+Subject: [PATCH 5.10 152/162] genirq/msi: Shutdown managed interrupts with unsatifiable affinities
 Date:   Wed, 30 Nov 2022 19:23:53 +0100
-Message-Id: <20221130180549.729501952@linuxfoundation.org>
+Message-Id: <20221130180532.598133513@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Varone <Dillon.Varone@amd.com>
+From: Luiz Capitulino <luizcap@amazon.com>
 
-[ Upstream commit c149947b188c651b943c1d8ca1494d1a98a3e27f ]
+From: Marc Zyngier <maz@kernel.org>
 
-[WHY?]
-DCN32 uses fclk pstate watermarks for dummy pstate, and must always be
-supported.
+commit d802057c7c553ad426520a053da9f9fe08e2c35a upstream.
 
-[HOW?]
-Validation needs to be run with fclk pstate latency set
-as the dummy pstate latency to get correct prefetch and bandwidth outputs.
+[ This commit is almost a rewrite because it conflicts with Thomas
+  Gleixner's refactoring of this code in v5.17-rc1. I wasn't sure if
+  I should drop all the s-o-bs (including Mark's), but decided
+  to keep as the original commit ]
 
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Tom Chung <chiahsuan.chung@amd.com>
-Signed-off-by: Dillon Varone <Dillon.Varone@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When booting with maxcpus=<small number>, interrupt controllers
+such as the GICv3 ITS may not be able to satisfy the affinity of
+some managed interrupts, as some of the HW resources are simply
+not available.
+
+The same thing happens when loading a driver using managed interrupts
+while CPUs are offline.
+
+In order to deal with this, do not try to activate such interrupt
+if there is no online CPU capable of handling it. Instead, place
+it in shutdown state. Once a capable CPU shows up, it will be
+activated.
+
+Reported-by: John Garry <john.garry@huawei.com>
+Reported-by: David Decotigny <ddecotig@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/20220405185040.206297-2-maz@kernel.org
+
+Signed-off-by: Luiz Capitulino <luizcap@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ kernel/irq/msi.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
-index b9d3a4000c3d..6ed76e194423 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
-@@ -1700,6 +1700,12 @@ void dcn32_calculate_wm_and_dlg_fpu(struct dc *dc, struct dc_state *context,
- 			 */
- 			context->bw_ctx.dml.soc.dram_clock_change_latency_us =
- 					dc->clk_mgr->bw_params->wm_table.nv_entries[WM_A].dml_input.pstate_latency_us;
-+			/* For DCN32/321 need to validate with fclk pstate change latency equal to dummy so
-+			 * prefetch is scheduled correctly to account for dummy pstate.
-+			 */
-+			if (dummy_latency_index == 0)
-+				context->bw_ctx.dml.soc.fclk_change_latency_us =
-+						dc->clk_mgr->bw_params->dummy_pstate_table[dummy_latency_index].dummy_pstate_latency_us;
- 			dcn32_internal_validate_bw(dc, context, pipes, &pipe_cnt, &vlevel, false);
- 			maxMpcComb = context->bw_ctx.dml.vba.maxMpcComb;
- 			dcfclk = context->bw_ctx.dml.vba.DCFCLKState[vlevel][context->bw_ctx.dml.vba.maxMpcComb];
-@@ -1879,6 +1885,10 @@ void dcn32_calculate_wm_and_dlg_fpu(struct dc *dc, struct dc_state *context,
- 
- 	context->perf_params.stutter_period_us = context->bw_ctx.dml.vba.StutterPeriod;
- 
-+	if (context->bw_ctx.bw.dcn.clk.fw_based_mclk_switching && dummy_latency_index == 0)
-+		context->bw_ctx.dml.soc.fclk_change_latency_us =
-+				dc->clk_mgr->bw_params->dummy_pstate_table[dummy_latency_index].dummy_pstate_latency_us;
-+
- 	dcn32_calculate_dlg_params(dc, context, pipes, pipe_cnt, vlevel);
- 
- 	if (!pstate_en)
-@@ -1886,8 +1896,12 @@ void dcn32_calculate_wm_and_dlg_fpu(struct dc *dc, struct dc_state *context,
- 		context->bw_ctx.dml.soc.dram_clock_change_latency_us =
- 				dc->clk_mgr->bw_params->wm_table.nv_entries[WM_A].dml_input.pstate_latency_us;
- 
--	if (context->bw_ctx.bw.dcn.clk.fw_based_mclk_switching)
-+	if (context->bw_ctx.bw.dcn.clk.fw_based_mclk_switching) {
- 		dcn30_setup_mclk_switch_using_fw_based_vblank_stretch(dc, context);
-+		if (dummy_latency_index == 0)
-+			context->bw_ctx.dml.soc.fclk_change_latency_us =
-+					dc->clk_mgr->bw_params->wm_table.nv_entries[WM_A].dml_input.fclk_change_latency_us;
-+	}
- }
- 
- static void dcn32_get_optimal_dcfclk_fclk_for_uclk(unsigned int uclk_mts,
--- 
-2.35.1
-
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -456,6 +456,13 @@ int __msi_domain_alloc_irqs(struct irq_d
+ 			irqd_clr_can_reserve(irq_data);
+ 			if (domain->flags & IRQ_DOMAIN_MSI_NOMASK_QUIRK)
+ 				irqd_set_msi_nomask_quirk(irq_data);
++			if ((info->flags & MSI_FLAG_ACTIVATE_EARLY) &&
++				irqd_affinity_is_managed(irq_data) &&
++				!cpumask_intersects(irq_data_get_affinity_mask(irq_data),
++						    cpu_online_mask)) {
++				irqd_set_managed_shutdown(irq_data);
++				continue;
++			}
+ 		}
+ 		ret = irq_domain_activate_irq(irq_data, can_reserve);
+ 		if (ret)
 
 
