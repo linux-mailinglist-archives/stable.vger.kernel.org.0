@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C667F63D583
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:23:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D90B163D58F
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:26:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234808AbiK3MXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 07:23:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39330 "EHLO
+        id S233193AbiK3M0K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 07:26:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234627AbiK3MX1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:23:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E62DF74CF7
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:23:26 -0800 (PST)
+        with ESMTP id S231968AbiK3M0J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:26:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 420D573BB2
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:26:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8206A61B8C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:23:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91B7EC433D6;
-        Wed, 30 Nov 2022 12:23:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F38A6B81B2F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:26:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50C67C433D6;
+        Wed, 30 Nov 2022 12:26:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669811005;
-        bh=bcUjtVb6JrWKXWQ53+dK1OCqr0V91XWzv5njUEEsVx0=;
+        s=korg; t=1669811165;
+        bh=7lLvZiFDIS4YGX23V638e3mHnVf+zmgW7SgfUiL6RUE=;
         h=Subject:To:Cc:From:Date:From;
-        b=K9HCow+lpb0HHLwSN91pKkeQq1ezEXsEYX3wNlVb7QJrDTgYnj2BZOvbxyZEGccRh
-         DLwbuChQkNsfmcR+scu8syRpDrcO4il7I8bkNfSNonD8fNfaex+1Vp2++VWADaCp0L
-         qE1rp3HBiGGojLGr8z+DZs17PiXQNw/fNKnsk9a8=
-Subject: FAILED: patch "[PATCH] KVM: x86: remove exit_int_info warning in svm_handle_exit" failed to apply to 4.9-stable tree
+        b=HkRd+db2VeZWrX92R7EYg69nQ8YsBHVtAFLtKmd617/l1PG2piBsK7+xP172/Mham
+         gNNtY3gnReyFFWuKnwa4Z2QWmFDonasTdtPTbpT5IL+2GBAOWiruCPs8gxhIsi+Tmx
+         h3ObOzaJRNi7JWPf5vwBo9ahZPjZa8+jAMmk5Xds=
+Subject: FAILED: patch "[PATCH] KVM: x86: nSVM: harden svm_free_nested against freeing vmcb02" failed to apply to 5.10-stable tree
 To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Nov 2022 13:23:11 +0100
-Message-ID: <166981099110681@kroah.com>
+Date:   Wed, 30 Nov 2022 13:26:02 +0100
+Message-ID: <16698111621095@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,26 +47,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-05311ce954ae ("KVM: x86: remove exit_int_info warning in svm_handle_exit")
-404d5d7bff0d ("KVM: X86: Introduce more exit_fastpath_completion enum values")
-dcf068da7eb2 ("KVM: VMX: Introduce generic fastpath handler")
-a9ab13ff6e84 ("KVM: X86: Improve latency for single target IPI fastpath")
-873e1da16918 ("KVM: VMX: Optimize handling of VM-Entry failures in vmx_vcpu_run()")
-e64419d991ea ("KVM: x86: Move "flush guest's TLB" logic to separate kvm_x86_ops hook")
-56a87e5d997b ("KVM: SVM: Fix __svm_vcpu_run declaration.")
-199cd1d7b534 ("KVM: SVM: Split svm_vcpu_run inline assembly to separate file")
-eaf78265a4ab ("KVM: SVM: Move SEV code to separate file")
-ef0f64960d01 ("KVM: SVM: Move AVIC code to separate file")
-883b0a91f41a ("KVM: SVM: Move Nested SVM Implementation to nested.c")
-46a010dd6896 ("kVM SVM: Move SVM related files to own sub-directory")
-8c1b724ddb21 ("Merge tag 'for-linus' of git://git.kernel.org/pub/scm/virt/kvm/kvm")
+16ae56d7e052 ("KVM: x86: nSVM: harden svm_free_nested against freeing vmcb02 while still in use")
 
 thanks,
 
@@ -74,56 +62,35 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 05311ce954aebe75935d9ae7d38ac82b5b796e33 Mon Sep 17 00:00:00 2001
+From 16ae56d7e0528559bf8dc9070e3bfd8ba3de80df Mon Sep 17 00:00:00 2001
 From: Maxim Levitsky <mlevitsk@redhat.com>
-Date: Thu, 3 Nov 2022 16:13:51 +0200
-Subject: [PATCH] KVM: x86: remove exit_int_info warning in svm_handle_exit
+Date: Thu, 3 Nov 2022 16:13:44 +0200
+Subject: [PATCH] KVM: x86: nSVM: harden svm_free_nested against freeing vmcb02
+ while still in use
 
-It is valid to receive external interrupt and have broken IDT entry,
-which will lead to #GP with exit_int_into that will contain the index of
-the IDT entry (e.g any value).
+Make sure that KVM uses vmcb01 before freeing nested state, and warn if
+that is not the case.
 
-Other exceptions can happen as well, like #NP or #SS
-(if stack switch fails).
-
-Thus this warning can be user triggred and has very little value.
+This is a minimal fix for CVE-2022-3344 making the kernel print a warning
+instead of a kernel panic.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20221103141351.50662-10-mlevitsk@redhat.com>
+Message-Id: <20221103141351.50662-3-mlevitsk@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 098f04bec8ef..c0950ae86b2b 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -346,12 +346,6 @@ int svm_set_efer(struct kvm_vcpu *vcpu, u64 efer)
- 	return 0;
- }
+diff --git a/arch/x86/kvm/svm/nested.c b/arch/x86/kvm/svm/nested.c
+index 4c620999d230..b02a3a1792f1 100644
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -1125,6 +1125,9 @@ void svm_free_nested(struct vcpu_svm *svm)
+ 	if (!svm->nested.initialized)
+ 		return;
  
--static int is_external_interrupt(u32 info)
--{
--	info &= SVM_EVTINJ_TYPE_MASK | SVM_EVTINJ_VALID;
--	return info == (SVM_EVTINJ_VALID | SVM_EVTINJ_TYPE_INTR);
--}
--
- static u32 svm_get_interrupt_shadow(struct kvm_vcpu *vcpu)
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
-@@ -3426,15 +3420,6 @@ static int svm_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
- 		return 0;
- 	}
- 
--	if (is_external_interrupt(svm->vmcb->control.exit_int_info) &&
--	    exit_code != SVM_EXIT_EXCP_BASE + PF_VECTOR &&
--	    exit_code != SVM_EXIT_NPF && exit_code != SVM_EXIT_TASK_SWITCH &&
--	    exit_code != SVM_EXIT_INTR && exit_code != SVM_EXIT_NMI)
--		printk(KERN_ERR "%s: unexpected exit_int_info 0x%x "
--		       "exit_code 0x%x\n",
--		       __func__, svm->vmcb->control.exit_int_info,
--		       exit_code);
--
- 	if (exit_fastpath != EXIT_FASTPATH_NONE)
- 		return 1;
++	if (WARN_ON_ONCE(svm->vmcb != svm->vmcb01.ptr))
++		svm_switch_vmcb(svm, &svm->vmcb01);
++
+ 	svm_vcpu_free_msrpm(svm->nested.msrpm);
+ 	svm->nested.msrpm = NULL;
  
 
