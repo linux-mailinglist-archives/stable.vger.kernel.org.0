@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D920363E01A
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:53:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4056963DED2
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:41:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231542AbiK3Sxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:53:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43570 "EHLO
+        id S230471AbiK3SlF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:41:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231582AbiK3Sxb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:53:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F9DAE0A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:53:30 -0800 (PST)
+        with ESMTP id S230476AbiK3SlB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 257959894D
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2618EB81CA9
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:53:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B545C433C1;
-        Wed, 30 Nov 2022 18:53:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA4C661D54
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9854C433C1;
+        Wed, 30 Nov 2022 18:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834407;
-        bh=qhyl/ggZQXJL45HqOXJfkODiufFbxtVKPvB+MTZPIaY=;
+        s=korg; t=1669833659;
+        bh=jdSi8O56kr6BHoi0bBJ5xcc78BdUEDR2Jgq7u1AbZGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JiNOoK1DKQ8YKEOFQXM18AyCmTCLx50M7JxeGYIWmXmHO6qUGLs2nMV3kpLF+gMMA
-         b+Yqq6tiJfjk/ujq9P7E8v/8hOsXsFj7LBqX+DvDVFdVd1wnhLNK2aY6ZFzYDYTNC/
-         97511f5CclrIH+6ejStn82Y+t12NY7NxYNnPzoKc=
+        b=ubiK94iZsvF754J0T3uybhIrhCnLuGOEI/zB2YRRZup5f0T+XKZ9XZbP4+LyGiQtJ
+         EXtxlKVVUiztBtWlA9EabMrFjKrt2Yi3Qv5/ONpxUR/vjDviN/0tGttH0ALwu+RaDS
+         nXYmcgMS2/WaooxOlSLGJAFDlJyfZGsp4TtbRO5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ruanjinjie <ruanjinjie@huawei.com>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Juergen Gross <jgross@suse.com>,
+        patches@lists.linux.dev, Rudolf Polzer <rpolzer@google.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 243/289] xen/platform-pci: add missing free_irq() in error path
+Subject: [PATCH 5.15 176/206] platform/x86: acer-wmi: Enable SW_TABLET_MODE on Switch V 10 (SW5-017)
 Date:   Wed, 30 Nov 2022 19:23:48 +0100
-Message-Id: <20221130180549.618590266@linuxfoundation.org>
+Message-Id: <20221130180537.502059926@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ruanjinjie <ruanjinjie@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit c53717e1e3f0d0f9129b2e0dbc6dcc5e0a8132e9 ]
+[ Upstream commit 1e817b889c7d8c14e7005258e15fec62edafe03c ]
 
-free_irq() is missing in case of error in platform_pci_probe(), fix that.
+Like the Acer Switch 10 (SW5-012) and Acer Switch 10 (S1003) models
+the Acer Switch V 10 (SW5-017) supports reporting SW_TABLET_MODE
+through acer-wmi.
 
-Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Link: https://lore.kernel.org/r/20221114112124.1965611-1-ruanjinjie@huawei.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Add a DMI quirk for the SW5-017 setting force_caps to ACER_CAP_KBD_DOCK
+(these devices have no other acer-wmi based functionality).
+
+Cc: Rudolf Polzer <rpolzer@google.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20221111111639.35730-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/platform-pci.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/platform/x86/acer-wmi.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/xen/platform-pci.c b/drivers/xen/platform-pci.c
-index 18f0ed8b1f93..6ebd819338ec 100644
---- a/drivers/xen/platform-pci.c
-+++ b/drivers/xen/platform-pci.c
-@@ -144,7 +144,7 @@ static int platform_pci_probe(struct pci_dev *pdev,
- 		if (ret) {
- 			dev_warn(&pdev->dev, "Unable to set the evtchn callback "
- 					 "err=%d\n", ret);
--			goto out;
-+			goto irq_out;
- 		}
- 	}
- 
-@@ -152,13 +152,16 @@ static int platform_pci_probe(struct pci_dev *pdev,
- 	grant_frames = alloc_xen_mmio(PAGE_SIZE * max_nr_gframes);
- 	ret = gnttab_setup_auto_xlat_frames(grant_frames);
- 	if (ret)
--		goto out;
-+		goto irq_out;
- 	ret = gnttab_init();
- 	if (ret)
- 		goto grant_out;
- 	return 0;
- grant_out:
- 	gnttab_free_auto_xlat_frames();
-+irq_out:
-+	if (!xen_have_vector_callback)
-+		free_irq(pdev->irq, pdev);
- out:
- 	pci_release_region(pdev, 0);
- mem_out:
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index 8c2a73d5428d..82516796a53b 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -564,6 +564,15 @@ static const struct dmi_system_id acer_quirks[] __initconst = {
+ 		},
+ 		.driver_data = (void *)ACER_CAP_KBD_DOCK,
+ 	},
++	{
++		.callback = set_force_caps,
++		.ident = "Acer Aspire Switch V 10 SW5-017",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SW5-017"),
++		},
++		.driver_data = (void *)ACER_CAP_KBD_DOCK,
++	},
+ 	{
+ 		.callback = set_force_caps,
+ 		.ident = "Acer One 10 (S1003)",
 -- 
 2.35.1
 
