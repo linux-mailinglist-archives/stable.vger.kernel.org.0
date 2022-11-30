@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 018C063DE89
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:38:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65B7F63DE8A
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:38:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230418AbiK3SiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:38:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47982 "EHLO
+        id S230447AbiK3SiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:38:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230476AbiK3Shz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:37:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D63917054
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:37:45 -0800 (PST)
+        with ESMTP id S231128AbiK3Sh6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:37:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06A2D18B31
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:37:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9995E61D74
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:37:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97023C433C1;
-        Wed, 30 Nov 2022 18:37:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 989D561D54
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:37:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82D3BC433D6;
+        Wed, 30 Nov 2022 18:37:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833464;
-        bh=TL4/LfcOzX/iFFUIU99zkBlKhq3EMvJm4v/6KWidAlw=;
+        s=korg; t=1669833467;
+        bh=sTXKwoIwrmBKPGu/Yp8Rqee3FuXZ0Ejd9Z9fdqONnbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ic3bEMkMfgw7qiiIs4boOM5P05cXmSv0YRdL9rJs23M2C42Xf6K+eYDH0ywR5dJqR
-         KJpEmK09dQD4x+/Nae5HZEbBQt0uA7zSBBtt9N6unt6r/LK64ZfyCfMlFAo2ac2VTB
-         ofGE1F+YryQSTxVez1Nwco55TGl+y2AUWfOkON9w=
+        b=Z4E8nWMKsacrn8Ko7Xm2Y+wJLsN7oTIMfshDV6I62BzIhLfodBmQGiDMLRiNfuSuC
+         AtW8BfDzrLeEVaBfJRZY57E6e2OC3eAXU5T4rA9tR6JSDrrplPxVQGQeFWGKTWUVAl
+         295Pv/B9tqcviHQh8chEM5Qc+sLcuVdY6Zc/yDXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jakub Kicinski <kuba@kernel.org>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Dawei Li <set_pte_at@outlook.com>,
+        Andrew Davis <afd@ti.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 115/206] bnx2x: fix pci device refcount leak in bnx2x_vf_is_pcie_pending()
-Date:   Wed, 30 Nov 2022 19:22:47 +0100
-Message-Id: <20221130180535.968632484@linuxfoundation.org>
+Subject: [PATCH 5.15 116/206] dma-buf: fix racing conflict of dma_heap_add()
+Date:   Wed, 30 Nov 2022 19:22:48 +0100
+Message-Id: <20221130180535.994030349@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
 References: <20221130180532.974348590@linuxfoundation.org>
@@ -55,56 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Dawei Li <set_pte_at@outlook.com>
 
-[ Upstream commit 3637a29ccbb6461b7268c5c5db525935d510afc6 ]
+[ Upstream commit 432e25902b9651622578c6248e549297d03caf66 ]
 
-As comment of pci_get_domain_bus_and_slot() says, it returns
-a pci device with refcount increment, when finish using it,
-the caller must decrement the reference count by calling
-pci_dev_put(). Call pci_dev_put() before returning from
-bnx2x_vf_is_pcie_pending() to avoid refcount leak.
+Racing conflict could be:
+task A                 task B
+list_for_each_entry
+strcmp(h->name))
+                       list_for_each_entry
+                       strcmp(h->name)
+kzalloc                kzalloc
+......                 .....
+device_create          device_create
+list_add
+                       list_add
 
-Fixes: b56e9670ffa4 ("bnx2x: Prepare device and initialize VF database")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20221119070202.1407648-1-yangyingliang@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+The root cause is that task B has no idea about the fact someone
+else(A) has inserted heap with same name when it calls list_add,
+so a potential collision occurs.
+
+Fixes: c02a81fba74f ("dma-buf: Add dma-buf heaps framework")
+Signed-off-by: Dawei Li <set_pte_at@outlook.com>
+Acked-by: Andrew Davis <afd@ti.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Sumit Semwal <sumit.semwal@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/TYCP286MB2323873BBDF88020781FB986CA3B9@TYCP286MB2323.JPNP286.PROD.OUTLOOK.COM
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/dma-buf/dma-heap.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
-index 561395731450..a9f202bbada1 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
-@@ -795,16 +795,20 @@ static void bnx2x_vf_enable_traffic(struct bnx2x *bp, struct bnx2x_virtf *vf)
+diff --git a/drivers/dma-buf/dma-heap.c b/drivers/dma-buf/dma-heap.c
+index 8f5848aa144f..59d158873f4c 100644
+--- a/drivers/dma-buf/dma-heap.c
++++ b/drivers/dma-buf/dma-heap.c
+@@ -233,18 +233,6 @@ struct dma_heap *dma_heap_add(const struct dma_heap_export_info *exp_info)
+ 		return ERR_PTR(-EINVAL);
+ 	}
  
- static u8 bnx2x_vf_is_pcie_pending(struct bnx2x *bp, u8 abs_vfid)
- {
--	struct pci_dev *dev;
- 	struct bnx2x_virtf *vf = bnx2x_vf_by_abs_fid(bp, abs_vfid);
-+	struct pci_dev *dev;
-+	bool pending;
- 
- 	if (!vf)
- 		return false;
- 
- 	dev = pci_get_domain_bus_and_slot(vf->domain, vf->bus, vf->devfn);
--	if (dev)
--		return bnx2x_is_pcie_pending(dev);
--	return false;
-+	if (!dev)
-+		return false;
-+	pending = bnx2x_is_pcie_pending(dev);
-+	pci_dev_put(dev);
+-	/* check the name is unique */
+-	mutex_lock(&heap_list_lock);
+-	list_for_each_entry(h, &heap_list, list) {
+-		if (!strcmp(h->name, exp_info->name)) {
+-			mutex_unlock(&heap_list_lock);
+-			pr_err("dma_heap: Already registered heap named %s\n",
+-			       exp_info->name);
+-			return ERR_PTR(-EINVAL);
+-		}
+-	}
+-	mutex_unlock(&heap_list_lock);
+-
+ 	heap = kzalloc(sizeof(*heap), GFP_KERNEL);
+ 	if (!heap)
+ 		return ERR_PTR(-ENOMEM);
+@@ -283,13 +271,27 @@ struct dma_heap *dma_heap_add(const struct dma_heap_export_info *exp_info)
+ 		err_ret = ERR_CAST(dev_ret);
+ 		goto err2;
+ 	}
+-	/* Add heap to the list */
 +
-+	return pending;
- }
+ 	mutex_lock(&heap_list_lock);
++	/* check the name is unique */
++	list_for_each_entry(h, &heap_list, list) {
++		if (!strcmp(h->name, exp_info->name)) {
++			mutex_unlock(&heap_list_lock);
++			pr_err("dma_heap: Already registered heap named %s\n",
++			       exp_info->name);
++			err_ret = ERR_PTR(-EINVAL);
++			goto err3;
++		}
++	}
++
++	/* Add heap to the list */
+ 	list_add(&heap->list, &heap_list);
+ 	mutex_unlock(&heap_list_lock);
  
- int bnx2x_vf_flr_clnup_epilog(struct bnx2x *bp, u8 abs_vfid)
+ 	return heap;
+ 
++err3:
++	device_destroy(dma_heap_class, heap->heap_devt);
+ err2:
+ 	cdev_del(&heap->heap_cdev);
+ err1:
 -- 
 2.35.1
 
