@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75D7663DD42
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:25:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 922BC63DF86
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229595AbiK3SZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:25:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56896 "EHLO
+        id S231403AbiK3SsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:48:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229968AbiK3SZm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 069A262FA
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:25:41 -0800 (PST)
+        with ESMTP id S231396AbiK3SsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:03 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DF231AF15
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94BF261D58
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:25:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0ED2C433D7;
-        Wed, 30 Nov 2022 18:25:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 79FBBCE1ADC
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:47:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F7E8C43470;
+        Wed, 30 Nov 2022 18:47:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832740;
-        bh=SqsKySvKD3lBPFNaijXqMwh/KmrYMvYdDYfzg8IAPfY=;
+        s=korg; t=1669834077;
+        bh=3q6CbR9Daz+CWEQlDNBBRQRCzD7MDoU9zpaxHvt2D10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OEMiE015G1xNiIIlL5QOFFMmZRU9Ob3gMfgpPrCjqZFekgbtfYyNbYwHtKCKPiCts
-         me9mfXEg8JHfvZkfp69Sl58ogpnYsUFHd3mIFc5exctB6WtN6Y5WbL9Joj1LO5Y3iL
-         5DAGEvk7DGcHLX3UDAP2SdXGlUffnc+wvnODLLGQ=
+        b=C+9tTT4n62UhjmOxPyLo7jGP2f08POClDLSyeaPYGkyYB4gcg3L6qLOXRCJI3eEhr
+         YdsHKudqJkzq/Z2EtMiSQRdOpI/vCK7eoXouQRM5ARx31sIrS5esBD+VC6ySk9SrKS
+         cn7pO9l4+MyEj7vnOiHuwahG6uDBCGacZg1ZcyZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Liu Jian <liujian56@huawei.com>,
+        Bjarni Jonasson <bjarni.jonasson@microchip.com>,
+        Steen Hegelund <steen.hegelund@microchip.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 024/162] platform/x86: touchscreen_dmi: Add info for the RCA Cambio W101 v2 2-in-1
-Date:   Wed, 30 Nov 2022 19:21:45 +0100
-Message-Id: <20221130180529.152477770@linuxfoundation.org>
+Subject: [PATCH 6.0 121/289] net: sparx5: fix error handling in sparx5_port_open()
+Date:   Wed, 30 Nov 2022 19:21:46 +0100
+Message-Id: <20221130180546.883777666@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,63 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit 0df044b34bf33e7e35c32b3bf6747fde6279c162 ]
+[ Upstream commit 4305fe232b8aa59af3761adc9fe6b6aa40913960 ]
 
-Add touchscreen info for the RCA Cambio W101 v2 2-in-1.
+If phylink_of_phy_connect() fails, the port should be disabled.
+If sparx5_serdes_set()/phy_power_on() fails, the port should be
+disabled and the phylink should be stopped and disconnected.
 
-Link: https://github.com/onitake/gsl-firmware/discussions/193
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20221025141131.509211-1-hdegoede@redhat.com
+Fixes: 946e7fd5053a ("net: sparx5: add port module support")
+Fixes: f3cad2611a77 ("net: sparx5: add hostmode with phylink support")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Tested-by: Bjarni Jonasson <bjarni.jonasson@microchip.com>
+Reviewed-by: Steen Hegelund <steen.hegelund@microchip.com>
+Link: https://lore.kernel.org/r/20221117125918.203997-1-liujian56@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ .../net/ethernet/microchip/sparx5/sparx5_netdev.c  | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index ab6a9369649d..110ff1e6ef81 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -756,6 +756,22 @@ static const struct ts_dmi_data predia_basic_data = {
- 	.properties	= predia_basic_props,
- };
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_netdev.c b/drivers/net/ethernet/microchip/sparx5/sparx5_netdev.c
+index af4d3e1f1a6d..3f112a897a60 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_netdev.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_netdev.c
+@@ -103,7 +103,7 @@ static int sparx5_port_open(struct net_device *ndev)
+ 	err = phylink_of_phy_connect(port->phylink, port->of_node, 0);
+ 	if (err) {
+ 		netdev_err(ndev, "Could not attach to PHY\n");
+-		return err;
++		goto err_connect;
+ 	}
  
-+static const struct property_entry rca_cambio_w101_v2_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
-+	PROPERTY_ENTRY_U32("touchscreen-min-y", 20),
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1644),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 874),
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-rca-cambio-w101-v2.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	{ }
-+};
+ 	phylink_start(port->phylink);
+@@ -115,10 +115,20 @@ static int sparx5_port_open(struct net_device *ndev)
+ 			err = sparx5_serdes_set(port->sparx5, port, &port->conf);
+ 		else
+ 			err = phy_power_on(port->serdes);
+-		if (err)
++		if (err) {
+ 			netdev_err(ndev, "%s failed\n", __func__);
++			goto out_power;
++		}
+ 	}
+ 
++	return 0;
 +
-+static const struct ts_dmi_data rca_cambio_w101_v2_data = {
-+	.acpi_name = "MSSL1680:00",
-+	.properties = rca_cambio_w101_v2_props,
-+};
++out_power:
++	phylink_stop(port->phylink);
++	phylink_disconnect_phy(port->phylink);
++err_connect:
++	sparx5_port_enable(port, false);
 +
- static const struct property_entry rwc_nanote_p8_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-min-y", 46),
- 	PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
-@@ -1341,6 +1357,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_EXACT_MATCH(DMI_BOARD_NAME, "0E57"),
- 		},
- 	},
-+	{
-+		/* RCA Cambio W101 v2 */
-+		/* https://github.com/onitake/gsl-firmware/discussions/193 */
-+		.driver_data = (void *)&rca_cambio_w101_v2_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "RCA"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "W101SA23T1"),
-+		},
-+	},
- 	{
- 		/* RWC NANOTE P8 */
- 		.driver_data = (void *)&rwc_nanote_p8_data,
+ 	return err;
+ }
+ 
 -- 
 2.35.1
 
