@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60D0463DF6F
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3459C63DD2D
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:25:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231153AbiK3SrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:47:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59336 "EHLO
+        id S229954AbiK3SZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:25:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231206AbiK3SrB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8588A25CB
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:00 -0800 (PST)
+        with ESMTP id S229727AbiK3SZB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBBA51140
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:25:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A20FB81CA8
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:46:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A360C433D6;
-        Wed, 30 Nov 2022 18:46:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 875E861D26
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:25:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92F03C433D6;
+        Wed, 30 Nov 2022 18:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834017;
-        bh=0O9aV844pV4E7ds65t3MquOYwuQx+b+DUvmp8pE4YTw=;
+        s=korg; t=1669832700;
+        bh=/LU7KhhLGCBwYlV1athXwzYO16Y9i5WAWlBi4A+vZns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TuwgbOjURHKDWIiNShjH1oNyFwb4jtFKzWNV7PUZDZ6gKYTWfOKNIdHFc616j/3e0
-         zKUAA8UiBDE6LIB74KE2+C0ZPalEaIV1q92BtaKMQp9l1l/TTDO5cwsWKP3JDF1Hl8
-         yfAtu6dyOxQ2vlP5dBLqjQrmcJDRjCwMMH0bhxo0=
+        b=TBd1H3ckmuKekghkCS1eC6TnvRvyt4Ss/r5+4ajt1u2/XWdYtbt/HLeENsGk7cs8c
+         5H82mwsVNjjExoNpAyrHr/pbVUOAX5VuhN6wGrrNcPdtWyUdkYTi/rpHvy5xo1SjOc
+         Swh6M57S/RQPl1efjQBi5/4VcaheCTvfXMbvmEwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liang Li <liali@redhat.com>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Wenchao Hao <haowenchao@huawei.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 098/289] bonding: fix ICMPv6 header handling when receiving IPv6 messages
+Subject: [PATCH 5.10 002/162] ata: libata-scsi: simplify __ata_scsi_queuecmd()
 Date:   Wed, 30 Nov 2022 19:21:23 +0100
-Message-Id: <20221130180546.363185838@linuxfoundation.org>
+Message-Id: <20221130180528.539515175@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,63 +53,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Wenchao Hao <haowenchao@huawei.com>
 
-[ Upstream commit 4d633d1b468b6eb107a81b2fd10b9debddca3d47 ]
+[ Upstream commit 84eac327af543f03172085d5ef9f98ea25a51191 ]
 
-Currently, we get icmp6hdr via function icmp6_hdr(), which needs the skb
-transport header to be set first. But there is no rule to ask driver set
-transport header before netif_receive_skb() and bond_handle_frame(). So
-we will not able to get correct icmp6hdr on some drivers.
+This patch cleans up the code of __ata_scsi_queuecmd(). Since each
+branch of the "if" condition check that scmd->cmd_len is not zero, move
+this check out of the "if" to simplify the conditions being checked in
+the "else" branch.
 
-Fix this by using skb_header_pointer to get the IPv6 and ICMPV6 headers.
+While at it, avoid the if-else-if-else structure using if-else if
+structure and remove the redundant rc local variable.
 
-Reported-by: Liang Li <liali@redhat.com>
-Fixes: 4e24be018eb9 ("bonding: add new parameter ns_targets")
-Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Link: https://lore.kernel.org/r/20221118034353.1736727-1-liuhangbin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This patch does not change the function logic.
+
+Signed-off-by: Wenchao Hao <haowenchao@huawei.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Stable-dep-of: e20e81a24a4d ("ata: libata-core: do not issue non-internal commands once EH is pending")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/ata/libata-scsi.c | 45 ++++++++++++++++++---------------------
+ 1 file changed, 21 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 86d42306aa5e..76dd5ff1d99d 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3231,16 +3231,23 @@ static int bond_na_rcv(const struct sk_buff *skb, struct bonding *bond,
- 		       struct slave *slave)
+diff --git a/drivers/ata/libata-scsi.c b/drivers/ata/libata-scsi.c
+index 459ece666c62..70744439359d 100644
+--- a/drivers/ata/libata-scsi.c
++++ b/drivers/ata/libata-scsi.c
+@@ -4034,42 +4034,39 @@ int __ata_scsi_queuecmd(struct scsi_cmnd *scmd, struct ata_device *dev)
  {
- 	struct slave *curr_active_slave, *curr_arp_slave;
--	struct icmp6hdr *hdr = icmp6_hdr(skb);
- 	struct in6_addr *saddr, *daddr;
-+	struct {
-+		struct ipv6hdr ip6;
-+		struct icmp6hdr icmp6;
-+	} *combined, _combined;
- 
- 	if (skb->pkt_type == PACKET_OTHERHOST ||
--	    skb->pkt_type == PACKET_LOOPBACK ||
--	    hdr->icmp6_type != NDISC_NEIGHBOUR_ADVERTISEMENT)
-+	    skb->pkt_type == PACKET_LOOPBACK)
-+		goto out;
+ 	u8 scsi_op = scmd->cmnd[0];
+ 	ata_xlat_func_t xlat_func;
+-	int rc = 0;
 +
-+	combined = skb_header_pointer(skb, 0, sizeof(_combined), &_combined);
-+	if (!combined || combined->ip6.nexthdr != NEXTHDR_ICMP ||
-+	    combined->icmp6.icmp6_type != NDISC_NEIGHBOUR_ADVERTISEMENT)
- 		goto out;
++	if (unlikely(!scmd->cmd_len))
++		goto bad_cdb_len;
  
--	saddr = &ipv6_hdr(skb)->saddr;
--	daddr = &ipv6_hdr(skb)->daddr;
-+	saddr = &combined->ip6.saddr;
-+	daddr = &combined->ip6.saddr;
+ 	if (dev->class == ATA_DEV_ATA || dev->class == ATA_DEV_ZAC) {
+-		if (unlikely(!scmd->cmd_len || scmd->cmd_len > dev->cdb_len))
++		if (unlikely(scmd->cmd_len > dev->cdb_len))
+ 			goto bad_cdb_len;
  
- 	slave_dbg(bond->dev, slave->dev, "%s: %s/%d av %d sv %d sip %pI6c tip %pI6c\n",
- 		  __func__, slave->dev->name, bond_slave_state(slave),
+ 		xlat_func = ata_get_xlat_func(dev, scsi_op);
+-	} else {
+-		if (unlikely(!scmd->cmd_len))
+-			goto bad_cdb_len;
++	} else if (likely((scsi_op != ATA_16) || !atapi_passthru16)) {
++		/* relay SCSI command to ATAPI device */
++		int len = COMMAND_SIZE(scsi_op);
+ 
+-		xlat_func = NULL;
+-		if (likely((scsi_op != ATA_16) || !atapi_passthru16)) {
+-			/* relay SCSI command to ATAPI device */
+-			int len = COMMAND_SIZE(scsi_op);
+-			if (unlikely(len > scmd->cmd_len ||
+-				     len > dev->cdb_len ||
+-				     scmd->cmd_len > ATAPI_CDB_LEN))
+-				goto bad_cdb_len;
++		if (unlikely(len > scmd->cmd_len ||
++			     len > dev->cdb_len ||
++			     scmd->cmd_len > ATAPI_CDB_LEN))
++			goto bad_cdb_len;
+ 
+-			xlat_func = atapi_xlat;
+-		} else {
+-			/* ATA_16 passthru, treat as an ATA command */
+-			if (unlikely(scmd->cmd_len > 16))
+-				goto bad_cdb_len;
++		xlat_func = atapi_xlat;
++	} else {
++		/* ATA_16 passthru, treat as an ATA command */
++		if (unlikely(scmd->cmd_len > 16))
++			goto bad_cdb_len;
+ 
+-			xlat_func = ata_get_xlat_func(dev, scsi_op);
+-		}
++		xlat_func = ata_get_xlat_func(dev, scsi_op);
+ 	}
+ 
+ 	if (xlat_func)
+-		rc = ata_scsi_translate(dev, scmd, xlat_func);
+-	else
+-		ata_scsi_simulate(dev, scmd);
++		return ata_scsi_translate(dev, scmd, xlat_func);
+ 
+-	return rc;
++	ata_scsi_simulate(dev, scmd);
++
++	return 0;
+ 
+  bad_cdb_len:
+ 	DPRINTK("bad CDB len=%u, scsi_op=0x%02x, max=%u\n",
 -- 
 2.35.1
 
