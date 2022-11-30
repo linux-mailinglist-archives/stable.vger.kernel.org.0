@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF07163E00F
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:53:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 000F163DDB5
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:29:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231539AbiK3SxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:53:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43004 "EHLO
+        id S230060AbiK3S3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:29:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231583AbiK3SxA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:53:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30C76E0A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:52:59 -0800 (PST)
+        with ESMTP id S230085AbiK3S3o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:29:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A1678D679
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:29:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C327B61D54
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:52:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0FF8C433D7;
-        Wed, 30 Nov 2022 18:52:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00016B81B41
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:29:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 549E0C433D7;
+        Wed, 30 Nov 2022 18:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834378;
-        bh=lZ8IV3RGQVMuKf/P2TSW30SoHqygVejhggepNHHuK8E=;
+        s=korg; t=1669832980;
+        bh=h/l+CoPqcrDuwkROOkJYTZNIOs5kf0Nh00+fu9NG14U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q09j3Rt6Gqoibpz4DT0y3tKNg2efc9SEDjX205HCXJ8CRSQxg0zW5ZsNej7yI4vLn
-         zQj+Wia9uuQGxRuQvcIQjeJY/Xdj2rDETh14AFE7900bBkExxyTpwGmahhTjLOGdDX
-         9jEUj++GpogMxCLlRz9OHzK4S3EGDPQfc0Qf8M6g=
+        b=uqf7llNtbjRXxOB+KEk1MVTPqdToTL08YmdM/ZTPCQNFMo5wpuSkQvj5T5lkiSqJP
+         fcSeP6Jm8XZAEu1c4coN+psnMoAMXdV0k2VCvjnhlzRA0XRivWvGy3f25qW+u7L300
+         QvIRyGKcwPBWcpX39UOI2D0gHtCfluzZy2+xoowM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michal Luczaj <mhal@rbox.co>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Sean Christopherson <seanjc@google.com>, stable@kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.0 204/289] KVM: x86/xen: Only do in-kernel acceleration of hypercalls for guest CPL0
-Date:   Wed, 30 Nov 2022 19:23:09 +0100
-Message-Id: <20221130180548.744269853@linuxfoundation.org>
+        patches@lists.linux.dev, Xiubo Li <xiubli@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 109/162] ceph: flush mdlog before umounting
+Date:   Wed, 30 Nov 2022 19:23:10 +0100
+Message-Id: <20221130180531.444196192@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Woodhouse <dwmw@amazon.co.uk>
+From: Xiubo Li <xiubli@redhat.com>
 
-commit c2b8cdfaf3a6721afe0c8c060a631b1c67a7f1ee upstream.
+[ Upstream commit d095559ce4100f0c02aea229705230deac329c97 ]
 
-There are almost no hypercalls which are valid from CPL > 0, and definitely
-none which are handled by the kernel.
-
-Fixes: 2fd6df2f2b47 ("KVM: x86/xen: intercept EVTCHNOP_send from guests")
-Reported-by: Michal Luczaj <mhal@rbox.co>
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Cc: stable@kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Stable-dep-of: 5bd76b8de5b7 ("ceph: fix NULL pointer dereference for req->r_session")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/xen.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/ceph/mds_client.c         | 25 +++++++++++++++++++++++++
+ fs/ceph/mds_client.h         |  1 +
+ fs/ceph/strings.c            |  1 +
+ include/linux/ceph/ceph_fs.h |  1 +
+ 4 files changed, 28 insertions(+)
 
---- a/arch/x86/kvm/xen.c
-+++ b/arch/x86/kvm/xen.c
-@@ -1216,6 +1216,7 @@ int kvm_xen_hypercall(struct kvm_vcpu *v
- 	bool longmode;
- 	u64 input, params[6], r = -ENOSYS;
- 	bool handled = false;
-+	u8 cpl;
+diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
+index 45587b3025e4..fa51872ff850 100644
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -4664,6 +4664,30 @@ static void wait_requests(struct ceph_mds_client *mdsc)
+ 	dout("wait_requests done\n");
+ }
  
- 	input = (u64)kvm_register_read(vcpu, VCPU_REGS_RAX);
- 
-@@ -1243,9 +1244,17 @@ int kvm_xen_hypercall(struct kvm_vcpu *v
- 		params[5] = (u64)kvm_r9_read(vcpu);
- 	}
- #endif
-+	cpl = static_call(kvm_x86_get_cpl)(vcpu);
- 	trace_kvm_xen_hypercall(input, params[0], params[1], params[2],
- 				params[3], params[4], params[5]);
- 
-+	/*
-+	 * Only allow hypercall acceleration for CPL0. The rare hypercalls that
-+	 * are permitted in guest userspace can be handled by the VMM.
-+	 */
-+	if (unlikely(cpl > 0))
-+		goto handle_in_userspace;
++void send_flush_mdlog(struct ceph_mds_session *s)
++{
++	struct ceph_msg *msg;
 +
- 	switch (input) {
- 	case __HYPERVISOR_xen_version:
- 		if (params[0] == XENVER_version && vcpu->kvm->arch.xen.xen_version) {
-@@ -1280,10 +1289,11 @@ int kvm_xen_hypercall(struct kvm_vcpu *v
- 	if (handled)
- 		return kvm_xen_hypercall_set_result(vcpu, r);
++	/*
++	 * Pre-luminous MDS crashes when it sees an unknown session request
++	 */
++	if (!CEPH_HAVE_FEATURE(s->s_con.peer_features, SERVER_LUMINOUS))
++		return;
++
++	mutex_lock(&s->s_mutex);
++	dout("request mdlog flush to mds%d (%s)s seq %lld\n", s->s_mds,
++	     ceph_session_state_name(s->s_state), s->s_seq);
++	msg = ceph_create_session_msg(CEPH_SESSION_REQUEST_FLUSH_MDLOG,
++				      s->s_seq);
++	if (!msg) {
++		pr_err("failed to request mdlog flush to mds%d (%s) seq %lld\n",
++		       s->s_mds, ceph_session_state_name(s->s_state), s->s_seq);
++	} else {
++		ceph_con_send(&s->s_con, msg);
++	}
++	mutex_unlock(&s->s_mutex);
++}
++
+ /*
+  * called before mount is ro, and before dentries are torn down.
+  * (hmm, does this still race with new lookups?)
+@@ -4673,6 +4697,7 @@ void ceph_mdsc_pre_umount(struct ceph_mds_client *mdsc)
+ 	dout("pre_umount\n");
+ 	mdsc->stopping = 1;
  
-+handle_in_userspace:
- 	vcpu->run->exit_reason = KVM_EXIT_XEN;
- 	vcpu->run->xen.type = KVM_EXIT_XEN_HCALL;
- 	vcpu->run->xen.u.hcall.longmode = longmode;
--	vcpu->run->xen.u.hcall.cpl = static_call(kvm_x86_get_cpl)(vcpu);
-+	vcpu->run->xen.u.hcall.cpl = cpl;
- 	vcpu->run->xen.u.hcall.input = input;
- 	vcpu->run->xen.u.hcall.params[0] = params[0];
- 	vcpu->run->xen.u.hcall.params[1] = params[1];
++	ceph_mdsc_iterate_sessions(mdsc, send_flush_mdlog, true);
+ 	ceph_mdsc_iterate_sessions(mdsc, lock_unlock_session, false);
+ 	ceph_flush_dirty_caps(mdsc);
+ 	wait_requests(mdsc);
+diff --git a/fs/ceph/mds_client.h b/fs/ceph/mds_client.h
+index 88fc80832016..a92e42e8a9f8 100644
+--- a/fs/ceph/mds_client.h
++++ b/fs/ceph/mds_client.h
+@@ -518,6 +518,7 @@ static inline void ceph_mdsc_put_request(struct ceph_mds_request *req)
+ 	kref_put(&req->r_kref, ceph_mdsc_release_request);
+ }
+ 
++extern void send_flush_mdlog(struct ceph_mds_session *s);
+ extern void ceph_mdsc_iterate_sessions(struct ceph_mds_client *mdsc,
+ 				       void (*cb)(struct ceph_mds_session *),
+ 				       bool check_state);
+diff --git a/fs/ceph/strings.c b/fs/ceph/strings.c
+index 4a79f3632260..573bb9556fb5 100644
+--- a/fs/ceph/strings.c
++++ b/fs/ceph/strings.c
+@@ -46,6 +46,7 @@ const char *ceph_session_op_name(int op)
+ 	case CEPH_SESSION_FLUSHMSG_ACK: return "flushmsg_ack";
+ 	case CEPH_SESSION_FORCE_RO: return "force_ro";
+ 	case CEPH_SESSION_REJECT: return "reject";
++	case CEPH_SESSION_REQUEST_FLUSH_MDLOG: return "flush_mdlog";
+ 	}
+ 	return "???";
+ }
+diff --git a/include/linux/ceph/ceph_fs.h b/include/linux/ceph/ceph_fs.h
+index 455e9b9e2adf..8287382d3d1d 100644
+--- a/include/linux/ceph/ceph_fs.h
++++ b/include/linux/ceph/ceph_fs.h
+@@ -288,6 +288,7 @@ enum {
+ 	CEPH_SESSION_FLUSHMSG_ACK,
+ 	CEPH_SESSION_FORCE_RO,
+ 	CEPH_SESSION_REJECT,
++	CEPH_SESSION_REQUEST_FLUSH_MDLOG,
+ };
+ 
+ extern const char *ceph_session_op_name(int op);
+-- 
+2.35.1
+
 
 
