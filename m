@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C283963DD43
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:25:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C65B63DF87
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229883AbiK3SZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:25:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56872 "EHLO
+        id S231416AbiK3SsM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:48:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229879AbiK3SZo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBDDC627E
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:25:43 -0800 (PST)
+        with ESMTP id S231420AbiK3SsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53C441D0FD
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6791861D58
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:25:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5359CC433D6;
-        Wed, 30 Nov 2022 18:25:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1E45B81B37
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D14EC433D6;
+        Wed, 30 Nov 2022 18:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832742;
-        bh=bzgxtzJg6SklpSstnlHnMYOaH1qdiZgItrc+nr3lWgw=;
+        s=korg; t=1669834080;
+        bh=FhQqqWuJ6F8EHCReW61RTMLhlKsnEk/WF1GTOixciRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1/hWvUIkqoq950TrhQwQop9yezHv2CktCu0CwsVwXcjZZZwdqC4l4zlQIFciA+i6
-         SFjmUc9+vUq18MaXYKRVgjTU7TBzMBFrn+xOF/oGmf+jC4+sVX4NKw+g9CpPv38sYS
-         ontRElr8y8QCRktPLVeh9nrwSbABKwNrIwNboaU8=
+        b=tS/xYahqs4qzPgoG41CfyByLF0Syd1AWcTlmkAO9qJ4aSkdTk2uF6MgPnAuggwAXf
+         Rs0QZLd8sT/mnSfPhPc1miNFs50ygs3iZ5nP+mBmjTVrk40CQ9/FqnQMpmlsIddFbp
+         aLTh+SS81nqNLM5VB6hCWjNo/SRKXf6pb0JdJy5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian King <brking@linux.vnet.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 025/162] scsi: ibmvfc: Avoid path failures during live migration
-Date:   Wed, 30 Nov 2022 19:21:46 +0100
-Message-Id: <20221130180529.183487457@linuxfoundation.org>
+Subject: [PATCH 6.0 122/289] net: sched: allow act_ct to be built without NF_NAT
+Date:   Wed, 30 Nov 2022 19:21:47 +0100
+Message-Id: <20221130180546.907129986@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian King <brking@linux.vnet.ibm.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 62fa3ce05d5d73c5eccc40b2db493f55fecfc446 ]
+[ Upstream commit 8427fd100c7b7793650e212a81e42f1cf124613d ]
 
-Fix an issue reported when performing a live migration when multipath is
-configured with a short fast fail timeout of 5 seconds and also to have
-no_path_retry set to fail. In this scenario, all paths would go into the
-devloss state while the ibmvfc driver went through discovery to log back
-in. On a loaded system, the discovery might take longer than 5 seconds,
-which was resulting in all paths being marked failed, which then resulted
-in a read only filesystem.
+In commit f11fe1dae1c4 ("net/sched: Make NET_ACT_CT depends on NF_NAT"),
+it fixed the build failure when NF_NAT is m and NET_ACT_CT is y by
+adding depends on NF_NAT for NET_ACT_CT. However, it would also cause
+NET_ACT_CT cannot be built without NF_NAT, which is not expected. This
+patch fixes it by changing to use "(!NF_NAT || NF_NAT)" as the depend.
 
-This patch changes the migration code in ibmvfc to avoid deleting rports at
-all in this scenario, so we avoid losing all paths.
-
-Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
-Link: https://lore.kernel.org/r/20221026181356.148517-1-brking@linux.vnet.ibm.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: f11fe1dae1c4 ("net/sched: Make NET_ACT_CT depends on NF_NAT")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/b6386f28d1ba34721795fb776a91cbdabb203447.1668807183.git.lucien.xin@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvfc.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ net/sched/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index f6d6539c657f..b793e342ab7c 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -635,8 +635,13 @@ static void ibmvfc_init_host(struct ibmvfc_host *vhost)
- 		memset(vhost->async_crq.msgs, 0, PAGE_SIZE);
- 		vhost->async_crq.cur = 0;
+diff --git a/net/sched/Kconfig b/net/sched/Kconfig
+index 1e8ab4749c6c..4662a6ce8a7e 100644
+--- a/net/sched/Kconfig
++++ b/net/sched/Kconfig
+@@ -976,7 +976,7 @@ config NET_ACT_TUNNEL_KEY
  
--		list_for_each_entry(tgt, &vhost->targets, queue)
--			ibmvfc_del_tgt(tgt);
-+		list_for_each_entry(tgt, &vhost->targets, queue) {
-+			if (vhost->client_migrated)
-+				tgt->need_login = 1;
-+			else
-+				ibmvfc_del_tgt(tgt);
-+		}
-+
- 		scsi_block_requests(vhost->host);
- 		ibmvfc_set_host_action(vhost, IBMVFC_HOST_ACTION_INIT);
- 		vhost->job_step = ibmvfc_npiv_login;
-@@ -2822,9 +2827,12 @@ static void ibmvfc_handle_crq(struct ibmvfc_crq *crq, struct ibmvfc_host *vhost)
- 			/* We need to re-setup the interpartition connection */
- 			dev_info(vhost->dev, "Partition migrated, Re-enabling adapter\n");
- 			vhost->client_migrated = 1;
-+
-+			scsi_block_requests(vhost->host);
- 			ibmvfc_purge_requests(vhost, DID_REQUEUE);
--			ibmvfc_link_down(vhost, IBMVFC_LINK_DOWN);
-+			ibmvfc_set_host_state(vhost, IBMVFC_LINK_DOWN);
- 			ibmvfc_set_host_action(vhost, IBMVFC_HOST_ACTION_REENABLE);
-+			wake_up(&vhost->work_wait_q);
- 		} else if (crq->format == IBMVFC_PARTNER_FAILED || crq->format == IBMVFC_PARTNER_DEREGISTER) {
- 			dev_err(vhost->dev, "Host partner adapter deregistered or failed (rc=%d)\n", crq->format);
- 			ibmvfc_purge_requests(vhost, DID_ERROR);
+ config NET_ACT_CT
+ 	tristate "connection tracking tc action"
+-	depends on NET_CLS_ACT && NF_CONNTRACK && NF_NAT && NF_FLOW_TABLE
++	depends on NET_CLS_ACT && NF_CONNTRACK && (!NF_NAT || NF_NAT) && NF_FLOW_TABLE
+ 	help
+ 	  Say Y here to allow sending the packets to conntrack module.
+ 
 -- 
 2.35.1
 
