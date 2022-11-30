@@ -2,174 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B19AF63DA85
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 17:25:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5266C63DA9C
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 17:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230172AbiK3QZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 11:25:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45866 "EHLO
+        id S230185AbiK3Q3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 11:29:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229652AbiK3QZ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 11:25:27 -0500
-Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 590CE4EC28;
-        Wed, 30 Nov 2022 08:25:22 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.228])
-        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4NMks86yx3z9v7RF;
-        Thu,  1 Dec 2022 00:18:20 +0800 (CST)
-Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwAHpXHVg4djmfirAA--.3567S2;
-        Wed, 30 Nov 2022 17:25:02 +0100 (CET)
-Message-ID: <e678d661515a191cb1bbfc41d9378e7cb538ef53.camel@huaweicloud.com>
-Subject: Re: [PATCH] ima: Make a copy of sig and digest in
- asymmetric_verify()
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>, dmitry.kasatkin@gmail.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        rusty@rustcorp.com.au, axboe@kernel.dk
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        stable@vger.kernel.org
-Date:   Wed, 30 Nov 2022 17:24:51 +0100
-In-Reply-To: <1658d421c391d0609680b89ca0573fab1ca5e091.camel@linux.ibm.com>
-References: <20221104122023.1750333-1-roberto.sassu@huaweicloud.com>
-         <9ef25f1b8621dab8b3cd4373bf6ce1633daae70e.camel@linux.ibm.com>
-         <a676b387d23f9ca630418ece20a6761a9437ce76.camel@huaweicloud.com>
-         <c6c448c2acc07caf840046067322f3e1110cedff.camel@linux.ibm.com>
-         <f8f95d37211bac6ce4322a715740d2b2ae20db84.camel@huaweicloud.com>
-         <859f70a2801cffa3cb42ae0d43f5753bb01a7eac.camel@huaweicloud.com>
-         <1658d421c391d0609680b89ca0573fab1ca5e091.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        with ESMTP id S229621AbiK3Q3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 11:29:45 -0500
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B25C7BFAF
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 08:29:44 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id e27so42654317ejc.12
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 08:29:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=cc:to:message-id:date:from:content-transfer-encoding:mime-version
+         :subject:from:to:cc:subject:date:message-id:reply-to;
+        bh=Pw5kShSF3E0E3sfHSq2rS1swDqNHSyrtWf4koh3J7SU=;
+        b=Kk+o2yEg5yzW1D+dnF/cIcgc8Gk9rEgcTR8uPovDjDPf1PkKrRWq/BDqdOQ2U4PJof
+         ZYGyAjHsFgdoX7pMpAU4oGFrUDqQMiu5dEU45Q/vOO5Tz9XhHc2ar79+I0QgPDAmMc8x
+         s4z36cBy3fIOu4yKj4AB0btoe+F32/JxNjF18=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:message-id:date:from:content-transfer-encoding:mime-version
+         :subject:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Pw5kShSF3E0E3sfHSq2rS1swDqNHSyrtWf4koh3J7SU=;
+        b=69sxN6MKw7PTuGqFNS4BDMQi4zg4t6TjrqSIqRp3Az8eE63sJqleQe7nYeT4OxlUlJ
+         wm/S2eLGlq3AF5xdRpNfM9/y6BB37kK0gFDKd8ZYK0qC4YWuG2IoSYUn6HfrVBCP+IY5
+         KcJfDQOsTPmuBiDz3+zRMqvAero4yrEwmiVjOkUqfU6x5tfeF/yS+/CcIz5vz4dqpBuh
+         ihHkam/whSx9EHaP4xh6hdB7nGi+78FjH/Cq3LWfpvVSMSR6SnxNpgFrExJfNZ45S2iR
+         eulPgr64irmSPcqQq4l5HJHTMNjd1qDRLF/2Jc1Z6uLR+w1hkQp4CoYSKrZF9MayvkIH
+         ipPg==
+X-Gm-Message-State: ANoB5pnPBrt+2vCgAbfA++7NnX6kfPfhWfBcQhZMm0On/0yCpah3vKXJ
+        Ot0zON2m/lNut9pxWyR+O2n5Eg==
+X-Google-Smtp-Source: AA0mqf5Uqj/CD0/FukZXXIc0vRyTLddNiAbe2JXdXsEHuMwbmXDMwhTREvJcq30MxLXV+1w0b73ssg==
+X-Received: by 2002:a17:906:2302:b0:7b9:de77:f0ef with SMTP id l2-20020a170906230200b007b9de77f0efmr31418299eja.5.1669825782653;
+        Wed, 30 Nov 2022 08:29:42 -0800 (PST)
+Received: from alco.roam.corp.google.com (80.71.134.83.ipv4.parknet.dk. [80.71.134.83])
+        by smtp.gmail.com with ESMTPSA id cz15-20020a0564021caf00b004589da5e5cesm786114edb.41.2022.11.30.08.29.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Nov 2022 08:29:42 -0800 (PST)
+Subject: [PATCH v7 0/2] ASoC: SOF: Fix deadlock when shutdown a frozen userspace
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: LxC2BwAHpXHVg4djmfirAA--.3567S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxuF45GrW5Kw15KFW8KFyxAFb_yoWrCF1fpF
-        48K3WUKr4DJr1IkF4Iywn8C345Kr4rKrWUX34kJw18Zryqqr1xAr48JF1UWFyDWr1xAF1U
-        tFWftFy7Zrn8A3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UWE__UUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAMBF1jj4IemAABs+
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        T_SPF_TEMPERROR autolearn=ham autolearn_force=no version=3.4.6
+X-B4-Tracking: v=1; b=H4sIAN+Eh2MC/3XOzWrDMAwH8FcpPs/Dlr/SnvYeYwfZVhpDm4C9Br
+ aSd5+247DRQfwFP0lP0agWauJyeopKe2llWzmEl5NIC65XkiVzFqAAtIYg25rlXIm+SWoibQ3AZM
+ ALBhEbyVhxTQuT9XG78XAp7XOrX38Hds3tvbtr11JJF6zXaLynBG9pqdu9PO6vW72KD960w1gD6z
+ yhBUd49t50tBlrwxqBMgajE2rb0Xas7e/n7LyNYQaMHe3G2rG2lLmimiKqjvZj7VkbOivnzOwtun
+ /6OI4f1ZmnceIBAAA=
+From:   Ricardo Ribalda <ribalda@chromium.org>
+Date:   Wed, 30 Nov 2022 17:29:19 +0100
+Message-Id: <20221127-snd-freeze-v7-0-127c582f1ca4@chromium.org>
+To:     Steven Rostedt <rostedt@goodmis.org>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Chromeos Kdump <chromeos-kdump@google.com>,
+        Mark Brown <broonie@kernel.org>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Takashi Iwai <tiwai@suse.com>
+Cc:     alsa-devel@alsa-project.org, sound-open-firmware@alsa-project.org,
+        kexec@lists.infradead.org, stable@vger.kernel.org,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        linux-kernel@vger.kernel.org
+X-Mailer: b4 0.11.0-dev-696ae
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2556; i=ribalda@chromium.org;
+ h=from:subject:message-id; bh=fWR7ZhQQr5ar1fWGLk9Z4Z/KnsEAhZyZVnGAD/1s2QE=;
+ b=owEBbQKS/ZANAwAKAdE30T7POsSIAcsmYgBjh4Tj1YJB5e2N7FcWhOjD8LaBqVFgwZ6IzdIM0xvp
+ aiGFuduJAjMEAAEKAB0WIQREDzjr+/4oCDLSsx7RN9E+zzrEiAUCY4eE4wAKCRDRN9E+zzrEiCKbD/
+ 9ABaeeu+udLacBhMTu+U8I0v2fMtTFzWs53fP+KTDnJE63jhi466UEK2Eu6YjLxuiFFGwoA1H9rm2F
+ K2d3T8RyD7FP9KkvaYEU3hdCAqEoYCWqTpseaJwBD1p0TGN2KlklISkClKwEecScrguxuDnBpNc0AO
+ IguSucJL9GHuRLPh2bmPzfqk9fXTmWHuXvMQSEbTFm08p7/8tnXD6c4DrF8y2kEkP8UOMYwRvlL3IL
+ jQClmEBBVFU9iGyCJlDnZufqBXd2FKl0G/Lle5yT9G4Aa8mXz0vTp7S4ESFrFPTVuZ6cr9a4BeDxF1
+ j/q77JY7hvMgmblwDTVpIZPgjoMeNhRvryvPDahtEaj1ysEwkwVR75y7sOPJipu/zHaL/G+c2hL8sf
+ efcLlAxITUlGn+K0htYH8F5Rwc3rgK+wmpd/KyshA1HS0vjx9os/T4qJXAoPcLo5v7rXB4nJs/udeN
+ NcI98QsNdnRVKpAjwvU8n+jhscLK4Mjf6WXo6ho5aWnkGpRU/bBcaw9IprIt8saDDtjAElFH7/nEL/
+ nAx/38CAt8kk5W9Ps6ixILZQLU0QpH9FGz9idFMKpPOQBQaCxbAGub5JOXKA971+4QARa0ecT9mNoh
+ HunOaLUT93bmfokQX9++oCdDrS1PKPCPc5SCFGB0AR0a2iI5fzOf3jzWj4Sg==
+X-Developer-Key: i=ribalda@chromium.org; a=openpgp;
+ fpr=9EC3BB66E2FC129A6F90B39556A0D81F9F782DA9
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2022-11-30 at 11:22 -0500, Mimi Zohar wrote:
-> On Wed, 2022-11-30 at 15:41 +0100, Roberto Sassu wrote:
-> > On Wed, 2022-11-23 at 14:49 +0100, Roberto Sassu wrote:
-> > > On Wed, 2022-11-23 at 08:40 -0500, Mimi Zohar wrote:
-> > > > On Wed, 2022-11-23 at 13:56 +0100, Roberto Sassu wrote:
-> > > > > On Tue, 2022-11-22 at 14:39 -0500, Mimi Zohar wrote:
-> > > > > > Hi Roberto,
-> > > > > > 
-> > > > > > On Fri, 2022-11-04 at 13:20 +0100, Roberto Sassu wrote:
-> > > > > > > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > > > > > > 
-> > > > > > > Commit ac4e97abce9b8 ("scatterlist: sg_set_buf() argument must be in linear
-> > > > > > > mapping") requires that both the signature and the digest resides in the
-> > > > > > > linear mapping area.
-> > > > > > > 
-> > > > > > > However, more recently commit ba14a194a434c ("fork: Add generic vmalloced
-> > > > > > > stack support"), made it possible to move the stack in the vmalloc area,
-> > > > > > > which could make the requirement of the first commit not satisfied anymore.
-> > > > > > > 
-> > > > > > > If CONFIG_SG=y and CONFIG_VMAP_STACK=y, the following BUG() is triggered:
-> > > > > > 
-> > > > > > ^CONFIG_DEBUG_SG
-> > > > > > 
-> > > > > > > [  467.077359] kernel BUG at include/linux/scatterlist.h:163!
-> > > > > > > [  467.077939] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-> > > > > > > 
-> > > > > > > [...]
-> > > > > > > 
-> > > > > > > [  467.095225] Call Trace:
-> > > > > > > [  467.096088]  <TASK>
-> > > > > > > [  467.096928]  ? rcu_read_lock_held_common+0xe/0x50
-> > > > > > > [  467.097569]  ? rcu_read_lock_sched_held+0x13/0x70
-> > > > > > > [  467.098123]  ? trace_hardirqs_on+0x2c/0xd0
-> > > > > > > [  467.098647]  ? public_key_verify_signature+0x470/0x470
-> > > > > > > [  467.099237]  asymmetric_verify+0x14c/0x300
-> > > > > > > [  467.099869]  evm_verify_hmac+0x245/0x360
-> > > > > > > [  467.100391]  evm_inode_setattr+0x43/0x190
-> > > > > > > 
-> > > > > > > The failure happens only for the digest, as the pointer comes from the
-> > > > > > > stack, and not for the signature, which instead was allocated by
-> > > > > > > vfs_getxattr_alloc().
-> > > > > > 
-> > > > > > Only after enabling CONFIG_DEBUG_SG does EVM fail.
-> > > > > > 
-> > > > > > > Fix this by making a copy of both in asymmetric_verify(), so that the
-> > > > > > > linear mapping requirement is always satisfied, regardless of the caller.
-> > > > > > 
-> > > > > > As only EVM is affected, it would make more sense to limit the change
-> > > > > > to EVM.
-> > > > > 
-> > > > > I found another occurrence:
-> > > > > 
-> > > > > static int xattr_verify(enum ima_hooks func, struct integrity_iint_cache *iint,
-> > > > > 			struct evm_ima_xattr_data *xattr_value, int xattr_len,
-> > > > > 			enum integrity_status *status, const char **cause)
-> > > > > {
-> > > > > 
-> > > > > [...]
-> > > > > 
-> > > > > 		rc = integrity_digsig_verify(INTEGRITY_KEYRING_IMA,
-> > > > > 					     (const char *)xattr_value,
-> > > > > 					     xattr_len, hash.digest,
-> > > > > 					     hash.hdr.length);
-> > > > > 
-> > > > > Should I do two patches?
-> > > > 
-> > > > I'm just not getting it.  Why did you enable CONFIG_DEBUG_SIG?  Were
-> > > > you testing random kernel configs?  Are you actually seeing signature
-> > > > verifications errors without it enabled?  Or is it causing other
-> > > > problems?  Is the "BUG_ON" still needed?
-> > > 
-> > > When I test patches, I tend to enable more debugging options.
-> > > 
-> > > To be honest, I didn't check if there is any issue without enabling
-> > > CONFIG_DEBUG_SG. I thought that if there is a linear mapping
-> > > requirement, that should be satisfied regardless of whether the
-> > > debugging option is enabled or not.
-> > > 
-> > > + Rusty, Jens for explanations.
-> > 
-> > Trying to answer the question, with the help of an old discussion:
-> > 
-> > https://groups.google.com/g/linux.kernel/c/dpIoiY_qSGc
-> > 
-> > sg_set_buf() calls virt_to_page() to get the page to start from. But if
-> > the buffer spans in two pages, that would not work in the vmalloc area,
-> > since there is no guarantee that the next page is adjiacent.
-> > 
-> > For small areas, much smaller than the page size, it is unlikely that
-> > the situation above would happen. So, integrity_digsig_verify() will
-> > likely succeeed. Although it is possible that it fails if there are
-> > data in the next page.
-> 
-> Thanks, Roberto.  Confirmed that as the patch description indicates,
-> without CONFIG_VMAP_STACK configured and with CONFIG_DEBUG_SG enabled
-> there isn't a bug.  Does it make sense to limit this change to just
-> CONFIG_VMAP_STACK?
+Since: 83bfc7e793b5 ("ASoC: SOF: core: unregister clients and machine drivers in .shutdown")
+we wait for all the workloads to be completed during shutdown. This was done to 
+avoid a stall once the device is started again.
 
-Yes, I agree.
+Unfortunately this has the side effect of stalling kexec(), if the userspace
+is frozen. Let's handle that case.
 
-Roberto
+To: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+To: Liam Girdwood <lgirdwood@gmail.com>
+To: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+To: Bard Liao <yung-chuan.liao@linux.intel.com>
+To: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+To: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+To: Daniel Baluta <daniel.baluta@nxp.com>
+To: Mark Brown <broonie@kernel.org>
+To: Jaroslav Kysela <perex@perex.cz>
+To: Takashi Iwai <tiwai@suse.com>
+To: Eric Biederman <ebiederm@xmission.com>
+To: Chromeos Kdump <chromeos-kdump@google.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: stable@vger.kernel.org
+Cc: sound-open-firmware@alsa-project.org
+Cc: alsa-devel@alsa-project.org
+Cc: linux-kernel@vger.kernel.org
+Cc: kexec@lists.infradead.org
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+---
+Changes in v7:
+- Fix commit message (Thanks Pierre-Louis).
+- Link to v6: https://lore.kernel.org/r/20221127-snd-freeze-v6-0-3e90553f64a5@chromium.org
 
+Changes in v6:
+- Check if we are in kexec with the userspace frozen.
+- Link to v5: https://lore.kernel.org/r/20221127-snd-freeze-v5-0-4ededeb08ba0@chromium.org
+
+Changes in v5:
+- Edit subject prefix.
+- Link to v4: https://lore.kernel.org/r/20221127-snd-freeze-v4-0-51ca64b7f2ab@chromium.org
+
+Changes in v4:
+- Do not call snd_sof_machine_unregister from shutdown.
+- Link to v3: https://lore.kernel.org/r/20221127-snd-freeze-v3-0-a2eda731ca14@chromium.org
+
+Changes in v3:
+- Wrap pm_freezing in a function.
+- Link to v2: https://lore.kernel.org/r/20221127-snd-freeze-v2-0-d8a425ea9663@chromium.org
+
+Changes in v2:
+- Only use pm_freezing if CONFIG_FREEZER .
+- Link to v1: https://lore.kernel.org/r/20221127-snd-freeze-v1-0-57461a366ec2@chromium.org
+
+---
+Ricardo Ribalda (2):
+      kexec: Introduce kexec_with_frozen_processes
+      ASoC: SOF: Fix deadlock when shutdown a frozen userspace
+
+ include/linux/kexec.h | 3 +++
+ kernel/kexec_core.c   | 5 +++++
+ sound/soc/sof/core.c  | 4 +++-
+ 3 files changed, 11 insertions(+), 1 deletion(-)
+---
+base-commit: 4312098baf37ee17a8350725e6e0d0e8590252d4
+change-id: 20221127-snd-freeze-1ee143228326
+
+Best regards,
+-- 
+Ricardo Ribalda <ribalda@chromium.org>
