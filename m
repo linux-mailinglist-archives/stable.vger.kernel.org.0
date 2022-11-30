@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17DFC63DBF9
+	by mail.lfdr.de (Postfix) with ESMTP id D921363DBFA
 	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:31:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229472AbiK3Rbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 12:31:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57314 "EHLO
+        id S229769AbiK3Rbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 12:31:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229810AbiK3Rbk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:31:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D330C2C67C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:31:39 -0800 (PST)
+        with ESMTP id S229848AbiK3Rbl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:31:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D34112CE3E
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:31:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6924CB81C4C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:31:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B916BC433D6;
-        Wed, 30 Nov 2022 17:31:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C90361D38
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:31:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CC7DC433D6;
+        Wed, 30 Nov 2022 17:31:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669829497;
-        bh=oT8LiMbmxVCgrNBcWd7ZxFEWUv9lzyaSOVy44f6mZ8E=;
+        s=korg; t=1669829499;
+        bh=Bg9VFCAnkmh1PtcjpsV9xM/OmnT+TlJvRpB+OyqxOuM=;
         h=Subject:To:Cc:From:Date:From;
-        b=CgckdZi4JKMLodrgw7OizMyJPqjq06dJ5keuKx/9e/NMiX0v4N2Z6NK5iitXftHA+
-         LC1ODsLVkZWrUdXlHMkRdBiPAKbJ4+GbPZa9HHmMncEm+2f3Kne3jDrSfWUte2jMHz
-         pF680phDUAzWOQcMBjFVuU1PsFELHdipfvbf36l4=
-Subject: FAILED: patch "[PATCH] btrfs: qgroup: fix sleep from invalid context bug in" failed to apply to 5.4-stable tree
+        b=NIOgE+w9VvOACNrycwH5UCVmvpULj3WWQVwuPmB/WDNXv3Qjm9bNkQ2/H0BwgezQt
+         oxKIFR7HDKeFWiQgjHPwBmLn7optdLXocqpYSV2yhmRzNyzQ/lLvQZH3q3k15+JFQG
+         9LbKzq70ZztmZ7Qmsm3yrpskgSxEOikjXJ+mB/9o=
+Subject: FAILED: patch "[PATCH] btrfs: qgroup: fix sleep from invalid context bug in" failed to apply to 4.19-stable tree
 To:     chenxiaosong2@huawei.com, dsterba@suse.com, wqu@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Nov 2022 18:31:29 +0100
-Message-ID: <166982948977252@kroah.com>
+Date:   Wed, 30 Nov 2022 18:31:30 +0100
+Message-ID: <1669829490185188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
