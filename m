@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA55C63E050
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:55:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0735F63DF00
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:42:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231604AbiK3Szt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:55:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47280 "EHLO
+        id S231278AbiK3Smx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:42:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231611AbiK3Szs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:55:48 -0500
+        with ESMTP id S231256AbiK3Smi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:42:38 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BDAD63D75
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:55:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B7FBC15
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:42:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C50861D54
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:55:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC3C6C433C1;
-        Wed, 30 Nov 2022 18:55:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D793C61D72
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:42:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EABB4C433D6;
+        Wed, 30 Nov 2022 18:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834547;
-        bh=msowT8m+yx0LdFH96MBohWz6eRLFoNUV0Bi7ojjdjVk=;
+        s=korg; t=1669833756;
+        bh=p9Y4IcsPi3QPI89eV1iBhotO2YpMYvIDbvy4vbNAC/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fOIKOdNUsa//IAfaKbpkrEUKx4P+Gs6rQ5GnS80bCqRt1XD9EQx3I3IepsqlnaXcC
-         82u9y64iYNNjbN7I7f4PMUKwwmGktc3bTxzg2tmn/cMEFbIlPLuoHx8Z6jSvVwIb2A
-         CZLeA+ph4NKeLVWvR9AnKPwHZ/V+fuQvZMsnn994=
+        b=ytlVDNFlDkloq28V+YoFmwD+aKQ5lsYJLs9y0wDG0tc9/iueLeXReMbZ5Yb4qwFQF
+         Yiiqryk10Nh4ubjbZdTNG/rFsV/Tv7HqQyUQuihKyZNO8rv5MpyNikONkwXAo/Pifa
+         rsa1Foe8yDvcPay94GR7vGF3iCAAZdhjef4haP5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pengfei Xu <pengfei.xu@intel.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        syzbot+462da39f0667b357c4b6@syzkaller.appspotmail.com
-Subject: [PATCH 6.0 266/289] fuse: lock inode unconditionally in fuse_fallocate()
-Date:   Wed, 30 Nov 2022 19:24:11 +0100
-Message-Id: <20221130180550.129505808@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 200/206] btrfs: use kvcalloc in btrfs_get_dev_zone_info
+Date:   Wed, 30 Nov 2022 19:24:12 +0100
+Message-Id: <20221130180538.106015649@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 44361e8cf9ddb23f17bdcc40ca944abf32e83e79 upstream.
+commit 8fe97d47b52ae1ad130470b1780f0ded4ba609a4 upstream.
 
-file_modified() must be called with inode lock held.  fuse_fallocate()
-didn't lock the inode in case of just FALLOC_KEEP_SIZE flags value, which
-resulted in a kernel Warning in notify_change().
+Otherwise the kernel memory allocator seems to be unhappy about failing
+order 6 allocations for the zones array, that cause 100% reproducible
+mount failures in my qemu setup:
 
-Lock the inode unconditionally, like all other fallocate implementations
-do.
+  [26.078981] mount: page allocation failure: order:6, mode:0x40dc0(GFP_KERNEL|__GFP_COMP|__GFP_ZERO), nodemask=(null)
+  [26.079741] CPU: 0 PID: 2965 Comm: mount Not tainted 6.1.0-rc5+ #185
+  [26.080181] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+  [26.080950] Call Trace:
+  [26.081132]  <TASK>
+  [26.081291]  dump_stack_lvl+0x56/0x6f
+  [26.081554]  warn_alloc+0x117/0x140
+  [26.081808]  ? __alloc_pages_direct_compact+0x1b5/0x300
+  [26.082174]  __alloc_pages_slowpath.constprop.0+0xd0e/0xde0
+  [26.082569]  __alloc_pages+0x32a/0x340
+  [26.082836]  __kmalloc_large_node+0x4d/0xa0
+  [26.083133]  ? trace_kmalloc+0x29/0xd0
+  [26.083399]  kmalloc_large+0x14/0x60
+  [26.083654]  btrfs_get_dev_zone_info+0x1b9/0xc00
+  [26.083980]  ? _raw_spin_unlock_irqrestore+0x28/0x50
+  [26.084328]  btrfs_get_dev_zone_info_all_devices+0x54/0x80
+  [26.084708]  open_ctree+0xed4/0x1654
+  [26.084974]  btrfs_mount_root.cold+0x12/0xde
+  [26.085288]  ? lock_is_held_type+0xe2/0x140
+  [26.085603]  legacy_get_tree+0x28/0x50
+  [26.085876]  vfs_get_tree+0x1d/0xb0
+  [26.086139]  vfs_kern_mount.part.0+0x6c/0xb0
+  [26.086456]  btrfs_mount+0x118/0x3a0
+  [26.086728]  ? lock_is_held_type+0xe2/0x140
+  [26.087043]  legacy_get_tree+0x28/0x50
+  [26.087323]  vfs_get_tree+0x1d/0xb0
+  [26.087587]  path_mount+0x2ba/0xbe0
+  [26.087850]  ? _raw_spin_unlock_irqrestore+0x38/0x50
+  [26.088217]  __x64_sys_mount+0xfe/0x140
+  [26.088506]  do_syscall_64+0x35/0x80
+  [26.088776]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Reported-by: Pengfei Xu <pengfei.xu@intel.com>
-Reported-and-tested-by: syzbot+462da39f0667b357c4b6@syzkaller.appspotmail.com
-Fixes: 4a6f278d4827 ("fuse: add file_modified() to fallocate")
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 5b316468983d ("btrfs: get zone information of zoned block devices")
+CC: stable@vger.kernel.org # 5.15+
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/file.c |   41 ++++++++++++++++++-----------------------
- 1 file changed, 18 insertions(+), 23 deletions(-)
+ fs/btrfs/zoned.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -2963,11 +2963,9 @@ static long fuse_file_fallocate(struct f
- 		.mode = mode
- 	};
- 	int err;
--	bool lock_inode = !(mode & FALLOC_FL_KEEP_SIZE) ||
--			   (mode & (FALLOC_FL_PUNCH_HOLE |
--				    FALLOC_FL_ZERO_RANGE));
--
--	bool block_faults = FUSE_IS_DAX(inode) && lock_inode;
-+	bool block_faults = FUSE_IS_DAX(inode) &&
-+		(!(mode & FALLOC_FL_KEEP_SIZE) ||
-+		 (mode & (FALLOC_FL_PUNCH_HOLE | FALLOC_FL_ZERO_RANGE)));
- 
- 	if (mode & ~(FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE |
- 		     FALLOC_FL_ZERO_RANGE))
-@@ -2976,22 +2974,20 @@ static long fuse_file_fallocate(struct f
- 	if (fm->fc->no_fallocate)
- 		return -EOPNOTSUPP;
- 
--	if (lock_inode) {
--		inode_lock(inode);
--		if (block_faults) {
--			filemap_invalidate_lock(inode->i_mapping);
--			err = fuse_dax_break_layouts(inode, 0, 0);
--			if (err)
--				goto out;
--		}
--
--		if (mode & (FALLOC_FL_PUNCH_HOLE | FALLOC_FL_ZERO_RANGE)) {
--			loff_t endbyte = offset + length - 1;
--
--			err = fuse_writeback_range(inode, offset, endbyte);
--			if (err)
--				goto out;
--		}
-+	inode_lock(inode);
-+	if (block_faults) {
-+		filemap_invalidate_lock(inode->i_mapping);
-+		err = fuse_dax_break_layouts(inode, 0, 0);
-+		if (err)
-+			goto out;
-+	}
-+
-+	if (mode & (FALLOC_FL_PUNCH_HOLE | FALLOC_FL_ZERO_RANGE)) {
-+		loff_t endbyte = offset + length - 1;
-+
-+		err = fuse_writeback_range(inode, offset, endbyte);
-+		if (err)
-+			goto out;
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -421,7 +421,7 @@ int btrfs_get_dev_zone_info(struct btrfs
+ 		goto out;
  	}
  
- 	if (!(mode & FALLOC_FL_KEEP_SIZE) &&
-@@ -3039,8 +3035,7 @@ out:
- 	if (block_faults)
- 		filemap_invalidate_unlock(inode->i_mapping);
+-	zones = kcalloc(BTRFS_REPORT_NR_ZONES, sizeof(struct blk_zone), GFP_KERNEL);
++	zones = kvcalloc(BTRFS_REPORT_NR_ZONES, sizeof(struct blk_zone), GFP_KERNEL);
+ 	if (!zones) {
+ 		ret = -ENOMEM;
+ 		goto out;
+@@ -517,7 +517,7 @@ int btrfs_get_dev_zone_info(struct btrfs
+ 	}
  
--	if (lock_inode)
--		inode_unlock(inode);
-+	inode_unlock(inode);
  
- 	fuse_flush_time_update(inode);
+-	kfree(zones);
++	kvfree(zones);
+ 
+ 	switch (bdev_zoned_model(bdev)) {
+ 	case BLK_ZONED_HM:
+@@ -549,7 +549,7 @@ int btrfs_get_dev_zone_info(struct btrfs
+ 	return 0;
+ 
+ out:
+-	kfree(zones);
++	kvfree(zones);
+ out_free_zone_info:
+ 	btrfs_destroy_dev_zone_info(device);
  
 
 
