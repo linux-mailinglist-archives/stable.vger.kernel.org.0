@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E58DB63DD9D
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:29:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C136463DE90
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:38:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229802AbiK3S3C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:29:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34642 "EHLO
+        id S230438AbiK3SiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:38:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229845AbiK3S27 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:28:59 -0500
+        with ESMTP id S230520AbiK3SiG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:38:06 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51F285EFBB
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:28:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E19823163
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:38:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E391E61B7C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:28:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2B6AC433C1;
-        Wed, 30 Nov 2022 18:28:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C8A061D54
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:38:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C32EC433D6;
+        Wed, 30 Nov 2022 18:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832938;
-        bh=0UE29nwUynVKzO0dAM11rnMEA4+fasz6dd8cQikoU7k=;
+        s=korg; t=1669833483;
+        bh=lZYlX9R6NTrGrPiEc9g8ilQ9Jaf88CamsoT5XaqCdGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=juXerGe78KYbSiZa2NJzKaKtCV7AgjLS+EqTnrkkAtFF/5cG+xZDhhN8HUtRErIM8
-         oKUo9KVIng3oMd2jlLFXWUfoG/cDeEP39L9OmWjvPVujodogub4E55+N/p3VYQaD5L
-         0nzhBGrIU4KZK/MpEAfMqDqkWWK78lY9gi1TLtn4=
+        b=yQ0nDHNhs6KppMzdIdik+RejiMaQ0/B8bmDJu3ch6mGPgqSNNHPg5cAC9Vn6lwGTf
+         4a0XSHJQk0mR1n+6ul4dZL8By9EQk45GLg8EGobaehYoLzwXigx7Xpp2lULqkvbFV1
+         E8E7sFrxRNzWCB4XlSwZyJK9IT4NEdn6l1Y1bByM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Sam Protsenko <semen.protsenko@linaro.org>
-Subject: [PATCH 5.10 093/162] usb: dwc3: exynos: Fix remove() function
+        patches@lists.linux.dev, Wang Hai <wanghai38@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 122/206] arcnet: fix potential memory leak in com20020_probe()
 Date:   Wed, 30 Nov 2022 19:22:54 +0100
-Message-Id: <20221130180531.017006140@linuxfoundation.org>
+Message-Id: <20221130180536.152285242@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit e0481e5b3cc12ea7ccf4552d41518c89d3509004 upstream.
+[ Upstream commit 1c40cde6b5171d9c8dfc69be00464fd1c75e210b ]
 
-The core DWC3 device node was not properly removed by the custom
-dwc3_exynos_remove_child() function. Replace it with generic
-of_platform_depopulate() which does that job right.
+In com20020_probe(), if com20020_config() fails, dev and info
+will not be freed, which will lead to a memory leak.
 
-Fixes: adcf20dcd262 ("usb: dwc3: exynos: Use of_platform API to create dwc3 core pdev")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
-Link: https://lore.kernel.org/r/20221110154131.2577-1-m.szyprowski@samsung.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch adds freeing dev and info after com20020_config()
+fails to fix this bug.
+
+Compile tested only.
+
+Fixes: 15b99ac17295 ("[PATCH] pcmcia: add return value to _config() functions")
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-exynos.c |   11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ drivers/net/arcnet/com20020_cs.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/dwc3-exynos.c
-+++ b/drivers/usb/dwc3/dwc3-exynos.c
-@@ -37,15 +37,6 @@ struct dwc3_exynos {
- 	struct regulator	*vdd10;
- };
+diff --git a/drivers/net/arcnet/com20020_cs.c b/drivers/net/arcnet/com20020_cs.c
+index b88a109b3b15..26ee263d8f3a 100644
+--- a/drivers/net/arcnet/com20020_cs.c
++++ b/drivers/net/arcnet/com20020_cs.c
+@@ -113,6 +113,7 @@ static int com20020_probe(struct pcmcia_device *p_dev)
+ 	struct com20020_dev *info;
+ 	struct net_device *dev;
+ 	struct arcnet_local *lp;
++	int ret = -ENOMEM;
  
--static int dwc3_exynos_remove_child(struct device *dev, void *unused)
--{
--	struct platform_device *pdev = to_platform_device(dev);
--
--	platform_device_unregister(pdev);
--
--	return 0;
--}
--
- static int dwc3_exynos_probe(struct platform_device *pdev)
- {
- 	struct dwc3_exynos	*exynos;
-@@ -142,7 +133,7 @@ static int dwc3_exynos_remove(struct pla
- 	struct dwc3_exynos	*exynos = platform_get_drvdata(pdev);
- 	int i;
+ 	dev_dbg(&p_dev->dev, "com20020_attach()\n");
  
--	device_for_each_child(&pdev->dev, NULL, dwc3_exynos_remove_child);
-+	of_platform_depopulate(&pdev->dev);
+@@ -142,12 +143,18 @@ static int com20020_probe(struct pcmcia_device *p_dev)
+ 	info->dev = dev;
+ 	p_dev->priv = info;
  
- 	for (i = exynos->num_clks - 1; i >= 0; i--)
- 		clk_disable_unprepare(exynos->clks[i]);
+-	return com20020_config(p_dev);
++	ret = com20020_config(p_dev);
++	if (ret)
++		goto fail_config;
++
++	return 0;
+ 
++fail_config:
++	free_arcdev(dev);
+ fail_alloc_dev:
+ 	kfree(info);
+ fail_alloc_info:
+-	return -ENOMEM;
++	return ret;
+ } /* com20020_attach */
+ 
+ static void com20020_detach(struct pcmcia_device *link)
+-- 
+2.35.1
+
 
 
