@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8557463DDBC
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:30:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 782B963DEC7
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:40:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229512AbiK3SaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:30:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36078 "EHLO
+        id S230465AbiK3Skp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:40:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229503AbiK3S36 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:29:58 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A9F78D65E
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:29:52 -0800 (PST)
+        with ESMTP id S231147AbiK3Sko (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94C5197039
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 042F5CE1AD1
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:29:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8D79C433C1;
-        Wed, 30 Nov 2022 18:29:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3196661D6A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41A7FC433C1;
+        Wed, 30 Nov 2022 18:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832989;
-        bh=0Rw3glO7BbKdV2UUK99NIwbtnCBZNmi/5PROH3ajUa4=;
+        s=korg; t=1669833642;
+        bh=1D4f8fUU4CIABjMo6IeZN+Z7Fi+qbxtxwOrDsACa/W0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NbQOrrLPLv3R89VgewHnpivLuto5gET2pNLn7FlIf8fbchs8IEdYjeKvd6upYe925
-         Vc+9PnIA41WEixfkCrc/Y/aCkVn04hO7UoX62xwFdLdRZ1crycOG/3G3kTGzrMpe+e
-         SvfqR5o+r2iHw8a7/ZGc7E/Pae9XTXJ+kNMfAC7k=
+        b=sKVKb2VKp+N7QB5JuOWAwxctz6Dpfy57/HaIjPwbds7fvV3YHz0d1RKUh/jLjjCId
+         kCmPWrlF+pzQFu+5Ots0diTIw/oHDuuUAcO9os5s4mxkrPfdbn2jY6TARmyhIBbVyW
+         iuaqxuX2GTQWUDALbjXtrS9TMqZ/8izDfvJLQAto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiubo Li <xiubli@redhat.com>,
-        Venky Shankar <vshankar@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 112/162] ceph: put the requests/sessions when it fails to alloc memory
-Date:   Wed, 30 Nov 2022 19:23:13 +0100
-Message-Id: <20221130180531.525751501@linuxfoundation.org>
+        patches@lists.linux.dev, Peter Chen <peter.chen@kernel.org>,
+        Pawel Laszczak <pawell@cadence.com>
+Subject: [PATCH 5.15 142/206] usb: cdnsp: Fix issue with Clear Feature Halt Endpoint
+Date:   Wed, 30 Nov 2022 19:23:14 +0100
+Message-Id: <20221130180536.651703453@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,151 +52,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Pawel Laszczak <pawell@cadence.com>
 
-[ Upstream commit 89d43d0551a848e70e63d9ba11534aaeabc82443 ]
+commit b25264f22b498dff3fa5c70c9bea840e83fff0d1 upstream.
 
-When failing to allocate the sessions memory we should make sure
-the req1 and req2 and the sessions get put. And also in case the
-max_sessions decreased so when kreallocate the new memory some
-sessions maybe missed being put.
+During handling Clear Halt Endpoint Feature request, driver invokes
+Reset Endpoint command. Because this command has some issue with
+transition endpoint from Running to Idle state the driver must
+stop the endpoint by using Stop Endpoint command.
 
-And if the max_sessions is 0 krealloc will return ZERO_SIZE_PTR,
-which will lead to a distinct access fault.
-
-URL: https://tracker.ceph.com/issues/53819
-Fixes: e1a4541ec0b9 ("ceph: flush the mdlog before waiting on unsafe reqs")
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Venky Shankar <vshankar@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Stable-dep-of: 5bd76b8de5b7 ("ceph: fix NULL pointer dereference for req->r_session")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+cc: <stable@vger.kernel.org>
+Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20221110063005.370656-1-pawell@cadence.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/caps.c | 55 +++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 37 insertions(+), 18 deletions(-)
+ drivers/usb/cdns3/cdnsp-gadget.c |   12 ++++--------
+ drivers/usb/cdns3/cdnsp-ring.c   |    3 ++-
+ 2 files changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index f14d52848b91..4e2fada35808 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -2297,6 +2297,7 @@ static int unsafe_request_wait(struct inode *inode)
- 	struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
- 	struct ceph_inode_info *ci = ceph_inode(inode);
- 	struct ceph_mds_request *req1 = NULL, *req2 = NULL;
-+	unsigned int max_sessions;
- 	int ret, err = 0;
+--- a/drivers/usb/cdns3/cdnsp-gadget.c
++++ b/drivers/usb/cdns3/cdnsp-gadget.c
+@@ -600,11 +600,11 @@ int cdnsp_halt_endpoint(struct cdnsp_dev
  
- 	spin_lock(&ci->i_unsafe_lock);
-@@ -2314,37 +2315,45 @@ static int unsafe_request_wait(struct inode *inode)
- 	}
- 	spin_unlock(&ci->i_unsafe_lock);
+ 	trace_cdnsp_ep_halt(value ? "Set" : "Clear");
  
-+	/*
-+	 * The mdsc->max_sessions is unlikely to be changed
-+	 * mostly, here we will retry it by reallocating the
-+	 * sessions array memory to get rid of the mdsc->mutex
-+	 * lock.
-+	 */
-+retry:
-+	max_sessions = mdsc->max_sessions;
-+
- 	/*
- 	 * Trigger to flush the journal logs in all the relevant MDSes
- 	 * manually, or in the worst case we must wait at most 5 seconds
- 	 * to wait the journal logs to be flushed by the MDSes periodically.
- 	 */
--	if (req1 || req2) {
-+	if ((req1 || req2) && likely(max_sessions)) {
- 		struct ceph_mds_session **sessions = NULL;
- 		struct ceph_mds_session *s;
- 		struct ceph_mds_request *req;
--		unsigned int max;
- 		int i;
+-	if (value) {
+-		ret = cdnsp_cmd_stop_ep(pdev, pep);
+-		if (ret)
+-			return ret;
++	ret = cdnsp_cmd_stop_ep(pdev, pep);
++	if (ret)
++		return ret;
  
++	if (value) {
+ 		if (GET_EP_CTX_STATE(pep->out_ctx) == EP_STATE_STOPPED) {
+ 			cdnsp_queue_halt_endpoint(pdev, pep->idx);
+ 			cdnsp_ring_cmd_db(pdev);
+@@ -613,10 +613,6 @@ int cdnsp_halt_endpoint(struct cdnsp_dev
+ 
+ 		pep->ep_state |= EP_HALTED;
+ 	} else {
 -		/*
--		 * The mdsc->max_sessions is unlikely to be changed
--		 * mostly, here we will retry it by reallocating the
--		 * sessions arrary memory to get rid of the mdsc->mutex
--		 * lock.
+-		 * In device mode driver can call reset endpoint command
+-		 * from any endpoint state.
 -		 */
--retry:
--		max = mdsc->max_sessions;
--		sessions = krealloc(sessions, max * sizeof(s), __GFP_ZERO);
--		if (!sessions)
--			return -ENOMEM;
-+		sessions = kzalloc(max_sessions * sizeof(s), GFP_KERNEL);
-+		if (!sessions) {
-+			err = -ENOMEM;
-+			goto out;
-+		}
+ 		cdnsp_queue_reset_ep(pdev, pep->idx);
+ 		cdnsp_ring_cmd_db(pdev);
+ 		ret = cdnsp_wait_for_cmd_compl(pdev);
+--- a/drivers/usb/cdns3/cdnsp-ring.c
++++ b/drivers/usb/cdns3/cdnsp-ring.c
+@@ -2076,7 +2076,8 @@ int cdnsp_cmd_stop_ep(struct cdnsp_devic
+ 	u32 ep_state = GET_EP_CTX_STATE(pep->out_ctx);
+ 	int ret = 0;
  
- 		spin_lock(&ci->i_unsafe_lock);
- 		if (req1) {
- 			list_for_each_entry(req, &ci->i_unsafe_dirops,
- 					    r_unsafe_dir_item) {
- 				s = req->r_session;
--				if (unlikely(s->s_mds >= max)) {
-+				if (unlikely(s->s_mds >= max_sessions)) {
- 					spin_unlock(&ci->i_unsafe_lock);
-+					for (i = 0; i < max_sessions; i++) {
-+						s = sessions[i];
-+						if (s)
-+							ceph_put_mds_session(s);
-+					}
-+					kfree(sessions);
- 					goto retry;
- 				}
- 				if (!sessions[s->s_mds]) {
-@@ -2357,8 +2366,14 @@ static int unsafe_request_wait(struct inode *inode)
- 			list_for_each_entry(req, &ci->i_unsafe_iops,
- 					    r_unsafe_target_item) {
- 				s = req->r_session;
--				if (unlikely(s->s_mds >= max)) {
-+				if (unlikely(s->s_mds >= max_sessions)) {
- 					spin_unlock(&ci->i_unsafe_lock);
-+					for (i = 0; i < max_sessions; i++) {
-+						s = sessions[i];
-+						if (s)
-+							ceph_put_mds_session(s);
-+					}
-+					kfree(sessions);
- 					goto retry;
- 				}
- 				if (!sessions[s->s_mds]) {
-@@ -2379,7 +2394,7 @@ static int unsafe_request_wait(struct inode *inode)
- 		spin_unlock(&ci->i_ceph_lock);
- 
- 		/* send flush mdlog request to MDSes */
--		for (i = 0; i < max; i++) {
-+		for (i = 0; i < max_sessions; i++) {
- 			s = sessions[i];
- 			if (s) {
- 				send_flush_mdlog(s);
-@@ -2396,15 +2411,19 @@ static int unsafe_request_wait(struct inode *inode)
- 					ceph_timeout_jiffies(req1->r_timeout));
- 		if (ret)
- 			err = -EIO;
--		ceph_mdsc_put_request(req1);
+-	if (ep_state == EP_STATE_STOPPED || ep_state == EP_STATE_DISABLED) {
++	if (ep_state == EP_STATE_STOPPED || ep_state == EP_STATE_DISABLED ||
++	    ep_state == EP_STATE_HALTED) {
+ 		trace_cdnsp_ep_stopped_or_disabled(pep->out_ctx);
+ 		goto ep_stopped;
  	}
- 	if (req2) {
- 		ret = !wait_for_completion_timeout(&req2->r_safe_completion,
- 					ceph_timeout_jiffies(req2->r_timeout));
- 		if (ret)
- 			err = -EIO;
--		ceph_mdsc_put_request(req2);
- 	}
-+
-+out:
-+	if (req1)
-+		ceph_mdsc_put_request(req1);
-+	if (req2)
-+		ceph_mdsc_put_request(req2);
- 	return err;
- }
- 
--- 
-2.35.1
-
 
 
