@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EDC763E010
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:53:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 296DE63DEC3
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:40:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231518AbiK3SxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:53:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42824 "EHLO
+        id S231137AbiK3Skh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:40:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231557AbiK3SxE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:53:04 -0500
+        with ESMTP id S231145AbiK3Ske (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:34 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80E03275DE
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:53:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E262497021
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C721B81C9F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:53:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EC80C433C1;
-        Wed, 30 Nov 2022 18:53:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9598AB81B22
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0309FC433D6;
+        Wed, 30 Nov 2022 18:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834380;
-        bh=/7nNmNLkVrG6cnl4XZM4dyEmfIA/rHGBXc7NZRApXoo=;
+        s=korg; t=1669833631;
+        bh=aMN0ODm9/+ic3zIBhwAGdEfUsgdV3cDgwPG4ESolaJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vwIm0LY+LrgX5CHkqhjNrQHHPSIpVjaVOIZMfAr6MTfII1qIuST7ljX98OCLOxr9u
-         1KyOlY7dMUxgCEj7KPaS6JRhWuwRDzOPLjk+9NCId+x2O+4rqI2wgLAUFypmnW+aYX
-         yKAz5KMVRDS1yPqf0IvAMlMZKSVfJyiRrt5gCXWQ=
+        b=2CN3w/4ZhlpxjNFY8mIFdmMwTy8uGxwKve7MhVfSeMsKh7/LXIpvsaKW5s9XKeReZ
+         ExQOgGhbk0EQg3apQaGbQ8TjNuKyWJfHBukac9VgqaYl290sfrnTceS2TFxkW4z1Gq
+         tYtgE36+ZIAyUSCIKIBS+O6SNb/0oT80vNVbU7d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michal Luczaj <mhal@rbox.co>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Sean Christopherson <seanjc@google.com>, stable@kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.0 205/289] KVM: x86/xen: Validate port number in SCHEDOP_poll
+        patches@lists.linux.dev, Al Cooper <alcooperx@gmail.com>,
+        Kamal Dasu <kdasu.kdev@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 138/206] mmc: sdhci-brcmstb: Enable Clock Gating to save power
 Date:   Wed, 30 Nov 2022 19:23:10 +0100
-Message-Id: <20221130180548.767960200@linuxfoundation.org>
+Message-Id: <20221130180536.550537786@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +56,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Woodhouse <dwmw@amazon.co.uk>
+From: Al Cooper <alcooperx@gmail.com>
 
-commit 4ea9439fd537313f3381f0af4ebbf05e3f51a58c upstream.
+[ Upstream commit 6bcc55fe648b860ef0c2b8dc23adc05bcddb93c2 ]
 
-We shouldn't allow guests to poll on arbitrary port numbers off the end
-of the event channel table.
+Enabling this feature will allow the controller to stop the bus
+clock when the bus is idle. The feature is not part of the standard
+and is unique to newer Arasan cores and is enabled with a bit in a
+vendor specific register. This feature will only be enabled for
+non-removable devices because they don't switch the voltage and
+clock gating breaks SD Card volatge switching.
 
-Fixes: 1a65105a5aba ("KVM: x86/xen: handle PV spinlocks slowpath")
-[dwmw2: my bug though; the original version did check the validity as a
- side-effect of an idr_find() which I ripped out in refactoring.]
-Reported-by: Michal Luczaj <mhal@rbox.co>
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Cc: stable@kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
+Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20220427180853.35970-3-kdasu.kdev@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Stable-dep-of: 56baa208f910 ("mmc: sdhci-brcmstb: Fix SDHCI_RESET_ALL for CQHCI")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/xen.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/mmc/host/sdhci-brcmstb.c | 35 +++++++++++++++++++++++++++++++-
+ 1 file changed, 34 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/xen.c
-+++ b/arch/x86/kvm/xen.c
-@@ -954,6 +954,14 @@ static int kvm_xen_hypercall_complete_us
- 	return kvm_xen_hypercall_set_result(vcpu, run->xen.u.hcall.result);
- }
+diff --git a/drivers/mmc/host/sdhci-brcmstb.c b/drivers/mmc/host/sdhci-brcmstb.c
+index 244780481193..683d0c685748 100644
+--- a/drivers/mmc/host/sdhci-brcmstb.c
++++ b/drivers/mmc/host/sdhci-brcmstb.c
+@@ -17,11 +17,14 @@
  
-+static inline int max_evtchn_port(struct kvm *kvm)
+ #define SDHCI_VENDOR 0x78
+ #define  SDHCI_VENDOR_ENHANCED_STRB 0x1
++#define  SDHCI_VENDOR_GATE_SDCLK_EN 0x2
+ 
+ #define BRCMSTB_MATCH_FLAGS_NO_64BIT		BIT(0)
+ #define BRCMSTB_MATCH_FLAGS_BROKEN_TIMEOUT	BIT(1)
++#define BRCMSTB_MATCH_FLAGS_HAS_CLOCK_GATE	BIT(2)
+ 
+ #define BRCMSTB_PRIV_FLAGS_HAS_CQE		BIT(0)
++#define BRCMSTB_PRIV_FLAGS_GATE_CLOCK		BIT(1)
+ 
+ #define SDHCI_ARASAN_CQE_BASE_ADDR		0x200
+ 
+@@ -36,6 +39,27 @@ struct brcmstb_match_priv {
+ 	const unsigned int flags;
+ };
+ 
++static inline void enable_clock_gating(struct sdhci_host *host)
 +{
-+	if (IS_ENABLED(CONFIG_64BIT) && kvm->arch.xen.long_mode)
-+		return EVTCHN_2L_NR_CHANNELS;
-+	else
-+		return COMPAT_EVTCHN_2L_NR_CHANNELS;
++	u32 reg;
++
++	reg = sdhci_readl(host, SDHCI_VENDOR);
++	reg |= SDHCI_VENDOR_GATE_SDCLK_EN;
++	sdhci_writel(host, reg, SDHCI_VENDOR);
 +}
 +
- static bool wait_pending_event(struct kvm_vcpu *vcpu, int nr_ports,
- 			       evtchn_port_t *ports)
++void brcmstb_reset(struct sdhci_host *host, u8 mask)
++{
++	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
++	struct sdhci_brcmstb_priv *priv = sdhci_pltfm_priv(pltfm_host);
++
++	sdhci_reset(host, mask);
++
++	/* Reset will clear this, so re-enable it */
++	if (priv->flags & BRCMSTB_PRIV_FLAGS_GATE_CLOCK)
++		enable_clock_gating(host);
++}
++
+ static void sdhci_brcmstb_hs400es(struct mmc_host *mmc, struct mmc_ios *ios)
  {
-@@ -1042,6 +1050,10 @@ static bool kvm_xen_schedop_poll(struct
- 			*r = -EFAULT;
- 			goto out;
- 		}
-+		if (ports[i] >= max_evtchn_port(vcpu->kvm)) {
-+			*r = -EINVAL;
-+			goto out;
-+		}
- 	}
+ 	struct sdhci_host *host = mmc_priv(mmc);
+@@ -131,7 +155,7 @@ static struct sdhci_ops sdhci_brcmstb_ops = {
+ static struct sdhci_ops sdhci_brcmstb_ops_7216 = {
+ 	.set_clock = sdhci_brcmstb_set_clock,
+ 	.set_bus_width = sdhci_set_bus_width,
+-	.reset = sdhci_reset,
++	.reset = brcmstb_reset,
+ 	.set_uhs_signaling = sdhci_brcmstb_set_uhs_signaling,
+ };
  
- 	if (sched_poll.nr_ports == 1)
-@@ -1308,14 +1320,6 @@ handle_in_userspace:
- 	return 0;
- }
+@@ -147,6 +171,7 @@ static struct brcmstb_match_priv match_priv_7445 = {
+ };
  
--static inline int max_evtchn_port(struct kvm *kvm)
--{
--	if (IS_ENABLED(CONFIG_64BIT) && kvm->arch.xen.long_mode)
--		return EVTCHN_2L_NR_CHANNELS;
--	else
--		return COMPAT_EVTCHN_2L_NR_CHANNELS;
--}
--
- static void kvm_xen_check_poller(struct kvm_vcpu *vcpu, int port)
- {
- 	int poll_evtchn = vcpu->arch.xen.poll_evtchn;
+ static const struct brcmstb_match_priv match_priv_7216 = {
++	.flags = BRCMSTB_MATCH_FLAGS_HAS_CLOCK_GATE,
+ 	.hs400es = sdhci_brcmstb_hs400es,
+ 	.ops = &sdhci_brcmstb_ops_7216,
+ };
+@@ -273,6 +298,14 @@ static int sdhci_brcmstb_probe(struct platform_device *pdev)
+ 	if (res)
+ 		goto err;
+ 
++	/*
++	 * Automatic clock gating does not work for SD cards that may
++	 * voltage switch so only enable it for non-removable devices.
++	 */
++	if ((match_priv->flags & BRCMSTB_MATCH_FLAGS_HAS_CLOCK_GATE) &&
++	    (host->mmc->caps & MMC_CAP_NONREMOVABLE))
++		priv->flags |= BRCMSTB_PRIV_FLAGS_GATE_CLOCK;
++
+ 	/*
+ 	 * If the chip has enhanced strobe and it's enabled, add
+ 	 * callback
+-- 
+2.35.1
+
 
 
