@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4781163E035
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:54:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0F4563DE00
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:32:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231557AbiK3Syp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:54:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45342 "EHLO
+        id S229576AbiK3Sct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:32:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231585AbiK3Syh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:54:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C58C68DBD5
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:54:33 -0800 (PST)
+        with ESMTP id S229718AbiK3Scs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:32:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A86A210AF
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:32:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54BD7B81CB0
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:54:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B4BCC433D6;
-        Wed, 30 Nov 2022 18:54:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FF5AB81B21
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:32:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 635C9C433D6;
+        Wed, 30 Nov 2022 18:32:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834471;
-        bh=T2hPKsWNW7abcrcjLBMijRjZLL8m3qgeJM8HhFt9LdU=;
+        s=korg; t=1669833155;
+        bh=pLyDsuzvftZ1wyqyqFC7Qnj+LsNadvkJ/wdF6YGEroA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PYuh+OFbfdznMVf/FTJYzJ3X9JG+ejvdwf/mZAMsqkeW0COmPD+afDBRnlOMTi1aj
-         GIOQ6wgNDRCfGQKtsBOr16rIrUUFsa7mXCyVC3XK5nFdFw/8ufjQvrlrWt1ZW7uGci
-         UQUr4ua9WiViQ/1pX/aykCRk2/HVbQz+KUeXyrCk=
+        b=ATGiE2YWF9CuihwUlODy3HlaZXkYKuXwTRHWTKWsthZQ6KjacKh8KXhxzjZw06VjF
+         CK+6hfi7vqYrGyNJCFxDQOJyqymVPpnGMxjSqfN6ao6tMoxT+nzuqBiXxQkK+9ScqI
+         dtf0uNcIpPiir68HWYRY+hZrxhLhuV7JQdQtegN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
-        Mike Snitzer <snitzer@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 258/289] dm-integrity: set dma_alignment limit in io_hints
+        patches@lists.linux.dev, Chris Wilson <chris.p.wilson@intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 162/162] drm/i915: fix TLB invalidation for Gen12 video and compute engines
 Date:   Wed, 30 Nov 2022 19:24:03 +0100
-Message-Id: <20221130180549.952398087@linuxfoundation.org>
+Message-Id: <20221130180532.864197955@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Andrzej Hajda <andrzej.hajda@intel.com>
 
-[ Upstream commit 29aa778bb66795e6a78b1c99beadc83887827868 ]
+commit 04aa64375f48a5d430b5550d9271f8428883e550 upstream.
 
-This device mapper needs bio vectors to be sized and memory aligned to
-the logical block size. Set the minimum required queue limit
-accordingly.
+In case of Gen12 video and compute engines, TLB_INV registers are masked -
+to modify one bit, corresponding bit in upper half of the register must
+be enabled, otherwise nothing happens.
 
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Mike Snitzer <snitzer@kernel.org>
-Link: https://lore.kernel.org/r/20221110184501.2451620-5-kbusch@meta.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CVE: CVE-2022-4139
+Suggested-by: Chris Wilson <chris.p.wilson@intel.com>
+Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-integrity.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/gt/intel_gt.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
-index aaf2472df6e5..e1e7b205573f 100644
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -3370,6 +3370,7 @@ static void dm_integrity_io_hints(struct dm_target *ti, struct queue_limits *lim
- 		limits->logical_block_size = ic->sectors_per_block << SECTOR_SHIFT;
- 		limits->physical_block_size = ic->sectors_per_block << SECTOR_SHIFT;
- 		blk_limits_io_min(limits, ic->sectors_per_block << SECTOR_SHIFT);
-+		limits->dma_alignment = limits->logical_block_size - 1;
- 	}
- }
+--- a/drivers/gpu/drm/i915/gt/intel_gt.c
++++ b/drivers/gpu/drm/i915/gt/intel_gt.c
+@@ -745,6 +745,10 @@ void intel_gt_invalidate_tlbs(struct int
+ 		if (!i915_mmio_reg_offset(rb.reg))
+ 			continue;
  
--- 
-2.35.1
-
++		if (INTEL_GEN(i915) == 12 && (engine->class == VIDEO_DECODE_CLASS ||
++		    engine->class == VIDEO_ENHANCEMENT_CLASS))
++			rb.bit = _MASKED_BIT_ENABLE(rb.bit);
++
+ 		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
+ 	}
+ 
 
 
