@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B8B663D595
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:29:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C688C63D596
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:29:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232871AbiK3M30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 07:29:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43998 "EHLO
+        id S233202AbiK3M3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 07:29:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231968AbiK3M30 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:29:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 416BB450AD
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:29:25 -0800 (PST)
+        with ESMTP id S233122AbiK3M32 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:29:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECEFC4876D
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:29:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED8E3B81B34
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:29:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64AA5C433D6;
-        Wed, 30 Nov 2022 12:29:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3B34B81B36
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:29:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11AAEC433C1;
+        Wed, 30 Nov 2022 12:29:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669811362;
-        bh=7yH4I7zW7AhDN2mfedSN/5mHrL5kUztvOyZWT1SqBcI=;
+        s=korg; t=1669811365;
+        bh=j57+3xWT4O6KctaEm5w2qU02DZW2+KevA3VO38x2c1s=;
         h=Subject:To:Cc:From:Date:From;
-        b=umV+l3LgYGSoaAZxW+awTOLi+OWHa70mhoCFA9Kf+QiCa7bWYSCFsfdcB/PMFvg0C
-         mPj/PwJOeTv5PLn3NhTR/JAMIF4v8s0C9gDlOJMvJOhufe7tlfe41o3knm+LTp/QT3
-         /8a1lZtfweNjTG2sb/DzCoRzGvH+e1JgPzAZsFK4=
-Subject: FAILED: patch "[PATCH] x86/ioremap: Fix page aligned size calculation in" failed to apply to 5.4-stable tree
+        b=AYPrP/ajx+IBm00yjzPYMcppgR0W31Ox94y0oDExjc8u75GEyS247FE2qb5t07Xzm
+         eil12BjSGlLii/gzbH0ad4VF20OOGhioZjzUWE3eJABxzpVLnA+PCsVu69xNwYOXZS
+         3cHTRLZnh1eUJexVI8Ju8NiyM3KRuG5cVEVgMLwk=
+Subject: FAILED: patch "[PATCH] x86/ioremap: Fix page aligned size calculation in" failed to apply to 4.19-stable tree
 To:     mikelley@microsoft.com, bp@suse.de, dave.hansen@linux.intel.com,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Nov 2022 13:29:18 +0100
-Message-ID: <1669811358103208@kroah.com>
+Date:   Wed, 30 Nov 2022 13:29:19 +0100
+Message-ID: <166981135915990@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
