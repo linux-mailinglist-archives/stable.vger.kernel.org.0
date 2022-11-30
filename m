@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8149463DF68
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 898D363DE15
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230378AbiK3SrA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:47:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56660 "EHLO
+        id S230232AbiK3Sdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:33:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231289AbiK3Sqk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:46:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB73193A61
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:46:39 -0800 (PST)
+        with ESMTP id S230234AbiK3Sd2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:33:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E56D42CCB9
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:33:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FE9061D4F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:46:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 911DDC433D6;
-        Wed, 30 Nov 2022 18:46:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8230E61D6A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:33:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62D21C433C1;
+        Wed, 30 Nov 2022 18:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833998;
-        bh=qoMvzlw7yvjvpldZmzc3+vZZx6RfL/sb/cPK0BUFb4I=;
+        s=korg; t=1669833206;
+        bh=Ht+mTh03eCXV89tmVLGxPNHo0irBxFtXjiwHIFAxXl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9Ck/tvqjBACCPkhdn80MScneeN3VZgSeocJQBaxigvF2Sqv7Pulm+afOfXnCUY1I
-         gLyZhGSSgkIaS67oP5m+yQkhZ+KnPq0DjudZjoSQJdAIw6oe2CA3FCWpbnBpxvLAEs
-         BZ1lRO0JWohfg4vTyuEEvjoooF+4/vA6CalqKpRA=
+        b=mGy73u7oCwP5K0yZSpKmVBvTW8emB9r8u6D31xfsyeS4LDglDts657B9a//xHwCTP
+         zsLOErL/WSFo7ZYXGNnEbiDzS0jOHKKKQrw4XZMCJoyaHU9pAlO2gKS77deGQbWPFt
+         /BpqrgIcxZZ0p45Q7H5eQdmne9HOUQ3sy9EyDjwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hui Tang <tanghui20@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Xiubo Li <xiubli@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 092/289] net: mvpp2: fix possible invalid pointer dereference
+Subject: [PATCH 5.15 025/206] ceph: avoid putting the realm twice when decoding snaps fails
 Date:   Wed, 30 Nov 2022 19:21:17 +0100
-Message-Id: <20221130180546.229746722@linuxfoundation.org>
+Message-Id: <20221130180533.635753254@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Tang <tanghui20@huawei.com>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit cbe867685386af1f0a2648f5279f6e4c74bfd17f ]
+[ Upstream commit 51884d153f7ec85e18d607b2467820a90e0f4359 ]
 
-It will cause invalid pointer dereference to priv->cm3_base behind,
-if PTR_ERR(priv->cm3_base) in mvpp2_get_sram().
+When decoding the snaps fails it maybe leaving the 'first_realm'
+and 'realm' pointing to the same snaprealm memory. And then it'll
+put it twice and could cause random use-after-free, BUG_ON, etc
+issues.
 
-Fixes: e54ad1e01c00 ("net: mvpp2: add CM3 SRAM memory map")
-Signed-off-by: Hui Tang <tanghui20@huawei.com>
-Link: https://lore.kernel.org/r/20221117084032.101144-1-tanghui20@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://tracker.ceph.com/issues/57686
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/ceph/snap.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index eaa51cd7456b..8f86be995092 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -7352,6 +7352,7 @@ static int mvpp2_get_sram(struct platform_device *pdev,
- 			  struct mvpp2 *priv)
- {
- 	struct resource *res;
-+	void __iomem *base;
+diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
+index ae9cf37374e3..b512c82f9ccd 100644
+--- a/fs/ceph/snap.c
++++ b/fs/ceph/snap.c
+@@ -705,7 +705,7 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
+ 	struct ceph_mds_snap_realm *ri;    /* encoded */
+ 	__le64 *snaps;                     /* encoded */
+ 	__le64 *prior_parent_snaps;        /* encoded */
+-	struct ceph_snap_realm *realm = NULL;
++	struct ceph_snap_realm *realm;
+ 	struct ceph_snap_realm *first_realm = NULL;
+ 	struct ceph_snap_realm *realm_to_rebuild = NULL;
+ 	int rebuild_snapcs;
+@@ -716,6 +716,7 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
- 	if (!res) {
-@@ -7362,9 +7363,12 @@ static int mvpp2_get_sram(struct platform_device *pdev,
- 		return 0;
- 	}
- 
--	priv->cm3_base = devm_ioremap_resource(&pdev->dev, res);
-+	base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(base))
-+		return PTR_ERR(base);
- 
--	return PTR_ERR_OR_ZERO(priv->cm3_base);
-+	priv->cm3_base = base;
-+	return 0;
- }
- 
- static int mvpp2_probe(struct platform_device *pdev)
+ 	dout("update_snap_trace deletion=%d\n", deletion);
+ more:
++	realm = NULL;
+ 	rebuild_snapcs = 0;
+ 	ceph_decode_need(&p, e, sizeof(*ri), bad);
+ 	ri = p;
 -- 
 2.35.1
 
