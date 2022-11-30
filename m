@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7EA863DDF7
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:32:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A421E63DEF9
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:42:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230154AbiK3ScX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:32:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38960 "EHLO
+        id S231247AbiK3Smg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:42:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230000AbiK3ScV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:32:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A73A18DFFC
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:32:20 -0800 (PST)
+        with ESMTP id S231266AbiK3SmT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:42:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 822CE99F4A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:42:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B50EB81C9C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:32:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DB84C433C1;
-        Wed, 30 Nov 2022 18:32:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D40F761D73
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:42:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6EC0C433C1;
+        Wed, 30 Nov 2022 18:42:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833137;
-        bh=r8taBK0juFTsm9rFk+xkwG9CEgBXIN5Wo0LyZmOehcg=;
+        s=korg; t=1669833737;
+        bh=vI2XmKZgqatvP3vfjv7XrJc4fMBw3Ck3tGlFPEqEFUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KhsIfcT0GN89fqSuUmjj/6psbzd6/Yo40nWR7o/aLMF6GW/146cIGwqO6Do6aIFlZ
-         0SClTQ0/+uFX6UGSowDQ0QWCxlLzL1MsGYRanFE6B/OmcJm0kp3+F7gyM03qvwXRpC
-         Q2ytDvk0wNoMMS6K/kdNgnRssYeL/6DAOGs5h4OQ=
+        b=Nj8KT3zpFxWcpw3l5ZqfS8fFLJR0UBi923V6NKp8t7Z4oCWXjP7CWIHbJlvBQQUTx
+         XePcVlpNLd1mB+cPvaBSoKUstTQoFO0/6GwsEBrJDRa87vweIwqGeTCzL+NRX2SI+J
+         eKbprFsFFLZ29JOcYn34wTTmDTXYdru44d4Rcpyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 136/162] Input: soc_button_array - add Acer Switch V 10 to dmi_use_low_level_irq[]
+Subject: [PATCH 5.15 165/206] ASoC: Intel: bytcht_es8316: Add quirk for the Nanote UMPC-01
 Date:   Wed, 30 Nov 2022 19:23:37 +0100
-Message-Id: <20221130180532.171977470@linuxfoundation.org>
+Message-Id: <20221130180537.227883743@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +56,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit e13757f52496444b994a7ac67b6e517a15d89bbc ]
+[ Upstream commit 8bb0ac0e6f64ebdf15d963c26b028de391c9bcf9 ]
 
-Like on the Acer Switch 10 SW5-012, the Acer Switch V 10 SW5-017's _LID
-method messes with home- and power-button GPIO IRQ settings, causing an
-IRQ storm.
-
-Add a quirk entry for the Acer Switch V 10 to the dmi_use_low_level_irq[]
-DMI quirk list, to use low-level IRQs on this model, fixing the IRQ storm.
+The Nanote UMPC-01 mini laptop has stereo speakers, while the default
+bytcht_es8316 settings assume a mono speaker setup. Add a quirk for this.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20221106215320.67109-2-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20221025140942.509066-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/soc_button_array.c | 7 +++++++
+ sound/soc/intel/boards/bytcht_es8316.c | 7 +++++++
  1 file changed, 7 insertions(+)
 
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index 46ba8218de99..31c02c2019c1 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -77,6 +77,13 @@ static const struct dmi_system_id dmi_use_low_level_irq[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire SW5-012"),
- 		},
+diff --git a/sound/soc/intel/boards/bytcht_es8316.c b/sound/soc/intel/boards/bytcht_es8316.c
+index 4d313d0d0f23..950457bcc28f 100644
+--- a/sound/soc/intel/boards/bytcht_es8316.c
++++ b/sound/soc/intel/boards/bytcht_es8316.c
+@@ -443,6 +443,13 @@ static const struct dmi_system_id byt_cht_es8316_quirk_table[] = {
+ 					| BYT_CHT_ES8316_INTMIC_IN2_MAP
+ 					| BYT_CHT_ES8316_JD_INVERTED),
  	},
-+	{
-+		/* Acer Switch V 10 SW5-017, same issue as Acer Switch 10 SW5-012. */
++	{	/* Nanote UMPC-01 */
 +		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "SW5-017"),
++			DMI_MATCH(DMI_SYS_VENDOR, "RWC CO.,LTD"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "UMPC-01"),
 +		},
++		.driver_data = (void *)BYT_CHT_ES8316_INTMIC_IN1_MAP,
 +	},
- 	{
- 		/*
- 		 * Acer One S1003. _LID method messes with power-button GPIO
+ 	{	/* Teclast X98 Plus II */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "TECLAST"),
 -- 
 2.35.1
 
