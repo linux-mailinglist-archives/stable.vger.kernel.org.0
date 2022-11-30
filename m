@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 327DB63DC29
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:38:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E857263DC2A
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:38:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229772AbiK3Rib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 12:38:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36086 "EHLO
+        id S229605AbiK3Ric (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 12:38:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229711AbiK3Ria (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:38:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFF4A37204
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:38:28 -0800 (PST)
+        with ESMTP id S229700AbiK3Rib (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:38:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5C033721E
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:38:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6695FB81C55
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:38:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C02A9C433C1;
-        Wed, 30 Nov 2022 17:38:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 550B961D3F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:38:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 666F2C433D6;
+        Wed, 30 Nov 2022 17:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669829906;
-        bh=zg/FNQsdE5lOSMXtJd/r1qhqqmd4lmwNquVeLrsKJqo=;
+        s=korg; t=1669829908;
+        bh=UiYAnelo8qL1ozod/QcYLQcA+BrZ9zDxN3dfZhHdhzg=;
         h=Subject:To:Cc:From:Date:From;
-        b=sHh9HPN/zVIxeTZXSCMJoBZd9JjmbVPXU8QeDoQUc05Yzq/oU3SlM2yd6OZBBeUI6
-         ZJ5oFI4UNV7FahMjCO/7lXm9WIbi2UdssGnx3RWUKy0dUdlz/1Z1Jp9xO49oVV95Qe
-         Ivm9+enNdbJ/qqDHgvoge4E/q1OSroaSOQBGRrHc=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: fix userptr HMM range handling v2" failed to apply to 6.0-stable tree
+        b=vJiCQQKrRUGDLwfHcWORVtGynSq1P5VIdk2p1A25GWgG+wLq5pcB0uUV99IO3gkcC
+         UA4OFFfNfwIq1DFx2CXpsC4QCHupOmh3x/tSEF44LLkikWedjrftZIoo9vl6TLVygY
+         r7oDzxt62vpYWVguR5pDzK9KPDyp2gcUCzXZN10c=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: fix userptr HMM range handling v2" failed to apply to 5.15-stable tree
 To:     christian.koenig@amd.com, Felix.Kuehling@amd.com,
         alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Nov 2022 18:38:15 +0100
-Message-ID: <1669829895214200@kroah.com>
+Date:   Wed, 30 Nov 2022 18:38:16 +0100
+Message-ID: <1669829896164149@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,9 @@ Possible dependencies:
 4458da0bb09d ("drm/amdgpu: fix userptr HMM range handling v2")
 4953b6b22ab9 ("drm/amdgpu: cleanup error handling in amdgpu_cs_parser_bos")
 736ec9fadd7a ("drm/amdgpu: move setting the job resources")
+c4c10a68e82b ("drm/amdgpu: Avoid direct cast to amdgpu_ttm_tt")
+5df79aeb6e08 ("drm/amdgpu: Protect the amdgpu_bo_list list with a mutex v2")
+b900352f9dde ("Merge tag 'amd-drm-next-5.19-2022-04-29' of https://gitlab.freedesktop.org/agd5f/linux into drm-next")
 
 thanks,
 
