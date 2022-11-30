@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F62863E01F
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:53:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E4D163DEDA
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:41:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229734AbiK3Sxv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:53:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42116 "EHLO
+        id S231200AbiK3Sl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:41:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231558AbiK3Sxq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:53:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 152BF1B7BF
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:53:44 -0800 (PST)
+        with ESMTP id S231207AbiK3SlU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:20 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D50999F1C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5922B81CAA
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:53:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44734C433D6;
-        Wed, 30 Nov 2022 18:53:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 993B5CE1AD1
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:41:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75BE3C433D6;
+        Wed, 30 Nov 2022 18:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834421;
-        bh=VxTm3MxpMPyyN/3fO9f250rjVnY+Vey+f1Yno6Te7mw=;
+        s=korg; t=1669833674;
+        bh=gnmLveGgCUVL3hBGtEXcixl4w48f/V1uI3GxD5XOKC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myGG0wk6iIGVVBbXJ8c/9Xnzu+H7aVnGirUrywicUr3KcBcHa6enau5c92Kf1rGt8
-         hQWeqoOTsEnCvtFES2UO+Y52aVfH42jeDuwuFv5wqA7KS4rm4ormLGIOi0BB1rt8Bg
-         nKBmw2EeONNvq6S4391GH4B0NdGNdCNWIH8mVDCI=
+        b=2PshWbzT3klfpulNXZiS1CCM+CmA9Gxc7dweX2UJ+wLVft4GyQPvOr/10Y25y7j6N
+         pRnBS7bJRZZgaXZUioOBcxef6fEfAPuTMNy4JciJdmkYNKuqg/xQzf/elDfYql2Qg/
+         75jX7aqMxRMIFACesRBOWA0n0c9lKWlMVWFxYsaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maximilian Luz <luzmaximilian@gmail.com>,
+        patches@lists.linux.dev, Meng Dong <whenov@gmail.com>,
+        Arnav Rawat <arnavr3@illinois.edu>,
         Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 247/289] platform/surface: aggregator_registry: Add support for Surface Pro 9
+Subject: [PATCH 5.15 180/206] platform/x86: ideapad-laptop: Fix interrupt storm on fn-lock toggle on some Yoga laptops
 Date:   Wed, 30 Nov 2022 19:23:52 +0100
-Message-Id: <20221130180549.707425421@linuxfoundation.org>
+Message-Id: <20221130180537.599102094@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Arnav Rawat <arnavr3@illinois.edu>
 
-[ Upstream commit d076f30957b1d026e9f6340691624926db0d369d ]
+[ Upstream commit 81a5603a0f50fd7cf17ff21d106052215eaf2028 ]
 
-Add device nodes to enable support for battery and charger status, the
-ACPI platform profile, as well as internal and type-cover HID devices
-(including sensors, touchpad, keyboard, and other miscellaneous devices)
-on the Surface Pro 9.
+Commit 3ae86d2d4704 ("platform/x86: ideapad-laptop: Fix Legion 5 Fn lock
+LED") uses the WMI event-id for the fn-lock event on some Legion 5 laptops
+to manually toggle the fn-lock LED because the EC does not do it itself.
+However, the same WMI ID is also sent on some Yoga laptops. Here, setting
+the fn-lock state is not valid behavior, and causes the EC to spam
+interrupts until the laptop is rebooted.
 
-This does not include support for a tablet-mode switch yet, as that is
-now handled via the POS subsystem (unlike the Surface Pro 8, where it is
-handled via the KIP subsystem) and therefore needs further changes.
+Add a set_fn_lock_led_list[] DMI-id list and only enable the workaround to
+manually set the LED on models on this list.
 
-While we're at it, also add the missing comment for the Surface Pro 8.
-
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Link: https://lore.kernel.org/r/20221113185951.224759-2-luzmaximilian@gmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=212671
+Cc: Meng Dong <whenov@gmail.com>
+Signed-off-by: Arnav Rawat <arnavr3@illinois.edu>
+Link: https://lore.kernel.org/r/12093851.O9o76ZdvQC@fedora
+[hdegoede@redhat.com: Check DMI-id list only once and store the result]
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../surface/surface_aggregator_registry.c     | 21 +++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/platform/x86/ideapad-laptop.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/platform/surface/surface_aggregator_registry.c b/drivers/platform/surface/surface_aggregator_registry.c
-index 585911020cea..db82c2a7c567 100644
---- a/drivers/platform/surface/surface_aggregator_registry.c
-+++ b/drivers/platform/surface/surface_aggregator_registry.c
-@@ -268,6 +268,7 @@ static const struct software_node *ssam_node_group_sp7[] = {
- 	NULL,
- };
+diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
+index ab4dfff2174b..7c553581e870 100644
+--- a/drivers/platform/x86/ideapad-laptop.c
++++ b/drivers/platform/x86/ideapad-laptop.c
+@@ -136,6 +136,7 @@ struct ideapad_private {
+ 		bool dytc                 : 1;
+ 		bool fan_mode             : 1;
+ 		bool fn_lock              : 1;
++		bool set_fn_lock_led      : 1;
+ 		bool hw_rfkill_switch     : 1;
+ 		bool kbd_bl               : 1;
+ 		bool touchpad_ctrl_via_ec : 1;
+@@ -1467,6 +1468,9 @@ static void ideapad_wmi_notify(u32 value, void *context)
+ 		ideapad_input_report(priv, value);
+ 		break;
+ 	case 208:
++		if (!priv->features.set_fn_lock_led)
++			break;
++
+ 		if (!eval_hals(priv->adev->handle, &result)) {
+ 			bool state = test_bit(HALS_FNLOCK_STATE_BIT, &result);
  
-+/* Devices for Surface Pro 8 */
- static const struct software_node *ssam_node_group_sp8[] = {
- 	&ssam_node_root,
- 	&ssam_node_hub_kip,
-@@ -284,6 +285,23 @@ static const struct software_node *ssam_node_group_sp8[] = {
- 	NULL,
- };
+@@ -1480,6 +1484,18 @@ static void ideapad_wmi_notify(u32 value, void *context)
+ }
+ #endif
  
-+/* Devices for Surface Pro 9 */
-+static const struct software_node *ssam_node_group_sp9[] = {
-+	&ssam_node_root,
-+	&ssam_node_hub_kip,
-+	&ssam_node_bat_ac,
-+	&ssam_node_bat_main,
-+	&ssam_node_tmp_pprof,
-+	/* TODO: Tablet mode switch (via POS subsystem) */
-+	&ssam_node_hid_kip_keyboard,
-+	&ssam_node_hid_kip_penstash,
-+	&ssam_node_hid_kip_touchpad,
-+	&ssam_node_hid_kip_fwupd,
-+	&ssam_node_hid_sam_sensors,
-+	&ssam_node_hid_sam_ucm_ucsi,
-+	NULL,
++/* On some models we need to call exec_sals(SALS_FNLOCK_ON/OFF) to set the LED */
++static const struct dmi_system_id set_fn_lock_led_list[] = {
++	{
++		/* https://bugzilla.kernel.org/show_bug.cgi?id=212671 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo Legion R7000P2020H"),
++		}
++	},
++	{}
 +};
 +
+ /*
+  * Some ideapads have a hardware rfkill switch, but most do not have one.
+  * Reading VPCCMD_R_RF always results in 0 on models without a hardware rfkill,
+@@ -1522,6 +1538,7 @@ static void ideapad_check_features(struct ideapad_private *priv)
+ 	acpi_handle handle = priv->adev->handle;
+ 	unsigned long val;
  
- /* -- SSAM platform/meta-hub driver. ---------------------------------------- */
++	priv->features.set_fn_lock_led = dmi_check_system(set_fn_lock_led_list);
+ 	priv->features.hw_rfkill_switch = dmi_check_system(hw_rfkill_list);
  
-@@ -303,6 +321,9 @@ static const struct acpi_device_id ssam_platform_hub_match[] = {
- 	/* Surface Pro 8 */
- 	{ "MSHW0263", (unsigned long)ssam_node_group_sp8 },
- 
-+	/* Surface Pro 9 */
-+	{ "MSHW0343", (unsigned long)ssam_node_group_sp9 },
-+
- 	/* Surface Book 2 */
- 	{ "MSHW0107", (unsigned long)ssam_node_group_gen5 },
- 
+ 	/* Most ideapads with ELAN0634 touchpad don't use EC touchpad switch */
 -- 
 2.35.1
 
