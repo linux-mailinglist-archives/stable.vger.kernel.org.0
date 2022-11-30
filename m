@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A55963DE17
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:34:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7B9063DF6A
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230190AbiK3SeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:34:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41392 "EHLO
+        id S231320AbiK3SrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:47:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230341AbiK3Sde (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:33:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF9459208A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:33:33 -0800 (PST)
+        with ESMTP id S231425AbiK3Sqs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:46:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E889B78A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:46:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77E8E61D59
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:33:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81F8FC433D6;
-        Wed, 30 Nov 2022 18:33:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8BC90B81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:46:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE655C433C1;
+        Wed, 30 Nov 2022 18:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833212;
-        bh=SZsgRfaC9zLo3t82Oxv9SwbwRO9UQeL7U0vMYqQwdNg=;
+        s=korg; t=1669834004;
+        bh=8Qs3HRrU/Ua8S7E6cww+VJ6H5DvIiDx8jFgTutqKWZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ORJ4RnksCWtydc+5gSqTCgsI2fLoDTIzJnPay7rC/TvXOXKHBfhaNyGAr1qgubYH
-         oBPNTd4xx7nAl028Ji5ziAhOnbcJHXkPwOXVbJWqrGf3cKLcKCHD/aM6hgNhwtQ7ks
-         bifNT0JmTXVbAbZPMwWeQAbXNVfe0yR0gJMz/4PU=
+        b=EcENoSwe/rJXMYPulIkeI5wi2knsOfF1apVXOIbkyE0oa/ZcDjt+jrakAGNACv+Zd
+         IL8ELlekfArTTJRgaHbLT7wG+0QjJ8B8Mlbi2WMo0EFE7J9dV0UxyFGp3wrwCxLVaJ
+         QjzDbBaGyHgn4IDH2YMWA1mrhjXAwSQXznCwWCl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Borys=20Pop=C5=82awski?= <borysp@invisiblethingslab.com>,
-        Borislav Petkov <bp@suse.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 027/206] x86/sgx: Add overflow check in sgx_validate_offset_length()
+Subject: [PATCH 6.0 094/289] octeontx2-af: debugsfs: fix pci device refcount leak
 Date:   Wed, 30 Nov 2022 19:21:19 +0100
-Message-Id: <20221130180533.685757627@linuxfoundation.org>
+Message-Id: <20221130180546.274365889@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borys Popławski <borysp@invisiblethingslab.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f0861f49bd946ff94fce4f82509c45e167f63690 ]
+[ Upstream commit d66608803aa2ffb9e475623343f69996305771ae ]
 
-sgx_validate_offset_length() function verifies "offset" and "length"
-arguments provided by userspace, but was missing an overflow check on
-their addition. Add it.
+As comment of pci_get_domain_bus_and_slot() says, it returns
+a pci device with refcount increment, when finish using it,
+the caller must decrement the reference count by calling
+pci_dev_put().
 
-Fixes: c6d26d370767 ("x86/sgx: Add SGX_IOC_ENCLAVE_ADD_PAGES")
-Signed-off-by: Borys Popławski <borysp@invisiblethingslab.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: stable@vger.kernel.org # v5.11+
-Link: https://lore.kernel.org/r/0d91ac79-6d84-abed-5821-4dbe59fa1a38@invisiblethingslab.com
+So before returning from rvu_dbg_rvu_pf_cgx_map_display() or
+cgx_print_dmac_flt(), pci_dev_put() is called to avoid refcount
+leak.
+
+Fixes: dbc52debf95f ("octeontx2-af: Debugfs support for DMAC filters")
+Fixes: e2fb37303865 ("octeontx2-af: Display CGX, NIX and PF map in debugfs.")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221117124658.162409-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/sgx/ioctl.c | 3 +++
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/sgx/ioctl.c b/arch/x86/kernel/cpu/sgx/ioctl.c
-index a66795e0b685..217777c029ee 100644
---- a/arch/x86/kernel/cpu/sgx/ioctl.c
-+++ b/arch/x86/kernel/cpu/sgx/ioctl.c
-@@ -386,6 +386,9 @@ static int sgx_validate_offset_length(struct sgx_encl *encl,
- 	if (!length || !IS_ALIGNED(length, PAGE_SIZE))
- 		return -EINVAL;
- 
-+	if (offset + length < offset)
-+		return -EINVAL;
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+index f42a09f04b25..70cda1571324 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+@@ -535,6 +535,8 @@ static int rvu_dbg_rvu_pf_cgx_map_display(struct seq_file *filp, void *unused)
+ 		sprintf(lmac, "LMAC%d", lmac_id);
+ 		seq_printf(filp, "%s\t0x%x\t\tNIX%d\t\t%s\t%s\n",
+ 			   dev_name(&pdev->dev), pcifunc, blkid, cgx, lmac);
 +
- 	if (offset + length - PAGE_SIZE >= encl->size)
- 		return -EINVAL;
++		pci_dev_put(pdev);
+ 	}
+ 	return 0;
+ }
+@@ -2221,6 +2223,7 @@ static int cgx_print_dmac_flt(struct seq_file *s, int lmac_id)
+ 		}
+ 	}
+ 
++	pci_dev_put(pdev);
+ 	return 0;
+ }
  
 -- 
 2.35.1
