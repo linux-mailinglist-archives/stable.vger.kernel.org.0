@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F32763E039
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:54:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A35EF63DEFB
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:42:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231593AbiK3Syv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:54:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45874 "EHLO
+        id S231238AbiK3Sml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:42:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231579AbiK3Syu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:54:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8666163D7E
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:54:48 -0800 (PST)
+        with ESMTP id S231285AbiK3Sm0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:42:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3697899F06
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:42:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9FCD61D54
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:54:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92C6C433D7;
-        Wed, 30 Nov 2022 18:54:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAE46B81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:42:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5188AC433C1;
+        Wed, 30 Nov 2022 18:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834487;
-        bh=fZLI1CPH88FenommfFpLbeK1+E6fqz51/ETnB9VyKKU=;
+        s=korg; t=1669833742;
+        bh=RmoTX2UPhMLIlIQ8C77l4eaObwlKHfySPZUbLRNJV4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=puu+eVsn/5SjnafGqGquZMeSV5nOVLiDdBMkSO71UwzbE2xN1A4/iTOfMRpczd0tK
-         r2U6+JNPsNYMZyWXV/f2ROkZjwfyp3kRVHuGCLUiOv6qdzo1UYaF2h0Ojm6N+R7pnP
-         NKLqK3dQkE4YVRmT7OwT9elEk2lg825nX+fAfCGk=
+        b=YOBH53pZYO5se83BtUYx2JLThNkDMSxxo++IboL8RbfT70Ef9Bod7M4xOjq8OGMph
+         fU4dNGm0wvDb8T8iUuXYKy9+armEZ96KKXz3PPHtJmXCNkOlMu/QmpSWWm5lTVWeDV
+         nlLlz1tteU6TyIRFGddkS+0vDbbrQS3P9f6ZwAsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 6.0 272/289] btrfs: free btrfs_path before copying inodes to userspace
+        patches@lists.linux.dev,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>
+Subject: [PATCH 5.15 205/206] drm/amdgpu: always register an MMU notifier for userptr
 Date:   Wed, 30 Nov 2022 19:24:17 +0100
-Message-Id: <20221130180550.264083403@linuxfoundation.org>
+Message-Id: <20221130180538.241031021@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,63 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Christian König <christian.koenig@amd.com>
 
-commit 418ffb9e3cf6c4e2574d3a732b724916684bd133 upstream.
+commit b39df63b16b64a3af42695acb9bc567aad144776 upstream.
 
-btrfs_ioctl_logical_to_ino() frees the search path after the userspace
-copy from the temp buffer @inodes. Which potentially can lead to a lock
-splat.
+Since switching to HMM we always need that because we no longer grab
+references to the pages.
 
-Fix this by freeing the path before we copy @inodes to userspace.
-
-CC: stable@vger.kernel.org # 4.19+
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Acked-by: Felix Kuehling <Felix.Kuehling@amd.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ioctl.c |   16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -4282,21 +4282,20 @@ static long btrfs_ioctl_logical_to_ino(s
- 		size = min_t(u32, loi->size, SZ_16M);
- 	}
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
+@@ -419,11 +419,9 @@ int amdgpu_gem_userptr_ioctl(struct drm_
+ 	if (r)
+ 		goto release_object;
  
--	path = btrfs_alloc_path();
--	if (!path) {
--		ret = -ENOMEM;
--		goto out;
+-	if (args->flags & AMDGPU_GEM_USERPTR_REGISTER) {
+-		r = amdgpu_mn_register(bo, args->addr);
+-		if (r)
+-			goto release_object;
 -	}
--
- 	inodes = init_data_container(size);
- 	if (IS_ERR(inodes)) {
- 		ret = PTR_ERR(inodes);
--		inodes = NULL;
--		goto out;
-+		goto out_loi;
- 	}
++	r = amdgpu_mn_register(bo, args->addr);
++	if (r)
++		goto release_object;
  
-+	path = btrfs_alloc_path();
-+	if (!path) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
- 	ret = iterate_inodes_from_logical(loi->logical, fs_info, path,
- 					  inodes, ignore_offset);
-+	btrfs_free_path(path);
- 	if (ret == -EINVAL)
- 		ret = -ENOENT;
- 	if (ret < 0)
-@@ -4308,7 +4307,6 @@ static long btrfs_ioctl_logical_to_ino(s
- 		ret = -EFAULT;
- 
- out:
--	btrfs_free_path(path);
- 	kvfree(inodes);
- out_loi:
- 	kfree(loi);
+ 	if (args->flags & AMDGPU_GEM_USERPTR_VALIDATE) {
+ 		r = amdgpu_ttm_tt_get_user_pages(bo, bo->tbo.ttm->pages);
 
 
