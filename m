@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 792F563DDE5
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:31:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0E0B63DED6
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:41:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230136AbiK3Sbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:31:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37952 "EHLO
+        id S231186AbiK3SlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:41:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230119AbiK3Sbd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:31:33 -0500
+        with ESMTP id S231149AbiK3SlK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:10 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAF5E900D6
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:31:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CA7798953
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A56B61D05
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:31:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99C64C433C1;
-        Wed, 30 Nov 2022 18:31:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2277F61D76
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:41:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F26D6C433C1;
+        Wed, 30 Nov 2022 18:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833092;
-        bh=7NUUWUMtiYfO84K3ucl91eIZysht5KrFNu8mGZayvNI=;
+        s=korg; t=1669833666;
+        bh=8nCLnTjd0moyvDEAfw8zrPFSvHHSPL3gq5y8aBgKvxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SsWxSvBApijTlazpCiSvJLg9Yw/4a6JGH2fF9DYA3fCdRFP/cnrqX0SLynSu5ENWj
-         IbdxIEUgN14fMcv3C/x/YmNP8+7iOmgDayj2q36R07sshksB3CgFY+Crd1Fkl1zfGb
-         AsHCvpmd6URoweHPpU5xxenHn/mXEfxzOBDePNVc=
+        b=WxjJL/6IWagv2oeheb07XXRvy89QqIrl49WH21yeOVLMVrUsBY58tLnhkerAsioM3
+         ZDTl9EmkQ8uK/puSniVNbQd9+LZQb4R0msQe+ZbJ2mUeVWoDmC1XqfevUHg1QBAqIW
+         cUExLomDQ8flEJ/kj3naReFMyj+rkFS2hZiOH8Cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Phil Turnbull <philipturnbull@github.com>,
-        Ajay Kathat <ajay.kathat@microchip.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.10 148/162] wifi: wilc1000: validate pairwise and authentication suite offsets
-Date:   Wed, 30 Nov 2022 19:23:49 +0100
-Message-Id: <20221130180532.490964729@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 178/206] zonefs: fix zone report size in __zonefs_io_error()
+Date:   Wed, 30 Nov 2022 19:23:50 +0100
+Message-Id: <20221130180537.551056483@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Turnbull <philipturnbull@github.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit cd21d99e595ec1d8721e1058dcdd4f1f7de1d793 upstream.
+[ Upstream commit 7dd12d65ac646046a3fe0bbf9a4e86f4514207b3 ]
 
-There is no validation of 'offset' which can trigger an out-of-bounds
-read when extracting RSN capabilities.
+When an IO error occurs, the function __zonefs_io_error() is used to
+issue a zone report to obtain the latest zone information from the
+device. This function gets a zone report for all zones used as storage
+for a file, which is always 1 zone except for files representing
+aggregated conventional zones.
 
-Signed-off-by: Phil Turnbull <philipturnbull@github.com>
-Tested-by: Ajay Kathat <ajay.kathat@microchip.com>
-Acked-by: Ajay Kathat <ajay.kathat@microchip.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221123153543.8568-2-philipturnbull@github.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The number of zones of a zone report for a file is calculated in
+__zonefs_io_error() by doing a bit-shift of the inode i_zone_size field,
+which is equal to or larger than the device zone size. However, this
+calculation does not take into account that the last zone of a zoned
+device may be smaller than the zone size reported by bdev_zone_sectors()
+(which is used to set the bit shift size). As a result, if an error
+occurs for an IO targetting such last smaller zone, the zone report will
+ask for 0 zones, leading to an invalid zone report.
+
+Fix this by using the fact that all files require a 1 zone report,
+except if the inode i_zone_size field indicates a zone size larger than
+the device zone size. This exception case corresponds to a mount with
+aggregated conventional zones.
+
+A check for this exception is added to the file inode initialization
+during mount. If an invalid setup is detected, emit an error and fail
+the mount (check contributed by Johannes Thumshirn).
+
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/microchip/wilc1000/hif.c |   21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ fs/zonefs/super.c | 37 +++++++++++++++++++++++++++----------
+ 1 file changed, 27 insertions(+), 10 deletions(-)
 
---- a/drivers/net/wireless/microchip/wilc1000/hif.c
-+++ b/drivers/net/wireless/microchip/wilc1000/hif.c
-@@ -467,14 +467,25 @@ void *wilc_parse_join_bss_param(struct c
+diff --git a/fs/zonefs/super.c b/fs/zonefs/super.c
+index f8feaed0b54d..85a98590b6ef 100644
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -448,14 +448,22 @@ static void __zonefs_io_error(struct inode *inode, bool write)
+ 	struct super_block *sb = inode->i_sb;
+ 	struct zonefs_sb_info *sbi = ZONEFS_SB(sb);
+ 	unsigned int noio_flag;
+-	unsigned int nr_zones =
+-		zi->i_zone_size >> (sbi->s_zone_sectors_shift + SECTOR_SHIFT);
++	unsigned int nr_zones = 1;
+ 	struct zonefs_ioerr_data err = {
+ 		.inode = inode,
+ 		.write = write,
+ 	};
+ 	int ret;
  
- 	rsn_ie = cfg80211_find_ie(WLAN_EID_RSN, ies->data, ies->len);
- 	if (rsn_ie) {
-+		int rsn_ie_len = sizeof(struct element) + rsn_ie[1];
- 		int offset = 8;
++	/*
++	 * The only files that have more than one zone are conventional zone
++	 * files with aggregated conventional zones, for which the inode zone
++	 * size is always larger than the device zone size.
++	 */
++	if (zi->i_zone_size > bdev_zone_sectors(sb->s_bdev))
++		nr_zones = zi->i_zone_size >>
++			(sbi->s_zone_sectors_shift + SECTOR_SHIFT);
++
+ 	/*
+ 	 * Memory allocations in blkdev_report_zones() can trigger a memory
+ 	 * reclaim which may in turn cause a recursion into zonefs as well as
+@@ -1354,6 +1362,14 @@ static int zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
+ 	zi->i_ztype = type;
+ 	zi->i_zsector = zone->start;
+ 	zi->i_zone_size = zone->len << SECTOR_SHIFT;
++	if (zi->i_zone_size > bdev_zone_sectors(sb->s_bdev) << SECTOR_SHIFT &&
++	    !(sbi->s_features & ZONEFS_F_AGGRCNV)) {
++		zonefs_err(sb,
++			   "zone size %llu doesn't match device's zone sectors %llu\n",
++			   zi->i_zone_size,
++			   bdev_zone_sectors(sb->s_bdev) << SECTOR_SHIFT);
++		return -EINVAL;
++	}
  
--		param->mode_802_11i = 2;
--		param->rsn_found = true;
- 		/* extract RSN capabilities */
--		offset += (rsn_ie[offset] * 4) + 2;
--		offset += (rsn_ie[offset] * 4) + 2;
--		memcpy(param->rsn_cap, &rsn_ie[offset], 2);
-+		if (offset < rsn_ie_len) {
-+			/* skip over pairwise suites */
-+			offset += (rsn_ie[offset] * 4) + 2;
-+
-+			if (offset < rsn_ie_len) {
-+				/* skip over authentication suites */
-+				offset += (rsn_ie[offset] * 4) + 2;
-+
-+				if (offset + 1 < rsn_ie_len) {
-+					param->mode_802_11i = 2;
-+					param->rsn_found = true;
-+					memcpy(param->rsn_cap, &rsn_ie[offset], 2);
-+				}
-+			}
-+		}
+ 	zi->i_max_size = min_t(loff_t, MAX_LFS_FILESIZE,
+ 			       zone->capacity << SECTOR_SHIFT);
+@@ -1396,11 +1412,11 @@ static struct dentry *zonefs_create_inode(struct dentry *parent,
+ 	struct inode *dir = d_inode(parent);
+ 	struct dentry *dentry;
+ 	struct inode *inode;
+-	int ret;
++	int ret = -ENOMEM;
+ 
+ 	dentry = d_alloc_name(parent, name);
+ 	if (!dentry)
+-		return NULL;
++		return ERR_PTR(ret);
+ 
+ 	inode = new_inode(parent->d_sb);
+ 	if (!inode)
+@@ -1425,7 +1441,7 @@ static struct dentry *zonefs_create_inode(struct dentry *parent,
+ dput:
+ 	dput(dentry);
+ 
+-	return NULL;
++	return ERR_PTR(ret);
+ }
+ 
+ struct zonefs_zone_data {
+@@ -1445,7 +1461,7 @@ static int zonefs_create_zgroup(struct zonefs_zone_data *zd,
+ 	struct blk_zone *zone, *next, *end;
+ 	const char *zgroup_name;
+ 	char *file_name;
+-	struct dentry *dir;
++	struct dentry *dir, *dent;
+ 	unsigned int n = 0;
+ 	int ret;
+ 
+@@ -1463,8 +1479,8 @@ static int zonefs_create_zgroup(struct zonefs_zone_data *zd,
+ 		zgroup_name = "seq";
+ 
+ 	dir = zonefs_create_inode(sb->s_root, zgroup_name, NULL, type);
+-	if (!dir) {
+-		ret = -ENOMEM;
++	if (IS_ERR(dir)) {
++		ret = PTR_ERR(dir);
+ 		goto free;
  	}
  
- 	if (param->rsn_found) {
+@@ -1510,8 +1526,9 @@ static int zonefs_create_zgroup(struct zonefs_zone_data *zd,
+ 		 * Use the file number within its group as file name.
+ 		 */
+ 		snprintf(file_name, ZONEFS_NAME_MAX - 1, "%u", n);
+-		if (!zonefs_create_inode(dir, file_name, zone, type)) {
+-			ret = -ENOMEM;
++		dent = zonefs_create_inode(dir, file_name, zone, type);
++		if (IS_ERR(dent)) {
++			ret = PTR_ERR(dent);
+ 			goto free;
+ 		}
+ 
+-- 
+2.35.1
+
 
 
