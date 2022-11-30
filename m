@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E276263DFE3
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:51:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5BB263DDA3
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:29:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231488AbiK3Svj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:51:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38522 "EHLO
+        id S229845AbiK3S3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:29:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231483AbiK3SvW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:51:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 346DD9D832
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:51:20 -0800 (PST)
+        with ESMTP id S229819AbiK3S3N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:29:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F8B68B1B9
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:29:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58C24B81CA9
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:51:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6133C433D6;
-        Wed, 30 Nov 2022 18:51:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2B9861B43
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:29:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6C4FC4347C;
+        Wed, 30 Nov 2022 18:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834278;
-        bh=5Yx0XtmbS94yFIgGjpNj1vskK5cp1PTcHdag5jO3Ng0=;
+        s=korg; t=1669832952;
+        bh=nUZmhGt3oAptX1QO4ocpry3wQOSVe5Q+F1aUzH4oK2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iINROIWQKSEdBB6h/CIZZ5zGuYCC+5oCsYXsfozmVAVasAuw74cEtqJ9jg9JYuBaD
-         fs5hv222EWkIldrzgm1UnjcEfwZl8SV7hjtp1uzM+pIVZYcsVOARVYK/6S7GWu7aOr
-         SS0BinKqphZRt6tjDt4rQ0csTyiWpiJLwzEavVKw=
+        b=uufGozJjFXkDaMG6tIUXRskSu8G27WYJOMvrHUtbpDivY5TiNyfDbLKbdj+Sw+Qso
+         NAn7Bd8ARaZoTcu4l05JRmLtiIfTQhlYKJFrrO4EHTl6LCcnsYCyy5IzZ6iMBAq+Rt
+         ESPpeq+8V97U88cJLJ+q4uKTP6e/LaoS/yg+1+Zs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 194/289] usb: dwc3: gadget: Clear ep descriptor last
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 098/162] iio: core: Fix entry not deleted when iio_register_sw_trigger_type() fails
 Date:   Wed, 30 Nov 2022 19:22:59 +0100
-Message-Id: <20221130180548.520666651@linuxfoundation.org>
+Message-Id: <20221130180531.150268202@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit f90f5afd5083a7cb4aee13bd4cc0ae600bd381ca ]
+commit 4ad09d956f8eacff61e67e5b13ba8ebec3232f76 upstream.
 
-Until the endpoint is disabled, its descriptors should remain valid.
-When its requests are removed from ep disable, the request completion
-routine may attempt to access the endpoint's descriptor. Don't clear the
-descriptors before that.
+In iio_register_sw_trigger_type(), configfs_register_default_group() is
+possible to fail, but the entry add to iio_trigger_types_list is not
+deleted.
 
-Fixes: f09ddcfcb8c5 ("usb: dwc3: gadget: Prevent EP queuing while stopping transfers")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/45db7c83b209259115bf652af210f8b2b3b1a383.1668561364.git.Thinh.Nguyen@synopsys.com
+This leaves wild in iio_trigger_types_list, which can cause page fault
+when module is loading again. So fix this by list_del(&t->list) in error
+path.
+
+BUG: unable to handle page fault for address: fffffbfff81d7400
+Call Trace:
+<TASK>
+ iio_register_sw_trigger_type
+ do_one_initcall
+ do_init_module
+ load_module
+ ...
+
+Fixes: b662f809d410 ("iio: core: Introduce IIO software triggers")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221108032802.168623-1-chenzhongjin@huawei.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/iio/industrialio-sw-trigger.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 448c8e6bc99d..6f61a288073b 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1016,18 +1016,18 @@ static int __dwc3_gadget_ep_disable(struct dwc3_ep *dep)
- 	reg &= ~DWC3_DALEPENA_EP(dep->number);
- 	dwc3_writel(dwc->regs, DWC3_DALEPENA, reg);
+--- a/drivers/iio/industrialio-sw-trigger.c
++++ b/drivers/iio/industrialio-sw-trigger.c
+@@ -58,8 +58,12 @@ int iio_register_sw_trigger_type(struct
  
--	/* Clear out the ep descriptors for non-ep0 */
--	if (dep->number > 1) {
--		dep->endpoint.comp_desc = NULL;
--		dep->endpoint.desc = NULL;
--	}
--
- 	dwc3_remove_requests(dwc, dep, -ESHUTDOWN);
- 
- 	dep->stream_capable = false;
- 	dep->type = 0;
- 	dep->flags &= DWC3_EP_TXFIFO_RESIZED;
- 
-+	/* Clear out the ep descriptors for non-ep0 */
-+	if (dep->number > 1) {
-+		dep->endpoint.comp_desc = NULL;
-+		dep->endpoint.desc = NULL;
+ 	t->group = configfs_register_default_group(iio_triggers_group, t->name,
+ 						&iio_trigger_type_group_type);
+-	if (IS_ERR(t->group))
++	if (IS_ERR(t->group)) {
++		mutex_lock(&iio_trigger_types_lock);
++		list_del(&t->list);
++		mutex_unlock(&iio_trigger_types_lock);
+ 		ret = PTR_ERR(t->group);
 +	}
-+
- 	return 0;
- }
  
--- 
-2.35.1
-
+ 	return ret;
+ }
 
 
