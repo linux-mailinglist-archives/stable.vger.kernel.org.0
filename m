@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B923163E0BF
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 20:27:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 222EF63E0C0
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 20:27:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229727AbiK3T1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 14:27:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40850 "EHLO
+        id S229705AbiK3T1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 14:27:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229688AbiK3T1B (ORCPT
+        with ESMTP id S229701AbiK3T1B (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 14:27:01 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5C2A900C0
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 11:26:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3969691C21
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 11:27:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 751D3B81B46
+        by ams.source.kernel.org (Postfix) with ESMTPS id E21D9B81CBF
         for <stable@vger.kernel.org>; Wed, 30 Nov 2022 19:26:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 2F421C43470;
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 3E8EFC43147;
         Wed, 30 Nov 2022 19:26:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1669836417;
-        bh=VT6S6Uogfk7RNUiwZ9Q97/o2HT2hd6rFuUpz2QmHG8s=;
+        bh=OeKcz68qas5g3fX4AlmuImfSoAde1803uch8lxCHpvA=;
         h=From:Date:Subject:References:In-Reply-To:To:Reply-To:From;
-        b=AAdYVt/Iif4U/+K6daJIfMTAR7d0xC/Txb/O6g4ZPepikLC3sbWLe2ZyPwzJHc8DI
-         U28odBcIBY1wPoZBsbGhTh8GmdIwoIEd0YlyNnuuEAcy0hFBmTjr5ZifFVHwLVoCxj
-         1/YlasRa4M4Itm2x38VHschmBEFO1hXyBbS7vJ62Hkd648GSNRF2NGhGBQ6plB3Scb
-         v0QPEYRyNgiRO/sB13wqYtfg3trzJ8pd+pvKFHKSs4ZpToP8DcU+KXhm0c8qzlijlo
-         d/rJ8V2+GoUq60KwR8o3TEvvlg8qss4qjWlt9JHG6qUfzkHpu7TciRj7Sm00fyEs/q
-         /I31e26ZcJqow==
+        b=m3b27NfXwBm6ilXzzX9LmMoBzMEQXbGvqeXJKn2PYfdSmaiMofzF80xi/Nxk0WV4y
+         GALClszz/dloaJJICNyFtEz+oZ5LTAdgJqblo1BVZYpf46MsyvJIWEVJwW6KmXr9ZO
+         SHtOf+Ci7GhTsZjDora+xGQWukT6YCQe/svna3Qc3hfRXAUaXwNfwUAC77mtGCggYU
+         H/8YCTK/dhyLlIq1gJIl7bnT+xd62z5EX0tPvnRnPkmYOnscYhkD1GdMHLVLCfk/uZ
+         awtObOm7ihQ602B3QPSg8zhyQEsEHV7ZN9UZl8qdat9gnrWwojNDk+5p92yTH/1tPX
+         BcJ6p8t1PSLjw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by smtp.lore.kernel.org (Postfix) with ESMTP id 17181C4708D;
+        by smtp.lore.kernel.org (Postfix) with ESMTP id 2644CC4321E;
         Wed, 30 Nov 2022 19:26:57 +0000 (UTC)
 From:   Noralf =?utf-8?q?Tr=C3=B8nnes?= via B4 Submission Endpoint 
         <devnull+noralf.tronnes.org@kernel.org>
-Date:   Wed, 30 Nov 2022 20:26:52 +0100
-Subject: [PATCH v2 4/6] drm/gud: Prepare buffer for CPU access in gud_flush_work()
+Date:   Wed, 30 Nov 2022 20:26:53 +0100
+Subject: [PATCH v2 5/6] drm/gud: Use the shadow plane helper
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20221122-gud-shadow-plane-v2-4-435037990a83@tronnes.org>
+Message-Id: <20221122-gud-shadow-plane-v2-5-435037990a83@tronnes.org>
 References: <20221122-gud-shadow-plane-v2-0-435037990a83@tronnes.org>
 In-Reply-To: <20221122-gud-shadow-plane-v2-0-435037990a83@tronnes.org>
 To:     Thomas Zimmermann <tzimmermann@suse.de>,
@@ -50,11 +50,11 @@ To:     Thomas Zimmermann <tzimmermann@suse.de>,
         Maxime Ripard <mripard@kernel.org>, stable@kernel.org,
         Noralf =?unknown-8bit?q?Tr=C3=B8nnes?= <noralf@tronnes.org>
 X-Mailer: b4 0.11.0-dev-cc6f6
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1669836415; l=6541;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1669836415; l=6659;
  i=noralf@tronnes.org; s=20221122; h=from:subject:message-id;
- bh=7SR2RwZ9rOUZS8XzmXQ/m4YPEgzaHqtijAD+lUqFhPA=; =?utf-8?q?b=3DhxQus1xtft5b?=
- =?utf-8?q?87Fu328Z3xlaV1HqaU7hYD/HqegA26Md0F0RqMC4Xp5/MUFSwXgKOE9QlhpQRfuf?=
- Lhox5hTHDrriRQ2WHWJ1F365fv/L8IPqZ2pkGkXKzI0CTdNdMvrD
+ bh=lVt1iqwa7vZHhFtyPrQ2KsC6nFe3faeUvS6nNBgko0I=; =?utf-8?q?b=3DBXjlvHySptSt?=
+ =?utf-8?q?kO+YKe+Zsxcyk6jpQwNEpNlgiIhIcJz1pWBs2hLQxm+CO4aC7cUQam3QYLlamSjR?=
+ 0aBACmD7BIEbpkbmeE1HvqdOL7FUB+w0/6yt2xxUnEt+LIchf+V7
 X-Developer-Key: i=noralf@tronnes.org; a=ed25519;
  pk=0o9is4iddvvlrY3yON5SVtAbgPnVs0LfQsjfqR2Hvz8=
 X-Endpoint-Received: by B4 Submission Endpoint for noralf@tronnes.org/20221122 with auth_id=8
@@ -71,187 +71,198 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Noralf Trønnes <noralf@tronnes.org>
 
-In preparation for moving to the shadow plane helper prepare the
-framebuffer for CPU access as early as possible.
+Use the shadow plane helper to take care of mapping the framebuffer for
+CPU access. The synchronous flushing is now done inline without the use of
+a worker. The async path now uses a shadow buffer to hold framebuffer
+changes and it doesn't read the framebuffer behind userspace's back
+anymore.
 
 v2:
 - Use src as variable name for iosys_map (Thomas)
+- Prepare imported buffer for CPU access in the driver (Thomas)
 
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
 ---
- drivers/gpu/drm/gud/gud_pipe.c | 67 +++++++++++++++++++++---------------------
- 1 file changed, 33 insertions(+), 34 deletions(-)
+ drivers/gpu/drm/gud/gud_drv.c      |  1 +
+ drivers/gpu/drm/gud/gud_internal.h |  1 +
+ drivers/gpu/drm/gud/gud_pipe.c     | 81 ++++++++++++++++++++++++++------------
+ 3 files changed, 57 insertions(+), 26 deletions(-)
 
+diff --git a/drivers/gpu/drm/gud/gud_drv.c b/drivers/gpu/drm/gud/gud_drv.c
+index d57dab104358..5aac7cda0505 100644
+--- a/drivers/gpu/drm/gud/gud_drv.c
++++ b/drivers/gpu/drm/gud/gud_drv.c
+@@ -365,6 +365,7 @@ static void gud_debugfs_init(struct drm_minor *minor)
+ static const struct drm_simple_display_pipe_funcs gud_pipe_funcs = {
+ 	.check      = gud_pipe_check,
+ 	.update	    = gud_pipe_update,
++	DRM_GEM_SIMPLE_DISPLAY_PIPE_SHADOW_PLANE_FUNCS
+ };
+ 
+ static const struct drm_mode_config_funcs gud_mode_config_funcs = {
+diff --git a/drivers/gpu/drm/gud/gud_internal.h b/drivers/gpu/drm/gud/gud_internal.h
+index e351a1f1420d..0d148a6f27aa 100644
+--- a/drivers/gpu/drm/gud/gud_internal.h
++++ b/drivers/gpu/drm/gud/gud_internal.h
+@@ -43,6 +43,7 @@ struct gud_device {
+ 	struct drm_framebuffer *fb;
+ 	struct drm_rect damage;
+ 	bool prev_flush_failed;
++	void *shadow_buf;
+ };
+ 
+ static inline struct gud_device *to_gud_device(struct drm_device *drm)
 diff --git a/drivers/gpu/drm/gud/gud_pipe.c b/drivers/gpu/drm/gud/gud_pipe.c
-index d2af9947494f..98fe8efda4a9 100644
+index 98fe8efda4a9..92189474a7ed 100644
 --- a/drivers/gpu/drm/gud/gud_pipe.c
 +++ b/drivers/gpu/drm/gud/gud_pipe.c
-@@ -15,6 +15,7 @@
- #include <drm/drm_fourcc.h>
- #include <drm/drm_framebuffer.h>
- #include <drm/drm_gem.h>
-+#include <drm/drm_gem_atomic_helper.h>
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_print.h>
- #include <drm/drm_rect.h>
-@@ -152,32 +153,21 @@ static size_t gud_xrgb8888_to_color(u8 *dst, const struct drm_format_info *forma
- }
- 
- static int gud_prep_flush(struct gud_device *gdrm, struct drm_framebuffer *fb,
-+			  const struct iosys_map *src, bool cached_reads,
- 			  const struct drm_format_info *format, struct drm_rect *rect,
- 			  struct gud_set_buffer_req *req)
- {
--	struct dma_buf_attachment *import_attach = fb->obj[0]->import_attach;
- 	u8 compression = gdrm->compression;
--	struct iosys_map map[DRM_FORMAT_MAX_PLANES] = { };
--	struct iosys_map map_data[DRM_FORMAT_MAX_PLANES] = { };
- 	struct iosys_map dst;
- 	void *vaddr, *buf;
- 	size_t pitch, len;
--	int ret = 0;
- 
- 	pitch = drm_format_info_min_pitch(format, 0, drm_rect_width(rect));
- 	len = pitch * drm_rect_height(rect);
- 	if (len > gdrm->bulk_len)
- 		return -E2BIG;
- 
--	ret = drm_gem_fb_vmap(fb, map, map_data);
--	if (ret)
--		return ret;
--
--	vaddr = map_data[0].vaddr;
--
--	ret = drm_gem_fb_begin_cpu_access(fb, DMA_FROM_DEVICE);
--	if (ret)
--		goto vunmap;
-+	vaddr = src[0].vaddr;
- retry:
- 	if (compression)
- 		buf = gdrm->compress_buf;
-@@ -192,29 +182,27 @@ static int gud_prep_flush(struct gud_device *gdrm, struct drm_framebuffer *fb,
- 	if (format != fb->format) {
- 		if (format->format == GUD_DRM_FORMAT_R1) {
- 			len = gud_xrgb8888_to_r124(buf, format, vaddr, fb, rect);
--			if (!len) {
--				ret = -ENOMEM;
--				goto end_cpu_access;
--			}
-+			if (!len)
-+				return -ENOMEM;
- 		} else if (format->format == DRM_FORMAT_R8) {
--			drm_fb_xrgb8888_to_gray8(&dst, NULL, map_data, fb, rect);
-+			drm_fb_xrgb8888_to_gray8(&dst, NULL, src, fb, rect);
- 		} else if (format->format == DRM_FORMAT_RGB332) {
--			drm_fb_xrgb8888_to_rgb332(&dst, NULL, map_data, fb, rect);
-+			drm_fb_xrgb8888_to_rgb332(&dst, NULL, src, fb, rect);
- 		} else if (format->format == DRM_FORMAT_RGB565) {
--			drm_fb_xrgb8888_to_rgb565(&dst, NULL, map_data, fb, rect,
-+			drm_fb_xrgb8888_to_rgb565(&dst, NULL, src, fb, rect,
- 						  gud_is_big_endian());
- 		} else if (format->format == DRM_FORMAT_RGB888) {
--			drm_fb_xrgb8888_to_rgb888(&dst, NULL, map_data, fb, rect);
-+			drm_fb_xrgb8888_to_rgb888(&dst, NULL, src, fb, rect);
- 		} else {
- 			len = gud_xrgb8888_to_color(buf, format, vaddr, fb, rect);
- 		}
- 	} else if (gud_is_big_endian() && format->cpp[0] > 1) {
--		drm_fb_swab(&dst, NULL, map_data, fb, rect, !import_attach);
--	} else if (compression && !import_attach && pitch == fb->pitches[0]) {
-+		drm_fb_swab(&dst, NULL, src, fb, rect, cached_reads);
-+	} else if (compression && cached_reads && pitch == fb->pitches[0]) {
- 		/* can compress directly from the framebuffer */
- 		buf = vaddr + rect->y1 * pitch;
- 	} else {
--		drm_fb_memcpy(&dst, NULL, map_data, fb, rect);
-+		drm_fb_memcpy(&dst, NULL, src, fb, rect);
- 	}
- 
- 	memset(req, 0, sizeof(*req));
-@@ -237,12 +225,7 @@ static int gud_prep_flush(struct gud_device *gdrm, struct drm_framebuffer *fb,
- 		req->compressed_length = cpu_to_le32(complen);
- 	}
- 
--end_cpu_access:
--	drm_gem_fb_end_cpu_access(fb, DMA_FROM_DEVICE);
--vunmap:
--	drm_gem_fb_vunmap(fb, map);
--
--	return ret;
-+	return 0;
- }
- 
- struct gud_usb_bulk_context {
-@@ -285,6 +268,7 @@ static int gud_usb_bulk(struct gud_device *gdrm, size_t len)
- }
- 
- static int gud_flush_rect(struct gud_device *gdrm, struct drm_framebuffer *fb,
-+			  const struct iosys_map *src, bool cached_reads,
- 			  const struct drm_format_info *format, struct drm_rect *rect)
- {
- 	struct gud_set_buffer_req req;
-@@ -293,7 +277,7 @@ static int gud_flush_rect(struct gud_device *gdrm, struct drm_framebuffer *fb,
- 
- 	drm_dbg(&gdrm->drm, "Flushing [FB:%d] " DRM_RECT_FMT "\n", fb->base.id, DRM_RECT_ARG(rect));
- 
--	ret = gud_prep_flush(gdrm, fb, format, rect, &req);
-+	ret = gud_prep_flush(gdrm, fb, src, cached_reads, format, rect, &req);
- 	if (ret)
- 		return ret;
- 
-@@ -334,6 +318,7 @@ void gud_clear_damage(struct gud_device *gdrm)
- }
- 
- static void gud_flush_damage(struct gud_device *gdrm, struct drm_framebuffer *fb,
-+			     const struct iosys_map *src, bool cached_reads,
- 			     struct drm_rect *damage)
- {
- 	const struct drm_format_info *format;
-@@ -358,7 +343,7 @@ static void gud_flush_damage(struct gud_device *gdrm, struct drm_framebuffer *fb
- 		rect.y1 += i * lines;
- 		rect.y2 = min_t(u32, rect.y1 + lines, damage->y2);
- 
--		ret = gud_flush_rect(gdrm, fb, format, &rect);
-+		ret = gud_flush_rect(gdrm, fb, src, cached_reads, format, &rect);
- 		if (ret) {
- 			if (ret != -ENODEV && ret != -ECONNRESET &&
- 			    ret != -ESHUTDOWN && ret != -EPROTO)
-@@ -373,9 +358,10 @@ static void gud_flush_damage(struct gud_device *gdrm, struct drm_framebuffer *fb
+@@ -358,10 +358,10 @@ static void gud_flush_damage(struct gud_device *gdrm, struct drm_framebuffer *fb
  void gud_flush_work(struct work_struct *work)
  {
  	struct gud_device *gdrm = container_of(work, struct gud_device, work);
-+	struct iosys_map gem_map = { }, fb_map = { };
+-	struct iosys_map gem_map = { }, fb_map = { };
++	struct iosys_map shadow_map;
  	struct drm_framebuffer *fb;
  	struct drm_rect damage;
--	int idx;
-+	int idx, ret;
+-	int idx, ret;
++	int idx;
  
  	if (!drm_dev_enter(&gdrm->drm, &idx))
  		return;
-@@ -390,8 +376,21 @@ void gud_flush_work(struct work_struct *work)
+@@ -369,6 +369,7 @@ void gud_flush_work(struct work_struct *work)
+ 	mutex_lock(&gdrm->damage_lock);
+ 	fb = gdrm->fb;
+ 	gdrm->fb = NULL;
++	iosys_map_set_vaddr(&shadow_map, gdrm->shadow_buf);
+ 	damage = gdrm->damage;
+ 	gud_clear_damage(gdrm);
+ 	mutex_unlock(&gdrm->damage_lock);
+@@ -376,33 +377,33 @@ void gud_flush_work(struct work_struct *work)
  	if (!fb)
  		goto out;
  
--	gud_flush_damage(gdrm, fb, &damage);
-+	ret = drm_gem_fb_vmap(fb, &gem_map, &fb_map);
-+	if (ret)
-+		goto fb_put;
+-	ret = drm_gem_fb_vmap(fb, &gem_map, &fb_map);
+-	if (ret)
+-		goto fb_put;
++	gud_flush_damage(gdrm, fb, &shadow_map, true, &damage);
  
-+	ret = drm_gem_fb_begin_cpu_access(fb, DMA_FROM_DEVICE);
-+	if (ret)
-+		goto vunmap;
-+
-+	/* Imported buffers are assumed to be WriteCombined with uncached reads */
-+	gud_flush_damage(gdrm, fb, &fb_map, !fb->obj[0]->import_attach, &damage);
-+
-+	drm_gem_fb_end_cpu_access(fb, DMA_FROM_DEVICE);
-+vunmap:
-+	drm_gem_fb_vunmap(fb, &gem_map);
-+fb_put:
+-	ret = drm_gem_fb_begin_cpu_access(fb, DMA_FROM_DEVICE);
+-	if (ret)
+-		goto vunmap;
+-
+-	/* Imported buffers are assumed to be WriteCombined with uncached reads */
+-	gud_flush_damage(gdrm, fb, &fb_map, !fb->obj[0]->import_attach, &damage);
+-
+-	drm_gem_fb_end_cpu_access(fb, DMA_FROM_DEVICE);
+-vunmap:
+-	drm_gem_fb_vunmap(fb, &gem_map);
+-fb_put:
  	drm_framebuffer_put(fb);
  out:
  	drm_dev_exit(idx);
+ }
+ 
+-static void gud_fb_queue_damage(struct gud_device *gdrm, struct drm_framebuffer *fb,
+-				struct drm_rect *damage)
++static int gud_fb_queue_damage(struct gud_device *gdrm, struct drm_framebuffer *fb,
++			       const struct iosys_map *src, struct drm_rect *damage)
+ {
+ 	struct drm_framebuffer *old_fb = NULL;
++	struct iosys_map shadow_map;
+ 
+ 	mutex_lock(&gdrm->damage_lock);
+ 
++	if (!gdrm->shadow_buf) {
++		gdrm->shadow_buf = vzalloc(fb->pitches[0] * fb->height);
++		if (!gdrm->shadow_buf) {
++			mutex_unlock(&gdrm->damage_lock);
++			return -ENOMEM;
++		}
++	}
++
++	iosys_map_set_vaddr(&shadow_map, gdrm->shadow_buf);
++	iosys_map_incr(&shadow_map, drm_fb_clip_offset(fb->pitches[0], fb->format, damage));
++	drm_fb_memcpy(&shadow_map, fb->pitches, src, fb, damage);
++
+ 	if (fb != gdrm->fb) {
+ 		old_fb = gdrm->fb;
+ 		drm_framebuffer_get(fb);
+@@ -420,6 +421,26 @@ static void gud_fb_queue_damage(struct gud_device *gdrm, struct drm_framebuffer
+ 
+ 	if (old_fb)
+ 		drm_framebuffer_put(old_fb);
++
++	return 0;
++}
++
++static void gud_fb_handle_damage(struct gud_device *gdrm, struct drm_framebuffer *fb,
++				 const struct iosys_map *src, struct drm_rect *damage)
++{
++	int ret;
++
++	if (gdrm->flags & GUD_DISPLAY_FLAG_FULL_UPDATE)
++		drm_rect_init(damage, 0, 0, fb->width, fb->height);
++
++	if (gud_async_flush) {
++		ret = gud_fb_queue_damage(gdrm, fb, src, damage);
++		if (ret != -ENOMEM)
++			return;
++	}
++
++	/* Imported buffers are assumed to be WriteCombined with uncached reads */
++	gud_flush_damage(gdrm, fb, src, !fb->obj[0]->import_attach, damage);
+ }
+ 
+ int gud_pipe_check(struct drm_simple_display_pipe *pipe,
+@@ -544,10 +565,11 @@ void gud_pipe_update(struct drm_simple_display_pipe *pipe,
+ 	struct drm_device *drm = pipe->crtc.dev;
+ 	struct gud_device *gdrm = to_gud_device(drm);
+ 	struct drm_plane_state *state = pipe->plane.state;
++	struct drm_shadow_plane_state *shadow_plane_state = to_drm_shadow_plane_state(state);
+ 	struct drm_framebuffer *fb = state->fb;
+ 	struct drm_crtc *crtc = &pipe->crtc;
+ 	struct drm_rect damage;
+-	int idx;
++	int ret, idx;
+ 
+ 	if (crtc->state->mode_changed || !crtc->state->enable) {
+ 		cancel_work_sync(&gdrm->work);
+@@ -557,6 +579,8 @@ void gud_pipe_update(struct drm_simple_display_pipe *pipe,
+ 			gdrm->fb = NULL;
+ 		}
+ 		gud_clear_damage(gdrm);
++		vfree(gdrm->shadow_buf);
++		gdrm->shadow_buf = NULL;
+ 		mutex_unlock(&gdrm->damage_lock);
+ 	}
+ 
+@@ -572,14 +596,19 @@ void gud_pipe_update(struct drm_simple_display_pipe *pipe,
+ 	if (crtc->state->active_changed)
+ 		gud_usb_set_u8(gdrm, GUD_REQ_SET_DISPLAY_ENABLE, crtc->state->active);
+ 
+-	if (drm_atomic_helper_damage_merged(old_state, state, &damage)) {
+-		if (gdrm->flags & GUD_DISPLAY_FLAG_FULL_UPDATE)
+-			drm_rect_init(&damage, 0, 0, fb->width, fb->height);
+-		gud_fb_queue_damage(gdrm, fb, &damage);
+-		if (!gud_async_flush)
+-			flush_work(&gdrm->work);
+-	}
++	if (!fb)
++		goto ctrl_disable;
+ 
++	ret = drm_gem_fb_begin_cpu_access(fb, DMA_FROM_DEVICE);
++	if (ret)
++		goto ctrl_disable;
++
++	if (drm_atomic_helper_damage_merged(old_state, state, &damage))
++		gud_fb_handle_damage(gdrm, fb, &shadow_plane_state->data[0], &damage);
++
++	drm_gem_fb_end_cpu_access(fb, DMA_FROM_DEVICE);
++
++ctrl_disable:
+ 	if (!crtc->state->enable)
+ 		gud_usb_set_u8(gdrm, GUD_REQ_SET_CONTROLLER_ENABLE, 0);
+ 
 
 -- 
 2.34.1
