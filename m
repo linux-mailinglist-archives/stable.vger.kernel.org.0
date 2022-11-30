@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF50363DE85
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:37:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AB4263DFAC
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:49:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230487AbiK3Sh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:37:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47712 "EHLO
+        id S231417AbiK3Sth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:49:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230448AbiK3Shw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:37:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F9F0B9E
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:37:36 -0800 (PST)
+        with ESMTP id S231448AbiK3StW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:49:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C0F54908C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:49:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 49D3061D41
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:37:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5842EC433C1;
-        Wed, 30 Nov 2022 18:37:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF9AAB81CA9
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:49:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46F24C433D7;
+        Wed, 30 Nov 2022 18:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833455;
-        bh=Ypp2SBjgSXau1PaMgUbb5neQRBY2TLj5cZz+OyTDuTA=;
+        s=korg; t=1669834158;
+        bh=VRH9qQ4HfRDv0C47MiC7w8hnigGPNPfjkzEkTSjla2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vv/yN+vpKfoHOpZnLDBhUYgU6yw9nU9GAzyGvyu5ylf5sO2L+bb+aMBwWblexgm3J
-         8L4fnp+XH8F92HCpcCVuaFSGhdyuL3S4I+0MN8OHn+AnrvnOkcMRY7pXRwnT2w69gq
-         4+dCAXAeNm1VB+A8bcokNJpTjIKiIT06ea9D+LzQ=
+        b=gnhA7HMwdIiWLOVC0FK4VqO+oky/7gEpLR45XTvambYHv/6m7+uTJAoKvZcUqfsgV
+         YPg8HJdbPoAjLdXNpz89taRA99pcx5S63IRUdkbYtJ8geMJ37v+GeYZ5Vjs1iCKPgT
+         qx7hsXRbDH7gb9ipoW8d+KSBgjw/xGZ31dzjGnPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jacob Keller <jacob.e.keller@intel.com>,
-        Patryk Piotrowski <patryk.piotrowski@intel.com>,
-        SlawomirX Laba <slawomirx.laba@intel.com>,
-        Ivan Vecera <ivecera@redhat.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 084/206] iavf: Fix a crash during reset task
+Subject: [PATCH 6.0 151/289] net: enetc: preserve TX ring priority across reconfiguration
 Date:   Wed, 30 Nov 2022 19:22:16 +0100
-Message-Id: <20221130180535.142568206@linuxfoundation.org>
+Message-Id: <20221130180547.558763105@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,93 +54,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Vecera <ivecera@redhat.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit c678669d6b13b77de3b99b97526aaf23c3088d0a ]
+[ Upstream commit 290b5fe096e7dd0aad730d1af4f7f2d9fea43e11 ]
 
-Recent commit aa626da947e9 ("iavf: Detach device during reset task")
-removed netif_tx_stop_all_queues() with an assumption that Tx queues
-are already stopped by netif_device_detach() in the beginning of
-reset task. This assumption is incorrect because during reset
-task a potential link event can start Tx queues again.
-Revert this change to fix this issue.
+In the blamed commit, a rudimentary reallocation procedure for RX buffer
+descriptors was implemented, for the situation when their format changes
+between normal (no PTP) and extended (PTP).
 
-Reproducer:
-1. Run some Tx traffic (e.g. iperf3) over iavf interface
-2. Switch MTU of this interface in a loop
+enetc_hwtstamp_set() calls enetc_close() and enetc_open() in a sequence,
+and this sequence loses information which was previously configured in
+the TX BDR Mode Register, specifically via the enetc_set_bdr_prio() call.
+The TX ring priority is configured by tc-mqprio and tc-taprio, and
+affects important things for TSN such as the TX time of packets. The
+issue manifests itself most visibly by the fact that isochron --txtime
+reports premature packet transmissions when PTP is first enabled on an
+enetc interface.
 
-[root@host ~]# cat repro.sh
+Save the TX ring priority in a new field in struct enetc_bdr (occupies a
+2 byte hole on arm64) in order to make this survive a ring reconfiguration.
 
-IF=enp2s0f0v0
-
-iperf3 -c 192.168.0.1 -t 600 --logfile /dev/null &
-sleep 2
-
-while :; do
-        for i in 1280 1500 2000 900 ; do
-                ip link set $IF mtu $i
-                sleep 2
-        done
-done
-[root@host ~]# ./repro.sh
-
-Result:
-[  306.199917] iavf 0000:02:02.0 enp2s0f0v0: NIC Link is Up Speed is 40 Gbps Full Duplex
-[  308.205944] iavf 0000:02:02.0 enp2s0f0v0: NIC Link is Up Speed is 40 Gbps Full Duplex
-[  310.103223] BUG: kernel NULL pointer dereference, address: 0000000000000008
-[  310.110179] #PF: supervisor write access in kernel mode
-[  310.115396] #PF: error_code(0x0002) - not-present page
-[  310.120526] PGD 0 P4D 0
-[  310.123057] Oops: 0002 [#1] PREEMPT SMP NOPTI
-[  310.127408] CPU: 24 PID: 183 Comm: kworker/u64:9 Kdump: loaded Not tainted 6.1.0-rc3+ #2
-[  310.135485] Hardware name: Abacus electric, s.r.o. - servis@abacus.cz Super Server/H12SSW-iN, BIOS 2.4 04/13/2022
-[  310.145728] Workqueue: iavf iavf_reset_task [iavf]
-[  310.150520] RIP: 0010:iavf_xmit_frame_ring+0xd1/0xf70 [iavf]
-[  310.156180] Code: d0 0f 86 da 00 00 00 83 e8 01 0f b7 fa 29 f8 01 c8 39 c6 0f 8f a0 08 00 00 48 8b 45 20 48 8d 14 92 bf 01 00 00 00 4c 8d 3c d0 <49> 89 5f 08 8b 43 70 66 41 89 7f 14 41 89 47 10 f6 83 82 00 00 00
-[  310.174918] RSP: 0018:ffffbb5f0082caa0 EFLAGS: 00010293
-[  310.180137] RAX: 0000000000000000 RBX: ffff92345471a6e8 RCX: 0000000000000200
-[  310.187259] RDX: 0000000000000000 RSI: 000000000000000d RDI: 0000000000000001
-[  310.194385] RBP: ffff92341d249000 R08: ffff92434987fcac R09: 0000000000000001
-[  310.201509] R10: 0000000011f683b9 R11: 0000000011f50641 R12: 0000000000000008
-[  310.208631] R13: ffff923447500000 R14: 0000000000000000 R15: 0000000000000000
-[  310.215756] FS:  0000000000000000(0000) GS:ffff92434ee00000(0000) knlGS:0000000000000000
-[  310.223835] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  310.229572] CR2: 0000000000000008 CR3: 0000000fbc210004 CR4: 0000000000770ee0
-[  310.236696] PKRU: 55555554
-[  310.239399] Call Trace:
-[  310.241844]  <IRQ>
-[  310.243855]  ? dst_alloc+0x5b/0xb0
-[  310.247260]  dev_hard_start_xmit+0x9e/0x1f0
-[  310.251439]  sch_direct_xmit+0xa0/0x370
-[  310.255276]  __qdisc_run+0x13e/0x580
-[  310.258848]  __dev_queue_xmit+0x431/0xd00
-[  310.262851]  ? selinux_ip_postroute+0x147/0x3f0
-[  310.267377]  ip_finish_output2+0x26c/0x540
-
-Fixes: aa626da947e9 ("iavf: Detach device during reset task")
-Cc: Jacob Keller <jacob.e.keller@intel.com>
-Cc: Patryk Piotrowski <patryk.piotrowski@intel.com>
-Cc: SlawomirX Laba <slawomirx.laba@intel.com>
-Signed-off-by: Ivan Vecera <ivecera@redhat.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 434cebabd3a2 ("enetc: Add dynamic allocation of extended Rx BD rings")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Link: https://lore.kernel.org/r/20221122130936.1704151-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/freescale/enetc/enetc.c  |  8 ++++---
+ drivers/net/ethernet/freescale/enetc/enetc.h  |  1 +
+ .../net/ethernet/freescale/enetc/enetc_qos.c  | 21 ++++++++++++-------
+ 3 files changed, 19 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 629ebdfa48b8..493d3c407d4f 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -2381,6 +2381,7 @@ static void iavf_reset_task(struct work_struct *work)
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
+index e6dbc78f490c..1d8ec1b120a1 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -2058,7 +2058,7 @@ static void enetc_setup_txbdr(struct enetc_hw *hw, struct enetc_bdr *tx_ring)
+ 	/* enable Tx ints by setting pkt thr to 1 */
+ 	enetc_txbdr_wr(hw, idx, ENETC_TBICR0, ENETC_TBICR0_ICEN | 0x1);
  
- 	if (running) {
- 		netif_carrier_off(netdev);
-+		netif_tx_stop_all_queues(netdev);
- 		adapter->link_up = false;
- 		iavf_napi_disable_all(adapter);
+-	tbmr = ENETC_TBMR_EN;
++	tbmr = ENETC_TBMR_EN | ENETC_TBMR_SET_PRIO(tx_ring->prio);
+ 	if (tx_ring->ndev->features & NETIF_F_HW_VLAN_CTAG_TX)
+ 		tbmr |= ENETC_TBMR_VIH;
+ 
+@@ -2461,7 +2461,8 @@ int enetc_setup_tc_mqprio(struct net_device *ndev, void *type_data)
+ 		/* Reset all ring priorities to 0 */
+ 		for (i = 0; i < priv->num_tx_rings; i++) {
+ 			tx_ring = priv->tx_ring[i];
+-			enetc_set_bdr_prio(hw, tx_ring->index, 0);
++			tx_ring->prio = 0;
++			enetc_set_bdr_prio(hw, tx_ring->index, tx_ring->prio);
+ 		}
+ 
+ 		return 0;
+@@ -2480,7 +2481,8 @@ int enetc_setup_tc_mqprio(struct net_device *ndev, void *type_data)
+ 	 */
+ 	for (i = 0; i < num_tc; i++) {
+ 		tx_ring = priv->tx_ring[i];
+-		enetc_set_bdr_prio(hw, tx_ring->index, i);
++		tx_ring->prio = i;
++		enetc_set_bdr_prio(hw, tx_ring->index, tx_ring->prio);
  	}
+ 
+ 	/* Reset the number of netdev queues based on the TC count */
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.h b/drivers/net/ethernet/freescale/enetc/enetc.h
+index 748677b2ce1f..bb1b3b0e40e4 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.h
++++ b/drivers/net/ethernet/freescale/enetc/enetc.h
+@@ -95,6 +95,7 @@ struct enetc_bdr {
+ 		void __iomem *rcir;
+ 	};
+ 	u16 index;
++	u16 prio;
+ 	int bd_count; /* # of BDs */
+ 	int next_to_use;
+ 	int next_to_clean;
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc_qos.c b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
+index 2e783ef73690..5fcb02b00699 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc_qos.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
+@@ -134,6 +134,7 @@ int enetc_setup_tc_taprio(struct net_device *ndev, void *type_data)
+ 	struct tc_taprio_qopt_offload *taprio = type_data;
+ 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
+ 	struct enetc_hw *hw = &priv->si->hw;
++	struct enetc_bdr *tx_ring;
+ 	int err;
+ 	int i;
+ 
+@@ -142,16 +143,20 @@ int enetc_setup_tc_taprio(struct net_device *ndev, void *type_data)
+ 		if (priv->tx_ring[i]->tsd_enable)
+ 			return -EBUSY;
+ 
+-	for (i = 0; i < priv->num_tx_rings; i++)
+-		enetc_set_bdr_prio(hw, priv->tx_ring[i]->index,
+-				   taprio->enable ? i : 0);
++	for (i = 0; i < priv->num_tx_rings; i++) {
++		tx_ring = priv->tx_ring[i];
++		tx_ring->prio = taprio->enable ? i : 0;
++		enetc_set_bdr_prio(hw, tx_ring->index, tx_ring->prio);
++	}
+ 
+ 	err = enetc_setup_taprio(ndev, taprio);
+-
+-	if (err)
+-		for (i = 0; i < priv->num_tx_rings; i++)
+-			enetc_set_bdr_prio(hw, priv->tx_ring[i]->index,
+-					   taprio->enable ? 0 : i);
++	if (err) {
++		for (i = 0; i < priv->num_tx_rings; i++) {
++			tx_ring = priv->tx_ring[i];
++			tx_ring->prio = taprio->enable ? 0 : i;
++			enetc_set_bdr_prio(hw, tx_ring->index, tx_ring->prio);
++		}
++	}
+ 
+ 	return err;
+ }
 -- 
 2.35.1
 
