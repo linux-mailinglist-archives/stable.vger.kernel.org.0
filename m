@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEC4463DE58
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:36:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DACC63DFA2
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:49:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230246AbiK3SgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:36:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44260 "EHLO
+        id S231321AbiK3StF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:49:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230349AbiK3Sf7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A2C09700A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:54 -0800 (PST)
+        with ESMTP id S231428AbiK3Ss6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3C745097
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B6DB61D69
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFD08C433C1;
-        Wed, 30 Nov 2022 18:35:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82B15B81CAB
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBCE3C433D6;
+        Wed, 30 Nov 2022 18:48:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833353;
-        bh=KOH7+RQT+uGmHeZ6pATcxN1+BPy/mxwR9/qr3fBh9Yo=;
+        s=korg; t=1669834134;
+        bh=sKxE6Tg4H3AZRuWpOXQzKrZwCtWWGV+MsBjoklTO3B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t+9RIX2mfSh0A3LT4qzHAxKzrZ3mFmlwkUEaujuFxDoAsBtyTBYAYCD/VQhGdKcLJ
-         FFa2FVLpPWIP5g2SbboJ8bacDcqtXtCb4yi+spibx6tuQZxGi2irJegHvQj5UIWx+G
-         gkeBFDeiLRggj9wrmGYEuYN5Kg0Qm83Hxmr0C1NI=
+        b=RN9+v42GFhwoi7w8BmCIW4Y32sbTcGSMhJXeD8KyXvsSEyDUrSYShM85G7fetDYfa
+         NQ7Cmgig6BjIKeAXh1rrP73R0Saxr1lc9fzxgMMyuFbOQWqzeWL16r+Hr+J/oKUk+Q
+         PUzInN0z/MYXf7xlDzp/zrEln5SgUcCPTv9pq7tQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
+        Jon Maloy <jmaloy@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 048/206] block, bfq: fix null pointer dereference in bfq_bio_bfqg()
+Subject: [PATCH 6.0 115/289] tipc: check skb_linearize() return value in tipc_disc_rcv()
 Date:   Wed, 30 Nov 2022 19:21:40 +0100
-Message-Id: <20221130180534.221241973@linuxfoundation.org>
+Message-Id: <20221130180546.746678622@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,149 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit f02be9002c480cd3ec0fcf184ad27cf531bd6ece ]
+[ Upstream commit cd0f6421162201e4b22ce757a1966729323185eb ]
 
-Out test found a following problem in kernel 5.10, and the same problem
-should exist in mainline:
+If skb_linearize() fails in tipc_disc_rcv(), we need to free the skb instead of
+handle it.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000094
-PGD 0 P4D 0
-Oops: 0000 [#1] SMP
-CPU: 7 PID: 155 Comm: kworker/7:1 Not tainted 5.10.0-01932-g19e0ace2ca1d-dirty 4
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-b4
-Workqueue: kthrotld blk_throtl_dispatch_work_fn
-RIP: 0010:bfq_bio_bfqg+0x52/0xc0
-Code: 94 00 00 00 00 75 2e 48 8b 40 30 48 83 05 35 06 c8 0b 01 48 85 c0 74 3d 4b
-RSP: 0018:ffffc90001a1fba0 EFLAGS: 00010002
-RAX: ffff888100d60400 RBX: ffff8881132e7000 RCX: 0000000000000000
-RDX: 0000000000000017 RSI: ffff888103580a18 RDI: ffff888103580a18
-RBP: ffff8881132e7000 R08: 0000000000000000 R09: ffffc90001a1fe10
-R10: 0000000000000a20 R11: 0000000000034320 R12: 0000000000000000
-R13: ffff888103580a18 R14: ffff888114447000 R15: 0000000000000000
-FS:  0000000000000000(0000) GS:ffff88881fdc0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000094 CR3: 0000000100cdb000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- bfq_bic_update_cgroup+0x3c/0x350
- ? ioc_create_icq+0x42/0x270
- bfq_init_rq+0xfd/0x1060
- bfq_insert_requests+0x20f/0x1cc0
- ? ioc_create_icq+0x122/0x270
- blk_mq_sched_insert_requests+0x86/0x1d0
- blk_mq_flush_plug_list+0x193/0x2a0
- blk_flush_plug_list+0x127/0x170
- blk_finish_plug+0x31/0x50
- blk_throtl_dispatch_work_fn+0x151/0x190
- process_one_work+0x27c/0x5f0
- worker_thread+0x28b/0x6b0
- ? rescuer_thread+0x590/0x590
- kthread+0x153/0x1b0
- ? kthread_flush_work+0x170/0x170
- ret_from_fork+0x1f/0x30
-Modules linked in:
-CR2: 0000000000000094
----[ end trace e2e59ac014314547 ]---
-RIP: 0010:bfq_bio_bfqg+0x52/0xc0
-Code: 94 00 00 00 00 75 2e 48 8b 40 30 48 83 05 35 06 c8 0b 01 48 85 c0 74 3d 4b
-RSP: 0018:ffffc90001a1fba0 EFLAGS: 00010002
-RAX: ffff888100d60400 RBX: ffff8881132e7000 RCX: 0000000000000000
-RDX: 0000000000000017 RSI: ffff888103580a18 RDI: ffff888103580a18
-RBP: ffff8881132e7000 R08: 0000000000000000 R09: ffffc90001a1fe10
-R10: 0000000000000a20 R11: 0000000000034320 R12: 0000000000000000
-R13: ffff888103580a18 R14: ffff888114447000 R15: 0000000000000000
-FS:  0000000000000000(0000) GS:ffff88881fdc0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000094 CR3: 0000000100cdb000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-
-Root cause is quite complex:
-
-1) use bfq elevator for the test device.
-2) create a cgroup CG
-3) config blk throtl in CG
-
-   blkg_conf_prep
-    blkg_create
-
-4) create a thread T1 and issue async io in CG:
-
-   bio_init
-    bio_associate_blkg
-   ...
-   submit_bio
-    submit_bio_noacct
-     blk_throtl_bio -> io is throttled
-     // io submit is done
-
-5) switch elevator:
-
-   bfq_exit_queue
-    blkcg_deactivate_policy
-     list_for_each_entry(blkg, &q->blkg_list, q_node)
-      blkg->pd[] = NULL
-      // bfq policy is removed
-
-5) thread t1 exist, then remove the cgroup CG:
-
-   blkcg_unpin_online
-    blkcg_destroy_blkgs
-     blkg_destroy
-      list_del_init(&blkg->q_node)
-      // blkg is removed from queue list
-
-6) switch elevator back to bfq
-
- bfq_init_queue
-  bfq_create_group_hierarchy
-   blkcg_activate_policy
-    list_for_each_entry_reverse(blkg, &q->blkg_list)
-     // blkg is removed from list, hence bfq policy is still NULL
-
-7) throttled io is dispatched to bfq:
-
- bfq_insert_requests
-  bfq_init_rq
-   bfq_bic_update_cgroup
-    bfq_bio_bfqg
-     bfqg = blkg_to_bfqg(blkg)
-     // bfqg is NULL because bfq policy is NULL
-
-The problem is only possible in bfq because only bfq can be deactivated and
-activated while queue is online, while others can only be deactivated while
-the device is removed.
-
-Fix the problem in bfq by checking if blkg is online before calling
-blkg_to_bfqg().
-
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221108103434.2853269-1-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 25b0b9c4e835 ("tipc: handle collisions of 32-bit node address hash values")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Link: https://lore.kernel.org/r/20221119072832.7896-1-yuehaibing@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-cgroup.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/tipc/discover.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
-index e2e765a54fe9..a8d0b4c71b05 100644
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -613,6 +613,10 @@ struct bfq_group *bfq_bio_bfqg(struct bfq_data *bfqd, struct bio *bio)
- 	struct bfq_group *bfqg;
+diff --git a/net/tipc/discover.c b/net/tipc/discover.c
+index e8630707901e..e8dcdf267c0c 100644
+--- a/net/tipc/discover.c
++++ b/net/tipc/discover.c
+@@ -211,7 +211,10 @@ void tipc_disc_rcv(struct net *net, struct sk_buff *skb,
+ 	u32 self;
+ 	int err;
  
- 	while (blkg) {
-+		if (!blkg->online) {
-+			blkg = blkg->parent;
-+			continue;
-+		}
- 		bfqg = blkg_to_bfqg(blkg);
- 		if (bfqg->online) {
- 			bio_associate_blkg_from_css(bio, &blkg->blkcg->css);
+-	skb_linearize(skb);
++	if (skb_linearize(skb)) {
++		kfree_skb(skb);
++		return;
++	}
+ 	hdr = buf_msg(skb);
+ 
+ 	if (caps & TIPC_NODE_ID128)
 -- 
 2.35.1
 
