@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8637263DD51
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:26:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7869A63DE4C
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229501AbiK3S01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:26:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57134 "EHLO
+        id S229879AbiK3Sfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:35:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229938AbiK3S0X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D481D23147
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:21 -0800 (PST)
+        with ESMTP id S230374AbiK3Sfb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 511639208A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7836EB81C9C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5913C433D6;
-        Wed, 30 Nov 2022 18:26:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2BD8B81C9F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42A4EC433D6;
+        Wed, 30 Nov 2022 18:35:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832779;
-        bh=JT4/EOII5U4Vev/JsR9Uok1QnPBvVJU6qrAIcS1c8ko=;
+        s=korg; t=1669833327;
+        bh=w0I30QUcwoacNhiW7A8I6u9hG4L3PLnzcvps8TLedZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5dECcyT2txZ2ejiKWXskgCRC2X1ZQSW0ZMUjPvV2kD29WB5dVQdxHa3BmWGYgJTT
-         aLLhn3Fp1Qd3/wyEDAfKo6RTde7kNdKt1nYOPHJx0HzZYQsOMZcFqTEOKPGbXzJyaE
-         Spstm7GBGWNSQk178KPbjjfEeWpHC7KlV0YqfaRw=
+        b=HBT4G5ebJ3BEzbA4gPEyMG78EEf8nec1B2Ta45T0MPLKg0kbsZxy1RaIxOpZvBNkj
+         8f+DolOTfxeO82DhOx54GBdaEBAcafwX13S+xWAMRlPKM8LOYw4QQ5L8ig9cXHXy6A
+         9/HRUZf/xI6oP/Qaw0JXk65dPNFZS+2wDDK5IqvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Detlev Casanova <detlev.casanova@collabora.com>,
-        Fabio Estevam <festevam@gmail.com>,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 037/162] ASoC: sgtl5000: Reset the CHIP_CLK_CTRL reg on remove
+Subject: [PATCH 5.15 066/206] spi: dw-dma: decrease reference count in dw_spi_dma_init_mfld()
 Date:   Wed, 30 Nov 2022 19:21:58 +0100
-Message-Id: <20221130180529.512167447@linuxfoundation.org>
+Message-Id: <20221130180534.679179508@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Detlev Casanova <detlev.casanova@collabora.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 0bb8e9b36b5b7f2e77892981ff6c27ee831d8026 ]
+[ Upstream commit 804313b64e412a81b0b3389a10e7622452004aa6 ]
 
-Since commit bf2aebccddef ("ASoC: sgtl5000: Fix noise on shutdown/remove"),
-the device power control registers are reset when the driver is
-removed/shutdown.
+pci_get_device() will increase the reference count for the returned
+pci_dev. Since 'dma_dev' is only used to filter the channel in
+dw_spi_dma_chan_filer() after using it we need to call pci_dev_put() to
+decrease the reference count. Also add pci_dev_put() for the error case.
 
-This is an issue when the device is configured to use the PLL clock. The
-device will stop responding if it is still configured to use the PLL
-clock but the PLL clock is powered down.
-
-When rebooting linux, the probe function will show:
-sgtl5000 0-000a: Error reading chip id -11
-
-Make sure that the CHIP_CLK_CTRL is reset to its default value before
-powering down the device.
-
-Fixes: bf2aebccddef ("ASoC: sgtl5000: Fix noise on shutdown/remove")
-Signed-off-by: Detlev Casanova <detlev.casanova@collabora.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20221110190612.1341469-1-detlev.casanova@collabora.com
+Fixes: 7063c0d942a1 ("spi/dw_spi: add DMA support")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Acked-by: Serge Semin <fancer.lancer@gmail.com>
+Link: https://lore.kernel.org/r/20221116093204.46700-1-wangxiongfeng2@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/sgtl5000.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-dw-dma.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index f066e016a874..edde0323799a 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -1797,6 +1797,7 @@ static int sgtl5000_i2c_remove(struct i2c_client *client)
- {
- 	struct sgtl5000_priv *sgtl5000 = i2c_get_clientdata(client);
+diff --git a/drivers/spi/spi-dw-dma.c b/drivers/spi/spi-dw-dma.c
+index a09831c62192..32ac8f9068e8 100644
+--- a/drivers/spi/spi-dw-dma.c
++++ b/drivers/spi/spi-dw-dma.c
+@@ -127,12 +127,15 @@ static int dw_spi_dma_init_mfld(struct device *dev, struct dw_spi *dws)
  
-+	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_CLK_CTRL, SGTL5000_CHIP_CLK_CTRL_DEFAULT);
- 	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_DIG_POWER, SGTL5000_DIG_POWER_DEFAULT);
- 	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, SGTL5000_ANA_POWER_DEFAULT);
+ 	dw_spi_dma_sg_burst_init(dws);
+ 
++	pci_dev_put(dma_dev);
++
+ 	return 0;
+ 
+ free_rxchan:
+ 	dma_release_channel(dws->rxchan);
+ 	dws->rxchan = NULL;
+ err_exit:
++	pci_dev_put(dma_dev);
+ 	return -EBUSY;
+ }
  
 -- 
 2.35.1
