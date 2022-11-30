@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6201863E012
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:53:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A0B063DE9D
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:38:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231509AbiK3SxW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:53:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40742 "EHLO
+        id S230492AbiK3Siz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:38:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231549AbiK3SxI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:53:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B8EC1F614
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:53:07 -0800 (PST)
+        with ESMTP id S230479AbiK3Siy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:38:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A433B8DBF7
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:38:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC26461D89
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:53:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE9F9C433C1;
-        Wed, 30 Nov 2022 18:53:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63879B81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:38:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC67EC433D6;
+        Wed, 30 Nov 2022 18:38:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834386;
-        bh=DVsudJYSfD+iO/RcDDvNNWuARIoeYEMC5wmf+b26liY=;
+        s=korg; t=1669833531;
+        bh=HQwCJLIpa+UTjRE/4mBilibo/hWHMgGAAJkS4/0TCXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LSbXXkcFh0WvfYE8RVWYYqlqmSCiYvW2kt9j9OX5MK8T6fl+eRiTzW9+Boy48jNfK
-         N1kR6viIjIwYGRYsi+VFhE9E6Bi/J8NVRiEjyAwqZd0fB//34SGY6/tyPxPQ+VZHph
-         FYgANAxrt8YluuZqPDn2g931xsasL+Y61bf2qsHE=
+        b=uXcvpK47cduPSRoXqSlwWiC7iXPgP0qAiARssdmQPhjCp0JIgQoDxuZQGWmKX0zyC
+         CMjSzmvhUShzH09t2oDUKozANR5+dW0NdRkZOj1O48XBv3g44POTq7FBu4p49uCEwd
+         Ato2xSCpn5Zg4WiT5oJOzfzPHGB8lE8e4jiIcZ+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.0 197/289] io_uring: clear TIF_NOTIFY_SIGNAL if set and task_work not available
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 130/206] octeontx2-pf: Add check for devm_kcalloc
 Date:   Wed, 30 Nov 2022 19:23:02 +0100
-Message-Id: <20221130180548.587691737@linuxfoundation.org>
+Message-Id: <20221130180536.351863253@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,41 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 7cfe7a09489c1cefee7181e07b5f2bcbaebd9f41 upstream.
+[ Upstream commit cd07eadd5147ffdae11b6fd28b77a3872f2a2484 ]
 
-With how task_work is added and signaled, we can have TIF_NOTIFY_SIGNAL
-set and no task_work pending as it got run in a previous loop. Treat
-TIF_NOTIFY_SIGNAL like get_signal(), always clear it if set regardless
-of whether or not task_work is pending to run.
+As the devm_kcalloc may return NULL pointer,
+it should be better to add check for the return
+value, as same as the others.
 
-Cc: stable@vger.kernel.org
-Fixes: 46a525e199e4 ("io_uring: don't gate task_work run on TIF_NOTIFY_SIGNAL")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e8e095b3b370 ("octeontx2-af: cn10k: Bandwidth profiles config support")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Link: https://lore.kernel.org/r/20221122055449.31247-1-jiasheng@iscas.ac.cn
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/io_uring.h |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/io_uring/io_uring.h
-+++ b/io_uring/io_uring.h
-@@ -229,9 +229,14 @@ static inline unsigned int io_sqring_ent
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
+index 603361c94786..09892703cfd4 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
+@@ -4832,6 +4832,8 @@ static int nix_setup_ipolicers(struct rvu *rvu,
+ 		ipolicer->ref_count = devm_kcalloc(rvu->dev,
+ 						   ipolicer->band_prof.max,
+ 						   sizeof(u16), GFP_KERNEL);
++		if (!ipolicer->ref_count)
++			return -ENOMEM;
+ 	}
  
- static inline bool io_run_task_work(void)
- {
-+	/*
-+	 * Always check-and-clear the task_work notification signal. With how
-+	 * signaling works for task_work, we can find it set with nothing to
-+	 * run. We need to clear it for that case, like get_signal() does.
-+	 */
-+	if (test_thread_flag(TIF_NOTIFY_SIGNAL))
-+		clear_notify_signal();
- 	if (task_work_pending(current)) {
--		if (test_thread_flag(TIF_NOTIFY_SIGNAL))
--			clear_notify_signal();
- 		__set_current_state(TASK_RUNNING);
- 		task_work_run();
- 		return 1;
+ 	/* Set policer timeunit to 2us ie  (19 + 1) * 100 nsec = 2us */
+-- 
+2.35.1
+
 
 
