@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CAD263DEB7
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:40:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C894E63DDCC
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:30:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230517AbiK3SkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:40:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51200 "EHLO
+        id S229774AbiK3Sam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:30:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230522AbiK3Sj6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:39:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A75097018
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:39:58 -0800 (PST)
+        with ESMTP id S229780AbiK3Sac (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:30:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D05A8DBF2
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:30:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC95F61D73
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:39:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B959EC433D6;
-        Wed, 30 Nov 2022 18:39:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16E58B81CA4
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6674EC433D7;
+        Wed, 30 Nov 2022 18:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833597;
-        bh=6wcgAe4V0idzEv5Ubdq6GCPPS7JDd+KR/SQEd1L3iZw=;
+        s=korg; t=1669833028;
+        bh=KyLHJ6keqKq3hjw1KVLFhrymkPsM84M14ZlDI/6UAnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tB2vgXuobHyldG41Z0HfFECUEKKlOnrDSq9d0TgY+9a8FkTlrnTkopz2uyAAITZp+
-         1t+rgviQLRz4FBAvqGQ3CnVYDpIIU2H3g/L9uvb4cT/sGmzDDKmIwtzYLiE8VC+bBm
-         7ji6aLSPHRXqVZng0s4OsUZAWigu4MXxJVXTBECQ=
+        b=0+25wJkc1J2i9HqJetOYssy7QDw6MjZIteTlofNqhY6dOFu4qqYB9gqy22hQecfog
+         HlBYVPSURMHpHyk7um8QpDIzG/mlRHRAdd33H+8cxOYfI6zdZfJnILDlFPezkN2+Z0
+         KZY3XByreaLtNVHn7xS3XKJgIa/LK+QdGhuA/pvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mukesh Ojha <quic_mojha@quicinc.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Tom Rix <trix@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 154/206] gcov: clang: fix the buffer overflow issue
+        patches@lists.linux.dev, Martijn Coenen <maco@android.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Todd Kjos <tkjos@google.com>,
+        Carlos Llamas <cmllamas@google.com>
+Subject: [PATCH 5.10 125/162] binder: avoid potential data leakage when copying txn
 Date:   Wed, 30 Nov 2022 19:23:26 +0100
-Message-Id: <20221130180536.952761401@linuxfoundation.org>
+Message-Id: <20221130180531.880694262@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,88 +54,228 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mukesh Ojha <quic_mojha@quicinc.com>
+From: Todd Kjos <tkjos@google.com>
 
-commit a6f810efabfd789d3bbafeacb4502958ec56c5ce upstream.
+commit 6d98eb95b450a75adb4516a1d33652dc78d2b20c upstream.
 
-Currently, in clang version of gcov code when module is getting removed
-gcov_info_add() incorrectly adds the sfn_ptr->counter to all the
-dst->functions and it result in the kernel panic in below crash report.
-Fix this by properly handling it.
+Transactions are copied from the sender to the target
+first and objects like BINDER_TYPE_PTR and BINDER_TYPE_FDA
+are then fixed up. This means there is a short period where
+the sender's version of these objects are visible to the
+target prior to the fixups.
 
-[    8.899094][  T599] Unable to handle kernel write to read-only memory at virtual address ffffff80461cc000
-[    8.899100][  T599] Mem abort info:
-[    8.899102][  T599]   ESR = 0x9600004f
-[    8.899103][  T599]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    8.899105][  T599]   SET = 0, FnV = 0
-[    8.899107][  T599]   EA = 0, S1PTW = 0
-[    8.899108][  T599]   FSC = 0x0f: level 3 permission fault
-[    8.899110][  T599] Data abort info:
-[    8.899111][  T599]   ISV = 0, ISS = 0x0000004f
-[    8.899113][  T599]   CM = 0, WnR = 1
-[    8.899114][  T599] swapper pgtable: 4k pages, 39-bit VAs, pgdp=00000000ab8de000
-[    8.899116][  T599] [ffffff80461cc000] pgd=18000009ffcde003, p4d=18000009ffcde003, pud=18000009ffcde003, pmd=18000009ffcad003, pte=00600000c61cc787
-[    8.899124][  T599] Internal error: Oops: 9600004f [#1] PREEMPT SMP
-[    8.899265][  T599] Skip md ftrace buffer dump for: 0x1609e0
-....
-..,
-[    8.899544][  T599] CPU: 7 PID: 599 Comm: modprobe Tainted: G S         OE     5.15.41-android13-8-g38e9b1af6bce #1
-[    8.899547][  T599] Hardware name: XXX (DT)
-[    8.899549][  T599] pstate: 82400005 (Nzcv daif +PAN -UAO +TCO -DIT -SSBS BTYPE=--)
-[    8.899551][  T599] pc : gcov_info_add+0x9c/0xb8
-[    8.899557][  T599] lr : gcov_event+0x28c/0x6b8
-[    8.899559][  T599] sp : ffffffc00e733b00
-[    8.899560][  T599] x29: ffffffc00e733b00 x28: ffffffc00e733d30 x27: ffffffe8dc297470
-[    8.899563][  T599] x26: ffffffe8dc297000 x25: ffffffe8dc297000 x24: ffffffe8dc297000
-[    8.899566][  T599] x23: ffffffe8dc0a6200 x22: ffffff880f68bf20 x21: 0000000000000000
-[    8.899569][  T599] x20: ffffff880f68bf00 x19: ffffff8801babc00 x18: ffffffc00d7f9058
-[    8.899572][  T599] x17: 0000000000088793 x16: ffffff80461cbe00 x15: 9100052952800785
-[    8.899575][  T599] x14: 0000000000000200 x13: 0000000000000041 x12: 9100052952800785
-[    8.899577][  T599] x11: ffffffe8dc297000 x10: ffffffe8dc297000 x9 : ffffff80461cbc80
-[    8.899580][  T599] x8 : ffffff8801babe80 x7 : ffffffe8dc2ec000 x6 : ffffffe8dc2ed000
-[    8.899583][  T599] x5 : 000000008020001f x4 : fffffffe2006eae0 x3 : 000000008020001f
-[    8.899586][  T599] x2 : ffffff8027c49200 x1 : ffffff8801babc20 x0 : ffffff80461cb3a0
-[    8.899589][  T599] Call trace:
-[    8.899590][  T599]  gcov_info_add+0x9c/0xb8
-[    8.899592][  T599]  gcov_module_notifier+0xbc/0x120
-[    8.899595][  T599]  blocking_notifier_call_chain+0xa0/0x11c
-[    8.899598][  T599]  do_init_module+0x2a8/0x33c
-[    8.899600][  T599]  load_module+0x23cc/0x261c
-[    8.899602][  T599]  __arm64_sys_finit_module+0x158/0x194
-[    8.899604][  T599]  invoke_syscall+0x94/0x2bc
-[    8.899607][  T599]  el0_svc_common+0x1d8/0x34c
-[    8.899609][  T599]  do_el0_svc+0x40/0x54
-[    8.899611][  T599]  el0_svc+0x94/0x2f0
-[    8.899613][  T599]  el0t_64_sync_handler+0x88/0xec
-[    8.899615][  T599]  el0t_64_sync+0x1b4/0x1b8
-[    8.899618][  T599] Code: f905f56c f86e69ec f86e6a0f 8b0c01ec (f82e6a0c)
-[    8.899620][  T599] ---[ end trace ed5218e9e5b6e2e6 ]---
+Instead of copying all of the data first, copy data only
+after any needed fixups have been applied.
 
-Link: https://lkml.kernel.org/r/1668020497-13142-1-git-send-email-quic_mojha@quicinc.com
-Fixes: e178a5beb369 ("gcov: clang support")
-Signed-off-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Tested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Tom Rix <trix@redhat.com>
-Cc: <stable@vger.kernel.org>	[5.2+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
+Reviewed-by: Martijn Coenen <maco@android.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Link: https://lore.kernel.org/r/20211130185152.437403-3-tkjos@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[cmllamas: fix trivial merge conflict]
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/gcov/clang.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/android/binder.c |   94 +++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 70 insertions(+), 24 deletions(-)
 
---- a/kernel/gcov/clang.c
-+++ b/kernel/gcov/clang.c
-@@ -280,6 +280,8 @@ void gcov_info_add(struct gcov_info *dst
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -2008,15 +2008,21 @@ static void binder_cleanup_transaction(s
+ /**
+  * binder_get_object() - gets object and checks for valid metadata
+  * @proc:	binder_proc owning the buffer
++ * @u:		sender's user pointer to base of buffer
+  * @buffer:	binder_buffer that we're parsing.
+  * @offset:	offset in the @buffer at which to validate an object.
+  * @object:	struct binder_object to read into
+  *
+- * Return:	If there's a valid metadata object at @offset in @buffer, the
++ * Copy the binder object at the given offset into @object. If @u is
++ * provided then the copy is from the sender's buffer. If not, then
++ * it is copied from the target's @buffer.
++ *
++ * Return:	If there's a valid metadata object at @offset, the
+  *		size of that object. Otherwise, it returns zero. The object
+  *		is read into the struct binder_object pointed to by @object.
+  */
+ static size_t binder_get_object(struct binder_proc *proc,
++				const void __user *u,
+ 				struct binder_buffer *buffer,
+ 				unsigned long offset,
+ 				struct binder_object *object)
+@@ -2026,10 +2032,16 @@ static size_t binder_get_object(struct b
+ 	size_t object_size = 0;
  
- 		for (i = 0; i < sfn_ptr->num_counters; i++)
- 			dfn_ptr->counters[i] += sfn_ptr->counters[i];
+ 	read_size = min_t(size_t, sizeof(*object), buffer->data_size - offset);
+-	if (offset > buffer->data_size || read_size < sizeof(*hdr) ||
+-	    binder_alloc_copy_from_buffer(&proc->alloc, object, buffer,
+-					  offset, read_size))
++	if (offset > buffer->data_size || read_size < sizeof(*hdr))
+ 		return 0;
++	if (u) {
++		if (copy_from_user(object, u + offset, read_size))
++			return 0;
++	} else {
++		if (binder_alloc_copy_from_buffer(&proc->alloc, object, buffer,
++						  offset, read_size))
++			return 0;
++	}
+ 
+ 	/* Ok, now see if we read a complete object. */
+ 	hdr = &object->hdr;
+@@ -2102,7 +2114,7 @@ static struct binder_buffer_object *bind
+ 					  b, buffer_offset,
+ 					  sizeof(object_offset)))
+ 		return NULL;
+-	object_size = binder_get_object(proc, b, object_offset, object);
++	object_size = binder_get_object(proc, NULL, b, object_offset, object);
+ 	if (!object_size || object->hdr.type != BINDER_TYPE_PTR)
+ 		return NULL;
+ 	if (object_offsetp)
+@@ -2167,7 +2179,8 @@ static bool binder_validate_fixup(struct
+ 		unsigned long buffer_offset;
+ 		struct binder_object last_object;
+ 		struct binder_buffer_object *last_bbo;
+-		size_t object_size = binder_get_object(proc, b, last_obj_offset,
++		size_t object_size = binder_get_object(proc, NULL, b,
++						       last_obj_offset,
+ 						       &last_object);
+ 		if (object_size != sizeof(*last_bbo))
+ 			return false;
+@@ -2282,7 +2295,7 @@ static void binder_transaction_buffer_re
+ 		if (!binder_alloc_copy_from_buffer(&proc->alloc, &object_offset,
+ 						   buffer, buffer_offset,
+ 						   sizeof(object_offset)))
+-			object_size = binder_get_object(proc, buffer,
++			object_size = binder_get_object(proc, NULL, buffer,
+ 							object_offset, &object);
+ 		if (object_size == 0) {
+ 			pr_err("transaction release %d bad object at offset %lld, size %zd\n",
+@@ -2848,6 +2861,7 @@ static void binder_transaction(struct bi
+ 	binder_size_t off_start_offset, off_end_offset;
+ 	binder_size_t off_min;
+ 	binder_size_t sg_buf_offset, sg_buf_end_offset;
++	binder_size_t user_offset = 0;
+ 	struct binder_proc *target_proc = NULL;
+ 	struct binder_thread *target_thread = NULL;
+ 	struct binder_node *target_node = NULL;
+@@ -2862,6 +2876,8 @@ static void binder_transaction(struct bi
+ 	int t_debug_id = atomic_inc_return(&binder_last_id);
+ 	char *secctx = NULL;
+ 	u32 secctx_sz = 0;
++	const void __user *user_buffer = (const void __user *)
++				(uintptr_t)tr->data.ptr.buffer;
+ 
+ 	e = binder_transaction_log_add(&binder_transaction_log);
+ 	e->debug_id = t_debug_id;
+@@ -3175,19 +3191,6 @@ static void binder_transaction(struct bi
+ 
+ 	if (binder_alloc_copy_user_to_buffer(
+ 				&target_proc->alloc,
+-				t->buffer, 0,
+-				(const void __user *)
+-					(uintptr_t)tr->data.ptr.buffer,
+-				tr->data_size)) {
+-		binder_user_error("%d:%d got transaction with invalid data ptr\n",
+-				proc->pid, thread->pid);
+-		return_error = BR_FAILED_REPLY;
+-		return_error_param = -EFAULT;
+-		return_error_line = __LINE__;
+-		goto err_copy_data_failed;
+-	}
+-	if (binder_alloc_copy_user_to_buffer(
+-				&target_proc->alloc,
+ 				t->buffer,
+ 				ALIGN(tr->data_size, sizeof(void *)),
+ 				(const void __user *)
+@@ -3230,6 +3233,7 @@ static void binder_transaction(struct bi
+ 		size_t object_size;
+ 		struct binder_object object;
+ 		binder_size_t object_offset;
++		binder_size_t copy_size;
+ 
+ 		if (binder_alloc_copy_from_buffer(&target_proc->alloc,
+ 						  &object_offset,
+@@ -3241,8 +3245,27 @@ static void binder_transaction(struct bi
+ 			return_error_line = __LINE__;
+ 			goto err_bad_offset;
+ 		}
+-		object_size = binder_get_object(target_proc, t->buffer,
+-						object_offset, &object);
 +
-+		sfn_ptr = list_next_entry(sfn_ptr, head);
++		/*
++		 * Copy the source user buffer up to the next object
++		 * that will be processed.
++		 */
++		copy_size = object_offset - user_offset;
++		if (copy_size && (user_offset > object_offset ||
++				binder_alloc_copy_user_to_buffer(
++					&target_proc->alloc,
++					t->buffer, user_offset,
++					user_buffer + user_offset,
++					copy_size))) {
++			binder_user_error("%d:%d got transaction with invalid data ptr\n",
++					proc->pid, thread->pid);
++			return_error = BR_FAILED_REPLY;
++			return_error_param = -EFAULT;
++			return_error_line = __LINE__;
++			goto err_copy_data_failed;
++		}
++		object_size = binder_get_object(target_proc, user_buffer,
++				t->buffer, object_offset, &object);
+ 		if (object_size == 0 || object_offset < off_min) {
+ 			binder_user_error("%d:%d got transaction with invalid offset (%lld, min %lld max %lld) or object.\n",
+ 					  proc->pid, thread->pid,
+@@ -3254,6 +3277,11 @@ static void binder_transaction(struct bi
+ 			return_error_line = __LINE__;
+ 			goto err_bad_offset;
+ 		}
++		/*
++		 * Set offset to the next buffer fragment to be
++		 * copied
++		 */
++		user_offset = object_offset + object_size;
+ 
+ 		hdr = &object.hdr;
+ 		off_min = object_offset + object_size;
+@@ -3349,9 +3377,14 @@ static void binder_transaction(struct bi
+ 			}
+ 			ret = binder_translate_fd_array(fda, parent, t, thread,
+ 							in_reply_to);
+-			if (ret < 0) {
++			if (!ret)
++				ret = binder_alloc_copy_to_buffer(&target_proc->alloc,
++								  t->buffer,
++								  object_offset,
++								  fda, sizeof(*fda));
++			if (ret) {
+ 				return_error = BR_FAILED_REPLY;
+-				return_error_param = ret;
++				return_error_param = ret > 0 ? -EINVAL : ret;
+ 				return_error_line = __LINE__;
+ 				goto err_translate_failed;
+ 			}
+@@ -3421,6 +3454,19 @@ static void binder_transaction(struct bi
+ 			goto err_bad_object_type;
+ 		}
  	}
- }
++	/* Done processing objects, copy the rest of the buffer */
++	if (binder_alloc_copy_user_to_buffer(
++				&target_proc->alloc,
++				t->buffer, user_offset,
++				user_buffer + user_offset,
++				tr->data_size - user_offset)) {
++		binder_user_error("%d:%d got transaction with invalid data ptr\n",
++				proc->pid, thread->pid);
++		return_error = BR_FAILED_REPLY;
++		return_error_param = -EFAULT;
++		return_error_line = __LINE__;
++		goto err_copy_data_failed;
++	}
+ 	tcomplete->type = BINDER_WORK_TRANSACTION_COMPLETE;
+ 	t->work.type = BINDER_WORK_TRANSACTION;
  
 
 
