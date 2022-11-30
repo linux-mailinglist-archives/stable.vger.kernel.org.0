@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0F4563DE00
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:32:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B3A663DEE9
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:42:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229576AbiK3Sct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:32:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40070 "EHLO
+        id S231236AbiK3SmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:42:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229718AbiK3Scs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:32:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A86A210AF
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:32:38 -0800 (PST)
+        with ESMTP id S231270AbiK3Slu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3702498977
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FF5AB81B21
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:32:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 635C9C433D6;
-        Wed, 30 Nov 2022 18:32:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9709B81CA8
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:41:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61424C433D6;
+        Wed, 30 Nov 2022 18:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833155;
-        bh=pLyDsuzvftZ1wyqyqFC7Qnj+LsNadvkJ/wdF6YGEroA=;
+        s=korg; t=1669833707;
+        bh=cgXQrMsTEYl76HiYtky5TCUyXRmQmGWJY9whWklzyRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ATGiE2YWF9CuihwUlODy3HlaZXkYKuXwTRHWTKWsthZQ6KjacKh8KXhxzjZw06VjF
-         CK+6hfi7vqYrGyNJCFxDQOJyqymVPpnGMxjSqfN6ao6tMoxT+nzuqBiXxQkK+9ScqI
-         dtf0uNcIpPiir68HWYRY+hZrxhLhuV7JQdQtegN4=
+        b=HcTYjQMB9x6RH9iTMsEpEVKEctTTepElfOYRd1CX8ZCJuCiexWJfwJ4KL0yKfn87H
+         GrhtQbnJEv1rCv1UzOh9XwzzuMejFybIJFv2rUjpQAwBtkcG9S+ISLnM9aUTE6WmSA
+         pyYQg/Ew5+smSmhpPq8TaWJfPQIDxB8t5zW3FMpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Wilson <chris.p.wilson@intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 162/162] drm/i915: fix TLB invalidation for Gen12 video and compute engines
+        patches@lists.linux.dev, Phil Turnbull <philipturnbull@github.com>,
+        Ajay Kathat <ajay.kathat@microchip.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.15 191/206] wifi: wilc1000: validate number of channels
 Date:   Wed, 30 Nov 2022 19:24:03 +0100
-Message-Id: <20221130180532.864197955@linuxfoundation.org>
+Message-Id: <20221130180537.875904832@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrzej Hajda <andrzej.hajda@intel.com>
+From: Phil Turnbull <philipturnbull@github.com>
 
-commit 04aa64375f48a5d430b5550d9271f8428883e550 upstream.
+commit 0cdfa9e6f0915e3d243e2393bfa8a22e12d553b0 upstream.
 
-In case of Gen12 video and compute engines, TLB_INV registers are masked -
-to modify one bit, corresponding bit in upper half of the register must
-be enabled, otherwise nothing happens.
+There is no validation of 'e->no_of_channels' which can trigger an
+out-of-bounds write in the following 'memset' call. Validate that the
+number of channels does not extends beyond the size of the channel list
+element.
 
-CVE: CVE-2022-4139
-Suggested-by: Chris Wilson <chris.p.wilson@intel.com>
-Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Phil Turnbull <philipturnbull@github.com>
+Tested-by: Ajay Kathat <ajay.kathat@microchip.com>
+Acked-by: Ajay Kathat <ajay.kathat@microchip.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221123153543.8568-5-philipturnbull@github.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gt/intel_gt.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/microchip/wilc1000/cfg80211.c |   23 +++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -745,6 +745,10 @@ void intel_gt_invalidate_tlbs(struct int
- 		if (!i915_mmio_reg_offset(rb.reg))
- 			continue;
+--- a/drivers/net/wireless/microchip/wilc1000/cfg80211.c
++++ b/drivers/net/wireless/microchip/wilc1000/cfg80211.c
+@@ -961,19 +961,30 @@ static inline void wilc_wfi_cfg_parse_ch
+ 	}
  
-+		if (INTEL_GEN(i915) == 12 && (engine->class == VIDEO_DECODE_CLASS ||
-+		    engine->class == VIDEO_ENHANCEMENT_CLASS))
-+			rb.bit = _MASKED_BIT_ENABLE(rb.bit);
+ 	if (ch_list_idx) {
+-		u16 attr_size;
+-		struct wilc_ch_list_elem *e;
+-		int i;
++		unsigned int i;
++		u16 elem_size;
+ 
+ 		ch_list = (struct wilc_attr_ch_list *)&buf[ch_list_idx];
+-		attr_size = le16_to_cpu(ch_list->attr_len);
+-		for (i = 0; i < attr_size;) {
++		/* the number of bytes following the final 'elem' member */
++		elem_size = le16_to_cpu(ch_list->attr_len) -
++			(sizeof(*ch_list) - sizeof(struct wilc_attr_entry));
++		for (i = 0; i < elem_size;) {
++			struct wilc_ch_list_elem *e;
 +
- 		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
+ 			e = (struct wilc_ch_list_elem *)(ch_list->elem + i);
++
++			i += sizeof(*e);
++			if (i > elem_size)
++				break;
++
++			i += e->no_of_channels;
++			if (i > elem_size)
++				break;
++
+ 			if (e->op_class == WILC_WLAN_OPERATING_CLASS_2_4GHZ) {
+ 				memset(e->ch_list, sta_ch, e->no_of_channels);
+ 				break;
+ 			}
+-			i += e->no_of_channels;
+ 		}
  	}
  
 
