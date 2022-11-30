@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C65B63DF87
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2325363DE3A
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231416AbiK3SsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:48:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34212 "EHLO
+        id S230324AbiK3SfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:35:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231420AbiK3SsD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53C441D0FD
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:02 -0800 (PST)
+        with ESMTP id S230349AbiK3Sez (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:34:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AB6894910
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:34:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1E45B81B37
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D14EC433D6;
-        Wed, 30 Nov 2022 18:47:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FDCBB81C9F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:34:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 818ACC433C1;
+        Wed, 30 Nov 2022 18:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834080;
-        bh=FhQqqWuJ6F8EHCReW61RTMLhlKsnEk/WF1GTOixciRk=;
+        s=korg; t=1669833291;
+        bh=3FEH4svVzkYeoaa6ZutCgXlK7jfyfHYi9LMUFaXwG4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tS/xYahqs4qzPgoG41CfyByLF0Syd1AWcTlmkAO9qJ4aSkdTk2uF6MgPnAuggwAXf
-         Rs0QZLd8sT/mnSfPhPc1miNFs50ygs3iZ5nP+mBmjTVrk40CQ9/FqnQMpmlsIddFbp
-         aLTh+SS81nqNLM5VB6hCWjNo/SRKXf6pb0JdJy5o=
+        b=Ga9y3eovc2gtOfTZsP+PMj6p6LrQurDU1ZbkniSiGk/Y8104uOYHMyNd4N0NJSgxK
+         jwpBNLa44jT/g8+eF4o0AuhF8UkL+32SBQ/wV5xYQ0qN9GGzvR68+nVWuwkbJh+MMw
+         nPVB5X10sdxA51SOWdOGz7TLkhQiJhoRAb1U4rSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Monil Patel <monil191989@gmail.com>,
+        Eyal Birger <eyal.birger@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 122/289] net: sched: allow act_ct to be built without NF_NAT
+Subject: [PATCH 5.15 055/206] xfrm: fix "disable_policy" on ipv4 early demux
 Date:   Wed, 30 Nov 2022 19:21:47 +0100
-Message-Id: <20221130180546.907129986@linuxfoundation.org>
+Message-Id: <20221130180534.399820717@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Eyal Birger <eyal.birger@gmail.com>
 
-[ Upstream commit 8427fd100c7b7793650e212a81e42f1cf124613d ]
+[ Upstream commit 3a5913183aa1b14148c723bda030e6102ad73008 ]
 
-In commit f11fe1dae1c4 ("net/sched: Make NET_ACT_CT depends on NF_NAT"),
-it fixed the build failure when NF_NAT is m and NET_ACT_CT is y by
-adding depends on NF_NAT for NET_ACT_CT. However, it would also cause
-NET_ACT_CT cannot be built without NF_NAT, which is not expected. This
-patch fixes it by changing to use "(!NF_NAT || NF_NAT)" as the depend.
+The commit in the "Fixes" tag tried to avoid a case where policy check
+is ignored due to dst caching in next hops.
 
-Fixes: f11fe1dae1c4 ("net/sched: Make NET_ACT_CT depends on NF_NAT")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/b6386f28d1ba34721795fb776a91cbdabb203447.1668807183.git.lucien.xin@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+However, when the traffic is locally consumed, the dst may be cached
+in a local TCP or UDP socket as part of early demux. In this case the
+"disable_policy" flag is not checked as ip_route_input_noref() was only
+called before caching, and thus, packets after the initial packet in a
+flow will be dropped if not matching policies.
+
+Fix by checking the "disable_policy" flag also when a valid dst is
+already available.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216557
+Reported-by: Monil Patel <monil191989@gmail.com>
+Fixes: e6175a2ed1f1 ("xfrm: fix "disable_policy" flag use when arriving from different devices")
+Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
+
+----
+
+v2: use dev instead of skb->dev
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/ip_input.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/sched/Kconfig b/net/sched/Kconfig
-index 1e8ab4749c6c..4662a6ce8a7e 100644
---- a/net/sched/Kconfig
-+++ b/net/sched/Kconfig
-@@ -976,7 +976,7 @@ config NET_ACT_TUNNEL_KEY
+diff --git a/net/ipv4/ip_input.c b/net/ipv4/ip_input.c
+index 459d7e630cb0..124bf8fdf924 100644
+--- a/net/ipv4/ip_input.c
++++ b/net/ipv4/ip_input.c
+@@ -364,6 +364,11 @@ static int ip_rcv_finish_core(struct net *net, struct sock *sk,
+ 					   iph->tos, dev);
+ 		if (unlikely(err))
+ 			goto drop_error;
++	} else {
++		struct in_device *in_dev = __in_dev_get_rcu(dev);
++
++		if (in_dev && IN_DEV_ORCONF(in_dev, NOPOLICY))
++			IPCB(skb)->flags |= IPSKB_NOPOLICY;
+ 	}
  
- config NET_ACT_CT
- 	tristate "connection tracking tc action"
--	depends on NET_CLS_ACT && NF_CONNTRACK && NF_NAT && NF_FLOW_TABLE
-+	depends on NET_CLS_ACT && NF_CONNTRACK && (!NF_NAT || NF_NAT) && NF_FLOW_TABLE
- 	help
- 	  Say Y here to allow sending the packets to conntrack module.
- 
+ #ifdef CONFIG_IP_ROUTE_CLASSID
 -- 
 2.35.1
 
