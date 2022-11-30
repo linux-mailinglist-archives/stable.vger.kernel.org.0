@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A2B163DE41
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59E1A63DF8E
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230209AbiK3SfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:35:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43118 "EHLO
+        id S231379AbiK3Ssc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:48:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230404AbiK3SfJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDBE293A5B
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:08 -0800 (PST)
+        with ESMTP id S231448AbiK3SsQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7543698959
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E96CB81CA4
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF320C433D6;
-        Wed, 30 Nov 2022 18:35:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D55D61D74
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A23DC433B5;
+        Wed, 30 Nov 2022 18:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833306;
-        bh=njObzzihETDEyRFwwlBVKg3ZyPlZClxXNh1sTuzSlOs=;
+        s=korg; t=1669834093;
+        bh=3kmCxi2YoCk9wj4QlSqGV5e4a8PuKAJzfCYVhTx1c4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRK/z0FzSntURLI0wKkJa0g7Uqwvz2yV6zm9YSGrcYnul1OiDAA86iEThSblm32V7
-         YwjNLoo3+Q+YdGy0FAsKW1bjWhd73FemzqBpbMBfwzwCZOX473qbPLjKk3mzg8UXqo
-         k7VW+mZ0jLrjgj4hM6fy8r8Jfgi2KzkjlCk8FuRo=
+        b=0BwSHTGb3XqBWexqRJHAToeIEMQaxF59i07zZn1H9XdGO9T3QAtQPzLO6YV+VpRWp
+         GLzv3/rGTfozUQnfov9vVAYyAbkRwW2jULN2rBRFbeyj2GwC+D0zT5EKt+bWv03xwK
+         2wNUNyS3ep1sv6tCsUYtAIvlfteygFaG0+J8YoX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Detlev Casanova <detlev.casanova@collabora.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        Gerhard Engleder <gerhard@engleder-embedded.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/206] ASoC: sgtl5000: Reset the CHIP_CLK_CTRL reg on remove
+Subject: [PATCH 6.0 127/289] tsnep: Fix rotten packets
 Date:   Wed, 30 Nov 2022 19:21:52 +0100
-Message-Id: <20221130180534.530369200@linuxfoundation.org>
+Message-Id: <20221130180547.019472958@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Detlev Casanova <detlev.casanova@collabora.com>
+From: Gerhard Engleder <gerhard@engleder-embedded.com>
 
-[ Upstream commit 0bb8e9b36b5b7f2e77892981ff6c27ee831d8026 ]
+[ Upstream commit 2dc4ac91f845b690ddf2ad39172c3698b2769fa2 ]
 
-Since commit bf2aebccddef ("ASoC: sgtl5000: Fix noise on shutdown/remove"),
-the device power control registers are reset when the driver is
-removed/shutdown.
+If PTP synchronisation is done every second, then sporadic the interval
+is higher than one second:
 
-This is an issue when the device is configured to use the PLL clock. The
-device will stop responding if it is still configured to use the PLL
-clock but the PLL clock is powered down.
+ptp4l[696.582]: master offset        -17 s2 freq   -1891 path delay 573
+ptp4l[697.582]: master offset        -22 s2 freq   -1901 path delay 573
+ptp4l[699.368]: master offset         -1 s2 freq   -1887 path delay 573
+      ^^^^^^^ Should be 698.582!
 
-When rebooting linux, the probe function will show:
-sgtl5000 0-000a: Error reading chip id -11
+This problem is caused by rotten packets, which are received after
+polling but before interrupts are enabled again. This can be fixed by
+checking for pending work and rescheduling if necessary after interrupts
+has been enabled again.
 
-Make sure that the CHIP_CLK_CTRL is reset to its default value before
-powering down the device.
-
-Fixes: bf2aebccddef ("ASoC: sgtl5000: Fix noise on shutdown/remove")
-Signed-off-by: Detlev Casanova <detlev.casanova@collabora.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20221110190612.1341469-1-detlev.casanova@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 403f69bbdbad ("tsnep: Add TSN endpoint Ethernet MAC driver")
+Signed-off-by: Gerhard Engleder <gerhard@engleder-embedded.com>
+Link: https://lore.kernel.org/r/20221119211825.81805-1-gerhard@engleder-embedded.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/sgtl5000.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/engleder/tsnep_main.c | 57 +++++++++++++++++++++-
+ 1 file changed, 56 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index dc56e6c6b668..3c5a4fe2fad6 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -1797,6 +1797,7 @@ static int sgtl5000_i2c_remove(struct i2c_client *client)
- {
- 	struct sgtl5000_priv *sgtl5000 = i2c_get_clientdata(client);
+diff --git a/drivers/net/ethernet/engleder/tsnep_main.c b/drivers/net/ethernet/engleder/tsnep_main.c
+index a5f7152a1716..6a2617cc5490 100644
+--- a/drivers/net/ethernet/engleder/tsnep_main.c
++++ b/drivers/net/ethernet/engleder/tsnep_main.c
+@@ -504,6 +504,27 @@ static bool tsnep_tx_poll(struct tsnep_tx *tx, int napi_budget)
+ 	return (budget != 0);
+ }
  
-+	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_CLK_CTRL, SGTL5000_CHIP_CLK_CTRL_DEFAULT);
- 	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_DIG_POWER, SGTL5000_DIG_POWER_DEFAULT);
- 	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, SGTL5000_ANA_POWER_DEFAULT);
++static bool tsnep_tx_pending(struct tsnep_tx *tx)
++{
++	unsigned long flags;
++	struct tsnep_tx_entry *entry;
++	bool pending = false;
++
++	spin_lock_irqsave(&tx->lock, flags);
++
++	if (tx->read != tx->write) {
++		entry = &tx->entry[tx->read];
++		if ((__le32_to_cpu(entry->desc_wb->properties) &
++		     TSNEP_TX_DESC_OWNER_MASK) ==
++		    (entry->properties & TSNEP_TX_DESC_OWNER_MASK))
++			pending = true;
++	}
++
++	spin_unlock_irqrestore(&tx->lock, flags);
++
++	return pending;
++}
++
+ static int tsnep_tx_open(struct tsnep_adapter *adapter, void __iomem *addr,
+ 			 struct tsnep_tx *tx)
+ {
+@@ -751,6 +772,19 @@ static int tsnep_rx_poll(struct tsnep_rx *rx, struct napi_struct *napi,
+ 	return done;
+ }
+ 
++static bool tsnep_rx_pending(struct tsnep_rx *rx)
++{
++	struct tsnep_rx_entry *entry;
++
++	entry = &rx->entry[rx->read];
++	if ((__le32_to_cpu(entry->desc_wb->properties) &
++	     TSNEP_DESC_OWNER_COUNTER_MASK) ==
++	    (entry->properties & TSNEP_DESC_OWNER_COUNTER_MASK))
++		return true;
++
++	return false;
++}
++
+ static int tsnep_rx_open(struct tsnep_adapter *adapter, void __iomem *addr,
+ 			 struct tsnep_rx *rx)
+ {
+@@ -795,6 +829,17 @@ static void tsnep_rx_close(struct tsnep_rx *rx)
+ 	tsnep_rx_ring_cleanup(rx);
+ }
+ 
++static bool tsnep_pending(struct tsnep_queue *queue)
++{
++	if (queue->tx && tsnep_tx_pending(queue->tx))
++		return true;
++
++	if (queue->rx && tsnep_rx_pending(queue->rx))
++		return true;
++
++	return false;
++}
++
+ static int tsnep_poll(struct napi_struct *napi, int budget)
+ {
+ 	struct tsnep_queue *queue = container_of(napi, struct tsnep_queue,
+@@ -815,9 +860,19 @@ static int tsnep_poll(struct napi_struct *napi, int budget)
+ 	if (!complete)
+ 		return budget;
+ 
+-	if (likely(napi_complete_done(napi, done)))
++	if (likely(napi_complete_done(napi, done))) {
+ 		tsnep_enable_irq(queue->adapter, queue->irq_mask);
+ 
++		/* reschedule if work is already pending, prevent rotten packets
++		 * which are transmitted or received after polling but before
++		 * interrupt enable
++		 */
++		if (tsnep_pending(queue)) {
++			tsnep_disable_irq(queue->adapter, queue->irq_mask);
++			napi_schedule(napi);
++		}
++	}
++
+ 	return min(done, budget - 1);
+ }
  
 -- 
 2.35.1
