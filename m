@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89D7063DE60
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:36:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75D7663DD42
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:25:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230001AbiK3Sgf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:36:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44538 "EHLO
+        id S229595AbiK3SZy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:25:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230481AbiK3SgL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:36:11 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2076E94925
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:36:11 -0800 (PST)
+        with ESMTP id S229968AbiK3SZm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 069A262FA
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:25:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6FDC9CE1AD2
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:36:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 603F8C433D6;
-        Wed, 30 Nov 2022 18:36:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94BF261D58
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:25:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0ED2C433D7;
+        Wed, 30 Nov 2022 18:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833367;
-        bh=7t0xRrnIEQ68I9fHMwxnnOTFjlzaIsIK2u18Ds4NKLE=;
+        s=korg; t=1669832740;
+        bh=SqsKySvKD3lBPFNaijXqMwh/KmrYMvYdDYfzg8IAPfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VZjIO2wIHRpgOC4S68GgSMiWytHh8DzCaIDqGU4K1KzB6lsBekCR44nxzpleDrMrY
-         PE4rbWFr34Pg87kBW1r+nNv5LRvAaUitxjidB1ZEv9qOYAl/Uv9FK/6u2di4umBult
-         U514Fhj9e8j3/Yp6oHsPyueDEpHLhL4cRlROmHKE=
+        b=OEMiE015G1xNiIIlL5QOFFMmZRU9Ob3gMfgpPrCjqZFekgbtfYyNbYwHtKCKPiCts
+         me9mfXEg8JHfvZkfp69Sl58ogpnYsUFHd3mIFc5exctB6WtN6Y5WbL9Joj1LO5Y3iL
+         5DAGEvk7DGcHLX3UDAP2SdXGlUffnc+wvnODLLGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 053/206] RISC-V: vdso: Do not add missing symbols to version section in linker script
+Subject: [PATCH 5.10 024/162] platform/x86: touchscreen_dmi: Add info for the RCA Cambio W101 v2 2-in-1
 Date:   Wed, 30 Nov 2022 19:21:45 +0100
-Message-Id: <20221130180534.348799683@linuxfoundation.org>
+Message-Id: <20221130180529.152477770@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +52,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit fcae44fd36d052e956e69a64642fc03820968d78 ]
+[ Upstream commit 0df044b34bf33e7e35c32b3bf6747fde6279c162 ]
 
-Recently, ld.lld moved from '--undefined-version' to
-'--no-undefined-version' as the default, which breaks the compat vDSO
-build:
+Add touchscreen info for the RCA Cambio W101 v2 2-in-1.
 
-  ld.lld: error: version script assignment of 'LINUX_4.15' to symbol '__vdso_gettimeofday' failed: symbol not defined
-  ld.lld: error: version script assignment of 'LINUX_4.15' to symbol '__vdso_clock_gettime' failed: symbol not defined
-  ld.lld: error: version script assignment of 'LINUX_4.15' to symbol '__vdso_clock_getres' failed: symbol not defined
-
-These symbols are not present in the compat vDSO or the regular vDSO for
-32-bit but they are unconditionally included in the version section of
-the linker script, which is prohibited with '--no-undefined-version'.
-
-Fix this issue by only including the symbols that are actually exported
-in the version section of the linker script.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1756
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Tested-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/20221108171324.3377226-1-nathan@kernel.org/
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Link: https://github.com/onitake/gsl-firmware/discussions/193
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20221025141131.509211-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/vdso/Makefile   | 3 +++
- arch/riscv/kernel/vdso/vdso.lds.S | 2 ++
- 2 files changed, 5 insertions(+)
+ drivers/platform/x86/touchscreen_dmi.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-index 84ac0fe612e7..db6548509bb3 100644
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -28,6 +28,9 @@ obj-vdso := $(addprefix $(obj)/, $(obj-vdso))
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index ab6a9369649d..110ff1e6ef81 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -756,6 +756,22 @@ static const struct ts_dmi_data predia_basic_data = {
+ 	.properties	= predia_basic_props,
+ };
  
- obj-y += vdso.o
- CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
-+ifneq ($(filter vgettimeofday, $(vdso-syms)),)
-+CPPFLAGS_vdso.lds += -DHAS_VGETTIMEOFDAY
-+endif
- 
- # Disable -pg to prevent insert call site
- CFLAGS_REMOVE_vgettimeofday.o = $(CC_FLAGS_FTRACE)
-diff --git a/arch/riscv/kernel/vdso/vdso.lds.S b/arch/riscv/kernel/vdso/vdso.lds.S
-index e9111f700af0..3729cb28aac8 100644
---- a/arch/riscv/kernel/vdso/vdso.lds.S
-+++ b/arch/riscv/kernel/vdso/vdso.lds.S
-@@ -65,9 +65,11 @@ VERSION
- 	LINUX_4.15 {
- 	global:
- 		__vdso_rt_sigreturn;
-+#ifdef HAS_VGETTIMEOFDAY
- 		__vdso_gettimeofday;
- 		__vdso_clock_gettime;
- 		__vdso_clock_getres;
-+#endif
- 		__vdso_getcpu;
- 		__vdso_flush_icache;
- 	local: *;
++static const struct property_entry rca_cambio_w101_v2_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 20),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1644),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 874),
++	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-rca-cambio-w101-v2.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	{ }
++};
++
++static const struct ts_dmi_data rca_cambio_w101_v2_data = {
++	.acpi_name = "MSSL1680:00",
++	.properties = rca_cambio_w101_v2_props,
++};
++
+ static const struct property_entry rwc_nanote_p8_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 46),
+ 	PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
+@@ -1341,6 +1357,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_EXACT_MATCH(DMI_BOARD_NAME, "0E57"),
+ 		},
+ 	},
++	{
++		/* RCA Cambio W101 v2 */
++		/* https://github.com/onitake/gsl-firmware/discussions/193 */
++		.driver_data = (void *)&rca_cambio_w101_v2_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "RCA"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "W101SA23T1"),
++		},
++	},
+ 	{
+ 		/* RWC NANOTE P8 */
+ 		.driver_data = (void *)&rwc_nanote_p8_data,
 -- 
 2.35.1
 
