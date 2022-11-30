@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5454E63DE1B
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:34:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60D0463DF6F
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230114AbiK3SeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:34:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42908 "EHLO
+        id S231153AbiK3SrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:47:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230380AbiK3Sd5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:33:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7A8593A55
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:33:46 -0800 (PST)
+        with ESMTP id S231206AbiK3SrB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8588A25CB
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69EFFB81B37
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:33:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A11FFC433D6;
-        Wed, 30 Nov 2022 18:33:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A20FB81CA8
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:46:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A360C433D6;
+        Wed, 30 Nov 2022 18:46:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833224;
-        bh=EOEbAUBC9oY0+jjwQpj5atG/TX43ekcl7mzK0U0e+H0=;
+        s=korg; t=1669834017;
+        bh=0O9aV844pV4E7ds65t3MquOYwuQx+b+DUvmp8pE4YTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bqv7JhV9ChkRUdoaQLlWIjgrwA6LTy613a6Ga2+01l/k/59a/g1cOONj4V5oUIBuF
-         sPfwYZS7s26voX0YwjYtLPRJeJvRN4Ksjmy9pJySKOBw+GIXD2X4yWDepmLkQHyn3i
-         maT2fOcuTdFOIPqB1YFw+w+HdN+UkeYqSWxWZ8qc=
+        b=TuwgbOjURHKDWIiNShjH1oNyFwb4jtFKzWNV7PUZDZ6gKYTWfOKNIdHFc616j/3e0
+         zKUAA8UiBDE6LIB74KE2+C0ZPalEaIV1q92BtaKMQp9l1l/TTDO5cwsWKP3JDF1Hl8
+         yfAtu6dyOxQ2vlP5dBLqjQrmcJDRjCwMMH0bhxo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, taozhang <taozhang@bestechnic.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Liang Li <liali@redhat.com>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 031/206] wifi: mac80211: fix memory free error when registering wiphy fail
+Subject: [PATCH 6.0 098/289] bonding: fix ICMPv6 header handling when receiving IPv6 messages
 Date:   Wed, 30 Nov 2022 19:21:23 +0100
-Message-Id: <20221130180533.784970964@linuxfoundation.org>
+Message-Id: <20221130180546.363185838@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +57,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: taozhang <taozhang@bestechnic.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 50b2e8711462409cd368c41067405aa446dfa2af ]
+[ Upstream commit 4d633d1b468b6eb107a81b2fd10b9debddca3d47 ]
 
-ieee80211_register_hw free the allocated cipher suites when
-registering wiphy fail, and ieee80211_free_hw will re-free it.
+Currently, we get icmp6hdr via function icmp6_hdr(), which needs the skb
+transport header to be set first. But there is no rule to ask driver set
+transport header before netif_receive_skb() and bond_handle_frame(). So
+we will not able to get correct icmp6hdr on some drivers.
 
-set wiphy_ciphers_allocated to false after freeing allocated
-cipher suites.
+Fix this by using skb_header_pointer to get the IPv6 and ICMPV6 headers.
 
-Signed-off-by: taozhang <taozhang@bestechnic.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: Liang Li <liali@redhat.com>
+Fixes: 4e24be018eb9 ("bonding: add new parameter ns_targets")
+Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/20221118034353.1736727-1-liuhangbin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/main.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/bonding/bond_main.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/net/mac80211/main.c b/net/mac80211/main.c
-index 5311c3cd3050..9617ff8e2714 100644
---- a/net/mac80211/main.c
-+++ b/net/mac80211/main.c
-@@ -1357,8 +1357,10 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
- 	ieee80211_led_exit(local);
- 	destroy_workqueue(local->workqueue);
-  fail_workqueue:
--	if (local->wiphy_ciphers_allocated)
-+	if (local->wiphy_ciphers_allocated) {
- 		kfree(local->hw.wiphy->cipher_suites);
-+		local->wiphy_ciphers_allocated = false;
-+	}
- 	kfree(local->int_scan_req);
- 	return result;
- }
-@@ -1426,8 +1428,10 @@ void ieee80211_free_hw(struct ieee80211_hw *hw)
- 	mutex_destroy(&local->iflist_mtx);
- 	mutex_destroy(&local->mtx);
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 86d42306aa5e..76dd5ff1d99d 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3231,16 +3231,23 @@ static int bond_na_rcv(const struct sk_buff *skb, struct bonding *bond,
+ 		       struct slave *slave)
+ {
+ 	struct slave *curr_active_slave, *curr_arp_slave;
+-	struct icmp6hdr *hdr = icmp6_hdr(skb);
+ 	struct in6_addr *saddr, *daddr;
++	struct {
++		struct ipv6hdr ip6;
++		struct icmp6hdr icmp6;
++	} *combined, _combined;
  
--	if (local->wiphy_ciphers_allocated)
-+	if (local->wiphy_ciphers_allocated) {
- 		kfree(local->hw.wiphy->cipher_suites);
-+		local->wiphy_ciphers_allocated = false;
-+	}
+ 	if (skb->pkt_type == PACKET_OTHERHOST ||
+-	    skb->pkt_type == PACKET_LOOPBACK ||
+-	    hdr->icmp6_type != NDISC_NEIGHBOUR_ADVERTISEMENT)
++	    skb->pkt_type == PACKET_LOOPBACK)
++		goto out;
++
++	combined = skb_header_pointer(skb, 0, sizeof(_combined), &_combined);
++	if (!combined || combined->ip6.nexthdr != NEXTHDR_ICMP ||
++	    combined->icmp6.icmp6_type != NDISC_NEIGHBOUR_ADVERTISEMENT)
+ 		goto out;
  
- 	idr_for_each(&local->ack_status_frames,
- 		     ieee80211_free_ack_frame, NULL);
+-	saddr = &ipv6_hdr(skb)->saddr;
+-	daddr = &ipv6_hdr(skb)->daddr;
++	saddr = &combined->ip6.saddr;
++	daddr = &combined->ip6.saddr;
+ 
+ 	slave_dbg(bond->dev, slave->dev, "%s: %s/%d av %d sv %d sip %pI6c tip %pI6c\n",
+ 		  __func__, slave->dev->name, bond_slave_state(slave),
 -- 
 2.35.1
 
