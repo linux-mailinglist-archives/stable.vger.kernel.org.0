@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5620E63DE5F
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:36:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAF4863DD40
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:25:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230252AbiK3Sge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:36:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45022 "EHLO
+        id S230199AbiK3SZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:25:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230371AbiK3SgJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:36:09 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BFAA92093
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:36:08 -0800 (PST)
+        with ESMTP id S229735AbiK3SZm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3EC60DF
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:25:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6A9C8CE1AD3
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:36:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B3B9C433D6;
-        Wed, 30 Nov 2022 18:36:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E700B81C9C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:25:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD2D0C433D6;
+        Wed, 30 Nov 2022 18:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833364;
-        bh=OSKBnjS0CLNwFCl54XfBSFAtollL0k1rDe7M1vayXpA=;
+        s=korg; t=1669832737;
+        bh=1UBLBsTenWnHkOJqx3f6bdHXzK3ohnLPjO9Q/7P4CC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iZCh6dd+nMuJzw/zMrWV5lAXgIMuIdK9BnSWIRAmqyxsx9Zp8BnSd3SnJqinwJiv0
-         fWjycldp+cZiTKFLtmQV9rvJ9PtsVWSAiOr/yb24BVIo/RsDX2PmV2PsoDfQgF4RSj
-         tbaGG/TujJjADRj9QGfNZX3Hd+FuYO/jBuuSaHbI=
+        b=lbOeUYv/a1BRfQeuip3as1kEkXf5Oq8o+o2K0ubFoqb45Z07bmadjGSiaPnnrM5Mp
+         cVl4RmQ5fxE8rqdoVflC07JFp7KJao35NoTqTXDDC0LMAmsjJqgUEG/VnXRFgvX3tK
+         9kKLNkyr7HOurZTk6/QtdcmXnwy4QkwybWOw6X0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ai Chao <aichao@kylinos.cn>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 052/206] ALSA: usb-audio: add quirk to fix Hamedal C20 disconnect issue
+        patches@lists.linux.dev, Sabrina Dubroca <sd@queasysnail.net>,
+        Antoine Tenart <atenart@kernel.org>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 023/162] Revert "net: macsec: report real_dev features when HW offloading is enabled"
 Date:   Wed, 30 Nov 2022 19:21:44 +0100
-Message-Id: <20221130180534.323012017@linuxfoundation.org>
+Message-Id: <20221130180529.122818433@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,72 +55,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ai Chao <aichao@kylinos.cn>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit bf990c10231937c0f51e5da5558e08cf5adc6a78 ]
+[ Upstream commit 8bcd560ae8784da57c610d857118c5d6576b1a8f ]
 
-For Hamedal C20, the current rate is different from the runtime rate,
-snd_usb_endpoint stop and close endpoint to resetting rate.
-if snd_usb_endpoint close the endpoint, sometimes usb will
-disconnect the device.
+This reverts commit c850240b6c4132574a00f2da439277ab94265b66.
 
-Signed-off-by: Ai Chao <aichao@kylinos.cn>
-Link: https://lore.kernel.org/r/20221110063452.295110-1-aichao@kylinos.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+That commit tried to improve the performance of macsec offload by
+taking advantage of some of the NIC's features, but in doing so, broke
+macsec offload when the lower device supports both macsec and ipsec
+offload, as the ipsec offload feature flags (mainly NETIF_F_HW_ESP)
+were copied from the real device. Since the macsec device doesn't
+provide xdo_* ops, the XFRM core rejects the registration of the new
+macsec device in xfrm_api_check.
+
+Example perf trace when running
+  ip link add link eni1np1 type macsec port 4 offload mac
+
+    ip   737 [003]   795.477676: probe:xfrm_dev_event__REGISTER      name="macsec0" features=0x1c000080014869
+              xfrm_dev_event+0x3a
+              notifier_call_chain+0x47
+              register_netdevice+0x846
+              macsec_newlink+0x25a
+
+    ip   737 [003]   795.477687:   probe:xfrm_dev_event__return      ret=0x8002 (NOTIFY_BAD)
+             notifier_call_chain+0x47
+             register_netdevice+0x846
+             macsec_newlink+0x25a
+
+dev->features includes NETIF_F_HW_ESP (0x04000000000000), so
+xfrm_api_check returns NOTIFY_BAD because we don't have
+dev->xfrmdev_ops on the macsec device.
+
+We could probably propagate GSO and a few other features from the
+lower device, similar to macvlan. This will be done in a future patch.
+
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Reviewed-by: Antoine Tenart <atenart@kernel.org>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/endpoint.c | 3 ++-
- sound/usb/quirks.c   | 2 ++
- sound/usb/usbaudio.h | 3 +++
- 3 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/macsec.c | 27 ++++-----------------------
+ 1 file changed, 4 insertions(+), 23 deletions(-)
 
-diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
-index 3bbc227769d0..092350eb5f4e 100644
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -887,7 +887,8 @@ void snd_usb_endpoint_close(struct snd_usb_audio *chip,
- 	usb_audio_dbg(chip, "Closing EP 0x%x (count %d)\n",
- 		      ep->ep_num, ep->opened);
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index f84e3cc0d3ec..c20ebf44acfe 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -2648,11 +2648,6 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
+ 	if (ret)
+ 		goto rollback;
  
--	if (!--ep->iface_ref->opened)
-+	if (!--ep->iface_ref->opened &&
-+		!(chip->quirk_flags & QUIRK_FLAG_IFACE_SKIP_CLOSE))
- 		endpoint_set_interface(chip, ep, false);
+-	/* Force features update, since they are different for SW MACSec and
+-	 * HW offloading cases.
+-	 */
+-	netdev_update_features(dev);
+-
+ 	rtnl_unlock();
+ 	return 0;
  
- 	if (!--ep->opened) {
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 879d8b1f301c..2ae9ad993ff4 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1884,6 +1884,8 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
- 		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x2b53, 0x0031, /* Fiero SC-01 (firmware v1.1.0) */
- 		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
-+	DEVICE_FLG(0x0525, 0xa4ad, /* Hamedal C20 usb camero */
-+		   QUIRK_FLAG_IFACE_SKIP_CLOSE),
+@@ -3420,16 +3415,9 @@ static netdev_tx_t macsec_start_xmit(struct sk_buff *skb,
+ 	return ret;
+ }
  
- 	/* Vendor matches */
- 	VENDOR_FLG(0x045e, /* MS Lifecam */
-diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
-index 39c3c61a7e49..ec06f441e890 100644
---- a/sound/usb/usbaudio.h
-+++ b/sound/usb/usbaudio.h
-@@ -169,6 +169,8 @@ extern bool snd_usb_skip_validation;
-  *  Apply the generic implicit feedback sync mode (same as implicit_fb=1 option)
-  * QUIRK_FLAG_SKIP_IMPLICIT_FB
-  *  Don't apply implicit feedback sync mode
-+ * QUIRK_FLAG_IFACE_SKIP_CLOSE
-+ *  Don't closed interface during setting sample rate
-  */
+-#define SW_MACSEC_FEATURES \
++#define MACSEC_FEATURES \
+ 	(NETIF_F_SG | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST)
  
- #define QUIRK_FLAG_GET_SAMPLE_RATE	(1U << 0)
-@@ -190,5 +192,6 @@ extern bool snd_usb_skip_validation;
- #define QUIRK_FLAG_SET_IFACE_FIRST	(1U << 16)
- #define QUIRK_FLAG_GENERIC_IMPLICIT_FB	(1U << 17)
- #define QUIRK_FLAG_SKIP_IMPLICIT_FB	(1U << 18)
-+#define QUIRK_FLAG_IFACE_SKIP_CLOSE	(1U << 19)
+-/* If h/w offloading is enabled, use real device features save for
+- *   VLAN_FEATURES - they require additional ops
+- *   HW_MACSEC - no reason to report it
+- */
+-#define REAL_DEV_FEATURES(dev) \
+-	((dev)->features & ~(NETIF_F_VLAN_FEATURES | NETIF_F_HW_MACSEC))
+-
+ static int macsec_dev_init(struct net_device *dev)
+ {
+ 	struct macsec_dev *macsec = macsec_priv(dev);
+@@ -3446,12 +3434,8 @@ static int macsec_dev_init(struct net_device *dev)
+ 		return err;
+ 	}
  
- #endif /* __USBAUDIO_H */
+-	if (macsec_is_offloaded(macsec)) {
+-		dev->features = REAL_DEV_FEATURES(real_dev);
+-	} else {
+-		dev->features = real_dev->features & SW_MACSEC_FEATURES;
+-		dev->features |= NETIF_F_LLTX | NETIF_F_GSO_SOFTWARE;
+-	}
++	dev->features = real_dev->features & MACSEC_FEATURES;
++	dev->features |= NETIF_F_LLTX | NETIF_F_GSO_SOFTWARE;
+ 
+ 	dev->needed_headroom = real_dev->needed_headroom +
+ 			       MACSEC_NEEDED_HEADROOM;
+@@ -3480,10 +3464,7 @@ static netdev_features_t macsec_fix_features(struct net_device *dev,
+ 	struct macsec_dev *macsec = macsec_priv(dev);
+ 	struct net_device *real_dev = macsec->real_dev;
+ 
+-	if (macsec_is_offloaded(macsec))
+-		return REAL_DEV_FEATURES(real_dev);
+-
+-	features &= (real_dev->features & SW_MACSEC_FEATURES) |
++	features &= (real_dev->features & MACSEC_FEATURES) |
+ 		    NETIF_F_GSO_SOFTWARE | NETIF_F_SOFT_FEATURES;
+ 	features |= NETIF_F_LLTX;
+ 
 -- 
 2.35.1
 
