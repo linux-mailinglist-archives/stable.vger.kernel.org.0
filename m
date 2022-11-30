@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1D7863DBF6
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:31:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E65ED63DBF8
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 18:31:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229677AbiK3Rba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 12:31:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57238 "EHLO
+        id S229756AbiK3Rbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 12:31:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229769AbiK3Rb3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:31:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DA252ED60
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:31:28 -0800 (PST)
+        with ESMTP id S229472AbiK3Rbi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 12:31:38 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCA8F23E99
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 09:31:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E48DB81C4E
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:31:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96076C433C1;
-        Wed, 30 Nov 2022 17:31:25 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3BC18CE1AA6
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 17:31:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D709FC433B5;
+        Wed, 30 Nov 2022 17:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669829486;
-        bh=sb0O27rx+UFypwzpoVK8uBtsexSG/VXxinJZXvp1aOo=;
+        s=korg; t=1669829494;
+        bh=IPG5hk9Ev6KX6jxeEqw4o9vMA6K5IxyE5ejv0lrUTd0=;
         h=Subject:To:Cc:From:Date:From;
-        b=CHt+1QMRyWzCulSCutrSDlZX/Pw+o/9/v7PqtmCEsjhsl/SCp5Xtj9sHOU/5orCif
-         B0v0LhO0cXv2XdJhPOG8b60Jx0p1RG/hUbjAGULvPGPS0GcUBhklm3QhaTDjPlCZsH
-         +glDgLy+y2o+OZaBbtDLfGiPejnHvvTUUBTZl1Cc=
-Subject: FAILED: patch "[PATCH] btrfs: qgroup: fix sleep from invalid context bug in" failed to apply to 6.0-stable tree
+        b=fWN40OCSdlPnac113NdKZZITkSEmrgv/snKLu2+EtMML21DCKyhegBOD3rRDS/LPX
+         vCJKpy2HZzwJCxEy1dnEzewIq6WGK1chQiweSnM9RLCY7fUwvgUd4dwuIW0iAYJosx
+         BFGXgF8ggYJX95TlbJKC3PM5HY/uH4GIutyLd9Ao=
+Subject: FAILED: patch "[PATCH] btrfs: qgroup: fix sleep from invalid context bug in" failed to apply to 5.10-stable tree
 To:     chenxiaosong2@huawei.com, dsterba@suse.com, wqu@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Nov 2022 18:31:23 +0100
-Message-ID: <1669829483218231@kroah.com>
+Date:   Wed, 30 Nov 2022 18:31:28 +0100
+Message-ID: <1669829488163238@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,6 +56,16 @@ Possible dependencies:
 
 f7e942b5bb35 ("btrfs: qgroup: fix sleep from invalid context bug in btrfs_qgroup_inherit()")
 e562a8bdf652 ("btrfs: introduce BTRFS_QGROUP_RUNTIME_FLAG_CANCEL_RESCAN")
+db5df2541200 ("btrfs: move QUOTA_ENABLED check to rescan_should_stop from btrfs_qgroup_rescan_worker")
+8949b9a11401 ("btrfs: fix lock inversion problem when doing qgroup extent tracing")
+f3a84ccd28d0 ("btrfs: move the tree mod log code into its own file")
+dbcc7d57bffc ("btrfs: fix race when cloning extent buffer during rewind of an old root")
+cac06d843f25 ("btrfs: introduce the skeleton of btrfs_subpage structure")
+cb13eea3b490 ("btrfs: fix transaction leak and crash after RO remount caused by qgroup rescan")
+1b7ec85ef490 ("btrfs: pass root owner to read_tree_block")
+bfb484d922a3 ("btrfs: cleanup extent buffer readahead")
+ac5887c8e013 ("btrfs: locking: remove all the blocking helpers")
+196d59ab9ccc ("btrfs: switch extent buffer tree lock to rw_semaphore")
 
 thanks,
 
