@@ -2,175 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E3C963D45B
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 12:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C2F63D559
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:17:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234399AbiK3LW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 06:22:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42912 "EHLO
+        id S234507AbiK3MRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 07:17:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234912AbiK3LVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 06:21:39 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67F177721E
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 03:21:23 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id ja4-20020a05600c556400b003cf6e77f89cso1325475wmb.0
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 03:21:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RuSCu6Sc5O77Oj3wELaaUy6VtrciSxnoo8y2CPFyY+U=;
-        b=M5OU+UwmCE1dEQUm9MGdXnRpdzmbCWLfqjalSYP23MuqwTZ9RwFy/pfMOsPhuvK6s3
-         RiK7JxFxDC/TRdJDjog5UlAx3+QHvvk+4eHlFtUCvbrEYR1WO7WCBR59V08EJk4u9QnO
-         N8B08dkiBlp3ZJc8e7cHv8OxsGRBeXy47Ce3k=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=RuSCu6Sc5O77Oj3wELaaUy6VtrciSxnoo8y2CPFyY+U=;
-        b=U1YhQxYOexpQfqrB2c0ZyHFUor/Z9e+nON5vcrnv+ofFiFlUBm0iixFSpFMFdIZrOI
-         mxwAmGDNZ3ryYbycDesL0fEdX0zqv/Cn5TTniDZARkbnBi2ZUkJVHq4qMwU1RjcOGbWR
-         DBWG4MdO4chK+S/kf0dxe8Jzrg6U2U6DwTILEoTULeAnRl/e5ywBFDVdXfe2OPS2rQoF
-         3SdaBgFJyB2KUMphN7dVIw/4Bp/+34RpTZW8TvAjzhNtnXFOLd0PTjD9Hss0Z7vk1e/C
-         GGLjHi/9bI/m+zMMi3ZUHEwx2K/nqeHxmpvwtNHcXxjXCji5KZcAd/L4B+J2bhk6T/kK
-         Grdg==
-X-Gm-Message-State: ANoB5pmkJrGj7C7UiCjKGbMMxidjZhLMREY5IwoUj5YvgKq0qMa+bV2t
-        EgWTJbNZlVeKPTGrXkuVq4BgXg==
-X-Google-Smtp-Source: AA0mqf7Y6ivv5bQ1OH3MnYDxUtlCUbzKEC1tIMe0iHw9hdRx5C5HeGZP24b3Lywyd5EKm1ITulLBpg==
-X-Received: by 2002:a05:600c:2241:b0:3cf:9ced:dce4 with SMTP id a1-20020a05600c224100b003cf9ceddce4mr43768262wmm.120.1669807281946;
-        Wed, 30 Nov 2022 03:21:21 -0800 (PST)
-Received: from phenom.ffwll.local (212-51-149-33.fiber7.init7.net. [212.51.149.33])
-        by smtp.gmail.com with ESMTPSA id f11-20020a05600c154b00b003c6f3e5ba42sm5960234wmg.46.2022.11.30.03.21.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Nov 2022 03:21:21 -0800 (PST)
-Date:   Wed, 30 Nov 2022 12:21:19 +0100
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Rob Clark <robdclark@gmail.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Rob Clark <robdclark@chromium.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Eric Anholt <eric@anholt.net>,
-        Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>,
-        dri-devel@lists.freedesktop.org,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [2/2] drm/shmem-helper: Avoid vm_open error paths
-Message-ID: <Y4c8r0fxjI+WsvhM@phenom.ffwll.local>
-Mail-Followup-To: Rob Clark <robdclark@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Rob Clark <robdclark@chromium.org>,
-        open list <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Eric Anholt <eric@anholt.net>,
-        Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>,
-        dri-devel@lists.freedesktop.org,
-        Thomas Zimmermann <tzimmermann@suse.de>
-References: <20221129200242.298120-3-robdclark@gmail.com>
- <20221129203205.GA2132357@roeck-us.net>
- <CAF6AEGuK4jv25cQ4p-rrytx9Qn4JZdRRfkVJn9T3nf7vJmG5VQ@mail.gmail.com>
+        with ESMTP id S229468AbiK3MRG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:17:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44A992B600
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:17:04 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F413B81B30
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:17:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9F90C433C1;
+        Wed, 30 Nov 2022 12:17:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1669810622;
+        bh=9ESDACDUaS73Yi0K3BbyMtEzjHFWPNY2mIkc2gEIZ3E=;
+        h=Subject:To:Cc:From:Date:From;
+        b=x3v8gTbw/Qr7G5aszCxlf27DKWXhq3qkrp328SHB1NpCcyfGsT75QdxWh8RBbvkpp
+         wxsDe1WjGzgLO6YygEpb4W88BkDZS6bFX3Sb0Aid/uXHFBZuSuvYo4LZn3Z/9bAucI
+         P0mYeB+dpoU2s851LFpnjEwydCaU6T28Yt/VAcJM=
+Subject: FAILED: patch "[PATCH] io_uring: cmpxchg for poll arm refs release" failed to apply to 5.15-stable tree
+To:     asml.silence@gmail.com, axboe@kernel.dk
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 30 Nov 2022 13:16:59 +0100
+Message-ID: <166981061918834@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAF6AEGuK4jv25cQ4p-rrytx9Qn4JZdRRfkVJn9T3nf7vJmG5VQ@mail.gmail.com>
-X-Operating-System: Linux phenom 5.19.0-2-amd64 
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 29, 2022 at 12:47:42PM -0800, Rob Clark wrote:
-> On Tue, Nov 29, 2022 at 12:32 PM Guenter Roeck <linux@roeck-us.net> wrote:
-> >
-> > On Tue, Nov 29, 2022 at 12:02:42PM -0800, Rob Clark wrote:
-> > > From: Rob Clark <robdclark@chromium.org>
-> > >
-> > > vm_open() is not allowed to fail.  Fortunately we are guaranteed that
-> > > the pages are already pinned, and only need to increment the refcnt.  So
-> > > just increment it directly.
-> >
-> > I don't know anything about drm or gem, but I am wondering _how_
-> > this would be guaranteed. Would it be through the pin function ?
-> > Just wondering, because that function does not seem to be mandatory.
-> 
-> We've pinned the pages already in mmap.. vm->open() is perhaps not the
-> best name for the callback function, but it is called for copying an
-> existing vma into a new process (and for some other cases which do not
-> apply here because VM_DONTEXPAND).
-> 
-> (Other drivers pin pages in the fault handler, where there is actually
-> potential to return an error, but that change was a bit more like
-> re-writing shmem helper ;-))
 
-Yhea vm_ops->open should really be called vm_ops->dupe or ->copy or
-something like that ...
--Daniel
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> 
-> BR,
-> -R
-> 
-> > >
-> > > Fixes: 2194a63a818d ("drm: Add library for shmem backed GEM objects")
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Rob Clark <robdclark@chromium.org>
-> > > ---
-> > >  drivers/gpu/drm/drm_gem_shmem_helper.c | 14 +++++++++++---
-> > >  1 file changed, 11 insertions(+), 3 deletions(-)
-> > >
-> > > diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> > > index 110a9eac2af8..9885ba64127f 100644
-> > > --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-> > > +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> > > @@ -571,12 +571,20 @@ static void drm_gem_shmem_vm_open(struct vm_area_struct *vma)
-> > >  {
-> > >       struct drm_gem_object *obj = vma->vm_private_data;
-> > >       struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
-> > > -     int ret;
-> > >
-> > >       WARN_ON(shmem->base.import_attach);
-> > >
-> > > -     ret = drm_gem_shmem_get_pages(shmem);
-> > > -     WARN_ON_ONCE(ret != 0);
-> > > +     mutex_lock(&shmem->pages_lock);
-> > > +
-> > > +     /*
-> > > +      * We should have already pinned the pages, vm_open() just grabs
-> >
-> > should or guaranteed ? This sounds a bit weaker than the commit
-> > description.
-> >
-> > > +      * an additional reference for the new mm the vma is getting
-> > > +      * copied into.
-> > > +      */
-> > > +     WARN_ON_ONCE(!shmem->pages_use_count);
-> > > +
-> > > +     shmem->pages_use_count++;
-> > > +     mutex_unlock(&shmem->pages_lock);
-> >
-> > The previous code, in that situation, would not increment pages_use_count,
-> > and it would not set not set shmem->pages. Hopefully, it would not try to
-> > do anything with the pages it was unable to get. The new code assumes that
-> > shmem->pages is valid even if pages_use_count is 0, while at the same time
-> > taking into account that this can possibly happen (or the WARN_ON_ONCE
-> > would not be needed).
-> >
-> > Again, I don't know anything about gem and drm, but it seems to me that
-> > there might now be a severe problem later on if the WARN_ON_ONCE()
-> > ever triggers.
-> >
-> > Thanks,
-> > Guenter
-> >
-> > >
-> > >       drm_gem_vm_open(vma);
-> > >  }
+Possible dependencies:
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2f3893437a4e ("io_uring: cmpxchg for poll arm refs release")
+49f1c68e048f ("io_uring: optimise submission side poll_refs")
+de08356f4858 ("io_uring: refactor poll arm error handling")
+063a007996bf ("io_uring: change arm poll return values")
+13a99017ff19 ("io_uring: remove events caching atavisms")
+0638cd7be212 ("io_uring: clean poll ->private flagging")
+48863ffd3e81 ("io_uring: clean up tracing events")
+9ca9fb24d5fe ("io_uring: mutex locked poll hashing")
+e6f89be61410 ("io_uring: introduce a struct for hash table")
+a2cdd5193218 ("io_uring: pass hash table into poll_find")
+0ec6dca22319 ("io_uring: use state completion infra for poll reqs")
+8b1dfd343ae6 ("io_uring: clean up io_ring_ctx_alloc")
+4a07723fb4bb ("io_uring: limit the number of cancellation buckets")
+1ab1edb0a104 ("io_uring: pass poll_find lock back")
+38513c464d3d ("io_uring: switch cancel_hash to use per entry spinlock")
+aff5b2df9e8b ("io_uring: better caching for ctx timeout fields")
+b9ba8a4463cd ("io_uring: add support for level triggered poll")
+735729844819 ("io_uring: move rsrc related data, core, and commands")
+3b77495a9723 ("io_uring: split provided buffers handling into its own file")
+7aaff708a768 ("io_uring: move cancelation into its own file")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 2f3893437a4ebf2e892ca172e9e122841319d675 Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Sun, 20 Nov 2022 16:57:41 +0000
+Subject: [PATCH] io_uring: cmpxchg for poll arm refs release
+
+Replace atomically substracting the ownership reference at the end of
+arming a poll with a cmpxchg. We try to release ownership by setting 0
+assuming that poll_refs didn't change while we were arming. If it did
+change, we keep the ownership and use it to queue a tw, which is fully
+capable to process all events and (even tolerates spurious wake ups).
+
+It's a bit more elegant as we reduce races b/w setting the cancellation
+flag and getting refs with this release, and with that we don't have to
+worry about any kinds of underflows. It's not the fastest path for
+polling. The performance difference b/w cmpxchg and atomic dec is
+usually negligible and it's not the fastest path.
+
+Cc: stable@vger.kernel.org
+Fixes: aa43477b04025 ("io_uring: poll rework")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/0c95251624397ea6def568ff040cad2d7926fd51.1668963050.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/io_uring/poll.c b/io_uring/poll.c
+index 055632e9092a..1b78b527075d 100644
+--- a/io_uring/poll.c
++++ b/io_uring/poll.c
+@@ -518,7 +518,6 @@ static int __io_arm_poll_handler(struct io_kiocb *req,
+ 				 unsigned issue_flags)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+-	int v;
+ 
+ 	INIT_HLIST_NODE(&req->hash_node);
+ 	req->work.cancel_seq = atomic_read(&ctx->cancel_seq);
+@@ -586,11 +585,10 @@ static int __io_arm_poll_handler(struct io_kiocb *req,
+ 
+ 	if (ipt->owning) {
+ 		/*
+-		 * Release ownership. If someone tried to queue a tw while it was
+-		 * locked, kick it off for them.
++		 * Try to release ownership. If we see a change of state, e.g.
++		 * poll was waken up, queue up a tw, it'll deal with it.
+ 		 */
+-		v = atomic_dec_return(&req->poll_refs);
+-		if (unlikely(v & IO_POLL_REF_MASK))
++		if (atomic_cmpxchg(&req->poll_refs, 1, 0) != 1)
+ 			__io_poll_execute(req, 0);
+ 	}
+ 	return 0;
+
