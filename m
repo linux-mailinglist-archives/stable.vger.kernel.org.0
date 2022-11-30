@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53AA263DF9F
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:49:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 437D563DE62
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:36:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231453AbiK3StE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:49:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34802 "EHLO
+        id S230444AbiK3Sgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:36:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231433AbiK3Ssu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 946084908C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:47 -0800 (PST)
+        with ESMTP id S230453AbiK3SgR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:36:17 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A64FA94934
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:36:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B47FA61D56
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6D4DC433D6;
-        Wed, 30 Nov 2022 18:48:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 20FC4CE1AD1
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:36:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD94BC433B5;
+        Wed, 30 Nov 2022 18:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834126;
-        bh=o9uSvNsAIfzXiZca4keuSiJpQj8TmnCSVSIxhnQDkdk=;
+        s=korg; t=1669833373;
+        bh=OvQ1e3jmtfV4wEihgDgauKDzIR3WutwV7g39nsP/k1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3E4E9cZItcPe3tjM6oPWPr8O6zQsCdVQSgKObQKocC6Ptr85EtV6ooZggpizwINS
-         ndLcnY4od/kMytO4cbOhRR9OZenRLRP/eRWBszAHM+IwpRmKRWbML4OOYNolQwwPu8
-         QcI5ii2MPcvpelpP/fEXcMRtnRm9ZOoPUOoePJbY=
+        b=mvQ0KErSByPiEYTbTCS66B3jhNPrSU2vbQ1OhAc8et5i+fJj5xX55XxXT+NyNtxns
+         Frb3W9J4/3cTv5+A7muXg4S06YvdH2bQIpMeghZyByhZXgvTuIu1cp8j2+ivZrVxwE
+         VFsG4McREeHjPHd7QIW+EscUYgxaxc27WkubRw8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Brian King <brking@linux.vnet.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 112/289] net: phy: at803x: fix error return code in at803x_probe()
+Subject: [PATCH 5.15 045/206] scsi: ibmvfc: Avoid path failures during live migration
 Date:   Wed, 30 Nov 2022 19:21:37 +0100
-Message-Id: <20221130180546.679475495@linuxfoundation.org>
+Message-Id: <20221130180534.148223421@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Brian King <brking@linux.vnet.ibm.com>
 
-[ Upstream commit 1f0dd412e34e177621769866bef347f0b22364df ]
+[ Upstream commit 62fa3ce05d5d73c5eccc40b2db493f55fecfc446 ]
 
-Fix to return a negative error code from the ccr read error handling
-case instead of 0, as done elsewhere in this function.
+Fix an issue reported when performing a live migration when multipath is
+configured with a short fast fail timeout of 5 seconds and also to have
+no_path_retry set to fail. In this scenario, all paths would go into the
+devloss state while the ibmvfc driver went through discovery to log back
+in. On a loaded system, the discovery might take longer than 5 seconds,
+which was resulting in all paths being marked failed, which then resulted
+in a read only filesystem.
 
-Fixes: 3265f4218878 ("net: phy: at803x: add fiber support")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20221118103635.254256-1-weiyongjun@huaweicloud.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This patch changes the migration code in ibmvfc to avoid deleting rports at
+all in this scenario, so we avoid losing all paths.
+
+Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
+Link: https://lore.kernel.org/r/20221026181356.148517-1-brking@linux.vnet.ibm.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/at803x.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/ibmvscsi/ibmvfc.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/phy/at803x.c b/drivers/net/phy/at803x.c
-index 59fe356942b5..249e7ee4a2bb 100644
---- a/drivers/net/phy/at803x.c
-+++ b/drivers/net/phy/at803x.c
-@@ -862,8 +862,10 @@ static int at803x_probe(struct phy_device *phydev)
- 			.wolopts = 0,
- 		};
+diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
+index b3531065a438..45ef78f388dc 100644
+--- a/drivers/scsi/ibmvscsi/ibmvfc.c
++++ b/drivers/scsi/ibmvscsi/ibmvfc.c
+@@ -708,8 +708,13 @@ static void ibmvfc_init_host(struct ibmvfc_host *vhost)
+ 		memset(vhost->async_crq.msgs.async, 0, PAGE_SIZE);
+ 		vhost->async_crq.cur = 0;
  
--		if (ccr < 0)
-+		if (ccr < 0) {
-+			ret = ccr;
- 			goto err;
+-		list_for_each_entry(tgt, &vhost->targets, queue)
+-			ibmvfc_del_tgt(tgt);
++		list_for_each_entry(tgt, &vhost->targets, queue) {
++			if (vhost->client_migrated)
++				tgt->need_login = 1;
++			else
++				ibmvfc_del_tgt(tgt);
 +		}
- 		mode_cfg = ccr & AT803X_MODE_CFG_MASK;
- 
- 		switch (mode_cfg) {
++
+ 		scsi_block_requests(vhost->host);
+ 		ibmvfc_set_host_action(vhost, IBMVFC_HOST_ACTION_INIT);
+ 		vhost->job_step = ibmvfc_npiv_login;
+@@ -3235,9 +3240,12 @@ static void ibmvfc_handle_crq(struct ibmvfc_crq *crq, struct ibmvfc_host *vhost,
+ 			/* We need to re-setup the interpartition connection */
+ 			dev_info(vhost->dev, "Partition migrated, Re-enabling adapter\n");
+ 			vhost->client_migrated = 1;
++
++			scsi_block_requests(vhost->host);
+ 			ibmvfc_purge_requests(vhost, DID_REQUEUE);
+-			ibmvfc_link_down(vhost, IBMVFC_LINK_DOWN);
++			ibmvfc_set_host_state(vhost, IBMVFC_LINK_DOWN);
+ 			ibmvfc_set_host_action(vhost, IBMVFC_HOST_ACTION_REENABLE);
++			wake_up(&vhost->work_wait_q);
+ 		} else if (crq->format == IBMVFC_PARTNER_FAILED || crq->format == IBMVFC_PARTNER_DEREGISTER) {
+ 			dev_err(vhost->dev, "Host partner adapter deregistered or failed (rc=%d)\n", crq->format);
+ 			ibmvfc_purge_requests(vhost, DID_ERROR);
 -- 
 2.35.1
 
