@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6B2363D575
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:22:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E22863D577
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:22:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232477AbiK3MW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 07:22:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37260 "EHLO
+        id S229580AbiK3MWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 07:22:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234100AbiK3MWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:22:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CF7225E82
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:22:22 -0800 (PST)
+        with ESMTP id S234100AbiK3MWd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:22:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 328042185
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:22:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAC1361B8D
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:22:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9A61C433C1;
-        Wed, 30 Nov 2022 12:22:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0294B81B30
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:22:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31DCBC433D6;
+        Wed, 30 Nov 2022 12:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669810941;
-        bh=xzeL3VGLGcFMW4djwP+SDXqlf2tQeh706aVKfSEEEyA=;
+        s=korg; t=1669810950;
+        bh=CEE7psE1No0vpbW0WfO4veycuDRPtqB/ZCb1BzPqmMQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=bouIdn2q76pMffhQRvg+LRPQP16AOl0azEqHiNqjlGGbVbIVhVRlAyJUT0hU5FgOB
-         V2CNUZ1wi2QLSAYZT/8ruAet8OMlJmQFNYDhR/eP2I9ZhDUjUx/BUsa6U0yInQLSvi
-         /6cYtZEQ+5otATJwNrjZkDl0wJ3olOAYbb6bVKtw=
-Subject: FAILED: patch "[PATCH] KVM: x86: nSVM: harden svm_free_nested against freeing vmcb02" failed to apply to 4.9-stable tree
+        b=Xoii66s+2P1uqwtLG92WViylZtBHT8hwRkRslZA4kbl5l3STLWIQD25PZaws5CIDx
+         ooEY+ccHKKAbVLItjKijPZ0FIXd1VhZDNuOdn9HIK5C7xY3t4Zpx1dUcjNEbk8mQD6
+         gg7/KnxtTaestNDo4Ydtr59dlaYo6kgRS4CxdBlM=
+Subject: FAILED: patch "[PATCH] KVM: x86: nSVM: leave nested mode on vCPU free" failed to apply to 4.19-stable tree
 To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Nov 2022 13:22:06 +0100
-Message-ID: <1669810926255197@kroah.com>
+Date:   Wed, 30 Nov 2022 13:22:11 +0100
+Message-ID: <16698109314250@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,14 +47,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-16ae56d7e052 ("KVM: x86: nSVM: harden svm_free_nested against freeing vmcb02 while still in use")
+917401f26a6a ("KVM: x86: nSVM: leave nested mode on vCPU free")
 2fcf4876ada8 ("KVM: nSVM: implement on demand allocation of the nested state")
 72f211ecaa80 ("KVM: x86: allow kvm_x86_ops.set_efer to return an error value")
 fd6fa73d1337 ("KVM: x86: SVM: Prevent MSR passthrough when MSR access is denied")
@@ -76,35 +76,31 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 16ae56d7e0528559bf8dc9070e3bfd8ba3de80df Mon Sep 17 00:00:00 2001
+From 917401f26a6af5756d89b550a8e1bd50cf42b07e Mon Sep 17 00:00:00 2001
 From: Maxim Levitsky <mlevitsk@redhat.com>
-Date: Thu, 3 Nov 2022 16:13:44 +0200
-Subject: [PATCH] KVM: x86: nSVM: harden svm_free_nested against freeing vmcb02
- while still in use
+Date: Thu, 3 Nov 2022 16:13:43 +0200
+Subject: [PATCH] KVM: x86: nSVM: leave nested mode on vCPU free
 
-Make sure that KVM uses vmcb01 before freeing nested state, and warn if
-that is not the case.
+If the VM was terminated while nested, we free the nested state
+while the vCPU still is in nested mode.
 
-This is a minimal fix for CVE-2022-3344 making the kernel print a warning
-instead of a kernel panic.
+Soon a warning will be added for this condition.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20221103141351.50662-3-mlevitsk@redhat.com>
+Message-Id: <20221103141351.50662-2-mlevitsk@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/svm/nested.c b/arch/x86/kvm/svm/nested.c
-index 4c620999d230..b02a3a1792f1 100644
---- a/arch/x86/kvm/svm/nested.c
-+++ b/arch/x86/kvm/svm/nested.c
-@@ -1125,6 +1125,9 @@ void svm_free_nested(struct vcpu_svm *svm)
- 	if (!svm->nested.initialized)
- 		return;
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index 9f88c8e6766e..098f04bec8ef 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -1438,6 +1438,7 @@ static void svm_vcpu_free(struct kvm_vcpu *vcpu)
+ 	 */
+ 	svm_clear_current_vmcb(svm->vmcb);
  
-+	if (WARN_ON_ONCE(svm->vmcb != svm->vmcb01.ptr))
-+		svm_switch_vmcb(svm, &svm->vmcb01);
-+
- 	svm_vcpu_free_msrpm(svm->nested.msrpm);
- 	svm->nested.msrpm = NULL;
++	svm_leave_nested(vcpu);
+ 	svm_free_nested(svm);
  
+ 	sev_free_vcpu(vcpu);
 
