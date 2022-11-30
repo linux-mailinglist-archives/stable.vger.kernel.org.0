@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0824663E00E
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:53:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C21163DDD4
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:31:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231444AbiK3SxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:53:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42990 "EHLO
+        id S229732AbiK3SbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:31:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231577AbiK3Sw7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:52:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 582E320198
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:52:58 -0800 (PST)
+        with ESMTP id S229786AbiK3Sa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:30:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72554900E6
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:30:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC8A8B81CA9
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:52:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30E68C433D7;
-        Wed, 30 Nov 2022 18:52:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EFB4B81CA3
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:30:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B046C433B5;
+        Wed, 30 Nov 2022 18:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834375;
-        bh=HXjxvFunY2RdDYdrly02Z428P3Y1pItHFrUrcpIp4oI=;
+        s=korg; t=1669833054;
+        bh=QTm725KX/oZgFC7F0zi7TNXIWzt9C/tj8vlAzB2FRiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JI+3pxKLGxF5xU6kgT6uuYeN0LmFDEVkSlyZaXj24ihh37YtYmNVewzxml2YqHY/2
-         scCIw5BhHpgUBU/VUhWEGaK1ElI/NfNWExE5pR1SBPVg5NtWI7tfLFRE6qK72HGiBJ
-         dsWckNxn/DYcHHsfRwfcRKYPpdhLt9iUwxE85lIM=
+        b=bz6QcSv9YStrj4kROMFQeCtk3MYY6F66D4fIB0okD9H2pN09JWSqUTatl4TMQcdII
+         e30KSroi0UUc5ACZsQiznPdxfUjNj7SfcHs7qs5ooW6mCbcylPmG5ap/Z5NC69bt3J
+         4hDCYoJTX51vgO3lklbKBD9gn0rUjbnhlfwMQt8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kazuki Takiguchi <takiguchi.kazuki171@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.0 203/289] KVM: x86/mmu: Fix race condition in direct_page_fault
+        patches@lists.linux.dev, Xiubo Li <xiubli@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 107/162] ceph: make ceph_create_session_msg a global symbol
 Date:   Wed, 30 Nov 2022 19:23:08 +0100
-Message-Id: <20221130180548.722111040@linuxfoundation.org>
+Message-Id: <20221130180531.390983626@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,101 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kazuki Takiguchi <takiguchi.kazuki171@gmail.com>
+From: Xiubo Li <xiubli@redhat.com>
 
-commit 47b0c2e4c220f2251fd8dcfbb44479819c715e15 upstream.
+[ Upstream commit fba97e8025015b63b1bdb73cd868c8ea832a1620 ]
 
-make_mmu_pages_available() must be called with mmu_lock held for write.
-However, if the TDP MMU is used, it will be called with mmu_lock held for
-read.
-This function does nothing unless shadow pages are used, so there is no
-race unless nested TDP is used.
-Since nested TDP uses shadow pages, old shadow pages may be zapped by this
-function even when the TDP MMU is enabled.
-Since shadow pages are never allocated by kvm_tdp_mmu_map(), a race
-condition can be avoided by not calling make_mmu_pages_available() if the
-TDP MMU is currently in use.
-
-I encountered this when repeatedly starting and stopping nested VM.
-It can be artificially caused by allocating a large number of nested TDP
-SPTEs.
-
-For example, the following BUG and general protection fault are caused in
-the host kernel.
-
-pte_list_remove: 00000000cd54fc10 many->many
-------------[ cut here ]------------
-kernel BUG at arch/x86/kvm/mmu/mmu.c:963!
-invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-RIP: 0010:pte_list_remove.cold+0x16/0x48 [kvm]
-Call Trace:
- <TASK>
- drop_spte+0xe0/0x180 [kvm]
- mmu_page_zap_pte+0x4f/0x140 [kvm]
- __kvm_mmu_prepare_zap_page+0x62/0x3e0 [kvm]
- kvm_mmu_zap_oldest_mmu_pages+0x7d/0xf0 [kvm]
- direct_page_fault+0x3cb/0x9b0 [kvm]
- kvm_tdp_page_fault+0x2c/0xa0 [kvm]
- kvm_mmu_page_fault+0x207/0x930 [kvm]
- npf_interception+0x47/0xb0 [kvm_amd]
- svm_invoke_exit_handler+0x13c/0x1a0 [kvm_amd]
- svm_handle_exit+0xfc/0x2c0 [kvm_amd]
- kvm_arch_vcpu_ioctl_run+0xa79/0x1780 [kvm]
- kvm_vcpu_ioctl+0x29b/0x6f0 [kvm]
- __x64_sys_ioctl+0x95/0xd0
- do_syscall_64+0x5c/0x90
-
-general protection fault, probably for non-canonical address
-0xdead000000000122: 0000 [#1] PREEMPT SMP NOPTI
-RIP: 0010:kvm_mmu_commit_zap_page.part.0+0x4b/0xe0 [kvm]
-Call Trace:
- <TASK>
- kvm_mmu_zap_oldest_mmu_pages+0xae/0xf0 [kvm]
- direct_page_fault+0x3cb/0x9b0 [kvm]
- kvm_tdp_page_fault+0x2c/0xa0 [kvm]
- kvm_mmu_page_fault+0x207/0x930 [kvm]
- npf_interception+0x47/0xb0 [kvm_amd]
-
-CVE: CVE-2022-45869
-Fixes: a2855afc7ee8 ("KVM: x86/mmu: Allow parallel page faults for the TDP MMU")
-Signed-off-by: Kazuki Takiguchi <takiguchi.kazuki171@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Stable-dep-of: 5bd76b8de5b7 ("ceph: fix NULL pointer dereference for req->r_session")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu/mmu.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ fs/ceph/mds_client.c | 16 +++++++++-------
+ fs/ceph/mds_client.h |  1 +
+ 2 files changed, 10 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -2431,6 +2431,7 @@ static bool __kvm_mmu_prepare_zap_page(s
+diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
+index 6859967df2b1..36cf3638f501 100644
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -1157,7 +1157,7 @@ static int __choose_mds(struct ceph_mds_client *mdsc,
+ /*
+  * session messages
+  */
+-static struct ceph_msg *create_session_msg(u32 op, u64 seq)
++struct ceph_msg *ceph_create_session_msg(u32 op, u64 seq)
  {
- 	bool list_unstable, zapped_root = false;
+ 	struct ceph_msg *msg;
+ 	struct ceph_mds_session_head *h;
+@@ -1165,7 +1165,8 @@ static struct ceph_msg *create_session_msg(u32 op, u64 seq)
+ 	msg = ceph_msg_new(CEPH_MSG_CLIENT_SESSION, sizeof(*h), GFP_NOFS,
+ 			   false);
+ 	if (!msg) {
+-		pr_err("create_session_msg ENOMEM creating msg\n");
++		pr_err("ENOMEM creating session %s msg\n",
++		       ceph_session_op_name(op));
+ 		return NULL;
+ 	}
+ 	h = msg->front.iov_base;
+@@ -1299,7 +1300,7 @@ static struct ceph_msg *create_session_open_msg(struct ceph_mds_client *mdsc, u6
+ 	msg = ceph_msg_new(CEPH_MSG_CLIENT_SESSION, sizeof(*h) + extra_bytes,
+ 			   GFP_NOFS, false);
+ 	if (!msg) {
+-		pr_err("create_session_msg ENOMEM creating msg\n");
++		pr_err("ENOMEM creating session open msg\n");
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 	p = msg->front.iov_base;
+@@ -1833,8 +1834,8 @@ static int send_renew_caps(struct ceph_mds_client *mdsc,
  
-+	lockdep_assert_held_write(&kvm->mmu_lock);
- 	trace_kvm_mmu_prepare_zap_page(sp);
- 	++kvm->stat.mmu_shadow_zapped;
- 	*nr_zapped = mmu_zap_unsync_children(kvm, sp, invalid_list);
-@@ -4250,14 +4251,14 @@ static int direct_page_fault(struct kvm_
- 	if (is_page_fault_stale(vcpu, fault, mmu_seq))
- 		goto out_unlock;
+ 	dout("send_renew_caps to mds%d (%s)\n", session->s_mds,
+ 		ceph_mds_state_name(state));
+-	msg = create_session_msg(CEPH_SESSION_REQUEST_RENEWCAPS,
+-				 ++session->s_renew_seq);
++	msg = ceph_create_session_msg(CEPH_SESSION_REQUEST_RENEWCAPS,
++				      ++session->s_renew_seq);
+ 	if (!msg)
+ 		return -ENOMEM;
+ 	ceph_con_send(&session->s_con, msg);
+@@ -1848,7 +1849,7 @@ static int send_flushmsg_ack(struct ceph_mds_client *mdsc,
  
--	r = make_mmu_pages_available(vcpu);
--	if (r)
--		goto out_unlock;
--
--	if (is_tdp_mmu_fault)
-+	if (is_tdp_mmu_fault) {
- 		r = kvm_tdp_mmu_map(vcpu, fault);
--	else
-+	} else {
-+		r = make_mmu_pages_available(vcpu);
-+		if (r)
-+			goto out_unlock;
- 		r = __direct_map(vcpu, fault);
-+	}
+ 	dout("send_flushmsg_ack to mds%d (%s)s seq %lld\n",
+ 	     session->s_mds, ceph_session_state_name(session->s_state), seq);
+-	msg = create_session_msg(CEPH_SESSION_FLUSHMSG_ACK, seq);
++	msg = ceph_create_session_msg(CEPH_SESSION_FLUSHMSG_ACK, seq);
+ 	if (!msg)
+ 		return -ENOMEM;
+ 	ceph_con_send(&session->s_con, msg);
+@@ -1900,7 +1901,8 @@ static int request_close_session(struct ceph_mds_session *session)
+ 	dout("request_close_session mds%d state %s seq %lld\n",
+ 	     session->s_mds, ceph_session_state_name(session->s_state),
+ 	     session->s_seq);
+-	msg = create_session_msg(CEPH_SESSION_REQUEST_CLOSE, session->s_seq);
++	msg = ceph_create_session_msg(CEPH_SESSION_REQUEST_CLOSE,
++				      session->s_seq);
+ 	if (!msg)
+ 		return -ENOMEM;
+ 	ceph_con_send(&session->s_con, msg);
+diff --git a/fs/ceph/mds_client.h b/fs/ceph/mds_client.h
+index acf33d7192bb..c0cff765cbf5 100644
+--- a/fs/ceph/mds_client.h
++++ b/fs/ceph/mds_client.h
+@@ -518,6 +518,7 @@ static inline void ceph_mdsc_put_request(struct ceph_mds_request *req)
+ 	kref_put(&req->r_kref, ceph_mdsc_release_request);
+ }
  
- out_unlock:
- 	if (is_tdp_mmu_fault)
++extern struct ceph_msg *ceph_create_session_msg(u32 op, u64 seq);
+ extern void __ceph_queue_cap_release(struct ceph_mds_session *session,
+ 				    struct ceph_cap *cap);
+ extern void ceph_flush_cap_releases(struct ceph_mds_client *mdsc,
+-- 
+2.35.1
+
 
 
