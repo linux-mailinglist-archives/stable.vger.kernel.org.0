@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EB7E63E027
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:54:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B5C663DEE5
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:42:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231533AbiK3SyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:54:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44336 "EHLO
+        id S231167AbiK3Sl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:41:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231520AbiK3SyE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:54:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1715A4E437
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:54:03 -0800 (PST)
+        with ESMTP id S231184AbiK3Slj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 014FD98967
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD741B81C9F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:54:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35436C433D7;
-        Wed, 30 Nov 2022 18:54:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B2B161D41
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:41:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A979C433D7;
+        Wed, 30 Nov 2022 18:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834440;
-        bh=rArcBhuX1KGrSNr0zkORcCBhd3wOi8Bq2U2P2ww9gDY=;
+        s=korg; t=1669833696;
+        bh=fO+6KrYpgxNYsfifLhSBcohkhGWUinWTzwRTcOPU92c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZYjNu5/IFuAsAimd/tikgjfOmtG5kfJ3SFoJi/l7mNkwVfGG2VD6csEbwPMAl/J2m
-         PyeUsn7b3LhHykIWgGW7NESddQSr+u0iMDEviqf4sp5HwDbDWOiOX4AAok0WWg3qnE
-         dI2s2Axb8kFKoTXv7psqKYS4jJReTdTiArMea2/Q=
+        b=kXTGCQBdMPX1gEpTwzOxDityw8mFLJdqXnMrWrT+DFMlaE90a3CxQJ2gFv0eoUYu6
+         WWT5vKJqRF6Ayff1ZKX5CjkOHPmfHl1CszF3Hdua1S5KvWH//mj98iJxIM5hH/aPHh
+         70MmXPeJrH7GPmAr2FViy+NsXmNf+sL1U4GLZL7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Meng Dong <whenov@gmail.com>,
-        Arnav Rawat <arnavr3@illinois.edu>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 254/289] platform/x86: ideapad-laptop: Fix interrupt storm on fn-lock toggle on some Yoga laptops
+        patches@lists.linux.dev, Pengfei Xu <pengfei.xu@intel.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        syzbot+462da39f0667b357c4b6@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 187/206] fuse: lock inode unconditionally in fuse_fallocate()
 Date:   Wed, 30 Nov 2022 19:23:59 +0100
-Message-Id: <20221130180549.862277037@linuxfoundation.org>
+Message-Id: <20221130180537.774748181@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,82 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnav Rawat <arnavr3@illinois.edu>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 81a5603a0f50fd7cf17ff21d106052215eaf2028 ]
+commit 44361e8cf9ddb23f17bdcc40ca944abf32e83e79 upstream.
 
-Commit 3ae86d2d4704 ("platform/x86: ideapad-laptop: Fix Legion 5 Fn lock
-LED") uses the WMI event-id for the fn-lock event on some Legion 5 laptops
-to manually toggle the fn-lock LED because the EC does not do it itself.
-However, the same WMI ID is also sent on some Yoga laptops. Here, setting
-the fn-lock state is not valid behavior, and causes the EC to spam
-interrupts until the laptop is rebooted.
+file_modified() must be called with inode lock held.  fuse_fallocate()
+didn't lock the inode in case of just FALLOC_KEEP_SIZE flags value, which
+resulted in a kernel Warning in notify_change().
 
-Add a set_fn_lock_led_list[] DMI-id list and only enable the workaround to
-manually set the LED on models on this list.
+Lock the inode unconditionally, like all other fallocate implementations
+do.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=212671
-Cc: Meng Dong <whenov@gmail.com>
-Signed-off-by: Arnav Rawat <arnavr3@illinois.edu>
-Link: https://lore.kernel.org/r/12093851.O9o76ZdvQC@fedora
-[hdegoede@redhat.com: Check DMI-id list only once and store the result]
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Pengfei Xu <pengfei.xu@intel.com>
+Reported-and-tested-by: syzbot+462da39f0667b357c4b6@syzkaller.appspotmail.com
+Fixes: 4a6f278d4827 ("fuse: add file_modified() to fallocate")
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/ideapad-laptop.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ fs/fuse/file.c |   41 ++++++++++++++++++-----------------------
+ 1 file changed, 18 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
-index 33b3dfdd1b08..6c460cdc05bb 100644
---- a/drivers/platform/x86/ideapad-laptop.c
-+++ b/drivers/platform/x86/ideapad-laptop.c
-@@ -136,6 +136,7 @@ struct ideapad_private {
- 		bool dytc                 : 1;
- 		bool fan_mode             : 1;
- 		bool fn_lock              : 1;
-+		bool set_fn_lock_led      : 1;
- 		bool hw_rfkill_switch     : 1;
- 		bool kbd_bl               : 1;
- 		bool touchpad_ctrl_via_ec : 1;
-@@ -1501,6 +1502,9 @@ static void ideapad_wmi_notify(u32 value, void *context)
- 		ideapad_input_report(priv, value);
- 		break;
- 	case 208:
-+		if (!priv->features.set_fn_lock_led)
-+			break;
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -2937,11 +2937,9 @@ static long fuse_file_fallocate(struct f
+ 		.mode = mode
+ 	};
+ 	int err;
+-	bool lock_inode = !(mode & FALLOC_FL_KEEP_SIZE) ||
+-			   (mode & (FALLOC_FL_PUNCH_HOLE |
+-				    FALLOC_FL_ZERO_RANGE));
+-
+-	bool block_faults = FUSE_IS_DAX(inode) && lock_inode;
++	bool block_faults = FUSE_IS_DAX(inode) &&
++		(!(mode & FALLOC_FL_KEEP_SIZE) ||
++		 (mode & (FALLOC_FL_PUNCH_HOLE | FALLOC_FL_ZERO_RANGE)));
+ 
+ 	if (mode & ~(FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE |
+ 		     FALLOC_FL_ZERO_RANGE))
+@@ -2950,22 +2948,20 @@ static long fuse_file_fallocate(struct f
+ 	if (fm->fc->no_fallocate)
+ 		return -EOPNOTSUPP;
+ 
+-	if (lock_inode) {
+-		inode_lock(inode);
+-		if (block_faults) {
+-			filemap_invalidate_lock(inode->i_mapping);
+-			err = fuse_dax_break_layouts(inode, 0, 0);
+-			if (err)
+-				goto out;
+-		}
+-
+-		if (mode & (FALLOC_FL_PUNCH_HOLE | FALLOC_FL_ZERO_RANGE)) {
+-			loff_t endbyte = offset + length - 1;
+-
+-			err = fuse_writeback_range(inode, offset, endbyte);
+-			if (err)
+-				goto out;
+-		}
++	inode_lock(inode);
++	if (block_faults) {
++		filemap_invalidate_lock(inode->i_mapping);
++		err = fuse_dax_break_layouts(inode, 0, 0);
++		if (err)
++			goto out;
++	}
 +
- 		if (!eval_hals(priv->adev->handle, &result)) {
- 			bool state = test_bit(HALS_FNLOCK_STATE_BIT, &result);
- 
-@@ -1514,6 +1518,18 @@ static void ideapad_wmi_notify(u32 value, void *context)
- }
- #endif
- 
-+/* On some models we need to call exec_sals(SALS_FNLOCK_ON/OFF) to set the LED */
-+static const struct dmi_system_id set_fn_lock_led_list[] = {
-+	{
-+		/* https://bugzilla.kernel.org/show_bug.cgi?id=212671 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo Legion R7000P2020H"),
-+		}
-+	},
-+	{}
-+};
++	if (mode & (FALLOC_FL_PUNCH_HOLE | FALLOC_FL_ZERO_RANGE)) {
++		loff_t endbyte = offset + length - 1;
 +
- /*
-  * Some ideapads have a hardware rfkill switch, but most do not have one.
-  * Reading VPCCMD_R_RF always results in 0 on models without a hardware rfkill,
-@@ -1556,6 +1572,7 @@ static void ideapad_check_features(struct ideapad_private *priv)
- 	acpi_handle handle = priv->adev->handle;
- 	unsigned long val;
++		err = fuse_writeback_range(inode, offset, endbyte);
++		if (err)
++			goto out;
+ 	}
  
-+	priv->features.set_fn_lock_led = dmi_check_system(set_fn_lock_led_list);
- 	priv->features.hw_rfkill_switch = dmi_check_system(hw_rfkill_list);
+ 	if (!(mode & FALLOC_FL_KEEP_SIZE) &&
+@@ -3015,8 +3011,7 @@ out:
+ 	if (block_faults)
+ 		filemap_invalidate_unlock(inode->i_mapping);
  
- 	/* Most ideapads with ELAN0634 touchpad don't use EC touchpad switch */
--- 
-2.35.1
-
+-	if (lock_inode)
+-		inode_unlock(inode);
++	inode_unlock(inode);
+ 
+ 	fuse_flush_time_update(inode);
+ 
 
 
