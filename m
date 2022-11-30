@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1D5F63DF0F
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:43:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C56E763DF40
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:45:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231209AbiK3Sn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:43:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54028 "EHLO
+        id S231193AbiK3SpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:45:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231217AbiK3SnQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:43:16 -0500
+        with ESMTP id S231255AbiK3SpC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:45:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FDA26168
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:43:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD8612ED7C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:45:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E394561D76
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:43:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C94F5C433C1;
-        Wed, 30 Nov 2022 18:43:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 319C861D74
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:45:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42FA1C433C1;
+        Wed, 30 Nov 2022 18:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833794;
-        bh=OOD+tYPIH/bBvPYBFQJgUNo52ozICWFuGCxahjNu2OE=;
+        s=korg; t=1669833900;
+        bh=uE2C/AYCMVB9oR/iTpZfYuQ9ILoQOQhV0NIWMrUtgEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cx5F5o19dR3/kptou8w2vwvqHwFbkHbuzxEuR3ownLyOlHE5xgAYAqMVY1xzPX1u1
-         OtV1wg5JzBIiw7A7u9GyEu2Sg1wPIhgfKMbD8mUj6sfe8KnrMI0iPsFFrWfp1PQa34
-         Tpc89cRASH5OClboi3rJqsX4e6R8zTeKZWmKvTjg=
+        b=WsI/QL5nP/e/5SEDna/ZH7HwfaGUh1ss8YPpZQh/yvpjm4axc3JD7x1CaV+YwoLdB
+         ZkzltZQ/XwjxLrZeZLrjvb2Q50Ac3321blhHN0T3sannsfV0ktFux4ULIzpd4+2yTP
+         2hKGd/ReXUAIOXD7gtSiYN28Tc/y9CJlI31u9+a0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adrien Thierry <athierry@redhat.com>,
+        patches@lists.linux.dev, Sabrina Dubroca <sd@queasysnail.net>,
+        Antoine Tenart <atenart@kernel.org>,
+        Leon Romanovsky <leonro@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 017/289] selftests/net: give more time to udpgro bg processes to complete startup
-Date:   Wed, 30 Nov 2022 19:20:02 +0100
-Message-Id: <20221130180544.523825583@linuxfoundation.org>
+Subject: [PATCH 6.0 018/289] Revert "net: macsec: report real_dev features when HW offloading is enabled"
+Date:   Wed, 30 Nov 2022 19:20:03 +0100
+Message-Id: <20221130180544.546179054@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -53,75 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrien Thierry <athierry@redhat.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit cdb525ca92b196f8916102b62431aa0d9a644ff2 ]
+[ Upstream commit 8bcd560ae8784da57c610d857118c5d6576b1a8f ]
 
-In some conditions, background processes in udpgro don't have enough
-time to set up the sockets. When foreground processes start, this
-results in the test failing with "./udpgso_bench_tx: sendmsg: Connection
-refused". For instance, this happens from time to time on a Qualcomm
-SA8540P SoC running CentOS Stream 9.
+This reverts commit c850240b6c4132574a00f2da439277ab94265b66.
 
-To fix this, increase the time given to background processes to
-complete the startup before foreground processes start.
+That commit tried to improve the performance of macsec offload by
+taking advantage of some of the NIC's features, but in doing so, broke
+macsec offload when the lower device supports both macsec and ipsec
+offload, as the ipsec offload feature flags (mainly NETIF_F_HW_ESP)
+were copied from the real device. Since the macsec device doesn't
+provide xdo_* ops, the XFRM core rejects the registration of the new
+macsec device in xfrm_api_check.
 
-Signed-off-by: Adrien Thierry <athierry@redhat.com>
+Example perf trace when running
+  ip link add link eni1np1 type macsec port 4 offload mac
+
+    ip   737 [003]   795.477676: probe:xfrm_dev_event__REGISTER      name="macsec0" features=0x1c000080014869
+              xfrm_dev_event+0x3a
+              notifier_call_chain+0x47
+              register_netdevice+0x846
+              macsec_newlink+0x25a
+
+    ip   737 [003]   795.477687:   probe:xfrm_dev_event__return      ret=0x8002 (NOTIFY_BAD)
+             notifier_call_chain+0x47
+             register_netdevice+0x846
+             macsec_newlink+0x25a
+
+dev->features includes NETIF_F_HW_ESP (0x04000000000000), so
+xfrm_api_check returns NOTIFY_BAD because we don't have
+dev->xfrmdev_ops on the macsec device.
+
+We could probably propagate GSO and a few other features from the
+lower device, similar to macvlan. This will be done in a future patch.
+
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Reviewed-by: Antoine Tenart <atenart@kernel.org>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/udpgro.sh         | 4 ++--
- tools/testing/selftests/net/udpgro_bench.sh   | 2 +-
- tools/testing/selftests/net/udpgro_frglist.sh | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/macsec.c | 27 ++++-----------------------
+ 1 file changed, 4 insertions(+), 23 deletions(-)
 
-diff --git a/tools/testing/selftests/net/udpgro.sh b/tools/testing/selftests/net/udpgro.sh
-index ebbd0b282432..6a443ca3cd3a 100755
---- a/tools/testing/selftests/net/udpgro.sh
-+++ b/tools/testing/selftests/net/udpgro.sh
-@@ -50,7 +50,7 @@ run_one() {
- 		echo "failed" &
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index ddfa853ec9b5..d145ad189778 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -2685,11 +2685,6 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
+ 	if (ret)
+ 		goto rollback;
  
- 	# Hack: let bg programs complete the startup
--	sleep 0.1
-+	sleep 0.2
- 	./udpgso_bench_tx ${tx_args}
- 	ret=$?
- 	wait $(jobs -p)
-@@ -117,7 +117,7 @@ run_one_2sock() {
- 		echo "failed" &
+-	/* Force features update, since they are different for SW MACSec and
+-	 * HW offloading cases.
+-	 */
+-	netdev_update_features(dev);
+-
+ 	rtnl_unlock();
+ 	return 0;
  
- 	# Hack: let bg programs complete the startup
--	sleep 0.1
-+	sleep 0.2
- 	./udpgso_bench_tx ${tx_args} -p 12345
- 	sleep 0.1
- 	# first UDP GSO socket should be closed at this point
-diff --git a/tools/testing/selftests/net/udpgro_bench.sh b/tools/testing/selftests/net/udpgro_bench.sh
-index fad2d1a71cac..8a1109a545db 100755
---- a/tools/testing/selftests/net/udpgro_bench.sh
-+++ b/tools/testing/selftests/net/udpgro_bench.sh
-@@ -39,7 +39,7 @@ run_one() {
- 	ip netns exec "${PEER_NS}" ./udpgso_bench_rx -t ${rx_args} -r &
- 
- 	# Hack: let bg programs complete the startup
--	sleep 0.1
-+	sleep 0.2
- 	./udpgso_bench_tx ${tx_args}
+@@ -3457,16 +3452,9 @@ static netdev_tx_t macsec_start_xmit(struct sk_buff *skb,
+ 	return ret;
  }
  
-diff --git a/tools/testing/selftests/net/udpgro_frglist.sh b/tools/testing/selftests/net/udpgro_frglist.sh
-index 832c738cc3c2..7fe85ba51075 100755
---- a/tools/testing/selftests/net/udpgro_frglist.sh
-+++ b/tools/testing/selftests/net/udpgro_frglist.sh
-@@ -44,7 +44,7 @@ run_one() {
- 	ip netns exec "${PEER_NS}" ./udpgso_bench_rx ${rx_args} -r &
+-#define SW_MACSEC_FEATURES \
++#define MACSEC_FEATURES \
+ 	(NETIF_F_SG | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST)
  
- 	# Hack: let bg programs complete the startup
--	sleep 0.1
-+	sleep 0.2
- 	./udpgso_bench_tx ${tx_args}
- }
+-/* If h/w offloading is enabled, use real device features save for
+- *   VLAN_FEATURES - they require additional ops
+- *   HW_MACSEC - no reason to report it
+- */
+-#define REAL_DEV_FEATURES(dev) \
+-	((dev)->features & ~(NETIF_F_VLAN_FEATURES | NETIF_F_HW_MACSEC))
+-
+ static int macsec_dev_init(struct net_device *dev)
+ {
+ 	struct macsec_dev *macsec = macsec_priv(dev);
+@@ -3483,12 +3471,8 @@ static int macsec_dev_init(struct net_device *dev)
+ 		return err;
+ 	}
+ 
+-	if (macsec_is_offloaded(macsec)) {
+-		dev->features = REAL_DEV_FEATURES(real_dev);
+-	} else {
+-		dev->features = real_dev->features & SW_MACSEC_FEATURES;
+-		dev->features |= NETIF_F_LLTX | NETIF_F_GSO_SOFTWARE;
+-	}
++	dev->features = real_dev->features & MACSEC_FEATURES;
++	dev->features |= NETIF_F_LLTX | NETIF_F_GSO_SOFTWARE;
+ 
+ 	dev->needed_headroom = real_dev->needed_headroom +
+ 			       MACSEC_NEEDED_HEADROOM;
+@@ -3520,10 +3504,7 @@ static netdev_features_t macsec_fix_features(struct net_device *dev,
+ 	struct macsec_dev *macsec = macsec_priv(dev);
+ 	struct net_device *real_dev = macsec->real_dev;
+ 
+-	if (macsec_is_offloaded(macsec))
+-		return REAL_DEV_FEATURES(real_dev);
+-
+-	features &= (real_dev->features & SW_MACSEC_FEATURES) |
++	features &= (real_dev->features & MACSEC_FEATURES) |
+ 		    NETIF_F_GSO_SOFTWARE | NETIF_F_SOFT_FEATURES;
+ 	features |= NETIF_F_LLTX;
  
 -- 
 2.35.1
