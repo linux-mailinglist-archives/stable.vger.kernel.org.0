@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 965A363DEB0
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:39:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B37F863DDC4
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:30:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230515AbiK3Sjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:39:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50924 "EHLO
+        id S229515AbiK3SaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:30:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230509AbiK3Sjl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:39:41 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596FA97019
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:39:40 -0800 (PST)
+        with ESMTP id S229726AbiK3SaH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:30:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C39308D666
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:30:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A6FB6CE1AC1
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:39:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94B42C433D6;
-        Wed, 30 Nov 2022 18:39:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D62461B7C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:30:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CFB9C433D7;
+        Wed, 30 Nov 2022 18:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833576;
-        bh=NiqP+/tqGFYeoN6wpdDIVc9ONAxT5v8f1gMSWOWXhyk=;
+        s=korg; t=1669833005;
+        bh=a2qXSDAP4OsB5CGmbAwdX2vHYynzwSMa22Z/WeVtAmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L9NvUhEMEJ+TiVaM3jg2FIlHInLf4knJ7EsOX+T6tSeumG24gDEmtP1SdRHT8S8PU
-         hoB5RWdXXSKsO7xW3q3oWZ9Dkn9gRu9r8UGUTK8FIjtDWMFnb2QfPVI1CCqInXu1BI
-         RwrX3lecykWHBUyzI4ZI0wD8Wwpe19MHk3Wyt9Bo=
+        b=zFYZGeCLFB7gO7V9ilRnp3qyFoWgWBVDG5zydEQsUSqt0+RDBencYqBZ7XeFQcA8I
+         cFVcJ2V0QBgehBK8CZ96IW/rwp9+3l6eErcv4f+JROCJ7JZ5Yk2BuhI4kHpT0OZvIl
+         z+Gv58T/QTxv/taCJgVx56+nKjGIalvInhyOU7gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alejandro Concepcion-Rodriguez <asconcepcion@acoro.eu>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 147/206] iio: light: apds9960: fix wrong register for gesture gain
+        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 118/162] usb: dwc3: gadget: Clear ep descriptor last
 Date:   Wed, 30 Nov 2022 19:23:19 +0100
-Message-Id: <20221130180536.777465505@linuxfoundation.org>
+Message-Id: <20221130180531.691005327@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alejandro Concepción Rodríguez <asconcepcion@acoro.eu>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 0aa60ff5d996d4ecdd4a62699c01f6d00f798d59 upstream.
+[ Upstream commit f90f5afd5083a7cb4aee13bd4cc0ae600bd381ca ]
 
-Gesture Gain Control is in REG_GCONF_2 (0xa3), not in REG_CONFIG_2 (0x90).
+Until the endpoint is disabled, its descriptors should remain valid.
+When its requests are removed from ep disable, the request completion
+routine may attempt to access the endpoint's descriptor. Don't clear the
+descriptors before that.
 
-Fixes: aff268cd532e ("iio: light: add APDS9960 ALS + promixity driver")
-Signed-off-by: Alejandro Concepcion-Rodriguez <asconcepcion@acoro.eu>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/EaT-NKC-H4DNX5z4Lg9B6IWPD5TrTrYBr5DYB784wfDKQkTmzPXkoYqyUOrOgJH-xvTsEkFLcVkeAPZRUODEFI5dGziaWXwjpfBNLeNGfNc=@acoro.eu
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: f09ddcfcb8c5 ("usb: dwc3: gadget: Prevent EP queuing while stopping transfers")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/45db7c83b209259115bf652af210f8b2b3b1a383.1668561364.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/apds9960.c |   12 ++++++------
+ drivers/usb/dwc3/gadget.c | 12 ++++++------
  1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/iio/light/apds9960.c
-+++ b/drivers/iio/light/apds9960.c
-@@ -54,9 +54,6 @@
- #define APDS9960_REG_CONTROL_PGAIN_MASK_SHIFT	2
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 2b4e1c0d02d5..a9a43d649478 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -803,18 +803,18 @@ static int __dwc3_gadget_ep_disable(struct dwc3_ep *dep)
+ 	reg &= ~DWC3_DALEPENA_EP(dep->number);
+ 	dwc3_writel(dwc->regs, DWC3_DALEPENA, reg);
  
- #define APDS9960_REG_CONFIG_2	0x90
--#define APDS9960_REG_CONFIG_2_GGAIN_MASK	0x60
--#define APDS9960_REG_CONFIG_2_GGAIN_MASK_SHIFT	5
+-	/* Clear out the ep descriptors for non-ep0 */
+-	if (dep->number > 1) {
+-		dep->endpoint.comp_desc = NULL;
+-		dep->endpoint.desc = NULL;
+-	}
 -
- #define APDS9960_REG_ID		0x92
+ 	dwc3_remove_requests(dwc, dep, -ESHUTDOWN);
  
- #define APDS9960_REG_STATUS	0x93
-@@ -77,6 +74,9 @@
- #define APDS9960_REG_GCONF_1_GFIFO_THRES_MASK_SHIFT	6
+ 	dep->stream_capable = false;
+ 	dep->type = 0;
+ 	dep->flags = 0;
  
- #define APDS9960_REG_GCONF_2	0xa3
-+#define APDS9960_REG_GCONF_2_GGAIN_MASK			0x60
-+#define APDS9960_REG_GCONF_2_GGAIN_MASK_SHIFT		5
++	/* Clear out the ep descriptors for non-ep0 */
++	if (dep->number > 1) {
++		dep->endpoint.comp_desc = NULL;
++		dep->endpoint.desc = NULL;
++	}
 +
- #define APDS9960_REG_GOFFSET_U	0xa4
- #define APDS9960_REG_GOFFSET_D	0xa5
- #define APDS9960_REG_GPULSE	0xa6
-@@ -396,9 +396,9 @@ static int apds9960_set_pxs_gain(struct
- 			}
+ 	return 0;
+ }
  
- 			ret = regmap_update_bits(data->regmap,
--				APDS9960_REG_CONFIG_2,
--				APDS9960_REG_CONFIG_2_GGAIN_MASK,
--				idx << APDS9960_REG_CONFIG_2_GGAIN_MASK_SHIFT);
-+				APDS9960_REG_GCONF_2,
-+				APDS9960_REG_GCONF_2_GGAIN_MASK,
-+				idx << APDS9960_REG_GCONF_2_GGAIN_MASK_SHIFT);
- 			if (!ret)
- 				data->pxs_gain = idx;
- 			mutex_unlock(&data->lock);
+-- 
+2.35.1
+
 
 
