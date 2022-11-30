@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E29063DF36
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:45:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF4AD63DF38
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:45:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231376AbiK3So7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:44:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56524 "EHLO
+        id S231249AbiK3SpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:45:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231193AbiK3Soj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:44:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EE699894E
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:44:34 -0800 (PST)
+        with ESMTP id S231365AbiK3Sok (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:44:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EA6391C1A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:44:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D403161D4F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:44:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4DACC433C1;
-        Wed, 30 Nov 2022 18:44:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5579FB81CA9
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:44:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ACFBC433C1;
+        Wed, 30 Nov 2022 18:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833873;
-        bh=P7VgSkt0gS/878XSTQbXe5Dhvu2xlRta4sHCH7zol6Y=;
+        s=korg; t=1669833876;
+        bh=AJspYidpi0M9dm3bRUip0AiuNgd4t96m5XJdpOdS1qE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jeuin1DpfXato5N4hVrWXtkKDdOqFtYqlA8yUPW+UGJmWiYjZtLY8HvLxYwCpmR4N
-         lwyi5esM3F1le1ztggHoGhiX3Ufpclv7jjv/Z8tChiBBFrqUqTmF2WwLYPSKUXjgDv
-         SS/izBU4FJpcge/+pE/qgPMBsckxddF4DwLWJ/0k=
+        b=NqFneIzP2A2QKORHQ+zCfIMLQOIS8SbFLibpyRCczDME6GIxcKesGBW/B3W/4qTaK
+         JC9HLDKt33xgHp8JP6NVUWbO6rgjQmv+dXV/F/8JSCQN1LvF3U55rvpHyVZhg/6Qs6
+         XzpRgZl+LlI+khJsFX+opdcWz3vFIefqVzo2Xpsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lev Popov <leo@nabam.net>,
-        Heiko Stuebner <heiko@sntech.de>,
+        patches@lists.linux.dev,
+        Christian Langrock <christian.langrock@secunet.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 045/289] arm64: dts: rockchip: fix quartz64-a bluetooth configuration
-Date:   Wed, 30 Nov 2022 19:20:30 +0100
-Message-Id: <20221130180545.151953986@linuxfoundation.org>
+Subject: [PATCH 6.0 046/289] xfrm: replay: Fix ESN wrap around for GSO
+Date:   Wed, 30 Nov 2022 19:20:31 +0100
+Message-Id: <20221130180545.173458143@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -53,57 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lev Popov <leo@nabam.net>
+From: Christian Langrock <christian.langrock@secunet.com>
 
-[ Upstream commit 2dcd7e0c821fe9b663f7d3382b6d2faa8edf2129 ]
+[ Upstream commit 4b549ccce941798703f159b227aa28c716aa78fa ]
 
-For "Quartz64 Model A" add missing RTS line to the UART interface used by
-bluetooth and swap bluetooth host-wakeup and device-wakeup gpio pins to
-match the boards physical layout. This changes are necessary to make
-bluetooth provided by the wireless module work.
+When using GSO it can happen that the wrong seq_hi is used for the last
+packets before the wrap around. This can lead to double usage of a
+sequence number. To avoid this, we should serialize this last GSO
+packet.
 
-Also set max-speed on the bluetooth device as it's not automatically
-detected.
-
-Fixes: b33a22a1e7c4 ("arm64: dts: rockchip: add basic dts for Pine64 Quartz64-A")
-Signed-off-by: Lev Popov <leo@nabam.net>
-Link: https://lore.kernel.org/r/20220926125350.64783-1-leo@nabam.net
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes: d7dbefc45cf5 ("xfrm: Add xfrm_replay_overflow functions for offloading")
+Co-developed-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Christian Langrock <christian.langrock@secunet.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3566-quartz64-a.dts | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/ipv4/esp4_offload.c |  3 +++
+ net/ipv6/esp6_offload.c |  3 +++
+ net/xfrm/xfrm_device.c  | 15 ++++++++++++++-
+ net/xfrm/xfrm_replay.c  |  2 +-
+ 4 files changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3566-quartz64-a.dts b/arch/arm64/boot/dts/rockchip/rk3566-quartz64-a.dts
-index a05460b92415..25a8c781f4e7 100644
---- a/arch/arm64/boot/dts/rockchip/rk3566-quartz64-a.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3566-quartz64-a.dts
-@@ -740,7 +740,7 @@ &uart0 {
+diff --git a/net/ipv4/esp4_offload.c b/net/ipv4/esp4_offload.c
+index 170152772d33..3969fa805679 100644
+--- a/net/ipv4/esp4_offload.c
++++ b/net/ipv4/esp4_offload.c
+@@ -314,6 +314,9 @@ static int esp_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features_
+ 			xo->seq.low += skb_shinfo(skb)->gso_segs;
+ 	}
  
- &uart1 {
- 	pinctrl-names = "default";
--	pinctrl-0 = <&uart1m0_xfer &uart1m0_ctsn>;
-+	pinctrl-0 = <&uart1m0_xfer &uart1m0_ctsn &uart1m0_rtsn>;
- 	status = "okay";
- 	uart-has-rtscts;
++	if (xo->seq.low < seq)
++		xo->seq.hi++;
++
+ 	esp.seqno = cpu_to_be64(seq + ((u64)xo->seq.hi << 32));
  
-@@ -748,13 +748,14 @@ bluetooth {
- 		compatible = "brcm,bcm43438-bt";
- 		clocks = <&rk817 1>;
- 		clock-names = "lpo";
--		device-wakeup-gpios = <&gpio2 RK_PC1 GPIO_ACTIVE_HIGH>;
--		host-wakeup-gpios = <&gpio2 RK_PC0 GPIO_ACTIVE_HIGH>;
-+		host-wakeup-gpios = <&gpio2 RK_PC1 GPIO_ACTIVE_HIGH>;
-+		device-wakeup-gpios = <&gpio2 RK_PC0 GPIO_ACTIVE_HIGH>;
- 		shutdown-gpios = <&gpio2 RK_PB7 GPIO_ACTIVE_HIGH>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&bt_host_wake_l &bt_wake_l &bt_enable_h>;
- 		vbat-supply = <&vcc_sys>;
- 		vddio-supply = <&vcca1v8_pmu>;
-+		max-speed = <3000000>;
- 	};
- };
+ 	ip_hdr(skb)->tot_len = htons(skb->len);
+diff --git a/net/ipv6/esp6_offload.c b/net/ipv6/esp6_offload.c
+index 79d43548279c..242f4295940e 100644
+--- a/net/ipv6/esp6_offload.c
++++ b/net/ipv6/esp6_offload.c
+@@ -346,6 +346,9 @@ static int esp6_xmit(struct xfrm_state *x, struct sk_buff *skb,  netdev_features
+ 			xo->seq.low += skb_shinfo(skb)->gso_segs;
+ 	}
  
++	if (xo->seq.low < seq)
++		xo->seq.hi++;
++
+ 	esp.seqno = cpu_to_be64(xo->seq.low + ((u64)xo->seq.hi << 32));
+ 
+ 	len = skb->len - sizeof(struct ipv6hdr);
+diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
+index 637ca8838436..9af6bf1652e4 100644
+--- a/net/xfrm/xfrm_device.c
++++ b/net/xfrm/xfrm_device.c
+@@ -97,6 +97,18 @@ static void xfrm_outer_mode_prep(struct xfrm_state *x, struct sk_buff *skb)
+ 	}
+ }
+ 
++static inline bool xmit_xfrm_check_overflow(struct sk_buff *skb)
++{
++	struct xfrm_offload *xo = xfrm_offload(skb);
++	__u32 seq = xo->seq.low;
++
++	seq += skb_shinfo(skb)->gso_segs;
++	if (unlikely(seq < xo->seq.low))
++		return true;
++
++	return false;
++}
++
+ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t features, bool *again)
+ {
+ 	int err;
+@@ -134,7 +146,8 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
+ 		return skb;
+ 	}
+ 
+-	if (skb_is_gso(skb) && unlikely(x->xso.dev != dev)) {
++	if (skb_is_gso(skb) && (unlikely(x->xso.dev != dev) ||
++				unlikely(xmit_xfrm_check_overflow(skb)))) {
+ 		struct sk_buff *segs;
+ 
+ 		/* Packet got rerouted, fixup features and segment it. */
+diff --git a/net/xfrm/xfrm_replay.c b/net/xfrm/xfrm_replay.c
+index 9277d81b344c..49dd788859d8 100644
+--- a/net/xfrm/xfrm_replay.c
++++ b/net/xfrm/xfrm_replay.c
+@@ -714,7 +714,7 @@ static int xfrm_replay_overflow_offload_esn(struct xfrm_state *x, struct sk_buff
+ 			oseq += skb_shinfo(skb)->gso_segs;
+ 		}
+ 
+-		if (unlikely(oseq < replay_esn->oseq)) {
++		if (unlikely(xo->seq.low < replay_esn->oseq)) {
+ 			XFRM_SKB_CB(skb)->seq.output.hi = ++oseq_hi;
+ 			xo->seq.hi = oseq_hi;
+ 			replay_esn->oseq_hi = oseq_hi;
 -- 
 2.35.1
 
