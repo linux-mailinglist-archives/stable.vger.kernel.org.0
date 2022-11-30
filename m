@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AF5A63DDC8
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:30:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D73063DFFD
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:52:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229565AbiK3SaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:30:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36324 "EHLO
+        id S231440AbiK3Swt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:52:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229723AbiK3SaX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:30:23 -0500
+        with ESMTP id S231555AbiK3SwX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:52:23 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C26C88FD62
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:30:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A952FA3225
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:52:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82CA2B81C9A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:30:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAB1AC433D6;
-        Wed, 30 Nov 2022 18:30:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CE93B81CA9
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:52:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA109C433D6;
+        Wed, 30 Nov 2022 18:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833017;
-        bh=aOwSf5WsNy9eAqVQMmP0v1Bqdimm4oBqKJfks05NHX8=;
+        s=korg; t=1669834340;
+        bh=YDrjMdH5rSQYcDqKtDE6mnnLUWZkTUoWFVA7oM54EwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V+ty0nrZ1W55OAsh5uXIgLTAXQ62Mmmo65FRM/dj/IwcO9/XU5/mJajFvlGeYUdng
-         S2bC//AkgfkeUM42tlrUwxkUCHS97X2aTJsttJUgug3B4/qaI6nCd95zOdOpqRAoco
-         SmjW+3DfeNP3E9jp5pBqijKYe7Wv1/3cPY667aT4=
+        b=SRGXWsI+5hugFAr12zk8MnZwuoMqCBgffZLophUSn+qX2oHqchfJHk19JuSEEqzB2
+         Oy3BVcju7z0oRfyhMJibPmTrqBJmDBg/Q1qXatdJAvEAEDxz3gfo5A4re8lCXcqiW8
+         jpjqleC2HGqvf/g7ZZXX/1M/5AT0k7dSorpQwYSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Weiner <hannes@cmpxchg.org>,
-        Rik van Riel <riel@surriel.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Hugh Dickins <hughd@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        patches@lists.linux.dev, Li Liguang <liliguang@baidu.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 121/162] mm: vmscan: fix extreme overreclaim and swap floods
+Subject: [PATCH 6.0 217/289] mm: correctly charge compressed memory to its memcg
 Date:   Wed, 30 Nov 2022 19:23:22 +0100
-Message-Id: <20221130180531.772344962@linuxfoundation.org>
+Message-Id: <20221130180549.038053487@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,137 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Weiner <hannes@cmpxchg.org>
+From: Li Liguang <liliguang@baidu.com>
 
-commit f53af4285d775cd9a9a146fc438bd0a1bee1838a upstream.
+commit cd08d80ecdac577bad2e8d6805c7a3859fdefb8d upstream.
 
-During proactive reclaim, we sometimes observe severe overreclaim, with
-several thousand times more pages reclaimed than requested.
+Kswapd will reclaim memory when memory pressure is high, the annonymous
+memory will be compressed and stored in the zpool if zswap is enabled.
+The memcg_kmem_bypass() in get_obj_cgroup_from_page() will bypass the
+kernel thread and cause the compressed memory not be charged to its memory
+cgroup.
 
-This trace was obtained from shrink_lruvec() during such an instance:
+Remove the memcg_kmem_bypass() call and properly charge compressed memory
+to its corresponding memory cgroup.
 
-    prio:0 anon_cost:1141521 file_cost:7767
-    nr_reclaimed:4387406 nr_to_reclaim:1047 (or_factor:4190)
-    nr=[7161123 345 578 1111]
-
-While he reclaimer requested 4M, vmscan reclaimed close to 16G, most of it
-by swapping.  These requests take over a minute, during which the write()
-to memory.reclaim is unkillably stuck inside the kernel.
-
-Digging into the source, this is caused by the proportional reclaim
-bailout logic.  This code tries to resolve a fundamental conflict: to
-reclaim roughly what was requested, while also aging all LRUs fairly and
-in accordance to their size, swappiness, refault rates etc.  The way it
-attempts fairness is that once the reclaim goal has been reached, it stops
-scanning the LRUs with the smaller remaining scan targets, and adjusts the
-remainder of the bigger LRUs according to how much of the smaller LRUs was
-scanned.  It then finishes scanning that remainder regardless of the
-reclaim goal.
-
-This works fine if priority levels are low and the LRU lists are
-comparable in size.  However, in this instance, the cgroup that is
-targeted by proactive reclaim has almost no files left - they've already
-been squeezed out by proactive reclaim earlier - and the remaining anon
-pages are hot.  Anon rotations cause the priority level to drop to 0,
-which results in reclaim targeting all of anon (a lot) and all of file
-(almost nothing).  By the time reclaim decides to bail, it has scanned
-most or all of the file target, and therefor must also scan most or all of
-the enormous anon target.  This target is thousands of times larger than
-the reclaim goal, thus causing the overreclaim.
-
-The bailout code hasn't changed in years, why is this failing now?  The
-most likely explanations are two other recent changes in anon reclaim:
-
-1. Before the series starting with commit 5df741963d52 ("mm: fix LRU
-   balancing effect of new transparent huge pages"), the VM was
-   overall relatively reluctant to swap at all, even if swap was
-   configured. This means the LRU balancing code didn't come into play
-   as often as it does now, and mostly in high pressure situations
-   where pronounced swap activity wouldn't be as surprising.
-
-2. For historic reasons, shrink_lruvec() loops on the scan targets of
-   all LRU lists except the active anon one, meaning it would bail if
-   the only remaining pages to scan were active anon - even if there
-   were a lot of them.
-
-   Before the series starting with commit ccc5dc67340c ("mm/vmscan:
-   make active/inactive ratio as 1:1 for anon lru"), most anon pages
-   would live on the active LRU; the inactive one would contain only a
-   handful of preselected reclaim candidates. After the series, anon
-   gets aged similarly to file, and the inactive list is the default
-   for new anon pages as well, making it often the much bigger list.
-
-   As a result, the VM is now more likely to actually finish large
-   anon targets than before.
-
-Change the code such that only one SWAP_CLUSTER_MAX-sized nudge toward the
-larger LRU lists is made before bailing out on a met reclaim goal.
-
-This fixes the extreme overreclaim problem.
-
-Fairness is more subtle and harder to evaluate.  No obvious misbehavior
-was observed on the test workload, in any case.  Conceptually, fairness
-should primarily be a cumulative effect from regular, lower priority
-scans.  Once the VM is in trouble and needs to escalate scan targets to
-make forward progress, fairness needs to take a backseat.  This is also
-acknowledged by the myriad exceptions in get_scan_count().  This patch
-makes fairness decrease gradually, as it keeps fairness work static over
-increasing priority levels with growing scan targets.  This should make
-more sense - although we may have to re-visit the exact values.
-
-Link: https://lkml.kernel.org/r/20220802162811.39216-1-hannes@cmpxchg.org
+Link: https://lore.kernel.org/linux-mm/CALvZod4nnn8BHYqAM4xtcR0Ddo2-Wr8uKm9h_CHWUaXw7g_DCg@mail.gmail.com/
+Link: https://lkml.kernel.org/r/20221114194828.100822-1-hannes@cmpxchg.org
+Fixes: f4840ccfca25 ("zswap: memcg accounting")
+Signed-off-by: Li Liguang <liliguang@baidu.com>
 Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Reviewed-by: Rik van Riel <riel@surriel.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: <stable@vger.kernel.org>
+Acked-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: <stable@vger.kernel.org>	[5.19+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/vmscan.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ mm/memcontrol.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -2439,8 +2439,8 @@ static void shrink_lruvec(struct lruvec
- 	enum lru_list lru;
- 	unsigned long nr_reclaimed = 0;
- 	unsigned long nr_to_reclaim = sc->nr_to_reclaim;
-+	bool proportional_reclaim;
- 	struct blk_plug plug;
--	bool scan_adjusted;
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -2971,7 +2971,7 @@ struct obj_cgroup *get_obj_cgroup_from_p
+ {
+ 	struct obj_cgroup *objcg;
  
- 	get_scan_count(lruvec, sc, nr);
+-	if (!memcg_kmem_enabled() || memcg_kmem_bypass())
++	if (!memcg_kmem_enabled())
+ 		return NULL;
  
-@@ -2458,8 +2458,8 @@ static void shrink_lruvec(struct lruvec
- 	 * abort proportional reclaim if either the file or anon lru has already
- 	 * dropped to zero at the first pass.
- 	 */
--	scan_adjusted = (!cgroup_reclaim(sc) && !current_is_kswapd() &&
--			 sc->priority == DEF_PRIORITY);
-+	proportional_reclaim = (!cgroup_reclaim(sc) && !current_is_kswapd() &&
-+				sc->priority == DEF_PRIORITY);
- 
- 	blk_start_plug(&plug);
- 	while (nr[LRU_INACTIVE_ANON] || nr[LRU_ACTIVE_FILE] ||
-@@ -2479,7 +2479,7 @@ static void shrink_lruvec(struct lruvec
- 
- 		cond_resched();
- 
--		if (nr_reclaimed < nr_to_reclaim || scan_adjusted)
-+		if (nr_reclaimed < nr_to_reclaim || proportional_reclaim)
- 			continue;
- 
- 		/*
-@@ -2530,8 +2530,6 @@ static void shrink_lruvec(struct lruvec
- 		nr_scanned = targets[lru] - nr[lru];
- 		nr[lru] = targets[lru] * (100 - percentage) / 100;
- 		nr[lru] -= min(nr[lru], nr_scanned);
--
--		scan_adjusted = true;
- 	}
- 	blk_finish_plug(&plug);
- 	sc->nr_reclaimed += nr_reclaimed;
+ 	if (PageMemcgKmem(page)) {
 
 
