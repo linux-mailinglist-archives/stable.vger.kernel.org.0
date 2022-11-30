@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FC1B63DEBE
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:40:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9A8A63E033
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:54:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230522AbiK3SkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:40:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51540 "EHLO
+        id S231575AbiK3Syh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:54:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231132AbiK3SkT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E77C97021
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:18 -0800 (PST)
+        with ESMTP id S231571AbiK3Sye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:54:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F99863D5E
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:54:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 095AA61D6F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1575AC433C1;
-        Wed, 30 Nov 2022 18:40:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C405061D41
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:54:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2408C433C1;
+        Wed, 30 Nov 2022 18:54:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833617;
-        bh=dBoQOsh1Xe06phC4XNOmGxDRKPniEr02U1iI7jaKcDs=;
+        s=korg; t=1669834468;
+        bh=i62pXkbM8jq3FwMIp1Yu4olWnfxvvXuVJj5DLFQdd78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gp2AJhGznXnO7yVb4Nh/GtxYtv5B8v/VdTI7yHdAZBxWk2C510pOnZH0pv0YXGGEz
-         rPVmYDa7poeJWx53OhSo06dS1tq/gJUYFyIngT/6L8r7lQXtWmzK90/oKDmWY+Pz+E
-         WD2eoRcNX4/J83iFww3Sv+yWfriMtTszlblOGuuA=
+        b=qnajh5g0BysTwt9a5cE2K3OBzynDwLprcg0pCTPTJyiNOgYS9fHvRksN4D+vcV030
+         VaCk2k68ZtbIi2OZTEZlROLtsbahcdIUymqy0eeqI9Yp1J22WNcXAQDNS+zKS1ZMGX
+         3N31jxjQSIdOPzFTBEGCQNi9fit5J/nX/Xpnz9KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 160/206] KVM: x86: remove exit_int_info warning in svm_handle_exit
+        patches@lists.linux.dev,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 227/289] ASoC: Intel: soc-acpi: add ES83x6 support to IceLake
 Date:   Wed, 30 Nov 2022 19:23:32 +0100
-Message-Id: <20221130180537.104414534@linuxfoundation.org>
+Message-Id: <20221130180549.260451997@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit 05311ce954aebe75935d9ae7d38ac82b5b796e33 upstream.
+[ Upstream commit 9a1d248bb4beaf1b43d17ba12481ee0629fa29b9 ]
 
-It is valid to receive external interrupt and have broken IDT entry,
-which will lead to #GP with exit_int_into that will contain the index of
-the IDT entry (e.g any value).
+Missing entry to find a machine driver for ES83x6-based platforms.
 
-Other exceptions can happen as well, like #NP or #SS
-(if stack switch fails).
-
-Thus this warning can be user triggred and has very little value.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20221103141351.50662-10-mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://github.com/thesofproject/linux/issues/3873
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20221031195836.250193-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/svm.c |   15 ---------------
- 1 file changed, 15 deletions(-)
+ sound/soc/intel/common/soc-acpi-intel-icl-match.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -317,12 +317,6 @@ int svm_set_efer(struct kvm_vcpu *vcpu,
- 	return 0;
- }
+diff --git a/sound/soc/intel/common/soc-acpi-intel-icl-match.c b/sound/soc/intel/common/soc-acpi-intel-icl-match.c
+index b032bc07de8b..d0062f2cd256 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-icl-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-icl-match.c
+@@ -10,6 +10,11 @@
+ #include <sound/soc-acpi-intel-match.h>
+ #include "../skylake/skl.h"
  
--static int is_external_interrupt(u32 info)
--{
--	info &= SVM_EVTINJ_TYPE_MASK | SVM_EVTINJ_VALID;
--	return info == (SVM_EVTINJ_VALID | SVM_EVTINJ_TYPE_INTR);
--}
--
- static u32 svm_get_interrupt_shadow(struct kvm_vcpu *vcpu)
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
-@@ -3360,15 +3354,6 @@ static int handle_exit(struct kvm_vcpu *
- 		return 0;
- 	}
- 
--	if (is_external_interrupt(svm->vmcb->control.exit_int_info) &&
--	    exit_code != SVM_EXIT_EXCP_BASE + PF_VECTOR &&
--	    exit_code != SVM_EXIT_NPF && exit_code != SVM_EXIT_TASK_SWITCH &&
--	    exit_code != SVM_EXIT_INTR && exit_code != SVM_EXIT_NMI)
--		printk(KERN_ERR "%s: unexpected exit_int_info 0x%x "
--		       "exit_code 0x%x\n",
--		       __func__, svm->vmcb->control.exit_int_info,
--		       exit_code);
--
- 	if (exit_fastpath != EXIT_FASTPATH_NONE)
- 		return 1;
- 
++static const struct snd_soc_acpi_codecs essx_83x6 = {
++	.num_codecs = 3,
++	.codecs = { "ESSX8316", "ESSX8326", "ESSX8336"},
++};
++
+ static struct skl_machine_pdata icl_pdata = {
+ 	.use_tplg_pcm = true,
+ };
+@@ -27,6 +32,14 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_icl_machines[] = {
+ 		.drv_name = "sof_rt5682",
+ 		.sof_tplg_filename = "sof-icl-rt5682.tplg",
+ 	},
++	{
++		.comp_ids = &essx_83x6,
++		.drv_name = "sof-essx8336",
++		.sof_tplg_filename = "sof-icl-es8336", /* the tplg suffix is added at run time */
++		.tplg_quirk_mask = SND_SOC_ACPI_TPLG_INTEL_SSP_NUMBER |
++					SND_SOC_ACPI_TPLG_INTEL_SSP_MSB |
++					SND_SOC_ACPI_TPLG_INTEL_DMIC_NUMBER,
++	},
+ 	{},
+ };
+ EXPORT_SYMBOL_GPL(snd_soc_acpi_intel_icl_machines);
+-- 
+2.35.1
+
 
 
