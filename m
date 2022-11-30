@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A11EC63D579
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:22:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D36B63D57C
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:23:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230144AbiK3MW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 07:22:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37644 "EHLO
+        id S233516AbiK3MXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 07:23:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233986AbiK3MWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:22:41 -0500
+        with ESMTP id S229644AbiK3MWt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:22:49 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 979712613
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:22:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FCBD6592
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:22:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47104B81B2F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:22:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B08D4C433C1;
-        Wed, 30 Nov 2022 12:22:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11829B81B31
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:22:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BF07C433D6;
+        Wed, 30 Nov 2022 12:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669810956;
-        bh=yEm+IapcngranccYw5xJDNzUsj8ldcOwatDn977UkaI=;
+        s=korg; t=1669810961;
+        bh=qa7EbeAvTIljbCsRdolXgHA0L2/73riYMchoVzJnAds=;
         h=Subject:To:Cc:From:Date:From;
-        b=e9uuMT8BaejEklVN/JFL7UJK0vzIJe+t+G2Fs47Jwi9NHuojJcwpzk0qQB4z9hhQW
-         RkT3ZmGUHuH5SKKyseMCB8M8J4pHAzADnYEm8AKfp2ZkFDvKjGCeWFxTRQfbJrp6Lw
-         h/wbvrIu0oEZup7aj1TZB8mVdXUOM3387MCx8ALE=
-Subject: FAILED: patch "[PATCH] KVM: x86: nSVM: leave nested mode on vCPU free" failed to apply to 4.9-stable tree
+        b=a0HA3a+4PrKg6C2vgHmhThKna2fjufH7H7yPBMADhfPvrs0ST+VkFIA0qNg2bwdsl
+         B6hkscq0i2SeNLEaIcNTOR21n/p6cz2BsMJKh5E5K33UkbXRnQXLXtgfeBFA0BqT6n
+         k91koPHjzETPeaAY06x6uYNbUV6SkluDdG7vOSDc=
+Subject: FAILED: patch "[PATCH] KVM: x86: add kvm_leave_nested" failed to apply to 5.10-stable tree
 To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Nov 2022 13:22:13 +0100
-Message-ID: <16698109334394@kroah.com>
+Date:   Wed, 30 Nov 2022 13:22:35 +0100
+Message-ID: <166981095549107@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,28 +47,31 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-917401f26a6a ("KVM: x86: nSVM: leave nested mode on vCPU free")
-2fcf4876ada8 ("KVM: nSVM: implement on demand allocation of the nested state")
-72f211ecaa80 ("KVM: x86: allow kvm_x86_ops.set_efer to return an error value")
-fd6fa73d1337 ("KVM: x86: SVM: Prevent MSR passthrough when MSR access is denied")
-476c9bd8e997 ("KVM: x86: Prepare MSR bitmaps for userspace tracked MSRs")
-d85a8034c016 ("KVM: VMX: Rename "find_msr_entry" to "vmx_find_uret_msr"")
-eb3db1b13788 ("KVM: VMX: Rename the "shared_msr_entry" struct to "vmx_uret_msr"")
-ce833b2324ba ("KVM: VMX: Prepend "MAX_" to MSR array size defines")
-7e34fbd05c63 ("KVM: x86: Rename "shared_msrs" to "user_return_msrs"")
-8d22b90e942c ("KVM: SVM: refactor exit labels in svm_create_vcpu")
-0681de1b8369 ("KVM: SVM: use __GFP_ZERO instead of clear_page")
-f4c847a95654 ("KVM: SVM: refactor msr permission bitmap allocation")
-0dd16b5b0c9b ("KVM: nSVM: rename nested vmcb to vmcb12")
-1feaba144cd3 ("KVM: SVM: rename a variable in the svm_create_vcpu")
-bf3c0e5e7102 ("Merge branch 'x86-seves-for-paolo' of https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip into HEAD")
+f9697df25143 ("KVM: x86: add kvm_leave_nested")
+7709aba8f716 ("KVM: x86: Morph pending exceptions to pending VM-Exits at queue time")
+28360f887068 ("KVM: x86: Evaluate ability to inject SMI/NMI/IRQ after potential VM-Exit")
+6c593b5276e6 ("KVM: x86: Hoist nested event checks above event injection logic")
+72c14e00bdc4 ("KVM: x86: Formalize blocking of nested pending exceptions")
+d4963e319f1f ("KVM: x86: Make kvm_queued_exception a properly named, visible struct")
+593a5c2e3c12 ("KVM: nVMX: Unconditionally clear mtf_pending on nested VM-Exit")
+5623f751bd9c ("KVM: x86: Treat #DBs from the emulator as fault-like (code and DR7.GD=1)")
+b9d44f9091ac ("KVM: nVMX: Prioritize TSS T-flag #DBs over Monitor Trap Flag")
+8d178f460772 ("KVM: nVMX: Treat General Detect #DB (DR7.GD=1) as fault-like")
+eba9799b5a6e ("KVM: VMX: Drop bits 31:16 when shoving exception error code into VMCS")
+2d61391270a3 ("KVM: x86: Differentiate Soft vs. Hard IRQs vs. reinjected in tracepoint")
+a61d7c5432ac ("KVM: x86: Trace re-injected exceptions")
+6ef88d6e36c2 ("KVM: SVM: Re-inject INT3/INTO instead of retrying the instruction")
+3741aec4c38f ("KVM: SVM: Stuff next_rip on emulated INT3 injection if NRIPS is supported")
+cd9e6da8048c ("KVM: SVM: Unwind "speculative" RIP advancement if INTn injection "fails"")
+00f08d99dd7d ("KVM: nSVM: Sync next_rip field from vmcb12 to vmcb02")
+b699da3dc279 ("Merge tag 'kvm-riscv-5.19-1' of https://github.com/kvm-riscv/linux into HEAD")
 
 thanks,
 
@@ -76,31 +79,71 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 917401f26a6af5756d89b550a8e1bd50cf42b07e Mon Sep 17 00:00:00 2001
+From f9697df251438b0798780900e8b43bdb12a56d64 Mon Sep 17 00:00:00 2001
 From: Maxim Levitsky <mlevitsk@redhat.com>
-Date: Thu, 3 Nov 2022 16:13:43 +0200
-Subject: [PATCH] KVM: x86: nSVM: leave nested mode on vCPU free
+Date: Thu, 3 Nov 2022 16:13:45 +0200
+Subject: [PATCH] KVM: x86: add kvm_leave_nested
 
-If the VM was terminated while nested, we free the nested state
-while the vCPU still is in nested mode.
-
-Soon a warning will be added for this condition.
+add kvm_leave_nested which wraps a call to nested_ops->leave_nested
+into a function.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20221103141351.50662-2-mlevitsk@redhat.com>
+Message-Id: <20221103141351.50662-4-mlevitsk@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 9f88c8e6766e..098f04bec8ef 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -1438,6 +1438,7 @@ static void svm_vcpu_free(struct kvm_vcpu *vcpu)
- 	 */
- 	svm_clear_current_vmcb(svm->vmcb);
+diff --git a/arch/x86/kvm/svm/nested.c b/arch/x86/kvm/svm/nested.c
+index b02a3a1792f1..7354f0035a69 100644
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -1146,9 +1146,6 @@ void svm_free_nested(struct vcpu_svm *svm)
+ 	svm->nested.initialized = false;
+ }
  
-+	svm_leave_nested(vcpu);
- 	svm_free_nested(svm);
+-/*
+- * Forcibly leave nested mode in order to be able to reset the VCPU later on.
+- */
+ void svm_leave_nested(struct kvm_vcpu *vcpu)
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 0c62352dda6a..f7333b9cdfbc 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -6440,9 +6440,6 @@ static int vmx_get_nested_state(struct kvm_vcpu *vcpu,
+ 	return kvm_state.size;
+ }
  
- 	sev_free_vcpu(vcpu);
+-/*
+- * Forcibly leave nested mode in order to be able to reset the VCPU later on.
+- */
+ void vmx_leave_nested(struct kvm_vcpu *vcpu)
+ {
+ 	if (is_guest_mode(vcpu)) {
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index ecea83f0da49..ff5be7189237 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -628,6 +628,12 @@ static void kvm_queue_exception_vmexit(struct kvm_vcpu *vcpu, unsigned int vecto
+ 	ex->payload = payload;
+ }
+ 
++/* Forcibly leave the nested mode in cases like a vCPU reset */
++static void kvm_leave_nested(struct kvm_vcpu *vcpu)
++{
++	kvm_x86_ops.nested_ops->leave_nested(vcpu);
++}
++
+ static void kvm_multiple_exception(struct kvm_vcpu *vcpu,
+ 		unsigned nr, bool has_error, u32 error_code,
+ 	        bool has_payload, unsigned long payload, bool reinject)
+@@ -5195,7 +5201,7 @@ static int kvm_vcpu_ioctl_x86_set_vcpu_events(struct kvm_vcpu *vcpu,
+ 
+ 	if (events->flags & KVM_VCPUEVENT_VALID_SMM) {
+ 		if (!!(vcpu->arch.hflags & HF_SMM_MASK) != events->smi.smm) {
+-			kvm_x86_ops.nested_ops->leave_nested(vcpu);
++			kvm_leave_nested(vcpu);
+ 			kvm_smm_changed(vcpu, events->smi.smm);
+ 		}
+ 
 
