@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4555563D580
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:23:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E3A63D582
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:23:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230342AbiK3MXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 07:23:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39242 "EHLO
+        id S233453AbiK3MXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 07:23:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231285AbiK3MXQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:23:16 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AC7E2AE17
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:23:15 -0800 (PST)
+        with ESMTP id S234496AbiK3MXY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:23:24 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2FBC2B618
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:23:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 855C6CE18D1
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:23:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6115DC433D6;
-        Wed, 30 Nov 2022 12:23:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0E34ECE18D1
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0799C433D6;
+        Wed, 30 Nov 2022 12:23:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669810991;
-        bh=6lX3QfLJHeL9Mytz6/Gs6jq72CqgAPvzTfdEwp2JB7Y=;
+        s=korg; t=1669811000;
+        bh=+Q0410y8NUelgYGM8gz5sodRkf3fXCtTvHQZo7DnTgY=;
         h=Subject:To:Cc:From:Date:From;
-        b=Umvq78Cm8HORDHyTkQLvNPnxTZNsChK7wmsIu4K0eyJm3aJN9E2MOZmuIN2RX7QZJ
-         tjQti/O/JRcph66xFrZAuAr/W02UDzXodea+PQbyZneTz0v0hqQY3u11hf/Xx0MXwx
-         SEoSij9cAwkQ+Y56OMb6XmINp+IXJZzq5RPivCSI=
-Subject: FAILED: patch "[PATCH] KVM: x86: remove exit_int_info warning in svm_handle_exit" failed to apply to 5.4-stable tree
+        b=O3to/hT9680UPY9ITOg7C8bzqk992BLWGyLf/typ+mVwEqUbhsDBdYnNDw4uvsDYt
+         mX+WFT7bTxFYNvy3++MusEUkVmWaVZyDyT43h061zw+wCa4oz+Ecd+4N6WOalR91L2
+         De80FuIzj9qfON1epq2J0PxnczxvEAydHjwaTkxI=
+Subject: FAILED: patch "[PATCH] KVM: x86: remove exit_int_info warning in svm_handle_exit" failed to apply to 4.19-stable tree
 To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 30 Nov 2022 13:23:09 +0100
-Message-ID: <1669810989123213@kroah.com>
+Message-ID: <1669810989156166@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
