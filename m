@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8472163DE5D
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:36:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5537F63DF83
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230392AbiK3SgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:36:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42948 "EHLO
+        id S231317AbiK3Sry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:47:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230273AbiK3SgG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:36:06 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47C77920A7
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:36:05 -0800 (PST)
+        with ESMTP id S231363AbiK3Srv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6209C6172
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 93AE1CE1AD4
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:36:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C783C433C1;
-        Wed, 30 Nov 2022 18:36:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F23C161D70
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:47:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08CD3C433D7;
+        Wed, 30 Nov 2022 18:47:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833361;
-        bh=gGLteT8K6TxzFC9zMhFubn3DVHcCYF7LsJcYHZfDbXY=;
+        s=korg; t=1669834069;
+        bh=I1rJnkTUb/sNAbOH8+zMk8Xhf/dUN1XPGyNvueiIeik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGMvutTEnq4K7EnpeQDyDsnTnty0t9bnWcLOfXYZuizFgBvzkvn7WZMfgM5ageRjC
-         wAAre+9aMRuTVPgdvp5LreG3cXknKC9O/YbKy82UzgpOmttgCsPhpDzN5p8Mxh2wUh
-         hnDTbk4QSpDCK1ME5Y3Pg8is9nQ8Fs49j0AKnHeE=
+        b=vOV0yw3f8xL16GzhrXt58Ax0U7DdMFF+E+3R9RPckTnTi9GJg0G/wGuWQWxRARRHZ
+         apGlvDe7LSsG5Lgr1lMXujy8Bo6xU/5W0l+JfhCpIRl9PDbDG7g0ctuIfjIGyCb5WJ
+         yySU7z//dakwWmRKR5F0PCExSZlPc9OMuDFMOfgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Asher Song <Asher.Song@amd.com>,
-        Guchun Chen <guchun.chen@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 051/206] Revert "drm/amdgpu: Revert "drm/amdgpu: getting fan speed pwm for vega10 properly""
+Subject: [PATCH 6.0 118/289] xfrm: Fix ignored return value in xfrm6_init()
 Date:   Wed, 30 Nov 2022 19:21:43 +0100
-Message-Id: <20221130180534.297591027@linuxfoundation.org>
+Message-Id: <20221130180546.815257342@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Asher Song <Asher.Song@amd.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 30b8e7b8ee3be003e0df85c857c5cd0e0bd58b82 ]
+[ Upstream commit 40781bfb836eda57d19c0baa37c7e72590e05fdc ]
 
-This reverts commit 4545ae2ed3f2f7c3f615a53399c9c8460ee5bca7.
+When IPv6 module initializing in xfrm6_init(), register_pernet_subsys()
+is possible to fail but its return value is ignored.
 
-The origin patch "drm/amdgpu: getting fan speed pwm for vega10 properly" works fine.
-Test failure is caused by test case self.
+If IPv6 initialization fails later and xfrm6_fini() is called,
+removing uninitialized list in xfrm6_net_ops will cause null-ptr-deref:
 
-Signed-off-by: Asher Song <Asher.Song@amd.com>
-Reviewed-by: Guchun Chen <guchun.chen@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 1 PID: 330 Comm: insmod
+RIP: 0010:unregister_pernet_operations+0xc9/0x450
+Call Trace:
+ <TASK>
+ unregister_pernet_subsys+0x31/0x3e
+ xfrm6_fini+0x16/0x30 [ipv6]
+ ip6_route_init+0xcd/0x128 [ipv6]
+ inet6_init+0x29c/0x602 [ipv6]
+ ...
+
+Fix it by catching the error return value of register_pernet_subsys().
+
+Fixes: 8d068875caca ("xfrm: make gc_thresh configurable in all namespaces")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../amd/pm/powerplay/hwmgr/vega10_thermal.c   | 25 +++++++++----------
- 1 file changed, 12 insertions(+), 13 deletions(-)
+ net/ipv6/xfrm6_policy.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_thermal.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_thermal.c
-index dad3e3741a4e..190af79f3236 100644
---- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_thermal.c
-+++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_thermal.c
-@@ -67,22 +67,21 @@ int vega10_fan_ctrl_get_fan_speed_info(struct pp_hwmgr *hwmgr,
- int vega10_fan_ctrl_get_fan_speed_pwm(struct pp_hwmgr *hwmgr,
- 		uint32_t *speed)
- {
--	uint32_t current_rpm;
--	uint32_t percent = 0;
--
--	if (hwmgr->thermal_controller.fanInfo.bNoFan)
--		return 0;
-+	struct amdgpu_device *adev = hwmgr->adev;
-+	uint32_t duty100, duty;
-+	uint64_t tmp64;
+diff --git a/net/ipv6/xfrm6_policy.c b/net/ipv6/xfrm6_policy.c
+index 4a4b0e49ec92..ea435eba3053 100644
+--- a/net/ipv6/xfrm6_policy.c
++++ b/net/ipv6/xfrm6_policy.c
+@@ -287,9 +287,13 @@ int __init xfrm6_init(void)
+ 	if (ret)
+ 		goto out_state;
  
--	if (vega10_get_current_rpm(hwmgr, &current_rpm))
--		return -1;
-+	duty100 = REG_GET_FIELD(RREG32_SOC15(THM, 0, mmCG_FDO_CTRL1),
-+				CG_FDO_CTRL1, FMAX_DUTY100);
-+	duty = REG_GET_FIELD(RREG32_SOC15(THM, 0, mmCG_THERMAL_STATUS),
-+				CG_THERMAL_STATUS, FDO_PWM_DUTY);
- 
--	if (hwmgr->thermal_controller.
--			advanceFanControlParameters.usMaxFanRPM != 0)
--		percent = current_rpm * 255 /
--			hwmgr->thermal_controller.
--			advanceFanControlParameters.usMaxFanRPM;
-+	if (!duty100)
-+		return -EINVAL;
- 
--	*speed = MIN(percent, 255);
-+	tmp64 = (uint64_t)duty * 255;
-+	do_div(tmp64, duty100);
-+	*speed = MIN((uint32_t)tmp64, 255);
- 
- 	return 0;
- }
+-	register_pernet_subsys(&xfrm6_net_ops);
++	ret = register_pernet_subsys(&xfrm6_net_ops);
++	if (ret)
++		goto out_protocol;
+ out:
+ 	return ret;
++out_protocol:
++	xfrm6_protocol_fini();
+ out_state:
+ 	xfrm6_state_fini();
+ out_policy:
 -- 
 2.35.1
 
