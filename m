@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6513563DD95
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:28:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B454E63DE8B
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:38:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229640AbiK3S2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:28:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34348 "EHLO
+        id S230499AbiK3SiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:38:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229706AbiK3S2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:28:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF6413D35
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:28:44 -0800 (PST)
+        with ESMTP id S231131AbiK3Sh6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:37:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B26E323175
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:37:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2F1CB81C9A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:28:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2629DC433C1;
-        Wed, 30 Nov 2022 18:28:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5044661D74
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:37:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64768C433D6;
+        Wed, 30 Nov 2022 18:37:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832921;
-        bh=KQCY3Is2onlKwYsNc3RXt1t2Y5VaEazYTKXHL7TbxNs=;
+        s=korg; t=1669833469;
+        bh=Vl+l30PNm7DGAvMfDdo/f6LIv20ZQSLQ2bzBnUgKRR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3Haz+aWD1pRtc+bIYYLddPdofc8PSF1QpAiyF2cVd42sE+SuqWMDgXBwl5dSQ/VS
-         mIFDMzPG+lj22qUAx+VfbMUj5A7TVjoEKq8WyIV+98tHpb1IBg7jcrJXRA8BNOs2M9
-         Lyf/REUyM8Is5AaB6h9nbRe62y5Kh9uwsOMImImw=
+        b=cLOvqMVauLsHXWk+8A7/Wqa+QSQ75gNd+So5R2fA4Q6nyTe6H825DWxaCGchbPC3g
+         xzhXVM51NGy3w/s1Or5hqrE3rbORP85iu67V+0UDAles5jsx+kEyAgP4WvcfNaxX7n
+         r3/nxBHv6LQJ+Mb+yg6+KbbkJXVM4fnhhVKL9/sY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        patches@lists.linux.dev, Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 088/162] s390/crashdump: fix TOD programmable field size
+Subject: [PATCH 5.15 117/206] netfilter: ipset: restore allowing 64 clashing elements in hash:net,iface
 Date:   Wed, 30 Nov 2022 19:22:49 +0100
-Message-Id: <20221130180530.883520190@linuxfoundation.org>
+Message-Id: <20221130180536.020980920@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Jozsef Kadlecsik <kadlec@netfilter.org>
 
-[ Upstream commit f44e07a8afdd713ddc1a8832c39372fe5dd86895 ]
+[ Upstream commit 6a66ce44a51bdfc47721f0c591137df2d4b21247 ]
 
-The size of the TOD programmable field was incorrectly increased from
-four to eight bytes with commit 1a2c5840acf9 ("s390/dump: cleanup CPU
-save area handling").
-This leads to an elf notes section NT_S390_TODPREG which has a size of
-eight instead of four bytes in case of kdump, however even worse is
-that the contents is incorrect: it is supposed to contain only the
-contents of the TOD programmable field, but in fact contains a mix of
-the TOD programmable field (32 bit upper bits) and parts of the CPU
-timer register (lower 32 bits).
+The commit 510841da1fcc ("netfilter: ipset: enforce documented limit to
+prevent allocating huge memory") was too strict and prevented to add up to
+64 clashing elements to a hash:net,iface type of set. This patch fixes the
+issue and now the type behaves as documented.
 
-Fix this by simply changing the size of the todpreg field within the
-save area structure. This will implicitly also fix the size of the
-corresponding elf notes sections.
-
-This also gets rid of this compile time warning:
-
-in function ‘fortify_memcpy_chk’,
-    inlined from ‘save_area_add_regs’ at arch/s390/kernel/crash_dump.c:99:2:
-./include/linux/fortify-string.h:413:25: error: call to ‘__read_overflow2_field’
-   declared with attribute warning: detected read beyond size of field
-   (2nd parameter); maybe use struct_group()? [-Werror=attribute-warning]
-  413 |                         __read_overflow2_field(q_size_field, size);
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Fixes: 1a2c5840acf9 ("s390/dump: cleanup CPU save area handling")
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Fixes: 510841da1fcc ("netfilter: ipset: enforce documented limit to prevent allocating huge memory")
+Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/crash_dump.c | 2 +-
+ net/netfilter/ipset/ip_set_hash_gen.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index 76762dc67ca9..f292c3e10671 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -44,7 +44,7 @@ struct save_area {
- 	u64 fprs[16];
- 	u32 fpc;
- 	u32 prefix;
--	u64 todpreg;
-+	u32 todpreg;
- 	u64 timer;
- 	u64 todcmp;
- 	u64 vxrs_low[16];
+diff --git a/net/netfilter/ipset/ip_set_hash_gen.h b/net/netfilter/ipset/ip_set_hash_gen.h
+index 3adc291d9ce1..7499192af586 100644
+--- a/net/netfilter/ipset/ip_set_hash_gen.h
++++ b/net/netfilter/ipset/ip_set_hash_gen.h
+@@ -916,7 +916,7 @@ mtype_add(struct ip_set *set, void *value, const struct ip_set_ext *ext,
+ #ifdef IP_SET_HASH_WITH_MULTI
+ 		if (h->bucketsize >= AHASH_MAX_TUNED)
+ 			goto set_full;
+-		else if (h->bucketsize < multi)
++		else if (h->bucketsize <= multi)
+ 			h->bucketsize += AHASH_INIT_SIZE;
+ #endif
+ 		if (n->size >= AHASH_MAX(h)) {
 -- 
 2.35.1
 
