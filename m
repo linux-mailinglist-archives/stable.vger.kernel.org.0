@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB5DE63DE56
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:36:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D46E63DD80
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:28:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230480AbiK3SgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:36:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45078 "EHLO
+        id S229677AbiK3S2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:28:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230487AbiK3Sfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3249297035
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:50 -0800 (PST)
+        with ESMTP id S229499AbiK3S14 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:27:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58CC02036E
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:27:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B375AB81C9A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195DBC433C1;
-        Wed, 30 Nov 2022 18:35:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15D09B81B41
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:27:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CE5C433C1;
+        Wed, 30 Nov 2022 18:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833347;
-        bh=zflspKWmlBpyLDA94rrcWwVlq5dyaHkawg3eEQuXKek=;
+        s=korg; t=1669832872;
+        bh=PdjsyfUFFISR63Czh+HBKeA4N1fXE8yF7fnwmozk7YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AZZuPtS5jKcJtbPFj+r9DyTlFSgVXN+Nzv54VWLIVh3jRcG9Oi1FPCbQ7g1LEeTQg
-         b9sglq/U5dZkG39jPjILYRsOXQ+/8YoAELk1DIYzdGL8ySuTMCQ6KKnZgzfhsYQt0G
-         aZtJxlckaL9BfAin1eET4s6Kj/869ioNqPOkPAqI=
+        b=AvE08W1lYju0aWfcxYQoCmVmevx2sE6Ii6PCt4bGdL8fT8VwdP7gguvVVsw7sOr1B
+         qDO1BU0C0ZDNc2GPm++bcy7JErowjbu0d6qcphI0q8MJPR/GWkCK/SVjclo8EcMLhK
+         8plwTxPHDt8fjTYMT48a/E7fa9dGDPREE5W8z0FA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 073/206] selftests: mptcp: fix mibit vs mbit mix up
+Subject: [PATCH 5.10 044/162] tee: optee: fix possible memory leak in optee_register_device()
 Date:   Wed, 30 Nov 2022 19:22:05 +0100
-Message-Id: <20221130180534.853345873@linuxfoundation.org>
+Message-Id: <20221130180529.701251181@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthieu Baerts <matthieu.baerts@tessares.net>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 3de88b95c4d436d78afc0266a0bed76c35ddeb62 ]
+[ Upstream commit cce616e012c215d65c15e5d1afa73182dea49389 ]
 
-The estimated time was supposing the rate was expressed in mibit
-(bit * 1024^2) but it is in mbit (bit * 1000^2).
+If device_register() returns error in optee_register_device(),
+the name allocated by dev_set_name() need be freed. As comment
+of device_register() says, it should use put_device() to give
+up the reference in the error path. So fix this by calling
+put_device(), then the name can be freed in kobject_cleanup(),
+and optee_device is freed in optee_release_device().
 
-This makes the threshold higher but in a more realistic way to avoid
-false positives reported by CI instances.
-
-Before this patch, the thresholds were at 7561/4005ms and now they are
-at 7906/4178ms.
-
-While at it, also fix a typo in the linked comment, spotted by Mat.
-
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/310
-Fixes: 1a418cb8e888 ("mptcp: simult flow self-tests")
-Suggested-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: c3fa24af9244 ("tee: optee: add TEE bus device enumeration support")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/mptcp/simult_flows.sh | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/tee/optee/device.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/mptcp/simult_flows.sh b/tools/testing/selftests/net/mptcp/simult_flows.sh
-index f441ff7904fc..7df4900dfaf7 100755
---- a/tools/testing/selftests/net/mptcp/simult_flows.sh
-+++ b/tools/testing/selftests/net/mptcp/simult_flows.sh
-@@ -235,9 +235,10 @@ run_test()
- 	tc -n $ns2 qdisc add dev ns2eth1 root netem rate ${rate1}mbit $delay1
- 	tc -n $ns2 qdisc add dev ns2eth2 root netem rate ${rate2}mbit $delay2
+diff --git a/drivers/tee/optee/device.c b/drivers/tee/optee/device.c
+index 031806468af4..60ffc54da003 100644
+--- a/drivers/tee/optee/device.c
++++ b/drivers/tee/optee/device.c
+@@ -80,7 +80,7 @@ static int optee_register_device(const uuid_t *device_uuid)
+ 	rc = device_register(&optee_device->dev);
+ 	if (rc) {
+ 		pr_err("device registration failed, err: %d\n", rc);
+-		kfree(optee_device);
++		put_device(&optee_device->dev);
+ 	}
  
--	# time is measured in ms, account for transfer size, affegated link speed
-+	# time is measured in ms, account for transfer size, aggregated link speed
- 	# and header overhead (10%)
--	local time=$((size * 8 * 1000 * 10 / (( $rate1 + $rate2) * 1024 *1024 * 9) ))
-+	#              ms    byte -> bit   10%        mbit      -> kbit -> bit  10%
-+	local time=$((1000 * size  *  8  * 10 / ((rate1 + rate2) * 1000 * 1000 * 9) ))
- 
- 	# mptcp_connect will do some sleeps to allow the mp_join handshake
- 	# completion (see mptcp_connect): 200ms on each side, add some slack
+ 	return rc;
 -- 
 2.35.1
 
