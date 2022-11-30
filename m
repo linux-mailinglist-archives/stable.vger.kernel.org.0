@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F5763DFB8
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:50:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DA5863DE6E
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:37:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231489AbiK3SuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:50:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37288 "EHLO
+        id S230368AbiK3ShB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:37:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231510AbiK3Stt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:49:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE939D83F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:49:48 -0800 (PST)
+        with ESMTP id S229810AbiK3Sgp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:36:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B2094922
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:36:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA650B81CA6
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:49:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 467A6C433D6;
-        Wed, 30 Nov 2022 18:49:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DFE9B81B82
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:36:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90946C433C1;
+        Wed, 30 Nov 2022 18:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834185;
-        bh=p/rAjpmOlj9tJa77i7Zf+Z4w8YNudZxzO6bEtdWem9s=;
+        s=korg; t=1669833401;
+        bh=RdMKuR59+cfjW3qoX1f8MVBOm3AMjcmS5SfvyHPiHmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GwuvVKZS7pGmGpMNenz1gtIaza3LihhwS8g55z30nTGKAITx8plLLywKLK7py8ef9
-         dhacW5NPlUvkSgIAkJCahcc7GRBuVPMeqfG+l4pKnTlqOq9kISUq6q1LrdYM7trLl1
-         PppsEL1usHrSJN5ihOUu93oMrTkPD0u61syf+yYo=
+        b=tlXP16B2ZsxXbKkmAFwpJ6B7JN5Bqajt+KZjmeb3RbKdgv1Q58Jl2EcbwWYSTFZO4
+         Y7Rj5fqayk99yzTtqiZhvBdSDIKWoloiAtdrsFnEWQpdu7SMTseByhn7l6ZwswwUVW
+         uhWSYZMecyMFrJ2PU0WIgm45lcJbSyiDoav5JBA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH 6.0 160/289] lib/vdso: use "grep -E" instead of "egrep"
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 093/206] octeontx2-af: debugsfs: fix pci device refcount leak
 Date:   Wed, 30 Nov 2022 19:22:25 +0100
-Message-Id: <20221130180547.761340822@linuxfoundation.org>
+Message-Id: <20221130180535.391875608@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 8ac3b5cd3e0521d92f9755e90d140382fc292510 upstream.
+[ Upstream commit d66608803aa2ffb9e475623343f69996305771ae ]
 
-The latest version of grep claims the egrep is now obsolete so the build
-now contains warnings that look like:
-	egrep: warning: egrep is obsolescent; using grep -E
-fix this up by moving the vdso Makefile to use "grep -E" instead.
+As comment of pci_get_domain_bus_and_slot() says, it returns
+a pci device with refcount increment, when finish using it,
+the caller must decrement the reference count by calling
+pci_dev_put().
 
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Link: https://lore.kernel.org/r/20220920170633.3133829-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So before returning from rvu_dbg_rvu_pf_cgx_map_display() or
+cgx_print_dmac_flt(), pci_dev_put() is called to avoid refcount
+leak.
+
+Fixes: dbc52debf95f ("octeontx2-af: Debugfs support for DMAC filters")
+Fixes: e2fb37303865 ("octeontx2-af: Display CGX, NIX and PF map in debugfs.")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221117124658.162409-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/vdso/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/lib/vdso/Makefile
-+++ b/lib/vdso/Makefile
-@@ -17,6 +17,6 @@ $(error ARCH_REL_TYPE_ABS is not set)
- endif
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+index f001579569a2..66d34699f160 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+@@ -441,6 +441,8 @@ static int rvu_dbg_rvu_pf_cgx_map_display(struct seq_file *filp, void *unused)
+ 		sprintf(lmac, "LMAC%d", lmac_id);
+ 		seq_printf(filp, "%s\t0x%x\t\tNIX%d\t\t%s\t%s\n",
+ 			   dev_name(&pdev->dev), pcifunc, blkid, cgx, lmac);
++
++		pci_dev_put(pdev);
+ 	}
+ 	return 0;
+ }
+@@ -2127,6 +2129,7 @@ static int cgx_print_dmac_flt(struct seq_file *s, int lmac_id)
+ 		}
+ 	}
  
- quiet_cmd_vdso_check = VDSOCHK $@
--      cmd_vdso_check = if $(OBJDUMP) -R $@ | egrep -h "$(ARCH_REL_TYPE_ABS)"; \
-+      cmd_vdso_check = if $(OBJDUMP) -R $@ | grep -E -h "$(ARCH_REL_TYPE_ABS)"; \
- 		       then (echo >&2 "$@: dynamic relocations are not supported"; \
- 			     rm -f $@; /bin/false); fi
++	pci_dev_put(pdev);
+ 	return 0;
+ }
+ 
+-- 
+2.35.1
+
 
 
