@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD91863DF4A
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:45:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92CF563DF4B
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:45:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231377AbiK3Spt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:45:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58150 "EHLO
+        id S231383AbiK3Spu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:45:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231379AbiK3Sp0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:45:26 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69D3599F19
+        with ESMTP id S231392AbiK3Sp2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:45:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE0DC9700B
         for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:45:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D3E6DCE1ADA
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:45:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFCF5C433D6;
-        Wed, 30 Nov 2022 18:45:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53ACE61D4F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:45:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66202C433D6;
+        Wed, 30 Nov 2022 18:45:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833922;
-        bh=LcRJCBzRfYXlWrWhoJO0wHULAN6RFz3slZCZUyEtTRU=;
+        s=korg; t=1669833924;
+        bh=KmkX2VovcmCMsJH2eGNzk3Wu9eMHG3Rq1VpV1QlWbwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aAri2ABpTFo+QTWNMbtmaybdJwel7unGDPuSMd5RPAsHPvToDdOIt/1gnGKpf465U
-         TvuX9QbSnsfi4e4Dcu9Gel1UMbKmuHDpT/AhNouRqYLR8sZfdJhq1kCNR+IOyzX0cU
-         Ndodl26JvWIqjk/+Sp/RVjsrBfY5zzmg2VjjRKIw=
+        b=rTwGQhkCuVXHFHE4ew5FIKoHLJHI+xiHaa7D70gi2UbN5ZMl/9s5LE5Jdh5Mz3ms6
+         rcSI7rLJ+d0xCey4vGXgQ+acgdGv6SmgiBySzkccoIU1/rCXnrP0YTBM4ZwvsEeu+M
+         mYyVKJzI9Aj9NuCayQ9BQ1EKuMFkaJTVbkchy+2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 064/289] spi: dw-dma: decrease reference count in dw_spi_dma_init_mfld()
-Date:   Wed, 30 Nov 2022 19:20:49 +0100
-Message-Id: <20221130180545.580661900@linuxfoundation.org>
+Subject: [PATCH 6.0 065/289] regulator: core: fix UAF in destroy_regulator()
+Date:   Wed, 30 Nov 2022 19:20:50 +0100
+Message-Id: <20221130180545.603091744@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -55,45 +53,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 804313b64e412a81b0b3389a10e7622452004aa6 ]
+[ Upstream commit 1f386d6894d0f1b7de8ef640c41622ddd698e7ab ]
 
-pci_get_device() will increase the reference count for the returned
-pci_dev. Since 'dma_dev' is only used to filter the channel in
-dw_spi_dma_chan_filer() after using it we need to call pci_dev_put() to
-decrease the reference count. Also add pci_dev_put() for the error case.
+I got a UAF report as following:
 
-Fixes: 7063c0d942a1 ("spi/dw_spi: add DMA support")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Acked-by: Serge Semin <fancer.lancer@gmail.com>
-Link: https://lore.kernel.org/r/20221116093204.46700-1-wangxiongfeng2@huawei.com
+==================================================================
+BUG: KASAN: use-after-free in __lock_acquire+0x935/0x2060
+Read of size 8 at addr ffff88810e838220 by task python3/268
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x67/0x83
+ print_report+0x178/0x4b0
+ kasan_report+0x90/0x190
+ __lock_acquire+0x935/0x2060
+ lock_acquire+0x156/0x400
+ _raw_spin_lock+0x2a/0x40
+ lockref_get+0x11/0x30
+ simple_recursive_removal+0x41/0x440
+ debugfs_remove.part.12+0x32/0x50
+ debugfs_remove+0x29/0x30
+ _regulator_put.cold.54+0x3e/0x27f
+ regulator_put+0x1f/0x30
+ release_nodes+0x6a/0xa0
+ devres_release_all+0xf8/0x150
+
+Allocated by task 37:
+ kasan_save_stack+0x1c/0x40
+ kasan_set_track+0x21/0x30
+ __kasan_slab_alloc+0x5d/0x70
+ slab_post_alloc_hook+0x62/0x510
+ kmem_cache_alloc_lru+0x222/0x5a0
+ __d_alloc+0x31/0x440
+ d_alloc+0x30/0xf0
+ d_alloc_parallel+0xc4/0xd20
+ __lookup_slow+0x15e/0x2f0
+ lookup_one_len+0x13a/0x150
+ start_creating+0xea/0x190
+ debugfs_create_dir+0x1e/0x210
+ create_regulator+0x254/0x4e0
+ _regulator_get+0x2a1/0x467
+ _devm_regulator_get+0x5a/0xb0
+ regulator_virtual_probe+0xb9/0x1a0
+
+Freed by task 30:
+ kasan_save_stack+0x1c/0x40
+ kasan_set_track+0x21/0x30
+ kasan_save_free_info+0x2a/0x50
+ __kasan_slab_free+0x102/0x190
+ kmem_cache_free+0xf6/0x600
+ rcu_core+0x54c/0x12b0
+ __do_softirq+0xf2/0x5e3
+
+Last potentially related work creation:
+ kasan_save_stack+0x1c/0x40
+ __kasan_record_aux_stack+0x98/0xb0
+ call_rcu+0x42/0x700
+ dentry_free+0x6c/0xd0
+ __dentry_kill+0x23b/0x2d0
+ dput.part.31+0x431/0x780
+ simple_recursive_removal+0xa9/0x440
+ debugfs_remove.part.12+0x32/0x50
+ debugfs_remove+0x29/0x30
+ regulator_unregister+0xe3/0x230
+ release_nodes+0x6a/0xa0
+
+==================================================================
+
+Here is how happened:
+
+processor A					processor B
+regulator_register()
+  rdev_init_debugfs()
+    rdev->debugfs = debugfs_create_dir()
+						devm_regulator_get()
+						  rdev = regulator_dev_lookup()
+						  create_regulator(rdev)
+						    // using rdev->debugfs as parent
+						    debugfs_create_dir(rdev->debugfs)
+
+mfd_remove_devices_fn()
+  release_nodes()
+    regulator_unregister()
+      // free rdev->debugfs
+      debugfs_remove_recursive(rdev->debugfs)
+						release_nodes()
+						  destroy_regulator()
+						    debugfs_remove_recursive() <- causes UAF
+
+In devm_regulator_get(), after getting rdev, the refcount
+is get, so fix this by moving debugfs_remove_recursive()
+to regulator_dev_release(), then it can be proctected by
+the refcount, the 'rdev->debugfs' can not be freed until
+the refcount is 0.
+
+Fixes: 5de705194e98 ("regulator: Add basic per consumer debugfs")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221116033706.3595812-1-yangyingliang@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw-dma.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/regulator/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-dw-dma.c b/drivers/spi/spi-dw-dma.c
-index 1322b8cce5b7..ababb910b391 100644
---- a/drivers/spi/spi-dw-dma.c
-+++ b/drivers/spi/spi-dw-dma.c
-@@ -128,12 +128,15 @@ static int dw_spi_dma_init_mfld(struct device *dev, struct dw_spi *dws)
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 5f82a996dbea..c0f368f1b49f 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -5138,6 +5138,7 @@ static void regulator_dev_release(struct device *dev)
+ {
+ 	struct regulator_dev *rdev = dev_get_drvdata(dev);
  
- 	dw_spi_dma_sg_burst_init(dws);
++	debugfs_remove_recursive(rdev->debugfs);
+ 	kfree(rdev->constraints);
+ 	of_node_put(rdev->dev.of_node);
+ 	kfree(rdev);
+@@ -5653,7 +5654,6 @@ void regulator_unregister(struct regulator_dev *rdev)
  
-+	pci_dev_put(dma_dev);
-+
- 	return 0;
+ 	mutex_lock(&regulator_list_mutex);
  
- free_rxchan:
- 	dma_release_channel(dws->rxchan);
- 	dws->rxchan = NULL;
- err_exit:
-+	pci_dev_put(dma_dev);
- 	return -EBUSY;
- }
- 
+-	debugfs_remove_recursive(rdev->debugfs);
+ 	WARN_ON(rdev->open_count);
+ 	regulator_remove_coupling(rdev);
+ 	unset_regulator_supplies(rdev);
 -- 
 2.35.1
 
