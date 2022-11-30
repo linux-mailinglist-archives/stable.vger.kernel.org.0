@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE2763DF81
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:47:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0EEC63DE04
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:33:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231308AbiK3Srv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:47:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33806 "EHLO
+        id S230218AbiK3SdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:33:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231317AbiK3Srr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:47:47 -0500
+        with ESMTP id S230186AbiK3Sc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:32:58 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9311A2C1
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:47:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FA9A23EAD
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:32:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4888BB81CA6
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:47:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC428C433D6;
-        Wed, 30 Nov 2022 18:47:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83E74B81B37
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:32:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E21E1C433B5;
+        Wed, 30 Nov 2022 18:32:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834064;
-        bh=ySM7WMAUi+iHkTm/tXD90O6rNr2qYnNWawf/pNYiTtc=;
+        s=korg; t=1669833167;
+        bh=373p602+sBVhWfewHbYRoY/QYfL6WsBYwAePe77wnv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v815capHdHqtLiMxagaCWC2Y+yNMDjBI40tE8aamRkZltCf/eoWXihItqV8TkVRez
-         cKM71rB41GeLFdaENr7BoC7mNEUbXENsl/O3IT33xEKjdaelz/qCb714xgPH5hhfHF
-         i5vCgpb5miXpRnHryqPsech5R4gZ3XJYnPLZO/3c=
+        b=OLDNMAK3CXzJB5da/TxF32lPpaafiv3mkY4H3odX9RPjdxX8+3pUMXGWiwKu/dXUc
+         5jc+E68Iobzsjp4Wu2K9PCjKGRSD0lev7kFAext4jaQ7M3jxEbf7XeRNpLbt/GSUip
+         vuSoGSoyN2kELsh4ASOtk5VQMgUGEN+/cBWPPrvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 078/289] net: dsa: sja1105: disallow C45 transactions on the BASE-TX MDIO bus
+Subject: [PATCH 5.15 011/206] cifs: Fix connections leak when tlink setup failed
 Date:   Wed, 30 Nov 2022 19:21:03 +0100
-Message-Id: <20221130180545.911253179@linuxfoundation.org>
+Message-Id: <20221130180533.282963317@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 24deec6b9e4a051635f75777844ffc184644fec9 ]
+[ Upstream commit 1dcdf5f5b2137185cbdd5385f29949ab3da4f00c ]
 
-You'd think people know that the internal 100BASE-TX PHY on the SJA1110
-responds only to clause 22 MDIO transactions, but they don't :)
+If the tlink setup failed, lost to put the connections, then
+the module refcnt leak since the cifsd kthread not exit.
 
-When a clause 45 transaction is attempted, sja1105_base_tx_mdio_read()
-and sja1105_base_tx_mdio_write() don't expect "reg" to contain bit 30
-set (MII_ADDR_C45) and pack this value into the SPI transaction buffer.
+Also leak the fscache info, and for next mount with fsc, it will
+print the follow errors:
+  CIFS: Cache volume key already in use (cifs,127.0.0.1:445,TEST)
 
-But the field in the SPI buffer has a width smaller than 30 bits, so we
-see this confusing message from the packing() API rather than a proper
-rejection of C45 transactions:
+Let's check the result of tlink setup, and do some cleanup.
 
-Call trace:
- dump_stack+0x1c/0x38
- sja1105_pack+0xbc/0xc0 [sja1105]
- sja1105_xfer+0x114/0x2b0 [sja1105]
- sja1105_xfer_u32+0x44/0xf4 [sja1105]
- sja1105_base_tx_mdio_read+0x44/0x7c [sja1105]
- mdiobus_read+0x44/0x80
- get_phy_c45_ids+0x70/0x234
- get_phy_device+0x68/0x15c
- fwnode_mdiobus_register_phy+0x74/0x240
- of_mdiobus_register+0x13c/0x380
- sja1105_mdiobus_register+0x368/0x490 [sja1105]
- sja1105_setup+0x94/0x119c [sja1105]
-Cannot store 401d2405 inside bits 24-4 (would truncate)
-
-Fixes: 5a8f09748ee7 ("net: dsa: sja1105: register the MDIO buses for 100base-T1 and 100base-TX")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 56c762eb9bee ("cifs: Refactor out cifs_mount()")
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/sja1105/sja1105_mdio.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/cifs/connect.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/dsa/sja1105/sja1105_mdio.c b/drivers/net/dsa/sja1105/sja1105_mdio.c
-index 215dd17ca790..4059fcc8c832 100644
---- a/drivers/net/dsa/sja1105/sja1105_mdio.c
-+++ b/drivers/net/dsa/sja1105/sja1105_mdio.c
-@@ -256,6 +256,9 @@ static int sja1105_base_tx_mdio_read(struct mii_bus *bus, int phy, int reg)
- 	u32 tmp;
- 	int rc;
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 902eb8a5afd2..839059b8a9c9 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3550,9 +3550,13 @@ int cifs_mount(struct cifs_sb_info *cifs_sb, struct smb3_fs_context *ctx)
+ 	uuid_copy(&cifs_sb->dfs_mount_id, &mnt_ctx.mount_id);
  
-+	if (reg & MII_ADDR_C45)
-+		return -EOPNOTSUPP;
+ out:
+-	free_xid(mnt_ctx.xid);
+ 	cifs_try_adding_channels(cifs_sb, mnt_ctx.ses);
+-	return mount_setup_tlink(cifs_sb, mnt_ctx.ses, mnt_ctx.tcon);
++	rc = mount_setup_tlink(cifs_sb, mnt_ctx.ses, mnt_ctx.tcon);
++	if (rc)
++		goto error;
 +
- 	rc = sja1105_xfer_u32(priv, SPI_READ, regs->mdio_100base_tx + reg,
- 			      &tmp, NULL);
- 	if (rc < 0)
-@@ -272,6 +275,9 @@ static int sja1105_base_tx_mdio_write(struct mii_bus *bus, int phy, int reg,
- 	const struct sja1105_regs *regs = priv->info->regs;
- 	u32 tmp = val;
++	free_xid(mnt_ctx.xid);
++	return rc;
  
-+	if (reg & MII_ADDR_C45)
-+		return -EOPNOTSUPP;
+ error:
+ 	dfs_cache_put_refsrv_sessions(&mnt_ctx.mount_id);
+@@ -3579,8 +3583,12 @@ int cifs_mount(struct cifs_sb_info *cifs_sb, struct smb3_fs_context *ctx)
+ 			goto error;
+ 	}
+ 
++	rc = mount_setup_tlink(cifs_sb, mnt_ctx.ses, mnt_ctx.tcon);
++	if (rc)
++		goto error;
 +
- 	return sja1105_xfer_u32(priv, SPI_WRITE, regs->mdio_100base_tx + reg,
- 				&tmp, NULL);
- }
+ 	free_xid(mnt_ctx.xid);
+-	return mount_setup_tlink(cifs_sb, mnt_ctx.ses, mnt_ctx.tcon);
++	return rc;
+ 
+ error:
+ 	mount_put_conns(&mnt_ctx);
 -- 
 2.35.1
 
