@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 740D763DE3F
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BD0963DD49
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:26:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230311AbiK3SfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:35:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41868 "EHLO
+        id S229642AbiK3S0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:26:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230365AbiK3SfC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD51A9208A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:01 -0800 (PST)
+        with ESMTP id S230226AbiK3SZ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2401127933
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:25:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B02461AFE
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69348C433C1;
-        Wed, 30 Nov 2022 18:35:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD3C8B81CA4
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:25:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36FE0C433C1;
+        Wed, 30 Nov 2022 18:25:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833300;
-        bh=FNLcCxLKPSv+7vCV2X6Cn4/ZN+mViG4o31A9b3kLhgs=;
+        s=korg; t=1669832756;
+        bh=G02EEvcYH5gnTW8yQ8yQBaC17QixYgFD0fZ0pWxC4Qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oK0DWWn+nCe9Q6JzqPSk6fAD5VtMK+ZDqNTwuWM5afeRp6VeXCA/PZT75Hs5DMbpx
-         fRfiS1tW5NcgHaD6/vjlVzfYQkBDT6MVBLkCmk5bb4kagbXPEOt4BmxPIt1Krb+ro5
-         V3M2pCW6Moz95/mKyaIow8pbzKhbr9TRcYtjW/uQ=
+        b=XKAPmMjQo+M2gOVbQZ3kD+9X7X5XiGJNdpIxDMqDXEIpKYQ99uQzjCOXTlLUEh7ZX
+         jhh9TO2rTxV7dZ1jXZTDgvMmDQ7PF/YMXA3wgj6/WY66SdWjfyLsDprihgb30X+eq0
+         hjfoX9CT7ncIcdNI5wmZ6X6ZtWo5fjPU1tfrXVk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dominik Haller <d.haller@phytec.de>,
-        Tony Lindgren <tony@atomide.com>,
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 058/206] ARM: dts: am335x-pcm-953: Define fixed regulators in root node
+Subject: [PATCH 5.10 029/162] arm64/syscall: Include asm/ptrace.h in syscall_wrapper header.
 Date:   Wed, 30 Nov 2022 19:21:50 +0100
-Message-Id: <20221130180534.479510964@linuxfoundation.org>
+Message-Id: <20221130180529.295072000@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Haller <d.haller@phytec.de>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 8950f345a67d8046d2472dd6ea81fa18ef5b4844 ]
+[ Upstream commit acfc35cfcee5df419391671ef1a631f43feee4e3 ]
 
-Remove the regulators node and define fixed regulators in the root node.
-Prevents the sdhci-omap driver from waiting in probe deferral forever
-because of the missing vmmc-supply and keeps am335x-pcm-953 consistent with
-the other Phytec AM335 boards.
+Add the same change for ARM64 as done in the commit 9440c4294160
+("x86/syscall: Include asm/ptrace.h in syscall_wrapper header") to
+make sure all syscalls see 'struct pt_regs' definition and resulted
+BTF for '__arm64_sys_*(struct pt_regs *regs)' functions point to
+actual struct.
 
-Fixes: bb07a829ec38 ("ARM: dts: Add support for phyCORE-AM335x PCM-953 carrier board")
-Signed-off-by: Dominik Haller <d.haller@phytec.de>
-Message-Id: <20221011143115.248003-1-d.haller@phytec.de>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Without this patch, the BPF verifier refuses to load a tracing prog
+which accesses pt_regs.
+
+  bpf(BPF_PROG_LOAD, {prog_type=0x1a, ...}, 128) = -1 EACCES
+
+With this patch, we can see the correct error, which saves us time
+in debugging the prog.
+
+  bpf(BPF_PROG_LOAD, {prog_type=0x1a, ...}, 128) = 4
+  bpf(BPF_RAW_TRACEPOINT_OPEN, {raw_tracepoint={name=NULL, prog_fd=4}}, 128) = -1 ENOTSUPP
+
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/r/20221031215728.50389-1-kuniyu@amazon.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am335x-pcm-953.dtsi | 28 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ arch/arm64/include/asm/syscall_wrapper.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/am335x-pcm-953.dtsi b/arch/arm/boot/dts/am335x-pcm-953.dtsi
-index 124026fa0d09..f207499461b3 100644
---- a/arch/arm/boot/dts/am335x-pcm-953.dtsi
-+++ b/arch/arm/boot/dts/am335x-pcm-953.dtsi
-@@ -12,22 +12,20 @@ / {
- 	compatible = "phytec,am335x-pcm-953", "phytec,am335x-phycore-som", "ti,am33xx";
+diff --git a/arch/arm64/include/asm/syscall_wrapper.h b/arch/arm64/include/asm/syscall_wrapper.h
+index b383b4802a7b..d30217c21eff 100644
+--- a/arch/arm64/include/asm/syscall_wrapper.h
++++ b/arch/arm64/include/asm/syscall_wrapper.h
+@@ -8,7 +8,7 @@
+ #ifndef __ASM_SYSCALL_WRAPPER_H
+ #define __ASM_SYSCALL_WRAPPER_H
  
- 	/* Power */
--	regulators {
--		vcc3v3: fixedregulator@1 {
--			compatible = "regulator-fixed";
--			regulator-name = "vcc3v3";
--			regulator-min-microvolt = <3300000>;
--			regulator-max-microvolt = <3300000>;
--			regulator-boot-on;
--		};
-+	vcc3v3: fixedregulator1 {
-+		compatible = "regulator-fixed";
-+		regulator-name = "vcc3v3";
-+		regulator-min-microvolt = <3300000>;
-+		regulator-max-microvolt = <3300000>;
-+		regulator-boot-on;
-+	};
+-struct pt_regs;
++#include <asm/ptrace.h>
  
--		vcc1v8: fixedregulator@2 {
--			compatible = "regulator-fixed";
--			regulator-name = "vcc1v8";
--			regulator-min-microvolt = <1800000>;
--			regulator-max-microvolt = <1800000>;
--			regulator-boot-on;
--		};
-+	vcc1v8: fixedregulator2 {
-+		compatible = "regulator-fixed";
-+		regulator-name = "vcc1v8";
-+		regulator-min-microvolt = <1800000>;
-+		regulator-max-microvolt = <1800000>;
-+		regulator-boot-on;
- 	};
- 
- 	/* User IO */
+ #define SC_ARM64_REGS_TO_ARGS(x, ...)				\
+ 	__MAP(x,__SC_ARGS					\
 -- 
 2.35.1
 
