@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0193E63E006
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:53:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DBDB63DEBC
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:40:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231544AbiK3SxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:53:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40258 "EHLO
+        id S231128AbiK3SkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:40:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231553AbiK3Swy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:52:54 -0500
+        with ESMTP id S231134AbiK3SkN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FC075595
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:52:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE12D97021
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B578D61D73
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:52:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0901C433C1;
-        Wed, 30 Nov 2022 18:52:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7830F61D61
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87424C433D7;
+        Wed, 30 Nov 2022 18:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834362;
-        bh=wwNQnLOKV3Su2JrpkBV2pkUxadD8MRYDCSxAHiGhqx4=;
+        s=korg; t=1669833611;
+        bh=/dbgTvWo33goEaOSymjCLg5CDw/PZfpG2fvpuDNfdpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YlXiIgMxHik97faPPEY8exuGyTIaflWtyEl0/27SiQJQeE0MPIWTev76qDic01l4+
-         VWeHwD8SI2gAKpWBw4vJ0hlJtLE9sjb0MpdAsPCHiNtSxzFBNBSF1iJ0L0+N0ofuZA
-         J+xyqKBQNut+m96IPyr6ulNebGywg/r5TiCDppQg=
+        b=IpC1J/cxwE3it8nbIQGZ6czoBJjcWRWyFPF+DDqUIkedUYo4xxHEq9q5p2iSJ1msR
+         xEV6mCvnTGx0O6ddoteKjA4QcVoXn1dcFbOpxc5Miw925Vw6e6VzjMJBmv3TcmV7Yc
+         tHzxnK8UC0zO+p9gzGDCRH/+6fhN0pksIYwCUHK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brent Mendelsohn <mendiebm@gmail.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 225/289] ASoC: amd: yc: Add Alienware m17 R5 AMD into DMI table
+        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 158/206] KVM: x86: nSVM: harden svm_free_nested against freeing vmcb02 while still in use
 Date:   Wed, 30 Nov 2022 19:23:30 +0100
-Message-Id: <20221130180549.216179012@linuxfoundation.org>
+Message-Id: <20221130180537.053175220@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brent Mendelsohn <mendiebm@gmail.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-[ Upstream commit d40b6529c6269cd5afddb1116a383cab9f126694 ]
+commit 16ae56d7e0528559bf8dc9070e3bfd8ba3de80df upstream.
 
-This model requires an additional detection quirk to enable the
-internal microphone - BIOS doesn't seem to support AcpDmicConnected
-(nothing in acpidump output).
+Make sure that KVM uses vmcb01 before freeing nested state, and warn if
+that is not the case.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216590
-Signed-off-by: Brent Mendelsohn <mendiebm@gmail.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://lore.kernel.org/r/20221024174227.4160-1-mendiebm@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is a minimal fix for CVE-2022-3344 making the kernel print a warning
+instead of a kernel panic.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20221103141351.50662-3-mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/amd/yc/acp6x-mach.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/kvm/svm/nested.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
-index 6c0f1de10429..d9715bea965e 100644
---- a/sound/soc/amd/yc/acp6x-mach.c
-+++ b/sound/soc/amd/yc/acp6x-mach.c
-@@ -206,6 +206,13 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "UM5302TA"),
- 		}
- 	},
-+	{
-+		.driver_data = &acp6x_card,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Alienware"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Alienware m17 R5 AMD"),
-+		}
-+	},
- 	{}
- };
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -919,6 +919,9 @@ void svm_free_nested(struct vcpu_svm *sv
+ 	if (!svm->nested.initialized)
+ 		return;
  
--- 
-2.35.1
-
++	if (WARN_ON_ONCE(svm->vmcb != svm->vmcb01.ptr))
++		svm_switch_vmcb(svm, &svm->vmcb01);
++
+ 	svm_vcpu_free_msrpm(svm->nested.msrpm);
+ 	svm->nested.msrpm = NULL;
+ 
 
 
