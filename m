@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA97F63DD91
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:28:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1495363DFD1
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:50:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229675AbiK3S2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:28:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34080 "EHLO
+        id S231445AbiK3Suw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:50:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbiK3S2d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:28:33 -0500
+        with ESMTP id S231486AbiK3Sul (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:50:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A07508B1B9
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:28:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B699D839
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:50:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 548E0B81C9A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:28:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6AA0C433C1;
-        Wed, 30 Nov 2022 18:28:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C56EB81C9F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:50:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D08C433C1;
+        Wed, 30 Nov 2022 18:50:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832910;
-        bh=sxnnJLIiZ8jwbvZfagUCDnSXi1a6/s1fGy/enlusS5E=;
+        s=korg; t=1669834237;
+        bh=yFqVmtyF1pBSKDJccdOVN1CzDLQTWzm5XEMtqdUhcdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=roLOB7Lbpm1291e02qLh46FzxFM8gXCXHzDvyF0u9l0f/w/P8CB6Y+V/USfOSbm9S
-         rBL0rUoZW9cPPIpc5egFuGpgGu7cz0EanvmGyFhK6iuABmzATZJVwy+7HZ8Q+ZoUCF
-         BOqf4cmdU/8m6OoLUWIWyh87Etl13hfwYoJQ3Ptk=
+        b=E7wVUO9E/gJFUH6NWc/ScuNu+bVytawdech2vfd4YU7lMrF3IR9L12L8OzhZYPL6b
+         zcEoNMEnahEs5eUfo4WZmAldTxWXH/+oSw0+NdMqJpJLxC7ebtA1AHiokMmeyf86MH
+         OljdWA+Q3fn5gL8M+3i8wWvk10u+P+2VMt+Rnefw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Hai <wanghai38@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 084/162] arcnet: fix potential memory leak in com20020_probe()
+        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 6.0 180/289] bus: ixp4xx: Dont touch bit 7 on IXP42x
 Date:   Wed, 30 Nov 2022 19:22:45 +0100
-Message-Id: <20221130180530.774242709@linuxfoundation.org>
+Message-Id: <20221130180548.209254973@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +52,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 1c40cde6b5171d9c8dfc69be00464fd1c75e210b ]
+commit ff5a19909b49fe5c0b01ae197f84b741e0f698dc upstream.
 
-In com20020_probe(), if com20020_config() fails, dev and info
-will not be freed, which will lead to a memory leak.
+We face some regressions on a few IXP42x systems when
+accessing flash, the following unrelated error prints
+appear from the PCI driver:
 
-This patch adds freeing dev and info after com20020_config()
-fails to fix this bug.
+ixp4xx-pci c0000000.pci: PCI: abort_handler addr = 0xff9ffb5f,
+	   isr = 0x0, status = 0x22a0
+ixp4xx-pci c0000000.pci: imprecise abort
+(...)
 
-Compile tested only.
+It turns out that while bit 7 is masked "reserved" it is
+not unused, so masking it off as zero is dangerous, and
+breaks flash access on some systems such as the NSLU2.
+Be more careful and avoid masking off any of the reserved
+bits 7, 8, 9 or 30. Only keep masking EXP_WORD (bit 2)
+on IXP43x which is necessary in some setups.
 
-Fixes: 15b99ac17295 ("[PATCH] pcmcia: add return value to _config() functions")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1c953bda90ca ("bus: ixp4xx: Add a driver for IXP4xx expansion bus")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221122134411.2030372-1-linus.walleij@linaro.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/arcnet/com20020_cs.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/bus/intel-ixp4xx-eb.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/arcnet/com20020_cs.c b/drivers/net/arcnet/com20020_cs.c
-index 9cc5eb6a8e90..e0c7720bd5da 100644
---- a/drivers/net/arcnet/com20020_cs.c
-+++ b/drivers/net/arcnet/com20020_cs.c
-@@ -113,6 +113,7 @@ static int com20020_probe(struct pcmcia_device *p_dev)
- 	struct com20020_dev *info;
- 	struct net_device *dev;
- 	struct arcnet_local *lp;
-+	int ret = -ENOMEM;
+--- a/drivers/bus/intel-ixp4xx-eb.c
++++ b/drivers/bus/intel-ixp4xx-eb.c
+@@ -49,7 +49,7 @@
+ #define IXP4XX_EXP_SIZE_SHIFT		10
+ #define IXP4XX_EXP_CNFG_0		BIT(9) /* Always zero */
+ #define IXP43X_EXP_SYNC_INTEL		BIT(8) /* Only on IXP43x */
+-#define IXP43X_EXP_EXP_CHIP		BIT(7) /* Only on IXP43x */
++#define IXP43X_EXP_EXP_CHIP		BIT(7) /* Only on IXP43x, dangerous to touch on IXP42x */
+ #define IXP4XX_EXP_BYTE_RD16		BIT(6)
+ #define IXP4XX_EXP_HRDY_POL		BIT(5) /* Only on IXP42x */
+ #define IXP4XX_EXP_MUX_EN		BIT(4)
+@@ -57,8 +57,6 @@
+ #define IXP4XX_EXP_WORD			BIT(2) /* Always zero */
+ #define IXP4XX_EXP_WR_EN		BIT(1)
+ #define IXP4XX_EXP_BYTE_EN		BIT(0)
+-#define IXP42X_RESERVED			(BIT(30)|IXP4XX_EXP_CNFG_0|BIT(8)|BIT(7)|IXP4XX_EXP_WORD)
+-#define IXP43X_RESERVED			(BIT(30)|IXP4XX_EXP_CNFG_0|BIT(5)|IXP4XX_EXP_WORD)
  
- 	dev_dbg(&p_dev->dev, "com20020_attach()\n");
+ #define IXP4XX_EXP_CNFG0		0x20
+ #define IXP4XX_EXP_CNFG0_MEM_MAP	BIT(31)
+@@ -252,10 +250,9 @@ static void ixp4xx_exp_setup_chipselect(
+ 		cs_cfg |= val << IXP4XX_EXP_CYC_TYPE_SHIFT;
+ 	}
  
-@@ -142,12 +143,18 @@ static int com20020_probe(struct pcmcia_device *p_dev)
- 	info->dev = dev;
- 	p_dev->priv = info;
- 
--	return com20020_config(p_dev);
-+	ret = com20020_config(p_dev);
-+	if (ret)
-+		goto fail_config;
-+
-+	return 0;
- 
-+fail_config:
-+	free_arcdev(dev);
- fail_alloc_dev:
- 	kfree(info);
- fail_alloc_info:
--	return -ENOMEM;
-+	return ret;
- } /* com20020_attach */
- 
- static void com20020_detach(struct pcmcia_device *link)
--- 
-2.35.1
-
+-	if (eb->is_42x)
+-		cs_cfg &= ~IXP42X_RESERVED;
+ 	if (eb->is_43x) {
+-		cs_cfg &= ~IXP43X_RESERVED;
++		/* Should always be zero */
++		cs_cfg &= ~IXP4XX_EXP_WORD;
+ 		/*
+ 		 * This bit for Intel strata flash is currently unused, but let's
+ 		 * report it if we find one.
 
 
