@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 239EC63DEE7
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:42:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1828D63E029
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:54:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231207AbiK3SmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:42:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52734 "EHLO
+        id S231543AbiK3SyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:54:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231166AbiK3Slp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:41:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6206A99F11
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:41:43 -0800 (PST)
+        with ESMTP id S231520AbiK3SyI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:54:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 289704FFBB
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:54:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE52661D65
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:41:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FE18C433C1;
-        Wed, 30 Nov 2022 18:41:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8E0661D6F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:54:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C248C433C1;
+        Wed, 30 Nov 2022 18:54:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833702;
-        bh=wUHEcuPhjbOWnsQANITqCK4ALlB8zV71ZDKmna1AaNI=;
+        s=korg; t=1669834446;
+        bh=BinOJNivN5SwYSDGbsBMM1OMdyiz7O09D9xZ1yr0N9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jc5URmflp6Yle69BtY6+x0nxi45grKKv7wv4o1x0c6Or1q0BpMTo4+hLfP4MlyTTU
-         lSfZ3ulkDpHPobAIoHamE7+HTFlsrNDH1AjWPpVNe0diy8eqdEaalFB3PpNyKN7kYi
-         sDHZrpP7CH+6dRmf/ZgizvAqmAnmbxrfdW8MYMSE=
+        b=UFQutYEZaHDLGHzSn1ba/F20v8j+eWgYTTzrpYdBHLMnE2jQWaDWfSUdQTThUgh9x
+         NcgXWUxnSHREwmz5CgkMidq/qOlMB+NPHaTXm4e1IVZqD4uJu0j+Ubb6edP+dYrILN
+         Ce7Urm1B2/THCfM/kiE/0xt2ioZ6+ZfR5j1kba0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Phil Turnbull <philipturnbull@github.com>,
-        Ajay Kathat <ajay.kathat@microchip.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.15 189/206] wifi: wilc1000: validate length of IEEE80211_P2P_ATTR_OPER_CHANNEL attribute
+        patches@lists.linux.dev, Gleb Mazovetskiy <glex.spb@gmail.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 256/289] tcp: configurable source port perturb table size
 Date:   Wed, 30 Nov 2022 19:24:01 +0100
-Message-Id: <20221130180537.825238421@linuxfoundation.org>
+Message-Id: <20221130180549.907730148@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Turnbull <philipturnbull@github.com>
+From: Gleb Mazovetskiy <glex.spb@gmail.com>
 
-commit 051ae669e4505abbe05165bebf6be7922de11f41 upstream.
+[ Upstream commit aeac4ec8f46d610a10adbaeff5e2edf6a88ffc62 ]
 
-Validate that the IEEE80211_P2P_ATTR_OPER_CHANNEL attribute contains
-enough space for a 'struct struct wilc_attr_oper_ch'. If the attribute is
-too small then it triggers an out-of-bounds write later in the function.
+On embedded systems with little memory and no relevant
+security concerns, it is beneficial to reduce the size
+of the table.
 
-Signed-off-by: Phil Turnbull <philipturnbull@github.com>
-Tested-by: Ajay Kathat <ajay.kathat@microchip.com>
-Acked-by: Ajay Kathat <ajay.kathat@microchip.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221123153543.8568-3-philipturnbull@github.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reducing the size from 2^16 to 2^8 saves 255 KiB
+of kernel RAM.
+
+Makes the table size configurable as an expert option.
+
+The size was previously increased from 2^8 to 2^16
+in commit 4c2c8f03a5ab ("tcp: increase source port perturb table to
+2^16").
+
+Signed-off-by: Gleb Mazovetskiy <glex.spb@gmail.com>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/microchip/wilc1000/cfg80211.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ net/ipv4/Kconfig           | 10 ++++++++++
+ net/ipv4/inet_hashtables.c | 10 +++++-----
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
---- a/drivers/net/wireless/microchip/wilc1000/cfg80211.c
-+++ b/drivers/net/wireless/microchip/wilc1000/cfg80211.c
-@@ -939,14 +939,24 @@ static inline void wilc_wfi_cfg_parse_ch
- 		return;
+diff --git a/net/ipv4/Kconfig b/net/ipv4/Kconfig
+index e983bb0c5012..2dfb12230f08 100644
+--- a/net/ipv4/Kconfig
++++ b/net/ipv4/Kconfig
+@@ -402,6 +402,16 @@ config INET_IPCOMP
  
- 	while (index + sizeof(*e) <= len) {
-+		u16 attr_size;
-+
- 		e = (struct wilc_attr_entry *)&buf[index];
-+		attr_size = le16_to_cpu(e->attr_len);
-+
-+		if (index + sizeof(*e) + attr_size > len)
-+			return;
-+
- 		if (e->attr_type == IEEE80211_P2P_ATTR_CHANNEL_LIST)
- 			ch_list_idx = index;
--		else if (e->attr_type == IEEE80211_P2P_ATTR_OPER_CHANNEL)
-+		else if (e->attr_type == IEEE80211_P2P_ATTR_OPER_CHANNEL &&
-+			 attr_size == (sizeof(struct wilc_attr_oper_ch) - sizeof(*e)))
- 			op_ch_idx = index;
-+
- 		if (ch_list_idx && op_ch_idx)
- 			break;
--		index += le16_to_cpu(e->attr_len) + sizeof(*e);
-+
-+		index += sizeof(*e) + attr_size;
- 	}
+ 	  If unsure, say Y.
  
- 	if (ch_list_idx) {
++config INET_TABLE_PERTURB_ORDER
++	int "INET: Source port perturbation table size (as power of 2)" if EXPERT
++	default 16
++	help
++	  Source port perturbation table size (as power of 2) for
++	  RFC 6056 3.3.4.  Algorithm 4: Double-Hash Port Selection Algorithm.
++
++	  The default is almost always what you want.
++	  Only change this if you know what you are doing.
++
+ config INET_XFRM_TUNNEL
+ 	tristate
+ 	select INET_TUNNEL
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index f5950a7172d6..1e45fe6276f7 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -679,13 +679,13 @@ EXPORT_SYMBOL_GPL(inet_unhash);
+  * Note that we use 32bit integers (vs RFC 'short integers')
+  * because 2^16 is not a multiple of num_ephemeral and this
+  * property might be used by clever attacker.
++ *
+  * RFC claims using TABLE_LENGTH=10 buckets gives an improvement, though
+- * attacks were since demonstrated, thus we use 65536 instead to really
+- * give more isolation and privacy, at the expense of 256kB of kernel
+- * memory.
++ * attacks were since demonstrated, thus we use 65536 by default instead
++ * to really give more isolation and privacy, at the expense of 256kB
++ * of kernel memory.
+  */
+-#define INET_TABLE_PERTURB_SHIFT 16
+-#define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
++#define INET_TABLE_PERTURB_SIZE (1 << CONFIG_INET_TABLE_PERTURB_ORDER)
+ static u32 *table_perturb;
+ 
+ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+-- 
+2.35.1
+
 
 
