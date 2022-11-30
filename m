@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9208A63DE52
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:36:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAFCF63DD66
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:27:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230423AbiK3SgA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:36:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44262 "EHLO
+        id S229835AbiK3S1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:27:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230425AbiK3Sfk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:40 -0500
+        with ESMTP id S230218AbiK3S0w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4C5F93A6A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF6721038
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61E5261D69
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 742BBC433C1;
-        Wed, 30 Nov 2022 18:35:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58D4061B43
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67C4DC433C1;
+        Wed, 30 Nov 2022 18:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833338;
-        bh=145tM/n+McrsB9DA5tQdPX9E/pQpxCCBfrlA1QShAIs=;
+        s=korg; t=1669832810;
+        bh=w0I30QUcwoacNhiW7A8I6u9hG4L3PLnzcvps8TLedZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJNokaifcfHuVxujCh/Wweb/kbXha0I1WvCMl24KPIMVqUCdgieF8UvfoEO4Q3DWr
-         imWiGLfHFN8j03YeScu+dCGC/MWPe8sJY9YJruCUE4XY87MOjlCWW/YeOx7PkCGBTP
-         JtiJH27XLDvWZTA5cJ2wZ38EtlhRNLnqL4xLr91c=
+        b=pXeDdEklR1cf9Bu3cSntOy73DxWgBjJhS/fReVLsoWvCCMHsIAGsHsWvQDzdYBOUm
+         5a1fDHRQ9KXwNyCkshk0IrLj9gyWkKly0kFZ/tcugelFZAbGknm+VfJdnOhrZn5O+O
+         a3a88mc4vv4/z2XGIV6Ou3xgv9RU7R8W0XjWMlBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 070/206] tee: optee: fix possible memory leak in optee_register_device()
+Subject: [PATCH 5.10 041/162] spi: dw-dma: decrease reference count in dw_spi_dma_init_mfld()
 Date:   Wed, 30 Nov 2022 19:22:02 +0100
-Message-Id: <20221130180534.780030658@linuxfoundation.org>
+Message-Id: <20221130180529.619461428@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit cce616e012c215d65c15e5d1afa73182dea49389 ]
+[ Upstream commit 804313b64e412a81b0b3389a10e7622452004aa6 ]
 
-If device_register() returns error in optee_register_device(),
-the name allocated by dev_set_name() need be freed. As comment
-of device_register() says, it should use put_device() to give
-up the reference in the error path. So fix this by calling
-put_device(), then the name can be freed in kobject_cleanup(),
-and optee_device is freed in optee_release_device().
+pci_get_device() will increase the reference count for the returned
+pci_dev. Since 'dma_dev' is only used to filter the channel in
+dw_spi_dma_chan_filer() after using it we need to call pci_dev_put() to
+decrease the reference count. Also add pci_dev_put() for the error case.
 
-Fixes: c3fa24af9244 ("tee: optee: add TEE bus device enumeration support")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Fixes: 7063c0d942a1 ("spi/dw_spi: add DMA support")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Acked-by: Serge Semin <fancer.lancer@gmail.com>
+Link: https://lore.kernel.org/r/20221116093204.46700-1-wangxiongfeng2@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tee/optee/device.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-dw-dma.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/tee/optee/device.c b/drivers/tee/optee/device.c
-index 128a2d2a50a1..a74d82e230e3 100644
---- a/drivers/tee/optee/device.c
-+++ b/drivers/tee/optee/device.c
-@@ -80,7 +80,7 @@ static int optee_register_device(const uuid_t *device_uuid)
- 	rc = device_register(&optee_device->dev);
- 	if (rc) {
- 		pr_err("device registration failed, err: %d\n", rc);
--		kfree(optee_device);
-+		put_device(&optee_device->dev);
- 	}
+diff --git a/drivers/spi/spi-dw-dma.c b/drivers/spi/spi-dw-dma.c
+index a09831c62192..32ac8f9068e8 100644
+--- a/drivers/spi/spi-dw-dma.c
++++ b/drivers/spi/spi-dw-dma.c
+@@ -127,12 +127,15 @@ static int dw_spi_dma_init_mfld(struct device *dev, struct dw_spi *dws)
  
- 	return rc;
+ 	dw_spi_dma_sg_burst_init(dws);
+ 
++	pci_dev_put(dma_dev);
++
+ 	return 0;
+ 
+ free_rxchan:
+ 	dma_release_channel(dws->rxchan);
+ 	dws->rxchan = NULL;
+ err_exit:
++	pci_dev_put(dma_dev);
+ 	return -EBUSY;
+ }
+ 
 -- 
 2.35.1
 
