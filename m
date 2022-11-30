@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65BC563DFD8
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:51:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BF0863DE8C
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:38:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231561AbiK3SvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:51:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38352 "EHLO
+        id S230510AbiK3SiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:38:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231564AbiK3Suy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:50:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 572F89D828
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:50:53 -0800 (PST)
+        with ESMTP id S231140AbiK3SiA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:38:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16FD22C1
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:37:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E73D7B81CA6
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:50:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4813DC433D7;
-        Wed, 30 Nov 2022 18:50:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE92AB81B82
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:37:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FA1FC433C1;
+        Wed, 30 Nov 2022 18:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834250;
-        bh=GHyvOY7SR3SM2NukHTDbufgzpkUSCUz3IoJMrSrM4Y8=;
+        s=korg; t=1669833472;
+        bh=1dXlkYfPcscpwhzwb8qWm+fLg/FuYGd/RBEZFt+jJ48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mMVY52XONUtxlCz0ddORkKKOnLmktOtWP74LiUVFV7Wdkan33li38Vez0msNbBuXT
-         f94pQK2cSl4y1XuB7mLwPle9iK4VS23THdGsSb5AAoImJqfqS5a20r3L4GFAxs/fog
-         gCRWczpGUehHbU6p+DZI+5oTMccMSV3f/vYdGn3g=
+        b=lEJnhYAqvNUudj2ATUjuE2XA+4hvB9xI80fyE+q+QmYnkF2NqeCN4f66WHX0BCmA1
+         8YoopvDe29AVgJsvFX1svvFCEsmagy3kMOehG61acXUB+UDe4qwXKmnzDKPEPP+2hK
+         vsmr2lch+WOURRoBs0C6r8zcHjGa9FF7MkNmg67k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        patches@lists.linux.dev, Chad Monroe <chad.monroe@smartrg.com>,
+        Felix Fietkau <nbd@nbd.name>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 185/289] nios2: add FORCE for vmlinuz.gz
+Subject: [PATCH 5.15 118/206] netfilter: flowtable_offload: add missing locking
 Date:   Wed, 30 Nov 2022 19:22:50 +0100
-Message-Id: <20221130180548.318701320@linuxfoundation.org>
+Message-Id: <20221130180536.045262744@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 869e4ae4cd2a23d625aaa14ae62dbebf768cb77d ]
+[ Upstream commit bcd9e3c1656d0f7dd9743598c65c3ae24efb38d0 ]
 
-Add FORCE to placate a warning from make:
+nf_flow_table_block_setup and the driver TC_SETUP_FT call can modify the flow
+block cb list while they are being traversed elsewhere, causing a crash.
+Add a write lock around the calls to protect readers
 
-arch/nios2/boot/Makefile:24: FORCE prerequisite is missing
-
-Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: c29f74e0df7a ("netfilter: nf_flow_table: hardware offload support")
+Reported-by: Chad Monroe <chad.monroe@smartrg.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/nios2/boot/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_flow_table_offload.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/nios2/boot/Makefile b/arch/nios2/boot/Makefile
-index 8c3ad76602f3..29c11a06b750 100644
---- a/arch/nios2/boot/Makefile
-+++ b/arch/nios2/boot/Makefile
-@@ -20,7 +20,7 @@ $(obj)/vmlinux.bin: vmlinux FORCE
- $(obj)/vmlinux.gz: $(obj)/vmlinux.bin FORCE
- 	$(call if_changed,gzip)
+diff --git a/net/netfilter/nf_flow_table_offload.c b/net/netfilter/nf_flow_table_offload.c
+index c4559fae8acd..66c9a6c2b9cf 100644
+--- a/net/netfilter/nf_flow_table_offload.c
++++ b/net/netfilter/nf_flow_table_offload.c
+@@ -1074,6 +1074,7 @@ static int nf_flow_table_block_setup(struct nf_flowtable *flowtable,
+ 	struct flow_block_cb *block_cb, *next;
+ 	int err = 0;
  
--$(obj)/vmImage: $(obj)/vmlinux.gz
-+$(obj)/vmImage: $(obj)/vmlinux.gz FORCE
- 	$(call if_changed,uimage)
- 	@$(kecho) 'Kernel: $@ is ready'
++	down_write(&flowtable->flow_block_lock);
+ 	switch (cmd) {
+ 	case FLOW_BLOCK_BIND:
+ 		list_splice(&bo->cb_list, &flowtable->flow_block.cb_list);
+@@ -1088,6 +1089,7 @@ static int nf_flow_table_block_setup(struct nf_flowtable *flowtable,
+ 		WARN_ON_ONCE(1);
+ 		err = -EOPNOTSUPP;
+ 	}
++	up_write(&flowtable->flow_block_lock);
+ 
+ 	return err;
+ }
+@@ -1144,7 +1146,9 @@ static int nf_flow_table_offload_cmd(struct flow_block_offload *bo,
+ 
+ 	nf_flow_table_block_offload_init(bo, dev_net(dev), cmd, flowtable,
+ 					 extack);
++	down_write(&flowtable->flow_block_lock);
+ 	err = dev->netdev_ops->ndo_setup_tc(dev, TC_SETUP_FT, bo);
++	up_write(&flowtable->flow_block_lock);
+ 	if (err < 0)
+ 		return err;
  
 -- 
 2.35.1
