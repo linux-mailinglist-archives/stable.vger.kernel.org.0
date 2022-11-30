@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6F3963DF95
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8637263DD51
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231390AbiK3Ssv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:48:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34348 "EHLO
+        id S229501AbiK3S01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:26:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231452AbiK3Sse (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DAD98945
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:33 -0800 (PST)
+        with ESMTP id S229938AbiK3S0X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D481D23147
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EE0361D59
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 528B7C433C1;
-        Wed, 30 Nov 2022 18:48:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7836EB81C9C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5913C433D6;
+        Wed, 30 Nov 2022 18:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834112;
-        bh=i0x02n2/XvUm6x0pXNdeboL9K1Bjk5zIPYRHwpW+QUs=;
+        s=korg; t=1669832779;
+        bh=JT4/EOII5U4Vev/JsR9Uok1QnPBvVJU6qrAIcS1c8ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CwW1QQlGVIVtrAA4re0zI5SljyMxzApzOolV4IzYXlZUYK8pMozNC0Gcfywt1YaOS
-         qrUZ38wZ5LbtURyF2lXOyLHnlSSjXecZg0Jujzl8ax/GFWmFrmwFCUCpuvxDs8Hk7X
-         HPr7tikDHyYawyolQzF6RsExL9j1osZhDia/ft8U=
+        b=G5dECcyT2txZ2ejiKWXskgCRC2X1ZQSW0ZMUjPvV2kD29WB5dVQdxHa3BmWGYgJTT
+         aLLhn3Fp1Qd3/wyEDAfKo6RTde7kNdKt1nYOPHJx0HzZYQsOMZcFqTEOKPGbXzJyaE
+         Spstm7GBGWNSQk178KPbjjfEeWpHC7KlV0YqfaRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Hua <hucool.lihua@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev,
+        Detlev Casanova <detlev.casanova@collabora.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 133/289] test_kprobes: fix implicit declaration error of test_kprobes
+Subject: [PATCH 5.10 037/162] ASoC: sgtl5000: Reset the CHIP_CLK_CTRL reg on remove
 Date:   Wed, 30 Nov 2022 19:21:58 +0100
-Message-Id: <20221130180547.153409055@linuxfoundation.org>
+Message-Id: <20221130180529.512167447@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Hua <hucool.lihua@huawei.com>
+From: Detlev Casanova <detlev.casanova@collabora.com>
 
-[ Upstream commit de3db3f883a82c4800f4af0ae2cc3b96a408ee9b ]
+[ Upstream commit 0bb8e9b36b5b7f2e77892981ff6c27ee831d8026 ]
 
-If KPROBES_SANITY_TEST and ARCH_CORRECT_STACKTRACE_ON_KRETPROBE is enabled, but
-STACKTRACE is not set. Build failed as below:
+Since commit bf2aebccddef ("ASoC: sgtl5000: Fix noise on shutdown/remove"),
+the device power control registers are reset when the driver is
+removed/shutdown.
 
-lib/test_kprobes.c: In function `stacktrace_return_handler':
-lib/test_kprobes.c:228:8: error: implicit declaration of function `stack_trace_save'; did you mean `stacktrace_driver'? [-Werror=implicit-function-declaration]
-  ret = stack_trace_save(stack_buf, STACK_BUF_SIZE, 0);
-        ^~~~~~~~~~~~~~~~
-        stacktrace_driver
-cc1: all warnings being treated as errors
-scripts/Makefile.build:250: recipe for target 'lib/test_kprobes.o' failed
-make[2]: *** [lib/test_kprobes.o] Error 1
+This is an issue when the device is configured to use the PLL clock. The
+device will stop responding if it is still configured to use the PLL
+clock but the PLL clock is powered down.
 
-To fix this error, Select STACKTRACE if ARCH_CORRECT_STACKTRACE_ON_KRETPROBE is enabled.
+When rebooting linux, the probe function will show:
+sgtl5000 0-000a: Error reading chip id -11
 
-Link: https://lkml.kernel.org/r/20221121030620.63181-1-hucool.lihua@huawei.com
-Fixes: 1f6d3a8f5e39 ("kprobes: Add a test case for stacktrace from kretprobe handler")
-Signed-off-by: Li Hua <hucool.lihua@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Make sure that the CHIP_CLK_CTRL is reset to its default value before
+powering down the device.
+
+Fixes: bf2aebccddef ("ASoC: sgtl5000: Fix noise on shutdown/remove")
+Signed-off-by: Detlev Casanova <detlev.casanova@collabora.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20221110190612.1341469-1-detlev.casanova@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug | 1 +
+ sound/soc/codecs/sgtl5000.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index cb131fad117c..997d23641448 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -2095,6 +2095,7 @@ config KPROBES_SANITY_TEST
- 	depends on DEBUG_KERNEL
- 	depends on KPROBES
- 	depends on KUNIT
-+	select STACKTRACE if ARCH_CORRECT_STACKTRACE_ON_KRETPROBE
- 	default KUNIT_ALL_TESTS
- 	help
- 	  This option provides for testing basic kprobes functionality on
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index f066e016a874..edde0323799a 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -1797,6 +1797,7 @@ static int sgtl5000_i2c_remove(struct i2c_client *client)
+ {
+ 	struct sgtl5000_priv *sgtl5000 = i2c_get_clientdata(client);
+ 
++	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_CLK_CTRL, SGTL5000_CHIP_CLK_CTRL_DEFAULT);
+ 	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_DIG_POWER, SGTL5000_DIG_POWER_DEFAULT);
+ 	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, SGTL5000_ANA_POWER_DEFAULT);
+ 
 -- 
 2.35.1
 
