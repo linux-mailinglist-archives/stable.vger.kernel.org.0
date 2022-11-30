@@ -2,121 +2,237 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA6D563E360
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 23:24:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFBD563E3AC
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 23:51:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229636AbiK3WYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 17:24:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39572 "EHLO
+        id S229635AbiK3Wvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 17:51:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229461AbiK3WYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 17:24:30 -0500
+        with ESMTP id S229456AbiK3Wvh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 17:51:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 272A64FFBB;
-        Wed, 30 Nov 2022 14:24:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC19C748F8;
+        Wed, 30 Nov 2022 14:51:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 96DFC61E11;
-        Wed, 30 Nov 2022 22:24:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C26AC433D6;
-        Wed, 30 Nov 2022 22:24:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B06861E24;
+        Wed, 30 Nov 2022 22:51:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAE87C433D6;
+        Wed, 30 Nov 2022 22:51:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1669847067;
-        bh=GObiuqWePXvleVN+hRN2W6TyciF+HakME2P3Lh61n28=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=YAhbHJpYikQUx0jNOf+ItowlR2w21iqvGsxoJvyc3gVS/fyS7GsRYyVC5aHcGMwxW
-         dqefHsBBpntp00i/4r6pJ6oZ3BPgxPgUbp+zvSU2tyL5JAOZHBzkvJfcjpFONibaSV
-         vtPIAfMwt6bIwxefV+7aK10fUV23UobOvgs0sgSE=
-Date:   Wed, 30 Nov 2022 14:24:25 -0800
+        s=korg; t=1669848695;
+        bh=oxK8dKbzdhAqn6tIMmcBlFcl8mifIOeGGcyvAczGw+w=;
+        h=Date:To:From:Subject:From;
+        b=K9ynGCR2nfBxUwMWJs6dMEs5yEB8ACi3W+hDtOkI3UlVn5dRKFTXpiovAeaqC3IXs
+         XCkn5QKQbs9cuh+DC1Yb7SUrrpNQGzwKUlZiqp6APDzV9mIsWnHe27i2Oh49ef2bYb
+         6pWk2+FtosLG5oAfsMH99ygKfmxFl8tFqm/ShfLU=
+Date:   Wed, 30 Nov 2022 14:51:34 -0800
+To:     mm-commits@vger.kernel.org, willy@infradead.org, vbabka@suse.cz,
+        stable@vger.kernel.org, riel@surriel.com, peterx@redhat.com,
+        naoya.horiguchi@linux.dev, nadav.amit@gmail.com,
+        harperchen1110@gmail.com, david@redhat.com,
+        axelrasmussen@google.com, almasrymina@google.com,
+        mike.kravetz@oracle.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Peter Xu <peterx@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Ives van Hoorne <ives@codesandbox.io>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Alistair Popple <apopple@nvidia.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v3 1/2] mm/migrate: Fix read-only page got writable when
- recover pte
-Message-Id: <20221130142425.6a7fdfa3e5954f3c305a77ee@linux-foundation.org>
-In-Reply-To: <5ddf1310-b49f-6e66-a22a-6de361602558@redhat.com>
-References: <20221114000447.1681003-1-peterx@redhat.com>
-        <20221114000447.1681003-2-peterx@redhat.com>
-        <5ddf1310-b49f-6e66-a22a-6de361602558@redhat.com>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Subject: [merged mm-hotfixes-stable] madvise-use-zap_page_range_single-for-madvise-dontneed.patch removed from -mm tree
+Message-Id: <20221130225135.AAE87C433D6@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 15 Nov 2022 19:17:43 +0100 David Hildenbrand <david@redhat.com> wrote:
 
-> On 14.11.22 01:04, Peter Xu wrote:
-> > Ives van Hoorne from codesandbox.io reported an issue regarding possible
-> > data loss of uffd-wp when applied to memfds on heavily loaded systems.  The
-> > symptom is some read page got data mismatch from the snapshot child VMs.
-> > 
-> > Here I can also reproduce with a Rust reproducer that was provided by Ives
-> > that keeps taking snapshot of a 256MB VM, on a 32G system when I initiate
-> > 80 instances I can trigger the issues in ten minutes.
-> > 
-> > It turns out that we got some pages write-through even if uffd-wp is
-> > applied to the pte.
-> > 
-> > The problem is, when removing migration entries, we didn't really worry
-> > about write bit as long as we know it's not a write migration entry.  That
-> > may not be true, for some memory types (e.g. writable shmem) mk_pte can
-> > return a pte with write bit set, then to recover the migration entry to its
-> > original state we need to explicit wr-protect the pte or it'll has the
-> > write bit set if it's a read migration entry.  For uffd it can cause
-> > write-through.
-> > 
-> > The relevant code on uffd was introduced in the anon support, which is
-> > commit f45ec5ff16a7 ("userfaultfd: wp: support swap and page migration",
-> > 2020-04-07).  However anon shouldn't suffer from this problem because anon
-> > should already have the write bit cleared always, so that may not be a
-> > proper Fixes target, while I'm adding the Fixes to be uffd shmem support.
-> > 
->
-> ...
->
-> > --- a/mm/migrate.c
-> > +++ b/mm/migrate.c
-> > @@ -213,8 +213,14 @@ static bool remove_migration_pte(struct folio *folio,
-> >   			pte = pte_mkdirty(pte);
-> >   		if (is_writable_migration_entry(entry))
-> >   			pte = maybe_mkwrite(pte, vma);
-> > -		else if (pte_swp_uffd_wp(*pvmw.pte))
-> > +		else
-> > +			/* NOTE: mk_pte can have write bit set */
-> > +			pte = pte_wrprotect(pte);
-> > +
-> > +		if (pte_swp_uffd_wp(*pvmw.pte)) {
-> > +			WARN_ON_ONCE(pte_write(pte));
+The quilt patch titled
+     Subject: madvise: use zap_page_range_single for madvise dontneed
+has been removed from the -mm tree.  Its filename was
+     madvise-use-zap_page_range_single-for-madvise-dontneed.patch
 
-Will this warnnig trigger in the scenario you and Ives have discovered?
+This patch was dropped because it was merged into the mm-hotfixes-stable branch
+of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-> >   			pte = pte_mkuffd_wp(pte);
-> > +		}
-> >   
-> >   		if (folio_test_anon(folio) && !is_readable_migration_entry(entry))
-> >   			rmap_flags |= RMAP_EXCLUSIVE;
-> 
-> As raised, I don't agree to this generic non-uffd-wp change without 
-> further, clear justification.
+------------------------------------------------------
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Subject: madvise: use zap_page_range_single for madvise dontneed
+Date: Mon, 14 Nov 2022 15:55:05 -0800
 
-Pater, can you please work this further?
+This series addresses the issue first reported in [1], and fully described
+in patch 2.  Patches 1 and 2 address the user visible issue and are tagged
+for stable backports.
 
-> I won't nack it, but I won't ack it either.
+While exploring solutions to this issue, related problems with mmu
+notification calls were discovered.  This is addressed in the patch
+"hugetlb: remove duplicate mmu notifications:".  Since there are no user
+visible effects, this third is not tagged for stable backports.
 
-I wouldn't mind seeing a little code comment which explains why we're
-doing this.
+Previous discussions suggested further cleanup by removing the
+routine zap_page_range.  This is possible because zap_page_range_single
+is now exported, and all callers of zap_page_range pass ranges entirely
+within a single vma.  This work will be done in a later patch so as not
+to distract from this bug fix.
+
+[1] https://lore.kernel.org/lkml/CAO4mrfdLMXsao9RF4fUE8-Wfde8xmjsKrTNMNC9wjUb6JudD0g@mail.gmail.com/
+
+
+This patch (of 2):
+
+Expose the routine zap_page_range_single to zap a range within a single
+vma.  The madvise routine madvise_dontneed_single_vma can use this routine
+as it explicitly operates on a single vma.  Also, update the mmu
+notification range in zap_page_range_single to take hugetlb pmd sharing
+into account.  This is required as MADV_DONTNEED supports hugetlb vmas.
+
+Link: https://lkml.kernel.org/r/20221114235507.294320-1-mike.kravetz@oracle.com
+Link: https://lkml.kernel.org/r/20221114235507.294320-2-mike.kravetz@oracle.com
+Fixes: 90e7e7f5ef3f ("mm: enable MADV_DONTNEED for hugetlb mappings")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reported-by: Wei Chen <harperchen1110@gmail.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Mina Almasry <almasrymina@google.com>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: Naoya Horiguchi <naoya.horiguchi@linux.dev>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/mm.h |   27 +++++++++++++++++++--------
+ mm/madvise.c       |    6 +++---
+ mm/memory.c        |   23 +++++++++++------------
+ 3 files changed, 33 insertions(+), 23 deletions(-)
+
+--- a/include/linux/mm.h~madvise-use-zap_page_range_single-for-madvise-dontneed
++++ a/include/linux/mm.h
+@@ -1852,6 +1852,23 @@ static void __maybe_unused show_free_are
+ 	__show_free_areas(flags, nodemask, MAX_NR_ZONES - 1);
+ }
+ 
++/*
++ * Parameter block passed down to zap_pte_range in exceptional cases.
++ */
++struct zap_details {
++	struct folio *single_folio;	/* Locked folio to be unmapped */
++	bool even_cows;			/* Zap COWed private pages too? */
++	zap_flags_t zap_flags;		/* Extra flags for zapping */
++};
++
++/*
++ * Whether to drop the pte markers, for example, the uffd-wp information for
++ * file-backed memory.  This should only be specified when we will completely
++ * drop the page in the mm, either by truncation or unmapping of the vma.  By
++ * default, the flag is not set.
++ */
++#define  ZAP_FLAG_DROP_MARKER        ((__force zap_flags_t) BIT(0))
++
+ #ifdef CONFIG_MMU
+ extern bool can_do_mlock(void);
+ #else
+@@ -1869,6 +1886,8 @@ void zap_vma_ptes(struct vm_area_struct
+ 		  unsigned long size);
+ void zap_page_range(struct vm_area_struct *vma, unsigned long address,
+ 		    unsigned long size);
++void zap_page_range_single(struct vm_area_struct *vma, unsigned long address,
++			   unsigned long size, struct zap_details *details);
+ void unmap_vmas(struct mmu_gather *tlb, struct maple_tree *mt,
+ 		struct vm_area_struct *start_vma, unsigned long start,
+ 		unsigned long end);
+@@ -3467,12 +3486,4 @@ madvise_set_anon_name(struct mm_struct *
+ }
+ #endif
+ 
+-/*
+- * Whether to drop the pte markers, for example, the uffd-wp information for
+- * file-backed memory.  This should only be specified when we will completely
+- * drop the page in the mm, either by truncation or unmapping of the vma.  By
+- * default, the flag is not set.
+- */
+-#define  ZAP_FLAG_DROP_MARKER        ((__force zap_flags_t) BIT(0))
+-
+ #endif /* _LINUX_MM_H */
+--- a/mm/madvise.c~madvise-use-zap_page_range_single-for-madvise-dontneed
++++ a/mm/madvise.c
+@@ -772,8 +772,8 @@ static int madvise_free_single_vma(struc
+  * Application no longer needs these pages.  If the pages are dirty,
+  * it's OK to just throw them away.  The app will be more careful about
+  * data it wants to keep.  Be sure to free swap resources too.  The
+- * zap_page_range call sets things up for shrink_active_list to actually free
+- * these pages later if no one else has touched them in the meantime,
++ * zap_page_range_single call sets things up for shrink_active_list to actually
++ * free these pages later if no one else has touched them in the meantime,
+  * although we could add these pages to a global reuse list for
+  * shrink_active_list to pick up before reclaiming other pages.
+  *
+@@ -790,7 +790,7 @@ static int madvise_free_single_vma(struc
+ static long madvise_dontneed_single_vma(struct vm_area_struct *vma,
+ 					unsigned long start, unsigned long end)
+ {
+-	zap_page_range(vma, start, end - start);
++	zap_page_range_single(vma, start, end - start, NULL);
+ 	return 0;
+ }
+ 
+--- a/mm/memory.c~madvise-use-zap_page_range_single-for-madvise-dontneed
++++ a/mm/memory.c
+@@ -1341,15 +1341,6 @@ copy_page_range(struct vm_area_struct *d
+ 	return ret;
+ }
+ 
+-/*
+- * Parameter block passed down to zap_pte_range in exceptional cases.
+- */
+-struct zap_details {
+-	struct folio *single_folio;	/* Locked folio to be unmapped */
+-	bool even_cows;			/* Zap COWed private pages too? */
+-	zap_flags_t zap_flags;		/* Extra flags for zapping */
+-};
+-
+ /* Whether we should zap all COWed (private) pages too */
+ static inline bool should_zap_cows(struct zap_details *details)
+ {
+@@ -1774,19 +1765,27 @@ void zap_page_range(struct vm_area_struc
+  *
+  * The range must fit into one VMA.
+  */
+-static void zap_page_range_single(struct vm_area_struct *vma, unsigned long address,
++void zap_page_range_single(struct vm_area_struct *vma, unsigned long address,
+ 		unsigned long size, struct zap_details *details)
+ {
++	const unsigned long end = address + size;
+ 	struct mmu_notifier_range range;
+ 	struct mmu_gather tlb;
+ 
+ 	lru_add_drain();
+ 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
+-				address, address + size);
++				address, end);
++	if (is_vm_hugetlb_page(vma))
++		adjust_range_if_pmd_sharing_possible(vma, &range.start,
++						     &range.end);
+ 	tlb_gather_mmu(&tlb, vma->vm_mm);
+ 	update_hiwater_rss(vma->vm_mm);
+ 	mmu_notifier_invalidate_range_start(&range);
+-	unmap_single_vma(&tlb, vma, address, range.end, details);
++	/*
++	 * unmap 'address-end' not 'range.start-range.end' as range
++	 * could have been expanded for hugetlb pmd sharing.
++	 */
++	unmap_single_vma(&tlb, vma, address, end, details);
+ 	mmu_notifier_invalidate_range_end(&range);
+ 	tlb_finish_mmu(&tlb);
+ }
+_
+
+Patches currently in -mm which might be from mike.kravetz@oracle.com are
+
+selftests-vm-update-hugetlb-madvise.patch
+hugetlb-remove-duplicate-mmu-notifications.patch
+
