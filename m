@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDF7D63DF96
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:48:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEB4763DE4D
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231394AbiK3Ssy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:48:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34920 "EHLO
+        id S230374AbiK3Sfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:35:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231469AbiK3Ssl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B515E9E7
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:36 -0800 (PST)
+        with ESMTP id S230252AbiK3Sfd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 503C494901
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1182261D4F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDF95C433D6;
-        Wed, 30 Nov 2022 18:48:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF75861D72
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0C16C433D6;
+        Wed, 30 Nov 2022 18:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834115;
-        bh=9KhG1zB3tGAjBmWnTeqqbsGcJyBzz5h0YLKS50PZGPw=;
+        s=korg; t=1669833330;
+        bh=OJnxrvhC00TdDRyoSmbHI3IJXHB/vjfqcIwwsMP5QiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVLL7O6zHmEw3BABZMkdDnWAsO7FdGYC+/GMXMw6eDl/J8iqNsdqTn8rpqu3l/wC9
-         cjnp69eV7jhMfqVRMeokU/VYElqQ30GMBgcTY7ON68PERH7TR/t8w+nf75jr9nlqhn
-         iYyC2taXYuKancYXxsa1Bqm5xRDuybIeY2yLTTWM=
+        b=d+V4w+ptS/1wtWVB7NQsbx5o+Y05HSBdtey9eeM17uOqmE6LXR+hahfLTqIL1Q3jq
+         bny28t3s7Ot8j39OptOW/2YGTpfLH+C3Zer93sUeAiKBBL9RJ+Ks2tUBdF/c+1MqCf
+         oeKwHJlevYBqLWtzEqIu9MTwQwY83w1atIHgmYHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Joanne Koong <joannelkoong@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 134/289] dccp/tcp: Reset saddr on failure after inet6?_hash_connect().
+Subject: [PATCH 5.15 067/206] regulator: core: fix UAF in destroy_regulator()
 Date:   Wed, 30 Nov 2022 19:21:59 +0100
-Message-Id: <20221130180547.176189102@linuxfoundation.org>
+Message-Id: <20221130180534.704196860@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,111 +53,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 77934dc6db0d2b111a8f2759e9ad2fb67f5cffa5 ]
+[ Upstream commit 1f386d6894d0f1b7de8ef640c41622ddd698e7ab ]
 
-When connect() is called on a socket bound to the wildcard address,
-we change the socket's saddr to a local address.  If the socket
-fails to connect() to the destination, we have to reset the saddr.
+I got a UAF report as following:
 
-However, when an error occurs after inet_hash6?_connect() in
-(dccp|tcp)_v[46]_conect(), we forget to reset saddr and leave
-the socket bound to the address.
+==================================================================
+BUG: KASAN: use-after-free in __lock_acquire+0x935/0x2060
+Read of size 8 at addr ffff88810e838220 by task python3/268
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x67/0x83
+ print_report+0x178/0x4b0
+ kasan_report+0x90/0x190
+ __lock_acquire+0x935/0x2060
+ lock_acquire+0x156/0x400
+ _raw_spin_lock+0x2a/0x40
+ lockref_get+0x11/0x30
+ simple_recursive_removal+0x41/0x440
+ debugfs_remove.part.12+0x32/0x50
+ debugfs_remove+0x29/0x30
+ _regulator_put.cold.54+0x3e/0x27f
+ regulator_put+0x1f/0x30
+ release_nodes+0x6a/0xa0
+ devres_release_all+0xf8/0x150
 
->From the user's point of view, whether saddr is reset or not varies
-with errno.  Let's fix this inconsistent behaviour.
+Allocated by task 37:
+ kasan_save_stack+0x1c/0x40
+ kasan_set_track+0x21/0x30
+ __kasan_slab_alloc+0x5d/0x70
+ slab_post_alloc_hook+0x62/0x510
+ kmem_cache_alloc_lru+0x222/0x5a0
+ __d_alloc+0x31/0x440
+ d_alloc+0x30/0xf0
+ d_alloc_parallel+0xc4/0xd20
+ __lookup_slow+0x15e/0x2f0
+ lookup_one_len+0x13a/0x150
+ start_creating+0xea/0x190
+ debugfs_create_dir+0x1e/0x210
+ create_regulator+0x254/0x4e0
+ _regulator_get+0x2a1/0x467
+ _devm_regulator_get+0x5a/0xb0
+ regulator_virtual_probe+0xb9/0x1a0
 
-Note that after this patch, the repro [0] will trigger the WARN_ON()
-in inet_csk_get_port() again, but this patch is not buggy and rather
-fixes a bug papering over the bhash2's bug for which we need another
-fix.
+Freed by task 30:
+ kasan_save_stack+0x1c/0x40
+ kasan_set_track+0x21/0x30
+ kasan_save_free_info+0x2a/0x50
+ __kasan_slab_free+0x102/0x190
+ kmem_cache_free+0xf6/0x600
+ rcu_core+0x54c/0x12b0
+ __do_softirq+0xf2/0x5e3
 
-For the record, the repro causes -EADDRNOTAVAIL in inet_hash6_connect()
-by this sequence:
+Last potentially related work creation:
+ kasan_save_stack+0x1c/0x40
+ __kasan_record_aux_stack+0x98/0xb0
+ call_rcu+0x42/0x700
+ dentry_free+0x6c/0xd0
+ __dentry_kill+0x23b/0x2d0
+ dput.part.31+0x431/0x780
+ simple_recursive_removal+0xa9/0x440
+ debugfs_remove.part.12+0x32/0x50
+ debugfs_remove+0x29/0x30
+ regulator_unregister+0xe3/0x230
+ release_nodes+0x6a/0xa0
 
-  s1 = socket()
-  s1.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-  s1.bind(('127.0.0.1', 10000))
-  s1.sendto(b'hello', MSG_FASTOPEN, (('127.0.0.1', 10000)))
-  # or s1.connect(('127.0.0.1', 10000))
+==================================================================
 
-  s2 = socket()
-  s2.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-  s2.bind(('0.0.0.0', 10000))
-  s2.connect(('127.0.0.1', 10000))  # -EADDRNOTAVAIL
+Here is how happened:
 
-  s2.listen(32)  # WARN_ON(inet_csk(sk)->icsk_bind2_hash != tb2);
+processor A					processor B
+regulator_register()
+  rdev_init_debugfs()
+    rdev->debugfs = debugfs_create_dir()
+						devm_regulator_get()
+						  rdev = regulator_dev_lookup()
+						  create_regulator(rdev)
+						    // using rdev->debugfs as parent
+						    debugfs_create_dir(rdev->debugfs)
 
-[0]: https://syzkaller.appspot.com/bug?extid=015d756bbd1f8b5c8f09
+mfd_remove_devices_fn()
+  release_nodes()
+    regulator_unregister()
+      // free rdev->debugfs
+      debugfs_remove_recursive(rdev->debugfs)
+						release_nodes()
+						  destroy_regulator()
+						    debugfs_remove_recursive() <- causes UAF
 
-Fixes: 3df80d9320bc ("[DCCP]: Introduce DCCPv6")
-Fixes: 7c657876b63c ("[DCCP]: Initial implementation")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Acked-by: Joanne Koong <joannelkoong@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+In devm_regulator_get(), after getting rdev, the refcount
+is get, so fix this by moving debugfs_remove_recursive()
+to regulator_dev_release(), then it can be proctected by
+the refcount, the 'rdev->debugfs' can not be freed until
+the refcount is 0.
+
+Fixes: 5de705194e98 ("regulator: Add basic per consumer debugfs")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221116033706.3595812-1-yangyingliang@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dccp/ipv4.c     | 2 ++
- net/dccp/ipv6.c     | 2 ++
- net/ipv4/tcp_ipv4.c | 2 ++
- net/ipv6/tcp_ipv6.c | 2 ++
- 4 files changed, 8 insertions(+)
+ drivers/regulator/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/dccp/ipv4.c b/net/dccp/ipv4.c
-index da6e3b20cd75..60379ad7ae06 100644
---- a/net/dccp/ipv4.c
-+++ b/net/dccp/ipv4.c
-@@ -136,6 +136,8 @@ int dccp_v4_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)
- 	 * This unhashes the socket and releases the local port, if necessary.
- 	 */
- 	dccp_set_state(sk, DCCP_CLOSED);
-+	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
-+		inet_reset_saddr(sk);
- 	ip_rt_put(rt);
- 	sk->sk_route_caps = 0;
- 	inet->inet_dport = 0;
-diff --git a/net/dccp/ipv6.c b/net/dccp/ipv6.c
-index fd44638ec16b..f9ed81a0ddbb 100644
---- a/net/dccp/ipv6.c
-+++ b/net/dccp/ipv6.c
-@@ -967,6 +967,8 @@ static int dccp_v6_connect(struct sock *sk, struct sockaddr *uaddr,
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index fd61c5c54a07..221ae807b379 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -5071,6 +5071,7 @@ static void regulator_dev_release(struct device *dev)
+ {
+ 	struct regulator_dev *rdev = dev_get_drvdata(dev);
  
- late_failure:
- 	dccp_set_state(sk, DCCP_CLOSED);
-+	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
-+		inet_reset_saddr(sk);
- 	__sk_dst_reset(sk);
- failure:
- 	inet->inet_dport = 0;
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index fe9a6022db66..ef8013e2134f 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -323,6 +323,8 @@ int tcp_v4_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)
- 	 * if necessary.
- 	 */
- 	tcp_set_state(sk, TCP_CLOSE);
-+	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
-+		inet_reset_saddr(sk);
- 	ip_rt_put(rt);
- 	sk->sk_route_caps = 0;
- 	inet->inet_dport = 0;
-diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
-index e54eee80ce5f..5516cfb96c48 100644
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -340,6 +340,8 @@ static int tcp_v6_connect(struct sock *sk, struct sockaddr *uaddr,
++	debugfs_remove_recursive(rdev->debugfs);
+ 	kfree(rdev->constraints);
+ 	of_node_put(rdev->dev.of_node);
+ 	kfree(rdev);
+@@ -5586,7 +5587,6 @@ void regulator_unregister(struct regulator_dev *rdev)
  
- late_failure:
- 	tcp_set_state(sk, TCP_CLOSE);
-+	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
-+		inet_reset_saddr(sk);
- failure:
- 	inet->inet_dport = 0;
- 	sk->sk_route_caps = 0;
+ 	mutex_lock(&regulator_list_mutex);
+ 
+-	debugfs_remove_recursive(rdev->debugfs);
+ 	WARN_ON(rdev->open_count);
+ 	regulator_remove_coupling(rdev);
+ 	unset_regulator_supplies(rdev);
 -- 
 2.35.1
 
