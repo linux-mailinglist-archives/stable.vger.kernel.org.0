@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DED363DFF1
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:52:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4351563DDBD
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:30:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230379AbiK3SwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:52:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39986 "EHLO
+        id S230020AbiK3SaH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:30:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231520AbiK3Sv7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:51:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84FF463D4F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:51:56 -0800 (PST)
+        with ESMTP id S230194AbiK3S37 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:29:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91B588DFC6
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:29:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 46EBF61D76
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:51:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5560EC433D7;
-        Wed, 30 Nov 2022 18:51:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3FAE5B81B41
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:29:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4B45C433D6;
+        Wed, 30 Nov 2022 18:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834315;
-        bh=c2kxXC3turWmJqlrxPy76SQVFlpEmtdAuzd2IEGe61s=;
+        s=korg; t=1669832992;
+        bh=znRJbUmv+wwknGW70xiegCD89z+SP01c/rJ5PIHJQzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sh7sVljw9KYUTIuF34tItCMJ5AZzJovijPRtNK+tVubggUcV8l5cRCQg1PoVzFOVI
-         I4U/kAX06+de6iy+BpU9tPNb3aMRRN9EJc53DKrAnBaNcF9Ck9WZBrDx1U3vIrpoq2
-         l/uhyjK+WEBdg1qdqeNVkRitJB1bdUW/M2K9qkqw=
+        b=bg+W8eef4YGo9W5jbnASYuXQ0tj3fuBQPwENWiPLPkrPTcqHDH7JIUrXx/d/8rHoF
+         +19IG+SJNBlTtaV2tYnTVA5weYRqXYNgWJz1bKUsYxo+wydQ3aeBZS+WB9AHRgG8QD
+         gQnCTJ5cjEnApEGLf9yrlBtbs3SfShMdURZpivjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.0 209/289] KVM: x86: nSVM: harden svm_free_nested against freeing vmcb02 while still in use
+        patches@lists.linux.dev, Xiubo Li <xiubli@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Aaron Tomlin <atomlin@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 113/162] ceph: fix possible NULL pointer dereference for req->r_session
 Date:   Wed, 30 Nov 2022 19:23:14 +0100
-Message-Id: <20221130180548.857726625@linuxfoundation.org>
+Message-Id: <20221130180531.552731658@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Xiubo Li <xiubli@redhat.com>
 
-commit 16ae56d7e0528559bf8dc9070e3bfd8ba3de80df upstream.
+[ Upstream commit 7acae6183cf37c48b8da48bbbdb78820fb3913f3 ]
 
-Make sure that KVM uses vmcb01 before freeing nested state, and warn if
-that is not the case.
-
-This is a minimal fix for CVE-2022-3344 making the kernel print a warning
-instead of a kernel panic.
+The request will be inserted into the ci->i_unsafe_dirops before
+assigning the req->r_session, so it's possible that we will hit
+NULL pointer dereference bug here.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20221103141351.50662-3-mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+URL: https://tracker.ceph.com/issues/55327
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Tested-by: Aaron Tomlin <atomlin@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Stable-dep-of: 5bd76b8de5b7 ("ceph: fix NULL pointer dereference for req->r_session")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/nested.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/ceph/caps.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/x86/kvm/svm/nested.c
-+++ b/arch/x86/kvm/svm/nested.c
-@@ -1143,6 +1143,9 @@ void svm_free_nested(struct vcpu_svm *sv
- 	if (!svm->nested.initialized)
- 		return;
- 
-+	if (WARN_ON_ONCE(svm->vmcb != svm->vmcb01.ptr))
-+		svm_switch_vmcb(svm, &svm->vmcb01);
-+
- 	svm_vcpu_free_msrpm(svm->nested.msrpm);
- 	svm->nested.msrpm = NULL;
- 
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index 4e2fada35808..ce6a858e765a 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -2346,6 +2346,8 @@ static int unsafe_request_wait(struct inode *inode)
+ 			list_for_each_entry(req, &ci->i_unsafe_dirops,
+ 					    r_unsafe_dir_item) {
+ 				s = req->r_session;
++				if (!s)
++					continue;
+ 				if (unlikely(s->s_mds >= max_sessions)) {
+ 					spin_unlock(&ci->i_unsafe_lock);
+ 					for (i = 0; i < max_sessions; i++) {
+@@ -2366,6 +2368,8 @@ static int unsafe_request_wait(struct inode *inode)
+ 			list_for_each_entry(req, &ci->i_unsafe_iops,
+ 					    r_unsafe_target_item) {
+ 				s = req->r_session;
++				if (!s)
++					continue;
+ 				if (unlikely(s->s_mds >= max_sessions)) {
+ 					spin_unlock(&ci->i_unsafe_lock);
+ 					for (i = 0; i < max_sessions; i++) {
+-- 
+2.35.1
+
 
 
