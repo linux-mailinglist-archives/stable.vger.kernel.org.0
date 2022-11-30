@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83EE163DE09
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:33:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C756F63DF62
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:46:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229690AbiK3SdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:33:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40744 "EHLO
+        id S231290AbiK3Sql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:46:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230288AbiK3SdF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:33:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30DAB25C59
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:32:52 -0800 (PST)
+        with ESMTP id S229695AbiK3Sq0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:46:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC5E25CB
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:46:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45FBEB81C9C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:32:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 954A2C433C1;
-        Wed, 30 Nov 2022 18:32:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0FE561D41
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:46:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18E2C433D6;
+        Wed, 30 Nov 2022 18:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833169;
-        bh=b7WBZuhADWnLTsk75huPI9h6dbLNsrX7kEu3QKuNwF0=;
+        s=korg; t=1669833985;
+        bh=ySY3bfJZa+Y94Shb1YKZowz2e4b70n9eIqhb8o1OkPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2JrKCwbvg0a46E6orJN4lXmy0/IA3aoiiwGkbwsAaIm8phq3i3V200tDPoN0C7mZe
-         k4C0b45gLxSk4V5Twqb59LKT05UWjJ/VNSHNMXxb3Hb9Q+ofYryzoY5WJEI1gKxlGx
-         n2WKpC1OFsktsly5hcPPmQasVhi0Yee4u2MPN7mA=
+        b=hLNP/xfTwKgy08ak2ouakYw0B+Hg+FX5IhSsbDYbB1VMzU5bgojan7g/Y/ZSdP26A
+         WrCuGkITxIpoJFpAP0J01rydK8owGDg7spTABSpqZUuCLBsPC7VnJnwUCXl2cF/Kfs
+         BSDyKBEGNNDqjw6cOL66rb7OycEtQads0IDGJ6M0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenchao Hao <haowenchao@huawei.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        patches@lists.linux.dev,
+        syzbot+43475bf3cfbd6e41f5b7@syzkaller.appspotmail.com,
+        Lin Ma <linma@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 012/206] ata: libata-scsi: simplify __ata_scsi_queuecmd()
+Subject: [PATCH 6.0 079/289] nfc/nci: fix race with opening and closing
 Date:   Wed, 30 Nov 2022 19:21:04 +0100
-Message-Id: <20221130180533.308433809@linuxfoundation.org>
+Message-Id: <20221130180545.934555514@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,96 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenchao Hao <haowenchao@huawei.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 84eac327af543f03172085d5ef9f98ea25a51191 ]
+[ Upstream commit 0ad6bded175e829c2ca261529c9dce39a32a042d ]
 
-This patch cleans up the code of __ata_scsi_queuecmd(). Since each
-branch of the "if" condition check that scmd->cmd_len is not zero, move
-this check out of the "if" to simplify the conditions being checked in
-the "else" branch.
+Previously we leverage NCI_UNREG and the lock inside nci_close_device to
+prevent the race condition between opening a device and closing a
+device. However, it still has problem because a failed opening command
+will erase the NCI_UNREG flag and allow another opening command to
+bypass the status checking.
 
-While at it, avoid the if-else-if-else structure using if-else if
-structure and remove the redundant rc local variable.
+This fix corrects that by making sure the NCI_UNREG is held.
 
-This patch does not change the function logic.
-
-Signed-off-by: Wenchao Hao <haowenchao@huawei.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Stable-dep-of: e20e81a24a4d ("ata: libata-core: do not issue non-internal commands once EH is pending")
+Reported-by: syzbot+43475bf3cfbd6e41f5b7@syzkaller.appspotmail.com
+Fixes: 48b71a9e66c2 ("NFC: add NCI_UNREG flag to eliminate the race")
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-scsi.c | 45 ++++++++++++++++++---------------------
- 1 file changed, 21 insertions(+), 24 deletions(-)
+ net/nfc/nci/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/ata/libata-scsi.c b/drivers/ata/libata-scsi.c
-index ef41cb385a0d..61b7e0b0bbf6 100644
---- a/drivers/ata/libata-scsi.c
-+++ b/drivers/ata/libata-scsi.c
-@@ -3990,42 +3990,39 @@ int __ata_scsi_queuecmd(struct scsi_cmnd *scmd, struct ata_device *dev)
- {
- 	u8 scsi_op = scmd->cmnd[0];
- 	ata_xlat_func_t xlat_func;
--	int rc = 0;
-+
-+	if (unlikely(!scmd->cmd_len))
-+		goto bad_cdb_len;
+diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
+index 6a193cce2a75..4ffdf2f45c44 100644
+--- a/net/nfc/nci/core.c
++++ b/net/nfc/nci/core.c
+@@ -542,7 +542,7 @@ static int nci_open_device(struct nci_dev *ndev)
+ 		skb_queue_purge(&ndev->tx_q);
  
- 	if (dev->class == ATA_DEV_ATA || dev->class == ATA_DEV_ZAC) {
--		if (unlikely(!scmd->cmd_len || scmd->cmd_len > dev->cdb_len))
-+		if (unlikely(scmd->cmd_len > dev->cdb_len))
- 			goto bad_cdb_len;
- 
- 		xlat_func = ata_get_xlat_func(dev, scsi_op);
--	} else {
--		if (unlikely(!scmd->cmd_len))
--			goto bad_cdb_len;
-+	} else if (likely((scsi_op != ATA_16) || !atapi_passthru16)) {
-+		/* relay SCSI command to ATAPI device */
-+		int len = COMMAND_SIZE(scsi_op);
- 
--		xlat_func = NULL;
--		if (likely((scsi_op != ATA_16) || !atapi_passthru16)) {
--			/* relay SCSI command to ATAPI device */
--			int len = COMMAND_SIZE(scsi_op);
--			if (unlikely(len > scmd->cmd_len ||
--				     len > dev->cdb_len ||
--				     scmd->cmd_len > ATAPI_CDB_LEN))
--				goto bad_cdb_len;
-+		if (unlikely(len > scmd->cmd_len ||
-+			     len > dev->cdb_len ||
-+			     scmd->cmd_len > ATAPI_CDB_LEN))
-+			goto bad_cdb_len;
- 
--			xlat_func = atapi_xlat;
--		} else {
--			/* ATA_16 passthru, treat as an ATA command */
--			if (unlikely(scmd->cmd_len > 16))
--				goto bad_cdb_len;
-+		xlat_func = atapi_xlat;
-+	} else {
-+		/* ATA_16 passthru, treat as an ATA command */
-+		if (unlikely(scmd->cmd_len > 16))
-+			goto bad_cdb_len;
- 
--			xlat_func = ata_get_xlat_func(dev, scsi_op);
--		}
-+		xlat_func = ata_get_xlat_func(dev, scsi_op);
+ 		ndev->ops->close(ndev);
+-		ndev->flags = 0;
++		ndev->flags &= BIT(NCI_UNREG);
  	}
  
- 	if (xlat_func)
--		rc = ata_scsi_translate(dev, scmd, xlat_func);
--	else
--		ata_scsi_simulate(dev, scmd);
-+		return ata_scsi_translate(dev, scmd, xlat_func);
- 
--	return rc;
-+	ata_scsi_simulate(dev, scmd);
-+
-+	return 0;
- 
-  bad_cdb_len:
- 	DPRINTK("bad CDB len=%u, scsi_op=0x%02x, max=%u\n",
+ done:
 -- 
 2.35.1
 
