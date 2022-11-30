@@ -2,77 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3598D63E05D
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:58:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B22463E093
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 20:18:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229954AbiK3S6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:58:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48722 "EHLO
+        id S229532AbiK3TSv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 14:18:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230247AbiK3S6C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:58:02 -0500
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5A94A5A2;
-        Wed, 30 Nov 2022 10:57:58 -0800 (PST)
-Received: by mail-pg1-x530.google.com with SMTP id 82so9458484pgc.0;
-        Wed, 30 Nov 2022 10:57:58 -0800 (PST)
+        with ESMTP id S229610AbiK3TSl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 14:18:41 -0500
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0571D83272
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 11:18:39 -0800 (PST)
+Received: by mail-pg1-x52f.google.com with SMTP id q71so16971345pgq.8
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 11:18:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HARMmg9a8K/b5vAg5+2jWHn5nGF+ldiYt0bz7xqmdnE=;
-        b=WGTJiF3yAhGqZTID6d08gJEXQ4pOpw/F8IW70Fk4DX3/XKK4GX6O6O5z6sEg6z3ZxA
-         nKoCubP1Y5g7MDxpafjnlDV+EId4HA5w7daSh2YvcN6HdV0obI9+UFlyKjmkKYqFR72y
-         gMWy1dzzql8GfeFzdH/WmENL31+zec2xHdtXcCkYXTjR8m3n4QiPg3PrzBzgOcwPIHS6
-         AaR7qidp6vLsXCgkZT4up/CQ2btS/YTKnCNO3QAxE+f6yYpnKWixbNMgPaXlio5w8zOX
-         hxUDE2u3oizkjBG0c3nPpcxfw2PyzrMLfX65HIkSY8twjcXL4M+p+vy8Z5yNr+rm4yNn
-         JTgA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=aYNNU9+X/9ZTebnHHMGvvJTUB4H0iJgIyfV44VH2ZS4=;
+        b=hFHl9+NwQ2QWwXSydZBD+0yH7WV7herJBtH+lWaNNlNzywYryBMSKWvDN4mkeEGheT
+         Re+7rcUm4W2Ig2PQefVQ14fgy27jtR6PO44f2Mx7I8/2DLITULjxYJ+Ntgqo1nP6iRxD
+         L8z8x/0NUMjoagH9exS1wSdXntjwQFqpvJ5WxTSBAfl2cjRG4W1nM4ETO8WP23loadiS
+         brDqNcjwmwAOF7VsUanAiWy4zIFqy9/HQPEzGJygKq27/eLom/JCYYkH1LHDHEto5iog
+         7U0IYjTtCzByLqY1fJZTK8vVOc2oJfWuE/iCCZhJLfedF4SYz+oVm/9Jsw3zQhAEVccE
+         LNqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HARMmg9a8K/b5vAg5+2jWHn5nGF+ldiYt0bz7xqmdnE=;
-        b=qxgeTRD4kqFhqcCAYiK5nZTLG09+JX8DxDIex1JvgbVZTzcf3EBKgEaVzTOWfq8h4D
-         NsdfoqJ3Jxrn2+LP03ljDUlMEQVWls3lzGbJ76S8vxcmEbVMIIz41acfgEtvOhQ5kwfT
-         9eLW/+OCQ1i+D0ZlHYNKNADaSr5cq99kIbl/bbVwix88jgzDoppVx4GrCxN+8cobZMwN
-         ujounUfO0wtjY6Xr3pgnBqEZbHsW7YOz717n3EOy3ogHub8TAiNfYOWabhnwwuKR08z3
-         /XRXgijgjtpVcicSiRx1UFZMCQNiHm8LuZx6KracT+f+rp6VmWSu+tWmSVMZzKMVrwYw
-         W3EQ==
-X-Gm-Message-State: ANoB5pnTaMuLH63HbNuWao7cpnuF2Uyy8OBWU8VgWxDzyxa/6Wf2/AF/
-        YjNZ+XrEweP0zQjc95bpGFY=
-X-Google-Smtp-Source: AA0mqf6ofi5Ziug2zS6ibi211SCEqrDs35lHLQWBZK6VgQEsxw0C1v/30PItrefwpLD/4ByygYUD8w==
-X-Received: by 2002:a63:f506:0:b0:470:14fa:a294 with SMTP id w6-20020a63f506000000b0047014faa294mr37579508pgh.361.1669834678336;
-        Wed, 30 Nov 2022 10:57:58 -0800 (PST)
-Received: from localhost ([2a00:79e1:abd:4a00:2703:3c72:eb1a:cffd])
-        by smtp.gmail.com with ESMTPSA id q14-20020aa7842e000000b00575cc2f74ffsm1735664pfn.35.2022.11.30.10.57.57
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=aYNNU9+X/9ZTebnHHMGvvJTUB4H0iJgIyfV44VH2ZS4=;
+        b=4CwPcWs4gX1qruQSTxvZzU+enNDG2IRaanvWbNk2OwBebEAYN4gxuDfTwWtJEv4WEo
+         Yc4ZQz2iRvlU6BeXIe0TlR1BQ1rbQEWcx5rsCt7Ab3+Rq4MKM11qUU5p8FtOR6q5lXLW
+         PfmJa7gF1E0SeVd744yzwukbpTl/1WPvpZDRwGEtMn+lnIo+yYfdW2q+v7RscvDnz2LI
+         VPJsafLlmF80CjRck9TwAQ4XC/cfrPkqJyAT1WU4FnRmXqBfc/S1MT0SXiZbndX9KcpD
+         fs1nVNfXw51zy+MTh9c8YNRDOQl6TPCM50aWjRE2Om3szEOqwCJZ6IEpRaffIEy+S6vV
+         n3cg==
+X-Gm-Message-State: ANoB5pnCpFdtxYIYLwYc+5kkEH4gA29/DpdSKtCJ4l5v2VVfLqOtKMh4
+        G/3lEzUIecjG4XubJUi1iXigi4BXgEGhKFXQ
+X-Google-Smtp-Source: AA0mqf6tX4eeqgwT88LSjGELGrKim0bTr2/EmRByB5xsCntxzQwclzVgU+0Tcw2v0pTrY9KrvIGhMA==
+X-Received: by 2002:a63:545d:0:b0:476:d44d:358 with SMTP id e29-20020a63545d000000b00476d44d0358mr54969050pgm.521.1669835918217;
+        Wed, 30 Nov 2022 11:18:38 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ij19-20020a170902ab5300b0018685257c0dsm1861789plb.58.2022.11.30.11.18.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Nov 2022 10:57:57 -0800 (PST)
-From:   Rob Clark <robdclark@gmail.com>
-To:     dri-devel@lists.freedesktop.org
-Cc:     Daniel Vetter <daniel@ffwll.ch>,
-        Rob Clark <robdclark@chromium.org>, stable@vger.kernel.org,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@gmail.com>,
-        Eric Anholt <eric@anholt.net>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Rob Herring <robh@kernel.org>,
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v2 2/2] drm/shmem-helper: Avoid vm_open error paths
-Date:   Wed, 30 Nov 2022 10:57:48 -0800
-Message-Id: <20221130185748.357410-3-robdclark@gmail.com>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130185748.357410-1-robdclark@gmail.com>
-References: <20221130185748.357410-1-robdclark@gmail.com>
+        Wed, 30 Nov 2022 11:18:37 -0800 (PST)
+Message-ID: <6387ac8d.170a0220.74bd9.3d39@mx.google.com>
+Date:   Wed, 30 Nov 2022 11:18:37 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Kernel: v5.15.79-367-g98a7f39e79899
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.15 baseline: 133 runs,
+ 1 regressions (v5.15.79-367-g98a7f39e79899)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -80,52 +71,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+stable-rc/queue/5.15 baseline: 133 runs, 1 regressions (v5.15.79-367-g98a7f=
+39e79899)
 
-vm_open() is not allowed to fail.  Fortunately we are guaranteed that
-the pages are already pinned, thanks to the initial mmap which is now
-being cloned into a forked process, and only need to increment the
-refcnt.  So just increment it directly.  Previously if a signal was
-delivered at the wrong time to the forking process, the
-mutex_lock_interruptible() could fail resulting in the pages_use_count
-not being incremented.
+Regressions Summary
+-------------------
 
-Fixes: 2194a63a818d ("drm: Add library for shmem backed GEM objects")
-Cc: stable@vger.kernel.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
----
- drivers/gpu/drm/drm_gem_shmem_helper.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+platform           | arch  | lab         | compiler | defconfig | regressio=
+ns
+-------------------+-------+-------------+----------+-----------+----------=
+--
+kontron-pitx-imx8m | arm64 | lab-kontron | gcc-10   | defconfig | 1        =
+  =
 
-diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index 3b7b71391a4c..b602cd72a120 100644
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -571,12 +571,20 @@ static void drm_gem_shmem_vm_open(struct vm_area_struct *vma)
- {
- 	struct drm_gem_object *obj = vma->vm_private_data;
- 	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
--	int ret;
- 
- 	WARN_ON(shmem->base.import_attach);
- 
--	ret = drm_gem_shmem_get_pages(shmem);
--	WARN_ON_ONCE(ret != 0);
-+	mutex_lock(&shmem->pages_lock);
-+
-+	/*
-+	 * We should have already pinned the pages when the buffer was first
-+	 * mmap'd, vm_open() just grabs an additional reference for the new
-+	 * mm the vma is getting copied into (ie. on fork()).
-+	 */
-+	if (!WARN_ON_ONCE(!shmem->pages_use_count))
-+		shmem->pages_use_count++;
-+
-+	mutex_unlock(&shmem->pages_lock);
- 
- 	drm_gem_vm_open(vma);
- }
--- 
-2.38.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.79-367-g98a7f39e79899/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.79-367-g98a7f39e79899
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      98a7f39e79899319dde0e221361f5c63ebfeca53 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab         | compiler | defconfig | regressio=
+ns
+-------------------+-------+-------------+----------+-----------+----------=
+--
+kontron-pitx-imx8m | arm64 | lab-kontron | gcc-10   | defconfig | 1        =
+  =
+
+
+  Details:     https://kernelci.org/test/plan/id/638779d92cdb2f77832abd2b
+
+  Results:     51 PASS, 1 FAIL, 1 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.79-=
+367-g98a7f39e79899/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx=
+-imx8m.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.79-=
+367-g98a7f39e79899/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx=
+-imx8m.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.dwc3-usb1-probed: https://kernelci.org/test/case/id/638=
+779d92cdb2f77832abd3e
+        new failure (last pass: v5.15.79-330-gb107830d5a8b)
+
+    2022-11-30T15:42:11.467768  /lava-220251/1/../bin/lava-test-case
+    2022-11-30T15:42:11.468151  <8>[   14.563386] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwc3-usb1-probed RESULT=3Dfail>   =
+
+ =20
