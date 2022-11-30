@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16E7563DF44
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:45:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C586963DF46
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:45:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231274AbiK3Spf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:45:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56770 "EHLO
+        id S231309AbiK3Spi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:45:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231279AbiK3SpL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:45:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B37669490D
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:45:09 -0800 (PST)
+        with ESMTP id S231312AbiK3SpO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:45:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1FDC54B31
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:45:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4266461D76
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:45:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52857C433C1;
-        Wed, 30 Nov 2022 18:45:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0631B81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:45:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3B5BC433C1;
+        Wed, 30 Nov 2022 18:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833908;
-        bh=SUbytsKde2CDeqpsz1pWb4YZgYcdh3cfLuEOqFoD9Is=;
+        s=korg; t=1669833911;
+        bh=VX/wCa5lt4Ui8k1NWL6rhaJxgEWFk//eJG1DQuTOU0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UvOz2wlOhdQ83ctpAXYYikHkmGPcgqXVv1dMR0QCbAqzEfXwG9crHezTMAn/pwV6z
-         VOepEivAGL6rAdGkqsO1wckoeoe5R/Iwpy0JpE/4exTK9k/yKwOyGvz//T1OlixWmK
-         L18CRRzpdn+kGQm1t2EHv9EKHMLbpuRQlt1oQIEY=
+        b=059uI4Plni1J87hZPF7JlxDTkCvoh3ekBSYqkdUuRQxCKHCOpi6YsQYoq7aMMVWbo
+         FSiyKgLwXnB+sFNXyHvmIlKvJ6KFp9NBCiZ/5XoHIzDTWuVzaVeiG3m8TtxHcvPSWE
+         mlm/tu7wyNQ2HXhjlHjeOQcdnOiosaq/XxXeHa9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeffrey Hugo <quic_jhugo@quicinc.com>,
-        Carl Vanderlip <quic_carlv@quicinc.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 059/289] PCI: hv: Only reuse existing IRTE allocation for Multi-MSI
-Date:   Wed, 30 Nov 2022 19:20:44 +0100
-Message-Id: <20221130180545.469712939@linuxfoundation.org>
+        patches@lists.linux.dev, Chen-Yu Tsai <wens@csie.org>,
+        Peter Geis <pgwipeout@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 060/289] arm64: dts: rockchip: Fix Pine64 Quartz4-B PMIC interrupt
+Date:   Wed, 30 Nov 2022 19:20:45 +0100
+Message-Id: <20221130180545.491302635@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -55,259 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit c234ba8042920fa83635808dc5673f36869ca280 ]
+[ Upstream commit 562105c1b072411c71ac2202410d83ee79297624 ]
 
-Jeffrey added Multi-MSI support to the pci-hyperv driver by the 4 patches:
-08e61e861a0e ("PCI: hv: Fix multi-MSI to allow more than one MSI vector")
-455880dfe292 ("PCI: hv: Fix hv_arch_irq_unmask() for multi-MSI")
-b4b77778ecc5 ("PCI: hv: Reuse existing IRTE allocation in compose_msi_msg()")
-a2bad844a67b ("PCI: hv: Fix interrupt mapping for multi-MSI")
+Ths PMIC's interrupt line is tied to GPIO0_A3. This is described
+correctly for the pinmux setting, but incorrectly for the interrupt.
 
-It turns out that the third patch (b4b77778ecc5) causes a performance
-regression because all the interrupts now happen on 1 physical CPU (or two
-pCPUs, if one pCPU doesn't have enough vectors). When a guest has many PCI
-devices, it may suffer from soft lockups if the workload is heavy, e.g.,
-see https://lwn.net/ml/linux-kernel/20220804025104.15673-1-decui@microsoft.com/
+Correct the interrupt setting so that interrupts from the PMIC get
+delivered.
 
-Commit b4b77778ecc5 itself is good. The real issue is that the hypercall in
-hv_irq_unmask() -> hv_arch_irq_unmask() ->
-hv_do_hypercall(HVCALL_RETARGET_INTERRUPT...) only changes the target
-virtual CPU rather than physical CPU; with b4b77778ecc5, the pCPU is
-determined only once in hv_compose_msi_msg() where only vCPU0 is specified;
-consequently the hypervisor only uses 1 target pCPU for all the interrupts.
-
-Note: before b4b77778ecc5, the pCPU is determined twice, and when the pCPU
-is determined the second time, the vCPU in the effective affinity mask is
-used (i.e., it isn't always vCPU0), so the hypervisor chooses different
-pCPU for each interrupt.
-
-The hypercall will be fixed in future to update the pCPU as well, but
-that will take quite a while, so let's restore the old behavior in
-hv_compose_msi_msg(), i.e., don't reuse the existing IRTE allocation for
-single-MSI and MSI-X; for multi-MSI, we choose the vCPU in a round-robin
-manner for each PCI device, so the interrupts of different devices can
-happen on different pCPUs, though the interrupts of each device happen on
-some single pCPU.
-
-The hypercall fix may not be backported to all old versions of Hyper-V, so
-we want to have this guest side change forever (or at least till we're sure
-the old affected versions of Hyper-V are no longer supported).
-
-Fixes: b4b77778ecc5 ("PCI: hv: Reuse existing IRTE allocation in compose_msi_msg()")
-Co-developed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Signed-off-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Co-developed-by: Carl Vanderlip <quic_carlv@quicinc.com>
-Signed-off-by: Carl Vanderlip <quic_carlv@quicinc.com>
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20221104222953.11356-1-decui@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: dcc8c66bef79 ("arm64: dts: rockchip: add Pine64 Quartz64-B device tree")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Reviewed-by: Peter Geis <pgwipeout@gmail.com>
+Link: https://lore.kernel.org/r/20221106161513.4140-1-wens@kernel.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-hyperv.c | 90 ++++++++++++++++++++++++-----
- 1 file changed, 75 insertions(+), 15 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3566-quartz64-b.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index ba64284eaf9f..f1ec8931dfbc 100644
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1613,7 +1613,7 @@ static void hv_pci_compose_compl(void *context, struct pci_response *resp,
- }
+diff --git a/arch/arm64/boot/dts/rockchip/rk3566-quartz64-b.dts b/arch/arm64/boot/dts/rockchip/rk3566-quartz64-b.dts
+index 528bb4e8ac77..a2d0524e0ec9 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3566-quartz64-b.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3566-quartz64-b.dts
+@@ -176,7 +176,7 @@ rk809: pmic@20 {
+ 		compatible = "rockchip,rk809";
+ 		reg = <0x20>;
+ 		interrupt-parent = <&gpio0>;
+-		interrupts = <RK_PA7 IRQ_TYPE_LEVEL_LOW>;
++		interrupts = <RK_PA3 IRQ_TYPE_LEVEL_LOW>;
+ 		clock-output-names = "rk808-clkout1", "rk808-clkout2";
  
- static u32 hv_compose_msi_req_v1(
--	struct pci_create_interrupt *int_pkt, const struct cpumask *affinity,
-+	struct pci_create_interrupt *int_pkt,
- 	u32 slot, u8 vector, u16 vector_count)
- {
- 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE;
-@@ -1631,6 +1631,35 @@ static u32 hv_compose_msi_req_v1(
- 	return sizeof(*int_pkt);
- }
- 
-+/*
-+ * The vCPU selected by hv_compose_multi_msi_req_get_cpu() and
-+ * hv_compose_msi_req_get_cpu() is a "dummy" vCPU because the final vCPU to be
-+ * interrupted is specified later in hv_irq_unmask() and communicated to Hyper-V
-+ * via the HVCALL_RETARGET_INTERRUPT hypercall. But the choice of dummy vCPU is
-+ * not irrelevant because Hyper-V chooses the physical CPU to handle the
-+ * interrupts based on the vCPU specified in message sent to the vPCI VSP in
-+ * hv_compose_msi_msg(). Hyper-V's choice of pCPU is not visible to the guest,
-+ * but assigning too many vPCI device interrupts to the same pCPU can cause a
-+ * performance bottleneck. So we spread out the dummy vCPUs to influence Hyper-V
-+ * to spread out the pCPUs that it selects.
-+ *
-+ * For the single-MSI and MSI-X cases, it's OK for hv_compose_msi_req_get_cpu()
-+ * to always return the same dummy vCPU, because a second call to
-+ * hv_compose_msi_msg() contains the "real" vCPU, causing Hyper-V to choose a
-+ * new pCPU for the interrupt. But for the multi-MSI case, the second call to
-+ * hv_compose_msi_msg() exits without sending a message to the vPCI VSP, so the
-+ * original dummy vCPU is used. This dummy vCPU must be round-robin'ed so that
-+ * the pCPUs are spread out. All interrupts for a multi-MSI device end up using
-+ * the same pCPU, even though the vCPUs will be spread out by later calls
-+ * to hv_irq_unmask(), but that is the best we can do now.
-+ *
-+ * With Hyper-V in Nov 2022, the HVCALL_RETARGET_INTERRUPT hypercall does *not*
-+ * cause Hyper-V to reselect the pCPU based on the specified vCPU. Such an
-+ * enhancement is planned for a future version. With that enhancement, the
-+ * dummy vCPU selection won't matter, and interrupts for the same multi-MSI
-+ * device will be spread across multiple pCPUs.
-+ */
-+
- /*
-  * Create MSI w/ dummy vCPU set targeting just one vCPU, overwritten
-  * by subsequent retarget in hv_irq_unmask().
-@@ -1640,18 +1669,39 @@ static int hv_compose_msi_req_get_cpu(const struct cpumask *affinity)
- 	return cpumask_first_and(affinity, cpu_online_mask);
- }
- 
--static u32 hv_compose_msi_req_v2(
--	struct pci_create_interrupt2 *int_pkt, const struct cpumask *affinity,
--	u32 slot, u8 vector, u16 vector_count)
-+/*
-+ * Make sure the dummy vCPU values for multi-MSI don't all point to vCPU0.
-+ */
-+static int hv_compose_multi_msi_req_get_cpu(void)
- {
-+	static DEFINE_SPINLOCK(multi_msi_cpu_lock);
-+
-+	/* -1 means starting with CPU 0 */
-+	static int cpu_next = -1;
-+
-+	unsigned long flags;
- 	int cpu;
- 
-+	spin_lock_irqsave(&multi_msi_cpu_lock, flags);
-+
-+	cpu_next = cpumask_next_wrap(cpu_next, cpu_online_mask, nr_cpu_ids,
-+				     false);
-+	cpu = cpu_next;
-+
-+	spin_unlock_irqrestore(&multi_msi_cpu_lock, flags);
-+
-+	return cpu;
-+}
-+
-+static u32 hv_compose_msi_req_v2(
-+	struct pci_create_interrupt2 *int_pkt, int cpu,
-+	u32 slot, u8 vector, u16 vector_count)
-+{
- 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE2;
- 	int_pkt->wslot.slot = slot;
- 	int_pkt->int_desc.vector = vector;
- 	int_pkt->int_desc.vector_count = vector_count;
- 	int_pkt->int_desc.delivery_mode = DELIVERY_MODE;
--	cpu = hv_compose_msi_req_get_cpu(affinity);
- 	int_pkt->int_desc.processor_array[0] =
- 		hv_cpu_number_to_vp_number(cpu);
- 	int_pkt->int_desc.processor_count = 1;
-@@ -1660,18 +1710,15 @@ static u32 hv_compose_msi_req_v2(
- }
- 
- static u32 hv_compose_msi_req_v3(
--	struct pci_create_interrupt3 *int_pkt, const struct cpumask *affinity,
-+	struct pci_create_interrupt3 *int_pkt, int cpu,
- 	u32 slot, u32 vector, u16 vector_count)
- {
--	int cpu;
--
- 	int_pkt->message_type.type = PCI_CREATE_INTERRUPT_MESSAGE3;
- 	int_pkt->wslot.slot = slot;
- 	int_pkt->int_desc.vector = vector;
- 	int_pkt->int_desc.reserved = 0;
- 	int_pkt->int_desc.vector_count = vector_count;
- 	int_pkt->int_desc.delivery_mode = DELIVERY_MODE;
--	cpu = hv_compose_msi_req_get_cpu(affinity);
- 	int_pkt->int_desc.processor_array[0] =
- 		hv_cpu_number_to_vp_number(cpu);
- 	int_pkt->int_desc.processor_count = 1;
-@@ -1715,12 +1762,18 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 			struct pci_create_interrupt3 v3;
- 		} int_pkts;
- 	} __packed ctxt;
-+	bool multi_msi;
- 	u64 trans_id;
- 	u32 size;
- 	int ret;
-+	int cpu;
-+
-+	msi_desc  = irq_data_get_msi_desc(data);
-+	multi_msi = !msi_desc->pci.msi_attrib.is_msix &&
-+		    msi_desc->nvec_used > 1;
- 
- 	/* Reuse the previous allocation */
--	if (data->chip_data) {
-+	if (data->chip_data && multi_msi) {
- 		int_desc = data->chip_data;
- 		msg->address_hi = int_desc->address >> 32;
- 		msg->address_lo = int_desc->address & 0xffffffff;
-@@ -1728,7 +1781,6 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 		return;
- 	}
- 
--	msi_desc  = irq_data_get_msi_desc(data);
- 	pdev = msi_desc_to_pci_dev(msi_desc);
- 	dest = irq_data_get_effective_affinity_mask(data);
- 	pbus = pdev->bus;
-@@ -1738,11 +1790,18 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 	if (!hpdev)
- 		goto return_null_message;
- 
-+	/* Free any previous message that might have already been composed. */
-+	if (data->chip_data && !multi_msi) {
-+		int_desc = data->chip_data;
-+		data->chip_data = NULL;
-+		hv_int_desc_free(hpdev, int_desc);
-+	}
-+
- 	int_desc = kzalloc(sizeof(*int_desc), GFP_ATOMIC);
- 	if (!int_desc)
- 		goto drop_reference;
- 
--	if (!msi_desc->pci.msi_attrib.is_msix && msi_desc->nvec_used > 1) {
-+	if (multi_msi) {
- 		/*
- 		 * If this is not the first MSI of Multi MSI, we already have
- 		 * a mapping.  Can exit early.
-@@ -1767,9 +1826,11 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 		 */
- 		vector = 32;
- 		vector_count = msi_desc->nvec_used;
-+		cpu = hv_compose_multi_msi_req_get_cpu();
- 	} else {
- 		vector = hv_msi_get_int_vector(data);
- 		vector_count = 1;
-+		cpu = hv_compose_msi_req_get_cpu(dest);
- 	}
- 
- 	/*
-@@ -1785,7 +1846,6 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 	switch (hbus->protocol_version) {
- 	case PCI_PROTOCOL_VERSION_1_1:
- 		size = hv_compose_msi_req_v1(&ctxt.int_pkts.v1,
--					dest,
- 					hpdev->desc.win_slot.slot,
- 					(u8)vector,
- 					vector_count);
-@@ -1794,7 +1854,7 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 	case PCI_PROTOCOL_VERSION_1_2:
- 	case PCI_PROTOCOL_VERSION_1_3:
- 		size = hv_compose_msi_req_v2(&ctxt.int_pkts.v2,
--					dest,
-+					cpu,
- 					hpdev->desc.win_slot.slot,
- 					(u8)vector,
- 					vector_count);
-@@ -1802,7 +1862,7 @@ static void hv_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
- 
- 	case PCI_PROTOCOL_VERSION_1_4:
- 		size = hv_compose_msi_req_v3(&ctxt.int_pkts.v3,
--					dest,
-+					cpu,
- 					hpdev->desc.win_slot.slot,
- 					vector,
- 					vector_count);
+ 		pinctrl-names = "default";
 -- 
 2.35.1
 
