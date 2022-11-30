@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2770063DE42
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FF1363DE43
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230251AbiK3SfY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:35:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43370 "EHLO
+        id S230429AbiK3Sf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:35:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230252AbiK3SfK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 003DE2611F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:09 -0800 (PST)
+        with ESMTP id S230387AbiK3SfP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F797920B5
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 900C361D6A
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 889D1C433D6;
-        Wed, 30 Nov 2022 18:35:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD94161D67
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8212C433C1;
+        Wed, 30 Nov 2022 18:35:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833309;
-        bh=+cC/2A0O1a+NCRlywGAt4AB719e1jYGnJMf/hFAt0po=;
+        s=korg; t=1669833313;
+        bh=AFEZGOAVGXfwZy5s4pOdhmRMRGBns6r4DngWqFm+kNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kfwS8HFXRAw1zIe2CQ45vj81HP/GrcZypIpD+vI+CgzSev80CEtyjDjmEcobrzGHy
-         T19/TTXpEm6wEUJveg4W94U7yxL0iaU8SQFznU0X3zd5xiLa4rtawpvtR4mVt7xCiv
-         D6yfmsDYdMFciK844pNi0qRc9uSOMZKeB2eh6rXc=
+        b=SlIF+KlP6XtW7bJjMoVHDEjU3xHhXO8Rzal0hAsGK8hepoFmqbSoqinJ8cm4MPK1g
+         YkjM3qW5iMftcGX0kaCxiwEKVNdSzO047niPUg9cZAHxyolXS0cYJakCymoITZw/ja
+         zIemL4oyoOfYl6YlO797yHJu2qA/PP728Bf3hYpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 061/206] ASoC: soc-pcm: Dont zero TDM masks in __soc_pcm_open()
-Date:   Wed, 30 Nov 2022 19:21:53 +0100
-Message-Id: <20221130180534.554967684@linuxfoundation.org>
+        patches@lists.linux.dev, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 062/206] x86/hyperv: Restore VP assist page after cpu offlining/onlining
+Date:   Wed, 30 Nov 2022 19:21:54 +0100
+Message-Id: <20221130180534.579317229@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
 References: <20221130180532.974348590@linuxfoundation.org>
@@ -54,45 +53,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 39bd801d6908900e9ab0cdc2655150f95ddd4f1a ]
+[ Upstream commit ee6815416380bc069b7dcbdff0682d4c53617527 ]
 
-The DAI tx_mask and rx_mask are set by snd_soc_dai_set_tdm_slot()
-and used by later code that depends on the TDM settings. So
-__soc_pcm_open() should not be obliterating those mask values.
+Commit e5d9b714fe40 ("x86/hyperv: fix root partition faults when writing
+to VP assist page MSR") moved 'wrmsrl(HV_X64_MSR_VP_ASSIST_PAGE)' under
+'if (*hvp)' condition. This works for root partition as hv_cpu_die()
+does memunmap() and sets 'hv_vp_assist_page[cpu]' to NULL but breaks
+non-root partitions as hv_cpu_die() doesn't free 'hv_vp_assist_page[cpu]'
+for them. This causes VP assist page to remain unset after CPU
+offline/online cycle:
 
-The code in __soc_pcm_hw_params() uses these masks to calculate the
-active channels so that only the AIF_IN/AIF_OUT widgets for the
-active TDM slots are enabled. The zeroing of the masks in
-__soc_pcm_open() disables this functionality so all AIF widgets
-were enabled even for channels that are not assigned to a TDM slot.
+$ rdmsr -p 24 0x40000073
+  10212f001
+$ echo 0 > /sys/devices/system/cpu/cpu24/online
+$ echo 1 > /sys/devices/system/cpu/cpu24/online
+$ rdmsr -p 24 0x40000073
+  0
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Fixes: 2e5894d73789 ("ASoC: pcm: Add support for DAI multicodec")
-Link: https://lore.kernel.org/r/20221104132213.121847-1-rf@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix the issue by always writing to HV_X64_MSR_VP_ASSIST_PAGE in
+hv_cpu_init(). Note, checking 'if (!*hvp)', for root partition is
+pointless as hv_cpu_die() always sets 'hv_vp_assist_page[cpu]' to
+NULL (and it's also NULL initially).
+
+Note: the fact that 'hv_vp_assist_page[cpu]' is reset to NULL may
+present a (potential) issue for KVM. While Hyper-V uses
+CPUHP_AP_ONLINE_DYN stage in CPU hotplug, KVM uses CPUHP_AP_KVM_STARTING
+which comes earlier in CPU teardown sequence. It is theoretically
+possible that Enlightened VMCS is still in use. It is unclear if the
+issue is real and if using KVM with Hyper-V root partition is even
+possible.
+
+While on it, drop the unneeded smp_processor_id() call from hv_cpu_init().
+
+Fixes: e5d9b714fe40 ("x86/hyperv: fix root partition faults when writing to VP assist page MSR")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20221103190601.399343-1-vkuznets@redhat.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 5 -----
- 1 file changed, 5 deletions(-)
+ arch/x86/hyperv/hv_init.c | 54 +++++++++++++++++++--------------------
+ 1 file changed, 26 insertions(+), 28 deletions(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 48f71bb81a2f..f6dc71e8ea87 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -759,11 +759,6 @@ static int soc_pcm_open(struct snd_pcm_substream *substream)
- 		ret = snd_soc_dai_startup(dai, substream);
- 		if (ret < 0)
- 			goto err;
--
--		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
--			dai->tx_mask = 0;
--		else
--			dai->rx_mask = 0;
+diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
+index b6d48ca5b0f1..762f10cdfb7a 100644
+--- a/arch/x86/hyperv/hv_init.c
++++ b/arch/x86/hyperv/hv_init.c
+@@ -45,7 +45,7 @@ EXPORT_SYMBOL_GPL(hv_vp_assist_page);
+ static int hv_cpu_init(unsigned int cpu)
+ {
+ 	union hv_vp_assist_msr_contents msr = { 0 };
+-	struct hv_vp_assist_page **hvp = &hv_vp_assist_page[smp_processor_id()];
++	struct hv_vp_assist_page **hvp = &hv_vp_assist_page[cpu];
+ 	int ret;
+ 
+ 	ret = hv_common_cpu_init(cpu);
+@@ -55,34 +55,32 @@ static int hv_cpu_init(unsigned int cpu)
+ 	if (!hv_vp_assist_page)
+ 		return 0;
+ 
+-	if (!*hvp) {
+-		if (hv_root_partition) {
+-			/*
+-			 * For root partition we get the hypervisor provided VP assist
+-			 * page, instead of allocating a new page.
+-			 */
+-			rdmsrl(HV_X64_MSR_VP_ASSIST_PAGE, msr.as_uint64);
+-			*hvp = memremap(msr.pfn <<
+-					HV_X64_MSR_VP_ASSIST_PAGE_ADDRESS_SHIFT,
+-					PAGE_SIZE, MEMREMAP_WB);
+-		} else {
+-			/*
+-			 * The VP assist page is an "overlay" page (see Hyper-V TLFS's
+-			 * Section 5.2.1 "GPA Overlay Pages"). Here it must be zeroed
+-			 * out to make sure we always write the EOI MSR in
+-			 * hv_apic_eoi_write() *after* the EOI optimization is disabled
+-			 * in hv_cpu_die(), otherwise a CPU may not be stopped in the
+-			 * case of CPU offlining and the VM will hang.
+-			 */
++	if (hv_root_partition) {
++		/*
++		 * For root partition we get the hypervisor provided VP assist
++		 * page, instead of allocating a new page.
++		 */
++		rdmsrl(HV_X64_MSR_VP_ASSIST_PAGE, msr.as_uint64);
++		*hvp = memremap(msr.pfn << HV_X64_MSR_VP_ASSIST_PAGE_ADDRESS_SHIFT,
++				PAGE_SIZE, MEMREMAP_WB);
++	} else {
++		/*
++		 * The VP assist page is an "overlay" page (see Hyper-V TLFS's
++		 * Section 5.2.1 "GPA Overlay Pages"). Here it must be zeroed
++		 * out to make sure we always write the EOI MSR in
++		 * hv_apic_eoi_write() *after* the EOI optimization is disabled
++		 * in hv_cpu_die(), otherwise a CPU may not be stopped in the
++		 * case of CPU offlining and the VM will hang.
++		 */
++		if (!*hvp)
+ 			*hvp = __vmalloc(PAGE_SIZE, GFP_KERNEL | __GFP_ZERO);
+-			if (*hvp)
+-				msr.pfn = vmalloc_to_pfn(*hvp);
+-		}
+-		WARN_ON(!(*hvp));
+-		if (*hvp) {
+-			msr.enable = 1;
+-			wrmsrl(HV_X64_MSR_VP_ASSIST_PAGE, msr.as_uint64);
+-		}
++		if (*hvp)
++			msr.pfn = vmalloc_to_pfn(*hvp);
++
++	}
++	if (!WARN_ON(!(*hvp))) {
++		msr.enable = 1;
++		wrmsrl(HV_X64_MSR_VP_ASSIST_PAGE, msr.as_uint64);
  	}
  
- 	/* Dynamic PCM DAI links compat checks use dynamic capabilities */
+ 	return 0;
 -- 
 2.35.1
 
