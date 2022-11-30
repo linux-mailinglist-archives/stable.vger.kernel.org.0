@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3936B63DD3B
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0525963DE5A
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:36:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229885AbiK3SZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:25:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56866 "EHLO
+        id S230191AbiK3SgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:36:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230140AbiK3SZg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:36 -0500
+        with ESMTP id S230430AbiK3SgB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:36:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A44B60DF
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:25:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3778297034
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94D8961D58
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:25:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E20AC433D6;
-        Wed, 30 Nov 2022 18:25:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBE9E61D6D
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB33BC433D7;
+        Wed, 30 Nov 2022 18:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832729;
-        bh=hfMegzL/zjsoVf6PqGS/2uoBSVp/9SGCkpzQUO1mGLo=;
+        s=korg; t=1669833356;
+        bh=G02EEvcYH5gnTW8yQ8yQBaC17QixYgFD0fZ0pWxC4Qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yS00MIbQcnYpep0pFquMvFKTxFsgd6mffdgJmaJOp1+Yxn7iGrQ3Z6H71jwOFb/kK
-         CX3bCHloCuFGfkzRcwxQTgYmDSEynydcCFHprz4HC8DrraRdDO9C4fv5DrRHaGX0fw
-         ZPZh24eo1SKTCB/3OjHPESco54t8uKrlzfTx6SWk=
+        b=Ljl8iYDB9Q0NYHsgSEFcrBJe8zLPwLKoVeX06T/Gd33c7Xx2DGOX5nHQ0dbK5n3GP
+         GrRoYSiTs482MD2QQfRmjWhn03S1+Ng5WsKi2efJHG/respS63ZhVf3Q91QkeWtnSP
+         GAsgQypinzKEh9w8tWxcVOL1tqhXm44NoBw00E98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nicolas Cavallari <nicolas.cavallari@green-communications.fr>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 020/162] wifi: mac80211: Fix ack frame idr leak when mesh has no route
+Subject: [PATCH 5.15 049/206] arm64/syscall: Include asm/ptrace.h in syscall_wrapper header.
 Date:   Wed, 30 Nov 2022 19:21:41 +0100
-Message-Id: <20221130180529.043107199@linuxfoundation.org>
+Message-Id: <20221130180534.246729684@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 39e7b5de9853bd92ddbfa4b14165babacd7da0ba ]
+[ Upstream commit acfc35cfcee5df419391671ef1a631f43feee4e3 ]
 
-When trying to transmit an data frame with tx_status to a destination
-that have no route in the mesh, then it is dropped without recrediting
-the ack_status_frames idr.
+Add the same change for ARM64 as done in the commit 9440c4294160
+("x86/syscall: Include asm/ptrace.h in syscall_wrapper header") to
+make sure all syscalls see 'struct pt_regs' definition and resulted
+BTF for '__arm64_sys_*(struct pt_regs *regs)' functions point to
+actual struct.
 
-Once it is exhausted, wpa_supplicant starts failing to do SAE with
-NL80211_CMD_FRAME and logs "nl80211: Frame command failed".
+Without this patch, the BPF verifier refuses to load a tracing prog
+which accesses pt_regs.
 
-Use ieee80211_free_txskb() instead of kfree_skb() to fix it.
+  bpf(BPF_PROG_LOAD, {prog_type=0x1a, ...}, 128) = -1 EACCES
 
-Signed-off-by: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
-Link: https://lore.kernel.org/r/20221027140133.1504-1-nicolas.cavallari@green-communications.fr
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+With this patch, we can see the correct error, which saves us time
+in debugging the prog.
+
+  bpf(BPF_PROG_LOAD, {prog_type=0x1a, ...}, 128) = 4
+  bpf(BPF_RAW_TRACEPOINT_OPEN, {raw_tracepoint={name=NULL, prog_fd=4}}, 128) = -1 ENOTSUPP
+
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/r/20221031215728.50389-1-kuniyu@amazon.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_pathtbl.c | 2 +-
+ arch/arm64/include/asm/syscall_wrapper.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
-index 870c8eafef92..c2b051e0610a 100644
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -718,7 +718,7 @@ int mesh_path_send_to_gates(struct mesh_path *mpath)
- void mesh_path_discard_frame(struct ieee80211_sub_if_data *sdata,
- 			     struct sk_buff *skb)
- {
--	kfree_skb(skb);
-+	ieee80211_free_txskb(&sdata->local->hw, skb);
- 	sdata->u.mesh.mshstats.dropped_frames_no_route++;
- }
+diff --git a/arch/arm64/include/asm/syscall_wrapper.h b/arch/arm64/include/asm/syscall_wrapper.h
+index b383b4802a7b..d30217c21eff 100644
+--- a/arch/arm64/include/asm/syscall_wrapper.h
++++ b/arch/arm64/include/asm/syscall_wrapper.h
+@@ -8,7 +8,7 @@
+ #ifndef __ASM_SYSCALL_WRAPPER_H
+ #define __ASM_SYSCALL_WRAPPER_H
  
+-struct pt_regs;
++#include <asm/ptrace.h>
+ 
+ #define SC_ARM64_REGS_TO_ARGS(x, ...)				\
+ 	__MAP(x,__SC_ARGS					\
 -- 
 2.35.1
 
