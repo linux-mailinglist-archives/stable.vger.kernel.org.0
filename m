@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 295CE63DD99
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:28:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55A8363DFDB
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:51:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229706AbiK3S2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:28:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34500 "EHLO
+        id S231504AbiK3SvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:51:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229787AbiK3S2w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:28:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD0F3E097
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:28:51 -0800 (PST)
+        with ESMTP id S231517AbiK3SvE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:51:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EB979D838
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:50:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9848161B43
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:28:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C443C433C1;
-        Wed, 30 Nov 2022 18:28:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6911B81CAE
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:50:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 007C9C433D6;
+        Wed, 30 Nov 2022 18:50:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832930;
-        bh=VObg9/ko4m8Ui9+Pn31a6YTLXhp51jJ2fT+nZejCtA0=;
+        s=korg; t=1669834253;
+        bh=gvXutaxp544TW31lOJxCqy4DceBWVH1D4p9+4pvzmRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lx/HA2SbmNZ6/rj9qpWn6ZML4SmOIDQZAjLDWT9vDUR3CNO+IBWpzvhz9LTbWA7Re
-         I5YR09vFxYj3LCz4I/daZpn9/SsFzfQ6E2+aiLvVfGw/9oaO2hraCOGbKyp4/K/Js4
-         +0bMuHF/184KcrLXIPgDibscWclKLNPD3+fuoyoA=
+        b=E8F6FFRuv6rqStLpobf0bpagP/7L/IYa/ufcAL7cNP1E1lL2R1VwyzklibNvtQawM
+         +sqLeh4Bg6u6ljODwIJZnwiqVL6nqfF15zxd6Fj4/6gWnNVAhckHLi8CNymFqdIglh
+         zy/YXi8Zq+NUN8uGfz7Uw1MoIf1FEjoHaaaal9Y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Jay Cornwall <Jay.Cornwall@amd.com>,
+        David Belanger <david.belanger@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 090/162] net: enetc: cache accesses to &priv->si->hw
+Subject: [PATCH 6.0 186/289] drm/amdgpu: Enable SA software trap.
 Date:   Wed, 30 Nov 2022 19:22:51 +0100
-Message-Id: <20221130180530.936847689@linuxfoundation.org>
+Message-Id: <20221130180548.341321984@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,374 +55,986 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: David Belanger <david.belanger@amd.com>
 
-[ Upstream commit 715bf2610f1d1adf3d4f9b7b3dd729984ec4270a ]
+[ Upstream commit 585a82618bc422508c0c8ae0dfe2f76f22c28361 ]
 
-The &priv->si->hw construct dereferences 2 pointers and makes lines
-longer than they need to be, in turn making the code harder to read.
+Enables support for software trap for MES >= 4.
+Adapted from implementation from Jay Cornwall.
 
-Replace &priv->si->hw accesses with a "hw" variable when there are 2 or
-more accesses within a function that dereference this. This includes
-loops, since &priv->si->hw is a loop invariant.
+v2: Add IP version check in conditions.
+v3: Remove debugger code changes.
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Stable-dep-of: 290b5fe096e7 ("net: enetc: preserve TX ring priority across reconfiguration")
+Signed-off-by: Jay Cornwall <Jay.Cornwall@amd.com>
+Signed-off-by: David Belanger <david.belanger@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Stable-dep-of: 6640f8e5adb6 ("drm/amdkfd: update GFX11 CWSR trap handler")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc.c  | 28 +++++----
- drivers/net/ethernet/freescale/enetc/enetc.h  |  9 +--
- .../net/ethernet/freescale/enetc/enetc_qos.c  | 60 +++++++++----------
- 3 files changed, 49 insertions(+), 48 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/mes_v11_0.c        |   6 +-
+ .../gpu/drm/amd/amdkfd/cwsr_trap_handler.h    | 771 +++++++++---------
+ .../amd/amdkfd/cwsr_trap_handler_gfx10.asm    |  21 +
+ 3 files changed, 413 insertions(+), 385 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
-index ca62c72eb772..65fa21776a98 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.c
-@@ -1272,13 +1272,14 @@ static void enetc_setup_rxbdr(struct enetc_hw *hw, struct enetc_bdr *rx_ring)
+diff --git a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
+index 3bff0ae15e64..3175b9c1849d 100644
+--- a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
+@@ -190,7 +190,11 @@ static int mes_v11_0_add_hw_queue(struct amdgpu_mes *mes,
+ 	mes_add_queue_pkt.trap_handler_addr = input->tba_addr;
+ 	mes_add_queue_pkt.tma_addr = input->tma_addr;
+ 	mes_add_queue_pkt.is_kfd_process = input->is_kfd_process;
+-	mes_add_queue_pkt.trap_en = 1;
++
++	if (!(((adev->mes.sched_version & AMDGPU_MES_VERSION_MASK) >= 4) &&
++		  (adev->ip_versions[GC_HWIP][0] >= IP_VERSION(11, 0, 0)) &&
++		  (adev->ip_versions[GC_HWIP][0] <= IP_VERSION(11, 0, 3))))
++		mes_add_queue_pkt.trap_en = 1;
  
- static void enetc_setup_bdrs(struct enetc_ndev_priv *priv)
- {
-+	struct enetc_hw *hw = &priv->si->hw;
- 	int i;
+ 	/* For KFD, gds_size is re-used for queue size (needed in MES for AQL queues) */
+ 	mes_add_queue_pkt.is_aql_queue = input->is_aql_queue;
+diff --git a/drivers/gpu/drm/amd/amdkfd/cwsr_trap_handler.h b/drivers/gpu/drm/amd/amdkfd/cwsr_trap_handler.h
+index 60a81649cf12..c7118843db05 100644
+--- a/drivers/gpu/drm/amd/amdkfd/cwsr_trap_handler.h
++++ b/drivers/gpu/drm/amd/amdkfd/cwsr_trap_handler.h
+@@ -742,7 +742,7 @@ static const uint32_t cwsr_trap_nv1x_hex[] = {
+ 	0xbf88fffe, 0x877aff7f,
+ 	0x04000000, 0x8f7a857a,
+ 	0x886d7a6d, 0xb97b02dc,
+-	0x8f7b997b, 0xb97a2a05,
++	0x8f7b997b, 0xb97a3a05,
+ 	0x807a817a, 0xbf0d997b,
+ 	0xbf850002, 0x8f7a897a,
+ 	0xbf820001, 0x8f7a8a7a,
+@@ -819,7 +819,7 @@ static const uint32_t cwsr_trap_nv1x_hex[] = {
+ 	0xbefe037c, 0xbefc0370,
+ 	0xf4611c7a, 0xf8000000,
+ 	0x80708470, 0xbefc037e,
+-	0xb9702a05, 0x80708170,
++	0xb9703a05, 0x80708170,
+ 	0xbf0d9973, 0xbf850002,
+ 	0x8f708970, 0xbf820001,
+ 	0x8f708a70, 0xb97a1e06,
+@@ -1069,7 +1069,7 @@ static const uint32_t cwsr_trap_nv1x_hex[] = {
+ 	0xb9f9f816, 0x876f7bff,
+ 	0xfffff800, 0x906f8b6f,
+ 	0xb9efa2c3, 0xb9f3f801,
+-	0xb96e2a05, 0x806e816e,
++	0xb96e3a05, 0x806e816e,
+ 	0xbf0d9972, 0xbf850002,
+ 	0x8f6e896e, 0xbf820001,
+ 	0x8f6e8a6e, 0xb96f1e06,
+@@ -2114,7 +2114,7 @@ static const uint32_t cwsr_trap_gfx10_hex[] = {
+ 	0x007a0000, 0x7e000280,
+ 	0xbefe037a, 0xbeff037b,
+ 	0xb97b02dc, 0x8f7b997b,
+-	0xb97a2a05, 0x807a817a,
++	0xb97a3a05, 0x807a817a,
+ 	0xbf0d997b, 0xbf850002,
+ 	0x8f7a897a, 0xbf820001,
+ 	0x8f7a8a7a, 0xb97b1e06,
+@@ -2157,7 +2157,7 @@ static const uint32_t cwsr_trap_gfx10_hex[] = {
+ 	0x01000000, 0xe0704100,
+ 	0x705d0100, 0xe0704200,
+ 	0x705d0200, 0xe0704300,
+-	0x705d0300, 0xb9702a05,
++	0x705d0300, 0xb9703a05,
+ 	0x80708170, 0xbf0d9973,
+ 	0xbf850002, 0x8f708970,
+ 	0xbf820001, 0x8f708a70,
+@@ -2189,7 +2189,7 @@ static const uint32_t cwsr_trap_gfx10_hex[] = {
+ 	0xbefe03ff, 0x0000ffff,
+ 	0xbeff0380, 0xe0704000,
+ 	0x705d0200, 0xbefe03c1,
+-	0xb9702a05, 0x80708170,
++	0xb9703a05, 0x80708170,
+ 	0xbf0d9973, 0xbf850002,
+ 	0x8f708970, 0xbf820001,
+ 	0x8f708a70, 0xb97a1e06,
+@@ -2475,7 +2475,7 @@ static const uint32_t cwsr_trap_gfx10_hex[] = {
+ 	0xb9ef4803, 0x876f7bff,
+ 	0xfffff800, 0x906f8b6f,
+ 	0xb9efa2c3, 0xb9f3f801,
+-	0xb96e2a05, 0x806e816e,
++	0xb96e3a05, 0x806e816e,
+ 	0xbf0d9972, 0xbf850002,
+ 	0x8f6e896e, 0xbf820001,
+ 	0x8f6e8a6e, 0xb96f1e06,
+@@ -2494,438 +2494,441 @@ static const uint32_t cwsr_trap_gfx10_hex[] = {
+ 	0xbf9f0000, 0xbf9f0000,
+ 	0xbf9f0000, 0x00000000,
+ };
+-
+ static const uint32_t cwsr_trap_gfx11_hex[] = {
+-	0xbfa00001, 0xbfa0021b,
++	0xbfa00001, 0xbfa0021e,
+ 	0xb0804006, 0xb8f8f802,
+-	0x91788678, 0xb8fbf803,
+-	0x8b6eff78, 0x00002000,
+-	0xbfa10009, 0x8b6eff6d,
+-	0x00ff0000, 0xbfa2001e,
+-	0x8b6eff7b, 0x00000400,
+-	0xbfa20041, 0xbf830010,
+-	0xb8fbf803, 0xbfa0fffa,
+-	0x8b6eff7b, 0x00000900,
+-	0xbfa20015, 0x8b6eff7b,
+-	0x000071ff, 0xbfa10008,
+-	0x8b6fff7b, 0x00007080,
+-	0xbfa10001, 0xbeee1287,
+-	0xb8eff801, 0x846e8c6e,
+-	0x8b6e6f6e, 0xbfa2000a,
++	0x9178ff78, 0x00020006,
++	0xb8fbf803, 0xbf0d9f6d,
++	0xbfa20006, 0x8b6eff78,
++	0x00002000, 0xbfa10009,
+ 	0x8b6eff6d, 0x00ff0000,
+-	0xbfa20007, 0xb8eef801,
+-	0x8b6eff6e, 0x00000800,
+-	0xbfa20003, 0x8b6eff7b,
+-	0x00000400, 0xbfa20026,
+-	0xbefa4d82, 0xbf89fc07,
+-	0x84fa887a, 0xf4005bbd,
+-	0xf8000010, 0xbf89fc07,
+-	0x846e976e, 0x9177ff77,
+-	0x00800000, 0x8c776e77,
+-	0xf4045bbd, 0xf8000000,
+-	0xbf89fc07, 0xf4045ebd,
+-	0xf8000008, 0xbf89fc07,
+-	0x8bee6e6e, 0xbfa10001,
+-	0xbe80486e, 0x8b6eff6d,
+-	0x01ff0000, 0xbfa20005,
+-	0x8c78ff78, 0x00002000,
+-	0x80ec886c, 0x82ed806d,
+-	0xbfa00005, 0x8b6eff6d,
+-	0x01000000, 0xbfa20002,
+-	0x806c846c, 0x826d806d,
+-	0x8b6dff6d, 0x0000ffff,
+-	0x8bfe7e7e, 0x8bea6a6a,
+-	0xb978f802, 0xbe804a6c,
+-	0x8b6dff6d, 0x0000ffff,
+-	0xbefa0080, 0xb97a0283,
+-	0xbeee007e, 0xbeef007f,
+-	0xbefe0180, 0xbefe4d84,
+-	0xbf89fc07, 0x8b7aff7f,
+-	0x04000000, 0x847a857a,
+-	0x8c6d7a6d, 0xbefa007e,
+-	0x8b7bff7f, 0x0000ffff,
+-	0xbefe00c1, 0xbeff00c1,
+-	0xdca6c000, 0x007a0000,
+-	0x7e000280, 0xbefe007a,
+-	0xbeff007b, 0xb8fb02dc,
+-	0x847b997b, 0xb8fa3b05,
+-	0x807a817a, 0xbf0d997b,
+-	0xbfa20002, 0x847a897a,
+-	0xbfa00001, 0x847a8a7a,
+-	0xb8fb1e06, 0x847b8a7b,
+-	0x807a7b7a, 0x8b7bff7f,
+-	0x0000ffff, 0x807aff7a,
+-	0x00000200, 0x807a7e7a,
+-	0x827b807b, 0xd7610000,
+-	0x00010870, 0xd7610000,
+-	0x00010a71, 0xd7610000,
+-	0x00010c72, 0xd7610000,
+-	0x00010e73, 0xd7610000,
+-	0x00011074, 0xd7610000,
+-	0x00011275, 0xd7610000,
+-	0x00011476, 0xd7610000,
+-	0x00011677, 0xd7610000,
+-	0x00011a79, 0xd7610000,
+-	0x00011c7e, 0xd7610000,
+-	0x00011e7f, 0xbefe00ff,
+-	0x00003fff, 0xbeff0080,
+-	0xdca6c040, 0x007a0000,
+-	0xd760007a, 0x00011d00,
+-	0xd760007b, 0x00011f00,
++	0xbfa2001e, 0x8b6eff7b,
++	0x00000400, 0xbfa20041,
++	0xbf830010, 0xb8fbf803,
++	0xbfa0fffa, 0x8b6eff7b,
++	0x00000900, 0xbfa20015,
++	0x8b6eff7b, 0x000071ff,
++	0xbfa10008, 0x8b6fff7b,
++	0x00007080, 0xbfa10001,
++	0xbeee1287, 0xb8eff801,
++	0x846e8c6e, 0x8b6e6f6e,
++	0xbfa2000a, 0x8b6eff6d,
++	0x00ff0000, 0xbfa20007,
++	0xb8eef801, 0x8b6eff6e,
++	0x00000800, 0xbfa20003,
++	0x8b6eff7b, 0x00000400,
++	0xbfa20026, 0xbefa4d82,
++	0xbf89fc07, 0x84fa887a,
++	0xf4005bbd, 0xf8000010,
++	0xbf89fc07, 0x846e976e,
++	0x9177ff77, 0x00800000,
++	0x8c776e77, 0xf4045bbd,
++	0xf8000000, 0xbf89fc07,
++	0xf4045ebd, 0xf8000008,
++	0xbf89fc07, 0x8bee6e6e,
++	0xbfa10001, 0xbe80486e,
++	0x8b6eff6d, 0x01ff0000,
++	0xbfa20005, 0x8c78ff78,
++	0x00002000, 0x80ec886c,
++	0x82ed806d, 0xbfa00005,
++	0x8b6eff6d, 0x01000000,
++	0xbfa20002, 0x806c846c,
++	0x826d806d, 0x8b6dff6d,
++	0x0000ffff, 0x8bfe7e7e,
++	0x8bea6a6a, 0xb978f802,
++	0xbe804a6c, 0x8b6dff6d,
++	0x0000ffff, 0xbefa0080,
++	0xb97a0283, 0xbeee007e,
++	0xbeef007f, 0xbefe0180,
++	0xbefe4d84, 0xbf89fc07,
++	0x8b7aff7f, 0x04000000,
++	0x847a857a, 0x8c6d7a6d,
++	0xbefa007e, 0x8b7bff7f,
++	0x0000ffff, 0xbefe00c1,
++	0xbeff00c1, 0xdca6c000,
++	0x007a0000, 0x7e000280,
+ 	0xbefe007a, 0xbeff007b,
+-	0xbef4007e, 0x8b75ff7f,
+-	0x0000ffff, 0x8c75ff75,
+-	0x00040000, 0xbef60080,
+-	0xbef700ff, 0x10807fac,
+-	0xbef1007d, 0xbef00080,
+-	0xb8f302dc, 0x84739973,
+-	0xbefe00c1, 0x857d9973,
+-	0x8b7d817d, 0xbf06817d,
+-	0xbfa20002, 0xbeff0080,
+-	0xbfa00002, 0xbeff00c1,
+-	0xbfa00009, 0xbef600ff,
+-	0x01000000, 0xe0685080,
+-	0x701d0100, 0xe0685100,
+-	0x701d0200, 0xe0685180,
+-	0x701d0300, 0xbfa00008,
++	0xb8fb02dc, 0x847b997b,
++	0xb8fa3b05, 0x807a817a,
++	0xbf0d997b, 0xbfa20002,
++	0x847a897a, 0xbfa00001,
++	0x847a8a7a, 0xb8fb1e06,
++	0x847b8a7b, 0x807a7b7a,
++	0x8b7bff7f, 0x0000ffff,
++	0x807aff7a, 0x00000200,
++	0x807a7e7a, 0x827b807b,
++	0xd7610000, 0x00010870,
++	0xd7610000, 0x00010a71,
++	0xd7610000, 0x00010c72,
++	0xd7610000, 0x00010e73,
++	0xd7610000, 0x00011074,
++	0xd7610000, 0x00011275,
++	0xd7610000, 0x00011476,
++	0xd7610000, 0x00011677,
++	0xd7610000, 0x00011a79,
++	0xd7610000, 0x00011c7e,
++	0xd7610000, 0x00011e7f,
++	0xbefe00ff, 0x00003fff,
++	0xbeff0080, 0xdca6c040,
++	0x007a0000, 0xd760007a,
++	0x00011d00, 0xd760007b,
++	0x00011f00, 0xbefe007a,
++	0xbeff007b, 0xbef4007e,
++	0x8b75ff7f, 0x0000ffff,
++	0x8c75ff75, 0x00040000,
++	0xbef60080, 0xbef700ff,
++	0x10807fac, 0xbef1007d,
++	0xbef00080, 0xb8f302dc,
++	0x84739973, 0xbefe00c1,
++	0x857d9973, 0x8b7d817d,
++	0xbf06817d, 0xbfa20002,
++	0xbeff0080, 0xbfa00002,
++	0xbeff00c1, 0xbfa00009,
+ 	0xbef600ff, 0x01000000,
+-	0xe0685100, 0x701d0100,
+-	0xe0685200, 0x701d0200,
+-	0xe0685300, 0x701d0300,
++	0xe0685080, 0x701d0100,
++	0xe0685100, 0x701d0200,
++	0xe0685180, 0x701d0300,
++	0xbfa00008, 0xbef600ff,
++	0x01000000, 0xe0685100,
++	0x701d0100, 0xe0685200,
++	0x701d0200, 0xe0685300,
++	0x701d0300, 0xb8f03b05,
++	0x80708170, 0xbf0d9973,
++	0xbfa20002, 0x84708970,
++	0xbfa00001, 0x84708a70,
++	0xb8fa1e06, 0x847a8a7a,
++	0x80707a70, 0x8070ff70,
++	0x00000200, 0xbef600ff,
++	0x01000000, 0x7e000280,
++	0x7e020280, 0x7e040280,
++	0xbefd0080, 0xd7610002,
++	0x0000fa71, 0x807d817d,
++	0xd7610002, 0x0000fa6c,
++	0x807d817d, 0x917aff6d,
++	0x80000000, 0xd7610002,
++	0x0000fa7a, 0x807d817d,
++	0xd7610002, 0x0000fa6e,
++	0x807d817d, 0xd7610002,
++	0x0000fa6f, 0x807d817d,
++	0xd7610002, 0x0000fa78,
++	0x807d817d, 0xb8faf803,
++	0xd7610002, 0x0000fa7a,
++	0x807d817d, 0xd7610002,
++	0x0000fa7b, 0x807d817d,
++	0xb8f1f801, 0xd7610002,
++	0x0000fa71, 0x807d817d,
++	0xb8f1f814, 0xd7610002,
++	0x0000fa71, 0x807d817d,
++	0xb8f1f815, 0xd7610002,
++	0x0000fa71, 0x807d817d,
++	0xbefe00ff, 0x0000ffff,
++	0xbeff0080, 0xe0685000,
++	0x701d0200, 0xbefe00c1,
+ 	0xb8f03b05, 0x80708170,
+ 	0xbf0d9973, 0xbfa20002,
+ 	0x84708970, 0xbfa00001,
+ 	0x84708a70, 0xb8fa1e06,
+ 	0x847a8a7a, 0x80707a70,
+-	0x8070ff70, 0x00000200,
+ 	0xbef600ff, 0x01000000,
+-	0x7e000280, 0x7e020280,
+-	0x7e040280, 0xbefd0080,
+-	0xd7610002, 0x0000fa71,
+-	0x807d817d, 0xd7610002,
+-	0x0000fa6c, 0x807d817d,
+-	0x917aff6d, 0x80000000,
+-	0xd7610002, 0x0000fa7a,
+-	0x807d817d, 0xd7610002,
+-	0x0000fa6e, 0x807d817d,
+-	0xd7610002, 0x0000fa6f,
+-	0x807d817d, 0xd7610002,
+-	0x0000fa78, 0x807d817d,
+-	0xb8faf803, 0xd7610002,
+-	0x0000fa7a, 0x807d817d,
+-	0xd7610002, 0x0000fa7b,
+-	0x807d817d, 0xb8f1f801,
+-	0xd7610002, 0x0000fa71,
+-	0x807d817d, 0xb8f1f814,
+-	0xd7610002, 0x0000fa71,
+-	0x807d817d, 0xb8f1f815,
+-	0xd7610002, 0x0000fa71,
+-	0x807d817d, 0xbefe00ff,
+-	0x0000ffff, 0xbeff0080,
+-	0xe0685000, 0x701d0200,
+-	0xbefe00c1, 0xb8f03b05,
+-	0x80708170, 0xbf0d9973,
+-	0xbfa20002, 0x84708970,
+-	0xbfa00001, 0x84708a70,
+-	0xb8fa1e06, 0x847a8a7a,
+-	0x80707a70, 0xbef600ff,
+-	0x01000000, 0xbef90080,
+-	0xbefd0080, 0xbf800000,
+-	0xbe804100, 0xbe824102,
+-	0xbe844104, 0xbe864106,
+-	0xbe884108, 0xbe8a410a,
+-	0xbe8c410c, 0xbe8e410e,
+-	0xd7610002, 0x0000f200,
+-	0x80798179, 0xd7610002,
+-	0x0000f201, 0x80798179,
+-	0xd7610002, 0x0000f202,
+-	0x80798179, 0xd7610002,
+-	0x0000f203, 0x80798179,
+-	0xd7610002, 0x0000f204,
++	0xbef90080, 0xbefd0080,
++	0xbf800000, 0xbe804100,
++	0xbe824102, 0xbe844104,
++	0xbe864106, 0xbe884108,
++	0xbe8a410a, 0xbe8c410c,
++	0xbe8e410e, 0xd7610002,
++	0x0000f200, 0x80798179,
++	0xd7610002, 0x0000f201,
+ 	0x80798179, 0xd7610002,
+-	0x0000f205, 0x80798179,
+-	0xd7610002, 0x0000f206,
++	0x0000f202, 0x80798179,
++	0xd7610002, 0x0000f203,
+ 	0x80798179, 0xd7610002,
+-	0x0000f207, 0x80798179,
+-	0xd7610002, 0x0000f208,
++	0x0000f204, 0x80798179,
++	0xd7610002, 0x0000f205,
+ 	0x80798179, 0xd7610002,
+-	0x0000f209, 0x80798179,
+-	0xd7610002, 0x0000f20a,
++	0x0000f206, 0x80798179,
++	0xd7610002, 0x0000f207,
+ 	0x80798179, 0xd7610002,
+-	0x0000f20b, 0x80798179,
+-	0xd7610002, 0x0000f20c,
++	0x0000f208, 0x80798179,
++	0xd7610002, 0x0000f209,
+ 	0x80798179, 0xd7610002,
+-	0x0000f20d, 0x80798179,
+-	0xd7610002, 0x0000f20e,
++	0x0000f20a, 0x80798179,
++	0xd7610002, 0x0000f20b,
+ 	0x80798179, 0xd7610002,
+-	0x0000f20f, 0x80798179,
+-	0xbf06a079, 0xbfa10006,
+-	0xe0685000, 0x701d0200,
+-	0x8070ff70, 0x00000080,
+-	0xbef90080, 0x7e040280,
+-	0x807d907d, 0xbf0aff7d,
+-	0x00000060, 0xbfa2ffbc,
+-	0xbe804100, 0xbe824102,
+-	0xbe844104, 0xbe864106,
+-	0xbe884108, 0xbe8a410a,
+-	0xd7610002, 0x0000f200,
++	0x0000f20c, 0x80798179,
++	0xd7610002, 0x0000f20d,
+ 	0x80798179, 0xd7610002,
+-	0x0000f201, 0x80798179,
+-	0xd7610002, 0x0000f202,
++	0x0000f20e, 0x80798179,
++	0xd7610002, 0x0000f20f,
++	0x80798179, 0xbf06a079,
++	0xbfa10006, 0xe0685000,
++	0x701d0200, 0x8070ff70,
++	0x00000080, 0xbef90080,
++	0x7e040280, 0x807d907d,
++	0xbf0aff7d, 0x00000060,
++	0xbfa2ffbc, 0xbe804100,
++	0xbe824102, 0xbe844104,
++	0xbe864106, 0xbe884108,
++	0xbe8a410a, 0xd7610002,
++	0x0000f200, 0x80798179,
++	0xd7610002, 0x0000f201,
+ 	0x80798179, 0xd7610002,
+-	0x0000f203, 0x80798179,
+-	0xd7610002, 0x0000f204,
++	0x0000f202, 0x80798179,
++	0xd7610002, 0x0000f203,
+ 	0x80798179, 0xd7610002,
+-	0x0000f205, 0x80798179,
+-	0xd7610002, 0x0000f206,
++	0x0000f204, 0x80798179,
++	0xd7610002, 0x0000f205,
+ 	0x80798179, 0xd7610002,
+-	0x0000f207, 0x80798179,
+-	0xd7610002, 0x0000f208,
++	0x0000f206, 0x80798179,
++	0xd7610002, 0x0000f207,
+ 	0x80798179, 0xd7610002,
+-	0x0000f209, 0x80798179,
+-	0xd7610002, 0x0000f20a,
++	0x0000f208, 0x80798179,
++	0xd7610002, 0x0000f209,
+ 	0x80798179, 0xd7610002,
+-	0x0000f20b, 0x80798179,
+-	0xe0685000, 0x701d0200,
++	0x0000f20a, 0x80798179,
++	0xd7610002, 0x0000f20b,
++	0x80798179, 0xe0685000,
++	0x701d0200, 0xbefe00c1,
++	0x857d9973, 0x8b7d817d,
++	0xbf06817d, 0xbfa20002,
++	0xbeff0080, 0xbfa00001,
++	0xbeff00c1, 0xb8fb4306,
++	0x8b7bc17b, 0xbfa10044,
++	0xbfbd0000, 0x8b7aff6d,
++	0x80000000, 0xbfa10040,
++	0x847b867b, 0x847b827b,
++	0xbef6007b, 0xb8f03b05,
++	0x80708170, 0xbf0d9973,
++	0xbfa20002, 0x84708970,
++	0xbfa00001, 0x84708a70,
++	0xb8fa1e06, 0x847a8a7a,
++	0x80707a70, 0x8070ff70,
++	0x00000200, 0x8070ff70,
++	0x00000080, 0xbef600ff,
++	0x01000000, 0xd71f0000,
++	0x000100c1, 0xd7200000,
++	0x000200c1, 0x16000084,
++	0x857d9973, 0x8b7d817d,
++	0xbf06817d, 0xbefd0080,
++	0xbfa20012, 0xbe8300ff,
++	0x00000080, 0xbf800000,
++	0xbf800000, 0xbf800000,
++	0xd8d80000, 0x01000000,
++	0xbf890000, 0xe0685000,
++	0x701d0100, 0x807d037d,
++	0x80700370, 0xd5250000,
++	0x0001ff00, 0x00000080,
++	0xbf0a7b7d, 0xbfa2fff4,
++	0xbfa00011, 0xbe8300ff,
++	0x00000100, 0xbf800000,
++	0xbf800000, 0xbf800000,
++	0xd8d80000, 0x01000000,
++	0xbf890000, 0xe0685000,
++	0x701d0100, 0x807d037d,
++	0x80700370, 0xd5250000,
++	0x0001ff00, 0x00000100,
++	0xbf0a7b7d, 0xbfa2fff4,
+ 	0xbefe00c1, 0x857d9973,
+ 	0x8b7d817d, 0xbf06817d,
+-	0xbfa20002, 0xbeff0080,
+-	0xbfa00001, 0xbeff00c1,
+-	0xb8fb4306, 0x8b7bc17b,
+-	0xbfa10044, 0xbfbd0000,
+-	0x8b7aff6d, 0x80000000,
+-	0xbfa10040, 0x847b867b,
+-	0x847b827b, 0xbef6007b,
+-	0xb8f03b05, 0x80708170,
+-	0xbf0d9973, 0xbfa20002,
+-	0x84708970, 0xbfa00001,
+-	0x84708a70, 0xb8fa1e06,
+-	0x847a8a7a, 0x80707a70,
+-	0x8070ff70, 0x00000200,
+-	0x8070ff70, 0x00000080,
+-	0xbef600ff, 0x01000000,
+-	0xd71f0000, 0x000100c1,
+-	0xd7200000, 0x000200c1,
+-	0x16000084, 0x857d9973,
++	0xbfa20004, 0xbef000ff,
++	0x00000200, 0xbeff0080,
++	0xbfa00003, 0xbef000ff,
++	0x00000400, 0xbeff00c1,
++	0xb8fb3b05, 0x807b817b,
++	0x847b827b, 0x857d9973,
+ 	0x8b7d817d, 0xbf06817d,
+-	0xbefd0080, 0xbfa20012,
+-	0xbe8300ff, 0x00000080,
+-	0xbf800000, 0xbf800000,
+-	0xbf800000, 0xd8d80000,
+-	0x01000000, 0xbf890000,
+-	0xe0685000, 0x701d0100,
+-	0x807d037d, 0x80700370,
+-	0xd5250000, 0x0001ff00,
+-	0x00000080, 0xbf0a7b7d,
+-	0xbfa2fff4, 0xbfa00011,
+-	0xbe8300ff, 0x00000100,
+-	0xbf800000, 0xbf800000,
+-	0xbf800000, 0xd8d80000,
+-	0x01000000, 0xbf890000,
+-	0xe0685000, 0x701d0100,
+-	0x807d037d, 0x80700370,
+-	0xd5250000, 0x0001ff00,
+-	0x00000100, 0xbf0a7b7d,
+-	0xbfa2fff4, 0xbefe00c1,
+-	0x857d9973, 0x8b7d817d,
+-	0xbf06817d, 0xbfa20004,
+-	0xbef000ff, 0x00000200,
+-	0xbeff0080, 0xbfa00003,
+-	0xbef000ff, 0x00000400,
+-	0xbeff00c1, 0xb8fb3b05,
+-	0x807b817b, 0x847b827b,
+-	0x857d9973, 0x8b7d817d,
+-	0xbf06817d, 0xbfa20017,
++	0xbfa20017, 0xbef600ff,
++	0x01000000, 0xbefd0084,
++	0xbf0a7b7d, 0xbfa10037,
++	0x7e008700, 0x7e028701,
++	0x7e048702, 0x7e068703,
++	0xe0685000, 0x701d0000,
++	0xe0685080, 0x701d0100,
++	0xe0685100, 0x701d0200,
++	0xe0685180, 0x701d0300,
++	0x807d847d, 0x8070ff70,
++	0x00000200, 0xbf0a7b7d,
++	0xbfa2ffef, 0xbfa00025,
+ 	0xbef600ff, 0x01000000,
+ 	0xbefd0084, 0xbf0a7b7d,
+-	0xbfa10037, 0x7e008700,
++	0xbfa10011, 0x7e008700,
+ 	0x7e028701, 0x7e048702,
+ 	0x7e068703, 0xe0685000,
+-	0x701d0000, 0xe0685080,
+-	0x701d0100, 0xe0685100,
+-	0x701d0200, 0xe0685180,
++	0x701d0000, 0xe0685100,
++	0x701d0100, 0xe0685200,
++	0x701d0200, 0xe0685300,
+ 	0x701d0300, 0x807d847d,
+-	0x8070ff70, 0x00000200,
++	0x8070ff70, 0x00000400,
+ 	0xbf0a7b7d, 0xbfa2ffef,
+-	0xbfa00025, 0xbef600ff,
+-	0x01000000, 0xbefd0084,
+-	0xbf0a7b7d, 0xbfa10011,
+-	0x7e008700, 0x7e028701,
+-	0x7e048702, 0x7e068703,
++	0xb8fb1e06, 0x8b7bc17b,
++	0xbfa1000c, 0x847b837b,
++	0x807b7d7b, 0xbefe00c1,
++	0xbeff0080, 0x7e008700,
+ 	0xe0685000, 0x701d0000,
+-	0xe0685100, 0x701d0100,
+-	0xe0685200, 0x701d0200,
+-	0xe0685300, 0x701d0300,
+-	0x807d847d, 0x8070ff70,
+-	0x00000400, 0xbf0a7b7d,
+-	0xbfa2ffef, 0xb8fb1e06,
+-	0x8b7bc17b, 0xbfa1000c,
+-	0x847b837b, 0x807b7d7b,
+-	0xbefe00c1, 0xbeff0080,
+-	0x7e008700, 0xe0685000,
+-	0x701d0000, 0x807d817d,
+-	0x8070ff70, 0x00000080,
+-	0xbf0a7b7d, 0xbfa2fff8,
+-	0xbfa00141, 0xbef4007e,
+-	0x8b75ff7f, 0x0000ffff,
+-	0x8c75ff75, 0x00040000,
+-	0xbef60080, 0xbef700ff,
+-	0x10807fac, 0xb8f202dc,
+-	0x84729972, 0x8b6eff7f,
+-	0x04000000, 0xbfa1003a,
++	0x807d817d, 0x8070ff70,
++	0x00000080, 0xbf0a7b7d,
++	0xbfa2fff8, 0xbfa00146,
++	0xbef4007e, 0x8b75ff7f,
++	0x0000ffff, 0x8c75ff75,
++	0x00040000, 0xbef60080,
++	0xbef700ff, 0x10807fac,
++	0xb8f202dc, 0x84729972,
++	0x8b6eff7f, 0x04000000,
++	0xbfa1003a, 0xbefe00c1,
++	0x857d9972, 0x8b7d817d,
++	0xbf06817d, 0xbfa20002,
++	0xbeff0080, 0xbfa00001,
++	0xbeff00c1, 0xb8ef4306,
++	0x8b6fc16f, 0xbfa1002f,
++	0x846f866f, 0x846f826f,
++	0xbef6006f, 0xb8f83b05,
++	0x80788178, 0xbf0d9972,
++	0xbfa20002, 0x84788978,
++	0xbfa00001, 0x84788a78,
++	0xb8ee1e06, 0x846e8a6e,
++	0x80786e78, 0x8078ff78,
++	0x00000200, 0x8078ff78,
++	0x00000080, 0xbef600ff,
++	0x01000000, 0x857d9972,
++	0x8b7d817d, 0xbf06817d,
++	0xbefd0080, 0xbfa2000c,
++	0xe0500000, 0x781d0000,
++	0xbf8903f7, 0xdac00000,
++	0x00000000, 0x807dff7d,
++	0x00000080, 0x8078ff78,
++	0x00000080, 0xbf0a6f7d,
++	0xbfa2fff5, 0xbfa0000b,
++	0xe0500000, 0x781d0000,
++	0xbf8903f7, 0xdac00000,
++	0x00000000, 0x807dff7d,
++	0x00000100, 0x8078ff78,
++	0x00000100, 0xbf0a6f7d,
++	0xbfa2fff5, 0xbef80080,
+ 	0xbefe00c1, 0x857d9972,
+ 	0x8b7d817d, 0xbf06817d,
+ 	0xbfa20002, 0xbeff0080,
+ 	0xbfa00001, 0xbeff00c1,
+-	0xb8ef4306, 0x8b6fc16f,
+-	0xbfa1002f, 0x846f866f,
+-	0x846f826f, 0xbef6006f,
+-	0xb8f83b05, 0x80788178,
+-	0xbf0d9972, 0xbfa20002,
+-	0x84788978, 0xbfa00001,
+-	0x84788a78, 0xb8ee1e06,
+-	0x846e8a6e, 0x80786e78,
++	0xb8ef3b05, 0x806f816f,
++	0x846f826f, 0x857d9972,
++	0x8b7d817d, 0xbf06817d,
++	0xbfa20024, 0xbef600ff,
++	0x01000000, 0xbeee0078,
+ 	0x8078ff78, 0x00000200,
+-	0x8078ff78, 0x00000080,
+-	0xbef600ff, 0x01000000,
+-	0x857d9972, 0x8b7d817d,
+-	0xbf06817d, 0xbefd0080,
+-	0xbfa2000c, 0xe0500000,
+-	0x781d0000, 0xbf8903f7,
+-	0xdac00000, 0x00000000,
+-	0x807dff7d, 0x00000080,
+-	0x8078ff78, 0x00000080,
+-	0xbf0a6f7d, 0xbfa2fff5,
+-	0xbfa0000b, 0xe0500000,
+-	0x781d0000, 0xbf8903f7,
+-	0xdac00000, 0x00000000,
+-	0x807dff7d, 0x00000100,
+-	0x8078ff78, 0x00000100,
+-	0xbf0a6f7d, 0xbfa2fff5,
+-	0xbef80080, 0xbefe00c1,
+-	0x857d9972, 0x8b7d817d,
+-	0xbf06817d, 0xbfa20002,
+-	0xbeff0080, 0xbfa00001,
+-	0xbeff00c1, 0xb8ef3b05,
+-	0x806f816f, 0x846f826f,
+-	0x857d9972, 0x8b7d817d,
+-	0xbf06817d, 0xbfa20024,
+-	0xbef600ff, 0x01000000,
+-	0xbeee0078, 0x8078ff78,
+-	0x00000200, 0xbefd0084,
+-	0xbf0a6f7d, 0xbfa10050,
++	0xbefd0084, 0xbf0a6f7d,
++	0xbfa10050, 0xe0505000,
++	0x781d0000, 0xe0505080,
++	0x781d0100, 0xe0505100,
++	0x781d0200, 0xe0505180,
++	0x781d0300, 0xbf8903f7,
++	0x7e008500, 0x7e028501,
++	0x7e048502, 0x7e068503,
++	0x807d847d, 0x8078ff78,
++	0x00000200, 0xbf0a6f7d,
++	0xbfa2ffee, 0xe0505000,
++	0x6e1d0000, 0xe0505080,
++	0x6e1d0100, 0xe0505100,
++	0x6e1d0200, 0xe0505180,
++	0x6e1d0300, 0xbf8903f7,
++	0xbfa00034, 0xbef600ff,
++	0x01000000, 0xbeee0078,
++	0x8078ff78, 0x00000400,
++	0xbefd0084, 0xbf0a6f7d,
++	0xbfa10012, 0xe0505000,
++	0x781d0000, 0xe0505100,
++	0x781d0100, 0xe0505200,
++	0x781d0200, 0xe0505300,
++	0x781d0300, 0xbf8903f7,
++	0x7e008500, 0x7e028501,
++	0x7e048502, 0x7e068503,
++	0x807d847d, 0x8078ff78,
++	0x00000400, 0xbf0a6f7d,
++	0xbfa2ffee, 0xb8ef1e06,
++	0x8b6fc16f, 0xbfa1000e,
++	0x846f836f, 0x806f7d6f,
++	0xbefe00c1, 0xbeff0080,
+ 	0xe0505000, 0x781d0000,
+-	0xe0505080, 0x781d0100,
+-	0xe0505100, 0x781d0200,
+-	0xe0505180, 0x781d0300,
+ 	0xbf8903f7, 0x7e008500,
+-	0x7e028501, 0x7e048502,
+-	0x7e068503, 0x807d847d,
+-	0x8078ff78, 0x00000200,
+-	0xbf0a6f7d, 0xbfa2ffee,
++	0x807d817d, 0x8078ff78,
++	0x00000080, 0xbf0a6f7d,
++	0xbfa2fff7, 0xbeff00c1,
+ 	0xe0505000, 0x6e1d0000,
+-	0xe0505080, 0x6e1d0100,
+-	0xe0505100, 0x6e1d0200,
+-	0xe0505180, 0x6e1d0300,
+-	0xbf8903f7, 0xbfa00034,
+-	0xbef600ff, 0x01000000,
+-	0xbeee0078, 0x8078ff78,
+-	0x00000400, 0xbefd0084,
+-	0xbf0a6f7d, 0xbfa10012,
+-	0xe0505000, 0x781d0000,
+-	0xe0505100, 0x781d0100,
+-	0xe0505200, 0x781d0200,
+-	0xe0505300, 0x781d0300,
+-	0xbf8903f7, 0x7e008500,
+-	0x7e028501, 0x7e048502,
+-	0x7e068503, 0x807d847d,
+-	0x8078ff78, 0x00000400,
+-	0xbf0a6f7d, 0xbfa2ffee,
+-	0xb8ef1e06, 0x8b6fc16f,
+-	0xbfa1000e, 0x846f836f,
+-	0x806f7d6f, 0xbefe00c1,
+-	0xbeff0080, 0xe0505000,
+-	0x781d0000, 0xbf8903f7,
+-	0x7e008500, 0x807d817d,
+-	0x8078ff78, 0x00000080,
+-	0xbf0a6f7d, 0xbfa2fff7,
+-	0xbeff00c1, 0xe0505000,
+-	0x6e1d0000, 0xe0505100,
+-	0x6e1d0100, 0xe0505200,
+-	0x6e1d0200, 0xe0505300,
+-	0x6e1d0300, 0xbf8903f7,
++	0xe0505100, 0x6e1d0100,
++	0xe0505200, 0x6e1d0200,
++	0xe0505300, 0x6e1d0300,
++	0xbf8903f7, 0xb8f83b05,
++	0x80788178, 0xbf0d9972,
++	0xbfa20002, 0x84788978,
++	0xbfa00001, 0x84788a78,
++	0xb8ee1e06, 0x846e8a6e,
++	0x80786e78, 0x8078ff78,
++	0x00000200, 0x80f8ff78,
++	0x00000050, 0xbef600ff,
++	0x01000000, 0xbefd00ff,
++	0x0000006c, 0x80f89078,
++	0xf428403a, 0xf0000000,
++	0xbf89fc07, 0x80fd847d,
++	0xbf800000, 0xbe804300,
++	0xbe824302, 0x80f8a078,
++	0xf42c403a, 0xf0000000,
++	0xbf89fc07, 0x80fd887d,
++	0xbf800000, 0xbe804300,
++	0xbe824302, 0xbe844304,
++	0xbe864306, 0x80f8c078,
++	0xf430403a, 0xf0000000,
++	0xbf89fc07, 0x80fd907d,
++	0xbf800000, 0xbe804300,
++	0xbe824302, 0xbe844304,
++	0xbe864306, 0xbe884308,
++	0xbe8a430a, 0xbe8c430c,
++	0xbe8e430e, 0xbf06807d,
++	0xbfa1fff0, 0xb980f801,
++	0x00000000, 0xbfbd0000,
+ 	0xb8f83b05, 0x80788178,
+ 	0xbf0d9972, 0xbfa20002,
+ 	0x84788978, 0xbfa00001,
+ 	0x84788a78, 0xb8ee1e06,
+ 	0x846e8a6e, 0x80786e78,
+ 	0x8078ff78, 0x00000200,
+-	0x80f8ff78, 0x00000050,
+ 	0xbef600ff, 0x01000000,
+-	0xbefd00ff, 0x0000006c,
+-	0x80f89078, 0xf428403a,
+-	0xf0000000, 0xbf89fc07,
+-	0x80fd847d, 0xbf800000,
+-	0xbe804300, 0xbe824302,
+-	0x80f8a078, 0xf42c403a,
+-	0xf0000000, 0xbf89fc07,
+-	0x80fd887d, 0xbf800000,
+-	0xbe804300, 0xbe824302,
+-	0xbe844304, 0xbe864306,
+-	0x80f8c078, 0xf430403a,
+-	0xf0000000, 0xbf89fc07,
+-	0x80fd907d, 0xbf800000,
+-	0xbe804300, 0xbe824302,
+-	0xbe844304, 0xbe864306,
+-	0xbe884308, 0xbe8a430a,
+-	0xbe8c430c, 0xbe8e430e,
+-	0xbf06807d, 0xbfa1fff0,
+-	0xb980f801, 0x00000000,
+-	0xbfbd0000, 0xb8f83b05,
+-	0x80788178, 0xbf0d9972,
+-	0xbfa20002, 0x84788978,
+-	0xbfa00001, 0x84788a78,
+-	0xb8ee1e06, 0x846e8a6e,
+-	0x80786e78, 0x8078ff78,
+-	0x00000200, 0xbef600ff,
+-	0x01000000, 0xf4205bfa,
++	0xf4205bfa, 0xf0000000,
++	0x80788478, 0xf4205b3a,
+ 	0xf0000000, 0x80788478,
+-	0xf4205b3a, 0xf0000000,
+-	0x80788478, 0xf4205b7a,
++	0xf4205b7a, 0xf0000000,
++	0x80788478, 0xf4205c3a,
+ 	0xf0000000, 0x80788478,
+-	0xf4205c3a, 0xf0000000,
+-	0x80788478, 0xf4205c7a,
++	0xf4205c7a, 0xf0000000,
++	0x80788478, 0xf4205eba,
+ 	0xf0000000, 0x80788478,
+-	0xf4205eba, 0xf0000000,
+-	0x80788478, 0xf4205efa,
++	0xf4205efa, 0xf0000000,
++	0x80788478, 0xf4205e7a,
+ 	0xf0000000, 0x80788478,
+-	0xf4205e7a, 0xf0000000,
+-	0x80788478, 0xf4205cfa,
++	0xf4205cfa, 0xf0000000,
++	0x80788478, 0xf4205bba,
+ 	0xf0000000, 0x80788478,
++	0xbf89fc07, 0xb96ef814,
+ 	0xf4205bba, 0xf0000000,
+ 	0x80788478, 0xbf89fc07,
+-	0xb96ef814, 0xf4205bba,
+-	0xf0000000, 0x80788478,
+-	0xbf89fc07, 0xb96ef815,
+-	0xbefd006f, 0xbefe0070,
+-	0xbeff0071, 0x8b6f7bff,
+-	0x000003ff, 0xb96f4803,
+-	0x8b6f7bff, 0xfffff800,
+-	0x856f8b6f, 0xb96fa2c3,
+-	0xb973f801, 0xb8ee3b05,
+-	0x806e816e, 0xbf0d9972,
+-	0xbfa20002, 0x846e896e,
+-	0xbfa00001, 0x846e8a6e,
+-	0xb8ef1e06, 0x846f8a6f,
+-	0x806e6f6e, 0x806eff6e,
+-	0x00000200, 0x806e746e,
+-	0x826f8075, 0x8b6fff6f,
+-	0x0000ffff, 0xf4085c37,
+-	0xf8000050, 0xf4085d37,
+-	0xf8000060, 0xf4005e77,
+-	0xf8000074, 0xbf89fc07,
+-	0x8b6dff6d, 0x0000ffff,
+-	0x8bfe7e7e, 0x8bea6a6a,
++	0xb96ef815, 0xbefd006f,
++	0xbefe0070, 0xbeff0071,
++	0x8b6f7bff, 0x000003ff,
++	0xb96f4803, 0x8b6f7bff,
++	0xfffff800, 0x856f8b6f,
++	0xb96fa2c3, 0xb973f801,
++	0xb8ee3b05, 0x806e816e,
++	0xbf0d9972, 0xbfa20002,
++	0x846e896e, 0xbfa00001,
++	0x846e8a6e, 0xb8ef1e06,
++	0x846f8a6f, 0x806e6f6e,
++	0x806eff6e, 0x00000200,
++	0x806e746e, 0x826f8075,
++	0x8b6fff6f, 0x0000ffff,
++	0xf4085c37, 0xf8000050,
++	0xf4085d37, 0xf8000060,
++	0xf4005e77, 0xf8000074,
++	0xbf89fc07, 0x8b6dff6d,
++	0x0000ffff, 0x8bfe7e7e,
++	0x8bea6a6a, 0xb8eef802,
++	0xbf0d866e, 0xbfa20002,
++	0xb97af802, 0xbe80486c,
+ 	0xb97af802, 0xbe804a6c,
+ 	0xbfb00000, 0xbf9f0000,
+ 	0xbf9f0000, 0xbf9f0000,
+diff --git a/drivers/gpu/drm/amd/amdkfd/cwsr_trap_handler_gfx10.asm b/drivers/gpu/drm/amd/amdkfd/cwsr_trap_handler_gfx10.asm
+index 250ab007399b..0f81670f6f9c 100644
+--- a/drivers/gpu/drm/amd/amdkfd/cwsr_trap_handler_gfx10.asm
++++ b/drivers/gpu/drm/amd/amdkfd/cwsr_trap_handler_gfx10.asm
+@@ -43,12 +43,14 @@
+ #define HAVE_XNACK (ASIC_FAMILY < CHIP_SIENNA_CICHLID)
+ #define HAVE_SENDMSG_RTN (ASIC_FAMILY >= CHIP_PLUM_BONITO)
+ #define HAVE_BUFFER_LDS_LOAD (ASIC_FAMILY < CHIP_PLUM_BONITO)
++#define SW_SA_TRAP (ASIC_FAMILY >= CHIP_PLUM_BONITO)
  
- 	for (i = 0; i < priv->num_tx_rings; i++)
--		enetc_setup_txbdr(&priv->si->hw, priv->tx_ring[i]);
-+		enetc_setup_txbdr(hw, priv->tx_ring[i]);
+ var SINGLE_STEP_MISSED_WORKAROUND		= 1	//workaround for lost MODE.DEBUG_EN exception when SAVECTX raised
  
- 	for (i = 0; i < priv->num_rx_rings; i++)
--		enetc_setup_rxbdr(&priv->si->hw, priv->rx_ring[i]);
-+		enetc_setup_rxbdr(hw, priv->rx_ring[i]);
- }
+ var SQ_WAVE_STATUS_SPI_PRIO_MASK		= 0x00000006
+ var SQ_WAVE_STATUS_HALT_MASK			= 0x2000
+ var SQ_WAVE_STATUS_ECC_ERR_MASK			= 0x20000
++var SQ_WAVE_STATUS_TRAP_EN_SHIFT		= 6
  
- static void enetc_clear_rxbdr(struct enetc_hw *hw, struct enetc_bdr *rx_ring)
-@@ -1311,13 +1312,14 @@ static void enetc_clear_txbdr(struct enetc_hw *hw, struct enetc_bdr *tx_ring)
+ var SQ_WAVE_LDS_ALLOC_LDS_SIZE_SHIFT		= 12
+ var SQ_WAVE_LDS_ALLOC_LDS_SIZE_SIZE		= 9
+@@ -183,6 +185,13 @@ L_SKIP_RESTORE:
  
- static void enetc_clear_bdrs(struct enetc_ndev_priv *priv)
- {
-+	struct enetc_hw *hw = &priv->si->hw;
- 	int i;
+ 	s_getreg_b32	s_save_trapsts, hwreg(HW_REG_TRAPSTS)
  
- 	for (i = 0; i < priv->num_tx_rings; i++)
--		enetc_clear_txbdr(&priv->si->hw, priv->tx_ring[i]);
-+		enetc_clear_txbdr(hw, priv->tx_ring[i]);
++#if SW_SA_TRAP
++	// If ttmp1[31] is set then trap may occur early.
++	// Spin wait until SAVECTX exception is raised.
++	s_bitcmp1_b32	s_save_pc_hi, 31
++	s_cbranch_scc1  L_CHECK_SAVE
++#endif
++
+ 	s_and_b32       ttmp2, s_save_status, SQ_WAVE_STATUS_HALT_MASK
+ 	s_cbranch_scc0	L_NOT_HALTED
  
- 	for (i = 0; i < priv->num_rx_rings; i++)
--		enetc_clear_rxbdr(&priv->si->hw, priv->rx_ring[i]);
-+		enetc_clear_rxbdr(hw, priv->rx_ring[i]);
+@@ -1061,8 +1070,20 @@ L_RESTORE_HWREG:
+ 	s_and_b32	s_restore_pc_hi, s_restore_pc_hi, 0x0000ffff		//pc[47:32] //Do it here in order not to affect STATUS
+ 	s_and_b64	exec, exec, exec					// Restore STATUS.EXECZ, not writable by s_setreg_b32
+ 	s_and_b64	vcc, vcc, vcc						// Restore STATUS.VCCZ, not writable by s_setreg_b32
++
++#if SW_SA_TRAP
++	// If traps are enabled then return to the shader with PRIV=0.
++	// Otherwise retain PRIV=1 for subsequent context save requests.
++	s_getreg_b32	s_restore_tmp, hwreg(HW_REG_STATUS)
++	s_bitcmp1_b32	s_restore_tmp, SQ_WAVE_STATUS_TRAP_EN_SHIFT
++	s_cbranch_scc1	L_RETURN_WITHOUT_PRIV
++
+ 	s_setreg_b32	hwreg(HW_REG_STATUS), s_restore_status			// SCC is included, which is changed by previous salu
++	s_setpc_b64	[s_restore_pc_lo, s_restore_pc_hi]
++L_RETURN_WITHOUT_PRIV:
++#endif
  
- 	udelay(1);
- }
-@@ -1325,13 +1327,13 @@ static void enetc_clear_bdrs(struct enetc_ndev_priv *priv)
- static int enetc_setup_irqs(struct enetc_ndev_priv *priv)
- {
- 	struct pci_dev *pdev = priv->si->pdev;
-+	struct enetc_hw *hw = &priv->si->hw;
- 	int i, j, err;
++	s_setreg_b32	hwreg(HW_REG_STATUS), s_restore_status			// SCC is included, which is changed by previous salu
+ 	s_rfe_b64	s_restore_pc_lo						//Return to the main shader program and resume execution
  
- 	for (i = 0; i < priv->bdr_int_num; i++) {
- 		int irq = pci_irq_vector(pdev, ENETC_BDR_INT_BASE_IDX + i);
- 		struct enetc_int_vector *v = priv->int_vector[i];
- 		int entry = ENETC_BDR_INT_BASE_IDX + i;
--		struct enetc_hw *hw = &priv->si->hw;
- 
- 		snprintf(v->name, sizeof(v->name), "%s-rxtx%d",
- 			 priv->ndev->name, i);
-@@ -1419,13 +1421,14 @@ static void enetc_setup_interrupts(struct enetc_ndev_priv *priv)
- 
- static void enetc_clear_interrupts(struct enetc_ndev_priv *priv)
- {
-+	struct enetc_hw *hw = &priv->si->hw;
- 	int i;
- 
- 	for (i = 0; i < priv->num_tx_rings; i++)
--		enetc_txbdr_wr(&priv->si->hw, i, ENETC_TBIER, 0);
-+		enetc_txbdr_wr(hw, i, ENETC_TBIER, 0);
- 
- 	for (i = 0; i < priv->num_rx_rings; i++)
--		enetc_rxbdr_wr(&priv->si->hw, i, ENETC_RBIER, 0);
-+		enetc_rxbdr_wr(hw, i, ENETC_RBIER, 0);
- }
- 
- static int enetc_phylink_connect(struct net_device *ndev)
-@@ -1565,6 +1568,7 @@ static int enetc_setup_tc_mqprio(struct net_device *ndev, void *type_data)
- {
- 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
- 	struct tc_mqprio_qopt *mqprio = type_data;
-+	struct enetc_hw *hw = &priv->si->hw;
- 	struct enetc_bdr *tx_ring;
- 	u8 num_tc;
- 	int i;
-@@ -1579,7 +1583,7 @@ static int enetc_setup_tc_mqprio(struct net_device *ndev, void *type_data)
- 		/* Reset all ring priorities to 0 */
- 		for (i = 0; i < priv->num_tx_rings; i++) {
- 			tx_ring = priv->tx_ring[i];
--			enetc_set_bdr_prio(&priv->si->hw, tx_ring->index, 0);
-+			enetc_set_bdr_prio(hw, tx_ring->index, 0);
- 		}
- 
- 		return 0;
-@@ -1598,7 +1602,7 @@ static int enetc_setup_tc_mqprio(struct net_device *ndev, void *type_data)
- 	 */
- 	for (i = 0; i < num_tc; i++) {
- 		tx_ring = priv->tx_ring[i];
--		enetc_set_bdr_prio(&priv->si->hw, tx_ring->index, i);
-+		enetc_set_bdr_prio(hw, tx_ring->index, i);
- 	}
- 
- 	/* Reset the number of netdev queues based on the TC count */
-@@ -1679,19 +1683,21 @@ static int enetc_set_rss(struct net_device *ndev, int en)
- static void enetc_enable_rxvlan(struct net_device *ndev, bool en)
- {
- 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
-+	struct enetc_hw *hw = &priv->si->hw;
- 	int i;
- 
- 	for (i = 0; i < priv->num_rx_rings; i++)
--		enetc_bdr_enable_rxvlan(&priv->si->hw, i, en);
-+		enetc_bdr_enable_rxvlan(hw, i, en);
- }
- 
- static void enetc_enable_txvlan(struct net_device *ndev, bool en)
- {
- 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
-+	struct enetc_hw *hw = &priv->si->hw;
- 	int i;
- 
- 	for (i = 0; i < priv->num_tx_rings; i++)
--		enetc_bdr_enable_txvlan(&priv->si->hw, i, en);
-+		enetc_bdr_enable_txvlan(hw, i, en);
- }
- 
- void enetc_set_features(struct net_device *ndev, netdev_features_t features)
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.h b/drivers/net/ethernet/freescale/enetc/enetc.h
-index 00386c5d3cde..38d8ea48b931 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.h
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.h
-@@ -338,19 +338,20 @@ int enetc_set_psfp(struct net_device *ndev, bool en);
- 
- static inline void enetc_get_max_cap(struct enetc_ndev_priv *priv)
- {
-+	struct enetc_hw *hw = &priv->si->hw;
- 	u32 reg;
- 
--	reg = enetc_port_rd(&priv->si->hw, ENETC_PSIDCAPR);
-+	reg = enetc_port_rd(hw, ENETC_PSIDCAPR);
- 	priv->psfp_cap.max_streamid = reg & ENETC_PSIDCAPR_MSK;
- 	/* Port stream filter capability */
--	reg = enetc_port_rd(&priv->si->hw, ENETC_PSFCAPR);
-+	reg = enetc_port_rd(hw, ENETC_PSFCAPR);
- 	priv->psfp_cap.max_psfp_filter = reg & ENETC_PSFCAPR_MSK;
- 	/* Port stream gate capability */
--	reg = enetc_port_rd(&priv->si->hw, ENETC_PSGCAPR);
-+	reg = enetc_port_rd(hw, ENETC_PSGCAPR);
- 	priv->psfp_cap.max_psfp_gate = (reg & ENETC_PSGCAPR_SGIT_MSK);
- 	priv->psfp_cap.max_psfp_gatelist = (reg & ENETC_PSGCAPR_GCL_MSK) >> 16;
- 	/* Port flow meter capability */
--	reg = enetc_port_rd(&priv->si->hw, ENETC_PFMCAPR);
-+	reg = enetc_port_rd(hw, ENETC_PFMCAPR);
- 	priv->psfp_cap.max_psfp_meter = reg & ENETC_PFMCAPR_MSK;
- }
- 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_qos.c b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-index b0e278e1f4ad..d3a6367548a1 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-@@ -17,8 +17,9 @@ static u16 enetc_get_max_gcl_len(struct enetc_hw *hw)
- 
- void enetc_sched_speed_set(struct enetc_ndev_priv *priv, int speed)
- {
-+	struct enetc_hw *hw = &priv->si->hw;
- 	u32 old_speed = priv->speed;
--	u32 pspeed;
-+	u32 pspeed, tmp;
- 
- 	if (speed == old_speed)
- 		return;
-@@ -39,16 +40,15 @@ void enetc_sched_speed_set(struct enetc_ndev_priv *priv, int speed)
- 	}
- 
- 	priv->speed = speed;
--	enetc_port_wr(&priv->si->hw, ENETC_PMR,
--		      (enetc_port_rd(&priv->si->hw, ENETC_PMR)
--		      & (~ENETC_PMR_PSPEED_MASK))
--		      | pspeed);
-+	tmp = enetc_port_rd(hw, ENETC_PMR);
-+	enetc_port_wr(hw, ENETC_PMR, (tmp & ~ENETC_PMR_PSPEED_MASK) | pspeed);
- }
- 
- static int enetc_setup_taprio(struct net_device *ndev,
- 			      struct tc_taprio_qopt_offload *admin_conf)
- {
- 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
-+	struct enetc_hw *hw = &priv->si->hw;
- 	struct enetc_cbd cbd = {.cmd = 0};
- 	struct tgs_gcl_conf *gcl_config;
- 	struct tgs_gcl_data *gcl_data;
-@@ -60,15 +60,13 @@ static int enetc_setup_taprio(struct net_device *ndev,
- 	int err;
- 	int i;
- 
--	if (admin_conf->num_entries > enetc_get_max_gcl_len(&priv->si->hw))
-+	if (admin_conf->num_entries > enetc_get_max_gcl_len(hw))
- 		return -EINVAL;
- 	gcl_len = admin_conf->num_entries;
- 
--	tge = enetc_rd(&priv->si->hw, ENETC_QBV_PTGCR_OFFSET);
-+	tge = enetc_rd(hw, ENETC_QBV_PTGCR_OFFSET);
- 	if (!admin_conf->enable) {
--		enetc_wr(&priv->si->hw,
--			 ENETC_QBV_PTGCR_OFFSET,
--			 tge & (~ENETC_QBV_TGE));
-+		enetc_wr(hw, ENETC_QBV_PTGCR_OFFSET, tge & ~ENETC_QBV_TGE);
- 
- 		priv->active_offloads &= ~ENETC_F_QBV;
- 
-@@ -126,14 +124,11 @@ static int enetc_setup_taprio(struct net_device *ndev,
- 	cbd.cls = BDCR_CMD_PORT_GCL;
- 	cbd.status_flags = 0;
- 
--	enetc_wr(&priv->si->hw, ENETC_QBV_PTGCR_OFFSET,
--		 tge | ENETC_QBV_TGE);
-+	enetc_wr(hw, ENETC_QBV_PTGCR_OFFSET, tge | ENETC_QBV_TGE);
- 
- 	err = enetc_send_cmd(priv->si, &cbd);
- 	if (err)
--		enetc_wr(&priv->si->hw,
--			 ENETC_QBV_PTGCR_OFFSET,
--			 tge & (~ENETC_QBV_TGE));
-+		enetc_wr(hw, ENETC_QBV_PTGCR_OFFSET, tge & ~ENETC_QBV_TGE);
- 
- 	dma_unmap_single(&priv->si->pdev->dev, dma, data_size, DMA_TO_DEVICE);
- 	kfree(gcl_data);
-@@ -148,6 +143,7 @@ int enetc_setup_tc_taprio(struct net_device *ndev, void *type_data)
- {
- 	struct tc_taprio_qopt_offload *taprio = type_data;
- 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
-+	struct enetc_hw *hw = &priv->si->hw;
- 	int err;
- 	int i;
- 
-@@ -157,16 +153,14 @@ int enetc_setup_tc_taprio(struct net_device *ndev, void *type_data)
- 			return -EBUSY;
- 
- 	for (i = 0; i < priv->num_tx_rings; i++)
--		enetc_set_bdr_prio(&priv->si->hw,
--				   priv->tx_ring[i]->index,
-+		enetc_set_bdr_prio(hw, priv->tx_ring[i]->index,
- 				   taprio->enable ? i : 0);
- 
- 	err = enetc_setup_taprio(ndev, taprio);
- 
- 	if (err)
- 		for (i = 0; i < priv->num_tx_rings; i++)
--			enetc_set_bdr_prio(&priv->si->hw,
--					   priv->tx_ring[i]->index,
-+			enetc_set_bdr_prio(hw, priv->tx_ring[i]->index,
- 					   taprio->enable ? 0 : i);
- 
- 	return err;
-@@ -188,7 +182,7 @@ int enetc_setup_tc_cbs(struct net_device *ndev, void *type_data)
- 	struct tc_cbs_qopt_offload *cbs = type_data;
- 	u32 port_transmit_rate = priv->speed;
- 	u8 tc_nums = netdev_get_num_tc(ndev);
--	struct enetc_si *si = priv->si;
-+	struct enetc_hw *hw = &priv->si->hw;
- 	u32 hi_credit_bit, hi_credit_reg;
- 	u32 max_interference_size;
- 	u32 port_frame_max_size;
-@@ -209,15 +203,15 @@ int enetc_setup_tc_cbs(struct net_device *ndev, void *type_data)
- 		 * lower than this TC have been disabled.
- 		 */
- 		if (tc == prio_top &&
--		    enetc_get_cbs_enable(&si->hw, prio_next)) {
-+		    enetc_get_cbs_enable(hw, prio_next)) {
- 			dev_err(&ndev->dev,
- 				"Disable TC%d before disable TC%d\n",
- 				prio_next, tc);
- 			return -EINVAL;
- 		}
- 
--		enetc_port_wr(&si->hw, ENETC_PTCCBSR1(tc), 0);
--		enetc_port_wr(&si->hw, ENETC_PTCCBSR0(tc), 0);
-+		enetc_port_wr(hw, ENETC_PTCCBSR1(tc), 0);
-+		enetc_port_wr(hw, ENETC_PTCCBSR0(tc), 0);
- 
- 		return 0;
- 	}
-@@ -234,13 +228,13 @@ int enetc_setup_tc_cbs(struct net_device *ndev, void *type_data)
- 	 * higher than this TC have been enabled.
- 	 */
- 	if (tc == prio_next) {
--		if (!enetc_get_cbs_enable(&si->hw, prio_top)) {
-+		if (!enetc_get_cbs_enable(hw, prio_top)) {
- 			dev_err(&ndev->dev,
- 				"Enable TC%d first before enable TC%d\n",
- 				prio_top, prio_next);
- 			return -EINVAL;
- 		}
--		bw_sum += enetc_get_cbs_bw(&si->hw, prio_top);
-+		bw_sum += enetc_get_cbs_bw(hw, prio_top);
- 	}
- 
- 	if (bw_sum + bw >= 100) {
-@@ -249,7 +243,7 @@ int enetc_setup_tc_cbs(struct net_device *ndev, void *type_data)
- 		return -EINVAL;
- 	}
- 
--	enetc_port_rd(&si->hw, ENETC_PTCMSDUR(tc));
-+	enetc_port_rd(hw, ENETC_PTCMSDUR(tc));
- 
- 	/* For top prio TC, the max_interfrence_size is maxSizedFrame.
- 	 *
-@@ -269,8 +263,8 @@ int enetc_setup_tc_cbs(struct net_device *ndev, void *type_data)
- 		u32 m0, ma, r0, ra;
- 
- 		m0 = port_frame_max_size * 8;
--		ma = enetc_port_rd(&si->hw, ENETC_PTCMSDUR(prio_top)) * 8;
--		ra = enetc_get_cbs_bw(&si->hw, prio_top) *
-+		ma = enetc_port_rd(hw, ENETC_PTCMSDUR(prio_top)) * 8;
-+		ra = enetc_get_cbs_bw(hw, prio_top) *
- 			port_transmit_rate * 10000ULL;
- 		r0 = port_transmit_rate * 1000000ULL;
- 		max_interference_size = m0 + ma +
-@@ -290,10 +284,10 @@ int enetc_setup_tc_cbs(struct net_device *ndev, void *type_data)
- 	hi_credit_reg = (u32)div_u64((ENETC_CLK * 100ULL) * hi_credit_bit,
- 				     port_transmit_rate * 1000000ULL);
- 
--	enetc_port_wr(&si->hw, ENETC_PTCCBSR1(tc), hi_credit_reg);
-+	enetc_port_wr(hw, ENETC_PTCCBSR1(tc), hi_credit_reg);
- 
- 	/* Set bw register and enable this traffic class */
--	enetc_port_wr(&si->hw, ENETC_PTCCBSR0(tc), bw | ENETC_CBSE);
-+	enetc_port_wr(hw, ENETC_PTCCBSR0(tc), bw | ENETC_CBSE);
- 
- 	return 0;
- }
-@@ -303,6 +297,7 @@ int enetc_setup_tc_txtime(struct net_device *ndev, void *type_data)
- 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
- 	struct tc_etf_qopt_offload *qopt = type_data;
- 	u8 tc_nums = netdev_get_num_tc(ndev);
-+	struct enetc_hw *hw = &priv->si->hw;
- 	int tc;
- 
- 	if (!tc_nums)
-@@ -318,12 +313,11 @@ int enetc_setup_tc_txtime(struct net_device *ndev, void *type_data)
- 		return -EBUSY;
- 
- 	/* TSD and Qbv are mutually exclusive in hardware */
--	if (enetc_rd(&priv->si->hw, ENETC_QBV_PTGCR_OFFSET) & ENETC_QBV_TGE)
-+	if (enetc_rd(hw, ENETC_QBV_PTGCR_OFFSET) & ENETC_QBV_TGE)
- 		return -EBUSY;
- 
- 	priv->tx_ring[tc]->tsd_enable = qopt->enable;
--	enetc_port_wr(&priv->si->hw, ENETC_PTCTSDR(tc),
--		      qopt->enable ? ENETC_TSDE : 0);
-+	enetc_port_wr(hw, ENETC_PTCTSDR(tc), qopt->enable ? ENETC_TSDE : 0);
- 
- 	return 0;
- }
+ L_END_PGM:
 -- 
 2.35.1
 
