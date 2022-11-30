@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92CF563DF4B
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:45:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C57D063DF4D
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:45:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231383AbiK3Spu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:45:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58176 "EHLO
+        id S231402AbiK3Spz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:45:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231392AbiK3Sp2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:45:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE0DC9700B
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:45:25 -0800 (PST)
+        with ESMTP id S231295AbiK3Spb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:45:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 502B194939
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:45:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53ACE61D4F
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:45:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66202C433D6;
-        Wed, 30 Nov 2022 18:45:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09B48B81CAA
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:45:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69D08C433D6;
+        Wed, 30 Nov 2022 18:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833924;
-        bh=KmkX2VovcmCMsJH2eGNzk3Wu9eMHG3Rq1VpV1QlWbwo=;
+        s=korg; t=1669833927;
+        bh=OB7OFWZmkfyhv8yD2NE+phAV4BTh5G0vH96/fEJqnLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTwGQhkCuVXHFHE4ew5FIKoHLJHI+xiHaa7D70gi2UbN5ZMl/9s5LE5Jdh5Mz3ms6
-         rcSI7rLJ+d0xCey4vGXgQ+acgdGv6SmgiBySzkccoIU1/rCXnrP0YTBM4ZwvsEeu+M
-         mYyVKJzI9Aj9NuCayQ9BQ1EKuMFkaJTVbkchy+2s=
+        b=DlwA8NqCauORy0SKBxHq0FkydGZSR+cEVOddXHMauJhFiLhA/iwXSuF38P3dvXigD
+         GSlbYFoT2cZVLeS3y/sHOaymekvmUZYWdYEUDRDiulSTf5xmtsDbfwb92/BKjQRH/G
+         /YreGjSuaGi37/OWd2YTUpErOILoZq1JJN1cqW8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 065/289] regulator: core: fix UAF in destroy_regulator()
-Date:   Wed, 30 Nov 2022 19:20:50 +0100
-Message-Id: <20221130180545.603091744@linuxfoundation.org>
+Subject: [PATCH 6.0 066/289] bus: sunxi-rsb: Remove the shutdown callback
+Date:   Wed, 30 Nov 2022 19:20:51 +0100
+Message-Id: <20221130180545.625304331@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
 References: <20221130180544.105550592@linuxfoundation.org>
@@ -53,130 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 1f386d6894d0f1b7de8ef640c41622ddd698e7ab ]
+[ Upstream commit 5f4696ddca4b8a0bbbc36bd46829f97aab5a4552 ]
 
-I got a UAF report as following:
+Shutting down the RSB controller prevents communicating with a PMIC
+inside pm_power_off(), since that gets called after device_shutdown(),
+so it breaks system poweroff on some boards.
 
-==================================================================
-BUG: KASAN: use-after-free in __lock_acquire+0x935/0x2060
-Read of size 8 at addr ffff88810e838220 by task python3/268
-Call Trace:
- <TASK>
- dump_stack_lvl+0x67/0x83
- print_report+0x178/0x4b0
- kasan_report+0x90/0x190
- __lock_acquire+0x935/0x2060
- lock_acquire+0x156/0x400
- _raw_spin_lock+0x2a/0x40
- lockref_get+0x11/0x30
- simple_recursive_removal+0x41/0x440
- debugfs_remove.part.12+0x32/0x50
- debugfs_remove+0x29/0x30
- _regulator_put.cold.54+0x3e/0x27f
- regulator_put+0x1f/0x30
- release_nodes+0x6a/0xa0
- devres_release_all+0xf8/0x150
-
-Allocated by task 37:
- kasan_save_stack+0x1c/0x40
- kasan_set_track+0x21/0x30
- __kasan_slab_alloc+0x5d/0x70
- slab_post_alloc_hook+0x62/0x510
- kmem_cache_alloc_lru+0x222/0x5a0
- __d_alloc+0x31/0x440
- d_alloc+0x30/0xf0
- d_alloc_parallel+0xc4/0xd20
- __lookup_slow+0x15e/0x2f0
- lookup_one_len+0x13a/0x150
- start_creating+0xea/0x190
- debugfs_create_dir+0x1e/0x210
- create_regulator+0x254/0x4e0
- _regulator_get+0x2a1/0x467
- _devm_regulator_get+0x5a/0xb0
- regulator_virtual_probe+0xb9/0x1a0
-
-Freed by task 30:
- kasan_save_stack+0x1c/0x40
- kasan_set_track+0x21/0x30
- kasan_save_free_info+0x2a/0x50
- __kasan_slab_free+0x102/0x190
- kmem_cache_free+0xf6/0x600
- rcu_core+0x54c/0x12b0
- __do_softirq+0xf2/0x5e3
-
-Last potentially related work creation:
- kasan_save_stack+0x1c/0x40
- __kasan_record_aux_stack+0x98/0xb0
- call_rcu+0x42/0x700
- dentry_free+0x6c/0xd0
- __dentry_kill+0x23b/0x2d0
- dput.part.31+0x431/0x780
- simple_recursive_removal+0xa9/0x440
- debugfs_remove.part.12+0x32/0x50
- debugfs_remove+0x29/0x30
- regulator_unregister+0xe3/0x230
- release_nodes+0x6a/0xa0
-
-==================================================================
-
-Here is how happened:
-
-processor A					processor B
-regulator_register()
-  rdev_init_debugfs()
-    rdev->debugfs = debugfs_create_dir()
-						devm_regulator_get()
-						  rdev = regulator_dev_lookup()
-						  create_regulator(rdev)
-						    // using rdev->debugfs as parent
-						    debugfs_create_dir(rdev->debugfs)
-
-mfd_remove_devices_fn()
-  release_nodes()
-    regulator_unregister()
-      // free rdev->debugfs
-      debugfs_remove_recursive(rdev->debugfs)
-						release_nodes()
-						  destroy_regulator()
-						    debugfs_remove_recursive() <- causes UAF
-
-In devm_regulator_get(), after getting rdev, the refcount
-is get, so fix this by moving debugfs_remove_recursive()
-to regulator_dev_release(), then it can be proctected by
-the refcount, the 'rdev->debugfs' can not be freed until
-the refcount is 0.
-
-Fixes: 5de705194e98 ("regulator: Add basic per consumer debugfs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221116033706.3595812-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+Tested-by: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Fixes: 843107498f91 ("bus: sunxi-rsb: Implement suspend/resume/shutdown callbacks")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Link: https://lore.kernel.org/r/20221114015749.28490-2-samuel@sholland.org
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bus/sunxi-rsb.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 5f82a996dbea..c0f368f1b49f 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5138,6 +5138,7 @@ static void regulator_dev_release(struct device *dev)
- {
- 	struct regulator_dev *rdev = dev_get_drvdata(dev);
+diff --git a/drivers/bus/sunxi-rsb.c b/drivers/bus/sunxi-rsb.c
+index 4cd2e127946e..17343cd75338 100644
+--- a/drivers/bus/sunxi-rsb.c
++++ b/drivers/bus/sunxi-rsb.c
+@@ -812,14 +812,6 @@ static int sunxi_rsb_remove(struct platform_device *pdev)
+ 	return 0;
+ }
  
-+	debugfs_remove_recursive(rdev->debugfs);
- 	kfree(rdev->constraints);
- 	of_node_put(rdev->dev.of_node);
- 	kfree(rdev);
-@@ -5653,7 +5654,6 @@ void regulator_unregister(struct regulator_dev *rdev)
- 
- 	mutex_lock(&regulator_list_mutex);
- 
--	debugfs_remove_recursive(rdev->debugfs);
- 	WARN_ON(rdev->open_count);
- 	regulator_remove_coupling(rdev);
- 	unset_regulator_supplies(rdev);
+-static void sunxi_rsb_shutdown(struct platform_device *pdev)
+-{
+-	struct sunxi_rsb *rsb = platform_get_drvdata(pdev);
+-
+-	pm_runtime_disable(&pdev->dev);
+-	sunxi_rsb_hw_exit(rsb);
+-}
+-
+ static const struct dev_pm_ops sunxi_rsb_dev_pm_ops = {
+ 	SET_RUNTIME_PM_OPS(sunxi_rsb_runtime_suspend,
+ 			   sunxi_rsb_runtime_resume, NULL)
+@@ -835,7 +827,6 @@ MODULE_DEVICE_TABLE(of, sunxi_rsb_of_match_table);
+ static struct platform_driver sunxi_rsb_driver = {
+ 	.probe = sunxi_rsb_probe,
+ 	.remove	= sunxi_rsb_remove,
+-	.shutdown = sunxi_rsb_shutdown,
+ 	.driver	= {
+ 		.name = RSB_CTRL_NAME,
+ 		.of_match_table = sunxi_rsb_of_match_table,
 -- 
 2.35.1
 
