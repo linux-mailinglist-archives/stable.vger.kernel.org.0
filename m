@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DACC63DFA2
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:49:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A0C463DD39
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:25:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231321AbiK3StF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:49:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56770 "EHLO
+        id S230175AbiK3SZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:25:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231428AbiK3Ss6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:48:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3C745097
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:48:56 -0800 (PST)
+        with ESMTP id S230123AbiK3SZg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:25:36 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AE7B6314;
+        Wed, 30 Nov 2022 10:25:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82B15B81CAB
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:48:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBCE3C433D6;
-        Wed, 30 Nov 2022 18:48:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 058E7CE1ACC;
+        Wed, 30 Nov 2022 18:25:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0D68C433C1;
+        Wed, 30 Nov 2022 18:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669834134;
-        bh=sKxE6Tg4H3AZRuWpOXQzKrZwCtWWGV+MsBjoklTO3B8=;
+        s=korg; t=1669832726;
+        bh=62Fqnu0SpwoA4vK91A3SZ3ETuJz1j4DVnrjfKEssupE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RN9+v42GFhwoi7w8BmCIW4Y32sbTcGSMhJXeD8KyXvsSEyDUrSYShM85G7fetDYfa
-         NQ7Cmgig6BjIKeAXh1rrP73R0Saxr1lc9fzxgMMyuFbOQWqzeWL16r+Hr+J/oKUk+Q
-         PUzInN0z/MYXf7xlDzp/zrEln5SgUcCPTv9pq7tQ=
+        b=TkODjCpudfDhF+W3v5wVNN0s2cMZERDF3zqrCCpxNTimPBGEP0hLDKiefO70fms5O
+         8oqSVh8EAO+GboYd+i1fGbGpUPeprUaZ/RrPjUI6B5ZHj6NdOvQvk4ZoBk/M7HaefE
+         gUibNnexdysWD8LY3He/l0B0I6hd6ROB72zgwjjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Jon Maloy <jmaloy@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Kalle Valo <kvalo@kernel.org>,
+        linux-wireless@vger.kernel.org,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 115/289] tipc: check skb_linearize() return value in tipc_disc_rcv()
+Subject: [PATCH 5.10 019/162] wifi: airo: do not assign -1 to unsigned char
 Date:   Wed, 30 Nov 2022 19:21:40 +0100
-Message-Id: <20221130180546.746678622@linuxfoundation.org>
+Message-Id: <20221130180529.017718295@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
-References: <20221130180544.105550592@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit cd0f6421162201e4b22ce757a1966729323185eb ]
+[ Upstream commit e6cb8769452e8236b52134e5cb4a18b8f5986932 ]
 
-If skb_linearize() fails in tipc_disc_rcv(), we need to free the skb instead of
-handle it.
+With char becoming unsigned by default, and with `char` alone being
+ambiguous and based on architecture, we get a warning when assigning the
+unchecked output of hex_to_bin() to that unsigned char. Mark `key` as a
+`u8`, which matches the struct's type, and then check each call to
+hex_to_bin() before casting.
 
-Fixes: 25b0b9c4e835 ("tipc: handle collisions of 32-bit node address hash values")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Link: https://lore.kernel.org/r/20221119072832.7896-1-yuehaibing@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Kalle Valo <kvalo@kernel.org>
+Cc: linux-wireless@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221024162843.535921-1-Jason@zx2c4.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/discover.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/wireless/cisco/airo.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/net/tipc/discover.c b/net/tipc/discover.c
-index e8630707901e..e8dcdf267c0c 100644
---- a/net/tipc/discover.c
-+++ b/net/tipc/discover.c
-@@ -211,7 +211,10 @@ void tipc_disc_rcv(struct net *net, struct sk_buff *skb,
- 	u32 self;
- 	int err;
+diff --git a/drivers/net/wireless/cisco/airo.c b/drivers/net/wireless/cisco/airo.c
+index 0569f37e9ed5..8c9c6bfbaeee 100644
+--- a/drivers/net/wireless/cisco/airo.c
++++ b/drivers/net/wireless/cisco/airo.c
+@@ -5236,7 +5236,7 @@ static int get_wep_tx_idx(struct airo_info *ai)
+ 	return -1;
+ }
  
--	skb_linearize(skb);
-+	if (skb_linearize(skb)) {
-+		kfree_skb(skb);
-+		return;
-+	}
- 	hdr = buf_msg(skb);
+-static int set_wep_key(struct airo_info *ai, u16 index, const char *key,
++static int set_wep_key(struct airo_info *ai, u16 index, const u8 *key,
+ 		       u16 keylen, int perm, int lock)
+ {
+ 	static const unsigned char macaddr[ETH_ALEN] = { 0x01, 0, 0, 0, 0, 0 };
+@@ -5287,7 +5287,7 @@ static void proc_wepkey_on_close(struct inode *inode, struct file *file)
+ 	struct net_device *dev = PDE_DATA(inode);
+ 	struct airo_info *ai = dev->ml_priv;
+ 	int i, rc;
+-	char key[16];
++	u8 key[16];
+ 	u16 index = 0;
+ 	int j = 0;
  
- 	if (caps & TIPC_NODE_ID128)
+@@ -5315,12 +5315,22 @@ static void proc_wepkey_on_close(struct inode *inode, struct file *file)
+ 	}
+ 
+ 	for (i = 0; i < 16*3 && data->wbuffer[i+j]; i++) {
++		int val;
++
++		if (i % 3 == 2)
++			continue;
++
++		val = hex_to_bin(data->wbuffer[i+j]);
++		if (val < 0) {
++			airo_print_err(ai->dev->name, "WebKey passed invalid key hex");
++			return;
++		}
+ 		switch(i%3) {
+ 		case 0:
+-			key[i/3] = hex_to_bin(data->wbuffer[i+j])<<4;
++			key[i/3] = (u8)val << 4;
+ 			break;
+ 		case 1:
+-			key[i/3] |= hex_to_bin(data->wbuffer[i+j]);
++			key[i/3] |= (u8)val;
+ 			break;
+ 		}
+ 	}
 -- 
 2.35.1
 
