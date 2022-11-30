@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CCAB63D572
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:22:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49D8D63D574
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 13:22:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231159AbiK3MWL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 07:22:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37192 "EHLO
+        id S233852AbiK3MW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 07:22:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229580AbiK3MWK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:22:10 -0500
+        with ESMTP id S234531AbiK3MWR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 07:22:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D84416F825
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:22:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69BAB73BBE
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 04:22:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86439B81B31
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:22:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB22FC433D6;
-        Wed, 30 Nov 2022 12:22:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16E55B81B31
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 12:22:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 772E5C433D6;
+        Wed, 30 Nov 2022 12:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669810927;
-        bh=AJcmZngp3wxsBe2JXoe0xfVGtP8gkqQerLHgCcRSQTA=;
+        s=korg; t=1669810933;
+        bh=W7662cHfBfQio3IySt+jmSqltmsjzn/HBGBU4Tp+04g=;
         h=Subject:To:Cc:From:Date:From;
-        b=VTgxOEObqveHdRtYKZUmFT44w6/IPTQSWGQ1iQc7miP2gX4dUEZdBpa7SNjUGQZ0y
-         horWL/9Ou8uyb0CEYvWIcbwNszhsbnC6GeSTcaYIM6XQAGma989OU8jD4rCzQ/72NZ
-         Xe2pAa89CuGAM/IQNIeOMUZQX7d62sldTkILxz1A=
-Subject: FAILED: patch "[PATCH] KVM: x86: nSVM: harden svm_free_nested against freeing vmcb02" failed to apply to 5.4-stable tree
+        b=0UbXKxw7dXUyWeeA/QXrLUK4OHgqaPSfW8THChn4/8ELiaFnlvmF2I0tJ3/I7x0bO
+         g6XzgdSw9ZH6cwcd/gBsYCj0du4T2xgFpaBQLPqYWTBoG614ZybvXZK0dMKE1OBqgf
+         aUaiySGbqP3borIqx9BP2irEKU0IrRBsKljGM7D0=
+Subject: FAILED: patch "[PATCH] KVM: x86: nSVM: harden svm_free_nested against freeing vmcb02" failed to apply to 4.14-stable tree
 To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Nov 2022 13:22:04 +0100
-Message-ID: <1669810924129135@kroah.com>
+Date:   Wed, 30 Nov 2022 13:22:05 +0100
+Message-ID: <1669810925171112@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
