@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3527E63DE40
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 003E163DD4A
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:26:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230307AbiK3SfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:35:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43618 "EHLO
+        id S230104AbiK3S0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:26:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229879AbiK3SfG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:06 -0500
+        with ESMTP id S230273AbiK3S0C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D5A326545
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07DE61038
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B0578B81C9C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26252C433C1;
-        Wed, 30 Nov 2022 18:35:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3451B81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1F85C433C1;
+        Wed, 30 Nov 2022 18:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833303;
-        bh=+OjShQvoVO2sfoGe1cW8c5l7565D24ROvEYNQhALPtM=;
+        s=korg; t=1669832759;
+        bh=yjQ99BQ+hsRK0Umb/tiUk8l4Y/ViyKyhCBcCEgyoA6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iaRH9eiexM5WzC471VuU4GflCTQipLi1e9n235+pCY+/yrwWGcJvp8R3yIi4yfkHi
-         cdse36b1ROI4gLzuCvJUI4uMJCL6iMhEuFEdc7vRS/AS3rvvSoIUkzIKtuT0Cnlqsk
-         bfuKsBY1o9aTMuX1evlutvrq5LbYwQeZyXo3U8J4=
+        b=MUI/MGJhfBAnRO8wylbKQ8i+FJd2MgxBziYJUZem0RISHyS5XRdLKpNkDwDR+rJGs
+         KWnbkOAHoo3EW3ZqTzA5ED7O9HwVZmk7orIfrg5Ai/XkYZRbdUdM3Qw5zWnNVFXA8P
+         PMLGj8WLtI7xCNdvbYOsq3+qmoyzmToe0dJqUMVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Junxiao Chang <junxiao.chang@intel.com>,
-        Furong Zhou <furong.zhou@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 059/206] ASoC: hdac_hda: fix hda pcm buffer overflow issue
+Subject: [PATCH 5.10 030/162] RISC-V: vdso: Do not add missing symbols to version section in linker script
 Date:   Wed, 30 Nov 2022 19:21:51 +0100
-Message-Id: <20221130180534.504440880@linuxfoundation.org>
+Message-Id: <20221130180529.321532657@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,64 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Chang <junxiao.chang@intel.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 37882100cd0629d830db430a8cee0b724fe1fea3 ]
+[ Upstream commit fcae44fd36d052e956e69a64642fc03820968d78 ]
 
-When KASAN is enabled, below log might be dumped with Intel EHL hardware:
-[   48.583597] ==================================================================
-[   48.585921] BUG: KASAN: slab-out-of-bounds in hdac_hda_dai_hw_params+0x20a/0x22b [snd_soc_hdac_hda]
-[   48.587995] Write of size 4 at addr ffff888103489708 by task pulseaudio/759
+Recently, ld.lld moved from '--undefined-version' to
+'--no-undefined-version' as the default, which breaks the compat vDSO
+build:
 
-[   48.589237] CPU: 2 PID: 759 Comm: pulseaudio Tainted: G     U      E     5.15.71-intel-ese-standard-lts #9
-[   48.591272] Hardware name: Intel Corporation Elkhart Lake Embedded Platform/ElkhartLake LPDDR4x T3 CRB, BIOS EHLSFWI1.R00.4251.A01.2206130432 06/13/2022
-[   48.593010] Call Trace:
-[   48.593648]  <TASK>
-[   48.593852]  dump_stack_lvl+0x34/0x48
-[   48.594404]  print_address_description.constprop.0+0x1f/0x140
-[   48.595174]  ? hdac_hda_dai_hw_params+0x20a/0x22b [snd_soc_hdac_hda]
-[   48.595868]  ? hdac_hda_dai_hw_params+0x20a/0x22b [snd_soc_hdac_hda]
-[   48.596519]  kasan_report.cold+0x7f/0x11b
-[   48.597003]  ? hdac_hda_dai_hw_params+0x20a/0x22b [snd_soc_hdac_hda]
-[   48.597885]  hdac_hda_dai_hw_params+0x20a/0x22b [snd_soc_hdac_hda]
+  ld.lld: error: version script assignment of 'LINUX_4.15' to symbol '__vdso_gettimeofday' failed: symbol not defined
+  ld.lld: error: version script assignment of 'LINUX_4.15' to symbol '__vdso_clock_gettime' failed: symbol not defined
+  ld.lld: error: version script assignment of 'LINUX_4.15' to symbol '__vdso_clock_getres' failed: symbol not defined
 
-HDAC_LAST_DAI_ID is last index id, pcm buffer array size should
-be +1 to avoid out of bound access.
+These symbols are not present in the compat vDSO or the regular vDSO for
+32-bit but they are unconditionally included in the version section of
+the linker script, which is prohibited with '--no-undefined-version'.
 
-Fixes: 608b8c36c371 ("ASoC: hdac_hda: add support for HDMI/DP as a HDA codec")
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Junxiao Chang <junxiao.chang@intel.com>
-Signed-off-by: Furong Zhou <furong.zhou@intel.com>
-Link: https://lore.kernel.org/r/20221109234023.3111035-1-junxiao.chang@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix this issue by only including the symbols that are actually exported
+in the version section of the linker script.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1756
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Tested-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20221108171324.3377226-1-nathan@kernel.org/
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdac_hda.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/riscv/kernel/vdso/Makefile   | 3 +++
+ arch/riscv/kernel/vdso/vdso.lds.S | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/sound/soc/codecs/hdac_hda.h b/sound/soc/codecs/hdac_hda.h
-index d0efc5e254ae..da0ed74758b0 100644
---- a/sound/soc/codecs/hdac_hda.h
-+++ b/sound/soc/codecs/hdac_hda.h
-@@ -14,7 +14,7 @@ enum {
- 	HDAC_HDMI_1_DAI_ID,
- 	HDAC_HDMI_2_DAI_ID,
- 	HDAC_HDMI_3_DAI_ID,
--	HDAC_LAST_DAI_ID = HDAC_HDMI_3_DAI_ID,
-+	HDAC_DAI_ID_NUM
- };
+diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+index 926ab3960f9e..c92b55a0ec1c 100644
+--- a/arch/riscv/kernel/vdso/Makefile
++++ b/arch/riscv/kernel/vdso/Makefile
+@@ -28,6 +28,9 @@ obj-vdso := $(addprefix $(obj)/, $(obj-vdso))
  
- struct hdac_hda_pcm {
-@@ -24,7 +24,7 @@ struct hdac_hda_pcm {
+ obj-y += vdso.o vdso-syms.o
+ CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
++ifneq ($(filter vgettimeofday, $(vdso-syms)),)
++CPPFLAGS_vdso.lds += -DHAS_VGETTIMEOFDAY
++endif
  
- struct hdac_hda_priv {
- 	struct hda_codec codec;
--	struct hdac_hda_pcm pcm[HDAC_LAST_DAI_ID];
-+	struct hdac_hda_pcm pcm[HDAC_DAI_ID_NUM];
- 	bool need_display_power;
- };
- 
+ # Disable -pg to prevent insert call site
+ CFLAGS_REMOVE_vgettimeofday.o = $(CC_FLAGS_FTRACE)
+diff --git a/arch/riscv/kernel/vdso/vdso.lds.S b/arch/riscv/kernel/vdso/vdso.lds.S
+index e6f558bca71b..b3e58402c342 100644
+--- a/arch/riscv/kernel/vdso/vdso.lds.S
++++ b/arch/riscv/kernel/vdso/vdso.lds.S
+@@ -64,9 +64,11 @@ VERSION
+ 	LINUX_4.15 {
+ 	global:
+ 		__vdso_rt_sigreturn;
++#ifdef HAS_VGETTIMEOFDAY
+ 		__vdso_gettimeofday;
+ 		__vdso_clock_gettime;
+ 		__vdso_clock_getres;
++#endif
+ 		__vdso_getcpu;
+ 		__vdso_flush_icache;
+ 	local: *;
 -- 
 2.35.1
 
