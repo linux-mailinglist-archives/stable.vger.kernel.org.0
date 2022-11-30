@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D17863DD4C
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:26:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2770063DE42
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:35:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229528AbiK3S0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:26:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57248 "EHLO
+        id S230251AbiK3SfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:35:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229879AbiK3S0I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:26:08 -0500
+        with ESMTP id S230252AbiK3SfK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:10 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5287065C4
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:26:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 003DE2611F
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D56BD61D41
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:26:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C105EC433C1;
-        Wed, 30 Nov 2022 18:26:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 900C361D6A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 889D1C433D6;
+        Wed, 30 Nov 2022 18:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832765;
-        bh=MUaOV2cG8KlvO2ENfqhgjCKNafycWmH57CxQuuqap0E=;
+        s=korg; t=1669833309;
+        bh=+cC/2A0O1a+NCRlywGAt4AB719e1jYGnJMf/hFAt0po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aIOtLfCPEV5ruKtTLy5ZgGQCROeWqFXIe+8EgIK2vRqfWoxq/zmG+sfNLeQFDtMlD
-         PW+MOJ/QjkeyBtrjp2h1E/a1ASnpfmrH89HLfPUjZmY+cBPdCzKPYMbHo8ZLcprqoH
-         YCWzm9vdURYPx9lyN27GngfS8kw3AddKDH8LI/Fg=
+        b=kfwS8HFXRAw1zIe2CQ45vj81HP/GrcZypIpD+vI+CgzSev80CEtyjDjmEcobrzGHy
+         T19/TTXpEm6wEUJveg4W94U7yxL0iaU8SQFznU0X3zd5xiLa4rtawpvtR4mVt7xCiv
+         D6yfmsDYdMFciK844pNi0qRc9uSOMZKeB2eh6rXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Monil Patel <monil191989@gmail.com>,
-        Eyal Birger <eyal.birger@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        patches@lists.linux.dev,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 032/162] xfrm: fix "disable_policy" on ipv4 early demux
+Subject: [PATCH 5.15 061/206] ASoC: soc-pcm: Dont zero TDM masks in __soc_pcm_open()
 Date:   Wed, 30 Nov 2022 19:21:53 +0100
-Message-Id: <20221130180529.375052611@linuxfoundation.org>
+Message-Id: <20221130180534.554967684@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eyal Birger <eyal.birger@gmail.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 3a5913183aa1b14148c723bda030e6102ad73008 ]
+[ Upstream commit 39bd801d6908900e9ab0cdc2655150f95ddd4f1a ]
 
-The commit in the "Fixes" tag tried to avoid a case where policy check
-is ignored due to dst caching in next hops.
+The DAI tx_mask and rx_mask are set by snd_soc_dai_set_tdm_slot()
+and used by later code that depends on the TDM settings. So
+__soc_pcm_open() should not be obliterating those mask values.
 
-However, when the traffic is locally consumed, the dst may be cached
-in a local TCP or UDP socket as part of early demux. In this case the
-"disable_policy" flag is not checked as ip_route_input_noref() was only
-called before caching, and thus, packets after the initial packet in a
-flow will be dropped if not matching policies.
+The code in __soc_pcm_hw_params() uses these masks to calculate the
+active channels so that only the AIF_IN/AIF_OUT widgets for the
+active TDM slots are enabled. The zeroing of the masks in
+__soc_pcm_open() disables this functionality so all AIF widgets
+were enabled even for channels that are not assigned to a TDM slot.
 
-Fix by checking the "disable_policy" flag also when a valid dst is
-already available.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216557
-Reported-by: Monil Patel <monil191989@gmail.com>
-Fixes: e6175a2ed1f1 ("xfrm: fix "disable_policy" flag use when arriving from different devices")
-Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
-
-----
-
-v2: use dev instead of skb->dev
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Fixes: 2e5894d73789 ("ASoC: pcm: Add support for DAI multicodec")
+Link: https://lore.kernel.org/r/20221104132213.121847-1-rf@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_input.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/soc-pcm.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/net/ipv4/ip_input.c b/net/ipv4/ip_input.c
-index f6b3237e88ca..eccd7897e7aa 100644
---- a/net/ipv4/ip_input.c
-+++ b/net/ipv4/ip_input.c
-@@ -361,6 +361,11 @@ static int ip_rcv_finish_core(struct net *net, struct sock *sk,
- 					   iph->tos, dev);
- 		if (unlikely(err))
- 			goto drop_error;
-+	} else {
-+		struct in_device *in_dev = __in_dev_get_rcu(dev);
-+
-+		if (in_dev && IN_DEV_ORCONF(in_dev, NOPOLICY))
-+			IPCB(skb)->flags |= IPSKB_NOPOLICY;
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 48f71bb81a2f..f6dc71e8ea87 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -759,11 +759,6 @@ static int soc_pcm_open(struct snd_pcm_substream *substream)
+ 		ret = snd_soc_dai_startup(dai, substream);
+ 		if (ret < 0)
+ 			goto err;
+-
+-		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+-			dai->tx_mask = 0;
+-		else
+-			dai->rx_mask = 0;
  	}
  
- #ifdef CONFIG_IP_ROUTE_CLASSID
+ 	/* Dynamic PCM DAI links compat checks use dynamic capabilities */
 -- 
 2.35.1
 
