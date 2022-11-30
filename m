@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C027763DD77
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:27:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D418763DFB5
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:49:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229604AbiK3S1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:27:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59014 "EHLO
+        id S231424AbiK3Stp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:49:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230138AbiK3S1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:27:30 -0500
+        with ESMTP id S230340AbiK3Stk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:49:40 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB8E8D649
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:27:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD73326D3
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:49:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E59B61B7C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:27:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E354C433D6;
-        Wed, 30 Nov 2022 18:27:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1104561D5E
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:49:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 255E6C433D6;
+        Wed, 30 Nov 2022 18:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832847;
-        bh=A/31FoIveb2WxbqlnDMAVcULgHiMi/pFgsarCiSUo8s=;
+        s=korg; t=1669834177;
+        bh=JCH72JDUDQ2nGutUOZoiUTytcoqaFhAg6An4Lrj36QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CnIitrXAeOBxpw6u6YZwfmUKuv7rjiRCrCFUJfQUe8sMhBXsTpP44cZQS5DFpOzRU
-         mJqeoGrOeoa867U3l7oxE12YQ8g5iJELRWDibOF1udzjMolj4DsDJKlHKE7mAQpF5t
-         evPueivq8OEE5e0EEJnx7T9D5fGu53RCsGqkxyt4=
+        b=D1ikuBhc3bqfNn3UB8tVWH1SoQjrCUeoTVhQpRYQ/EMiaFvIa/helOrEE/GVmh/ci
+         2OslCV7cw991ptBpqOBcM7ZK4KzftuP4U3M6+3TBjfif6TEUxUgJddSDmHK3srS0DW
+         Fpst7HqT1kuFWLL9EnKYLomykbjGkcJN7rZ91lvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jaco Coetzee <jaco.coetzee@corigine.com>,
-        Louis Peens <louis.peens@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 061/162] nfp: add port from netdev validation for EEPROM access
+Subject: [PATCH 6.0 157/289] s390/crashdump: fix TOD programmable field size
 Date:   Wed, 30 Nov 2022 19:22:22 +0100
-Message-Id: <20221130180530.161353252@linuxfoundation.org>
+Message-Id: <20221130180547.693659388@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180544.105550592@linuxfoundation.org>
+References: <20221130180544.105550592@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaco Coetzee <jaco.coetzee@corigine.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 0873016d46f6dfafd1bdf4d9b935b3331b226f7c ]
+[ Upstream commit f44e07a8afdd713ddc1a8832c39372fe5dd86895 ]
 
-Setting of the port flag `NFP_PORT_CHANGED`, introduced
-to ensure the correct reading of EEPROM data, causes a
-fatal kernel NULL pointer dereference in cases where
-the target netdev type cannot be determined.
+The size of the TOD programmable field was incorrectly increased from
+four to eight bytes with commit 1a2c5840acf9 ("s390/dump: cleanup CPU
+save area handling").
+This leads to an elf notes section NT_S390_TODPREG which has a size of
+eight instead of four bytes in case of kdump, however even worse is
+that the contents is incorrect: it is supposed to contain only the
+contents of the TOD programmable field, but in fact contains a mix of
+the TOD programmable field (32 bit upper bits) and parts of the CPU
+timer register (lower 32 bits).
 
-Add validation of port struct pointer before attempting
-to set the `NFP_PORT_CHANGED` flag. Return that operation
-is not supported if the netdev type cannot be determined.
+Fix this by simply changing the size of the todpreg field within the
+save area structure. This will implicitly also fix the size of the
+corresponding elf notes sections.
 
-Fixes: 4ae97cae07e1 ("nfp: ethtool: fix the display error of `ethtool -m DEVNAME`")
-Signed-off-by: Jaco Coetzee <jaco.coetzee@corigine.com>
-Reviewed-by: Louis Peens <louis.peens@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This also gets rid of this compile time warning:
+
+in function ‘fortify_memcpy_chk’,
+    inlined from ‘save_area_add_regs’ at arch/s390/kernel/crash_dump.c:99:2:
+./include/linux/fortify-string.h:413:25: error: call to ‘__read_overflow2_field’
+   declared with attribute warning: detected read beyond size of field
+   (2nd parameter); maybe use struct_group()? [-Werror=attribute-warning]
+  413 |                         __read_overflow2_field(q_size_field, size);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fixes: 1a2c5840acf9 ("s390/dump: cleanup CPU save area handling")
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/s390/kernel/crash_dump.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-index 3977aa2f59bd..311873ff57e3 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-@@ -1225,6 +1225,9 @@ nfp_port_get_module_info(struct net_device *netdev,
- 	u8 data;
- 
- 	port = nfp_port_from_netdev(netdev);
-+	if (!port)
-+		return -EOPNOTSUPP;
-+
- 	/* update port state to get latest interface */
- 	set_bit(NFP_PORT_CHANGED, &port->flags);
- 	eth_port = nfp_port_get_eth_port(port);
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index bad8f47fc5d6..c1b2b0d4af77 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -45,7 +45,7 @@ struct save_area {
+ 	u64 fprs[16];
+ 	u32 fpc;
+ 	u32 prefix;
+-	u64 todpreg;
++	u32 todpreg;
+ 	u64 timer;
+ 	u64 todcmp;
+ 	u64 vxrs_low[16];
 -- 
 2.35.1
 
