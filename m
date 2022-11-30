@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B76FC63DD8A
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:28:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8281763DE51
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:36:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229848AbiK3S2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:28:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33200 "EHLO
+        id S230458AbiK3Sf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:35:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229853AbiK3S2M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:28:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EACE27B3C
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:28:11 -0800 (PST)
+        with ESMTP id S230386AbiK3Sfj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:35:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8E039700D
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:35:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1AEB61D4D
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:28:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F22F9C433D7;
-        Wed, 30 Nov 2022 18:28:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63373B81C9C
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:35:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C03C0C433C1;
+        Wed, 30 Nov 2022 18:35:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669832890;
-        bh=TgqyQ5VWujSySgmPWLO4Y7eWFWe+EjWlU+ueiJzqwvs=;
+        s=korg; t=1669833336;
+        bh=naPKZPqIN3D0hA+EuJ4lXzCw/58aPHrc12SdFPgTrX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YD6qVWr2WtShVa+cJdQ1wgAXIkEtg+w+RyGu8dbr9KOtN2vLie2dQRQCnALeiojyI
-         W6HDbNYi7X6lq32hCymK629Ls477p0pZWVUrrjiszowaExvvbPeqCWnztomLNpMztS
-         xUsfE8trsvs4sSTQXQIuA0YxSUwNKgIpZaNcIxD0=
+        b=eI0Kb95NeVNNnQ8tsV4wHjCmeak2xUeOLf07Bb152ZF1fG7B03uIQHX1S3Gkc6REB
+         c2NNYu5iZWDjXjNJZCTSKBiGg+l4I/XZT1Qb93unQP7lGWhhDUL+Ca8QOi/hygUYKU
+         P1iY/lLJzupjZjOmk+gr/LKZJRAFU6ewzmK9BG0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Samuel Holland <samuel@sholland.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 040/162] regulator: core: fix kobject release warning and memory leak in regulator_register()
+Subject: [PATCH 5.15 069/206] bus: sunxi-rsb: Support atomic transfers
 Date:   Wed, 30 Nov 2022 19:22:01 +0100
-Message-Id: <20221130180529.591622547@linuxfoundation.org>
+Message-Id: <20221130180534.755148496@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
-References: <20221130180528.466039523@linuxfoundation.org>
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+References: <20221130180532.974348590@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +53,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Heng <zengheng4@huawei.com>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 5f4b204b6b8153923d5be8002c5f7082985d153f ]
+[ Upstream commit 077686da0e2162c4ea5ae0df205849c2a7a84479 ]
 
-Here is a warning report about lack of registered release()
-from kobject lib:
+When communicating with a PMIC during system poweroff (pm_power_off()),
+IRQs are disabled and we are in a RCU read-side critical section, so we
+cannot use wait_for_completion_io_timeout(). Instead, poll the status
+register for transfer completion.
 
-Device '(null)' does not have a release() function, it is broken and must be fixed.
-WARNING: CPU: 0 PID: 48430 at drivers/base/core.c:2332 device_release+0x104/0x120
-Call Trace:
- kobject_put+0xdc/0x180
- put_device+0x1b/0x30
- regulator_register+0x651/0x1170
- devm_regulator_register+0x4f/0xb0
-
-When regulator_register() returns fail and directly goto `clean` symbol,
-rdev->dev has not registered release() function yet (which is registered
-by regulator_class in the following), so rdev needs to be freed manually.
-If rdev->dev.of_node is not NULL, which means the of_node has gotten by
-regulator_of_get_init_data(), it needs to call of_node_put() to avoid
-refcount leak.
-
-Otherwise, only calling put_device() would lead memory leak of rdev
-in further:
-
-unreferenced object 0xffff88810d0b1000 (size 2048):
-  comm "107-i2c-rtq6752", pid 48430, jiffies 4342258431 (age 1341.780s)
-  backtrace:
-    kmalloc_trace+0x22/0x110
-    regulator_register+0x184/0x1170
-    devm_regulator_register+0x4f/0xb0
-
-When regulator_register() returns fail and goto `wash` symbol,
-rdev->dev has registered release() function, so directly call
-put_device() to cleanup everything.
-
-Fixes: d3c731564e09 ("regulator: plug of_node leak in regulator_register()'s error path")
-Signed-off-by: Zeng Heng <zengheng4@huawei.com>
-Link: https://lore.kernel.org/r/20221116074339.1024240-1-zengheng4@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: d787dcdb9c8f ("bus: sunxi-rsb: Add driver for Allwinner Reduced Serial Bus")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20221114015749.28490-3-samuel@sholland.org
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/bus/sunxi-rsb.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index bf8ba73d6c7c..f43c668e1630 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5401,11 +5401,15 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	mutex_lock(&regulator_list_mutex);
- 	regulator_ena_gpio_free(rdev);
- 	mutex_unlock(&regulator_list_mutex);
-+	put_device(&rdev->dev);
-+	rdev = NULL;
- clean:
- 	if (dangling_of_gpiod)
- 		gpiod_put(config->ena_gpiod);
-+	if (rdev && rdev->dev.of_node)
-+		of_node_put(rdev->dev.of_node);
-+	kfree(rdev);
- 	kfree(config);
--	put_device(&rdev->dev);
- rinse:
- 	if (dangling_cfg_gpiod)
- 		gpiod_put(cfg->ena_gpiod);
+diff --git a/drivers/bus/sunxi-rsb.c b/drivers/bus/sunxi-rsb.c
+index 9c209492b267..20ed77f2b949 100644
+--- a/drivers/bus/sunxi-rsb.c
++++ b/drivers/bus/sunxi-rsb.c
+@@ -271,6 +271,9 @@ EXPORT_SYMBOL_GPL(sunxi_rsb_driver_register);
+ /* common code that starts a transfer */
+ static int _sunxi_rsb_run_xfer(struct sunxi_rsb *rsb)
+ {
++	u32 int_mask, status;
++	bool timeout;
++
+ 	if (readl(rsb->regs + RSB_CTRL) & RSB_CTRL_START_TRANS) {
+ 		dev_dbg(rsb->dev, "RSB transfer still in progress\n");
+ 		return -EBUSY;
+@@ -278,13 +281,23 @@ static int _sunxi_rsb_run_xfer(struct sunxi_rsb *rsb)
+ 
+ 	reinit_completion(&rsb->complete);
+ 
+-	writel(RSB_INTS_LOAD_BSY | RSB_INTS_TRANS_ERR | RSB_INTS_TRANS_OVER,
+-	       rsb->regs + RSB_INTE);
++	int_mask = RSB_INTS_LOAD_BSY | RSB_INTS_TRANS_ERR | RSB_INTS_TRANS_OVER;
++	writel(int_mask, rsb->regs + RSB_INTE);
+ 	writel(RSB_CTRL_START_TRANS | RSB_CTRL_GLOBAL_INT_ENB,
+ 	       rsb->regs + RSB_CTRL);
+ 
+-	if (!wait_for_completion_io_timeout(&rsb->complete,
+-					    msecs_to_jiffies(100))) {
++	if (irqs_disabled()) {
++		timeout = readl_poll_timeout_atomic(rsb->regs + RSB_INTS,
++						    status, (status & int_mask),
++						    10, 100000);
++		writel(status, rsb->regs + RSB_INTS);
++	} else {
++		timeout = !wait_for_completion_io_timeout(&rsb->complete,
++							  msecs_to_jiffies(100));
++		status = rsb->status;
++	}
++
++	if (timeout) {
+ 		dev_dbg(rsb->dev, "RSB timeout\n");
+ 
+ 		/* abort the transfer */
+@@ -296,18 +309,18 @@ static int _sunxi_rsb_run_xfer(struct sunxi_rsb *rsb)
+ 		return -ETIMEDOUT;
+ 	}
+ 
+-	if (rsb->status & RSB_INTS_LOAD_BSY) {
++	if (status & RSB_INTS_LOAD_BSY) {
+ 		dev_dbg(rsb->dev, "RSB busy\n");
+ 		return -EBUSY;
+ 	}
+ 
+-	if (rsb->status & RSB_INTS_TRANS_ERR) {
+-		if (rsb->status & RSB_INTS_TRANS_ERR_ACK) {
++	if (status & RSB_INTS_TRANS_ERR) {
++		if (status & RSB_INTS_TRANS_ERR_ACK) {
+ 			dev_dbg(rsb->dev, "RSB slave nack\n");
+ 			return -EINVAL;
+ 		}
+ 
+-		if (rsb->status & RSB_INTS_TRANS_ERR_DATA) {
++		if (status & RSB_INTS_TRANS_ERR_DATA) {
+ 			dev_dbg(rsb->dev, "RSB transfer data error\n");
+ 			return -EIO;
+ 		}
 -- 
 2.35.1
 
