@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57FAE63DEBF
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:40:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F3E463DDF2
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:32:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231140AbiK3SkX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:40:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51570 "EHLO
+        id S230149AbiK3ScK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:32:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231132AbiK3SkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:40:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4039A8DFE0
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:40:21 -0800 (PST)
+        with ESMTP id S230154AbiK3ScJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:32:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B92900E0
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:32:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE79A61D61
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:40:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFC19C433C1;
-        Wed, 30 Nov 2022 18:40:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5AA8FB81CA3
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:32:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF096C433C1;
+        Wed, 30 Nov 2022 18:32:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833620;
-        bh=/tFq7FGP1l3LFyPub9keewn4aS3mDL04fM+A35ifRIY=;
+        s=korg; t=1669833126;
+        bh=Y+ZCP6r3FGQSMlQGr4+KMo9IDH0aJwHN/7w7jd2S0jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yFGmCB5c8FzaB9pwze+TvH+oWBG5jyXGAhXgPs/aaD2Pg2FevAzSa3Yz+68gN2n4C
-         9p2WIOK0DdZ0SgdN2UE/bRtTR05ipnxo6WJb29c6UYLxpYDmHwKPDZkXgwAYGsFH70
-         ksexzbW4emLBKz+w//N3z7ZcA5t0KtaHw0KNjSOo=
+        b=H2rV8YrnfydSVIC17g1oG6VG30RwIiULGed8We06lWD+h2oP84nVcMm2q4Xrz1hHZ
+         7zV61HDEgq2fylxyBz45h9sO3hd/3Da7XY4MvxZ3BAYA8H8iPUE3/ZAgTOaJZp7Jzh
+         GTr/vQBbiXp9OCPeT7voaCLpKR4C5mBXLBbbD2lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Cooper <andrew.cooper3@citrix.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, stable@kernel.org
-Subject: [PATCH 5.15 161/206] x86/tsx: Add a feature bit for TSX control MSR support
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 132/162] ASoC: Intel: bytcht_es8316: Add quirk for the Nanote UMPC-01
 Date:   Wed, 30 Nov 2022 19:23:33 +0100
-Message-Id: <20221130180537.128827808@linuxfoundation.org>
+Message-Id: <20221130180532.067510169@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,115 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit aaa65d17eec372c6a9756833f3964ba05b05ea14 upstream.
+[ Upstream commit 8bb0ac0e6f64ebdf15d963c26b028de391c9bcf9 ]
 
-Support for the TSX control MSR is enumerated in MSR_IA32_ARCH_CAPABILITIES.
-This is different from how other CPU features are enumerated i.e. via
-CPUID. Currently, a call to tsx_ctrl_is_supported() is required for
-enumerating the feature. In the absence of a feature bit for TSX control,
-any code that relies on checking feature bits directly will not work.
+The Nanote UMPC-01 mini laptop has stereo speakers, while the default
+bytcht_es8316 settings assume a mono speaker setup. Add a quirk for this.
 
-In preparation for adding a feature bit check in MSR save/restore
-during suspend/resume, set a new feature bit X86_FEATURE_TSX_CTRL when
-MSR_IA32_TSX_CTRL is present. Also make tsx_ctrl_is_supported() use the
-new feature bit to avoid any overhead of reading the MSR.
-
-  [ bp: Remove tsx_ctrl_is_supported(), add room for two more feature
-    bits in word 11 which are coming up in the next merge window. ]
-
-Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/de619764e1d98afbb7a5fa58424f1278ede37b45.1668539735.git.pawan.kumar.gupta@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20221025140942.509066-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/cpufeatures.h |    3 ++
- arch/x86/kernel/cpu/tsx.c          |   38 ++++++++++++++++---------------------
- 2 files changed, 20 insertions(+), 21 deletions(-)
+ sound/soc/intel/boards/bytcht_es8316.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -303,6 +303,9 @@
- #define X86_FEATURE_USE_IBPB_FW		(11*32+16) /* "" Use IBPB during runtime firmware calls */
- #define X86_FEATURE_RSB_VMEXIT_LITE	(11*32+17) /* "" Fill RSB on VM exit when EIBRS is enabled */
- 
-+
-+#define X86_FEATURE_MSR_TSX_CTRL	(11*32+20) /* "" MSR IA32_TSX_CTRL (Intel) implemented */
-+
- /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
- #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
- #define X86_FEATURE_AVX512_BF16		(12*32+ 5) /* AVX512 BFLOAT16 instructions */
---- a/arch/x86/kernel/cpu/tsx.c
-+++ b/arch/x86/kernel/cpu/tsx.c
-@@ -58,24 +58,6 @@ static void tsx_enable(void)
- 	wrmsrl(MSR_IA32_TSX_CTRL, tsx);
- }
- 
--static bool tsx_ctrl_is_supported(void)
--{
--	u64 ia32_cap = x86_read_arch_cap_msr();
--
--	/*
--	 * TSX is controlled via MSR_IA32_TSX_CTRL.  However, support for this
--	 * MSR is enumerated by ARCH_CAP_TSX_MSR bit in MSR_IA32_ARCH_CAPABILITIES.
--	 *
--	 * TSX control (aka MSR_IA32_TSX_CTRL) is only available after a
--	 * microcode update on CPUs that have their MSR_IA32_ARCH_CAPABILITIES
--	 * bit MDS_NO=1. CPUs with MDS_NO=0 are not planned to get
--	 * MSR_IA32_TSX_CTRL support even after a microcode update. Thus,
--	 * tsx= cmdline requests will do nothing on CPUs without
--	 * MSR_IA32_TSX_CTRL support.
--	 */
--	return !!(ia32_cap & ARCH_CAP_TSX_CTRL_MSR);
--}
--
- static enum tsx_ctrl_states x86_get_tsx_auto_mode(void)
- {
- 	if (boot_cpu_has_bug(X86_BUG_TAA))
-@@ -135,7 +117,7 @@ static void tsx_clear_cpuid(void)
- 		rdmsrl(MSR_TSX_FORCE_ABORT, msr);
- 		msr |= MSR_TFA_TSX_CPUID_CLEAR;
- 		wrmsrl(MSR_TSX_FORCE_ABORT, msr);
--	} else if (tsx_ctrl_is_supported()) {
-+	} else if (cpu_feature_enabled(X86_FEATURE_MSR_TSX_CTRL)) {
- 		rdmsrl(MSR_IA32_TSX_CTRL, msr);
- 		msr |= TSX_CTRL_CPUID_CLEAR;
- 		wrmsrl(MSR_IA32_TSX_CTRL, msr);
-@@ -158,7 +140,8 @@ static void tsx_dev_mode_disable(void)
- 	u64 mcu_opt_ctrl;
- 
- 	/* Check if RTM_ALLOW exists */
--	if (!boot_cpu_has_bug(X86_BUG_TAA) || !tsx_ctrl_is_supported() ||
-+	if (!boot_cpu_has_bug(X86_BUG_TAA) ||
-+	    !cpu_feature_enabled(X86_FEATURE_MSR_TSX_CTRL) ||
- 	    !cpu_feature_enabled(X86_FEATURE_SRBDS_CTRL))
- 		return;
- 
-@@ -191,7 +174,20 @@ void __init tsx_init(void)
- 		return;
- 	}
- 
--	if (!tsx_ctrl_is_supported()) {
-+	/*
-+	 * TSX is controlled via MSR_IA32_TSX_CTRL.  However, support for this
-+	 * MSR is enumerated by ARCH_CAP_TSX_MSR bit in MSR_IA32_ARCH_CAPABILITIES.
-+	 *
-+	 * TSX control (aka MSR_IA32_TSX_CTRL) is only available after a
-+	 * microcode update on CPUs that have their MSR_IA32_ARCH_CAPABILITIES
-+	 * bit MDS_NO=1. CPUs with MDS_NO=0 are not planned to get
-+	 * MSR_IA32_TSX_CTRL support even after a microcode update. Thus,
-+	 * tsx= cmdline requests will do nothing on CPUs without
-+	 * MSR_IA32_TSX_CTRL support.
-+	 */
-+	if (x86_read_arch_cap_msr() & ARCH_CAP_TSX_CTRL_MSR) {
-+		setup_force_cpu_cap(X86_FEATURE_MSR_TSX_CTRL);
-+	} else {
- 		tsx_ctrl_state = TSX_CTRL_NOT_SUPPORTED;
- 		return;
- 	}
+diff --git a/sound/soc/intel/boards/bytcht_es8316.c b/sound/soc/intel/boards/bytcht_es8316.c
+index 7ed869bf1a92..81269ed5a2aa 100644
+--- a/sound/soc/intel/boards/bytcht_es8316.c
++++ b/sound/soc/intel/boards/bytcht_es8316.c
+@@ -450,6 +450,13 @@ static const struct dmi_system_id byt_cht_es8316_quirk_table[] = {
+ 					| BYT_CHT_ES8316_INTMIC_IN2_MAP
+ 					| BYT_CHT_ES8316_JD_INVERTED),
+ 	},
++	{	/* Nanote UMPC-01 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "RWC CO.,LTD"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "UMPC-01"),
++		},
++		.driver_data = (void *)BYT_CHT_ES8316_INTMIC_IN1_MAP,
++	},
+ 	{	/* Teclast X98 Plus II */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "TECLAST"),
+-- 
+2.35.1
+
 
 
