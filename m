@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6589063DEA8
-	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:39:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA97F63DD91
+	for <lists+stable@lfdr.de>; Wed, 30 Nov 2022 19:28:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230491AbiK3SjU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 13:39:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49966 "EHLO
+        id S229675AbiK3S2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 13:28:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230497AbiK3SjT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:39:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672098DFE0
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:39:18 -0800 (PST)
+        with ESMTP id S229449AbiK3S2d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 13:28:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A07508B1B9
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 10:28:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 031EB61D61
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:39:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10B1FC433C1;
-        Wed, 30 Nov 2022 18:39:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 548E0B81C9A
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 18:28:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6AA0C433C1;
+        Wed, 30 Nov 2022 18:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669833557;
-        bh=FhQqqWuJ6F8EHCReW61RTMLhlKsnEk/WF1GTOixciRk=;
+        s=korg; t=1669832910;
+        bh=sxnnJLIiZ8jwbvZfagUCDnSXi1a6/s1fGy/enlusS5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yv1nH4vicOOIxwYDjQTfvP6wAm8VGpFEtZkXkj5h0ZiTuNlBnjQdyevOQiqmkRykB
-         6ir7z/MFQEUEVSqmY00m35t2jEvevQP/uQy9oLRoA17r4sxZ+cJT7vkYgs/icavCIO
-         2A+HB9whQLz5GjTyv5h32ddvQ/uwU52UGpfB6CSI=
+        b=roLOB7Lbpm1291e02qLh46FzxFM8gXCXHzDvyF0u9l0f/w/P8CB6Y+V/USfOSbm9S
+         rBL0rUoZW9cPPIpc5egFuGpgGu7cz0EanvmGyFhK6iuABmzATZJVwy+7HZ8Q+ZoUCF
+         BOqf4cmdU/8m6OoLUWIWyh87Etl13hfwYoJQ3Ptk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Wang Hai <wanghai38@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 112/206] net: sched: allow act_ct to be built without NF_NAT
-Date:   Wed, 30 Nov 2022 19:22:44 +0100
-Message-Id: <20221130180535.893850799@linuxfoundation.org>
+Subject: [PATCH 5.10 084/162] arcnet: fix potential memory leak in com20020_probe()
+Date:   Wed, 30 Nov 2022 19:22:45 +0100
+Message-Id: <20221130180530.774242709@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
-References: <20221130180532.974348590@linuxfoundation.org>
+In-Reply-To: <20221130180528.466039523@linuxfoundation.org>
+References: <20221130180528.466039523@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 8427fd100c7b7793650e212a81e42f1cf124613d ]
+[ Upstream commit 1c40cde6b5171d9c8dfc69be00464fd1c75e210b ]
 
-In commit f11fe1dae1c4 ("net/sched: Make NET_ACT_CT depends on NF_NAT"),
-it fixed the build failure when NF_NAT is m and NET_ACT_CT is y by
-adding depends on NF_NAT for NET_ACT_CT. However, it would also cause
-NET_ACT_CT cannot be built without NF_NAT, which is not expected. This
-patch fixes it by changing to use "(!NF_NAT || NF_NAT)" as the depend.
+In com20020_probe(), if com20020_config() fails, dev and info
+will not be freed, which will lead to a memory leak.
 
-Fixes: f11fe1dae1c4 ("net/sched: Make NET_ACT_CT depends on NF_NAT")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/b6386f28d1ba34721795fb776a91cbdabb203447.1668807183.git.lucien.xin@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+This patch adds freeing dev and info after com20020_config()
+fails to fix this bug.
+
+Compile tested only.
+
+Fixes: 15b99ac17295 ("[PATCH] pcmcia: add return value to _config() functions")
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/arcnet/com20020_cs.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/Kconfig b/net/sched/Kconfig
-index 1e8ab4749c6c..4662a6ce8a7e 100644
---- a/net/sched/Kconfig
-+++ b/net/sched/Kconfig
-@@ -976,7 +976,7 @@ config NET_ACT_TUNNEL_KEY
+diff --git a/drivers/net/arcnet/com20020_cs.c b/drivers/net/arcnet/com20020_cs.c
+index 9cc5eb6a8e90..e0c7720bd5da 100644
+--- a/drivers/net/arcnet/com20020_cs.c
++++ b/drivers/net/arcnet/com20020_cs.c
+@@ -113,6 +113,7 @@ static int com20020_probe(struct pcmcia_device *p_dev)
+ 	struct com20020_dev *info;
+ 	struct net_device *dev;
+ 	struct arcnet_local *lp;
++	int ret = -ENOMEM;
  
- config NET_ACT_CT
- 	tristate "connection tracking tc action"
--	depends on NET_CLS_ACT && NF_CONNTRACK && NF_NAT && NF_FLOW_TABLE
-+	depends on NET_CLS_ACT && NF_CONNTRACK && (!NF_NAT || NF_NAT) && NF_FLOW_TABLE
- 	help
- 	  Say Y here to allow sending the packets to conntrack module.
+ 	dev_dbg(&p_dev->dev, "com20020_attach()\n");
  
+@@ -142,12 +143,18 @@ static int com20020_probe(struct pcmcia_device *p_dev)
+ 	info->dev = dev;
+ 	p_dev->priv = info;
+ 
+-	return com20020_config(p_dev);
++	ret = com20020_config(p_dev);
++	if (ret)
++		goto fail_config;
++
++	return 0;
+ 
++fail_config:
++	free_arcdev(dev);
+ fail_alloc_dev:
+ 	kfree(info);
+ fail_alloc_info:
+-	return -ENOMEM;
++	return ret;
+ } /* com20020_attach */
+ 
+ static void com20020_detach(struct pcmcia_device *link)
 -- 
 2.35.1
 
