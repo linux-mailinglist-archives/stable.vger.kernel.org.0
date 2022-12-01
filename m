@@ -2,83 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E779363F027
-	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 13:06:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FED463F044
+	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 13:16:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231250AbiLAMG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Dec 2022 07:06:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50462 "EHLO
+        id S230107AbiLAMQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Dec 2022 07:16:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230454AbiLAMG0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 07:06:26 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12A2990776;
-        Thu,  1 Dec 2022 04:06:24 -0800 (PST)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1p0iKc-0002PQ-MH; Thu, 01 Dec 2022 13:06:22 +0100
-Message-ID: <877f72a1-289d-1c39-e413-7332baa35dd1@leemhuis.info>
-Date:   Thu, 1 Dec 2022 13:06:22 +0100
+        with ESMTP id S231396AbiLAMQR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 07:16:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A4B0A555F
+        for <stable@vger.kernel.org>; Thu,  1 Dec 2022 04:16:15 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE52261FC5
+        for <stable@vger.kernel.org>; Thu,  1 Dec 2022 12:16:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B17B2C433D6;
+        Thu,  1 Dec 2022 12:16:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1669896974;
+        bh=Yu0qtAdUJVuU3Vm1xhyefvXLdqUB/JQpMxUkujkrPk4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=1rJECEFWCKm8svbZmHnmhCtC0u0ifsWanCeeid4R/ivweW4vFCxZixeD+TGnMbDhP
+         46qJWL10T4bzySyuFs+pSffAL0C70FN/ErDmKuIfYOAcbLM4vO2deg5rDjsY7UpLPX
+         8cW4C0zr6ZzSEb+GxkonYag192ShEKYYCt71U5UI=
+Date:   Thu, 1 Dec 2022 13:16:09 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Andrzej Hajda <andrzej.hajda@intel.com>
+Cc:     chris.p.wilson@intel.com, daniel.vetter@ffwll.ch,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] drm/i915: fix TLB invalidation for Gen12
+ video and compute" failed to apply to 5.15-stable tree
+Message-ID: <Y4ibCXKoanYDVU81@kroah.com>
+References: <1669831197124193@kroah.com>
+ <Y4ebgwSCQPeCPtFY@kroah.com>
+ <958bb07e-1cc5-d97b-5480-6d8ce09c27d8@intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Subject: Re: Boot failure regression on 6.0.10 stable kernel on iMX7
- #forregzbot
-Content-Language: en-US, de-DE
-To:     linux-arm-kernel@lists.infradead.org,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>
-Cc:     devicetree@vger.kernel.org, stable@vger.kernel.org
-References: <Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1669896385;41a87b1f;
-X-HE-SMSGID: 1p0iKc-0002PQ-MH
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <958bb07e-1cc5-d97b-5480-6d8ce09c27d8@intel.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[Note: this mail contains only information relevant for regzbot, the
-Linux kernel regression tracking bot. That's why I removed most
-recipients of the quoted mail and only left what looked like a mailing
-lists. These mails contain '#forregzbot' in the subject, to make them
-easy to spot and filter out.]
+On Thu, Dec 01, 2022 at 11:26:05AM +0100, Andrzej Hajda wrote:
+> 
+> 
+> On 30.11.2022 19:05, Greg KH wrote:
+> > On Wed, Nov 30, 2022 at 06:59:57PM +0100, gregkh@linuxfoundation.org wrote:
+> > > The patch below does not apply to the 5.15-stable tree.
+> > > If someone wants it applied there, or to any other stable or longterm
+> > > tree, then please email the backport, including the original git commit
+> > > id to <stable@vger.kernel.org>.
+> > > 
+> > > Possible dependencies:
+> > > 
+> > > 04aa64375f48 ("drm/i915: fix TLB invalidation for Gen12 video and compute engines")
+> > > 33da97894758 ("drm/i915/gt: Serialize TLB invalidates with GT resets")
+> > > 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
+> > > 1176d15f0f6e ("Merge tag 'drm-intel-gt-next-2021-10-08' of git://anongit.freedesktop.org/drm/drm-intel into drm-next")
+> > > 
+> > Ah, wait, I found the tarball you sent for these, and have taken them
+> > for 5.4, 5.10, and 5.15 now (the original broke the build.)  We still
+> > need them for older kernels though, that's still an issue.
+> 
+> Thanks for applying patches.
+> Older kernels ( < 5.4) do not have the patch to fix ("drm/i915: Flush TLBs
+> before releasing backing store"), and they do not support Gen12 AFAIK,
+> so it should be fine.
 
-On 30.11.22 14:52, Francesco Dolcini wrote:
-> it looks like commit 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller
-> size-cells"), that was backported to stable 6.0.10, introduce a boot
-> regression on colibri-imx7, at least.
-> [...]
+The Fixes: tag in this commit references a commit that has been
+backported into a lot of older kernels:
 
-Thanks for the report. To be sure below issue doesn't fall through the
-cracks unnoticed, I'm adding it to regzbot, my Linux kernel regression
-tracking bot:
+git id: '7938d61591d33394a21bdd7797a245b65428f44c' is in: 4.4.301 4.9.299 4.14.264 4.19.227 5.4.175 5.10.95 5.15.18 5.16.4 5.17
 
-#regzbot ^introduced 753395ea1e45
-#regzbot title ARM: dts: imx7: Boot failure on iMX7
-#regzbot ignore-activity
+So is the Fixes tag incorrect?
 
-This isn't a regression? This issue or a fix for it are already
-discussed somewhere else? It was fixed already? You want to clarify when
-the regression started to happen? Or point out I got the title or
-something else totally wrong? Then just reply -- ideally with also
-telling regzbot about it, as explained here:
-https://linux-regtracking.leemhuis.info/tracked-regression/
+thanks,
 
-Reminder for developers: When fixing the issue, add 'Link:' tags
-pointing to the report (the mail this one replies to), as explained for
-in the Linux kernel's documentation; above webpage explains why this is
-important for tracked regressions.
-
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
-
-P.S.: As the Linux kernel's regression tracker I deal with a lot of
-reports and sometimes miss something important when writing mails like
-this. If that's the case here, don't hesitate to tell me in a public
-reply, it's in everyone's interest to set the public record straight.
+greg k-h
