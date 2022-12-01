@@ -2,264 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9032763EA9B
-	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 08:57:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40FC463EA99
+	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 08:56:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229848AbiLAH5F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Dec 2022 02:57:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34740 "EHLO
+        id S229501AbiLAH4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Dec 2022 02:56:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229709AbiLAH5A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 02:57:00 -0500
-Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BFAA52158;
-        Wed, 30 Nov 2022 23:56:58 -0800 (PST)
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-        by localhost (Postfix) with ESMTP id 4NN7h83gxDz9sZb;
-        Thu,  1 Dec 2022 08:56:56 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id e49hW9rQN97v; Thu,  1 Dec 2022 08:56:56 +0100 (CET)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase2.c-s.fr (Postfix) with ESMTP id 4NN7h82T17z9sXw;
-        Thu,  1 Dec 2022 08:56:56 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 4195E8B780;
-        Thu,  1 Dec 2022 08:56:56 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id ybp9-llyLvPx; Thu,  1 Dec 2022 08:56:56 +0100 (CET)
-Received: from PO20335.IDSI0.si.c-s.fr (unknown [172.25.230.108])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 138308B763;
-        Thu,  1 Dec 2022 08:56:56 +0100 (CET)
-Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
-        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.16.1) with ESMTPS id 2B17unOY130791
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-        Thu, 1 Dec 2022 08:56:49 +0100
-Received: (from chleroy@localhost)
-        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.17.1/Submit) id 2B17umb4130779;
-        Thu, 1 Dec 2022 08:56:48 +0100
-X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-To:     Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        bpf@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v1 01/10] powerpc/bpf/32: Fix Oops on tail call tests
-Date:   Thu,  1 Dec 2022 08:56:26 +0100
-Message-Id: <fa025537f584599c0271fc129c5cf4f57fbe7505.1669881248.git.christophe.leroy@csgroup.eu>
-X-Mailer: git-send-email 2.38.1
+        with ESMTP id S229626AbiLAH4o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 02:56:44 -0500
+Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on20607.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e8b::607])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C886E51316
+        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 23:56:42 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=QiBxyfdpgIq3A5B/XUtR2U1eLty0ERZMN4/Vz8ju0F4HLoSkipwMAuRZ832gYrwVvsoCmrw/MXnh+aoOGWaJ5PNf++NOw6OE9b2dPxdAeJx/53eGs2XaGhC2LqrebKHKHPTWKxEfQvrEd8Rhax7KRkgr1TSurnhzM41gXiQKZSjC0DTQcdfzGrd+TEVdMgM9FZ2uEnOCsjBpxuR6VsbVHD5ZROylmx+hUoCR6hNiwv2Oom2o26sm9bH8b58FPm3kPB5Cgj+BwEUOdJLKXsiuS376GLY/YCbysp4ablnz617XY15WH5m2LGigz2hKEpAP/fuzMUHIz0yC3RIQSFkLgQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=AVj6XGUFBHx0Js1wdAPZGZru1YBW0iNgUsIdINMxRAM=;
+ b=XCowpNYARxeuFb8HoQc1JjTRoCsOGLBlELQMKAfwmAFfHGFf9jGSpXp2wVAiQyDGZ//rXxeNCaLr1VHRdzkLZZ+yRhTAhoHTaS20G852/+JbVzcWd7uMiq1c9jZbHHReXg/BACS360btSEWfWdnth6//H6AMbRdSL/eCEPBtamlDXwmaaS9mFrs+LElogDJgBOdQBtKIkv9lEM9x+VfpffzL0GLGzJ6DFcPftgkXoDuJQRA/pRk3W7p7/ILlafwma6uTk9XMPEjv6Sstm49i+JMQ+VDhKBKQ7YCxrSZoJG0Batr4zXHLuHbFTVWGHKxG6BiMpfUZAiZIiGgUxED3zg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=AVj6XGUFBHx0Js1wdAPZGZru1YBW0iNgUsIdINMxRAM=;
+ b=MIm/SfIW3eDyr3S4VQTh0vmtd19HfyHeksou8VLjwJo/b04pDOZ9TyuaSvp0Gtf9cl2XznvWK3ANnvwFTFx7GlVoKiwAbKfepEs3v5My57+vOHz4NECu18QkevpfvRh6AxldmrlQ55m+ENPqSTI08wQEeD/TVBseEf2ukEJUm4c=
+Received: from CY5PR15CA0134.namprd15.prod.outlook.com (2603:10b6:930:68::23)
+ by MN2PR12MB4501.namprd12.prod.outlook.com (2603:10b6:208:269::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5857.23; Thu, 1 Dec
+ 2022 07:56:39 +0000
+Received: from CY4PEPF0000C970.namprd02.prod.outlook.com
+ (2603:10b6:930:68:cafe::46) by CY5PR15CA0134.outlook.office365.com
+ (2603:10b6:930:68::23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.8 via Frontend
+ Transport; Thu, 1 Dec 2022 07:56:39 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB03.amd.com; pr=C
+Received: from SATLEXMB03.amd.com (165.204.84.17) by
+ CY4PEPF0000C970.mail.protection.outlook.com (10.167.242.8) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.5880.8 via Frontend Transport; Thu, 1 Dec 2022 07:56:39 +0000
+Received: from SATLEXMB04.amd.com (10.181.40.145) by SATLEXMB03.amd.com
+ (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Thu, 1 Dec
+ 2022 01:56:38 -0600
+Received: from prike-code-pc.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server id 15.1.2375.34 via Frontend
+ Transport; Thu, 1 Dec 2022 01:56:36 -0600
+From:   Prike Liang <Prike.Liang@amd.com>
+To:     <amd-gfx@lists.freedesktop.org>
+CC:     <Alexander.Deucher@amd.com>, <Mario.Limonciello@amd.com>,
+        <Lijo.Lazar@amd.com>, Prike Liang <Prike.Liang@amd.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v2] drm/amdgpu/sdma_v4_0: turn off SDMA ring buffer in the s2idle suspend
+Date:   Thu, 1 Dec 2022 15:56:31 +0800
+Message-ID: <20221201075631.983346-1-Prike.Liang@amd.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1669881390; l=7581; s=20211009; h=from:subject:message-id; bh=mTdJVaQfMyXbnPuQ7zaafwCQVYscHE9YBgdQhOwKvMM=; b=kxBgTIRCPz6IPZjtyYFofoT48bO9f5x0Jgv7ZxGlGeAC9MxadoQueJ/Rjap1eMPbkPEwOWkABrN4 Dc4Ko9t+A+wpyR+sbyAkGeeQ/hD1SgGUcsf+6fW6n4ekJFR5MmMC
-X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY4PEPF0000C970:EE_|MN2PR12MB4501:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1c8f2623-81c8-4f1f-3163-08dad37193fe
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 7n5Ch7w2vVXG/qILd39QNKvc5D1gS6AcU7QgKJ3GtnQxD3rSjr2jZuOX/5GuKt6cIDLoCmfnw5wnBql170os9bkPDXNxjPxCHm9Or79rPc2nj43yFVAr+5AY9Vn1cdlx34oOXjqYXn38iezj+w9fYJjufQcxUJtvpTGaIoVFECxHRiSohcj3KfpnmOXDzBn5onHQ7mc0JPe3BjscJYyK1rNWzXuO8geUlMkhRY3SBb+az8eo2JwEtVHy4B9kUk/HW5LQ+ghBVCFMBswF2f8472Vm8xWkGFELFxA7jsZae4yNTS08JHgOeaM35TdDgbKEdmbupVlwANt4xIWlFra0X7tpbT/nX7ftyqSm3mMnmuTtWxIqJtRNq0hEggV8UlF7nO8QdeheJoT7U1LDTPfQYfH8kGLk0lekp9LQtIAcjOO+brAneb7w3NQnZOKPUUEJ886XorxDdfnrE32TES7O6CjqQNUAgRPjAumqYcNy7HBxiA68sBWyMsC5TE2WQqgHfwRg1ZXltwDCTE6bNb5VYog4tfykZly2nWuKgPMEvBChuT1XhrYDwvv02Ovyb/bMvcvw/AosN8JgokooOhCJVR2zx4BofcIjJqS08N+fyLq7TvoXbMAvSSJGaq5PQL8GhqYIXOGmzUG0VrJJWNfKTAMFY53O1Wnxqwy50kUzNTPzUInK4kupJCBLmTl4xix9
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(136003)(39860400002)(346002)(396003)(376002)(451199015)(36840700001)(46966006)(40470700004)(6666004)(356005)(2906002)(40480700001)(36756003)(40460700003)(7696005)(86362001)(81166007)(478600001)(966005)(36860700001)(26005)(316002)(5660300002)(70586007)(6916009)(70206006)(41300700001)(54906003)(8936002)(4326008)(8676002)(186003)(2616005)(82740400003)(336012)(82310400005)(83380400001)(1076003)(426003)(47076005)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Dec 2022 07:56:39.2927
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1c8f2623-81c8-4f1f-3163-08dad37193fe
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB03.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: CY4PEPF0000C970.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4501
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-test_bpf tail call tests end up as:
+In the SDMA s0ix save process requires to turn off SDMA ring buffer for
+avoiding the SDMA in-flight request, otherwise will suffer from SDMA page
+fault which causes by page request from in-flight SDMA ring accessing at
+SDMA restore phase.
 
-  test_bpf: #0 Tail call leaf jited:1 85 PASS
-  test_bpf: #1 Tail call 2 jited:1 111 PASS
-  test_bpf: #2 Tail call 3 jited:1 145 PASS
-  test_bpf: #3 Tail call 4 jited:1 170 PASS
-  test_bpf: #4 Tail call load/store leaf jited:1 190 PASS
-  test_bpf: #5 Tail call load/store jited:1
-  BUG: Unable to handle kernel data access on write at 0xf1b4e000
-  Faulting instruction address: 0xbe86b710
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  BE PAGE_SIZE=4K MMU=Hash PowerMac
-  Modules linked in: test_bpf(+)
-  CPU: 0 PID: 97 Comm: insmod Not tainted 6.1.0-rc4+ #195
-  Hardware name: PowerMac3,1 750CL 0x87210 PowerMac
-  NIP:  be86b710 LR: be857e88 CTR: be86b704
-  REGS: f1b4df20 TRAP: 0300   Not tainted  (6.1.0-rc4+)
-  MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 28008242  XER: 00000000
-  DAR: f1b4e000 DSISR: 42000000
-  GPR00: 00000001 f1b4dfe0 c11d2280 00000000 00000000 00000000 00000002 00000000
-  GPR08: f1b4e000 be86b704 f1b4e000 00000000 00000000 100d816a f2440000 fe73baa8
-  GPR16: f2458000 00000000 c1941ae4 f1fe2248 00000045 c0de0000 f2458030 00000000
-  GPR24: 000003e8 0000000f f2458000 f1b4dc90 3e584b46 00000000 f24466a0 c1941a00
-  NIP [be86b710] 0xbe86b710
-  LR [be857e88] __run_one+0xec/0x264 [test_bpf]
-  Call Trace:
-  [f1b4dfe0] [00000002] 0x2 (unreliable)
-  Instruction dump:
-  XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
-  XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
-  ---[ end trace 0000000000000000 ]---
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2248
+Cc: stable@vger.kernel.org # 6.0
+Fixes: f8f4e2a51834 ("drm/amdgpu: skipping SDMA hw_init and hw_fini for S0ix.")
 
-This is a tentative to write above the stack. The problem is encoutered
-with tests added by commit 38608ee7b690 ("bpf, tests: Add load store
-test case for tail call")
-
-This happens because tail call is done to a BPF prog with a different
-stack_depth. At the time being, the stack is kept as is when the caller
-tail calls its callee. But at exit, the callee restores the stack based
-on its own properties. Therefore here, at each run, r1 is erroneously
-increased by 32 - 16 = 16 bytes.
-
-This was done that way in order to pass the tail call count from caller
-to callee through the stack. As powerpc32 doesn't have a red zone in
-the stack, it was necessary the maintain the stack as is for the tail
-call. But it was not anticipated that the BPF frame size could be
-different.
-
-Let's take a new approach. Use register r4 to carry the tail call count
-during the tail call, and save it into the stack at function entry if
-required. This means the input parameter must be in r3, which is more
-correct as it is a 32 bits parameter, then tail call better match with
-normal BPF function entry, the down side being that we move that input
-parameter back and forth between r3 and r4. That can be optimised later.
-
-Doing that also has the advantage of maximising the common parts between
-tail calls and a normal function exit.
-
-With the fix, tail call tests are now successfull:
-
-  test_bpf: #0 Tail call leaf jited:1 53 PASS
-  test_bpf: #1 Tail call 2 jited:1 115 PASS
-  test_bpf: #2 Tail call 3 jited:1 154 PASS
-  test_bpf: #3 Tail call 4 jited:1 165 PASS
-  test_bpf: #4 Tail call load/store leaf jited:1 101 PASS
-  test_bpf: #5 Tail call load/store jited:1 141 PASS
-  test_bpf: #6 Tail call error path, max count reached jited:1 994 PASS
-  test_bpf: #7 Tail call count preserved across function calls jited:1 140975 PASS
-  test_bpf: #8 Tail call error path, NULL target jited:1 110 PASS
-  test_bpf: #9 Tail call error path, index out of range jited:1 69 PASS
-  test_bpf: test_tail_calls: Summary: 10 PASSED, 0 FAILED, [10/10 JIT'ed]
-
-Suggested-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Fixes: 51c66ad849a7 ("powerpc/bpf: Implement extended BPF on PPC32")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Tested-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/757acccb7fbfc78efa42dcf3c974b46678198905.1669278887.git.christophe.leroy@csgroup.eu
+Signed-off-by: Prike Liang <Prike.Liang@amd.com>
 ---
- arch/powerpc/net/bpf_jit_comp32.c | 52 +++++++++++++------------------
- 1 file changed, 21 insertions(+), 31 deletions(-)
+-v2: change the name sdma_v4_0_gfx_stop() to sdma_v4_0_gfx_enable() (Lijo)
+---
+ drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/net/bpf_jit_comp32.c b/arch/powerpc/net/bpf_jit_comp32.c
-index 43f1c76d48ce..a379b0ce19ff 100644
---- a/arch/powerpc/net/bpf_jit_comp32.c
-+++ b/arch/powerpc/net/bpf_jit_comp32.c
-@@ -113,23 +113,19 @@ void bpf_jit_build_prologue(u32 *image, struct codegen_context *ctx)
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+index 1122bd4eae98..4d780e4430e7 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
+@@ -907,13 +907,13 @@ static void sdma_v4_0_ring_emit_fence(struct amdgpu_ring *ring, u64 addr, u64 se
+ 
+ 
+ /**
+- * sdma_v4_0_gfx_stop - stop the gfx async dma engines
++ * sdma_v4_0_gfx_enable - enable the gfx async dma engines
+  *
+  * @adev: amdgpu_device pointer
+- *
+- * Stop the gfx async dma ring buffers (VEGA10).
++ * @enable: enable SDMA RB/IB
++ * control the gfx async dma ring buffers (VEGA10).
+  */
+-static void sdma_v4_0_gfx_stop(struct amdgpu_device *adev)
++static void sdma_v4_0_gfx_enable(struct amdgpu_device *adev, bool enable)
  {
+ 	u32 rb_cntl, ib_cntl;
+ 	int i;
+@@ -922,10 +922,10 @@ static void sdma_v4_0_gfx_stop(struct amdgpu_device *adev)
+ 
+ 	for (i = 0; i < adev->sdma.num_instances; i++) {
+ 		rb_cntl = RREG32_SDMA(i, mmSDMA0_GFX_RB_CNTL);
+-		rb_cntl = REG_SET_FIELD(rb_cntl, SDMA0_GFX_RB_CNTL, RB_ENABLE, 0);
++		rb_cntl = REG_SET_FIELD(rb_cntl, SDMA0_GFX_RB_CNTL, RB_ENABLE, enable ? 1 : 0);
+ 		WREG32_SDMA(i, mmSDMA0_GFX_RB_CNTL, rb_cntl);
+ 		ib_cntl = RREG32_SDMA(i, mmSDMA0_GFX_IB_CNTL);
+-		ib_cntl = REG_SET_FIELD(ib_cntl, SDMA0_GFX_IB_CNTL, IB_ENABLE, 0);
++		ib_cntl = REG_SET_FIELD(ib_cntl, SDMA0_GFX_IB_CNTL, IB_ENABLE, enable ? 1 : 0);
+ 		WREG32_SDMA(i, mmSDMA0_GFX_IB_CNTL, ib_cntl);
+ 	}
+ }
+@@ -1044,7 +1044,7 @@ static void sdma_v4_0_enable(struct amdgpu_device *adev, bool enable)
  	int i;
  
--	/* First arg comes in as a 32 bits pointer. */
--	EMIT(PPC_RAW_MR(bpf_to_ppc(BPF_REG_1), _R3));
--	EMIT(PPC_RAW_LI(bpf_to_ppc(BPF_REG_1) - 1, 0));
-+	/* Initialize tail_call_cnt, to be skipped if we do tail calls. */
-+	EMIT(PPC_RAW_LI(_R4, 0));
-+
-+#define BPF_TAILCALL_PROLOGUE_SIZE	4
-+
- 	EMIT(PPC_RAW_STWU(_R1, _R1, -BPF_PPC_STACKFRAME(ctx)));
+ 	if (!enable) {
+-		sdma_v4_0_gfx_stop(adev);
++		sdma_v4_0_gfx_enable(adev, enable);
+ 		sdma_v4_0_rlc_stop(adev);
+ 		if (adev->sdma.has_page_queue)
+ 			sdma_v4_0_page_stop(adev);
+@@ -1960,8 +1960,10 @@ static int sdma_v4_0_suspend(void *handle)
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
  
--	/*
--	 * Initialize tail_call_cnt in stack frame if we do tail calls.
--	 * Otherwise, put in NOPs so that it can be skipped when we are
--	 * invoked through a tail call.
--	 */
- 	if (ctx->seen & SEEN_TAILCALL)
--		EMIT(PPC_RAW_STW(bpf_to_ppc(BPF_REG_1) - 1, _R1,
--				 bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
--	else
--		EMIT(PPC_RAW_NOP());
-+		EMIT(PPC_RAW_STW(_R4, _R1, bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
+ 	/* SMU saves SDMA state for us */
+-	if (adev->in_s0ix)
++	if (adev->in_s0ix) {
++		sdma_v4_0_gfx_enable(adev, false);
+ 		return 0;
++	}
  
--#define BPF_TAILCALL_PROLOGUE_SIZE	16
-+	/* First arg comes in as a 32 bits pointer. */
-+	EMIT(PPC_RAW_MR(bpf_to_ppc(BPF_REG_1), _R3));
-+	EMIT(PPC_RAW_LI(bpf_to_ppc(BPF_REG_1) - 1, 0));
- 
- 	/*
- 	 * We need a stack frame, but we don't necessarily need to
-@@ -170,24 +166,24 @@ static void bpf_jit_emit_common_epilogue(u32 *image, struct codegen_context *ctx
- 	for (i = BPF_PPC_NVR_MIN; i <= 31; i++)
- 		if (bpf_is_seen_register(ctx, i))
- 			EMIT(PPC_RAW_LWZ(i, _R1, bpf_jit_stack_offsetof(ctx, i)));
--}
--
--void bpf_jit_build_epilogue(u32 *image, struct codegen_context *ctx)
--{
--	EMIT(PPC_RAW_MR(_R3, bpf_to_ppc(BPF_REG_0)));
--
--	bpf_jit_emit_common_epilogue(image, ctx);
--
--	/* Tear down our stack frame */
- 
- 	if (ctx->seen & SEEN_FUNC)
- 		EMIT(PPC_RAW_LWZ(_R0, _R1, BPF_PPC_STACKFRAME(ctx) + PPC_LR_STKOFF));
- 
-+	/* Tear down our stack frame */
- 	EMIT(PPC_RAW_ADDI(_R1, _R1, BPF_PPC_STACKFRAME(ctx)));
- 
- 	if (ctx->seen & SEEN_FUNC)
- 		EMIT(PPC_RAW_MTLR(_R0));
- 
-+}
-+
-+void bpf_jit_build_epilogue(u32 *image, struct codegen_context *ctx)
-+{
-+	EMIT(PPC_RAW_MR(_R3, bpf_to_ppc(BPF_REG_0)));
-+
-+	bpf_jit_emit_common_epilogue(image, ctx);
-+
- 	EMIT(PPC_RAW_BLR());
+ 	return sdma_v4_0_hw_fini(adev);
  }
+@@ -1971,8 +1973,12 @@ static int sdma_v4_0_resume(void *handle)
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
  
-@@ -244,7 +240,6 @@ static int bpf_jit_emit_tail_call(u32 *image, struct codegen_context *ctx, u32 o
- 	EMIT(PPC_RAW_RLWINM(_R3, b2p_index, 2, 0, 29));
- 	EMIT(PPC_RAW_ADD(_R3, _R3, b2p_bpf_array));
- 	EMIT(PPC_RAW_LWZ(_R3, _R3, offsetof(struct bpf_array, ptrs)));
--	EMIT(PPC_RAW_STW(_R0, _R1, bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
+ 	/* SMU restores SDMA state for us */
+-	if (adev->in_s0ix)
++	if (adev->in_s0ix) {
++		sdma_v4_0_enable(adev, true);
++		sdma_v4_0_gfx_enable(adev, true);
++		amdgpu_ttm_set_buffer_funcs_status(adev, true);
+ 		return 0;
++	}
  
- 	/*
- 	 * if (prog == NULL)
-@@ -255,19 +250,14 @@ static int bpf_jit_emit_tail_call(u32 *image, struct codegen_context *ctx, u32 o
- 
- 	/* goto *(prog->bpf_func + prologue_size); */
- 	EMIT(PPC_RAW_LWZ(_R3, _R3, offsetof(struct bpf_prog, bpf_func)));
--
--	if (ctx->seen & SEEN_FUNC)
--		EMIT(PPC_RAW_LWZ(_R0, _R1, BPF_PPC_STACKFRAME(ctx) + PPC_LR_STKOFF));
--
- 	EMIT(PPC_RAW_ADDIC(_R3, _R3, BPF_TAILCALL_PROLOGUE_SIZE));
--
--	if (ctx->seen & SEEN_FUNC)
--		EMIT(PPC_RAW_MTLR(_R0));
--
- 	EMIT(PPC_RAW_MTCTR(_R3));
- 
- 	EMIT(PPC_RAW_MR(_R3, bpf_to_ppc(BPF_REG_1)));
- 
-+	/* Put tail_call_cnt in r4 */
-+	EMIT(PPC_RAW_MR(_R4, _R0));
-+
- 	/* tear restore NVRs, ... */
- 	bpf_jit_emit_common_epilogue(image, ctx);
- 
+ 	return sdma_v4_0_hw_init(adev);
+ }
 -- 
-2.38.1
+2.25.1
 
