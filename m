@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5413563E5D3
-	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 00:53:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A255563E62C
+	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 01:08:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229595AbiK3XxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 18:53:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40812 "EHLO
+        id S230440AbiLAAIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 19:08:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230089AbiK3XxW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 18:53:22 -0500
-Received: from maynard.decadent.org.uk (maynard.decadent.org.uk [95.217.213.242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 824C4299
-        for <stable@vger.kernel.org>; Wed, 30 Nov 2022 15:53:20 -0800 (PST)
-Received: from 213.219.160.184.adsl.dyn.edpnet.net ([213.219.160.184] helo=deadeye)
-        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1p0WtA-0002Ex-Uy; Thu, 01 Dec 2022 00:53:16 +0100
-Received: from ben by deadeye with local (Exim 4.96)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1p0WtA-000AA0-1O;
-        Thu, 01 Dec 2022 00:53:16 +0100
-Message-ID: <eadb1fd5a181975bcf63b742b02207a2f347dd57.camel@decadent.org.uk>
-Subject: Re: [PATCH 4.14] efi: random: Properly limit the size of the random
- seed
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Cc:     Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        stable <stable@vger.kernel.org>
-Date:   Thu, 01 Dec 2022 00:53:03 +0100
-In-Reply-To: <Y4frikbdKtF5V1WU@decadent.org.uk>
-References: <Y4frikbdKtF5V1WU@decadent.org.uk>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-w45id9uMw3Kzk4bfXPpp"
-User-Agent: Evolution 3.46.1-1 
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 213.219.160.184
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        with ESMTP id S230385AbiLAAGc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 19:06:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2993395816;
+        Wed, 30 Nov 2022 16:02:29 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2F9AB81D84;
+        Thu,  1 Dec 2022 00:02:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7863FC433D6;
+        Thu,  1 Dec 2022 00:02:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1669852946;
+        bh=iytJVcBKoYnUHun264OIc+2hcwpJs+7LGP+j0Qr6hj0=;
+        h=Date:To:From:Subject:From;
+        b=K2GIA6CkDqAfqqHVtAu6WB5xOnaraeXnfKRI4iio/ABTTbP+Ctd6yNjMvTXaRYrtI
+         xDMxQGveArVDSvJmHA93ssQrnWmwtXwFHQHPuVijNTWPY3JArXVsakx1GRjDKh/8VG
+         BGuz88lJz17qC2E+0joXMx1H1QdaXuqLHhYk4QLI=
+Date:   Wed, 30 Nov 2022 16:02:25 -0800
+To:     mm-commits@vger.kernel.org,
+        syzbot+f0b97304ef90f0d0b1dc@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, peterx@redhat.com, mike.kravetz@oracle.com,
+        jhubbard@nvidia.com, jgg@nvidia.com, david@redhat.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [merged mm-stable] mm-gup-disallow-foll_forcefoll_write-on-hugetlb-mappings.patch removed from -mm tree
+Message-Id: <20221201000226.7863FC433D6@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,57 +47,170 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---=-w45id9uMw3Kzk4bfXPpp
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+The quilt patch titled
+     Subject: mm/gup: disallow FOLL_FORCE|FOLL_WRITE on hugetlb mappings
+has been removed from the -mm tree.  Its filename was
+     mm-gup-disallow-foll_forcefoll_write-on-hugetlb-mappings.patch
 
-On Thu, 2022-12-01 at 00:47 +0100, Ben Hutchings wrote:
-> Commit be36f9e7517e ("efi: READ_ONCE rng seed size before munmap")
-> added a READ_ONCE() and also changed the call to
-> add_bootloader_randomness() to use the local size variable.  Neither
-> of these changes was actually needed and this was not backported to
-> the 4.14 stable branch.
->=20
-> Commit 161a438d730d ("efi: random: reduce seed size to 32 bytes")
-> reverted the addition of READ_ONCE() and added a limit to the value of
-> size.  This depends on the earlier commit, because size can now differ
-> from seed->size, but it was wrongly backported to the 4.14 stable
-> branch by itself.
->=20
-> Apply the missing change to the add_bootloader_randomness() parameter
-> (except that here we are still using add_device_randomness()).
+This patch was dropped because it was merged into the mm-stable branch
+of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+------------------------------------------------------
+From: David Hildenbrand <david@redhat.com>
+Subject: mm/gup: disallow FOLL_FORCE|FOLL_WRITE on hugetlb mappings
+Date: Mon, 31 Oct 2022 16:25:24 +0100
+
+hugetlb does not support fake write-faults (write faults without write
+permissions).  However, we are currently able to trigger a
+FAULT_FLAG_WRITE fault on a VMA without VM_WRITE.
+
+If we'd ever want to support FOLL_FORCE|FOLL_WRITE, we'd have to teach
+hugetlb to:
+
+(1) Leave the page mapped R/O after the fake write-fault, like
+    maybe_mkwrite() does.
+(2) Allow writing to an exclusive anon page that's mapped R/O when
+    FOLL_FORCE is set, like can_follow_write_pte(). E.g.,
+    __follow_hugetlb_must_fault() needs adjustment.
+
+For now, it's not clear if that added complexity is really required. 
+History tolds us that FOLL_FORCE is dangerous and that we better limit its
+use to a bare minimum.
+
+--------------------------------------------------------------------------
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <fcntl.h>
+  #include <unistd.h>
+  #include <errno.h>
+  #include <stdint.h>
+  #include <sys/mman.h>
+  #include <linux/mman.h>
+
+  int main(int argc, char **argv)
+  {
+          char *map;
+          int mem_fd;
+
+          map = mmap(NULL, 2 * 1024 * 1024u, PROT_READ,
+                     MAP_PRIVATE|MAP_ANON|MAP_HUGETLB|MAP_HUGE_2MB, -1, 0);
+          if (map == MAP_FAILED) {
+                  fprintf(stderr, "mmap() failed: %d\n", errno);
+                  return 1;
+          }
+
+          mem_fd = open("/proc/self/mem", O_RDWR);
+          if (mem_fd < 0) {
+                  fprintf(stderr, "open(/proc/self/mem) failed: %d\n", errno);
+                  return 1;
+          }
+
+          if (pwrite(mem_fd, "0", 1, (uintptr_t) map) == 1) {
+                  fprintf(stderr, "write() succeeded, which is unexpected\n");
+                  return 1;
+          }
+
+          printf("write() failed as expected: %d\n", errno);
+          return 0;
+  }
+--------------------------------------------------------------------------
+
+Fortunately, we have a sanity check in hugetlb_wp() in place ever since
+commit 1d8d14641fd9 ("mm/hugetlb: support write-faults in shared
+mappings"), that bails out instead of silently mapping a page writable in
+a !PROT_WRITE VMA.
+
+Consequently, above reproducer triggers a warning, similar to the one
+reported by szsbot:
+
+------------[ cut here ]------------
+WARNING: CPU: 1 PID: 3612 at mm/hugetlb.c:5313 hugetlb_wp+0x20a/0x1af0 mm/hugetlb.c:5313
+Modules linked in:
+CPU: 1 PID: 3612 Comm: syz-executor250 Not tainted 6.1.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/11/2022
+RIP: 0010:hugetlb_wp+0x20a/0x1af0 mm/hugetlb.c:5313
+Code: ea 03 80 3c 02 00 0f 85 31 14 00 00 49 8b 5f 20 31 ff 48 89 dd 83 e5 02 48 89 ee e8 70 ab b7 ff 48 85 ed 75 5b e8 76 ae b7 ff <0f> 0b 41 bd 40 00 00 00 e8 69 ae b7 ff 48 b8 00 00 00 00 00 fc ff
+RSP: 0018:ffffc90003caf620 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 0000000008640070 RCX: 0000000000000000
+RDX: ffff88807b963a80 RSI: ffffffff81c4ed2a RDI: 0000000000000007
+RBP: 0000000000000000 R08: 0000000000000007 R09: 0000000000000000
+R10: 0000000000000000 R11: 000000000008c07e R12: ffff888023805800
+R13: 0000000000000000 R14: ffffffff91217f38 R15: ffff88801d4b0360
+FS:  0000555555bba300(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fff7a47a1b8 CR3: 000000002378d000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ hugetlb_no_page mm/hugetlb.c:5755 [inline]
+ hugetlb_fault+0x19cc/0x2060 mm/hugetlb.c:5874
+ follow_hugetlb_page+0x3f3/0x1850 mm/hugetlb.c:6301
+ __get_user_pages+0x2cb/0xf10 mm/gup.c:1202
+ __get_user_pages_locked mm/gup.c:1434 [inline]
+ __get_user_pages_remote+0x18f/0x830 mm/gup.c:2187
+ get_user_pages_remote+0x84/0xc0 mm/gup.c:2260
+ __access_remote_vm+0x287/0x6b0 mm/memory.c:5517
+ ptrace_access_vm+0x181/0x1d0 kernel/ptrace.c:61
+ generic_ptrace_pokedata kernel/ptrace.c:1323 [inline]
+ ptrace_request+0xb46/0x10c0 kernel/ptrace.c:1046
+ arch_ptrace+0x36/0x510 arch/x86/kernel/ptrace.c:828
+ __do_sys_ptrace kernel/ptrace.c:1296 [inline]
+ __se_sys_ptrace kernel/ptrace.c:1269 [inline]
+ __x64_sys_ptrace+0x178/0x2a0 kernel/ptrace.c:1269
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 [...]
 
-This made me wonder: shouldn't commit 18b915ac6b0a ("efi/random: Treat
-EFI_RNG_PROTOCOL output as bootloader randomness") be applied to these
-older stable branches?  Without that, the EFI RNG can't be distrusted
-if necessary.
+So let's silence that warning by teaching GUP code that FOLL_FORCE -- so
+far -- does not apply to hugetlb.
 
-Ben.
+Note that FOLL_FORCE for read-access seems to be working as expected.  The
+assumption is that this has been broken forever, only ever since above
+commit, we actually detect the wrong handling and WARN_ON_ONCE().
 
---=20
-Ben Hutchings
-compatible: Gracefully accepts erroneous data from any source
+I assume this has been broken at least since 2014, when mm/gup.c came to
+life.  I failed to come up with a suitable Fixes tag quickly.
 
---=-w45id9uMw3Kzk4bfXPpp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+Link: https://lkml.kernel.org/r/20221031152524.173644-1-david@redhat.com
+Fixes: 1d8d14641fd9 ("mm/hugetlb: support write-faults in shared mappings")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reported-by: <syzbot+f0b97304ef90f0d0b1dc@syzkaller.appspotmail.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
------BEGIN PGP SIGNATURE-----
+ mm/gup.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmOH7N8ACgkQ57/I7JWG
-EQlwAxAAumGIcl6KiA4Xsw0u4uuODDR/58rj5ZDPpWeeK/9BmPCv6MST/xRQKMbP
-0E1Q1G6CV05m9Eh8pDXR1jWB5vzo0c/gb4uQ2DF8HtRES2tSz6pN3f2Iwyd59X6S
-SKDFbBbFB9Mg5vjOSVS2hydyYvrvPysd3sWcsxfdHK1ZQDcXrHTG5QRPkYCR1N99
-DNPjOe40CgtbCp1hs74xHhtsWSHMkcqljDds0JlVxacJjV93RIe/U4AyexnUhhUl
-7RB3Bei3gfoiP5zRi3hFKD5yGJMI5ZKSfxVoIsuaxb4rtH86zllq0jnT9KqcxT2c
-WNcJ1guhgMc/C4RKixgza7lvAgLKD3VWjGXU8Ei18pXFpa887Sqe7Hvlt43ikAMK
-KbLkMd6AZVEPgB2zuxIFV2j0JBEv+ULg5TsqJXU/I7/wgzHGlxGtlGmOtTvQSULG
-P6Bmw5Ds5TrjIhOyqg9/jnrgUNvYin4g6gwGTYLxs3/COqcBk2TQ/Umagh8pD9UJ
-dPsNGn+R1gipWBUlIMTzKLjk04/JHGKnaqU0MBxgF6VUybARiTtv8LotF6PbiKjx
-HC3algr3IiS9cqIIg0BC7K6YjZ6967hT0JiHyJgXYJUxYEiZ5GgK54Phxr104gNZ
-WKmnuSYdqzR180mP7Of4mPTYCJZPFs1eF13G7LrYqBW/7HVc4+M=
-=g75M
------END PGP SIGNATURE-----
+--- a/mm/gup.c~mm-gup-disallow-foll_forcefoll_write-on-hugetlb-mappings
++++ a/mm/gup.c
+@@ -1009,6 +1009,9 @@ static int check_vma_flags(struct vm_are
+ 		if (!(vm_flags & VM_WRITE)) {
+ 			if (!(gup_flags & FOLL_FORCE))
+ 				return -EFAULT;
++			/* hugetlb does not support FOLL_FORCE|FOLL_WRITE. */
++			if (is_vm_hugetlb_page(vma))
++				return -EFAULT;
+ 			/*
+ 			 * We used to let the write,force case do COW in a
+ 			 * VM_MAYWRITE VM_SHARED !VM_WRITE vma, so ptrace could
+_
 
---=-w45id9uMw3Kzk4bfXPpp--
+Patches currently in -mm which might be from david@redhat.com are
+
+selftests-vm-add-ksm-unmerge-tests.patch
+mm-pagewalk-dont-trigger-test_walk-in-walk_page_vma.patch
+selftests-vm-add-test-to-measure-madv_unmergeable-performance.patch
+mm-ksm-simplify-break_ksm-to-not-rely-on-vm_fault_write.patch
+mm-remove-vm_fault_write.patch
+mm-ksm-fix-ksm-cow-breaking-with-userfaultfd-wp-via-fault_flag_unshare.patch
+mm-pagewalk-add-walk_page_range_vma.patch
+mm-ksm-convert-break_ksm-to-use-walk_page_range_vma.patch
+mm-gup-remove-foll_migration.patch
+
