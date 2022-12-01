@@ -2,84 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55D0663E8D9
-	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 05:32:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A46D63E915
+	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 05:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229448AbiLAEcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Nov 2022 23:32:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36552 "EHLO
+        id S229658AbiLAExN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Nov 2022 23:53:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbiLAEce (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 23:32:34 -0500
-Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49544BF;
-        Wed, 30 Nov 2022 20:32:32 -0800 (PST)
-Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2B14WAvh006979
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Nov 2022 23:32:11 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
-        t=1669869133; bh=+8PpL2oL7G5+ST4DJ/Si97ZADlyYBJEabf3Ac/t18+4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=fj9khsibVbgI8YGUkwi54W1u5va0SiCc1X6KDeIy2loRzt9YAv7TZBJtP+lzmJiv9
-         7WPj4cMd3eIocR+buxFmSzmLr+koq/VEQ+MIK83aalGRuc1gasLQgBDBNkbA8eXdRd
-         QoJNvOkEwhFpwb+lzhXoLWHhsr1DEirSF3EXVK1joxEzm/cOTB6UOKoQ5+ABswc4Gi
-         95WldHAtzrzhV1RgvlYQOocrPcKC5AqrkmFqHVnY54zHirts+kcHur24Ym4i2zW0dw
-         Xygt7Vjb8EFhfZQtLP6+Ef1CizyJPxz9xTb2VMMzdaObXD+pBYEnlZIZuyTNFKyA+A
-         Dwa3c6SaA0EUw==
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id C49BD15C46FB; Wed, 30 Nov 2022 23:32:10 -0500 (EST)
-Date:   Wed, 30 Nov 2022 23:32:10 -0500
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     Baokun Li <libaokun1@huawei.com>
-Cc:     =?iso-8859-1?Q?Lu=EDs?= Henriques <lhenriques@suse.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] ext4: fix a NULL pointer when validating an inode
- bitmap
-Message-ID: <Y4guSv6wHI1i+3Cz@mit.edu>
-References: <20221010142035.2051-1-lhenriques@suse.de>
- <20221011155623.14840-1-lhenriques@suse.de>
- <Y2cAiLNIIJhm4goP@mit.edu>
- <Y2piZT22QwSjNso9@suse.de>
- <Y4U18wly7K87fX9v@mit.edu>
- <d357e15b-e44a-1e3b-41c3-0b732e4685ed@huawei.com>
- <Y4Zy2HHOmak3k637@mit.edu>
- <a448e298-dffd-e2f5-79b9-3997a4f53c92@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a448e298-dffd-e2f5-79b9-3997a4f53c92@huawei.com>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
-        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229608AbiLAExN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Nov 2022 23:53:13 -0500
+Received: from smtp.gentoo.org (woodpecker.gentoo.org [140.211.166.183])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98AEF48424;
+        Wed, 30 Nov 2022 20:53:10 -0800 (PST)
+Content-Type: multipart/signed;
+        boundary="Apple-Mail=_4DC5171B-6010-4548-BCBC-CC61F618502E";
+        protocol="application/pgp-signature";
+        micalg=pgp-sha512
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3731.200.110.1.12\))
+Subject: Re: Patch "kbuild: fix -Wimplicit-function-declaration in
+ license_is_gpl_compatible" has been added to the 6.0-stable tree
+From:   Sam James <sam@gentoo.org>
+In-Reply-To: <166974128121866@kroah.com>
+Date:   Thu, 1 Dec 2022 04:52:50 +0000
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        stable-commits@vger.kernel.org
+Message-Id: <73A357E7-91A4-4E78-963C-806C49B2F8BB@gentoo.org>
+References: <166974128121866@kroah.com>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+X-Mailer: Apple Mail (2.3731.200.110.1.12)
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 30, 2022 at 11:20:11AM +0800, Baokun Li wrote:
-> > If we can protect against the problem by adding a check that has other
-> > value as well (such as making usre that when ext4_iget fetches a
-> > special inode, we enforce that i_links_couint must be > 0), maybe
-> > that's worth it.
->
-> Yes, but some special inodes allow i_links_couint to be zero,
-> such as the uninitialized boot load inode.
 
-That's a good point; but the only time when a special inode can
-validly have a zero i_links_count is when it has no blocks associated
-to it.  Otherwise, when the file system releases the inode using
-iput() when the file system is unmounted, all of the blocks will get
-released when the inode is evicted.  So we can have ext4_iget() allow
-fetching an inode if i_blocks[] is zeros.  But if it has any blocks
-and i_links_count is non-zero, something must be terribly wrong with
-that inode.
+--Apple-Mail=_4DC5171B-6010-4548-BCBC-CC61F618502E
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=us-ascii
 
-Cheers,
 
-					- Ted
+
+> On 29 Nov 2022, at 17:01, gregkh@linuxfoundation.org wrote:
+>=20
+>=20
+> This is a note to let you know that I've just added the patch titled
+>=20
+>    kbuild: fix -Wimplicit-function-declaration in =
+license_is_gpl_compatible
+>=20
+> to the 6.0-stable tree which can be found at:
+>    =
+http://www.kernel.org/git/?p=3Dlinux/kernel/git/stable/stable-queue.git;a=3D=
+summary
+>=20
+> The filename of the patch is:
+>     =
+kbuild-fix-wimplicit-function-declaration-in-license_is_gpl_compatible.pat=
+ch
+> and it can be found in the queue-6.0 subdirectory.
+>=20
+> If you, or anyone else, feels it should not be added to the stable =
+tree,
+> please let <stable@vger.kernel.org> know about it.
+>=20
+> =46rom 50c697215a8cc22f0e58c88f06f2716c05a26e85 Mon Sep 17 00:00:00 =
+2001
+> From: Sam James <sam@gentoo.org>
+> Date: Wed, 16 Nov 2022 18:26:34 +0000
+> Subject: kbuild: fix -Wimplicit-function-declaration in =
+license_is_gpl_compatible
+>=20
+> From: Sam James <sam@gentoo.org>
+>=20
+> commit 50c697215a8cc22f0e58c88f06f2716c05a26e85 upstream.
+
+Hi Greg,
+
+Please yank this commit from all the stable queues -- it needs
+Some further baking, and a revert is queued in Andrew's tree.
+
+Thanks,
+sam
+
+>=20
+> Add missing <linux/string.h> include for strcmp.
+>=20
+> Clang 16 makes -Wimplicit-function-declaration an error by default.
+> Unfortunately, out of tree modules may use this in configure scripts,
+> which means failure might cause silent miscompilation or =
+misconfiguration.
+>=20
+> For more information, see LWN.net [0] or LLVM's Discourse [1], =
+gentoo-dev@ [2],
+> or the (new) c-std-porting mailing list [3].
+>=20
+> [0] https://lwn.net/Articles/913505/
+> [1] =
+https://discourse.llvm.org/t/configure-script-breakage-with-the-new-werror=
+-implicit-function-declaration/65213
+> [2] =
+https://archives.gentoo.org/gentoo-dev/message/dd9f2d3082b8b6f8dfbccb0639e=
+6e240
+> [3] hosted at lists.linux.dev.
+>=20
+> [akpm@linux-foundation.org: remember "linux/"]
+> Link: =
+https://lkml.kernel.org/r/20221116182634.2823136-1-sam@gentoo.org
+> Signed-off-by: Sam James <sam@gentoo.org>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+> include/linux/license.h |    2 ++
+
+
+--Apple-Mail=_4DC5171B-6010-4548-BCBC-CC61F618502E
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename=signature.asc
+Content-Type: application/pgp-signature;
+	name=signature.asc
+Content-Description: Message signed with OpenPGP
+
+-----BEGIN PGP SIGNATURE-----
+
+iNUEARYKAH0WIQQlpruI3Zt2TGtVQcJzhAn1IN+RkAUCY4gzIl8UgAAAAAAuAChp
+c3N1ZXItZnByQG5vdGF0aW9ucy5vcGVucGdwLmZpZnRoaG9yc2VtYW4ubmV0MjVB
+NkJCODhERDlCNzY0QzZCNTU0MUMyNzM4NDA5RjUyMERGOTE5MAAKCRBzhAn1IN+R
+kGSfAQCvWGMKNMDd+Uk5BXqaUOOfykr23fXBHd508ymgZOqGjAEA0zp7LamEh0rs
+Z/Uuxyl7oLReV3gz7gE0/8juZkwWywY=
+=X/+x
+-----END PGP SIGNATURE-----
+
+--Apple-Mail=_4DC5171B-6010-4548-BCBC-CC61F618502E--
