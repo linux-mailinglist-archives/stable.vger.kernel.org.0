@@ -2,146 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA49163FA34
-	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 23:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E9D763FA43
+	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 23:04:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229823AbiLAWAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Dec 2022 17:00:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49660 "EHLO
+        id S230007AbiLAWDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Dec 2022 17:03:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230142AbiLAWAR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 17:00:17 -0500
-Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2689C3FF8;
-        Thu,  1 Dec 2022 14:00:12 -0800 (PST)
-Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id D73118535C;
-        Thu,  1 Dec 2022 23:00:09 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1669932011;
-        bh=bD4Nn5GdcgMGOYWpDoS7ONIxTUJoRZ+i6VoD8TTLfBM=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=JjDXUCiKbvZSD4wZiUBnu18Xa2hQfv3fx2K7/xsuQhPoFo0EhBVVv4elJx7uTe5u0
-         Y4o91fywVXY+fRQdRzeJkMyg6HN7j/s6F7pyVnMGSPNMZcHv6s92onXs9PsUzav9pf
-         9HUB7cm6/UIBXcMAI/z6JxMMxVGi9DhUOPh8BlINWSlFXAXyPQEHsOdzceN3/Bqwee
-         XlqRUUaR6RufJS56bg1WdeiIyPTa7XlKsRUpHlVymFHz5FL1XLWYdrJPqC/reXp/ME
-         Ff0V6sfPtzmInLtIlLJhvzXxJbM8gyEL9b60KNdvE2S9tpegOjaBYyMV2k0YCaFbQZ
-         CwMksuolhDOlg==
-Message-ID: <f1081f5f-df87-76c8-bea3-e50f4f43fc69@denx.de>
-Date:   Thu, 1 Dec 2022 23:00:09 +0100
+        with ESMTP id S229571AbiLAWDQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 17:03:16 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55CA8A9584;
+        Thu,  1 Dec 2022 14:03:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1669932195; x=1701468195;
+  h=subject:from:to:cc:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=0vOMv3xZrUGSG8yx8x5xFZRScujGgHolIBh7HmRNCKw=;
+  b=Zjzdyeg3RfXgkjV4vgezsVWc9P21m+tpoXxY7y9FrgqotUCuVFvY0Z7U
+   ex2gbZVi1y2y0NqUUpcTfUVa1oUqFaLZKLIQGrgU3wkf/QE5y05rCzk0r
+   YEkIZ+RXqRYloCJO2vVRjGX6TDxBrH81VFBZc0BNByrdnfnTzAagMkTzJ
+   NWoaDYrxE3MJmfbFpvSBHBZ+QcY6uL6bbj4XYOehkMSKVZBOco2xefkV0
+   nale68u2ehNbk2FAJoIUiyC8Sc3IoNmcCQg+3EeOe8oyITCd4pYSlbJEv
+   qoAu40FMWFPFyIXU+tMudVYp3R3ZBvioeRr27jyk/E+5Bkg4dO/01i5tb
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="295503631"
+X-IronPort-AV: E=Sophos;i="5.96,210,1665471600"; 
+   d="scan'208";a="295503631"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2022 14:03:14 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="638544952"
+X-IronPort-AV: E=Sophos;i="5.96,210,1665471600"; 
+   d="scan'208";a="638544952"
+Received: from navarrof-mobl1.amr.corp.intel.com (HELO dwillia2-xfh.jf.intel.com) ([10.212.177.235])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2022 14:03:13 -0800
+Subject: [PATCH 0/5] cxl, nvdimm: Move CPU cache management to region drivers
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     linux-cxl@vger.kernel.org
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Dave Jiang <dave.jiang@intel.com>, stable@vger.kernel.org,
+        Jonathan.Cameron@huawei.com, dave.jiang@intel.com,
+        nvdimm@lists.linux.dev, dave@stgolabs.net
+Date:   Thu, 01 Dec 2022 14:03:13 -0800
+Message-ID: <166993219354.1995348.12912519920112533797.stgit@dwillia2-xfh.jf.intel.com>
+User-Agent: StGit/0.18-3-g996c
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: Boot failure regression on 6.0.10 stable kernel on iMX7
-To:     Francesco Dolcini <francesco@dolcini.it>
-Cc:     Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        devicetree@vger.kernel.org, stable@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>, u-boot@lists.denx.de
-References: <Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com>
- <12f7fbb7-8252-4520-89c2-c5138931a696@denx.de>
- <Y4fCZmjDMtMMyu+E@francesco-nb.int.toradex.com>
- <fef2598e-e5fc-c4fc-0530-2d3c380ed39a@denx.de>
- <Y4iKAUav9ktuxncE@francesco-nb.int.toradex.com>
- <b5080dd6-40b3-a8f2-0c4e-4c1e52e67fe8@denx.de>
- <Y4jMMeyktJLHb9ji@francesco-nb.int.toradex.com>
-Content-Language: en-US
-From:   Marek Vasut <marex@denx.de>
-In-Reply-To: <Y4jMMeyktJLHb9ji@francesco-nb.int.toradex.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: clamav-milter 0.103.6 at phobos.denx.de
-X-Virus-Status: Clean
-X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/1/22 16:45, Francesco Dolcini wrote:
-> + u-boot list
-> 
-> On Thu, Dec 01, 2022 at 12:25:34PM +0100, Marek Vasut wrote:
->> On 12/1/22 12:03, Francesco Dolcini wrote:
->>> On Wed, Nov 30, 2022 at 11:59:04PM +0100, Marek Vasut wrote:
->>>> On 11/30/22 21:51, Francesco Dolcini wrote:
->>>>> On Wed, Nov 30, 2022 at 03:41:13PM +0100, Marek Vasut wrote:
->>>>>> On 11/30/22 14:52, Francesco Dolcini wrote:
->>>>>>> [    0.000000] Booting Linux on physical CPU 0x0
->>>>>>> [    0.000000] Linux version 6.0.10 (francesco@francesco-nb) (arm-linux-gnueabihf-gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.
->>>>>>> 4.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #36 SMP Wed Nov 30 14:07:15 CET 2022
->>>>>>> ...
->>>>>>> [    4.407499] gpmi-nand: error parsing ofpart partition /soc/nand-controller@33002000/partition@0 (/soc/nand-controller
->>>>>>> @33002000)
->>>>>>> [    4.438401] gpmi-nand 33002000.nand-controller: driver registered.
->>>>>>> ...
->>>>>>> [    5.933906] VFS: Cannot open root device "ubi0:rootfs" or unknown-block(0,0): error -19
->>>>>>> [    5.946504] Please append a correct "root=" boot option; here are the available partitions:
->>>>>>> ...
->>>>>>>
->>>>>>> Any idea? I'm not familiar with the gpmi-nand driver and I would just revert it, but
->>>>>>> maybe you have a better idea.
->>>>>>
->>>>> ...
->>>>> OF partition are created by U-Boot from
->>>>>      mtdparts=mtdparts=gpmi-nand:512k(mx7-bcb),1536k(u-boot1)ro,1536k(u-boot2)ro,512k(u-boot-env),-(ubi)
->>>>> env variables calling fdt_fixup_mtdparts from colibri_imx7.c
->>>>>
->>>>> This is generated by U-Boot, I would need to dump what he did generate
->>>>> from the standard fdt_fixup_mtdparts(). I will try to do it tomorrow
->>>>> unless what I wrote here is already enough to understand what's going
->>>>> on.
->>>>
->>>> Oh drat ... I see. It's the u-boot fdt_node_set_part_info() which checks the
->>>> current NAND controller #size-cells and uses that when generating MTD
->>>> partitions 'reg' properties. Since #size-cells is now zero, the reg
->>>> properties would be malformed.
->>>
->>> I think the issue is slightly different, the u-boot code checks it and
->>> if not set it defaults to #size-cells = <1>. Said that u-boot
->>> never set #size-cells anywhere.
->>
->> Which it really should, can you send a patch there too ?
-> 
-> I guess that it is slightly more complicated.
-> 
-> U-Boot directly updates the nand-controller root node with the
-> partitions, unless there is already a partitions child node present. In
-> the first case (legacy OF partition definition) setting the #size-cells
-> does not seems that correct, while in the second case I agree it should
-> really do it. I'll see what I can come-up with.
-> 
->>> diff --git a/drivers/mtd/parsers/ofpart_core.c b/drivers/mtd/parsers/ofpart_core.c
->>> index 192190c42fc8..fffd60acd926 100644
->>> --- a/drivers/mtd/parsers/ofpart_core.c
->>> +++ b/drivers/mtd/parsers/ofpart_core.c
->>> @@ -122,6 +122,8 @@ static int parse_fixed_partitions(struct mtd_info *master,
->>>
->>>                   a_cells = of_n_addr_cells(pp);
->>>                   s_cells = of_n_size_cells(pp);
->>> +               if (s_cells == 0)
->>> +                       s_cells = 1; // for backward compatibility
->>>                   if (len / 4 != a_cells + s_cells) {
->>>                           pr_debug("%s: ofpart partition %pOF (%pOF) error parsing reg property.\n",
->>>                                    master->name, pp,
->>
->> You might want to print a warning too, so users would fix their DTs, since
->> once there is MTD partition > 4 GiB, this would break. Otherwise I like this
->> option.
-> 
-> I tested it and it's working as expected, I'll send a proper patch soon.
+This is incremental to Dave's recent "[PATCH v7 00/20] Introduce
+security commands for CXL pmem device" [1], starting after patch 17 [2].
+I.e. I want to drop patch 18, 19, and 20 from that series and replace
+them with these.  It was prompted by Davidlohr's concerns about
+cxl_invalidate_memregion().
 
-Much appreciated, thanks !
+The insight is that now that cpu_cache_invalidate_memregion() has a
+default implementation for all architectures, the cache management can
+move from the intel-pmem-specific security operations to the generic
+NVDIMM core. This relieves the new CXL security ops from needing to
+open-code their own cache flushing.
+
+Also prompted by Davidlohr's concerns is what do about cache flushing
+for scenarios outside of the PMEM security operations. For that "[PATCH
+5/5] cxl/region: Manage CPU caches relative to DPA invalidation events"
+proposes to handle that management at region activation time. This does
+mean that dynamic CXL region provisioning is limited to environments
+where cpu_cache_has_invalidate_memregion() is true. A new
+CONFIG_CXL_REGION_INVALIDATION_TEST is added to bypass that data
+integrity enforcement.
+
+Lastly this includes some fixups, one for the fact that
+cxl_region_probe() was ignoring some errors, another to enforce that
+PMEM security operations originate through LIBNVDIMM, and lastly a
+cleanup to move a string formatting failure condition from runtime to
+compile-time in cxl_nvdimm_alloc().
+
+[1]: http://lore.kernel.org/r/166983606451.2734609.4050644229630259452.stgit@djiang5-desk3.ch.intel.com
+[2]: https://git.kernel.org/pub/scm/linux/kernel/git/cxl/cxl.git/log/?h=for-6.2/cxl-security
+
+---
+
+Dan Williams (4):
+      cxl/region: Fix missing probe failure
+      cxl/pmem: Enforce keyctl ABI for PMEM security
+      nvdimm/region: Move cache management to the region driver
+      cxl/region: Manage CPU caches relative to DPA invalidation events
+
+Dave Jiang (1):
+      cxl: add dimm_id support for __nvdimm_create()
+
+
+ drivers/acpi/nfit/intel.c    |   25 ---------------------
+ drivers/cxl/Kconfig          |   18 +++++++++++++++
+ drivers/cxl/core/mbox.c      |   10 +++++++++
+ drivers/cxl/core/pmem.c      |    7 ++++++
+ drivers/cxl/core/region.c    |   34 +++++++++++++++++++++++++++++
+ drivers/cxl/cxl.h            |   11 +++++++++
+ drivers/cxl/pmem.c           |    3 ++-
+ drivers/cxl/security.c       |   14 ------------
+ drivers/nvdimm/region.c      |   11 +++++++++
+ drivers/nvdimm/region_devs.c |   49 +++++++++++++++++++++++++++++++++++++++++-
+ drivers/nvdimm/security.c    |    6 +++++
+ include/linux/libnvdimm.h    |    5 ++++
+ 12 files changed, 152 insertions(+), 41 deletions(-)
+
+base-commit: 15a8348707ffd2a37516db9bede88cc0bb467e0b
