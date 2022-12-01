@@ -2,148 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B8D063EA5F
-	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 08:34:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4E9563EA97
+	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 08:56:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229795AbiLAHef (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Dec 2022 02:34:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47758 "EHLO
+        id S229694AbiLAH4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Dec 2022 02:56:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbiLAHef (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 02:34:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B780630F41;
-        Wed, 30 Nov 2022 23:34:33 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47EE861EB8;
-        Thu,  1 Dec 2022 07:34:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 332CDC433D6;
-        Thu,  1 Dec 2022 07:34:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669880072;
-        bh=70O6dWJgZaOOZXUcY049Qm0l1Sl9m0rDak1NqB+X3FA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=VjyMr2PhNhftA89A5fAHg5mMHPzyCjrsdNh8fCfzIIsMjBMfbM94vQvO18k/17c++
-         M/LpJBVqxXxONrI142i/HA0HAVHIt0OVBetWr723YRVxQoSiLt8+KJYO8AUbYsaWf3
-         cz0E30ozBL8TOVS4eI46GvwapLXkfCfwdKnXDlUR1e8qj9MARmbvMKIv+yhVp0FjBf
-         Y4/syiiEiX1lmc5ycm0Esk3Cd34+vyX6OjT6eCGOVbzvySIg753Pk8A2QKGuy6iTwT
-         SJtDvXKZtIAYVcoX2hghbR+lX2hidRBSrmm23NybkZdpyCa8p6nYMvwO2thjmtVJeo
-         M5Hjl1BS4Ktig==
-From:   "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
-To:     dario.binacchi@amarulasolutions.com
-Cc:     linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
-        Richard Palethorpe <richard.palethorpe@suse.com>,
-        Petr Vorel <petr.vorel@suse.com>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, stable@vger.kernel.org,
-        Max Staudt <max@enpas.org>
-Subject: [PATCH] can: slcan: fix freed work crash
-Date:   Thu,  1 Dec 2022 08:34:26 +0100
-Message-Id: <20221201073426.17328-1-jirislaby@kernel.org>
-X-Mailer: git-send-email 2.38.1
+        with ESMTP id S229626AbiLAH4X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 02:56:23 -0500
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 531C951316;
+        Wed, 30 Nov 2022 23:56:22 -0800 (PST)
+Received: by mail-pg1-x535.google.com with SMTP id h33so972290pgm.9;
+        Wed, 30 Nov 2022 23:56:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=D2ttyoUGNfYuPD9Y7UeScn0v9Wc1/HDJhF/MHUfkAG0=;
+        b=Ajc6HGtyTqDfuTDVMzx4DgN3XK3JkJs/Aj8GtOofFdlaEo4L48G4Mr9JYX5uOsYtm+
+         UHRb7VpXyUCff6SCwyvDAFgaUjRFA2681d/D0SSjKco+fSCOy/Ux9LJrQ7KOg1+1O0Q8
+         NgyQlFztC2qnkYpiZta7sJvHzVHBcjMsJ2LqBbhn8sB+cJ2mCbYrk3gA8Qau50KO8pDJ
+         S0MzOpuToyNY5GG6de6zvk5YRWvXWEXCsFOAuZwU81t+NYOX7no21a3qirG4rSTfCBxC
+         to+um08f7b61lDBtLiVlfX1cixRZsx33AtfY7X6Q7IRE9Vs0bbplxlIzxZrTY+ugAQBL
+         9x0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=D2ttyoUGNfYuPD9Y7UeScn0v9Wc1/HDJhF/MHUfkAG0=;
+        b=YHNK3b4KbXB+rHSz42IFPcODvk2HLgj9gK2zwIRLmh4oqXtMP45R1axsjbwEBz0JXu
+         gxuI0jPZuHSLTyT4EcW9WMd3krZY2xfe9eKPiF8MT8fg0jCgg5iZzL4Il2uSgebkCJtp
+         scRpsvGsfQ9EXnqeN8umcMuLQx0HrfELk8HSWnzfsIHlVxiM5aZnE/T1MKq0Nd62SbNQ
+         nE4rgfnW6goQb5TkdhuUuNAEM6ne07GPN3WwCXUfis0s5+/VD42N3Ymg9+nMiozNiyiI
+         p63pMdlkA5yunrAi4q55uoG/EZuG+dslST1wOKggHYXwJgs1Y1gN6IJDf5ebO1WU0Tbh
+         rGAw==
+X-Gm-Message-State: ANoB5pkWkKjmPUbwIf9V5E8tiRL+ZgsdBQd1Shl/u4Mm+puvvJ/OeX9/
+        Svo9DvvONhCakq5xjKgnwRg=
+X-Google-Smtp-Source: AA0mqf4u+VjSI2oWSNzFgED+MHjqCKfP6Wh+vZdqlGgGKkIZUr1zDY4jPr3O3ow0kaxJR/0q7vWU0g==
+X-Received: by 2002:aa7:8b56:0:b0:56c:6f8:fe14 with SMTP id i22-20020aa78b56000000b0056c06f8fe14mr67076789pfd.75.1669881381873;
+        Wed, 30 Nov 2022 23:56:21 -0800 (PST)
+Received: from debian.me (subs03-180-214-233-74.three.co.id. [180.214.233.74])
+        by smtp.gmail.com with ESMTPSA id e2-20020a170902d38200b00189502c8c8bsm2864308pld.87.2022.11.30.23.56.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Nov 2022 23:56:21 -0800 (PST)
+Received: by debian.me (Postfix, from userid 1000)
+        id A4A361042B7; Thu,  1 Dec 2022 14:56:17 +0700 (WIB)
+Date:   Thu, 1 Dec 2022 14:56:17 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.15 000/206] 5.15.81-rc1 review
+Message-ID: <Y4heIdzK0Dn32Lm/@debian.me>
+References: <20221130180532.974348590@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="kd6H+Tg8rY65JvnO"
+Content-Disposition: inline
+In-Reply-To: <20221130180532.974348590@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The LTP test pty03 is causing a crash in slcan:
-  BUG: kernel NULL pointer dereference, address: 0000000000000008
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] PREEMPT SMP NOPTI
-  CPU: 0 PID: 348 Comm: kworker/0:3 Not tainted 6.0.8-1-default #1 openSUSE Tumbleweed 9d20364b934f5aab0a9bdf84e8f45cfdfae39dab
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b9b-rebuilt.opensuse.org 04/01/2014
-  Workqueue:  0x0 (events)
-  RIP: 0010:process_one_work (/home/rich/kernel/linux/kernel/workqueue.c:706 /home/rich/kernel/linux/kernel/workqueue.c:2185)
-  Code: 49 89 ff 41 56 41 55 41 54 55 53 48 89 f3 48 83 ec 10 48 8b 06 48 8b 6f 48 49 89 c4 45 30 e4 a8 04 b8 00 00 00 00 4c 0f 44 e0 <49> 8b 44 24 08 44 8b a8 00 01 00 00 41 83 e5 20 f6 45 10 04 75 0e
-  RSP: 0018:ffffaf7b40f47e98 EFLAGS: 00010046
-  RAX: 0000000000000000 RBX: ffff9d644e1b8b48 RCX: ffff9d649e439968
-  RDX: 00000000ffff8455 RSI: ffff9d644e1b8b48 RDI: ffff9d64764aa6c0
-  RBP: ffff9d649e4335c0 R08: 0000000000000c00 R09: ffff9d64764aa734
-  R10: 0000000000000007 R11: 0000000000000001 R12: 0000000000000000
-  R13: ffff9d649e4335e8 R14: ffff9d64490da780 R15: ffff9d64764aa6c0
-  FS:  0000000000000000(0000) GS:ffff9d649e400000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000008 CR3: 0000000036424000 CR4: 00000000000006f0
-  Call Trace:
-   <TASK>
-  worker_thread (/home/rich/kernel/linux/kernel/workqueue.c:2436)
-  kthread (/home/rich/kernel/linux/kernel/kthread.c:376)
-  ret_from_fork (/home/rich/kernel/linux/arch/x86/entry/entry_64.S:312)
 
-Apparently, the slcan's tx_work is freed while being scheduled. While
-slcan_netdev_close() (netdev side) calls flush_work(&sl->tx_work),
-slcan_close() (tty side) does not. So when the netdev is never set UP,
-but the tty is stuffed with bytes and forced to wakeup write, the work
-is scheduled, but never flushed.
+--kd6H+Tg8rY65JvnO
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So add an additional flush_work() to slcan_close() to be sure the work
-is flushed under all circumstances.
+On Wed, Nov 30, 2022 at 07:20:52PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.81 release.
+> There are 206 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
 
-The Fixes commit below moved flush_work() from slcan_close() to
-slcan_netdev_close(). What was the rationale behind it? Maybe we can
-drop the one in slcan_netdev_close()?
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.2.0).
 
-I see the same pattern in can327. So it perhaps needs the very same fix.
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-Fixes: cfcb4465e992 ("can: slcan: remove legacy infrastructure")
-Link: https://bugzilla.suse.com/show_bug.cgi?id=1205597
-Reported-by: Richard Palethorpe <richard.palethorpe@suse.com>
-Tested-by: Petr Vorel <petr.vorel@suse.com>
-Cc: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Cc: Wolfgang Grandegger <wg@grandegger.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: linux-can@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: stable@vger.kernel.org
-Cc: Max Staudt <max@enpas.org>
-Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
----
- drivers/net/can/slcan/slcan-core.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+--=20
+An old man doll... just what I always wanted! - Clara
 
-diff --git a/drivers/net/can/slcan/slcan-core.c b/drivers/net/can/slcan/slcan-core.c
-index fbb34139daa1..f4db77007c13 100644
---- a/drivers/net/can/slcan/slcan-core.c
-+++ b/drivers/net/can/slcan/slcan-core.c
-@@ -864,12 +864,14 @@ static void slcan_close(struct tty_struct *tty)
- {
- 	struct slcan *sl = (struct slcan *)tty->disc_data;
- 
--	/* unregister_netdev() calls .ndo_stop() so we don't have to.
--	 * Our .ndo_stop() also flushes the TTY write wakeup handler,
--	 * so we can safely set sl->tty = NULL after this.
--	 */
- 	unregister_candev(sl->dev);
- 
-+	/*
-+	 * The netdev needn't be UP (so .ndo_stop() is not called). Hence make
-+	 * sure this is not running before freeing it up.
-+	 */
-+	flush_work(&sl->tx_work);
-+
- 	/* Mark channel as dead */
- 	spin_lock_bh(&sl->lock);
- 	tty->disc_data = NULL;
--- 
-2.38.1
+--kd6H+Tg8rY65JvnO
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY4heGgAKCRD2uYlJVVFO
+o/EKAP90UD5u+Uj/lKRg0v0CbdeQsl+JeEhZaOXRz1XeNj9yhwEAvz3v75uLMYAg
+G8zJiA0QaV4K1RnZcVIVsJkEs+z6hwY=
+=k/I7
+-----END PGP SIGNATURE-----
+
+--kd6H+Tg8rY65JvnO--
