@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E9D763FA43
+	by mail.lfdr.de (Postfix) with ESMTP id 22FA463FA42
 	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 23:04:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230007AbiLAWDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229571AbiLAWDq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 1 Dec 2022 17:03:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51932 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229571AbiLAWDQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 17:03:16 -0500
+        with ESMTP id S230244AbiLAWD2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 17:03:28 -0500
 Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55CA8A9584;
-        Thu,  1 Dec 2022 14:03:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AACBEBC582;
+        Thu,  1 Dec 2022 14:03:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1669932195; x=1701468195;
-  h=subject:from:to:cc:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=0vOMv3xZrUGSG8yx8x5xFZRScujGgHolIBh7HmRNCKw=;
-  b=Zjzdyeg3RfXgkjV4vgezsVWc9P21m+tpoXxY7y9FrgqotUCuVFvY0Z7U
-   ex2gbZVi1y2y0NqUUpcTfUVa1oUqFaLZKLIQGrgU3wkf/QE5y05rCzk0r
-   YEkIZ+RXqRYloCJO2vVRjGX6TDxBrH81VFBZc0BNByrdnfnTzAagMkTzJ
-   NWoaDYrxE3MJmfbFpvSBHBZ+QcY6uL6bbj4XYOehkMSKVZBOco2xefkV0
-   nale68u2ehNbk2FAJoIUiyC8Sc3IoNmcCQg+3EeOe8oyITCd4pYSlbJEv
-   qoAu40FMWFPFyIXU+tMudVYp3R3ZBvioeRr27jyk/E+5Bkg4dO/01i5tb
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="295503631"
+  t=1669932205; x=1701468205;
+  h=subject:from:to:cc:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=G87j60lcFOm0XsAJRAjlLp3GM7+SMlxSvtRmCcnF0xk=;
+  b=RwF2EIAqmzuYcQW8ZCW0467v8A+629B4bTcIFa7y3oBjzN7L7OECfH2Y
+   AZ34g7iszzec+L1D+IoLkHAN9DHgaVoc9NE6JSW91dfWJJlqtUtxJup11
+   ifpnQVDw3TqwEU15bGvXyE55NfOPXfORDsF6qd1j48P/pJQt7ta86aykc
+   zOLP7/G0fmzi1KamOsaUmukmwwzsRhGUM4HsRSksfUY1H/i+iMSzRSvXJ
+   xDy5GCMQuIgJWskaKvUP5FcRielM+FMP19q+9JG1oEL1m/v3hUJYC5F3T
+   eWH0tXuHV49h+4bZC/EIhyWDNFVOcPs1tRSuMZLio1GIkqSb1tIqgZZE3
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="295503656"
 X-IronPort-AV: E=Sophos;i="5.96,210,1665471600"; 
-   d="scan'208";a="295503631"
+   d="scan'208";a="295503656"
 Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2022 14:03:14 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="638544952"
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2022 14:03:25 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="638545015"
 X-IronPort-AV: E=Sophos;i="5.96,210,1665471600"; 
-   d="scan'208";a="638544952"
+   d="scan'208";a="638545015"
 Received: from navarrof-mobl1.amr.corp.intel.com (HELO dwillia2-xfh.jf.intel.com) ([10.212.177.235])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2022 14:03:13 -0800
-Subject: [PATCH 0/5] cxl, nvdimm: Move CPU cache management to region drivers
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2022 14:03:24 -0800
+Subject: [PATCH 2/5] cxl/region: Fix missing probe failure
 From:   Dan Williams <dan.j.williams@intel.com>
 To:     linux-cxl@vger.kernel.org
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Dave Jiang <dave.jiang@intel.com>, stable@vger.kernel.org,
-        Jonathan.Cameron@huawei.com, dave.jiang@intel.com,
-        nvdimm@lists.linux.dev, dave@stgolabs.net
-Date:   Thu, 01 Dec 2022 14:03:13 -0800
-Message-ID: <166993219354.1995348.12912519920112533797.stgit@dwillia2-xfh.jf.intel.com>
+Cc:     stable@vger.kernel.org, Jonathan.Cameron@huawei.com,
+        dave.jiang@intel.com, nvdimm@lists.linux.dev, dave@stgolabs.net
+Date:   Thu, 01 Dec 2022 14:03:24 -0800
+Message-ID: <166993220462.1995348.1698008475198427361.stgit@dwillia2-xfh.jf.intel.com>
+In-Reply-To: <166993219354.1995348.12912519920112533797.stgit@dwillia2-xfh.jf.intel.com>
+References: <166993219354.1995348.12912519920112533797.stgit@dwillia2-xfh.jf.intel.com>
 User-Agent: StGit/0.18-3-g996c
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -59,60 +59,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is incremental to Dave's recent "[PATCH v7 00/20] Introduce
-security commands for CXL pmem device" [1], starting after patch 17 [2].
-I.e. I want to drop patch 18, 19, and 20 from that series and replace
-them with these.  It was prompted by Davidlohr's concerns about
-cxl_invalidate_memregion().
+cxl_region_probe() allows for regions not in the 'commit' state to be
+enabled. Fail probe when the region is not committed otherwise the
+kernel may indicate that an address range is active when none of the
+decoders are active.
 
-The insight is that now that cpu_cache_invalidate_memregion() has a
-default implementation for all architectures, the cache management can
-move from the intel-pmem-specific security operations to the generic
-NVDIMM core. This relieves the new CXL security ops from needing to
-open-code their own cache flushing.
-
-Also prompted by Davidlohr's concerns is what do about cache flushing
-for scenarios outside of the PMEM security operations. For that "[PATCH
-5/5] cxl/region: Manage CPU caches relative to DPA invalidation events"
-proposes to handle that management at region activation time. This does
-mean that dynamic CXL region provisioning is limited to environments
-where cpu_cache_has_invalidate_memregion() is true. A new
-CONFIG_CXL_REGION_INVALIDATION_TEST is added to bypass that data
-integrity enforcement.
-
-Lastly this includes some fixups, one for the fact that
-cxl_region_probe() was ignoring some errors, another to enforce that
-PMEM security operations originate through LIBNVDIMM, and lastly a
-cleanup to move a string formatting failure condition from runtime to
-compile-time in cxl_nvdimm_alloc().
-
-[1]: http://lore.kernel.org/r/166983606451.2734609.4050644229630259452.stgit@djiang5-desk3.ch.intel.com
-[2]: https://git.kernel.org/pub/scm/linux/kernel/git/cxl/cxl.git/log/?h=for-6.2/cxl-security
-
+Fixes: 8d48817df6ac ("cxl/region: Add region driver boiler plate")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 ---
+ drivers/cxl/core/region.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-Dan Williams (4):
-      cxl/region: Fix missing probe failure
-      cxl/pmem: Enforce keyctl ABI for PMEM security
-      nvdimm/region: Move cache management to the region driver
-      cxl/region: Manage CPU caches relative to DPA invalidation events
+diff --git a/drivers/cxl/core/region.c b/drivers/cxl/core/region.c
+index f9ae5ad284ff..1bc2ebefa2a5 100644
+--- a/drivers/cxl/core/region.c
++++ b/drivers/cxl/core/region.c
+@@ -1923,6 +1923,9 @@ static int cxl_region_probe(struct device *dev)
+ 	 */
+ 	up_read(&cxl_region_rwsem);
+ 
++	if (rc)
++		return rc;
++
+ 	switch (cxlr->mode) {
+ 	case CXL_DECODER_PMEM:
+ 		return devm_cxl_add_pmem_region(cxlr);
 
-Dave Jiang (1):
-      cxl: add dimm_id support for __nvdimm_create()
-
-
- drivers/acpi/nfit/intel.c    |   25 ---------------------
- drivers/cxl/Kconfig          |   18 +++++++++++++++
- drivers/cxl/core/mbox.c      |   10 +++++++++
- drivers/cxl/core/pmem.c      |    7 ++++++
- drivers/cxl/core/region.c    |   34 +++++++++++++++++++++++++++++
- drivers/cxl/cxl.h            |   11 +++++++++
- drivers/cxl/pmem.c           |    3 ++-
- drivers/cxl/security.c       |   14 ------------
- drivers/nvdimm/region.c      |   11 +++++++++
- drivers/nvdimm/region_devs.c |   49 +++++++++++++++++++++++++++++++++++++++++-
- drivers/nvdimm/security.c    |    6 +++++
- include/linux/libnvdimm.h    |    5 ++++
- 12 files changed, 152 insertions(+), 41 deletions(-)
-
-base-commit: 15a8348707ffd2a37516db9bede88cc0bb467e0b
