@@ -2,134 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4384363ED38
-	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 11:07:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 115D463ED5B
+	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 11:13:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230357AbiLAKHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Dec 2022 05:07:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40726 "EHLO
+        id S229796AbiLAKNm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Dec 2022 05:13:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230316AbiLAKHY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 05:07:24 -0500
-Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFE178D677;
-        Thu,  1 Dec 2022 02:07:09 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.227])
-        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4NNBQp5yk1z9xFY9;
-        Thu,  1 Dec 2022 18:00:34 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwCnkm+tfIhjWgGvAA--.50191S4;
-        Thu, 01 Dec 2022 11:06:54 +0100 (CET)
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
+        with ESMTP id S229660AbiLAKNm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 05:13:42 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30CA84E6B0;
+        Thu,  1 Dec 2022 02:13:39 -0800 (PST)
+Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id C9BC11FD68;
+        Thu,  1 Dec 2022 10:13:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1669889617;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=HK6pnCi1qP8FFtMs45m05rOGYvqXTvxdOjuW/EuRruE=;
+        b=NxrdHspKyAj8UHpz/Lx5228Q9gSwTfKblU+hpaFVDzHXNTPxcbg/My1NUxNzXcJNdnMtH4
+        wmIGrKXGoN5ug8EHCbKfCBfIWZZqe38Q7nW5QCC9n4/P0YXap7XxjkiogrXTLaWr7erOcs
+        m8HIj7DZTw2Zse2xGBZH9p7Cm7pHOt0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1669889617;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=HK6pnCi1qP8FFtMs45m05rOGYvqXTvxdOjuW/EuRruE=;
+        b=Tv+TFKMVJqS7anEln+zoivlMe9cY38Lal8ihZOtRCNaNknRxo7pu6kzp5EP2BZbvoEBdJS
+        Pcj/xKFM2pttjhBA==
+Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap1.suse-dmz.suse.de (Postfix) with ESMTPS id 5EB751320E;
+        Thu,  1 Dec 2022 10:13:37 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap1.suse-dmz.suse.de with ESMTPSA
+        id vJPFFVF+iGOHJQAAGKfGzw
+        (envelope-from <pvorel@suse.cz>); Thu, 01 Dec 2022 10:13:37 +0000
+Date:   Thu, 1 Dec 2022 11:13:35 +0100
+From:   Petr Vorel <pvorel@suse.cz>
+To:     "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
+Cc:     dario.binacchi@amarulasolutions.com, linux-serial@vger.kernel.org,
         linux-kernel@vger.kernel.org,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2 2/2] ima: Alloc ima_max_digest_data in xattr_verify() if CONFIG_VMAP_STACK=y
-Date:   Thu,  1 Dec 2022 11:06:25 +0100
-Message-Id: <20221201100625.916781-3-roberto.sassu@huaweicloud.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20221201100625.916781-1-roberto.sassu@huaweicloud.com>
-References: <20221201100625.916781-1-roberto.sassu@huaweicloud.com>
+        Richard Palethorpe <richard.palethorpe@suse.com>,
+        Petr Vorel <petr.vorel@suse.com>,
+        Wolfgang Grandegger <wg@grandegger.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org, stable@vger.kernel.org,
+        Max Staudt <max@enpas.org>, ltp@lists.linux.it
+Subject: Re: [PATCH] can: slcan: fix freed work crash
+Message-ID: <Y4h+T54ghKFPmkqO@pevik>
+Reply-To: Petr Vorel <pvorel@suse.cz>
+References: <20221201073426.17328-1-jirislaby@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: LxC2BwCnkm+tfIhjWgGvAA--.50191S4
-X-Coremail-Antispam: 1UD129KBjvJXoWxJr1xXF1UKrWrZF47Jr1UZFb_yoW8Kryxpa
-        1kKF1DGr1FqFs2kFW7AFs0kw4Ykry0vry8WF4DAw1SyF93Xw1j9FykAFyxuFy5Cry8tF1x
-        Kr4Sgr15ua10y3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUP2b4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUXw
-        A2048vs2IY020Ec7CjxVAFwI0_Gr0_Xr1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-        w2x7M28EF7xvwVC0I7IYx2IY67AKxVWUCVW8JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-        WxJVW8Jr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
-        Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMc
-        Ij6xIIjxv20xvE14v26r106r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_
-        Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AFwI
-        0_GFv_Wryl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG
-        67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MI
-        IYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lIxAIcVC0I7IYx2IY6xkF7I0E
-        14v26F4j6r4UJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr
-        0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU0WU
-        DJUUUUU==
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgANBF1jj4IjMwAAso
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221201073426.17328-1-jirislaby@kernel.org>
+X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_SOFTFAIL autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+Hi all,
 
-Similarly to evm_verify_hmac(), which allocates an evm_digest structure to
-satisfy the linear mapping requirement if CONFIG_VMAP_STACK is enabled, do
-the same in xattr_verify(). Allocate an ima_max_digest_data structure and
-use that instead of the in-stack counterpart.
+Cc LTP mailing list.
+Jiri, thanks a lot for quick fix!
 
-Cc: stable@vger.kernel.org # 4.9.x
-Fixes: ba14a194a434 ("fork: Add generic vmalloced stack support")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
----
- security/integrity/ima/ima_appraise.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+Kind regards,
+Petr
 
-diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-index 3e0fbbd99534..ed8f05340fe8 100644
---- a/security/integrity/ima/ima_appraise.c
-+++ b/security/integrity/ima/ima_appraise.c
-@@ -278,6 +278,7 @@ static int xattr_verify(enum ima_hooks func, struct integrity_iint_cache *iint,
- 			enum integrity_status *status, const char **cause)
- {
- 	struct ima_max_digest_data hash;
-+	struct ima_max_digest_data *hash_ptr = &hash;
- 	struct signature_v2_hdr *sig;
- 	int rc = -EINVAL, hash_start = 0;
- 	int mask;
-@@ -376,8 +377,17 @@ static int xattr_verify(enum ima_hooks func, struct integrity_iint_cache *iint,
- 			break;
- 		}
- 
-+		if (IS_ENABLED(CONFIG_VMAP_STACK)) {
-+			hash_ptr = kmalloc(sizeof(*hash_ptr), GFP_KERNEL);
-+			if (!hash_ptr) {
-+				*cause = "out-of-memory";
-+				*status = INTEGRITY_FAIL;
-+				break;
-+			}
-+		}
-+
- 		rc = calc_file_id_hash(IMA_VERITY_DIGSIG, iint->ima_hash->algo,
--				       iint->ima_hash->digest, &hash.hdr);
-+				       iint->ima_hash->digest, &hash_ptr->hdr);
- 		if (rc) {
- 			*cause = "sigv3-hashing-error";
- 			*status = INTEGRITY_FAIL;
-@@ -386,8 +396,8 @@ static int xattr_verify(enum ima_hooks func, struct integrity_iint_cache *iint,
- 
- 		rc = integrity_digsig_verify(INTEGRITY_KEYRING_IMA,
- 					     (const char *)xattr_value,
--					     xattr_len, hash.digest,
--					     hash.hdr.length);
-+					     xattr_len, hash_ptr->digest,
-+					     hash_ptr->hdr.length);
- 		if (rc) {
- 			*cause = "invalid-verity-signature";
- 			*status = INTEGRITY_FAIL;
-@@ -402,6 +412,9 @@ static int xattr_verify(enum ima_hooks func, struct integrity_iint_cache *iint,
- 		break;
- 	}
- 
-+	if (hash_ptr && hash_ptr != &hash)
-+		kfree(hash_ptr);
-+
- 	return rc;
- }
- 
--- 
-2.25.1
+> The LTP test pty03 is causing a crash in slcan:
+>   BUG: kernel NULL pointer dereference, address: 0000000000000008
+>   #PF: supervisor read access in kernel mode
+>   #PF: error_code(0x0000) - not-present page
+>   PGD 0 P4D 0
+>   Oops: 0000 [#1] PREEMPT SMP NOPTI
+>   CPU: 0 PID: 348 Comm: kworker/0:3 Not tainted 6.0.8-1-default #1 openSUSE Tumbleweed 9d20364b934f5aab0a9bdf84e8f45cfdfae39dab
+>   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b9b-rebuilt.opensuse.org 04/01/2014
+>   Workqueue:  0x0 (events)
+>   RIP: 0010:process_one_work (/home/rich/kernel/linux/kernel/workqueue.c:706 /home/rich/kernel/linux/kernel/workqueue.c:2185)
+>   Code: 49 89 ff 41 56 41 55 41 54 55 53 48 89 f3 48 83 ec 10 48 8b 06 48 8b 6f 48 49 89 c4 45 30 e4 a8 04 b8 00 00 00 00 4c 0f 44 e0 <49> 8b 44 24 08 44 8b a8 00 01 00 00 41 83 e5 20 f6 45 10 04 75 0e
+>   RSP: 0018:ffffaf7b40f47e98 EFLAGS: 00010046
+>   RAX: 0000000000000000 RBX: ffff9d644e1b8b48 RCX: ffff9d649e439968
+>   RDX: 00000000ffff8455 RSI: ffff9d644e1b8b48 RDI: ffff9d64764aa6c0
+>   RBP: ffff9d649e4335c0 R08: 0000000000000c00 R09: ffff9d64764aa734
+>   R10: 0000000000000007 R11: 0000000000000001 R12: 0000000000000000
+>   R13: ffff9d649e4335e8 R14: ffff9d64490da780 R15: ffff9d64764aa6c0
+>   FS:  0000000000000000(0000) GS:ffff9d649e400000(0000) knlGS:0000000000000000
+>   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>   CR2: 0000000000000008 CR3: 0000000036424000 CR4: 00000000000006f0
+>   Call Trace:
+>    <TASK>
+>   worker_thread (/home/rich/kernel/linux/kernel/workqueue.c:2436)
+>   kthread (/home/rich/kernel/linux/kernel/kthread.c:376)
+>   ret_from_fork (/home/rich/kernel/linux/arch/x86/entry/entry_64.S:312)
 
+> Apparently, the slcan's tx_work is freed while being scheduled. While
+> slcan_netdev_close() (netdev side) calls flush_work(&sl->tx_work),
+> slcan_close() (tty side) does not. So when the netdev is never set UP,
+> but the tty is stuffed with bytes and forced to wakeup write, the work
+> is scheduled, but never flushed.
+
+> So add an additional flush_work() to slcan_close() to be sure the work
+> is flushed under all circumstances.
+
+> The Fixes commit below moved flush_work() from slcan_close() to
+> slcan_netdev_close(). What was the rationale behind it? Maybe we can
+> drop the one in slcan_netdev_close()?
+
+> I see the same pattern in can327. So it perhaps needs the very same fix.
+
+> Fixes: cfcb4465e992 ("can: slcan: remove legacy infrastructure")
+> Link: https://bugzilla.suse.com/show_bug.cgi?id=1205597
+> Reported-by: Richard Palethorpe <richard.palethorpe@suse.com>
+> Tested-by: Petr Vorel <petr.vorel@suse.com>
+> Cc: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+> Cc: Wolfgang Grandegger <wg@grandegger.com>
+> Cc: Marc Kleine-Budde <mkl@pengutronix.de>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Eric Dumazet <edumazet@google.com>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: Paolo Abeni <pabeni@redhat.com>
+> Cc: linux-can@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: stable@vger.kernel.org
+> Cc: Max Staudt <max@enpas.org>
+> Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+> ---
+>  drivers/net/can/slcan/slcan-core.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
+
+> diff --git a/drivers/net/can/slcan/slcan-core.c b/drivers/net/can/slcan/slcan-core.c
+> index fbb34139daa1..f4db77007c13 100644
+> --- a/drivers/net/can/slcan/slcan-core.c
+> +++ b/drivers/net/can/slcan/slcan-core.c
+> @@ -864,12 +864,14 @@ static void slcan_close(struct tty_struct *tty)
+>  {
+>  	struct slcan *sl = (struct slcan *)tty->disc_data;
+
+> -	/* unregister_netdev() calls .ndo_stop() so we don't have to.
+> -	 * Our .ndo_stop() also flushes the TTY write wakeup handler,
+> -	 * so we can safely set sl->tty = NULL after this.
+> -	 */
+>  	unregister_candev(sl->dev);
+
+> +	/*
+> +	 * The netdev needn't be UP (so .ndo_stop() is not called). Hence make
+> +	 * sure this is not running before freeing it up.
+> +	 */
+> +	flush_work(&sl->tx_work);
+> +
+>  	/* Mark channel as dead */
+>  	spin_lock_bh(&sl->lock);
+>  	tty->disc_data = NULL;
