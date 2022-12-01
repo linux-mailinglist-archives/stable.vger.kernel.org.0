@@ -2,200 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B51063EBA2
-	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 09:54:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0558D63EBF0
+	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 10:05:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229501AbiLAIyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Dec 2022 03:54:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56350 "EHLO
+        id S230121AbiLAJF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Dec 2022 04:05:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229452AbiLAIyR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 03:54:17 -0500
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 452823D92D
-        for <stable@vger.kernel.org>; Thu,  1 Dec 2022 00:54:16 -0800 (PST)
+        with ESMTP id S230052AbiLAJFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 04:05:10 -0500
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38BE950DC;
+        Thu,  1 Dec 2022 01:04:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1669884856; x=1701420856;
-  h=date:from:to:cc:subject:message-id:mime-version;
-  bh=5S04XEVszvqHluDKodEz2778W3pgCoVJ2UKcAubiyDY=;
-  b=KHxYhFtKjQm73hryU65PoKr4Y61zVLADRRFKIMmagr+J212XZjeRZuoY
-   Fo/RbpEp5HQi6hXfZoncjZKzdXbhsye3iBevvxMJ2W5lgAhfE5xjCFeII
-   9eQKrZCBYfkT6e0NwMddMQAE2jR6MTr3YP/bcmoLPBUQFkzrjr0b8k/Xt
-   DGrJlGY8LWHK2h7UdukKXiF5p/4MR5GUsPJOSWs+ePeMIagk1g/dKQFxu
-   L6qLxW2RzYqUSiGJBRT0zD05wEzzSZqKfdPWmnVMesQk3UGxPw8ru0kfF
-   cX3Ege/nlD/N3aPwwlUDhpZ1693po21fEG4FtN3NLxiNYg+vT0+xijClN
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10547"; a="342555744"
+  t=1669885444; x=1701421444;
+  h=date:from:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=v7Pv5GvsnRCoGfNqd6OZfahTWZAr3UlME0JbK+tDt9s=;
+  b=DA08p0n9uVxZMCkESGFwwRe2HY6LAJ6JhhDyYO9i5wnfrQSJuNNgbCDX
+   CS5ZNeJp4tlPMQoHjiCLQV9LHnLILr5UsS4AXD9GaMRnmDOkbH9VLIEBt
+   Zp9R2/xDJCUCvqSGgb7XdL6NV5kH+st9Lva7IZxtyigqUL84OGKJTVsBa
+   mT4d4oyn3VlVCj9C6n1VEZCdwL8yBjPR3woUvLQadEuonrYn4ByPgYezy
+   PzADqv1GaAVg7r2yxQbJ15IGO/i7OiwnWeqV7/4oAfo87hRYXO9YZgD4E
+   Ugw5TU0Kn8ACI3THh97uegQ0EDR3HhBmbHWVvZ7wQ9WTDiWWeDTtFKNwB
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10547"; a="317492464"
 X-IronPort-AV: E=Sophos;i="5.96,209,1665471600"; 
-   d="scan'208";a="342555744"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2022 00:54:15 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10547"; a="646679278"
+   d="scan'208";a="317492464"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2022 01:04:04 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10547"; a="750716088"
 X-IronPort-AV: E=Sophos;i="5.96,209,1665471600"; 
-   d="scan'208";a="646679278"
-Received: from akoroglu-mobl.ger.corp.intel.com ([10.251.212.165])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2022 00:54:13 -0800
-Date:   Thu, 1 Dec 2022 10:54:08 +0200 (EET)
-From:   =?ISO-8859-15?Q?Ilpo_J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sherry Sun <sherry.sun@nxp.com>
-cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH proper backport to 5.15 1/1] tty: serial: fsl_lpuart: don't
- break the on-going transfer when global reset
-Message-ID: <1b26798d-fdbd-9e21-b745-1ed335e75b@linux.intel.com>
+   d="scan'208";a="750716088"
+Received: from eliteleevi.tm.intel.com ([10.237.54.20])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2022 01:03:59 -0800
+Date:   Thu, 1 Dec 2022 11:03:46 +0200 (EET)
+From:   Kai Vehmanen <kai.vehmanen@linux.intel.com>
+X-X-Sender: kvehmane@eliteleevi.tm.intel.com
+To:     Ricardo Ribalda <ribalda@chromium.org>
+cc:     Steven Rostedt <rostedt@goodmis.org>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Chromeos Kdump <chromeos-kdump@google.com>,
+        Mark Brown <broonie@kernel.org>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Takashi Iwai <tiwai@suse.com>,
+        Alsa-devel <alsa-devel@alsa-project.org>,
+        sound-open-firmware@alsa-project.org, kexec@lists.infradead.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 2/2] ASoC: SOF: Fix deadlock when shutdown a frozen
+ userspace
+In-Reply-To: <20221127-snd-freeze-v7-2-127c582f1ca4@chromium.org>
+Message-ID: <alpine.DEB.2.22.394.2212011053540.3532114@eliteleevi.tm.intel.com>
+References: <20221127-snd-freeze-v7-0-127c582f1ca4@chromium.org> <20221127-snd-freeze-v7-2-127c582f1ca4@chromium.org>
+User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7 02160 Espoo
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 76bad3f88750f8cc465c489e6846249e0bc3d8f5 ]
+Hi,
 
-lpuart_global_reset() shouldn't break the on-going transmit engine, need
-to recover the on-going data transfer after reset.
+On Wed, 30 Nov 2022, Ricardo Ribalda wrote:
 
-This can help earlycon here, since commit 60f361722ad2 ("serial:
-fsl_lpuart: Reset prior to registration") moved lpuart_global_reset()
-before uart_add_one_port(), earlycon is writing during global reset,
-as global reset will disable the TX and clear the baud rate register,
-which caused the earlycon cannot work any more after reset, needs to
-restore the baud rate and re-enable the transmitter to recover the
-earlycon write.
+> During kexec(), the userspace might frozen. Therefore we cannot wait
+> for it to complete.
+[...]
+> --- a/sound/soc/sof/core.c
+> +++ b/sound/soc/sof/core.c
+> @@ -9,6 +9,7 @@
+>  //
+>  
+>  #include <linux/firmware.h>
+> +#include <linux/kexec.h>
+>  #include <linux/module.h>
+>  #include <sound/soc.h>
+>  #include <sound/sof.h>
+> @@ -484,7 +485,8 @@ int snd_sof_device_shutdown(struct device *dev)
+>  	 * make sure clients and machine driver(s) are unregistered to force
+>  	 * all userspace devices to be closed prior to the DSP shutdown sequence
+>  	 */
+> -	sof_unregister_clients(sdev);
+> +	if (!kexec_with_frozen_processes())
+> +		sof_unregister_clients(sdev);
+>  
+>  	snd_sof_machine_unregister(sdev, pdata);
 
-Also move the lpuart_global_reset() down, then we can reuse the
-lpuart32_tx_empty() without declaration.
+I think the case you hit was specifically snd_card_disconnect_sync() that 
+gets called via snd_sof_machine_unregister(), right, so you'd have to skip 
+both sof_unregister_clients() and the machine_unregister().
 
-Fixes: bd5305dcabbc ("tty: serial: fsl_lpuart: do software reset for imx7ulp and imx8qxp")
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20221024085844.22786-1-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
+Skipping ok might be an ok solution here. There's clearly a problem and we 
+cannot just drop these calls in the general case (when we are going to 
+S5), but in the specific case of kexec, this is probably safe. And I agree 
+one way or another this needs to be fixed. Pierre and others what do you 
+think?
 
-Hi stable folks,
-
-These two stable-deps seem to be pulled into stable only due to diff 
-context:
-
-07481f448b63 ("serial: fsl_lpuart: Fill in rs485_supported")
-8925c31c1ac2 ("serial: Add rs485_supported to uart_port")
-
-I think those two should be dropped from the stable queue and the queued 
-fix for 76bad3f88750 ("tty: serial: fsl_lpuart: don't break the on-going 
-transfer when global reset") replaced with this backport.
-
- drivers/tty/serial/fsl_lpuart.c | 76 +++++++++++++++++++++------------
- 1 file changed, 49 insertions(+), 27 deletions(-)
-
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index 44ed4285e1ef..df6254724729 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -12,6 +12,7 @@
- #include <linux/dmaengine.h>
- #include <linux/dmapool.h>
- #include <linux/io.h>
-+#include <linux/iopoll.h>
- #include <linux/irq.h>
- #include <linux/module.h>
- #include <linux/of.h>
-@@ -395,33 +396,6 @@ static unsigned int lpuart_get_baud_clk_rate(struct lpuart_port *sport)
- #define lpuart_enable_clks(x)	__lpuart_enable_clks(x, true)
- #define lpuart_disable_clks(x)	__lpuart_enable_clks(x, false)
- 
--static int lpuart_global_reset(struct lpuart_port *sport)
--{
--	struct uart_port *port = &sport->port;
--	void __iomem *global_addr;
--	int ret;
--
--	if (uart_console(port))
--		return 0;
--
--	ret = clk_prepare_enable(sport->ipg_clk);
--	if (ret) {
--		dev_err(sport->port.dev, "failed to enable uart ipg clk: %d\n", ret);
--		return ret;
--	}
--
--	if (is_imx7ulp_lpuart(sport) || is_imx8qxp_lpuart(sport)) {
--		global_addr = port->membase + UART_GLOBAL - IMX_REG_OFF;
--		writel(UART_GLOBAL_RST, global_addr);
--		usleep_range(GLOBAL_RST_MIN_US, GLOBAL_RST_MAX_US);
--		writel(0, global_addr);
--		usleep_range(GLOBAL_RST_MIN_US, GLOBAL_RST_MAX_US);
--	}
--
--	clk_disable_unprepare(sport->ipg_clk);
--	return 0;
--}
--
- static void lpuart_stop_tx(struct uart_port *port)
- {
- 	unsigned char temp;
-@@ -2644,6 +2618,54 @@ static struct uart_driver lpuart_reg = {
- 	.cons		= LPUART_CONSOLE,
- };
- 
-+static int lpuart_global_reset(struct lpuart_port *sport)
-+{
-+	struct uart_port *port = &sport->port;
-+	void __iomem *global_addr;
-+	unsigned long ctrl, bd;
-+	unsigned int val = 0;
-+	int ret;
-+
-+	ret = clk_prepare_enable(sport->ipg_clk);
-+	if (ret) {
-+		dev_err(sport->port.dev, "failed to enable uart ipg clk: %d\n", ret);
-+		return ret;
-+	}
-+
-+	if (is_imx7ulp_lpuart(sport) || is_imx8qxp_lpuart(sport)) {
-+		/*
-+		 * If the transmitter is used by earlycon, wait for transmit engine to
-+		 * complete and then reset.
-+		 */
-+		ctrl = lpuart32_read(port, UARTCTRL);
-+		if (ctrl & UARTCTRL_TE) {
-+			bd = lpuart32_read(&sport->port, UARTBAUD);
-+			if (read_poll_timeout(lpuart32_tx_empty, val, val, 1, 100000, false,
-+					      port)) {
-+				dev_warn(sport->port.dev,
-+					 "timeout waiting for transmit engine to complete\n");
-+				clk_disable_unprepare(sport->ipg_clk);
-+				return 0;
-+			}
-+		}
-+
-+		global_addr = port->membase + UART_GLOBAL - IMX_REG_OFF;
-+		writel(UART_GLOBAL_RST, global_addr);
-+		usleep_range(GLOBAL_RST_MIN_US, GLOBAL_RST_MAX_US);
-+		writel(0, global_addr);
-+		usleep_range(GLOBAL_RST_MIN_US, GLOBAL_RST_MAX_US);
-+
-+		/* Recover the transmitter for earlycon. */
-+		if (ctrl & UARTCTRL_TE) {
-+			lpuart32_write(port, bd, UARTBAUD);
-+			lpuart32_write(port, ctrl, UARTCTRL);
-+		}
-+	}
-+
-+	clk_disable_unprepare(sport->ipg_clk);
-+	return 0;
-+}
-+
- static int lpuart_probe(struct platform_device *pdev)
- {
- 	const struct lpuart_soc_data *sdata = of_device_get_match_data(&pdev->dev);
--- 
-2.30.2
-
+Br, Kai
