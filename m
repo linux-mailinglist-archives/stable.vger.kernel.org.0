@@ -2,183 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B169463F357
-	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 16:10:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F32163F3E4
+	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 16:29:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231183AbiLAPKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Dec 2022 10:10:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49008 "EHLO
+        id S231860AbiLAP3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Dec 2022 10:29:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230259AbiLAPKW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 10:10:22 -0500
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D7DB64AF36;
-        Thu,  1 Dec 2022 07:10:21 -0800 (PST)
-Received: by linux.microsoft.com (Postfix, from userid 1112)
-        id A26E620B83C2; Thu,  1 Dec 2022 07:10:21 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com A26E620B83C2
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1669907421;
-        bh=maFYL7cyZxlxfLpUgiy/yjCpc5B3NqziJG6bC+0IrIw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fp91l4yHXQcGzBLEnbJye9jkRJdsi18FHM0+PV2h/HuKpJpnMTg45upKwvga1Gn6L
-         uSrPjrfAuvS4hI1kTHPvWW4E6ziKiPkU0OnCsu1LM2eZ88HM0m24/4HGuXkOA3w1pl
-         9PVnbmSLN8/BefvnaJ0Wzzzc/KFPhBTzXy2tGCyw=
-Date:   Thu, 1 Dec 2022 07:10:21 -0800
-From:   Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-To:     Ted Tso <tytso@mit.edu>
-Cc:     Jan Kara <jack@suse.cz>, Andreas Gruenbacher <agruenba@redhat.com>,
-        linux-ext4@vger.kernel.org, stable@vger.kernel.org,
-        Thilo Fromm <t-lo@linux.microsoft.com>
-Subject: Re: [PATCH] ext4: Fix deadlock due to mbcache entry corruption
-Message-ID: <20221201151021.GA18380@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <20221123193950.16758-1-jack@suse.cz>
+        with ESMTP id S231743AbiLAP3g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 10:29:36 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D17ECAA8E5
+        for <stable@vger.kernel.org>; Thu,  1 Dec 2022 07:28:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1669908521;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=BdDC1WAtZV0XTmkt9D4E/axQjlEA5HE6l2HGiOiq2ps=;
+        b=KPS1TEdpQIzAHjsPJzKc3bEYjcV1zIGSHX/cPQ8Aq0mcjjnqhR1xbF9uAYVse2t/UG+gzd
+        WfLNRm4mRA9s0FcgOJWFHvvosohMtLHlMfh00iwrGbNwFRrSbY5i1/HrKvrscG/5DAwR3C
+        PZsMlFfupcK2eaCiamen7/1OW2RQT6A=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-339-toDFAcFqNYa6WD3-XtWp0Q-1; Thu, 01 Dec 2022 10:28:37 -0500
+X-MC-Unique: toDFAcFqNYa6WD3-XtWp0Q-1
+Received: by mail-qv1-f72.google.com with SMTP id o13-20020a056214108d00b004c6fb4f16dcso5208667qvr.6
+        for <stable@vger.kernel.org>; Thu, 01 Dec 2022 07:28:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BdDC1WAtZV0XTmkt9D4E/axQjlEA5HE6l2HGiOiq2ps=;
+        b=BDOhtKqwSp+03x1dMOCBFlj7/dGNIzvROy/Q6osl70vEu9oNYXN1NdENhokoYOdsd/
+         32PjXGRocv5ZSFgBLASYnv+8k5vUFuM6oRGtQwIyXg28/w+VlQeemem32C4bMd/Mlws8
+         ROCZGLEGXSXy4c+lj9WocjWgKB0ez0d9cXGnViRiGHjcmCp5FSICd6kPeu4KudE14OIP
+         NtJ29HUiHrKG3fiXfWg7VzYIk5ii6RaAgzWGwbb+9plcpSr98OXjaDtIsh8CKND282gX
+         7AR3udJ+A6+tRPCcVN3x6WdfOhyl5JTBqCkJMDj3DNR4Yc/pH+BuzyCqejtacHRn/WAL
+         nfAQ==
+X-Gm-Message-State: ANoB5pkeLv6qWsGyl7oaeI9uOIioW3KeMgPcEZueiDmtlEh1X4PecHv6
+        UkiCgmVcl/2in0Xbc5kcKD6+CAZEb191xOTTs6sgn4oRFR9fMZc0ldHBWQsC6f+MBEqAmOIiesS
+        17gHQOJkBh/T7EFBJ
+X-Received: by 2002:ae9:e415:0:b0:6f3:e5c8:ddde with SMTP id q21-20020ae9e415000000b006f3e5c8dddemr42575920qkc.80.1669908512371;
+        Thu, 01 Dec 2022 07:28:32 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7SDmgvGwuxBNpX3bmNkH7gq7tVsmOyoad4tTaFFGWQ0CEzE5W7pZEcGNLGqCcuZqnkFFN+XA==
+X-Received: by 2002:ae9:e415:0:b0:6f3:e5c8:ddde with SMTP id q21-20020ae9e415000000b006f3e5c8dddemr42575895qkc.80.1669908512067;
+        Thu, 01 Dec 2022 07:28:32 -0800 (PST)
+Received: from x1n (bras-base-aurron9127w-grc-46-70-31-27-79.dsl.bell.ca. [70.31.27.79])
+        by smtp.gmail.com with ESMTPSA id h13-20020a05620a244d00b006fba44843a5sm3670991qkn.52.2022.12.01.07.28.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Dec 2022 07:28:31 -0800 (PST)
+Date:   Thu, 1 Dec 2022 10:28:30 -0500
+From:   Peter Xu <peterx@redhat.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Ives van Hoorne <ives@codesandbox.io>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Alistair Popple <apopple@nvidia.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v3 1/2] mm/migrate: Fix read-only page got writable when
+ recover pte
+Message-ID: <Y4jIHureiOd8XjDX@x1n>
+References: <20221114000447.1681003-1-peterx@redhat.com>
+ <20221114000447.1681003-2-peterx@redhat.com>
+ <5ddf1310-b49f-6e66-a22a-6de361602558@redhat.com>
+ <20221130142425.6a7fdfa3e5954f3c305a77ee@linux-foundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="CjNznIJt6mVQmyak"
 Content-Disposition: inline
-In-Reply-To: <20221123193950.16758-1-jack@suse.cz>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20221130142425.6a7fdfa3e5954f3c305a77ee@linux-foundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 23, 2022 at 08:39:50PM +0100, Jan Kara wrote:
-> When manipulating xattr blocks, we can deadlock infinitely looping
-> inside ext4_xattr_block_set() where we constantly keep finding xattr
-> block for reuse in mbcache but we are unable to reuse it because its
-> reference count is too big. This happens because cache entry for the
-> xattr block is marked as reusable (e_reusable set) although its
-> reference count is too big. When this inconsistency happens, this
-> inconsistent state is kept indefinitely and so ext4_xattr_block_set()
-> keeps retrying indefinitely.
+
+--CjNznIJt6mVQmyak
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+
+Hi, Andrew,
+
+On Wed, Nov 30, 2022 at 02:24:25PM -0800, Andrew Morton wrote:
+> On Tue, 15 Nov 2022 19:17:43 +0100 David Hildenbrand <david@redhat.com> wrote:
 > 
-> The inconsistent state is caused by non-atomic update of e_reusable bit.
-> e_reusable is part of a bitfield and e_reusable update can race with
-> update of e_referenced bit in the same bitfield resulting in loss of one
-> of the updates. Fix the problem by using atomic bitops instead.
+> > On 14.11.22 01:04, Peter Xu wrote:
+> > > Ives van Hoorne from codesandbox.io reported an issue regarding possible
+> > > data loss of uffd-wp when applied to memfds on heavily loaded systems.  The
+> > > symptom is some read page got data mismatch from the snapshot child VMs.
+> > > 
+> > > Here I can also reproduce with a Rust reproducer that was provided by Ives
+> > > that keeps taking snapshot of a 256MB VM, on a 32G system when I initiate
+> > > 80 instances I can trigger the issues in ten minutes.
+> > > 
+> > > It turns out that we got some pages write-through even if uffd-wp is
+> > > applied to the pte.
+> > > 
+> > > The problem is, when removing migration entries, we didn't really worry
+> > > about write bit as long as we know it's not a write migration entry.  That
+> > > may not be true, for some memory types (e.g. writable shmem) mk_pte can
+> > > return a pte with write bit set, then to recover the migration entry to its
+> > > original state we need to explicit wr-protect the pte or it'll has the
+> > > write bit set if it's a read migration entry.  For uffd it can cause
+> > > write-through.
+> > > 
+> > > The relevant code on uffd was introduced in the anon support, which is
+> > > commit f45ec5ff16a7 ("userfaultfd: wp: support swap and page migration",
+> > > 2020-04-07).  However anon shouldn't suffer from this problem because anon
+> > > should already have the write bit cleared always, so that may not be a
+> > > proper Fixes target, while I'm adding the Fixes to be uffd shmem support.
+> > > 
+> >
+> > ...
+> >
+> > > --- a/mm/migrate.c
+> > > +++ b/mm/migrate.c
+> > > @@ -213,8 +213,14 @@ static bool remove_migration_pte(struct folio *folio,
+> > >   			pte = pte_mkdirty(pte);
+> > >   		if (is_writable_migration_entry(entry))
+> > >   			pte = maybe_mkwrite(pte, vma);
+> > > -		else if (pte_swp_uffd_wp(*pvmw.pte))
+> > > +		else
+> > > +			/* NOTE: mk_pte can have write bit set */
+> > > +			pte = pte_wrprotect(pte);
+> > > +
+> > > +		if (pte_swp_uffd_wp(*pvmw.pte)) {
+> > > +			WARN_ON_ONCE(pte_write(pte));
 > 
-> CC: stable@vger.kernel.org
-> Fixes: 6048c64b2609 ("mbcache: add reusable flag to cache entries")
-> Reported-and-tested-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-> Reported-by: Thilo Fromm <t-lo@linux.microsoft.com>
-> Link: https://lore.kernel.org/r/c77bf00f-4618-7149-56f1-b8d1664b9d07@linux.microsoft.com/
-> Signed-off-by: Jan Kara <jack@suse.cz>
+> Will this warnnig trigger in the scenario you and Ives have discovered?
 
-Hi Ted,
+If without the above newly added wr-protect, yes.  This is the case where
+we found we got write bit set even if uffd-wp bit is also set, hence allows
+the write to go through even if marked protected.
 
-Could it be that you didn't see this email? We have users who are hitting this
-and are very eager to see this bugfix get merged and backported to stable. 
-
-Thanks,
-Jeremi
-
-> ---
->  fs/ext4/xattr.c         |  4 ++--
->  fs/mbcache.c            | 14 ++++++++------
->  include/linux/mbcache.h |  9 +++++++--
->  3 files changed, 17 insertions(+), 10 deletions(-)
 > 
-> diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-> index 800ce5cdb9d2..08043aa72cf1 100644
-> --- a/fs/ext4/xattr.c
-> +++ b/fs/ext4/xattr.c
-> @@ -1281,7 +1281,7 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
->  				ce = mb_cache_entry_get(ea_block_cache, hash,
->  							bh->b_blocknr);
->  				if (ce) {
-> -					ce->e_reusable = 1;
-> +					set_bit(MBE_REUSABLE_B, &ce->e_flags);
->  					mb_cache_entry_put(ea_block_cache, ce);
->  				}
->  			}
-> @@ -2042,7 +2042,7 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
->  				}
->  				BHDR(new_bh)->h_refcount = cpu_to_le32(ref);
->  				if (ref == EXT4_XATTR_REFCOUNT_MAX)
-> -					ce->e_reusable = 0;
-> +					clear_bit(MBE_REUSABLE_B, &ce->e_flags);
->  				ea_bdebug(new_bh, "reusing; refcount now=%d",
->  					  ref);
->  				ext4_xattr_block_csum_set(inode, new_bh);
-> diff --git a/fs/mbcache.c b/fs/mbcache.c
-> index e272ad738faf..2a4b8b549e93 100644
-> --- a/fs/mbcache.c
-> +++ b/fs/mbcache.c
-> @@ -100,8 +100,9 @@ int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
->  	atomic_set(&entry->e_refcnt, 2);
->  	entry->e_key = key;
->  	entry->e_value = value;
-> -	entry->e_reusable = reusable;
-> -	entry->e_referenced = 0;
-> +	entry->e_flags = 0;
-> +	if (reusable)
-> +		set_bit(MBE_REUSABLE_B, &entry->e_flags);
->  	head = mb_cache_entry_head(cache, key);
->  	hlist_bl_lock(head);
->  	hlist_bl_for_each_entry(dup, dup_node, head, e_hash_list) {
-> @@ -165,7 +166,8 @@ static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
->  	while (node) {
->  		entry = hlist_bl_entry(node, struct mb_cache_entry,
->  				       e_hash_list);
-> -		if (entry->e_key == key && entry->e_reusable &&
-> +		if (entry->e_key == key &&
-> +		    test_bit(MBE_REUSABLE_B, &entry->e_flags) &&
->  		    atomic_inc_not_zero(&entry->e_refcnt))
->  			goto out;
->  		node = node->next;
-> @@ -284,7 +286,7 @@ EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
->  void mb_cache_entry_touch(struct mb_cache *cache,
->  			  struct mb_cache_entry *entry)
->  {
-> -	entry->e_referenced = 1;
-> +	set_bit(MBE_REFERENCED_B, &entry->e_flags);
->  }
->  EXPORT_SYMBOL(mb_cache_entry_touch);
->  
-> @@ -309,9 +311,9 @@ static unsigned long mb_cache_shrink(struct mb_cache *cache,
->  		entry = list_first_entry(&cache->c_list,
->  					 struct mb_cache_entry, e_list);
->  		/* Drop initial hash reference if there is no user */
-> -		if (entry->e_referenced ||
-> +		if (test_bit(MBE_REFERENCED_B, &entry->e_flags) ||
->  		    atomic_cmpxchg(&entry->e_refcnt, 1, 0) != 1) {
-> -			entry->e_referenced = 0;
-> +			clear_bit(MBE_REFERENCED_B, &entry->e_flags);
->  			list_move_tail(&entry->e_list, &cache->c_list);
->  			continue;
->  		}
-> diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
-> index 2da63fd7b98f..97e64184767d 100644
-> --- a/include/linux/mbcache.h
-> +++ b/include/linux/mbcache.h
-> @@ -10,6 +10,12 @@
->  
->  struct mb_cache;
->  
-> +/* Cache entry flags */
-> +enum {
-> +	MBE_REFERENCED_B = 0,
-> +	MBE_REUSABLE_B
-> +};
-> +
->  struct mb_cache_entry {
->  	/* List of entries in cache - protected by cache->c_list_lock */
->  	struct list_head	e_list;
-> @@ -26,8 +32,7 @@ struct mb_cache_entry {
->  	atomic_t		e_refcnt;
->  	/* Key in hash - stable during lifetime of the entry */
->  	u32			e_key;
-> -	u32			e_referenced:1;
-> -	u32			e_reusable:1;
-> +	unsigned long		e_flags;
->  	/* User provided value - stable during lifetime of the entry */
->  	u64			e_value;
->  };
-> -- 
-> 2.35.3
+> > >   			pte = pte_mkuffd_wp(pte);
+> > > +		}
+> > >   
+> > >   		if (folio_test_anon(folio) && !is_readable_migration_entry(entry))
+> > >   			rmap_flags |= RMAP_EXCLUSIVE;
+> > 
+> > As raised, I don't agree to this generic non-uffd-wp change without 
+> > further, clear justification.
+> 
+> Pater, can you please work this further?
+
+I didn't reply here because I have already replied with the question in
+previous version with a few attempts.  Quotting myself:
+
+https://lore.kernel.org/all/Y3KgYeMTdTM0FN5W@x1n/
+
+        The thing is recovering the pte into its original form is the
+        safest approach to me, so I think we need justification on why it's
+        always safe to set the write bit.
+
+I've also got another longer email trying to explain why I think it's the
+other way round to be justfied, rather than justifying removal of the write
+bit for a read migration entry, here:
+
+https://lore.kernel.org/all/Y3O5bCXSbvKJrjRL@x1n/
+
+> 
+> > I won't nack it, but I won't ack it either.
+> 
+> I wouldn't mind seeing a little code comment which explains why we're
+> doing this.
+
+I've got one more fixup to the same patch attached, with enriched comments
+on why we need wr-protect for read migration entries.
+
+Please have a look to see whether that helps, thanks.
+
+-- 
+Peter Xu
+
+--CjNznIJt6mVQmyak
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: attachment;
+	filename="0001-fixup-mm-migrate-fix-read-only-page-got-writable-whe.patch"
+
+From d68c98047ce54c62f3454997a55f23ff6fb317cd Mon Sep 17 00:00:00 2001
+From: Peter Xu <peterx@redhat.com>
+Date: Thu, 1 Dec 2022 10:19:22 -0500
+Subject: [PATCH] fixup! mm/migrate: fix read-only page got writable when
+ recover pte
+Content-type: text/plain
+
+Signed-off-by: Peter Xu <peterx@redhat.com>
+---
+ mm/migrate.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/mm/migrate.c b/mm/migrate.c
+index c13c828d34f3..d14f1f3ab073 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -214,7 +214,14 @@ static bool remove_migration_pte(struct folio *folio,
+ 		if (is_writable_migration_entry(entry))
+ 			pte = maybe_mkwrite(pte, vma);
+ 		else
+-			/* NOTE: mk_pte can have write bit set */
++			/*
++			 * NOTE: mk_pte() can have write bit set per memory
++			 * type (e.g. shmem), or pte_mkdirty() per archs
++			 * (e.g., sparc64).  If this is a read migration
++			 * entry, we need to make sure when we recover the
++			 * pte from migration entry to present entry the
++			 * write bit is cleared.
++			 */
+ 			pte = pte_wrprotect(pte);
+ 
+ 		if (pte_swp_uffd_wp(*pvmw.pte)) {
+-- 
+2.37.3
+
+
+--CjNznIJt6mVQmyak--
+
