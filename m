@@ -2,135 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBC2263F9C2
-	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 22:24:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E695763F9CA
+	for <lists+stable@lfdr.de>; Thu,  1 Dec 2022 22:28:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229755AbiLAVYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Dec 2022 16:24:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46958 "EHLO
+        id S229763AbiLAV2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Dec 2022 16:28:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229623AbiLAVYG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 16:24:06 -0500
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF125C1BF6
-        for <stable@vger.kernel.org>; Thu,  1 Dec 2022 13:24:05 -0800 (PST)
-Received: by mail-pl1-x635.google.com with SMTP id y17so2874203plp.3
-        for <stable@vger.kernel.org>; Thu, 01 Dec 2022 13:24:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=4HTIXAYNina3mVffaBXsqwf3yv+KdXKcjsyx1AfgihY=;
-        b=LRXVkRwrHaE/LwT4qAykceCT31aTfULb2dITZkmRYM9sxpHGqGza1d2f/BJfZSqK1J
-         X1ZjCBm7Ks0z20jO2xfFfHHdEx53JpsI1GbY7dPnrzStzXG7F8MGYAj7qMYnJPk9Ripd
-         ubL0pLfHgP9GNk4CdDOTykISSkQiSzxL+jGazd49YmRovlRWqUlyttIFoRuz/Yln8Ck0
-         cgH8lElJgdfc1VUKlE0HEaIc8oKNjt31nc5SqHdGqIAF8zpfvuNZ31Qzkg6B027euVz+
-         Z6JF439ZC6bJHBjRmR8EnikBeG5nHftRMOGrUZpdqYVfd+opdemoC8P1vRHyRCaPF9zv
-         QH2w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=4HTIXAYNina3mVffaBXsqwf3yv+KdXKcjsyx1AfgihY=;
-        b=FQFflRjsCP4yzRTf8xY1Pj/UdTDouHjfO6FjYbR//TEqYONn98xH1TrmlbuMJ2sFF4
-         6ZddkcX/z3NEE0h4Pn2hDDLc1cvGtXIBumQR8NWPSecvRd35e/AeKgok6DrbMDGnTeCq
-         KqbebvMg/IOuBOsxl9DgB4sKVlPfThYgAiK26r1LkoyVnuefuM/JPbI5bcEmlHQM+La2
-         dG2lHQaOmlobb66rGBSRx+25FCe9we+eyhfI41LijCZQgk4rb2/TMoT11SSgnqaldsoZ
-         HyZFATpoyh0dNDNDV9O/IicjFuygkjrOYQbK813KM18iIemvuvdNAhxvtQduO/TtAQs8
-         oR2w==
-X-Gm-Message-State: ANoB5plsYt4wwFIKrEqGe/FZVGZ7mls36/6BUfSg9mHRD86T4o7SjIr7
-        yP/g4o9bPC3IzI8SOCqcdAHA8iV5zjj3XmScqxs=
-X-Google-Smtp-Source: AA0mqf4aE/Jqr9+1S1OjqkhQHIHJCtqEVcZhxXX4tah8Ja5ggVCaqBqTv5vWDu5Zvn7gxXlQxw/STQ==
-X-Received: by 2002:a17:90a:de91:b0:219:5f45:7626 with SMTP id n17-20020a17090ade9100b002195f457626mr11916385pjv.119.1669929844924;
-        Thu, 01 Dec 2022 13:24:04 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c126-20020a621c84000000b005629b6a8b53sm3796362pfc.15.2022.12.01.13.24.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Dec 2022 13:24:04 -0800 (PST)
-Message-ID: <63891b74.620a0220.e23f.7e33@mx.google.com>
-Date:   Thu, 01 Dec 2022 13:24:04 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Kernel: v5.10.155-309-g64cb1fe918e7
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.10.y baseline: 139 runs,
- 1 regressions (v5.10.155-309-g64cb1fe918e7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S230315AbiLAV2A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 16:28:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFDA7442F1
+        for <stable@vger.kernel.org>; Thu,  1 Dec 2022 13:27:59 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BCE5B81F90
+        for <stable@vger.kernel.org>; Thu,  1 Dec 2022 21:27:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB88FC433B5;
+        Thu,  1 Dec 2022 21:27:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1669930077;
+        bh=+DN+P/rKB/9tSIZAc6i0bxDS167JyMagYuQTQ8imLrI=;
+        h=In-Reply-To:References:Date:From:To:Cc:Subject:From;
+        b=HWIMBRMTvgpa4xRBLIH019mTRMLpYqyOsNDlenKP2X9VnV1T0JX7kK+6EKzfFTi2k
+         jQxH0o/xhvjFFPUd4siCgjEOfFavIDyf1D4hbzF024Uz9TxR/iexqBwgUoXQgG5NED
+         yeWwFuS8AJ9UENypjQ3w4fbe9bGVxopeZCs9thxWFWqP6frhM7AlAP+itHm28TefoL
+         ZBLHCjTdoz9A2aAO81S57nxvWf+oBPhXh/4K9CxW1FP9IwnGVSe9hj9ndOSbno9se5
+         i9c38SxL4GVJq2M+Kthu06InSUX85IiXI2nHMib8qTanAj43R9Og85lp0yMQ9XIZml
+         vYUGtCZaLHxvQ==
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+        by mailauth.nyi.internal (Postfix) with ESMTP id 8A80727C0054;
+        Thu,  1 Dec 2022 16:27:55 -0500 (EST)
+Received: from imap51 ([10.202.2.101])
+  by compute6.internal (MEProxy); Thu, 01 Dec 2022 16:27:55 -0500
+X-ME-Sender: <xms:WhyJY56bY9F_MYFxv7DaioKPBJHJxAo0Fv98h9FAnoD_QfY89srmBA>
+    <xme:WhyJY25S12Ycs-orXZS5gVWcTnneBahCIouBH5bKrpPz_0xCSU7M-VYtRlImKMbjM
+    6dJs_nLem9NhUmhlzU>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrtdehgdduhedtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
+    nhguuceuvghrghhmrghnnhdfuceorghrnhgusehkvghrnhgvlhdrohhrgheqnecuggftrf
+    grthhtvghrnhepvdeviefgtedugeevieelvdfgveeuvdfgteegfeeiieejjeffgeeghedu
+    gedtveehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
+    eprghrnhguodhmvghsmhhtphgruhhthhhpvghrshhonhgrlhhithihqdduvdekhedujedt
+    vdegqddvkeejtddtvdeigedqrghrnhgupeepkhgvrhhnvghlrdhorhhgsegrrhhnuggsrd
+    guvg
+X-ME-Proxy: <xmx:WhyJYwdFhZYwNTJEhjA3iEa-0lKweK4UrtEn7GUmniukcOgyJrrWpA>
+    <xmx:WhyJYyIaGsyihW68Uz2LeO1u-ncg-PKppdRDl1e0bZlBmqR6C3NA2w>
+    <xmx:WhyJY9JwMyoeO3Z661IObk96bEKAtdmHD6O9TT3p157Vql2qf5o4iw>
+    <xmx:WxyJY6FVIpHTCYek0JcdB1j1xlCUc9smfmHtm_cu792257_b04rcIA>
+Feedback-ID: i36794607:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id E3357B60086; Thu,  1 Dec 2022 16:27:54 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.7.0-alpha0-1115-g8b801eadce-fm-20221102.001-g8b801ead
+Mime-Version: 1.0
+Message-Id: <c88afa91-72a9-4905-a710-90655f97831d@app.fastmail.com>
+In-Reply-To: <7e5f86c0-04b3-aa68-565a-7b86f1e1553d@infradead.org>
+References: <20221201204310.142039-1-arnd@kernel.org>
+ <7e5f86c0-04b3-aa68-565a-7b86f1e1553d@infradead.org>
+Date:   Thu, 01 Dec 2022 22:27:34 +0100
+From:   "Arnd Bergmann" <arnd@kernel.org>
+To:     "Randy Dunlap" <rdunlap@infradead.org>,
+        "Damien Le Moal" <damien.lemoal@opensource.wdc.com>
+Cc:     linux-kernel@vger.kernel.org, "Arnd Bergmann" <arnd@arndb.de>,
+        "Luis Machado" <luis.machado@arm.com>, linux-ide@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] ata: ahci: fix enum constants for gcc-13
+Content-Type: text/plain
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 139 runs, 1 regressions (v5.10.155-309-g64=
-cb1fe918e7)
+On Thu, Dec 1, 2022, at 21:48, Randy Dunlap wrote:
+> On 12/1/22 12:43, Arnd Bergmann wrote:
+>> From: Arnd Bergmann <arnd@arndb.de>
+>> 
+>> gcc-13 slightly changes the type of constant expressions that are deifined
+>
+>                                                                     defined
 
-Regressions Summary
--------------------
+fixed
 
-platform          | arch | lab     | compiler | defconfig          | regres=
-sions
-------------------+------+---------+----------+--------------------+-------=
------
-r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig | 1     =
-     =
+>> ---
+>>  drivers/ata/ahci.h | 234 ++++++++++++++++++++++-----------------------
+>>  1 file changed, 117 insertions(+), 117 deletions(-)
+>
+> What #include <linux/bits.h> ?
+> or is it just done indirectly?
 
+Good point. It survived a build test, and it's one of the headers that
+is almost always included from somewhere, but you are correct that
+there should be an explicit include here as well.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.155-309-g64cb1fe918e7/plan/baseline/
+I also found that PORT_CMD_ICC_MASK is still a negative number
+that needs to be changed:
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.155-309-g64cb1fe918e7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      64cb1fe918e7087e5ba84f25403607cd6ae7404d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch | lab     | compiler | defconfig          | regres=
-sions
-------------------+------+---------+----------+--------------------+-------=
------
-r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig | 1     =
-     =
-
-
-  Details:     https://kernelci.org/test/plan/id/6388e62b2c9296f0282abd07
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: shmobile_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-55-309-g64cb1fe918e7/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
--iwg20d-q7.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-55-309-g64cb1fe918e7/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
--iwg20d-q7.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/armel/rootfs.cpio.gz =
+@@ -178,10 +178,10 @@ enum {
+        PORT_CMD_SPIN_UP        = BIT(1),  /* Spin up device */
+        PORT_CMD_START          = BIT(0),  /* Enable port DMA engine */
+ 
+-       PORT_CMD_ICC_MASK       = (0xf << 28), /* i/f ICC state mask */
+-       PORT_CMD_ICC_ACTIVE     = (0x1 << 28), /* Put i/f in active state */
+-       PORT_CMD_ICC_PARTIAL    = (0x2 << 28), /* Put i/f in partial state */
+-       PORT_CMD_ICC_SLUMBER    = (0x6 << 28), /* Put i/f in slumber state */
++       PORT_CMD_ICC_MASK       = (0xfu << 28), /* i/f ICC state mask */
++       PORT_CMD_ICC_ACTIVE     = (0x1u << 28), /* Put i/f in active state */
++       PORT_CMD_ICC_PARTIAL    = (0x2u << 28), /* Put i/f in partial state */
++       PORT_CMD_ICC_SLUMBER    = (0x6u << 28), /* Put i/f in slumber state */
+ 
+        /* PORT_CMD capabilities mask */
+        PORT_CMD_CAP            = PORT_CMD_HPCP | PORT_CMD_MPSP |
 
 
+I've addressed all three issues now, will send a v2 after Luis is
+able to validate that this fixes the problem.
 
-  * baseline.login: https://kernelci.org/test/case/id/6388e62b2c9296f0282ab=
-d08
-        failing since 17 days (last pass: v5.10.154, first fail: v5.10.154-=
-96-gd59f46a55fcd) =
-
- =20
+    Arnd
