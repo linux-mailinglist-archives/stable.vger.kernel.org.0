@@ -2,54 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31A8F64099B
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 16:57:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D454640A16
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 17:03:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233742AbiLBP5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 10:57:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58646 "EHLO
+        id S233839AbiLBQD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 11:03:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233034AbiLBP5C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 10:57:02 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABE03DA216
-        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 07:57:00 -0800 (PST)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1p18PD-0003kr-Pp; Fri, 02 Dec 2022 16:56:51 +0100
-Message-ID: <f6417f32-cf30-2e01-701e-ed1634055c6a@leemhuis.info>
-Date:   Fri, 2 Dec 2022 16:56:51 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is 0
-Content-Language: en-US, de-DE
-To:     Marek Vasut <marex@denx.de>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Francesco Dolcini <francesco@dolcini.it>
-Cc:     Richard Weinberger <richard@nod.at>,
+        with ESMTP id S233844AbiLBQDL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 11:03:11 -0500
+Received: from relay11.mail.gandi.net (relay11.mail.gandi.net [217.70.178.231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53FFCE0760
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 08:01:15 -0800 (PST)
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 2025C100010;
+        Fri,  2 Dec 2022 16:01:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1669996873;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=wI2yvYRdYqRZ3Vkztdr9lHqOGXDhbAk9HcPDFobcBdA=;
+        b=Gr1/bd17a+D3day29KhcBp75Oqz/+Qn8Pseg0puRFkPaU+2Wb4M5eKodaiBXZqwblck7wm
+        316pnxFfvOXgX+nK8mKcwS0G6ghrfMGRCCGCUDNw23o7eBYuaHa2FedjIrvNqSEnhBFMfZ
+        U6e5com9MhxzTmvpsTo85VRYMUrXlyfWPDrQPyoIEKgH1td+mBsIQZflRqg6ZMgnblaMDy
+        Zis71Mscxyp+UaFWewJ8mJ53zm2XzAO44WIULmvAU5fEwojeKyAd5NRMd/HsC3GTgyPD/+
+        HLX8tE75NcWmkeyYJGtbDlXQnRUyhxppc5v+QjPetZNRoMUJPR2VnzuPgAxG1g==
+Date:   Fri, 2 Dec 2022 17:01:07 +0100
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Marek Vasut <marex@denx.de>
+Cc:     Francesco Dolcini <francesco@dolcini.it>,
+        Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
         linux-mtd@lists.infradead.org,
         Francesco Dolcini <francesco.dolcini@toradex.com>,
         Shawn Guo <shawnguo@kernel.org>,
         linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
         u-boot@lists.denx.de
+Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is
+ 0
+Message-ID: <20221202170107.4733efbc@xps-13>
+In-Reply-To: <20221202164904.08d750df@xps-13>
 References: <20221202071900.1143950-1-francesco@dolcini.it>
- <20221202101418.6b4b3711@xps-13>
- <Y4nPmzdgaabg3a3/@francesco-nb.int.toradex.com>
- <Y4nSXQirO2N5IRfu@francesco-nb.int.toradex.com>
- <20221202115327.4475d3a2@xps-13>
- <Y4ngOaKq224LIpQc@francesco-nb.int.toradex.com>
- <20221202150556.14c5ae43@xps-13>
- <2b6fc52d-60b9-d0f4-ab91-4cf7a8095999@denx.de>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <2b6fc52d-60b9-d0f4-ab91-4cf7a8095999@denx.de>
+        <20221202101418.6b4b3711@xps-13>
+        <Y4nPmzdgaabg3a3/@francesco-nb.int.toradex.com>
+        <Y4nSXQirO2N5IRfu@francesco-nb.int.toradex.com>
+        <20221202115327.4475d3a2@xps-13>
+        <Y4ngOaKq224LIpQc@francesco-nb.int.toradex.com>
+        <20221202150556.14c5ae43@xps-13>
+        <2b6fc52d-60b9-d0f4-ab91-4cf7a8095999@denx.de>
+        <20221202160030.1b8d0b8a@xps-13>
+        <223b7a4e-3aff-8070-7387-c77d2ded1dd6@denx.de>
+        <20221202164904.08d750df@xps-13>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1669996620;797fbab9;
-X-HE-SMSGID: 1p18PD-0003kr-Pp
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,38 +70,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 02.12.22 15:31, Marek Vasut wrote:
-> On 12/2/22 15:05, Miquel Raynal wrote:
-> [...]
->> 3. To fix the current situation:
->>     Immediately revert commit (and prevent it from being backported):
->>     753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
->>     This way your own boot flow is fixed in the short term.
-> 
-> Here I disagree, the fix is correct and I think we shouldn't proliferate
-> incorrect DTs which don't match the binding document. Rather, if a
-> bootloader generates incorrect (new) DT entries, I believe the driver
-> should implement a fixup and warn user about this. PC does that as well
-> with broken ACPI tables as far as I can tell.
 
-Well, that might be the right solution in the long run, that's up for
-others to decide, but we need to fix this *quickly*. For two reasons
-actually: the 6.1 release is near and the change was backported to
-stable already.
+miquel.raynal@bootlin.com wrote on Fri, 2 Dec 2022 16:49:04 +0100:
 
-For details wrt to the "quickly", see "Prioritize work on fixing
-regressions" here:
-https://docs.kernel.org/process/handling-regressions.html
+> Hi Marek,
+>=20
+> marex@denx.de wrote on Fri, 2 Dec 2022 16:23:29 +0100:
+>=20
+> > On 12/2/22 16:00, Miquel Raynal wrote: =20
+> > > Hi Marek,   =20
+> >=20
+> > Hi,
+> >  =20
+> > > marex@denx.de wrote on Fri, 2 Dec 2022 15:31:40 +0100:
+> > >    =20
+> > >> On 12/2/22 15:05, Miquel Raynal wrote:   =20
+> > >>> Hi Francesco,   =20
+> > >>
+> > >> Hi,
+> > >>
+> > >> [...]
+> > >>   =20
+> > >>> I still strongly disagree with the initial proposal but what I thin=
+k we
+> > >>> can do is:
+> > >>>
+> > >>> 1. To prevent future breakages:
+> > >>>     Fix fdt_fixup_mtdparts() in u-boot. This way newer U-Boot + any
+> > >>>     kernel should work.
+> > >>>
+> > >>> 2. To help tracking down situations like that:
+> > >>>     Keep the warning in ofpart.c but continue to fail.
+> > >>>
+> > >>> 3. To fix the current situation:
+> > >>>      Immediately revert commit (and prevent it from being backporte=
+d):
+> > >>>      753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
+> > >>>      This way your own boot flow is fixed in the short term.   =20
+> > >>
+> > >> Here I disagree, the fix is correct and I think we shouldn't
+> > >> proliferate incorrect DTs which don't match the binding document.   =
+=20
+> > >=20
+> > > I agree we should not proliferate incorrect DTs, so let's use a modern
+> > > description then   =20
+> >=20
+> > Yes please !
+> >  =20
+> > > , with a controller and a child node which defines the
+> > > chip.   =20
+> >=20
+> > But what if there is no chip connected to the controller node ?
+> >=20
+> > If I understand the proposal here right (please correct me if I'm wrong=
+), then: =20
+>=20
+> Good idea to summarize.
+>=20
+> >=20
+> > 1) This is the original, old, wrong binding:
+> > &gpmi {
+> >    #size-cells =3D <1>;
+> >    ...
+> >    partition@N { ... };
+> > }; =20
+>=20
+> Yes.
+>=20
+> >=20
+> >=20
+> > 2) This is the newer, but still wrong binding:
+> > &gpmi {
+> >    #size-cells =3D <0>;
+> >    ...
+> >    partitions {
+> >      partition@N { ... };
+> >    };
+> > }; =20
+>=20
+> Well, this is wrong description, but it would work (for compat reasons,
+> even though I don't think this is considered valid DT by the schemas).
+>=20
+> >=20
+> > 3) This is the newest binding, what we want:
+> > &gpmi {
+> >    #size-cells =3D <0>;
+> >    ...
+> >    nand-chip {
+> >      partitions {
+> >        partition@N { ... };
+> >      };
+> >    };
+> > }; =20
+>=20
+> Yes
 
-IOW: Ideally it should be fixed by Sunday.
+Perhaps I should also mention that #size-cells expected to be 0 has
+nothing to do with the "partitions" container (otherwise #address-cells
+would be 0 as well). This value is however asking for an address-only
+reg property describing which NAND chip should be addressed and how,
+basically the NAND controller CS because you can wire your NAND to
+any CS.
 
-I'll hence likely soon will point Linus to this and suggest to revert
-this, unless there are strong reasons against that or some sort of
-agreement on a better solution.
+> > But if there is no physical nand chip connected to the controller, woul=
+d we end up with empty nand-chip node in DT, like this?
+> > &gpmi {
+> >    #size-cells =3D <X>;
+> >    ...
+> >    nand-chip { /* empty */ };
+> > }; =20
+>=20
+> Is this really a concern? If there is no NAND chip, the controller
+> should be disabled, no? I guess technically you could even use the
+> status property in the nand-chip node...
+>=20
+> However, it should not be empty, at the very least a reg property
+> should indicate on which CS it is wired, as expected there:
+> https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git/tree/Docume=
+ntation/devicetree/bindings/mtd/nand-chip.yaml?h=3Dmtd/next
+>=20
+> But, as nand-chip.yaml references mtd.yaml, you can as well use
+> whatever is described here:
+> https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git/tree/Docume=
+ntation/devicetree/bindings/mtd/mtd.yaml?h=3Dmtd/next
+>=20
+> > What would be the gpmi controller size cells (X) in that case, still 0,=
+ right ? So how does that help solve this problem, wouldn't U-Boot still po=
+pulate the partitions directly under the gpmi node or into partitions sub-n=
+ode ? =20
+>=20
+> The commit that was pointed in the original fix clearly stated that the
+> NAND chip node was targeted, not the NAND controller node. I hope this
+> is correctly supported in U-Boot though. So if there is a NAND chip
+> subnode, I suppose U-Boot would try to create the partitions that are
+> inside, or even in the sub "partitions" container.
+>=20
+> > >> Rather, if a bootloader generates incorrect (new) DT entries, I
+> > >> believe the driver should implement a fixup and warn user about this.
+> > >> PC does that as well with broken ACPI tables as far as I can tell.
+> > >>
+> > >> I'm not convinced making a DT non-compliant with bindings again,   =
+=20
+> > >=20
+> > > I am sorry to say so, but while warnings reported by the tools
+> > > should be fixed, it's not because the tool does not scream at you that
+> > > the description is valid. We are actively working on enhancing the
+> > > schema so that "all" improper descriptions get warnings (see the seri=
+es
+> > > pointed earlier), but in no way this change makes the node compliant
+> > > with modern bindings.
+> > >=20
+> > > I'm not saying the fix is wrong, but let's be pragmatic, it currently
+> > > leads to boot failures.   =20
+> >=20
+> > I fully agree that we do have a problem, and that it trickled into stab=
+le makes it even worse. Maybe I don't fully understand the thing with nand-=
+chip proposal, see my question above, esp. the last part.
+> >  =20
+> > >> only to work around a problem induced by bootloader, is the right ap=
+proach
+> > >> here.   =20
+> > >=20
+> > > When a patch breaks a board and there is no straight fix, you revert
+> > > it, then you think harder. That's what I am saying. This is a tempora=
+ry
+> > > solution.   =20
+> >=20
+> > Isn't this patch the straight fix, at least until the bootloader can be=
+ updated to generate the nand-chip node correctly ?
+> >  =20
+> > >> This would be setting a dangerous example, where anyone could reques=
+t a DT fix to be reverted because their random bootloader does the wrong th=
+ing and with valid DT clean up, something broke.   =20
+> > >=20
+> > > Please, you know this is not valid DT clean up. We've been decoupling
+> > > controller and chip description since 2016. What I am proposing is a
+> > > valid DT cleanup, not to the latest standard, but way closer than the
+> > > current solution.   =20
+> >=20
+> > I think I really need one more explanation of the nand-chip part above.=
+ =20
+>=20
+> I hope things are clearer now.
+>=20
+> Thanks,
+> Miqu=C3=A8l
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
-
-P.S.: As the Linux kernel's regression tracker I deal with a lot of
-reports and sometimes miss something important when writing mails like
-this. If that's the case here, don't hesitate to tell me in a public
-reply, it's in everyone's interest to set the public record straight.
