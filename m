@@ -2,105 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C534E640ED1
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 20:57:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 549D3640ED4
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 21:00:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234230AbiLBT5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 14:57:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60454 "EHLO
+        id S234449AbiLBUAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 15:00:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229554AbiLBT5x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 14:57:53 -0500
-Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D01BDF78;
-        Fri,  2 Dec 2022 11:57:52 -0800 (PST)
-Received: by mail-qt1-x831.google.com with SMTP id h16so6705969qtu.2;
-        Fri, 02 Dec 2022 11:57:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=E6UpE/TC2qj4+oVdALXhIZeIKkqXXSJmNthecCyn0hk=;
-        b=qQ/WXxlPpIF2XwyOyjcHwhDGyLblUJ+Lkb9hr6hXAUQiL7bWcof/NhMH+kpPMzJT2O
-         DIFmF4FQ3Z45BdxPjH1Rga2BgnDoOjIt81kZ63PzxRx+DmhWnEwG0Iuvh5EsCDzdwhW7
-         XTYEnZFyrGRsXjKkg8AU2Z96M0qGeFp+mXfTZnILJAOEOZ6TSQIHYj5yomM4aoUG2lag
-         LN2aZEh+Um/Qfm6EwnM+WR1l8UQvJD+4QgD5nIJy0fRgV4SuvOC5CX8XvA7lkTUom30M
-         ywAQ0iD5X8eJyUb+Ge24qpuCcgUol1jRwyKOGaqjy5sctPxw4XCQtwdh+3lT/3D1plUB
-         6M3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=E6UpE/TC2qj4+oVdALXhIZeIKkqXXSJmNthecCyn0hk=;
-        b=sHTntibF7QXt3AoZrxdjfk4m32gu8nZ05PYAd56IJhseSp/t0UanusLrC6dKzIriGH
-         qmT32nKtjhDoFG6Bo9Win/st3/KjmVBYhuzZQKguagON3Z82j1obQ2N+3KjKMPjociqm
-         LwokxkNaC47+iSq6NFFOUbdGLR/oGTl+BN37Iotlq33anpiFnVlDkPXMe6fS+QB712FI
-         a2az8d88T49xXYWALo9krzCXMvQWLiiTP31CwtFYmyhllo+9u05MGVkpQw56Q5OqUMbw
-         wL0mhkVar/UudiXowfhjR5wQ5M0oy40O70J61BwjwG/ac+KJXcNM2/6C2b4mZXf2lQ/W
-         BGnw==
-X-Gm-Message-State: ANoB5pknJdC7aOKVAkDtJ64IfybHbcStSLqE/U41xTZZzyxxcCfrpAp/
-        ZYY6Av74grGp7FGpH6ltDgc=
-X-Google-Smtp-Source: AA0mqf4yAuBiietYn1UxMo9lKP2dUUH6GbZaquVG0c7el97Lr9LlGR8ZNmoKn/o0CLko3ULUxhkMHA==
-X-Received: by 2002:a05:620a:13d7:b0:6fb:57cb:47ce with SMTP id g23-20020a05620a13d700b006fb57cb47cemr50930432qkl.452.1670011071179;
-        Fri, 02 Dec 2022 11:57:51 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id bq43-20020a05620a46ab00b006ce580c2663sm5934875qkb.35.2022.12.02.11.57.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 02 Dec 2022 11:57:50 -0800 (PST)
-Message-ID: <bea1c858-dc1b-6251-8b2f-c7b88f48fe28@gmail.com>
-Date:   Fri, 2 Dec 2022 11:57:47 -0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH 6.0 000/280] 6.0.11-rc2 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20221201131113.897261583@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20221201131113.897261583@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S234215AbiLBUAL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 15:00:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF3EE02EA;
+        Fri,  2 Dec 2022 12:00:10 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEB3D62035;
+        Fri,  2 Dec 2022 20:00:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 410C9C433D6;
+        Fri,  2 Dec 2022 20:00:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1670011209;
+        bh=7LqwGyELMsEFkuEfbtBx4GEsTrKWFewyBc7UknguVx8=;
+        h=Date:To:From:Subject:From;
+        b=pD/maZZezzVHFdUAcXisa9Do9R584rKFOZjypApbKghuBZyWvMC9+kvoRQpVF1zLW
+         lmtU5FbZg6cmXsyCK8BRdXe6wQajoaEU7t7UdmPmEY4iHhbJ1Vvi8kZgNH0FgbDz5h
+         XmRpc8iiKzSieUmnVjBw9AJPVOtFne7tY4TXGiGM=
+Date:   Fri, 02 Dec 2022 12:00:08 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        mgorman@techsingularity.net, tcm1030@163.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-mempolicy-failed-to-disable-numa-balancing.patch added to mm-unstable branch
+Message-Id: <20221202200009.410C9C433D6@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/1/22 05:11, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.11 release.
-> There are 280 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 03 Dec 2022 13:10:41 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.11-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+The patch titled
+     Subject: mm/mempolicy: failed to disable numa balancing
+has been added to the -mm mm-unstable branch.  Its filename is
+     mm-mempolicy-failed-to-disable-numa-balancing.patch
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-mempolicy-failed-to-disable-numa-balancing.patch
+
+This patch will later appear in the mm-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: tzm <tcm1030@163.com>
+Subject: mm/mempolicy: failed to disable numa balancing
+Date: Fri, 2 Dec 2022 22:16:30 +0800
+
+The kernel fails to disable numa balancing policy permanently when the
+user passes <numa_balancing=disable> to the boot cmdline parameters.  The
+numabalancing_override variable is 1 for enable -1 for disable.  So,
+!numabalancing_override will always be true, which causes this bug.
+
+Link: https://lkml.kernel.org/r/20221202141630.41220-1-tcm1030@163.com
+Signed-off-by: tzm <tcm1030@163.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/mempolicy.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/mempolicy.c~mm-mempolicy-failed-to-disable-numa-balancing
++++ a/mm/mempolicy.c
+@@ -2865,7 +2865,7 @@ static void __init check_numabalancing_e
+ 	if (numabalancing_override)
+ 		set_numabalancing_state(numabalancing_override == 1);
+ 
+-	if (num_online_nodes() > 1 && !numabalancing_override) {
++	if (num_online_nodes() > 1 && (numabalancing_override == 1)) {
+ 		pr_info("%s automatic NUMA balancing. Configure with numa_balancing= or the kernel.numa_balancing sysctl\n",
+ 			numabalancing_default ? "Enabling" : "Disabling");
+ 		set_numabalancing_state(numabalancing_default);
+_
+
+Patches currently in -mm which might be from tcm1030@163.com are
+
+mm-mempolicy-failed-to-disable-numa-balancing.patch
 
