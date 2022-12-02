@@ -2,167 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25DCE640460
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 11:18:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3A6A640486
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 11:24:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231775AbiLBKSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 05:18:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57976 "EHLO
+        id S232745AbiLBKYu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 05:24:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232963AbiLBKSq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 05:18:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA4FCC66E;
-        Fri,  2 Dec 2022 02:18:45 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S232399AbiLBKYt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 05:24:49 -0500
+Received: from smtp-out-08.comm2000.it (smtp-out-08.comm2000.it [212.97.32.78])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1310D26AC0
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 02:24:48 -0800 (PST)
+Received: from francesco-nb.int.toradex.com (93-49-2-63.ip317.fastwebnet.it [93.49.2.63])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0940B80955;
-        Fri,  2 Dec 2022 10:18:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B48B6C433C1;
-        Fri,  2 Dec 2022 10:18:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669976322;
-        bh=e8M9us2wlgd06uRL7pLvxq/RDcxr6Ub0xUnPx5dg69Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K6YbS6KD6zo67AdFSsQQv8RDXhTCV8C2eL4d7TrO4lvA+N1Unh6V4zWMraPR4AlRD
-         wWM4cp5n7sTZLfxoD6TvRhGrQ2UTxLG0W0d0grU/QGiR5gaPmGBhSbJhFj7l1X/7gw
-         ucaKU0WuVLvQHtVv+Scwz0YYrwoPsmVk8VQlfPt+ttAb+Wcpl0G/E4bfghddOFSfXF
-         ckMzvLcKUnwYNWPIbZi1r7iKsO200G81FMLz9r0JyKcByrUZNFW5g1CKTEeorUons9
-         /xlwUtawkR9qC+cLCIBdCderTFOSrg9g1+Ytljh45MwGOCDcNfTsqmBdC1x0PRPaFg
-         QoG3xxTWDleeA==
-Date:   Fri, 2 Dec 2022 10:18:35 +0000
-From:   Will Deacon <will@kernel.org>
-To:     Waiman Long <longman@redhat.com>
-Cc:     Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Phil Auld <pauld@redhat.com>,
-        Wenjie Li <wenjieli@qti.qualcomm.com>,
-        David Wang =?utf-8?B?546L5qCH?= <wangbiao3@xiaomi.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH-tip] sched: Fix use-after-free bug in dup_user_cpus_ptr()
-Message-ID: <20221202101835.GA29522@willie-the-truck>
-References: <20221128014441.1264867-1-longman@redhat.com>
- <20221201134445.GC28489@willie-the-truck>
- <330989bf-0015-6d4c-9317-bfc9dba30b65@redhat.com>
+        (Authenticated sender: francesco@dolcini.it)
+        by smtp-out-08.comm2000.it (Postfix) with ESMTPSA id 1C91D426A44;
+        Fri,  2 Dec 2022 11:24:30 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailserver.it;
+        s=mailsrv; t=1669976685;
+        bh=8mV1uDAsqGTcFlpWfAUtgES7Hcz7KKv0WrqMDW2T7qI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To;
+        b=b36p1ywq4DgK//mM/hLiBj8zUn9DFVkoB7fUDAV1aO7kU5sJsSg8eF3LWFGKSxXdO
+         mh18+lf9V9kpq8kwUlqoMGIG/x1K9bNCydfwZ0N8+YNyEnwBbwwiu5KwsKHklrYg3l
+         VJ0ibSh2AOrYORI3fxVmjmfUMfMF1wIZLWKLCv8fkSwJFGFnYu2nDshEyGxbMTWyVk
+         mEpmDR6w6tUcErne+JhKTMRTlYEb5k1rmqVn44T49xVzbzNFwHfARx1wmhNQg8LSxV
+         XpvPW3EMnSbiCH4oQtbny41LOcfN/ZwqyRp4vZFQFuYa1u2h2SBu1lqcsJAqKiX/Zq
+         xodsBO++S8lcw==
+Date:   Fri, 2 Dec 2022 11:24:29 +0100
+From:   Francesco Dolcini <francesco@dolcini.it>
+To:     Miquel Raynal <miquel.raynal@bootlin.com>
+Cc:     Francesco Dolcini <francesco@dolcini.it>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org, Marek Vasut <marex@denx.de>,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is 0
+Message-ID: <Y4nSXQirO2N5IRfu@francesco-nb.int.toradex.com>
+References: <20221202071900.1143950-1-francesco@dolcini.it>
+ <20221202101418.6b4b3711@xps-13>
+ <Y4nPmzdgaabg3a3/@francesco-nb.int.toradex.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <330989bf-0015-6d4c-9317-bfc9dba30b65@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <Y4nPmzdgaabg3a3/@francesco-nb.int.toradex.com>
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 01, 2022 at 12:03:39PM -0500, Waiman Long wrote:
-> On 12/1/22 08:44, Will Deacon wrote:
-> > On Sun, Nov 27, 2022 at 08:44:41PM -0500, Waiman Long wrote:
-> > > Since commit 07ec77a1d4e8 ("sched: Allow task CPU affinity to be
-> > > restricted on asymmetric systems"), the setting and clearing of
-> > > user_cpus_ptr are done under pi_lock for arm64 architecture. However,
-> > > dup_user_cpus_ptr() accesses user_cpus_ptr without any lock
-> > > protection. When racing with the clearing of user_cpus_ptr in
-> > > __set_cpus_allowed_ptr_locked(), it can lead to user-after-free and
-> > > double-free in arm64 kernel.
-> > > 
-> > > Commit 8f9ea86fdf99 ("sched: Always preserve the user requested
-> > > cpumask") fixes this problem as user_cpus_ptr, once set, will never
-> > > be cleared in a task's lifetime. However, this bug was re-introduced
-> > > in commit 851a723e45d1 ("sched: Always clear user_cpus_ptr in
-> > > do_set_cpus_allowed()") which allows the clearing of user_cpus_ptr in
-> > > do_set_cpus_allowed(). This time, it will affect all arches.
-> > > 
-> > > Fix this bug by always clearing the user_cpus_ptr of the newly
-> > > cloned/forked task before the copying process starts and check the
-> > > user_cpus_ptr state of the source task under pi_lock.
-> > > 
-> > > Note to stable, this patch won't be applicable to stable releases.
-> > > Just copy the new dup_user_cpus_ptr() function over.
-> > > 
-> > > Fixes: 07ec77a1d4e8 ("sched: Allow task CPU affinity to be restricted on asymmetric systems")
-> > > Fixes: 851a723e45d1 ("sched: Always clear user_cpus_ptr in do_set_cpus_allowed()")
-> > > CC: stable@vger.kernel.org
-> > > Reported-by: David Wang 王标 <wangbiao3@xiaomi.com>
-> > > Signed-off-by: Waiman Long <longman@redhat.com>
-> > > ---
-> > >   kernel/sched/core.c | 32 ++++++++++++++++++++++++++++----
-> > >   1 file changed, 28 insertions(+), 4 deletions(-)
-> > As per my comments on the previous version of this patch:
-> > 
-> > https://lore.kernel.org/lkml/20221201133602.GB28489@willie-the-truck/T/#t
-> > 
-> > I think there are other issues to fix when racing affinity changes with
-> > fork() too.
-> It is certainly possible that there are other bugs hiding somewhere:-)
-
-Right, but I actually took the time to hit the same race for the other
-affinity mask field so it seems a bit narrow-minded for us just to fix the
-one issue.
-
-> > > diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-> > > index 8df51b08bb38..f2b75faaf71a 100644
-> > > --- a/kernel/sched/core.c
-> > > +++ b/kernel/sched/core.c
-> > > @@ -2624,19 +2624,43 @@ void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
-> > >   int dup_user_cpus_ptr(struct task_struct *dst, struct task_struct *src,
-> > >   		      int node)
-> > >   {
-> > > +	cpumask_t *user_mask;
-> > >   	unsigned long flags;
-> > > +	/*
-> > > +	 * Always clear dst->user_cpus_ptr first as their user_cpus_ptr's
-> > > +	 * may differ by now due to racing.
-> > > +	 */
-> > > +	dst->user_cpus_ptr = NULL;
-> > > +
-> > > +	/*
-> > > +	 * This check is racy and losing the race is a valid situation.
-> > > +	 * It is not worth the extra overhead of taking the pi_lock on
-> > > +	 * every fork/clone.
-> > > +	 */
-> > >   	if (!src->user_cpus_ptr)
-> > >   		return 0;
-> > data_race() ?
-> Race is certainly possible, but the clearing of user_cpus_ptr before will
-> mitigate any risk.
-
-Sorry, I meant let's wrap this access in the data_race() macro and add a
-comment so that KCSAN won't report the false positive.
-
-> > > -	dst->user_cpus_ptr = kmalloc_node(cpumask_size(), GFP_KERNEL, node);
-> > > -	if (!dst->user_cpus_ptr)
-> > > +	user_mask = kmalloc_node(cpumask_size(), GFP_KERNEL, node);
-> > > +	if (!user_mask)
-> > >   		return -ENOMEM;
-> > > -	/* Use pi_lock to protect content of user_cpus_ptr */
-> > > +	/*
-> > > +	 * Use pi_lock to protect content of user_cpus_ptr
-> > > +	 *
-> > > +	 * Though unlikely, user_cpus_ptr can be reset to NULL by a concurrent
-> > > +	 * do_set_cpus_allowed().
-> > > +	 */
-> > >   	raw_spin_lock_irqsave(&src->pi_lock, flags);
-> > > -	cpumask_copy(dst->user_cpus_ptr, src->user_cpus_ptr);
-> > > +	if (src->user_cpus_ptr) {
-> > > +		swap(dst->user_cpus_ptr, user_mask);
-> > Isn't 'dst->user_cpus_ptr' always NULL here? Why do we need the swap()
-> > instead of just assigning the thing directly?
+On Fri, Dec 02, 2022 at 11:12:43AM +0100, Francesco Dolcini wrote:
+> Hello Miquel,
 > 
-> True. We still need to clear user_mask. So I used swap() instead of 2
-> assignment statements. I am fine to go with either way.
+> On Fri, Dec 02, 2022 at 10:14:18AM +0100, Miquel Raynal wrote:
+> > francesco@dolcini.it wrote on Fri,  2 Dec 2022 08:19:00 +0100:
+> > > From: Francesco Dolcini <francesco.dolcini@toradex.com>
+> > > 
+> > > Add a fallback mechanism to handle the case in which #size-cells is set
+> > > to <0>. According to the DT binding the nand controller node should have
+> > > set it to 0 and this is not compatible with the legacy way of
+> > > specifying partitions directly as child nodes of the nand-controller node.
+> > 
+> > I understand the problem, I understand the fix, but I have to say, I
+> > strongly dislike it :) Touching an mtd core driver to fix a single
+> > broken use case like that is... problematic, for the least.
+> I just noticed it 2 days after this patch was backported to a stable
+> kernel, I am just the first one to notice, we are not talking about a single
+> use case.
+> 
+> > I am sorry but if a 6.0 kernel breaks because:
+> Not only kernel 6.0 is currently broken. This patch is going to be
+> backported to any stable kernel given the fixes tag it has.
+> 
+> > If you really want to workaround U-Boot, either you revert that patch
+> > or you just fix the DT description instead. The parent/child/partitions
+> > scheme has been enforced for maybe 5 years now and for a good reason: a
+> > NAND controller with partitions does not make _any_ sense. There are
+> > plenty of examples out there, imx7-colibri.dtsi has received many
+> > updates since its introduction (for the best), so why not this one?
+> 
+> I can and I will update imx7-colibri.dtsi (patch coming), but is this
+> good enough given the kind of boot failure regression this introduce? We
+> are going to have old u-boot around that will not work with it, and the
 
-I found it a bit bizarre at first, but on reflection it makes sense.
+Just another piece of information, support for the partitions node in
+U-Boot was added in version v2022.04 [1], we are not talking about ancient
+old legacy stuff.
 
-Will
+If I add the partitions node as a child of my nand controller, as I was
+planning to do and I wrote 10 lines above, I will create a new flavor of
+non-booting system with U-Boot older than v2022.04 :-/
+
+U-Boot older than v2022.04 will update the nand controller node never
+the less, the partition node will still be there and Linux will use it,
+but it will be empty since nobody populate it.
+
+Francesco
+
+[1] commit 36fee2f7621e ("common: fdt_support: add support for "partitions" subnode to fdt_fixup_mtdparts()")
