@@ -2,155 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5173E64016C
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 08:58:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DF176401CD
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 09:15:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232390AbiLBH6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 02:58:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43036 "EHLO
+        id S232866AbiLBIPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 03:15:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231989AbiLBH6x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 02:58:53 -0500
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFD6E950FA;
-        Thu,  1 Dec 2022 23:58:50 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.228])
-        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4NNlWj3P8nz9xFQc;
-        Fri,  2 Dec 2022 15:51:45 +0800 (CST)
-Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwDHsm8gsIlj1LiyAA--.51906S2;
-        Fri, 02 Dec 2022 08:58:32 +0100 (CET)
-Message-ID: <c8ef0ab69635b99d5175eaf4c96bb3a8957c6210.camel@huaweicloud.com>
-Subject: Re: [PATCH v2 1/2] evm: Alloc evm_digest in evm_verify_hmac() if
- CONFIG_VMAP_STACK=y
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Roberto Sassu <roberto.sassu@huawei.com>,
+        with ESMTP id S232875AbiLBIPQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 03:15:16 -0500
+Received: from gproxy3-pub.mail.unifiedlayer.com (gproxy3-pub.mail.unifiedlayer.com [69.89.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E98F3BE4D3
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 00:13:25 -0800 (PST)
+Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
+        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id C567B100401F9
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 08:13:14 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id 11AYpgtMFjdmX11AYpQx31; Fri, 02 Dec 2022 08:13:14 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=VbkygHl9 c=1 sm=1 tr=0 ts=6389b39a
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=sHyYjHe8cH0A:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=ZdDHwmQx841hCOd20V4A:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=xC1ZscGpz2W0msH3XQLMYcDoa9d9yA2DEKPefVi6klw=; b=m8U67dK1LSlZwfgDvZCxRavXtG
+        Nl+fEUlvQHP5RlGH9fk+hPdMgP6B9hDBUAopBgH3ccT/EdvOacPp0ooidRhH3QHT4grkhjg6rMyVu
+        Ov+yu96lz8fzAHAOwKSO72Y8BgNavNQa2BoNEb3QOGQp4qImfWaW+8JGiF0tHwAvuLShghL4EiFGz
+        zRCM1RdR9W6LgLWaqF2KZxqyFhyiXDFoyx3l+mwqG1QJcplHlnutgZ7tc9vXi3Q1038dNpygAG3Po
+        k1FI6VKS6pil7anvoKTulZVgj+OiAy3mhmIcljfafVifstkJE2YlfC/zuZmlkh7wjT0EZySfFomIK
+        F3ZYUaeg==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:59790 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1p11AX-001I9h-OJ;
+        Fri, 02 Dec 2022 01:13:13 -0700
+Subject: Re: [PATCH 6.0 000/280] 6.0.11-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
-Date:   Fri, 02 Dec 2022 08:58:21 +0100
-In-Reply-To: <Y4j4MJzizgEHf4nv@sol.localdomain>
-References: <20221201100625.916781-1-roberto.sassu@huaweicloud.com>
-         <20221201100625.916781-2-roberto.sassu@huaweicloud.com>
-         <Y4j4MJzizgEHf4nv@sol.localdomain>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221201131113.897261583@linuxfoundation.org>
+In-Reply-To: <20221201131113.897261583@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <f2038b0f-2ffe-1574-ae78-ef26dbca9dd2@w6rz.net>
+Date:   Fri, 2 Dec 2022 00:13:10 -0800
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: LxC2BwDHsm8gsIlj1LiyAA--.51906S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxWw4DKry8Wr4Uur4DtryfCrg_yoW5Zw1Upa
-        1kKa10qr4rJr1SkF1aya1Yya1rKrW0qry2gws8Aw1YyF9xZrnYy34xAFy7WryFkry8WF1x
-        tFWSqrn8C3WqyaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWUJVW8JwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UWE__UUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAOBF1jj4ItyAABsf
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1p11AX-001I9h-OJ
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:59790
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 2
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2022-12-01 at 10:53 -0800, Eric Biggers wrote:
-> On Thu, Dec 01, 2022 at 11:06:24AM +0100, Roberto Sassu wrote:
-> > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > 
-> > Commit ac4e97abce9b8 ("scatterlist: sg_set_buf() argument must be in linear
-> > mapping") checks that both the signature and the digest reside in the
-> > linear mapping area.
-> > 
-> > However, more recently commit ba14a194a434c ("fork: Add generic vmalloced
-> > stack support"), made it possible to move the stack in the vmalloc area,
-> > which is not contiguous, and thus not suitable for sg_set_buf() which needs
-> > adjacent pages.
-> > 
-> > Fix this by checking if CONFIG_VMAP_STACK is enabled. If yes, allocate an
-> > evm_digest structure, and use that instead of the in-stack counterpart.
-> > 
-> > Cc: stable@vger.kernel.org # 4.9.x
-> > Fixes: ba14a194a434 ("fork: Add generic vmalloced stack support")
-> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > ---
-> >  security/integrity/evm/evm_main.c | 26 +++++++++++++++++++++-----
-> >  1 file changed, 21 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
-> > index 23d484e05e6f..7f76d6103f2e 100644
-> > --- a/security/integrity/evm/evm_main.c
-> > +++ b/security/integrity/evm/evm_main.c
-> > @@ -174,6 +174,7 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
-> >  	struct signature_v2_hdr *hdr;
-> >  	enum integrity_status evm_status = INTEGRITY_PASS;
-> >  	struct evm_digest digest;
-> > +	struct evm_digest *digest_ptr = &digest;
-> >  	struct inode *inode;
-> >  	int rc, xattr_len, evm_immutable = 0;
-> >  
-> > @@ -231,14 +232,26 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
-> >  		}
-> >  
-> >  		hdr = (struct signature_v2_hdr *)xattr_data;
-> > -		digest.hdr.algo = hdr->hash_algo;
-> > +
-> > +		if (IS_ENABLED(CONFIG_VMAP_STACK)) {
-> > +			digest_ptr = kmalloc(sizeof(*digest_ptr), GFP_NOFS);
-> > +			if (!digest_ptr) {
-> > +				rc = -ENOMEM;
-> > +				break;
-> > +			}
-> > +		}
-> > +
-> > +		digest_ptr->hdr.algo = hdr->hash_algo;
-> > +
-> >  		rc = evm_calc_hash(dentry, xattr_name, xattr_value,
-> > -				   xattr_value_len, xattr_data->type, &digest);
-> > +				   xattr_value_len, xattr_data->type,
-> > +				   digest_ptr);
-> >  		if (rc)
-> >  			break;
-> >  		rc = integrity_digsig_verify(INTEGRITY_KEYRING_EVM,
-> >  					(const char *)xattr_data, xattr_len,
-> > -					digest.digest, digest.hdr.length);
-> > +					digest_ptr->digest,
-> > +					digest_ptr->hdr.length);
-> >  		if (!rc) {
-> >  			inode = d_backing_inode(dentry);
-> >  
-> > @@ -268,8 +281,11 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
-> >  		else
-> >  			evm_status = INTEGRITY_FAIL;
-> >  	}
-> > -	pr_debug("digest: (%d) [%*phN]\n", digest.hdr.length, digest.hdr.length,
-> > -		  digest.digest);
-> > +	pr_debug("digest: (%d) [%*phN]\n", digest_ptr->hdr.length,
-> > +		 digest_ptr->hdr.length, digest_ptr->digest);
-> > +
-> > +	if (digest_ptr && digest_ptr != &digest)
-> > +		kfree(digest_ptr);
-> 
-> What is the actual problem here?  Where is a scatterlist being created from this
-> buffer?  AFAICS it never happens.
+On 12/1/22 5:11 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.11 release.
+> There are 280 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 03 Dec 2022 13:10:41 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.11-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Hi Eric
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-it is in public_key_verify_signature(), called by asymmetric_verify()
-and integrity_digsig_verify().
-
-Roberto
+Tested-by: Ron Economos <re@w6rz.net>
 
