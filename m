@@ -2,156 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D92640980
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 16:41:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AE5164098D
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 16:49:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233716AbiLBPlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 10:41:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45558 "EHLO
+        id S232678AbiLBPtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 10:49:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233666AbiLBPln (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 10:41:43 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 114F9C0542
-        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 07:40:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1669995651;
+        with ESMTP id S232517AbiLBPtP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 10:49:15 -0500
+X-Greylist: delayed 17737 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 02 Dec 2022 07:49:12 PST
+Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [217.70.183.200])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5F56AD33F
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 07:49:12 -0800 (PST)
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 9180D20015;
+        Fri,  2 Dec 2022 15:49:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1669996151;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ukZurXWBYF9XacBE0s0LYySmWKNtgdpXiH8C9SL7Axg=;
-        b=fVNlgw8LliFz07cPxPWzMVZE4/FnWOFrOLlG5aNNyBd1h6l6n8XzcixTR/NeUXLP9bK6nE
-        1Ix6j8oVxUY/MbQCukojIhDTu7O/C4jjXTkBZGIYIjuAT5kuIYhQDjSTQCqeLN9M+kkKiu
-        tcG6pVgzPD0h7EUsaDoJRFHSmVoGMls=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-401-GItMQcG_Om6OJuZecBuaYQ-1; Fri, 02 Dec 2022 10:40:50 -0500
-X-MC-Unique: GItMQcG_Om6OJuZecBuaYQ-1
-Received: by mail-wm1-f71.google.com with SMTP id j2-20020a05600c1c0200b003cf7397fc9bso2671007wms.5
-        for <stable@vger.kernel.org>; Fri, 02 Dec 2022 07:40:50 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:organization:from
-         :references:cc:to:content-language:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ukZurXWBYF9XacBE0s0LYySmWKNtgdpXiH8C9SL7Axg=;
-        b=SpEQu0MqGH44rflw72Qluq46LmFrVJtrdOHHcx8cqHqlppUr8bC5yo2hWzRbX3VHOl
-         V6bBo6o+gAJoZRgti+d/qCMJKittNrpaxTYHDr8NV7awqnDz7X3Z4a2tz2pY7UVa7ziW
-         oAF/50n26/MMyDkb1DKT6Zm8WQaIU/AxXymlVbH5IdK69wzFiiFoNEJwq8/dx3wPrm8K
-         zoXobFrNgk91F7LSfKhav+VuyRdjJtLbwY3w9jO1+RK85gZUZkQ6x4VMrVUti7knF7lf
-         sGU1C0uRFXaN7HTa3MPpyYvNcmcWjE57MvF/1/Ws7C+plwDViAaUEa3wijFAPG4nT6uW
-         4gKg==
-X-Gm-Message-State: ANoB5pkm+lrk1pK+09yauv/Ac0FCz3cG3oUwhyTVPM0OrcI6am7gGEk/
-        IZ0I+AGztxiJ/SsI/M4rS3WFnVqYJ5Xj4jtB3LdBqUrcin4pYyl8uRiKCP1A5CfcbJ8bHalO2zM
-        ZKymBvxsyGxI08LD1
-X-Received: by 2002:a1c:f015:0:b0:3cf:7818:b123 with SMTP id a21-20020a1cf015000000b003cf7818b123mr56155919wmb.8.1669995648914;
-        Fri, 02 Dec 2022 07:40:48 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf6XWXVf4E+myn6zx3UJjMA1ITegc4vnWDGw2UgAobBJt+oz3eX0LXIw1B+lzdUlHUDFdcID6w==
-X-Received: by 2002:a1c:f015:0:b0:3cf:7818:b123 with SMTP id a21-20020a1cf015000000b003cf7818b123mr56155902wmb.8.1669995648619;
-        Fri, 02 Dec 2022 07:40:48 -0800 (PST)
-Received: from ?IPV6:2003:cb:c703:7a00:852e:72cd:ed76:d72f? (p200300cbc7037a00852e72cded76d72f.dip0.t-ipconnect.de. [2003:cb:c703:7a00:852e:72cd:ed76:d72f])
-        by smtp.gmail.com with ESMTPSA id m21-20020a05600c4f5500b003b4fe03c881sm14181214wmq.48.2022.12.02.07.40.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 02 Dec 2022 07:40:48 -0800 (PST)
-Message-ID: <0e864a86-040b-810d-86ee-f702604e7f5f@redhat.com>
-Date:   Fri, 2 Dec 2022 16:40:47 +0100
+        bh=DQFtCkqo0CS4WybTtvswvMI7R2OV7c6arm4hFMGtwQI=;
+        b=IImA+1x5pxVbR5NTTmWENxTn4kQG0X1onXsn6BK3OlrolpzI61AkWVsXCdBWcOn231p5H7
+        buvzRoQP6f/FA1e6ieCdYgFNXdz4qS0vmkv/ZVuKuE9h1eaVZU29L9daKh+KTyoRslKBVJ
+        pSB5kcocI7gYcRuRIoDKDjPYAM0SEczsUGfFUnCwa0jNCD8aYRiakpGlpyNCKmJ3hYZJzj
+        B+S0hQWohVCAi8hh3IYbJU2tmGtCJTawKCQBEWplj9Q++eJkdVulhmlHOs16N7M3SM85zi
+        ZDnkbIsL6tj5y8XE8NUvUvqeVfnlAuTDXUiaCgXdn1uUd+6p2kv3NHXjZiH8pw==
+Date:   Fri, 2 Dec 2022 16:49:04 +0100
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Marek Vasut <marex@denx.de>
+Cc:     Francesco Dolcini <francesco@dolcini.it>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        u-boot@lists.denx.de
+Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is
+ 0
+Message-ID: <20221202164904.08d750df@xps-13>
+In-Reply-To: <223b7a4e-3aff-8070-7387-c77d2ded1dd6@denx.de>
+References: <20221202071900.1143950-1-francesco@dolcini.it>
+        <20221202101418.6b4b3711@xps-13>
+        <Y4nPmzdgaabg3a3/@francesco-nb.int.toradex.com>
+        <Y4nSXQirO2N5IRfu@francesco-nb.int.toradex.com>
+        <20221202115327.4475d3a2@xps-13>
+        <Y4ngOaKq224LIpQc@francesco-nb.int.toradex.com>
+        <20221202150556.14c5ae43@xps-13>
+        <2b6fc52d-60b9-d0f4-ab91-4cf7a8095999@denx.de>
+        <20221202160030.1b8d0b8a@xps-13>
+        <223b7a4e-3aff-8070-7387-c77d2ded1dd6@denx.de>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Content-Language: en-US
-To:     Peter Xu <peterx@redhat.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Ives van Hoorne <ives@codesandbox.io>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Alistair Popple <apopple@nvidia.com>, stable@vger.kernel.org
-References: <20221114000447.1681003-1-peterx@redhat.com>
- <20221114000447.1681003-2-peterx@redhat.com>
- <5ddf1310-b49f-6e66-a22a-6de361602558@redhat.com>
- <20221130142425.6a7fdfa3e5954f3c305a77ee@linux-foundation.org>
- <Y4jIHureiOd8XjDX@x1n> <a215fe2f-ef9b-1a15-f1c2-2f0bb5d5f490@redhat.com>
- <20221201143058.80296541cc6802d1e5990033@linux-foundation.org>
- <fc3e3497-053d-8e50-a504-764317b6a49a@redhat.com>
- <222fc0b2-6ec0-98e7-833f-ea868b248446@redhat.com> <Y4oWOqgqmv1BFAFx@x1n>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH v3 1/2] mm/migrate: Fix read-only page got writable when
- recover pte
-In-Reply-To: <Y4oWOqgqmv1BFAFx@x1n>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
->>>>
->>>> David, do you feel that the proposed fix will at least address the bug
->>>> without adverse side-effects?
->>>
->>> Usually, when I suspect something is dodgy I unconsciously push back
->>> harder than I usually would.
-> 
-> Please consider using unconsciousness only for self guidance, figuring out
-> directions, or making decisions on one's own.
+Hi Marek,
 
-Yeah, sorry about my communication. I expressed that this approach felt 
-wrong to me, I just wasn't able to phrase exactly why I thought 
-migration is doing the right thing and didn't have a lot of time to look 
-into the details.
+marex@denx.de wrote on Fri, 2 Dec 2022 16:23:29 +0100:
 
-Now I dedicated some time and realized that mproctect() is doing the 
-exact same thing, it became clearer to me why migration code wasn't 
-broken before.
+> On 12/2/22 16:00, Miquel Raynal wrote:
+> > Hi Marek, =20
+>=20
+> Hi,
+>=20
+> > marex@denx.de wrote on Fri, 2 Dec 2022 15:31:40 +0100:
+> >  =20
+> >> On 12/2/22 15:05, Miquel Raynal wrote: =20
+> >>> Hi Francesco, =20
+> >>
+> >> Hi,
+> >>
+> >> [...]
+> >> =20
+> >>> I still strongly disagree with the initial proposal but what I think =
+we
+> >>> can do is:
+> >>>
+> >>> 1. To prevent future breakages:
+> >>>     Fix fdt_fixup_mtdparts() in u-boot. This way newer U-Boot + any
+> >>>     kernel should work.
+> >>>
+> >>> 2. To help tracking down situations like that:
+> >>>     Keep the warning in ofpart.c but continue to fail.
+> >>>
+> >>> 3. To fix the current situation:
+> >>>      Immediately revert commit (and prevent it from being backported):
+> >>>      753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
+> >>>      This way your own boot flow is fixed in the short term. =20
+> >>
+> >> Here I disagree, the fix is correct and I think we shouldn't
+> >> proliferate incorrect DTs which don't match the binding document. =20
+> >=20
+> > I agree we should not proliferate incorrect DTs, so let's use a modern
+> > description then =20
+>=20
+> Yes please !
+>=20
+> > , with a controller and a child node which defines the
+> > chip. =20
+>=20
+> But what if there is no chip connected to the controller node ?
+>=20
+> If I understand the proposal here right (please correct me if I'm wrong),=
+ then:
 
-> 
-> For discussions on the list which can get more than one person involved, we
-> do need consciousness and reasonings.
+Good idea to summarize.
 
-Yeah, I need vacation.
+>=20
+> 1) This is the original, old, wrong binding:
+> &gpmi {
+>    #size-cells =3D <1>;
+>    ...
+>    partition@N { ... };
+> };
 
-> 
-> Thanks for the reproducer, that's definitely good reasonings.  Do you have
-> other reproducer that can trigger an issue without mprotect()?
+Yes.
 
-As noted in the RFC patch I sent, I suspect NUMA hinting page remapping 
-might similarly trigger it. I did not try reproducing it, though.
+>=20
+>=20
+> 2) This is the newer, but still wrong binding:
+> &gpmi {
+>    #size-cells =3D <0>;
+>    ...
+>    partitions {
+>      partition@N { ... };
+>    };
+> };
 
-> 
-> As I probably mentioned before in other threads mprotect() is IMHO
-> conceptually against uffd-wp and I don't yet figured out how to use them
-> all right.  For example, we can uffd-wr-protect a pte in uffd-wp range,
-> then if we do "mprotect(RW)" it's hard to tell whether the user wants it
-> write or not.  E.g., using mprotect(RW) to resolve page faults should be
-> wrong because it'll not touch the uffd-wp bit at all.  I confess I never
-> thought more on how we should define the interactions between uffd-wp and
-> mprotect.
-> 
-> In short, it'll be great if you have other reproducers for any uffd-wp
-> issues other than mprotect().
-> 
-> I said that also because I just got another message from Ives privately
-> that there _seems_ to have yet another even harder to reproduce bug here
-> (Ives, feel free to fill in any more information if you got it).  So if you
-> can figure out what's missing and already write a reproducer, that'll be
-> perfect.
+Well, this is wrong description, but it would work (for compat reasons,
+even though I don't think this is considered valid DT by the schemas).
 
-Maybe NUMA hitning on the fallback path, when we didn't migrate or 
-migration failed?
+>=20
+> 3) This is the newest binding, what we want:
+> &gpmi {
+>    #size-cells =3D <0>;
+>    ...
+>    nand-chip {
+>      partitions {
+>        partition@N { ... };
+>      };
+>    };
+> };
 
--- 
+Yes
+
+>=20
+> But if there is no physical nand chip connected to the controller, would =
+we end up with empty nand-chip node in DT, like this?
+> &gpmi {
+>    #size-cells =3D <X>;
+>    ...
+>    nand-chip { /* empty */ };
+> };
+
+Is this really a concern? If there is no NAND chip, the controller
+should be disabled, no? I guess technically you could even use the
+status property in the nand-chip node...
+
+However, it should not be empty, at the very least a reg property
+should indicate on which CS it is wired, as expected there:
+https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git/tree/Document=
+ation/devicetree/bindings/mtd/nand-chip.yaml?h=3Dmtd/next
+
+But, as nand-chip.yaml references mtd.yaml, you can as well use
+whatever is described here:
+https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git/tree/Document=
+ation/devicetree/bindings/mtd/mtd.yaml?h=3Dmtd/next
+
+> What would be the gpmi controller size cells (X) in that case, still 0, r=
+ight ? So how does that help solve this problem, wouldn't U-Boot still popu=
+late the partitions directly under the gpmi node or into partitions sub-nod=
+e ?
+
+The commit that was pointed in the original fix clearly stated that the
+NAND chip node was targeted, not the NAND controller node. I hope this
+is correctly supported in U-Boot though. So if there is a NAND chip
+subnode, I suppose U-Boot would try to create the partitions that are
+inside, or even in the sub "partitions" container.
+
+> >> Rather, if a bootloader generates incorrect (new) DT entries, I
+> >> believe the driver should implement a fixup and warn user about this.
+> >> PC does that as well with broken ACPI tables as far as I can tell.
+> >>
+> >> I'm not convinced making a DT non-compliant with bindings again, =20
+> >=20
+> > I am sorry to say so, but while warnings reported by the tools
+> > should be fixed, it's not because the tool does not scream at you that
+> > the description is valid. We are actively working on enhancing the
+> > schema so that "all" improper descriptions get warnings (see the series
+> > pointed earlier), but in no way this change makes the node compliant
+> > with modern bindings.
+> >=20
+> > I'm not saying the fix is wrong, but let's be pragmatic, it currently
+> > leads to boot failures. =20
+>=20
+> I fully agree that we do have a problem, and that it trickled into stable=
+ makes it even worse. Maybe I don't fully understand the thing with nand-ch=
+ip proposal, see my question above, esp. the last part.
+>=20
+> >> only to work around a problem induced by bootloader, is the right appr=
+oach
+> >> here. =20
+> >=20
+> > When a patch breaks a board and there is no straight fix, you revert
+> > it, then you think harder. That's what I am saying. This is a temporary
+> > solution. =20
+>=20
+> Isn't this patch the straight fix, at least until the bootloader can be u=
+pdated to generate the nand-chip node correctly ?
+>=20
+> >> This would be setting a dangerous example, where anyone could request =
+a DT fix to be reverted because their random bootloader does the wrong thin=
+g and with valid DT clean up, something broke. =20
+> >=20
+> > Please, you know this is not valid DT clean up. We've been decoupling
+> > controller and chip description since 2016. What I am proposing is a
+> > valid DT cleanup, not to the latest standard, but way closer than the
+> > current solution. =20
+>=20
+> I think I really need one more explanation of the nand-chip part above.
+
+I hope things are clearer now.
+
 Thanks,
-
-David / dhildenb
-
+Miqu=C3=A8l
