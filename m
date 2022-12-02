@@ -2,164 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D602640551
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 11:54:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96021640576
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 12:05:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233256AbiLBKya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 05:54:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36434 "EHLO
+        id S232876AbiLBLEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 06:04:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233250AbiLBKxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 05:53:52 -0500
-Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::227])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94F49D0394
-        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 02:53:37 -0800 (PST)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id BA35820004;
-        Fri,  2 Dec 2022 10:53:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1669978413;
+        with ESMTP id S232880AbiLBLEv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 06:04:51 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96CB2BC58A
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 03:03:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1669979035;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=/xbDowsjdVxGHiCknMNfQWZp8ui3AZGVt031X2dFPgs=;
-        b=V0G7HbGVHu1UnQcFOkheErwQ54WBVfssvbvblVvAgBmx2/cx07Wal5slnmzOCj2mHSdCZT
-        YefGXDygzc/XOR2ApaE0zcUcJ/FkG6jbDuje8RBXRdeECWF405vrCpCnhxrHa4wNSA9zUK
-        QR/nXDeMQLRr1AV/hpTTmGFTQg3Gx85OkgD6vYnqn17a721nUP6htat0+vYd6e3yCF+exk
-        fT6byoQdarowANubLCUHizmAnEXebaR9HoPnF+DxHdq8xQV+tvW63souC5VUlj1QlFrF3I
-        iTfpNzAyL5tomVH96yN3nCH/tadjyBct/q8cOc8gYi9AOOGxJVK4Kt9pVggE+Q==
-Date:   Fri, 2 Dec 2022 11:53:27 +0100
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Francesco Dolcini <francesco@dolcini.it>
-Cc:     Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-mtd@lists.infradead.org, Marek Vasut <marex@denx.de>,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is
- 0
-Message-ID: <20221202115327.4475d3a2@xps-13>
-In-Reply-To: <Y4nSXQirO2N5IRfu@francesco-nb.int.toradex.com>
-References: <20221202071900.1143950-1-francesco@dolcini.it>
-        <20221202101418.6b4b3711@xps-13>
-        <Y4nPmzdgaabg3a3/@francesco-nb.int.toradex.com>
-        <Y4nSXQirO2N5IRfu@francesco-nb.int.toradex.com>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+        bh=cl9BjYb9f8vItMx0TFPNMbbgg++LcJpl4yIcLgyzCmw=;
+        b=S2/S2EzxHXlNiZN9Dl4QyJLuMCyH7dSVwCJhpqYKFFjY600bBgSAWq5tVRRMOYOR+Hwkc9
+        YKTHgD48QcVQda9RNEd/kuax2H2CE53vNLH/PuKTDHf2sOQ8KaIaraMiNlHzlwQfkAp6uY
+        XQxrgjdscG8OgsoZYsWx97pqvtZQDuE=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-591-59Jkf3X_P_Wpe6zQTB2n_A-1; Fri, 02 Dec 2022 06:03:54 -0500
+X-MC-Unique: 59Jkf3X_P_Wpe6zQTB2n_A-1
+Received: by mail-wr1-f70.google.com with SMTP id j29-20020adfb31d000000b0024237066261so1003229wrd.14
+        for <stable@vger.kernel.org>; Fri, 02 Dec 2022 03:03:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:subject:organization:from
+         :references:cc:to:content-language:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=cl9BjYb9f8vItMx0TFPNMbbgg++LcJpl4yIcLgyzCmw=;
+        b=Io/htRvckgj07ycCT/jp9WrtJvp0bxzPHN4RS8FE+xDaxJLe4MmKMKQY0hQaYvz2Fz
+         cdkAkoDZouQv4G79u7uawOz8uilAONB9d219QnoGIOQnMHmI9I5xW3YiybGI61ucFC3Y
+         W49EEhEh13F8DHGBx0JUGzXoRa/q7nmkmDUV5jXOThP1jnMcXPN4DHH/ewGwOjuUFlQw
+         Wxk2Wc2ls/LzDtcOim8xqx8es7KS0BD+M2lDlhNY6tOqYyTSoFd0XeRTqU+7ehMxcCHP
+         Qe4N3buneesk1uOHbdtUuYSC1TOJDw+DP30HwLbIrON2VO+8gb18xkOjvb0QG8Z6tTBi
+         cXyA==
+X-Gm-Message-State: ANoB5plbXXfw7jgqR5fAL162M5PlZqbAAi20HOz9qVLMgnLpFwS+VGMo
+        9W0lcMGN3Ys54qqGiIa/X+l0733xXIY9seSeFNCwkw0ZsVRtD2L6HiGeCy5m/4u9r6JVrUdJPsK
+        3uWLxYj2XHPKOFNYg
+X-Received: by 2002:a5d:4d51:0:b0:242:1bad:6f79 with SMTP id a17-20020a5d4d51000000b002421bad6f79mr14341715wru.342.1669979033601;
+        Fri, 02 Dec 2022 03:03:53 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7Z7CSJWV3aVGdFrhurXtg5Jl7JAd2UPh1oqFxa5cN4kxMH/tvksSMCkT/9ngAbabHuPc5XuA==
+X-Received: by 2002:a5d:4d51:0:b0:242:1bad:6f79 with SMTP id a17-20020a5d4d51000000b002421bad6f79mr14341694wru.342.1669979033335;
+        Fri, 02 Dec 2022 03:03:53 -0800 (PST)
+Received: from ?IPV6:2003:cb:c703:7a00:852e:72cd:ed76:d72f? (p200300cbc7037a00852e72cded76d72f.dip0.t-ipconnect.de. [2003:cb:c703:7a00:852e:72cd:ed76:d72f])
+        by smtp.gmail.com with ESMTPSA id f7-20020adffcc7000000b00236883f2f5csm6742721wrs.94.2022.12.02.03.03.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 02 Dec 2022 03:03:52 -0800 (PST)
+Message-ID: <fc3e3497-053d-8e50-a504-764317b6a49a@redhat.com>
+Date:   Fri, 2 Dec 2022 12:03:51 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Content-Language: en-US
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Peter Xu <peterx@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Ives van Hoorne <ives@codesandbox.io>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Alistair Popple <apopple@nvidia.com>, stable@vger.kernel.org
+References: <20221114000447.1681003-1-peterx@redhat.com>
+ <20221114000447.1681003-2-peterx@redhat.com>
+ <5ddf1310-b49f-6e66-a22a-6de361602558@redhat.com>
+ <20221130142425.6a7fdfa3e5954f3c305a77ee@linux-foundation.org>
+ <Y4jIHureiOd8XjDX@x1n> <a215fe2f-ef9b-1a15-f1c2-2f0bb5d5f490@redhat.com>
+ <20221201143058.80296541cc6802d1e5990033@linux-foundation.org>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH v3 1/2] mm/migrate: Fix read-only page got writable when
+ recover pte
+In-Reply-To: <20221201143058.80296541cc6802d1e5990033@linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Francesco,
+On 01.12.22 23:30, Andrew Morton wrote:
+> On Thu, 1 Dec 2022 16:42:52 +0100 David Hildenbrand <david@redhat.com> wrote:
+> 
+>> On 01.12.22 16:28, Peter Xu wrote:
+>>>
+>>> I didn't reply here because I have already replied with the question in
+>>> previous version with a few attempts.  Quotting myself:
+>>>
+>>> https://lore.kernel.org/all/Y3KgYeMTdTM0FN5W@x1n/
+>>>
+>>>           The thing is recovering the pte into its original form is the
+>>>           safest approach to me, so I think we need justification on why it's
+>>>           always safe to set the write bit.
+>>>
+>>> I've also got another longer email trying to explain why I think it's the
+>>> other way round to be justfied, rather than justifying removal of the write
+>>> bit for a read migration entry, here:
+>>>
+>>
+>> And I disagree for this patch that is supposed to fix this hunk:
+>>
+>>
+>> @@ -243,11 +243,15 @@ static bool remove_migration_pte(struct page *page, struct vm_area_struct *vma,
+>>                   entry = pte_to_swp_entry(*pvmw.pte);
+>>                   if (is_write_migration_entry(entry))
+>>                           pte = maybe_mkwrite(pte, vma);
+>> +               else if (pte_swp_uffd_wp(*pvmw.pte))
+>> +                       pte = pte_mkuffd_wp(pte);
+>>    
+>>                   if (unlikely(is_zone_device_page(new))) {
+>>                           if (is_device_private_page(new)) {
+>>                                   entry = make_device_private_entry(new, pte_write(pte));
+>>                                   pte = swp_entry_to_pte(entry);
+>> +                               if (pte_swp_uffd_wp(*pvmw.pte))
+>> +                                       pte = pte_mkuffd_wp(pte);
+>>                           }
+>>                   }
+> 
+> David, I'm unclear on what you mean by the above.  Can you please
+> expand?
+> 
+>>
+>> There is really nothing to justify the other way around here.
+>> If it's broken fix it independently and properly backport it independenty.
+>>
+>> But we don't know about any such broken case.
+>>
+>> I have no energy to spare to argue further ;)
+> 
+> This is a silent data loss bug, which is about as bad as it gets.
+> Under obscure conditions, fortunately.  But please let's keep working
+> it.  Let's aim for something minimal for backporting purposes.  We can
+> revisit any cleanliness issues later.
 
-francesco@dolcini.it wrote on Fri, 2 Dec 2022 11:24:29 +0100:
+Okay, you activated my energy reserves.
 
-> On Fri, Dec 02, 2022 at 11:12:43AM +0100, Francesco Dolcini wrote:
-> > Hello Miquel,
-> >=20
-> > On Fri, Dec 02, 2022 at 10:14:18AM +0100, Miquel Raynal wrote: =20
-> > > francesco@dolcini.it wrote on Fri,  2 Dec 2022 08:19:00 +0100: =20
-> > > > From: Francesco Dolcini <francesco.dolcini@toradex.com>
-> > > >=20
-> > > > Add a fallback mechanism to handle the case in which #size-cells is=
- set
-> > > > to <0>. According to the DT binding the nand controller node should=
- have
-> > > > set it to 0 and this is not compatible with the legacy way of
-> > > > specifying partitions directly as child nodes of the nand-controlle=
-r node. =20
-> > >=20
-> > > I understand the problem, I understand the fix, but I have to say, I
-> > > strongly dislike it :) Touching an mtd core driver to fix a single
-> > > broken use case like that is... problematic, for the least. =20
-> > I just noticed it 2 days after this patch was backported to a stable
-> > kernel, I am just the first one to notice, we are not talking about a s=
-ingle
-> > use case.
-> >  =20
-> > > I am sorry but if a 6.0 kernel breaks because: =20
-> > Not only kernel 6.0 is currently broken. This patch is going to be
-> > backported to any stable kernel given the fixes tag it has.
-> >  =20
-> > > If you really want to workaround U-Boot, either you revert that patch
-> > > or you just fix the DT description instead. The parent/child/partitio=
-ns
-> > > scheme has been enforced for maybe 5 years now and for a good reason:=
- a
-> > > NAND controller with partitions does not make _any_ sense. There are
-> > > plenty of examples out there, imx7-colibri.dtsi has received many
-> > > updates since its introduction (for the best), so why not this one? =
-=20
-> >=20
-> > I can and I will update imx7-colibri.dtsi (patch coming),
+> 
+> David, do you feel that the proposed fix will at least address the bug
+> without adverse side-effects?
 
-:thumb_up:
+Usually, when I suspect something is dodgy I unconsciously push back 
+harder than I usually would.
 
-> > but is this
-> > good enough given the kind of boot failure regression this introduce? We
-> > are going to have old u-boot around that will not work with it, and the=
- =20
->=20
-> Just another piece of information, support for the partitions node in
-> U-Boot was added in version v2022.04 [1], we are not talking about ancient
-> old legacy stuff.
+I just looked into the issue once again and realized that this patch 
+here (and also my alternative proposal) most likely tackles the 
+more-generic issue from the wrong direction. I found yet another such 
+bug (most probably two, just too lazy to write another reproducer). 
+Migration code does the right thing here -- IMHO -- and the issue should 
+be fixed differently.
 
-If it is so recent, then this is what needs to be fixed, and it should
-not bother "many" people because 2022.04 is not so old.
+I'm testing an alternative patch right now and will share it later 
+today, along with a reproducer.
 
-So I am a bit lost, IIUC what is currently broken is:
-- U-Boot > 2022.04 and any version of Linux with the backport?
-
-> If I add the partitions node as a child of my nand controller, as I was
-> planning to do and I wrote 10 lines above, I will create a new flavor of
-> non-booting system with U-Boot older than v2022.04 :-/
-
-I think there is a little confusion here. You are referring to the NAND
-controller node, the commit refers to the NAND chip node. What this
-commit does looks fine because it just tries to use the partitions {}
-node rather than the NAND chip node and if the partitions {} node
-already exist, I expect #address-cells and #size-cells to be defined
-and be !=3D 0 already.
-
-Here is a proper description:
-
-nand-controller {
-	#address-cells =3D <1>;
-	#size-cells =3D <0>;
-	nand-chip {
-		partitions {
-			#address-cells =3D <1 or 2>;
-			#size-cells =3D <1 or 2>;
-			partition@x { };
-			partition@y { };
-		};
-	};
-
-	/* Here you can very well have another nand-chip node with
-	 * another reg property which represents its own CS and another
-	 * set of partitions.
-	 */
-};
-
-> U-Boot older than v2022.04 will update the nand controller node never
-> the less, the partition node will still be there and Linux will use it,
-> but it will be empty since nobody populate it.
->=20
-> Francesco
->=20
-> [1] commit 36fee2f7621e ("common: fdt_support: add support for "partition=
-s" subnode to fdt_fixup_mtdparts()")
-
-
+-- 
 Thanks,
-Miqu=C3=A8l
+
+David / dhildenb
+
