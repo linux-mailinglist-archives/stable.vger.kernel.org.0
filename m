@@ -2,137 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F4DF640223
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 09:31:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC189640262
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 09:40:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232901AbiLBIb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 03:31:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46708 "EHLO
+        id S231649AbiLBIkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 03:40:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232622AbiLBI3q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 03:29:46 -0500
-Received: from APC01-PSA-obe.outbound.protection.outlook.com (mail-psaapc01olkn2044.outbound.protection.outlook.com [40.92.52.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F101B9DD;
-        Fri,  2 Dec 2022 00:29:33 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=h45j8ak8pCMvptvI54apD+z4bL7vyr+EAoJkHF83PIGWhLI9KY5h5XNSGynQXkctg8S9GQhUyix9FhtK/BGOQzJbYi8Qy1Zjijw+VrO6vDdPtQGBvKFZRWRVYGDYRmY/asRA4fj5LUh8P0pfrnBVH4fkT6H8Kvww2SCLYWaufVQffyAUSs6Ef+y8mcEyy6uHefEfskGSX08lqqrY7rOKY/hGCezDXDRDk1seZoQ/5h2JWn2k/bgCH22uQbebembjDcYJaETt3PfvBd3ygRMtP/bw5kxjuu2LsqeqJMHfElQRxYL7VOSnvpopz4fzMbktRvOxYylPF3c6w0fFktnpcg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=9HcybZ2vfQ+EwoEYW4hg8k8tIiUXVbxURLLrGUvdwNY=;
- b=GTnOYSgYTJ5v8XBOar5pgpBASuBLVthYlsGapl+gwcLixGbiJD0d42dP47aDHkePYWntrpkzYFLFFFe7Jz0Si8gf7x2/ISLTyxJFe7ohuwLf9HLdOBma2hd6yClzV+44YaubHlqLo4kxiWVaaMxLxzSanqfsoMUL/I2A8oYz2IeS4pe8mD3Z0b/MkW/8i8yafkJ/UA4TkBkQaKWXaW16fsBX22cGiVmeQZNP1q7fDMBqppWp2gngy/ox1u0rjA9+UcYYqdKQ1eI3wrldF0jPfv1rURDZROHylfV7931Xo1wU5wrqvbtYQjKc/1ckox/KW+Hhjokoyj62PTouS84ghw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hotmail.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9HcybZ2vfQ+EwoEYW4hg8k8tIiUXVbxURLLrGUvdwNY=;
- b=YZrgIQq+1c4SDuGhqzajKt+DeA52mJuGAd8IGQIaZMqMSrARIh7lXJw4BPDmmsmcmS1cFVNu5V0fMK9OtDrxDZ/h2r04uA8znXkzeqqhILI3bjav7XYRpNm19e3bwwJzpGsTX8hsjE8YUm2E1q9HGGO0+9WhUJysGPI/FqhPWtcT2bnzUAHWNjEYrWY+nqHHwaH+qDPFWcrlwRaKdZ95zq34WkDzDSp0xQguS8bpPzivJhVP6J/i/0/OrMbjcXNY773vpQJ0tdKav+moRJGnYZhH05n7O0m76+eAPPOv1UvwRGXLXBp4nQZt2Krux9adHeT8s4eWyINkk1l4SOTr2Q==
-Received: from SG2PR02MB5878.apcprd02.prod.outlook.com (2603:1096:4:1d2::9) by
- SI2PR02MB4522.apcprd02.prod.outlook.com (2603:1096:4:109::14) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5857.21; Fri, 2 Dec 2022 08:29:29 +0000
-Received: from SG2PR02MB5878.apcprd02.prod.outlook.com
- ([fe80::2c81:c803:d49b:eebb]) by SG2PR02MB5878.apcprd02.prod.outlook.com
- ([fe80::2c81:c803:d49b:eebb%4]) with mapi id 15.20.5880.010; Fri, 2 Dec 2022
- 08:29:28 +0000
-From:   Dicheng Wang <wangdicheng123@hotmail.com>
-To:     perex@perex.cz, tiwai@suse.com, sdoregor@sdore.me,
-        john-linux@pelago.org.uk, hahnjo@hahnjo.de, wangdicheng@kylinos.cn,
-        connerknoxpublic@gmail.com
-Cc:     alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH -next] The USB audio driver does not contain the VID and PID of this sound card, so the driver is not loaded.
-Date:   Fri,  2 Dec 2022 16:29:08 +0800
-Message-ID: <SG2PR02MB5878D3E800F2D571A7C2234F8A179@SG2PR02MB5878.apcprd02.prod.outlook.com>
-X-Mailer: git-send-email 2.25.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-TMN:  [456Z0W/WKjSUg/mAEv8OI1fVDlW5lOi65hvD1mi52zI=]
-X-ClientProxiedBy: SI2PR02CA0029.apcprd02.prod.outlook.com
- (2603:1096:4:195::6) To SG2PR02MB5878.apcprd02.prod.outlook.com
- (2603:1096:4:1d2::9)
-X-Microsoft-Original-Message-ID: <20221202082908.290632-1-wangdicheng123@hotmail.com>
+        with ESMTP id S232721AbiLBIjv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 03:39:51 -0500
+Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84BC610FF3
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 00:39:45 -0800 (PST)
+Received: by mail-io1-xd31.google.com with SMTP id d18so2682082iof.6
+        for <stable@vger.kernel.org>; Fri, 02 Dec 2022 00:39:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=uHMoD/DcrhObTGtyvyKEig8wHn7CtcVTXrQ4ciasUkM=;
+        b=JnXkfoFq7hb5GNb8lyWcXA//VaK0QvOA+CpsnlLhjtGk/vicAEoolpKw3/6044ildC
+         HAYIX8MfXJ49PDjbHXWmMFDTaR0CH+ZhQrs1XwGRHP3IIyImxckBaOFK9yyaCk7AIJSg
+         C46zmAx4VHTTe8uzvUneLbW7Ma+M8EYqqdNw3yevC0CrxwD6TgYDzWcky8zM7UAWZxKq
+         cRLeRQYIIy0kU7bFpUYZ5ntA0ybx9Og3/6jYUbdbjlvOTHcZbFfFUy1otbq0Jy3/muri
+         wmpGYoVFBglbeRWCZa4Urowy4APUojbeQgCPCzYCVsh5pC4pNeFVd71gypdw6uVPln15
+         qKYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=uHMoD/DcrhObTGtyvyKEig8wHn7CtcVTXrQ4ciasUkM=;
+        b=NLM5iyusahFxcxHVP38GK2a9DZmFzVGcKnia3LsZLuq/gXhh1wBKkFLR5ED44IwFbO
+         h1tEsUApl0E+lx2lC5e6e7KH+g/cXA3GRGk65CHUAp8uB45nHatvzQNTr/yCwjOQ7Wog
+         DCZDbUjXKq3BUU8BUA022NyFKAzcApW6PQD52fMRjbdVT5Bx98TiKs7mvdoV38kSqTG4
+         BtIJIUTkXZFaNysmbxiCQlLBywI6ziVeDFmOq0afcHcu1mpLPU/Zjk5seHv/tN9xB4jh
+         Ui9mjoZUvJnsmmZXR7q3eZEJN2PXeMNmRFRzl1xH7Y3JOPfj9i04fCZPBZEQM2Z75yLy
+         hIrw==
+X-Gm-Message-State: ANoB5pnJNe+Q6trfwyZrrKcOk2swT0ARdQnUOh+YODzVQO3ApCWcvR4H
+        IgW+J19S19aJf+B7d3Wee0pBrX1SBo6w3jufZTHuqA==
+X-Google-Smtp-Source: AA0mqf4JiwQnAyPsXCWrNbTSZVfNVE6Y+b/uABBIXoE9/WT+6EniEpMZGgn/Las+wt5J8BW7NftFFpYE6E9BR7+lwjQ=
+X-Received: by 2002:a02:cc4d:0:b0:373:2fc2:96d7 with SMTP id
+ i13-20020a02cc4d000000b003732fc296d7mr27723585jaq.177.1669970384908; Fri, 02
+ Dec 2022 00:39:44 -0800 (PST)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SG2PR02MB5878:EE_|SI2PR02MB4522:EE_
-X-MS-Office365-Filtering-Correlation-Id: e9c38405-167d-4915-c8e0-08dad43f5427
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 2vEaOTpHPClu+fGxcvAMh2DUqh/pddLKzjOb9LJg8Qhgq1r9yMhrGdmKMbhLnQutCBl7YZCQO/cvPWU7cmE0zdg7FFHpe4hS569FKUQBKcrhUpiw18f1WwKsjnaXCUbHnYBD3k+Dl/xGYyAxum750XfrYmhglb7YWjzpEQ7Wm+yjbb9Sj3RB2WSlDn2CbzF4foXkRMw5ztA8dOeS/3mwPrcxI22CX1gdUYxcK7Q0Ffdt95OHDJMNCkxEOFCzgaTP5WhStT/q8XkAlHGCBGl1cARJIvfekPKzaf8no7KMYpthdrx0UtC2m0mTZqIiOcUVHrqDkQdbQunZBW5TnLY5bycWoq6OeEaeT330JGMyzEtd+i7bThdJk/meiIcpZqAiyTi3j04KwFgCtCglfgQUzi+78Wo2tvqPpisFRlWgJhY4gJvv6rdJdxYSS5g+mEQtVfRQlClP62h+stay/0dFkkxcRkBGHkXDdc8SPlfpJaN64aLcDlFoXv2iQTmKcoqdfyZCaTepqqof3HHAnE2wV5z/mHoBBEmuLa+6PLnq2H0fEjX77u9eRZWxtyn7+NM5QOdj4wANLBTXdQ3SBjDz8p+R+PDuDR+b0ykbTDTt4j8=
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?VUOn0T5R7Z76wQE/lCxtAexn31SPkWYwCW/LbYJEHlW+jAW7umvlumvyA138?=
- =?us-ascii?Q?AWsCZjq816U2jnGH3GUvpif8eU+0U+9BYiViE3irlKk6zXRyuSTdm3PDkO2I?=
- =?us-ascii?Q?djl4PrYlW0ApOms48gXL/FgcBhrrvhgmXEL6F67KBfGmPT1yOcNJnI9JQiBo?=
- =?us-ascii?Q?BhouX9eYEm9cFAF66eMKS14t2AFzZwAh2TUOVowvjkVPuQlKGVsEUJFPagdC?=
- =?us-ascii?Q?CR+Hb6N/+ObsEHln5ttcdCHdcOGmzG2BHbkOfBYr8HDqK+KnXcpkc1CCiecz?=
- =?us-ascii?Q?Nn/mEQznbUApYcjOLsjv+jRJfNS+e7UBQ62edAGe3FmXs10PcMg/hdSfA0nX?=
- =?us-ascii?Q?zykUqMmEkCYBiWbcCZxEN5z6s4a8//Bq/VdbjpdOb5BOpGDi/PJ6sSnv8GHU?=
- =?us-ascii?Q?xS0ZqXZLwau2GDUHOJYWoZcjzYQofiKfK44joRi7CfMvigLgdLYR16f8oOM4?=
- =?us-ascii?Q?do5M5K5phJGnq0i9gqQX8Zbprus/lghhZ/3eMsGQHjFEq6P6ZStmN7AOiTC8?=
- =?us-ascii?Q?QR+jNVVClGpjHkz6iYVs+tkbAyVdX730G2plVJrnXD0nQp2k9MQMOAdueEPB?=
- =?us-ascii?Q?+5EZpAnZRk/EupzlkQr/B1TYMS/4E0DJzLIeTKVynMzZDv5emtmDIwa8mj/2?=
- =?us-ascii?Q?iacozFTIWDSV1uOnLS3bCn4yr1gxDNy7DmyWPUdWkFvSWaJgecUgNMhBC18S?=
- =?us-ascii?Q?uPotbN+W9cKUU52sEm54wnXftgSoEBMazAxfK+93cyy9CWvnEWZ1lQkHoWxk?=
- =?us-ascii?Q?RIvdreoiFHvQMekQRIqlZtLbHhKCZmpqlHy8zzqfycosmQ04e2BBDqnzNjV4?=
- =?us-ascii?Q?yFGqcl5KfWlJr8pSTEBdjCAhZUlQXBFLA+cgAZAkeP285HprDz4VRPaA3voW?=
- =?us-ascii?Q?NmH0236gwYkmv0pKG7wdFbgc+9ssfIyfinsoo11xY4baTYa2NbHnGOihNOb7?=
- =?us-ascii?Q?yrbfl61f3KnhDCpkLE+VSq7i6Au22zsEfBuLurl+umfSxfE+yHYrLjVXjae5?=
- =?us-ascii?Q?uJcPvXmw8Zp5JJRCoflQuVxkgCM0/CwsCae9WB/Lled6biBuHpOaCWkUAGmx?=
- =?us-ascii?Q?rw01uO1FPltRnN8AEvhGBQgLD/YNq0QEjhtzm8L3USE9T8YNNIs9A8KgwQOJ?=
- =?us-ascii?Q?BOZIe6WOic/tv0I3diUM6tjQzrf576POo0Clmukk53iQiQ3R7B2QGKJlQoUX?=
- =?us-ascii?Q?ih0f75RJqb5dLg4dztPbL52hu3m1gHnMoWO/jM2kI0McHrUJordo73lxFK2L?=
- =?us-ascii?Q?A9OoHjUFgsoEm/pMe/Tvb/BxIuoPirhEylJWGoZi9+3VPWHebHO/JXQpPdG2?=
- =?us-ascii?Q?KJc=3D?=
-X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-20e34.templateTenant
-X-MS-Exchange-CrossTenant-Network-Message-Id: e9c38405-167d-4915-c8e0-08dad43f5427
-X-MS-Exchange-CrossTenant-AuthSource: SG2PR02MB5878.apcprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Dec 2022 08:29:28.9236
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SI2PR02MB4522
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_PASS,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <CA+G9fYuNirzmuQvYpH6gYiAr_fqh9g-+RP83FW3oLbty9iKbyw@mail.gmail.com>
+ <868rjrmmv2.wl-maz@kernel.org>
+In-Reply-To: <868rjrmmv2.wl-maz@kernel.org>
+From:   Anders Roxell <anders.roxell@linaro.org>
+Date:   Fri, 2 Dec 2022 09:39:33 +0100
+Message-ID: <CADYN=9KSKQx816id-zWepV-E3ozph3k2_i9Rhs6QseFv0hkPfg@mail.gmail.com>
+Subject: Re: stable-rc-5.10: arm64: allmodconfig: (.hyp.text+0x1a4c):
+ undefined reference to `__kvm_nvhe_memset'
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        linux-stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        lkft-triage@lists.linaro.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wangdicheng <wangdicheng@kylinos.cn>
+On Thu, 1 Dec 2022 at 11:36, Marc Zyngier <maz@kernel.org> wrote:
+>
+> On Thu, 01 Dec 2022 09:39:57 +0000,
+> Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> >
+> > [please ignore if it is already reported]
+> >
+> > The stable-rc 5.10 arm64 allmodconfig builds failed with gcc-12.
+> > List of build warnings and errors with gcc-12 are listed below.
+> >
+> > aarch64-linux-gnu-ld: Unexpected GOT/PLT entries detected!
+> > aarch64-linux-gnu-ld: Unexpected run-time procedure linkages detected!
+> > aarch64-linux-gnu-ld: arch/arm64/kvm/hyp/nvhe/kvm_nvhe.o: in function
+> > `__kvm_nvhe___kvm_tlb_flush_vmid_ipa':
+> > (.hyp.text+0x1a4c): undefined reference to `__kvm_nvhe_memset'
+>
+> Stupid gcc. Can you try the following patch and check if this works
+> for you?
 
-Add relevant information to the quirks-table.h file.
-The test passes and the sound source file plays normally.
+The patch didn't apply smodly, was a few minor issues.
+But it solved the build error.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: wangdicheng <wangdicheng@kylinos.cn>
----
- sound/usb/quirks-table.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+Cheers,
+Anders
 
-diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-index 874fcf245747..1fb183895da0 100644
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -2802,6 +2802,13 @@ YAMAHA_DEVICE(0x7010, "UB99"),
- 	.idProduct = 0x1020,
- },
- 
-+/* Ktmicro Usb_audio device */
-+{
-+	.match_flags = USB_DEVICE_ID_MATCH_DEVICE,
-+	.idVendor = 0x31b2,
-+	.idProduct = 0x0011,
-+},
-+
- /* QinHeng devices */
- {
- 	USB_DEVICE(0x1a86, 0x752d),
--- 
-2.25.1
-
+>
+> Thanks,
+>
+>         M.
+>
+> From 4e775885654bd667a519df5ca5aaf702ce438f5e Mon Sep 17 00:00:00 2001
+> From: Will Deacon <will@kernel.org>
+> Date: Fri, 19 Mar 2021 10:01:10 +0000
+> Subject: [PATCH] KVM: arm64: Link position-independent string routines into
+>  .hyp.text
+>
+> Commit 7b4a7b5e6fefd15f708f959dd43e188444e252ec upstream.
+>
+> Pull clear_page(), copy_page(), memcpy() and memset() into the nVHE hyp
+> code and ensure that we always execute the '__pi_' entry point on the
+> offchance that it changes in future.
+>
+> [ qperret: Commit title nits and added linker script alias ]
+>
+> Signed-off-by: Will Deacon <will@kernel.org>
+> Signed-off-by: Quentin Perret <qperret@google.com>
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Link: https://lore.kernel.org/r/20210319100146.1149909-3-qperret@google.com
+> ---
+>  arch/arm64/include/asm/hyp_image.h |  3 +++
+>  arch/arm64/kernel/image-vars.h     | 11 +++++++++++
+>  arch/arm64/kvm/hyp/nvhe/Makefile   |  4 ++++
+>  3 files changed, 18 insertions(+)
+>
+> diff --git a/arch/arm64/include/asm/hyp_image.h b/arch/arm64/include/asm/hyp_image.h
+> index daa1a1da539e..e06842756051 100644
+> --- a/arch/arm64/include/asm/hyp_image.h
+> +++ b/arch/arm64/include/asm/hyp_image.h
+> @@ -31,6 +31,9 @@
+>   */
+>  #define KVM_NVHE_ALIAS(sym)    kvm_nvhe_sym(sym) = sym;
+>
+> +/* Defines a linker script alias for KVM nVHE hyp symbols */
+> +#define KVM_NVHE_ALIAS_HYP(first, sec) kvm_nvhe_sym(first) = kvm_nvhe_sym(sec);
+> +
+>  #endif /* LINKER_SCRIPT */
+>
+>  #endif /* __ARM64_HYP_IMAGE_H__ */
+> diff --git a/arch/arm64/kernel/image-vars.h b/arch/arm64/kernel/image-vars.h
+> index c615b285ff5b..48e43b29a2d5 100644
+> --- a/arch/arm64/kernel/image-vars.h
+> +++ b/arch/arm64/kernel/image-vars.h
+> @@ -103,6 +103,17 @@ KVM_NVHE_ALIAS(gic_nonsecure_priorities);
+>  KVM_NVHE_ALIAS(__start___kvm_ex_table);
+>  KVM_NVHE_ALIAS(__stop___kvm_ex_table);
+>
+> +/* Position-independent library routines */
+> +KVM_NVHE_ALIAS_HYP(clear_page, __pi_clear_page);
+> +KVM_NVHE_ALIAS_HYP(copy_page, __pi_copy_page);
+> +KVM_NVHE_ALIAS_HYP(memcpy, __pi_memcpy);
+> +KVM_NVHE_ALIAS_HYP(memset, __pi_memset);
+> +
+> +#ifdef CONFIG_KASAN
+> +KVM_NVHE_ALIAS_HYP(__memcpy, __pi_memcpy);
+> +KVM_NVHE_ALIAS_HYP(__memset, __pi_memset);
+> +#endif
+> +
+>  #endif /* CONFIG_KVM */
+>
+>  #endif /* __ARM64_KERNEL_IMAGE_VARS_H */
+> diff --git a/arch/arm64/kvm/hyp/nvhe/Makefile b/arch/arm64/kvm/hyp/nvhe/Makefile
+> index ddde15fe85f2..230bba1a6716 100644
+> --- a/arch/arm64/kvm/hyp/nvhe/Makefile
+> +++ b/arch/arm64/kvm/hyp/nvhe/Makefile
+> @@ -6,9 +6,13 @@
+>  asflags-y := -D__KVM_NVHE_HYPERVISOR__
+>  ccflags-y := -D__KVM_NVHE_HYPERVISOR__
+>
+> +lib-objs := clear_page.o copy_page.o memcpy.o memset.o
+> +lib-objs := $(addprefix ../../../lib/, $(lib-objs))
+> +
+>  obj-y := timer-sr.o sysreg-sr.o debug-sr.o switch.o tlb.o hyp-init.o host.o hyp-main.o
+>  obj-y += ../vgic-v3-sr.o ../aarch32.o ../vgic-v2-cpuif-proxy.o ../entry.o \
+>          ../fpsimd.o ../hyp-entry.o
+> +obj-y += $(lib-objs)
+>
+>  ##
+>  ## Build rules for compiling nVHE hyp code
+> --
+> 2.34.1
+>
+>
+> --
+> Without deviation from the norm, progress is not possible.
