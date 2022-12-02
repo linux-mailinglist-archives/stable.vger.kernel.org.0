@@ -2,310 +2,223 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6227640698
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 13:18:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 240616406D1
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 13:28:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233241AbiLBMSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 07:18:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41002 "EHLO
+        id S232931AbiLBM2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 07:28:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232996AbiLBMSL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 07:18:11 -0500
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 265B298E99;
-        Fri,  2 Dec 2022 04:18:10 -0800 (PST)
-Received: by mail-qt1-f179.google.com with SMTP id fp23so4497041qtb.0;
-        Fri, 02 Dec 2022 04:18:10 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=DuwvGudsv0NtoGLtvfgyPP/TQW5AhHw0IVTCNeOwnBw=;
-        b=y1JDIN/SGP/KzFubFKbi1SxGOaz1uNbOIGQwXK8/uF+u1p8RWBVN5Zm/3CHgBVPrMD
-         SjSyFS5yeYmJ4L2DPowQEve3lQr/8zZl+UD4Rv3AzCvFfaRC6CLAu188dF1GxGgBBTMd
-         Ctpo4cxsw794WBIBQtoHgoPsOg9EMVnhPhe2/O5NI1XxfzPeBk8ncNkB6RxugCeAk3IQ
-         G4ScVXVdSLL4SSqtKy7rAGBEY4kY0jUMkVp/Z3fn6F+QKlkoICezvta2ZHU68CvK9JAs
-         09d5t7MgBdrFVuc9hVC6mqr1/tTHsR51XqyV/q2XUojhvUbY4PZQhu8AVJe4GUeYzDmp
-         c6lQ==
-X-Gm-Message-State: ANoB5pmKp91nyICUUjBr+RoEbNOWQR8RMe/mxIubZV35zARbwblweNZ+
-        eEh/rsdzvaxApPscOPhS+Pnod4XcvnMzLCfe70A=
-X-Google-Smtp-Source: AA0mqf47UpzJNAwavczJqxL1OfduIXAIqgAfLoludYj2DCWEzTTWY3GlrV+IR/EQxF8HCLz7qvm435/BStLvSXZoyCM=
-X-Received: by 2002:a05:620a:51ca:b0:6ec:fa04:d97c with SMTP id
- cx10-20020a05620a51ca00b006ecfa04d97cmr45648191qkb.764.1669983489227; Fri, 02
- Dec 2022 04:18:09 -0800 (PST)
+        with ESMTP id S232876AbiLBM2w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 07:28:52 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D25658D648
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 04:27:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1669984078;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=3IQT7HVPdE5UCXxrPvYWxf1yUdiJyVxk5WLvcPgmxZA=;
+        b=UhH2msk1WuW9hU3m2Tw9Xo1XOod9Oa5X7mpFacwj/KP+aQli78542FI0QhE+mvMUQJIHpf
+        ttPHlxBCrdkORItTWwRdZCRNMQVN4t1Js68iKZN3xHjOvpHdXBYd53x9Q1wbW2voIT6MST
+        LfzitArF8gqwTB4//UloxEwZmeI+t7g=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-25-6wnuje_JMaatQLLlcIK-6g-1; Fri, 02 Dec 2022 07:27:55 -0500
+X-MC-Unique: 6wnuje_JMaatQLLlcIK-6g-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6C324185A78F;
+        Fri,  2 Dec 2022 12:27:54 +0000 (UTC)
+Received: from t480s.fritz.box (unknown [10.39.193.174])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 887AA63A57;
+        Fri,  2 Dec 2022 12:27:51 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
+        Ives van Hoorne <ives@codesandbox.io>,
+        Peter Xu <peterx@redhat.com>, stable@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hugh@veritas.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Andrea Arcangeli <aarcange@redhat.com>
+Subject: [PATCH RFC] mm/userfaultfd: enable writenotify while userfaultfd-wp is enabled for a VMA
+Date:   Fri,  2 Dec 2022 13:27:48 +0100
+Message-Id: <20221202122748.113774-1-david@redhat.com>
 MIME-Version: 1.0
-References: <930778a1-5e8b-6df6-3276-42dcdadaf682@systemli.org> <18947e09733a17935af9a123ccf9b6e92faeaf9b.1669958641.git.viresh.kumar@linaro.org>
-In-Reply-To: <18947e09733a17935af9a123ccf9b6e92faeaf9b.1669958641.git.viresh.kumar@linaro.org>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Fri, 2 Dec 2022 13:17:56 +0100
-Message-ID: <CAJZ5v0ixHocQbu6-zs3dMDsiw8vdPyv=8Re7N4kUckeGkLhUzg@mail.gmail.com>
-Subject: Re: [PATCH] Revert "cpufreq: mediatek: Refine mtk_cpufreq_voltage_tracking()"
-To:     Viresh Kumar <viresh.kumar@linaro.org>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-pm@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        regressions@leemhuis.info, daniel@makrotopia.org,
-        thomas.huehn@hs-nordhausen.de, "v5 . 19+" <stable@vger.kernel.org>,
-        Nick <vincent@systemli.org>, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 2, 2022 at 6:26 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
->
-> This reverts commit 6a17b3876bc8303612d7ad59ecf7cbc0db418bcd.
->
-> This commit caused regression on Banana Pi R64 (MT7622), revert until
-> the problem is identified and fixed properly.
->
-> Link: https://lore.kernel.org/all/930778a1-5e8b-6df6-3276-42dcdadaf682@systemli.org/
-> Cc: v5.19+ <stable@vger.kernel.org> # v5.19+
-> Reported-by: Nick <vincent@systemli.org>
-> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Currently, we don't enable writenotify when enabling userfaultfd-wp on
+a shared writable mapping (for now we only support SHMEM). The consequence
+is that vma->vm_page_prot will still include write permissions, to be set
+as default for all PTEs that get remapped (e.g., mprotect(), NUMA hinting,
+page migration, ...).
 
-Do you want me to push this revert for -rc8?
+This is problematic for uffd-wp: we'd have to manually check for
+a uffd-wp PTE and manually write-protect that PTE, which is error prone
+and the logic is the wrong way around. Prone to such issues is any code
+that uses vma->vm_page_prot to set PTE permissions: primarily pte_modify()
+and mk_pte(), but there might be more (move_pte() looked suspicious at
+first but the protection parameter is essentially unused).
 
-> ---
->  drivers/cpufreq/mediatek-cpufreq.c | 147 +++++++++++++++++++----------
->  1 file changed, 96 insertions(+), 51 deletions(-)
->
-> diff --git a/drivers/cpufreq/mediatek-cpufreq.c b/drivers/cpufreq/mediatek-cpufreq.c
-> index 7f2680bc9a0f..4466d0c91a6a 100644
-> --- a/drivers/cpufreq/mediatek-cpufreq.c
-> +++ b/drivers/cpufreq/mediatek-cpufreq.c
-> @@ -8,7 +8,6 @@
->  #include <linux/cpu.h>
->  #include <linux/cpufreq.h>
->  #include <linux/cpumask.h>
-> -#include <linux/minmax.h>
->  #include <linux/module.h>
->  #include <linux/of.h>
->  #include <linux/of_platform.h>
-> @@ -16,6 +15,8 @@
->  #include <linux/pm_opp.h>
->  #include <linux/regulator/consumer.h>
->
-> +#define VOLT_TOL               (10000)
-> +
->  struct mtk_cpufreq_platform_data {
->         int min_volt_shift;
->         int max_volt_shift;
-> @@ -55,7 +56,6 @@ struct mtk_cpu_dvfs_info {
->         unsigned int opp_cpu;
->         unsigned long current_freq;
->         const struct mtk_cpufreq_platform_data *soc_data;
-> -       int vtrack_max;
->         bool ccifreq_bound;
->  };
->
-> @@ -82,7 +82,6 @@ static int mtk_cpufreq_voltage_tracking(struct mtk_cpu_dvfs_info *info,
->         struct regulator *proc_reg = info->proc_reg;
->         struct regulator *sram_reg = info->sram_reg;
->         int pre_vproc, pre_vsram, new_vsram, vsram, vproc, ret;
-> -       int retry = info->vtrack_max;
->
->         pre_vproc = regulator_get_voltage(proc_reg);
->         if (pre_vproc < 0) {
-> @@ -90,44 +89,91 @@ static int mtk_cpufreq_voltage_tracking(struct mtk_cpu_dvfs_info *info,
->                         "invalid Vproc value: %d\n", pre_vproc);
->                 return pre_vproc;
->         }
-> +       /* Vsram should not exceed the maximum allowed voltage of SoC. */
-> +       new_vsram = min(new_vproc + soc_data->min_volt_shift,
-> +                       soc_data->sram_max_volt);
-> +
-> +       if (pre_vproc < new_vproc) {
-> +               /*
-> +                * When scaling up voltages, Vsram and Vproc scale up step
-> +                * by step. At each step, set Vsram to (Vproc + 200mV) first,
-> +                * then set Vproc to (Vsram - 100mV).
-> +                * Keep doing it until Vsram and Vproc hit target voltages.
-> +                */
-> +               do {
-> +                       pre_vsram = regulator_get_voltage(sram_reg);
-> +                       if (pre_vsram < 0) {
-> +                               dev_err(info->cpu_dev,
-> +                                       "invalid Vsram value: %d\n", pre_vsram);
-> +                               return pre_vsram;
-> +                       }
-> +                       pre_vproc = regulator_get_voltage(proc_reg);
-> +                       if (pre_vproc < 0) {
-> +                               dev_err(info->cpu_dev,
-> +                                       "invalid Vproc value: %d\n", pre_vproc);
-> +                               return pre_vproc;
-> +                       }
->
-> -       pre_vsram = regulator_get_voltage(sram_reg);
-> -       if (pre_vsram < 0) {
-> -               dev_err(info->cpu_dev, "invalid Vsram value: %d\n", pre_vsram);
-> -               return pre_vsram;
-> -       }
-> +                       vsram = min(new_vsram,
-> +                                   pre_vproc + soc_data->min_volt_shift);
->
-> -       new_vsram = clamp(new_vproc + soc_data->min_volt_shift,
-> -                         soc_data->sram_min_volt, soc_data->sram_max_volt);
-> +                       if (vsram + VOLT_TOL >= soc_data->sram_max_volt) {
-> +                               vsram = soc_data->sram_max_volt;
->
-> -       do {
-> -               if (pre_vproc <= new_vproc) {
-> -                       vsram = clamp(pre_vproc + soc_data->max_volt_shift,
-> -                                     soc_data->sram_min_volt, new_vsram);
-> -                       ret = regulator_set_voltage(sram_reg, vsram,
-> -                                                   soc_data->sram_max_volt);
-> +                               /*
-> +                                * If the target Vsram hits the maximum voltage,
-> +                                * try to set the exact voltage value first.
-> +                                */
-> +                               ret = regulator_set_voltage(sram_reg, vsram,
-> +                                                           vsram);
-> +                               if (ret)
-> +                                       ret = regulator_set_voltage(sram_reg,
-> +                                                       vsram - VOLT_TOL,
-> +                                                       vsram);
->
-> -                       if (ret)
-> -                               return ret;
-> -
-> -                       if (vsram == soc_data->sram_max_volt ||
-> -                           new_vsram == soc_data->sram_min_volt)
->                                 vproc = new_vproc;
-> -                       else
-> +                       } else {
-> +                               ret = regulator_set_voltage(sram_reg, vsram,
-> +                                                           vsram + VOLT_TOL);
-> +
->                                 vproc = vsram - soc_data->min_volt_shift;
-> +                       }
-> +                       if (ret)
-> +                               return ret;
->
->                         ret = regulator_set_voltage(proc_reg, vproc,
-> -                                                   soc_data->proc_max_volt);
-> +                                                   vproc + VOLT_TOL);
->                         if (ret) {
->                                 regulator_set_voltage(sram_reg, pre_vsram,
-> -                                                     soc_data->sram_max_volt);
-> +                                                     pre_vsram);
->                                 return ret;
->                         }
-> -               } else if (pre_vproc > new_vproc) {
-> +               } while (vproc < new_vproc || vsram < new_vsram);
-> +       } else if (pre_vproc > new_vproc) {
-> +               /*
-> +                * When scaling down voltages, Vsram and Vproc scale down step
-> +                * by step. At each step, set Vproc to (Vsram - 200mV) first,
-> +                * then set Vproc to (Vproc + 100mV).
-> +                * Keep doing it until Vsram and Vproc hit target voltages.
-> +                */
-> +               do {
-> +                       pre_vproc = regulator_get_voltage(proc_reg);
-> +                       if (pre_vproc < 0) {
-> +                               dev_err(info->cpu_dev,
-> +                                       "invalid Vproc value: %d\n", pre_vproc);
-> +                               return pre_vproc;
-> +                       }
-> +                       pre_vsram = regulator_get_voltage(sram_reg);
-> +                       if (pre_vsram < 0) {
-> +                               dev_err(info->cpu_dev,
-> +                                       "invalid Vsram value: %d\n", pre_vsram);
-> +                               return pre_vsram;
-> +                       }
-> +
->                         vproc = max(new_vproc,
->                                     pre_vsram - soc_data->max_volt_shift);
->                         ret = regulator_set_voltage(proc_reg, vproc,
-> -                                                   soc_data->proc_max_volt);
-> +                                                   vproc + VOLT_TOL);
->                         if (ret)
->                                 return ret;
->
-> @@ -137,24 +183,32 @@ static int mtk_cpufreq_voltage_tracking(struct mtk_cpu_dvfs_info *info,
->                                 vsram = max(new_vsram,
->                                             vproc + soc_data->min_volt_shift);
->
-> -                       ret = regulator_set_voltage(sram_reg, vsram,
-> -                                                   soc_data->sram_max_volt);
-> +                       if (vsram + VOLT_TOL >= soc_data->sram_max_volt) {
-> +                               vsram = soc_data->sram_max_volt;
-> +
-> +                               /*
-> +                                * If the target Vsram hits the maximum voltage,
-> +                                * try to set the exact voltage value first.
-> +                                */
-> +                               ret = regulator_set_voltage(sram_reg, vsram,
-> +                                                           vsram);
-> +                               if (ret)
-> +                                       ret = regulator_set_voltage(sram_reg,
-> +                                                       vsram - VOLT_TOL,
-> +                                                       vsram);
-> +                       } else {
-> +                               ret = regulator_set_voltage(sram_reg, vsram,
-> +                                                           vsram + VOLT_TOL);
-> +                       }
-> +
->                         if (ret) {
->                                 regulator_set_voltage(proc_reg, pre_vproc,
-> -                                                     soc_data->proc_max_volt);
-> +                                                     pre_vproc);
->                                 return ret;
->                         }
-> -               }
-> -
-> -               pre_vproc = vproc;
-> -               pre_vsram = vsram;
-> -
-> -               if (--retry < 0) {
-> -                       dev_err(info->cpu_dev,
-> -                               "over loop count, failed to set voltage\n");
-> -                       return -EINVAL;
-> -               }
-> -       } while (vproc != new_vproc || vsram != new_vsram);
-> +               } while (vproc > new_vproc + VOLT_TOL ||
-> +                        vsram > new_vsram + VOLT_TOL);
-> +       }
->
->         return 0;
->  }
-> @@ -250,8 +304,8 @@ static int mtk_cpufreq_set_target(struct cpufreq_policy *policy,
->          * If the new voltage or the intermediate voltage is higher than the
->          * current voltage, scale up voltage first.
->          */
-> -       target_vproc = max(inter_vproc, vproc);
-> -       if (pre_vproc <= target_vproc) {
-> +       target_vproc = (inter_vproc > vproc) ? inter_vproc : vproc;
-> +       if (pre_vproc < target_vproc) {
->                 ret = mtk_cpufreq_set_voltage(info, target_vproc);
->                 if (ret) {
->                         dev_err(cpu_dev,
-> @@ -513,15 +567,6 @@ static int mtk_cpu_dvfs_info_init(struct mtk_cpu_dvfs_info *info, int cpu)
->          */
->         info->need_voltage_tracking = (info->sram_reg != NULL);
->
-> -       /*
-> -        * We assume min voltage is 0 and tracking target voltage using
-> -        * min_volt_shift for each iteration.
-> -        * The vtrack_max is 3 times of expeted iteration count.
-> -        */
-> -       info->vtrack_max = 3 * DIV_ROUND_UP(max(info->soc_data->sram_max_volt,
-> -                                               info->soc_data->proc_max_volt),
-> -                                           info->soc_data->min_volt_shift);
-> -
->         return 0;
->
->  out_disable_inter_clock:
-> --
-> 2.31.1.272.g89b43f80a514
->
+Instead, let's enable writenotify -- just like we do for softdirty
+tracking -- such that PTEs will be mapped write-protected as default
+and we will only allow selected PTEs that are defintly safe to be
+mapped without write-protection (see can_change_pte_writable()) to be
+writable. This reverses the logic and implicitly fixes and prevents any
+such uffd-wp issues.
+
+Note that when enabling userfaultfd-wp, there is no need to walk page
+tables to enforce the new default protection for the PTEs: we know that
+they cannot be uffd-wp'ed yet, because that can only happen afterwards.
+
+For example, this fixes page migration and mprotect() to not map a
+uffd-wp'ed PTE writable. In theory, this should also fix when NUMA-hinting
+remaps pages in such (shmem) mappings -- if NUMA-hinting is applicable to
+shmem with uffd as well.
+
+Running the mprotect() reproducer [1] without this commit:
+  $ ./uffd-wp-mprotect
+  FAIL: uffd-wp did not fire
+Running the mprotect() reproducer with this commit:
+  $ ./uffd-wp-mprotect
+  PASS: uffd-wp fired
+
+[1] https://lore.kernel.org/all/222fc0b2-6ec0-98e7-833f-ea868b248446@redhat.com/T/#u
+
+Reported-by: Ives van Hoorne <ives@codesandbox.io>
+Debugged-by: Peter Xu <peterx@redhat.com>
+Fixes: b1f9e876862d ("mm/uffd: enable write protection for shmem & hugetlbfs")
+Cc: stable@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Hugh Dickins <hugh@veritas.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+
+Based on latest upstream. userfaultfd selftests seem to pass.
+
+---
+ fs/userfaultfd.c | 28 ++++++++++++++++++++++------
+ mm/mmap.c        |  4 ++++
+ 2 files changed, 26 insertions(+), 6 deletions(-)
+
+diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+index 98ac37e34e3d..fb0733f2e623 100644
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -108,6 +108,21 @@ static bool userfaultfd_is_initialized(struct userfaultfd_ctx *ctx)
+ 	return ctx->features & UFFD_FEATURE_INITIALIZED;
+ }
+ 
++static void userfaultfd_set_vm_flags(struct vm_area_struct *vma,
++				     vm_flags_t flags)
++{
++	const bool uffd_wp = !!((vma->vm_flags | flags) & VM_UFFD_WP);
++
++	vma->vm_flags = flags;
++	/*
++	 * For shared mappings, we want to enable writenotify while
++	 * userfaultfd-wp is enabled (see vma_wants_writenotify()). We'll simply
++	 * recalculate vma->vm_page_prot whenever userfaultfd-wp is involved.
++	 */
++	if ((vma->vm_flags & VM_SHARED) && uffd_wp)
++		vma_set_page_prot(vma);
++}
++
+ static int userfaultfd_wake_function(wait_queue_entry_t *wq, unsigned mode,
+ 				     int wake_flags, void *key)
+ {
+@@ -618,7 +633,8 @@ static void userfaultfd_event_wait_completion(struct userfaultfd_ctx *ctx,
+ 		for_each_vma(vmi, vma) {
+ 			if (vma->vm_userfaultfd_ctx.ctx == release_new_ctx) {
+ 				vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
+-				vma->vm_flags &= ~__VM_UFFD_FLAGS;
++				userfaultfd_set_vm_flags(vma,
++							 vma->vm_flags & ~__VM_UFFD_FLAGS);
+ 			}
+ 		}
+ 		mmap_write_unlock(mm);
+@@ -652,7 +668,7 @@ int dup_userfaultfd(struct vm_area_struct *vma, struct list_head *fcs)
+ 	octx = vma->vm_userfaultfd_ctx.ctx;
+ 	if (!octx || !(octx->features & UFFD_FEATURE_EVENT_FORK)) {
+ 		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
+-		vma->vm_flags &= ~__VM_UFFD_FLAGS;
++		userfaultfd_set_vm_flags(vma, vma->vm_flags & ~__VM_UFFD_FLAGS);
+ 		return 0;
+ 	}
+ 
+@@ -733,7 +749,7 @@ void mremap_userfaultfd_prep(struct vm_area_struct *vma,
+ 	} else {
+ 		/* Drop uffd context if remap feature not enabled */
+ 		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
+-		vma->vm_flags &= ~__VM_UFFD_FLAGS;
++		userfaultfd_set_vm_flags(vma, vma->vm_flags & ~__VM_UFFD_FLAGS);
+ 	}
+ }
+ 
+@@ -895,7 +911,7 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
+ 			prev = vma;
+ 		}
+ 
+-		vma->vm_flags = new_flags;
++		userfaultfd_set_vm_flags(vma, new_flags);
+ 		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
+ 	}
+ 	mmap_write_unlock(mm);
+@@ -1463,7 +1479,7 @@ static int userfaultfd_register(struct userfaultfd_ctx *ctx,
+ 		 * the next vma was merged into the current one and
+ 		 * the current one has not been updated yet.
+ 		 */
+-		vma->vm_flags = new_flags;
++		userfaultfd_set_vm_flags(vma, new_flags);
+ 		vma->vm_userfaultfd_ctx.ctx = ctx;
+ 
+ 		if (is_vm_hugetlb_page(vma) && uffd_disable_huge_pmd_share(vma))
+@@ -1651,7 +1667,7 @@ static int userfaultfd_unregister(struct userfaultfd_ctx *ctx,
+ 		 * the next vma was merged into the current one and
+ 		 * the current one has not been updated yet.
+ 		 */
+-		vma->vm_flags = new_flags;
++		userfaultfd_set_vm_flags(vma, new_flags);
+ 		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
+ 
+ 	skip:
+diff --git a/mm/mmap.c b/mm/mmap.c
+index 74a84eb33b90..ce7526aa5d61 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1525,6 +1525,10 @@ int vma_wants_writenotify(struct vm_area_struct *vma, pgprot_t vm_page_prot)
+ 	if (vma_soft_dirty_enabled(vma) && !is_vm_hugetlb_page(vma))
+ 		return 1;
+ 
++	/* Do we need write faults for uffd-wp tracking? */
++	if (userfaultfd_wp(vma))
++		return 1;
++
+ 	/* Specialty mapping? */
+ 	if (vm_flags & VM_PFNMAP)
+ 		return 0;
+
+base-commit: a4412fdd49dc011bcc2c0d81ac4cab7457092650
+-- 
+2.38.1
+
