@@ -2,99 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2795C640137
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 08:50:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5173E64016C
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 08:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231744AbiLBHuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 02:50:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58022 "EHLO
+        id S232390AbiLBH6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 02:58:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232412AbiLBHuH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 02:50:07 -0500
-Received: from APC01-PSA-obe.outbound.protection.outlook.com (mail-psaapc01olkn2107.outbound.protection.outlook.com [40.92.52.107])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5AFA9FEF8
-        for <stable@vger.kernel.org>; Thu,  1 Dec 2022 23:50:03 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=WTf0brpctMPscx64+xoWtEyVNnHuUBHUnzeQsJcJ66sTbNVDOUaapqTItp32rU/gSr6SPXrKM1MMr0ZHLCicg+GxXjyrTaiOsLoZLlMlngagMkMkX3fi5dfywtz6GX4Zzio4mcqH9s9j8LEjdNRpUR7Jdm475lv7P5zBmlI8fbwCwiN2pRZiLqUYZhWPDjsmimFNdchlbwhyVu1WaecvvqS8zKxzBfzXrlX/AGL675aLFTS729RmW6nr/75Zt1NbESdvN1nXJTYZpxJ4HhbpVxVlXF+XpuXPE5K/Gw0d6y6As3l4t9wbNSaOkykMKsqR9t0i2v8G1aZYSkVpEc3v5A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=pTM7LgfYCGVcMXxG1qA5AfTeHnBOAgelb8FXWZUo/uo=;
- b=job0c2uSyS/SCj3jE95anmp8Vw7DyCVMdImUOR/CL7LsK17CVxf+BMx2CutbO7PdEjrWk6x8K+jthoXqsfPgRplqxyzonwMwNFn5XcWEW6ALCvSSw5j3QMwZaitu+Az0GmBPnSkXj74SiC49pa24yKt8336sq5tnTlfQKBZcWxxQf6uvc15RKkveUd3jW3Alq/HVppAquWL5KAiOPuU9Jn3doKem8texZwqfAgjnLoGmUv1sQwi26m8x4QuEL8iopbKLQvZdSRjR5PtSeS5YjxMgnKviDCZFj7URDQNtl0vv25ZY7B0JH7i7Z7U5cSzFRIngnE2Pg9k3T398Ve2I3g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hotmail.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=pTM7LgfYCGVcMXxG1qA5AfTeHnBOAgelb8FXWZUo/uo=;
- b=PNrrztKZlpKHPVCQ/0F0q/TsdO2eTdwDS6+z3zwLWAwT+cYJNE7/1rxGL9SpUJ1xAgL23sA2hLVxtCnuFQcHSkJtY780qLIoD198n76jA2FALf4Y2+rLMjiSgHaHXO7uEMmYwF4b64zLamQxW803yEWhvwWjyHrz6LjHJf5EHpSoGpPsaeD3KQwb0n2rNwksEs3Uu2RQWQb4Hx/bLLuZLa5ZBz/jAfIQ6h+qGgOr7Ouj08Lt1nyuH86Zhc1Ao7E9SE0/LS60HpmvoxUxzTCVb7WBBfUV16HvC/oMOkaQ/wAkyMadbGak1A16ITZ/3S3C7wiHgkAwWxKtynIdEgChJA==
-Received: from SG2PR02MB5878.apcprd02.prod.outlook.com (2603:1096:4:1d2::9) by
- TY0PR02MB6169.apcprd02.prod.outlook.com (2603:1096:400:279::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.8; Fri, 2 Dec
- 2022 07:50:01 +0000
-Received: from SG2PR02MB5878.apcprd02.prod.outlook.com
- ([fe80::2c81:c803:d49b:eebb]) by SG2PR02MB5878.apcprd02.prod.outlook.com
- ([fe80::2c81:c803:d49b:eebb%4]) with mapi id 15.20.5880.010; Fri, 2 Dec 2022
- 07:50:01 +0000
-From:   Dicheng Wang <wangdicheng123@hotmail.com>
-To:     wangdicheng@kylinos.cn
-Cc:     stable@vger.kernel.org
-Subject: [PATCH -next] The USB audio driver does not contain the VID and PID of this sound card, so the driver is not loaded.
-Date:   Fri,  2 Dec 2022 15:49:34 +0800
-Message-ID: <SG2PR02MB58786472A08370F924C3E7828A179@SG2PR02MB5878.apcprd02.prod.outlook.com>
-X-Mailer: git-send-email 2.25.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-TMN:  [TbNM+8ew8Yx392AsVGKcY08uEu+8gGahYLj8Z9wfgeQ=]
-X-ClientProxiedBy: TY2PR02CA0057.apcprd02.prod.outlook.com
- (2603:1096:404:e2::21) To SG2PR02MB5878.apcprd02.prod.outlook.com
- (2603:1096:4:1d2::9)
-X-Microsoft-Original-Message-ID: <20221202074934.288482-1-wangdicheng123@hotmail.com>
+        with ESMTP id S231989AbiLBH6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 02:58:53 -0500
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFD6E950FA;
+        Thu,  1 Dec 2022 23:58:50 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4NNlWj3P8nz9xFQc;
+        Fri,  2 Dec 2022 15:51:45 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwDHsm8gsIlj1LiyAA--.51906S2;
+        Fri, 02 Dec 2022 08:58:32 +0100 (CET)
+Message-ID: <c8ef0ab69635b99d5175eaf4c96bb3a8957c6210.camel@huaweicloud.com>
+Subject: Re: [PATCH v2 1/2] evm: Alloc evm_digest in evm_verify_hmac() if
+ CONFIG_VMAP_STACK=y
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Date:   Fri, 02 Dec 2022 08:58:21 +0100
+In-Reply-To: <Y4j4MJzizgEHf4nv@sol.localdomain>
+References: <20221201100625.916781-1-roberto.sassu@huaweicloud.com>
+         <20221201100625.916781-2-roberto.sassu@huaweicloud.com>
+         <Y4j4MJzizgEHf4nv@sol.localdomain>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SG2PR02MB5878:EE_|TY0PR02MB6169:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8614da88-b452-402b-1b34-08dad439d101
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: PqMp6kHphteENSkkaRLOUsTI8pOIBPXJUZMQ9hWka3Y2ZytElMawqjUAcl4GHsY7Ln5FwGOLN6CzHeN/4iVZvpW/ZMcbrVZ/F9t2rKkauakt6QSnazZNDewKKGCRHc65597L/1rmwZ69FhtVlawWYFsbOjP/+iblstizfvXAVzFvuXeQRLOwzFGYrH6woPdJBJof6T4k+xOgZUwryxkb3BuHEpHYZhSyy1lTqTLBK8ut1wK9CzeTv+Y3zrIZtmjcsskhO6/5ylG7gfbsJ688fEKB2OO2K0+VyFezumMKsfpELSrk1ls2ddWKTcXYRDS9QCOefp9E40xWrFx+b3yvifl8ovrzwPdfRk3BQdl/Q7NsL1tiWecwUae5kaCevx/lIQh81mV8Cu4DnAS0NtXXtuLtXGDRJVQq/03xcKpqO4P3JgyqG2mDbMNqsfNX5I/Dbnakhl3eKlhSQ0amlF670YIhFlcSCxf6+OGaJ092QlFM0XrC+flEPhJ7m5t5T7V+/iFerMANsrLWeN7yU4p8MApB67fuq6hCjWbuPkUkhl8NxLU9oxEmKGFFbxyaHChPtRR5RSnMKchAXnXxwrv/Fs+J36Nw6z8wnhEnkLBk7Yc=
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?HhheG1BALpcDtn1B+x4FnTmPx3FKidH3W4sFbDKc6+0ia2m9aGR//6GKaSmS?=
- =?us-ascii?Q?sosLmZxDNkCboERqJWs/lVpkmWlA6765jp/c8xVef8NJGptciXZvbYLO+o1a?=
- =?us-ascii?Q?BQw7gIV43G6OFkp7C6SPO/vr7m3upRYI2zaYrcbHwCk/hX8AUvEHWCWP1Mza?=
- =?us-ascii?Q?4iHJAeSCqEjOqdmsDZJWzUqsJmeigRfCeEaBeSWL9SKbY4FsuN1v+TcYM+Mc?=
- =?us-ascii?Q?kd9jHN868iAcb0780qQitvWidbrn6/0be8a7S6MiBPKyei/XeDD6fPvAVWmO?=
- =?us-ascii?Q?jSkSpkij8RNzBM4cXLsHI1J7O6mojv6LieCTfYYL8and9izNKN7r6Mo6LXjC?=
- =?us-ascii?Q?ahXjGAqJdmERezu+sH9FwaK8tKZYS2zmczYGLR8eae7reCFbMYBai/bSqCUM?=
- =?us-ascii?Q?zC6fQtac+iTBgrlgeXWf+GQ9vORP2yrw5smuc7eUbJgQUlmO34lLT8Rr3GG3?=
- =?us-ascii?Q?naAXw7a4BSYLOYXbyO45MUgHJC1GkrISRrffrgfj2v5vOtfZkUoLCadYD6ti?=
- =?us-ascii?Q?RmjQ5qiWk7kQxgdzTCDSTwCOng4YZ7uTvKny9RABiTkglAeIWeMldjOnVqBx?=
- =?us-ascii?Q?HhGl0jG24s0MVtIjXN/vnbVWraO5PuaFvpf02KJT0TqmqrMUzvxhmjgUkkH1?=
- =?us-ascii?Q?27y7ZVzCipZ7abtY7pv3f3UjJgUq/ILfp9Fs6cvZ9sC7fxcXf0fz5xy6MTbj?=
- =?us-ascii?Q?wjI0IE5EB3li7o4Ypaq5DbRpwuVulzG40KcD+58r/ZioY0/aqvgbEJHF34JA?=
- =?us-ascii?Q?VUVK2Uws3Z9IbRNhyb2fGjkaspZZIifR2SylZTI9XgTNfWYSClm2QTZiEhTp?=
- =?us-ascii?Q?+m5kYSTwmWDnpH4A2rTK43fFwY7TO/dGzIxHHOuVuHcwF6OL5tM6/K9LAcV+?=
- =?us-ascii?Q?gnI5WGOxTn6jhxUzhDc0Xiti0VTgNCgzE6278KUMxKUnrgpNRDEnmzteQhYv?=
- =?us-ascii?Q?QKyY4BvQ7moRUfCrmdw2mhaDZJtQ9H66iUsCtRsXum+5W+4VDOhAHOA6fde9?=
- =?us-ascii?Q?ZS5v0F61oxbXmotXIhPZss7kZX+cLqlB8JzN91kQX5cpsycZx/1438GQtK4K?=
- =?us-ascii?Q?sPmQyO2ZQ1qbBB0sLMMooSnw0R94f73mr/JoxVQWCT0yBx2Yzmht2WMOItLj?=
- =?us-ascii?Q?UF/spMl7RV6bUGCVNBGqDYwUEqGYDPJtX+nKAB5IbC+RmpFJudstxklgqtK7?=
- =?us-ascii?Q?6exBH1XXLctl/QuUPdn+MHFvQmzba8/ziidkOoy7iqultHuJS4q5WdhKer5d?=
- =?us-ascii?Q?OlPCWa9xUale4Veu7NfcTmk6ODDE4secLwwkBPV7bk2tEwm4k39oQUEUgGp4?=
- =?us-ascii?Q?Amo=3D?=
-X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-20e34.templateTenant
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8614da88-b452-402b-1b34-08dad439d101
-X-MS-Exchange-CrossTenant-AuthSource: SG2PR02MB5878.apcprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Dec 2022 07:50:01.4518
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TY0PR02MB6169
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: LxC2BwDHsm8gsIlj1LiyAA--.51906S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxWw4DKry8Wr4Uur4DtryfCrg_yoW5Zw1Upa
+        1kKa10qr4rJr1SkF1aya1Yya1rKrW0qry2gws8Aw1YyF9xZrnYy34xAFy7WryFkry8WF1x
+        tFWSqrn8C3WqyaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWUJVW8JwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UWE__UUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAOBF1jj4ItyAABsf
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -102,35 +67,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wangdicheng <wangdicheng@kylinos.cn>
+On Thu, 2022-12-01 at 10:53 -0800, Eric Biggers wrote:
+> On Thu, Dec 01, 2022 at 11:06:24AM +0100, Roberto Sassu wrote:
+> > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > 
+> > Commit ac4e97abce9b8 ("scatterlist: sg_set_buf() argument must be in linear
+> > mapping") checks that both the signature and the digest reside in the
+> > linear mapping area.
+> > 
+> > However, more recently commit ba14a194a434c ("fork: Add generic vmalloced
+> > stack support"), made it possible to move the stack in the vmalloc area,
+> > which is not contiguous, and thus not suitable for sg_set_buf() which needs
+> > adjacent pages.
+> > 
+> > Fix this by checking if CONFIG_VMAP_STACK is enabled. If yes, allocate an
+> > evm_digest structure, and use that instead of the in-stack counterpart.
+> > 
+> > Cc: stable@vger.kernel.org # 4.9.x
+> > Fixes: ba14a194a434 ("fork: Add generic vmalloced stack support")
+> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > ---
+> >  security/integrity/evm/evm_main.c | 26 +++++++++++++++++++++-----
+> >  1 file changed, 21 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+> > index 23d484e05e6f..7f76d6103f2e 100644
+> > --- a/security/integrity/evm/evm_main.c
+> > +++ b/security/integrity/evm/evm_main.c
+> > @@ -174,6 +174,7 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+> >  	struct signature_v2_hdr *hdr;
+> >  	enum integrity_status evm_status = INTEGRITY_PASS;
+> >  	struct evm_digest digest;
+> > +	struct evm_digest *digest_ptr = &digest;
+> >  	struct inode *inode;
+> >  	int rc, xattr_len, evm_immutable = 0;
+> >  
+> > @@ -231,14 +232,26 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+> >  		}
+> >  
+> >  		hdr = (struct signature_v2_hdr *)xattr_data;
+> > -		digest.hdr.algo = hdr->hash_algo;
+> > +
+> > +		if (IS_ENABLED(CONFIG_VMAP_STACK)) {
+> > +			digest_ptr = kmalloc(sizeof(*digest_ptr), GFP_NOFS);
+> > +			if (!digest_ptr) {
+> > +				rc = -ENOMEM;
+> > +				break;
+> > +			}
+> > +		}
+> > +
+> > +		digest_ptr->hdr.algo = hdr->hash_algo;
+> > +
+> >  		rc = evm_calc_hash(dentry, xattr_name, xattr_value,
+> > -				   xattr_value_len, xattr_data->type, &digest);
+> > +				   xattr_value_len, xattr_data->type,
+> > +				   digest_ptr);
+> >  		if (rc)
+> >  			break;
+> >  		rc = integrity_digsig_verify(INTEGRITY_KEYRING_EVM,
+> >  					(const char *)xattr_data, xattr_len,
+> > -					digest.digest, digest.hdr.length);
+> > +					digest_ptr->digest,
+> > +					digest_ptr->hdr.length);
+> >  		if (!rc) {
+> >  			inode = d_backing_inode(dentry);
+> >  
+> > @@ -268,8 +281,11 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+> >  		else
+> >  			evm_status = INTEGRITY_FAIL;
+> >  	}
+> > -	pr_debug("digest: (%d) [%*phN]\n", digest.hdr.length, digest.hdr.length,
+> > -		  digest.digest);
+> > +	pr_debug("digest: (%d) [%*phN]\n", digest_ptr->hdr.length,
+> > +		 digest_ptr->hdr.length, digest_ptr->digest);
+> > +
+> > +	if (digest_ptr && digest_ptr != &digest)
+> > +		kfree(digest_ptr);
+> 
+> What is the actual problem here?  Where is a scatterlist being created from this
+> buffer?  AFAICS it never happens.
 
-Add relevant information to the quirks-table.h file.
-The test passes and the sound source file plays normally.
+Hi Eric
 
-Cc: stable@vger.kernel.org
+it is in public_key_verify_signature(), called by asymmetric_verify()
+and integrity_digsig_verify().
 
-Signed-off-by: wangdicheng <wangdicheng@kylinos.cn>
----
- sound/usb/quirks-table.h | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-index 874fcf245747..24b8d4fc87c4 100644
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -2801,6 +2801,12 @@ YAMAHA_DEVICE(0x7010, "UB99"),
- 	.idVendor = 0x17cc,
- 	.idProduct = 0x1020,
- },
-+{
-+	/* Ktmicro Usb_audio */
-+	.match_flags = USB_DEVICE_ID_MATCH_DEVICE,
-+	.idVendor = 0x31b2,
-+	.idProduct = 0x0011,
-+},
- 
- /* QinHeng devices */
- {
--- 
-2.25.1
+Roberto
 
