@@ -2,116 +2,227 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 094EF640A1E
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 17:04:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F1CA640A81
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 17:21:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233813AbiLBQEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 11:04:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42310 "EHLO
+        id S233751AbiLBQV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 11:21:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233824AbiLBQE3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 11:04:29 -0500
-Received: from mail.enpas.org (zhong.enpas.org [IPv6:2a03:4000:2:537::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CBBCDA9590;
-        Fri,  2 Dec 2022 08:03:29 -0800 (PST)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        by mail.enpas.org (Postfix) with ESMTPSA id 284FCFF9B7;
-        Fri,  2 Dec 2022 16:03:23 +0000 (UTC)
-From:   Max Staudt <max@enpas.org>
-To:     Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     Vincent Mailhol <vincent.mailhol@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>, linux-kernel@vger.kernel.org,
-        Max Staudt <max@enpas.org>,
-        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] can: can327: Flush tx_work on ldisc .close()
-Date:   Sat,  3 Dec 2022 01:01:48 +0900
-Message-Id: <20221202160148.282564-1-max@enpas.org>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S233721AbiLBQVD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 11:21:03 -0500
+Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 217C8E8E24
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 08:18:37 -0800 (PST)
+Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: marex@denx.de)
+        by phobos.denx.de (Postfix) with ESMTPSA id CF5B782F29;
+        Fri,  2 Dec 2022 17:17:59 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+        s=phobos-20191101; t=1669997880;
+        bh=WTrTtiTeEcjbMtAhGvYuwA6qAl+AkVjLUEnMqtMNKfw=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=Gusw4R3dAuGAzAk7CgUjYuKCeij5yE5BB7N8Purxn1zmm9xNd3OSnM3TaD4Pd2faV
+         ZaoeS6XuP8c2e0N1OvVJP9i9o8gN8SW7JK3Vp7Qcgy1a10ubqh0fEXmmpZigNJVQr+
+         CkGDJ0Em+19JDt3KrPQocHK9ogZvI3ISJTiyv0FWScpGVV8tSfHSQ4ArB7uZADGFml
+         ENeG0BC/jmWytauGZ3nHpmD+/Q22dP7sbCMG3m6MWSXIRAdfBDihIoi1TOQa2cP3Yo
+         8gvHh/z+7FfZzyLHA0k8DG46yV1yLeS3FrJN3c4UCJ+l8eryIHzY52fb/XnXBxBPxh
+         YFx0w57ezqu2A==
+Message-ID: <0503c46d-c385-74f5-f762-51d87a5ebaff@denx.de>
+Date:   Fri, 2 Dec 2022 17:17:59 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is 0
+Content-Language: en-US
+To:     Miquel Raynal <miquel.raynal@bootlin.com>
+Cc:     Francesco Dolcini <francesco@dolcini.it>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        u-boot@lists.denx.de
+References: <20221202071900.1143950-1-francesco@dolcini.it>
+ <20221202101418.6b4b3711@xps-13>
+ <Y4nPmzdgaabg3a3/@francesco-nb.int.toradex.com>
+ <Y4nSXQirO2N5IRfu@francesco-nb.int.toradex.com>
+ <20221202115327.4475d3a2@xps-13>
+ <Y4ngOaKq224LIpQc@francesco-nb.int.toradex.com>
+ <20221202150556.14c5ae43@xps-13>
+ <2b6fc52d-60b9-d0f4-ab91-4cf7a8095999@denx.de>
+ <20221202160030.1b8d0b8a@xps-13>
+ <223b7a4e-3aff-8070-7387-c77d2ded1dd6@denx.de>
+ <20221202164904.08d750df@xps-13>
+From:   Marek Vasut <marex@denx.de>
+In-Reply-To: <20221202164904.08d750df@xps-13>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Virus-Scanned: clamav-milter 0.103.6 at phobos.denx.de
+X-Virus-Status: Clean
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Additionally, remove it from .ndo_stop().
+On 12/2/22 16:49, Miquel Raynal wrote:
+> Hi Marek,
 
-This ensures that the worker is not called after being freed, and that
-the UART TX queue remains active to send final commands when the netdev
-is stopped.
+Hi,
 
-Thanks to Jiri Slaby for finding this in slcan:
+>> On 12/2/22 16:00, Miquel Raynal wrote:
+>>> Hi Marek,
+>>
+>> Hi,
+>>
+>>> marex@denx.de wrote on Fri, 2 Dec 2022 15:31:40 +0100:
+>>>    
+>>>> On 12/2/22 15:05, Miquel Raynal wrote:
+>>>>> Hi Francesco,
+>>>>
+>>>> Hi,
+>>>>
+>>>> [...]
+>>>>   
+>>>>> I still strongly disagree with the initial proposal but what I think we
+>>>>> can do is:
+>>>>>
+>>>>> 1. To prevent future breakages:
+>>>>>      Fix fdt_fixup_mtdparts() in u-boot. This way newer U-Boot + any
+>>>>>      kernel should work.
+>>>>>
+>>>>> 2. To help tracking down situations like that:
+>>>>>      Keep the warning in ofpart.c but continue to fail.
+>>>>>
+>>>>> 3. To fix the current situation:
+>>>>>       Immediately revert commit (and prevent it from being backported):
+>>>>>       753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
+>>>>>       This way your own boot flow is fixed in the short term.
+>>>>
+>>>> Here I disagree, the fix is correct and I think we shouldn't
+>>>> proliferate incorrect DTs which don't match the binding document.
+>>>
+>>> I agree we should not proliferate incorrect DTs, so let's use a modern
+>>> description then
+>>
+>> Yes please !
+>>
+>>> , with a controller and a child node which defines the
+>>> chip.
+>>
+>> But what if there is no chip connected to the controller node ?
+>>
+>> If I understand the proposal here right (please correct me if I'm wrong), then:
+> 
+> Good idea to summarize.
+> 
+>>
+>> 1) This is the original, old, wrong binding:
+>> &gpmi {
+>>     #size-cells = <1>;
+>>     ...
+>>     partition@N { ... };
+>> };
+> 
+> Yes.
+> 
+>>
+>>
+>> 2) This is the newer, but still wrong binding:
+>> &gpmi {
+>>     #size-cells = <0>;
+>>     ...
+>>     partitions {
+>>       partition@N { ... };
+>>     };
+>> };
+> 
+> Well, this is wrong description, but it would work (for compat reasons,
+> even though I don't think this is considered valid DT by the schemas).
+> 
+>>
+>> 3) This is the newest binding, what we want:
+>> &gpmi {
+>>     #size-cells = <0>;
+>>     ...
+>>     nand-chip {
+>>       partitions {
+>>         partition@N { ... };
+>>       };
+>>     };
+>> };
+> 
+> Yes
+> 
+>>
+>> But if there is no physical nand chip connected to the controller, would we end up with empty nand-chip node in DT, like this?
+>> &gpmi {
+>>     #size-cells = <X>;
+>>     ...
+>>     nand-chip { /* empty */ };
+>> };
+> 
+> Is this really a concern?
 
-  https://lore.kernel.org/linux-can/20221201073426.17328-1-jirislaby@kernel.org/
+I don't know, maybe it is not.
 
-A variant of this patch for slcan, with the flush in .ndo_stop() still
-present, has been tested successfully on physical hardware:
+> If there is no NAND chip, the controller
+> should be disabled, no? I guess technically you could even use the
+> status property in the nand-chip node...
 
-  https://bugzilla.suse.com/show_bug.cgi?id=1205597
+Sure.
 
-Fixes: 43da2f07622f ("can: can327: CAN/ldisc driver for ELM327 based OBD-II adapters")
-Cc: "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
-Cc: Max Staudt <max@enpas.org>
-Cc: Wolfgang Grandegger <wg@grandegger.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: linux-can@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Max Staudt <max@enpas.org>
----
- drivers/net/can/can327.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+> However, it should not be empty, at the very least a reg property
+> should indicate on which CS it is wired, as expected there:
+> https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git/tree/Documentation/devicetree/bindings/mtd/nand-chip.yaml?h=mtd/next
 
-diff --git a/drivers/net/can/can327.c b/drivers/net/can/can327.c
-index ed3d0b8989a0..dc7192ecb001 100644
---- a/drivers/net/can/can327.c
-+++ b/drivers/net/can/can327.c
-@@ -796,9 +796,9 @@ static int can327_netdev_close(struct net_device *dev)
- 
- 	netif_stop_queue(dev);
- 
--	/* Give UART one final chance to flush. */
--	clear_bit(TTY_DO_WRITE_WAKEUP, &elm->tty->flags);
--	flush_work(&elm->tx_work);
-+	/* We don't flush the UART TX queue here, as we want final stop
-+	 * commands (like the above dummy char) to be flushed out.
-+	 */
- 
- 	can_rx_offload_disable(&elm->offload);
- 	elm->can.state = CAN_STATE_STOPPED;
-@@ -1069,12 +1069,15 @@ static void can327_ldisc_close(struct tty_struct *tty)
- {
- 	struct can327 *elm = (struct can327 *)tty->disc_data;
- 
--	/* unregister_netdev() calls .ndo_stop() so we don't have to.
--	 * Our .ndo_stop() also flushes the TTY write wakeup handler,
--	 * so we can safely set elm->tty = NULL after this.
--	 */
-+	/* unregister_netdev() calls .ndo_stop() so we don't have to. */
- 	unregister_candev(elm->dev);
- 
-+	/* Give UART one final chance to flush.
-+	 * No need to clear TTY_DO_WRITE_WAKEUP since .write_wakeup() is
-+	 * serialised against .close() and will not be called once we return.
-+	 */
-+	flush_work(&elm->tx_work);
-+
- 	/* Mark channel as dead */
- 	spin_lock_bh(&elm->lock);
- 	tty->disc_data = NULL;
--- 
-2.30.2
+OK, I see your point. So basically this?
 
+&gpmi {
+   #size-cells = <1>;
+   ...
+   nand-chip@0 {
+     reg = <0>;
+   };
+};
+
+btw. the GPMI NAND controller supports only one chipselect, so the reg 
+in nand-chip node makes little sense.
+
+> But, as nand-chip.yaml references mtd.yaml, you can as well use
+> whatever is described here:
+> https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git/tree/Documentation/devicetree/bindings/mtd/mtd.yaml?h=mtd/next
+> 
+>> What would be the gpmi controller size cells (X) in that case, still 0, right ? So how does that help solve this problem, wouldn't U-Boot still populate the partitions directly under the gpmi node or into partitions sub-node ?
+> 
+> The commit that was pointed in the original fix clearly stated that the
+> NAND chip node was targeted
+
+I think this is another miscommunication here. The commit
+
+753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
+
+modifies the size-cells of the NAND controller. The nand-chip is not 
+involved in this at all . In the examples above, it's the "&gpmi" node 
+size-cells that is modified.
+
+> , not the NAND controller node. I hope this
+> is correctly supported in U-Boot though. So if there is a NAND chip
+> subnode, I suppose U-Boot would try to create the partitions that are
+> inside, or even in the sub "partitions" container.
+
+My understanding is that U-Boot checks the nand-controller node 
+size-cells, not the nand-chip{} or partitions{} subnode size-cells .
+
+Francesco, can you please share the DT, including the U-Boot generated 
+partitions, which is passed to Linux on Colibri MX7 ? I think that 
+should make all confusion go away.
+
+(or am I the only one who's still confused here?)
