@@ -2,312 +2,274 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8BC0640AE4
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 17:34:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAF7C640AFF
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 17:43:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233133AbiLBQes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 11:34:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57530 "EHLO
+        id S232011AbiLBQnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 11:43:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233911AbiLBQep (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 11:34:45 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 771CCAD9BF
-        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 08:33:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1669998829;
+        with ESMTP id S233510AbiLBQnF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 11:43:05 -0500
+Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::224])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DD2CBE4DB
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 08:43:02 -0800 (PST)
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id E70B9E0008;
+        Fri,  2 Dec 2022 16:42:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1669999381;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=b8bI9+JmLhw8QU3ftEmY7iVkkP29bgA+9gnEtvy2G2c=;
-        b=R9mz0nEnSNBnKaC/bH7gLT/EeLsK4pMSLaT36jCN8YfakLd2vyB1yF94W7toc1J9CFbBfO
-        VwjofP+OaresTxFhExxHvqPdam8/RfoNjTJao73+kQxFt0rVNvSv6b7O0PWTlrmZNeO9Zb
-        EhLOCs0Xy74T+RQ9ObrC3shqZxI/cgQ=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-489-Ey4LEpH3OIun6CU1OoCT-g-1; Fri, 02 Dec 2022 11:33:48 -0500
-X-MC-Unique: Ey4LEpH3OIun6CU1OoCT-g-1
-Received: by mail-qv1-f70.google.com with SMTP id nn2-20020a056214358200b004bb7bc3dfdcso18000750qvb.23
-        for <stable@vger.kernel.org>; Fri, 02 Dec 2022 08:33:48 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=b8bI9+JmLhw8QU3ftEmY7iVkkP29bgA+9gnEtvy2G2c=;
-        b=oHQgiLn5p+rCpwN5sXoijT1i2q8AWPmlSTENkqR89rPtZvNSLRfOJDeHJ2FybSvvdg
-         AKl3zMxC++dRGRf46n0ui7m2jqR4uAScX17inYKfPm3+7LdiiKQ1WDqib4d3cTZOjkGW
-         YCL1WS+hTxHsMqpMMSgbN4NkvauVVTWPoyf1M6xOaowLThFW2fmc8VjTkjM22Z8ZVFV1
-         RzoxXTxto9SQbqoGbXRgtLnT3efS7Rcs7IsyCrTUDt79cVy2slQG0+oExZdgi0CTJGx0
-         w9bPTvWoc3Wu4db7AXwB6LlnzHhEPD38fO4yEjYDKjg0pQI3pqgOZI4S/s/tWKpt28/V
-         VvjQ==
-X-Gm-Message-State: ANoB5pnhlnneN07ZXovgy7uFT6vHxWCKQ006VsrNfzTujSFWYnHTomJ1
-        rKLkAtphoz97nZv18BQIFvPVz2K5sZ6OlM27bbj1o54kFXAvbbVJpfXes7LNxfhzcrt30+ZJQ7m
-        fHlI3IQCdprobCEp0
-X-Received: by 2002:a05:620a:cef:b0:6fc:a666:bed6 with SMTP id c15-20020a05620a0cef00b006fca666bed6mr7293183qkj.10.1669998827561;
-        Fri, 02 Dec 2022 08:33:47 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf4u5pooV0x8XDVoQw1pqDk5zndpZbrwZXPle+Wm6P3OUgsFrG0Ys4YI1unFFeUobxCICzZB1A==
-X-Received: by 2002:a05:620a:cef:b0:6fc:a666:bed6 with SMTP id c15-20020a05620a0cef00b006fca666bed6mr7293157qkj.10.1669998827220;
-        Fri, 02 Dec 2022 08:33:47 -0800 (PST)
-Received: from x1n (bras-base-aurron9127w-grc-46-70-31-27-79.dsl.bell.ca. [70.31.27.79])
-        by smtp.gmail.com with ESMTPSA id o6-20020ac85546000000b003a69225c2cdsm2874748qtr.56.2022.12.02.08.33.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Dec 2022 08:33:46 -0800 (PST)
-Date:   Fri, 2 Dec 2022 11:33:45 -0500
-From:   Peter Xu <peterx@redhat.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Ives van Hoorne <ives@codesandbox.io>,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hugh@veritas.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH RFC] mm/userfaultfd: enable writenotify while
- userfaultfd-wp is enabled for a VMA
-Message-ID: <Y4oo6cN1a4Yz5prh@x1n>
-References: <20221202122748.113774-1-david@redhat.com>
+        bh=qzZdYWOBBoSv1bjeFreDloIADPQqX2dduLQgUUoXtj0=;
+        b=RBG7jnhuQUO0w4/BrZr85FPKBqGguvX1wKjZi2R9g34YjMeUywCk4118bn5RXETNBddJ5L
+        Z3iywTG/ZbZgBA68bFcbA1ARlPnPwcGdaX4B1UYsIqaGARRK5U2Ci9AKjWUYMrQO0+IZcC
+        EvQ9k4MHGKzZFFlcRyRsZtZGM+RhNYuk6PdJ2BhUP4vNe25QzNUbqsG7VILEPx1zlc9lRH
+        ZPhT41LpHukvhtmeVtAasCkLXU29SM4Svu1yjrnTJ5brHWtB7rqxoGxTnvD13C+hf+fX4Z
+        23GNrQ31tU7cATdl2X4jBex6vq0ewDvSNdHtwMelmcbr/nI8+qc3sbdYjSuhQw==
+Date:   Fri, 2 Dec 2022 17:42:55 +0100
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Marek Vasut <marex@denx.de>
+Cc:     Francesco Dolcini <francesco@dolcini.it>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        u-boot@lists.denx.de
+Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is
+ 0
+Message-ID: <20221202174255.2c1cb2ff@xps-13>
+In-Reply-To: <0503c46d-c385-74f5-f762-51d87a5ebaff@denx.de>
+References: <20221202071900.1143950-1-francesco@dolcini.it>
+        <20221202101418.6b4b3711@xps-13>
+        <Y4nPmzdgaabg3a3/@francesco-nb.int.toradex.com>
+        <Y4nSXQirO2N5IRfu@francesco-nb.int.toradex.com>
+        <20221202115327.4475d3a2@xps-13>
+        <Y4ngOaKq224LIpQc@francesco-nb.int.toradex.com>
+        <20221202150556.14c5ae43@xps-13>
+        <2b6fc52d-60b9-d0f4-ab91-4cf7a8095999@denx.de>
+        <20221202160030.1b8d0b8a@xps-13>
+        <223b7a4e-3aff-8070-7387-c77d2ded1dd6@denx.de>
+        <20221202164904.08d750df@xps-13>
+        <0503c46d-c385-74f5-f762-51d87a5ebaff@denx.de>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20221202122748.113774-1-david@redhat.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 02, 2022 at 01:27:48PM +0100, David Hildenbrand wrote:
-> Currently, we don't enable writenotify when enabling userfaultfd-wp on
-> a shared writable mapping (for now we only support SHMEM). The consequence
+Hi Marek,
 
-and hugetlbfs
+marex@denx.de wrote on Fri, 2 Dec 2022 17:17:59 +0100:
 
-> is that vma->vm_page_prot will still include write permissions, to be set
-> as default for all PTEs that get remapped (e.g., mprotect(), NUMA hinting,
-> page migration, ...).
+> On 12/2/22 16:49, Miquel Raynal wrote:
+> > Hi Marek, =20
+>=20
+> Hi,
+>=20
+> >> On 12/2/22 16:00, Miquel Raynal wrote: =20
+> >>> Hi Marek, =20
+> >>
+> >> Hi,
+> >> =20
+> >>> marex@denx.de wrote on Fri, 2 Dec 2022 15:31:40 +0100: =20
+> >>>    >>>> On 12/2/22 15:05, Miquel Raynal wrote: =20
+> >>>>> Hi Francesco, =20
+> >>>>
+> >>>> Hi,
+> >>>>
+> >>>> [...] =20
+> >>>>   >>>>> I still strongly disagree with the initial proposal but what=
+ I think we =20
+> >>>>> can do is:
+> >>>>>
+> >>>>> 1. To prevent future breakages:
+> >>>>>      Fix fdt_fixup_mtdparts() in u-boot. This way newer U-Boot + any
+> >>>>>      kernel should work.
+> >>>>>
+> >>>>> 2. To help tracking down situations like that:
+> >>>>>      Keep the warning in ofpart.c but continue to fail.
+> >>>>>
+> >>>>> 3. To fix the current situation:
+> >>>>>       Immediately revert commit (and prevent it from being backport=
+ed):
+> >>>>>       753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells=
+")
+> >>>>>       This way your own boot flow is fixed in the short term. =20
+> >>>>
+> >>>> Here I disagree, the fix is correct and I think we shouldn't
+> >>>> proliferate incorrect DTs which don't match the binding document. =20
+> >>>
+> >>> I agree we should not proliferate incorrect DTs, so let's use a modern
+> >>> description then =20
+> >>
+> >> Yes please !
+> >> =20
+> >>> , with a controller and a child node which defines the
+> >>> chip. =20
+> >>
+> >> But what if there is no chip connected to the controller node ?
+> >>
+> >> If I understand the proposal here right (please correct me if I'm wron=
+g), then: =20
+> >=20
+> > Good idea to summarize.
+> >  =20
+> >>
+> >> 1) This is the original, old, wrong binding:
+> >> &gpmi {
+> >>     #size-cells =3D <1>;
+> >>     ...
+> >>     partition@N { ... };
+> >> }; =20
+> >=20
+> > Yes.
+> >  =20
+> >>
+> >>
+> >> 2) This is the newer, but still wrong binding:
+> >> &gpmi {
+> >>     #size-cells =3D <0>;
+> >>     ...
+> >>     partitions {
+> >>       partition@N { ... };
+> >>     };
+> >> }; =20
+> >=20
+> > Well, this is wrong description, but it would work (for compat reasons,
+> > even though I don't think this is considered valid DT by the schemas).
+> >  =20
+> >>
+> >> 3) This is the newest binding, what we want:
+> >> &gpmi {
+> >>     #size-cells =3D <0>;
+> >>     ...
+> >>     nand-chip {
+> >>       partitions {
+> >>         partition@N { ... };
+> >>       };
+> >>     };
+> >> }; =20
+> >=20
+> > Yes
+> >  =20
+> >>
+> >> But if there is no physical nand chip connected to the controller, wou=
+ld we end up with empty nand-chip node in DT, like this?
+> >> &gpmi {
+> >>     #size-cells =3D <X>;
+> >>     ...
+> >>     nand-chip { /* empty */ };
+> >> }; =20
+> >=20
+> > Is this really a concern? =20
+>=20
+> I don't know, maybe it is not.
+>=20
+> > If there is no NAND chip, the controller
+> > should be disabled, no? I guess technically you could even use the
+> > status property in the nand-chip node... =20
+>=20
+> Sure.
+>=20
+> > However, it should not be empty, at the very least a reg property
+> > should indicate on which CS it is wired, as expected there:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git/tree/Docu=
+mentation/devicetree/bindings/mtd/nand-chip.yaml?h=3Dmtd/next =20
+>=20
+> OK, I see your point. So basically this?
+>=20
+> &gpmi {
+>    #size-cells =3D <1>;
+>    ...
+>    nand-chip@0 {
+>      reg =3D <0>;
+>    };
+> };
+>=20
+> btw. the GPMI NAND controller supports only one chipselect, so the reg in=
+ nand-chip node makes little sense.
 
-The thing is by default I think we want the write bit..
+I randomly opened a reference manual (IMX6DQL.pdf), they say:
 
-The simple example is (1) register UFFD_WP on shmem writable, (2) write a
-page.  Here we didn't wr-protect anything, so we want the write bit there.
+	"Up to four NAND devices, supported by four chip-selects and one
+	 ganged ready/ busy."
 
-Or the other example is when UFFDIO_COPY with flags==0 even if with
-VM_UFFD_WP.  We definitely wants the write bit.
+Anyway, the NAND controller generic bindings which require this reg
+property, what the controller or the driver actually supports, or even
+how it is used on current designs is not relevant here.
 
-We only doesn't want the write bit when uffd-wp is explicitly set.
+> > But, as nand-chip.yaml references mtd.yaml, you can as well use
+> > whatever is described here:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git/tree/Docu=
+mentation/devicetree/bindings/mtd/mtd.yaml?h=3Dmtd/next
+> >  =20
+> >> What would be the gpmi controller size cells (X) in that case, still 0=
+, right ? So how does that help solve this problem, wouldn't U-Boot still p=
+opulate the partitions directly under the gpmi node or into partitions sub-=
+node ? =20
+> >=20
+> > The commit that was pointed in the original fix clearly stated that the
+> > NAND chip node was targeted =20
+>=20
+> I think this is another miscommunication here. The commit
+>=20
+> 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
+>=20
+> modifies the size-cells of the NAND controller. The nand-chip is not invo=
+lved in this at all . In the examples above, it's the "&gpmi" node size-cel=
+ls that is modified.
 
-I think fundamentally the core is uffd-wp is pte-based, so the information
-resides in pte not vma.  I'm not strongly objecting this patch, especially
-you mentioned auto-numa so I need to have a closer look later there.
-However I do think uffd-wp is slightly special because we always need to
-consider pte information anyway, so a per-vma information doesn't hugely
-help, IMHO.
+Yes I know. I was referring to this commit, sorry:
+36fee2f7621e ("common: fdt_support: add support for "partitions" subnode to=
+ fdt_fixup_mtdparts()")
 
-> 
-> This is problematic for uffd-wp: we'd have to manually check for
-> a uffd-wp PTE and manually write-protect that PTE, which is error prone
-> and the logic is the wrong way around. Prone to such issues is any code
-> that uses vma->vm_page_prot to set PTE permissions: primarily pte_modify()
-> and mk_pte(), but there might be more (move_pte() looked suspicious at
-> first but the protection parameter is essentially unused).
-> 
-> Instead, let's enable writenotify -- just like we do for softdirty
-> tracking -- such that PTEs will be mapped write-protected as default
-> and we will only allow selected PTEs that are defintly safe to be
-> mapped without write-protection (see can_change_pte_writable()) to be
-> writable. This reverses the logic and implicitly fixes and prevents any
-> such uffd-wp issues.
-> 
-> Note that when enabling userfaultfd-wp, there is no need to walk page
-> tables to enforce the new default protection for the PTEs: we know that
-> they cannot be uffd-wp'ed yet, because that can only happen afterwards.
-> 
-> For example, this fixes page migration and mprotect() to not map a
-> uffd-wp'ed PTE writable. In theory, this should also fix when NUMA-hinting
-> remaps pages in such (shmem) mappings -- if NUMA-hinting is applicable to
-> shmem with uffd as well.
-> 
-> Running the mprotect() reproducer [1] without this commit:
->   $ ./uffd-wp-mprotect
->   FAIL: uffd-wp did not fire
-> Running the mprotect() reproducer with this commit:
->   $ ./uffd-wp-mprotect
->   PASS: uffd-wp fired
-> 
-> [1] https://lore.kernel.org/all/222fc0b2-6ec0-98e7-833f-ea868b248446@redhat.com/T/#u
+The log says:
 
-I still hope for a formal patch (non-rfc) we can have a reproducer outside
-mprotect().  IMHO mprotect() is really ambiguously here being used with
-uffd-wp, so not a good example IMO as I explained in the other thread [1].
+	Listing MTD partitions directly in the flash mode has been
+	deprecated for a while for kernel Device Trees. Look for a node "partition=
+s" in the
+	found flash nodes and use it instead of the flash node itself for the
+	partition list when it exists, so Device Trees following the current
+	best practices can be fixed up.
 
-I'll need to off-work most of the rest of today, but maybe I can also have
-a look in the weekend or Monday more on the numa paths.  Before that, can
-we first reach a consensus that we have the mm/migrate patch there to be
-merged first?  These are two issues, IMHO.
+Which (I hope) means U-boot will equivalently try to play with the
+partitions container, either in the controller node or in the chip node.
 
-I know you're against me for some reason, but until now I sincerely don't
-know why.  That patch sololy recovers write bit status (by removing it for
-read-only) for a migration entry and that definitely makes sense to me.  As
-I also mentioned in the old version of that thread, we can rework migration
-entries and merge READ|WRITE entries into a GENERIC entry one day if you
-think proper, but that's for later.
+> > , not the NAND controller node. I hope this
+> > is correctly supported in U-Boot though. So if there is a NAND chip
+> > subnode, I suppose U-Boot would try to create the partitions that are
+> > inside, or even in the sub "partitions" container. =20
+>=20
+> My understanding is that U-Boot checks the nand-controller node size-cell=
+s, not the nand-chip{} or partitions{} subnode size-cells .
 
-Let me provide another example why I think recovering write bit may matter
-outside uffd too so it's common and it's always good to explicit check it.
+I don't think U-Boot cares.
 
-If you still remember for sparc64 (I think you're also in the loop)
-pte_mkdirty will also apply write bit there; even though I don't know why
-but it works like that for years.  Consider below sequence:
+> Francesco, can you please share the DT, including the U-Boot generated pa=
+rtitions, which is passed to Linux on Colibri MX7 ? I think that should mak=
+e all confusion go away.
 
-  - map a page writable, write to page (fault in, set dirty)
-  - mprotect(RO) on the page (keep dirty bit, vma/pte becomes RO)
-  - migrate the page
-    - mk_pte returns with WRITE bit cleared (which is correct)
-    - pte_mkdirty set dirty and write bit (because dirty used to set)
+Please also do it with the NAND chip described. If, when the NAND chip
+is described U-Boot tries to create partitions in the controller node,
+then the situation is even worse than I thought. But I believe
+describing the node like a suggest in the DT should prevent the boot
+failure while still allowing a rather good description of the hardware.
 
-If without the previous mm/migrate patch [1] IIUC it'll allow the pte
-writable even without VM_WRITE here after migration.
-
-I'm not sure whether I missed something, nor can I write a reproducer
-because I don't have sparc64 systems on hand, not to mention time.  But
-hopefully I explained why I think it's safer to just always double check on
-the write bit to be the same as when before migration, irrelevant of
-uffd-wp, vma pgprot or mk_pte().
-
-For this patch itself, I'll rethink again when I read more on numa.
+BTW I still think the relevant action right now is to revert the DT
+patch.
 
 Thanks,
-
-> 
-> Reported-by: Ives van Hoorne <ives@codesandbox.io>
-> Debugged-by: Peter Xu <peterx@redhat.com>
-> Fixes: b1f9e876862d ("mm/uffd: enable write protection for shmem & hugetlbfs")
-> Cc: stable@vger.kernel.org
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Hugh Dickins <hugh@veritas.com>
-> Cc: Alistair Popple <apopple@nvidia.com>
-> Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-> Cc: Nadav Amit <nadav.amit@gmail.com>
-> Cc: Andrea Arcangeli <aarcange@redhat.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
-> 
-> Based on latest upstream. userfaultfd selftests seem to pass.
-> 
-> ---
->  fs/userfaultfd.c | 28 ++++++++++++++++++++++------
->  mm/mmap.c        |  4 ++++
->  2 files changed, 26 insertions(+), 6 deletions(-)
-> 
-> diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-> index 98ac37e34e3d..fb0733f2e623 100644
-> --- a/fs/userfaultfd.c
-> +++ b/fs/userfaultfd.c
-> @@ -108,6 +108,21 @@ static bool userfaultfd_is_initialized(struct userfaultfd_ctx *ctx)
->  	return ctx->features & UFFD_FEATURE_INITIALIZED;
->  }
->  
-> +static void userfaultfd_set_vm_flags(struct vm_area_struct *vma,
-> +				     vm_flags_t flags)
-> +{
-> +	const bool uffd_wp = !!((vma->vm_flags | flags) & VM_UFFD_WP);
-> +
-> +	vma->vm_flags = flags;
-> +	/*
-> +	 * For shared mappings, we want to enable writenotify while
-> +	 * userfaultfd-wp is enabled (see vma_wants_writenotify()). We'll simply
-> +	 * recalculate vma->vm_page_prot whenever userfaultfd-wp is involved.
-> +	 */
-> +	if ((vma->vm_flags & VM_SHARED) && uffd_wp)
-> +		vma_set_page_prot(vma);
-> +}
-> +
->  static int userfaultfd_wake_function(wait_queue_entry_t *wq, unsigned mode,
->  				     int wake_flags, void *key)
->  {
-> @@ -618,7 +633,8 @@ static void userfaultfd_event_wait_completion(struct userfaultfd_ctx *ctx,
->  		for_each_vma(vmi, vma) {
->  			if (vma->vm_userfaultfd_ctx.ctx == release_new_ctx) {
->  				vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
-> -				vma->vm_flags &= ~__VM_UFFD_FLAGS;
-> +				userfaultfd_set_vm_flags(vma,
-> +							 vma->vm_flags & ~__VM_UFFD_FLAGS);
->  			}
->  		}
->  		mmap_write_unlock(mm);
-> @@ -652,7 +668,7 @@ int dup_userfaultfd(struct vm_area_struct *vma, struct list_head *fcs)
->  	octx = vma->vm_userfaultfd_ctx.ctx;
->  	if (!octx || !(octx->features & UFFD_FEATURE_EVENT_FORK)) {
->  		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
-> -		vma->vm_flags &= ~__VM_UFFD_FLAGS;
-> +		userfaultfd_set_vm_flags(vma, vma->vm_flags & ~__VM_UFFD_FLAGS);
->  		return 0;
->  	}
->  
-> @@ -733,7 +749,7 @@ void mremap_userfaultfd_prep(struct vm_area_struct *vma,
->  	} else {
->  		/* Drop uffd context if remap feature not enabled */
->  		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
-> -		vma->vm_flags &= ~__VM_UFFD_FLAGS;
-> +		userfaultfd_set_vm_flags(vma, vma->vm_flags & ~__VM_UFFD_FLAGS);
->  	}
->  }
->  
-> @@ -895,7 +911,7 @@ static int userfaultfd_release(struct inode *inode, struct file *file)
->  			prev = vma;
->  		}
->  
-> -		vma->vm_flags = new_flags;
-> +		userfaultfd_set_vm_flags(vma, new_flags);
->  		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
->  	}
->  	mmap_write_unlock(mm);
-> @@ -1463,7 +1479,7 @@ static int userfaultfd_register(struct userfaultfd_ctx *ctx,
->  		 * the next vma was merged into the current one and
->  		 * the current one has not been updated yet.
->  		 */
-> -		vma->vm_flags = new_flags;
-> +		userfaultfd_set_vm_flags(vma, new_flags);
->  		vma->vm_userfaultfd_ctx.ctx = ctx;
->  
->  		if (is_vm_hugetlb_page(vma) && uffd_disable_huge_pmd_share(vma))
-> @@ -1651,7 +1667,7 @@ static int userfaultfd_unregister(struct userfaultfd_ctx *ctx,
->  		 * the next vma was merged into the current one and
->  		 * the current one has not been updated yet.
->  		 */
-> -		vma->vm_flags = new_flags;
-> +		userfaultfd_set_vm_flags(vma, new_flags);
->  		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
->  
->  	skip:
-> diff --git a/mm/mmap.c b/mm/mmap.c
-> index 74a84eb33b90..ce7526aa5d61 100644
-> --- a/mm/mmap.c
-> +++ b/mm/mmap.c
-> @@ -1525,6 +1525,10 @@ int vma_wants_writenotify(struct vm_area_struct *vma, pgprot_t vm_page_prot)
->  	if (vma_soft_dirty_enabled(vma) && !is_vm_hugetlb_page(vma))
->  		return 1;
->  
-> +	/* Do we need write faults for uffd-wp tracking? */
-> +	if (userfaultfd_wp(vma))
-> +		return 1;
-> +
->  	/* Specialty mapping? */
->  	if (vm_flags & VM_PFNMAP)
->  		return 0;
-> 
-> base-commit: a4412fdd49dc011bcc2c0d81ac4cab7457092650
-> -- 
-> 2.38.1
-> 
-
--- 
-Peter Xu
-
+Miqu=C3=A8l
