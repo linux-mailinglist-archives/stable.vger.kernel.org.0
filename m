@@ -2,109 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BBFC6406F7
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 13:39:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B69996406FB
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 13:40:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233062AbiLBMjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 07:39:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37530 "EHLO
+        id S232761AbiLBMkK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 07:40:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232873AbiLBMje (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 07:39:34 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D98BB8EE70;
-        Fri,  2 Dec 2022 04:39:32 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2F486CE1E79;
-        Fri,  2 Dec 2022 12:39:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D54F8C433C1;
-        Fri,  2 Dec 2022 12:39:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669984769;
-        bh=KtngymIfyeQ0A30J7Xlx/WGy9n4uZFsRswH4rUF7oro=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=1q1mZ+R6LUf75CDSex3BDNdhBG8+vmdP34vZs3K5d5+2jcc/TVfeZ1uaXcWVl0rgC
-         0C4uXk7Ynhp9w/zpF4U0Jyi2zdKwQIbZIwzpC/NmgGG+D4R7zjU/qVrMlCLPKcIIbf
-         0qmoYtnqXn2YTs/MLxhKIz9uIfcvIbrJlAV6uNDA=
-Date:   Fri, 2 Dec 2022 13:39:24 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     mlevitsk@redhat.com, samuel.thibault@ens-lyon.org,
-        pawell@cadence.com, stable@vger.kernel.org,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.10 000/162] 5.10.157-rc1 review
-Message-ID: <Y4nx/HMggCOhdIMy@kroah.com>
-References: <20221130180528.466039523@linuxfoundation.org>
- <Y4nmNb46aqbm7JuS@duo.ucw.cz>
+        with ESMTP id S232621AbiLBMkJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 07:40:09 -0500
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88B2B91C16
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 04:40:08 -0800 (PST)
+Received: by mail-lf1-x12c.google.com with SMTP id c1so7208121lfi.7
+        for <stable@vger.kernel.org>; Fri, 02 Dec 2022 04:40:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gmMhzLW1Ky3aYrauJIOEu3sGYQQwtA8U3ujVQrJjKtQ=;
+        b=Q9PmexYMHRrvPI1V0dyydJ15k9xp4TxbAmGsLY4O+9FUdtDE7/xWK1LRQm3eSyUoIC
+         4XDcDuWmOFD2Wp/LAJU25p3sMAVSicaKYeIIXwJYF5yvPO6G/66zsTNoPhNp5Wj7ae4d
+         5QNmTO7o6V6eTxoNwKKJxD78PgWcJl7bvQvZM4vg6NEk4eFsUapNz7wG7bx05SjWM6uZ
+         n5iQIWIiDRO/PitFt1hYD183ORydIVSHxMxTtdOqzb50rmN3MiLfMqI9uYKj+aHkXr3c
+         ZlVYI17NsfmntwYaIe4WAD6VHdamX95QgJ5JNAp4naCRaqTSSNbzRSentcM9nhkky3s4
+         EOjg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=gmMhzLW1Ky3aYrauJIOEu3sGYQQwtA8U3ujVQrJjKtQ=;
+        b=uX87Twd4o4KzAlZFFRvKXKCxfzJPPUrwAfmN/Imnst+Kf049mVunLuXsZ1hFvnG33+
+         D7C4ua3C0Dq9gsUxkklJx+Zc0Yv2Qc4ItFKyg1cI1pxKIeVbAnvHdjWz83e+6q4Z3VBM
+         7r8TVNXT/PseEOf/nCBWI7CCGBFUSECBK93ZV/vIrSh0aHeep/RPD/DzVASwCvdaAwMk
+         1XIdC9iprL62sjFsAmA1t+5kQZ/U/VPCWAljMR+7cQFbemCNsLu/OMlZM5HNteeKWHI2
+         XtdzkXk6zNqAaqB+JbfCBncJnnQe4Tp0ZdB1krZ+CJUiC9Ffjz9/oH/uCvBkmRekTyNS
+         zh/w==
+X-Gm-Message-State: ANoB5pmJuhUB6UUaa4gG0KqZH5OYGeGjb2hnkr+1TW+egncV/oH431N6
+        qXxp9Ts10mAGGfMWG9FTlZqlw4GK23cBEI4bDv8=
+X-Google-Smtp-Source: AA0mqf4U9Lsp/Rb12VvqP2lzsDjq52Qdu+SaSHMA5a9PyUs9yyPHBXmL9t7bsQGFBJ74bqHWHqUwzdUT+yW/faNAZfk=
+X-Received: by 2002:a05:6512:52d:b0:4a2:7574:b64a with SMTP id
+ o13-20020a056512052d00b004a27574b64amr23101259lfc.336.1669984806846; Fri, 02
+ Dec 2022 04:40:06 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Y4nmNb46aqbm7JuS@duo.ucw.cz>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:a2e:a547:0:0:0:0:0 with HTTP; Fri, 2 Dec 2022 04:40:06 -0800 (PST)
+Reply-To: chuinh021@gmail.com
+From:   chuinh <flexmr271@gmail.com>
+Date:   Fri, 2 Dec 2022 13:40:06 +0100
+Message-ID: <CAAWWbsJK0_gOt4fBf8V9Kx7NKqYuK23CnAWFiLc_QTW67PeVcw@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=7.5 required=5.0 tests=BAYES_50,DEAR_FRIEND,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,FREEMAIL_REPLYTO,
+        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2a00:1450:4864:20:0:0:0:12c listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [chuinh021[at]gmail.com]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [flexmr271[at]gmail.com]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [flexmr271[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  2.6 DEAR_FRIEND BODY: Dear Friend? That's not very dear!
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  2.8 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 02, 2022 at 12:49:09PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> [If I cc-ed you, you are author of one of patches below. Please take a
-> look.]
-> 
-> > Responses should be made by Fri, 02 Dec 2022 18:05:05 +0000.
-> > Anything received after that time might be too late.
-> 
-> I hope to make it :-). I
-> 
-> > Pawel Laszczak <pawell@cadence.com>
-> >     usb: cdnsp: Device side header file for CDNSP driver
-> > 
-> > Pawel Laszczak <pawell@cadence.com>
-> >     usb: cdns3: Add support for DRD CDNSP
-> 
-> These two together are 1500+ lines, and are marked as Stable-dep-of:
-> 9d5333c93134 ("usb: cdns3: host: fix endless superspeed hub port
-> reset") . But we don't have that one in 5.10 tree. Likely we should
-> not have these either.
+-- 
 
-I already dropped these yesterday.
+Dear Friend,
 
-> > Maxim Levitsky <mlevitsk@redhat.com>
-> >     KVM: x86: emulator: update the emulation mode after rsm
-> 
-> No. The patch does not do anything. Mainline commit this referenced
-> changed the return value, this changes just a comment. Wrong backport?
+I have an important message which i want to discuss with you.
 
-I will look at this.
+Sincerely,
 
-> > Samuel Thibault <samuel.thibault@ens-lyon.org>
-> >     speakup: Generate speakupmap.h automatically
-> 
-> Ok, so this one rewrites some header generation and is buggy. 500+ lines.
-
-Already dropped yesterday.
-
-> > Đoàn Trần Công Danh <congdanhqx@gmail.com>
-> >     speakup: replace utils' u_char with unsigned char
-> 
-> With this patch fixing it. The rewrite is marked as stable depedncency
-> of the fix, but fix would not be needed if we did not apply the
-> rewrite. We should not have these two in stable.
-
-Again, already dropped.
-
-thanks for the review.
-
-greg k-h
+Mrs Chu Inh
