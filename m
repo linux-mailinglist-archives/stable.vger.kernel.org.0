@@ -2,70 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC8AB6403AE
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 10:46:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 969B8640400
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 11:03:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232584AbiLBJqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 04:46:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47936 "EHLO
+        id S233247AbiLBKDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 05:03:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232453AbiLBJqq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 04:46:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECAC3638A;
-        Fri,  2 Dec 2022 01:46:45 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A78FFB8211C;
-        Fri,  2 Dec 2022 09:46:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 813F5C433D7;
-        Fri,  2 Dec 2022 09:46:41 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="AKWtqlKF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1669974398;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=EheHaU/FjdrXBCarNx5tWWY2eAZs79C/tTj4LU4xU5w=;
-        b=AKWtqlKFT2IKm3ggdrW0xeG3dYA5RzisUH8cTfExlY/ATlZbFBJb22AJXbtdIdpPFfyTdC
-        PtSeUuLC2EhHVqbjWFgRElm+CIsdht234RShbPpYLYbBKV1xoh+ufwrEzohNwt9cvaejcL
-        3JmwvrlY+d4H6SDuLzBnsM3dTzefmQQ=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id d87882d7 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Fri, 2 Dec 2022 09:46:38 +0000 (UTC)
-Date:   Fri, 2 Dec 2022 10:46:35 +0100
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     Jarkko Sakkinen <jarkko@kernel.org>, peterhuewe@gmx.de,
-        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
-        Jan =?utf-8?B?RMSFYnJvxZs=?= <jsd@semihalf.com>,
-        linux-integrity@vger.kernel.org, jgg@ziepe.ca,
-        gregkh@linuxfoundation.org, arnd@arndb.de, rrangel@chromium.org,
-        timvp@google.com, apronin@google.com, mw@semihalf.com,
-        upstream@semihalf.com, linux-kernel@vger.kernel.org,
-        linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v3] char: tpm: Protect tpm_pm_suspend with locks
-Message-ID: <Y4nJe+XMoNwTVjlh@zx2c4.com>
-References: <20221128195651.322822-1-Jason@zx2c4.com>
- <9793c74f-2dd0-d510-d8b6-b475e34f3587@leemhuis.info>
+        with ESMTP id S233207AbiLBKDO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 05:03:14 -0500
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9422017A9C
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 02:03:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1669975393; x=1701511393;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=VeGMyYTTMhuWLDGwGgpvKEsDAECcBQ0fUZpyt0ZS84s=;
+  b=W2fI41oAJfLgLNTijtkWGHBX9qrTXlQZybGdU5xEojsnjzOr+OtfLXST
+   wkKgtxsCWtMnFaxNfJY1Ba4bRofmRZf1Qhp+2Dmc8ViEE1WqwcWKnmnoD
+   EQtCy/C50O8QxddRq2QCXIISd1zHKkUuyb24UmhYkwKLdeetqymo0IHBv
+   NlrHwn32lJovDhFVI+BheyHGs3rj32xRJ7MQaYy4O+miXF5Y+VqvZvKwX
+   Zkcrn9ibeoxFBPbmYFAMQXYC9ymPQmhTuqSUGGoxdHs5PP7OZJMxMhOr1
+   QHR9EPmwerm4MkzKpn9p593zCgkadKaACbXZEx3N8aOMwNjKOEKL8/855
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="299290462"
+X-IronPort-AV: E=Sophos;i="5.96,212,1665471600"; 
+   d="scan'208";a="299290462"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2022 02:03:13 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="677553164"
+X-IronPort-AV: E=Sophos;i="5.96,212,1665471600"; 
+   d="scan'208";a="677553164"
+Received: from ctfarrel-mobl.ger.corp.intel.com (HELO mwauld-desk1.intel.com) ([10.252.18.53])
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Dec 2022 02:03:11 -0800
+From:   Matthew Auld <matthew.auld@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris.p.wilson@intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
+        Nirmoy Das <nirmoy.das@intel.com>, stable@vger.kernel.org
+Subject: [PATCH v5 1/3] drm/i915/migrate: Account for the reserved_space
+Date:   Fri,  2 Dec 2022 10:02:44 +0000
+Message-Id: <20221202100246.406758-1-matthew.auld@intel.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <9793c74f-2dd0-d510-d8b6-b475e34f3587@leemhuis.info>
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks for handling this, Thorsten. I had poked Jarkko about this
-earlier this week, but he didn't respond. So I'm glad you're on the case
-now getting this in somewhere. Probably this should make it to rc8, so
-there's still one week left of testing it.
+From: Chris Wilson <chris.p.wilson@intel.com>
 
-Jason
+If the ring is nearly full when calling into emit_pte(), we might
+incorrectly trample the reserved_space when constructing the packet to
+emit the PTEs. This then triggers the GEM_BUG_ON(rq->reserved_space >
+ring->space) when later submitting the request, since the request itself
+doesn't have enough space left in the ring to emit things like
+workarounds, breadcrumbs etc.
+
+Testcase: igt@i915_selftests@live_emit_pte_full_ring
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7535
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6889
+Fixes: cf586021642d ("drm/i915/gt: Pipelined page migration")
+Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Andrzej Hajda <andrzej.hajda@intel.com>
+Cc: Andi Shyti <andi.shyti@linux.intel.com>
+Cc: Nirmoy Das <nirmoy.das@intel.com>
+Cc: <stable@vger.kernel.org> # v5.15+
+Tested-by: Nirmoy Das <nirmoy.das@intel.com>
+Reviewed-by: Nirmoy Das <nirmoy.das@intel.com>
+---
+ drivers/gpu/drm/i915/gt/intel_migrate.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_migrate.c b/drivers/gpu/drm/i915/gt/intel_migrate.c
+index b405a04135ca..48c3b5168558 100644
+--- a/drivers/gpu/drm/i915/gt/intel_migrate.c
++++ b/drivers/gpu/drm/i915/gt/intel_migrate.c
+@@ -342,6 +342,16 @@ static int emit_no_arbitration(struct i915_request *rq)
+ 	return 0;
+ }
+ 
++static int max_pte_pkt_size(struct i915_request *rq, int pkt)
++{
++       struct intel_ring *ring = rq->ring;
++
++       pkt = min_t(int, pkt, (ring->space - rq->reserved_space) / sizeof(u32) + 5);
++       pkt = min_t(int, pkt, (ring->size - ring->emit) / sizeof(u32) + 5);
++
++       return pkt;
++}
++
+ static int emit_pte(struct i915_request *rq,
+ 		    struct sgt_dma *it,
+ 		    enum i915_cache_level cache_level,
+@@ -388,8 +398,7 @@ static int emit_pte(struct i915_request *rq,
+ 		return PTR_ERR(cs);
+ 
+ 	/* Pack as many PTE updates as possible into a single MI command */
+-	pkt = min_t(int, dword_length, ring->space / sizeof(u32) + 5);
+-	pkt = min_t(int, pkt, (ring->size - ring->emit) / sizeof(u32) + 5);
++	pkt = max_pte_pkt_size(rq, dword_length);
+ 
+ 	hdr = cs;
+ 	*cs++ = MI_STORE_DATA_IMM | REG_BIT(21); /* as qword elements */
+@@ -422,8 +431,7 @@ static int emit_pte(struct i915_request *rq,
+ 				}
+ 			}
+ 
+-			pkt = min_t(int, dword_rem, ring->space / sizeof(u32) + 5);
+-			pkt = min_t(int, pkt, (ring->size - ring->emit) / sizeof(u32) + 5);
++			pkt = max_pte_pkt_size(rq, dword_rem);
+ 
+ 			hdr = cs;
+ 			*cs++ = MI_STORE_DATA_IMM | REG_BIT(21);
+-- 
+2.38.1
+
