@@ -2,54 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0397D64044C
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 11:13:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6CCE640458
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 11:18:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232711AbiLBKNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 05:13:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52312 "EHLO
+        id S231904AbiLBKSK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 05:18:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233252AbiLBKNI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 05:13:08 -0500
-Received: from smtp-out-05.comm2000.it (smtp-out-05.comm2000.it [212.97.32.73])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75FB3BF93D
-        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 02:13:06 -0800 (PST)
-Received: from francesco-nb.int.toradex.com (93-49-2-63.ip317.fastwebnet.it [93.49.2.63])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: francesco@dolcini.it)
-        by smtp-out-05.comm2000.it (Postfix) with ESMTPSA id 8965482630A;
-        Fri,  2 Dec 2022 11:12:50 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailserver.it;
-        s=mailsrv; t=1669975984;
-        bh=EhXjLytaNloC3jO1CJxW82NXsFq0S8qD5JKyjHxWInE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=hd0Ck2QDAmK4PlJ0kTMREObFocUpZZJ82Uv8R3IttXT8QzAVkT8Dl77W+TyA+KlBM
-         LTzWsTyyOk8IqQ5Ty0ohGwdqt89z6+p91dIYeAUHl4EpYTiqCc5cnGNl/kuFGBOBMT
-         IpjTGSJXPhJeQNNjTUE1tWEfSpkpBqMVISDOy/geQ0kkml++igPFEaz5iIoodtk6Sc
-         Pf5DzGq+zMENYBiodvZyE4E4M1ReiuyAM+Qopo+0CR0GDJjfmR8LDoPSVQqRiuIACH
-         2j5YaRKGO3x92iXsY/KGIDwBfuGhDf6TRw3gTS7z8HLRTFCOEnQ3QUBU6x3IQuWQnu
-         b1/VXmEtMqB+w==
-Date:   Fri, 2 Dec 2022 11:12:43 +0100
-From:   Francesco Dolcini <francesco@dolcini.it>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>
-Cc:     Francesco Dolcini <francesco@dolcini.it>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-mtd@lists.infradead.org, Marek Vasut <marex@denx.de>,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is 0
-Message-ID: <Y4nPmzdgaabg3a3/@francesco-nb.int.toradex.com>
-References: <20221202071900.1143950-1-francesco@dolcini.it>
- <20221202101418.6b4b3711@xps-13>
+        with ESMTP id S231775AbiLBKSJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 05:18:09 -0500
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC7632A261;
+        Fri,  2 Dec 2022 02:18:08 -0800 (PST)
+Received: by mail-wm1-x335.google.com with SMTP id n7so3193006wms.3;
+        Fri, 02 Dec 2022 02:18:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=TWifImDgU7rHybo8rHu3koXB7xojTPgIH7LvV9QbOUE=;
+        b=a9SSakxT3CPnWDAc/fAmnACSKYR07SGM0Xx+z4D4+CznUE2v01eUhlTuKTvgEfV5HH
+         ddXwNgHUB/APv0c+HTnhQYZcB+O3GBq1WiUyfBnzj/+5hXSa9LK5iI3FAyyVz8zGbMB/
+         z1TmPzyeCY9muLjATJkTVZ/GWQGVsS6gW8GS44uBo71nclfXW4TzJqjb30+4qNx7taBP
+         Up0AWlIT7ENFmpJMjA3NstTymOaGulfNY4gywP2jFz5YDx/CaIgwMI5FWEN7ZUHPj9PB
+         DVAOSed14WLZ6DruDcA7ZIfv5TCGJTYwdWOwHEsUGNzPTRLzhf481wtmz47X1C0NP5MO
+         2lQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TWifImDgU7rHybo8rHu3koXB7xojTPgIH7LvV9QbOUE=;
+        b=c+AygOuOwucu5p3ZQkbky8050JrHk1tbGRqBJTe4U+4lUkXwS9i4SIvItViUsvSdf8
+         D3Z3WgGpj7QsvzRVcZ6drUrZRvCd0giYvjp2uTdGSN1YVbMPTeuNhav4VluYy8ybMFPf
+         fUX8Dh07Qw7a/Mh2fKa8gojki99QoxuBSy9MHiH7/7q6i0ML4sUrIR8Muwl+bGjjZfhv
+         XOYtK/Bt5D57nlqVrPvWffl614tuG72Z5T6DaqPrIAZdaGH+k1BIw0kAiQibuV1S3B/x
+         hn9NIRQNNGtAbcUBUjl7MZFZ5ilcqv5iXBvszEbJMKHJTRot0Tm9v/3Dfb/NHBEQ/ORE
+         2BEQ==
+X-Gm-Message-State: ANoB5plE0m9jUaZB/JtU+ZnEXkE7nkJMkNT5bg14hTxZNWOWhkOJAPHm
+        KkMJVu8IDqEowAngqSHwNBs=
+X-Google-Smtp-Source: AA0mqf7VLLsEPMXxHahA+d8woSWlMcxL1IgEpAx0Dwakte6+dL8FX3JxCY9ChD8h0xMV7ramnFgajA==
+X-Received: by 2002:a05:600c:3d16:b0:3c6:de4a:d768 with SMTP id bh22-20020a05600c3d1600b003c6de4ad768mr38070878wmb.61.1669976287300;
+        Fri, 02 Dec 2022 02:18:07 -0800 (PST)
+Received: from debian (host-78-150-37-98.as13285.net. [78.150.37.98])
+        by smtp.gmail.com with ESMTPSA id n3-20020a05600c3b8300b003cfbbd54178sm13831873wms.2.2022.12.02.02.18.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 02 Dec 2022 02:18:07 -0800 (PST)
+Date:   Fri, 2 Dec 2022 10:18:05 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
+        rwarsow@gmx.de
+Subject: Re: [PATCH 6.0 000/280] 6.0.11-rc2 review
+Message-ID: <Y4nQ3ZqWHD2U8iP6@debian>
+References: <20221201131113.897261583@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221202101418.6b4b3711@xps-13>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE autolearn=ham
+In-Reply-To: <20221201131113.897261583@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,45 +74,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Miquel,
+Hi Greg,
 
-On Fri, Dec 02, 2022 at 10:14:18AM +0100, Miquel Raynal wrote:
-> francesco@dolcini.it wrote on Fri,  2 Dec 2022 08:19:00 +0100:
-> > From: Francesco Dolcini <francesco.dolcini@toradex.com>
-> > 
-> > Add a fallback mechanism to handle the case in which #size-cells is set
-> > to <0>. According to the DT binding the nand controller node should have
-> > set it to 0 and this is not compatible with the legacy way of
-> > specifying partitions directly as child nodes of the nand-controller node.
+On Thu, Dec 01, 2022 at 02:11:47PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.11 release.
+> There are 280 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> I understand the problem, I understand the fix, but I have to say, I
-> strongly dislike it :) Touching an mtd core driver to fix a single
-> broken use case like that is... problematic, for the least.
-I just noticed it 2 days after this patch was backported to a stable
-kernel, I am just the first one to notice, we are not talking about a single
-use case.
+> Responses should be made by Sat, 03 Dec 2022 13:10:41 +0000.
+> Anything received after that time might be too late.
 
-> I am sorry but if a 6.0 kernel breaks because:
-Not only kernel 6.0 is currently broken. This patch is going to be
-backported to any stable kernel given the fixes tag it has.
+Build test (gcc version 12.2.1 20221127):
+mips: 52 configs -> no failure
+arm: 100 configs -> no failure
+arm64: 3 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+csky allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
 
-> If you really want to workaround U-Boot, either you revert that patch
-> or you just fix the DT description instead. The parent/child/partitions
-> scheme has been enforced for maybe 5 years now and for a good reason: a
-> NAND controller with partitions does not make _any_ sense. There are
-> plenty of examples out there, imx7-colibri.dtsi has received many
-> updates since its introduction (for the best), so why not this one?
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+mips: Booted on ci20 board. No regression. [2]
 
-I can and I will update imx7-colibri.dtsi (patch coming), but is this
-good enough given the kind of boot failure regression this introduce? We
-are going to have old u-boot around that will not work with it, and the
-reality is that there are tons of reasons why people do update the linux
-kernel and dts everyday, but never ever update the bootloader.
+[1]. https://openqa.qa.codethink.co.uk/tests/2263
+[2]. https://openqa.qa.codethink.co.uk/tests/2264
 
-We cannot tell
-  "All users of the XXX kernel series must upgrade."
-and at the same time introduce a regression that break the boot and
-ignore it.
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
-Francesco
-
+-- 
+Regards
+Sudip
