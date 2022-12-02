@@ -2,158 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E38D663FE1D
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 03:29:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2257263FE35
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 03:38:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231990AbiLBC3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Dec 2022 21:29:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48666 "EHLO
+        id S231197AbiLBCiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Dec 2022 21:38:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230070AbiLBC3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 21:29:22 -0500
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36F9EC86A7
-        for <stable@vger.kernel.org>; Thu,  1 Dec 2022 18:29:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1669948162; x=1701484162;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Now24MUPLT3EQEq8NyCTjzhKZ/kfIe4ZHVg/8rutW+E=;
-  b=mHVe5RyKTjC19DqpYxQEI3CvLXUA/5F0hf/pVd27afd+F9JpRdjdq/nT
-   zlIMUlnI3wrkVwlBas8p8g6wzrtE0Cn7zjZ3PKQDjCs/5A+kRzXyFAEaZ
-   P4Gvu+g0CiBTecazensdf/xLlT+z47h2pSAnLISChL4Yuqt/itTUPO3pt
-   pCst0GLvT4imQVwZNYop0F1Le08fIHjwfi5ytPXcsWwZs33Ww1MZD50/E
-   z9isdQEyCJ6elPNd05w6K22bHMUVKsT9VnR18mPKG2iqv4cC56bnTqIs5
-   4wLzKVEFot74tcvBSDtm5haDedraZ8G5ziSegOuqp0W7lvS4WHEkATjQv
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="317001963"
-X-IronPort-AV: E=Sophos;i="5.96,210,1665471600"; 
-   d="scan'208";a="317001963"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2022 18:29:21 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10548"; a="733650707"
-X-IronPort-AV: E=Sophos;i="5.96,210,1665471600"; 
-   d="scan'208";a="733650707"
-Received: from subratad-mobl1.amr.corp.intel.com (HELO desk) ([10.209.101.31])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2022 18:29:20 -0800
-Date:   Thu, 1 Dec 2022 18:29:20 -0800
-From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     bp@alien8.de, dave.hansen@linux.intel.com, hdegoede@redhat.com,
-        rafael.j.wysocki@intel.com, stable@kernel.org
-Subject: [PATCH 4.19 2/2] x86/pm: Add enumeration check before spec MSRs
- save/restore setup
-Message-ID: <e59af4fc87e33553e7b6354544b527f563d85f54.1669948009.git.pawan.kumar.gupta@linux.intel.com>
-References: <166981147130161@kroah.com>
+        with ESMTP id S230193AbiLBCiV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 21:38:21 -0500
+Received: from out29-5.mail.aliyun.com (out29-5.mail.aliyun.com [115.124.29.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45D9693837;
+        Thu,  1 Dec 2022 18:38:19 -0800 (PST)
+X-Alimail-AntiSpam: AC=CONTINUE;BC=0.07438342|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.0033058-0.00464087-0.992053;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047190;MF=kant@allwinnertech.com;NM=1;PH=DS;RN=6;RT=6;SR=0;TI=SMTPD_---.QLqU9kr_1669948695;
+Received: from SunxiBot.allwinnertech.com(mailfrom:kant@allwinnertech.com fp:SMTPD_---.QLqU9kr_1669948695)
+          by smtp.aliyun-inc.com;
+          Fri, 02 Dec 2022 10:38:16 +0800
+From:   Kant Fan <kant@allwinnertech.com>
+To:     myungjoo.ham@samsung.com, kyungmin.park@samsung.com
+Cc:     cw00.choi@samsung.com, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH 5.4-] PM/devfreq: governor: Add a private governor_data for governor
+Date:   Fri,  2 Dec 2022 10:38:12 +0800
+Message-Id: <20221202023812.84174-1-kant@allwinnertech.com>
+X-Mailer: git-send-email 2.29.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <166981147130161@kroah.com>
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 50bcceb7724e471d9b591803889df45dcbb584bc upstream.
+Commit fbd567e56942ecc4da906c4f3f3652c94773af5b upstream.
 
-pm_save_spec_msr() keeps a list of all the MSRs which _might_ need
-to be saved and restored at hibernate and resume. However, it has
-zero awareness of CPU support for these MSRs. It mostly works by
-unconditionally attempting to manipulate these MSRs and relying on
-rdmsrl_safe() being able to handle a #GP on CPUs where the support is
-unavailable.
+The member void *data in the structure devfreq can be overwrite
+by governor_userspace. For example:
+1. The device driver assigned the devfreq governor to simple_ondemand
+by the function devfreq_add_device() and init the devfreq member
+void *data to a pointer of a static structure devfreq_simple_ondemand_data
+by the function devfreq_add_device().
+2. The user changed the devfreq governor to userspace by the command
+"echo userspace > /sys/class/devfreq/.../governor".
+3. The governor userspace alloced a dynamic memory for the struct
+userspace_data and assigend the member void *data of devfreq to
+this memory by the function userspace_init().
+4. The user changed the devfreq governor back to simple_ondemand
+by the command "echo simple_ondemand > /sys/class/devfreq/.../governor".
+5. The governor userspace exited and assigned the member void *data
+in the structure devfreq to NULL by the function userspace_exit().
+6. The governor simple_ondemand fetched the static information of
+devfreq_simple_ondemand_data in the function
+devfreq_simple_ondemand_func() but the member void *data of devfreq was
+assigned to NULL by the function userspace_exit().
+7. The information of upthreshold and downdifferential is lost
+and the governor simple_ondemand can't work correctly.
 
-However, it's possible for reads (RDMSR) to be supported for a given MSR
-while writes (WRMSR) are not. In this case, msr_build_context() sees
-a successful read (RDMSR) and marks the MSR as valid. Then, later, a
-write (WRMSR) fails, producing a nasty (but harmless) error message.
-This causes restore_processor_state() to try and restore it, but writing
-this MSR is not allowed on the Intel Atom N2600 leading to:
+The member void *data in the structure devfreq is designed for
+a static pointer used in a governor and inited by the function
+devfreq_add_device(). This patch add an element named governor_data
+in the devfreq structure which can be used by a governor(E.g userspace)
+who want to assign a private data to do some private things.
 
-  unchecked MSR access error: WRMSR to 0x122 (tried to write 0x0000000000000002) \
-     at rIP: 0xffffffff8b07a574 (native_write_msr+0x4/0x20)
-  Call Trace:
-   <TASK>
-   restore_processor_state
-   x86_acpi_suspend_lowlevel
-   acpi_suspend_enter
-   suspend_devices_and_enter
-   pm_suspend.cold
-   state_store
-   kernfs_fop_write_iter
-   vfs_write
-   ksys_write
-   do_syscall_64
-   ? do_syscall_64
-   ? up_read
-   ? lock_is_held_type
-   ? asm_exc_page_fault
-   ? lockdep_hardirqs_on
-   entry_SYSCALL_64_after_hwframe
-
-To fix this, add the corresponding X86_FEATURE bit for each MSR.  Avoid
-trying to manipulate the MSR when the feature bit is clear. This
-required adding a X86_FEATURE bit for MSRs that do not have one already,
-but it's a small price to pay.
-
-  [ bp: Move struct msr_enumeration inside the only function that uses it. ]
-  [Pawan: Resolve build issue in backport]
-
-Fixes: 73924ec4d560 ("x86/pm: Save the MSR validity status at context setup")
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/c24db75d69df6e66c0465e13676ad3f2837a2ed8.1668539735.git.pawan.kumar.gupta@linux.intel.com
+Fixes: ce26c5bb9569 ("PM / devfreq: Add basic governors")
+Cc: stable@vger.kernel.org # 5.4-
+Signed-off-by: Kant Fan <kant@allwinnertech.com>
 ---
- arch/x86/power/cpu.c | 23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ drivers/devfreq/devfreq.c            |  6 ++----
+ drivers/devfreq/governor_userspace.c | 12 ++++++------
+ include/linux/devfreq.h              |  7 ++++---
+ 3 files changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/arch/x86/power/cpu.c b/arch/x86/power/cpu.c
-index dea9d6246e00..75cd943f03a7 100644
---- a/arch/x86/power/cpu.c
-+++ b/arch/x86/power/cpu.c
-@@ -527,16 +527,23 @@ static int pm_cpu_check(const struct x86_cpu_id *c)
+diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+index c79652ee94be..93efaf69d08e 100644
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -603,8 +603,7 @@ static void devfreq_dev_release(struct device *dev)
+  * @dev:	the device to add devfreq feature.
+  * @profile:	device-specific profile to run devfreq.
+  * @governor_name:	name of the policy to choose frequency.
+- * @data:	private data for the governor. The devfreq framework does not
+- *		touch this value.
++ * @data:	devfreq driver pass to governors, governor should not change it.
+  */
+ struct devfreq *devfreq_add_device(struct device *dev,
+ 				   struct devfreq_dev_profile *profile,
+@@ -788,8 +787,7 @@ static void devm_devfreq_dev_release(struct device *dev, void *res)
+  * @dev:	the device to add devfreq feature.
+  * @profile:	device-specific profile to run devfreq.
+  * @governor_name:	name of the policy to choose frequency.
+- * @data:	private data for the governor. The devfreq framework does not
+- *		touch this value.
++ * @data:	devfreq driver pass to governors, governor should not change it.
+  *
+  * This function manages automatically the memory of devfreq device using device
+  * resource management and simplify the free operation for memory of devfreq
+diff --git a/drivers/devfreq/governor_userspace.c b/drivers/devfreq/governor_userspace.c
+index af94942fcf95..a3ae4dc4668b 100644
+--- a/drivers/devfreq/governor_userspace.c
++++ b/drivers/devfreq/governor_userspace.c
+@@ -21,7 +21,7 @@ struct userspace_data {
  
- static void pm_save_spec_msr(void)
+ static int devfreq_userspace_func(struct devfreq *df, unsigned long *freq)
  {
--	u32 spec_msr_id[] = {
--		MSR_IA32_SPEC_CTRL,
--		MSR_IA32_TSX_CTRL,
--		MSR_TSX_FORCE_ABORT,
--		MSR_IA32_MCU_OPT_CTRL,
--		MSR_AMD64_LS_CFG,
--		MSR_AMD64_DE_CFG,
-+	struct msr_enumeration {
-+		u32 msr_no;
-+		u32 feature;
-+	} msr_enum[] = {
-+		{ MSR_IA32_SPEC_CTRL,	 X86_FEATURE_MSR_SPEC_CTRL },
-+		{ MSR_IA32_TSX_CTRL,	 X86_FEATURE_MSR_TSX_CTRL },
-+		{ MSR_TSX_FORCE_ABORT,	 X86_FEATURE_TSX_FORCE_ABORT },
-+		{ MSR_IA32_MCU_OPT_CTRL, X86_FEATURE_SRBDS_CTRL },
-+		{ MSR_AMD64_LS_CFG,	 X86_FEATURE_LS_CFG_SSBD },
-+		{ MSR_AMD64_DE_CFG,	 X86_FEATURE_LFENCE_RDTSC },
- 	};
-+	int i;
+-	struct userspace_data *data = df->data;
++	struct userspace_data *data = df->governor_data;
  
--	msr_build_context(spec_msr_id, ARRAY_SIZE(spec_msr_id));
-+	for (i = 0; i < ARRAY_SIZE(msr_enum); i++) {
-+		if (boot_cpu_has(msr_enum[i].feature))
-+			msr_build_context(&msr_enum[i].msr_no, 1);
-+	}
+ 	if (data->valid)
+ 		*freq = data->user_frequency;
+@@ -40,7 +40,7 @@ static ssize_t store_freq(struct device *dev, struct device_attribute *attr,
+ 	int err = 0;
+ 
+ 	mutex_lock(&devfreq->lock);
+-	data = devfreq->data;
++	data = devfreq->governor_data;
+ 
+ 	sscanf(buf, "%lu", &wanted);
+ 	data->user_frequency = wanted;
+@@ -60,7 +60,7 @@ static ssize_t show_freq(struct device *dev, struct device_attribute *attr,
+ 	int err = 0;
+ 
+ 	mutex_lock(&devfreq->lock);
+-	data = devfreq->data;
++	data = devfreq->governor_data;
+ 
+ 	if (data->valid)
+ 		err = sprintf(buf, "%lu\n", data->user_frequency);
+@@ -91,7 +91,7 @@ static int userspace_init(struct devfreq *devfreq)
+ 		goto out;
+ 	}
+ 	data->valid = false;
+-	devfreq->data = data;
++	devfreq->governor_data = data;
+ 
+ 	err = sysfs_create_group(&devfreq->dev.kobj, &dev_attr_group);
+ out:
+@@ -107,8 +107,8 @@ static void userspace_exit(struct devfreq *devfreq)
+ 	if (devfreq->dev.kobj.sd)
+ 		sysfs_remove_group(&devfreq->dev.kobj, &dev_attr_group);
+ 
+-	kfree(devfreq->data);
+-	devfreq->data = NULL;
++	kfree(devfreq->governor_data);
++	devfreq->governor_data = NULL;
  }
  
- static int pm_check_save_msr(void)
+ static int devfreq_userspace_handler(struct devfreq *devfreq,
+diff --git a/include/linux/devfreq.h b/include/linux/devfreq.h
+index 2bae9ed3c783..6cbc6d1ae32f 100644
+--- a/include/linux/devfreq.h
++++ b/include/linux/devfreq.h
+@@ -121,8 +121,8 @@ struct devfreq_dev_profile {
+  *		devfreq.nb to the corresponding register notifier call chain.
+  * @work:	delayed work for load monitoring.
+  * @previous_freq:	previously configured frequency value.
+- * @data:	Private data of the governor. The devfreq framework does not
+- *		touch this.
++ * @data:	devfreq driver pass to governors, governor should not change it.
++ * @governor_data:	private data for governors, devfreq core doesn't touch it.
+  * @min_freq:	Limit minimum frequency requested by user (0: none)
+  * @max_freq:	Limit maximum frequency requested by user (0: none)
+  * @scaling_min_freq:	Limit minimum frequency requested by OPP interface
+@@ -159,7 +159,8 @@ struct devfreq {
+ 	unsigned long previous_freq;
+ 	struct devfreq_dev_status last_status;
+ 
+-	void *data; /* private data for governors */
++	void *data;
++	void *governor_data;
+ 
+ 	unsigned long min_freq;
+ 	unsigned long max_freq;
 -- 
-2.37.3
-
+2.29.0
 
