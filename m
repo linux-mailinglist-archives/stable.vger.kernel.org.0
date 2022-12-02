@@ -2,165 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A24EA63FBBC
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 00:12:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16DFC63FD20
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 01:33:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231788AbiLAXMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Dec 2022 18:12:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40682 "EHLO
+        id S232296AbiLBAdO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Dec 2022 19:33:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231783AbiLAXMW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 18:12:22 -0500
-Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF0F6CE407;
-        Thu,  1 Dec 2022 15:11:49 -0800 (PST)
-Received: by mail-qt1-x835.google.com with SMTP id c15so2998513qtw.8;
-        Thu, 01 Dec 2022 15:11:49 -0800 (PST)
+        with ESMTP id S232214AbiLBAcp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Dec 2022 19:32:45 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB0EF1835A
+        for <stable@vger.kernel.org>; Thu,  1 Dec 2022 16:31:47 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id l22-20020a17090a3f1600b00212fbbcfb78so6798136pjc.3
+        for <stable@vger.kernel.org>; Thu, 01 Dec 2022 16:31:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=chromium.org; s=google;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=eB2SiEkoahwJAweFszDO7tR3Np0KafunJjb2zk1tlog=;
-        b=S8P4aWhLotqldvBO0a1xty1ZMCTm6QV5GhxODDqIATGbw5i1KAAns9u8XLVcen1U/x
-         GzHjWOP0HIdqyjAKsYnPz4zeNx7o9f1GqpMxitX9JokxSpU649hMNneAPWy2R4/CCjcR
-         WT23gwurVelSOLWXWtUpDR66QbXOvexdzp11lYISmscNfG+wsPVy+m78z7IptGxOcglu
-         8fz13kcO0cG7W6EZ5aYNuO7vpzAlocgbyeaKr7CeTxCyTtfDQhhZcObx0QdDJnF4OT1j
-         hPXmGLQ8VQb36GjkTNcpa1uXgfGizJT7QanAHM3csCF1NK7pmNfDNZHvedbphEZxJ+s4
-         YRfw==
+        bh=aSqvQJ0r+p8u1Rw63qJBl5IXkE2qQ7qq7yw5MIhA6Vg=;
+        b=hRo4cH3NdrgJYtHz2zuqiIhKDpaIbVnLZSSaOpnURDdSwno6JVGbQ7sbRiyma4ID5p
+         yak5WLuD9BpCyMdRbRYLcSsZzQM2ryqSUUUOSEKtTA+d4BJKSwimD0yAdnj/qihgXXrR
+         xWF8NsCINgzkXi6gYlB3KJ0GCOnfMBmWziTK8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=eB2SiEkoahwJAweFszDO7tR3Np0KafunJjb2zk1tlog=;
-        b=EjUCAGEabPHNe0GiCB0iFgX7dKLTnDt5N6DABcHwBo3AX/Gboh4MvwZy1GT6XRYtnJ
-         FGYZAiKYLjKsc8cGUVtiy0K+/wttDSTNB43t4Kh+Q1LgCAX+s0WEocnY9GaTabWNfBwF
-         zsw68tfZWtw30F8KPYqlJ19DtUdgvzXKwJ7Xh5KTgjdV/bHLBltMYd175kCAqgQqhdVa
-         HU9bIOB+fLes3HG1T/zDdCMrtcp4xtxvOhy/ruHckmgO+lvNRQ2t6my2tynRCQW9WxMu
-         vXQnY+zc9tVjqgjXDJYLYi/5ScSQowEKXePW1+6avcjFMCNC4di7ztJbpOtDWO9tRbe3
-         +Pug==
-X-Gm-Message-State: ANoB5pmB2dWkC2RFpiPJ5QDJrtZEE+wIXx7jAddUJmEiMDnASh+Wauss
-        EwzMl6LiH3pZmuBoCdcjqRC5KvbupJJNGg==
-X-Google-Smtp-Source: AA0mqf6A/k2nTDCcmt9r3O+EmT4tQ1Kgd/ymVBfCgPvWSW0cLvUBJL/A+evgotkrG0swRuWWadnoIw==
-X-Received: by 2002:ac8:4615:0:b0:3a5:4057:4202 with SMTP id p21-20020ac84615000000b003a540574202mr64536341qtn.454.1669936308739;
-        Thu, 01 Dec 2022 15:11:48 -0800 (PST)
-Received: from horus.lan (75-164-171-180.ptld.qwest.net. [75.164.171.180])
-        by smtp.gmail.com with ESMTPSA id f25-20020ac86ed9000000b003a4f2510e5dsm3254365qtv.24.2022.12.01.15.11.46
+        bh=aSqvQJ0r+p8u1Rw63qJBl5IXkE2qQ7qq7yw5MIhA6Vg=;
+        b=lEz1QY//0s86ehr7+qQTLO72EMJXdzV+w7EUYGSmiZvKlQJPedskxRqhPqlkWWRt/6
+         La5jru0l6nj43NsbKOQUv/PX/gzyZw/9CLE0350YEW5ThMGfub0yVuijW4TXZuIG1YrI
+         E0ViXdvaVGFWCgdkj0kuktEzExreN6cpt5ZPEu7p/9T8H55+C63ssZff18ZsSIJdP4i1
+         FT/T5CK4OMp6EbOTRqxoSTr4qAd5vgRioroB1Wbg9V7YFrtCRre0gOSjYLxtQ6GgMkDc
+         40lJw4CnZaRS3AxgyalBQg9BQyXdDBV3Pa6IxOzQqA5m7yz1feXOITF+JuHezbOt/4KQ
+         Ikdg==
+X-Gm-Message-State: ANoB5pnyfXrWF+4HsJyHFg11wKca4co49ZSUrjjqfUSFFVnIiGiM4W67
+        ZIFqOHULBsOu9OPLY2XU+JeX/woKtgQpLg==
+X-Google-Smtp-Source: AA0mqf6LVRpqR8NBytmtT7u31/qaDNdBjLsbDJ8yBeh+AlyAyqNWNLgWfS0QZIwBvqjayllQfetnag==
+X-Received: by 2002:a17:902:e20c:b0:189:a934:ee37 with SMTP id u12-20020a170902e20c00b00189a934ee37mr11428560plb.141.1669941107286;
+        Thu, 01 Dec 2022 16:31:47 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id cp6-20020a170902e78600b0018986ba1db9sm4194500plb.284.2022.12.01.16.31.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Dec 2022 15:11:48 -0800 (PST)
-From:   Jason Gerecke <killertofu@gmail.com>
-X-Google-Original-From: Jason Gerecke <jason.gerecke@wacom.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     linux-input@vger.kernel.org,
-        "Tobita, Tatsunosuke" <tatsunosuke.tobita@wacom.com>,
-        Ping Cheng <pinglinux@gmail.com>,
-        Aaron Armstrong Skomra <skomra@gmail.com>,
-        Joshua Dickens <Joshua@Joshua-Dickens.com>,
-        Jason Gerecke <killertofu@gmail.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
-Subject: [PATCH] HID: wacom: Ensure bootloader PID is usable in hidraw mode
-Date:   Thu,  1 Dec 2022 15:11:41 -0800
-Message-Id: <20221201231141.112916-1-jason.gerecke@wacom.com>
-X-Mailer: git-send-email 2.38.1
+        Thu, 01 Dec 2022 16:31:46 -0800 (PST)
+From:   Kees Cook <keescook@chromium.org>
+To:     Richard Weinberger <richard@nod.at>
+Cc:     Kees Cook <keescook@chromium.org>,
+        kernel test robot <lkp@intel.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, stable@vger.kernel.org,
+        David Gow <davidgow@google.com>, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: [PATCH] um: virt-pci: Avoid GCC non-NULL warning
+Date:   Thu,  1 Dec 2022 16:31:41 -0800
+Message-Id: <20221202003137.never.887-kees@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3245; h=from:subject:message-id; bh=hW5b+KjTlhouCD6j7qImof+KSRreUfVk0FReUZhRGoc=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBjiUdt7k5NB8JKjV1GuvCZKo99RzxrLKkWs3CIhEoZ Yq0gvHqJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCY4lHbQAKCRCJcvTf3G3AJjb8D/ 0bdy8kTQRSRZfyYIeJyp7oCXVcKdUFnjAq+L0zfS54vo7VwW8jT61/ZKz0yR1mmLGvzBvj3orLFcWR iKTNhv9doXjX+zJwgQpDHWYIn4Scxpa6SL2qj0DZFK096DFP5K2wJGfXNiyBmvCgNG1iVhqIHw2UJX FVBFoDrenCDo8YeiNxanR5Bsaj8ymv73WfL6L0St8d5wVc2A5KQOk0iJVWPDkH8oNUMxeRSZEsxzxM Wm3IzXEn+BKBJaOLenZjBVV4eGza5V6tTDWPs1R+pOAjocB1xhbnslwG7FkW3ji4IBckWJYhsZ9C41 iWfJ9JxbDi6QluS/fD442ldJQpc7xqcHEQjckRK1vvzMa1KL+5hCoJFyo5nWkKY7seL3ohOfdPtUdz rc5aVt/af7aB0TydI0BYvedhriFKbHDYfhA9dUkccQeuzVgkXcxO1CxBax7orPIWouspRQNr4al36K PtSyqJfKNOO+q/UcsT1WPmn2FgKgB9adsggH37j0MDNXiO6dqkFa5EGQ0vIzSM4C9oU2FkTbERbK1z E2Md4XHyRnMmz6cBwAAtSx2TcOIjT1aTJUySGZ2PqLthuyzyPj9O8sIVbvWcUgxe9CF37InmRO5k6k /LG391zGyuXB2PuVLbbfVIlxz3msT11T+igz3B4mvf/jecCOcCIv9C1noyZQ==
+X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+GCC gets confused about the return value of get_cpu_var() possibly
+being NULL, so explicitly test for it before calls to memcpy() and
+memset(). Avoids warnings like this:
 
-Some Wacom devices have a special "bootloader" mode that is used for
-firmware flashing. When operating in this mode, the device cannot be
-used for input, and the HID descriptor is not able to be processed by
-the driver. The driver generates an "Unknown device_type" warning and
-then returns an error code from wacom_probe(). This is a problem because
-userspace still needs to be able to interact with the device via hidraw
-to perform the firmware flash.
+   arch/um/drivers/virt-pci.c: In function 'um_pci_send_cmd':
+   include/linux/fortify-string.h:48:33: warning: argument 1 null where non-null expected [-Wnonnull]
+      48 | #define __underlying_memcpy     __builtin_memcpy
+         |                                 ^
+   include/linux/fortify-string.h:438:9: note: in expansion of macro '__underlying_memcpy'
+     438 |         __underlying_##op(p, q, __fortify_size);                        \
+         |         ^~~~~~~~~~~~~
+   include/linux/fortify-string.h:483:26: note: in expansion of macro '__fortify_memcpy_chk'
+     483 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
+         |                          ^~~~~~~~~~~~~~~~~~~~
+   arch/um/drivers/virt-pci.c:100:9: note: in expansion of macro 'memcpy'
+     100 |         memcpy(buf, cmd, cmd_size);
+         |         ^~~~~~
 
-This commit adds a non-generic device definition for 056a:0094 which
-is used when devices are in "bootloader" mode. It marks the devices
-with a special BOOTLOADER type that is recognized by wacom_probe() and
-wacom_raw_event(). When we see this type we ensure a hidraw device is
-created and otherwise keep our hands off so that userspace is in full
-control.
+While at it, avoid literal "8" and use stored sizeof(buf->data) in
+memset() and um_pci_send_cmd().
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Tested-by: Tatsunosuke Tobita <tatsunosuke.tobita@wacom.com>
-Cc: <stable@vger.kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202211271212.SUZSC9f9-lkp@intel.com
+Fixes: ba38961a069b ("um: Enable FORTIFY_SOURCE")
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Xiu Jianfeng <xiujianfeng@huawei.com>
+Cc: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Cc: linux-um@lists.infradead.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- drivers/hid/wacom_sys.c | 8 ++++++++
- drivers/hid/wacom_wac.c | 4 ++++
- drivers/hid/wacom_wac.h | 1 +
- 3 files changed, 13 insertions(+)
+I can take this via the hardening tree, since that's where I introduced
+the warning. :)
+---
+ arch/um/drivers/virt-pci.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 634263e4556b..fb538a6c4add 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -155,6 +155,9 @@ static int wacom_raw_event(struct hid_device *hdev, struct hid_report *report,
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 
-+	if (wacom->wacom_wac.features.type == BOOTLOADER)
-+		return 0;
-+
- 	if (size > WACOM_PKGLEN_MAX)
- 		return 1;
- 
-@@ -2785,6 +2788,11 @@ static int wacom_probe(struct hid_device *hdev,
- 		return error;
+diff --git a/arch/um/drivers/virt-pci.c b/arch/um/drivers/virt-pci.c
+index acb55b302b14..3ac220dafec4 100644
+--- a/arch/um/drivers/virt-pci.c
++++ b/arch/um/drivers/virt-pci.c
+@@ -97,7 +97,8 @@ static int um_pci_send_cmd(struct um_pci_device *dev,
  	}
  
-+	if (features->type == BOOTLOADER) {
-+		hid_warn(hdev, "Using device in hidraw-only mode");
-+		return hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-+	}
-+
- 	error = wacom_parse_and_register(wacom, false);
- 	if (error)
- 		return error;
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 0f3d57b42684..9312d611db8e 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -4882,6 +4882,9 @@ static const struct wacom_features wacom_features_0x3dd =
- static const struct wacom_features wacom_features_HID_ANY_ID =
- 	{ "Wacom HID", .type = HID_GENERIC, .oVid = HID_ANY_ID, .oPid = HID_ANY_ID };
+ 	buf = get_cpu_var(um_pci_msg_bufs);
+-	memcpy(buf, cmd, cmd_size);
++	if (buf)
++		memcpy(buf, cmd, cmd_size);
  
-+static const struct wacom_features wacom_features_0x94 =
-+	{ "Wacom Bootloader", .type = BOOTLOADER };
-+
- #define USB_DEVICE_WACOM(prod)						\
- 	HID_DEVICE(BUS_USB, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
- 	.driver_data = (kernel_ulong_t)&wacom_features_##prod
-@@ -4955,6 +4958,7 @@ const struct hid_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x84) },
- 	{ USB_DEVICE_WACOM(0x90) },
- 	{ USB_DEVICE_WACOM(0x93) },
-+	{ USB_DEVICE_WACOM(0x94) },
- 	{ USB_DEVICE_WACOM(0x97) },
- 	{ USB_DEVICE_WACOM(0x9A) },
- 	{ USB_DEVICE_WACOM(0x9F) },
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 5ca6c06d143b..16f221388563 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -243,6 +243,7 @@ enum {
- 	MTTPC,
- 	MTTPC_B,
- 	HID_GENERIC,
-+	BOOTLOADER,
- 	MAX_TYPE
- };
+ 	if (posted) {
+ 		u8 *ncmd = kmalloc(cmd_size + extra_size, GFP_ATOMIC);
+@@ -182,6 +183,7 @@ static unsigned long um_pci_cfgspace_read(void *priv, unsigned int offset,
+ 	struct um_pci_message_buffer *buf;
+ 	u8 *data;
+ 	unsigned long ret = ULONG_MAX;
++	size_t bytes = sizeof(buf->data);
  
+ 	if (!dev)
+ 		return ULONG_MAX;
+@@ -189,7 +191,8 @@ static unsigned long um_pci_cfgspace_read(void *priv, unsigned int offset,
+ 	buf = get_cpu_var(um_pci_msg_bufs);
+ 	data = buf->data;
+ 
+-	memset(buf->data, 0xff, sizeof(buf->data));
++	if (buf)
++		memset(data, 0xff, bytes);
+ 
+ 	switch (size) {
+ 	case 1:
+@@ -204,7 +207,7 @@ static unsigned long um_pci_cfgspace_read(void *priv, unsigned int offset,
+ 		goto out;
+ 	}
+ 
+-	if (um_pci_send_cmd(dev, &hdr, sizeof(hdr), NULL, 0, data, 8))
++	if (um_pci_send_cmd(dev, &hdr, sizeof(hdr), NULL, 0, data, bytes))
+ 		goto out;
+ 
+ 	switch (size) {
 -- 
-2.38.1
+2.34.1
 
