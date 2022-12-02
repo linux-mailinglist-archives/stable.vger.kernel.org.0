@@ -2,108 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A6A640486
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 11:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F14A56404DF
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 11:40:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232745AbiLBKYu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 05:24:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36344 "EHLO
+        id S232586AbiLBKk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 05:40:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232399AbiLBKYt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 05:24:49 -0500
-Received: from smtp-out-08.comm2000.it (smtp-out-08.comm2000.it [212.97.32.78])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1310D26AC0
-        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 02:24:48 -0800 (PST)
-Received: from francesco-nb.int.toradex.com (93-49-2-63.ip317.fastwebnet.it [93.49.2.63])
+        with ESMTP id S232329AbiLBKkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 05:40:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDD8C4CE2;
+        Fri,  2 Dec 2022 02:40:18 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: francesco@dolcini.it)
-        by smtp-out-08.comm2000.it (Postfix) with ESMTPSA id 1C91D426A44;
-        Fri,  2 Dec 2022 11:24:30 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailserver.it;
-        s=mailsrv; t=1669976685;
-        bh=8mV1uDAsqGTcFlpWfAUtgES7Hcz7KKv0WrqMDW2T7qI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=b36p1ywq4DgK//mM/hLiBj8zUn9DFVkoB7fUDAV1aO7kU5sJsSg8eF3LWFGKSxXdO
-         mh18+lf9V9kpq8kwUlqoMGIG/x1K9bNCydfwZ0N8+YNyEnwBbwwiu5KwsKHklrYg3l
-         VJ0ibSh2AOrYORI3fxVmjmfUMfMF1wIZLWKLCv8fkSwJFGFnYu2nDshEyGxbMTWyVk
-         mEpmDR6w6tUcErne+JhKTMRTlYEb5k1rmqVn44T49xVzbzNFwHfARx1wmhNQg8LSxV
-         XpvPW3EMnSbiCH4oQtbny41LOcfN/ZwqyRp4vZFQFuYa1u2h2SBu1lqcsJAqKiX/Zq
-         xodsBO++S8lcw==
-Date:   Fri, 2 Dec 2022 11:24:29 +0100
-From:   Francesco Dolcini <francesco@dolcini.it>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>
-Cc:     Francesco Dolcini <francesco@dolcini.it>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-mtd@lists.infradead.org, Marek Vasut <marex@denx.de>,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is 0
-Message-ID: <Y4nSXQirO2N5IRfu@francesco-nb.int.toradex.com>
-References: <20221202071900.1143950-1-francesco@dolcini.it>
- <20221202101418.6b4b3711@xps-13>
- <Y4nPmzdgaabg3a3/@francesco-nb.int.toradex.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75395B82129;
+        Fri,  2 Dec 2022 10:40:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 289D2C433C1;
+        Fri,  2 Dec 2022 10:40:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1669977616;
+        bh=9TJWvPBkEqE2daxuJdASbu2lj+aoO2m9KXnJwJTO+K0=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=rYQkg0Z9zktXtOPN8Bc0oyOE3NYUT38dfpi5aJLMPmthMI3aDLQ9UpBQD4Bwim+Ur
+         LUFSKl0YKlGt6qMWDeuZTvjo7M2Ya4+9C6vnk+iEJnfFlt11eqfzWxc+jK2t2y01aQ
+         88nbPxSxMned0Uvowvzgz8QWryqZ3cRCiyNOFEg9anhKfyVYDDLvYunCxBLHOsfH2x
+         GujXkMo3bguUgSENweCmkFkaHroSFvVgdrtV+al3rGxtEsazBz+ZrLO71c2fBVWZK0
+         ICNOmja1EvsRsM+Lb39OLB+E6hQNStluFz1erph0JhUUbjj6pxM8KeCKXijGnm5GJp
+         tcZ2Z4oopxNUQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 0EDB3E450B4;
+        Fri,  2 Dec 2022 10:40:16 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y4nPmzdgaabg3a3/@francesco-nb.int.toradex.com>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v2 net  0/2] vmxnet3: couple of fixes
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <166997761605.20046.4334047014624425550.git-patchwork-notify@kernel.org>
+Date:   Fri, 02 Dec 2022 10:40:16 +0000
+References: <20221130082148.9605-1-doshir@vmware.com>
+In-Reply-To: <20221130082148.9605-1-doshir@vmware.com>
+To:     Ronak Doshi <doshir@vmware.com>
+Cc:     netdev@vger.kernel.org, stable@vger.kernel.org,
+        pv-drivers@vmware.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, linux-kernel@vger.kernel.org
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 02, 2022 at 11:12:43AM +0100, Francesco Dolcini wrote:
-> Hello Miquel,
+Hello:
+
+This series was applied to netdev/net.git (master)
+by David S. Miller <davem@davemloft.net>:
+
+On Wed, 30 Nov 2022 00:21:45 -0800 you wrote:
+> This series fixes following issues:
 > 
-> On Fri, Dec 02, 2022 at 10:14:18AM +0100, Miquel Raynal wrote:
-> > francesco@dolcini.it wrote on Fri,  2 Dec 2022 08:19:00 +0100:
-> > > From: Francesco Dolcini <francesco.dolcini@toradex.com>
-> > > 
-> > > Add a fallback mechanism to handle the case in which #size-cells is set
-> > > to <0>. According to the DT binding the nand controller node should have
-> > > set it to 0 and this is not compatible with the legacy way of
-> > > specifying partitions directly as child nodes of the nand-controller node.
-> > 
-> > I understand the problem, I understand the fix, but I have to say, I
-> > strongly dislike it :) Touching an mtd core driver to fix a single
-> > broken use case like that is... problematic, for the least.
-> I just noticed it 2 days after this patch was backported to a stable
-> kernel, I am just the first one to notice, we are not talking about a single
-> use case.
+> Patch 1:
+>   This patch provides a fix to correctly report encapsulated LRO'ed
+>   packet.
 > 
-> > I am sorry but if a 6.0 kernel breaks because:
-> Not only kernel 6.0 is currently broken. This patch is going to be
-> backported to any stable kernel given the fixes tag it has.
+> Patch 2:
+>   This patch provides a fix to use correct intrConf reference.
 > 
-> > If you really want to workaround U-Boot, either you revert that patch
-> > or you just fix the DT description instead. The parent/child/partitions
-> > scheme has been enforced for maybe 5 years now and for a good reason: a
-> > NAND controller with partitions does not make _any_ sense. There are
-> > plenty of examples out there, imx7-colibri.dtsi has received many
-> > updates since its introduction (for the best), so why not this one?
-> 
-> I can and I will update imx7-colibri.dtsi (patch coming), but is this
-> good enough given the kind of boot failure regression this introduce? We
-> are going to have old u-boot around that will not work with it, and the
+> [...]
 
-Just another piece of information, support for the partitions node in
-U-Boot was added in version v2022.04 [1], we are not talking about ancient
-old legacy stuff.
+Here is the summary with links:
+  - [v2,net,1/2] vmxnet3: correctly report encapsulated LRO packet
+    https://git.kernel.org/netdev/net/c/40b8c2a1af03
+  - [v2,net,2/2] vmxnet3: use correct intrConf reference when using extended queues
+    https://git.kernel.org/netdev/net/c/409e8ec8c582
 
-If I add the partitions node as a child of my nand controller, as I was
-planning to do and I wrote 10 lines above, I will create a new flavor of
-non-booting system with U-Boot older than v2022.04 :-/
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-U-Boot older than v2022.04 will update the nand controller node never
-the less, the partition node will still be there and Linux will use it,
-but it will be empty since nobody populate it.
 
-Francesco
-
-[1] commit 36fee2f7621e ("common: fdt_support: add support for "partitions" subnode to fdt_fixup_mtdparts()")
