@@ -2,213 +2,313 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CBE8640EA6
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 20:43:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70416640EB0
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 20:46:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234820AbiLBTnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 14:43:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45356 "EHLO
+        id S234839AbiLBTqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 14:46:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232517AbiLBTnw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 14:43:52 -0500
-Received: from CY4PR02CU008-vft-obe.outbound.protection.outlook.com (mail-westcentralusazon11022018.outbound.protection.outlook.com [40.93.200.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43903E03E;
-        Fri,  2 Dec 2022 11:43:51 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=X+oCIz/d8ALlUSo1QojlY0yh/UBndGiq5yn7GaCE8ZCGc49zCgtmuqp3OxC9nIBPMjcuCvoQSmmHlL12NN/1KJArJW0AoBv6KUB5UWVICl30YzdmMole+Lwf/KnL2QSgjveppck76ikmYzFM0N3VDS5fRPJAjrXJvukg29nJZlcPiImPVq7TXJi5soVualS7qlRfBDiQfS5HytFCnjng/qZuT71nYsCggeOIVEZBMDKg0MwNp8hiUJx/zObkrnn0UIbhNquekMKMub2FcXwCxmJp0bwx0/9WPYtPGZ06fbbW+aivTWur1+bIRzkCNgi4jmv376NgOJMIkC1KQfSMJQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ZKbNtspwaNKULw43rbPToEfbQh7CcgVkT3h4Pn5rWhQ=;
- b=jd9IYZgIIqSs+lvNsGuaKFDpztCglDSzrefTQlwgqylBUA41RYaIBnr7dlcX9k+4Acodkr7s1FOyicsFkxgLzqXoPTHufhsC0hz+LxjOq0zrnTaD5uXw1QQxWErqoIg4vtqpEcUVUn07pW2zsrQPXK8hCBejKRoAQV3qoX/qEGm1yWX29mngIsSw3SoH0aGAkVgqtNfv1cg1xil+cp+YzIPNfBkzUhQrFXl6h79XaWBby+m6n3YAjK6oUWJdyV0PQb2MWhfwzCkx/UWMpHxYTsk1XCP2m+v1FxLqdlqI3O8QyUto06VT0sUdoYXIHi8Dz9C9Unx5yeQz833ACDO0lw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ZKbNtspwaNKULw43rbPToEfbQh7CcgVkT3h4Pn5rWhQ=;
- b=D3e3Mz2FH8vXYjeNa6dJOC2szQCCYGmE1dyzhtzxAbnWCor62ohomQU//NGaHlqI6OHvg/9dzvsD9Z1oZKZV/ZSjUtY5TxQEBVUMvFEnbnc4sN+8gJRtbiKbHmnm/CrWDq+zcutlKkBS3znTcValbLOKJELzSzrML9ghv+0c3v0=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microsoft.com;
-Received: from BY5PR21MB1443.namprd21.prod.outlook.com (2603:10b6:a03:21f::18)
- by LV2PR21MB3373.namprd21.prod.outlook.com (2603:10b6:408:14d::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5901.8; Fri, 2 Dec
- 2022 19:43:49 +0000
-Received: from BY5PR21MB1443.namprd21.prod.outlook.com
- ([fe80::5a1d:844d:e0aa:afb1]) by BY5PR21MB1443.namprd21.prod.outlook.com
- ([fe80::5a1d:844d:e0aa:afb1%6]) with mapi id 15.20.5901.008; Fri, 2 Dec 2022
- 19:43:49 +0000
-From:   Haiyang Zhang <haiyangz@microsoft.com>
-To:     linux-hyperv@vger.kernel.org, netdev@vger.kernel.org
-Cc:     haiyangz@microsoft.com, decui@microsoft.com, kys@microsoft.com,
-        sthemmin@microsoft.com, paulros@microsoft.com, olaf@aepfle.de,
-        vkuznets@redhat.com, davem@davemloft.net,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH net] net: mana: Fix race on per-CQ variable napi work_done
-Date:   Fri,  2 Dec 2022 11:43:10 -0800
-Message-Id: <1670010190-28595-1-git-send-email-haiyangz@microsoft.com>
-X-Mailer: git-send-email 1.8.3.1
-Content-Type: text/plain
-X-ClientProxiedBy: MW4PR03CA0325.namprd03.prod.outlook.com
- (2603:10b6:303:dd::30) To BY5PR21MB1443.namprd21.prod.outlook.com
- (2603:10b6:a03:21f::18)
+        with ESMTP id S234816AbiLBTqj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 14:46:39 -0500
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2887F3FAA;
+        Fri,  2 Dec 2022 11:46:37 -0800 (PST)
+Received: by mail-qt1-f169.google.com with SMTP id h16so6664388qtu.2;
+        Fri, 02 Dec 2022 11:46:37 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=yt0wmF0a++96BW0ABApkcWlkwutyseNN3f24uUrtD88=;
+        b=fUNhtvhbhZpOxGGObFOKxDH9/OSGXCY8SFz6TFDwLDJqNVgbftepZK2ehevrB93UiV
+         EMreZ9nUTSFt20A4Cx3DbRCwf5A8lRbT2N+XA4wMTQN5eEDfMQbvWju+aoBGGSWK7AHI
+         M34mzwGk9OJpFH6cW2AuHhg++14M27Mt/35BsAlFw6XXhHuGYQBjhrNfW+x4lI1OaCHD
+         3BduIERoiOYtceE/YELKZqALOl69ezU13FVhVNrS+Gno/6ApKG3Sl0hXcxvig/sB0fii
+         rjj8EVcrZfFwgpmFScFhU3dZgqRjX305N8A1DOT4LMfys0IA+wLEPZtm+tPqTg8sjaro
+         fYJg==
+X-Gm-Message-State: ANoB5pnyEfN6G8074QJ/xhHxcbLlycCSW+2P0gQoHbKcEpViRBydU4Re
+        7g6JPoM0rNip2HOYtgC1wOmuwbQ2GTGwTV7lcQk=
+X-Google-Smtp-Source: AA0mqf4L9vUfM78+IFKlNHBPG8BCS2R5OW8RJjOWCGHjKW8XiUyhbPac1wNubiIE4PGn51wrEpQkhpc1KhBRPuupgm8=
+X-Received: by 2002:ac8:4818:0:b0:3a6:a0d7:e1f7 with SMTP id
+ g24-20020ac84818000000b003a6a0d7e1f7mr1779513qtq.153.1670010396808; Fri, 02
+ Dec 2022 11:46:36 -0800 (PST)
 MIME-Version: 1.0
-Sender: LKML haiyangz <lkmlhyz@microsoft.com>
-X-MS-Exchange-MessageSentRepresentingType: 2
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BY5PR21MB1443:EE_|LV2PR21MB3373:EE_
-X-MS-Office365-Filtering-Correlation-Id: 344e6bed-edbf-46f5-4cf0-08dad49d878d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 90zRiOvGl6e4Y9t+mB3r4TbaViER52M+PbpYYRdWfbXnBniCbfu3tIEVLyrp8ETXMwoRfA05cBtTHh98XOj5FrrKnKz24QTDObBeJUHxGtROY+dLhAzoF5zW/DpMS9rl51Qsry+4jIFLLcSOFOCsoBmLEKh8cCVRqNcSWVyi1VlzQXRuHYLoxDKJNLxUaCUNyoytudGhtWfeNTUeV7Q1Opn0v+uqJh/ZlQifDDDjHxQu3QkkIp2cc08AzdtnbF83ZD7BZpkJYu53ICMz7/bYt+X05+KH0Mxy6wCiu8Ny+TIzG2Yk4QBvTaH+Z2Mtd80Xwps3nLoZ5vIwf3dTantykXv3WbkLxC1yFhlEfPMQ1AQeSOe344SeOwVzx+rfhpdSm6QjjBU2PjHBWnJUjDxck/jVoi7Dan/nLxUK7OtVTdjPMpcU8DrgbpFxLtvvPEzPI2Pyr2drwdZzkBP6gfHK1OZJRgorUyAAdp65/O+Qzhlv+eIFSdIvJwXYqqjvN2nPNLMyLeNguJr8X5ynVG6tY7M8k4+MB2PFeL+xDPy2cdHeyaFDutzVCwsM+jEXo+/urLIIf4zHIg3Ld5Kp9l2yunhlwS8mNaW7PFzp+/XAesFQ5isGQNcA1+Jwt5vrKGHR3AC+7p9IxwxC1YRkIvKGDpP+qv2sTZdOz7B5j9zPBpa8YNVIlRXJ7p3xclAQImW2beGceuIZkng94TvknqApE9HVx+w67IAOmGB8wjGLK2EgqGsFDl4NUk1JC8Gw1QRR
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR21MB1443.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(396003)(366004)(39860400002)(136003)(346002)(376002)(451199015)(82950400001)(82960400001)(38350700002)(38100700002)(36756003)(66946007)(316002)(66556008)(8676002)(4326008)(66476007)(478600001)(6486002)(7846003)(6666004)(52116002)(10290500003)(26005)(6512007)(6506007)(2906002)(83380400001)(2616005)(186003)(41300700001)(5660300002)(8936002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?IOnB+o9QCZ8VOzG/BCbtIfjk71wgAEYRHrVTjz1bEpDFaKircIfJ2UvedItD?=
- =?us-ascii?Q?ePBZPyQLiWguU1rtSOQpGroWYu8fSewb7RFgjlPGheWRWBKLD+3xFrGUqGKJ?=
- =?us-ascii?Q?2qlhuex1vG8bFo5JC4rYXzlETh0V7Rw96yRd7AGeLcZ5ThCy8NtxUu8t5riF?=
- =?us-ascii?Q?BnmnOynJemn4oV7Tk2tugXCHvJJwdRBnQLmU1PdiCN8KGaT63zx/v7xsBKfK?=
- =?us-ascii?Q?oeGAiL7SdTN29CHOlY3K4Onc0Wbnl1eyNZy8HPiAOSK9KrdkWG+oOVvh/kGl?=
- =?us-ascii?Q?pIqCjHYLUaq5V3o7r1Jvfr4En2NMBJoMT7SIZwp5Qt+ieVhk63TNC6b+2Vwt?=
- =?us-ascii?Q?eIXfpd4Ch2xe4DhvU40OL3EXrTUKRaIpDnnF0y2XRQxz1dmsxeKBQ/HLjuCw?=
- =?us-ascii?Q?DCQSke1V8IaKLv5hVX4INXaEWBNHTjpJA0Ge/xc7eeGbvRaf6kaLt5psbB1L?=
- =?us-ascii?Q?bmek+TAtig/UKFMMnA/8bhF9Ohr5CA7Wfuek0m8XZYMNBdfJNzWwwiQUyufk?=
- =?us-ascii?Q?rHYwOL9KMk+V6w3H29lENnXwa9Minbuy/cy3pQuFL6oW5fEaZ7+s8/HQXYG5?=
- =?us-ascii?Q?nOJsVcLu9Qe4jgTn+lBpbf82srt+UD8GIp4VNoi6oWEuE1ENLyfeIKiDjV3d?=
- =?us-ascii?Q?WEZJiByH9HdV4c6Iuz80KrMbzeONmagRBhubbPeuMhvBRkyS7SBooF2CZt+1?=
- =?us-ascii?Q?VOh952+fsaDLJbZqQlrd7cgHTdBq1NaimYFPU6hEb9OLxcz8eEgE2nNojH4Q?=
- =?us-ascii?Q?dKODqade4bNuaMaP3uQU4r63jTD/ycSoTLbSm1wFdBNACgMulyI6qF4MvmP+?=
- =?us-ascii?Q?LOlnInWKr2hwxkmktc4j27fFGsbmY4/cHpj42i9cG3cc3qrLWb3bFye8Rkgn?=
- =?us-ascii?Q?T79KH3KGH+TAu5FKsKKuZdyeHT4bn9+RRJf+ON5fuS/5rirtxqgchI0uf2Xt?=
- =?us-ascii?Q?cKSDLM1nWQ+pedu4wa/0Kq18XIAKQ4y50x17CtjbXMnPK0riGZz8Wdnpd3f3?=
- =?us-ascii?Q?7ZXvVBAnexSWxr3DYDTRSVOiNAW+faZQDRn7kYGOpW5nKii9Kk7NmMzYabxa?=
- =?us-ascii?Q?9rhw7mJusI7e64RMftDCVENpixEhhLEFxl04cx+t9R59X624ceeo6Js1IMRy?=
- =?us-ascii?Q?FD6IxmbjLJqPtJm9w78jQceK9vbDSpGp1Sy/s9rb+HTDHvTFHrv1jfDtfA+j?=
- =?us-ascii?Q?+NVHFRqgVCMHg+kHCeNFikmb16jJ/zNlv8cuLVeI3iB0PZYFiuW6NqWBLHyB?=
- =?us-ascii?Q?sKjowYpas5gWKqNM9/m8B8h/HTr2Ko53VhufGxOk6+0tHYnnD0HsyOMo6u8o?=
- =?us-ascii?Q?vcO3jJN6w3pzV4DVbLevRXmSyOLVCgiL8J41m69hNSBju9OWc7BISAsu4pK7?=
- =?us-ascii?Q?AY3WAjX5X6anIYcwKp1h+VTsH3vHAY30mr2cMzKU+Mue7/20qgxHw7r0NImq?=
- =?us-ascii?Q?Xb7AUAGp2nonfODaUaHw4ujVAMQ3k58eWd/n3fK4ClCvkNnJ189yLqqVnKCl?=
- =?us-ascii?Q?KshkJigKKSrG9EEL1bPx/XLTml8xeeKnb36D89Gt1E4Ae6dH6S/+razuTxIJ?=
- =?us-ascii?Q?V9WvXzfPRMlrNvmLLvoQHi4F6Ycxdwt9HEE+O3ab?=
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 344e6bed-edbf-46f5-4cf0-08dad49d878d
-X-MS-Exchange-CrossTenant-AuthSource: BY5PR21MB1443.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Dec 2022 19:43:48.8511
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: BBLnv5bYI+2tbrFiacQhnLROTYErSvAtaPEnPVkOb4dVQ2rWVF/iF7xY7QcwFPH7utK3Xa/OOTG/G1f0BiPu3g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR21MB3373
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_PASS,SPF_NONE autolearn=no
-        autolearn_force=no version=3.4.6
+References: <930778a1-5e8b-6df6-3276-42dcdadaf682@systemli.org>
+ <18947e09733a17935af9a123ccf9b6e92faeaf9b.1669958641.git.viresh.kumar@linaro.org>
+ <CAJZ5v0ixHocQbu6-zs3dMDsiw8vdPyv=8Re7N4kUckeGkLhUzg@mail.gmail.com>
+In-Reply-To: <CAJZ5v0ixHocQbu6-zs3dMDsiw8vdPyv=8Re7N4kUckeGkLhUzg@mail.gmail.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Fri, 2 Dec 2022 20:46:25 +0100
+Message-ID: <CAJZ5v0hc8CsvqLKxi5iRq7iR0bkt25dRnLBd23mx-zdi2Sjgsw@mail.gmail.com>
+Subject: Re: [PATCH] Revert "cpufreq: mediatek: Refine mtk_cpufreq_voltage_tracking()"
+To:     Viresh Kumar <viresh.kumar@linaro.org>
+Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
+        linux-pm@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        regressions@leemhuis.info, daniel@makrotopia.org,
+        thomas.huehn@hs-nordhausen.de, "v5 . 19+" <stable@vger.kernel.org>,
+        Nick <vincent@systemli.org>, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-After calling napi_complete_done(), the NAPIF_STATE_SCHED bit may be
-cleared, and another CPU can start napi thread and access per-CQ variable,
-cq->work_done. If the other thread (for example, from busy_poll) sets
-it to a value >= budget, this thread will continue to run when it should
-stop, and cause memory corruption and panic.
+On Fri, Dec 2, 2022 at 1:17 PM Rafael J. Wysocki <rafael@kernel.org> wrote:
+>
+> On Fri, Dec 2, 2022 at 6:26 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
+> >
+> > This reverts commit 6a17b3876bc8303612d7ad59ecf7cbc0db418bcd.
+> >
+> > This commit caused regression on Banana Pi R64 (MT7622), revert until
+> > the problem is identified and fixed properly.
+> >
+> > Link: https://lore.kernel.org/all/930778a1-5e8b-6df6-3276-42dcdadaf682@systemli.org/
+> > Cc: v5.19+ <stable@vger.kernel.org> # v5.19+
+> > Reported-by: Nick <vincent@systemli.org>
+> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+>
+> Do you want me to push this revert for -rc8?
 
-To fix this issue, save the per-CQ work_done variable in a local variable
-before napi_complete_done(), so it won't be corrupted by a possible
-concurrent thread after napi_complete_done().
+After all, I've decided to queue it up for 6.2, thanks!
 
-Also, add a flag bit to advertise to the NIC firmware: the NAPI work_done
-variable race is fixed, so the driver is able to reliably support features
-like busy_poll.
-
-Cc: stable@vger.kernel.org
-Fixes: e1b5683ff62e ("net: mana: Move NAPI from EQ to CQ")
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/net/ethernet/microsoft/mana/gdma.h    |  9 ++++++++-
- drivers/net/ethernet/microsoft/mana/mana_en.c | 16 +++++++++++-----
- 2 files changed, 19 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/net/ethernet/microsoft/mana/gdma.h b/drivers/net/ethernet/microsoft/mana/gdma.h
-index 4a6efe6ada08..65c24ee49efd 100644
---- a/drivers/net/ethernet/microsoft/mana/gdma.h
-+++ b/drivers/net/ethernet/microsoft/mana/gdma.h
-@@ -498,7 +498,14 @@ enum {
- 
- #define GDMA_DRV_CAP_FLAG_1_EQ_SHARING_MULTI_VPORT BIT(0)
- 
--#define GDMA_DRV_CAP_FLAGS1 GDMA_DRV_CAP_FLAG_1_EQ_SHARING_MULTI_VPORT
-+/* Advertise to the NIC firmware: the NAPI work_done variable race is fixed,
-+ * so the driver is able to reliably support features like busy_poll.
-+ */
-+#define GDMA_DRV_CAP_FLAG_1_NAPI_WKDONE_FIX BIT(2)
-+
-+#define GDMA_DRV_CAP_FLAGS1 \
-+	(GDMA_DRV_CAP_FLAG_1_EQ_SHARING_MULTI_VPORT | \
-+	 GDMA_DRV_CAP_FLAG_1_NAPI_WKDONE_FIX)
- 
- #define GDMA_DRV_CAP_FLAGS2 0
- 
-diff --git a/drivers/net/ethernet/microsoft/mana/mana_en.c b/drivers/net/ethernet/microsoft/mana/mana_en.c
-index 9259a74eca40..27a0f3af8aab 100644
---- a/drivers/net/ethernet/microsoft/mana/mana_en.c
-+++ b/drivers/net/ethernet/microsoft/mana/mana_en.c
-@@ -1303,10 +1303,11 @@ static void mana_poll_rx_cq(struct mana_cq *cq)
- 		xdp_do_flush();
- }
- 
--static void mana_cq_handler(void *context, struct gdma_queue *gdma_queue)
-+static int mana_cq_handler(void *context, struct gdma_queue *gdma_queue)
- {
- 	struct mana_cq *cq = context;
- 	u8 arm_bit;
-+	int w;
- 
- 	WARN_ON_ONCE(cq->gdma_cq != gdma_queue);
- 
-@@ -1315,26 +1316,31 @@ static void mana_cq_handler(void *context, struct gdma_queue *gdma_queue)
- 	else
- 		mana_poll_tx_cq(cq);
- 
--	if (cq->work_done < cq->budget &&
--	    napi_complete_done(&cq->napi, cq->work_done)) {
-+	w = cq->work_done;
-+
-+	if (w < cq->budget &&
-+	    napi_complete_done(&cq->napi, w)) {
- 		arm_bit = SET_ARM_BIT;
- 	} else {
- 		arm_bit = 0;
- 	}
- 
- 	mana_gd_ring_cq(gdma_queue, arm_bit);
-+
-+	return w;
- }
- 
- static int mana_poll(struct napi_struct *napi, int budget)
- {
- 	struct mana_cq *cq = container_of(napi, struct mana_cq, napi);
-+	int w;
- 
- 	cq->work_done = 0;
- 	cq->budget = budget;
- 
--	mana_cq_handler(cq, cq->gdma_cq);
-+	w = mana_cq_handler(cq, cq->gdma_cq);
- 
--	return min(cq->work_done, budget);
-+	return min(w, budget);
- }
- 
- static void mana_schedule_napi(void *context, struct gdma_queue *gdma_queue)
--- 
-2.25.1
-
+> > ---
+> >  drivers/cpufreq/mediatek-cpufreq.c | 147 +++++++++++++++++++----------
+> >  1 file changed, 96 insertions(+), 51 deletions(-)
+> >
+> > diff --git a/drivers/cpufreq/mediatek-cpufreq.c b/drivers/cpufreq/mediatek-cpufreq.c
+> > index 7f2680bc9a0f..4466d0c91a6a 100644
+> > --- a/drivers/cpufreq/mediatek-cpufreq.c
+> > +++ b/drivers/cpufreq/mediatek-cpufreq.c
+> > @@ -8,7 +8,6 @@
+> >  #include <linux/cpu.h>
+> >  #include <linux/cpufreq.h>
+> >  #include <linux/cpumask.h>
+> > -#include <linux/minmax.h>
+> >  #include <linux/module.h>
+> >  #include <linux/of.h>
+> >  #include <linux/of_platform.h>
+> > @@ -16,6 +15,8 @@
+> >  #include <linux/pm_opp.h>
+> >  #include <linux/regulator/consumer.h>
+> >
+> > +#define VOLT_TOL               (10000)
+> > +
+> >  struct mtk_cpufreq_platform_data {
+> >         int min_volt_shift;
+> >         int max_volt_shift;
+> > @@ -55,7 +56,6 @@ struct mtk_cpu_dvfs_info {
+> >         unsigned int opp_cpu;
+> >         unsigned long current_freq;
+> >         const struct mtk_cpufreq_platform_data *soc_data;
+> > -       int vtrack_max;
+> >         bool ccifreq_bound;
+> >  };
+> >
+> > @@ -82,7 +82,6 @@ static int mtk_cpufreq_voltage_tracking(struct mtk_cpu_dvfs_info *info,
+> >         struct regulator *proc_reg = info->proc_reg;
+> >         struct regulator *sram_reg = info->sram_reg;
+> >         int pre_vproc, pre_vsram, new_vsram, vsram, vproc, ret;
+> > -       int retry = info->vtrack_max;
+> >
+> >         pre_vproc = regulator_get_voltage(proc_reg);
+> >         if (pre_vproc < 0) {
+> > @@ -90,44 +89,91 @@ static int mtk_cpufreq_voltage_tracking(struct mtk_cpu_dvfs_info *info,
+> >                         "invalid Vproc value: %d\n", pre_vproc);
+> >                 return pre_vproc;
+> >         }
+> > +       /* Vsram should not exceed the maximum allowed voltage of SoC. */
+> > +       new_vsram = min(new_vproc + soc_data->min_volt_shift,
+> > +                       soc_data->sram_max_volt);
+> > +
+> > +       if (pre_vproc < new_vproc) {
+> > +               /*
+> > +                * When scaling up voltages, Vsram and Vproc scale up step
+> > +                * by step. At each step, set Vsram to (Vproc + 200mV) first,
+> > +                * then set Vproc to (Vsram - 100mV).
+> > +                * Keep doing it until Vsram and Vproc hit target voltages.
+> > +                */
+> > +               do {
+> > +                       pre_vsram = regulator_get_voltage(sram_reg);
+> > +                       if (pre_vsram < 0) {
+> > +                               dev_err(info->cpu_dev,
+> > +                                       "invalid Vsram value: %d\n", pre_vsram);
+> > +                               return pre_vsram;
+> > +                       }
+> > +                       pre_vproc = regulator_get_voltage(proc_reg);
+> > +                       if (pre_vproc < 0) {
+> > +                               dev_err(info->cpu_dev,
+> > +                                       "invalid Vproc value: %d\n", pre_vproc);
+> > +                               return pre_vproc;
+> > +                       }
+> >
+> > -       pre_vsram = regulator_get_voltage(sram_reg);
+> > -       if (pre_vsram < 0) {
+> > -               dev_err(info->cpu_dev, "invalid Vsram value: %d\n", pre_vsram);
+> > -               return pre_vsram;
+> > -       }
+> > +                       vsram = min(new_vsram,
+> > +                                   pre_vproc + soc_data->min_volt_shift);
+> >
+> > -       new_vsram = clamp(new_vproc + soc_data->min_volt_shift,
+> > -                         soc_data->sram_min_volt, soc_data->sram_max_volt);
+> > +                       if (vsram + VOLT_TOL >= soc_data->sram_max_volt) {
+> > +                               vsram = soc_data->sram_max_volt;
+> >
+> > -       do {
+> > -               if (pre_vproc <= new_vproc) {
+> > -                       vsram = clamp(pre_vproc + soc_data->max_volt_shift,
+> > -                                     soc_data->sram_min_volt, new_vsram);
+> > -                       ret = regulator_set_voltage(sram_reg, vsram,
+> > -                                                   soc_data->sram_max_volt);
+> > +                               /*
+> > +                                * If the target Vsram hits the maximum voltage,
+> > +                                * try to set the exact voltage value first.
+> > +                                */
+> > +                               ret = regulator_set_voltage(sram_reg, vsram,
+> > +                                                           vsram);
+> > +                               if (ret)
+> > +                                       ret = regulator_set_voltage(sram_reg,
+> > +                                                       vsram - VOLT_TOL,
+> > +                                                       vsram);
+> >
+> > -                       if (ret)
+> > -                               return ret;
+> > -
+> > -                       if (vsram == soc_data->sram_max_volt ||
+> > -                           new_vsram == soc_data->sram_min_volt)
+> >                                 vproc = new_vproc;
+> > -                       else
+> > +                       } else {
+> > +                               ret = regulator_set_voltage(sram_reg, vsram,
+> > +                                                           vsram + VOLT_TOL);
+> > +
+> >                                 vproc = vsram - soc_data->min_volt_shift;
+> > +                       }
+> > +                       if (ret)
+> > +                               return ret;
+> >
+> >                         ret = regulator_set_voltage(proc_reg, vproc,
+> > -                                                   soc_data->proc_max_volt);
+> > +                                                   vproc + VOLT_TOL);
+> >                         if (ret) {
+> >                                 regulator_set_voltage(sram_reg, pre_vsram,
+> > -                                                     soc_data->sram_max_volt);
+> > +                                                     pre_vsram);
+> >                                 return ret;
+> >                         }
+> > -               } else if (pre_vproc > new_vproc) {
+> > +               } while (vproc < new_vproc || vsram < new_vsram);
+> > +       } else if (pre_vproc > new_vproc) {
+> > +               /*
+> > +                * When scaling down voltages, Vsram and Vproc scale down step
+> > +                * by step. At each step, set Vproc to (Vsram - 200mV) first,
+> > +                * then set Vproc to (Vproc + 100mV).
+> > +                * Keep doing it until Vsram and Vproc hit target voltages.
+> > +                */
+> > +               do {
+> > +                       pre_vproc = regulator_get_voltage(proc_reg);
+> > +                       if (pre_vproc < 0) {
+> > +                               dev_err(info->cpu_dev,
+> > +                                       "invalid Vproc value: %d\n", pre_vproc);
+> > +                               return pre_vproc;
+> > +                       }
+> > +                       pre_vsram = regulator_get_voltage(sram_reg);
+> > +                       if (pre_vsram < 0) {
+> > +                               dev_err(info->cpu_dev,
+> > +                                       "invalid Vsram value: %d\n", pre_vsram);
+> > +                               return pre_vsram;
+> > +                       }
+> > +
+> >                         vproc = max(new_vproc,
+> >                                     pre_vsram - soc_data->max_volt_shift);
+> >                         ret = regulator_set_voltage(proc_reg, vproc,
+> > -                                                   soc_data->proc_max_volt);
+> > +                                                   vproc + VOLT_TOL);
+> >                         if (ret)
+> >                                 return ret;
+> >
+> > @@ -137,24 +183,32 @@ static int mtk_cpufreq_voltage_tracking(struct mtk_cpu_dvfs_info *info,
+> >                                 vsram = max(new_vsram,
+> >                                             vproc + soc_data->min_volt_shift);
+> >
+> > -                       ret = regulator_set_voltage(sram_reg, vsram,
+> > -                                                   soc_data->sram_max_volt);
+> > +                       if (vsram + VOLT_TOL >= soc_data->sram_max_volt) {
+> > +                               vsram = soc_data->sram_max_volt;
+> > +
+> > +                               /*
+> > +                                * If the target Vsram hits the maximum voltage,
+> > +                                * try to set the exact voltage value first.
+> > +                                */
+> > +                               ret = regulator_set_voltage(sram_reg, vsram,
+> > +                                                           vsram);
+> > +                               if (ret)
+> > +                                       ret = regulator_set_voltage(sram_reg,
+> > +                                                       vsram - VOLT_TOL,
+> > +                                                       vsram);
+> > +                       } else {
+> > +                               ret = regulator_set_voltage(sram_reg, vsram,
+> > +                                                           vsram + VOLT_TOL);
+> > +                       }
+> > +
+> >                         if (ret) {
+> >                                 regulator_set_voltage(proc_reg, pre_vproc,
+> > -                                                     soc_data->proc_max_volt);
+> > +                                                     pre_vproc);
+> >                                 return ret;
+> >                         }
+> > -               }
+> > -
+> > -               pre_vproc = vproc;
+> > -               pre_vsram = vsram;
+> > -
+> > -               if (--retry < 0) {
+> > -                       dev_err(info->cpu_dev,
+> > -                               "over loop count, failed to set voltage\n");
+> > -                       return -EINVAL;
+> > -               }
+> > -       } while (vproc != new_vproc || vsram != new_vsram);
+> > +               } while (vproc > new_vproc + VOLT_TOL ||
+> > +                        vsram > new_vsram + VOLT_TOL);
+> > +       }
+> >
+> >         return 0;
+> >  }
+> > @@ -250,8 +304,8 @@ static int mtk_cpufreq_set_target(struct cpufreq_policy *policy,
+> >          * If the new voltage or the intermediate voltage is higher than the
+> >          * current voltage, scale up voltage first.
+> >          */
+> > -       target_vproc = max(inter_vproc, vproc);
+> > -       if (pre_vproc <= target_vproc) {
+> > +       target_vproc = (inter_vproc > vproc) ? inter_vproc : vproc;
+> > +       if (pre_vproc < target_vproc) {
+> >                 ret = mtk_cpufreq_set_voltage(info, target_vproc);
+> >                 if (ret) {
+> >                         dev_err(cpu_dev,
+> > @@ -513,15 +567,6 @@ static int mtk_cpu_dvfs_info_init(struct mtk_cpu_dvfs_info *info, int cpu)
+> >          */
+> >         info->need_voltage_tracking = (info->sram_reg != NULL);
+> >
+> > -       /*
+> > -        * We assume min voltage is 0 and tracking target voltage using
+> > -        * min_volt_shift for each iteration.
+> > -        * The vtrack_max is 3 times of expeted iteration count.
+> > -        */
+> > -       info->vtrack_max = 3 * DIV_ROUND_UP(max(info->soc_data->sram_max_volt,
+> > -                                               info->soc_data->proc_max_volt),
+> > -                                           info->soc_data->min_volt_shift);
+> > -
+> >         return 0;
+> >
+> >  out_disable_inter_clock:
+> > --
