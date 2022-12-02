@@ -2,51 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADC49640856
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 15:23:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32554640867
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 15:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232307AbiLBOXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 09:23:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54348 "EHLO
+        id S233217AbiLBO3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 09:29:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229489AbiLBOXd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 09:23:33 -0500
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE565CE40D;
-        Fri,  2 Dec 2022 06:23:31 -0800 (PST)
-Received: from frapeml500005.china.huawei.com (unknown [172.18.147.207])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4NNwC75HWyz67Zy6;
-        Fri,  2 Dec 2022 22:22:59 +0800 (CST)
-Received: from lhrpeml500005.china.huawei.com (7.191.163.240) by
- frapeml500005.china.huawei.com (7.182.85.13) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Fri, 2 Dec 2022 15:23:30 +0100
-Received: from localhost (10.202.227.76) by lhrpeml500005.china.huawei.com
- (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Fri, 2 Dec
- 2022 14:23:29 +0000
-Date:   Fri, 2 Dec 2022 14:23:28 +0000
-From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To:     Dan Williams <dan.j.williams@intel.com>
-CC:     <linux-cxl@vger.kernel.org>, <stable@vger.kernel.org>,
-        <dave.jiang@intel.com>, <nvdimm@lists.linux.dev>,
-        <dave@stgolabs.net>
-Subject: Re: [PATCH 2/5] cxl/region: Fix missing probe failure
-Message-ID: <20221202142328.00004254@Huawei.com>
-In-Reply-To: <166993220462.1995348.1698008475198427361.stgit@dwillia2-xfh.jf.intel.com>
-References: <166993219354.1995348.12912519920112533797.stgit@dwillia2-xfh.jf.intel.com>
-        <166993220462.1995348.1698008475198427361.stgit@dwillia2-xfh.jf.intel.com>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
+        with ESMTP id S229489AbiLBO3q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 09:29:46 -0500
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFBF9BDB
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 06:29:44 -0800 (PST)
+Received: by mail-wr1-x42a.google.com with SMTP id m14so8041456wrh.7
+        for <stable@vger.kernel.org>; Fri, 02 Dec 2022 06:29:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=U1TH1XoK+QZyztyc8Ksm0uOKGe1Ge91V8W1T9eTVWUY=;
+        b=QfbCVxwULhgjyZSZriGMAS7jnqD85bnn0cbHpt5QvdYFsNmRdivr4o3QYbkZ0J4lwO
+         L4CrS/06/P/q0xR9UaxJkDj+PZBpXvFYHZOAYbllCFE6nLlE61O/uXVbCn9H0onUPwcE
+         0Q3w0SJI5fo4f0und5z2Mr9/V+s/eHxJ6oUdilMYM6nqQFIufvlAgT8FWvioj6tbHnUh
+         1x1j89xFYnQDOZKAtFfl/C4Z2IoEgjklSOKn+LvQkNcCy4Fpr0VZav7Q6MTvGoVEWB0v
+         SZo164lDELcVFXk/zXNrvL7wPTXQEcc5Wr3MBs4UGiws4DXUpCkMu19wGDVXDmrE6gkE
+         Gzhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=U1TH1XoK+QZyztyc8Ksm0uOKGe1Ge91V8W1T9eTVWUY=;
+        b=Hz/YqujNqGHybeLpt8+S+dEcoGPWjjG4h3+vmDmU1tuRljCiFcsoX6CmH3BABAqkUP
+         MaBlpBs6zpPcEn6lqhtAGOjBsmJn2aV36FwAevy9V/3HiA7GK++0x9QtGR1OLWbKTEPb
+         UeK/I9IK8pSk0mB/oOkDYFzKmdg+C/iwTvBhNhA43Y/rmeQbKUTDw7Un8CYakSVIezLW
+         fZoAzCUFuZwiThDykXeklygJxsWEAVGZqo9PMzmoPy/uCMeo5QIlI1YpUdWrsDUhlYcS
+         kbYjhm1Z9nW9+OE0XPXWR2tXmbJ3JnhL8oucCOlMeX7CAHsOf4rHF82K+uts0oOBgfdD
+         7yqw==
+X-Gm-Message-State: ANoB5plC4m31IKOu3sPlE7EYR02Jbxq+E0NBQ4K6WYQV9c5VAAYouvl0
+        22qYCGJjASWaSm2emyIaBS594jg5xHs=
+X-Google-Smtp-Source: AA0mqf6Ft1ezKGGJWypdI/XaOaMoCA3CvtZoP601mfBkAU5bKUIcRTMf6qZNNXT0N9fTE1J4uAUuvg==
+X-Received: by 2002:a5d:5702:0:b0:242:569:3028 with SMTP id a2-20020a5d5702000000b0024205693028mr1774643wrv.435.1669991383036;
+        Fri, 02 Dec 2022 06:29:43 -0800 (PST)
+Received: from 127.0.0.1localhost.com ([2620:10d:c092:600::2:2dd3])
+        by smtp.gmail.com with ESMTPSA id n187-20020a1ca4c4000000b003d005aab31asm8956946wme.40.2022.12.02.06.29.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 02 Dec 2022 06:29:42 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com
+Subject: [PATCH stable-5.15 0/5] io_uring/poll backports for 5.15
+Date:   Fri,  2 Dec 2022 14:27:10 +0000
+Message-Id: <cover.1669990799.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.202.227.76]
-X-ClientProxiedBy: lhrpeml500002.china.huawei.com (7.191.160.78) To
- lhrpeml500005.china.huawei.com (7.191.163.240)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,41 +67,20 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 01 Dec 2022 14:03:24 -0800
-Dan Williams <dan.j.williams@intel.com> wrote:
+Recent patches for io_uring polling.
 
-> cxl_region_probe() allows for regions not in the 'commit' state to be
-> enabled. Fail probe when the region is not committed otherwise the
-> kernel may indicate that an address range is active when none of the
-> decoders are active.
-> 
-> Fixes: 8d48817df6ac ("cxl/region: Add region driver boiler plate")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Huh. I wonder why this wasn't triggering a build warning given
-rc is assigned but unused.
+Lin Ma (1):
+  io_uring/poll: fix poll_refs race with cancelation
 
-Ah well, this is clearly the original intent and makes sense.
+Pavel Begunkov (4):
+  io_uring: update res mask in io_poll_check_events
+  io_uring: fix tw losing poll events
+  io_uring: cmpxchg for poll arm refs release
+  io_uring: make poll refs more robust
 
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+ fs/io_uring.c | 57 ++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 50 insertions(+), 7 deletions(-)
 
-> ---
->  drivers/cxl/core/region.c |    3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/cxl/core/region.c b/drivers/cxl/core/region.c
-> index f9ae5ad284ff..1bc2ebefa2a5 100644
-> --- a/drivers/cxl/core/region.c
-> +++ b/drivers/cxl/core/region.c
-> @@ -1923,6 +1923,9 @@ static int cxl_region_probe(struct device *dev)
->  	 */
->  	up_read(&cxl_region_rwsem);
->  
-> +	if (rc)
-> +		return rc;
-> +
->  	switch (cxlr->mode) {
->  	case CXL_DECODER_PMEM:
->  		return devm_cxl_add_pmem_region(cxlr);
-> 
+-- 
+2.38.1
 
