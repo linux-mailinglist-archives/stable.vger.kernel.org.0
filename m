@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C43F364086A
-	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 15:29:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67EFE64086B
+	for <lists+stable@lfdr.de>; Fri,  2 Dec 2022 15:29:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232959AbiLBO3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 09:29:49 -0500
+        id S233030AbiLBO3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Dec 2022 09:29:50 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233257AbiLBO3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 09:29:48 -0500
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E095DC847
-        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 06:29:47 -0800 (PST)
-Received: by mail-wm1-x331.google.com with SMTP id r9-20020a1c4409000000b003d08febff59so9498wma.3
-        for <stable@vger.kernel.org>; Fri, 02 Dec 2022 06:29:47 -0800 (PST)
+        with ESMTP id S232839AbiLBO3t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 09:29:49 -0500
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24064DC84A
+        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 06:29:48 -0800 (PST)
+Received: by mail-wr1-x430.google.com with SMTP id d1so8019155wrs.12
+        for <stable@vger.kernel.org>; Fri, 02 Dec 2022 06:29:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=LcW12Iogavs9pEyVxO0yQqQrzKlm0yZtxCctvTzxuxI=;
-        b=UKGzEhCdT6aUrL6TzxBUNJQu1HC0mjEwpeWZ0fjUNRRodYj6yZAGaiS/uKjZu38qyI
-         CfS3pZKGlBpwdzev37L0y69uyP7SsPSaQAQpoxAo+s13Zcp50z4oHeMh6A37Doh6qXeS
-         v6xgZoJZCexWPGmIl8nHX8FQxu8vxlvHpajBvziSWihhjgDoM40O8qxB7JqCP6mOwHMz
-         WP+rr1lePZFPoAFaBi54z1Aglaand/bD0bR36xg77GwQ2u5jPt5Mq8ugT4xZtj+55Cv8
-         jdsLAAhwCw4RMTlaOxnMKmsZsjGN+SFY1Xgabn0T1TqH03rE/SNMSGnfVKvAV/xajlrG
-         avsg==
+        bh=L5MpI10edvhSDVpoDMO+AW5YAFSO4C4Q9GbgQQqD53M=;
+        b=hojgdayAGOBXvWMag5tPgbgyJNWLh3PpHqByN3DdZZJo1RIuYiFPT0Yyrz4xESsrkl
+         1Zm9yflyopABhOiCjLlPqlrCgXe2wPhxvs8CWmVlqfuUo553T6CKsQaNY19PY1fc0aR5
+         GU39yNytz9VDfr8zq2Vt3BAettF6EmvaWpeJY0ZNT3NSDEkLuRvr5Ft1VGqz9pHRS9nD
+         vcSo5HhrRvOYCgAl9RTVvwXeHFUb28VJ6aO0gIWmbX6udoAESxIM4YO/S2CeCTXoTLzK
+         MOXHo/M1W/pIfNTx58KAMeQQZ05lTmf4UvWIOuEE2x+P1dB6RR3NCKLF0CSM0auOD26W
+         I+cA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=LcW12Iogavs9pEyVxO0yQqQrzKlm0yZtxCctvTzxuxI=;
-        b=uP61DymNOeAocYYWhd6Yve7ePQJj4a/3dAbCDdqujwsjCneUZyuAleQikVEXWFbaXb
-         jRVW+EbuOa6OzlNjLTFVmbXxxXBvQ37LfbWPHh9hVsu4D/8XVFYtSWdKZw74aDNjn4eE
-         3+fyKNSsHuAnS2am++f/Iw3hzh4TeD4m6HJIStxGIpHFuTWhHG9uK15dwcBtaerzeRPZ
-         hbyY/dAltyPIc2OWqL37VPnaI+qieezKvcgK3XhnDetYYyU9Zfe/6gx1bLVhUkQiktoY
-         kGZt5nUiYS8xwIyZnQa4CRbgED9yxa9pZ4BZK8pHbP7UQUJEB5lQyBJv37i/QRqBPstn
-         fGqg==
-X-Gm-Message-State: ANoB5pkn4QTcJDv01H5HZM1xzD6Ncl4EqwAlTYwOziKqYymnkMg8vpJO
-        IFDdzOM+hititf5yOzlXv1Lp3kSRb7k=
-X-Google-Smtp-Source: AA0mqf69XHR1feOgXkqv3hvITbNbeho/0+hdt9qqISVR6fyfl359MCbpwvKuc0RzE7rx2WtcXLPxjg==
-X-Received: by 2002:a05:600c:43d6:b0:3d0:387d:8eb6 with SMTP id f22-20020a05600c43d600b003d0387d8eb6mr32467676wmn.137.1669991385715;
-        Fri, 02 Dec 2022 06:29:45 -0800 (PST)
+        bh=L5MpI10edvhSDVpoDMO+AW5YAFSO4C4Q9GbgQQqD53M=;
+        b=GgnTX2AZX1dZvLcxmpAdCApy4Wkc0oeni/WMfmHXj9bsfWJMuEMHsQxpzGqc+UCw6M
+         VSdLhKPVhP7rLCZ/RkOKTV26mpNqLey6tg7blRBtGs8IdH2AjQhZZYr0v5KSjMBc1hvb
+         9Jq4p/VePs0wp65neARPyP1rjgUZEXJWw+qq7EeDnC1rEvfCsQt/ruhL9j+9RSa6RLOj
+         alPoXc6DRs4mDgjRjLleZ/Jdw3b+7k4PnblwuAoGylsiM/eBw99UO3KnSo4gvFXOaHhP
+         NrqurT7hPuW+RSmxr/YwUIWF7T03nXB8nsIp/T+qBNWJuFLvPuytDv4vlK/dCLtfvmif
+         x6Lw==
+X-Gm-Message-State: ANoB5plGm8oA2vg7LLj6v+BfdlapqTmkcGnPEVzCcu1/ckXps7lOdR/d
+        cQcZCYekhaHIMr9oj8na2mIwpyKVZsU=
+X-Google-Smtp-Source: AA0mqf71xS68FGyLDxHp65B2rVLf+o6u/Ly5Hnpk2PlpaBJUJbEJuOxdKgzoAIL5DYRFM+2y/lexIQ==
+X-Received: by 2002:adf:eb8a:0:b0:22e:31b2:ecb9 with SMTP id t10-20020adfeb8a000000b0022e31b2ecb9mr44879434wrn.693.1669991386488;
+        Fri, 02 Dec 2022 06:29:46 -0800 (PST)
 Received: from 127.0.0.1localhost.com ([2620:10d:c092:600::2:2dd3])
         by smtp.gmail.com with ESMTPSA id n187-20020a1ca4c4000000b003d005aab31asm8956946wme.40.2022.12.02.06.29.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
@@ -53,9 +53,9 @@ From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com,
         Lin Ma <linma@zju.edu.cn>
-Subject: [PATCH stable-5.15 4/5] io_uring: make poll refs more robust
-Date:   Fri,  2 Dec 2022 14:27:14 +0000
-Message-Id: <f305c479060d33d5653a253898ac42f4bb11d329.1669990799.git.asml.silence@gmail.com>
+Subject: [PATCH stable-5.15 5/5] io_uring/poll: fix poll_refs race with cancelation
+Date:   Fri,  2 Dec 2022 14:27:15 +0000
+Message-Id: <886a17368c8fd21e58b9d5d47ead7d1f45fe5ebf.1669990799.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <cover.1669990799.git.asml.silence@gmail.com>
 References: <cover.1669990799.git.asml.silence@gmail.com>
@@ -71,94 +71,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ upstream commit a26a35e9019fd70bf3cf647dcfdae87abc7bacea ]
+From: Lin Ma <linma@zju.edu.cn>
 
-poll_refs carry two functions, the first is ownership over the request.
-The second is notifying the io_poll_check_events() that there was an
-event but wake up couldn't grab the ownership, so io_poll_check_events()
-should retry.
+[ upstream commit 12ad3d2d6c5b0131a6052de91360849e3e154846 ]
 
-We want to make poll_refs more robust against overflows. Instead of
-always incrementing it, which covers two purposes with one atomic, check
-if poll_refs is elevated enough and if so set a retry flag without
-attempts to grab ownership. The gap between the bias check and following
-atomics may seem racy, but we don't need it to be strict. Moreover there
-might only be maximum 4 parallel updates: by the first and the second
-poll entries, __io_arm_poll_handler() and cancellation. From those four,
-only poll wake ups may be executed multiple times, but they're protected
-by a spin.
+There is an interesting race condition of poll_refs which could result
+in a NULL pointer dereference. The crash trace is like:
 
-Cc: stable@vger.kernel.org
-Reported-by: Lin Ma <linma@zju.edu.cn>
-Fixes: aa43477b04025 ("io_uring: poll rework")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/c762bc31f8683b3270f3587691348a7119ef9c9d.1668963050.git.asml.silence@gmail.com
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 0 PID: 30781 Comm: syz-executor.2 Not tainted 6.0.0-g493ffd6605b2 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:io_poll_remove_entry io_uring/poll.c:154 [inline]
+RIP: 0010:io_poll_remove_entries+0x171/0x5b4 io_uring/poll.c:190
+Code: ...
+RSP: 0018:ffff88810dfefba0 EFLAGS: 00010202
+RAX: 0000000000000001 RBX: 0000000000000000 RCX: 0000000000040000
+RDX: ffffc900030c4000 RSI: 000000000003ffff RDI: 0000000000040000
+RBP: 0000000000000008 R08: ffffffff9764d3dd R09: fffffbfff3836781
+R10: fffffbfff3836781 R11: 0000000000000000 R12: 1ffff11003422d60
+R13: ffff88801a116b04 R14: ffff88801a116ac0 R15: dffffc0000000000
+FS:  00007f9c07497700(0000) GS:ffff88811a600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffb5c00ea98 CR3: 0000000105680005 CR4: 0000000000770ef0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ io_apoll_task_func+0x3f/0xa0 io_uring/poll.c:299
+ handle_tw_list io_uring/io_uring.c:1037 [inline]
+ tctx_task_work+0x37e/0x4f0 io_uring/io_uring.c:1090
+ task_work_run+0x13a/0x1b0 kernel/task_work.c:177
+ get_signal+0x2402/0x25a0 kernel/signal.c:2635
+ arch_do_signal_or_restart+0x3b/0x660 arch/x86/kernel/signal.c:869
+ exit_to_user_mode_loop kernel/entry/common.c:166 [inline]
+ exit_to_user_mode_prepare+0xc2/0x160 kernel/entry/common.c:201
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:283 [inline]
+ syscall_exit_to_user_mode+0x58/0x160 kernel/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+The root cause for this is a tiny overlooking in
+io_poll_check_events() when cocurrently run with poll cancel routine
+io_poll_cancel_req().
+
+The interleaving to trigger use-after-free:
+
+CPU0                                       |  CPU1
+                                           |
+io_apoll_task_func()                       |  io_poll_cancel_req()
+ io_poll_check_events()                    |
+  // do while first loop                   |
+  v = atomic_read(...)                     |
+  // v = poll_refs = 1                     |
+  ...                                      |  io_poll_mark_cancelled()
+                                           |   atomic_or()
+                                           |   // poll_refs =
+IO_POLL_CANCEL_FLAG | 1
+                                           |
+  atomic_sub_return(...)                   |
+  // poll_refs = IO_POLL_CANCEL_FLAG       |
+  // loop continue                         |
+                                           |
+                                           |  io_poll_execute()
+                                           |   io_poll_get_ownership()
+                                           |   // poll_refs =
+IO_POLL_CANCEL_FLAG | 1
+                                           |   // gets the ownership
+  v = atomic_read(...)                     |
+  // poll_refs not change                  |
+                                           |
+  if (v & IO_POLL_CANCEL_FLAG)             |
+   return -ECANCELED;                      |
+  // io_poll_check_events return           |
+  // will go into                          |
+  // io_req_complete_failed() free req     |
+                                           |
+                                           |  io_apoll_task_func()
+                                           |  // also go into
+io_req_complete_failed()
+
+And the interleaving to trigger the kernel WARNING:
+
+CPU0                                       |  CPU1
+                                           |
+io_apoll_task_func()                       |  io_poll_cancel_req()
+ io_poll_check_events()                    |
+  // do while first loop                   |
+  v = atomic_read(...)                     |
+  // v = poll_refs = 1                     |
+  ...                                      |  io_poll_mark_cancelled()
+                                           |   atomic_or()
+                                           |   // poll_refs =
+IO_POLL_CANCEL_FLAG | 1
+                                           |
+  atomic_sub_return(...)                   |
+  // poll_refs = IO_POLL_CANCEL_FLAG       |
+  // loop continue                         |
+                                           |
+  v = atomic_read(...)                     |
+  // v = IO_POLL_CANCEL_FLAG               |
+                                           |  io_poll_execute()
+                                           |   io_poll_get_ownership()
+                                           |   // poll_refs =
+IO_POLL_CANCEL_FLAG | 1
+                                           |   // gets the ownership
+                                           |
+  WARN_ON_ONCE(!(v & IO_POLL_REF_MASK)))   |
+  // v & IO_POLL_REF_MASK = 0 WARN         |
+                                           |
+                                           |  io_apoll_task_func()
+                                           |  // also go into
+io_req_complete_failed()
+
+By looking up the source code and communicating with Pavel, the
+implementation of this atomic poll refs should continue the loop of
+io_poll_check_events() just to avoid somewhere else to grab the
+ownership. Therefore, this patch simply adds another AND operation to
+make sure the loop will stop if it finds the poll_refs is exactly equal
+to IO_POLL_CANCEL_FLAG. Since io_poll_cancel_req() grabs ownership and
+will finally make its way to io_req_complete_failed(), the req will
+be reclaimed as expected.
+
+Fixes: aa43477b0402 ("io_uring: poll rework")
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+[axboe: tweak description and code style]
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 36 +++++++++++++++++++++++++++++++++++-
- 1 file changed, 35 insertions(+), 1 deletion(-)
+ fs/io_uring.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 0e3fc80fee05..11dcad170594 100644
+index 11dcad170594..c2fdde6fdda3 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5322,7 +5322,29 @@ struct io_poll_table {
- };
- 
- #define IO_POLL_CANCEL_FLAG	BIT(31)
--#define IO_POLL_REF_MASK	GENMASK(30, 0)
-+#define IO_POLL_RETRY_FLAG	BIT(30)
-+#define IO_POLL_REF_MASK	GENMASK(29, 0)
-+
-+/*
-+ * We usually have 1-2 refs taken, 128 is more than enough and we want to
-+ * maximise the margin between this amount and the moment when it overflows.
-+ */
-+#define IO_POLL_REF_BIAS       128
-+
-+static bool io_poll_get_ownership_slowpath(struct io_kiocb *req)
-+{
-+	int v;
-+
-+	/*
-+	 * poll_refs are already elevated and we don't have much hope for
-+	 * grabbing the ownership. Instead of incrementing set a retry flag
-+	 * to notify the loop that there might have been some change.
-+	 */
-+	v = atomic_fetch_or(IO_POLL_RETRY_FLAG, &req->poll_refs);
-+	if (v & IO_POLL_REF_MASK)
-+		return false;
-+	return !(atomic_fetch_inc(&req->poll_refs) & IO_POLL_REF_MASK);
-+}
- 
- /*
-  * If refs part of ->poll_refs (see IO_POLL_REF_MASK) is 0, it's free. We can
-@@ -5332,6 +5354,8 @@ struct io_poll_table {
-  */
- static inline bool io_poll_get_ownership(struct io_kiocb *req)
- {
-+	if (unlikely(atomic_read(&req->poll_refs) >= IO_POLL_REF_BIAS))
-+		return io_poll_get_ownership_slowpath(req);
- 	return !(atomic_fetch_inc(&req->poll_refs) & IO_POLL_REF_MASK);
- }
- 
-@@ -5447,6 +5471,16 @@ static int io_poll_check_events(struct io_kiocb *req)
+@@ -5512,7 +5512,8 @@ static int io_poll_check_events(struct io_kiocb *req)
+ 		 * Release all references, retry if someone tried to restart
+ 		 * task_work while we were executing it.
  		 */
- 		if ((v & IO_POLL_REF_MASK) != 1)
- 			req->result = 0;
-+		if (v & IO_POLL_RETRY_FLAG) {
-+			req->result = 0;
-+			/*
-+			 * We won't find new events that came in between
-+			 * vfs_poll and the ref put unless we clear the
-+			 * flag in advance.
-+			 */
-+			atomic_andnot(IO_POLL_RETRY_FLAG, &req->poll_refs);
-+			v &= ~IO_POLL_RETRY_FLAG;
-+		}
+-	} while (atomic_sub_return(v & IO_POLL_REF_MASK, &req->poll_refs));
++	} while (atomic_sub_return(v & IO_POLL_REF_MASK, &req->poll_refs) &
++					IO_POLL_REF_MASK);
  
- 		if (!req->result) {
- 			struct poll_table_struct pt = { ._key = poll->events };
+ 	return 1;
+ }
 -- 
 2.38.1
 
