@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 235DC64163F
+	by mail.lfdr.de (Postfix) with ESMTP id B7457641640
 	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 11:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229636AbiLCK74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Dec 2022 05:59:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35812 "EHLO
+        id S229462AbiLCK75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Dec 2022 05:59:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229462AbiLCK7t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 05:59:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A03C150D70
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 02:59:48 -0800 (PST)
+        with ESMTP id S229658AbiLCK7v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 05:59:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFAFE5214F
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 02:59:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D13CB80D3B
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 10:59:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE108C433D6;
-        Sat,  3 Dec 2022 10:59:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F3E060BAD
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 10:59:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75D8BC433C1;
+        Sat,  3 Dec 2022 10:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670065186;
-        bh=9xnaNE2bWOsOuPkxCPv1uoOpd9X/qsZTZEs4oG+26+8=;
+        s=korg; t=1670065188;
+        bh=LkEg1vyll+ABw7vfSjMGFV7S5aCTDu8R9T5s4913YSE=;
         h=Subject:To:Cc:From:Date:From;
-        b=Fe9/LYrr2zJi3aqEwAlPX44FfYLptJKENuqeRzrbJrPKmHnxGkSJhiKuK0geiTs4x
-         U9RxEh5JxEjMMb1zjlKnhvtsr3wcnqyWrPi7r2tWtMHqidUS68kSiK9zSi8Ba1mDKn
-         mTJ+zYxyNdaFOlJdLKT7ZmK+7gMRPyGF4Xy1dfp4=
-Subject: FAILED: patch "[PATCH] Kconfig.debug: provide a little extra FRAME_WARN leeway when" failed to apply to 4.14-stable tree
+        b=rUSzL/i5W9PHBmMnGKbTxQgO6VWSmQ4l5Y4fbgqvhKy8i/EMv6JfOO10FT1b9XvBv
+         X/8QbwYAqSoP8IQMTyMEpQkR2FWJ297EJnS1swTMlUnFIWYo/dfoZYcBAo/QfGKsS8
+         WQAYZUXnYPz3udvSaisflS1lD91DeFbNSLKvRZWw=
+Subject: FAILED: patch "[PATCH] Kconfig.debug: provide a little extra FRAME_WARN leeway when" failed to apply to 4.9-stable tree
 To:     lee@kernel.org, Rodrigo.Siqueira@amd.com, Xinhui.Pan@amd.com,
         airlied@gmail.com, akpm@linux-foundation.org,
         alexander.deucher@amd.com, arnd@arndb.de, christian.koenig@amd.com,
@@ -38,8 +38,8 @@ To:     lee@kernel.org, Rodrigo.Siqueira@amd.com, Xinhui.Pan@amd.com,
         sunpeng.li@amd.com, trix@redhat.com, tzimmermann@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 03 Dec 2022 11:59:35 +0100
-Message-ID: <167006517521446@kroah.com>
+Date:   Sat, 03 Dec 2022 11:59:36 +0100
+Message-ID: <1670065176129161@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,7 +53,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -64,6 +64,7 @@ Possible dependencies:
 8d192bec534b ("parisc: Increase FRAME_WARN to 2048 bytes on parisc")
 867050247e29 ("xtensa: increase size of gcc stack frame check")
 55b70eed81cb ("parisc: Increase size of gcc stack frame check")
+432654df90f2 ("parisc: Fix too large frame size warnings")
 
 thanks,
 
