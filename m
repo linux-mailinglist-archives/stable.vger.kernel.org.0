@@ -2,71 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEC67641979
-	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 23:25:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9E7564197A
+	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 23:25:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229502AbiLCWZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Dec 2022 17:25:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43148 "EHLO
+        id S229472AbiLCWZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Dec 2022 17:25:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229472AbiLCWZ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 17:25:28 -0500
+        with ESMTP id S229481AbiLCWZq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 17:25:46 -0500
 Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 210511E3C8
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 14:25:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9289E1E3C8
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 14:25:45 -0800 (PST)
 Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com [209.85.128.69])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id F122E3F32E
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 22:25:26 +0000 (UTC)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 6AAA23F32E
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 22:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1670106326;
-        bh=HXMCKGyncrnckqij2aOjjMC1movuXs2t2DPx82jdONo=;
+        s=20210705; t=1670106344;
+        bh=wFsYztbw1d6XulBSaI2xfDMO/g3Xp+TD1FE/YSUSzHM=;
         h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
-         MIME-Version;
-        b=H6b91juAq1cpfcP6f+yCBb1e7pNTpXs1H1f58c8HptFRWAAocIwoArAjLnYzPI6p5
-         Kk6byG4lkLpcj4xP+FREwyfO3DWxRWHaOhsGizuCddVOPpF+NKC/9ipf5RLFeNUO6w
-         yChQQ5bYErjTEI6WUZKC+mYywfxqNm5Rl5xh/aKRmyrMObjiv16A0f5RFgz+DPtt8p
-         2kiZlIYxS/hRw8qZ4VcQEHimjer4HZMgoQGFt2hiVMgWNfjRhvQp1iBs9bkTkaTu1M
-         RaXjKBKrxr8joqJUmkarUCDhxXE7JOeuAhBHgkqBtYpfg+V0ZBPDWDwEF4L9O50hlS
-         KUwclkbO63ohw==
-Received: by mail-wm1-f69.google.com with SMTP id b47-20020a05600c4aaf00b003d031aeb1b6so6088564wmp.9
-        for <stable@vger.kernel.org>; Sat, 03 Dec 2022 14:25:26 -0800 (PST)
+         MIME-Version:Content-Type;
+        b=jzUDK87GO+8U72e7o/3ZW/0X9CLiG6BFJMHtpCPJpUddS3baNrABspLWp/ImMej0I
+         XjKpUVlXU3pfwLgQ8kBEVUtvhzWrA03HDP4NeM+XBbIgu/ZOEXAUx9gYfhnDQ9gwcb
+         FByi0GDhdXbL6dtT7IvtOhZES1fkVTgMuFqbZgwTLLbXdur0BgwSGzU5zH1WT+M9+I
+         UsuZSVX9Yrh6wsnIGDcuIaYsSw2ciroQ9S5adLPCB1BweSMq1Hpjaf9wJiqKuKiNaZ
+         2Ywj6BRpfbLf95g4ryhJ+mYEuqoiP83zE7rnr+qPSQkDWYOvSExr3fkUEHDYMZ7YSC
+         0v4DEbUvG9y+g==
+Received: by mail-wm1-f69.google.com with SMTP id x10-20020a05600c420a00b003cfa33f2e7cso4510239wmh.2
+        for <stable@vger.kernel.org>; Sat, 03 Dec 2022 14:25:44 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=HXMCKGyncrnckqij2aOjjMC1movuXs2t2DPx82jdONo=;
-        b=F7acZhmhyQW+frY4kkcdXby+zNiTtZgi4ibmrYvyaYS0AqpJvVuyMD06HFJSRPY5si
-         BSB1xsROZrsDiDPHs/KDBfOm3ma1XO/6hGWmw/iM/YW2jlZk0eAUGfat4xGEaB7CXZRi
-         MjW5FpgLvfFcnJn/tx37UyHeg39DHhUJqedDfhmX7mNpOUhrtmFkNLoe9liq3+wfTqOy
-         fIeYRsauz6QvOP25OFs9faFJTcfr8FTHR85stTU/oCY2Anx/L2x+cBQUmMc9ffTac14i
-         UvOIJaC1ihfkHwSqTmDbbyiW/ANu9c2pfI6+yt2jw6FXyvnm4bNn1VXMJ2bkcgagQvHF
-         mSLg==
-X-Gm-Message-State: ANoB5pl+UPir21zfdUhAyZvZaHMzE4kWjPD8YwxmagqFrUYNMwgFtelc
-        hIjgcQh7BVSDu3t8YSnfZSU0C/xHr+0GED1ZmuyfQ5HmoI6/2h5pNvTMoiEXh/RplO9f5RD9ro3
-        0dYM5APdbiArNdCPB+c4eFDI+9nATd0S7gQ==
-X-Received: by 2002:a7b:ca49:0:b0:3c8:353b:2553 with SMTP id m9-20020a7bca49000000b003c8353b2553mr54606030wml.18.1670106326461;
-        Sat, 03 Dec 2022 14:25:26 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf77H0yKhCIxgaXUZAp09RdCdIrazdtbzZtS5MElq2e9PQGRmgZMtqGLQWPiU7HE+dHHMr9fBg==
-X-Received: by 2002:a7b:ca49:0:b0:3c8:353b:2553 with SMTP id m9-20020a7bca49000000b003c8353b2553mr54606019wml.18.1670106326173;
-        Sat, 03 Dec 2022 14:25:26 -0800 (PST)
+        bh=wFsYztbw1d6XulBSaI2xfDMO/g3Xp+TD1FE/YSUSzHM=;
+        b=5BpVGb5w3BDISMhPoEx7HzQp1UXH+HX9Uu2vs3VHh+g7toshwD7pJMdtqCRmJgvR+f
+         u3xPMd0LE4uHuCF1DS283yYHandhTruI2SzxBDAYz+t1yX6BkXYBhDm6nqr4tWWXggYP
+         HU6+10IrOzwvQlsZJl1fkGEwhGFDI2071PIBx1+/lJI9wgenQNPhUypOevFB2xRacOwa
+         ItJnUPKJ6NYMuzl6WjPqCrxWeWqefrMy4wtP/DM9/V5wFDIIgIDcERqcRvyg8ry+8bmU
+         4Ewxh7sbwkvof95FnADCkFAcZeM/u9KjJKcFYzw1SBpqi121dopp3jwKQ/luiJLc65T8
+         n4zw==
+X-Gm-Message-State: ANoB5pkI0oqAJcFSRVe/5onTWwPfXD55LiL5GcU5pzJipP3jTwgTCWUf
+        0Ifa67nvSqAXxbYUh73v3FAWvrE3GFrFjC8edFKfNqIl8jviInFnl+RSLBcMgklvSJ9HnE+RwT3
+        SWEu2HDQZM+x2YJq7DVpOcPS3wWkdSlgVqQ==
+X-Received: by 2002:a05:600c:4f82:b0:3cf:aa11:9394 with SMTP id n2-20020a05600c4f8200b003cfaa119394mr43464715wmq.183.1670106343930;
+        Sat, 03 Dec 2022 14:25:43 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf4fiNvSs/38KBeTPcnSe4ZGDsFSPJmVFr6teRvaqjpxPVbSTii6SuAC8uglbeqo8x0alojIng==
+X-Received: by 2002:a05:600c:4f82:b0:3cf:aa11:9394 with SMTP id n2-20020a05600c4f8200b003cfaa119394mr43464710wmq.183.1670106343727;
+        Sat, 03 Dec 2022 14:25:43 -0800 (PST)
 Received: from localhost ([92.44.145.54])
-        by smtp.gmail.com with ESMTPSA id z12-20020a5d44cc000000b002362f6fcaf5sm10418969wrr.48.2022.12.03.14.25.25
+        by smtp.gmail.com with ESMTPSA id ba16-20020a0560001c1000b002365254ea42sm11430464wrb.1.2022.12.03.14.25.43
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 03 Dec 2022 14:25:25 -0800 (PST)
+        Sat, 03 Dec 2022 14:25:43 -0800 (PST)
 From:   Cengiz Can <cengiz.can@canonical.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH 5.4 2/3] Bluetooth: L2CAP: Add definitions for Enhanced Credit Based Mode
-Date:   Sun,  4 Dec 2022 01:24:37 +0300
-Message-Id: <20221203222434.669854-3-cengiz.can@canonical.com>
+Subject: [PATCH 5.4 3/3] Bluetooth: L2CAP: Fix accepting connection request for invalid SPSM
+Date:   Sun,  4 Dec 2022 01:24:39 +0300
+Message-Id: <20221203222434.669854-4-cengiz.can@canonical.com>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20221203222434.669854-1-cengiz.can@canonical.com>
 References: <20221203222434.669854-1-cengiz.can@canonical.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
@@ -79,90 +80,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 145720963b6c68d0c4054112c09050995259b8f8 upstream
+commit 711f8c3fb3db61897080468586b970c87c61d9e4 upstream
 
-This introduces the definitions for the new L2CAP mode called Enhanced
-Credit Based Mode.
+The Bluetooth spec states that the valid range for SPSM is from
+0x0001-0x00ff so it is invalid to accept values outside of this range:
 
+  BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
+  page 1059:
+  Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
+
+CVE: CVE-2022-42896
+Reported-by: Tamás Koczka <poprdi@google.com>
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
 Cc: stable@vger.kernel.org # 5.4.x
 Signed-off-by: Cengiz Can <cengiz.can@canonical.com>
 ---
- include/net/bluetooth/l2cap.h | 39 +++++++++++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
+ net/bluetooth/l2cap_core.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/include/net/bluetooth/l2cap.h b/include/net/bluetooth/l2cap.h
-index 21744c30f546..3d44dd73477c 100644
---- a/include/net/bluetooth/l2cap.h
-+++ b/include/net/bluetooth/l2cap.h
-@@ -119,6 +119,10 @@ struct l2cap_conninfo {
- #define L2CAP_LE_CONN_REQ	0x14
- #define L2CAP_LE_CONN_RSP	0x15
- #define L2CAP_LE_CREDITS	0x16
-+#define L2CAP_ECRED_CONN_REQ	0x17
-+#define L2CAP_ECRED_CONN_RSP	0x18
-+#define L2CAP_ECRED_RECONF_REQ	0x19
-+#define L2CAP_ECRED_RECONF_RSP	0x1a
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index d4d818f3caa7..c4c25af1dbd5 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -5686,6 +5686,19 @@ static int l2cap_le_connect_req(struct l2cap_conn *conn,
+ 	BT_DBG("psm 0x%2.2x scid 0x%4.4x mtu %u mps %u", __le16_to_cpu(psm),
+ 	       scid, mtu, mps);
  
- /* L2CAP extended feature mask */
- #define L2CAP_FEAT_FLOWCTL	0x00000001
-@@ -361,6 +365,7 @@ struct l2cap_conf_rfc {
-  * ever be used in the BR/EDR configuration phase.
-  */
- #define L2CAP_MODE_LE_FLOWCTL	0x80
-+#define L2CAP_MODE_EXT_FLOWCTL	0x81
++	/* BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
++	 * page 1059:
++	 *
++	 * Valid range: 0x0001-0x00ff
++	 *
++	 * Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
++	 */
++	if (!psm || __le16_to_cpu(psm) > L2CAP_PSM_LE_DYN_END) {
++		result = L2CAP_CR_LE_BAD_PSM;
++		chan = NULL;
++		goto response;
++	}
++
+ 	/* Check if we have socket listening on psm */
+ 	pchan = l2cap_global_chan_by_psm(BT_LISTEN, psm, &conn->hcon->src,
+ 					 &conn->hcon->dst, LE_LINK);
+@@ -5864,6 +5877,18 @@ static inline int l2cap_ecred_conn_req(struct l2cap_conn *conn,
+ 	psm  = req->psm;
+ 	credits = 0;
  
- struct l2cap_conf_efs {
- 	__u8	id;
-@@ -485,6 +490,39 @@ struct l2cap_le_credits {
- 	__le16     credits;
- } __packed;
++	/* BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
++	 * page 1059:
++	 *
++	 * Valid range: 0x0001-0x00ff
++	 *
++	 * Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
++	 */
++	if (!psm || __le16_to_cpu(psm) > L2CAP_PSM_LE_DYN_END) {
++		result = L2CAP_CR_LE_BAD_PSM;
++		goto response;
++	}
++
+ 	BT_DBG("psm 0x%2.2x mtu %u mps %u", __le16_to_cpu(psm), mtu, mps);
  
-+#define L2CAP_ECRED_MIN_MTU		64
-+#define L2CAP_ECRED_MIN_MPS		64
-+
-+struct l2cap_ecred_conn_req {
-+	__le16 psm;
-+	__le16 mtu;
-+	__le16 mps;
-+	__le16 credits;
-+	__le16 scid[0];
-+} __packed;
-+
-+struct l2cap_ecred_conn_rsp {
-+	__le16 mtu;
-+	__le16 mps;
-+	__le16 credits;
-+	__le16 result;
-+	__le16 dcid[0];
-+};
-+
-+struct l2cap_ecred_reconf_req {
-+	__le16 mtu;
-+	__le16 mps;
-+	__le16 scid[0];
-+} __packed;
-+
-+#define L2CAP_RECONF_SUCCESS		0x0000
-+#define L2CAP_RECONF_INVALID_MTU	0x0001
-+#define L2CAP_RECONF_INVALID_MPS	0x0002
-+
-+struct l2cap_ecred_reconf_rsp {
-+	__le16 result;
-+} __packed;
-+
- /* ----- L2CAP channels and connections ----- */
- struct l2cap_seq_list {
- 	__u16	head;
-@@ -728,6 +766,7 @@ enum {
- 	FLAG_EFS_ENABLE,
- 	FLAG_DEFER_SETUP,
- 	FLAG_LE_CONN_REQ_SENT,
-+	FLAG_ECRED_CONN_REQ_SENT,
- 	FLAG_PENDING_SECURITY,
- 	FLAG_HOLD_HCI_CONN,
- };
+ 	memset(&pdu, 0, sizeof(pdu));
 -- 
 2.37.2
 
