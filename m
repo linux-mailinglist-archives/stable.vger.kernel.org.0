@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F717641663
-	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 12:22:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE4A4641664
+	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 12:22:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229448AbiLCLWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Dec 2022 06:22:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52924 "EHLO
+        id S229636AbiLCLWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Dec 2022 06:22:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229532AbiLCLWj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 06:22:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5AD2BAB
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 03:22:37 -0800 (PST)
+        with ESMTP id S229642AbiLCLWm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 06:22:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60952F01B
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 03:22:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 618D6B81BE5
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 11:22:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEE6DC433D6;
-        Sat,  3 Dec 2022 11:22:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14998B81BE3
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 11:22:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FD6DC433D6;
+        Sat,  3 Dec 2022 11:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670066555;
-        bh=GI+LWDmnRvx6hJAflI5vMNYyJ3rtCmOFSLyEMCSalMo=;
+        s=korg; t=1670066557;
+        bh=PX+4CqBQIaKjuOv0DhW5UMXwn9CzadaWPNuELHqWoYg=;
         h=Subject:To:Cc:From:Date:From;
-        b=E0JmF4yw1MNxgFIM3oVKmUDX7Hs/oiEBCYW6y1qVeoFswiyDIonItMmHb5f6sQ4zB
-         0pAfqGAe8EJGD8zq+XHlrS5KFmZ4w6UVZVxnpoePCH4ZhjVXvkrjvd6KuKtmOnBIh8
-         koPWmPH02TC8bWqfdQAyuxy9gH6cDBhy9PXIIO4Y=
-Subject: FAILED: patch "[PATCH] mm/khugepaged: fix GUP-fast interaction by sending IPI" failed to apply to 4.9-stable tree
+        b=SH1G43PiIrvdf15ouhWrar/ritxdjCppvouG15wDGLErYupBD1TiMjM2BihkwL/Hz
+         U2iVCdB+e7Zx5aYVaZeLPknwSv4l1Oh2k3WLzROLRdZnV4il3IOTWiNxRZ21Lq1Leq
+         z9+EqL5WvaBjEr0PsOho/xX18ceEpf66tVGBEQxI=
+Subject: FAILED: patch "[PATCH] mm/khugepaged: invoke MMU notifiers in shmem/file collapse" failed to apply to 6.0-stable tree
 To:     jannh@google.com, akpm@linux-foundation.org, david@redhat.com,
         jhubbard@nvidia.com, peterx@redhat.com, shy828301@gmail.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 03 Dec 2022 12:22:19 +0100
-Message-ID: <1670066539264@kroah.com>
+Date:   Sat, 03 Dec 2022 12:22:29 +0100
+Message-ID: <16700665490121@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,13 +49,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
+f268f6cf875f ("mm/khugepaged: invoke MMU notifiers in shmem/file collapse paths")
 2ba99c5e0881 ("mm/khugepaged: fix GUP-fast interaction by sending IPI")
 8d3c106e19e8 ("mm/khugepaged: take the right locks for page table retraction")
 34488399fa08 ("mm/madvise: add file and shmem support to MADV_COLLAPSE")
@@ -71,11 +72,6 @@ a7f4e6e4c47c ("mm/thp: add flag to enforce sysfs THP in hugepage_vma_check()")
 9710a78ab2ae ("mm/khugepaged: dedup and simplify hugepage alloc and charging")
 34d6b470ab9c ("mm/khugepaged: add struct collapse_control")
 c6a7f445a272 ("mm: khugepaged: don't carry huge page to the next loop for !CONFIG_NUMA")
-1064026bab9f ("mm: khugepaged: reorg some khugepaged helpers")
-7da4e2cb8b1f ("mm: thp: kill __transhuge_page_enabled()")
-9fec51689ff6 ("mm: thp: kill transparent_hugepage_active()")
-f707fa493784 ("mm: khugepaged: better comments for anon vma check in hugepage_vma_revalidate")
-4fa6893faeaa ("mm: thp: consolidate vma size check to transhuge_vma_suitable")
 
 thanks,
 
@@ -83,92 +79,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2ba99c5e08812494bc57f319fb562f527d9bacd8 Mon Sep 17 00:00:00 2001
+From f268f6cf875f3220afc77bdd0bf1bb136eb54db9 Mon Sep 17 00:00:00 2001
 From: Jann Horn <jannh@google.com>
-Date: Fri, 25 Nov 2022 22:37:13 +0100
-Subject: [PATCH] mm/khugepaged: fix GUP-fast interaction by sending IPI
+Date: Fri, 25 Nov 2022 22:37:14 +0100
+Subject: [PATCH] mm/khugepaged: invoke MMU notifiers in shmem/file collapse
+ paths
 
-Since commit 70cbc3cc78a99 ("mm: gup: fix the fast GUP race against THP
-collapse"), the lockless_pages_from_mm() fastpath rechecks the pmd_t to
-ensure that the page table was not removed by khugepaged in between.
+Any codepath that zaps page table entries must invoke MMU notifiers to
+ensure that secondary MMUs (like KVM) don't keep accessing pages which
+aren't mapped anymore.  Secondary MMUs don't hold their own references to
+pages that are mirrored over, so failing to notify them can lead to page
+use-after-free.
 
-However, lockless_pages_from_mm() still requires that the page table is
-not concurrently freed.  Fix it by sending IPIs (if the architecture uses
-semi-RCU-style page table freeing) before freeing/reusing page tables.
+I'm marking this as addressing an issue introduced in commit f3f0e1d2150b
+("khugepaged: add support of collapse for tmpfs/shmem pages"), but most of
+the security impact of this only came in commit 27e1f8273113 ("khugepaged:
+enable collapse pmd for pte-mapped THP"), which actually omitted flushes
+for the removal of present PTEs, not just for the removal of empty page
+tables.
 
-Link: https://lkml.kernel.org/r/20221129154730.2274278-2-jannh@google.com
-Link: https://lkml.kernel.org/r/20221128180252.1684965-2-jannh@google.com
-Link: https://lkml.kernel.org/r/20221125213714.4115729-2-jannh@google.com
-Fixes: ba76149f47d8 ("thp: khugepaged")
+Link: https://lkml.kernel.org/r/20221129154730.2274278-3-jannh@google.com
+Link: https://lkml.kernel.org/r/20221128180252.1684965-3-jannh@google.com
+Link: https://lkml.kernel.org/r/20221125213714.4115729-3-jannh@google.com
+Fixes: f3f0e1d2150b ("khugepaged: add support of collapse for tmpfs/shmem pages")
 Signed-off-by: Jann Horn <jannh@google.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
 Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
 Cc: John Hubbard <jhubbard@nvidia.com>
 Cc: Peter Xu <peterx@redhat.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index 492dce43236e..cab7cfebf40b 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -222,12 +222,16 @@ extern void tlb_remove_table(struct mmu_gather *tlb, void *table);
- #define tlb_needs_table_invalidate() (true)
- #endif
- 
-+void tlb_remove_table_sync_one(void);
-+
- #else
- 
- #ifdef tlb_needs_table_invalidate
- #error tlb_needs_table_invalidate() requires MMU_GATHER_RCU_TABLE_FREE
- #endif
- 
-+static inline void tlb_remove_table_sync_one(void) { }
-+
- #endif /* CONFIG_MMU_GATHER_RCU_TABLE_FREE */
- 
- 
 diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 0a11e132ad6b..294cb75d9c22 100644
+index 294cb75d9c22..3703a56571c1 100644
 --- a/mm/khugepaged.c
 +++ b/mm/khugepaged.c
-@@ -1051,6 +1051,7 @@ static int collapse_huge_page(struct mm_struct *mm, unsigned long address,
- 	_pmd = pmdp_collapse_flush(vma, address, pmd);
- 	spin_unlock(pmd_ptl);
- 	mmu_notifier_invalidate_range_end(&range);
-+	tlb_remove_table_sync_one();
+@@ -1399,6 +1399,7 @@ static void collapse_and_free_pmd(struct mm_struct *mm, struct vm_area_struct *v
+ 				  unsigned long addr, pmd_t *pmdp)
+ {
+ 	pmd_t pmd;
++	struct mmu_notifier_range range;
  
- 	spin_lock(pte_ptl);
- 	result =  __collapse_huge_page_isolate(vma, address, pte, cc,
-@@ -1410,6 +1411,7 @@ static void collapse_and_free_pmd(struct mm_struct *mm, struct vm_area_struct *v
+ 	mmap_assert_write_locked(mm);
+ 	if (vma->vm_file)
+@@ -1410,8 +1411,12 @@ static void collapse_and_free_pmd(struct mm_struct *mm, struct vm_area_struct *v
+ 	if (vma->anon_vma)
  		lockdep_assert_held_write(&vma->anon_vma->root->rwsem);
  
++	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, NULL, mm, addr,
++				addr + HPAGE_PMD_SIZE);
++	mmu_notifier_invalidate_range_start(&range);
  	pmd = pmdp_collapse_flush(vma, addr, pmdp);
-+	tlb_remove_table_sync_one();
+ 	tlb_remove_table_sync_one();
++	mmu_notifier_invalidate_range_end(&range);
  	mm_dec_nr_ptes(mm);
  	page_table_check_pte_clear_range(mm, addr, pmd);
  	pte_free(mm, pmd_pgtable(pmd));
-diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
-index add4244e5790..3a2c3f8cad2f 100644
---- a/mm/mmu_gather.c
-+++ b/mm/mmu_gather.c
-@@ -153,7 +153,7 @@ static void tlb_remove_table_smp_sync(void *arg)
- 	/* Simply deliver the interrupt */
- }
- 
--static void tlb_remove_table_sync_one(void)
-+void tlb_remove_table_sync_one(void)
- {
- 	/*
- 	 * This isn't an RCU grace period and hence the page-tables cannot be
-@@ -177,8 +177,6 @@ static void tlb_remove_table_free(struct mmu_table_batch *batch)
- 
- #else /* !CONFIG_MMU_GATHER_RCU_TABLE_FREE */
- 
--static void tlb_remove_table_sync_one(void) { }
--
- static void tlb_remove_table_free(struct mmu_table_batch *batch)
- {
- 	__tlb_remove_table_free(batch);
 
