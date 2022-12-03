@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE65464162F
-	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 11:58:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AF00641636
+	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 11:59:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229670AbiLCK6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Dec 2022 05:58:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33570 "EHLO
+        id S229797AbiLCK67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Dec 2022 05:58:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229750AbiLCK6N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 05:58:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4059745082
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 02:58:12 -0800 (PST)
+        with ESMTP id S229783AbiLCK6v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 05:58:51 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6155E3E5
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 02:58:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFDC160B5B
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 10:58:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCF8FC433D6;
-        Sat,  3 Dec 2022 10:58:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AF44CCE0623
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 10:58:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87FF5C433D7;
+        Sat,  3 Dec 2022 10:58:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670065091;
-        bh=hqZEgSZFwhiy5T1ODgSt9ExpXty+uCOaZXdk/hgbBdM=;
+        s=korg; t=1670065121;
+        bh=5deriiBK2E/C4DBK3RNsP+IwjN7skUi2EZX9FQw00ow=;
         h=Subject:To:Cc:From:Date:From;
-        b=xv2RcpIBcdtiTvGF/Ymyfhn0KH8Yo7XKkPRY6GnjgAlpdVFJChl8xgfufbU3h+oHq
-         44JPxy3nKgPxVihypY+YFk8vRIG7xmTzH6y2I2OuXNFQj4Ai6eykij7O2u4DsAadA8
-         FHZCazvxJaaLrMb2i8sJwxllh8UjCO/l0ndccdFo=
-Subject: FAILED: patch "[PATCH] mmc: core: Fix ambiguous TRIM and DISCARD arg" failed to apply to 4.9-stable tree
-To:     CLoehle@hyperstone.com, adrian.hunter@intel.com,
-        cloehle@hyperstone.com, ulf.hansson@linaro.org
+        b=D1yDK+S5UPs+wGIv4gHye3w9IaYuJvIAtM8+n7QhEzA6CVXH2VOCU0FcA2U5B7US/
+         7t++rYn81kJWQZG6fpBfkeZoqEXox6wv9Cpi3Z27ZdnXWeZvuKXlqBwwAH7SQJEriQ
+         MrV6HGR9csmI2aCRyiHSyAFghQ+GSFUtNgcYY3ko=
+Subject: FAILED: patch "[PATCH] mmc: sdhci: Fix voltage switch delay" failed to apply to 5.4-stable tree
+To:     adrian.hunter@intel.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 03 Dec 2022 11:57:58 +0100
-Message-ID: <167006507818032@kroah.com>
+Date:   Sat, 03 Dec 2022 11:58:38 +0100
+Message-ID: <1670065118709@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,32 +47,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-489d144563f2 ("mmc: core: Fix ambiguous TRIM and DISCARD arg")
-bc47e2f6f9e2 ("mmc: core: Add discard support to sd")
-01904ff77676 ("mmc: core: Calculate the discard arg only once")
-06c9ccb78e68 ("mmc: core: add proper be32 annotation")
-c0a3e080f929 ("mmc: core: Move erase/trim/discard defines from public core.h to mmc.h")
-55244c5659b5 ("mmc: core: Move public functions from core.h to private headers")
-066185d69063 ("mmc: core: First step in cleaning up private mmc header files")
-164b50b35390 ("mmc: block: Replace "goto retry" by a proper do / while loop")
-e85baa8868b0 ("mmc: sd: Meet alignment requirements for raw_ssr DMA")
-f397c8d80a5e ("mmc: block: Move files to core")
-e711f0309109 ("mmc: mmc: Introduce mmc_abort_tuning()")
-aa33ce3c411a ("mmc: core: Enable __mmc_switch() to change bus speed timing for the host")
-625228fa3e01 ("mmc: core: Rename ignore_crc to retry_crc_err to reflect its purpose")
-437590a123b6 ("mmc: core: Retry instead of ignore at CRC errors when polling for busy")
-8e8b3f514c12 ("mmc: core: use enum mmc_blk_status properly")
-70562644f4ee ("mmc: core: Don't use ->card_busy() and CMD13 in combination when polling")
-716bdb8953c7 ("mmc: core: Factor out code related to polling in __mmc_switch()")
-cb26ce069ffa ("mmc: core: Clarify code which deals with polling in __mmc_switch()")
-20348d1981da ("mmc: core: Make mmc_switch_status() available for mmc core")
+c981cdfb9925 ("mmc: sdhci: Fix voltage switch delay")
+fa0910107a9f ("mmc: sdhci: use FIELD_GET for preset value bit masks")
 
 thanks,
 
@@ -81,67 +63,179 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 489d144563f23911262a652234b80c70c89c978b Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Christian=20L=C3=B6hle?= <CLoehle@hyperstone.com>
-Date: Thu, 17 Nov 2022 14:42:09 +0000
-Subject: [PATCH] mmc: core: Fix ambiguous TRIM and DISCARD arg
+From c981cdfb9925f64a364f13c2b4f98f877308a408 Mon Sep 17 00:00:00 2001
+From: Adrian Hunter <adrian.hunter@intel.com>
+Date: Mon, 28 Nov 2022 15:32:56 +0200
+Subject: [PATCH] mmc: sdhci: Fix voltage switch delay
 
-Clean up the MMC_TRIM_ARGS define that became ambiguous with DISCARD
-introduction.  While at it, let's fix one usage where MMC_TRIM_ARGS falsely
-included DISCARD too.
+Commit 20b92a30b561 ("mmc: sdhci: update signal voltage switch code")
+removed voltage switch delays from sdhci because mmc core had been
+enhanced to support them. However that assumed that sdhci_set_ios()
+did a single clock change, which it did not, and so the delays in mmc
+core, which should have come after the first clock change, were not
+effective.
 
-Fixes: b3bf915308ca ("mmc: core: new discard feature support at eMMC v4.5")
-Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fix by avoiding re-configuring UHS and preset settings when the clock
+is turning on and the settings have not changed. That then also avoids
+the associated clock changes, so that then sdhci_set_ios() does a single
+clock change when voltage switching, and the mmc core delays become
+effective.
+
+To do that has meant keeping track of driver strength (host->drv_type),
+and cases of reinitialization (host->reinit_uhs).
+
+Note also, the 'turning_on_clk' restriction should not be necessary
+but is done to minimize the impact of the change on stable kernels.
+
+Fixes: 20b92a30b561 ("mmc: sdhci: update signal voltage switch code")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/11376b5714964345908f3990f17e0701@hyperstone.com
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20221128133259.38305-2-adrian.hunter@intel.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-diff --git a/drivers/mmc/core/core.c b/drivers/mmc/core/core.c
-index c5de202f530a..de1cc9e1ae57 100644
---- a/drivers/mmc/core/core.c
-+++ b/drivers/mmc/core/core.c
-@@ -1484,6 +1484,11 @@ void mmc_init_erase(struct mmc_card *card)
- 		card->pref_erase = 0;
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index fef03de85b99..c7ad32a75b57 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -373,6 +373,7 @@ static void sdhci_init(struct sdhci_host *host, int soft)
+ 	if (soft) {
+ 		/* force clock reconfiguration */
+ 		host->clock = 0;
++		host->reinit_uhs = true;
+ 		mmc->ops->set_ios(mmc, &mmc->ios);
+ 	}
  }
+@@ -2293,11 +2294,46 @@ void sdhci_set_uhs_signaling(struct sdhci_host *host, unsigned timing)
+ }
+ EXPORT_SYMBOL_GPL(sdhci_set_uhs_signaling);
  
-+static bool is_trim_arg(unsigned int arg)
++static bool sdhci_timing_has_preset(unsigned char timing)
 +{
-+	return (arg & MMC_TRIM_OR_DISCARD_ARGS) && arg != MMC_DISCARD_ARG;
++	switch (timing) {
++	case MMC_TIMING_UHS_SDR12:
++	case MMC_TIMING_UHS_SDR25:
++	case MMC_TIMING_UHS_SDR50:
++	case MMC_TIMING_UHS_SDR104:
++	case MMC_TIMING_UHS_DDR50:
++	case MMC_TIMING_MMC_DDR52:
++		return true;
++	};
++	return false;
 +}
 +
- static unsigned int mmc_mmc_erase_timeout(struct mmc_card *card,
- 				          unsigned int arg, unsigned int qty)
++static bool sdhci_preset_needed(struct sdhci_host *host, unsigned char timing)
++{
++	return !(host->quirks2 & SDHCI_QUIRK2_PRESET_VALUE_BROKEN) &&
++	       sdhci_timing_has_preset(timing);
++}
++
++static bool sdhci_presetable_values_change(struct sdhci_host *host, struct mmc_ios *ios)
++{
++	/*
++	 * Preset Values are: Driver Strength, Clock Generator and SDCLK/RCLK
++	 * Frequency. Check if preset values need to be enabled, or the Driver
++	 * Strength needs updating. Note, clock changes are handled separately.
++	 */
++	return !host->preset_enabled &&
++	       (sdhci_preset_needed(host, ios->timing) || host->drv_type != ios->drv_type);
++}
++
+ void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
  {
-@@ -1766,7 +1771,7 @@ int mmc_erase(struct mmc_card *card, unsigned int from, unsigned int nr,
- 	    !(card->ext_csd.sec_feature_support & EXT_CSD_SEC_ER_EN))
- 		return -EOPNOTSUPP;
+ 	struct sdhci_host *host = mmc_priv(mmc);
++	bool reinit_uhs = host->reinit_uhs;
++	bool turning_on_clk = false;
+ 	u8 ctrl;
  
--	if (mmc_card_mmc(card) && (arg & MMC_TRIM_ARGS) &&
-+	if (mmc_card_mmc(card) && is_trim_arg(arg) &&
- 	    !(card->ext_csd.sec_feature_support & EXT_CSD_SEC_GB_CL_EN))
- 		return -EOPNOTSUPP;
++	host->reinit_uhs = false;
++
+ 	if (ios->power_mode == MMC_POWER_UNDEFINED)
+ 		return;
  
-@@ -1796,7 +1801,7 @@ int mmc_erase(struct mmc_card *card, unsigned int from, unsigned int nr,
- 	 * identified by the card->eg_boundary flag.
- 	 */
- 	rem = card->erase_size - (from % card->erase_size);
--	if ((arg & MMC_TRIM_ARGS) && (card->eg_boundary) && (nr > rem)) {
-+	if ((arg & MMC_TRIM_OR_DISCARD_ARGS) && card->eg_boundary && nr > rem) {
- 		err = mmc_do_erase(card, from, from + rem - 1, arg);
- 		from += rem;
- 		if ((err) || (to <= from))
-diff --git a/include/linux/mmc/mmc.h b/include/linux/mmc/mmc.h
-index 9c50bc40f8ff..6f7993803ee7 100644
---- a/include/linux/mmc/mmc.h
-+++ b/include/linux/mmc/mmc.h
-@@ -451,7 +451,7 @@ static inline bool mmc_ready_for_data(u32 status)
- #define MMC_SECURE_TRIM1_ARG		0x80000001
- #define MMC_SECURE_TRIM2_ARG		0x80008000
- #define MMC_SECURE_ARGS			0x80000000
--#define MMC_TRIM_ARGS			0x00008001
-+#define MMC_TRIM_OR_DISCARD_ARGS	0x00008003
+@@ -2323,6 +2359,8 @@ void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ 		sdhci_enable_preset_value(host, false);
  
- #define mmc_driver_type_mask(n)		(1 << (n))
+ 	if (!ios->clock || ios->clock != host->clock) {
++		turning_on_clk = ios->clock && !host->clock;
++
+ 		host->ops->set_clock(host, ios->clock);
+ 		host->clock = ios->clock;
  
+@@ -2349,6 +2387,17 @@ void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ 
+ 	host->ops->set_bus_width(host, ios->bus_width);
+ 
++	/*
++	 * Special case to avoid multiple clock changes during voltage
++	 * switching.
++	 */
++	if (!reinit_uhs &&
++	    turning_on_clk &&
++	    host->timing == ios->timing &&
++	    host->version >= SDHCI_SPEC_300 &&
++	    !sdhci_presetable_values_change(host, ios))
++		return;
++
+ 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
+ 
+ 	if (!(host->quirks & SDHCI_QUIRK_NO_HISPD_BIT)) {
+@@ -2392,6 +2441,7 @@ void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ 			}
+ 
+ 			sdhci_writew(host, ctrl_2, SDHCI_HOST_CONTROL2);
++			host->drv_type = ios->drv_type;
+ 		} else {
+ 			/*
+ 			 * According to SDHC Spec v3.00, if the Preset Value
+@@ -2419,19 +2469,14 @@ void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ 		host->ops->set_uhs_signaling(host, ios->timing);
+ 		host->timing = ios->timing;
+ 
+-		if (!(host->quirks2 & SDHCI_QUIRK2_PRESET_VALUE_BROKEN) &&
+-				((ios->timing == MMC_TIMING_UHS_SDR12) ||
+-				 (ios->timing == MMC_TIMING_UHS_SDR25) ||
+-				 (ios->timing == MMC_TIMING_UHS_SDR50) ||
+-				 (ios->timing == MMC_TIMING_UHS_SDR104) ||
+-				 (ios->timing == MMC_TIMING_UHS_DDR50) ||
+-				 (ios->timing == MMC_TIMING_MMC_DDR52))) {
++		if (sdhci_preset_needed(host, ios->timing)) {
+ 			u16 preset;
+ 
+ 			sdhci_enable_preset_value(host, true);
+ 			preset = sdhci_get_preset_value(host);
+ 			ios->drv_type = FIELD_GET(SDHCI_PRESET_DRV_MASK,
+ 						  preset);
++			host->drv_type = ios->drv_type;
+ 		}
+ 
+ 		/* Re-enable SD Clock */
+@@ -3768,6 +3813,7 @@ int sdhci_resume_host(struct sdhci_host *host)
+ 		sdhci_init(host, 0);
+ 		host->pwr = 0;
+ 		host->clock = 0;
++		host->reinit_uhs = true;
+ 		mmc->ops->set_ios(mmc, &mmc->ios);
+ 	} else {
+ 		sdhci_init(host, (mmc->pm_flags & MMC_PM_KEEP_POWER));
+@@ -3830,6 +3876,7 @@ int sdhci_runtime_resume_host(struct sdhci_host *host, int soft_reset)
+ 		/* Force clock and power re-program */
+ 		host->pwr = 0;
+ 		host->clock = 0;
++		host->reinit_uhs = true;
+ 		mmc->ops->start_signal_voltage_switch(mmc, &mmc->ios);
+ 		mmc->ops->set_ios(mmc, &mmc->ios);
+ 
+diff --git a/drivers/mmc/host/sdhci.h b/drivers/mmc/host/sdhci.h
+index d750c464bd1e..87a3aaa07438 100644
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -524,6 +524,8 @@ struct sdhci_host {
+ 
+ 	unsigned int clock;	/* Current clock (MHz) */
+ 	u8 pwr;			/* Current voltage */
++	u8 drv_type;		/* Current UHS-I driver type */
++	bool reinit_uhs;	/* Force UHS-related re-initialization */
+ 
+ 	bool runtime_suspended;	/* Host is runtime suspended */
+ 	bool bus_on;		/* Bus power prevents runtime suspend */
 
