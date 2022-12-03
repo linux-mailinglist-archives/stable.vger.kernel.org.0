@@ -2,101 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E88CD6416F4
-	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 14:33:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8044B641709
+	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 14:35:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229828AbiLCNdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Dec 2022 08:33:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54386 "EHLO
+        id S229784AbiLCNfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Dec 2022 08:35:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229836AbiLCNdB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 08:33:01 -0500
-Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9485194
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 05:32:42 -0800 (PST)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 305C25C00CF;
-        Sat,  3 Dec 2022 08:32:42 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Sat, 03 Dec 2022 08:32:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; t=1670074362; x=1670160762; bh=W90uSH1VWI
-        xwxESbT4oTqBt0gbz7nt4AZIDPo7xpVgY=; b=UIy2YTVKmvTb05QB1mJFPWlHxO
-        gbn9cOZlni5o+7bwh1Qyrub7Ub0IjOXV0MeDsLpPlnRN56r/fagDcNByqAECMfSo
-        NYbM4uZ6xz8M1dYaOMnEUoDqsNx9PMJuHROXVQAet/ItCv0C87LHINq79Dl1jwRg
-        secS01ytEKogRKDACpPztWSTw02C7uRCaZpXfrDhL11XT2tULirJ/PWkCnHQ20oi
-        b/3QVBwSkeTQYRZo25Y6ZrYF6D8i1FeWDXZC82zla+jR48cxh5788dr0G4JKEDSO
-        0QRo5h9ppQVKcZ8u/rCTyKpMs7GeLF1eibIjIAahDxroAyJh3qBhFTCLQOrQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; t=1670074362; x=1670160762; bh=W90uSH1VWIxwxESbT4oTqBt0gbz7
-        nt4AZIDPo7xpVgY=; b=RhDd5hRMk7i5fw6MgfjTnFIaM4oB0jzkj324WNRzkKt9
-        DRGH9iWxl6zIG5Tn9QnCMrupuhzM2ckoKJv0ZDJ+2Xkp7U3IPt6/PMrdDouQSZ54
-        QTj9/1+iG9NnzDZatn61EJwCbzzB4LoHoRd1yRtMVVSyy+enc2etALL/DkNB8CTX
-        RYtA6OHEbXzRC2QWolNnQ73tNKZw5IBy0n+fDYfgcMBdKZsTVIkiSbJ+bXUXz/h1
-        HhwL08qOzewkWFwkN/6hycKPD6tOZ2IFPpnpUMImqzisjKCj0iQ3PcvQPyG/+eeK
-        pAO6GtRg+JmQcaxggNyy3V6AHpT+0XP0Hzda8s788g==
-X-ME-Sender: <xms:-U-LY_frED03WkHBF2VwKQ54KXrAv6qTRjeGHMcD7hooR1Ib4vH9EQ>
-    <xme:-U-LY1N-3jWljI9t0GLSdxfWUQVkIz5kShYUzS2D9f9hXAOfQahz6p-JBop0cqKJE
-    StzT0vyIMZqig>
-X-ME-Received: <xmr:-U-LY4izHjvttu_6t_NCUhW9J24houXHttgIHTqTD94ehFMp70Y_UJBPkt1_KTiI1W3aZgFft2P058uEizW8og>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedruddtgdehgecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeehgedvve
-    dvleejuefgtdduudfhkeeltdeihfevjeekjeeuhfdtueefhffgheekteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:-U-LYw8Nonf4HwsRU8B--vW7mHFvdzetuQOrqND-eb7BFVlx-JPo3A>
-    <xmx:-U-LY7vN0s9l_YlkIR5z5_-zwkHfLdGIddft7b1y3K1YJIdgMoQcrw>
-    <xmx:-U-LY_E24jRyl65KJvOSdlISEbokRTRxRcC-CN_w8RyEjtfnl_1AFA>
-    <xmx:-k-LY_g8fdqeje3xo1isaojVgUaJ7AD303dCWSDBD-C0-e8lzHTeWA>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 3 Dec 2022 08:32:41 -0500 (EST)
-Date:   Sat, 3 Dec 2022 14:32:39 +0100
-From:   Greg KH <greg@kroah.com>
-To:     James Morse <james.morse@arm.com>
-Cc:     stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [stable:PATCH v5.4.225 0/2] arm64: errata: Spectre-BHB fixes
-Message-ID: <Y4tP9+uUkOPhvSUZ@kroah.com>
-References: <20221130182819.739068-1-james.morse@arm.com>
+        with ESMTP id S229836AbiLCNfD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 08:35:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E246101DA
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 05:34:30 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50CBE601D9
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 13:34:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D859C433D6;
+        Sat,  3 Dec 2022 13:34:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1670074469;
+        bh=37Zl9LPsZNwKals7bc9ElLjwKhNseex+1JJu1czI4ls=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MlZRV4/V/jBAWnemPY2AZcwvlkt1A54ZNzvEB4ariclBmOi1eew6HL59PQ7yrr0jn
+         T/7wLZxt5k2Lp/wthOmgsgiZNOTRB7xZcPUvs5+3vnD1uzCV48yDqdtW9Kg4GbTvOW
+         mhir4JvLiqROetGD9xr6vt1QzWpznPRcr5Yy2L4k=
+Date:   Sat, 3 Dec 2022 14:34:26 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>, Hugh Dickins <hughd@google.com>,
+        llvm@lists.linux.dev, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 and earlier only] mm: Fix '.data.once' orphan section
+ warning
+Message-ID: <Y4tQYgjDgodwR2pP@kroah.com>
+References: <20221128225345.9383-1-nathan@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221130182819.739068-1-james.morse@arm.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20221128225345.9383-1-nathan@kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 30, 2022 at 06:28:17PM +0000, James Morse wrote:
-> Hello!
+On Mon, Nov 28, 2022 at 03:53:46PM -0700, Nathan Chancellor wrote:
+> Portions of upstream commit a4055888629b ("mm/memcg: warning on !memcg
+> after readahead page charged") were backported as commit cfe575954ddd
+> ("mm: add VM_WARN_ON_ONCE_PAGE() macro"). Unfortunately, the backport
+> did not account for the lack of commit 33def8498fdd ("treewide: Convert
+> macro and uses of __section(foo) to __section("foo")") in kernels prior
+> to 5.10, resulting in the following orphan section warnings on PowerPC
+> clang builds with CONFIG_DEBUG_VM=y:
 > 
-> The first patch fixes an issue reported by Sami, where linux panic()s
-> when bringing secondary CPUs online. The problem was the Spectre
-> workarounds trying to allocate a new slot for mitigating KVM when
-> those pages are no longer writeable.
+>   powerpc64le-linux-gnu-ld: warning: orphan section `".data.once"' from `mm/huge_memory.o' being placed in section `".data.once"'
+>   powerpc64le-linux-gnu-ld: warning: orphan section `".data.once"' from `mm/huge_memory.o' being placed in section `".data.once"'
+>   powerpc64le-linux-gnu-ld: warning: orphan section `".data.once"' from `mm/huge_memory.o' being placed in section `".data.once"'
 > 
-> While debugging that issue, I spotted the Spectre-BHB KVM mitigation was
-> over-riding the Spectre-v2 KVM Mitigation. It's supposed to happen the
-> other way round.
+> This is a difference between how clang and gcc handle macro
+> stringification, which was resolved for the kernel by not stringifying
+> the argument to the __section() macro. Since that change was deemed not
+> suitable for the stable kernels by commit 59f89518f510 ("once: fix
+> section mismatch on clang builds"), do that same thing as that change
+> and remove the quotes from the argument to __section().
 > 
-> The backports aren't the same as mainline because the spectre mitigation code
-> was totally rewritten for v5.10, and prior to that the KVM infrastructure
-> is very different.
+> Fixes: cfe575954ddd ("mm: add VM_WARN_ON_ONCE_PAGE() macro")
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> ---
+> 
+> As far as I can tell, this should be applied to 5.4 and earlier. It
+> should apply cleanly but let me know if not.
 
-All now queued up, thanks.
+Queued up everywhere, thanks.
 
 greg k-h
