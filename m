@@ -2,300 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10F326411EF
-	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 01:23:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FBC36414DB
+	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 09:03:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234470AbiLCAXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Dec 2022 19:23:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56434 "EHLO
+        id S231152AbiLCIDf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Dec 2022 03:03:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234634AbiLCAXX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Dec 2022 19:23:23 -0500
-Received: from mail-pg1-x54a.google.com (mail-pg1-x54a.google.com [IPv6:2607:f8b0:4864:20::54a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC05C9075D
-        for <stable@vger.kernel.org>; Fri,  2 Dec 2022 16:23:22 -0800 (PST)
-Received: by mail-pg1-x54a.google.com with SMTP id i19-20020a63e913000000b004705d1506a6so5805668pgh.13
-        for <stable@vger.kernel.org>; Fri, 02 Dec 2022 16:23:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=ckYytnVepoWbimE5xbgdrdPOmCNvH6nlU8CJOTSK59I=;
-        b=AP2QhyJjEnq1NfXdCq5GJzqo/eyTwtvHuv53zolMCj3Hhx0DpJARPIek3x1v2zrpl+
-         tKrE/iQh0D51pFvtUw3y9iiZqqzOH9eECRf0tljCZHxmvY3oOi97LxNgc6fmW/ly7i7z
-         NEOlL1JPir1fl9Pr9TVSl8pbIcJrfrE8Z3SpuL9SUBC6u83i2dvinSMQTndUCOq60ZoD
-         HCBDIeYKFMzCs5nT8xGMbHiSgm0j+f70d+tQdelf8btJqPXOMnnNOP/szMI5DrMuZqTq
-         BfPZhT+xMLYjuhTMfAiijZ+vooyKLFXtPlmAZapo2GcOZUYgFhdQQDcCYazRLwgZcD4A
-         DvYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ckYytnVepoWbimE5xbgdrdPOmCNvH6nlU8CJOTSK59I=;
-        b=p249O/FIvU1rywsM6wJT7faF+ArTjivkK/lRSNeV/PHHgJetTBxuFvIqbsUNp9uxf0
-         wPvskINKadUUsjt3Kf+nqPyzKt1r6x8yhpDIisXYxx4H83suHS1SMox9+JBSJauGdDPB
-         fOZFig4x8I6rF1yZ7Ynd6+lao4qNL4ntJ/JlVEFLGbdzkD8LgsOjdDrSwfAqTAhgQIsz
-         KZIQuJ/rEJeRL5aHb2F1A439pHinRDrv7TZG88azXI5IHEalvHFsoHSIpDG8cOkdnwqm
-         0d2vhYAs4vrTGxQLlaqb9s5p46dd3+mSCc2Np++s+M0IN/3m8raX5AHB+vMfYN+ywGCe
-         gVCA==
-X-Gm-Message-State: ANoB5pl6uO1wUOjpOdOj5vLahV7gP4764XQQUeAsmob1wkjw9brI7zk8
-        xLpF95SgnLWtIPFKS9fhX2LllA4UXmx/8g==
-X-Google-Smtp-Source: AA0mqf5FLpxaeAUlECyuixx/9UtFbHUy3NZB8q/YFzDXHiW9Q/SRa3bZUzJNss5DBiNM89zzDNtRsKiqTDumYQ==
-X-Received: from skhawaja-linux-us.c.googlers.com ([fda3:e722:ac3:cc00:24:72f4:c0a8:3f34])
- (user=skhawaja job=sendgmr) by 2002:a17:902:e849:b0:186:dd96:ce45 with SMTP
- id t9-20020a170902e84900b00186dd96ce45mr54603645plg.73.1670027002387; Fri, 02
- Dec 2022 16:23:22 -0800 (PST)
-Date:   Sat,  3 Dec 2022 00:23:05 +0000
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.39.0.rc0.267.gcb52ba06e7-goog
-Message-ID: <20221203002305.1203792-1-skhawaja@google.com>
-Subject: [PATCH] io_uring: don't hold uring_lock when calling io_run_task_work*
-From:   Samiullah Khawaja <skhawaja@google.com>
-To:     Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Hao Xu <haoxu@linux.alibaba.com>,
-        Abaci <abaci@linux.alibaba.com>,
-        Samiullah Khawaja <skhawaja@google.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229781AbiLCIDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 03:03:33 -0500
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4BA427908;
+        Sat,  3 Dec 2022 00:03:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1670054612; x=1701590612;
+  h=date:from:to:cc:subject:message-id:references:
+   in-reply-to:mime-version;
+  bh=S4l6YnbHMvyfAxod+tYI+IVB8ngT5PUsUIMUb0Ivn9w=;
+  b=PInLwOiwbnZMgcK5BSb5d1j0eFy3ustB0wu4qXg/wy5q6g/TADZ1iM8v
+   c3/kPK+QLQ+DWgZ2i2bMa/XzHY1mSRI0isqyCAYiOccefhR9Cx0AgJxTr
+   kA8tleMpQNBMawB09j7MjIdZJdxeFn//MnsZCungAiwvvhIAdjc/dR4pr
+   NWSXTRoP8Qk/A6F22M3ALxsFJ7iuJEj/cvMhTLepzKbqZI1iLajZrCDl1
+   qr5HS7Hv3HlPSf3PKfqdTUcigPm9KKd98eGinF5OE7Tccu+6IQ2RYEPom
+   jcgO6eBJKMtoLX8Unz87g4NX79OGdkJDCy1leHA8ER54OIFiIljASxVBL
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10549"; a="317250454"
+X-IronPort-AV: E=Sophos;i="5.96,214,1665471600"; 
+   d="scan'208";a="317250454"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Dec 2022 00:03:32 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10549"; a="713876610"
+X-IronPort-AV: E=Sophos;i="5.96,214,1665471600"; 
+   d="scan'208";a="713876610"
+Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
+  by fmsmga004.fm.intel.com with ESMTP; 03 Dec 2022 00:03:32 -0800
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Sat, 3 Dec 2022 00:03:31 -0800
+Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
+ fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Sat, 3 Dec 2022 00:03:31 -0800
+Received: from fmsedg602.ED.cps.intel.com (10.1.192.136) by
+ fmsmsx611.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16 via Frontend Transport; Sat, 3 Dec 2022 00:03:31 -0800
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (104.47.59.172)
+ by edgegateway.intel.com (192.55.55.71) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.16; Sat, 3 Dec 2022 00:03:31 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ADQ33Tt1vCYQqwjzjKVs92mQy/poBvEbTIPt2dYhp7uKj3Q2in5sY2nmuO5RRRjqUc7qSmzwWwv/4k60UHIbIK29QKsKXh34Jb2RWVr21tMrUkJoY5MBXtMfrDvcQvfOEuMxp5mOyKBNjexIrciFnbin3ZqhxE0FfquAZ2cKMaFsu88Q3z0KzYp0+Lgwko/4v3uD1NQi82wxdjfhQr7OZENgnNZsxrePG7CXDRKCavs4bxzWF9d8gOQf7o3zL9uZ7vKcqwSz0ebcPJ7Ld9/hL6Eb+udtYH/yRnONBA0BitZlhzvOl61jW9Qac2n5mU3AsbE4T9vegU5RWmh3BHVWbA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=WAQweG1C8J7V2DiyO8cx8VCN0Q4zxqHsrO2pUiFi00c=;
+ b=lk2aYUyfz3b0dcPYs3nMuppkMYXMT7RkyZ/lDRmZLIy5Fn6jfQFBuZtgy4++NUDfBvXjlWn1L/OdyWQmLeStHB1kLB4pCDmn/NNAXl3kLRcBp7jhawJMdrFkY3sW89c2jAZkIwxOIApobq0zrQyuGBvZhyLrCb9ZDu7kfdjJS4vtiRqJMp1/R1hL0W4Nwb/t3Yu0ISBNt2ItEF47LWUuoFwnCqINQqa/E9D42614rQRM+ZtH9P7c1uFz920bcES+OHSTi8WGzWv7V60zl3sYl5adqIZV7VYs9wqWFFxABZbhLepgkWskTsUdX4kgM7FpaBml359CE9tNmX4oBpFKEA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from MWHPR1101MB2126.namprd11.prod.outlook.com
+ (2603:10b6:301:50::20) by DM6PR11MB4657.namprd11.prod.outlook.com
+ (2603:10b6:5:2a6::7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.11; Sat, 3 Dec
+ 2022 08:03:29 +0000
+Received: from MWHPR1101MB2126.namprd11.prod.outlook.com
+ ([fe80::340d:cb77:604d:b0b]) by MWHPR1101MB2126.namprd11.prod.outlook.com
+ ([fe80::340d:cb77:604d:b0b%9]) with mapi id 15.20.5880.011; Sat, 3 Dec 2022
+ 08:03:29 +0000
+Date:   Sat, 3 Dec 2022 00:03:27 -0800
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Dan Williams <dan.j.williams@intel.com>
+CC:     <linux-cxl@vger.kernel.org>, <stable@vger.kernel.org>,
+        <dave.jiang@intel.com>, <nvdimm@lists.linux.dev>,
+        <dave@stgolabs.net>
+Subject: Re: [PATCH 2/5] cxl/region: Fix missing probe failure
+Message-ID: <638b02cf5be7f_3cbe029457@dwillia2-xfh.jf.intel.com.notmuch>
+References: <166993219354.1995348.12912519920112533797.stgit@dwillia2-xfh.jf.intel.com>
+ <166993220462.1995348.1698008475198427361.stgit@dwillia2-xfh.jf.intel.com>
+ <20221202142328.00004254@Huawei.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20221202142328.00004254@Huawei.com>
+X-ClientProxiedBy: BY5PR03CA0016.namprd03.prod.outlook.com
+ (2603:10b6:a03:1e0::26) To MWHPR1101MB2126.namprd11.prod.outlook.com
+ (2603:10b6:301:50::20)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MWHPR1101MB2126:EE_|DM6PR11MB4657:EE_
+X-MS-Office365-Filtering-Correlation-Id: b4798963-78c5-43d9-30d4-08dad504dd30
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 5fMJtwZq6fYO+iEvazRxGxuHC1oYYVu49Y0r5kpq1MNuYW0AaRIMQdR/oi0U0W6GNvWZdyzBshDzfCG0ufFXtTVd8gJ9gsM2fgwGWWaZJYBFAUyB4q5QvQUh+k73L2oXciMX9lFHY1CldTzA37Uf4CRNAst2K2s/QV5pSlrEiMoJnB4shNzFk5VRn47MeuMsQhvcbKKLCIy+vlS+PNZXhdk0z/t1jFmtv141yAQHbdj4bcskJ5bHT8kmOqvE1uvamOJPiALPAD3yLySw3OD9vp+IIeTsUQ56GMuHqS/cLjs3k1DL75f4WuA0DTt356Xm9YpVr3BsMELs82gz2WrDdbo5oldnwYkzvAlwu5ufRArJ766bRiaYo6+Fk1iOjSnJwCoxRAfIDwc//rhMk1wnCxMx7Rpc7cpk7EVj+tRlL0nkxFp3IxaoqUm75axFoAwZax5g0XJDnpQktKGMQAnh4H7DWK3o8z+q92EX6kAn/Au6oDito8w80xMxCw+6KqMpoWYJneAzm6X0uGgEn+BF9NHIBdFMUZlBGwXFxO7gB2mgFa1jNJ/pJankQJPLxwMLW6PbtrJOrwL6sGlSP9nvGlXIfBsDzX1Ns2wAt8jhpfC/K94c0NXZIpECXfOUNCzlbHxR73fbu6irJ+aUEk5xmQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR1101MB2126.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(366004)(136003)(396003)(39860400002)(376002)(346002)(451199015)(38100700002)(82960400001)(2906002)(41300700001)(8936002)(4326008)(83380400001)(86362001)(66946007)(66556008)(66476007)(478600001)(6486002)(316002)(110136005)(5660300002)(8676002)(26005)(6506007)(186003)(9686003)(6512007);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?efGKDoUfAu1ZZeKJmo+BJ8iQsmZuzVVfUZUFJrX7q48Ao2rifkY0JDHnrZRi?=
+ =?us-ascii?Q?0uEyyppsGjrMo+R1tViuWhPQ70vkQXagakMq949wb3ybCyT3tCcpt4uexH5o?=
+ =?us-ascii?Q?orRvsYL0Q9+oXdncv5SKWA1xkexY7syRYFYUOD79rkDMqXmhaA/wSH0YOsxf?=
+ =?us-ascii?Q?s+aun3uyUICNGcLAOzC6NL9TRuBXilvE0ytTGrbXUuP1onuaLA4m+6EnxnJI?=
+ =?us-ascii?Q?8fasRAr5ZlA0N8OH0HA6WVA8swcm6PLPFlmySdTvoK+1bmb65sfjb8piE1gB?=
+ =?us-ascii?Q?pqSa9g0QXVF5X9SFxtYJLmd6RyaaRCKGkTm8P+1zKqWW8VoBylr/I1ypzKG6?=
+ =?us-ascii?Q?r1v5w7SIf2U/rrxFJlB7+6hy+HmYQq9aQwiI9ZqN8rafCk8cjSilwvPHkLMS?=
+ =?us-ascii?Q?Bt+2IDZ899qAErg/9e5L2HDCXFgR0CP9uBkF9uwgoxk+ZUGX7ZchWABVgRbG?=
+ =?us-ascii?Q?n3W45kh8UuHxDFySPJulGoLDmHLnyv/62TiZD+aUsYy3CEey2RNBQoDCDUyH?=
+ =?us-ascii?Q?ClHBRedYebgYYKBYSm7PgSdydPBtbbCPusae42ggQuYt9K1DwN8ymNSwSKKN?=
+ =?us-ascii?Q?fLUAGmWfdCvy1wCpuXB1OqopxDtL6Kr+HYCwV7xD4AAq+8V/tfIWbIRBAUgd?=
+ =?us-ascii?Q?8l6FyYZQnXw/dWcKsxL3gJ86uNmxnsGz6SzmRfPRH20xXO2BahEhnFJTGsGc?=
+ =?us-ascii?Q?OGOUnko+8d5ThTczcd7yRYFOqnywkKeGF1VqbaMfDnfDiNtCm6idgX4p26zn?=
+ =?us-ascii?Q?/5Vv3rLiVG9tTUmtfCkjfwLDk4OniSMgjpUnrXEFRIA+bzVWpHr2N0GhBJ2U?=
+ =?us-ascii?Q?U7+sa3CwVxY1ESjoeEpaZIWGVqP/kWmEsklynP2rNdmgAuDQamvfOUhGl26Q?=
+ =?us-ascii?Q?m2CJRFHh4iE+9MM2LOnwLQK2fmSUVlXHFHtUfuPggxFHgVvV9ZmyXd/x/NFc?=
+ =?us-ascii?Q?fJ6v5XInalJHnUOdS7wWU0SJML2YmKecKzyxb9TcwHbvu5wc0lkoPaISYxcK?=
+ =?us-ascii?Q?vm5u4zVsX8GW+rZFxYgH63fa+7hFYLegUQaN4zwcvPWGc4nRbeqKjO/65gMY?=
+ =?us-ascii?Q?RCEFCAFMiZ9BjAAsQnLbDyBrXE4K//UgYVU+IAqN9mYXJcmyKKOBAGg/BT6J?=
+ =?us-ascii?Q?9QFgT8JpM42WNAgkNRC9qAjN+t8sxYIytLVnSTBqtx11JYUL5DJhEd+Q+MNF?=
+ =?us-ascii?Q?p28b4Y+Ot0lzUfTNirq5DrElzL8bNfKag+9O39x2j2MefX3tVFOa+j2hZ8Jd?=
+ =?us-ascii?Q?w+nqOLzsKuIH8IHJXsgZfW2ofvVHmEzit+GPG9FnLd/eGVh0bkokldH/6PZs?=
+ =?us-ascii?Q?fEjN0Hcu4PhQ1ZkzN5HwHLFyd8/ATFed+duj3RyIBpiOoXlZ0d4Zd1pUO0sK?=
+ =?us-ascii?Q?Imc88jFfa4fLdLuV/U+/Dp+xxTDP4uEncvU1wrdu00ZduLhPqAYpiikzZNeF?=
+ =?us-ascii?Q?PxmIpRTB4oNq413jEOAED+JIHutEqaWgwPXV2G5y4zdJXWQsfZ7P0aiIZJhs?=
+ =?us-ascii?Q?KDKoT+AyvlnbEKmu8dCe6GXVCoruPfk71USBFKLt+H2ycOmAhwnXkOJjzr3P?=
+ =?us-ascii?Q?NMjy0MoFTjcJD3rbTa89lFohuDe4ENI40I4aIfDTNIadC62JkZQCox3NOSud?=
+ =?us-ascii?Q?zg=3D=3D?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: b4798963-78c5-43d9-30d4-08dad504dd30
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1101MB2126.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Dec 2022 08:03:29.5729
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: tUhOVUdV6QFa5IHkJaeUN9mv0KDKEdoAm1EC01I8X5QjvIwul492QyoNndQy1urqEb61/XrerSV+7YRJ0ybUeAQ56wIXoP94LZTis1KPkP4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR11MB4657
+X-OriginatorOrg: intel.com
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Xu <haoxu@linux.alibaba.com>
+Jonathan Cameron wrote:
+> On Thu, 01 Dec 2022 14:03:24 -0800
+> Dan Williams <dan.j.williams@intel.com> wrote:
+> 
+> > cxl_region_probe() allows for regions not in the 'commit' state to be
+> > enabled. Fail probe when the region is not committed otherwise the
+> > kernel may indicate that an address range is active when none of the
+> > decoders are active.
+> > 
+> > Fixes: 8d48817df6ac ("cxl/region: Add region driver boiler plate")
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+> Huh. I wonder why this wasn't triggering a build warning given
+> rc is assigned but unused.
 
-commit 8bad28d8a305b0e5ae444c8c3051e8744f5a4296 upstream.
+Yes, I thought that was curious too.
 
-[Backported on top of stable 5.10 since the issue was introduced into it
-with commit referred in Fixes tag below. The backport is done without
-`file` to `rsrc` refactoring since it is not in 5.10].
+> 
+> Ah well, this is clearly the original intent and makes sense.
+> 
+> Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> 
+> > ---
+> >  drivers/cxl/core/region.c |    3 +++
+> >  1 file changed, 3 insertions(+)
+> > 
+> > diff --git a/drivers/cxl/core/region.c b/drivers/cxl/core/region.c
+> > index f9ae5ad284ff..1bc2ebefa2a5 100644
+> > --- a/drivers/cxl/core/region.c
+> > +++ b/drivers/cxl/core/region.c
+> > @@ -1923,6 +1923,9 @@ static int cxl_region_probe(struct device *dev)
+> >  	 */
+> >  	up_read(&cxl_region_rwsem);
+> >  
+> > +	if (rc)
+> > +		return rc;
+> > +
+> >  	switch (cxlr->mode) {
+> >  	case CXL_DECODER_PMEM:
+> >  		return devm_cxl_add_pmem_region(cxlr);
+> > 
+> 
 
-Abaci reported the below issue:
-[  141.400455] hrtimer: interrupt took 205853 ns
-[  189.869316] process 'usr/local/ilogtail/ilogtail_0.16.26' started with executable stack
-[  250.188042]
-[  250.188327] ============================================
-[  250.189015] WARNING: possible recursive locking detected
-[  250.189732] 5.11.0-rc4 #1 Not tainted
-[  250.190267] --------------------------------------------
-[  250.190917] a.out/7363 is trying to acquire lock:
-[  250.191506] ffff888114dbcbe8 (&ctx->uring_lock){+.+.}-{3:3}, at: __io_req_task_submit+0x29/0xa0
-[  250.192599]
-[  250.192599] but task is already holding lock:
-[  250.193309] ffff888114dbfbe8 (&ctx->uring_lock){+.+.}-{3:3}, at: __x64_sys_io_uring_register+0xad/0x210
-[  250.194426]
-[  250.194426] other info that might help us debug this:
-[  250.195238]  Possible unsafe locking scenario:
-[  250.195238]
-[  250.196019]        CPU0
-[  250.196411]        ----
-[  250.196803]   lock(&ctx->uring_lock);
-[  250.197420]   lock(&ctx->uring_lock);
-[  250.197966]
-[  250.197966]  *** DEADLOCK ***
-[  250.197966]
-[  250.198837]  May be due to missing lock nesting notation
-[  250.198837]
-[  250.199780] 1 lock held by a.out/7363:
-[  250.200373]  #0: ffff888114dbfbe8 (&ctx->uring_lock){+.+.}-{3:3}, at: __x64_sys_io_uring_register+0xad/0x210
-[  250.201645]
-[  250.201645] stack backtrace:
-[  250.202298] CPU: 0 PID: 7363 Comm: a.out Not tainted 5.11.0-rc4 #1
-[  250.203144] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
-[  250.203887] Call Trace:
-[  250.204302]  dump_stack+0xac/0xe3
-[  250.204804]  __lock_acquire+0xab6/0x13a0
-[  250.205392]  lock_acquire+0x2c3/0x390
-[  250.205928]  ? __io_req_task_submit+0x29/0xa0
-[  250.206541]  __mutex_lock+0xae/0x9f0
-[  250.207071]  ? __io_req_task_submit+0x29/0xa0
-[  250.207745]  ? 0xffffffffa0006083
-[  250.208248]  ? __io_req_task_submit+0x29/0xa0
-[  250.208845]  ? __io_req_task_submit+0x29/0xa0
-[  250.209452]  ? __io_req_task_submit+0x5/0xa0
-[  250.210083]  __io_req_task_submit+0x29/0xa0
-[  250.210687]  io_async_task_func+0x23d/0x4c0
-[  250.211278]  task_work_run+0x89/0xd0
-[  250.211884]  io_run_task_work_sig+0x50/0xc0
-[  250.212464]  io_sqe_files_unregister+0xb2/0x1f0
-[  250.213109]  __io_uring_register+0x115a/0x1750
-[  250.213718]  ? __x64_sys_io_uring_register+0xad/0x210
-[  250.214395]  ? __fget_files+0x15a/0x260
-[  250.214956]  __x64_sys_io_uring_register+0xbe/0x210
-[  250.215620]  ? trace_hardirqs_on+0x46/0x110
-[  250.216205]  do_syscall_64+0x2d/0x40
-[  250.216731]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[  250.217455] RIP: 0033:0x7f0fa17e5239
-[  250.218034] Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05  3d 01 f0 ff ff 73 01 c3 48 8b 0d 27 ec 2c 00 f7 d8 64 89 01 48
-[  250.220343] RSP: 002b:00007f0fa1eeac48 EFLAGS: 00000246 ORIG_RAX: 00000000000001ab
-[  250.221360] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f0fa17e5239
-[  250.222272] RDX: 0000000000000000 RSI: 0000000000000003 RDI: 0000000000000008
-[  250.223185] RBP: 00007f0fa1eeae20 R08: 0000000000000000 R09: 0000000000000000
-[  250.224091] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-[  250.224999] R13: 0000000000021000 R14: 0000000000000000 R15: 00007f0fa1eeb700
-
-This is caused by calling io_run_task_work_sig() to do work under
-uring_lock while the caller io_sqe_files_unregister() already held
-uring_lock.
-To fix this issue, briefly drop uring_lock when calling
-io_run_task_work_sig(), and there are two things to concern:
-
-- hold uring_lock in io_ring_ctx_free() around io_sqe_files_unregister()
-    this is for consistency of lock/unlock.
-- add new fixed rsrc ref node before dropping uring_lock
-    it's not safe to do io_uring_enter-->percpu_ref_get() with a dying one.
-- check if rsrc_data->refs is dying to avoid parallel io_sqe_files_unregister
-
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Fixes: ce00a7d0d9523 ("io_uring: fix io_sqe_files_unregister() hangs")
-Suggested-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
-[axboe: fixes from Pavel folded in]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Samiullah Khawaja <skhawaja@google.com>
----
- fs/io_uring.c | 82 ++++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 61 insertions(+), 21 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d1cb1addea96..c5c22b067cd8 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -217,6 +217,7 @@ struct fixed_file_data {
- 	struct completion		done;
- 	struct list_head		ref_list;
- 	spinlock_t			lock;
-+	bool				quiesce;
- };
- 
- struct io_buffer {
-@@ -7105,41 +7106,79 @@ static void io_sqe_files_set_node(struct fixed_file_data *file_data,
- 	percpu_ref_get(&file_data->refs);
- }
- 
--static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
--{
--	struct fixed_file_data *data = ctx->file_data;
--	struct fixed_file_ref_node *backup_node, *ref_node = NULL;
--	unsigned nr_tables, i;
--	int ret;
- 
--	if (!data)
--		return -ENXIO;
--	backup_node = alloc_fixed_file_ref_node(ctx);
--	if (!backup_node)
--		return -ENOMEM;
-+static void io_sqe_files_kill_node(struct fixed_file_data *data)
-+{
-+	struct fixed_file_ref_node *ref_node = NULL;
- 
- 	spin_lock_bh(&data->lock);
- 	ref_node = data->node;
- 	spin_unlock_bh(&data->lock);
- 	if (ref_node)
- 		percpu_ref_kill(&ref_node->refs);
-+}
-+
-+static int io_file_ref_quiesce(struct fixed_file_data *data,
-+			       struct io_ring_ctx *ctx)
-+{
-+	int ret;
-+	struct fixed_file_ref_node *backup_node;
- 
--	percpu_ref_kill(&data->refs);
-+	if (data->quiesce)
-+		return -ENXIO;
- 
--	/* wait for all refs nodes to complete */
--	flush_delayed_work(&ctx->file_put_work);
-+	data->quiesce = true;
- 	do {
-+		backup_node = alloc_fixed_file_ref_node(ctx);
-+		if (!backup_node)
-+			break;
-+
-+		io_sqe_files_kill_node(data);
-+		percpu_ref_kill(&data->refs);
-+		flush_delayed_work(&ctx->file_put_work);
-+
- 		ret = wait_for_completion_interruptible(&data->done);
- 		if (!ret)
- 			break;
-+
-+		percpu_ref_resurrect(&data->refs);
-+		io_sqe_files_set_node(data, backup_node);
-+		backup_node = NULL;
-+		reinit_completion(&data->done);
-+		mutex_unlock(&ctx->uring_lock);
- 		ret = io_run_task_work_sig();
--		if (ret < 0) {
--			percpu_ref_resurrect(&data->refs);
--			reinit_completion(&data->done);
--			io_sqe_files_set_node(data, backup_node);
--			return ret;
--		}
-+		mutex_lock(&ctx->uring_lock);
-+
-+		if (ret < 0)
-+			break;
-+		backup_node = alloc_fixed_file_ref_node(ctx);
-+		ret = -ENOMEM;
-+		if (!backup_node)
-+			break;
- 	} while (1);
-+	data->quiesce = false;
-+
-+	if (backup_node)
-+		destroy_fixed_file_ref_node(backup_node);
-+	return ret;
-+}
-+
-+static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
-+{
-+	struct fixed_file_data *data = ctx->file_data;
-+	unsigned nr_tables, i;
-+	int ret;
-+
-+	/*
-+	 * percpu_ref_is_dying() is to stop parallel files unregister
-+	 * Since we possibly drop uring lock later in this function to
-+	 * run task work.
-+	 */
-+	if (!data || percpu_ref_is_dying(&data->refs))
-+		return -ENXIO;
-+	ret = io_file_ref_quiesce(data, ctx);
-+	if (ret)
-+		return ret;
- 
- 	__io_sqe_files_unregister(ctx);
- 	nr_tables = DIV_ROUND_UP(ctx->nr_user_files, IORING_MAX_FILES_TABLE);
-@@ -7150,7 +7189,6 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
- 	kfree(data);
- 	ctx->file_data = NULL;
- 	ctx->nr_user_files = 0;
--	destroy_fixed_file_ref_node(backup_node);
- 	return 0;
- }
- 
-@@ -8444,7 +8482,9 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
- 		css_put(ctx->sqo_blkcg_css);
- #endif
- 
-+	mutex_lock(&ctx->uring_lock);
- 	io_sqe_files_unregister(ctx);
-+	mutex_unlock(&ctx->uring_lock);
- 	io_eventfd_unregister(ctx);
- 	io_destroy_buffers(ctx);
- 
--- 
-2.39.0.rc0.267.gcb52ba06e7-goog
 
