@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D9F641657
-	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 12:20:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B321641659
+	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 12:22:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229475AbiLCLUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Dec 2022 06:20:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52106 "EHLO
+        id S229548AbiLCLWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Dec 2022 06:22:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229619AbiLCLU3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 06:20:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C22CE61760
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 03:20:27 -0800 (PST)
+        with ESMTP id S229557AbiLCLWC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 06:22:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC3E76205A
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 03:22:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F87F60BA8
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 11:20:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58334C43470;
-        Sat,  3 Dec 2022 11:20:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83071B80D3B
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 11:21:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1E24C433D6;
+        Sat,  3 Dec 2022 11:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670066426;
-        bh=QjSPvKj0+x+abdorocxf0DtLzMgamUGww79Cno5qDpI=;
+        s=korg; t=1670066518;
+        bh=efiwU+sGdWiln1vvkcq/vOpDjOR5054+AyzTWDF77Kc=;
         h=Subject:To:Cc:From:Date:From;
-        b=r27A1pdKlMeUnMFMAbeI8X9fgswWbuu46ZSKiCntHbtVaG7KkyiP5pd5bZ096TUtr
-         DlCaHXRbZ9NGyiDA4qCBVjrtXIlw76Dk4Jn2t5K72Mh1SagjRGDOnSg1QpPeHzBYh0
-         rqW4AA7/vKSy78ub+ecM43gMMETTq6A1jIf99HDI=
-Subject: FAILED: patch "[PATCH] tracing: Free buffers when a used dynamic event is removed" failed to apply to 4.9-stable tree
-To:     rostedt@goodmis.org, akpm@linux-foundation.org,
-        mhiramat@kernel.org, yujie.liu@intel.com, zhengyejian1@huawei.com
+        b=lvQK2a9vCHCGHdA2RsHA/Cvd6GHUYPgIvB36FGs6JJA/+aHO6D+sTXrDeDkV+XAaF
+         bVDE/RjW40eIs6+Ur6ODrpA/SfH8NbMEEEAfNaoI58fmQpmtIdQXsYLhKMEUZ7hIIa
+         ipxH6ItLafPbUXb1KSkECx1S15WYP+It89jNtCyM=
+Subject: FAILED: patch "[PATCH] mm/khugepaged: take the right locks for page table retraction" failed to apply to 6.0-stable tree
+To:     jannh@google.com, akpm@linux-foundation.org, david@redhat.com,
+        jhubbard@nvidia.com, peterx@redhat.com, shy828301@gmail.com,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 03 Dec 2022 12:20:24 +0100
-Message-ID: <167006642420568@kroah.com>
+Date:   Sat, 03 Dec 2022 12:21:55 +0100
+Message-ID: <16700665151890@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -48,17 +49,27 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-4313e5a61304 ("tracing: Free buffers when a used dynamic event is removed")
-5448d44c3855 ("tracing: Add unified dynamic event framework")
-6b0b7551428e ("perf/core: Rename CONFIG_[UK]PROBE_EVENT to CONFIG_[UK]PROBE_EVENTS")
-1d9995771fcb ("s390: update defconfigs")
+8d3c106e19e8 ("mm/khugepaged: take the right locks for page table retraction")
+34488399fa08 ("mm/madvise: add file and shmem support to MADV_COLLAPSE")
+58ac9a8993a1 ("mm/khugepaged: attempt to map file/shmem-backed pte-mapped THPs by pmds")
+780a4b6fb865 ("mm/khugepaged: check compound_order() in collapse_pte_mapped_thp()")
+b26e27015ec9 ("mm: thp: convert to use common struct mm_slot")
+685405020b9f ("mm/khugepaged: stop using vma linked list")
+7d2c4385c341 ("mm/khugepaged: rename prefix of shared collapse functions")
+7d8faaf15545 ("mm/madvise: introduce MADV_COLLAPSE sync hugepage collapse")
+507228044236 ("mm/khugepaged: record SCAN_PMD_MAPPED when scan_pmd() finds hugepage")
+a7f4e6e4c47c ("mm/thp: add flag to enforce sysfs THP in hugepage_vma_check()")
+50ad2f24b3b4 ("mm/khugepaged: propagate enum scan_result codes back to callers")
+9710a78ab2ae ("mm/khugepaged: dedup and simplify hugepage alloc and charging")
+34d6b470ab9c ("mm/khugepaged: add struct collapse_control")
+c6a7f445a272 ("mm: khugepaged: don't carry huge page to the next loop for !CONFIG_NUMA")
 
 thanks,
 
@@ -66,203 +77,156 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4313e5a613049dfc1819a6dfb5f94cf2caff9452 Mon Sep 17 00:00:00 2001
-From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Date: Wed, 23 Nov 2022 17:14:34 -0500
-Subject: [PATCH] tracing: Free buffers when a used dynamic event is removed
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 8d3c106e19e8d251da31ff4cc7462e4565d65084 Mon Sep 17 00:00:00 2001
+From: Jann Horn <jannh@google.com>
+Date: Fri, 25 Nov 2022 22:37:12 +0100
+Subject: [PATCH] mm/khugepaged: take the right locks for page table retraction
 
-After 65536 dynamic events have been added and removed, the "type" field
-of the event then uses the first type number that is available (not
-currently used by other events). A type number is the identifier of the
-binary blobs in the tracing ring buffer (known as events) to map them to
-logic that can parse the binary blob.
+pagetable walks on address ranges mapped by VMAs can be done under the
+mmap lock, the lock of an anon_vma attached to the VMA, or the lock of the
+VMA's address_space.  Only one of these needs to be held, and it does not
+need to be held in exclusive mode.
 
-The issue is that if a dynamic event (like a kprobe event) is traced and
-is in the ring buffer, and then that event is removed (because it is
-dynamic, which means it can be created and destroyed), if another dynamic
-event is created that has the same number that new event's logic on
-parsing the binary blob will be used.
+Under those circumstances, the rules for concurrent access to page table
+entries are:
 
-To show how this can be an issue, the following can crash the kernel:
+ - Terminal page table entries (entries that don't point to another page
+   table) can be arbitrarily changed under the page table lock, with the
+   exception that they always need to be consistent for
+   hardware page table walks and lockless_pages_from_mm().
+   This includes that they can be changed into non-terminal entries.
+ - Non-terminal page table entries (which point to another page table)
+   can not be modified; readers are allowed to READ_ONCE() an entry, verify
+   that it is non-terminal, and then assume that its value will stay as-is.
 
- # cd /sys/kernel/tracing
- # for i in `seq 65536`; do
-     echo 'p:kprobes/foo do_sys_openat2 $arg1:u32' > kprobe_events
- # done
+Retracting a page table involves modifying a non-terminal entry, so
+page-table-level locks are insufficient to protect against concurrent page
+table traversal; it requires taking all the higher-level locks under which
+it is possible to start a page walk in the relevant range in exclusive
+mode.
 
-For every iteration of the above, the writing to the kprobe_events will
-remove the old event and create a new one (with the same format) and
-increase the type number to the next available on until the type number
-reaches over 65535 which is the max number for the 16 bit type. After it
-reaches that number, the logic to allocate a new number simply looks for
-the next available number. When an dynamic event is removed, that number
-is then available to be reused by the next dynamic event created. That is,
-once the above reaches the max number, the number assigned to the event in
-that loop will remain the same.
+The collapse_huge_page() path for anonymous THP already follows this rule,
+but the shmem/file THP path was getting it wrong, making it possible for
+concurrent rmap-based operations to cause corruption.
 
-Now that means deleting one dynamic event and created another will reuse
-the previous events type number. This is where bad things can happen.
-After the above loop finishes, the kprobes/foo event which reads the
-do_sys_openat2 function call's first parameter as an integer.
+Link: https://lkml.kernel.org/r/20221129154730.2274278-1-jannh@google.com
+Link: https://lkml.kernel.org/r/20221128180252.1684965-1-jannh@google.com
+Link: https://lkml.kernel.org/r/20221125213714.4115729-1-jannh@google.com
+Fixes: 27e1f8273113 ("khugepaged: enable collapse pmd for pte-mapped THP")
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
- # echo 1 > kprobes/foo/enable
- # cat /etc/passwd > /dev/null
- # cat trace
-             cat-2211    [005] ....  2007.849603: foo: (do_sys_openat2+0x0/0x130) arg1=4294967196
-             cat-2211    [005] ....  2007.849620: foo: (do_sys_openat2+0x0/0x130) arg1=4294967196
-             cat-2211    [005] ....  2007.849838: foo: (do_sys_openat2+0x0/0x130) arg1=4294967196
-             cat-2211    [005] ....  2007.849880: foo: (do_sys_openat2+0x0/0x130) arg1=4294967196
- # echo 0 > kprobes/foo/enable
-
-Now if we delete the kprobe and create a new one that reads a string:
-
- # echo 'p:kprobes/foo do_sys_openat2 +0($arg2):string' > kprobe_events
-
-And now we can the trace:
-
- # cat trace
-        sendmail-1942    [002] .....   530.136320: foo: (do_sys_openat2+0x0/0x240) arg1=             cat-2046    [004] .....   530.930817: foo: (do_sys_openat2+0x0/0x240) arg1="������������������������������������������������������������������������������������������������"
-             cat-2046    [004] .....   530.930961: foo: (do_sys_openat2+0x0/0x240) arg1="������������������������������������������������������������������������������������������������"
-             cat-2046    [004] .....   530.934278: foo: (do_sys_openat2+0x0/0x240) arg1="������������������������������������������������������������������������������������������������"
-             cat-2046    [004] .....   530.934563: foo: (do_sys_openat2+0x0/0x240) arg1="������������������������������������������������������������������������������������������������"
-            bash-1515    [007] .....   534.299093: foo: (do_sys_openat2+0x0/0x240) arg1="kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk���������@��4Z����;Y�����U
-
-And dmesg has:
-
-==================================================================
-BUG: KASAN: use-after-free in string+0xd4/0x1c0
-Read of size 1 at addr ffff88805fdbbfa0 by task cat/2049
-
- CPU: 0 PID: 2049 Comm: cat Not tainted 6.1.0-rc6-test+ #641
- Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01 v03.03 07/14/2016
- Call Trace:
-  <TASK>
-  dump_stack_lvl+0x5b/0x77
-  print_report+0x17f/0x47b
-  kasan_report+0xad/0x130
-  string+0xd4/0x1c0
-  vsnprintf+0x500/0x840
-  seq_buf_vprintf+0x62/0xc0
-  trace_seq_printf+0x10e/0x1e0
-  print_type_string+0x90/0xa0
-  print_kprobe_event+0x16b/0x290
-  print_trace_line+0x451/0x8e0
-  s_show+0x72/0x1f0
-  seq_read_iter+0x58e/0x750
-  seq_read+0x115/0x160
-  vfs_read+0x11d/0x460
-  ksys_read+0xa9/0x130
-  do_syscall_64+0x3a/0x90
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
- RIP: 0033:0x7fc2e972ade2
- Code: c0 e9 b2 fe ff ff 50 48 8d 3d b2 3f 0a 00 e8 05 f0 01 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
- RSP: 002b:00007ffc64e687c8 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
- RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007fc2e972ade2
- RDX: 0000000000020000 RSI: 00007fc2e980d000 RDI: 0000000000000003
- RBP: 00007fc2e980d000 R08: 00007fc2e980c010 R09: 0000000000000000
- R10: 0000000000000022 R11: 0000000000000246 R12: 0000000000020f00
- R13: 0000000000000003 R14: 0000000000020000 R15: 0000000000020000
-  </TASK>
-
- The buggy address belongs to the physical page:
- page:ffffea00017f6ec0 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x5fdbb
- flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
- raw: 000fffffc0000000 0000000000000000 ffffea00017f6ec8 0000000000000000
- raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
- page dumped because: kasan: bad access detected
-
- Memory state around the buggy address:
-  ffff88805fdbbe80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-  ffff88805fdbbf00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- >ffff88805fdbbf80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-                                ^
-  ffff88805fdbc000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-  ffff88805fdbc080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ==================================================================
-
-This was found when Zheng Yejian sent a patch to convert the event type
-number assignment to use IDA, which gives the next available number, and
-this bug showed up in the fuzz testing by Yujie Liu and the kernel test
-robot. But after further analysis, I found that this behavior is the same
-as when the event type numbers go past the 16bit max (and the above shows
-that).
-
-As modules have a similar issue, but is dealt with by setting a
-"WAS_ENABLED" flag when a module event is enabled, and when the module is
-freed, if any of its events were enabled, the ring buffer that holds that
-event is also cleared, to prevent reading stale events. The same can be
-done for dynamic events.
-
-If any dynamic event that is being removed was enabled, then make sure the
-buffers they were enabled in are now cleared.
-
-Link: https://lkml.kernel.org/r/20221123171434.545706e3@gandalf.local.home
-Link: https://lore.kernel.org/all/20221110020319.1259291-1-zhengyejian1@huawei.com/
-
-Cc: stable@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Depends-on: e18eb8783ec49 ("tracing: Add tracing_reset_all_online_cpus_unlocked() function")
-Depends-on: 5448d44c38557 ("tracing: Add unified dynamic event framework")
-Depends-on: 6212dd29683ee ("tracing/kprobes: Use dyn_event framework for kprobe events")
-Depends-on: 065e63f951432 ("tracing: Only have rmmod clear buffers that its events were active in")
-Depends-on: 575380da8b469 ("tracing: Only clear trace buffer on module unload if event was traced")
-Fixes: 77b44d1b7c283 ("tracing/kprobes: Rename Kprobe-tracer to kprobe-event")
-Reported-by: Zheng Yejian <zhengyejian1@huawei.com>
-Reported-by: Yujie Liu <yujie.liu@intel.com>
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-
-diff --git a/kernel/trace/trace_dynevent.c b/kernel/trace/trace_dynevent.c
-index 154996684fb5..4376887e0d8a 100644
---- a/kernel/trace/trace_dynevent.c
-+++ b/kernel/trace/trace_dynevent.c
-@@ -118,6 +118,7 @@ int dyn_event_release(const char *raw_command, struct dyn_event_operations *type
- 		if (ret)
- 			break;
- 	}
-+	tracing_reset_all_online_cpus();
- 	mutex_unlock(&event_mutex);
- out:
- 	argv_free(argv);
-@@ -214,6 +215,7 @@ int dyn_events_release_all(struct dyn_event_operations *type)
- 			break;
- 	}
- out:
-+	tracing_reset_all_online_cpus();
- 	mutex_unlock(&event_mutex);
- 
- 	return ret;
-diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
-index 78cd19e31dba..f71ea6e79b3c 100644
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -2880,7 +2880,10 @@ static int probe_remove_event_call(struct trace_event_call *call)
- 		 * TRACE_REG_UNREGISTER.
- 		 */
- 		if (file->flags & EVENT_FILE_FL_ENABLED)
--			return -EBUSY;
-+			goto busy;
-+
-+		if (file->flags & EVENT_FILE_FL_WAS_ENABLED)
-+			tr->clear_trace = true;
- 		/*
- 		 * The do_for_each_event_file_safe() is
- 		 * a double loop. After finding the call for this
-@@ -2893,6 +2896,12 @@ static int probe_remove_event_call(struct trace_event_call *call)
- 	__trace_remove_event_call(call);
- 
- 	return 0;
-+ busy:
-+	/* No need to clear the trace now */
-+	list_for_each_entry(tr, &ftrace_trace_arrays, list) {
-+		tr->clear_trace = false;
-+	}
-+	return -EBUSY;
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index a8d5ef2a77d2..0a11e132ad6b 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1379,16 +1379,37 @@ static int set_huge_pmd(struct vm_area_struct *vma, unsigned long addr,
+ 	return SCAN_SUCCEED;
  }
  
- /* Remove an event_call */
++/*
++ * A note about locking:
++ * Trying to take the page table spinlocks would be useless here because those
++ * are only used to synchronize:
++ *
++ *  - modifying terminal entries (ones that point to a data page, not to another
++ *    page table)
++ *  - installing *new* non-terminal entries
++ *
++ * Instead, we need roughly the same kind of protection as free_pgtables() or
++ * mm_take_all_locks() (but only for a single VMA):
++ * The mmap lock together with this VMA's rmap locks covers all paths towards
++ * the page table entries we're messing with here, except for hardware page
++ * table walks and lockless_pages_from_mm().
++ */
+ static void collapse_and_free_pmd(struct mm_struct *mm, struct vm_area_struct *vma,
+ 				  unsigned long addr, pmd_t *pmdp)
+ {
+-	spinlock_t *ptl;
+ 	pmd_t pmd;
+ 
+ 	mmap_assert_write_locked(mm);
+-	ptl = pmd_lock(vma->vm_mm, pmdp);
++	if (vma->vm_file)
++		lockdep_assert_held_write(&vma->vm_file->f_mapping->i_mmap_rwsem);
++	/*
++	 * All anon_vmas attached to the VMA have the same root and are
++	 * therefore locked by the same lock.
++	 */
++	if (vma->anon_vma)
++		lockdep_assert_held_write(&vma->anon_vma->root->rwsem);
++
+ 	pmd = pmdp_collapse_flush(vma, addr, pmdp);
+-	spin_unlock(ptl);
+ 	mm_dec_nr_ptes(mm);
+ 	page_table_check_pte_clear_range(mm, addr, pmd);
+ 	pte_free(mm, pmd_pgtable(pmd));
+@@ -1439,6 +1460,14 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+ 	if (!hugepage_vma_check(vma, vma->vm_flags, false, false, false))
+ 		return SCAN_VMA_CHECK;
+ 
++	/*
++	 * Symmetry with retract_page_tables(): Exclude MAP_PRIVATE mappings
++	 * that got written to. Without this, we'd have to also lock the
++	 * anon_vma if one exists.
++	 */
++	if (vma->anon_vma)
++		return SCAN_VMA_CHECK;
++
+ 	/* Keep pmd pgtable for uffd-wp; see comment in retract_page_tables() */
+ 	if (userfaultfd_wp(vma))
+ 		return SCAN_PTE_UFFD_WP;
+@@ -1472,6 +1501,20 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+ 		goto drop_hpage;
+ 	}
+ 
++	/*
++	 * We need to lock the mapping so that from here on, only GUP-fast and
++	 * hardware page walks can access the parts of the page tables that
++	 * we're operating on.
++	 * See collapse_and_free_pmd().
++	 */
++	i_mmap_lock_write(vma->vm_file->f_mapping);
++
++	/*
++	 * This spinlock should be unnecessary: Nobody else should be accessing
++	 * the page tables under spinlock protection here, only
++	 * lockless_pages_from_mm() and the hardware page walker can access page
++	 * tables while all the high-level locks are held in write mode.
++	 */
+ 	start_pte = pte_offset_map_lock(mm, pmd, haddr, &ptl);
+ 	result = SCAN_FAIL;
+ 
+@@ -1526,6 +1569,8 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+ 	/* step 4: remove pte entries */
+ 	collapse_and_free_pmd(mm, vma, haddr, pmd);
+ 
++	i_mmap_unlock_write(vma->vm_file->f_mapping);
++
+ maybe_install_pmd:
+ 	/* step 5: install pmd entry */
+ 	result = install_pmd
+@@ -1539,6 +1584,7 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+ 
+ abort:
+ 	pte_unmap_unlock(start_pte, ptl);
++	i_mmap_unlock_write(vma->vm_file->f_mapping);
+ 	goto drop_hpage;
+ }
+ 
+@@ -1595,7 +1641,8 @@ static int retract_page_tables(struct address_space *mapping, pgoff_t pgoff,
+ 		 * An alternative would be drop the check, but check that page
+ 		 * table is clear before calling pmdp_collapse_flush() under
+ 		 * ptl. It has higher chance to recover THP for the VMA, but
+-		 * has higher cost too.
++		 * has higher cost too. It would also probably require locking
++		 * the anon_vma.
+ 		 */
+ 		if (vma->anon_vma) {
+ 			result = SCAN_PAGE_ANON;
 
