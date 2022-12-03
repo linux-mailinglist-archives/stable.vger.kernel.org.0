@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF3CF641982
-	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 23:36:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29B0F641984
+	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 23:37:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229726AbiLCWgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Dec 2022 17:36:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47644 "EHLO
+        id S229542AbiLCWhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Dec 2022 17:37:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229758AbiLCWgQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 17:36:16 -0500
-Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDA7E1C900;
-        Sat,  3 Dec 2022 14:36:15 -0800 (PST)
-Received: from localhost.localdomain (unknown [46.242.14.200])
-        by mail.ispras.ru (Postfix) with ESMTPSA id 3E811419E9D7;
-        Sat,  3 Dec 2022 22:36:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.ispras.ru 3E811419E9D7
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ispras.ru;
-        s=default; t=1670106974;
-        bh=iGsZYF50oJkEiDocUts/Xj2Xr2RqP3yzlAgG1a+U8Gw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OfkkZ3/V761E3nha5eBtbjiMRqUh9uyz5jqnNxsYaDwDB5eQ0GXLMTBbRiS10gR5j
-         GuR3+1QDCYZy9j9uCie+GVWy5K+8u31rfmYNNJIxg9bXkiIigCCIGlvNaWHG8ZOGct
-         It6SlThcbxhTrhITC/abnJ+OwRig6In+uRcmNrsA=
-From:   Fedor Pchelkin <pchelkin@ispras.ru>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     Fedor Pchelkin <pchelkin@ispras.ru>, linux-kernel@vger.kernel.org,
-        Daniel Starke <daniel.starke@siemens.com>,
-        jirislaby@kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        lvc-project@linuxtesting.org, Pavel Machek <pavel@denx.de>
-Subject: [PATCH 5.19 2/2] Revert "tty: n_gsm: replace kicktimer with delayed_work"
-Date:   Sun,  4 Dec 2022 01:35:26 +0300
-Message-Id: <20221203223526.11185-3-pchelkin@ispras.ru>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221203223526.11185-1-pchelkin@ispras.ru>
-References: <20221203223526.11185-1-pchelkin@ispras.ru>
+        with ESMTP id S229481AbiLCWhB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 17:37:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 293691A227
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 14:37:00 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAC69B80189
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 22:36:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCE6DC433C1;
+        Sat,  3 Dec 2022 22:36:56 +0000 (UTC)
+Date:   Sat, 3 Dec 2022 17:36:55 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     <gregkh@linuxfoundation.org>
+Cc:     akpm@linux-foundation.org, mhiramat@kernel.org,
+        yujie.liu@intel.com, zhengyejian1@huawei.com,
+        <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] tracing: Free buffers when a used
+ dynamic event is removed" failed to apply to 4.19-stable tree
+Message-ID: <20221203173655.1b1b2fac@gandalf.local.home>
+In-Reply-To: <167006641591124@kroah.com>
+References: <167006641591124@kroah.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -49,86 +45,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+On Sat, 03 Dec 2022 12:20:15 +0100
+<gregkh@linuxfoundation.org> wrote:
 
-[ Upstream commit 15743ae50e04aa907131e3ae8d66e9a2964ea232 ]
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> Possible dependencies:
+> 
+> 4313e5a61304 ("tracing: Free buffers when a used dynamic event is removed")
 
-This reverts commit 2af54fe4f713d5f29e1520d7780112ff9b6121be.
+Hmm, isn't the above the patch that failed to apply?
 
-The above commit is reverted as it was a prerequisite for tx_mutex
-introduction and tx_mutex has been removed as it does not correctly
-work in order to protect tx data.
+> 5448d44c3855 ("tracing: Add unified dynamic event framework")
 
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Reviewed-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20221008110221.13645-3-pchelkin@ispras.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/n_gsm.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+And this is mentioned below.
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index e23225aff5d9..d6598ca3640f 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -256,7 +256,7 @@ struct gsm_mux {
- 	struct list_head tx_data_list;	/* Pending data packets */
- 
- 	/* Control messages */
--	struct delayed_work kick_timeout;	/* Kick TX queuing on timeout */
-+	struct timer_list kick_timer;	/* Kick TX queuing on timeout */
- 	struct timer_list t2_timer;	/* Retransmit timer for commands */
- 	int cretries;			/* Command retry counter */
- 	struct gsm_control *pending_cmd;/* Our current pending command */
-@@ -1009,7 +1009,7 @@ static void __gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
- 	gsm->tx_bytes += msg->len;
- 
- 	gsmld_write_trigger(gsm);
--	schedule_delayed_work(&gsm->kick_timeout, 10 * gsm->t1 * HZ / 100);
-+	mod_timer(&gsm->kick_timer, jiffies + 10 * gsm->t1 * HZ / 100);
- }
- 
- /**
-@@ -1984,16 +1984,16 @@ static void gsm_dlci_command(struct gsm_dlci *dlci, const u8 *data, int len)
- }
- 
- /**
-- *	gsm_kick_timeout	-	transmit if possible
-- *	@work: work contained in our gsm object
-+ *	gsm_kick_timer	-	transmit if possible
-+ *	@t: timer contained in our gsm object
-  *
-  *	Transmit data from DLCIs if the queue is empty. We can't rely on
-  *	a tty wakeup except when we filled the pipe so we need to fire off
-  *	new data ourselves in other cases.
-  */
--static void gsm_kick_timeout(struct work_struct *work)
-+static void gsm_kick_timer(struct timer_list *t)
- {
--	struct gsm_mux *gsm = container_of(work, struct gsm_mux, kick_timeout.work);
-+	struct gsm_mux *gsm = from_timer(gsm, t, kick_timer);
- 	unsigned long flags;
- 	int sent = 0;
- 
-@@ -2458,7 +2458,7 @@ static void gsm_cleanup_mux(struct gsm_mux *gsm, bool disc)
- 	}
- 
- 	/* Finish outstanding timers, making sure they are done */
--	cancel_delayed_work_sync(&gsm->kick_timeout);
-+	del_timer_sync(&gsm->kick_timer);
- 	del_timer_sync(&gsm->t2_timer);
- 
- 	/* Finish writing to ldisc */
-@@ -2605,7 +2605,7 @@ static struct gsm_mux *gsm_alloc_mux(void)
- 	kref_init(&gsm->ref);
- 	INIT_LIST_HEAD(&gsm->tx_ctrl_list);
- 	INIT_LIST_HEAD(&gsm->tx_data_list);
--	INIT_DELAYED_WORK(&gsm->kick_timeout, gsm_kick_timeout);
-+	timer_setup(&gsm->kick_timer, gsm_kick_timer, 0);
- 	timer_setup(&gsm->t2_timer, gsm_control_retransmit, 0);
- 	INIT_WORK(&gsm->tx_work, gsmld_write_task);
- 	init_waitqueue_head(&gsm->event);
--- 
-2.38.1
+[..]
+
+> If any dynamic event that is being removed was enabled, then make sure the
+> buffers they were enabled in are now cleared.
+> 
+> Link: https://lkml.kernel.org/r/20221123171434.545706e3@gandalf.local.home
+> Link: https://lore.kernel.org/all/20221110020319.1259291-1-zhengyejian1@huawei.com/
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Depends-on: e18eb8783ec49 ("tracing: Add tracing_reset_all_online_cpus_unlocked() function")
+
+> Depends-on: 5448d44c38557 ("tracing: Add unified dynamic event framework")
+
+^^^
+
+-- Steve
+
+> Depends-on: 6212dd29683ee ("tracing/kprobes: Use dyn_event framework for kprobe events")
+> Depends-on: 065e63f951432 ("tracing: Only have rmmod clear buffers that its events were active in")
+> Depends-on: 575380da8b469 ("tracing: Only clear trace buffer on module unload if event was traced")
+> Fixes: 77b44d1b7c283 ("tracing/kprobes: Rename Kprobe-tracer to kprobe-event")
+> Reported-by: Zheng Yejian <zhengyejian1@huawei.com>
+> Reported-by: Yujie Liu <yujie.liu@intel.com>
+> Reported-by: kernel test robot <yujie.liu@intel.com>
+> Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+> 
+> diff --git a/kernel/trace/trace_dynevent.c b/kernel/trace/trace_dynevent.c
+> index 154996684fb5..4376887e0d8a 100644
+> --- a/kernel/trace/trace_dynevent.c
+> +++ b/kernel/trace/trace_dynevent.c
+> @@ -118,6 +118,7 @@ int dyn_event_release(const char *raw_command, struct dyn_event_operations *type
+>  		if (ret)
+>  			break;
+>  	}
+> +	tracing_reset_all_online_cpus();
+>  	mutex_unlock(&event_mutex);
+>  out:
+>  	argv_free(argv);
+> @@ -214,6 +215,7 @@ int dyn_events_release_all(struct dyn_event_operations *type)
+>  			break;
+>  	}
+>  out:
+> +	tracing_reset_all_online_cpus();
+>  	mutex_unlock(&event_mutex);
+>  
+>  	return ret;
+> diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
+> index 78cd19e31dba..f71ea6e79b3c 100644
+> --- a/kernel/trace/trace_events.c
+> +++ b/kernel/trace/trace_events.c
+> @@ -2880,7 +2880,10 @@ static int probe_remove_event_call(struct trace_event_call *call)
+>  		 * TRACE_REG_UNREGISTER.
+>  		 */
+>  		if (file->flags & EVENT_FILE_FL_ENABLED)
+> -			return -EBUSY;
+> +			goto busy;
+> +
+> +		if (file->flags & EVENT_FILE_FL_WAS_ENABLED)
+> +			tr->clear_trace = true;
+>  		/*
+>  		 * The do_for_each_event_file_safe() is
+>  		 * a double loop. After finding the call for this
+> @@ -2893,6 +2896,12 @@ static int probe_remove_event_call(struct trace_event_call *call)
+>  	__trace_remove_event_call(call);
+>  
+>  	return 0;
+> + busy:
+> +	/* No need to clear the trace now */
+> +	list_for_each_entry(tr, &ftrace_trace_arrays, list) {
+> +		tr->clear_trace = false;
+> +	}
+> +	return -EBUSY;
+>  }
+>  
+>  /* Remove an event_call */
 
