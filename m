@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B321641659
-	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 12:22:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A77B64165A
+	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 12:22:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229548AbiLCLWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Dec 2022 06:22:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52320 "EHLO
+        id S229621AbiLCLWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Dec 2022 06:22:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229557AbiLCLWC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 06:22:02 -0500
+        with ESMTP id S229557AbiLCLWG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 06:22:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC3E76205A
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 03:22:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A037B65E53
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 03:22:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83071B80D3B
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 11:21:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1E24C433D6;
-        Sat,  3 Dec 2022 11:21:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56FF3B811C1
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 11:22:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB970C433D6;
+        Sat,  3 Dec 2022 11:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670066518;
-        bh=efiwU+sGdWiln1vvkcq/vOpDjOR5054+AyzTWDF77Kc=;
+        s=korg; t=1670066522;
+        bh=ZCCqQ05IGGlxHHOtXfLD+Pd4ocwy7LMPWJPh3KNkbuY=;
         h=Subject:To:Cc:From:Date:From;
-        b=lvQK2a9vCHCGHdA2RsHA/Cvd6GHUYPgIvB36FGs6JJA/+aHO6D+sTXrDeDkV+XAaF
-         bVDE/RjW40eIs6+Ur6ODrpA/SfH8NbMEEEAfNaoI58fmQpmtIdQXsYLhKMEUZ7hIIa
-         ipxH6ItLafPbUXb1KSkECx1S15WYP+It89jNtCyM=
-Subject: FAILED: patch "[PATCH] mm/khugepaged: take the right locks for page table retraction" failed to apply to 6.0-stable tree
+        b=WTH1t2UTcQ0aBRzLEi2jrbmQsuCHcrYH0mYY+MNRQqraqu3h1VvKzRFJb41s3bEdM
+         b6FkMPBYcn3G8Ph+lmNIiGaejCgPV2LZhsKQf9cG0avIZ8SMggGISGS8epnQ5RBkN2
+         vyrFKbpn+nFUwNvbkPGy7r2kmOIp0CA7n6JLde50=
+Subject: FAILED: patch "[PATCH] mm/khugepaged: take the right locks for page table retraction" failed to apply to 5.15-stable tree
 To:     jannh@google.com, akpm@linux-foundation.org, david@redhat.com,
         jhubbard@nvidia.com, peterx@redhat.com, shy828301@gmail.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 03 Dec 2022 12:21:55 +0100
-Message-ID: <16700665151890@kroah.com>
+Date:   Sat, 03 Dec 2022 12:21:56 +0100
+Message-ID: <1670066516200106@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,6 +70,12 @@ a7f4e6e4c47c ("mm/thp: add flag to enforce sysfs THP in hugepage_vma_check()")
 9710a78ab2ae ("mm/khugepaged: dedup and simplify hugepage alloc and charging")
 34d6b470ab9c ("mm/khugepaged: add struct collapse_control")
 c6a7f445a272 ("mm: khugepaged: don't carry huge page to the next loop for !CONFIG_NUMA")
+1064026bab9f ("mm: khugepaged: reorg some khugepaged helpers")
+7da4e2cb8b1f ("mm: thp: kill __transhuge_page_enabled()")
+9fec51689ff6 ("mm: thp: kill transparent_hugepage_active()")
+f707fa493784 ("mm: khugepaged: better comments for anon vma check in hugepage_vma_revalidate")
+4fa6893faeaa ("mm: thp: consolidate vma size check to transhuge_vma_suitable")
+66137fb34a4b ("mm: khugepaged: check THP flag in hugepage_vma_check()")
 
 thanks,
 
