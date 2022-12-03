@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98D1464163D
-	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 11:59:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BB7964163E
+	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 11:59:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229540AbiLCK7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Dec 2022 05:59:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35774 "EHLO
+        id S229619AbiLCK7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Dec 2022 05:59:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229615AbiLCK7m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 05:59:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA4251CB28
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 02:59:40 -0800 (PST)
+        with ESMTP id S229626AbiLCK7o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 05:59:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D831C927
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 02:59:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7573A60BAD
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 10:59:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6541BC433C1;
-        Sat,  3 Dec 2022 10:59:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 41C4660B95
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 10:59:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56598C433C1;
+        Sat,  3 Dec 2022 10:59:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670065179;
-        bh=NL3ytCFhTtF1PzpJ0HVJFWk7U/vxR7q9l7xt92sc/PM=;
+        s=korg; t=1670065182;
+        bh=Be0h1mtfBHujr8H2LT1y9EoXJcXLTEB/g5a+EVwpg4E=;
         h=Subject:To:Cc:From:Date:From;
-        b=169KP4t9WmproTmqQYMRFeLG2h+azdjD0M2uyYH0TVS8rC4UGFmPzSOu/4l2ArTT7
-         sbK3X916Y7A8K4x0tXe7Yuc5yrZiUCHwb3BZGReQQG8G6wBDEgC5O6clSO6TdV6siY
-         /VQhRjFRK7HzRJwa/SEGeVJJRVFSteBN98hSBqC0=
-Subject: FAILED: patch "[PATCH] Kconfig.debug: provide a little extra FRAME_WARN leeway when" failed to apply to 5.4-stable tree
+        b=khebtdc0ernbKzoEabVTWRQfaBvPNej4IrDTEcHTfab/xkVZ1kOnvdqhlZzCoYpCg
+         qX4Zlk/vma0rEKSm/h1466fzSlFEvi2AXOO6E7k4erqYbisV1KdIOzEj6LsaLytmjo
+         lxYFJpcBjGZ08ywr0nUEaXWKuTdZZKCd739CJXl8=
+Subject: FAILED: patch "[PATCH] Kconfig.debug: provide a little extra FRAME_WARN leeway when" failed to apply to 4.19-stable tree
 To:     lee@kernel.org, Rodrigo.Siqueira@amd.com, Xinhui.Pan@amd.com,
         airlied@gmail.com, akpm@linux-foundation.org,
         alexander.deucher@amd.com, arnd@arndb.de, christian.koenig@amd.com,
@@ -38,8 +38,8 @@ To:     lee@kernel.org, Rodrigo.Siqueira@amd.com, Xinhui.Pan@amd.com,
         sunpeng.li@amd.com, trix@redhat.com, tzimmermann@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 03 Dec 2022 11:59:33 +0100
-Message-ID: <167006517322713@kroah.com>
+Date:   Sat, 03 Dec 2022 11:59:34 +0100
+Message-ID: <1670065174215237@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,7 +53,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
