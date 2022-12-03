@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCCE9641637
-	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 11:59:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9829A641639
+	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 11:59:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229786AbiLCK7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Dec 2022 05:59:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35430 "EHLO
+        id S229791AbiLCK7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Dec 2022 05:59:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229784AbiLCK6y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 05:58:54 -0500
+        with ESMTP id S229822AbiLCK65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 05:58:57 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31A9B60B78
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 02:58:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B57605A6E6
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 02:58:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97C5F60B9D
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 10:58:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAD35C433D6;
-        Sat,  3 Dec 2022 10:58:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AF8960BA0
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 10:58:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53F5CC433D6;
+        Sat,  3 Dec 2022 10:58:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670065128;
-        bh=1+//bYe8VgDH2luVwmWEdaQxmHtwI0cEP1aKw40AgPY=;
+        s=korg; t=1670065130;
+        bh=V6NWFVT/5mfvE8U0IPBUjjfwgWMr2wKsoxO+FjPxszY=;
         h=Subject:To:Cc:From:Date:From;
-        b=Kip5QdxRoVu/NDWarj4GcoVRujo9nBKjw2Vj4tJTB54mVd71wc0wcC3gABgK5shyt
-         QTinKNozTdXyj9QajlEaJTXXrMEsT+O2ULTSLjTAERK/FO+WMJTxo8vcdWFLZOJMPu
-         w+PxlLWj1eQZrGu/Yq1lJSRFjRfYB3Ja9z5HtEvE=
-Subject: FAILED: patch "[PATCH] mmc: sdhci: Fix voltage switch delay" failed to apply to 4.14-stable tree
+        b=YIJKmpwzTbrbvI5AtSj0cXc3Bfh3/8qliaaSox23xQE8/bevzk3q3oaNtvIXxj5jQ
+         dYpsSjqEGsUso6uGCWTDIKMBJU94hc2BPqvd5xgi0FnwKMq2E2PnbFf+6Fsx/XBISW
+         Fa5nNyiyDLY+xtSduvhAwScxd8oD03LaIktZlV/g=
+Subject: FAILED: patch "[PATCH] mmc: sdhci: Fix voltage switch delay" failed to apply to 4.9-stable tree
 To:     adrian.hunter@intel.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 03 Dec 2022 11:58:41 +0100
-Message-ID: <167006512126160@kroah.com>
+Date:   Sat, 03 Dec 2022 11:58:42 +0100
+Message-ID: <16700651226848@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,6 +56,24 @@ Possible dependencies:
 
 c981cdfb9925 ("mmc: sdhci: Fix voltage switch delay")
 fa0910107a9f ("mmc: sdhci: use FIELD_GET for preset value bit masks")
+6a6d4ceb7be0 ("mmc: sdhci: Export sdhci_set_ios() from sdhci.c")
+d1e4f74f911d ("mmc: sdhci: Do not use spin lock in set_ios paths")
+5a436cc0af62 ("mmc: sdhci: Optimize delay loops")
+e2ebfb2142ac ("mmc: sdhci: Do not disable interrupts while waiting for clock")
+2ce0c7b65505 ("mmc: sdhci-of-at91: Support external regulators")
+db9bd1638115 ("mmc: sdhci-msm: Factor out sdhci_msm_hs400")
+0fb8a3d46b03 ("mmc: sdhci-msm: Factor out function to set/get msm clock rate")
+b54aaa8a4fd8 ("mmc: sdhci-msm: Factor out sdhci_msm_hc_select_mode")
+84ec048ba133 ("mmc: sdhci: Fix to handle MMC_POWER_UNDEFINED")
+85a882c2e91d ("mmc: sdhci: export sdhci_execute_tuning()")
+6b11e70bb72c ("mmc: sdhci: Tidy tuning loop")
+da4bc4f2851e ("mmc: sdhci: Factor out tuning helper functions")
+d0c3ab59105d ("mmc: sdhci: Use mmc_abort_tuning()")
+0760c355525c ("mmc: sdhci: Always allow tuning to fall back to fixed sampling")
+5ef5203b95c5 ("mmc: sdhci: Fix tuning reset after exhausting the maximum number of loops")
+61e53bd0047d ("mmc: sdhci: Fix recovery from tuning timeout")
+2ca71c27eeae ("Revert "mmc: sdhci: Reset cmd and data circuits after tuning failure"")
+02e4293dc013 ("sdhci: sdhci-msm: update dll configuration")
 
 thanks,
 
