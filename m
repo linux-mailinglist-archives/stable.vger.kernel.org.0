@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CF6B64162E
-	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 11:58:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE65464162F
+	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 11:58:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229751AbiLCK6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229670AbiLCK6O (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 3 Dec 2022 05:58:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33568 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229670AbiLCK6N (ORCPT
+        with ESMTP id S229750AbiLCK6N (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 05:58:13 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A4A93FBAE
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4059745082
         for <stable@vger.kernel.org>; Sat,  3 Dec 2022 02:58:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4BB31CE0622
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 10:58:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 256CFC433C1;
-        Sat,  3 Dec 2022 10:58:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFDC160B5B
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 10:58:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCF8FC433D6;
+        Sat,  3 Dec 2022 10:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670065088;
-        bh=FXOJBqshFjCT7Fe4SE3fXX4QOH15VDVF9IkMEF2c0RU=;
+        s=korg; t=1670065091;
+        bh=hqZEgSZFwhiy5T1ODgSt9ExpXty+uCOaZXdk/hgbBdM=;
         h=Subject:To:Cc:From:Date:From;
-        b=NoaGYsaixKZnkq/gRsdDr/PPUJVZpZyCTMQSvdmbYCOHA8z4FI+iOPW/fUEGhqGLn
-         xvvPy16OVX0wHiAeT4RdMzFeQZxX5xzvvNAafVT5QC9LZ5wyidjbsTol35UKswo2lO
-         C44WlBlFI6eq8aGFGdI5uLfeKdECC9KOLLAQhiIo=
-Subject: FAILED: patch "[PATCH] mmc: core: Fix ambiguous TRIM and DISCARD arg" failed to apply to 4.14-stable tree
+        b=xv2RcpIBcdtiTvGF/Ymyfhn0KH8Yo7XKkPRY6GnjgAlpdVFJChl8xgfufbU3h+oHq
+         44JPxy3nKgPxVihypY+YFk8vRIG7xmTzH6y2I2OuXNFQj4Ai6eykij7O2u4DsAadA8
+         FHZCazvxJaaLrMb2i8sJwxllh8UjCO/l0ndccdFo=
+Subject: FAILED: patch "[PATCH] mmc: core: Fix ambiguous TRIM and DISCARD arg" failed to apply to 4.9-stable tree
 To:     CLoehle@hyperstone.com, adrian.hunter@intel.com,
         cloehle@hyperstone.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 03 Dec 2022 11:57:57 +0100
-Message-ID: <1670065077151181@kroah.com>
+Date:   Sat, 03 Dec 2022 11:57:58 +0100
+Message-ID: <167006507818032@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,22 @@ Possible dependencies:
 489d144563f2 ("mmc: core: Fix ambiguous TRIM and DISCARD arg")
 bc47e2f6f9e2 ("mmc: core: Add discard support to sd")
 01904ff77676 ("mmc: core: Calculate the discard arg only once")
+06c9ccb78e68 ("mmc: core: add proper be32 annotation")
+c0a3e080f929 ("mmc: core: Move erase/trim/discard defines from public core.h to mmc.h")
+55244c5659b5 ("mmc: core: Move public functions from core.h to private headers")
+066185d69063 ("mmc: core: First step in cleaning up private mmc header files")
+164b50b35390 ("mmc: block: Replace "goto retry" by a proper do / while loop")
+e85baa8868b0 ("mmc: sd: Meet alignment requirements for raw_ssr DMA")
+f397c8d80a5e ("mmc: block: Move files to core")
+e711f0309109 ("mmc: mmc: Introduce mmc_abort_tuning()")
+aa33ce3c411a ("mmc: core: Enable __mmc_switch() to change bus speed timing for the host")
+625228fa3e01 ("mmc: core: Rename ignore_crc to retry_crc_err to reflect its purpose")
+437590a123b6 ("mmc: core: Retry instead of ignore at CRC errors when polling for busy")
+8e8b3f514c12 ("mmc: core: use enum mmc_blk_status properly")
+70562644f4ee ("mmc: core: Don't use ->card_busy() and CMD13 in combination when polling")
+716bdb8953c7 ("mmc: core: Factor out code related to polling in __mmc_switch()")
+cb26ce069ffa ("mmc: core: Clarify code which deals with polling in __mmc_switch()")
+20348d1981da ("mmc: core: Make mmc_switch_status() available for mmc core")
 
 thanks,
 
