@@ -2,142 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AA80641F30
-	for <lists+stable@lfdr.de>; Sun,  4 Dec 2022 20:14:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E01F7641F99
+	for <lists+stable@lfdr.de>; Sun,  4 Dec 2022 21:45:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230371AbiLDTOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Dec 2022 14:14:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36668 "EHLO
+        id S230151AbiLDUpi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Dec 2022 15:45:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230297AbiLDTOn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Dec 2022 14:14:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D571DDB;
-        Sun,  4 Dec 2022 11:14:42 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229949AbiLDUph (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Dec 2022 15:45:37 -0500
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D55B11C23;
+        Sun,  4 Dec 2022 12:45:35 -0800 (PST)
+Received: from [192.168.2.103] (109-252-124-61.nat.spd-mgts.ru [109.252.124.61])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FF1E60EE2;
-        Sun,  4 Dec 2022 19:14:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95BD1C433D6;
-        Sun,  4 Dec 2022 19:14:38 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="AVlqJxBZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1670181276;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=c8/OiJnXeAAW5RqxKEnU+8MYk+oKnoN126NTwylqEOY=;
-        b=AVlqJxBZck/d09jS3B5UpI2Cmq3WNR3sPRLYsHKUEKEYsphHmwNUkWG+y4tFoly504I6E4
-        4CQErqsqR9TZgqsZ7TNB98QdAimM/SBYbGFGDCNyNHzS65w8vLT+DvPVuHPQ1LU7wyQYFO
-        sND2duUyxwu2yrP9aleXVOxflJRCwvs=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id a74ea920 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Sun, 4 Dec 2022 19:14:35 +0000 (UTC)
-Date:   Sun, 4 Dec 2022 20:14:31 +0100
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Jarkko Sakkinen <jarkko@kernel.org>
-Cc:     Vlastimil Babka <vbabka@suse.cz>,
-        Jan =?utf-8?B?RMSFYnJvxZs=?= <jsd@semihalf.com>,
-        linux-integrity@vger.kernel.org, peterhuewe@gmx.de, jgg@ziepe.ca,
-        gregkh@linuxfoundation.org, arnd@arndb.de, rrangel@chromium.org,
-        timvp@google.com, apronin@google.com, mw@semihalf.com,
-        upstream@semihalf.com, linux-kernel@vger.kernel.org,
-        linux-crypto@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v3] char: tpm: Protect tpm_pm_suspend with locks
-Message-ID: <Y4zxly0XABDg1OhU@zx2c4.com>
-References: <20221128195651.322822-1-Jason@zx2c4.com>
- <Y4zTnhgunXuwVXHe@kernel.org>
- <Y4zUotH0UeHlRBGP@kernel.org>
+        (Authenticated sender: dmitry.osipenko)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 5C5D6660035C;
+        Sun,  4 Dec 2022 20:45:32 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1670186733;
+        bh=UMQoP9W0p04vTQUQWO237zkx10mRI/dKkIw7Lig3+Kc=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=P78D5QejvBCnU95dIIBU2WXl6Y/iMoyzuJoF+NatKvsMyvwrDBD5o/N4WFQifIVaB
+         Jxb5iwKC7SUiUyWiaFzTbw04in4CDe/uC8+3un87bqKREnzMMsfm4Vgfp811B9Qr7s
+         EL/5hBesdvE0ONOBqssdnuJUc+U1fzPUjQ2NJBA43X5vD5zpqp6MTNq5qXTzuqefBH
+         lYBp9BZ5qUZhgaEb9K+TeRK8i8Ooano/6isOBSuC8dVv9VJQbfouTUIJ3Yiq3ZgYYE
+         NLuTSbzWwZIHU2mTJPcFMEsMG2t3vBXrK1KVkfeJPhqGyjC79HlE4qkLuPM94ZDicR
+         tDR7M5h7cTk+A==
+Message-ID: <3e9e157d-e740-ee5b-b8d3-07822b2c9a9b@collabora.com>
+Date:   Sun, 4 Dec 2022 23:45:26 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Y4zUotH0UeHlRBGP@kernel.org>
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Subject: Re: [PATCH v2 1/2] drm/shmem-helper: Remove errant put in error path
+Content-Language: en-US
+To:     Rob Clark <robdclark@gmail.com>, dri-devel@lists.freedesktop.org
+Cc:     Rob Clark <robdclark@chromium.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        open list <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Eric Anholt <eric@anholt.net>,
+        =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>,
+        syzbot+c8ae65286134dd1b800d@syzkaller.appspotmail.com
+References: <20221130185748.357410-1-robdclark@gmail.com>
+ <20221130185748.357410-2-robdclark@gmail.com>
+From:   Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20221130185748.357410-2-robdclark@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 04, 2022 at 05:10:58PM +0000, Jarkko Sakkinen wrote:
-> On Sun, Dec 04, 2022 at 05:06:41PM +0000, Jarkko Sakkinen wrote:
-> > On Mon, Nov 28, 2022 at 08:56:51PM +0100, Jason A. Donenfeld wrote:
-> > > From: Jan Dabros <jsd@semihalf.com>
-> > > 
-> > > Currently tpm transactions are executed unconditionally in
-> > > tpm_pm_suspend() function, which may lead to races with other tpm
-> > > accessors in the system. Specifically, the hw_random tpm driver makes
-> > > use of tpm_get_random(), and this function is called in a loop from a
-> > > kthread, which means it's not frozen alongside userspace, and so can
-> > > race with the work done during system suspend:
-> > > 
-> > > [    3.277834] tpm tpm0: tpm_transmit: tpm_recv: error -52
-> > > [    3.278437] tpm tpm0: invalid TPM_STS.x 0xff, dumping stack for forensics
-> > > [    3.278445] CPU: 0 PID: 1 Comm: init Not tainted 6.1.0-rc5+ #135
-> > > [    3.278450] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-20220807_005459-localhost 04/01/2014
-> > > [    3.278453] Call Trace:
-> > > [    3.278458]  <TASK>
-> > > [    3.278460]  dump_stack_lvl+0x34/0x44
-> > > [    3.278471]  tpm_tis_status.cold+0x19/0x20
-> > > [    3.278479]  tpm_transmit+0x13b/0x390
-> > > [    3.278489]  tpm_transmit_cmd+0x20/0x80
-> > > [    3.278496]  tpm1_pm_suspend+0xa6/0x110
-> > > [    3.278503]  tpm_pm_suspend+0x53/0x80
-> > > [    3.278510]  __pnp_bus_suspend+0x35/0xe0
-> > > [    3.278515]  ? pnp_bus_freeze+0x10/0x10
-> > > [    3.278519]  __device_suspend+0x10f/0x350
-> > > 
-> > > Fix this by calling tpm_try_get_ops(), which itself is a wrapper around
-> > > tpm_chip_start(), but takes the appropriate mutex.
-> > > 
-> > > Signed-off-by: Jan Dabros <jsd@semihalf.com>
-> > > Reported-by: Vlastimil Babka <vbabka@suse.cz>
-> > > Tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> > > Tested-by: Vlastimil Babka <vbabka@suse.cz>
-> > > Link: https://lore.kernel.org/all/c5ba47ef-393f-1fba-30bd-1230d1b4b592@suse.cz/
-> > > Cc: stable@vger.kernel.org
-> > > Fixes: e891db1a18bf ("tpm: turn on TPM on suspend for TPM 1.x")
-> > > [Jason: reworked commit message, added metadata]
-> > > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> > > ---
-> > >  drivers/char/tpm/tpm-interface.c | 5 +++--
-> > >  1 file changed, 3 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
-> > > index 1621ce818705..d69905233aff 100644
-> > > --- a/drivers/char/tpm/tpm-interface.c
-> > > +++ b/drivers/char/tpm/tpm-interface.c
-> > > @@ -401,13 +401,14 @@ int tpm_pm_suspend(struct device *dev)
-> > >  	    !pm_suspend_via_firmware())
-> > >  		goto suspended;
-> > >  
-> > > -	if (!tpm_chip_start(chip)) {
-> > > +	rc = tpm_try_get_ops(chip);
-> > > +	if (!rc) {
-> > >  		if (chip->flags & TPM_CHIP_FLAG_TPM2)
-> > >  			tpm2_shutdown(chip, TPM2_SU_STATE);
-> > >  		else
-> > >  			rc = tpm1_pm_suspend(chip, tpm_suspend_pcr);
-> > >  
-> > > -		tpm_chip_stop(chip);
-> > > +		tpm_put_ops(chip);
-> > >  	}
-> > >  
-> > >  suspended:
-> > > -- 
-> > > 2.38.1
-> > > 
-> > 
-> > Hi, sorry for the latency.
-> > 
-> > Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+On 11/30/22 21:57, Rob Clark wrote:
+> From: Rob Clark <robdclark@chromium.org>
 > 
-> Applied to  git://git.kernel.org/pub/scm/linux/kernel/git/jarkko/linux-tpmdd.git
+> drm_gem_shmem_mmap() doesn't own this reference, resulting in the GEM
+> object getting prematurely freed leading to a later use-after-free.
+> 
+> Link: https://syzkaller.appspot.com/bug?extid=c8ae65286134dd1b800d
+> Reported-by: syzbot+c8ae65286134dd1b800d@syzkaller.appspotmail.com
+> Fixes: 2194a63a818d ("drm: Add library for shmem backed GEM objects")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Rob Clark <robdclark@chromium.org>
+> Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> ---
+>  drivers/gpu/drm/drm_gem_shmem_helper.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> index 35138f8a375c..3b7b71391a4c 100644
+> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> @@ -622,10 +622,8 @@ int drm_gem_shmem_mmap(struct drm_gem_shmem_object *shmem, struct vm_area_struct
+>  	}
+>  
+>  	ret = drm_gem_shmem_get_pages(shmem);
+> -	if (ret) {
+> -		drm_gem_vm_close(vma);
+> +	if (ret)
+>  		return ret;
+> -	}
+>  
+>  	vma->vm_flags |= VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP;
+>  	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
 
-Oh thank goodness. You'll send this in for rc8 today?
+AFAICS, the dmabuf mmaping code path needs a similar fix, isn't it?
 
-Jason
+-		/* Drop the reference drm_gem_mmap_obj() acquired.*/
+-		drm_gem_object_put(obj);
+		vma->vm_private_data = NULL;
+
+-		return dma_buf_mmap(obj->dma_buf, vma, 0);
++		ret = dma_buf_mmap(obj->dma_buf, vma, 0);
++
++		/* Drop the reference drm_gem_mmap_obj() acquired.*/
++		if (!ret)
++			drm_gem_object_put(obj);
++
++		return ret;
+
+
+-- 
+Best regards,
+Dmitry
+
