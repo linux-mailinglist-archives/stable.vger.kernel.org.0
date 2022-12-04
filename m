@@ -2,142 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29B0F641984
-	for <lists+stable@lfdr.de>; Sat,  3 Dec 2022 23:37:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6BAA641A50
+	for <lists+stable@lfdr.de>; Sun,  4 Dec 2022 03:09:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229542AbiLCWhC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Dec 2022 17:37:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48356 "EHLO
+        id S229516AbiLDCI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Dec 2022 21:08:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229481AbiLCWhB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 17:37:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 293691A227
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 14:37:00 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAC69B80189
-        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 22:36:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCE6DC433C1;
-        Sat,  3 Dec 2022 22:36:56 +0000 (UTC)
-Date:   Sat, 3 Dec 2022 17:36:55 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     <gregkh@linuxfoundation.org>
-Cc:     akpm@linux-foundation.org, mhiramat@kernel.org,
-        yujie.liu@intel.com, zhengyejian1@huawei.com,
-        <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] tracing: Free buffers when a used
- dynamic event is removed" failed to apply to 4.19-stable tree
-Message-ID: <20221203173655.1b1b2fac@gandalf.local.home>
-In-Reply-To: <167006641591124@kroah.com>
-References: <167006641591124@kroah.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        with ESMTP id S229472AbiLDCI7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Dec 2022 21:08:59 -0500
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543DE1A060
+        for <stable@vger.kernel.org>; Sat,  3 Dec 2022 18:08:58 -0800 (PST)
+Received: by mail-pl1-x644.google.com with SMTP id jl24so7900720plb.8
+        for <stable@vger.kernel.org>; Sat, 03 Dec 2022 18:08:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:sender:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=GgJHtMHpzXbj05C7ce7ovzjgU/ig9Bv71B/QfO8lIWY=;
+        b=jwOK/LYk4eJVkdq0YYacpR58W85nTdoqjFb4LXTilR8wGid7E1c6nWbziNbkAKwbdC
+         VZIHibTgqPxzxxM+AqquEvMwFXnI/hRG5J3zxdZ59suC4vkwDIfyjA+vDMPPxlDBJAk+
+         gRA94z0H8X6jrGpYAE0WLaM3Uv9EbMaokkCrrfelCobh2NrtHzBzWc3sZQYze53fEtsx
+         njKmj1NRmvypRFdLoO9duM3d3IyJYzsmNYF5J8fLuClBfJt8h1ZnwcfcL7EbHVIx5r8Y
+         huRg/gt6+aHvyiE7DtPMFD4NGgX7oSsgfT8w8fuSm10M+Fc4jEhjs83R5wJ1AC2wBsol
+         4mcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:subject:message-id:date:from:sender:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=GgJHtMHpzXbj05C7ce7ovzjgU/ig9Bv71B/QfO8lIWY=;
+        b=2fkGAzgjljNXxRCXPHayhLjyitm8y8flCn/735H/HkfZM+JLozVTCYUrSb0AX2/Jf8
+         GTKoI6QY0eKJr2xY+8ToHsdTA+98LDqunx0QhqDc64dt5Y6G1Vxya2a3hmj2qs8bChc9
+         JI41Fd5dbOcywZURpGonY26JpKwrA3OY6bIqPHt3OU/4Ry1APHqcskgfmKRkousCt4nl
+         o5ooygdjD9snklEf77AjK+XLvDFjqjERU2pS873U+26OuAMA08pROYwukx2G34Otds8O
+         a9gm7V3JSJhv0YR3DdsuJsnMqJdLqRwZXm+zlMBp0PYkExTt5Dav5fmDKdDmTLND6PxW
+         oSfQ==
+X-Gm-Message-State: ANoB5plKVGvVhmyXNJFFDvPk7B5Q0O4wMWLwFL89oQn+vjYnxWhaafNJ
+        QMrnjeJ1hPT/E6VBHRTnaYIwXOsLdb2Nlr9PRPg=
+X-Google-Smtp-Source: AA0mqf70MmLzPfD8EjnPvKW1ESxWOdinlWIJD+XOe0fYfTEEIzmdWo9z5WPD/TP2skjOUcjfdRjU4R7xaP7eUt3Kvmo=
+X-Received: by 2002:a17:90a:a595:b0:218:b050:d693 with SMTP id
+ b21-20020a17090aa59500b00218b050d693mr67501434pjq.130.1670119737713; Sat, 03
+ Dec 2022 18:08:57 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Sender: drkimyoon846@gmail.com
+Received: by 2002:a17:902:7d92:b0:187:2e72:35db with HTTP; Sat, 3 Dec 2022
+ 18:08:57 -0800 (PST)
+From:   "Mr. Danish Asad" <danishasad074@gmail.com>
+Date:   Sat, 3 Dec 2022 21:08:57 -0500
+X-Google-Sender-Auth: 4blH4kZj3Nokxpnpv0HjTvYI3Zc
+Message-ID: <CALhVJqpjG5rC20L84iD=A6qZX-h0R3oQ3TrU-NbZ3GZKKMqoAQ@mail.gmail.com>
+Subject: I await your matured response to my business proposal
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.8 required=5.0 tests=BAYES_60,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_FILL_THIS_FORM_SHORT,T_HK_NAME_FM_MR_MRS,UNDISC_MONEY autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 03 Dec 2022 12:20:15 +0100
-<gregkh@linuxfoundation.org> wrote:
+Greetings,
 
-> The patch below does not apply to the 4.19-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> Possible dependencies:
-> 
-> 4313e5a61304 ("tracing: Free buffers when a used dynamic event is removed")
+ I am Danish Asad a gold miner from Burkina Faso. I have a
+Mutual/Beneficial Business  that would be beneficial to both of us. I
+only have one question to ask of you,
 
-Hmm, isn't the above the patch that failed to apply?
+ Can you be honest?
 
-> 5448d44c3855 ("tracing: Add unified dynamic event framework")
+ Please note that the deal requires high level of maturity, honesty
+and secrecy. This will involve moving some bars of golds, lots of
+jewelries ranging from neck less to rings and bracelets under my care,
+on trust to your hand also note that i will do everything to make sure
+that the bars of golds and jewelries is moved as a purely legitimate,
+so you will not be exposed to any risk.
 
-And this is mentioned below.
+ I request for your full co-operation. I will give you details and
+procedure when I receive your reply, to commence this business, I
+require you to immediately indicate your interest by a return reply. I
+will be waiting for your response in a timely manner.
 
-[..]
+Please contact my private email address.
+danishasad074@gmail.com
 
-> If any dynamic event that is being removed was enabled, then make sure the
-> buffers they were enabled in are now cleared.
-> 
-> Link: https://lkml.kernel.org/r/20221123171434.545706e3@gandalf.local.home
-> Link: https://lore.kernel.org/all/20221110020319.1259291-1-zhengyejian1@huawei.com/
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Depends-on: e18eb8783ec49 ("tracing: Add tracing_reset_all_online_cpus_unlocked() function")
 
-> Depends-on: 5448d44c38557 ("tracing: Add unified dynamic event framework")
+ Yours sincerely,
+ Mr.Danish Asad
+danishasad074@gmail.com
++22667440112
 
-^^^
 
--- Steve
-
-> Depends-on: 6212dd29683ee ("tracing/kprobes: Use dyn_event framework for kprobe events")
-> Depends-on: 065e63f951432 ("tracing: Only have rmmod clear buffers that its events were active in")
-> Depends-on: 575380da8b469 ("tracing: Only clear trace buffer on module unload if event was traced")
-> Fixes: 77b44d1b7c283 ("tracing/kprobes: Rename Kprobe-tracer to kprobe-event")
-> Reported-by: Zheng Yejian <zhengyejian1@huawei.com>
-> Reported-by: Yujie Liu <yujie.liu@intel.com>
-> Reported-by: kernel test robot <yujie.liu@intel.com>
-> Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-> 
-> diff --git a/kernel/trace/trace_dynevent.c b/kernel/trace/trace_dynevent.c
-> index 154996684fb5..4376887e0d8a 100644
-> --- a/kernel/trace/trace_dynevent.c
-> +++ b/kernel/trace/trace_dynevent.c
-> @@ -118,6 +118,7 @@ int dyn_event_release(const char *raw_command, struct dyn_event_operations *type
->  		if (ret)
->  			break;
->  	}
-> +	tracing_reset_all_online_cpus();
->  	mutex_unlock(&event_mutex);
->  out:
->  	argv_free(argv);
-> @@ -214,6 +215,7 @@ int dyn_events_release_all(struct dyn_event_operations *type)
->  			break;
->  	}
->  out:
-> +	tracing_reset_all_online_cpus();
->  	mutex_unlock(&event_mutex);
->  
->  	return ret;
-> diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
-> index 78cd19e31dba..f71ea6e79b3c 100644
-> --- a/kernel/trace/trace_events.c
-> +++ b/kernel/trace/trace_events.c
-> @@ -2880,7 +2880,10 @@ static int probe_remove_event_call(struct trace_event_call *call)
->  		 * TRACE_REG_UNREGISTER.
->  		 */
->  		if (file->flags & EVENT_FILE_FL_ENABLED)
-> -			return -EBUSY;
-> +			goto busy;
-> +
-> +		if (file->flags & EVENT_FILE_FL_WAS_ENABLED)
-> +			tr->clear_trace = true;
->  		/*
->  		 * The do_for_each_event_file_safe() is
->  		 * a double loop. After finding the call for this
-> @@ -2893,6 +2896,12 @@ static int probe_remove_event_call(struct trace_event_call *call)
->  	__trace_remove_event_call(call);
->  
->  	return 0;
-> + busy:
-> +	/* No need to clear the trace now */
-> +	list_for_each_entry(tr, &ftrace_trace_arrays, list) {
-> +		tr->clear_trace = false;
-> +	}
-> +	return -EBUSY;
->  }
->  
->  /* Remove an event_call */
-
+ NOTE: Please treat it genuinely.
