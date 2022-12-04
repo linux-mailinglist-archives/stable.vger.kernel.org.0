@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FBF8641DEE
-	for <lists+stable@lfdr.de>; Sun,  4 Dec 2022 17:34:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E9C641E1F
+	for <lists+stable@lfdr.de>; Sun,  4 Dec 2022 18:06:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230050AbiLDQeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Dec 2022 11:34:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51654 "EHLO
+        id S230100AbiLDRGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Dec 2022 12:06:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230152AbiLDQeU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Dec 2022 11:34:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C5B85F65
-        for <stable@vger.kernel.org>; Sun,  4 Dec 2022 08:34:19 -0800 (PST)
+        with ESMTP id S230050AbiLDRGp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Dec 2022 12:06:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC6111151;
+        Sun,  4 Dec 2022 09:06:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9C9460EC6
-        for <stable@vger.kernel.org>; Sun,  4 Dec 2022 16:34:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A1DBC433D6;
-        Sun,  4 Dec 2022 16:34:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670171658;
-        bh=TLnTE+kPVXMoDkxyS27j3MgUfr4eKLKaj3jN/XjRVJM=;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF3DF60DEC;
+        Sun,  4 Dec 2022 17:06:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB367C433D6;
+        Sun,  4 Dec 2022 17:06:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1670173602;
+        bh=bb55Edv837nC63J0PV/JgYuCE6AufxiQG4K9NRFsA+Y=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mQZ8taOm1ZDMNheNWTKnBG55XdMU+Ge5cyC0N07LkbZmNp2mXJZHT9Ha1yqSszTOz
-         basEE8K0bEkfr0vWCmKln8HC+8MVMjanwScQ6k01xOm4+XBPB5YgXKkzOBKxJm+KAU
-         vViV4Rwhid92QSFwXbSbIz/q+XI3m6CVDN4GH1Lo=
-Date:   Sun, 4 Dec 2022 17:34:15 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     akpm@linux-foundation.org, mhiramat@kernel.org,
-        yujie.liu@intel.com, zhengyejian1@huawei.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] tracing: Free buffers when a used dynamic
- event is removed" failed to apply to 4.19-stable tree
-Message-ID: <Y4zMB/CCg63nyugh@kroah.com>
-References: <167006641591124@kroah.com>
- <20221203173655.1b1b2fac@gandalf.local.home>
- <Y4xYg2i7lS6z3eIe@kroah.com>
- <20221204111451.2741a499@gandalf.local.home>
+        b=DNo7L6AnsV6jZBMwApj0h59Z+wjj2vAcqhYM9YHRZzwjhaXeQY9+BT7QnzVRSN9sN
+         OTgdUhcMbJ7twwCHU4RkMODtlg7+tc81I7vaSDhwQoA2zHKgSKhh8j8oZd9Lc6+wMc
+         425eFqSQ3qVS6shQnJtfmoRu3hyLI/lAPyOH3iXmujWFDnE+L1gVzqwsJ2UMsL4t4t
+         RCJcu6oXxbxxuJyNhgs0k4zP2wJhRHvJwxYTMZO1m2NcFeR7Ry8WXukbNZ8uU2khp7
+         Zetkhv6vyr1nft7egry1tIn+VvLvdzc74xgYoZCx5o4KumyigFWay9QMf1BdQc2fVa
+         Y4xtuMOueCN3A==
+Date:   Sun, 4 Dec 2022 17:06:38 +0000
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     Vlastimil Babka <vbabka@suse.cz>,
+        Jan =?utf-8?B?RMSFYnJvxZs=?= <jsd@semihalf.com>,
+        linux-integrity@vger.kernel.org, peterhuewe@gmx.de, jgg@ziepe.ca,
+        gregkh@linuxfoundation.org, arnd@arndb.de, rrangel@chromium.org,
+        timvp@google.com, apronin@google.com, mw@semihalf.com,
+        upstream@semihalf.com, linux-kernel@vger.kernel.org,
+        linux-crypto@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v3] char: tpm: Protect tpm_pm_suspend with locks
+Message-ID: <Y4zTnhgunXuwVXHe@kernel.org>
+References: <20221128195651.322822-1-Jason@zx2c4.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221204111451.2741a499@gandalf.local.home>
+In-Reply-To: <20221128195651.322822-1-Jason@zx2c4.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -54,64 +57,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 04, 2022 at 11:14:51AM -0500, Steven Rostedt wrote:
-> On Sun, 4 Dec 2022 09:21:23 +0100
-> Greg KH <gregkh@linuxfoundation.org> wrote:
+On Mon, Nov 28, 2022 at 08:56:51PM +0100, Jason A. Donenfeld wrote:
+> From: Jan Dabros <jsd@semihalf.com>
 > 
-> > > > 5448d44c3855 ("tracing: Add unified dynamic event framework")  
-> > > 
-> > > And this is mentioned below.
-> > > 
-> > > [..]
-> > >   
-> > > > If any dynamic event that is being removed was enabled, then make sure the
-> > > > buffers they were enabled in are now cleared.
-> > > > 
-> > > > Link: https://lkml.kernel.org/r/20221123171434.545706e3@gandalf.local.home
-> > > > Link: https://lore.kernel.org/all/20221110020319.1259291-1-zhengyejian1@huawei.com/
-> > > > 
-> > > > Cc: stable@vger.kernel.org
-> > > > Cc: Andrew Morton <akpm@linux-foundation.org>
-> > > > Depends-on: e18eb8783ec49 ("tracing: Add tracing_reset_all_online_cpus_unlocked() function")  
-> > >   
-> > > > Depends-on: 5448d44c38557 ("tracing: Add unified dynamic event framework")  
-> > > 
-> > > ^^^  
-> > 
-> > Did you just make up a new field?  We have a documented way to show
-> > dependancies for stable patches, please let's not create a new one :(
+> Currently tpm transactions are executed unconditionally in
+> tpm_pm_suspend() function, which may lead to races with other tpm
+> accessors in the system. Specifically, the hw_random tpm driver makes
+> use of tpm_get_random(), and this function is called in a loop from a
+> kthread, which means it's not frozen alongside userspace, and so can
+> race with the work done during system suspend:
 > 
-> Ug, I've seen this tag used before: 
+> [    3.277834] tpm tpm0: tpm_transmit: tpm_recv: error -52
+> [    3.278437] tpm tpm0: invalid TPM_STS.x 0xff, dumping stack for forensics
+> [    3.278445] CPU: 0 PID: 1 Comm: init Not tainted 6.1.0-rc5+ #135
+> [    3.278450] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-20220807_005459-localhost 04/01/2014
+> [    3.278453] Call Trace:
+> [    3.278458]  <TASK>
+> [    3.278460]  dump_stack_lvl+0x34/0x44
+> [    3.278471]  tpm_tis_status.cold+0x19/0x20
+> [    3.278479]  tpm_transmit+0x13b/0x390
+> [    3.278489]  tpm_transmit_cmd+0x20/0x80
+> [    3.278496]  tpm1_pm_suspend+0xa6/0x110
+> [    3.278503]  tpm_pm_suspend+0x53/0x80
+> [    3.278510]  __pnp_bus_suspend+0x35/0xe0
+> [    3.278515]  ? pnp_bus_freeze+0x10/0x10
+> [    3.278519]  __device_suspend+0x10f/0x350
 > 
->  example:  e3f0c638f428fd66b5871154b62706772045f91a
+> Fix this by calling tpm_try_get_ops(), which itself is a wrapper around
+> tpm_chip_start(), but takes the appropriate mutex.
 > 
-> And just assumed that was the method. I guess I should have looked deeper.
+> Signed-off-by: Jan Dabros <jsd@semihalf.com>
+> Reported-by: Vlastimil Babka <vbabka@suse.cz>
+> Tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> Tested-by: Vlastimil Babka <vbabka@suse.cz>
+> Link: https://lore.kernel.org/all/c5ba47ef-393f-1fba-30bd-1230d1b4b592@suse.cz/
+> Cc: stable@vger.kernel.org
+> Fixes: e891db1a18bf ("tpm: turn on TPM on suspend for TPM 1.x")
+> [Jason: reworked commit message, added metadata]
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+>  drivers/char/tpm/tpm-interface.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 > 
-> > 
-> > > > Depends-on: 6212dd29683ee ("tracing/kprobes: Use dyn_event framework for kprobe events")
-> > > > Depends-on: 065e63f951432 ("tracing: Only have rmmod clear buffers that its events were active in")
-> > > > Depends-on: 575380da8b469 ("tracing: Only clear trace buffer on module unload if event was traced")
-> > > > Fixes: 77b44d1b7c283 ("tracing/kprobes: Rename Kprobe-tracer to kprobe-event")  
-> > 
-> > Adding the "unified framework" seems like way too much for a stable
-> > patch, are you sure all of these are required and should be applied to
-> > 4.19.y?
-> > 
+> diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
+> index 1621ce818705..d69905233aff 100644
+> --- a/drivers/char/tpm/tpm-interface.c
+> +++ b/drivers/char/tpm/tpm-interface.c
+> @@ -401,13 +401,14 @@ int tpm_pm_suspend(struct device *dev)
+>  	    !pm_suspend_via_firmware())
+>  		goto suspended;
+>  
+> -	if (!tpm_chip_start(chip)) {
+> +	rc = tpm_try_get_ops(chip);
+> +	if (!rc) {
+>  		if (chip->flags & TPM_CHIP_FLAG_TPM2)
+>  			tpm2_shutdown(chip, TPM2_SU_STATE);
+>  		else
+>  			rc = tpm1_pm_suspend(chip, tpm_suspend_pcr);
+>  
+> -		tpm_chip_stop(chip);
+> +		tpm_put_ops(chip);
+>  	}
+>  
+>  suspended:
+> -- 
+> 2.38.1
 > 
-> It's that balance between rewriting it to the bare minimum, which is not as
-> intrusive, but tested much less and may be even more buggy, to backporting
-> a larger change that has been verified by real world use cases.
-> 
-> Or we just do not backport it. The bug will still exist, but you really
-> have to work hard to hit it. And because it's only controlled by privileged
-> users, maybe it's OK to just ignore it. I think I've seen only one report
-> of this issue in the last 10 years.
-> 
-> Thoughts?
 
-Sasha backported this to 5.4 and newer without needing the full new
-feature to be added, so I think we are now ok.
+Hi, sorry for the latency.
 
-thanks,
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
 
-greg k-h
+BR, Jarkko
