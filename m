@@ -2,74 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C375641DC6
-	for <lists+stable@lfdr.de>; Sun,  4 Dec 2022 17:07:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD6D4641DD4
+	for <lists+stable@lfdr.de>; Sun,  4 Dec 2022 17:15:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229960AbiLDQHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Dec 2022 11:07:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36146 "EHLO
+        id S229753AbiLDQPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Dec 2022 11:15:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229811AbiLDQHr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Dec 2022 11:07:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A336D62F3
-        for <stable@vger.kernel.org>; Sun,  4 Dec 2022 08:07:46 -0800 (PST)
+        with ESMTP id S230117AbiLDQO6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Dec 2022 11:14:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A9081403C
+        for <stable@vger.kernel.org>; Sun,  4 Dec 2022 08:14:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D7C6B80AC5
-        for <stable@vger.kernel.org>; Sun,  4 Dec 2022 16:07:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96460C433C1;
-        Sun,  4 Dec 2022 16:07:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670170064;
-        bh=tpUUkF++iJoD436YneoHsbEYmaLSXsiDWOtNWt41TRQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PvvWRf0kOfx69othS/27mIvzhLoLR5tA3uvr9VabaCeH6+wyzcEBUUm7574EMHBmV
-         GVGqEA25Fr+aSRLYdRu/SasJGE2dZUCkEBEgz4nigVJprbLW9bmaXOztitrIGb0Qb0
-         m3kdBJowsxzYPR9YgzNhm3PrFO5v23q3rPF+zWK4=
-Date:   Sun, 4 Dec 2022 17:07:40 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Cengiz Can <cengiz.can@canonical.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 0/3] Bluetooth: L2CAP: Fix accepting connection
- request for invalid SPSM
-Message-ID: <Y4zFzNGlCC1wlyc2@kroah.com>
-References: <20221203222434.669854-1-cengiz.can@canonical.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D2A3B80AC6
+        for <stable@vger.kernel.org>; Sun,  4 Dec 2022 16:14:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09EDDC433D7;
+        Sun,  4 Dec 2022 16:14:52 +0000 (UTC)
+Date:   Sun, 4 Dec 2022 11:14:51 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     akpm@linux-foundation.org, mhiramat@kernel.org,
+        yujie.liu@intel.com, zhengyejian1@huawei.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] tracing: Free buffers when a used
+ dynamic event is removed" failed to apply to 4.19-stable tree
+Message-ID: <20221204111451.2741a499@gandalf.local.home>
+In-Reply-To: <Y4xYg2i7lS6z3eIe@kroah.com>
+References: <167006641591124@kroah.com>
+        <20221203173655.1b1b2fac@gandalf.local.home>
+        <Y4xYg2i7lS6z3eIe@kroah.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221203222434.669854-1-cengiz.can@canonical.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 04, 2022 at 01:24:33AM +0300, Cengiz Can wrote:
-> Hello,
+On Sun, 4 Dec 2022 09:21:23 +0100
+Greg KH <gregkh@linuxfoundation.org> wrote:
+
+> > > 5448d44c3855 ("tracing: Add unified dynamic event framework")  
+> > 
+> > And this is mentioned below.
+> > 
+> > [..]
+> >   
+> > > If any dynamic event that is being removed was enabled, then make sure the
+> > > buffers they were enabled in are now cleared.
+> > > 
+> > > Link: https://lkml.kernel.org/r/20221123171434.545706e3@gandalf.local.home
+> > > Link: https://lore.kernel.org/all/20221110020319.1259291-1-zhengyejian1@huawei.com/
+> > > 
+> > > Cc: stable@vger.kernel.org
+> > > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > > Depends-on: e18eb8783ec49 ("tracing: Add tracing_reset_all_online_cpus_unlocked() function")  
+> >   
+> > > Depends-on: 5448d44c38557 ("tracing: Add unified dynamic event framework")  
+> > 
+> > ^^^  
 > 
-> commit 711f8c3fb3db ("Bluetooth: L2CAP: Fix accepting connection request for 
-> invalid SPSM") did not apply to 5.4-stable tree previously.
+> Did you just make up a new field?  We have a documented way to show
+> dependancies for stable patches, please let's not create a new one :(
+
+Ug, I've seen this tag used before: 
+
+ example:  e3f0c638f428fd66b5871154b62706772045f91a
+
+And just assumed that was the method. I guess I should have looked deeper.
+
 > 
-> One of the notable dependencies is commit 15f02b910562 ("Bluetooth: L2CAP: 
-> Add initial code for Enhanced Credit Based Mode") and that doesn't apply to 
-> 5.4-stable either due to a mismatch on `l2cap_sock_setsockopt_old` in 
-> l2cap_sock.c.
+> > > Depends-on: 6212dd29683ee ("tracing/kprobes: Use dyn_event framework for kprobe events")
+> > > Depends-on: 065e63f951432 ("tracing: Only have rmmod clear buffers that its events were active in")
+> > > Depends-on: 575380da8b469 ("tracing: Only clear trace buffer on module unload if event was traced")
+> > > Fixes: 77b44d1b7c283 ("tracing/kprobes: Rename Kprobe-tracer to kprobe-event")  
+> 
+> Adding the "unified framework" seems like way too much for a stable
+> patch, are you sure all of these are required and should be applied to
+> 4.19.y?
+> 
 
-And that commit does not seem relevant for stable backports at all as it
-is a new feature.  If all you really want to do is fix the "bug", why
-not just take half of commit 711f8c3fb3db, i.e. the half that actually
-matters in this kernel tree?
+It's that balance between rewriting it to the bare minimum, which is not as
+intrusive, but tested much less and may be even more buggy, to backporting
+a larger change that has been verified by real world use cases.
 
-Why wouldn't that just work for all of the older kernels?  I'll go do
-that now as it seems like it will solve the issue, but it would be great
-if people could actually test it (hint, why didn't you cc: the bluetooth
-developers here?)
+Or we just do not backport it. The bug will still exist, but you really
+have to work hard to hit it. And because it's only controlled by privileged
+users, maybe it's OK to just ignore it. I think I've seen only one report
+of this issue in the last 10 years.
 
-thanks,
+Thoughts?
 
-greg k-h
+-- Steve
