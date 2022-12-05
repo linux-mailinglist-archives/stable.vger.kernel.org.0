@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D488D6431F1
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADFCD643307
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:33:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233541AbiLETWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:22:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46520 "EHLO
+        id S234345AbiLETdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:33:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233884AbiLETWE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:22:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECE8820199
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:17:59 -0800 (PST)
+        with ESMTP id S234292AbiLETdU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:33:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 869252D1D7
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:28:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9AAE61311
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:17:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8EBCC433D6;
-        Mon,  5 Dec 2022 19:17:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9D6961309
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:28:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8FD2C43470;
+        Mon,  5 Dec 2022 19:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267840;
-        bh=Q6cyF+6gQhaFIAYoJeQQo9oWI72sEIOGzxW83rqL4Eg=;
+        s=korg; t=1670268497;
+        bh=AY8eTK85itzhck97ybvAxHzCI4Ah9j0w5stfPlhKits=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOh68v7VqUxIJpAluX3Z33FL/N1FTF6shSErSPaMQfTBgYUf+NHC+fgp8D39+/U9j
-         6XlTKaidJB1FGZK3zCVBdye2pWWTpQpif2kiWNfuCf1r74uJp8kUWTOP2LwuaPk97/
-         VAbIIJvpCfg/ApEjLfxuuvZm5fBKGJC04HV6eFJM=
+        b=tqWtLQLvrosH6i+tJbSTVuk0FdLpf1EQEcSrqOYMQe5wIGrtEk70GjEsSOrBr6lC9
+         4YOp7hLkzw0vbFDW/kkr2T4uP+KBP+QmOFpCaaJ5cHFsU625g3l04p6k/ffbzHTaSU
+         RDGf6ep9H922ezlXqPmvrsP6/z7XTcho2qJ1mwhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.14 70/77] tcp/udp: Fix memory leak in ipv6_renew_options().
+        patches@lists.linux.dev, Leo Liu <leo.liu@amd.com>,
+        James Zhu <James.Zhu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.0 095/124] drm/amdgpu: enable Vangogh VCN indirect sram mode
 Date:   Mon,  5 Dec 2022 20:10:01 +0100
-Message-Id: <20221205190803.331106091@linuxfoundation.org>
+Message-Id: <20221205190811.114493866@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,100 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Leo Liu <leo.liu@amd.com>
 
-commit 3c52c6bb831f6335c176a0fc7214e26f43adbd11 upstream.
+commit 9a8cc8cabc1e351614fd7f9e774757a5143b6fe8 upstream.
 
-syzbot reported a memory leak [0] related to IPV6_ADDRFORM.
+So that uses PSP to initialize HW.
 
-The scenario is that while one thread is converting an IPv6 socket into
-IPv4 with IPV6_ADDRFORM, another thread calls do_ipv6_setsockopt() and
-allocates memory to inet6_sk(sk)->XXX after conversion.
-
-Then, the converted sk with (tcp|udp)_prot never frees the IPv6 resources,
-which inet6_destroy_sock() should have cleaned up.
-
-setsockopt(IPV6_ADDRFORM)                 setsockopt(IPV6_DSTOPTS)
-+-----------------------+                 +----------------------+
-- do_ipv6_setsockopt(sk, ...)
-  - sockopt_lock_sock(sk)                 - do_ipv6_setsockopt(sk, ...)
-    - lock_sock(sk)                         ^._ called via tcpv6_prot
-  - WRITE_ONCE(sk->sk_prot, &tcp_prot)          before WRITE_ONCE()
-  - xchg(&np->opt, NULL)
-  - txopt_put(opt)
-  - sockopt_release_sock(sk)
-    - release_sock(sk)                      - sockopt_lock_sock(sk)
-                                              - lock_sock(sk)
-                                            - ipv6_set_opt_hdr(sk, ...)
-                                              - ipv6_update_options(sk, opt)
-                                                - xchg(&inet6_sk(sk)->opt, opt)
-                                                  ^._ opt is never freed.
-
-                                            - sockopt_release_sock(sk)
-                                              - release_sock(sk)
-
-Since IPV6_DSTOPTS allocates options under lock_sock(), we can avoid this
-memory leak by testing whether sk_family is changed by IPV6_ADDRFORM after
-acquiring the lock.
-
-This issue exists from the initial commit between IPV6_ADDRFORM and
-IPV6_PKTOPTIONS.
-
-[0]:
-BUG: memory leak
-unreferenced object 0xffff888009ab9f80 (size 96):
-  comm "syz-executor583", pid 328, jiffies 4294916198 (age 13.034s)
-  hex dump (first 32 bytes):
-    01 00 00 00 48 00 00 00 08 00 00 00 00 00 00 00  ....H...........
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000002ee98ae1>] kmalloc include/linux/slab.h:605 [inline]
-    [<000000002ee98ae1>] sock_kmalloc+0xb3/0x100 net/core/sock.c:2566
-    [<0000000065d7b698>] ipv6_renew_options+0x21e/0x10b0 net/ipv6/exthdrs.c:1318
-    [<00000000a8c756d7>] ipv6_set_opt_hdr net/ipv6/ipv6_sockglue.c:354 [inline]
-    [<00000000a8c756d7>] do_ipv6_setsockopt.constprop.0+0x28b7/0x4350 net/ipv6/ipv6_sockglue.c:668
-    [<000000002854d204>] ipv6_setsockopt+0xdf/0x190 net/ipv6/ipv6_sockglue.c:1021
-    [<00000000e69fdcf8>] tcp_setsockopt+0x13b/0x2620 net/ipv4/tcp.c:3789
-    [<0000000090da4b9b>] __sys_setsockopt+0x239/0x620 net/socket.c:2252
-    [<00000000b10d192f>] __do_sys_setsockopt net/socket.c:2263 [inline]
-    [<00000000b10d192f>] __se_sys_setsockopt net/socket.c:2260 [inline]
-    [<00000000b10d192f>] __x64_sys_setsockopt+0xbe/0x160 net/socket.c:2260
-    [<000000000a80d7aa>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<000000000a80d7aa>] do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
-    [<000000004562b5c6>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Fixes: 0c2c02b66c672e ("drm/amdgpu/vcn: add firmware support for dimgrey_cavefish")
+Signed-off-by: Leo Liu <leo.liu@amd.com>
+Reviewed-by: James Zhu <James.Zhu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ipv6_sockglue.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -166,6 +166,12 @@ static int do_ipv6_setsockopt(struct soc
- 		rtnl_lock();
- 	lock_sock(sk);
- 
-+	/* Another thread has converted the socket into IPv4 with
-+	 * IPV6_ADDRFORM concurrently.
-+	 */
-+	if (unlikely(sk->sk_family != AF_INET6))
-+		goto unlock;
-+
- 	switch (optname) {
- 
- 	case IPV6_ADDRFORM:
-@@ -905,6 +911,7 @@ pref_skip_coa:
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
+@@ -156,6 +156,9 @@ int amdgpu_vcn_sw_init(struct amdgpu_dev
  		break;
- 	}
- 
-+unlock:
- 	release_sock(sk);
- 	if (needs_rtnl)
- 		rtnl_unlock();
+ 	case IP_VERSION(3, 0, 2):
+ 		fw_name = FIRMWARE_VANGOGH;
++		if ((adev->firmware.load_type == AMDGPU_FW_LOAD_PSP) &&
++		    (adev->pg_flags & AMD_PG_SUPPORT_VCN_DPG))
++			adev->vcn.indirect_sram = true;
+ 		break;
+ 	case IP_VERSION(3, 0, 16):
+ 		fw_name = FIRMWARE_DIMGREY_CAVEFISH;
 
 
