@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A135643489
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D06436433FB
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234971AbiLETrs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:47:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54058 "EHLO
+        id S234822AbiLETlT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:41:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234976AbiLETra (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAFDD2934F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:51 -0800 (PST)
+        with ESMTP id S234407AbiLETkw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:40:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 342A839E
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:38:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77E32612EA
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C409C433C1;
-        Mon,  5 Dec 2022 19:43:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 670B361321
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:38:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77BA2C433D6;
+        Mon,  5 Dec 2022 19:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269430;
-        bh=+YE/xckGm0tTx4/V+yIwT+C8M9OAlVXf/obOQtJUmrM=;
+        s=korg; t=1670269102;
+        bh=nmLppwoK/3GrdKG/0OTlnEvwmaJJFM/Vn5ewfJXvaCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PRASAiTDTiFPiEMvujqX5u8ly8GSN4VmsmlUYCzIc0VF1BW0+Iz9zdIVyMiQRrixb
-         mtB97e5sGmDpDubjQHzMuR/H8Evnk42j5gqHFZdpzJptAfs87lhXTr6uU0+4lpzy3D
-         iENsLeDxGD2ABLu3WLhYeAGzP7i15/1ZtzkJxNZE=
+        b=NGdcjmCPGUIzcYBqPl2c4BHqvHM6lsMhyQuB6A8BbsQFPC/5YZt/LBVw/th0wozaH
+         1jNKPM2THNH2zCpj3+L+SvjnwZktAloKh4CVnKIgPMX0jNCH1cSWgkX6GWD8gEZGwJ
+         nBUUmoppsZKwT7zn6KSqL8TuReJkrG3uZoJJdjF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenchao Chen <wenchao.chen@unisoc.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 125/153] mmc: sdhci-sprd: Fix no reset data and command after voltage switch
+        patches@lists.linux.dev, Gwangun Jung <exsociety@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Ido Schimmel <idosch@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 109/120] ipv4: Handle attempt to delete multipath route when fib_info contains an nh reference
 Date:   Mon,  5 Dec 2022 20:10:49 +0100
-Message-Id: <20221205190812.289606478@linuxfoundation.org>
+Message-Id: <20221205190809.809114744@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenchao Chen <wenchao.chen@unisoc.com>
+From: David Ahern <dsahern@kernel.org>
 
-commit dd30dcfa7a74a06f8dcdab260d8d5adf32f17333 upstream.
+[ Upstream commit 61b91eb33a69c3be11b259c5ea484505cd79f883 ]
 
-After switching the voltage, no reset data and command will cause
-CMD2 timeout.
+Gwangun Jung reported a slab-out-of-bounds access in fib_nh_match:
+    fib_nh_match+0xf98/0x1130 linux-6.0-rc7/net/ipv4/fib_semantics.c:961
+    fib_table_delete+0x5f3/0xa40 linux-6.0-rc7/net/ipv4/fib_trie.c:1753
+    inet_rtm_delroute+0x2b3/0x380 linux-6.0-rc7/net/ipv4/fib_frontend.c:874
 
-Fixes: 29ca763fc26f ("mmc: sdhci-sprd: Add pin control support for voltage switch")
-Signed-off-by: Wenchao Chen <wenchao.chen@unisoc.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221130121328.25553-1-wenchao.chen@unisoc.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Separate nexthop objects are mutually exclusive with the legacy
+multipath spec. Fix fib_nh_match to return if the config for the
+to be deleted route contains a multipath spec while the fib_info
+is using a nexthop object.
+
+Fixes: 493ced1ac47c ("ipv4: Allow routes to use nexthop objects")
+Fixes: 6bf92d70e690 ("net: ipv4: fix route with nexthop object delete warning")
+Reported-by: Gwangun Jung <exsociety@gmail.com>
+Signed-off-by: David Ahern <dsahern@kernel.org>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Tested-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: d5082d386eee ("ipv4: Fix route deletion when nexthop info is not specified")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-sprd.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/ipv4/fib_semantics.c                    | 8 ++++----
+ tools/testing/selftests/net/fib_nexthops.sh | 5 +++++
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/mmc/host/sdhci-sprd.c
-+++ b/drivers/mmc/host/sdhci-sprd.c
-@@ -431,7 +431,7 @@ static int sdhci_sprd_voltage_switch(str
+diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
+index 55de6fa83dea..c35afa20f6d0 100644
+--- a/net/ipv4/fib_semantics.c
++++ b/net/ipv4/fib_semantics.c
+@@ -886,13 +886,13 @@ int fib_nh_match(struct net *net, struct fib_config *cfg, struct fib_info *fi,
+ 		return 1;
  	}
  
- 	if (IS_ERR(sprd_host->pinctrl))
--		return 0;
-+		goto reset;
- 
- 	switch (ios->signal_voltage) {
- 	case MMC_SIGNAL_VOLTAGE_180:
-@@ -459,6 +459,8 @@ static int sdhci_sprd_voltage_switch(str
- 
- 	/* Wait for 300 ~ 500 us for pin state stable */
- 	usleep_range(300, 500);
++	/* cannot match on nexthop object attributes */
++	if (fi->nh)
++		return 1;
 +
-+reset:
- 	sdhci_reset(host, SDHCI_RESET_CMD | SDHCI_RESET_DATA);
+ 	if (cfg->fc_oif || cfg->fc_gw_family) {
+ 		struct fib_nh *nh;
  
- 	return 0;
+-		/* cannot match on nexthop object attributes */
+-		if (fi->nh)
+-			return 1;
+-
+ 		nh = fib_info_nh(fi, 0);
+ 		if (cfg->fc_encap) {
+ 			if (fib_encap_match(net, cfg->fc_encap_type,
+diff --git a/tools/testing/selftests/net/fib_nexthops.sh b/tools/testing/selftests/net/fib_nexthops.sh
+index 4afc4b20c546..4280c9b6ee2d 100755
+--- a/tools/testing/selftests/net/fib_nexthops.sh
++++ b/tools/testing/selftests/net/fib_nexthops.sh
+@@ -1159,6 +1159,11 @@ ipv4_fcnal()
+ 	log_test $rc 0 "Delete nexthop route warning"
+ 	run_cmd "$IP route delete 172.16.101.1/32 nhid 12"
+ 	run_cmd "$IP nexthop del id 12"
++
++	run_cmd "$IP nexthop add id 21 via 172.16.1.6 dev veth1"
++	run_cmd "$IP ro add 172.16.101.0/24 nhid 21"
++	run_cmd "$IP ro del 172.16.101.0/24 nexthop via 172.16.1.7 dev veth1 nexthop via 172.16.1.8 dev veth1"
++	log_test $? 2 "Delete multipath route with only nh id based entry"
+ }
+ 
+ ipv4_grp_fcnal()
+-- 
+2.35.1
+
 
 
