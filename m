@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 729A76431EB
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA7C6433C1
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:39:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232753AbiLETWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:22:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46558 "EHLO
+        id S234409AbiLETjI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:39:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233504AbiLETVv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:21:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9565164D7;
-        Mon,  5 Dec 2022 11:17:47 -0800 (PST)
+        with ESMTP id S234563AbiLETiv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D0AB2649A
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:36:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59F96B81201;
-        Mon,  5 Dec 2022 19:16:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A95FCC433C1;
-        Mon,  5 Dec 2022 19:16:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9B2B61335
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:36:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8F88C433C1;
+        Mon,  5 Dec 2022 19:35:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267799;
-        bh=7uVZopgE1e0SapTb5i26gNiN1i0iX2gcULH+t0ZU+pQ=;
+        s=korg; t=1670268960;
+        bh=pGqEl1ICnamFC3P4nkHXzCfJhi4auGeH6yBPGtFKePY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=euAc01JOlvy3X0Zg+B1jq5NvaaIGta4prC58gf5Zg1fNbGNgy11XNeXaEvEODyiRj
-         UHH9bVr1KXaUu2oHOzbiT5GL019zzJ5dCf2OAzzw9AP6I9nf0F1qvGdlmZpheFcBGH
-         vvn/vMR8m5duhT9dFUex+jjC66/7BZAReVn8uXsw=
+        b=TouPBGtwrvr3OrTN6hCLZbyKkh+/7IH1Lf9on/6FH0+BsKjzj4fsP7rHcaLIg5kh6
+         8GAxO/mIcxWU3w6b1Oyj3kSX8iGj68uoeyrGl6HQryVQkzfziQsNMbrMWcyKrmdb56
+         QNC2Xd0IHHOhq/fHZwGseXsEz++KgPdt1QMV8guA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Phil Auld <pauld@redhat.com>,
-        linux-hwmon@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 56/77] hwmon: (coretemp) Check for null before removing sysfs attrs
+Subject: [PATCH 5.15 047/120] wifi: mac8021: fix possible oob access in ieee80211_get_rate_duration
 Date:   Mon,  5 Dec 2022 20:09:47 +0100
-Message-Id: <20221205190802.850592627@linuxfoundation.org>
+Message-Id: <20221205190807.981688725@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Auld <pauld@redhat.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit a89ff5f5cc64b9fe7a992cf56988fd36f56ca82a ]
+[ Upstream commit 3e8f7abcc3473bc9603323803aeaed4ffcc3a2ab ]
 
-If coretemp_add_core() gets an error then pdata->core_data[indx]
-is already NULL and has been kfreed. Don't pass that to
-sysfs_remove_group() as that will crash in sysfs_remove_group().
+Fix possible out-of-bound access in ieee80211_get_rate_duration routine
+as reported by the following UBSAN report:
 
-[Shortened for readability]
-[91854.020159] sysfs: cannot create duplicate filename '/devices/platform/coretemp.0/hwmon/hwmon2/temp20_label'
-<cpu offline>
-[91855.126115] BUG: kernel NULL pointer dereference, address: 0000000000000188
-[91855.165103] #PF: supervisor read access in kernel mode
-[91855.194506] #PF: error_code(0x0000) - not-present page
-[91855.224445] PGD 0 P4D 0
-[91855.238508] Oops: 0000 [#1] PREEMPT SMP PTI
-...
-[91855.342716] RIP: 0010:sysfs_remove_group+0xc/0x80
-...
-[91855.796571] Call Trace:
-[91855.810524]  coretemp_cpu_offline+0x12b/0x1dd [coretemp]
-[91855.841738]  ? coretemp_cpu_online+0x180/0x180 [coretemp]
-[91855.871107]  cpuhp_invoke_callback+0x105/0x4b0
-[91855.893432]  cpuhp_thread_fun+0x8e/0x150
-...
+UBSAN: array-index-out-of-bounds in net/mac80211/airtime.c:455:47
+index 15 is out of range for type 'u16 [12]'
+CPU: 2 PID: 217 Comm: kworker/u32:10 Not tainted 6.1.0-060100rc3-generic
+Hardware name: Acer Aspire TC-281/Aspire TC-281, BIOS R01-A2 07/18/2017
+Workqueue: mt76 mt76u_tx_status_data [mt76_usb]
+Call Trace:
+ <TASK>
+ show_stack+0x4e/0x61
+ dump_stack_lvl+0x4a/0x6f
+ dump_stack+0x10/0x18
+ ubsan_epilogue+0x9/0x43
+ __ubsan_handle_out_of_bounds.cold+0x42/0x47
+ieee80211_get_rate_duration.constprop.0+0x22f/0x2a0 [mac80211]
+ ? ieee80211_tx_status_ext+0x32e/0x640 [mac80211]
+ ieee80211_calc_rx_airtime+0xda/0x120 [mac80211]
+ ieee80211_calc_tx_airtime+0xb4/0x100 [mac80211]
+ mt76x02_send_tx_status+0x266/0x480 [mt76x02_lib]
+ mt76x02_tx_status_data+0x52/0x80 [mt76x02_lib]
+ mt76u_tx_status_data+0x67/0xd0 [mt76_usb]
+ process_one_work+0x225/0x400
+ worker_thread+0x50/0x3e0
+ ? process_one_work+0x400/0x400
+ kthread+0xe9/0x110
+ ? kthread_complete_and_exit+0x20/0x20
+ ret_from_fork+0x22/0x30
 
-Fix this by checking for NULL first.
-
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Cc: linux-hwmon@vger.kernel.org
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20221117162313.3164803-1-pauld@redhat.com
-Fixes: 199e0de7f5df3 ("hwmon: (coretemp) Merge pkgtemp with coretemp")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: db3e1c40cf2f ("mac80211: Import airtime calculation code from mt76")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/coretemp.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/mac80211/airtime.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
-index a42744c7665b..ee35bbc1714a 100644
---- a/drivers/hwmon/coretemp.c
-+++ b/drivers/hwmon/coretemp.c
-@@ -531,6 +531,10 @@ static void coretemp_remove_core(struct platform_data *pdata, int indx)
- {
- 	struct temp_data *tdata = pdata->core_data[indx];
+diff --git a/net/mac80211/airtime.c b/net/mac80211/airtime.c
+index 26d2f8ba7029..758ef63669e7 100644
+--- a/net/mac80211/airtime.c
++++ b/net/mac80211/airtime.c
+@@ -457,6 +457,9 @@ static u32 ieee80211_get_rate_duration(struct ieee80211_hw *hw,
+ 			 (status->encoding == RX_ENC_HE && streams > 8)))
+ 		return 0;
  
-+	/* if we errored on add then this is already gone */
-+	if (!tdata)
-+		return;
++	if (idx >= MCS_GROUP_RATES)
++		return 0;
 +
- 	/* Remove the sysfs attributes */
- 	sysfs_remove_group(&pdata->hwmon_dev->kobj, &tdata->attr_group);
- 
+ 	duration = airtime_mcs_groups[group].duration[idx];
+ 	duration <<= airtime_mcs_groups[group].shift;
+ 	*overhead = 36 + (streams << 2);
 -- 
 2.35.1
 
