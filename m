@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D149A643398
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:37:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B07964345A
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:45:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234594AbiLEThv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:37:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40790 "EHLO
+        id S235059AbiLETp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:45:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234597AbiLETh1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:37:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C436B2A955
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:25 -0800 (PST)
+        with ESMTP id S233431AbiLETpG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:45:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AF6B24F19
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:41:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3D3EDCE139A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FA04C433D7;
-        Mon,  5 Dec 2022 19:34:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C942DB81201
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:41:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CA44C433C1;
+        Mon,  5 Dec 2022 19:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268862;
-        bh=bx2QDi+70ZC7WKXvJ5K7xand1bn0lSxKl62Tv4c0qWY=;
+        s=korg; t=1670269313;
+        bh=hMnFi563Q7zI1SLcghywFimFNZIsurw6QH/j1hM878c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VWAFHybaatuVAqYL5PX+YT0UszVP3wzGU02urOWBnUOormG9HkPTxfy/F7DtuYiDc
-         g8m58vbdVH7dneADuuDJqU6fqLsNwmi9clu24wRq6xD5p2kJR+uvZ8lQlZ6igsGfbX
-         /YdV1dWRxiTaiJICv60G18LTAtx14C22nnA9yQ4g=
+        b=LzL/VzBmkVcTxFpHebj0fTk8pCl+VWzl4Enyy7YuiRH8h4CQa26A40n+36BBaLlpz
+         D7f965kU+BGXFYxGuOzEFN6roT2c6bDRt+NaQU6tfT8FuHp9bEQJz51oukudRbdqkL
+         12XDoV3bAi2tQ5tgv0GaVSAz92Ms5TLQbaBxG190=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Xiubo Li <xiubli@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 038/120] can: sja1000_isa: sja1000_isa_probe(): add missing free_sja1000dev()
+Subject: [PATCH 5.4 054/153] ceph: avoid putting the realm twice when decoding snaps fails
 Date:   Mon,  5 Dec 2022 20:09:38 +0100
-Message-Id: <20221205190807.689768324@linuxfoundation.org>
+Message-Id: <20221205190810.270202990@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit 92dfd9310a71d28cefe6a2d5174d43fab240e631 ]
+[ Upstream commit 51884d153f7ec85e18d607b2467820a90e0f4359 ]
 
-Add the missing free_sja1000dev() before return from
-sja1000_isa_probe() in the register_sja1000dev() error handling case.
+When decoding the snaps fails it maybe leaving the 'first_realm'
+and 'realm' pointing to the same snaprealm memory. And then it'll
+put it twice and could cause random use-after-free, BUG_ON, etc
+issues.
 
-In addition, remove blanks before goto labels.
-
-Fixes: 2a6ba39ad6a2 ("can: sja1000: legacy SJA1000 ISA bus driver")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Link: https://lore.kernel.org/all/1668168521-5540-1-git-send-email-zhangchangzhong@huawei.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://tracker.ceph.com/issues/57686
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/sja1000/sja1000_isa.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/ceph/snap.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/sja1000/sja1000_isa.c b/drivers/net/can/sja1000/sja1000_isa.c
-index d513fac50718..db3e767d5320 100644
---- a/drivers/net/can/sja1000/sja1000_isa.c
-+++ b/drivers/net/can/sja1000/sja1000_isa.c
-@@ -202,22 +202,24 @@ static int sja1000_isa_probe(struct platform_device *pdev)
- 	if (err) {
- 		dev_err(&pdev->dev, "registering %s failed (err=%d)\n",
- 			DRV_NAME, err);
--		goto exit_unmap;
-+		goto exit_free;
- 	}
+diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
+index f2731f9efc31..97ce1bd13bad 100644
+--- a/fs/ceph/snap.c
++++ b/fs/ceph/snap.c
+@@ -694,7 +694,7 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
+ 	struct ceph_mds_snap_realm *ri;    /* encoded */
+ 	__le64 *snaps;                     /* encoded */
+ 	__le64 *prior_parent_snaps;        /* encoded */
+-	struct ceph_snap_realm *realm = NULL;
++	struct ceph_snap_realm *realm;
+ 	struct ceph_snap_realm *first_realm = NULL;
+ 	struct ceph_snap_realm *realm_to_rebuild = NULL;
+ 	int rebuild_snapcs;
+@@ -705,6 +705,7 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
  
- 	dev_info(&pdev->dev, "%s device registered (reg_base=0x%p, irq=%d)\n",
- 		 DRV_NAME, priv->reg_base, dev->irq);
- 	return 0;
- 
-- exit_unmap:
-+exit_free:
-+	free_sja1000dev(dev);
-+exit_unmap:
- 	if (mem[idx])
- 		iounmap(base);
-- exit_release:
-+exit_release:
- 	if (mem[idx])
- 		release_mem_region(mem[idx], iosize);
- 	else
- 		release_region(port[idx], iosize);
-- exit:
-+exit:
- 	return err;
- }
- 
+ 	dout("update_snap_trace deletion=%d\n", deletion);
+ more:
++	realm = NULL;
+ 	rebuild_snapcs = 0;
+ 	ceph_decode_need(&p, e, sizeof(*ri), bad);
+ 	ri = p;
 -- 
 2.35.1
 
