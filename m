@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06DEC64348B
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 113846433FE
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234997AbiLETrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:47:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51632 "EHLO
+        id S234840AbiLETlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:41:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235004AbiLETrc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:32 -0500
+        with ESMTP id S234848AbiLETlB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:41:01 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB11219034
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC781FD0;
+        Mon,  5 Dec 2022 11:38:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8107EB81202
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC3CFC433C1;
-        Mon,  5 Dec 2022 19:43:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 827C8B811E3;
+        Mon,  5 Dec 2022 19:38:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5561C433C1;
+        Mon,  5 Dec 2022 19:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269436;
-        bh=A9Wlu0Z0Wjq8GJmKERZ9+Dq7Ua4VXscIk/19de82voY=;
+        s=korg; t=1670269108;
+        bh=l9MW/Gc9+ArnRwl2DRT7IsjnbxX0PY11C3AcQhaRJJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eI+AQnp4FObl9j+CrTLVr+f+CJ8sJV32sAGLhO2a2CfoMedPGigvTzGCH6gIFktPk
-         s4jccijZgl+u1MRUkhUrcWYcX4XKmeTqCnCL4GtgZccbSLKjHdy7hCJIbyJgN0xxIA
-         waa1tFiku7IWjfgK6vAkhnY1lx+wNZveoOblRAkU=
+        b=vweAv1uhlzM2P3xqlbOC7I8Z6fcLw0m/LcWnSkTVRsh1RtRwYMjJrhWBFx+gLKc91
+         A2R67vF0ejSDxWilzb37I6IKNV+NsDgurK1SJ3E1KelTzDq7MwTmMF2VPg1p+qxYTK
+         OQMzNP32vLNs04VDhOyKWASharm+zUsjqDRA/OKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
+To:     stable@vger.kernel.org, linux-serial@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sami Lee <sami.lee@mediatek.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.4 127/153] arm64: Fix panic() when Spectre-v2 causes Spectre-BHB to re-allocate KVM vectors
+        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Erwan Le Ray <erwan.leray@foss.st.com>,
+        Jean Philippe Romain <jean-philippe.romain@foss.st.com>,
+        Valentin Caron <valentin.caron@foss.st.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 111/120] serial: stm32: Factor out GPIO RTS toggling into separate function
 Date:   Mon,  5 Dec 2022 20:10:51 +0100
-Message-Id: <20221205190812.340850304@linuxfoundation.org>
+Message-Id: <20221205190809.866241880@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,112 +58,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Marek Vasut <marex@denx.de>
 
-Sami reports that linux panic()s when resuming from suspend to RAM. This
-is because when CPUs are brought back online, they re-enable any
-necessary mitigations.
+[ Upstream commit 3bcea529b295a993b1b05db63f245ae8030c5acf ]
 
-The Spectre-v2 and Spectre-BHB mitigations interact as both need to
-done by KVM when exiting a guest. Slots KVM can use as vectors are
-allocated, and templates for the mitigation are patched into the vector.
+Pull out the GPIO RTS enable and disable handling into separate function.
+Limit the scope of GPIO RTS toggling only to GPIO emulated RS485 too.
 
-This fails if a new slot needs to be allocated once the kernel has finished
-booting as it is no-longer possible to modify KVM's vectors:
-| root@adam:/sys/devices/system/cpu/cpu1# echo 1 > online
-| Unable to handle kernel write to read-only memory at virtual add>
-| Mem abort info:
-|   ESR = 0x9600004e
-|   Exception class = DABT (current EL), IL = 32 bits
-|   SET = 0, FnV = 0
-|   EA = 0, S1PTW = 0
-| Data abort info:
-|   ISV = 0, ISS = 0x0000004e
-|   CM = 0, WnR = 1
-| swapper pgtable: 4k pages, 48-bit VAs, pgdp = 000000000f07a71c
-| [ffff800000b4b800] pgd=00000009ffff8803, pud=00000009ffff7803, p>
-| Internal error: Oops: 9600004e [#1] PREEMPT SMP
-| Modules linked in:
-| Process swapper/1 (pid: 0, stack limit = 0x0000000063153c53)
-| CPU: 1 PID: 0 Comm: swapper/1 Not tainted 4.19.252-dirty #14
-| Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno De>
-| pstate: 000001c5 (nzcv dAIF -PAN -UAO)
-| pc : __memcpy+0x48/0x180
-| lr : __copy_hyp_vect_bpi+0x64/0x90
-
-| Call trace:
-|  __memcpy+0x48/0x180
-|  kvm_setup_bhb_slot+0x204/0x2a8
-|  spectre_bhb_enable_mitigation+0x1b8/0x1d0
-|  __verify_local_cpu_caps+0x54/0xf0
-|  check_local_cpu_capabilities+0xc4/0x184
-|  secondary_start_kernel+0xb0/0x170
-| Code: b8404423 b80044c3 36180064 f8408423 (f80084c3)
-| ---[ end trace 859bcacb09555348 ]---
-| Kernel panic - not syncing: Attempted to kill the idle task!
-| SMP: stopping secondary CPUs
-| Kernel Offset: disabled
-| CPU features: 0x10,25806086
-| Memory Limit: none
-| ---[ end Kernel panic - not syncing: Attempted to kill the idle ]
-
-This is only a problem on platforms where there is only one CPU that is
-vulnerable to both Spectre-v2 and Spectre-BHB.
-
-The Spectre-v2 mitigation identifies the slot it can re-use by the CPU's
-'fn'. It unconditionally writes the slot number and 'template_start'
-pointer. The Spectre-BHB mitigation identifies slots it can re-use by
-the CPU's template_start pointer, which was previously clobbered by the
-Spectre-v2 mitigation.
-
-When there is only one CPU that is vulnerable to both issues, this causes
-Spectre-v2 to try to allocate a new slot, which fails.
-
-Change both mitigations to check whether they are changing the slot this
-CPU uses before writing the percpu variables again.
-
-This issue only exists in the stable backports for Spectre-BHB which have
-to use totally different infrastructure to mainline.
-
-Reported-by: Sami Lee <sami.lee@mediatek.com>
-Fixes: 9013fd4bc958 ("arm64: Mitigate spectre style branch history side channels")
-Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Erwan Le Ray <erwan.leray@foss.st.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jean Philippe Romain <jean-philippe.romain@foss.st.com>
+Cc: Valentin Caron <valentin.caron@foss.st.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-serial@vger.kernel.org
+Link: https://lore.kernel.org/r/20220430162845.244655-1-marex@denx.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpu_errata.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/tty/serial/stm32-usart.c | 61 ++++++++++++++++++++------------
+ 1 file changed, 38 insertions(+), 23 deletions(-)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -170,9 +170,12 @@ static void install_bp_hardening_cb(bp_h
- 		__copy_hyp_vect_bpi(slot, hyp_vecs_start, hyp_vecs_end);
- 	}
- 
--	__this_cpu_write(bp_hardening_data.hyp_vectors_slot, slot);
--	__this_cpu_write(bp_hardening_data.fn, fn);
--	__this_cpu_write(bp_hardening_data.template_start, hyp_vecs_start);
-+	if (fn != __this_cpu_read(bp_hardening_data.fn)) {
-+		__this_cpu_write(bp_hardening_data.hyp_vectors_slot, slot);
-+		__this_cpu_write(bp_hardening_data.fn, fn);
-+		__this_cpu_write(bp_hardening_data.template_start,
-+				 hyp_vecs_start);
-+	}
- 	raw_spin_unlock(&bp_lock);
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index fc166cc2c856..f2cef5f7ae5a 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -325,6 +325,42 @@ static void stm32_usart_tx_interrupt_disable(struct uart_port *port)
+ 		stm32_usart_clr_bits(port, ofs->cr1, USART_CR1_TXEIE);
  }
- #else
-@@ -1320,8 +1323,11 @@ static void kvm_setup_bhb_slot(const cha
- 		__copy_hyp_vect_bpi(slot, hyp_vecs_start, hyp_vecs_end);
- 	}
  
--	__this_cpu_write(bp_hardening_data.hyp_vectors_slot, slot);
--	__this_cpu_write(bp_hardening_data.template_start, hyp_vecs_start);
-+	if (hyp_vecs_start != __this_cpu_read(bp_hardening_data.template_start)) {
-+		__this_cpu_write(bp_hardening_data.hyp_vectors_slot, slot);
-+		__this_cpu_write(bp_hardening_data.template_start,
-+				 hyp_vecs_start);
++static void stm32_usart_rs485_rts_enable(struct uart_port *port)
++{
++	struct stm32_port *stm32_port = to_stm32_port(port);
++	struct serial_rs485 *rs485conf = &port->rs485;
++
++	if (stm32_port->hw_flow_control ||
++	    !(rs485conf->flags & SER_RS485_ENABLED))
++		return;
++
++	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
++		mctrl_gpio_set(stm32_port->gpios,
++			       stm32_port->port.mctrl | TIOCM_RTS);
++	} else {
++		mctrl_gpio_set(stm32_port->gpios,
++			       stm32_port->port.mctrl & ~TIOCM_RTS);
 +	}
- 	raw_spin_unlock(&bp_lock);
++}
++
++static void stm32_usart_rs485_rts_disable(struct uart_port *port)
++{
++	struct stm32_port *stm32_port = to_stm32_port(port);
++	struct serial_rs485 *rs485conf = &port->rs485;
++
++	if (stm32_port->hw_flow_control ||
++	    !(rs485conf->flags & SER_RS485_ENABLED))
++		return;
++
++	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
++		mctrl_gpio_set(stm32_port->gpios,
++			       stm32_port->port.mctrl & ~TIOCM_RTS);
++	} else {
++		mctrl_gpio_set(stm32_port->gpios,
++			       stm32_port->port.mctrl | TIOCM_RTS);
++	}
++}
++
+ static void stm32_usart_transmit_chars_pio(struct uart_port *port)
+ {
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
+@@ -566,41 +602,20 @@ static void stm32_usart_disable_ms(struct uart_port *port)
+ /* Transmit stop */
+ static void stm32_usart_stop_tx(struct uart_port *port)
+ {
+-	struct stm32_port *stm32_port = to_stm32_port(port);
+-	struct serial_rs485 *rs485conf = &port->rs485;
+-
+ 	stm32_usart_tx_interrupt_disable(port);
+ 
+-	if (rs485conf->flags & SER_RS485_ENABLED) {
+-		if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
+-			mctrl_gpio_set(stm32_port->gpios,
+-					stm32_port->port.mctrl & ~TIOCM_RTS);
+-		} else {
+-			mctrl_gpio_set(stm32_port->gpios,
+-					stm32_port->port.mctrl | TIOCM_RTS);
+-		}
+-	}
++	stm32_usart_rs485_rts_disable(port);
  }
- #else
+ 
+ /* There are probably characters waiting to be transmitted. */
+ static void stm32_usart_start_tx(struct uart_port *port)
+ {
+-	struct stm32_port *stm32_port = to_stm32_port(port);
+-	struct serial_rs485 *rs485conf = &port->rs485;
+ 	struct circ_buf *xmit = &port->state->xmit;
+ 
+ 	if (uart_circ_empty(xmit) && !port->x_char)
+ 		return;
+ 
+-	if (rs485conf->flags & SER_RS485_ENABLED) {
+-		if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
+-			mctrl_gpio_set(stm32_port->gpios,
+-					stm32_port->port.mctrl | TIOCM_RTS);
+-		} else {
+-			mctrl_gpio_set(stm32_port->gpios,
+-					stm32_port->port.mctrl & ~TIOCM_RTS);
+-		}
+-	}
++	stm32_usart_rs485_rts_enable(port);
+ 
+ 	stm32_usart_transmit_chars(port);
+ }
+-- 
+2.35.1
+
 
 
