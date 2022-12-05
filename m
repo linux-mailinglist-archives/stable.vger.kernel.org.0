@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4A036432DE
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:31:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF1196431E7
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234085AbiLETbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:31:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52508 "EHLO
+        id S234135AbiLETWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:22:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234112AbiLETbG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:31:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15D5824BFB
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:26:51 -0800 (PST)
+        with ESMTP id S233748AbiLETVl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:21:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A62C2FD0
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:17:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7718612FB
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C97B4C433D6;
-        Mon,  5 Dec 2022 19:26:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D49F361312
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:17:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3EBAC433D7;
+        Mon,  5 Dec 2022 19:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268402;
-        bh=7cFMZPfc+s0l26yFGgGL849IE2C638W8nzRrpxIyCjU=;
+        s=korg; t=1670267821;
+        bh=FOvcc1pLq4Xt3xXYdoz5oFraN6fYSCmL3vVLtcdfbFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XX+KBvLJ0XScuEiKFlwvVuMQpsiIYmZXc1kYai423HS9guSMUDaiUxylrwLJgmJ1h
-         nvCzs43PsZIZHXFjt+RMFpLHIoqJXqvWhRyE1D76bSDMX+dI7I92sxAQUeDUfDHoCV
-         5Swdz3ix/YZyy+lfBpbm0rnBNqqurgTt67s/kzu4=
+        b=lKdxRk/SklwIm21jkErKq/vmrgegI+PDAnis/TCVsg8INpiTZAewe523c/ftI3XP2
+         E6XLoafdosO4Ag4g0AIIXuIxm/On6k2lI7b1cI9bMP1l9kWdbFGy+wBs2IKRM9LGXN
+         sLJJpr5oayHxDnh4JTFHUoHh1RRe/LReOza67GlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.0 088/124] mmc: mtk-sd: Fix missing clk_disable_unprepare in msdc_of_clock_parse()
+        patches@lists.linux.dev, Borislav Petkov <bp@alien8.de>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 63/77] x86/bugs: Make sure MSR_SPEC_CTRL is updated properly upon resume from S3
 Date:   Mon,  5 Dec 2022 20:09:54 +0100
-Message-Id: <20221205190810.918734228@linuxfoundation.org>
+Message-Id: <20221205190803.085670355@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +54,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit c61bfb1cb63ddab52b31cf5f1924688917e61fad upstream.
+commit 66065157420c5b9b3f078f43d313c153e1ff7f83 upstream.
 
-The clk_disable_unprepare() should be called in the error handling
-of devm_clk_bulk_get_optional, fix it by replacing devm_clk_get_optional
-and clk_prepare_enable by devm_clk_get_optional_enabled.
+The "force" argument to write_spec_ctrl_current() is currently ambiguous
+as it does not guarantee the MSR write. This is due to the optimization
+that writes to the MSR happen only when the new value differs from the
+cached value.
 
-Fixes: f5eccd94b63f ("mmc: mediatek: Add subsys clock control for MT8192 msdc")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221125090141.3626747-1-cuigaosheng1@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+This is fine in most cases, but breaks for S3 resume when the cached MSR
+value gets out of sync with the hardware MSR value due to S3 resetting
+it.
+
+When x86_spec_ctrl_current is same as x86_spec_ctrl_base, the MSR write
+is skipped. Which results in SPEC_CTRL mitigations not getting restored.
+
+Move the MSR write from write_spec_ctrl_current() to a new function that
+unconditionally writes to the MSR. Update the callers accordingly and
+rename functions.
+
+  [ bp: Rework a bit. ]
+
+Fixes: caa0ff24d5d0 ("x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value")
+Suggested-by: Borislav Petkov <bp@alien8.de>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/806d39b0bfec2fe8f50dc5446dff20f5bb24a959.1669821572.git.pawan.kumar.gupta@linux.intel.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/mtk-sd.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |    2 +-
+ arch/x86/kernel/cpu/bugs.c           |   21 ++++++++++++++-------
+ arch/x86/kernel/process.c            |    2 +-
+ 3 files changed, 16 insertions(+), 9 deletions(-)
 
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -2573,13 +2573,11 @@ static int msdc_of_clock_parse(struct pl
- 			return PTR_ERR(host->src_clk_cg);
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -301,7 +301,7 @@ static inline void indirect_branch_predi
+ /* The Intel SPEC CTRL MSR base value cache */
+ extern u64 x86_spec_ctrl_base;
+ DECLARE_PER_CPU(u64, x86_spec_ctrl_current);
+-extern void write_spec_ctrl_current(u64 val, bool force);
++extern void update_spec_ctrl_cond(u64 val);
+ extern u64 spec_ctrl_current(void);
+ 
+ /*
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -58,11 +58,18 @@ EXPORT_SYMBOL_GPL(x86_spec_ctrl_current)
+ 
+ static DEFINE_MUTEX(spec_ctrl_mutex);
+ 
++/* Update SPEC_CTRL MSR and its cached copy unconditionally */
++static void update_spec_ctrl(u64 val)
++{
++	this_cpu_write(x86_spec_ctrl_current, val);
++	wrmsrl(MSR_IA32_SPEC_CTRL, val);
++}
++
+ /*
+  * Keep track of the SPEC_CTRL MSR value for the current task, which may differ
+  * from x86_spec_ctrl_base due to STIBP/SSB in __speculation_ctrl_update().
+  */
+-void write_spec_ctrl_current(u64 val, bool force)
++void update_spec_ctrl_cond(u64 val)
+ {
+ 	if (this_cpu_read(x86_spec_ctrl_current) == val)
+ 		return;
+@@ -73,7 +80,7 @@ void write_spec_ctrl_current(u64 val, bo
+ 	 * When KERNEL_IBRS this MSR is written on return-to-user, unless
+ 	 * forced the update can be delayed until that time.
+ 	 */
+-	if (force || !cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS))
++	if (!cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS))
+ 		wrmsrl(MSR_IA32_SPEC_CTRL, val);
+ }
+ 
+@@ -1192,7 +1199,7 @@ static void __init spec_ctrl_disable_ker
+ 
+ 	if (ia32_cap & ARCH_CAP_RRSBA) {
+ 		x86_spec_ctrl_base |= SPEC_CTRL_RRSBA_DIS_S;
+-		write_spec_ctrl_current(x86_spec_ctrl_base, true);
++		update_spec_ctrl(x86_spec_ctrl_base);
+ 	}
+ }
+ 
+@@ -1314,7 +1321,7 @@ static void __init spectre_v2_select_mit
+ 
+ 	if (spectre_v2_in_ibrs_mode(mode)) {
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+-		write_spec_ctrl_current(x86_spec_ctrl_base, true);
++		update_spec_ctrl(x86_spec_ctrl_base);
  	}
  
--	host->sys_clk_cg = devm_clk_get_optional(&pdev->dev, "sys_cg");
-+	/* If present, always enable for this clock gate */
-+	host->sys_clk_cg = devm_clk_get_optional_enabled(&pdev->dev, "sys_cg");
- 	if (IS_ERR(host->sys_clk_cg))
- 		host->sys_clk_cg = NULL;
+ 	switch (mode) {
+@@ -1418,7 +1425,7 @@ static void __init spectre_v2_select_mit
+ static void update_stibp_msr(void * __unused)
+ {
+ 	u64 val = spec_ctrl_current() | (x86_spec_ctrl_base & SPEC_CTRL_STIBP);
+-	write_spec_ctrl_current(val, true);
++	update_spec_ctrl(val);
+ }
  
--	/* If present, always enable for this clock gate */
--	clk_prepare_enable(host->sys_clk_cg);
--
- 	host->bulk_clks[0].id = "pclk_cg";
- 	host->bulk_clks[1].id = "axi_cg";
- 	host->bulk_clks[2].id = "ahb_cg";
+ /* Update x86_spec_ctrl_base in case SMT state changed. */
+@@ -1651,7 +1658,7 @@ static enum ssb_mitigation __init __ssb_
+ 			x86_amd_ssb_disable();
+ 		} else {
+ 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
+-			write_spec_ctrl_current(x86_spec_ctrl_base, true);
++			update_spec_ctrl(x86_spec_ctrl_base);
+ 		}
+ 	}
+ 
+@@ -1856,7 +1863,7 @@ int arch_prctl_spec_ctrl_get(struct task
+ void x86_spec_ctrl_setup_ap(void)
+ {
+ 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
+-		write_spec_ctrl_current(x86_spec_ctrl_base, true);
++		update_spec_ctrl(x86_spec_ctrl_base);
+ 
+ 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
+ 		x86_amd_ssb_disable();
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -435,7 +435,7 @@ static __always_inline void __speculatio
+ 	}
+ 
+ 	if (updmsr)
+-		write_spec_ctrl_current(msr, false);
++		update_spec_ctrl_cond(msr);
+ }
+ 
+ static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
 
 
