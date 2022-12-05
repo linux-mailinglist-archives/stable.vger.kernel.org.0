@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 789C96432A5
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EA43643406
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234121AbiLET1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:27:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53460 "EHLO
+        id S234900AbiLETlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:41:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234110AbiLET1R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:27:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FB422717D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:24:23 -0800 (PST)
+        with ESMTP id S234785AbiLETlQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:41:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EEE62658
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:38:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31D2361311
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:24:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 403D3C433D7;
-        Mon,  5 Dec 2022 19:24:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8FFFB81157
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:38:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 400C0C433D6;
+        Mon,  5 Dec 2022 19:38:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268262;
-        bh=ej+v5aqHDtEuMwUrK7dcJ8XNPjBxut/nU5tAETQ4ghk=;
+        s=korg; t=1670269124;
+        bh=ur6q0l5dvAsHUZABramdioS2JWxZhxVY3ysfT1RnnGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUG2XRBRZ0nCdscq2yWUp9CYCdeZyJM7+AIqyZpRKyK4wbDjjADKVrNggA+9II0Ju
-         de/xFfoMHV0FqJDBoNb9agv/yGYUWI8ROpHhelGpvpTCrtFz2mGhD1eI3O8iSjopJA
-         Vi4BYxeNaNriLVSBVfgYWbvgATZHC8w8KJzU1CS4=
+        b=m50DkGIY7/v4b4pz9ax4ldbHcUyv7ktzc7cOTG+RsvXrNHJ9xZ8sWZ5IGC0llc7kY
+         g/PilX3RdUuu1I6yrqXRLhZ6GUWCurSIssXy3wPEMMNIL6wbKUmiE4q8uUO9fOL/iM
+         fdE+PkJhqh5Xf8dhs3h2mvt70l0KrsqS1UM/tSSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 6.0 030/124] i40e: Fix error handling in i40e_init_module()
-Date:   Mon,  5 Dec 2022 20:08:56 +0100
-Message-Id: <20221205190809.302950985@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Detlev Casanova <detlev.casanova@collabora.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 013/153] ASoC: sgtl5000: Reset the CHIP_CLK_CTRL reg on remove
+Date:   Mon,  5 Dec 2022 20:08:57 +0100
+Message-Id: <20221205190809.133599901@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Detlev Casanova <detlev.casanova@collabora.com>
 
-[ Upstream commit 479dd06149425b9e00477f52200872587af76a48 ]
+[ Upstream commit 0bb8e9b36b5b7f2e77892981ff6c27ee831d8026 ]
 
-i40e_init_module() won't free the debugfs directory created by
-i40e_dbg_init() when pci_register_driver() failed. Add fail path to
-call i40e_dbg_exit() to remove the debugfs entries to prevent the bug.
+Since commit bf2aebccddef ("ASoC: sgtl5000: Fix noise on shutdown/remove"),
+the device power control registers are reset when the driver is
+removed/shutdown.
 
-i40e: Intel(R) Ethernet Connection XL710 Network Driver
-i40e: Copyright (c) 2013 - 2019 Intel Corporation.
-debugfs: Directory 'i40e' with parent '/' already present!
+This is an issue when the device is configured to use the PLL clock. The
+device will stop responding if it is still configured to use the PLL
+clock but the PLL clock is powered down.
 
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+When rebooting linux, the probe function will show:
+sgtl5000 0-000a: Error reading chip id -11
+
+Make sure that the CHIP_CLK_CTRL is reset to its default value before
+powering down the device.
+
+Fixes: bf2aebccddef ("ASoC: sgtl5000: Fix noise on shutdown/remove")
+Signed-off-by: Detlev Casanova <detlev.casanova@collabora.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20221110190612.1341469-1-detlev.casanova@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ sound/soc/codecs/sgtl5000.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index b3336d31f8a9..023685cca2c1 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -16652,6 +16652,8 @@ static struct pci_driver i40e_driver = {
-  **/
- static int __init i40e_init_module(void)
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index 76d3c0681f37..d2dfc53e30ff 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -1788,6 +1788,7 @@ static int sgtl5000_i2c_remove(struct i2c_client *client)
  {
-+	int err;
-+
- 	pr_info("%s: %s\n", i40e_driver_name, i40e_driver_string);
- 	pr_info("%s: %s\n", i40e_driver_name, i40e_copyright);
+ 	struct sgtl5000_priv *sgtl5000 = i2c_get_clientdata(client);
  
-@@ -16669,7 +16671,14 @@ static int __init i40e_init_module(void)
- 	}
- 
- 	i40e_dbg_init();
--	return pci_register_driver(&i40e_driver);
-+	err = pci_register_driver(&i40e_driver);
-+	if (err) {
-+		destroy_workqueue(i40e_wq);
-+		i40e_dbg_exit();
-+		return err;
-+	}
-+
-+	return 0;
- }
- module_init(i40e_init_module);
++	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_CLK_CTRL, SGTL5000_CHIP_CLK_CTRL_DEFAULT);
+ 	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_DIG_POWER, SGTL5000_DIG_POWER_DEFAULT);
+ 	regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, SGTL5000_ANA_POWER_DEFAULT);
  
 -- 
 2.35.1
