@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5D92643246
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA07A64342F
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:43:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233820AbiLETZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:25:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49712 "EHLO
+        id S234887AbiLETnF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:43:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232149AbiLETYq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F38227DCB
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:09 -0800 (PST)
+        with ESMTP id S234918AbiLETmX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:42:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F1F29CB4
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:40:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E429061307
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00DBFC433B5;
-        Mon,  5 Dec 2022 19:20:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 689DD612ED
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:40:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A828C433C1;
+        Mon,  5 Dec 2022 19:40:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268008;
-        bh=3cd6+0Yu0fu5yGQxJ1xDq60b6Yr2MRMFrvzFglhcJn0=;
+        s=korg; t=1670269201;
+        bh=4RdZk0Hp+hv423qFCqowbEDXoDRduCPob01/jzZO3kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BXKbT8Ul+9xWTyScidbCpSkfqM3Dhwcu192vxskTurBRahsOmBB/j6exKSetMvu+X
-         gw042TFHUP60L2wkVqKSQp2cpik/xCB/Z9WNpu9gaSy6nx4rCqRkWqJuCSrwie/ijm
-         0F1Gh1+yoHJJUmaHP7PmKCe8u1qr0VniaV4Qlf48=
+        b=fFQ7nDJTXDGI0KTRFkGbqZX2Z41/nEy4RL+2/6NUC429EAqAtXyV2gxbVmtnkEXJp
+         SYcWoqzrn+oKazEZTsa2P6evY8j5nJhr75tq0ixTuh4TJJoos5zhwarZIW/NBJBEE/
+         PZ0ZSJoc/ywxCF2Hutm+g0pas+7o/G7WPqoLuZOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>,
+        patches@lists.linux.dev,
+        Denis Efremov <denis.e.efremov@oracle.com>,
+        Guenter Roeck <groeck@google.com>,
+        Martin Faltesek <mfaltesek@google.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 052/105] dm integrity: flush the journal on suspend
+Subject: [PATCH 5.4 040/153] nfc: st-nci: fix incorrect validating logic in EVT_TRANSACTION
 Date:   Mon,  5 Dec 2022 20:09:24 +0100
-Message-Id: <20221205190804.908085996@linuxfoundation.org>
+Message-Id: <20221205190809.872586789@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Martin Faltesek <mfaltesek@google.com>
 
-[ Upstream commit 5e5dab5ec763d600fe0a67837dd9155bdc42f961 ]
+[ Upstream commit c60c152230828825c06e62a8f1ce956d4b659266 ]
 
-This commit flushes the journal on suspend. It is prerequisite for the
-next commit that enables activating dm integrity devices in read-only mode.
+The first validation check for EVT_TRANSACTION has two different checks
+tied together with logical AND. One is a check for minimum packet length,
+and the other is for a valid aid_tag. If either condition is true (fails),
+then an error should be triggered. The fix is to change && to ||.
 
-Note that we deliberately didn't flush the journal on suspend, so that the
-journal replay code would be tested. However, the dm-integrity code is 5
-years old now, so that journal replay is well-tested, and we can make this
-change now.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Reported-by: Denis Efremov <denis.e.efremov@oracle.com>
+Reviewed-by: Guenter Roeck <groeck@google.com>
+Fixes: 5d1ceb7f5e56 ("NFC: st21nfcb: Add HCI transaction event support")
+Signed-off-by: Martin Faltesek <mfaltesek@google.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-integrity.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/nfc/st-nci/se.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
-index 8456e82409e2..b054271066ac 100644
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -2116,10 +2116,6 @@ static void integrity_writer(struct work_struct *w)
+diff --git a/drivers/nfc/st-nci/se.c b/drivers/nfc/st-nci/se.c
+index f25f1ec5f9e9..75f9a754b7eb 100644
+--- a/drivers/nfc/st-nci/se.c
++++ b/drivers/nfc/st-nci/se.c
+@@ -327,7 +327,7 @@ static int st_nci_hci_connectivity_event_received(struct nci_dev *ndev,
+ 		 * AID          81      5 to 16
+ 		 * PARAMETERS   82      0 to 255
+ 		 */
+-		if (skb->len < NFC_MIN_AID_LENGTH + 2 &&
++		if (skb->len < NFC_MIN_AID_LENGTH + 2 ||
+ 		    skb->data[0] != NFC_EVT_TRANSACTION_AID_TAG)
+ 			return -EPROTO;
  
- 	unsigned prev_free_sectors;
- 
--	/* the following test is not needed, but it tests the replay code */
--	if (unlikely(dm_post_suspending(ic->ti)) && !ic->meta_dev)
--		return;
--
- 	spin_lock_irq(&ic->endio_wait.lock);
- 	write_start = ic->committed_section;
- 	write_sections = ic->n_committed_sections;
-@@ -2455,8 +2451,7 @@ static void dm_integrity_postsuspend(struct dm_target *ti)
- 	drain_workqueue(ic->commit_wq);
- 
- 	if (ic->mode == 'J') {
--		if (ic->meta_dev)
--			queue_work(ic->writer_wq, &ic->writer_work);
-+		queue_work(ic->writer_wq, &ic->writer_work);
- 		drain_workqueue(ic->writer_wq);
- 		dm_integrity_flush_buffers(ic, true);
- 	}
 -- 
 2.35.1
 
