@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CE14643253
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88FC36431D8
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:20:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233758AbiLETZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:25:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46292 "EHLO
+        id S233144AbiLETUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:20:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233748AbiLETZT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:19 -0500
+        with ESMTP id S233300AbiLETU2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:20:28 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E66F25C78
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C513C29CA5
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:16:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C57861307
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D136C433C1;
-        Mon,  5 Dec 2022 19:20:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B8466133A
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:16:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACF08C433C1;
+        Mon,  5 Dec 2022 19:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268057;
-        bh=TR10X2vgxLSZCE1V8mzaojC1XcDEkgzoW7WDwwoERIA=;
+        s=korg; t=1670267788;
+        bh=WZrMlvXuhgGSeMHoRSe8IfJXKYRGgqio+4mB8yPAjoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OicJHuNBhVqV3ANc2lScMF4A1mM/qKqxezsOkDw3sCtfDPkoEt2NcXP1Tr1USbhWN
-         hyT3ny+hlerGy8pn2Zvxt5uT2k+Istd7i72yS5eQy/6vkzkK2WxcytXREw3xPJcHhr
-         fbcJoAYs7947IphR8wpvYZoa21xKP+B6Yz4yfITg=
+        b=Rp400ExnXzoUWQDvuO0gxLxpd7zOQcGdQrqTfDUR/avCzXZzClVDWZXUBf0jpDzUn
+         ryF1g+HgrlrEzw4Y+9p6XwsdtGL24j6MyZ7W8GXkjfwi1Em9C2t1PtoSrd/92k1OyB
+         eee+rg0bvBQMWrqGieFXLw/gcQNZ5vR48es0kFkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Jerry Ray <jerry.ray@microchip.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 071/105] qlcnic: fix sleep-in-atomic-context bugs caused by msleep
+Subject: [PATCH 4.14 52/77] dsa: lan9303: Correct stat name
 Date:   Mon,  5 Dec 2022 20:09:43 +0100
-Message-Id: <20221205190805.574517751@linuxfoundation.org>
+Message-Id: <20221205190802.712895072@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Jerry Ray <jerry.ray@microchip.com>
 
-[ Upstream commit 8dbd6e4ce1b9c527921643d9e34f188a10d4e893 ]
+[ Upstream commit 39f59bca275d2d819a8788c0f962e9e89843efc9 ]
 
-The watchdog timer is used to monitor whether the process
-of transmitting data is timeout. If we use qlcnic driver,
-the dev_watchdog() that is the timer handler of watchdog
-timer will call qlcnic_tx_timeout() to process the timeout.
-But the qlcnic_tx_timeout() calls msleep(), as a result,
-the sleep-in-atomic-context bugs will happen. The processes
-are shown below:
+This patch changes the reported ethtool statistics for the lan9303
+family of parts covered by this driver.
 
-   (atomic context)
-dev_watchdog
-  qlcnic_tx_timeout
-    qlcnic_83xx_idc_request_reset
-      qlcnic_83xx_lock_driver
-        msleep
+The TxUnderRun statistic label is renamed to RxShort to accurately
+reflect what stat the device is reporting.  I did not reorder the
+statistics as that might cause problems with existing user code that
+are expecting the stats at a certain offset.
 
----------------------------
-
-   (atomic context)
-dev_watchdog
-  qlcnic_tx_timeout
-    qlcnic_83xx_idc_request_reset
-      qlcnic_83xx_lock_driver
-        qlcnic_83xx_recover_driver_lock
-          msleep
-
-Fix by changing msleep() to mdelay(), the mdelay() is
-busy-waiting and the bugs could be mitigated.
-
-Fixes: 629263acaea3 ("qlcnic: 83xx CNA inter driver communication mechanism")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a1292595e006 ("net: dsa: add new DSA switch driver for the SMSC-LAN9303")
+Signed-off-by: Jerry Ray <jerry.ray@microchip.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20221128193559.6572-1-jerry.ray@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/dsa/lan9303-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
-index d857d44547a5..b3f1f1bd52a8 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
-@@ -2993,7 +2993,7 @@ static void qlcnic_83xx_recover_driver_lock(struct qlcnic_adapter *adapter)
- 		QLCWRX(adapter->ahw, QLC_83XX_RECOVER_DRV_LOCK, val);
- 		dev_info(&adapter->pdev->dev,
- 			 "%s: lock recovery initiated\n", __func__);
--		msleep(QLC_83XX_DRV_LOCK_RECOVERY_DELAY);
-+		mdelay(QLC_83XX_DRV_LOCK_RECOVERY_DELAY);
- 		val = QLCRDX(adapter->ahw, QLC_83XX_RECOVER_DRV_LOCK);
- 		id = ((val >> 2) & 0xF);
- 		if (id == adapter->portnum) {
-@@ -3029,7 +3029,7 @@ int qlcnic_83xx_lock_driver(struct qlcnic_adapter *adapter)
- 		if (status)
- 			break;
- 
--		msleep(QLC_83XX_DRV_LOCK_WAIT_DELAY);
-+		mdelay(QLC_83XX_DRV_LOCK_WAIT_DELAY);
- 		i++;
- 
- 		if (i == 1)
+diff --git a/drivers/net/dsa/lan9303-core.c b/drivers/net/dsa/lan9303-core.c
+index 1e5a69b9d90a..10d1c08ffeea 100644
+--- a/drivers/net/dsa/lan9303-core.c
++++ b/drivers/net/dsa/lan9303-core.c
+@@ -681,7 +681,7 @@ static const struct lan9303_mib_desc lan9303_mib[] = {
+ 	{ .offset = LAN9303_MAC_TX_BRDCST_CNT_0, .name = "TxBroad", },
+ 	{ .offset = LAN9303_MAC_TX_PAUSE_CNT_0, .name = "TxPause", },
+ 	{ .offset = LAN9303_MAC_TX_MULCST_CNT_0, .name = "TxMulti", },
+-	{ .offset = LAN9303_MAC_RX_UNDSZE_CNT_0, .name = "TxUnderRun", },
++	{ .offset = LAN9303_MAC_RX_UNDSZE_CNT_0, .name = "RxShort", },
+ 	{ .offset = LAN9303_MAC_TX_64_CNT_0, .name = "Tx64Byte", },
+ 	{ .offset = LAN9303_MAC_TX_127_CNT_0, .name = "Tx128Byte", },
+ 	{ .offset = LAN9303_MAC_TX_255_CNT_0, .name = "Tx256Byte", },
 -- 
 2.35.1
 
