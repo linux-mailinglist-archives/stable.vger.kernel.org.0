@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1405643370
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 280FF643474
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234425AbiLETg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:36:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34106 "EHLO
+        id S234663AbiLETrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:47:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234466AbiLETgJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:36:09 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F19ED2C5
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:32:48 -0800 (PST)
+        with ESMTP id S234908AbiLETql (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:46:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA27C772
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:42:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DEDCECE131B
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:32:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB4DC433C1;
-        Mon,  5 Dec 2022 19:32:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF288B811CF
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:42:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67C88C433D7;
+        Mon,  5 Dec 2022 19:42:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268765;
-        bh=LRhp8GW+Txu9t05ovsfZMDGPfs5dMTRcq/8xPOFKyOk=;
+        s=korg; t=1670269370;
+        bh=7jTvEunt8PptdwuI4plQsJaLOoD4bOnyTQc9dU+sQXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VgEWIX6yOsXCHPkFhuOvcqbCz7CjVKcvc+I5UXfZJ6BT4tg3xEcZIbKH0Sbf2mqai
-         TP4Yc9/FswqY8zt4oGd1MCzv6deVmNYvg+vcfzjNGVto2sjcaUXRJl0+GSnOh8eDfz
-         MAJrz94ecA3KmeRp7iuhxprCaulPG+9/2F0mZdXw=
+        b=zcD4XSqyZAjQ8EWni2pHlIyE0IeveeYX+wOcs8vPkygEb5cqP1qLj4OVCdOk2sCsd
+         Ju6MGE95D/SVfVUXwCUK7Syxbe5ZiFlp1Ycj67ZosyR/csYYvgAD5Qyi+2kVxP0iiB
+         aR0Mf0Zbj0hUcP8B6g4GZJJGo15VFHnC+GPJxIoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 73/92] iommu/vt-d: Fix PCI device refcount leak in dmar_dev_scope_init()
+        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>
+Subject: [PATCH 5.4 102/153] wifi: cfg80211: fix buffer overflow in elem comparison
 Date:   Mon,  5 Dec 2022 20:10:26 +0100
-Message-Id: <20221205190805.911077576@linuxfoundation.org>
+Message-Id: <20221205190811.673072723@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 4bedbbd782ebbe7287231fea862c158d4f08a9e3 ]
+[ Upstream commit 9f16b5c82a025cd4c864737409234ddc44fb166a ]
 
-for_each_pci_dev() is implemented by pci_get_device(). The comment of
-pci_get_device() says that it will increase the reference count for the
-returned pci_dev and also decrease the reference count for the input
-pci_dev @from if it is not NULL.
+For vendor elements, the code here assumes that 5 octets
+are present without checking. Since the element itself is
+already checked to fit, we only need to check the length.
 
-If we break for_each_pci_dev() loop with pdev not NULL, we need to call
-pci_dev_put() to decrease the reference count. Add the missing
-pci_dev_put() for the error path to avoid reference count leak.
-
-Fixes: 2e4552893038 ("iommu/vt-d: Unify the way to process DMAR device scope array")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221121113649.190393-3-wangxiongfeng2@huawei.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Reported-and-tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/dmar.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/wireless/scan.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
-index 0bc497f4cb9f..a27765a7f6b7 100644
---- a/drivers/iommu/intel/dmar.c
-+++ b/drivers/iommu/intel/dmar.c
-@@ -816,6 +816,7 @@ int __init dmar_dev_scope_init(void)
- 			info = dmar_alloc_pci_notify_info(dev,
- 					BUS_NOTIFY_ADD_DEVICE);
- 			if (!info) {
-+				pci_dev_put(dev);
- 				return dmar_dev_scope_status;
- 			} else {
- 				dmar_pci_bus_add_dev(info);
+diff --git a/net/wireless/scan.c b/net/wireless/scan.c
+index 630c64520516..c4c124cb5332 100644
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -291,7 +291,8 @@ static size_t cfg80211_gen_new_ie(const u8 *ie, size_t ielen,
+ 			 * determine if they are the same ie.
+ 			 */
+ 			if (tmp_old[0] == WLAN_EID_VENDOR_SPECIFIC) {
+-				if (!memcmp(tmp_old + 2, tmp + 2, 5)) {
++				if (tmp_old[1] >= 5 && tmp[1] >= 5 &&
++				    !memcmp(tmp_old + 2, tmp + 2, 5)) {
+ 					/* same vendor ie, copy from
+ 					 * subelement
+ 					 */
 -- 
 2.35.1
 
