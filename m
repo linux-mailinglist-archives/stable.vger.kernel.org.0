@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3045B643272
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F30086431F3
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233520AbiLET0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:26:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49950 "EHLO
+        id S233629AbiLETWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:22:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233933AbiLETZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:51 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E23B2D71
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:22:09 -0800 (PST)
+        with ESMTP id S233895AbiLETWE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:22:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5B852656D
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:18:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3990ACE13A3
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:22:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F1CC433C1;
-        Mon,  5 Dec 2022 19:22:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7CA95B8120C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:17:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD41BC433C1;
+        Mon,  5 Dec 2022 19:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268126;
-        bh=2mUxD8qeq97aRPeJbMuT8Zvqaw9f07LCPRMdsEK6qWE=;
+        s=korg; t=1670267859;
+        bh=8cQXqMCg1QH/wcBEhHVisZETyyChLf/1BUeov2UWHv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fpz5dtPh2w6QQfttx1lvH2Jr5/kt6HvnYcA6Dsw7udU4M61aE3Y/FioeCZFddxuTd
-         CdD2VQdlwYWr/YoRYW7U0OA58uqb4K91Zk6n8XXCV7jXQvLc6j3loAap1Q+JkTx+UC
-         TXMmtaDVH8EvwRom/WFVuhQf+q2eRrF3b2c4ikso=
+        b=melyqpekB/3gcX6hP46OXDZ4bM8AQ3EQj+8OQwDAybZ5hFMVzGfHXd9YsTAfyewNc
+         4dZZl4pT3/S0HExCg7mWuHsIsqTB7kezirR2NkAKkL3MbLgJ/sFtmalIi2Z1hjwGms
+         3fBHb0eL97y7/6GF03kEK2jez4vx2cGYLsZ+YVp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 068/105] net/mlx5: Fix uninitialized variable bug in outlen_write()
+Subject: [PATCH 4.14 49/77] net: phy: fix null-ptr-deref while probe() failed
 Date:   Mon,  5 Dec 2022 20:09:40 +0100
-Message-Id: <20221205190805.479590710@linuxfoundation.org>
+Message-Id: <20221205190802.611712286@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 3f5769a074c13d8f08455e40586600419e02a880 ]
+[ Upstream commit 369eb2c9f1f72adbe91e0ea8efb130f0a2ba11a6 ]
 
-If sscanf() return 0, outlen is uninitialized and used in kzalloc(),
-this is unexpected. We should return -EINVAL if the string is invalid.
+I got a null-ptr-deref report as following when doing fault injection test:
 
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+BUG: kernel NULL pointer dereference, address: 0000000000000058
+Oops: 0000 [#1] PREEMPT SMP KASAN PTI
+CPU: 1 PID: 253 Comm: 507-spi-dm9051 Tainted: G    B            N 6.1.0-rc3+
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:klist_put+0x2d/0xd0
+Call Trace:
+ <TASK>
+ klist_remove+0xf1/0x1c0
+ device_release_driver_internal+0x23e/0x2d0
+ bus_remove_device+0x1bd/0x240
+ device_del+0x357/0x770
+ phy_device_remove+0x11/0x30
+ mdiobus_unregister+0xa5/0x140
+ release_nodes+0x6a/0xa0
+ devres_release_all+0xf8/0x150
+ device_unbind_cleanup+0x19/0xd0
+
+//probe path:
+phy_device_register()
+  device_add()
+
+phy_connect
+  phy_attach_direct() //set device driver
+    probe() //it's failed, driver is not bound
+    device_bind_driver() // probe failed, it's not called
+
+//remove path:
+phy_device_remove()
+  device_del()
+    device_release_driver_internal()
+      __device_release_driver() //dev->drv is not NULL
+        klist_remove() <- knode_driver is not added yet, cause null-ptr-deref
+
+In phy_attach_direct(), after setting the 'dev->driver', probe() fails,
+device_bind_driver() is not called, so the knode_driver->n_klist is not
+set, then it causes null-ptr-deref in __device_release_driver() while
+deleting device. Fix this by setting dev->driver to NULL in the error
+path in phy_attach_direct().
+
+Fixes: e13934563db0 ("[PATCH] PHY Layer fixup")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/phy/phy_device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-index a686082762df..14cdac980520 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-@@ -1324,8 +1324,8 @@ static ssize_t outlen_write(struct file *filp, const char __user *buf,
- 		return -EFAULT;
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index b51bca051c47..5d557a005f85 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -1050,6 +1050,7 @@ int phy_attach_direct(struct net_device *dev, struct phy_device *phydev,
  
- 	err = sscanf(outlen_str, "%d", &outlen);
--	if (err < 0)
--		return err;
-+	if (err != 1)
-+		return -EINVAL;
- 
- 	ptr = kzalloc(outlen, GFP_KERNEL);
- 	if (!ptr)
+ error_module_put:
+ 	module_put(d->driver->owner);
++	d->driver = NULL;
+ error_put_device:
+ 	put_device(d);
+ 	if (ndev_owner != bus->owner)
 -- 
 2.35.1
 
