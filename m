@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94BCE643367
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 550496434A1
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:48:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234555AbiLETgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:36:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33908 "EHLO
+        id S235083AbiLETsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:48:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234536AbiLETf5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:57 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24F3826563
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:32:24 -0800 (PST)
+        with ESMTP id S235068AbiLETrz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29F2E6598
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:44:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 72D87CE13A9
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:32:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D08FC433C1;
-        Mon,  5 Dec 2022 19:32:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B957961321
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:44:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDBBCC433D6;
+        Mon,  5 Dec 2022 19:44:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268740;
-        bh=2ZBM5bbmiVnc/4uUacqA1Sp4IFcHk4hcdP9ds5k5tEw=;
+        s=korg; t=1670269486;
+        bh=97zCjMVNzmdlmIskIidDpK7Lzxmc3JquiqnkwFgwY1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U4u8x8vzjdiWAn0wPRofEqJ7gqs9VeND3rRbPGt+y0EDn2JBdMNGMfjFny1OpNh9t
-         QPJOfqDY0JMFE2LzZRgdsbvUEhaletVOI+u94tbVXkvfHE5YiMgVrzb4VY8t5pBdnn
-         RiCW1OfpN6AQYsGGZF3n0HB2eSmFt4FpXcKAphLU=
+        b=PNxangmcYYr3Rvbxtpsm4wfHg/cDbGAtsN7BZCQWzbF/rSjt1YEhQsNNNFcM994uy
+         d4QHRINtMdFiF5TCP0OejER2atAqxcYD3HomncEMsXeJupN74rfz/s0QveYt2YDEvg
+         xHdLEY22CO2qSCuPO6g5tEWaW8gxG4YNzNZfKPpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Rafael J. Wysocki" <rafael@kernel.org>,
-        Liu Shixin <liushixin2@huawei.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 87/92] ACPI: HMAT: remove unnecessary variable initialization
-Date:   Mon,  5 Dec 2022 20:10:40 +0100
-Message-Id: <20221205190806.344792874@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 117/153] error-injection: Add prompt for function error injection
+Date:   Mon,  5 Dec 2022 20:10:41 +0100
+Message-Id: <20221205190812.073047229@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,42 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Verma <vishal.l.verma@intel.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit 14f16d47561ba9249efc6c2db9d47ed56841f070 ]
+commit a4412fdd49dc011bcc2c0d81ac4cab7457092650 upstream.
 
-In hmat_register_target_initiators(), the variable 'best' gets
-initialized in the outer per-locality-type for loop. The initialization
-just before setting up 'Access 1' targets was unnecessary. Remove it.
+The config to be able to inject error codes into any function annotated
+with ALLOW_ERROR_INJECTION() is enabled when FUNCTION_ERROR_INJECTION is
+enabled.  But unfortunately, this is always enabled on x86 when KPROBES
+is enabled, and there's no way to turn it off.
 
-Cc: Rafael J. Wysocki <rafael@kernel.org>
-Cc: Liu Shixin <liushixin2@huawei.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
-Link: https://lore.kernel.org/r/20221116-acpi_hmat_fix-v2-1-3712569be691@intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Stable-dep-of: 48d4180939e1 ("ACPI: HMAT: Fix initiator registration for single-initiator systems")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As kprobes is useful for observability of the kernel, it is useful to
+have it enabled in production environments.  But error injection should
+be avoided.  Add a prompt to the config to allow it to be disabled even
+when kprobes is enabled, and get rid of the "def_bool y".
+
+This is a kernel debug feature (it's in Kconfig.debug), and should have
+never been something enabled by default.
+
+Cc: stable@vger.kernel.org
+Fixes: 540adea3809f6 ("error-injection: Separate error-injection from kprobe")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/numa/hmat.c | 1 -
- 1 file changed, 1 deletion(-)
+ lib/Kconfig.debug |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/numa/hmat.c b/drivers/acpi/numa/hmat.c
-index 137a5dd880c2..fd202689dcda 100644
---- a/drivers/acpi/numa/hmat.c
-+++ b/drivers/acpi/numa/hmat.c
-@@ -645,7 +645,6 @@ static void hmat_register_target_initiators(struct memory_target *target)
- 	/* Access 1 ignores Generic Initiators */
- 	bitmap_zero(p_nodes, MAX_NUMNODES);
- 	list_sort(p_nodes, &initiators, initiator_cmp);
--	best = 0;
- 	for (i = WRITE_LATENCY; i <= READ_BANDWIDTH; i++) {
- 		loc = localities_types[i];
- 		if (!loc)
--- 
-2.35.1
-
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -1525,8 +1525,14 @@ config NETDEV_NOTIFIER_ERROR_INJECT
+ 	  If unsure, say N.
+ 
+ config FUNCTION_ERROR_INJECTION
+-	def_bool y
++	bool "Fault-injections of functions"
+ 	depends on HAVE_FUNCTION_ERROR_INJECTION && KPROBES
++	help
++	  Add fault injections into various functions that are annotated with
++	  ALLOW_ERROR_INJECTION() in the kernel. BPF may also modify the return
++	  value of theses functions. This is useful to test error paths of code.
++
++	  If unsure, say N
+ 
+ config FAULT_INJECTION
+ 	bool "Fault-injection framework"
 
 
