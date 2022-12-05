@@ -2,144 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3699F6423B7
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 08:43:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1431642475
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 09:23:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231571AbiLEHnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 02:43:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42160 "EHLO
+        id S231667AbiLEIXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 03:23:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231664AbiLEHnR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 02:43:17 -0500
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57A1B13F0E
-        for <stable@vger.kernel.org>; Sun,  4 Dec 2022 23:43:16 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id p8so17182089lfu.11
-        for <stable@vger.kernel.org>; Sun, 04 Dec 2022 23:43:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=GpteDm2gH43vBJ7G+qua6WC1qNYCXfWUrpUXxzjeBNg=;
-        b=xE5FemEfKgYyDTEC250D2ecul4cDVfmaEB1eU2Q42NCeCaX1V3knt6xZARfW/vgPun
-         hwFNa/trR65569K2MYODGH9obwN73UGP7VpBjJbXXAiMbBr3Yc8WtNVxFGeDGXqAs+Yx
-         /E2Z1D5BjtG9V1+nfuOz3vVmfUuo83jWnBb5lX7Nj0KqNeVjt6I75J321+ONRWHIAdvE
-         Lq9d1AebttMDENHkidREe34zACLiL8mdMujcZq5VALj6zFFza5nGWRfceDfbu15yn6Lc
-         EUqfO4wVmKBuLb8pmQ5avYEQyZXYEVx7E55C2Cm9hzdkX9PJswMOdiuTfhpitfH46Kvq
-         rEeg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=GpteDm2gH43vBJ7G+qua6WC1qNYCXfWUrpUXxzjeBNg=;
-        b=R+ZwIsWpUPJnQy8kcz6mEhbOgJD3UmXxfuOaCkV3N79oeM7ACN7ISVPtHzF2n4VFjG
-         qfZ38najBGN8XQWbJL9gO5kM8gKaAlpccHq+OhJRfcdO8cinLwq+hxF5k18pUJjHkbB+
-         eYBfSYXUqp5PZuFqx0JUU5h2HRrXv/oKakGUHlyNtLIrKwqJLPPMWIiFNUnXeC6fTNrJ
-         O9qKQV7LK8MOj/YIM4KPvkHeVahflL3ZYr3uGCAnXcFfLOhk1fM9eti8zAiiGVYOcmDz
-         E5aaBIchEiV8uXWL9NS+3fKC1LyGDVmPPrTYLwg8cVdtQqqJQNdyoDOUxAbmJlTsCNaS
-         v5Uw==
-X-Gm-Message-State: ANoB5pkjkSUSedaXocZg4EbwrlAO5gr58Lcksf+Vatp5/hdZe72yoAYo
-        G3dngHKrQRQteYYJzz/i8RXJIA==
-X-Google-Smtp-Source: AA0mqf5Eim82q68xWNSwtZu3R6hlStfNNujvcHjYSVdIWSOfJzwTh6H7FO/Ty8/sysYrVtHlxaOFCw==
-X-Received: by 2002:ac2:52b6:0:b0:4a8:df88:f4d2 with SMTP id r22-20020ac252b6000000b004a8df88f4d2mr25933550lfm.463.1670226194678;
-        Sun, 04 Dec 2022 23:43:14 -0800 (PST)
-Received: from [192.168.0.20] (088156142067.dynamic-2-waw-k-3-2-0.vectranet.pl. [88.156.142.67])
-        by smtp.gmail.com with ESMTPSA id m4-20020a056512114400b00492e3c8a986sm2015761lfg.264.2022.12.04.23.43.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 04 Dec 2022 23:43:14 -0800 (PST)
-Message-ID: <d79fb2b2-6a79-8be2-e3ae-e24a7212fbaa@linaro.org>
-Date:   Mon, 5 Dec 2022 08:43:13 +0100
+        with ESMTP id S231829AbiLEIX3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 03:23:29 -0500
+Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DE7E11A10;
+        Mon,  5 Dec 2022 00:23:26 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4NQbwh0W6nz9v7Hn;
+        Mon,  5 Dec 2022 16:16:20 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP2 (Coremail) with SMTP id GxC2BwC3nvpjqo1jpri+AA--.15868S2;
+        Mon, 05 Dec 2022 09:23:07 +0100 (CET)
+Message-ID: <5813b77edf8f8c6c68da8343b7898f2a5c831077.camel@huaweicloud.com>
+Subject: Re: [PATCH v2 1/2] evm: Alloc evm_digest in evm_verify_hmac() if
+ CONFIG_VMAP_STACK=y
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Date:   Mon, 05 Dec 2022 09:22:31 +0100
+In-Reply-To: <Y4pIpxbjBdajymBJ@sol.localdomain>
+References: <20221201100625.916781-1-roberto.sassu@huaweicloud.com>
+         <20221201100625.916781-2-roberto.sassu@huaweicloud.com>
+         <Y4j4MJzizgEHf4nv@sol.localdomain>
+         <c8ef0ab69635b99d5175eaf4c96bb3a8957c6210.camel@huaweicloud.com>
+         <Y4pIpxbjBdajymBJ@sol.localdomain>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [PATCH] ARM: dts: qcom: apq8084-ifc6540: fix overriding SDHCI
-Content-Language: en-US
-To:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Cc:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Bhupesh Sharma <bhupesh.sharma@linaro.org>,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20221204084614.12193-1-krzysztof.kozlowski@linaro.org>
- <CAA8EJppUkXMt7nvzkWoLGqyvLSjX2Kn0D2C1AH2VJ9jBdyWKSQ@mail.gmail.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <CAA8EJppUkXMt7nvzkWoLGqyvLSjX2Kn0D2C1AH2VJ9jBdyWKSQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-CM-TRANSID: GxC2BwC3nvpjqo1jpri+AA--.15868S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxGF47tryrXFW7Jw1xGr1kuFg_yoWrAry5pa
+        1kKF18Kr4rJryfCF1av3WYyan3KrW8try7Wws8Jw1YyF9IqrnIk34xAryUWryF9ry8GF1I
+        qFWFqFsxuF1Yya7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UWE__UUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgARBF1jj4JBLgAAsL
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 04/12/2022 12:11, Dmitry Baryshkov wrote:
-> On Sun, 4 Dec 2022 at 10:46, Krzysztof Kozlowski
-> <krzysztof.kozlowski@linaro.org> wrote:
->>
->> While changing node names of APQ8084 SDHCI, the ones in IFC6540 board
->> were not updated leading to disabled and misconfigured SDHCI.
->>
->> Cc: <stable@vger.kernel.org>
->> Fixes: 2477d81901a2 ("ARM: dts: qcom: Fix sdhci node names - use 'mmc@'")
->> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+On Fri, 2022-12-02 at 10:49 -0800, Eric Biggers wrote:
+> On Fri, Dec 02, 2022 at 08:58:21AM +0100, Roberto Sassu wrote:
+> > On Thu, 2022-12-01 at 10:53 -0800, Eric Biggers wrote:
+> > > On Thu, Dec 01, 2022 at 11:06:24AM +0100, Roberto Sassu wrote:
+> > > > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > 
+> > > > Commit ac4e97abce9b8 ("scatterlist: sg_set_buf() argument must be in linear
+> > > > mapping") checks that both the signature and the digest reside in the
+> > > > linear mapping area.
+> > > > 
+> > > > However, more recently commit ba14a194a434c ("fork: Add generic vmalloced
+> > > > stack support"), made it possible to move the stack in the vmalloc area,
+> > > > which is not contiguous, and thus not suitable for sg_set_buf() which needs
+> > > > adjacent pages.
+> > > > 
+> > > > Fix this by checking if CONFIG_VMAP_STACK is enabled. If yes, allocate an
+> > > > evm_digest structure, and use that instead of the in-stack counterpart.
+> > > > 
+> > > > Cc: stable@vger.kernel.org # 4.9.x
+> > > > Fixes: ba14a194a434 ("fork: Add generic vmalloced stack support")
+> > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > ---
+> > > >  security/integrity/evm/evm_main.c | 26 +++++++++++++++++++++-----
+> > > >  1 file changed, 21 insertions(+), 5 deletions(-)
+> > > > 
+> > > > diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+> > > > index 23d484e05e6f..7f76d6103f2e 100644
+> > > > --- a/security/integrity/evm/evm_main.c
+> > > > +++ b/security/integrity/evm/evm_main.c
+> > > > @@ -174,6 +174,7 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+> > > >  	struct signature_v2_hdr *hdr;
+> > > >  	enum integrity_status evm_status = INTEGRITY_PASS;
+> > > >  	struct evm_digest digest;
+> > > > +	struct evm_digest *digest_ptr = &digest;
+> > > >  	struct inode *inode;
+> > > >  	int rc, xattr_len, evm_immutable = 0;
+> > > >  
+> > > > @@ -231,14 +232,26 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+> > > >  		}
+> > > >  
+> > > >  		hdr = (struct signature_v2_hdr *)xattr_data;
+> > > > -		digest.hdr.algo = hdr->hash_algo;
+> > > > +
+> > > > +		if (IS_ENABLED(CONFIG_VMAP_STACK)) {
+> > > > +			digest_ptr = kmalloc(sizeof(*digest_ptr), GFP_NOFS);
+> > > > +			if (!digest_ptr) {
+> > > > +				rc = -ENOMEM;
+> > > > +				break;
+> > > > +			}
+> > > > +		}
+> > > > +
+> > > > +		digest_ptr->hdr.algo = hdr->hash_algo;
+> > > > +
+> > > >  		rc = evm_calc_hash(dentry, xattr_name, xattr_value,
+> > > > -				   xattr_value_len, xattr_data->type, &digest);
+> > > > +				   xattr_value_len, xattr_data->type,
+> > > > +				   digest_ptr);
+> > > >  		if (rc)
+> > > >  			break;
+> > > >  		rc = integrity_digsig_verify(INTEGRITY_KEYRING_EVM,
+> > > >  					(const char *)xattr_data, xattr_len,
+> > > > -					digest.digest, digest.hdr.length);
+> > > > +					digest_ptr->digest,
+> > > > +					digest_ptr->hdr.length);
+> > > >  		if (!rc) {
+> > > >  			inode = d_backing_inode(dentry);
+> > > >  
+> > > > @@ -268,8 +281,11 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+> > > >  		else
+> > > >  			evm_status = INTEGRITY_FAIL;
+> > > >  	}
+> > > > -	pr_debug("digest: (%d) [%*phN]\n", digest.hdr.length, digest.hdr.length,
+> > > > -		  digest.digest);
+> > > > +	pr_debug("digest: (%d) [%*phN]\n", digest_ptr->hdr.length,
+> > > > +		 digest_ptr->hdr.length, digest_ptr->digest);
+> > > > +
+> > > > +	if (digest_ptr && digest_ptr != &digest)
+> > > > +		kfree(digest_ptr);
+> > > 
+> > > What is the actual problem here?  Where is a scatterlist being created from this
+> > > buffer?  AFAICS it never happens.
+> > 
+> > Hi Eric
+> > 
+> > it is in public_key_verify_signature(), called by asymmetric_verify()
+> > and integrity_digsig_verify().
+> > 
 > 
-> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+> Hmm, that's several steps down the stack then.  And not something I had
+> expected.
 > 
-> Minor nit below.
-> 
->> ---
->>  arch/arm/boot/dts/qcom-apq8084-ifc6540.dts | 20 ++++++++++----------
->>  arch/arm/boot/dts/qcom-apq8084.dtsi        |  4 ++--
->>  2 files changed, 12 insertions(+), 12 deletions(-)
->>
->> diff --git a/arch/arm/boot/dts/qcom-apq8084-ifc6540.dts b/arch/arm/boot/dts/qcom-apq8084-ifc6540.dts
->> index 44cd72f1b1be..116e59a3b76d 100644
->> --- a/arch/arm/boot/dts/qcom-apq8084-ifc6540.dts
->> +++ b/arch/arm/boot/dts/qcom-apq8084-ifc6540.dts
->> @@ -19,16 +19,16 @@ soc {
->>                 serial@f995e000 {
->>                         status = "okay";
->>                 };
->> +       };
->> +};
->>
->> -               sdhci@f9824900 {
->> -                       bus-width = <8>;
->> -                       non-removable;
->> -                       status = "okay";
->> -               };
->> +&sdhc_1 {
->> +       bus-width = <8>;
->> +       non-removable;
->> +       status = "okay";
->> +};
->>
->> -               sdhci@f98a4900 {
->> -                       cd-gpios = <&tlmm 122 GPIO_ACTIVE_LOW>;
->> -                       bus-width = <4>;
->> -               };
->> -       };
->> +&sdhc_2 {
->> +       cd-gpios = <&tlmm 122 GPIO_ACTIVE_LOW>;
->> +       bus-width = <4>;
-> 
-> Technically this will still be disabled, as there is no 'status = "okay";' here.
-> 
+> Perhaps this should be fixed in public_key_verify_signature() instead?  It
+> already does a kmalloc(), so that allocation size just could be made a bit
+> larger to get space for a temporary copy of 's' and 'digest'.
 
-Yes, but I think this is separate issue, not related to node renaming.
-The initial patch which added these said:
-"required for enabling the serial port and eMMC."
-so I assume SD card controller was meant to stay disabled.
+Mimi asked to fix it in both IMA and EVM.
 
-Best regards,
-Krzysztof
+> Or at the very least, struct public_key_signature should have a *very* clear
+> comment saying that the 's' and 'digest' fields must be located in physically
+> contiguous memory...
+
+That I could add as an additional patch.
+
+Thanks
+
+Roberto
 
