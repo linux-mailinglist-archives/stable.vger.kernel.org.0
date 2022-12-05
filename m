@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2E73643284
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 146E864345B
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:45:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234084AbiLET0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:26:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49926 "EHLO
+        id S235062AbiLETpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:45:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233941AbiLETZt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CC2033A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:22:04 -0800 (PST)
+        with ESMTP id S234859AbiLETpK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:45:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F7EA60E8
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:41:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C38161309
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:22:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FB99C433C1;
-        Mon,  5 Dec 2022 19:22:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB3B561314
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:41:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC231C433C1;
+        Mon,  5 Dec 2022 19:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268123;
-        bh=e5Pk0psqIbOg8G6cAhXz2Mp5l/2k90g0fjqDo36b8FA=;
+        s=korg; t=1670269316;
+        bh=sWDEPS+XE4uOFWcJtdcBoXCYmrmL3IBAeODrz+tNdqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zp8XGgfM3T0cugZMKbNgT1UokJ8yJBrQRdPCZHbsl8ZiG0KNBGLZ5OoazDfXVl4Y3
-         Qn9iPBt435xgzhccODYPMQR50n9Yg7tYA7MgMtLirJ0iYRIGCDxdcos/ZPxs9lWNkv
-         TnJMCp06wXV+5+TBk+AhJnRO95kmKbSKroepcO4Q=
+        b=JVaQwe6cHCVc901YLrkZBEX5KKW0Li/Bt5dTfGusvq9KTK5Y+IpCyETDJeyPU0GiB
+         4JO+ewbAAOOD9ss8pxQlC0stYYU3F5ITqAqFUII0MAQfmuz7/sykL7aSpVT2NBrTJQ
+         CbYud/vJCx4EQ9L40Rra30z/lKibQkiDQQscTBlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 067/105] of: property: decrement node refcount in of_fwnode_get_reference_args()
+        patches@lists.linux.dev,
+        Patrick Rudolph <patrick.rudolph@9elements.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 055/153] firmware: google: Release devices before unregistering the bus
 Date:   Mon,  5 Dec 2022 20:09:39 +0100
-Message-Id: <20221205190805.443346940@linuxfoundation.org>
+Message-Id: <20221205190810.299562429@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Patrick Rudolph <patrick.rudolph@9elements.com>
 
-[ Upstream commit 60d865bd5a9b15a3961eb1c08bd4155682a3c81e ]
+[ Upstream commit cae0970ee9c4527f189aac378c50e2f0ed020418 ]
 
-In of_fwnode_get_reference_args(), the refcount of of_args.np has
-been incremented in the case of successful return from
-of_parse_phandle_with_args() or of_parse_phandle_with_fixed_args().
+Fix a bug where the kernel module can't be loaded after it has been
+unloaded as the devices are still present and conflicting with the
+to be created coreboot devices.
 
-Decrement the refcount if of_args is not returned to the caller of
-of_fwnode_get_reference_args().
-
-Fixes: 3e3119d3088f ("device property: Introduce fwnode_property_get_reference_args")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Frank Rowand <frowand.list@gmail.com>
-Link: https://lore.kernel.org/r/20221121023209.3909759-1-yangyingliang@huawei.com
-Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
+Link: https://lore.kernel.org/r/20191118101934.22526-2-patrick.rudolph@9elements.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 65946690ed8d ("firmware: coreboot: Register bus in module init")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/property.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/firmware/google/coreboot_table.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/of/property.c b/drivers/of/property.c
-index 43720c2de138..13c7e55f5cba 100644
---- a/drivers/of/property.c
-+++ b/drivers/of/property.c
-@@ -918,8 +918,10 @@ of_fwnode_get_reference_args(const struct fwnode_handle *fwnode,
- 						       nargs, index, &of_args);
- 	if (ret < 0)
- 		return ret;
--	if (!args)
-+	if (!args) {
-+		of_node_put(of_args.np);
- 		return 0;
-+	}
+diff --git a/drivers/firmware/google/coreboot_table.c b/drivers/firmware/google/coreboot_table.c
+index 8d132e4f008a..0205987a4fd4 100644
+--- a/drivers/firmware/google/coreboot_table.c
++++ b/drivers/firmware/google/coreboot_table.c
+@@ -163,8 +163,15 @@ static int coreboot_table_probe(struct platform_device *pdev)
+ 	return ret;
+ }
  
- 	args->nargs = of_args.args_count;
- 	args->fwnode = of_fwnode_handle(of_args.np);
++static int __cb_dev_unregister(struct device *dev, void *dummy)
++{
++	device_unregister(dev);
++	return 0;
++}
++
+ static int coreboot_table_remove(struct platform_device *pdev)
+ {
++	bus_for_each_dev(&coreboot_bus_type, NULL, NULL, __cb_dev_unregister);
+ 	bus_unregister(&coreboot_bus_type);
+ 	return 0;
+ }
 -- 
 2.35.1
 
