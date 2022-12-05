@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78C616432CB
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:29:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67F8C6431F4
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234230AbiLET3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:29:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53734 "EHLO
+        id S233668AbiLETWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:22:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234182AbiLET31 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:29:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8FB02A42E
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:25:54 -0800 (PST)
+        with ESMTP id S233984AbiLETWL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:22:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91DCC264AB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:18:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D240D612FB
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:25:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E740EC433D6;
-        Mon,  5 Dec 2022 19:25:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 508FFB81211
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:17:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF0BCC433D6;
+        Mon,  5 Dec 2022 19:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268353;
-        bh=uGmvIs16xQjjxsbrDA/CCWLXtt539onbBbl9Qrc/2d8=;
+        s=korg; t=1670267851;
+        bh=2ugEVAiKF4faFm7AsMaiKZHbEXNcPM2fvO7W1VF6ne0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jyDy2cWcOqJA0ZrmDJ9jfWc5ZIc5DyTkr8UenfhvTqeyozO+fUfugr9kfA8x5G7c0
-         AB8v6jJV0k33t7UQ/SBTJmF2BRX8Ld0Ra+0+OnUh4XsNlUMOpKshnBMV4lhSGYQQ4q
-         655AFNyY5PjD32P9gaLxY2e6z6icYSD7yNdOHcUw=
+        b=zE8GNYZjBuewCcN+o6PGbgJjHnu0emD3+tsBbzvMC1UeHgzdNtsfvkvxa8oTN/2sV
+         Altc3DcbN0YegITEewlBhcSTgNbesAXLzCeGLEkygw4FTKtSubd/uwzI1lZAhBri3h
+         A2IehOWJhtDSNKE8g6lwO/1DxnYfoWcfK0oH7sBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        patches@lists.linux.dev,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 071/124] afs: Fix server->active leak in afs_put_server
+Subject: [PATCH 4.14 46/77] can: sja1000_isa: sja1000_isa_probe(): add missing free_sja1000dev()
 Date:   Mon,  5 Dec 2022 20:09:37 +0100
-Message-Id: <20221205190810.440842142@linuxfoundation.org>
+Message-Id: <20221205190802.512399532@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Dionne <marc.dionne@auristor.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit ef4d3ea40565a781c25847e9cb96c1bd9f462bc6 ]
+[ Upstream commit 92dfd9310a71d28cefe6a2d5174d43fab240e631 ]
 
-The atomic_read was accidentally replaced with atomic_inc_return,
-which prevents the server from getting cleaned up and causes rmmod
-to hang with a warning:
+Add the missing free_sja1000dev() before return from
+sja1000_isa_probe() in the register_sja1000dev() error handling case.
 
-    Can't purge s=00000001
+In addition, remove blanks before goto labels.
 
-Fixes: 2757a4dc1849 ("afs: Fix access after dec in put functions")
-Signed-off-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Link: https://lore.kernel.org/r/20221130174053.2665818-1-marc.dionne@auristor.com/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 2a6ba39ad6a2 ("can: sja1000: legacy SJA1000 ISA bus driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/all/1668168521-5540-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/server.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/sja1000/sja1000_isa.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/fs/afs/server.c b/fs/afs/server.c
-index 4981baf97835..b5237206eac3 100644
---- a/fs/afs/server.c
-+++ b/fs/afs/server.c
-@@ -406,7 +406,7 @@ void afs_put_server(struct afs_net *net, struct afs_server *server,
- 	if (!server)
- 		return;
+diff --git a/drivers/net/can/sja1000/sja1000_isa.c b/drivers/net/can/sja1000/sja1000_isa.c
+index a89c1e92554d..afccd9fde332 100644
+--- a/drivers/net/can/sja1000/sja1000_isa.c
++++ b/drivers/net/can/sja1000/sja1000_isa.c
+@@ -213,22 +213,24 @@ static int sja1000_isa_probe(struct platform_device *pdev)
+ 	if (err) {
+ 		dev_err(&pdev->dev, "registering %s failed (err=%d)\n",
+ 			DRV_NAME, err);
+-		goto exit_unmap;
++		goto exit_free;
+ 	}
  
--	a = atomic_inc_return(&server->active);
-+	a = atomic_read(&server->active);
- 	zero = __refcount_dec_and_test(&server->ref, &r);
- 	trace_afs_server(debug_id, r - 1, a, reason);
- 	if (unlikely(zero))
+ 	dev_info(&pdev->dev, "%s device registered (reg_base=0x%p, irq=%d)\n",
+ 		 DRV_NAME, priv->reg_base, dev->irq);
+ 	return 0;
+ 
+- exit_unmap:
++exit_free:
++	free_sja1000dev(dev);
++exit_unmap:
+ 	if (mem[idx])
+ 		iounmap(base);
+- exit_release:
++exit_release:
+ 	if (mem[idx])
+ 		release_mem_region(mem[idx], iosize);
+ 	else
+ 		release_region(port[idx], iosize);
+- exit:
++exit:
+ 	return err;
+ }
+ 
 -- 
 2.35.1
 
