@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F170643240
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47AD164338D
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:37:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233902AbiLETZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:25:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
+        id S234581AbiLETh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:37:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233904AbiLETYw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6725824BF6
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:31 -0800 (PST)
+        with ESMTP id S234619AbiLETg5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:36:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C16F228717
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0AE5EB81181
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71A3DC433C1;
-        Mon,  5 Dec 2022 19:20:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F05C61311
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73114C433D6;
+        Mon,  5 Dec 2022 19:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268029;
-        bh=kk6JqSZ7Jvef5DBu4Pn0Mx1/AWSSLnXb+Zel310PvZw=;
+        s=korg; t=1670268840;
+        bh=d6J9L0KYWOJMB99XrD+G6xqyaC+KHdgDiN2dQaf86oI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iKk5EPnqN01gCcXJoxeI4gW9VuAaIPxrkTq2UDAGXlaRfItMF6TSIJ4wyRrdzdWpw
-         gNNN5460b/M9svu6tU36uYEu/gzPRq3KzMXTHdHzg2xjqecpa7W9DIzMpjWSKMAsGU
-         iGUdI+WqwGos1NkI94vXQpad0Syi3wdJF7cfg8t8=
+        b=FL+WQNKWRA21ZWua5bWITX0D8ZgQ0zBQkZ0Gu2tHrIkzr9bd6zrsDYz+0GGhFmENh
+         wlJd1R+CIZBjJBK0azehtbZ+A35ZDvdrKS7FI83f6IxU4gC4VrX8yJTBZJeX4AU5Vu
+         icJPraAvcfvKdzoR1sxPAp7cRkH1GGEVHcS2w/HA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Kleine-Budde <mkl@pengutronix.de>,
-        David Jander <david@protonic.nl>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>, Marek Vasut <marex@denx.de>,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        patches@lists.linux.dev, Zeal Robot <zealci@zte.com.cn>,
+        Minghao Chi <chi.minghao@zte.com.cn>,
+        CGEL ZTE <cgel.zte@gmail.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 059/105] spi: spi-imx: Fix spi_bus_clk if requested clock is higher than input clock
+Subject: [PATCH 5.15 031/120] iavf: remove redundant ret variable
 Date:   Mon,  5 Dec 2022 20:09:31 +0100
-Message-Id: <20221205190805.152953670@linuxfoundation.org>
+Message-Id: <20221205190807.495015753@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,62 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+From: Minghao Chi <chi.minghao@zte.com.cn>
 
-[ Upstream commit db2d2dc9a0b58c6faefb6b002fdbed4f0362d1a4 ]
+[ Upstream commit c3fec56e12678c3ad68084048a73818a7968d6b8 ]
 
-In case the requested bus clock is higher than the input clock, the correct
-dividers (pre = 0, post = 0) are returned from mx51_ecspi_clkdiv(), but
-*fres is left uninitialized and therefore contains an arbitrary value.
+Return value directly instead of taking this in another redundant
+variable.
 
-This causes trouble for the recently introduced PIO polling feature as the
-value in spi_imx->spi_bus_clk is used there to calculate for which
-transfers to enable PIO polling.
-
-Fix this by setting *fres even if no clock dividers are in use.
-
-This issue was observed on Kontron BL i.MX8MM with an SPI peripheral clock set
-to 50 MHz by default and a requested SPI bus clock of 80 MHz for the SPI NOR
-flash.
-
-With the fix applied the debug message from mx51_ecspi_clkdiv() now prints the
-following:
-
-spi_imx 30820000.spi: mx51_ecspi_clkdiv: fin: 50000000, fspi: 50000000,
-post: 0, pre: 0
-
-Fixes: 6fd8b8503a0d ("spi: spi-imx: Fix out-of-order CS/SCLK operation at low speeds")
-Fixes: 07e759387788 ("spi: spi-imx: add PIO polling support")
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>
-Cc: David Jander <david@protonic.nl>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Marek Vasut <marex@denx.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Tested-by: Fabio Estevam <festevam@gmail.com>
-Acked-by: Marek Vasut <marex@denx.de>
-Link: https://lore.kernel.org/r/20221115181002.2068270-1-frieder@fris.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
+Signed-off-by: CGEL ZTE <cgel.zte@gmail.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Stable-dep-of: 227d8d2f7f22 ("iavf: Fix error handling in iavf_init_module()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-imx.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
-index 5b6f3655c366..ec2296a4c44d 100644
---- a/drivers/spi/spi-imx.c
-+++ b/drivers/spi/spi-imx.c
-@@ -429,8 +429,7 @@ static unsigned int mx51_ecspi_clkdiv(struct spi_imx_data *spi_imx,
- 	unsigned int pre, post;
- 	unsigned int fin = spi_imx->spi_clk;
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 4b2e99be7ef5..f2f8f2a43a34 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -1448,7 +1448,6 @@ static void iavf_fill_rss_lut(struct iavf_adapter *adapter)
+ static int iavf_init_rss(struct iavf_adapter *adapter)
+ {
+ 	struct iavf_hw *hw = &adapter->hw;
+-	int ret;
  
--	if (unlikely(fspi > fin))
--		return 0;
-+	fspi = min(fspi, fin);
+ 	if (!RSS_PF(adapter)) {
+ 		/* Enable PCTYPES for RSS, TCP/UDP with IPv4/IPv6 */
+@@ -1464,9 +1463,8 @@ static int iavf_init_rss(struct iavf_adapter *adapter)
  
- 	post = fls(fin) - fls(fspi);
- 	if (fin > fspi << post)
+ 	iavf_fill_rss_lut(adapter);
+ 	netdev_rss_key_fill((void *)adapter->rss_key, adapter->rss_key_size);
+-	ret = iavf_config_rss(adapter);
+ 
+-	return ret;
++	return iavf_config_rss(adapter);
+ }
+ 
+ /**
+@@ -4343,8 +4341,6 @@ static struct pci_driver iavf_driver = {
+  **/
+ static int __init iavf_init_module(void)
+ {
+-	int ret;
+-
+ 	pr_info("iavf: %s\n", iavf_driver_string);
+ 
+ 	pr_info("%s\n", iavf_copyright);
+@@ -4355,8 +4351,7 @@ static int __init iavf_init_module(void)
+ 		pr_err("%s: Failed to create workqueue\n", iavf_driver_name);
+ 		return -ENOMEM;
+ 	}
+-	ret = pci_register_driver(&iavf_driver);
+-	return ret;
++	return pci_register_driver(&iavf_driver);
+ }
+ 
+ module_init(iavf_init_module);
 -- 
 2.35.1
 
