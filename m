@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A49364342A
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:42:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94EEA6433A3
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235001AbiLETmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:42:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48054 "EHLO
+        id S234688AbiLETiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:38:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235032AbiLETmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:42:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5926329C86
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:39:49 -0800 (PST)
+        with ESMTP id S233941AbiLEThx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:37:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFC822AC46
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E308061321
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:39:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1067C43154;
-        Mon,  5 Dec 2022 19:39:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CE4361335
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E559C433D6;
+        Mon,  5 Dec 2022 19:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269188;
-        bh=UXMgBnGJYGP8FCtQr4vpofuA1mFVLKiUr/6y/QDdccA=;
+        s=korg; t=1670268886;
+        bh=pqjXRLDeDU42CC6W+w4CM5n80Y/ZLSl8ZW5c/RyXzPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cHubAdJaKGbMf+Mdb2R2GGngV5EudGfbZtoG8BZkd5yFq+ycDW8iwFVlbe/Rg7vo3
-         Hg8IdBtAADXt4+QogJcvm70k8A+oGMVxjqqv+bmEvJwEp4RWZdzvcIHErJF+1pf+mO
-         VlAPHrGIeOinPflgoEAjqT3V35a1MAC/IL8XLqmg=
+        b=sw+96KDfIc0l6KxM4HXCcyNcwGI9rXe82s0QS2ELjC276IsZoR/2lwlPa3emw7jCJ
+         HF6UNwktf8fTyX717hUeqlzEvC0ahhp32ExCsNqWNNjKD92hz4+id1Tny+pL4bqwp5
+         vLYE/rAV9WTvPzOck30/03ZcPAIFiyw6tAX2Mp8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andreas Kemnade <andreas@kemnade.info>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Hou Tao <houtao1@huawei.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 036/153] regulator: twl6030: re-add TWL6032_SUBCLASS
+Subject: [PATCH 5.15 020/120] libbpf: Handle size overflow for ringbuf mmap
 Date:   Mon,  5 Dec 2022 20:09:20 +0100
-Message-Id: <20221205190809.765479177@linuxfoundation.org>
+Message-Id: <20221205190807.180998122@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit 3d6c982b26db94cc21bc9f7784f63e8286b7be62 ]
+[ Upstream commit 927cbb478adf917e0a142b94baa37f06279cc466 ]
 
-In former times, info->feature was populated via the parent driver
-by pdata/regulator_init_data->driver_data for all regulators when
-USB_PRODUCT_ID_LSB indicates a TWL6032.
-Today, the information is not set, so re-add it at the regulator
-definitions.
+The maximum size of ringbuf is 2GB on x86-64 host, so 2 * max_entries
+will overflow u32 when mapping producer page and data pages. Only
+casting max_entries to size_t is not enough, because for 32-bits
+application on 64-bits kernel the size of read-only mmap region
+also could overflow size_t.
 
-Fixes: 25d82337705e2 ("regulator: twl: make driver DT only")
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Link: https://lore.kernel.org/r/20221120221208.3093727-2-andreas@kemnade.info
-Signed-off-by: Mark Brown <broonie@kernel.org>
+So fixing it by casting the size of read-only mmap region into a __u64
+and checking whether or not there will be overflow during mmap.
+
+Fixes: bf99c936f947 ("libbpf: Add BPF ring buffer support")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20221116072351.1168938-3-houtao@huaweicloud.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/twl6030-regulator.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/lib/bpf/ringbuf.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/regulator/twl6030-regulator.c b/drivers/regulator/twl6030-regulator.c
-index b8100c3cedad..4ffb32ffec35 100644
---- a/drivers/regulator/twl6030-regulator.c
-+++ b/drivers/regulator/twl6030-regulator.c
-@@ -530,6 +530,7 @@ static const struct twlreg_info TWL6030_INFO_##label = { \
- #define TWL6032_ADJUSTABLE_LDO(label, offset) \
- static const struct twlreg_info TWL6032_INFO_##label = { \
- 	.base = offset, \
-+	.features = TWL6032_SUBCLASS, \
- 	.desc = { \
- 		.name = #label, \
- 		.id = TWL6032_REG_##label, \
-@@ -562,6 +563,7 @@ static const struct twlreg_info TWLFIXED_INFO_##label = { \
- #define TWL6032_ADJUSTABLE_SMPS(label, offset) \
- static const struct twlreg_info TWLSMPS_INFO_##label = { \
- 	.base = offset, \
-+	.features = TWL6032_SUBCLASS, \
- 	.desc = { \
- 		.name = #label, \
- 		.id = TWL6032_REG_##label, \
+diff --git a/tools/lib/bpf/ringbuf.c b/tools/lib/bpf/ringbuf.c
+index 8bc117bcc7bc..c42ba9358d8c 100644
+--- a/tools/lib/bpf/ringbuf.c
++++ b/tools/lib/bpf/ringbuf.c
+@@ -59,6 +59,7 @@ int ring_buffer__add(struct ring_buffer *rb, int map_fd,
+ 	__u32 len = sizeof(info);
+ 	struct epoll_event *e;
+ 	struct ring *r;
++	__u64 mmap_sz;
+ 	void *tmp;
+ 	int err;
+ 
+@@ -97,8 +98,7 @@ int ring_buffer__add(struct ring_buffer *rb, int map_fd,
+ 	r->mask = info.max_entries - 1;
+ 
+ 	/* Map writable consumer page */
+-	tmp = mmap(NULL, rb->page_size, PROT_READ | PROT_WRITE, MAP_SHARED,
+-		   map_fd, 0);
++	tmp = mmap(NULL, rb->page_size, PROT_READ | PROT_WRITE, MAP_SHARED, map_fd, 0);
+ 	if (tmp == MAP_FAILED) {
+ 		err = -errno;
+ 		pr_warn("ringbuf: failed to mmap consumer page for map fd=%d: %d\n",
+@@ -111,8 +111,12 @@ int ring_buffer__add(struct ring_buffer *rb, int map_fd,
+ 	 * data size to allow simple reading of samples that wrap around the
+ 	 * end of a ring buffer. See kernel implementation for details.
+ 	 * */
+-	tmp = mmap(NULL, rb->page_size + 2 * info.max_entries, PROT_READ,
+-		   MAP_SHARED, map_fd, rb->page_size);
++	mmap_sz = rb->page_size + 2 * (__u64)info.max_entries;
++	if (mmap_sz != (__u64)(size_t)mmap_sz) {
++		pr_warn("ringbuf: ring buffer size (%u) is too big\n", info.max_entries);
++		return libbpf_err(-E2BIG);
++	}
++	tmp = mmap(NULL, (size_t)mmap_sz, PROT_READ, MAP_SHARED, map_fd, rb->page_size);
+ 	if (tmp == MAP_FAILED) {
+ 		err = -errno;
+ 		ringbuf_unmap_ring(rb, r);
 -- 
 2.35.1
 
