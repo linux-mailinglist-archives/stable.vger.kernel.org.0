@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9700A6433E0
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:40:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74653643369
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234691AbiLETk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:40:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39596 "EHLO
+        id S234536AbiLETgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:36:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234702AbiLETkL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:40:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64DAE27FFB
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:37:16 -0800 (PST)
+        with ESMTP id S234513AbiLETf6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:58 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED4926AF6
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:32:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 049A661321
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:37:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12C2FC43470;
-        Mon,  5 Dec 2022 19:37:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AC36DCE13A5
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:32:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BF20C433D6;
+        Mon,  5 Dec 2022 19:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269035;
-        bh=qLEMbP7r7xm6Qpj1gT3ttgWRibNJiPBThRWnL8Cu38A=;
+        s=korg; t=1670268746;
+        bh=zophd0bTMsSAIMQt/BrSTBOx4zjU3W7E2m5L0J60ZxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fY0gxlvuBrg+3lOSBAjGqoJQ+a1/DfwLAJe1to9AEK1UitxyGWr3k7iWR+onaKmsR
-         1V84kFrDIK8a5VwispoxyLGNOS2GNiLtajg2ZP0MGyn7wjjoDW2coBNfxpY2NGMfsD
-         5q0xu8SXLkCL3xh08ojfMwctiKkOzaIKNBIhKlkw=
+        b=0A1+QWeCFY3l9KStJoiA/PNPdJpbV5bqcMhpfrVozLJZYETBfFROS57BEQU5GUva4
+         NrEHZH45pfAMiGdWGrhaqgEL3yWr5yraE4GLkcUU8HdHi8KFdE6D+PGevKJYd9hPXG
+         7jVvfLvo4IqqNlJpD9OwJ1ashCd96OaXp/25T3Fo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 101/120] iommu/vt-d: Fix PCI device refcount leak in has_external_pci()
-Date:   Mon,  5 Dec 2022 20:10:41 +0100
-Message-Id: <20221205190809.588041248@linuxfoundation.org>
+        patches@lists.linux.dev, Conor Dooley <conor.dooley@microchip.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 89/92] Revert "clocksource/drivers/riscv: Events are stopped during CPU suspend"
+Date:   Mon,  5 Dec 2022 20:10:42 +0100
+Message-Id: <20221205190806.405813533@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit afca9e19cc720bfafc75dc5ce429c185ca93f31d ]
+[ Upstream commit d9f15a9de44affe733e34f93bc184945ba277e6d ]
 
-for_each_pci_dev() is implemented by pci_get_device(). The comment of
-pci_get_device() says that it will increase the reference count for the
-returned pci_dev and also decrease the reference count for the input
-pci_dev @from if it is not NULL.
+This reverts commit 232ccac1bd9b5bfe73895f527c08623e7fa0752d.
 
-If we break for_each_pci_dev() loop with pdev not NULL, we need to call
-pci_dev_put() to decrease the reference count. Add the missing
-pci_dev_put() before 'return true' to avoid reference count leak.
+On the subject of suspend, the RISC-V SBI spec states:
 
-Fixes: 89a6079df791 ("iommu/vt-d: Force IOMMU on for platform opt in hint")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221121113649.190393-2-wangxiongfeng2@huawei.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+  This does not cover whether any given events actually reach the hart or
+  not, just what the hart will do if it receives an event. On PolarFire
+  SoC, and potentially other SiFive based implementations, events from the
+  RISC-V timer do reach a hart during suspend. This is not the case for the
+  implementation on the Allwinner D1 - there timer events are not received
+  during suspend.
+
+To fix this, the CLOCK_EVT_FEAT_C3STOP (mis)feature was enabled for the
+timer driver - but this has broken both RCU stall detection and timers
+generally on PolarFire SoC and potentially other SiFive based
+implementations.
+
+If an AXI read to the PCIe controller on PolarFire SoC times out, the
+system will stall, however, with CLOCK_EVT_FEAT_C3STOP active, the system
+just locks up without RCU stalling:
+
+	io scheduler mq-deadline registered
+	io scheduler kyber registered
+	microchip-pcie 2000000000.pcie: host bridge /soc/pcie@2000000000 ranges:
+	microchip-pcie 2000000000.pcie:      MEM 0x2008000000..0x2087ffffff -> 0x0008000000
+	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: axi read request error
+	microchip-pcie 2000000000.pcie: axi read timeout
+	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
+	Freeing initrd memory: 7332K
+
+Similarly issues were reported with clock_nanosleep() - with a test app
+that sleeps each cpu for 6, 5, 4, 3 ms respectively, HZ=250 & the blamed
+commit in place, the sleep times are rounded up to the next jiffy:
+
+== CPU: 1 ==      == CPU: 2 ==      == CPU: 3 ==      == CPU: 4 ==
+Mean: 7.974992    Mean: 7.976534    Mean: 7.962591    Mean: 3.952179
+Std Dev: 0.154374 Std Dev: 0.156082 Std Dev: 0.171018 Std Dev: 0.076193
+Hi: 9.472000      Hi: 10.495000     Hi: 8.864000      Hi: 4.736000
+Lo: 6.087000      Lo: 6.380000      Lo: 4.872000      Lo: 3.403000
+Samples: 521      Samples: 521      Samples: 521      Samples: 521
+
+Fortunately, the D1 has a second timer, which is "currently used in
+preference to the RISC-V/SBI timer driver" so a revert here does not
+hurt operation of D1 in its current form.
+
+Ultimately, a DeviceTree property (or node) will be added to encode the
+behaviour of the timers, but until then revert the addition of
+CLOCK_EVT_FEAT_C3STOP.
+
+Fixes: 232ccac1bd9b ("clocksource/drivers/riscv: Events are stopped during CPU suspend")
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Acked-by: Samuel Holland <samuel@sholland.org>
+Link: https://lore.kernel.org/linux-riscv/YzYTNQRxLr7Q9JR0@spud/
+Link: https://github.com/riscv-non-isa/riscv-sbi-doc/issues/98/
+Link: https://lore.kernel.org/linux-riscv/bf6d3b1f-f703-4a25-833e-972a44a04114@sholland.org/
+Link: https://lore.kernel.org/r/20221122121620.3522431-1-conor.dooley@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/iommu.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/clocksource/timer-riscv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index fa0cf1c3775d..751ff91af0ff 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -4241,8 +4241,10 @@ static inline bool has_external_pci(void)
- 	struct pci_dev *pdev = NULL;
- 
- 	for_each_pci_dev(pdev)
--		if (pdev->external_facing)
-+		if (pdev->external_facing) {
-+			pci_dev_put(pdev);
- 			return true;
-+		}
- 
- 	return false;
- }
+diff --git a/drivers/clocksource/timer-riscv.c b/drivers/clocksource/timer-riscv.c
+index 0e7748df4be3..c51c5ed15aa7 100644
+--- a/drivers/clocksource/timer-riscv.c
++++ b/drivers/clocksource/timer-riscv.c
+@@ -32,7 +32,7 @@ static int riscv_clock_next_event(unsigned long delta,
+ static unsigned int riscv_clock_event_irq;
+ static DEFINE_PER_CPU(struct clock_event_device, riscv_clock_event) = {
+ 	.name			= "riscv_timer_clockevent",
+-	.features		= CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_C3STOP,
++	.features		= CLOCK_EVT_FEAT_ONESHOT,
+ 	.rating			= 100,
+ 	.set_next_event		= riscv_clock_next_event,
+ };
 -- 
 2.35.1
 
