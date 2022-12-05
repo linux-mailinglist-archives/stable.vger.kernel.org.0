@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ECB0643441
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:43:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EA6064318C
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:17:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234866AbiLETnj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:43:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45936 "EHLO
+        id S233010AbiLETPd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:15:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233913AbiLETnZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:43:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0523325C7B
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:40:51 -0800 (PST)
+        with ESMTP id S233204AbiLETPI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:15:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9148D1F625
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:15:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AAEBDB81201
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:40:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03E92C433C1;
-        Mon,  5 Dec 2022 19:40:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 242BB61309
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:15:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A5E0C433D7;
+        Mon,  5 Dec 2022 19:15:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269248;
-        bh=tqb0AtP7aWpDGmzU/SDRqlqEuvBwwmtg3BnBf+/zoUQ=;
+        s=korg; t=1670267706;
+        bh=8s74y7Z6LLZ6NTNHUyBTBtOBQEOE4Ukx9C1y9FI4QrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSxcfhTsLDskD2HXs7HhjsWmFCuTztcVCTrEGqyq4vkSrcZrI1ZDLTblrITraOaGE
-         GdKyA7+vslNIOcY1YJj/XODi/gqHBPZMyo8RxuATry/0vE9MWOOVc8lTmpRyMhAt8z
-         dmL5eJqIAIQdHMA/xh/B275GhWQsRb1mHZvTqXTw=
+        b=1o4dS5arJMpL+WgqjoBDFxOZqWLyaifPzAIDnq8raNjSLO9JtBC1csA2V/Nl6crAm
+         jwfJTTzobiWuGRwBA2ZFR077Wkb2FHwRbKS/zTOR4x3/QMxy5BISlbDqx/1hb5tipF
+         na8rU2lVphXxhQWf/C8sP8rykP3RpwVNfY36Ml8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 029/153] Drivers: hv: vmbus: fix possible memory leak in vmbus_device_register()
+        patches@lists.linux.dev, Yu Liao <liaoyu15@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 22/77] net: thunderx: Fix the ACPI memory leak
 Date:   Mon,  5 Dec 2022 20:09:13 +0100
-Message-Id: <20221205190809.573529832@linuxfoundation.org>
+Message-Id: <20221205190801.658280072@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Yu Liao <liaoyu15@huawei.com>
 
-[ Upstream commit 25c94b051592c010abe92c85b0485f1faedc83f3 ]
+[ Upstream commit 661e5ebbafd26d9d2e3c749f5cf591e55c7364f5 ]
 
-If device_register() returns error in vmbus_device_register(),
-the name allocated by dev_set_name() must be freed. As comment
-of device_register() says, it should use put_device() to give
-up the reference in the error path. So fix this by calling
-put_device(), then the name can be freed in kobject_cleanup().
+The ACPI buffer memory (string.pointer) should be freed as the buffer is
+not used after returning from bgx_acpi_match_id(), free it to prevent
+memory leak.
 
-Fixes: 09d50ff8a233 ("Staging: hv: make the Hyper-V virtual bus code build")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20221119081135.1564691-3-yangyingliang@huawei.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: 46b903a01c05 ("net, thunder, bgx: Add support to get MAC address from ACPI.")
+Signed-off-by: Yu Liao <liaoyu15@huawei.com>
+Link: https://lore.kernel.org/r/20221123082237.1220521-1-liaoyu15@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/vmbus_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/cavium/thunder/thunder_bgx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index d4c5efc6e157..a1cfa7596853 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1863,6 +1863,7 @@ int vmbus_device_register(struct hv_device *child_device_obj)
- 	ret = device_register(&child_device_obj->device);
- 	if (ret) {
- 		pr_err("Unable to register child device\n");
-+		put_device(&child_device_obj->device);
- 		return ret;
+diff --git a/drivers/net/ethernet/cavium/thunder/thunder_bgx.c b/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
+index d678f088925c..3dc7cde56894 100644
+--- a/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
++++ b/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
+@@ -1243,8 +1243,10 @@ static acpi_status bgx_acpi_match_id(acpi_handle handle, u32 lvl,
+ 		return AE_OK;
  	}
  
+-	if (strncmp(string.pointer, bgx_sel, 4))
++	if (strncmp(string.pointer, bgx_sel, 4)) {
++		kfree(string.pointer);
+ 		return AE_OK;
++	}
+ 
+ 	acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
+ 			    bgx_acpi_register_phy, NULL, bgx, NULL);
 -- 
 2.35.1
 
