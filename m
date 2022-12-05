@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B6F643464
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:46:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E8BD643350
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234671AbiLETqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:46:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52482 "EHLO
+        id S234270AbiLETf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:35:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234617AbiLETqE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:46:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A27F306
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:42:25 -0800 (PST)
+        with ESMTP id S234339AbiLETfJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C1A02A259
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:31:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C28B1B8120F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:42:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F88C433D7;
-        Mon,  5 Dec 2022 19:42:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4C1461307
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:31:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F15FDC433C1;
+        Mon,  5 Dec 2022 19:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269343;
-        bh=+WFqcAr1g/NY+Mqs7VndDxG92ngCZI81Fyv1D9QeYoo=;
+        s=korg; t=1670268677;
+        bh=YPrkSZcHmssOwqYPWtHg0dZ5FWUmJQNDA2byJRLUxIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlsMiRY9c5Wn5Ngth8n9qsD85FKeZThRfgNQ8lOsv8MmRXGU2CwOT9JSF5AOcKwCl
-         4IWtgFGTbOpVsc2Agzq7JiJ/phMA5i6LK2UqSpqTvOvwq6yJtEhruCdz+NU0H9twRf
-         AiKtXZ9GE/IoXiiIbZSjJ+rDAZy7mBw3IRzfIkL4=
+        b=GrWm2xeB46GARtXh5pyxCDY2Y4thBuvLtJbX8ZnJnsMzjlFyYklq98IfdtIRyp3TH
+         wSSVgAe/ep57ZXmmLRO5Xj0bz3plRdnDxwKgK98J/sCFaX5JGofVcB6i2fmJsKN9Oy
+         m3u+6JnJO8UfL5dGjHaadL4d34+7NS+1odDI2mZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 093/153] scripts/faddr2line: Fix regression in name resolution on ppc64le
+        patches@lists.linux.dev, Wenchao Chen <wenchao.chen@unisoc.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 64/92] mmc: sdhci-sprd: Fix no reset data and command after voltage switch
 Date:   Mon,  5 Dec 2022 20:10:17 +0100
-Message-Id: <20221205190811.404573748@linuxfoundation.org>
+Message-Id: <20221205190805.634164594@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,79 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+From: Wenchao Chen <wenchao.chen@unisoc.com>
 
-[ Upstream commit 2d77de1581bb5b470486edaf17a7d70151131afd ]
+commit dd30dcfa7a74a06f8dcdab260d8d5adf32f17333 upstream.
 
-Commit 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section
-failures") can cause faddr2line to fail on ppc64le on some
-distributions, while it works fine on other distributions. The failure
-can be attributed to differences in the readelf output.
+After switching the voltage, no reset data and command will cause
+CMD2 timeout.
 
-  $ ./scripts/faddr2line vmlinux find_busiest_group+0x00
-  no match for find_busiest_group+0x00
-
-On ppc64le, readelf adds the localentry tag before the symbol name on
-some distributions, and adds the localentry tag after the symbol name on
-other distributions. This problem has been discussed previously:
-
-  https://lore.kernel.org/bpf/20191211160133.GB4580@calabresa/
-
-This problem can be overcome by filtering out the localentry tags in the
-readelf output. Similar fixes are already present in the kernel by way
-of the following commits:
-
-  1fd6cee127e2 ("libbpf: Fix VERSIONED_SYM_COUNT number parsing")
-  aa915931ac3e ("libbpf: Fix readelf output parsing for Fedora")
-
-[jpoimboe: rework commit log]
-
-Fixes: 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section failures")
-Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Reviewed-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Link: https://lore.kernel.org/r/20220927075211.897152-1-srikar@linux.vnet.ibm.com
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 29ca763fc26f ("mmc: sdhci-sprd: Add pin control support for voltage switch")
+Signed-off-by: Wenchao Chen <wenchao.chen@unisoc.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221130121328.25553-1-wenchao.chen@unisoc.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/faddr2line | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/mmc/host/sdhci-sprd.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/faddr2line b/scripts/faddr2line
-index 57099687e5e1..9e730b805e87 100755
---- a/scripts/faddr2line
-+++ b/scripts/faddr2line
-@@ -73,7 +73,8 @@ command -v ${ADDR2LINE} >/dev/null 2>&1 || die "${ADDR2LINE} isn't installed"
- find_dir_prefix() {
- 	local objfile=$1
+--- a/drivers/mmc/host/sdhci-sprd.c
++++ b/drivers/mmc/host/sdhci-sprd.c
+@@ -457,7 +457,7 @@ static int sdhci_sprd_voltage_switch(str
+ 	}
  
--	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | ${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
-+	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' |
-+		${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
- 	[[ -z $start_kernel_addr ]] && return
+ 	if (IS_ERR(sprd_host->pinctrl))
+-		return 0;
++		goto reset;
  
- 	local file_line=$(${ADDR2LINE} -e $objfile $start_kernel_addr)
-@@ -177,7 +178,7 @@ __faddr2line() {
- 				found=2
- 				break
- 			fi
--		done < <(${READELF} --symbols --wide $objfile | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
-+		done < <(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
+ 	switch (ios->signal_voltage) {
+ 	case MMC_SIGNAL_VOLTAGE_180:
+@@ -485,6 +485,8 @@ static int sdhci_sprd_voltage_switch(str
  
- 		if [[ $found = 0 ]]; then
- 			warn "can't find symbol: sym_name: $sym_name sym_sec: $sym_sec sym_addr: $sym_addr sym_elf_size: $sym_elf_size"
-@@ -258,7 +259,7 @@ __faddr2line() {
+ 	/* Wait for 300 ~ 500 us for pin state stable */
+ 	usleep_range(300, 500);
++
++reset:
+ 	sdhci_reset(host, SDHCI_RESET_CMD | SDHCI_RESET_DATA);
  
- 		DONE=1
- 
--	done < <(${READELF} --symbols --wide $objfile | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
-+	done < <(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
- }
- 
- [[ $# -lt 2 ]] && usage
--- 
-2.35.1
-
+ 	return 0;
 
 
