@@ -2,110 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72ED5642246
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 05:30:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F5664224F
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 05:35:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231421AbiLEEav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Dec 2022 23:30:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45028 "EHLO
+        id S231165AbiLEEfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Dec 2022 23:35:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231255AbiLEEat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Dec 2022 23:30:49 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1484412632
-        for <stable@vger.kernel.org>; Sun,  4 Dec 2022 20:30:48 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id f9so9442211pgf.7
-        for <stable@vger.kernel.org>; Sun, 04 Dec 2022 20:30:48 -0800 (PST)
+        with ESMTP id S231316AbiLEEfx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Dec 2022 23:35:53 -0500
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 178A2657E
+        for <stable@vger.kernel.org>; Sun,  4 Dec 2022 20:35:52 -0800 (PST)
+Received: by mail-pl1-x636.google.com with SMTP id g10so9714505plo.11
+        for <stable@vger.kernel.org>; Sun, 04 Dec 2022 20:35:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=9GCEA+SSJQob9uLrpSyNUMykzy3VL+SnBP5yRlvK1eo=;
-        b=WdEG7G34TfSohxVW9Q+va8i1yUPOGQf/M6WmLtC9heVeKK2gExscC77yAx6CqPfdHi
-         cRvSxc1m65yCLFHrzSLTwLaRHOhfsRz/5V19R8mGii4xaLLmVumM1Et3q3FiV11JeVCd
-         zmj2LR9JBNZU9ZZ8UAEPZ37+2z97MiQbL1aR+BUlFXSO8t1GAUMq8WEpEvmtDJpac83a
-         YF63+Fe7kpGPw1Cg/OFqe0F3s0XAUNqBwvaoDCTIOkO2OLp0XSoiMzZjlRntBEVAKdmq
-         lqVAqDOxqyP6Ci1Gvk2rRQ1l7a9UnMXmzm4Gn4+CPct8bNpEs+xNdc9pvwGizWj/l0Yu
-         FONw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=muMBUUHvOc+InY089tJqzd0leIvjmVFmnhnOtKW1Oz0=;
+        b=ytdDy7JesnPuHSRuc6J0RbV9P5zlrKe8m0iqV3wOFlzTRUNAHhIRbbhb2lX4B+5peO
+         N1RYZv7zLkUxo7RzQtTg9DnYBkmTJ1Z7HqFXG7aXyO69ALW2nbdmA+NruazFR2FnRFvr
+         2THuh6y3YPtRy8sD22QG/KVjNUJJdWd6/YMr1SLmHD2xwAsh3DWSRNxXyNlP5ejzs6pM
+         rKuqXuCVC7oD2UHFExPVhpEOQa1Hqw2jP1YNhXf9GHmhh/LqrfDdhys8lHhk1rbopl3F
+         CjjBD177QfL5b9dAu+hq81r6ksmUWp54iiPPfgcPFdT/K4S1s6DDKcb1hytx21mHFZnN
+         k54A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9GCEA+SSJQob9uLrpSyNUMykzy3VL+SnBP5yRlvK1eo=;
-        b=3QBOCfLaQFDLslWzIPuhiiIWwHbVpozQzQFNk0V6rPUQul5SalaWIyz0r7V/T8SXLK
-         yYUXVcokiECZK7mJ2I8LjPFKVv5c/OrKDsrJNOtlev874jQEgenKtNcj05HhHcT/1mTg
-         eZoB1jjqAXJfTAfYXFRkeTbsIY9k1ZrNI9e4/lspP/5T8mj03qE3zOALT6XjliEzMm0h
-         rga8kCdIvInCkmdwCtBM/fOtaSaypzM5QKbAwlxt0do2B6ISF7IL8ZcoTKqAD/4FrgfI
-         Y0b7We3P8nAVpNtVCQQcYQ9AnuAIZP7QLc+34uJuigOYu8D3grLECWZBYHah7GwBHMtv
-         DKuQ==
-X-Gm-Message-State: ANoB5pmP9GLdOyfF1e0JpNIKNdcnRpkRXJ6jVTq84s2en2xAC5mXNsxC
-        Z9yHK33+7NegnV86YeAfjQGM8g==
-X-Google-Smtp-Source: AA0mqf6rJI2yAAtTzCc5R8ix0sglB93D7T4rOHrW51DOxVwN6cVLQy/R1rzvudeCKEm6YcqArp3EnQ==
-X-Received: by 2002:aa7:810e:0:b0:56b:f23a:7854 with SMTP id b14-20020aa7810e000000b0056bf23a7854mr68378113pfi.66.1670214647512;
-        Sun, 04 Dec 2022 20:30:47 -0800 (PST)
-Received: from localhost ([122.172.87.149])
-        by smtp.gmail.com with ESMTPSA id m1-20020a17090a5a4100b00219396d795esm8236199pji.15.2022.12.04.20.30.46
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=muMBUUHvOc+InY089tJqzd0leIvjmVFmnhnOtKW1Oz0=;
+        b=WhkkNx2HC1/8oLkGO9OILD0Gp2VJwAPfm7Q7Mv3AmYSQXhKjgeWCkdoqOHU2kSUhn0
+         kMY0jV8DxHVevJFG/AhvwcxGukeavhpzEEobVCcEnRW0vSZsLdXRZ70NfLbrcjYMWGrP
+         6JingY0e60UX8856gQxmbIZ44jhUse/4MkiRXJwB/9GK8e+Ws7v5jHHJOvMTx+ujUFWr
+         3P5tZebomYPy1zCpNoC+Of8dlt3CZQadQjUnc9NN8Lr5y4Jy/O4+zgrIRIxZNGcgnuHG
+         rBP0IsUKi46QwbjJobUkDgcxHSPFJ9QTnVWvTwUoBb3dt8COm58ErZDaE2S3O6ThFkPl
+         N6zg==
+X-Gm-Message-State: ANoB5pkLMSLgIuVhbkjlAm8dgaV3N2YrjJgMN6d6o1E9K4g/2Yg37GwE
+        EbkYQ+Xn5kAXXo7ukRSShlKdJgCAzTrpX+1Ut4Yw2Q==
+X-Google-Smtp-Source: AA0mqf6Hmm3UppikOOL4V2+pK2UJPDDY1uhG2YW3kVMQapi67yDrbNIeQls91BOplgaiOz5u1t/kTw==
+X-Received: by 2002:a17:902:ce90:b0:187:19c4:373a with SMTP id f16-20020a170902ce9000b0018719c4373amr76016455plg.163.1670214951207;
+        Sun, 04 Dec 2022 20:35:51 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q17-20020a170902eb9100b00188b5d25438sm9486414plg.35.2022.12.04.20.35.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Dec 2022 20:30:46 -0800 (PST)
-Date:   Mon, 5 Dec 2022 10:00:44 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-pm@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        regressions@leemhuis.info, daniel@makrotopia.org,
-        thomas.huehn@hs-nordhausen.de, "v5 . 19+" <stable@vger.kernel.org>,
-        Nick <vincent@systemli.org>, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH] Revert "cpufreq: mediatek: Refine
- mtk_cpufreq_voltage_tracking()"
-Message-ID: <20221205043044.bgecubnw7d3xlyi5@vireshk-i7>
-References: <930778a1-5e8b-6df6-3276-42dcdadaf682@systemli.org>
- <18947e09733a17935af9a123ccf9b6e92faeaf9b.1669958641.git.viresh.kumar@linaro.org>
- <CAJZ5v0ixHocQbu6-zs3dMDsiw8vdPyv=8Re7N4kUckeGkLhUzg@mail.gmail.com>
- <CAJZ5v0hc8CsvqLKxi5iRq7iR0bkt25dRnLBd23mx-zdi2Sjgsw@mail.gmail.com>
+        Sun, 04 Dec 2022 20:35:50 -0800 (PST)
+Message-ID: <638d7526.170a0220.9dbdb.16d8@mx.google.com>
+Date:   Sun, 04 Dec 2022 20:35:50 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJZ5v0hc8CsvqLKxi5iRq7iR0bkt25dRnLBd23mx-zdi2Sjgsw@mail.gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Kernel: v5.10.157-89-gc25b559cba5e
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.10 baseline: 127 runs,
+ 1 regressions (v5.10.157-89-gc25b559cba5e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 02-12-22, 20:46, Rafael J. Wysocki wrote:
-> On Fri, Dec 2, 2022 at 1:17 PM Rafael J. Wysocki <rafael@kernel.org> wrote:
-> >
-> > On Fri, Dec 2, 2022 at 6:26 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
-> > >
-> > > This reverts commit 6a17b3876bc8303612d7ad59ecf7cbc0db418bcd.
-> > >
-> > > This commit caused regression on Banana Pi R64 (MT7622), revert until
-> > > the problem is identified and fixed properly.
-> > >
-> > > Link: https://lore.kernel.org/all/930778a1-5e8b-6df6-3276-42dcdadaf682@systemli.org/
-> > > Cc: v5.19+ <stable@vger.kernel.org> # v5.19+
-> > > Reported-by: Nick <vincent@systemli.org>
-> > > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> >
-> > Do you want me to push this revert for -rc8?
+stable-rc/queue/5.10 baseline: 127 runs, 1 regressions (v5.10.157-89-gc25b5=
+59cba5e)
 
-No, I was planning to make it part of my pull request.
+Regressions Summary
+-------------------
 
-> After all, I've decided to queue it up for 6.2, thanks!
+platform      | arch | lab         | compiler | defconfig          | regres=
+sions
+--------------+------+-------------+----------+--------------------+-------=
+-----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | multi_v5_defconfig | 1     =
+     =
 
-Can you please drop that ? AngeloGioacchino already reported that
-Reverting the proposed commit will make MT8183 unstable.
 
-So the right thing to do now is apply the fix, which is on the list
-and getting tested.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.157-89-gc25b559cba5e/plan/baseline/
 
--- 
-viresh
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.157-89-gc25b559cba5e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c25b559cba5e3f04339722bc2467bbedc0d8c50e =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform      | arch | lab         | compiler | defconfig          | regres=
+sions
+--------------+------+-------------+----------+--------------------+-------=
+-----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | multi_v5_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/638d43abade70e74ed2abd16
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v5_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.157=
+-89-gc25b559cba5e/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sa=
+m9g20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.157=
+-89-gc25b559cba5e/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sa=
+m9g20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/638d43abade70e74ed2ab=
+d17
+        new failure (last pass: v5.10.157-84-g8306f7a271f4) =
+
+ =20
