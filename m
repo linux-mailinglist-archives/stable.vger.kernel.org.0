@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 550A4643294
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C397643296
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233951AbiLET1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:27:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53926 "EHLO
+        id S234093AbiLET1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:27:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234097AbiLET0r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB92A26542
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:23:36 -0800 (PST)
+        with ESMTP id S233966AbiLET0s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A94BA24F30
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:23:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 20630CE131B
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:23:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDB37C433C1;
-        Mon,  5 Dec 2022 19:23:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 62A90B80EFD
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:23:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A899FC433D6;
+        Mon,  5 Dec 2022 19:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268213;
-        bh=b1OAmXDQ+8qv84YF61emyBCmbR0Vn+MoF3AZTJHg08k=;
+        s=korg; t=1670268216;
+        bh=+LfyJjqoM/brsWkoSkgxjhhup7D8OVIz1Bx31qHMkUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RCsEMvGDF9kQn2DNwWqIrShYfIt7F9xIr2llKcMhE/fUuHHn70EnbaefvZr4qY+rv
-         1SSpB4GyRlCfpIRRkmsYRuPXjo1bVMfNw81x0aU5TikyCVYKaEhhIN3i/le6whRVqZ
-         AN9TQxAAtctZFhDip79b5C/S9D8UAhUIav4AAlxo=
+        b=UOg0Trnkl826iaNlUMf/vMDkMKe76SnT2exF/VZO4Hz/Qs6Y7L4bFlqNBv7KmNOtk
+         EBEMkHCvCYC98cXaUlqyOPCu5gIjyJ5Y03ukf1DNtjCtP+3PPTnRXIddvhzWH0l7KW
+         UlD3gCl3xy+Be73wpQmOuamhDGu6ECUzgPRuVoPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ninad Malwade <nmalwade@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 021/124] hwmon: (ina3221) Fix shunt sum critical calculation
-Date:   Mon,  5 Dec 2022 20:08:47 +0100
-Message-Id: <20221205190809.055724621@linuxfoundation.org>
+Subject: [PATCH 6.0 022/124] hwmon: (i5500_temp) fix missing pci_disable_device()
+Date:   Mon,  5 Dec 2022 20:08:48 +0100
+Message-Id: <20221205190809.083500927@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
 References: <20221205190808.422385173@linuxfoundation.org>
@@ -54,45 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ninad Malwade <nmalwade@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit b8d27d2ce8dfc207e4b67b929a86f2be76fbc6ef ]
+[ Upstream commit 3b7f98f237528c496ea0b689bace0e35eec3e060 ]
 
-The shunt sum critical limit register value should be left shifted
-by one bit as its LSB-0 is a reserved bit.
+pci_disable_device() need be called while module exiting, switch to use
+pcim_enable(), pci_disable_device() will be called in pcim_release().
 
-Fixes: 2057bdfb7184 ("hwmon: (ina3221) Add summation feature support")
-Signed-off-by: Ninad Malwade <nmalwade@nvidia.com>
-Reviewed-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20221108044508.23463-1-nmalwade@nvidia.com
+Fixes: ada072816be1 ("hwmon: (i5500_temp) New driver for the Intel 5500/5520/X58 chipsets")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221112125606.3751430-1-yangyingliang@huawei.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/ina3221.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hwmon/i5500_temp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/ina3221.c b/drivers/hwmon/ina3221.c
-index 58d3828e2ec0..14586b2fb17d 100644
---- a/drivers/hwmon/ina3221.c
-+++ b/drivers/hwmon/ina3221.c
-@@ -228,7 +228,7 @@ static int ina3221_read_value(struct ina3221_data *ina, unsigned int reg,
- 	 * Shunt Voltage Sum register has 14-bit value with 1-bit shift
- 	 * Other Shunt Voltage registers have 12 bits with 3-bit shift
- 	 */
--	if (reg == INA3221_SHUNT_SUM)
-+	if (reg == INA3221_SHUNT_SUM || reg == INA3221_CRIT_SUM)
- 		*val = sign_extend32(regval >> 1, 14);
- 	else
- 		*val = sign_extend32(regval >> 3, 12);
-@@ -465,7 +465,7 @@ static int ina3221_write_curr(struct device *dev, u32 attr,
- 	 *     SHUNT_SUM: (1 / 40uV) << 1 = 1 / 20uV
- 	 *     SHUNT[1-3]: (1 / 40uV) << 3 = 1 / 5uV
- 	 */
--	if (reg == INA3221_SHUNT_SUM)
-+	if (reg == INA3221_SHUNT_SUM || reg == INA3221_CRIT_SUM)
- 		regval = DIV_ROUND_CLOSEST(voltage_uv, 20) & 0xfffe;
- 	else
- 		regval = DIV_ROUND_CLOSEST(voltage_uv, 5) & 0xfff8;
+diff --git a/drivers/hwmon/i5500_temp.c b/drivers/hwmon/i5500_temp.c
+index 05f68e9c9477..23b9f94fe0a9 100644
+--- a/drivers/hwmon/i5500_temp.c
++++ b/drivers/hwmon/i5500_temp.c
+@@ -117,7 +117,7 @@ static int i5500_temp_probe(struct pci_dev *pdev,
+ 	u32 tstimer;
+ 	s8 tsfsc;
+ 
+-	err = pci_enable_device(pdev);
++	err = pcim_enable_device(pdev);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "Failed to enable device\n");
+ 		return err;
 -- 
 2.35.1
 
