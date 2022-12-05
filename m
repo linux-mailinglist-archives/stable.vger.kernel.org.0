@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31B56643325
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D149A643398
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:37:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232397AbiLETeg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:34:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37378 "EHLO
+        id S234594AbiLEThv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:37:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233941AbiLETeJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6E5427FCD
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:29:30 -0800 (PST)
+        with ESMTP id S234597AbiLETh1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:37:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C436B2A955
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6334EB80EFD
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:29:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA131C433D6;
-        Mon,  5 Dec 2022 19:29:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3D3EDCE139A
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FA04C433D7;
+        Mon,  5 Dec 2022 19:34:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268568;
-        bh=oocX9swpCmyT29snFlOf5T+6pJbh6dKaGWy3pSSedwA=;
+        s=korg; t=1670268862;
+        bh=bx2QDi+70ZC7WKXvJ5K7xand1bn0lSxKl62Tv4c0qWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHv4HbjAQLuMAFLfOWX6HBJkegDfIWUPLlT5yjnTuonc3bof2pyiGmvBVpGsu1T6T
-         XrpmwWoqcCB18Tr1c5joq2qGhuJhj/TcO7QK8WF63qxm/ydDYJVcb1K525eGEVFC2J
-         clOb557zSzIAbDHacgjaO5VgnqTNLDMkOvup3+Ag=
+        b=VWAFHybaatuVAqYL5PX+YT0UszVP3wzGU02urOWBnUOormG9HkPTxfy/F7DtuYiDc
+         g8m58vbdVH7dneADuuDJqU6fqLsNwmi9clu24wRq6xD5p2kJR+uvZ8lQlZ6igsGfbX
+         /YdV1dWRxiTaiJICv60G18LTAtx14C22nnA9yQ4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 25/92] fm10k: Fix error handling in fm10k_init_module()
+Subject: [PATCH 5.15 038/120] can: sja1000_isa: sja1000_isa_probe(): add missing free_sja1000dev()
 Date:   Mon,  5 Dec 2022 20:09:38 +0100
-Message-Id: <20221205190804.298778959@linuxfoundation.org>
+Message-Id: <20221205190807.689768324@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 771a794c0a3c3e7f0d86cc34be4f9537e8c0a20c ]
+[ Upstream commit 92dfd9310a71d28cefe6a2d5174d43fab240e631 ]
 
-A problem about modprobe fm10k failed is triggered with the following log
-given:
+Add the missing free_sja1000dev() before return from
+sja1000_isa_probe() in the register_sja1000dev() error handling case.
 
- Intel(R) Ethernet Switch Host Interface Driver
- Copyright(c) 2013 - 2019 Intel Corporation.
- debugfs: Directory 'fm10k' with parent '/' already present!
+In addition, remove blanks before goto labels.
 
-The reason is that fm10k_init_module() returns fm10k_register_pci_driver()
-directly without checking its return value, if fm10k_register_pci_driver()
-failed, it returns without removing debugfs and destroy workqueue,
-resulting the debugfs of fm10k can never be created later and leaks the
-workqueue.
-
- fm10k_init_module()
-   alloc_workqueue()
-   fm10k_dbg_init() # create debugfs
-   fm10k_register_pci_driver()
-     pci_register_driver()
-       driver_register()
-         bus_add_driver()
-           priv = kzalloc(...) # OOM happened
-   # return without remove debugfs and destroy workqueue
-
-Fix by remove debugfs and destroy workqueue when
-fm10k_register_pci_driver() returns error.
-
-Fixes: 7461fd913afe ("fm10k: Add support for debugfs")
-Fixes: b382bb1b3e2d ("fm10k: use separate workqueue for fm10k driver")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 2a6ba39ad6a2 ("can: sja1000: legacy SJA1000 ISA bus driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/all/1668168521-5540-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/fm10k/fm10k_main.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/can/sja1000/sja1000_isa.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/fm10k/fm10k_main.c b/drivers/net/ethernet/intel/fm10k/fm10k_main.c
-index 99b8252eb969..a388a0fcbeed 100644
---- a/drivers/net/ethernet/intel/fm10k/fm10k_main.c
-+++ b/drivers/net/ethernet/intel/fm10k/fm10k_main.c
-@@ -32,6 +32,8 @@ struct workqueue_struct *fm10k_workqueue;
-  **/
- static int __init fm10k_init_module(void)
- {
-+	int ret;
-+
- 	pr_info("%s\n", fm10k_driver_string);
- 	pr_info("%s\n", fm10k_copyright);
+diff --git a/drivers/net/can/sja1000/sja1000_isa.c b/drivers/net/can/sja1000/sja1000_isa.c
+index d513fac50718..db3e767d5320 100644
+--- a/drivers/net/can/sja1000/sja1000_isa.c
++++ b/drivers/net/can/sja1000/sja1000_isa.c
+@@ -202,22 +202,24 @@ static int sja1000_isa_probe(struct platform_device *pdev)
+ 	if (err) {
+ 		dev_err(&pdev->dev, "registering %s failed (err=%d)\n",
+ 			DRV_NAME, err);
+-		goto exit_unmap;
++		goto exit_free;
+ 	}
  
-@@ -43,7 +45,13 @@ static int __init fm10k_init_module(void)
+ 	dev_info(&pdev->dev, "%s device registered (reg_base=0x%p, irq=%d)\n",
+ 		 DRV_NAME, priv->reg_base, dev->irq);
+ 	return 0;
  
- 	fm10k_dbg_init();
- 
--	return fm10k_register_pci_driver();
-+	ret = fm10k_register_pci_driver();
-+	if (ret) {
-+		fm10k_dbg_exit();
-+		destroy_workqueue(fm10k_workqueue);
-+	}
-+
-+	return ret;
+- exit_unmap:
++exit_free:
++	free_sja1000dev(dev);
++exit_unmap:
+ 	if (mem[idx])
+ 		iounmap(base);
+- exit_release:
++exit_release:
+ 	if (mem[idx])
+ 		release_mem_region(mem[idx], iosize);
+ 	else
+ 		release_region(port[idx], iosize);
+- exit:
++exit:
+ 	return err;
  }
- module_init(fm10k_init_module);
  
 -- 
 2.35.1
