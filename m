@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1B6564321D
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:24:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FD0164340B
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:42:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233702AbiLETYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:24:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
+        id S234577AbiLETmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:42:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233748AbiLETYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 934AE27927
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:19:27 -0800 (PST)
+        with ESMTP id S234841AbiLETlY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:41:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F65325EAC
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:39:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2EAE2B80EFD
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:19:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A3B3C433D6;
-        Mon,  5 Dec 2022 19:19:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FD6961315
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:38:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8216EC433D6;
+        Mon,  5 Dec 2022 19:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267965;
-        bh=/chpz9o2UYSfhbAdgaaZ6jCbXtu78MS1mAlEKYbQiP4=;
+        s=korg; t=1670269139;
+        bh=wxKEgFnY9/izPf4MrPaPYvIXeNVWiAsJczUmn5/0w3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YKRZAOCI7sA56Rn8atuAOP9R2tre62WKkbnVItmzO6VISgUzyM/FYW1+PbZJtOfcn
-         NmNH6kfYjYeCzv8tEbsqdAaCzI/x0wbBNj07fj+Rodk+IsqiyTX6fqnZbATqvhX4s+
-         ceMgpHEWucl8T/3p3ImKEtWjb+QoC9g+SrvHU4MM=
+        b=viogrTxoSYehxxk0c13P97+v82aTa/1TEJnikjZxeCpH9wZmTp5hmmGiWeGprv4m2
+         4Y3+5DEJL6u3EUWOP0euyqpcPE9ith/q+R7ZwoyhURaR95ScQvOA3L/RabBmJdRpRL
+         sNWRxv5jiJlZDYIK5ufcFntwcqc8bQjCZ+WGcNQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 030/105] s390/dasd: fix no record found for raw_track_access
+        patches@lists.linux.dev, nicolas.ferre@microchip.com,
+        ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com,
+        linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 018/153] ARM: dts: at91: sam9g20ek: enable udc vbus gpio pinctrl
 Date:   Mon,  5 Dec 2022 20:09:02 +0100
-Message-Id: <20221205190804.162700930@linuxfoundation.org>
+Message-Id: <20221205190809.270570473@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-[ Upstream commit 590ce6d96d6a224b470a3862c33a483d5022bfdb ]
+[ Upstream commit 40a2226e8bfacb79dd154dea68febeead9d847e9 ]
 
-For DASD devices in raw_track_access mode only full track images are
-read and written.
-For this purpose it is not necessary to do search operation in the
-locate record extended function. The documentation even states that
-this might fail if the searched record is not found on a track.
+We set the PIOC to GPIO mode. This way the pin becomes an
+input signal will be usable by the controller. Without
+this change the udc on the 9g20ek does not work.
 
-Currently the driver sets a value of 1 in the search field for the first
-record after record zero. This is the default for disks not in
-raw_track_access mode but record 1 might be missing on a completely
-empty track.
-
-There has not been any problem with this on IBM storage servers but it
-might lead to errors with DASD devices on other vendors storage servers.
-
-Fix this by setting the search field to 0. Record zero is always available
-even on a completely empty track.
-
-Fixes: e4dbb0f2b5dd ("[S390] dasd: Add support for raw ECKD access.")
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221123160719.3002694-4-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: nicolas.ferre@microchip.com
+Cc: ludovic.desroches@microchip.com
+Cc: alexandre.belloni@bootlin.com
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: kernel@pengutronix.de
+Fixes: 5cb4e73575e3 ("ARM: at91: add at91sam9g20ek boards dt support")
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20221114185923.1023249-3-m.grzeschik@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_eckd.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/at91sam9g20ek_common.dtsi | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index a2e34c853ca9..4d6fd3205be7 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -3788,7 +3788,6 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
- 	struct dasd_device *basedev;
- 	struct req_iterator iter;
- 	struct dasd_ccw_req *cqr;
--	unsigned int first_offs;
- 	unsigned int trkcount;
- 	unsigned long *idaws;
- 	unsigned int size;
-@@ -3822,7 +3821,6 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
- 	last_trk = (blk_rq_pos(req) + blk_rq_sectors(req) - 1) /
- 		DASD_RAW_SECTORS_PER_TRACK;
- 	trkcount = last_trk - first_trk + 1;
--	first_offs = 0;
+diff --git a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
+index 287566e09a67..3d694b60d452 100644
+--- a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
++++ b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
+@@ -38,6 +38,13 @@ pinctrl_pck0_as_mck: pck0_as_mck {
  
- 	if (rq_data_dir(req) == READ)
- 		cmd = DASD_ECKD_CCW_READ_TRACK;
-@@ -3866,13 +3864,13 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
+ 				};
  
- 	if (use_prefix) {
- 		prefix_LRE(ccw++, data, first_trk, last_trk, cmd, basedev,
--			   startdev, 1, first_offs + 1, trkcount, 0, 0);
-+			   startdev, 1, 0, trkcount, 0, 0);
- 	} else {
- 		define_extent(ccw++, data, first_trk, last_trk, cmd, basedev, 0);
- 		ccw[-1].flags |= CCW_FLAG_CC;
++				usb1 {
++					pinctrl_usb1_vbus_gpio: usb1_vbus_gpio {
++						atmel,pins =
++							<AT91_PIOC 5 AT91_PERIPH_GPIO AT91_PINCTRL_DEGLITCH>;	/* PC5 GPIO */
++					};
++				};
++
+ 				mmc0_slot1 {
+ 					pinctrl_board_mmc0_slot1: mmc0_slot1-board {
+ 						atmel,pins =
+@@ -83,6 +90,8 @@ macb0: ethernet@fffc4000 {
+ 			};
  
- 		data += sizeof(struct DE_eckd_data);
--		locate_record_ext(ccw++, data, first_trk, first_offs + 1,
-+		locate_record_ext(ccw++, data, first_trk, 0,
- 				  trkcount, cmd, basedev, 0, 0);
- 	}
- 
+ 			usb1: gadget@fffa4000 {
++				pinctrl-0 = <&pinctrl_usb1_vbus_gpio>;
++				pinctrl-names = "default";
+ 				atmel,vbus-gpio = <&pioC 5 GPIO_ACTIVE_HIGH>;
+ 				status = "okay";
+ 			};
 -- 
 2.35.1
 
