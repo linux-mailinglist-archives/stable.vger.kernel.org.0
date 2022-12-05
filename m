@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF1196431E7
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFB6B6433AA
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234135AbiLETWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:22:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46292 "EHLO
+        id S234268AbiLETia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:38:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233748AbiLETVl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:21:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A62C2FD0
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:17:40 -0800 (PST)
+        with ESMTP id S234552AbiLETiM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:12 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3596C1090
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:35:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D49F361312
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:17:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3EBAC433D7;
-        Mon,  5 Dec 2022 19:17:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A08E8CE13A5
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:35:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A8E4C433C1;
+        Mon,  5 Dec 2022 19:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267821;
-        bh=FOvcc1pLq4Xt3xXYdoz5oFraN6fYSCmL3vVLtcdfbFo=;
+        s=korg; t=1670268905;
+        bh=JQ+mv8vdI87b5JgdX9wk8UPAC2vxkjS5m7LEXCBfjXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKdxRk/SklwIm21jkErKq/vmrgegI+PDAnis/TCVsg8INpiTZAewe523c/ftI3XP2
-         E6XLoafdosO4Ag4g0AIIXuIxm/On6k2lI7b1cI9bMP1l9kWdbFGy+wBs2IKRM9LGXN
-         sLJJpr5oayHxDnh4JTFHUoHh1RRe/LReOza67GlY=
+        b=vFdGou6I0n+Ejp7Yh+CSBMJY7siRoa50UefZuYAS848MIwBJ4/t4FrzXqXhAaNbnQ
+         4mJ/6MXOV235SgnBlVYlPXRLK0BBI3VblwgIKmZIC603TT07BYquC8VU3HKjj5ynnJ
+         p9ivNuAgjtvtfxKER+Ec9W5JxQIrR/vHNCqZLlzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Borislav Petkov <bp@alien8.de>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 63/77] x86/bugs: Make sure MSR_SPEC_CTRL is updated properly upon resume from S3
-Date:   Mon,  5 Dec 2022 20:09:54 +0100
-Message-Id: <20221205190803.085670355@linuxfoundation.org>
+        patches@lists.linux.dev, Jerry Ray <jerry.ray@microchip.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 055/120] dsa: lan9303: Correct stat name
+Date:   Mon,  5 Dec 2022 20:09:55 +0100
+Message-Id: <20221205190808.276905954@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,140 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Jerry Ray <jerry.ray@microchip.com>
 
-commit 66065157420c5b9b3f078f43d313c153e1ff7f83 upstream.
+[ Upstream commit 39f59bca275d2d819a8788c0f962e9e89843efc9 ]
 
-The "force" argument to write_spec_ctrl_current() is currently ambiguous
-as it does not guarantee the MSR write. This is due to the optimization
-that writes to the MSR happen only when the new value differs from the
-cached value.
+This patch changes the reported ethtool statistics for the lan9303
+family of parts covered by this driver.
 
-This is fine in most cases, but breaks for S3 resume when the cached MSR
-value gets out of sync with the hardware MSR value due to S3 resetting
-it.
+The TxUnderRun statistic label is renamed to RxShort to accurately
+reflect what stat the device is reporting.  I did not reorder the
+statistics as that might cause problems with existing user code that
+are expecting the stats at a certain offset.
 
-When x86_spec_ctrl_current is same as x86_spec_ctrl_base, the MSR write
-is skipped. Which results in SPEC_CTRL mitigations not getting restored.
-
-Move the MSR write from write_spec_ctrl_current() to a new function that
-unconditionally writes to the MSR. Update the callers accordingly and
-rename functions.
-
-  [ bp: Rework a bit. ]
-
-Fixes: caa0ff24d5d0 ("x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value")
-Suggested-by: Borislav Petkov <bp@alien8.de>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/806d39b0bfec2fe8f50dc5446dff20f5bb24a959.1669821572.git.pawan.kumar.gupta@linux.intel.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a1292595e006 ("net: dsa: add new DSA switch driver for the SMSC-LAN9303")
+Signed-off-by: Jerry Ray <jerry.ray@microchip.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20221128193559.6572-1-jerry.ray@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/nospec-branch.h |    2 +-
- arch/x86/kernel/cpu/bugs.c           |   21 ++++++++++++++-------
- arch/x86/kernel/process.c            |    2 +-
- 3 files changed, 16 insertions(+), 9 deletions(-)
+ drivers/net/dsa/lan9303-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -301,7 +301,7 @@ static inline void indirect_branch_predi
- /* The Intel SPEC CTRL MSR base value cache */
- extern u64 x86_spec_ctrl_base;
- DECLARE_PER_CPU(u64, x86_spec_ctrl_current);
--extern void write_spec_ctrl_current(u64 val, bool force);
-+extern void update_spec_ctrl_cond(u64 val);
- extern u64 spec_ctrl_current(void);
- 
- /*
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -58,11 +58,18 @@ EXPORT_SYMBOL_GPL(x86_spec_ctrl_current)
- 
- static DEFINE_MUTEX(spec_ctrl_mutex);
- 
-+/* Update SPEC_CTRL MSR and its cached copy unconditionally */
-+static void update_spec_ctrl(u64 val)
-+{
-+	this_cpu_write(x86_spec_ctrl_current, val);
-+	wrmsrl(MSR_IA32_SPEC_CTRL, val);
-+}
-+
- /*
-  * Keep track of the SPEC_CTRL MSR value for the current task, which may differ
-  * from x86_spec_ctrl_base due to STIBP/SSB in __speculation_ctrl_update().
-  */
--void write_spec_ctrl_current(u64 val, bool force)
-+void update_spec_ctrl_cond(u64 val)
- {
- 	if (this_cpu_read(x86_spec_ctrl_current) == val)
- 		return;
-@@ -73,7 +80,7 @@ void write_spec_ctrl_current(u64 val, bo
- 	 * When KERNEL_IBRS this MSR is written on return-to-user, unless
- 	 * forced the update can be delayed until that time.
- 	 */
--	if (force || !cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS))
-+	if (!cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS))
- 		wrmsrl(MSR_IA32_SPEC_CTRL, val);
- }
- 
-@@ -1192,7 +1199,7 @@ static void __init spec_ctrl_disable_ker
- 
- 	if (ia32_cap & ARCH_CAP_RRSBA) {
- 		x86_spec_ctrl_base |= SPEC_CTRL_RRSBA_DIS_S;
--		write_spec_ctrl_current(x86_spec_ctrl_base, true);
-+		update_spec_ctrl(x86_spec_ctrl_base);
- 	}
- }
- 
-@@ -1314,7 +1321,7 @@ static void __init spectre_v2_select_mit
- 
- 	if (spectre_v2_in_ibrs_mode(mode)) {
- 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
--		write_spec_ctrl_current(x86_spec_ctrl_base, true);
-+		update_spec_ctrl(x86_spec_ctrl_base);
- 	}
- 
- 	switch (mode) {
-@@ -1418,7 +1425,7 @@ static void __init spectre_v2_select_mit
- static void update_stibp_msr(void * __unused)
- {
- 	u64 val = spec_ctrl_current() | (x86_spec_ctrl_base & SPEC_CTRL_STIBP);
--	write_spec_ctrl_current(val, true);
-+	update_spec_ctrl(val);
- }
- 
- /* Update x86_spec_ctrl_base in case SMT state changed. */
-@@ -1651,7 +1658,7 @@ static enum ssb_mitigation __init __ssb_
- 			x86_amd_ssb_disable();
- 		} else {
- 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
--			write_spec_ctrl_current(x86_spec_ctrl_base, true);
-+			update_spec_ctrl(x86_spec_ctrl_base);
- 		}
- 	}
- 
-@@ -1856,7 +1863,7 @@ int arch_prctl_spec_ctrl_get(struct task
- void x86_spec_ctrl_setup_ap(void)
- {
- 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
--		write_spec_ctrl_current(x86_spec_ctrl_base, true);
-+		update_spec_ctrl(x86_spec_ctrl_base);
- 
- 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
- 		x86_amd_ssb_disable();
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -435,7 +435,7 @@ static __always_inline void __speculatio
- 	}
- 
- 	if (updmsr)
--		write_spec_ctrl_current(msr, false);
-+		update_spec_ctrl_cond(msr);
- }
- 
- static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
+diff --git a/drivers/net/dsa/lan9303-core.c b/drivers/net/dsa/lan9303-core.c
+index 0b6f29ee87b5..59a803e3c8d0 100644
+--- a/drivers/net/dsa/lan9303-core.c
++++ b/drivers/net/dsa/lan9303-core.c
+@@ -959,7 +959,7 @@ static const struct lan9303_mib_desc lan9303_mib[] = {
+ 	{ .offset = LAN9303_MAC_TX_BRDCST_CNT_0, .name = "TxBroad", },
+ 	{ .offset = LAN9303_MAC_TX_PAUSE_CNT_0, .name = "TxPause", },
+ 	{ .offset = LAN9303_MAC_TX_MULCST_CNT_0, .name = "TxMulti", },
+-	{ .offset = LAN9303_MAC_RX_UNDSZE_CNT_0, .name = "TxUnderRun", },
++	{ .offset = LAN9303_MAC_RX_UNDSZE_CNT_0, .name = "RxShort", },
+ 	{ .offset = LAN9303_MAC_TX_64_CNT_0, .name = "Tx64Byte", },
+ 	{ .offset = LAN9303_MAC_TX_127_CNT_0, .name = "Tx128Byte", },
+ 	{ .offset = LAN9303_MAC_TX_255_CNT_0, .name = "Tx256Byte", },
+-- 
+2.35.1
+
 
 
