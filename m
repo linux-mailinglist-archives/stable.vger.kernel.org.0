@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 430586432AD
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:28:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C757964343E
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:43:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234195AbiLET2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:28:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53460 "EHLO
+        id S234809AbiLETnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:43:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234109AbiLET1f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:27:35 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E6E527932
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:24:42 -0800 (PST)
+        with ESMTP id S235006AbiLETnS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:43:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF1512AC6
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:40:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8D4FECE13A4
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:24:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7871BC433D6;
-        Mon,  5 Dec 2022 19:24:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 791F2B8118F
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:40:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3811C433C1;
+        Mon,  5 Dec 2022 19:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268278;
-        bh=qH4jFYufHE4dfKL8rcZm7hMtnqLvnlfh3t1A36cWMvA=;
+        s=korg; t=1670269240;
+        bh=273o+0zNsWLkRViHXtdCrz0CLk8WkOC8lE6pgoZ4+QM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SWK0PsdJ29JToCxHzF29IceBKXYh5GY5Df1XmUnqS4ixGIktLnbQRAl2wbNmGjGvr
-         W6xt9fAUq2cq1s5Ru4yk+PRJyY99+zkaS96iBA3SRvVo2FXjGi0sUbmdx4J8/XSXoh
-         cK/c3ydog2SJTTMRfFDGnGQ9yLQfpiwl+pxrBjmg=
+        b=WrBy6slmsh1ns72AyjLme2biorOK0PJPfoBMV9oPtvqADY7wDcngVr7ppw0cdpKO9
+         07DqPFHpii3pPGDqhu422qd4ljj2h2PbtDl8iK3TuELt93xZoO/vHk9eIgpTCaCFqs
+         vADb0KyKpx12Ao/mzFItHi+FrFyXAYH9V31P56nw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Namjae Jeon <linkinjeon@kernel.org>,
-        Luis Henriques <lhenriques@suse.de>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 044/124] vfs: fix copy_file_range() averts filesystem freeze protection
+Subject: [PATCH 5.4 026/153] net: pch_gbe: fix pci device refcount leak while module exiting
 Date:   Mon,  5 Dec 2022 20:09:10 +0100
-Message-Id: <20221205190809.690922836@linuxfoundation.org>
+Message-Id: <20221205190809.490591701@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,165 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 10bc8e4af65946b727728d7479c028742321b60a ]
+[ Upstream commit 5619537284f1017e9f6c7500b02b859b3830a06d ]
 
-Commit 868f9f2f8e00 ("vfs: fix copy_file_range() regression in cross-fs
-copies") removed fallback to generic_copy_file_range() for cross-fs
-cases inside vfs_copy_file_range().
+As comment of pci_get_domain_bus_and_slot() says, it returns
+a pci device with refcount increment, when finish using it,
+the caller must decrement the reference count by calling
+pci_dev_put().
 
-To preserve behavior of nfsd and ksmbd server-side-copy, the fallback to
-generic_copy_file_range() was added in nfsd and ksmbd code, but that
-call is missing sb_start_write(), fsnotify hooks and more.
+In pch_gbe_probe(), pci_get_domain_bus_and_slot() is called,
+so in error path in probe() and remove() function, pci_dev_put()
+should be called to avoid refcount leak. Compile tested only.
 
-Ideally, nfsd and ksmbd would pass a flag to vfs_copy_file_range() that
-will take care of the fallback, but that code would be subtle and we got
-vfs_copy_file_range() logic wrong too many times already.
-
-Instead, add a flag to explicitly request vfs_copy_file_range() to
-perform only generic_copy_file_range() and let nfsd and ksmbd use this
-flag only in the fallback path.
-
-This choise keeps the logic changes to minimum in the non-nfsd/ksmbd code
-paths to reduce the risk of further regressions.
-
-Fixes: 868f9f2f8e00 ("vfs: fix copy_file_range() regression in cross-fs copies")
-Tested-by: Namjae Jeon <linkinjeon@kernel.org>
-Tested-by: Luis Henriques <lhenriques@suse.de>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: 1a0bdadb4e36 ("net/pch_gbe: supports eg20t ptp clock")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221117135148.301014-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/vfs.c     |  6 +++---
- fs/nfsd/vfs.c      |  4 ++--
- fs/read_write.c    | 19 +++++++++++++++----
- include/linux/fs.h |  8 ++++++++
- 4 files changed, 28 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ksmbd/vfs.c b/fs/ksmbd/vfs.c
-index 78d01033604c..c5c801e38b63 100644
---- a/fs/ksmbd/vfs.c
-+++ b/fs/ksmbd/vfs.c
-@@ -1784,9 +1784,9 @@ int ksmbd_vfs_copy_file_ranges(struct ksmbd_work *work,
- 		ret = vfs_copy_file_range(src_fp->filp, src_off,
- 					  dst_fp->filp, dst_off, len, 0);
- 		if (ret == -EOPNOTSUPP || ret == -EXDEV)
--			ret = generic_copy_file_range(src_fp->filp, src_off,
--						      dst_fp->filp, dst_off,
--						      len, 0);
-+			ret = vfs_copy_file_range(src_fp->filp, src_off,
-+						  dst_fp->filp, dst_off, len,
-+						  COPY_FILE_SPLICE);
- 		if (ret < 0)
- 			return ret;
+diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+index cc442cd775ff..45b7f0f419c9 100644
+--- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
++++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+@@ -2481,6 +2481,7 @@ static void pch_gbe_remove(struct pci_dev *pdev)
+ 	unregister_netdev(netdev);
  
-diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
-index f3cd614e1f1e..dc24d67d0ca4 100644
---- a/fs/nfsd/vfs.c
-+++ b/fs/nfsd/vfs.c
-@@ -572,8 +572,8 @@ ssize_t nfsd_copy_file_range(struct file *src, u64 src_pos, struct file *dst,
- 	ret = vfs_copy_file_range(src, src_pos, dst, dst_pos, count, 0);
+ 	pch_gbe_phy_hw_reset(&adapter->hw);
++	pci_dev_put(adapter->ptp_pdev);
  
- 	if (ret == -EOPNOTSUPP || ret == -EXDEV)
--		ret = generic_copy_file_range(src, src_pos, dst, dst_pos,
--					      count, 0);
-+		ret = vfs_copy_file_range(src, src_pos, dst, dst_pos, count,
-+					  COPY_FILE_SPLICE);
+ 	free_netdev(netdev);
+ }
+@@ -2562,7 +2563,7 @@ static int pch_gbe_probe(struct pci_dev *pdev,
+ 	/* setup the private structure */
+ 	ret = pch_gbe_sw_init(adapter);
+ 	if (ret)
+-		goto err_free_netdev;
++		goto err_put_dev;
+ 
+ 	/* Initialize PHY */
+ 	ret = pch_gbe_init_phy(adapter);
+@@ -2620,6 +2621,8 @@ static int pch_gbe_probe(struct pci_dev *pdev,
+ 
+ err_free_adapter:
+ 	pch_gbe_phy_hw_reset(&adapter->hw);
++err_put_dev:
++	pci_dev_put(adapter->ptp_pdev);
+ err_free_netdev:
+ 	free_netdev(netdev);
  	return ret;
- }
- 
-diff --git a/fs/read_write.c b/fs/read_write.c
-index 328ce8cf9a85..24b9668d6377 100644
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -1388,6 +1388,8 @@ ssize_t generic_copy_file_range(struct file *file_in, loff_t pos_in,
- 				struct file *file_out, loff_t pos_out,
- 				size_t len, unsigned int flags)
- {
-+	lockdep_assert(sb_write_started(file_inode(file_out)->i_sb));
-+
- 	return do_splice_direct(file_in, &pos_in, file_out, &pos_out,
- 				len > MAX_RW_COUNT ? MAX_RW_COUNT : len, 0);
- }
-@@ -1424,7 +1426,9 @@ static int generic_copy_file_checks(struct file *file_in, loff_t pos_in,
- 	 * and several different sets of file_operations, but they all end up
- 	 * using the same ->copy_file_range() function pointer.
- 	 */
--	if (file_out->f_op->copy_file_range) {
-+	if (flags & COPY_FILE_SPLICE) {
-+		/* cross sb splice is allowed */
-+	} else if (file_out->f_op->copy_file_range) {
- 		if (file_in->f_op->copy_file_range !=
- 		    file_out->f_op->copy_file_range)
- 			return -EXDEV;
-@@ -1474,8 +1478,9 @@ ssize_t vfs_copy_file_range(struct file *file_in, loff_t pos_in,
- 			    size_t len, unsigned int flags)
- {
- 	ssize_t ret;
-+	bool splice = flags & COPY_FILE_SPLICE;
- 
--	if (flags != 0)
-+	if (flags & ~COPY_FILE_SPLICE)
- 		return -EINVAL;
- 
- 	ret = generic_copy_file_checks(file_in, pos_in, file_out, pos_out, &len,
-@@ -1501,14 +1506,14 @@ ssize_t vfs_copy_file_range(struct file *file_in, loff_t pos_in,
- 	 * same sb using clone, but for filesystems where both clone and copy
- 	 * are supported (e.g. nfs,cifs), we only call the copy method.
- 	 */
--	if (file_out->f_op->copy_file_range) {
-+	if (!splice && file_out->f_op->copy_file_range) {
- 		ret = file_out->f_op->copy_file_range(file_in, pos_in,
- 						      file_out, pos_out,
- 						      len, flags);
- 		goto done;
- 	}
- 
--	if (file_in->f_op->remap_file_range &&
-+	if (!splice && file_in->f_op->remap_file_range &&
- 	    file_inode(file_in)->i_sb == file_inode(file_out)->i_sb) {
- 		ret = file_in->f_op->remap_file_range(file_in, pos_in,
- 				file_out, pos_out,
-@@ -1528,6 +1533,8 @@ ssize_t vfs_copy_file_range(struct file *file_in, loff_t pos_in,
- 	 * consistent story about which filesystems support copy_file_range()
- 	 * and which filesystems do not, that will allow userspace tools to
- 	 * make consistent desicions w.r.t using copy_file_range().
-+	 *
-+	 * We also get here if caller (e.g. nfsd) requested COPY_FILE_SPLICE.
- 	 */
- 	ret = generic_copy_file_range(file_in, pos_in, file_out, pos_out, len,
- 				      flags);
-@@ -1582,6 +1589,10 @@ SYSCALL_DEFINE6(copy_file_range, int, fd_in, loff_t __user *, off_in,
- 		pos_out = f_out.file->f_pos;
- 	}
- 
-+	ret = -EINVAL;
-+	if (flags != 0)
-+		goto out;
-+
- 	ret = vfs_copy_file_range(f_in.file, pos_in, f_out.file, pos_out, len,
- 				  flags);
- 	if (ret > 0) {
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 7203f5582fd4..be074b6895b9 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2087,6 +2087,14 @@ struct dir_context {
-  */
- #define REMAP_FILE_ADVISORY		(REMAP_FILE_CAN_SHORTEN)
- 
-+/*
-+ * These flags control the behavior of vfs_copy_file_range().
-+ * They are not available to the user via syscall.
-+ *
-+ * COPY_FILE_SPLICE: call splice direct instead of fs clone/copy ops
-+ */
-+#define COPY_FILE_SPLICE		(1 << 0)
-+
- struct iov_iter;
- struct io_uring_cmd;
- 
 -- 
 2.35.1
 
