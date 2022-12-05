@@ -2,100 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF9A4642BA6
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 16:27:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04103642BC4
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 16:30:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230236AbiLEP1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 10:27:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59836 "EHLO
+        id S232702AbiLEPaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 10:30:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231991AbiLEP0J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 10:26:09 -0500
-Received: from smtp-out-05.comm2000.it (smtp-out-05.comm2000.it [212.97.32.73])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB0F1F9D7;
-        Mon,  5 Dec 2022 07:23:41 -0800 (PST)
-Received: from francesco-nb.toradex.int (31-10-206-125.static.upc.ch [31.10.206.125])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: francesco@dolcini.it)
-        by smtp-out-05.comm2000.it (Postfix) with ESMTPSA id E8EAA8240D3;
-        Mon,  5 Dec 2022 16:23:32 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailserver.it;
-        s=mailsrv; t=1670253819;
-        bh=kHr0aTjYplJsrICaBlaf8mmyRJ9l5EZ0Gq7KL8EAlqE=;
-        h=From:To:Cc:Subject:Date;
-        b=cBPD/nURivJ8O5RZoA8hzMlVtiZuEZgWhN4Wj8BDRChGtKFKVdWF4sane+Zcr1Jzs
-         RqSIfZWiRpnxRFre97ab42h1KMU4/LbK6kceQMQegJsbIAHZ4PBTLBu2v4PrEP3581
-         B7BuQMvFC2UoGobIRy8/W9DRCwxHFvHrYoiAcuWI53oNo6BnFsCazJHTDMw25hJOKB
-         QP+AYYkOBeDyEe2vdN0q0lKTZb279ljQVlf62Nzm8amMGJRdym4Z/VrLWM4+QWxkR7
-         kLcSYsi6QEMHUYTOAIP5vMZX9ICmGlOchHLaJHF5WLb4epdEzoB8EIxSJQBsz/69D1
-         FO+fk/0FDzurg==
-From:   Francesco Dolcini <francesco@dolcini.it>
-To:     Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, Marek Vasut <marex@denx.de>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Cc:     Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        devicetree@vger.kernel.org, linux-mtd@lists.infradead.org,
-        stable@vger.kernel.org
-Subject: [PATCH v1] Revert "ARM: dts: imx7: Fix NAND controller size-cells"
-Date:   Mon,  5 Dec 2022 16:23:27 +0100
-Message-Id: <20221205152327.26881-1-francesco@dolcini.it>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S231138AbiLEP3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 10:29:43 -0500
+Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0857B1EAF5
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 07:28:49 -0800 (PST)
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 3246EE000D;
+        Mon,  5 Dec 2022 15:28:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1670254128;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=sP26xDjMNjXwN9L7mGsr9oYGyxwn1e1sH95nLFtr/6U=;
+        b=NFwxKSWb+bCfZmD3rIdek9EVGn6gVCmbl53Rfox4SRaUt8DTVzdE/7NtOstE6+B3SN6Wk7
+        ut75j/yWfvol1ezJrspcvTWXsKkt4opVBSRwFhysjS0xFqZgR+K8GiE+PFQ2mw0sTZUVEv
+        kJpuY1HYEf93asulKEQXy5miw9vxHcntW5g7y4jo9KHahSco8pR+1Na5QlS43Ni1CTAAWl
+        ytcF1bRzBH1nJcxhdse38vK/4AVZafQ2irWVOkUHRvCpj8LMNeOBHtTlcS6Dx0+ITx3dX5
+        FI5GbyXhABGajLmk0B4W2EKzNcoG8W50SQaBjNpSi6otfyW2Q4d/elgurGiXrQ==
+Date:   Mon, 5 Dec 2022 16:28:44 +0100
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Francesco Dolcini <francesco@dolcini.it>
+Cc:     Marek Vasut <marex@denx.de>, Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        u-boot@lists.denx.de
+Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is
+ 0
+Message-ID: <20221205162844.5dc28b8b@xps-13>
+In-Reply-To: <Y43WSCsvfnfbcMPQ@francesco-nb.int.toradex.com>
+References: <20221202115327.4475d3a2@xps-13>
+        <Y4ngOaKq224LIpQc@francesco-nb.int.toradex.com>
+        <20221202150556.14c5ae43@xps-13>
+        <2b6fc52d-60b9-d0f4-ab91-4cf7a8095999@denx.de>
+        <20221202160030.1b8d0b8a@xps-13>
+        <223b7a4e-3aff-8070-7387-c77d2ded1dd6@denx.de>
+        <20221202164904.08d750df@xps-13>
+        <0503c46d-c385-74f5-f762-51d87a5ebaff@denx.de>
+        <20221202174255.2c1cb2ff@xps-13>
+        <Y4ozwovVIVhQHHkn@francesco-nb.int.toradex.com>
+        <Y43WSCsvfnfbcMPQ@francesco-nb.int.toradex.com>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Dolcini <francesco.dolcini@toradex.com>
+Hi Francesco,
 
-This reverts commit 753395ea1e45c724150070b5785900b6a44bd5fb.
+francesco@dolcini.it wrote on Mon, 5 Dec 2022 12:30:16 +0100:
 
-It introduced a boot regression on colibri-imx7, and potentially any
-other i.MX7 boards with MTD partition list generated into the fdt by
-U-Boot.
+> Hello Miquel
+>=20
+> On Fri, Dec 02, 2022 at 06:20:02PM +0100, Francesco Dolcini wrote:
+> > On Fri, Dec 02, 2022 at 05:42:55PM +0100, Miquel Raynal wrote: =20
+> > > Please also do it with the NAND chip described. If, when the NAND chip
+> > > is described U-Boot tries to create partitions in the controller node,
+> > > then the situation is even worse than I thought. But I believe =20
+> >=20
+> > It's like that for U-Boot older than v2022.04 ... and IMO we cannot
+> > ignore it.
+> >=20
+> > Said that from the code U-Boot looks into a `partition{}` node only as a
+> > direct child of the nand-controller, if there is a nand-chip in between
+> > the nand-controller{} and the partitions{} it will just ignore it.
+> >=20
+> > I could try to see what it is doing exactly, but I would need a little
+> > bit more time, I just tried changing the DTS as wrote I got a non
+> > bootable system. =20
+>=20
+> If I have a nand-chip { partitions {} } described in the dts U-Boot
+> (even the latest one) ignores it and generates the partition as child of
+> the nand controller, the linux parser however see that partitions{}
+> exists, even if empty, and ignore the partition directly defined as
+> child of the nand controller.
+>=20
+> TL;DR: parser fails and boot fails according to that.
 
-While the commit we are reverting here is not obviously wrong, it fixes
-only a dt binding checker warning that is non-functional, while it
-introduces a boot regression and there is no obvious fix ready.
+Yeah I get that. For me the longterm goal should be to just kill that
+function. We have proper DT support today, Linux knows how to read the
+mtdparts cmdline variable, so there is no need for anything else. I
+guess in U-Boot we should just:
+- warn users of this function that the function is deprecated and they
+  should update their machine support
+- just migrate to another solution on the colibri board
 
-Cc: stable@vger.kernel.org
-Fixes: 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
-Link: https://lore.kernel.org/all/Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com/
-Link: https://lore.kernel.org/all/20221205144917.6514168a@xps-13/
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
----
- arch/arm/boot/dts/imx7s.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+What do you think?
 
-diff --git a/arch/arm/boot/dts/imx7s.dtsi b/arch/arm/boot/dts/imx7s.dtsi
-index 03d2e8544a4e..0fc9e6b8b05d 100644
---- a/arch/arm/boot/dts/imx7s.dtsi
-+++ b/arch/arm/boot/dts/imx7s.dtsi
-@@ -1270,10 +1270,10 @@ dma_apbh: dma-apbh@33000000 {
- 			clocks = <&clks IMX7D_NAND_USDHC_BUS_RAWNAND_CLK>;
- 		};
- 
--		gpmi: nand-controller@33002000 {
-+		gpmi: nand-controller@33002000{
- 			compatible = "fsl,imx7d-gpmi-nand";
- 			#address-cells = <1>;
--			#size-cells = <0>;
-+			#size-cells = <1>;
- 			reg = <0x33002000 0x2000>, <0x33004000 0x4000>;
- 			reg-names = "gpmi-nand", "bch";
- 			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
--- 
-2.25.1
-
+Thanks,
+Miqu=C3=A8l
