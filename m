@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D3CC64323B
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:25:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D81F6432BB
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:29:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233955AbiLETZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:25:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46500 "EHLO
+        id S234110AbiLET3C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:29:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233801AbiLETYn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9BA25C70
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:19:55 -0800 (PST)
+        with ESMTP id S233881AbiLET2h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:28:37 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F15D929CB0
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:25:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1FBC61307
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:19:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE11FC433B5;
-        Mon,  5 Dec 2022 19:19:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4A37FCE139F
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:25:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36F74C433D6;
+        Mon,  5 Dec 2022 19:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267994;
-        bh=uI87BH1h83OAO10AjlHj/StSTNr9FfFMrNPNe3LjPtY=;
+        s=korg; t=1670268309;
+        bh=xSZxWo6tobhUyHT/MRTkNcpJNEwWFz7WjjrFQoi7mXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DySi4EbIP0i9ES+TwXm1qY8lBKdIbImN0Tnb8u1xpiGeYlf+2qFrA7uZKz7whQSIc
-         CN7lC87cJ1K69MvPBjH+mNWLuvspfLbFD2f69OVNRDs0ism89BFWis9tmNXwfPQJY1
-         1ReBTyvJQ8EKw4a+dTpbC959tNq5H5zkRwqudbio=
+        b=yOCvhtgPds+p1SXXRgwBYyAzhwfssoJIY+3nXEf4MtbQgvwi7NbA7T80kr9YL5Ygx
+         jVjajNcPMQxhJKFF8Mq80rR2pCsjL90Xcuk5bfq8r6myigHbc7d7JYSDjbhuFVUYWq
+         3ZDdJEzC9Jxk2Hovwq5YNoRml5SIyUnFBvuew1CM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rudolf Polzer <rpolzer@google.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Yuri Karpov <YKarpov@ispras.ru>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 048/105] platform/x86: acer-wmi: Enable SW_TABLET_MODE on Switch V 10 (SW5-017)
+Subject: [PATCH 6.0 054/124] net: ethernet: nixge: fix NULL dereference
 Date:   Mon,  5 Dec 2022 20:09:20 +0100
-Message-Id: <20221205190804.772870030@linuxfoundation.org>
+Message-Id: <20221205190809.964578735@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Yuri Karpov <YKarpov@ispras.ru>
 
-[ Upstream commit 1e817b889c7d8c14e7005258e15fec62edafe03c ]
+[ Upstream commit 9256db4e45e8b497b0e993cc3ed4ad08eb2389b6 ]
 
-Like the Acer Switch 10 (SW5-012) and Acer Switch 10 (S1003) models
-the Acer Switch V 10 (SW5-017) supports reporting SW_TABLET_MODE
-through acer-wmi.
+In function nixge_hw_dma_bd_release() dereference of NULL pointer
+priv->rx_bd_v is possible for the case of its allocation failure in
+nixge_hw_dma_bd_init().
 
-Add a DMI quirk for the SW5-017 setting force_caps to ACER_CAP_KBD_DOCK
-(these devices have no other acer-wmi based functionality).
+Move for() loop with priv->rx_bd_v dereference under the check for
+its validity.
 
-Cc: Rudolf Polzer <rpolzer@google.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20221111111639.35730-1-hdegoede@redhat.com
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: 492caffa8a1a ("net: ethernet: nixge: Add support for National Instruments XGE netdev")
+Signed-off-by: Yuri Karpov <YKarpov@ispras.ru>
+Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/acer-wmi.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/ni/nixge.c | 29 +++++++++++++++--------------
+ 1 file changed, 15 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index c73ce07b66c9..9387a370b2ff 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -550,6 +550,15 @@ static const struct dmi_system_id acer_quirks[] __initconst = {
- 		},
- 		.driver_data = (void *)ACER_CAP_KBD_DOCK,
- 	},
-+	{
-+		.callback = set_force_caps,
-+		.ident = "Acer Aspire Switch V 10 SW5-017",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SW5-017"),
-+		},
-+		.driver_data = (void *)ACER_CAP_KBD_DOCK,
-+	},
- 	{
- 		.callback = set_force_caps,
- 		.ident = "Acer One 10 (S1003)",
+diff --git a/drivers/net/ethernet/ni/nixge.c b/drivers/net/ethernet/ni/nixge.c
+index 4fc279a17562..bef3f0506487 100644
+--- a/drivers/net/ethernet/ni/nixge.c
++++ b/drivers/net/ethernet/ni/nixge.c
+@@ -249,25 +249,26 @@ static void nixge_hw_dma_bd_release(struct net_device *ndev)
+ 	struct sk_buff *skb;
+ 	int i;
+ 
+-	for (i = 0; i < RX_BD_NUM; i++) {
+-		phys_addr = nixge_hw_dma_bd_get_addr(&priv->rx_bd_v[i],
+-						     phys);
+-
+-		dma_unmap_single(ndev->dev.parent, phys_addr,
+-				 NIXGE_MAX_JUMBO_FRAME_SIZE,
+-				 DMA_FROM_DEVICE);
+-
+-		skb = (struct sk_buff *)(uintptr_t)
+-			nixge_hw_dma_bd_get_addr(&priv->rx_bd_v[i],
+-						 sw_id_offset);
+-		dev_kfree_skb(skb);
+-	}
++	if (priv->rx_bd_v) {
++		for (i = 0; i < RX_BD_NUM; i++) {
++			phys_addr = nixge_hw_dma_bd_get_addr(&priv->rx_bd_v[i],
++							     phys);
++
++			dma_unmap_single(ndev->dev.parent, phys_addr,
++					 NIXGE_MAX_JUMBO_FRAME_SIZE,
++					 DMA_FROM_DEVICE);
++
++			skb = (struct sk_buff *)(uintptr_t)
++				nixge_hw_dma_bd_get_addr(&priv->rx_bd_v[i],
++							 sw_id_offset);
++			dev_kfree_skb(skb);
++		}
+ 
+-	if (priv->rx_bd_v)
+ 		dma_free_coherent(ndev->dev.parent,
+ 				  sizeof(*priv->rx_bd_v) * RX_BD_NUM,
+ 				  priv->rx_bd_v,
+ 				  priv->rx_bd_p);
++	}
+ 
+ 	if (priv->tx_skb)
+ 		devm_kfree(ndev->dev.parent, priv->tx_skb);
 -- 
 2.35.1
 
