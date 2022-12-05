@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 630676432FC
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:33:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D93D6433CA
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:39:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234244AbiLETdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:33:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59934 "EHLO
+        id S234619AbiLETjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:39:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234295AbiLETc6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:32:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 247082CDDE
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:28:04 -0800 (PST)
+        with ESMTP id S234624AbiLETjS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:39:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E19B2AE5
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:36:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EACB6131D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:28:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F459C433D7;
-        Mon,  5 Dec 2022 19:28:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5F89B811E3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:36:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BFBDC433D6;
+        Mon,  5 Dec 2022 19:36:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268483;
-        bh=b/BVLQhCgy0z8UzEtwTeqyjYWkmEaiqLDEpIoExq1XU=;
+        s=korg; t=1670268984;
+        bh=2EAanNauODdYBR7w2XCTHCQSJmnnz1bBWOaetfT1cwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ubC2dAb95EjeSyAnEGqbzTX8p9w86GH4qoO+Cmg3ZzJwy1fIqnTvfUB/P6TTQkd47
-         82qNa/PD9L+QybElw4dJFxQCxvS+S+9OhG/f6MuumhDgRLrzzVn5STW0aNHlGE+HCe
-         N4BWE1Uwxojf1n65o5c4PPuqwk+4lUHgDPP9Vd+M=
+        b=NDDCkjsPq7p5WiM+N9VtpqdrMaaAfla9gl/mRgVtRaIFklsxD2hrfBexk6NG+ICC5
+         FNBxV1aYGjfZspOy6muzWU0d0txCryTdcI1W9D0GQDVXkWkpX16b17BtKmB5MhiChO
+         z3ehxPirKz7H7WBdOJMjktvOG6xATmpQybJtwctw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Lunn <andrew@lunn.ch>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 118/124] i2c: imx: Only DMA messages with I2C_M_DMA_SAFE flag set
+        patches@lists.linux.dev,
+        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.15 084/120] drm/i915: Never return 0 if not all requests retired
 Date:   Mon,  5 Dec 2022 20:10:24 +0100
-Message-Id: <20221205190811.801557026@linuxfoundation.org>
+Message-Id: <20221205190809.118912053@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
 
-[ Upstream commit d36678f7905cbd1dc55a8a96e066dafd749d4600 ]
+commit 12b8b046e4c9de40fa59b6f067d6826f4e688f68 upstream.
 
-Recent changes to the DMA code has resulting in the IMX driver failing
-I2C transfers when the buffer has been vmalloc. Only perform DMA
-transfers if the message has the I2C_M_DMA_SAFE flag set, indicating
-the client is providing a buffer which is DMA safe.
+Users of intel_gt_retire_requests_timeout() expect 0 return value on
+success.  However, we have no protection from passing back 0 potentially
+returned by a call to dma_fence_wait_timeout() when it succedes right
+after its timeout has expired.
 
-This is a minimal fix for stable. The I2C core provides helpers to
-allocate a bounce buffer. For a fuller fix the master should make use
-of these helpers.
+Replace 0 with -ETIME before potentially using the timeout value as return
+code, so -ETIME is returned if there are still some requests not retired
+after timeout, 0 otherwise.
 
-Fixes: 4544b9f25e70 ("dma-mapping: Add vmap checks to dma_map_single()")
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+v3: Use conditional expression, more compact but also better reflecting
+    intention standing behind the change.
+
+v2: Move the added lines down so flush_submission() is not affected.
+
+Fixes: f33a8a51602c ("drm/i915: Merge wait_for_timelines with retire_request")
+Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Cc: stable@vger.kernel.org # v5.5+
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221121145655.75141-3-janusz.krzysztofik@linux.intel.com
+(cherry picked from commit f301a29f143760ce8d3d6b6a8436d45d3448cde6)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-imx.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_gt_requests.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 3082183bd66a..fc70920c4dda 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1132,7 +1132,8 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
- 	int i, result;
- 	unsigned int temp;
- 	int block_data = msgs->flags & I2C_M_RECV_LEN;
--	int use_dma = i2c_imx->dma && msgs->len >= DMA_THRESHOLD && !block_data;
-+	int use_dma = i2c_imx->dma && msgs->flags & I2C_M_DMA_SAFE &&
-+		msgs->len >= DMA_THRESHOLD && !block_data;
+--- a/drivers/gpu/drm/i915/gt/intel_gt_requests.c
++++ b/drivers/gpu/drm/i915/gt/intel_gt_requests.c
+@@ -199,7 +199,7 @@ out_active:	spin_lock(&timelines->lock);
+ 	if (remaining_timeout)
+ 		*remaining_timeout = timeout;
  
- 	dev_dbg(&i2c_imx->adapter.dev,
- 		"<%s> write slave address: addr=0x%x\n",
-@@ -1298,7 +1299,8 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
- 			result = i2c_imx_read(i2c_imx, &msgs[i], is_lastmsg, atomic);
- 		} else {
- 			if (!atomic &&
--			    i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD)
-+			    i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD &&
-+				msgs[i].flags & I2C_M_DMA_SAFE)
- 				result = i2c_imx_dma_write(i2c_imx, &msgs[i]);
- 			else
- 				result = i2c_imx_write(i2c_imx, &msgs[i], atomic);
--- 
-2.35.1
-
+-	return active_count ? timeout : 0;
++	return active_count ? timeout ?: -ETIME : 0;
+ }
+ 
+ static void retire_work_handler(struct work_struct *work)
 
 
