@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B5B8643262
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC06A6433AC
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233682AbiLET0K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:26:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46334 "EHLO
+        id S234670AbiLETig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:38:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233858AbiLETZl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ABB627DF2
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:21:38 -0800 (PST)
+        with ESMTP id S234673AbiLETiP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7698E38A0
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:35:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26BF4B81181
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:21:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B315C433C1;
-        Mon,  5 Dec 2022 19:21:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12CBF612C5
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:35:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 217EDC433D6;
+        Mon,  5 Dec 2022 19:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268095;
-        bh=PXwvJPOltNXmGwLknp+v8l9ID/o+1i+NqmxBiiANKv8=;
+        s=korg; t=1670268911;
+        bh=NLmr3VNa06K838l8OGQf3IkXjvKmLTqiidXypvHWJJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FADz4dq7yeasCpmo5N6Km8grducAi1s1js7+xBtJk5Qms8XMjoLVlIF+k0hAtoKC0
-         jTsTchLrM2E54SBtQcvtUDFy2/dGBjHsLc2RrPk+A1X8PIttPfr72upUOkUw4xv+VA
-         uVmWbX3/h8dXACaZFDn6acRkN5G7QFHgBlUmQRSE=
+        b=zvpnr95jjHMdiUC3Eb7rjbPF3D3A9BkNf2Eto+PDTO/tncqAgeEWAZnK3CX9q1ec9
+         tWhIsWX++IDZlzxr7KlorPX0rNFkKLP6rUIp/zbIdwSTkSFMAW71DCEOgtcJSev/TR
+         YF15T3ORaytu/wefCa4APOtx3Q5ooY7dEL7T2kvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 084/105] tools/vm/slabinfo-gnuplot: use "grep -E" instead of "egrep"
-Date:   Mon,  5 Dec 2022 20:09:56 +0100
-Message-Id: <20221205190805.989696892@linuxfoundation.org>
+        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 057/120] net: hsr: Fix potential use-after-free
+Date:   Mon,  5 Dec 2022 20:09:57 +0100
+Message-Id: <20221205190808.338227270@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit a435874bf626f55d7147026b059008c8de89fbb8 upstream.
+[ Upstream commit 7e177d32442b7ed08a9fa61b61724abc548cb248 ]
 
-The latest version of grep claims the egrep is now obsolete so the build
-now contains warnings that look like:
+The skb is delivered to netif_rx() which may free it, after calling this,
+dereferencing skb may trigger use-after-free.
 
-	egrep: warning: egrep is obsolescent; using grep -E
-
-fix this up by moving the related file to use "grep -E" instead.
-
-  sed -i "s/egrep/grep -E/g" `grep egrep -rwl tools/vm`
-
-Here are the steps to install the latest grep:
-
-  wget http://ftp.gnu.org/gnu/grep/grep-3.8.tar.gz
-  tar xf grep-3.8.tar.gz
-  cd grep-3.8 && ./configure && make
-  sudo make install
-  export PATH=/usr/local/bin:$PATH
-
-Link: https://lkml.kernel.org/r/1668825419-30584-1-git-send-email-yangtiezhu@loongson.cn
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f421436a591d ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20221125075724.27912-1-yuehaibing@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/vm/slabinfo-gnuplot.sh |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/hsr/hsr_forward.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/tools/vm/slabinfo-gnuplot.sh
-+++ b/tools/vm/slabinfo-gnuplot.sh
-@@ -157,7 +157,7 @@ do_preprocess()
- 	let lines=3
- 	out=`basename "$in"`"-slabs-by-loss"
- 	`cat "$in" | grep -A "$lines" 'Slabs sorted by loss' |\
--		egrep -iv '\-\-|Name|Slabs'\
-+		grep -E -iv '\-\-|Name|Slabs'\
- 		| awk '{print $1" "$4+$2*$3" "$4}' > "$out"`
- 	if [ $? -eq 0 ]; then
- 		do_slabs_plotting "$out"
-@@ -166,7 +166,7 @@ do_preprocess()
- 	let lines=3
- 	out=`basename "$in"`"-slabs-by-size"
- 	`cat "$in" | grep -A "$lines" 'Slabs sorted by size' |\
--		egrep -iv '\-\-|Name|Slabs'\
-+		grep -E -iv '\-\-|Name|Slabs'\
- 		| awk '{print $1" "$4" "$4-$2*$3}' > "$out"`
- 	if [ $? -eq 0 ]; then
- 		do_slabs_plotting "$out"
+diff --git a/net/hsr/hsr_forward.c b/net/hsr/hsr_forward.c
+index 13f81c246f5f..07892c4b6d0c 100644
+--- a/net/hsr/hsr_forward.c
++++ b/net/hsr/hsr_forward.c
+@@ -309,17 +309,18 @@ static void hsr_deliver_master(struct sk_buff *skb, struct net_device *dev,
+ 			       struct hsr_node *node_src)
+ {
+ 	bool was_multicast_frame;
+-	int res;
++	int res, recv_len;
+ 
+ 	was_multicast_frame = (skb->pkt_type == PACKET_MULTICAST);
+ 	hsr_addr_subst_source(node_src, skb);
+ 	skb_pull(skb, ETH_HLEN);
++	recv_len = skb->len;
+ 	res = netif_rx(skb);
+ 	if (res == NET_RX_DROP) {
+ 		dev->stats.rx_dropped++;
+ 	} else {
+ 		dev->stats.rx_packets++;
+-		dev->stats.rx_bytes += skb->len;
++		dev->stats.rx_bytes += recv_len;
+ 		if (was_multicast_frame)
+ 			dev->stats.multicast++;
+ 	}
+-- 
+2.35.1
+
 
 
