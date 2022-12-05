@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1DF86432FE
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:33:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 542AC64336D
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233236AbiLETdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:33:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33938 "EHLO
+        id S234339AbiLETgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:36:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233571AbiLETdG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:33:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E23FC2CE11
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:28:03 -0800 (PST)
+        with ESMTP id S234379AbiLETgF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:36:05 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57BF310A0
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:32:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58463B81151
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:28:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F202C433C1;
-        Mon,  5 Dec 2022 19:28:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9EF25CE13A8
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:32:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A5E1C433C1;
+        Mon,  5 Dec 2022 19:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268481;
-        bh=KI//VNrvY18blvo63HE7FRgt4waLWxECGwe22pKqrSI=;
+        s=korg; t=1670268756;
+        bh=ew2TlTt2AW0AziLW3L0iPyvweumZITDNadKGWL2Pnjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m1RoqEhAxDThbjYJ4MVsNwlmf5UBn1kRsF1kegcaH489OUl9t5qyZRahT06ioIzdU
-         RTDhQVhHPa+u5OzYntRJh7UzSJji5KpJ8KRDz6jZ9cRk3YwG3QyQee7VIVUeVxmKHD
-         9Iyu+U7+8TFxtXqY8gZBn+ntY9CFpRgotBLjYHSE=
+        b=eMqgzKA1Xt3Z3hGv2K22mDdZZWV22TWQI0Jantf5SqpuMDjKnZKLcKjXXyZJqQoxk
+         6LPx0oyxpagn+B312v39bF0Kc5Oqit+es2em5942jXjHZvkKQuvq6uXCcGwEN+uWp5
+         YmrEOGuzkJOu36NkbwTn22R0tpP3BqIQvUcP3E+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Tommaso Merciai <tommaso.merciai@amarulasoluitons.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 117/124] i2c: qcom-geni: fix error return code in geni_i2c_gpi_xfer
+        patches@lists.linux.dev, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 70/92] ASoC: ops: Fix bounds check for _sx controls
 Date:   Mon,  5 Dec 2022 20:10:23 +0100
-Message-Id: <20221205190811.771676048@linuxfoundation.org>
+Message-Id: <20221205190805.819716873@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 7d8ccf4f117d082156e842d959f634efcf203cef ]
+[ Upstream commit 698813ba8c580efb356ace8dbf55f61dac6063a8 ]
 
-Fix to return a negative error code from the gi2c->err instead of
-0.
+For _sx controls the semantics of the max field is not the usual one, max
+is the number of steps rather than the maximum value. This means that our
+check in snd_soc_put_volsw_sx() needs to just check against the maximum
+value.
 
-Fixes: d8703554f4de ("i2c: qcom-geni: Add support for GPI DMA")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Reviewed-by: Tommaso Merciai <tommaso.merciai@amarulasoluitons.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 4f1e50d6a9cf9c1b ("ASoC: ops: Reject out of bounds values in snd_soc_put_volsw_sx()")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220511134137.169575-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-qcom-geni.c | 1 -
- 1 file changed, 1 deletion(-)
+ sound/soc/soc-ops.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 84a77512614d..8fce98bb77ff 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -626,7 +626,6 @@ static int geni_i2c_gpi_xfer(struct geni_i2c_dev *gi2c, struct i2c_msg msgs[], i
- 			dev_err(gi2c->se.dev, "I2C timeout gpi flags:%d addr:0x%x\n",
- 				gi2c->cur->flags, gi2c->cur->addr);
- 			gi2c->err = -ETIMEDOUT;
--			goto err;
- 		}
- 
- 		if (gi2c->err) {
+diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
+index 0f26d6c31ce5..5fdd96e77ef3 100644
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -432,7 +432,7 @@ int snd_soc_put_volsw_sx(struct snd_kcontrol *kcontrol,
+ 	val = ucontrol->value.integer.value[0];
+ 	if (mc->platform_max && val > mc->platform_max)
+ 		return -EINVAL;
+-	if (val > max - min)
++	if (val > max)
+ 		return -EINVAL;
+ 	if (val < 0)
+ 		return -EINVAL;
 -- 
 2.35.1
 
