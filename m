@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 149C46434AD
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:48:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E00D6433D9
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:40:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235109AbiLETsl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:48:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54308 "EHLO
+        id S234715AbiLETkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:40:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231834AbiLETr6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DC42A266
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:44:59 -0800 (PST)
+        with ESMTP id S234773AbiLETjl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:39:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D7DF27170
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:36:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69ABBB81157
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:44:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB8EEC433C1;
-        Mon,  5 Dec 2022 19:44:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD5AA61307
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:36:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAC15C433C1;
+        Mon,  5 Dec 2022 19:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269497;
-        bh=iiVFgiIpboQYsHuxrFYpXamKfBdM2PFW+O6UZGymRtU=;
+        s=korg; t=1670269018;
+        bh=ezQ1w8VhFxZoJVkalxYi7GExAh+jS4LqhPW29x9ez6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=reqv4LVnWKZDK5PKRioTOTobHVHEJt0iSbyZQhlqtjeJI4litKF/LJTvF/2CvjQaa
-         ztVUsw41MTQNjhlGQ8iSdHyDlBw4X/52e/2wJm3ZvEK4CN04bAstBZ0bKlID8qhatZ
-         5rpHr7JsxL+uggI/hhYq3QHMRlFRnS3iW1qWCJaE=
+        b=ERUBk5UYgxxxrPBBnzR5cGXelh1c4SdnMpDlunjG41MhkQ3FSIX36b9pXwyiBceIJ
+         vcFO15Nd+ZCDTh50LZxEppxOcZRpYoLIxTGw3OxbVytzrFYNbNXMT/+Xf25MXo78oc
+         YvNpGINHklV5Fy8sOLpr/ER6ccbQ7qFGHKEX16g8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        Maxim Korotkov <korotkov.maxim.s@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 111/153] packet: do not set TP_STATUS_CSUM_VALID on CHECKSUM_COMPLETE
+Subject: [PATCH 5.15 095/120] pinctrl: single: Fix potential division by zero
 Date:   Mon,  5 Dec 2022 20:10:35 +0100
-Message-Id: <20221205190811.920539432@linuxfoundation.org>
+Message-Id: <20221205190809.420933702@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Maxim Korotkov <korotkov.maxim.s@gmail.com>
 
-[ Upstream commit b85f628aa158a653c006e9c1405a117baef8c868 ]
+[ Upstream commit 64c150339e7f6c5cbbe8c17a56ef2b3902612798 ]
 
-CHECKSUM_COMPLETE signals that skb->csum stores the sum over the
-entire packet. It does not imply that an embedded l4 checksum
-field has been validated.
+There is a possibility of dividing by zero due to the pcs->bits_per_pin
+if pcs->fmask() also has a value of zero and called fls
+from asm-generic/bitops/builtin-fls.h or arch/x86/include/asm/bitops.h.
+The function pcs_probe() has the branch that assigned to fmask 0 before
+pcs_allocate_pin_table() was called
 
-Fixes: 682f048bd494 ("af_packet: pass checksum validation status to the user")
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20221128161812.640098-1-willemdebruijn.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: 4e7e8017a80e ("pinctrl: pinctrl-single: enhance to configure multiple pins of different modules")
+Signed-off-by: Maxim Korotkov <korotkov.maxim.s@gmail.com>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20221117123034.27383-1-korotkov.maxim.s@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/pinctrl/pinctrl-single.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 8f5ef2841199..d76edafb4dff 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2222,8 +2222,7 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
- 	if (skb->ip_summed == CHECKSUM_PARTIAL)
- 		status |= TP_STATUS_CSUMNOTREADY;
- 	else if (skb->pkt_type != PACKET_OUTGOING &&
--		 (skb->ip_summed == CHECKSUM_COMPLETE ||
--		  skb_csum_unnecessary(skb)))
-+		 skb_csum_unnecessary(skb))
- 		status |= TP_STATUS_CSUM_VALID;
+diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
+index 67bec7ea0f8b..414ee6bb8ac9 100644
+--- a/drivers/pinctrl/pinctrl-single.c
++++ b/drivers/pinctrl/pinctrl-single.c
+@@ -727,7 +727,7 @@ static int pcs_allocate_pin_table(struct pcs_device *pcs)
  
- 	if (snaplen > res)
-@@ -3451,8 +3450,7 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 		if (skb->ip_summed == CHECKSUM_PARTIAL)
- 			aux.tp_status |= TP_STATUS_CSUMNOTREADY;
- 		else if (skb->pkt_type != PACKET_OUTGOING &&
--			 (skb->ip_summed == CHECKSUM_COMPLETE ||
--			  skb_csum_unnecessary(skb)))
-+			 skb_csum_unnecessary(skb))
- 			aux.tp_status |= TP_STATUS_CSUM_VALID;
+ 	mux_bytes = pcs->width / BITS_PER_BYTE;
  
- 		aux.tp_len = origlen;
+-	if (pcs->bits_per_mux) {
++	if (pcs->bits_per_mux && pcs->fmask) {
+ 		pcs->bits_per_pin = fls(pcs->fmask);
+ 		nr_pins = (pcs->size * BITS_PER_BYTE) / pcs->bits_per_pin;
+ 	} else {
 -- 
 2.35.1
 
