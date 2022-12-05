@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD86C6432F4
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:32:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0F25643274
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234261AbiLETcm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:32:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33864 "EHLO
+        id S233963AbiLET02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:26:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234265AbiLETcV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:32:21 -0500
+        with ESMTP id S234015AbiLET0C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3745C1F3
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6330E1159
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:22:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C865A61314
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:27:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9CF9C433C1;
-        Mon,  5 Dec 2022 19:27:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3BA7612FE
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:22:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D90AC433C1;
+        Mon,  5 Dec 2022 19:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268459;
-        bh=VzJDjgQa9jnJieCfe2b7Yj/gCQymZ1keEbTKJMD8wBw=;
+        s=korg; t=1670268145;
+        bh=eiqxzhBaCNun61GVRLYPtAT1ZtxkOnD3R9RA4iEBiAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KhWVKtS+p6QvQ6L6CcTHp8ftiC+Z4zNnEP0CXjH/ogaCXWawHi6aoOvo+XqG3lAvW
-         DLFHc40rR17cxjk0aYHIkq5vgGkBB8UnkwzXfCIVLFiX8pnRTHgpw0vH8X7AWfzagt
-         H28cPRYQC4M/uwGNnFEJlMo8PrrVfdswXlodkuT8=
+        b=bpTzudtK97C+6KmYg/t/Qvn82K8oav3NFt6P7VIPmDS3/PmQJ0XPWyLgvias0YAxB
+         jww64x1Fe1brcfEHl8doyIXCf5r5tK1ipttOrp53cIEjGRmgxFk4aqZdmDk5BD894u
+         En50tq9EXool4sMARCmbl5qDUUhWvzwHTXepRB5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 109/124] iommu/vt-d: Fix PCI device refcount leak in has_external_pci()
+        patches@lists.linux.dev, Michael Kelley <mikelley@microsoft.com>,
+        Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, stable@kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 103/105] x86/ioremap: Fix page aligned size calculation in __ioremap_caller()
 Date:   Mon,  5 Dec 2022 20:10:15 +0100
-Message-Id: <20221205190811.539122503@linuxfoundation.org>
+Message-Id: <20221205190806.582001144@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit afca9e19cc720bfafc75dc5ce429c185ca93f31d ]
+[ Upstream commit 4dbd6a3e90e03130973688fd79e19425f720d999 ]
 
-for_each_pci_dev() is implemented by pci_get_device(). The comment of
-pci_get_device() says that it will increase the reference count for the
-returned pci_dev and also decrease the reference count for the input
-pci_dev @from if it is not NULL.
+Current code re-calculates the size after aligning the starting and
+ending physical addresses on a page boundary. But the re-calculation
+also embeds the masking of high order bits that exceed the size of
+the physical address space (via PHYSICAL_PAGE_MASK). If the masking
+removes any high order bits, the size calculation results in a huge
+value that is likely to immediately fail.
 
-If we break for_each_pci_dev() loop with pdev not NULL, we need to call
-pci_dev_put() to decrease the reference count. Add the missing
-pci_dev_put() before 'return true' to avoid reference count leak.
+Fix this by re-calculating the page-aligned size first. Then mask any
+high order bits using PHYSICAL_PAGE_MASK.
 
-Fixes: 89a6079df791 ("iommu/vt-d: Force IOMMU on for platform opt in hint")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221121113649.190393-2-wangxiongfeng2@huawei.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: ffa71f33a820 ("x86, ioremap: Fix incorrect physical address handling in PAE mode")
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/1668624097-14884-2-git-send-email-mikelley@microsoft.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/iommu.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/mm/ioremap.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index e47700674978..412b106d2a39 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -3844,8 +3844,10 @@ static inline bool has_external_pci(void)
- 	struct pci_dev *pdev = NULL;
+diff --git a/arch/x86/mm/ioremap.c b/arch/x86/mm/ioremap.c
+index adc77904fc3e..7da9b427044c 100644
+--- a/arch/x86/mm/ioremap.c
++++ b/arch/x86/mm/ioremap.c
+@@ -171,9 +171,15 @@ static void __iomem *__ioremap_caller(resource_size_t phys_addr,
+ 	 * Mappings have to be page-aligned
+ 	 */
+ 	offset = phys_addr & ~PAGE_MASK;
+-	phys_addr &= PHYSICAL_PAGE_MASK;
++	phys_addr &= PAGE_MASK;
+ 	size = PAGE_ALIGN(last_addr+1) - phys_addr;
  
- 	for_each_pci_dev(pdev)
--		if (pdev->external_facing)
-+		if (pdev->external_facing) {
-+			pci_dev_put(pdev);
- 			return true;
-+		}
- 
- 	return false;
- }
++	/*
++	 * Mask out any bits not part of the actual physical
++	 * address, like memory encryption bits.
++	 */
++	phys_addr &= PHYSICAL_PAGE_MASK;
++
+ 	retval = reserve_memtype(phys_addr, (u64)phys_addr + size,
+ 						pcm, &new_pcm);
+ 	if (retval) {
 -- 
 2.35.1
 
