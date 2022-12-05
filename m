@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A93F643288
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4C42643215
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:24:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233892AbiLET05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:26:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46622 "EHLO
+        id S233529AbiLETYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:24:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233978AbiLET0b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D85F24BF4
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:23:09 -0800 (PST)
+        with ESMTP id S233520AbiLETYC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED2E27900
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:19:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 887B561311
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:23:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 955FBC433C1;
-        Mon,  5 Dec 2022 19:23:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0356612FE
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:19:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0B50C433D6;
+        Mon,  5 Dec 2022 19:19:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268189;
-        bh=jaHl98ojRkhY1GwHfn9eItCPVLIiwDtxwWU6rroi8jQ=;
+        s=korg; t=1670267954;
+        bh=m6tHUFLLVGdeTZJ41sgTVPRrebEIFFmczQhEY7MnA2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1t49Hh28JX/ChjP9ayk9g1FYu5QXbfURFUIFJbYKBynOb2Y73WwljVenGB0Ar7zdX
-         SUAlzJ4byLen5lHFRgqpXDrHpfcU1EMhxCInxeOZ3CSougVxmyp/qWOCSmbRSHoSua
-         50dJHMx4c7fkQBPC7vcKXpTeSEYieqlVxNegqUME=
+        b=aXQRrovMNTld/+s2Pzn4j9g8uT4uJ4PsAwkx6A6/Pz177fNAC+XnXkz+S/TOGfniu
+         CmB6pgz/eoZpAfZY+HNtXZu2Rxb+/SMO7KrKZVMcR2sh/ESz1J15z02xgXmpFtOofc
+         b8X3RVc5KUeHbjAIS2/EuzzAFJss7VpMGxtmmYdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Andrew Davis <afd@ti.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        patches@lists.linux.dev,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 013/124] iio: health: afe4404: Fix oob read in afe4404_[read|write]_raw
+Subject: [PATCH 4.19 007/105] MIPS: pic32: treat port as signed integer
 Date:   Mon,  5 Dec 2022 20:08:39 +0100
-Message-Id: <20221205190808.819183791@linuxfoundation.org>
+Message-Id: <20221205190803.356444828@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,100 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit fc92d9e3de0b2d30a3ccc08048a5fad533e4672b ]
+[ Upstream commit 648060902aa302331b5d6e4f26d8ee0761d239ab ]
 
-KASAN report out-of-bounds read as follows:
+get_port_from_cmdline() returns an int, yet is assigned to a char, which
+is wrong in its own right, but also, with char becoming unsigned, this
+poses problems, because -1 is used as an error value. Further
+complicating things, fw_init_early_console() is only ever called with a
+-1 argument. Fix this up by removing the unused argument from
+fw_init_early_console() and treating port as a proper signed integer.
 
-BUG: KASAN: global-out-of-bounds in afe4404_read_raw+0x2ce/0x380
-Read of size 4 at addr ffffffffc00e4658 by task cat/278
-
-Call Trace:
- afe4404_read_raw
- iio_read_channel_info
- dev_attr_show
-
-The buggy address belongs to the variable:
- afe4404_channel_leds+0x18/0xffffffffffffe9c0
-
-This issue can be reproduce by singe command:
-
- $ cat /sys/bus/i2c/devices/0-0058/iio\:device0/in_intensity6_raw
-
-The array size of afe4404_channel_leds and afe4404_channel_offdacs
-are less than channels, so access with chan->address cause OOB read
-in afe4404_[read|write]_raw. Fix it by moving access before use them.
-
-Fixes: b36e8257641a ("iio: health/afe440x: Use regmap fields")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Andrew Davis <afd@ti.com>
-Link: https://lore.kernel.org/r/20221107152010.95937-1-weiyongjun@huaweicloud.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/health/afe4404.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/mips/include/asm/fw/fw.h             |  2 +-
+ arch/mips/pic32/pic32mzda/early_console.c | 13 ++++++-------
+ arch/mips/pic32/pic32mzda/init.c          |  2 +-
+ 3 files changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iio/health/afe4404.c b/drivers/iio/health/afe4404.c
-index dd7800159051..f03c466c9385 100644
---- a/drivers/iio/health/afe4404.c
-+++ b/drivers/iio/health/afe4404.c
-@@ -250,20 +250,20 @@ static int afe4404_read_raw(struct iio_dev *indio_dev,
- 			    int *val, int *val2, long mask)
- {
- 	struct afe4404_data *afe = iio_priv(indio_dev);
--	unsigned int value_reg = afe4404_channel_values[chan->address];
--	unsigned int led_field = afe4404_channel_leds[chan->address];
--	unsigned int offdac_field = afe4404_channel_offdacs[chan->address];
-+	unsigned int value_reg, led_field, offdac_field;
- 	int ret;
+diff --git a/arch/mips/include/asm/fw/fw.h b/arch/mips/include/asm/fw/fw.h
+index d0ef8b4892bb..d0494ce4b337 100644
+--- a/arch/mips/include/asm/fw/fw.h
++++ b/arch/mips/include/asm/fw/fw.h
+@@ -26,6 +26,6 @@ extern char *fw_getcmdline(void);
+ extern void fw_meminit(void);
+ extern char *fw_getenv(char *name);
+ extern unsigned long fw_getenvl(char *name);
+-extern void fw_init_early_console(char port);
++extern void fw_init_early_console(void);
  
- 	switch (chan->type) {
- 	case IIO_INTENSITY:
- 		switch (mask) {
- 		case IIO_CHAN_INFO_RAW:
-+			value_reg = afe4404_channel_values[chan->address];
- 			ret = regmap_read(afe->regmap, value_reg, val);
- 			if (ret)
- 				return ret;
- 			return IIO_VAL_INT;
- 		case IIO_CHAN_INFO_OFFSET:
-+			offdac_field = afe4404_channel_offdacs[chan->address];
- 			ret = regmap_field_read(afe->fields[offdac_field], val);
- 			if (ret)
- 				return ret;
-@@ -273,6 +273,7 @@ static int afe4404_read_raw(struct iio_dev *indio_dev,
- 	case IIO_CURRENT:
- 		switch (mask) {
- 		case IIO_CHAN_INFO_RAW:
-+			led_field = afe4404_channel_leds[chan->address];
- 			ret = regmap_field_read(afe->fields[led_field], val);
- 			if (ret)
- 				return ret;
-@@ -295,19 +296,20 @@ static int afe4404_write_raw(struct iio_dev *indio_dev,
- 			     int val, int val2, long mask)
- {
- 	struct afe4404_data *afe = iio_priv(indio_dev);
--	unsigned int led_field = afe4404_channel_leds[chan->address];
--	unsigned int offdac_field = afe4404_channel_offdacs[chan->address];
-+	unsigned int led_field, offdac_field;
+ #endif /* __ASM_FW_H_ */
+diff --git a/arch/mips/pic32/pic32mzda/early_console.c b/arch/mips/pic32/pic32mzda/early_console.c
+index 8ed4961b1271..c00c6149ee30 100644
+--- a/arch/mips/pic32/pic32mzda/early_console.c
++++ b/arch/mips/pic32/pic32mzda/early_console.c
+@@ -35,7 +35,7 @@
+ #define U_BRG(x)	(UART_BASE(x) + 0x40)
  
- 	switch (chan->type) {
- 	case IIO_INTENSITY:
- 		switch (mask) {
- 		case IIO_CHAN_INFO_OFFSET:
-+			offdac_field = afe4404_channel_offdacs[chan->address];
- 			return regmap_field_write(afe->fields[offdac_field], val);
- 		}
- 		break;
- 	case IIO_CURRENT:
- 		switch (mask) {
- 		case IIO_CHAN_INFO_RAW:
-+			led_field = afe4404_channel_leds[chan->address];
- 			return regmap_field_write(afe->fields[led_field], val);
- 		}
- 		break;
+ static void __iomem *uart_base;
+-static char console_port = -1;
++static int console_port = -1;
+ 
+ static int __init configure_uart_pins(int port)
+ {
+@@ -55,7 +55,7 @@ static int __init configure_uart_pins(int port)
+ 	return 0;
+ }
+ 
+-static void __init configure_uart(char port, int baud)
++static void __init configure_uart(int port, int baud)
+ {
+ 	u32 pbclk;
+ 
+@@ -68,7 +68,7 @@ static void __init configure_uart(char port, int baud)
+ 		     uart_base + PIC32_SET(U_STA(port)));
+ }
+ 
+-static void __init setup_early_console(char port, int baud)
++static void __init setup_early_console(int port, int baud)
+ {
+ 	if (configure_uart_pins(port))
+ 		return;
+@@ -138,16 +138,15 @@ static int __init get_baud_from_cmdline(char *arch_cmdline)
+ 	return baud;
+ }
+ 
+-void __init fw_init_early_console(char port)
++void __init fw_init_early_console(void)
+ {
+ 	char *arch_cmdline = pic32_getcmdline();
+-	int baud = -1;
++	int baud, port;
+ 
+ 	uart_base = ioremap_nocache(PIC32_BASE_UART, 0xc00);
+ 
+ 	baud = get_baud_from_cmdline(arch_cmdline);
+-	if (port == -1)
+-		port = get_port_from_cmdline(arch_cmdline);
++	port = get_port_from_cmdline(arch_cmdline);
+ 
+ 	if (port == -1)
+ 		port = EARLY_CONSOLE_PORT;
+diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
+index 406c6c5cec29..cf2625551b45 100644
+--- a/arch/mips/pic32/pic32mzda/init.c
++++ b/arch/mips/pic32/pic32mzda/init.c
+@@ -68,7 +68,7 @@ void __init plat_mem_setup(void)
+ 		strlcpy(arcs_cmdline, boot_command_line, COMMAND_LINE_SIZE);
+ 
+ #ifdef CONFIG_EARLY_PRINTK
+-	fw_init_early_console(-1);
++	fw_init_early_console();
+ #endif
+ 	pic32_config_init();
+ }
 -- 
 2.35.1
 
