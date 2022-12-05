@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71BA1643407
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0CC8643210
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:24:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234857AbiLETlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:41:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40498 "EHLO
+        id S233804AbiLETYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:24:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234752AbiLETlR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:41:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E886865B0
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:38:49 -0800 (PST)
+        with ESMTP id S232434AbiLETXw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:23:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C022C2AC68
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:19:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E9DEB811E3
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:38:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B54AC43470;
-        Mon,  5 Dec 2022 19:38:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 504BF612FB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:18:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62FF5C433C1;
+        Mon,  5 Dec 2022 19:18:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269127;
-        bh=EocvsbAXXfxhbL+5OrFe8As7jUzsBFywCp7AgiZvN40=;
+        s=korg; t=1670267932;
+        bh=DoZwt6SssrCaHomhGhjUI7wR79zmxnYR6J9fq8RpZoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZwppIB0rP8X3WVLCESio3G21xjf9PiDxFlt93Xh4N+EAS5jE6aPWQVmk0mlKMvLo
-         OT+VGPjhKOAOcJz2cnpldllRhPKI8w7+8X5GxqO4r95B5IwHWGcErman8588T1Vj8d
-         rODh8fSaAJcdvPP8xutbM1aphxgS0q2fF6SQPz7M=
+        b=ihOWGN2DN1sJq164o6Ncp8wS2+9p3R6xaIvNUE9IPFm9dzL51TY79KZ9e/g5k1ATH
+         O8Ge/zjpFf8Y32TRLBeOnZK1AryJ4w7Y7sP3B6nzIH76uLwm5l2YYNZRqXK0AofDNM
+         krSdtMpgWIL11d3fy4I9hdltdeKiCVJrND8VcNtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 014/153] regulator: core: fix kobject release warning and memory leak in regulator_register()
+Subject: [PATCH 4.19 026/105] xfrm: Fix ignored return value in xfrm6_init()
 Date:   Mon,  5 Dec 2022 20:08:58 +0100
-Message-Id: <20221205190809.159933979@linuxfoundation.org>
+Message-Id: <20221205190804.030126724@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Heng <zengheng4@huawei.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 5f4b204b6b8153923d5be8002c5f7082985d153f ]
+[ Upstream commit 40781bfb836eda57d19c0baa37c7e72590e05fdc ]
 
-Here is a warning report about lack of registered release()
-from kobject lib:
+When IPv6 module initializing in xfrm6_init(), register_pernet_subsys()
+is possible to fail but its return value is ignored.
 
-Device '(null)' does not have a release() function, it is broken and must be fixed.
-WARNING: CPU: 0 PID: 48430 at drivers/base/core.c:2332 device_release+0x104/0x120
+If IPv6 initialization fails later and xfrm6_fini() is called,
+removing uninitialized list in xfrm6_net_ops will cause null-ptr-deref:
+
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 1 PID: 330 Comm: insmod
+RIP: 0010:unregister_pernet_operations+0xc9/0x450
 Call Trace:
- kobject_put+0xdc/0x180
- put_device+0x1b/0x30
- regulator_register+0x651/0x1170
- devm_regulator_register+0x4f/0xb0
+ <TASK>
+ unregister_pernet_subsys+0x31/0x3e
+ xfrm6_fini+0x16/0x30 [ipv6]
+ ip6_route_init+0xcd/0x128 [ipv6]
+ inet6_init+0x29c/0x602 [ipv6]
+ ...
 
-When regulator_register() returns fail and directly goto `clean` symbol,
-rdev->dev has not registered release() function yet (which is registered
-by regulator_class in the following), so rdev needs to be freed manually.
-If rdev->dev.of_node is not NULL, which means the of_node has gotten by
-regulator_of_get_init_data(), it needs to call of_node_put() to avoid
-refcount leak.
+Fix it by catching the error return value of register_pernet_subsys().
 
-Otherwise, only calling put_device() would lead memory leak of rdev
-in further:
-
-unreferenced object 0xffff88810d0b1000 (size 2048):
-  comm "107-i2c-rtq6752", pid 48430, jiffies 4342258431 (age 1341.780s)
-  backtrace:
-    kmalloc_trace+0x22/0x110
-    regulator_register+0x184/0x1170
-    devm_regulator_register+0x4f/0xb0
-
-When regulator_register() returns fail and goto `wash` symbol,
-rdev->dev has registered release() function, so directly call
-put_device() to cleanup everything.
-
-Fixes: d3c731564e09 ("regulator: plug of_node leak in regulator_register()'s error path")
-Signed-off-by: Zeng Heng <zengheng4@huawei.com>
-Link: https://lore.kernel.org/r/20221116074339.1024240-1-zengheng4@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 8d068875caca ("xfrm: make gc_thresh configurable in all namespaces")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 6 +++++-
+ net/ipv6/xfrm6_policy.c | 6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 6ba3f6e7ea4f..173798c0fbcd 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5269,11 +5269,15 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	mutex_lock(&regulator_list_mutex);
- 	regulator_ena_gpio_free(rdev);
- 	mutex_unlock(&regulator_list_mutex);
-+	put_device(&rdev->dev);
-+	rdev = NULL;
- clean:
- 	if (dangling_of_gpiod)
- 		gpiod_put(config->ena_gpiod);
-+	if (rdev && rdev->dev.of_node)
-+		of_node_put(rdev->dev.of_node);
-+	kfree(rdev);
- 	kfree(config);
--	put_device(&rdev->dev);
- rinse:
- 	if (dangling_cfg_gpiod)
- 		gpiod_put(cfg->ena_gpiod);
+diff --git a/net/ipv6/xfrm6_policy.c b/net/ipv6/xfrm6_policy.c
+index 30232591cf2b..1925fb91e514 100644
+--- a/net/ipv6/xfrm6_policy.c
++++ b/net/ipv6/xfrm6_policy.c
+@@ -416,9 +416,13 @@ int __init xfrm6_init(void)
+ 	if (ret)
+ 		goto out_state;
+ 
+-	register_pernet_subsys(&xfrm6_net_ops);
++	ret = register_pernet_subsys(&xfrm6_net_ops);
++	if (ret)
++		goto out_protocol;
+ out:
+ 	return ret;
++out_protocol:
++	xfrm6_protocol_fini();
+ out_state:
+ 	xfrm6_state_fini();
+ out_policy:
 -- 
 2.35.1
 
