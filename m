@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E8BD643350
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16ACE64346A
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:46:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234270AbiLETf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:35:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35376 "EHLO
+        id S235088AbiLETq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:46:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234339AbiLETfJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C1A02A259
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:31:18 -0800 (PST)
+        with ESMTP id S235066AbiLETqL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:46:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD9992D770
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:42:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E4C1461307
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:31:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F15FDC433C1;
-        Mon,  5 Dec 2022 19:31:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F5C9B811F3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:42:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0286C433D6;
+        Mon,  5 Dec 2022 19:42:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268677;
-        bh=YPrkSZcHmssOwqYPWtHg0dZ5FWUmJQNDA2byJRLUxIE=;
+        s=korg; t=1670269346;
+        bh=l4hRGP9qF5Z8s2JuGgAM+kA6Ts73sYSxI2trf5o3kSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GrWm2xeB46GARtXh5pyxCDY2Y4thBuvLtJbX8ZnJnsMzjlFyYklq98IfdtIRyp3TH
-         wSSVgAe/ep57ZXmmLRO5Xj0bz3plRdnDxwKgK98J/sCFaX5JGofVcB6i2fmJsKN9Oy
-         m3u+6JnJO8UfL5dGjHaadL4d34+7NS+1odDI2mZE=
+        b=uyYaB+YLUaeUL1Cegv8Uc3IQME1zieoQdFxGWuwxq2PT9kr07lxu6/JSOiys99ZUI
+         YiGZOAdzocZB36gy8/0AKCCW2s/yBR4hXGlgGTQ36nye9RmVEdt07Cd6h+ds69quEG
+         alm4G6X00GTXP1Wq2pLtXCJLEgXyjTCV1Ose52HA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenchao Chen <wenchao.chen@unisoc.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 64/92] mmc: sdhci-sprd: Fix no reset data and command after voltage switch
-Date:   Mon,  5 Dec 2022 20:10:17 +0100
-Message-Id: <20221205190805.634164594@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 094/153] hwmon: (i5500_temp) fix missing pci_disable_device()
+Date:   Mon,  5 Dec 2022 20:10:18 +0100
+Message-Id: <20221205190811.435137401@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenchao Chen <wenchao.chen@unisoc.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit dd30dcfa7a74a06f8dcdab260d8d5adf32f17333 upstream.
+[ Upstream commit 3b7f98f237528c496ea0b689bace0e35eec3e060 ]
 
-After switching the voltage, no reset data and command will cause
-CMD2 timeout.
+pci_disable_device() need be called while module exiting, switch to use
+pcim_enable(), pci_disable_device() will be called in pcim_release().
 
-Fixes: 29ca763fc26f ("mmc: sdhci-sprd: Add pin control support for voltage switch")
-Signed-off-by: Wenchao Chen <wenchao.chen@unisoc.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221130121328.25553-1-wenchao.chen@unisoc.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ada072816be1 ("hwmon: (i5500_temp) New driver for the Intel 5500/5520/X58 chipsets")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221112125606.3751430-1-yangyingliang@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-sprd.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/hwmon/i5500_temp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci-sprd.c
-+++ b/drivers/mmc/host/sdhci-sprd.c
-@@ -457,7 +457,7 @@ static int sdhci_sprd_voltage_switch(str
- 	}
+diff --git a/drivers/hwmon/i5500_temp.c b/drivers/hwmon/i5500_temp.c
+index 360f5aee1394..d4be03f43fb4 100644
+--- a/drivers/hwmon/i5500_temp.c
++++ b/drivers/hwmon/i5500_temp.c
+@@ -108,7 +108,7 @@ static int i5500_temp_probe(struct pci_dev *pdev,
+ 	u32 tstimer;
+ 	s8 tsfsc;
  
- 	if (IS_ERR(sprd_host->pinctrl))
--		return 0;
-+		goto reset;
- 
- 	switch (ios->signal_voltage) {
- 	case MMC_SIGNAL_VOLTAGE_180:
-@@ -485,6 +485,8 @@ static int sdhci_sprd_voltage_switch(str
- 
- 	/* Wait for 300 ~ 500 us for pin state stable */
- 	usleep_range(300, 500);
-+
-+reset:
- 	sdhci_reset(host, SDHCI_RESET_CMD | SDHCI_RESET_DATA);
- 
- 	return 0;
+-	err = pci_enable_device(pdev);
++	err = pcim_enable_device(pdev);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "Failed to enable device\n");
+ 		return err;
+-- 
+2.35.1
+
 
 
