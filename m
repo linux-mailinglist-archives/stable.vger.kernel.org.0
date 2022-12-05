@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89E8A643147
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78C616432CB
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230450AbiLETNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:13:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60522 "EHLO
+        id S234230AbiLET3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:29:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230519AbiLETNJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:13:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C7F91F625
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:13:08 -0800 (PST)
+        with ESMTP id S234182AbiLET31 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:29:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8FB02A42E
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:25:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B6966130C
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:13:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49618C433D6;
-        Mon,  5 Dec 2022 19:13:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D240D612FB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:25:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E740EC433D6;
+        Mon,  5 Dec 2022 19:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267587;
-        bh=xo8Q5+IqRAbz82d1GVz+6bXlH287+XTrajv2kUnSSkQ=;
+        s=korg; t=1670268353;
+        bh=uGmvIs16xQjjxsbrDA/CCWLXtt539onbBbl9Qrc/2d8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wetcPbvzlS5HofHbqtcw1211qlRTuR/2axFLwujSpxSFGbe1dsC90Y1TeDZBMD90O
-         RxUbhl42ezkzfA4UkgADnk0dmpvU5iT7QgDd08CyA2C1pFMVOFYiUG2pkr9ofOT2Mm
-         YyeUZh/ub7XbR7qyjrNc29kg08st3pBuZ1Dng0Ag=
+        b=jyDy2cWcOqJA0ZrmDJ9jfWc5ZIc5DyTkr8UenfhvTqeyozO+fUfugr9kfA8x5G7c0
+         AB8v6jJV0k33t7UQ/SBTJmF2BRX8Ld0Ra+0+OnUh4XsNlUMOpKshnBMV4lhSGYQQ4q
+         655AFNyY5PjD32P9gaLxY2e6z6icYSD7yNdOHcUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Marc Dionne <marc.dionne@auristor.com>,
+        David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 40/62] net: net_netdev: Fix error handling in ntb_netdev_init_module()
+Subject: [PATCH 6.0 071/124] afs: Fix server->active leak in afs_put_server
 Date:   Mon,  5 Dec 2022 20:09:37 +0100
-Message-Id: <20221205190759.607989842@linuxfoundation.org>
+Message-Id: <20221205190810.440842142@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Marc Dionne <marc.dionne@auristor.com>
 
-[ Upstream commit b8f79dccd38edf7db4911c353d9cd792ab13a327 ]
+[ Upstream commit ef4d3ea40565a781c25847e9cb96c1bd9f462bc6 ]
 
-The ntb_netdev_init_module() returns the ntb_transport_register_client()
-directly without checking its return value, if
-ntb_transport_register_client() failed, the NTB client device is not
-unregistered.
+The atomic_read was accidentally replaced with atomic_inc_return,
+which prevents the server from getting cleaned up and causes rmmod
+to hang with a warning:
 
-Fix by unregister NTB client device when ntb_transport_register_client()
-failed.
+    Can't purge s=00000001
 
-Fixes: 548c237c0a99 ("net: Add support for NTB virtual ethernet device")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2757a4dc1849 ("afs: Fix access after dec in put functions")
+Signed-off-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Link: https://lore.kernel.org/r/20221130174053.2665818-1-marc.dionne@auristor.com/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ntb_netdev.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/afs/server.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ntb_netdev.c b/drivers/net/ntb_netdev.c
-index 03009f1becdd..bd6c19ceab30 100644
---- a/drivers/net/ntb_netdev.c
-+++ b/drivers/net/ntb_netdev.c
-@@ -500,7 +500,14 @@ static int __init ntb_netdev_init_module(void)
- 	rc = ntb_transport_register_client_dev(KBUILD_MODNAME);
- 	if (rc)
- 		return rc;
--	return ntb_transport_register_client(&ntb_netdev_client);
-+
-+	rc = ntb_transport_register_client(&ntb_netdev_client);
-+	if (rc) {
-+		ntb_transport_unregister_client_dev(KBUILD_MODNAME);
-+		return rc;
-+	}
-+
-+	return 0;
- }
- module_init(ntb_netdev_init_module);
+diff --git a/fs/afs/server.c b/fs/afs/server.c
+index 4981baf97835..b5237206eac3 100644
+--- a/fs/afs/server.c
++++ b/fs/afs/server.c
+@@ -406,7 +406,7 @@ void afs_put_server(struct afs_net *net, struct afs_server *server,
+ 	if (!server)
+ 		return;
  
+-	a = atomic_inc_return(&server->active);
++	a = atomic_read(&server->active);
+ 	zero = __refcount_dec_and_test(&server->ref, &r);
+ 	trace_afs_server(debug_id, r - 1, a, reason);
+ 	if (unlikely(zero))
 -- 
 2.35.1
 
