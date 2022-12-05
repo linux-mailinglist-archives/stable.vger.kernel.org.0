@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C42C3643159
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F17EF6431DD
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:21:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232343AbiLETOS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:14:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33084 "EHLO
+        id S233713AbiLETVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:21:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232657AbiLETN5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:13:57 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2BF51F2FC
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:13:56 -0800 (PST)
+        with ESMTP id S233520AbiLETU5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:20:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBA5725C75
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:17:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 57995CE13A7
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:13:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31641C433C1;
-        Mon,  5 Dec 2022 19:13:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F88C61314
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:17:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92794C433C1;
+        Mon,  5 Dec 2022 19:17:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267633;
-        bh=+UbCanSGFmg4aNgaGFPNabzJ/igfMlOd2siXUA34X04=;
+        s=korg; t=1670267823;
+        bh=dIQOBKTdiCa8LA6uxbtuDAOUpEkv2q4+ZPBM6p8X+Ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UN+7zET9rsMZOhLcz/CyfzwNNnzVSLn2oT8d50H3aqPg11BcSet5XSf85KouCXJ5a
-         Q/1BpLfY6c3XD38iqFVXRJufHDf2FdhO9QkEsSvvlYyVT9JWZ0OPwBCe+amNOUDYSn
-         Aba80C69uLtIv3wLZ8bU60gUkgHnrj2brTs78/7A=
+        b=Dnq6P3PlExalOyYugqu51VAFkOvgGwBs752xP9shD2G32gJzXPuurQNVWhq7joPNC
+         En0vQiRcE+VQRGw5VC9L6MOrFxda99+dApL//krRmbzaaCPPWhIqIu9HpuGy0ZbDD7
+         UXFH7clvbUUY6hCCb/l5cFkqDsGrTePKqyaVWisg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, stable@kernel.org
-Subject: [PATCH 4.9 58/62] x86/pm: Add enumeration check before spec MSRs save/restore setup
+        patches@lists.linux.dev, Sami Lee <sami.lee@mediatek.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 4.14 64/77] arm64: Fix panic() when Spectre-v2 causes Spectre-BHB to re-allocate KVM vectors
 Date:   Mon,  5 Dec 2022 20:09:55 +0100
-Message-Id: <20221205190800.270829404@linuxfoundation.org>
+Message-Id: <20221205190803.119599081@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,99 +52,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: James Morse <james.morse@arm.com>
 
-commit 50bcceb7724e471d9b591803889df45dcbb584bc upstream.
+Sami reports that linux panic()s when resuming from suspend to RAM. This
+is because when CPUs are brought back online, they re-enable any
+necessary mitigations.
 
-pm_save_spec_msr() keeps a list of all the MSRs which _might_ need
-to be saved and restored at hibernate and resume. However, it has
-zero awareness of CPU support for these MSRs. It mostly works by
-unconditionally attempting to manipulate these MSRs and relying on
-rdmsrl_safe() being able to handle a #GP on CPUs where the support is
-unavailable.
+The Spectre-v2 and Spectre-BHB mitigations interact as both need to
+done by KVM when exiting a guest. Slots KVM can use as vectors are
+allocated, and templates for the mitigation are patched into the vector.
 
-However, it's possible for reads (RDMSR) to be supported for a given MSR
-while writes (WRMSR) are not. In this case, msr_build_context() sees
-a successful read (RDMSR) and marks the MSR as valid. Then, later, a
-write (WRMSR) fails, producing a nasty (but harmless) error message.
-This causes restore_processor_state() to try and restore it, but writing
-this MSR is not allowed on the Intel Atom N2600 leading to:
+This fails if a new slot needs to be allocated once the kernel has finished
+booting as it is no-longer possible to modify KVM's vectors:
+| root@adam:/sys/devices/system/cpu/cpu1# echo 1 > online
+| Unable to handle kernel write to read-only memory at virtual add>
+| Mem abort info:
+|   ESR = 0x9600004e
+|   Exception class = DABT (current EL), IL = 32 bits
+|   SET = 0, FnV = 0
+|   EA = 0, S1PTW = 0
+| Data abort info:
+|   ISV = 0, ISS = 0x0000004e
+|   CM = 0, WnR = 1
+| swapper pgtable: 4k pages, 48-bit VAs, pgdp = 000000000f07a71c
+| [ffff800000b4b800] pgd=00000009ffff8803, pud=00000009ffff7803, p>
+| Internal error: Oops: 9600004e [#1] PREEMPT SMP
+| Modules linked in:
+| Process swapper/1 (pid: 0, stack limit = 0x0000000063153c53)
+| CPU: 1 PID: 0 Comm: swapper/1 Not tainted 4.19.252-dirty #14
+| Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno De>
+| pstate: 000001c5 (nzcv dAIF -PAN -UAO)
+| pc : __memcpy+0x48/0x180
+| lr : __copy_hyp_vect_bpi+0x64/0x90
 
-  unchecked MSR access error: WRMSR to 0x122 (tried to write 0x0000000000000002) \
-     at rIP: 0xffffffff8b07a574 (native_write_msr+0x4/0x20)
-  Call Trace:
-   <TASK>
-   restore_processor_state
-   x86_acpi_suspend_lowlevel
-   acpi_suspend_enter
-   suspend_devices_and_enter
-   pm_suspend.cold
-   state_store
-   kernfs_fop_write_iter
-   vfs_write
-   ksys_write
-   do_syscall_64
-   ? do_syscall_64
-   ? up_read
-   ? lock_is_held_type
-   ? asm_exc_page_fault
-   ? lockdep_hardirqs_on
-   entry_SYSCALL_64_after_hwframe
+| Call trace:
+|  __memcpy+0x48/0x180
+|  kvm_setup_bhb_slot+0x204/0x2a8
+|  spectre_bhb_enable_mitigation+0x1b8/0x1d0
+|  __verify_local_cpu_caps+0x54/0xf0
+|  check_local_cpu_capabilities+0xc4/0x184
+|  secondary_start_kernel+0xb0/0x170
+| Code: b8404423 b80044c3 36180064 f8408423 (f80084c3)
+| ---[ end trace 859bcacb09555348 ]---
+| Kernel panic - not syncing: Attempted to kill the idle task!
+| SMP: stopping secondary CPUs
+| Kernel Offset: disabled
+| CPU features: 0x10,25806086
+| Memory Limit: none
+| ---[ end Kernel panic - not syncing: Attempted to kill the idle ]
 
-To fix this, add the corresponding X86_FEATURE bit for each MSR.  Avoid
-trying to manipulate the MSR when the feature bit is clear. This
-required adding a X86_FEATURE bit for MSRs that do not have one already,
-but it's a small price to pay.
+This is only a problem on platforms where there is only one CPU that is
+vulnerable to both Spectre-v2 and Spectre-BHB.
 
-  [ bp: Move struct msr_enumeration inside the only function that uses it. ]
-  [Pawan: Resolve build issue in backport]
+The Spectre-v2 mitigation identifies the slot it can re-use by the CPU's
+'fn'. It unconditionally writes the slot number and 'template_start'
+pointer. The Spectre-BHB mitigation identifies slots it can re-use by
+the CPU's template_start pointer, which was previously clobbered by the
+Spectre-v2 mitigation.
 
-Fixes: 73924ec4d560 ("x86/pm: Save the MSR validity status at context setup")
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/c24db75d69df6e66c0465e13676ad3f2837a2ed8.1668539735.git.pawan.kumar.gupta@linux.intel.com
+When there is only one CPU that is vulnerable to both issues, this causes
+Spectre-v2 to try to allocate a new slot, which fails.
+
+Change both mitigations to check whether they are changing the slot this
+CPU uses before writing the percpu variables again.
+
+This issue only exists in the stable backports for Spectre-BHB which have
+to use totally different infrastructure to mainline.
+
+Reported-by: Sami Lee <sami.lee@mediatek.com>
+Fixes: 3e3904125fcc ("arm64: Mitigate spectre style branch history side channels")
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/power/cpu.c |   23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ arch/arm64/kernel/cpu_errata.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/arch/x86/power/cpu.c
-+++ b/arch/x86/power/cpu.c
-@@ -520,16 +520,23 @@ static int pm_cpu_check(const struct x86
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -135,9 +135,12 @@ static void install_bp_hardening_cb(bp_h
+ 		__copy_hyp_vect_bpi(slot, hyp_vecs_start, hyp_vecs_end);
+ 	}
  
- static void pm_save_spec_msr(void)
- {
--	u32 spec_msr_id[] = {
--		MSR_IA32_SPEC_CTRL,
--		MSR_IA32_TSX_CTRL,
--		MSR_TSX_FORCE_ABORT,
--		MSR_IA32_MCU_OPT_CTRL,
--		MSR_AMD64_LS_CFG,
--		MSR_AMD64_DE_CFG,
-+	struct msr_enumeration {
-+		u32 msr_no;
-+		u32 feature;
-+	} msr_enum[] = {
-+		{ MSR_IA32_SPEC_CTRL,	 X86_FEATURE_MSR_SPEC_CTRL },
-+		{ MSR_IA32_TSX_CTRL,	 X86_FEATURE_MSR_TSX_CTRL },
-+		{ MSR_TSX_FORCE_ABORT,	 X86_FEATURE_TSX_FORCE_ABORT },
-+		{ MSR_IA32_MCU_OPT_CTRL, X86_FEATURE_SRBDS_CTRL },
-+		{ MSR_AMD64_LS_CFG,	 X86_FEATURE_LS_CFG_SSBD },
-+		{ MSR_AMD64_DE_CFG,	 X86_FEATURE_LFENCE_RDTSC },
- 	};
-+	int i;
- 
--	msr_build_context(spec_msr_id, ARRAY_SIZE(spec_msr_id));
-+	for (i = 0; i < ARRAY_SIZE(msr_enum); i++) {
-+		if (boot_cpu_has(msr_enum[i].feature))
-+			msr_build_context(&msr_enum[i].msr_no, 1);
+-	__this_cpu_write(bp_hardening_data.hyp_vectors_slot, slot);
+-	__this_cpu_write(bp_hardening_data.fn, fn);
+-	__this_cpu_write(bp_hardening_data.template_start, hyp_vecs_start);
++	if (fn != __this_cpu_read(bp_hardening_data.fn)) {
++		__this_cpu_write(bp_hardening_data.hyp_vectors_slot, slot);
++		__this_cpu_write(bp_hardening_data.fn, fn);
++		__this_cpu_write(bp_hardening_data.template_start,
++				 hyp_vecs_start);
 +	}
+ 	spin_unlock(&bp_lock);
  }
+ #else
+@@ -1061,8 +1064,11 @@ static void kvm_setup_bhb_slot(const cha
+ 		__copy_hyp_vect_bpi(slot, hyp_vecs_start, hyp_vecs_end);
+ 	}
  
- static int pm_check_save_msr(void)
+-	__this_cpu_write(bp_hardening_data.hyp_vectors_slot, slot);
+-	__this_cpu_write(bp_hardening_data.template_start, hyp_vecs_start);
++	if (hyp_vecs_start != __this_cpu_read(bp_hardening_data.template_start)) {
++		__this_cpu_write(bp_hardening_data.hyp_vectors_slot, slot);
++		__this_cpu_write(bp_hardening_data.template_start,
++				 hyp_vecs_start);
++	}
+ 	spin_unlock(&bp_lock);
+ }
+ #else
 
 
