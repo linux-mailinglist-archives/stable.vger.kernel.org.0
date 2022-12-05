@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81359643433
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:43:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38EAA64338A
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:37:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235015AbiLETnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:43:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42312 "EHLO
+        id S234368AbiLEThW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:37:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234730AbiLETmt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:42:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66A9C264A4
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:40:15 -0800 (PST)
+        with ESMTP id S234413AbiLETgv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:36:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF882A735
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:33:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF8F6B811F3
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:40:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ECC8C433C1;
-        Mon,  5 Dec 2022 19:40:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0844FB811CF
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:33:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CDD8C433C1;
+        Mon,  5 Dec 2022 19:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269212;
-        bh=p/rAjpmOlj9tJa77i7Zf+Z4w8YNudZxzO6bEtdWem9s=;
+        s=korg; t=1670268832;
+        bh=il9aaumLBYP1oJ76vUIm++U3YPX9dQjSXBs/a+25uos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3+4ZFz2IWt/c1vEQPA6rbH21nQ4BMP62o+sVHvDYzqUChebveno1GdBi/T981/Wf
-         d/y0Zw6TJQlvpdzeL9NVzXTsv1L3zNhqNKCToHBvuWmqRBm7siX570HWMEPhS17L/q
-         EbRA4Xx7UGCwrKmvbJjQYypAEDgNPCgIe2Cc6R/k=
+        b=UldexKAxHVYHn4w4p9PHf7xRh2xpCidm3PJqhCHP+f5YsiEDg2SbQOf9cvhzs/JYB
+         oj7ZDBMkWizfaczxocdFjh6LHCsvgslqIoXEXT6QcZ0Po0buay2f1FLESLveAkSqDL
+         q2EkvO4N4ekAa9pYubUD0o8uvM1A4iSigyebnaWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH 5.4 044/153] lib/vdso: use "grep -E" instead of "egrep"
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Saeed Mahameed <saeed@kernel.org>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 028/120] ixgbevf: Fix resource leak in ixgbevf_init_module()
 Date:   Mon,  5 Dec 2022 20:09:28 +0100
-Message-Id: <20221205190809.982861669@linuxfoundation.org>
+Message-Id: <20221205190807.410915891@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-commit 8ac3b5cd3e0521d92f9755e90d140382fc292510 upstream.
+[ Upstream commit 8cfa238a48f34038464b99d0b4825238c2687181 ]
 
-The latest version of grep claims the egrep is now obsolete so the build
-now contains warnings that look like:
-	egrep: warning: egrep is obsolescent; using grep -E
-fix this up by moving the vdso Makefile to use "grep -E" instead.
+ixgbevf_init_module() won't destroy the workqueue created by
+create_singlethread_workqueue() when pci_register_driver() failed. Add
+destroy_workqueue() in fail path to prevent the resource leak.
 
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Link: https://lore.kernel.org/r/20220920170633.3133829-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Similar to the handling of u132_hcd_init in commit f276e002793c
+("usb: u132-hcd: fix resource leak")
+
+Fixes: 40a13e2493c9 ("ixgbevf: Use a private workqueue to avoid certain possible hangs")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Reviewed-by: Saeed Mahameed <saeed@kernel.org>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/vdso/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/lib/vdso/Makefile
-+++ b/lib/vdso/Makefile
-@@ -17,6 +17,6 @@ $(error ARCH_REL_TYPE_ABS is not set)
- endif
+diff --git a/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c b/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
+index 7ef2e1241a76..0e7ff15af968 100644
+--- a/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
++++ b/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
+@@ -4859,6 +4859,8 @@ static struct pci_driver ixgbevf_driver = {
+  **/
+ static int __init ixgbevf_init_module(void)
+ {
++	int err;
++
+ 	pr_info("%s\n", ixgbevf_driver_string);
+ 	pr_info("%s\n", ixgbevf_copyright);
+ 	ixgbevf_wq = create_singlethread_workqueue(ixgbevf_driver_name);
+@@ -4867,7 +4869,13 @@ static int __init ixgbevf_init_module(void)
+ 		return -ENOMEM;
+ 	}
  
- quiet_cmd_vdso_check = VDSOCHK $@
--      cmd_vdso_check = if $(OBJDUMP) -R $@ | egrep -h "$(ARCH_REL_TYPE_ABS)"; \
-+      cmd_vdso_check = if $(OBJDUMP) -R $@ | grep -E -h "$(ARCH_REL_TYPE_ABS)"; \
- 		       then (echo >&2 "$@: dynamic relocations are not supported"; \
- 			     rm -f $@; /bin/false); fi
+-	return pci_register_driver(&ixgbevf_driver);
++	err = pci_register_driver(&ixgbevf_driver);
++	if (err) {
++		destroy_workqueue(ixgbevf_wq);
++		return err;
++	}
++
++	return 0;
+ }
+ 
+ module_init(ixgbevf_init_module);
+-- 
+2.35.1
+
 
 
