@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D003E6432AF
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:28:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ECB0643441
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:43:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234134AbiLET2O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:28:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52334 "EHLO
+        id S234866AbiLETnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:43:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234138AbiLET1i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:27:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E416F27CC0
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:24:47 -0800 (PST)
+        with ESMTP id S233913AbiLETnZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:43:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0523325C7B
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:40:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B9F061309
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:24:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89142C433C1;
-        Mon,  5 Dec 2022 19:24:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AAEBDB81201
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:40:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03E92C433C1;
+        Mon,  5 Dec 2022 19:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268286;
-        bh=KpwyfLtPyW45xWAgdIDGpA3Yd//6SRULFvhWO3w+PCw=;
+        s=korg; t=1670269248;
+        bh=tqb0AtP7aWpDGmzU/SDRqlqEuvBwwmtg3BnBf+/zoUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYNWtwxXK9QqaTg6PR/GwWtA0abqH3x8j8CDwiljgm1FWgqpMh0HZL9dTGmJTC1DA
-         Rse5JDtsytyzI/+1GYlPj8chYjpHL+ZRZax6n5UptpyZiETJ7MJlYtTSjWnp/fK9AT
-         URr55WhVgeOyFtgeoQyRhSM2dsXgOgsxea5tTpQw=
+        b=KSxcfhTsLDskD2HXs7HhjsWmFCuTztcVCTrEGqyq4vkSrcZrI1ZDLTblrITraOaGE
+         GdKyA7+vslNIOcY1YJj/XODi/gqHBPZMyo8RxuATry/0vE9MWOOVc8lTmpRyMhAt8z
+         dmL5eJqIAIQdHMA/xh/B275GhWQsRb1mHZvTqXTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>
-Subject: [PATCH 6.0 047/124] wifi: cfg80211: fix buffer overflow in elem comparison
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 029/153] Drivers: hv: vmbus: fix possible memory leak in vmbus_device_register()
 Date:   Mon,  5 Dec 2022 20:09:13 +0100
-Message-Id: <20221205190809.775226894@linuxfoundation.org>
+Message-Id: <20221205190809.573529832@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 9f16b5c82a025cd4c864737409234ddc44fb166a ]
+[ Upstream commit 25c94b051592c010abe92c85b0485f1faedc83f3 ]
 
-For vendor elements, the code here assumes that 5 octets
-are present without checking. Since the element itself is
-already checked to fit, we only need to check the length.
+If device_register() returns error in vmbus_device_register(),
+the name allocated by dev_set_name() must be freed. As comment
+of device_register() says, it should use put_device() to give
+up the reference in the error path. So fix this by calling
+put_device(), then the name can be freed in kobject_cleanup().
 
-Reported-and-tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 09d50ff8a233 ("Staging: hv: make the Hyper-V virtual bus code build")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20221119081135.1564691-3-yangyingliang@huawei.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/scan.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hv/vmbus_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/wireless/scan.c b/net/wireless/scan.c
-index 9067e4b70855..56db0f12ca7c 100644
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -330,7 +330,8 @@ static size_t cfg80211_gen_new_ie(const u8 *ie, size_t ielen,
- 			 * determine if they are the same ie.
- 			 */
- 			if (tmp_old[0] == WLAN_EID_VENDOR_SPECIFIC) {
--				if (!memcmp(tmp_old + 2, tmp + 2, 5)) {
-+				if (tmp_old[1] >= 5 && tmp[1] >= 5 &&
-+				    !memcmp(tmp_old + 2, tmp + 2, 5)) {
- 					/* same vendor ie, copy from
- 					 * subelement
- 					 */
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index d4c5efc6e157..a1cfa7596853 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -1863,6 +1863,7 @@ int vmbus_device_register(struct hv_device *child_device_obj)
+ 	ret = device_register(&child_device_obj->device);
+ 	if (ret) {
+ 		pr_err("Unable to register child device\n");
++		put_device(&child_device_obj->device);
+ 		return ret;
+ 	}
+ 
 -- 
 2.35.1
 
