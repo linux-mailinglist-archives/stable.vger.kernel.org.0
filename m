@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18C2764316E
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:15:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 729A76431EB
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232562AbiLETOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:14:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33394 "EHLO
+        id S232753AbiLETWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:22:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232627AbiLETOY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:14:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34E721F61F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:14:23 -0800 (PST)
+        with ESMTP id S233504AbiLETVv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:21:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9565164D7;
+        Mon,  5 Dec 2022 11:17:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1768B81205
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:14:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B67EC433D6;
-        Mon,  5 Dec 2022 19:14:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59F96B81201;
+        Mon,  5 Dec 2022 19:16:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A95FCC433C1;
+        Mon,  5 Dec 2022 19:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267660;
-        bh=9/YeW1M3Q1KVzHCG6uEr+NrRO16JaPU9xBO6DzX+7qw=;
+        s=korg; t=1670267799;
+        bh=7uVZopgE1e0SapTb5i26gNiN1i0iX2gcULH+t0ZU+pQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A+GcskPN1LQCq49uyUlnUbcABL9tee0rzKFYNv9b0uZ5IRLE2TFkpfa+F9Pm+u/7B
-         XfYDD4I/52GOc/jxKlZj1lOdObKjW4UZ8VqpuxkFwwZVwvAt3GU/OK6V3SeIn92YMF
-         wotBlmISNPFczxuzGFJ99gzUsBk7Pd/udn4JPIlg=
+        b=euAc01JOlvy3X0Zg+B1jq5NvaaIGta4prC58gf5Zg1fNbGNgy11XNeXaEvEODyiRj
+         UHH9bVr1KXaUu2oHOzbiT5GL019zzJ5dCf2OAzzw9AP6I9nf0F1qvGdlmZpheFcBGH
+         vvn/vMR8m5duhT9dFUex+jjC66/7BZAReVn8uXsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sami Lee <sami.lee@mediatek.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 4.9 50/62] arm64: Fix panic() when Spectre-v2 causes Spectre-BHB to re-allocate KVM vectors
+        patches@lists.linux.dev, Phil Auld <pauld@redhat.com>,
+        linux-hwmon@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 56/77] hwmon: (coretemp) Check for null before removing sysfs attrs
 Date:   Mon,  5 Dec 2022 20:09:47 +0100
-Message-Id: <20221205190759.982922343@linuxfoundation.org>
+Message-Id: <20221205190802.850592627@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,113 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Phil Auld <pauld@redhat.com>
 
-Sami reports that linux panic()s when resuming from suspend to RAM. This
-is because when CPUs are brought back online, they re-enable any
-necessary mitigations.
+[ Upstream commit a89ff5f5cc64b9fe7a992cf56988fd36f56ca82a ]
 
-The Spectre-v2 and Spectre-BHB mitigations interact as both need to
-done by KVM when exiting a guest. Slots KVM can use as vectors are
-allocated, and templates for the mitigation are patched into the vector.
+If coretemp_add_core() gets an error then pdata->core_data[indx]
+is already NULL and has been kfreed. Don't pass that to
+sysfs_remove_group() as that will crash in sysfs_remove_group().
 
-This fails if a new slot needs to be allocated once the kernel has finished
-booting as it is no-longer possible to modify KVM's vectors:
-| root@adam:/sys/devices/system/cpu/cpu1# echo 1 > online
-| Unable to handle kernel write to read-only memory at virtual add>
-| Mem abort info:
-|   ESR = 0x9600004e
-|   Exception class = DABT (current EL), IL = 32 bits
-|   SET = 0, FnV = 0
-|   EA = 0, S1PTW = 0
-| Data abort info:
-|   ISV = 0, ISS = 0x0000004e
-|   CM = 0, WnR = 1
-| swapper pgtable: 4k pages, 48-bit VAs, pgdp = 000000000f07a71c
-| [ffff800000b4b800] pgd=00000009ffff8803, pud=00000009ffff7803, p>
-| Internal error: Oops: 9600004e [#1] PREEMPT SMP
-| Modules linked in:
-| Process swapper/1 (pid: 0, stack limit = 0x0000000063153c53)
-| CPU: 1 PID: 0 Comm: swapper/1 Not tainted 4.19.252-dirty #14
-| Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno De>
-| pstate: 000001c5 (nzcv dAIF -PAN -UAO)
-| pc : __memcpy+0x48/0x180
-| lr : __copy_hyp_vect_bpi+0x64/0x90
+[Shortened for readability]
+[91854.020159] sysfs: cannot create duplicate filename '/devices/platform/coretemp.0/hwmon/hwmon2/temp20_label'
+<cpu offline>
+[91855.126115] BUG: kernel NULL pointer dereference, address: 0000000000000188
+[91855.165103] #PF: supervisor read access in kernel mode
+[91855.194506] #PF: error_code(0x0000) - not-present page
+[91855.224445] PGD 0 P4D 0
+[91855.238508] Oops: 0000 [#1] PREEMPT SMP PTI
+...
+[91855.342716] RIP: 0010:sysfs_remove_group+0xc/0x80
+...
+[91855.796571] Call Trace:
+[91855.810524]  coretemp_cpu_offline+0x12b/0x1dd [coretemp]
+[91855.841738]  ? coretemp_cpu_online+0x180/0x180 [coretemp]
+[91855.871107]  cpuhp_invoke_callback+0x105/0x4b0
+[91855.893432]  cpuhp_thread_fun+0x8e/0x150
+...
 
-| Call trace:
-|  __memcpy+0x48/0x180
-|  kvm_setup_bhb_slot+0x204/0x2a8
-|  spectre_bhb_enable_mitigation+0x1b8/0x1d0
-|  __verify_local_cpu_caps+0x54/0xf0
-|  check_local_cpu_capabilities+0xc4/0x184
-|  secondary_start_kernel+0xb0/0x170
-| Code: b8404423 b80044c3 36180064 f8408423 (f80084c3)
-| ---[ end trace 859bcacb09555348 ]---
-| Kernel panic - not syncing: Attempted to kill the idle task!
-| SMP: stopping secondary CPUs
-| Kernel Offset: disabled
-| CPU features: 0x10,25806086
-| Memory Limit: none
-| ---[ end Kernel panic - not syncing: Attempted to kill the idle ]
+Fix this by checking for NULL first.
 
-This is only a problem on platforms where there is only one CPU that is
-vulnerable to both Spectre-v2 and Spectre-BHB.
-
-The Spectre-v2 mitigation identifies the slot it can re-use by the CPU's
-'fn'. It unconditionally writes the slot number and 'template_start'
-pointer. The Spectre-BHB mitigation identifies slots it can re-use by
-the CPU's template_start pointer, which was previously clobbered by the
-Spectre-v2 mitigation.
-
-When there is only one CPU that is vulnerable to both issues, this causes
-Spectre-v2 to try to allocate a new slot, which fails.
-
-Change both mitigations to check whether they are changing the slot this
-CPU uses before writing the percpu variables again.
-
-This issue only exists in the stable backports for Spectre-BHB which have
-to use totally different infrastructure to mainline.
-
-Reported-by: Sami Lee <sami.lee@mediatek.com>
-Fixes: 4dd8aae585a5 ("arm64: Mitigate spectre style branch history side channels")
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Phil Auld <pauld@redhat.com>
+Cc: linux-hwmon@vger.kernel.org
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221117162313.3164803-1-pauld@redhat.com
+Fixes: 199e0de7f5df3 ("hwmon: (coretemp) Merge pkgtemp with coretemp")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpu_errata.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/hwmon/coretemp.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -125,10 +125,12 @@ static void __install_bp_hardening_cb(bp
- 		__copy_hyp_vect_bpi(slot, hyp_vecs_start, hyp_vecs_end);
- 	}
+diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
+index a42744c7665b..ee35bbc1714a 100644
+--- a/drivers/hwmon/coretemp.c
++++ b/drivers/hwmon/coretemp.c
+@@ -531,6 +531,10 @@ static void coretemp_remove_core(struct platform_data *pdata, int indx)
+ {
+ 	struct temp_data *tdata = pdata->core_data[indx];
  
--	__this_cpu_write(bp_hardening_data.hyp_vectors_slot, slot);
--	__this_cpu_write(bp_hardening_data.fn, fn);
--	__this_cpu_write(bp_hardening_data.template_start, hyp_vecs_start);
--	__hardenbp_enab = true;
-+	if (fn != __this_cpu_read(bp_hardening_data.fn)) {
-+		__this_cpu_write(bp_hardening_data.hyp_vectors_slot, slot);
-+		__this_cpu_write(bp_hardening_data.fn, fn);
-+		__this_cpu_write(bp_hardening_data.template_start, hyp_vecs_start);
-+		__hardenbp_enab = true;
-+	}
- 	spin_unlock(&bp_lock);
- }
- #else
-@@ -828,8 +830,11 @@ static void kvm_setup_bhb_slot(const cha
- 		__copy_hyp_vect_bpi(slot, hyp_vecs_start, hyp_vecs_end);
- 	}
++	/* if we errored on add then this is already gone */
++	if (!tdata)
++		return;
++
+ 	/* Remove the sysfs attributes */
+ 	sysfs_remove_group(&pdata->hwmon_dev->kobj, &tdata->attr_group);
  
--	__this_cpu_write(bp_hardening_data.hyp_vectors_slot, slot);
--	__this_cpu_write(bp_hardening_data.template_start, hyp_vecs_start);
-+	if (hyp_vecs_start != __this_cpu_read(bp_hardening_data.template_start)) {
-+		__this_cpu_write(bp_hardening_data.hyp_vectors_slot, slot);
-+		__this_cpu_write(bp_hardening_data.template_start,
-+				 hyp_vecs_start);
-+	}
- 	spin_unlock(&bp_lock);
- }
- #else
+-- 
+2.35.1
+
 
 
