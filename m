@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 146E864345B
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:45:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64B876432CE
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:29:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235062AbiLETpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:45:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46886 "EHLO
+        id S233747AbiLET3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:29:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234859AbiLETpK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:45:10 -0500
+        with ESMTP id S233926AbiLET3a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:29:30 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F7EA60E8
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:41:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A74BD25E98
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:25:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB3B561314
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:41:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC231C433C1;
-        Mon,  5 Dec 2022 19:41:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 446A061315
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:25:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5556CC433D6;
+        Mon,  5 Dec 2022 19:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269316;
-        bh=sWDEPS+XE4uOFWcJtdcBoXCYmrmL3IBAeODrz+tNdqs=;
+        s=korg; t=1670268358;
+        bh=VGJjIkmmEGCM+lru7+jovsRGB0G3er8zDRIyoP4yxoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JVaQwe6cHCVc901YLrkZBEX5KKW0Li/Bt5dTfGusvq9KTK5Y+IpCyETDJeyPU0GiB
-         4JO+ewbAAOOD9ss8pxQlC0stYYU3F5ITqAqFUII0MAQfmuz7/sykL7aSpVT2NBrTJQ
-         CbYud/vJCx4EQ9L40Rra30z/lKibQkiDQQscTBlo=
+        b=abmNPP4NRlnQi++RlTiNHwSNsgfx/Rvzxs3rPKnLmSGitap0kEq0h3LefdmKXpRC7
+         HWgV9oanezsNqSUItXawcyUVp7XZocYBWiVZSxfDo9WQv5/BblHizWVOgZR5DLrzK8
+         cdcSbmyanjv3rJWfESd6hZvRPBAIRMFKDku0mX+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Patrick Rudolph <patrick.rudolph@9elements.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 055/153] firmware: google: Release devices before unregistering the bus
+Subject: [PATCH 6.0 073/124] hwmon: (coretemp) fix pci device refcount leak in nv1a_ram_new()
 Date:   Mon,  5 Dec 2022 20:09:39 +0100
-Message-Id: <20221205190810.299562429@linuxfoundation.org>
+Message-Id: <20221205190810.500814960@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Rudolph <patrick.rudolph@9elements.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit cae0970ee9c4527f189aac378c50e2f0ed020418 ]
+[ Upstream commit 7dec14537c5906b8bf40fd6fd6d9c3850f8df11d ]
 
-Fix a bug where the kernel module can't be loaded after it has been
-unloaded as the devices are still present and conflicting with the
-to be created coreboot devices.
+As comment of pci_get_domain_bus_and_slot() says, it returns
+a pci device with refcount increment, when finish using it,
+the caller must decrement the reference count by calling
+pci_dev_put(). So call it after using to avoid refcount leak.
 
-Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
-Link: https://lore.kernel.org/r/20191118101934.22526-2-patrick.rudolph@9elements.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 65946690ed8d ("firmware: coreboot: Register bus in module init")
+Fixes: 14513ee696a0 ("hwmon: (coretemp) Use PCI host bridge ID to identify CPU if necessary")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221118093303.214163-1-yangyingliang@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/google/coreboot_table.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/hwmon/coretemp.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/google/coreboot_table.c b/drivers/firmware/google/coreboot_table.c
-index 8d132e4f008a..0205987a4fd4 100644
---- a/drivers/firmware/google/coreboot_table.c
-+++ b/drivers/firmware/google/coreboot_table.c
-@@ -163,8 +163,15 @@ static int coreboot_table_probe(struct platform_device *pdev)
- 	return ret;
- }
+diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
+index 30a19d711f89..9bee4d33fbdf 100644
+--- a/drivers/hwmon/coretemp.c
++++ b/drivers/hwmon/coretemp.c
+@@ -242,10 +242,13 @@ static int adjust_tjmax(struct cpuinfo_x86 *c, u32 id, struct device *dev)
+ 	 */
+ 	if (host_bridge && host_bridge->vendor == PCI_VENDOR_ID_INTEL) {
+ 		for (i = 0; i < ARRAY_SIZE(tjmax_pci_table); i++) {
+-			if (host_bridge->device == tjmax_pci_table[i].device)
++			if (host_bridge->device == tjmax_pci_table[i].device) {
++				pci_dev_put(host_bridge);
+ 				return tjmax_pci_table[i].tjmax;
++			}
+ 		}
+ 	}
++	pci_dev_put(host_bridge);
  
-+static int __cb_dev_unregister(struct device *dev, void *dummy)
-+{
-+	device_unregister(dev);
-+	return 0;
-+}
-+
- static int coreboot_table_remove(struct platform_device *pdev)
- {
-+	bus_for_each_dev(&coreboot_bus_type, NULL, NULL, __cb_dev_unregister);
- 	bus_unregister(&coreboot_bus_type);
- 	return 0;
- }
+ 	for (i = 0; i < ARRAY_SIZE(tjmax_table); i++) {
+ 		if (strstr(c->x86_model_id, tjmax_table[i].id))
 -- 
 2.35.1
 
