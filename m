@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 981CF6432D6
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:30:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCFA16431E1
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:21:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234056AbiLETai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:30:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53618 "EHLO
+        id S233732AbiLETVg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:21:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234075AbiLETaT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:30:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0C502AE17
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:26:22 -0800 (PST)
+        with ESMTP id S233747AbiLETVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:21:16 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4CFF2A704
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:17:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D56AEB81200
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A3C4C433D6;
-        Mon,  5 Dec 2022 19:26:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 519BECE13A8
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:16:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40EBCC433D7;
+        Mon,  5 Dec 2022 19:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268377;
-        bh=3pwg6L6/yNEXp43Ql0R4rNo/gV28zc+cLmRV+ZXrwD0=;
+        s=korg; t=1670267793;
+        bh=FCW2VatGbSHdymSxJgiAs32uem4+W7Lh72B1bQ9sstM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gptiWo5q6qc4F3Y8QB80VS/WVzICG0D8tcJetuLBm6chsGA+dBVz91EackZVmNa8B
-         aHK8MGpiqckNyfIwG+pBZ0GYCl90Q712tTSNH9nG2NADidc1OwcD8/EgesuD8cxlmN
-         UsmXPy4VIm8qjJOq50qC3XxYx3GFU3I0hbaxa/cI=
+        b=2LlnG04qK9XMcKozNh0msc0g+oPL/xopV9KN3TQryc1O+ZfVbNXqy3JuKh0eLfdoi
+         1lGNSPkbKJa9slGWHpHML8ZVQ/DN7O7VndyKrcf0XGlp7FJgNgNxapvuNLl2w7I9eV
+         dt1mw37qGjKsuZzNNlXByGkO5L2lDjY2pfZKBXm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 6.0 079/124] error-injection: Add prompt for function error injection
+        patches@lists.linux.dev, Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 54/77] packet: do not set TP_STATUS_CSUM_VALID on CHECKSUM_COMPLETE
 Date:   Mon,  5 Dec 2022 20:09:45 +0100
-Message-Id: <20221205190810.661806076@linuxfoundation.org>
+Message-Id: <20221205190802.780399569@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Willem de Bruijn <willemb@google.com>
 
-commit a4412fdd49dc011bcc2c0d81ac4cab7457092650 upstream.
+[ Upstream commit b85f628aa158a653c006e9c1405a117baef8c868 ]
 
-The config to be able to inject error codes into any function annotated
-with ALLOW_ERROR_INJECTION() is enabled when FUNCTION_ERROR_INJECTION is
-enabled.  But unfortunately, this is always enabled on x86 when KPROBES
-is enabled, and there's no way to turn it off.
+CHECKSUM_COMPLETE signals that skb->csum stores the sum over the
+entire packet. It does not imply that an embedded l4 checksum
+field has been validated.
 
-As kprobes is useful for observability of the kernel, it is useful to
-have it enabled in production environments.  But error injection should
-be avoided.  Add a prompt to the config to allow it to be disabled even
-when kprobes is enabled, and get rid of the "def_bool y".
-
-This is a kernel debug feature (it's in Kconfig.debug), and should have
-never been something enabled by default.
-
-Cc: stable@vger.kernel.org
-Fixes: 540adea3809f6 ("error-injection: Separate error-injection from kprobe")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 682f048bd494 ("af_packet: pass checksum validation status to the user")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/20221128161812.640098-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/packet/af_packet.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1862,8 +1862,14 @@ config NETDEV_NOTIFIER_ERROR_INJECT
- 	  If unsure, say N.
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index 61093ce76b61..1be5fb6af017 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -2248,8 +2248,7 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL)
+ 		status |= TP_STATUS_CSUMNOTREADY;
+ 	else if (skb->pkt_type != PACKET_OUTGOING &&
+-		 (skb->ip_summed == CHECKSUM_COMPLETE ||
+-		  skb_csum_unnecessary(skb)))
++		 skb_csum_unnecessary(skb))
+ 		status |= TP_STATUS_CSUM_VALID;
  
- config FUNCTION_ERROR_INJECTION
--	def_bool y
-+	bool "Fault-injections of functions"
- 	depends on HAVE_FUNCTION_ERROR_INJECTION && KPROBES
-+	help
-+	  Add fault injections into various functions that are annotated with
-+	  ALLOW_ERROR_INJECTION() in the kernel. BPF may also modify the return
-+	  value of theses functions. This is useful to test error paths of code.
-+
-+	  If unsure, say N
+ 	if (snaplen > res)
+@@ -3488,8 +3487,7 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 		if (skb->ip_summed == CHECKSUM_PARTIAL)
+ 			aux.tp_status |= TP_STATUS_CSUMNOTREADY;
+ 		else if (skb->pkt_type != PACKET_OUTGOING &&
+-			 (skb->ip_summed == CHECKSUM_COMPLETE ||
+-			  skb_csum_unnecessary(skb)))
++			 skb_csum_unnecessary(skb))
+ 			aux.tp_status |= TP_STATUS_CSUM_VALID;
  
- config FAULT_INJECTION
- 	bool "Fault-injection framework"
+ 		aux.tp_len = origlen;
+-- 
+2.35.1
+
 
 
