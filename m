@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 773AB643496
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:48:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D735C6433F0
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:40:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234876AbiLETsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:48:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53866 "EHLO
+        id S234508AbiLETky (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:40:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234855AbiLETrp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:45 -0500
+        with ESMTP id S234729AbiLETke (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:40:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3FA2272
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:44:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280C02934D
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:37:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BBC961344
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:44:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95EB6C433D6;
-        Mon,  5 Dec 2022 19:44:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79CF261315
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:37:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CC25C433D6;
+        Mon,  5 Dec 2022 19:37:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269456;
-        bh=X9o01zrWmdmjm2yfeUY+MUUOX73PkPeYkDkorZurXL8=;
+        s=korg; t=1670269077;
+        bh=VN8BFLJRkxdNyEhcK/0Wv80q087djHD9wNBnqBF+wZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EL5Qy3/RGc9Q1SK0n9oIzDC+OYUbsY5nOhxT2JCMhxjto+4xASZy8j+ZazXri68+f
-         bAsInIWGsSfZ2qppgpNBAFHWAkENcJhM2PViBw6KfcFHg8PVk0RfTm878a00GJlglp
-         Yv4liPTwZYdCmOSRdG2AzDY9uCYEftNSpVtY3kHY=
+        b=1m2gPngP4L0uUuHgdotz/6qgaNW79LdPIA+QI5rT5Szd5LNmDYy5CjJoKyU/bLeUr
+         T4nO6VIW0vlKB1NSsf1Sut7f4NiZNcBMDAhSOOpTziwl8qvKqHzX9hcKrPwkkNy4D1
+         lSyeDS/pjqOQ+ts1ar1Tswn1f4+5wrmtmyGU90+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        Abd-Alrhman Masalkhi <abd.masalkhi@gmail.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 133/153] parisc: Increase size of gcc stack frame check
+        patches@lists.linux.dev, "Rafael J. Wysocki" <rafael@kernel.org>,
+        Liu Shixin <liushixin2@huawei.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Chris Piper <chris.d.piper@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 117/120] ACPI: HMAT: Fix initiator registration for single-initiator systems
 Date:   Mon,  5 Dec 2022 20:10:57 +0100
-Message-Id: <20221205190812.483686699@linuxfoundation.org>
+Message-Id: <20221205190810.034448438@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +58,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Vishal Verma <vishal.l.verma@intel.com>
 
-[ Upstream commit 55b70eed81cba1331773d4aaf5cba2bb07475cd8 ]
+[ Upstream commit 48d4180939e12c4bd2846f984436d895bb9699ed ]
 
-parisc uses much bigger frames than other architectures, so increase the
-stack frame check value to avoid compiler warnings.
+In a system with a single initiator node, and one or more memory-only
+'target' nodes, the memory-only node(s) would fail to register their
+initiator node correctly. i.e. in sysfs:
 
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Abd-Alrhman Masalkhi <abd.masalkhi@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Stable-dep-of: 152fe65f300e ("Kconfig.debug: provide a little extra FRAME_WARN leeway when KASAN is enabled")
+  # ls /sys/devices/system/node/node0/access0/targets/
+  node0
+
+Where as the correct behavior should be:
+
+  # ls /sys/devices/system/node/node0/access0/targets/
+  node0 node1
+
+This happened because hmat_register_target_initiators() uses list_sort()
+to sort the initiator list, but the sort comparision function
+(initiator_cmp()) is overloaded to also set the node mask's bits.
+
+In a system with a single initiator, the list is singular, and list_sort
+elides the comparision helper call. Thus the node mask never gets set,
+and the subsequent search for the best initiator comes up empty.
+
+Add a new helper to consume the sorted initiator list, and generate the
+nodemask, decoupling it from the overloaded initiator_cmp() comparision
+callback. This prevents the singular list corner case naturally, and
+makes the code easier to follow as well.
+
+Cc: <stable@vger.kernel.org>
+Cc: Rafael J. Wysocki <rafael@kernel.org>
+Cc: Liu Shixin <liushixin2@huawei.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Reported-by: Chris Piper <chris.d.piper@intel.com>
+Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Link: https://lore.kernel.org/r/20221116-acpi_hmat_fix-v2-2-3712569be691@intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/numa/hmat.c | 26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index b3d0d047369c..f610b47b74cc 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -253,7 +253,7 @@ config FRAME_WARN
- 	int "Warn for stack frames larger than (needs gcc 4.4)"
- 	range 0 8192
- 	default 2048 if GCC_PLUGIN_LATENT_ENTROPY
--	default 1280 if (!64BIT && PARISC)
-+	default 1536 if (!64BIT && PARISC)
- 	default 1024 if (!64BIT && !PARISC)
- 	default 2048 if 64BIT
- 	help
+diff --git a/drivers/acpi/numa/hmat.c b/drivers/acpi/numa/hmat.c
+index fca69a726360..b42653707fdc 100644
+--- a/drivers/acpi/numa/hmat.c
++++ b/drivers/acpi/numa/hmat.c
+@@ -563,17 +563,26 @@ static int initiator_cmp(void *priv, const struct list_head *a,
+ {
+ 	struct memory_initiator *ia;
+ 	struct memory_initiator *ib;
+-	unsigned long *p_nodes = priv;
+ 
+ 	ia = list_entry(a, struct memory_initiator, node);
+ 	ib = list_entry(b, struct memory_initiator, node);
+ 
+-	set_bit(ia->processor_pxm, p_nodes);
+-	set_bit(ib->processor_pxm, p_nodes);
+-
+ 	return ia->processor_pxm - ib->processor_pxm;
+ }
+ 
++static int initiators_to_nodemask(unsigned long *p_nodes)
++{
++	struct memory_initiator *initiator;
++
++	if (list_empty(&initiators))
++		return -ENXIO;
++
++	list_for_each_entry(initiator, &initiators, node)
++		set_bit(initiator->processor_pxm, p_nodes);
++
++	return 0;
++}
++
+ static void hmat_register_target_initiators(struct memory_target *target)
+ {
+ 	static DECLARE_BITMAP(p_nodes, MAX_NUMNODES);
+@@ -610,7 +619,10 @@ static void hmat_register_target_initiators(struct memory_target *target)
+ 	 * initiators.
+ 	 */
+ 	bitmap_zero(p_nodes, MAX_NUMNODES);
+-	list_sort(p_nodes, &initiators, initiator_cmp);
++	list_sort(NULL, &initiators, initiator_cmp);
++	if (initiators_to_nodemask(p_nodes) < 0)
++		return;
++
+ 	if (!access0done) {
+ 		for (i = WRITE_LATENCY; i <= READ_BANDWIDTH; i++) {
+ 			loc = localities_types[i];
+@@ -644,7 +656,9 @@ static void hmat_register_target_initiators(struct memory_target *target)
+ 
+ 	/* Access 1 ignores Generic Initiators */
+ 	bitmap_zero(p_nodes, MAX_NUMNODES);
+-	list_sort(p_nodes, &initiators, initiator_cmp);
++	if (initiators_to_nodemask(p_nodes) < 0)
++		return;
++
+ 	for (i = WRITE_LATENCY; i <= READ_BANDWIDTH; i++) {
+ 		loc = localities_types[i];
+ 		if (!loc)
 -- 
 2.35.1
 
