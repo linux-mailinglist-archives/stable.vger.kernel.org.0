@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F196643329
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C75836431FD
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:23:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234186AbiLETel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:34:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33522 "EHLO
+        id S233486AbiLETXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:23:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234242AbiLETeQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 736B024F24
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:29:41 -0800 (PST)
+        with ESMTP id S233494AbiLETWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:22:37 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA6B024BFB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:18:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DC79B81181
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:29:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 711E7C433D6;
-        Mon,  5 Dec 2022 19:29:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 91F79CE13A6
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:17:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82917C433D6;
+        Mon,  5 Dec 2022 19:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268578;
-        bh=Dkqmadu3F+EEJOl6eg+h1l3EcweuPKRnRzaBWu3pe40=;
+        s=korg; t=1670267861;
+        bh=kcqMb6L245pKTIu/OtCIuEL0b5dsWKF4Xk4s8SHO4X8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YpuTBE/bMBaAAhOTYtTjVOTPX6r9iAV9CfOX8hD7xQGJLpCCHZj0v5ILe1FsT/23u
-         z9HH+b3/XU556Y5O8+CRu9KCmn0jBeWG9LDq7kqKkpG4BEfad0jpXSzBN4JpSqtYyP
-         tkXfMWLAgKBU+swy2xDj8uo/JnYcsCZXuGmTwRSA=
+        b=YidTnAgIdPWxcO2hk46Ob8UtnNEDP2UTC7oGCWFLqxKeJhX67eXRpaSsQyGd9poiC
+         LGKjkoq+Yi9azjaHFyxwQumd59dHR2QmcokXJJkSHQreyJqHSA9Gw9xQZLor5TLdGe
+         GUqZfmO5OzouDvWYpehEPfVFC70KiiADhLdyfB7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 28/92] e100: switch from pci_ to dma_ API
+Subject: [PATCH 4.14 50/77] net: net_netdev: Fix error handling in ntb_netdev_init_module()
 Date:   Mon,  5 Dec 2022 20:09:41 +0100
-Message-Id: <20221205190804.397637094@linuxfoundation.org>
+Message-Id: <20221205190802.646880295@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,354 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 4140ff1ba06d3fc16afd518736940ab742886317 ]
+[ Upstream commit b8f79dccd38edf7db4911c353d9cd792ab13a327 ]
 
-The wrappers in include/linux/pci-dma-compat.h should go away.
+The ntb_netdev_init_module() returns the ntb_transport_register_client()
+directly without checking its return value, if
+ntb_transport_register_client() failed, the NTB client device is not
+unregistered.
 
-The patch has been generated with the coccinelle script below and has been
-hand modified to replace GFP_ with a correct flag.
-It has been compile tested.
+Fix by unregister NTB client device when ntb_transport_register_client()
+failed.
 
-When memory is allocated in 'e100_alloc()', GFP_KERNEL can be used because
-it is only called from the probe function and no lock is acquired.
-
-@@
-@@
--    PCI_DMA_BIDIRECTIONAL
-+    DMA_BIDIRECTIONAL
-
-@@
-@@
--    PCI_DMA_TODEVICE
-+    DMA_TO_DEVICE
-
-@@
-@@
--    PCI_DMA_FROMDEVICE
-+    DMA_FROM_DEVICE
-
-@@
-@@
--    PCI_DMA_NONE
-+    DMA_NONE
-
-@@
-expression e1, e2, e3;
-@@
--    pci_alloc_consistent(e1, e2, e3)
-+    dma_alloc_coherent(&e1->dev, e2, e3, GFP_)
-
-@@
-expression e1, e2, e3;
-@@
--    pci_zalloc_consistent(e1, e2, e3)
-+    dma_alloc_coherent(&e1->dev, e2, e3, GFP_)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_free_consistent(e1, e2, e3, e4)
-+    dma_free_coherent(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_map_single(e1, e2, e3, e4)
-+    dma_map_single(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_unmap_single(e1, e2, e3, e4)
-+    dma_unmap_single(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4, e5;
-@@
--    pci_map_page(e1, e2, e3, e4, e5)
-+    dma_map_page(&e1->dev, e2, e3, e4, e5)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_unmap_page(e1, e2, e3, e4)
-+    dma_unmap_page(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_map_sg(e1, e2, e3, e4)
-+    dma_map_sg(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_unmap_sg(e1, e2, e3, e4)
-+    dma_unmap_sg(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_dma_sync_single_for_cpu(e1, e2, e3, e4)
-+    dma_sync_single_for_cpu(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_dma_sync_single_for_device(e1, e2, e3, e4)
-+    dma_sync_single_for_device(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_dma_sync_sg_for_cpu(e1, e2, e3, e4)
-+    dma_sync_sg_for_cpu(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2, e3, e4;
-@@
--    pci_dma_sync_sg_for_device(e1, e2, e3, e4)
-+    dma_sync_sg_for_device(&e1->dev, e2, e3, e4)
-
-@@
-expression e1, e2;
-@@
--    pci_dma_mapping_error(e1, e2)
-+    dma_mapping_error(&e1->dev, e2)
-
-@@
-expression e1, e2;
-@@
--    pci_set_dma_mask(e1, e2)
-+    dma_set_mask(&e1->dev, e2)
-
-@@
-expression e1, e2;
-@@
--    pci_set_consistent_dma_mask(e1, e2)
-+    dma_set_coherent_mask(&e1->dev, e2)
-
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Link: https://lore.kernel.org/r/20210128210736.749724-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Stable-dep-of: 45605c75c52c ("e100: Fix possible use after free in e100_xmit_prepare")
+Fixes: 548c237c0a99 ("net: Add support for NTB virtual ethernet device")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e100.c | 92 ++++++++++++++++---------------
- 1 file changed, 49 insertions(+), 43 deletions(-)
+ drivers/net/ntb_netdev.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
-index 9295a9a1efc7..7ccf890ee735 100644
---- a/drivers/net/ethernet/intel/e100.c
-+++ b/drivers/net/ethernet/intel/e100.c
-@@ -1739,10 +1739,10 @@ static int e100_xmit_prepare(struct nic *nic, struct cb *cb,
- 	dma_addr_t dma_addr;
- 	cb->command = nic->tx_command;
- 
--	dma_addr = pci_map_single(nic->pdev,
--				  skb->data, skb->len, PCI_DMA_TODEVICE);
-+	dma_addr = dma_map_single(&nic->pdev->dev, skb->data, skb->len,
-+				  DMA_TO_DEVICE);
- 	/* If we can't map the skb, have the upper layer try later */
--	if (pci_dma_mapping_error(nic->pdev, dma_addr)) {
-+	if (dma_mapping_error(&nic->pdev->dev, dma_addr)) {
- 		dev_kfree_skb_any(skb);
- 		skb = NULL;
- 		return -ENOMEM;
-@@ -1828,10 +1828,10 @@ static int e100_tx_clean(struct nic *nic)
- 			dev->stats.tx_packets++;
- 			dev->stats.tx_bytes += cb->skb->len;
- 
--			pci_unmap_single(nic->pdev,
--				le32_to_cpu(cb->u.tcb.tbd.buf_addr),
--				le16_to_cpu(cb->u.tcb.tbd.size),
--				PCI_DMA_TODEVICE);
-+			dma_unmap_single(&nic->pdev->dev,
-+					 le32_to_cpu(cb->u.tcb.tbd.buf_addr),
-+					 le16_to_cpu(cb->u.tcb.tbd.size),
-+					 DMA_TO_DEVICE);
- 			dev_kfree_skb_any(cb->skb);
- 			cb->skb = NULL;
- 			tx_cleaned = 1;
-@@ -1855,10 +1855,10 @@ static void e100_clean_cbs(struct nic *nic)
- 		while (nic->cbs_avail != nic->params.cbs.count) {
- 			struct cb *cb = nic->cb_to_clean;
- 			if (cb->skb) {
--				pci_unmap_single(nic->pdev,
--					le32_to_cpu(cb->u.tcb.tbd.buf_addr),
--					le16_to_cpu(cb->u.tcb.tbd.size),
--					PCI_DMA_TODEVICE);
-+				dma_unmap_single(&nic->pdev->dev,
-+						 le32_to_cpu(cb->u.tcb.tbd.buf_addr),
-+						 le16_to_cpu(cb->u.tcb.tbd.size),
-+						 DMA_TO_DEVICE);
- 				dev_kfree_skb(cb->skb);
- 			}
- 			nic->cb_to_clean = nic->cb_to_clean->next;
-@@ -1925,10 +1925,10 @@ static int e100_rx_alloc_skb(struct nic *nic, struct rx *rx)
- 
- 	/* Init, and map the RFD. */
- 	skb_copy_to_linear_data(rx->skb, &nic->blank_rfd, sizeof(struct rfd));
--	rx->dma_addr = pci_map_single(nic->pdev, rx->skb->data,
--		RFD_BUF_LEN, PCI_DMA_BIDIRECTIONAL);
-+	rx->dma_addr = dma_map_single(&nic->pdev->dev, rx->skb->data,
-+				      RFD_BUF_LEN, DMA_BIDIRECTIONAL);
- 
--	if (pci_dma_mapping_error(nic->pdev, rx->dma_addr)) {
-+	if (dma_mapping_error(&nic->pdev->dev, rx->dma_addr)) {
- 		dev_kfree_skb_any(rx->skb);
- 		rx->skb = NULL;
- 		rx->dma_addr = 0;
-@@ -1941,8 +1941,10 @@ static int e100_rx_alloc_skb(struct nic *nic, struct rx *rx)
- 	if (rx->prev->skb) {
- 		struct rfd *prev_rfd = (struct rfd *)rx->prev->skb->data;
- 		put_unaligned_le32(rx->dma_addr, &prev_rfd->link);
--		pci_dma_sync_single_for_device(nic->pdev, rx->prev->dma_addr,
--			sizeof(struct rfd), PCI_DMA_BIDIRECTIONAL);
-+		dma_sync_single_for_device(&nic->pdev->dev,
-+					   rx->prev->dma_addr,
-+					   sizeof(struct rfd),
-+					   DMA_BIDIRECTIONAL);
- 	}
- 
- 	return 0;
-@@ -1961,8 +1963,8 @@ static int e100_rx_indicate(struct nic *nic, struct rx *rx,
- 		return -EAGAIN;
- 
- 	/* Need to sync before taking a peek at cb_complete bit */
--	pci_dma_sync_single_for_cpu(nic->pdev, rx->dma_addr,
--		sizeof(struct rfd), PCI_DMA_BIDIRECTIONAL);
-+	dma_sync_single_for_cpu(&nic->pdev->dev, rx->dma_addr,
-+				sizeof(struct rfd), DMA_BIDIRECTIONAL);
- 	rfd_status = le16_to_cpu(rfd->status);
- 
- 	netif_printk(nic, rx_status, KERN_DEBUG, nic->netdev,
-@@ -1981,9 +1983,9 @@ static int e100_rx_indicate(struct nic *nic, struct rx *rx,
- 
- 			if (ioread8(&nic->csr->scb.status) & rus_no_res)
- 				nic->ru_running = RU_SUSPENDED;
--		pci_dma_sync_single_for_device(nic->pdev, rx->dma_addr,
--					       sizeof(struct rfd),
--					       PCI_DMA_FROMDEVICE);
-+		dma_sync_single_for_device(&nic->pdev->dev, rx->dma_addr,
-+					   sizeof(struct rfd),
-+					   DMA_FROM_DEVICE);
- 		return -ENODATA;
- 	}
- 
-@@ -1995,8 +1997,8 @@ static int e100_rx_indicate(struct nic *nic, struct rx *rx,
- 		actual_size = RFD_BUF_LEN - sizeof(struct rfd);
- 
- 	/* Get data */
--	pci_unmap_single(nic->pdev, rx->dma_addr,
--		RFD_BUF_LEN, PCI_DMA_BIDIRECTIONAL);
-+	dma_unmap_single(&nic->pdev->dev, rx->dma_addr, RFD_BUF_LEN,
-+			 DMA_BIDIRECTIONAL);
- 
- 	/* If this buffer has the el bit, but we think the receiver
- 	 * is still running, check to see if it really stopped while
-@@ -2097,22 +2099,25 @@ static void e100_rx_clean(struct nic *nic, unsigned int *work_done,
- 			(struct rfd *)new_before_last_rx->skb->data;
- 		new_before_last_rfd->size = 0;
- 		new_before_last_rfd->command |= cpu_to_le16(cb_el);
--		pci_dma_sync_single_for_device(nic->pdev,
--			new_before_last_rx->dma_addr, sizeof(struct rfd),
--			PCI_DMA_BIDIRECTIONAL);
-+		dma_sync_single_for_device(&nic->pdev->dev,
-+					   new_before_last_rx->dma_addr,
-+					   sizeof(struct rfd),
-+					   DMA_BIDIRECTIONAL);
- 
- 		/* Now that we have a new stopping point, we can clear the old
- 		 * stopping point.  We must sync twice to get the proper
- 		 * ordering on the hardware side of things. */
- 		old_before_last_rfd->command &= ~cpu_to_le16(cb_el);
--		pci_dma_sync_single_for_device(nic->pdev,
--			old_before_last_rx->dma_addr, sizeof(struct rfd),
--			PCI_DMA_BIDIRECTIONAL);
-+		dma_sync_single_for_device(&nic->pdev->dev,
-+					   old_before_last_rx->dma_addr,
-+					   sizeof(struct rfd),
-+					   DMA_BIDIRECTIONAL);
- 		old_before_last_rfd->size = cpu_to_le16(VLAN_ETH_FRAME_LEN
- 							+ ETH_FCS_LEN);
--		pci_dma_sync_single_for_device(nic->pdev,
--			old_before_last_rx->dma_addr, sizeof(struct rfd),
--			PCI_DMA_BIDIRECTIONAL);
-+		dma_sync_single_for_device(&nic->pdev->dev,
-+					   old_before_last_rx->dma_addr,
-+					   sizeof(struct rfd),
-+					   DMA_BIDIRECTIONAL);
- 	}
- 
- 	if (restart_required) {
-@@ -2134,8 +2139,9 @@ static void e100_rx_clean_list(struct nic *nic)
- 	if (nic->rxs) {
- 		for (rx = nic->rxs, i = 0; i < count; rx++, i++) {
- 			if (rx->skb) {
--				pci_unmap_single(nic->pdev, rx->dma_addr,
--					RFD_BUF_LEN, PCI_DMA_BIDIRECTIONAL);
-+				dma_unmap_single(&nic->pdev->dev,
-+						 rx->dma_addr, RFD_BUF_LEN,
-+						 DMA_BIDIRECTIONAL);
- 				dev_kfree_skb(rx->skb);
- 			}
- 		}
-@@ -2177,8 +2183,8 @@ static int e100_rx_alloc_list(struct nic *nic)
- 	before_last = (struct rfd *)rx->skb->data;
- 	before_last->command |= cpu_to_le16(cb_el);
- 	before_last->size = 0;
--	pci_dma_sync_single_for_device(nic->pdev, rx->dma_addr,
--		sizeof(struct rfd), PCI_DMA_BIDIRECTIONAL);
-+	dma_sync_single_for_device(&nic->pdev->dev, rx->dma_addr,
-+				   sizeof(struct rfd), DMA_BIDIRECTIONAL);
- 
- 	nic->rx_to_use = nic->rx_to_clean = nic->rxs;
- 	nic->ru_running = RU_SUSPENDED;
-@@ -2377,8 +2383,8 @@ static int e100_loopback_test(struct nic *nic, enum loopback loopback_mode)
- 
- 	msleep(10);
- 
--	pci_dma_sync_single_for_cpu(nic->pdev, nic->rx_to_clean->dma_addr,
--			RFD_BUF_LEN, PCI_DMA_BIDIRECTIONAL);
-+	dma_sync_single_for_cpu(&nic->pdev->dev, nic->rx_to_clean->dma_addr,
-+				RFD_BUF_LEN, DMA_BIDIRECTIONAL);
- 
- 	if (memcmp(nic->rx_to_clean->skb->data + sizeof(struct rfd),
- 	   skb->data, ETH_DATA_LEN))
-@@ -2759,16 +2765,16 @@ static int e100_do_ioctl(struct net_device *netdev, struct ifreq *ifr, int cmd)
- 
- static int e100_alloc(struct nic *nic)
- {
--	nic->mem = pci_alloc_consistent(nic->pdev, sizeof(struct mem),
--		&nic->dma_addr);
-+	nic->mem = dma_alloc_coherent(&nic->pdev->dev, sizeof(struct mem),
-+				      &nic->dma_addr, GFP_KERNEL);
- 	return nic->mem ? 0 : -ENOMEM;
+diff --git a/drivers/net/ntb_netdev.c b/drivers/net/ntb_netdev.c
+index 97bf49ad81a6..5f941e20f199 100644
+--- a/drivers/net/ntb_netdev.c
++++ b/drivers/net/ntb_netdev.c
+@@ -506,7 +506,14 @@ static int __init ntb_netdev_init_module(void)
+ 	rc = ntb_transport_register_client_dev(KBUILD_MODNAME);
+ 	if (rc)
+ 		return rc;
+-	return ntb_transport_register_client(&ntb_netdev_client);
++
++	rc = ntb_transport_register_client(&ntb_netdev_client);
++	if (rc) {
++		ntb_transport_unregister_client_dev(KBUILD_MODNAME);
++		return rc;
++	}
++
++	return 0;
  }
+ module_init(ntb_netdev_init_module);
  
- static void e100_free(struct nic *nic)
- {
- 	if (nic->mem) {
--		pci_free_consistent(nic->pdev, sizeof(struct mem),
--			nic->mem, nic->dma_addr);
-+		dma_free_coherent(&nic->pdev->dev, sizeof(struct mem),
-+				  nic->mem, nic->dma_addr);
- 		nic->mem = NULL;
- 	}
- }
-@@ -2861,7 +2867,7 @@ static int e100_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		goto err_out_disable_pdev;
- 	}
- 
--	if ((err = pci_set_dma_mask(pdev, DMA_BIT_MASK(32)))) {
-+	if ((err = dma_set_mask(&pdev->dev, DMA_BIT_MASK(32)))) {
- 		netif_err(nic, probe, nic->netdev, "No usable DMA configuration, aborting\n");
- 		goto err_out_free_res;
- 	}
 -- 
 2.35.1
 
