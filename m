@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07B3C643444
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:43:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 761AE64326A
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234960AbiLETnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:43:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47950 "EHLO
+        id S233790AbiLET0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:26:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234973AbiLETn3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:43:29 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD892A261
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:40:57 -0800 (PST)
+        with ESMTP id S234003AbiLETZr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8571B27E
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:21:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8815ACE13A1
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:40:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7717BC433D6;
-        Mon,  5 Dec 2022 19:40:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FDA161309
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:21:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3090AC433C1;
+        Mon,  5 Dec 2022 19:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269253;
-        bh=dMWyn7/7Idu2B8dNE8WJPCqIWmWA4e1XTU7f95VKj1M=;
+        s=korg; t=1670268115;
+        bh=G8/9365pF3WrSEnd/zXcUyuMzKOpXaCAE53JE8gKJBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNUMKxegC9rmwxrpt8OKYVsqA90UCpwAe01++sG+WCSeyJRKKO8fGu3zyPmtf5uTD
-         vhT/QvbVT7NeIwTC9uGVKIqiSJpkEDhib86Ag1I52CL/T24ZoVKeygcf4T/uxSB2U+
-         CyUAl1ynDJpl1fXBPYZxnDVY//JBzJpZYZhNia2M=
+        b=b9huQmB0A1q95t42AjwUDvFXid+yKS/sdwbe3VAxzGXj4fzZcV1CZtrPe7eSPFkW4
+         l+QUrE3AUyjJUYgzj/rSx6gyK1JJGOFBQ9f1NU3sAP2wU5Hv1arKv53PQtmebQucLX
+         NwheohicS3HMlOQRUCx8jn5V1pGkql/nETrjpPgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mitja Spes <mitja@lxnav.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        patches@lists.linux.dev,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 052/153] iio: pressure: ms5611: fixed value compensation bug
+Subject: [PATCH 4.19 064/105] scripts/faddr2line: Fix regression in name resolution on ppc64le
 Date:   Mon,  5 Dec 2022 20:09:36 +0100
-Message-Id: <20221205190810.217437752@linuxfoundation.org>
+Message-Id: <20221205190805.333816698@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,171 +57,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitja Spes <mitja@lxnav.com>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit 17f442e7e47579d3881fc4d47354eaef09302e6f ]
+[ Upstream commit 2d77de1581bb5b470486edaf17a7d70151131afd ]
 
-When using multiple instances of this driver the compensation PROM was
-overwritten by the last initialized sensor. Now each sensor has own PROM
-storage.
+Commit 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section
+failures") can cause faddr2line to fail on ppc64le on some
+distributions, while it works fine on other distributions. The failure
+can be attributed to differences in the readelf output.
 
-Signed-off-by: Mitja Spes <mitja@lxnav.com>
-Fixes: 9690d81a02dc ("iio: pressure: ms5611: add support for MS5607 temperature and pressure sensor")
-Link: https://lore.kernel.org/r/20221021135827.1444793-2-mitja@lxnav.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+  $ ./scripts/faddr2line vmlinux find_busiest_group+0x00
+  no match for find_busiest_group+0x00
+
+On ppc64le, readelf adds the localentry tag before the symbol name on
+some distributions, and adds the localentry tag after the symbol name on
+other distributions. This problem has been discussed previously:
+
+  https://lore.kernel.org/bpf/20191211160133.GB4580@calabresa/
+
+This problem can be overcome by filtering out the localentry tags in the
+readelf output. Similar fixes are already present in the kernel by way
+of the following commits:
+
+  1fd6cee127e2 ("libbpf: Fix VERSIONED_SYM_COUNT number parsing")
+  aa915931ac3e ("libbpf: Fix readelf output parsing for Fedora")
+
+[jpoimboe: rework commit log]
+
+Fixes: 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section failures")
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Reviewed-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Link: https://lore.kernel.org/r/20220927075211.897152-1-srikar@linux.vnet.ibm.com
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/pressure/ms5611.h      | 12 +++----
- drivers/iio/pressure/ms5611_core.c | 51 ++++++++++++++++--------------
- 2 files changed, 31 insertions(+), 32 deletions(-)
+ scripts/faddr2line | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/pressure/ms5611.h b/drivers/iio/pressure/ms5611.h
-index 345f3902e3e3..5e2d2d4d87b5 100644
---- a/drivers/iio/pressure/ms5611.h
-+++ b/drivers/iio/pressure/ms5611.h
-@@ -25,13 +25,6 @@ enum {
- 	MS5607,
- };
+diff --git a/scripts/faddr2line b/scripts/faddr2line
+index 70f8c3ecd555..42c46f498021 100755
+--- a/scripts/faddr2line
++++ b/scripts/faddr2line
+@@ -73,7 +73,8 @@ command -v ${ADDR2LINE} >/dev/null 2>&1 || die "${ADDR2LINE} isn't installed"
+ find_dir_prefix() {
+ 	local objfile=$1
  
--struct ms5611_chip_info {
--	u16 prom[MS5611_PROM_WORDS_NB];
--
--	int (*temp_and_pressure_compensate)(struct ms5611_chip_info *chip_info,
--					    s32 *temp, s32 *pressure);
--};
--
- /*
-  * OverSampling Rate descriptor.
-  * Warning: cmd MUST be kept aligned on a word boundary (see
-@@ -50,12 +43,15 @@ struct ms5611_state {
- 	const struct ms5611_osr *pressure_osr;
- 	const struct ms5611_osr *temp_osr;
+-	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | ${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
++	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' |
++		${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
+ 	[[ -z $start_kernel_addr ]] && return
  
-+	u16 prom[MS5611_PROM_WORDS_NB];
-+
- 	int (*reset)(struct ms5611_state *st);
- 	int (*read_prom_word)(struct ms5611_state *st, int index, u16 *word);
- 	int (*read_adc_temp_and_pressure)(struct ms5611_state *st,
- 					  s32 *temp, s32 *pressure);
+ 	local file_line=$(${ADDR2LINE} -e $objfile $start_kernel_addr)
+@@ -177,7 +178,7 @@ __faddr2line() {
+ 				found=2
+ 				break
+ 			fi
+-		done < <(${READELF} --symbols --wide $objfile | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
++		done < <(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
  
--	struct ms5611_chip_info *chip_info;
-+	int (*compensate_temp_and_pressure)(struct ms5611_state *st, s32 *temp,
-+					  s32 *pressure);
- 	struct regulator *vdd;
- };
+ 		if [[ $found = 0 ]]; then
+ 			warn "can't find symbol: sym_name: $sym_name sym_sec: $sym_sec sym_addr: $sym_addr sym_elf_size: $sym_elf_size"
+@@ -258,7 +259,7 @@ __faddr2line() {
  
-diff --git a/drivers/iio/pressure/ms5611_core.c b/drivers/iio/pressure/ms5611_core.c
-index 29dd648a308c..511ebdeafbe4 100644
---- a/drivers/iio/pressure/ms5611_core.c
-+++ b/drivers/iio/pressure/ms5611_core.c
-@@ -85,7 +85,7 @@ static int ms5611_read_prom(struct iio_dev *indio_dev)
- 	struct ms5611_state *st = iio_priv(indio_dev);
+ 		DONE=1
  
- 	for (i = 0; i < MS5611_PROM_WORDS_NB; i++) {
--		ret = st->read_prom_word(st, i, &st->chip_info->prom[i]);
-+		ret = st->read_prom_word(st, i, &st->prom[i]);
- 		if (ret < 0) {
- 			dev_err(&indio_dev->dev,
- 				"failed to read prom at %d\n", i);
-@@ -93,7 +93,7 @@ static int ms5611_read_prom(struct iio_dev *indio_dev)
- 		}
- 	}
- 
--	if (!ms5611_prom_is_valid(st->chip_info->prom, MS5611_PROM_WORDS_NB)) {
-+	if (!ms5611_prom_is_valid(st->prom, MS5611_PROM_WORDS_NB)) {
- 		dev_err(&indio_dev->dev, "PROM integrity check failed\n");
- 		return -ENODEV;
- 	}
-@@ -114,21 +114,20 @@ static int ms5611_read_temp_and_pressure(struct iio_dev *indio_dev,
- 		return ret;
- 	}
- 
--	return st->chip_info->temp_and_pressure_compensate(st->chip_info,
--							   temp, pressure);
-+	return st->compensate_temp_and_pressure(st, temp, pressure);
+-	done < <(${READELF} --symbols --wide $objfile | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
++	done < <(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
  }
  
--static int ms5611_temp_and_pressure_compensate(struct ms5611_chip_info *chip_info,
-+static int ms5611_temp_and_pressure_compensate(struct ms5611_state *st,
- 					       s32 *temp, s32 *pressure)
- {
- 	s32 t = *temp, p = *pressure;
- 	s64 off, sens, dt;
- 
--	dt = t - (chip_info->prom[5] << 8);
--	off = ((s64)chip_info->prom[2] << 16) + ((chip_info->prom[4] * dt) >> 7);
--	sens = ((s64)chip_info->prom[1] << 15) + ((chip_info->prom[3] * dt) >> 8);
-+	dt = t - (st->prom[5] << 8);
-+	off = ((s64)st->prom[2] << 16) + ((st->prom[4] * dt) >> 7);
-+	sens = ((s64)st->prom[1] << 15) + ((st->prom[3] * dt) >> 8);
- 
--	t = 2000 + ((chip_info->prom[6] * dt) >> 23);
-+	t = 2000 + ((st->prom[6] * dt) >> 23);
- 	if (t < 2000) {
- 		s64 off2, sens2, t2;
- 
-@@ -154,17 +153,17 @@ static int ms5611_temp_and_pressure_compensate(struct ms5611_chip_info *chip_inf
- 	return 0;
- }
- 
--static int ms5607_temp_and_pressure_compensate(struct ms5611_chip_info *chip_info,
-+static int ms5607_temp_and_pressure_compensate(struct ms5611_state *st,
- 					       s32 *temp, s32 *pressure)
- {
- 	s32 t = *temp, p = *pressure;
- 	s64 off, sens, dt;
- 
--	dt = t - (chip_info->prom[5] << 8);
--	off = ((s64)chip_info->prom[2] << 17) + ((chip_info->prom[4] * dt) >> 6);
--	sens = ((s64)chip_info->prom[1] << 16) + ((chip_info->prom[3] * dt) >> 7);
-+	dt = t - (st->prom[5] << 8);
-+	off = ((s64)st->prom[2] << 17) + ((st->prom[4] * dt) >> 6);
-+	sens = ((s64)st->prom[1] << 16) + ((st->prom[3] * dt) >> 7);
- 
--	t = 2000 + ((chip_info->prom[6] * dt) >> 23);
-+	t = 2000 + ((st->prom[6] * dt) >> 23);
- 	if (t < 2000) {
- 		s64 off2, sens2, t2, tmp;
- 
-@@ -342,15 +341,6 @@ static int ms5611_write_raw(struct iio_dev *indio_dev,
- 
- static const unsigned long ms5611_scan_masks[] = {0x3, 0};
- 
--static struct ms5611_chip_info chip_info_tbl[] = {
--	[MS5611] = {
--		.temp_and_pressure_compensate = ms5611_temp_and_pressure_compensate,
--	},
--	[MS5607] = {
--		.temp_and_pressure_compensate = ms5607_temp_and_pressure_compensate,
--	}
--};
--
- static const struct iio_chan_spec ms5611_channels[] = {
- 	{
- 		.type = IIO_PRESSURE,
-@@ -433,7 +423,20 @@ int ms5611_probe(struct iio_dev *indio_dev, struct device *dev,
- 	struct ms5611_state *st = iio_priv(indio_dev);
- 
- 	mutex_init(&st->lock);
--	st->chip_info = &chip_info_tbl[type];
-+
-+	switch (type) {
-+	case MS5611:
-+		st->compensate_temp_and_pressure =
-+			ms5611_temp_and_pressure_compensate;
-+		break;
-+	case MS5607:
-+		st->compensate_temp_and_pressure =
-+			ms5607_temp_and_pressure_compensate;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
- 	st->temp_osr =
- 		&ms5611_avail_temp_osr[ARRAY_SIZE(ms5611_avail_temp_osr) - 1];
- 	st->pressure_osr =
+ [[ $# -lt 2 ]] && usage
 -- 
 2.35.1
 
