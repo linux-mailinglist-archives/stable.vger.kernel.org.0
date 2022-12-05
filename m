@@ -2,230 +2,394 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D5DB6434B0
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:49:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBDF7643244
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235156AbiLETs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:48:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53896 "EHLO
+        id S233946AbiLETZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:25:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235164AbiLETsS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:48:18 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 360272A728
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:45:11 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A2252CE1386
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:45:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A271C433C1;
-        Mon,  5 Dec 2022 19:45:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269507;
-        bh=qUisg/O95gez66h+6ITkId1URxFOPnxws1xVlCXqU1Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+ZsBcwMe4236KWd6VkQSaQMZdou/ms4JHXjO/MI6hAuhJTIMlhpi0U8nGrd24K08
-         UYFG6ba+WW228fBb6CwQLPrNAEVbjnWMGcIZdEkhMmg6g9DOdFKP6K4FFJJbmwKUQg
-         +Geo8BcHMvtQS4RhhFlQZdmkh44K2G65Bc1V/EhI=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 153/153] mmc: sdhci: Fix voltage switch delay
-Date:   Mon,  5 Dec 2022 20:11:17 +0100
-Message-Id: <20221205190812.960710653@linuxfoundation.org>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S233811AbiLETYm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:42 -0500
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F03E125296
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:19:53 -0800 (PST)
+Received: by mail-pg1-x531.google.com with SMTP id 82so11394988pgc.0
+        for <stable@vger.kernel.org>; Mon, 05 Dec 2022 11:19:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=CUqQ3zbxHyUGqZwY53UrFK33/e3nfBWwppVft8vasM4=;
+        b=HeCNqpzYzuJDIN/RbSBQT6oZs/HaOiykYlIp6v4XvvU8r34qVYe+JHa8zupUHKczGP
+         PnWFVH1vg6DLqMExvlW1q9LMIgGVh3Fb0Dtogigf0GUbNnOeuG9fE+8fyNUAkQCNBRMr
+         DYrv7iGB66TzGYZaAi4F4TI/FtjT0AEsiVF8+HRA5S1s4xwFB4hQ9obDcuSJRzd57HHb
+         G/TWCeTI0/XwwYH9ewXsy5qAwbJ0ClmZiEH1wGj7nYIoasCl7T2ILOVMSFTHdRN/KV8h
+         90wYzgFBCG8BIoKf3OXLcSh4YKs7rYqUyXnX+wIGOXqylnMZ+pc97A73LhlxAKHJHRMy
+         bsvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=CUqQ3zbxHyUGqZwY53UrFK33/e3nfBWwppVft8vasM4=;
+        b=EvkK75vBYRBYyvvCtJH2hEozAC7adMQZj0HcVRAPhO7F6OH0C7WD5oDdeTNdxk6LDF
+         C6ivc7DY9QPY/fsqdM7oz9XAJmbAbQL7S73ojK92/g8m11c7k2VwZ19a1Xxh8QNKOIt4
+         VtoJq1Y34O3TVMQKO1bKrLzMyxDRkqA6LR6bPONAOQEbXT8xZoAEX8eZf+ceoClMoaAO
+         WemymCkMJBGW51GlkO89eCvN72gYI82mxFvLDbq+LW/Sh0P55SKPcnOJAYlYJ2hlpdqy
+         KgVjAyL0UnUugWkgIRZ+I+yc5Zq5vkquy5XVQx6XtI85cBOYWPkLQuvEB5ZGr6RCs3Yp
+         6xfg==
+X-Gm-Message-State: ANoB5plhnfpZJkC5fQXyL9taKwbIO/Fv++6sr+LDkPNDfbEOCE7dmqIq
+        z+zNLa5KsIL5bwyOMT/QW9G6ZDMn3fDa24Mj2SEYMw==
+X-Google-Smtp-Source: AA0mqf7V8qHNfZRbLAwt7Ep7ENp6Xy77ZbN+0tGnfX+pQ90d0ophQYbjX+RiqyqXQYBkmkc/RKwvXw==
+X-Received: by 2002:a05:6a00:4308:b0:575:649c:e9e3 with SMTP id cb8-20020a056a00430800b00575649ce9e3mr34123152pfb.48.1670267993104;
+        Mon, 05 Dec 2022 11:19:53 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i28-20020a056a00005c00b005771f5ea2ebsm1296191pfk.135.2022.12.05.11.19.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 05 Dec 2022 11:19:52 -0800 (PST)
+Message-ID: <638e4458.050a0220.456f3.2b9f@mx.google.com>
+Date:   Mon, 05 Dec 2022 11:19:52 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Kernel: v4.9.334-60-gafb273a1eb19
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.9 baseline: 76 runs,
+ 8 regressions (v4.9.334-60-gafb273a1eb19)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+stable-rc/queue/4.9 baseline: 76 runs, 8 regressions (v4.9.334-60-gafb273a1=
+eb19)
 
-commit c981cdfb9925f64a364f13c2b4f98f877308a408 upstream.
+Regressions Summary
+-------------------
 
-Commit 20b92a30b561 ("mmc: sdhci: update signal voltage switch code")
-removed voltage switch delays from sdhci because mmc core had been
-enhanced to support them. However that assumed that sdhci_set_ios()
-did a single clock change, which it did not, and so the delays in mmc
-core, which should have come after the first clock change, were not
-effective.
+platform                   | arch  | lab          | compiler | defconfig | =
+regressions
+---------------------------+-------+--------------+----------+-----------+-=
+-----------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig | =
+1          =
 
-Fix by avoiding re-configuring UHS and preset settings when the clock
-is turning on and the settings have not changed. That then also avoids
-the associated clock changes, so that then sdhci_set_ios() does a single
-clock change when voltage switching, and the mmc core delays become
-effective.
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig | =
+1          =
 
-To do that has meant keeping track of driver strength (host->drv_type),
-and cases of reinitialization (host->reinit_uhs).
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig | =
+1          =
 
-Note also, the 'turning_on_clk' restriction should not be necessary
-but is done to minimize the impact of the change on stable kernels.
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig | =
+1          =
 
-Fixes: 20b92a30b561 ("mmc: sdhci: update signal voltage switch code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20221128133259.38305-2-adrian.hunter@intel.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/mmc/host/sdhci.c |   61 +++++++++++++++++++++++++++++++++++++++++------
- drivers/mmc/host/sdhci.h |    2 +
- 2 files changed, 56 insertions(+), 7 deletions(-)
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig | =
+1          =
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -332,6 +332,7 @@ static void sdhci_init(struct sdhci_host
- 	if (soft) {
- 		/* force clock reconfiguration */
- 		host->clock = 0;
-+		host->reinit_uhs = true;
- 		mmc->ops->set_ios(mmc, &mmc->ios);
- 	}
- }
-@@ -1911,11 +1912,46 @@ void sdhci_set_uhs_signaling(struct sdhc
- }
- EXPORT_SYMBOL_GPL(sdhci_set_uhs_signaling);
- 
-+static bool sdhci_timing_has_preset(unsigned char timing)
-+{
-+	switch (timing) {
-+	case MMC_TIMING_UHS_SDR12:
-+	case MMC_TIMING_UHS_SDR25:
-+	case MMC_TIMING_UHS_SDR50:
-+	case MMC_TIMING_UHS_SDR104:
-+	case MMC_TIMING_UHS_DDR50:
-+	case MMC_TIMING_MMC_DDR52:
-+		return true;
-+	};
-+	return false;
-+}
-+
-+static bool sdhci_preset_needed(struct sdhci_host *host, unsigned char timing)
-+{
-+	return !(host->quirks2 & SDHCI_QUIRK2_PRESET_VALUE_BROKEN) &&
-+	       sdhci_timing_has_preset(timing);
-+}
-+
-+static bool sdhci_presetable_values_change(struct sdhci_host *host, struct mmc_ios *ios)
-+{
-+	/*
-+	 * Preset Values are: Driver Strength, Clock Generator and SDCLK/RCLK
-+	 * Frequency. Check if preset values need to be enabled, or the Driver
-+	 * Strength needs updating. Note, clock changes are handled separately.
-+	 */
-+	return !host->preset_enabled &&
-+	       (sdhci_preset_needed(host, ios->timing) || host->drv_type != ios->drv_type);
-+}
-+
- void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
- {
- 	struct sdhci_host *host = mmc_priv(mmc);
-+	bool reinit_uhs = host->reinit_uhs;
-+	bool turning_on_clk = false;
- 	u8 ctrl;
- 
-+	host->reinit_uhs = false;
-+
- 	if (ios->power_mode == MMC_POWER_UNDEFINED)
- 		return;
- 
-@@ -1941,6 +1977,8 @@ void sdhci_set_ios(struct mmc_host *mmc,
- 		sdhci_enable_preset_value(host, false);
- 
- 	if (!ios->clock || ios->clock != host->clock) {
-+		turning_on_clk = ios->clock && !host->clock;
-+
- 		host->ops->set_clock(host, ios->clock);
- 		host->clock = ios->clock;
- 
-@@ -1967,6 +2005,17 @@ void sdhci_set_ios(struct mmc_host *mmc,
- 
- 	host->ops->set_bus_width(host, ios->bus_width);
- 
-+	/*
-+	 * Special case to avoid multiple clock changes during voltage
-+	 * switching.
-+	 */
-+	if (!reinit_uhs &&
-+	    turning_on_clk &&
-+	    host->timing == ios->timing &&
-+	    host->version >= SDHCI_SPEC_300 &&
-+	    !sdhci_presetable_values_change(host, ios))
-+		return;
-+
- 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
- 
- 	if (!(host->quirks & SDHCI_QUIRK_NO_HISPD_BIT)) {
-@@ -2010,6 +2059,7 @@ void sdhci_set_ios(struct mmc_host *mmc,
- 			}
- 
- 			sdhci_writew(host, ctrl_2, SDHCI_HOST_CONTROL2);
-+			host->drv_type = ios->drv_type;
- 		} else {
- 			/*
- 			 * According to SDHC Spec v3.00, if the Preset Value
-@@ -2037,19 +2087,14 @@ void sdhci_set_ios(struct mmc_host *mmc,
- 		host->ops->set_uhs_signaling(host, ios->timing);
- 		host->timing = ios->timing;
- 
--		if (!(host->quirks2 & SDHCI_QUIRK2_PRESET_VALUE_BROKEN) &&
--				((ios->timing == MMC_TIMING_UHS_SDR12) ||
--				 (ios->timing == MMC_TIMING_UHS_SDR25) ||
--				 (ios->timing == MMC_TIMING_UHS_SDR50) ||
--				 (ios->timing == MMC_TIMING_UHS_SDR104) ||
--				 (ios->timing == MMC_TIMING_UHS_DDR50) ||
--				 (ios->timing == MMC_TIMING_MMC_DDR52))) {
-+		if (sdhci_preset_needed(host, ios->timing)) {
- 			u16 preset;
- 
- 			sdhci_enable_preset_value(host, true);
- 			preset = sdhci_get_preset_value(host);
- 			ios->drv_type = FIELD_GET(SDHCI_PRESET_DRV_MASK,
- 						  preset);
-+			host->drv_type = ios->drv_type;
- 		}
- 
- 		/* Re-enable SD Clock */
-@@ -3327,6 +3372,7 @@ int sdhci_resume_host(struct sdhci_host
- 		sdhci_init(host, 0);
- 		host->pwr = 0;
- 		host->clock = 0;
-+		host->reinit_uhs = true;
- 		mmc->ops->set_ios(mmc, &mmc->ios);
- 	} else {
- 		sdhci_init(host, (host->mmc->pm_flags & MMC_PM_KEEP_POWER));
-@@ -3389,6 +3435,7 @@ int sdhci_runtime_resume_host(struct sdh
- 		/* Force clock and power re-program */
- 		host->pwr = 0;
- 		host->clock = 0;
-+		host->reinit_uhs = true;
- 		mmc->ops->start_signal_voltage_switch(mmc, &mmc->ios);
- 		mmc->ops->set_ios(mmc, &mmc->ios);
- 
---- a/drivers/mmc/host/sdhci.h
-+++ b/drivers/mmc/host/sdhci.h
-@@ -528,6 +528,8 @@ struct sdhci_host {
- 
- 	unsigned int clock;	/* Current clock (MHz) */
- 	u8 pwr;			/* Current voltage */
-+	u8 drv_type;		/* Current UHS-I driver type */
-+	bool reinit_uhs;	/* Force UHS-related re-initialization */
- 
- 	bool runtime_suspended;	/* Host is runtime suspended */
- 	bool bus_on;		/* Bus power prevents runtime suspend */
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig | =
+1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig | =
+1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig | =
+1          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.334-60-gafb273a1eb19/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.334-60-gafb273a1eb19
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      afb273a1eb19ff882e5a70864bb7e7244f5f81ca =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig | =
+regressions
+---------------------------+-------+--------------+----------+-----------+-=
+-----------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/638e0c760a2315a9fd2abd09
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
+t-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
+t-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/638e0c760a2315a9fd2ab=
+d0a
+        failing since 209 days (last pass: v4.9.312-43-g5b8113699dd5, first=
+ fail: v4.9.312-64-g69b9f3e8fce2) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig | =
+regressions
+---------------------------+-------+--------------+----------+-----------+-=
+-----------
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/638e0e59625d3c3d502abd40
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/638e0e59625d3c3d502ab=
+d41
+        failing since 209 days (last pass: v4.9.312-43-g5b8113699dd5, first=
+ fail: v4.9.312-64-g69b9f3e8fce2) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig | =
+regressions
+---------------------------+-------+--------------+----------+-----------+-=
+-----------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/638e0c613bc49f33182abcfb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
+t-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
+t-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/638e0c613bc49f33182ab=
+cfc
+        failing since 209 days (last pass: v4.9.312-43-g5b8113699dd5, first=
+ fail: v4.9.312-64-g69b9f3e8fce2) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig | =
+regressions
+---------------------------+-------+--------------+----------+-----------+-=
+-----------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/638e0e6cab9ecea1442abd11
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/638e0e6cab9ecea1442ab=
+d12
+        failing since 209 days (last pass: v4.9.312-43-g5b8113699dd5, first=
+ fail: v4.9.312-64-g69b9f3e8fce2) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig | =
+regressions
+---------------------------+-------+--------------+----------+-----------+-=
+-----------
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/638e0c743bc49f33182abd09
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
+t-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
+t-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/638e0c743bc49f33182ab=
+d0a
+        failing since 209 days (last pass: v4.9.312-43-g5b8113699dd5, first=
+ fail: v4.9.312-64-g69b9f3e8fce2) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig | =
+regressions
+---------------------------+-------+--------------+----------+-----------+-=
+-----------
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/638e0e44c4acc770872abd15
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/638e0e44c4acc770872ab=
+d16
+        failing since 209 days (last pass: v4.9.312-43-g5b8113699dd5, first=
+ fail: v4.9.312-64-g69b9f3e8fce2) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig | =
+regressions
+---------------------------+-------+--------------+----------+-----------+-=
+-----------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/638e0c620a2315a9fd2abcfb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
+t-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
+t-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/638e0c620a2315a9fd2ab=
+cfc
+        failing since 209 days (last pass: v4.9.312-43-g5b8113699dd5, first=
+ fail: v4.9.312-64-g69b9f3e8fce2) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig | =
+regressions
+---------------------------+-------+--------------+----------+-----------+-=
+-----------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/638e0f5c74b0f631032abd34
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.334-6=
+0-gafb273a1eb19/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/638e0f5c74b0f631032ab=
+d35
+        failing since 209 days (last pass: v4.9.312-43-g5b8113699dd5, first=
+ fail: v4.9.312-64-g69b9f3e8fce2) =
+
+ =20
