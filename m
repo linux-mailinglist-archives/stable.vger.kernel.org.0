@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 743F964327E
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E00D6431F6
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234098AbiLET0s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:26:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46666 "EHLO
+        id S233760AbiLETWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:22:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233901AbiLET02 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2234DFD3D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:22:56 -0800 (PST)
+        with ESMTP id S234062AbiLETWY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:22:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E9E726AEC
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:18:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3509612D8
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:22:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C65E3C433C1;
-        Mon,  5 Dec 2022 19:22:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E50B2B81181
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:17:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5802FC433C1;
+        Mon,  5 Dec 2022 19:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268175;
-        bh=W6zTtECllZh/sYXkgkxHGkDu710QDASBhdWH1js7TC0=;
+        s=korg; t=1670267845;
+        bh=h9ByPv8yTIR4od6BtGJV39eTZNV8GGXjRCT2UB4n4kw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ytxoFDoIE/gBJW0w/Ql9UnlEkdcdx+gPQu+HWJ/imV6YOxsrDRf7AlZ0XWl5G1oiO
-         SNEezvEHKYql6g04QXydd8AaJs+SeKRKRazAcxNULW+oxIriIvv4qnoz2ukTJEODN7
-         l4R0Bhqx+JkO+cT89xYJh2tl9Gk9aH78G7qlJN3g=
+        b=oYjWyEcUzLPxIRegWtR7dWaBavTHf1A/maIPX9KjPL76ocAqqbMoCQA6E8XF3H4KT
+         D/1o9H63ye9CxqSj+duetB46B8SaLB+SSgX+pIfs/wXdUMdUoQtnwAMu2HCD9fDYDD
+         Gjedc2H6PBqY/JvikLsD8NYBwWOq+IS6wdXokG58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Hugh Dickins <hughd@google.com>
-Subject: [PATCH 4.19 090/105] mm: Fix .data.once orphan section warning
+        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 71/77] nvme: restrict management ioctls to admin
 Date:   Mon,  5 Dec 2022 20:10:02 +0100
-Message-Id: <20221205190806.171660460@linuxfoundation.org>
+Message-Id: <20221205190803.366445791@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Keith Busch <kbusch@kernel.org>
 
-Portions of upstream commit a4055888629b ("mm/memcg: warning on !memcg
-after readahead page charged") were backported as commit cfe575954ddd
-("mm: add VM_WARN_ON_ONCE_PAGE() macro"). Unfortunately, the backport
-did not account for the lack of commit 33def8498fdd ("treewide: Convert
-macro and uses of __section(foo) to __section("foo")") in kernels prior
-to 5.10, resulting in the following orphan section warnings on PowerPC
-clang builds with CONFIG_DEBUG_VM=y:
+commit 23e085b2dead13b51fe86d27069895b740f749c0 upstream.
 
-  powerpc64le-linux-gnu-ld: warning: orphan section `".data.once"' from `mm/huge_memory.o' being placed in section `".data.once"'
-  powerpc64le-linux-gnu-ld: warning: orphan section `".data.once"' from `mm/huge_memory.o' being placed in section `".data.once"'
-  powerpc64le-linux-gnu-ld: warning: orphan section `".data.once"' from `mm/huge_memory.o' being placed in section `".data.once"'
+The passthrough commands already have this restriction, but the other
+operations do not. Require the same capabilities for all users as all of
+these operations, which include resets and rescans, can be disruptive.
 
-This is a difference between how clang and gcc handle macro
-stringification, which was resolved for the kernel by not stringifying
-the argument to the __section() macro. Since that change was deemed not
-suitable for the stable kernels by commit 59f89518f510 ("once: fix
-section mismatch on clang builds"), do that same thing as that change
-and remove the quotes from the argument to __section().
-
-Fixes: cfe575954ddd ("mm: add VM_WARN_ON_ONCE_PAGE() macro")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 ---
- include/linux/mmdebug.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/core.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/include/linux/mmdebug.h
-+++ b/include/linux/mmdebug.h
-@@ -38,7 +38,7 @@ void dump_mm(const struct mm_struct *mm)
- 		}							\
- 	} while (0)
- #define VM_WARN_ON_ONCE_PAGE(cond, page)	({			\
--	static bool __section(".data.once") __warned;			\
-+	static bool __section(.data.once) __warned;			\
- 	int __ret_warn_once = !!(cond);					\
- 									\
- 	if (unlikely(__ret_warn_once && !__warned)) {			\
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2022,11 +2022,17 @@ static long nvme_dev_ioctl(struct file *
+ 	case NVME_IOCTL_IO_CMD:
+ 		return nvme_dev_user_cmd(ctrl, argp);
+ 	case NVME_IOCTL_RESET:
++		if (!capable(CAP_SYS_ADMIN))
++			return -EACCES;
+ 		dev_warn(ctrl->device, "resetting controller\n");
+ 		return nvme_reset_ctrl_sync(ctrl);
+ 	case NVME_IOCTL_SUBSYS_RESET:
++		if (!capable(CAP_SYS_ADMIN))
++			return -EACCES;
+ 		return nvme_reset_subsystem(ctrl);
+ 	case NVME_IOCTL_RESCAN:
++		if (!capable(CAP_SYS_ADMIN))
++			return -EACCES;
+ 		nvme_queue_scan(ctrl);
+ 		return 0;
+ 	default:
 
 
