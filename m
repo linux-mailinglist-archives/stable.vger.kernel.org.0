@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7596643499
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:48:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 144056434BC
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:49:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235133AbiLETs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:48:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54376 "EHLO
+        id S235066AbiLETtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:49:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235031AbiLETrw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:52 -0500
+        with ESMTP id S235037AbiLETs1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:48:27 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D069E65A0
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:44:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33DAF24BEF;
+        Mon,  5 Dec 2022 11:45:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 44A44CE13AD
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:44:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E506C433C1;
-        Mon,  5 Dec 2022 19:44:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9CF2DCE13A4;
+        Mon,  5 Dec 2022 19:45:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B36FC433C1;
+        Mon,  5 Dec 2022 19:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269475;
-        bh=er4GKzqFGZjIbcn7JeO62oNLtsL20kJueG00tEX+8zk=;
+        s=korg; t=1670269532;
+        bh=nlls+mMrGod18/annYo2/2Pvmx0nt3SzhU3hi2vvX+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gut3shZEBKtoOGjjvWFGTZFWDai4jLM263NpL8KrgjCAEeJRVC5hBn36x9vPF9cre
-         GTTCqURgqHKwj8orLYimNK2v9w9EFlUHQDL0I/r4f0hwFXDMaUWg3X0CLR0c81X8al
-         vXVpgyqn+VPo9xux1ZWnjF2sBufFKLh/DPv2b0jc=
+        b=K+EcMIXBR+X1DIDnUZYShPRFVQmu/F5dpPS7mzdVzNP0F6gg3+h1E2BdUvuFQzQjL
+         31OiMaDPP42yHjR5KhPbC3kzBpvu+g7Hu+uqnkhTuw7JjYz8z/Qeb7+qkvoCjPWmfF
+         xU+f9XiV/M0qtBYxMV7+db8FIOd+j5d5Eekm+VaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jonas Gorski <jonas.gorski@gmail.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 140/153] ipv4: Fix route deletion when nexthop info is not specified
-Date:   Mon,  5 Dec 2022 20:11:04 +0100
-Message-Id: <20221205190812.646864982@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Primiano Tucci <primiano@google.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 141/153] tracing/ring-buffer: Have polling block on watermark
+Date:   Mon,  5 Dec 2022 20:11:05 +0100
+Message-Id: <20221205190812.669520495@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
 References: <20221205190808.733996403@linuxfoundation.org>
@@ -56,118 +56,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit d5082d386eee7e8ec46fa8581932c81a4961dcef ]
+commit 42fb0a1e84ff525ebe560e2baf9451ab69127e2b upstream.
 
-When the kernel receives a route deletion request from user space it
-tries to delete a route that matches the route attributes specified in
-the request.
+Currently the way polling works on the ring buffer is broken. It will
+return immediately if there's any data in the ring buffer whereas a read
+will block until the watermark (defined by the tracefs buffer_percent file)
+is hit.
 
-If only prefix information is specified in the request, the kernel
-should delete the first matching FIB alias regardless of its associated
-FIB info. However, an error is currently returned when the FIB info is
-backed by a nexthop object:
+That is, a select() or poll() will return as if there's data available,
+but then the following read will block. This is broken for the way
+select()s and poll()s are supposed to work.
 
- # ip nexthop add id 1 via 192.0.2.2 dev dummy10
- # ip route add 198.51.100.0/24 nhid 1
- # ip route del 198.51.100.0/24
- RTNETLINK answers: No such process
+Have the polling on the ring buffer also block the same way reads and
+splice does on the ring buffer.
 
-Fix by matching on such a FIB info when legacy nexthop attributes are
-not specified in the request. An earlier check already covers the case
-where a nexthop ID is specified in the request.
+Link: https://lkml.kernel.org/r/20221020231427.41be3f26@gandalf.local.home
 
-Add tests that cover these flows. Before the fix:
-
- # ./fib_nexthops.sh -t ipv4_fcnal
- ...
- TEST: Delete route when not specifying nexthop attributes           [FAIL]
-
- Tests passed:  11
- Tests failed:   1
-
-After the fix:
-
- # ./fib_nexthops.sh -t ipv4_fcnal
- ...
- TEST: Delete route when not specifying nexthop attributes           [ OK ]
-
- Tests passed:  12
- Tests failed:   0
-
-No regressions in other tests:
-
- # ./fib_nexthops.sh
- ...
- Tests passed: 228
- Tests failed:   0
-
- # ./fib_tests.sh
- ...
- Tests passed: 186
- Tests failed:   0
-
+Cc: Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Primiano Tucci <primiano@google.com>
 Cc: stable@vger.kernel.org
-Reported-by: Jonas Gorski <jonas.gorski@gmail.com>
-Tested-by: Jonas Gorski <jonas.gorski@gmail.com>
-Fixes: 493ced1ac47c ("ipv4: Allow routes to use nexthop objects")
-Fixes: 6bf92d70e690 ("net: ipv4: fix route with nexthop object delete warning")
-Fixes: 61b91eb33a69 ("ipv4: Handle attempt to delete multipath route when fib_info contains an nh reference")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20221124210932.2470010-1-idosch@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1e0d6714aceb7 ("ring-buffer: Do not wake up a splice waiter when page is not full")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_semantics.c                    |  8 +++++---
- tools/testing/selftests/net/fib_nexthops.sh | 11 +++++++++++
- 2 files changed, 16 insertions(+), 3 deletions(-)
+ include/linux/ring_buffer.h |    2 -
+ kernel/trace/ring_buffer.c  |   54 ++++++++++++++++++++++++++++----------------
+ kernel/trace/trace.c        |    2 -
+ 3 files changed, 37 insertions(+), 21 deletions(-)
 
-diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-index 31424172ff18..908913d75847 100644
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -875,9 +875,11 @@ int fib_nh_match(struct fib_config *cfg, struct fib_info *fi,
- 		return 1;
- 	}
+--- a/include/linux/ring_buffer.h
++++ b/include/linux/ring_buffer.h
+@@ -99,7 +99,7 @@ __ring_buffer_alloc(unsigned long size,
  
--	/* cannot match on nexthop object attributes */
--	if (fi->nh)
--		return 1;
-+	if (fi->nh) {
-+		if (cfg->fc_oif || cfg->fc_gw_family || cfg->fc_mp)
-+			return 1;
-+		return 0;
-+	}
+ int ring_buffer_wait(struct ring_buffer *buffer, int cpu, int full);
+ __poll_t ring_buffer_poll_wait(struct ring_buffer *buffer, int cpu,
+-			  struct file *filp, poll_table *poll_table);
++			  struct file *filp, poll_table *poll_table, int full);
  
- 	if (cfg->fc_oif || cfg->fc_gw_family) {
- 		struct fib_nh *nh;
-diff --git a/tools/testing/selftests/net/fib_nexthops.sh b/tools/testing/selftests/net/fib_nexthops.sh
-index 28f5121fac44..0bdca3a2e673 100755
---- a/tools/testing/selftests/net/fib_nexthops.sh
-+++ b/tools/testing/selftests/net/fib_nexthops.sh
-@@ -602,6 +602,17 @@ ipv4_fcnal()
- 	run_cmd "$IP ro add 172.16.101.0/24 nhid 21"
- 	run_cmd "$IP ro del 172.16.101.0/24 nexthop via 172.16.1.7 dev veth1 nexthop via 172.16.1.8 dev veth1"
- 	log_test $? 2 "Delete multipath route with only nh id based entry"
-+
-+	run_cmd "$IP nexthop add id 22 via 172.16.1.6 dev veth1"
-+	run_cmd "$IP ro add 172.16.102.0/24 nhid 22"
-+	run_cmd "$IP ro del 172.16.102.0/24 dev veth1"
-+	log_test $? 2 "Delete route when specifying only nexthop device"
-+
-+	run_cmd "$IP ro del 172.16.102.0/24 via 172.16.1.6"
-+	log_test $? 2 "Delete route when specifying only gateway"
-+
-+	run_cmd "$IP ro del 172.16.102.0/24"
-+	log_test $? 0 "Delete route when not specifying nexthop attributes"
+ 
+ #define RING_BUFFER_ALL_CPUS -1
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -566,6 +566,21 @@ size_t ring_buffer_nr_dirty_pages(struct
+ 	return cnt - read;
  }
  
- ipv4_grp_fcnal()
--- 
-2.35.1
-
++static __always_inline bool full_hit(struct ring_buffer *buffer, int cpu, int full)
++{
++	struct ring_buffer_per_cpu *cpu_buffer = buffer->buffers[cpu];
++	size_t nr_pages;
++	size_t dirty;
++
++	nr_pages = cpu_buffer->nr_pages;
++	if (!nr_pages || !full)
++		return true;
++
++	dirty = ring_buffer_nr_dirty_pages(buffer, cpu);
++
++	return (dirty * 100) > (full * nr_pages);
++}
++
+ /*
+  * rb_wake_up_waiters - wake up tasks waiting for ring buffer input
+  *
+@@ -661,22 +676,20 @@ int ring_buffer_wait(struct ring_buffer
+ 		    !ring_buffer_empty_cpu(buffer, cpu)) {
+ 			unsigned long flags;
+ 			bool pagebusy;
+-			size_t nr_pages;
+-			size_t dirty;
++			bool done;
+ 
+ 			if (!full)
+ 				break;
+ 
+ 			raw_spin_lock_irqsave(&cpu_buffer->reader_lock, flags);
+ 			pagebusy = cpu_buffer->reader_page == cpu_buffer->commit_page;
+-			nr_pages = cpu_buffer->nr_pages;
+-			dirty = ring_buffer_nr_dirty_pages(buffer, cpu);
++			done = !pagebusy && full_hit(buffer, cpu, full);
++
+ 			if (!cpu_buffer->shortest_full ||
+ 			    cpu_buffer->shortest_full > full)
+ 				cpu_buffer->shortest_full = full;
+ 			raw_spin_unlock_irqrestore(&cpu_buffer->reader_lock, flags);
+-			if (!pagebusy &&
+-			    (!nr_pages || (dirty * 100) > full * nr_pages))
++			if (done)
+ 				break;
+ 		}
+ 
+@@ -697,6 +710,7 @@ int ring_buffer_wait(struct ring_buffer
+  * @cpu: the cpu buffer to wait on
+  * @filp: the file descriptor
+  * @poll_table: The poll descriptor
++ * @full: wait until the percentage of pages are available, if @cpu != RING_BUFFER_ALL_CPUS
+  *
+  * If @cpu == RING_BUFFER_ALL_CPUS then the task will wake up as soon
+  * as data is added to any of the @buffer's cpu buffers. Otherwise
+@@ -706,14 +720,14 @@ int ring_buffer_wait(struct ring_buffer
+  * zero otherwise.
+  */
+ __poll_t ring_buffer_poll_wait(struct ring_buffer *buffer, int cpu,
+-			  struct file *filp, poll_table *poll_table)
++			  struct file *filp, poll_table *poll_table, int full)
+ {
+ 	struct ring_buffer_per_cpu *cpu_buffer;
+ 	struct rb_irq_work *work;
+ 
+-	if (cpu == RING_BUFFER_ALL_CPUS)
++	if (cpu == RING_BUFFER_ALL_CPUS) {
+ 		work = &buffer->irq_work;
+-	else {
++	} else {
+ 		if (!cpumask_test_cpu(cpu, buffer->cpumask))
+ 			return -EINVAL;
+ 
+@@ -721,8 +735,14 @@ __poll_t ring_buffer_poll_wait(struct ri
+ 		work = &cpu_buffer->irq_work;
+ 	}
+ 
+-	poll_wait(filp, &work->waiters, poll_table);
+-	work->waiters_pending = true;
++	if (full) {
++		poll_wait(filp, &work->full_waiters, poll_table);
++		work->full_waiters_pending = true;
++	} else {
++		poll_wait(filp, &work->waiters, poll_table);
++		work->waiters_pending = true;
++	}
++
+ 	/*
+ 	 * There's a tight race between setting the waiters_pending and
+ 	 * checking if the ring buffer is empty.  Once the waiters_pending bit
+@@ -738,6 +758,9 @@ __poll_t ring_buffer_poll_wait(struct ri
+ 	 */
+ 	smp_mb();
+ 
++	if (full)
++		return full_hit(buffer, cpu, full) ? EPOLLIN | EPOLLRDNORM : 0;
++
+ 	if ((cpu == RING_BUFFER_ALL_CPUS && !ring_buffer_empty(buffer)) ||
+ 	    (cpu != RING_BUFFER_ALL_CPUS && !ring_buffer_empty_cpu(buffer, cpu)))
+ 		return EPOLLIN | EPOLLRDNORM;
+@@ -2640,10 +2663,6 @@ static void rb_commit(struct ring_buffer
+ static __always_inline void
+ rb_wakeups(struct ring_buffer *buffer, struct ring_buffer_per_cpu *cpu_buffer)
+ {
+-	size_t nr_pages;
+-	size_t dirty;
+-	size_t full;
+-
+ 	if (buffer->irq_work.waiters_pending) {
+ 		buffer->irq_work.waiters_pending = false;
+ 		/* irq_work_queue() supplies it's own memory barriers */
+@@ -2667,10 +2686,7 @@ rb_wakeups(struct ring_buffer *buffer, s
+ 
+ 	cpu_buffer->last_pages_touch = local_read(&cpu_buffer->pages_touched);
+ 
+-	full = cpu_buffer->shortest_full;
+-	nr_pages = cpu_buffer->nr_pages;
+-	dirty = ring_buffer_nr_dirty_pages(buffer, cpu_buffer->cpu);
+-	if (full && nr_pages && (dirty * 100) <= full * nr_pages)
++	if (!full_hit(buffer, cpu_buffer->cpu, cpu_buffer->shortest_full))
+ 		return;
+ 
+ 	cpu_buffer->irq_work.wakeup_full = true;
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -5993,7 +5993,7 @@ trace_poll(struct trace_iterator *iter,
+ 		return EPOLLIN | EPOLLRDNORM;
+ 	else
+ 		return ring_buffer_poll_wait(iter->trace_buffer->buffer, iter->cpu_file,
+-					     filp, poll_table);
++					     filp, poll_table, iter->tr->buffer_percent);
+ }
+ 
+ static __poll_t
 
 
