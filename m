@@ -2,145 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB96642C50
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 16:53:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB22F642C1A
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 16:42:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231615AbiLEPxy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 10:53:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32782 "EHLO
+        id S231793AbiLEPmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 10:42:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230235AbiLEPxy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 10:53:54 -0500
-X-Greylist: delayed 600 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 05 Dec 2022 07:53:50 PST
-Received: from serv108.segi.ulg.ac.be (serv108.segi.ulg.ac.be [139.165.32.111])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 252AB1208A;
-        Mon,  5 Dec 2022 07:53:50 -0800 (PST)
-Received: from ubuntu.home (148.24-240-81.adsl-dyn.isp.belgacom.be [81.240.24.148])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by serv108.segi.ulg.ac.be (Postfix) with ESMTPSA id DE4CC200DF9A;
-        Mon,  5 Dec 2022 16:36:20 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 serv108.segi.ulg.ac.be DE4CC200DF9A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uliege.be;
-        s=ulg20190529; t=1670254581;
-        bh=9RCpom6IfP/9eHB8wsuAhrtCGUOdEGP7ADW4IxYZHfs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=1CQbneuAakFYezm9c49Pe85BrUfEgHmlUWWiJymF+Mj0VyLhPmDGvk4jFGtMA2NCl
-         NNf6pra9lKs6aOzcrpfQSokivThebnH2bn/0CHsq2kM86DyAhRkgXTE81//a32CV9E
-         RHZom6WGKuBgKqtCDKKaTzGzKpKZv12kWkaGLyj+tfJXzKhNRV4ue8QGJSsDl5wsUH
-         Rz0w59W/epwIvfz4kOAFrSzmSHXgp28uAh6A8cldID5qZXlJt4Sl2VgOGpPjIPlWfm
-         kYJxcUfkzKIstyNpheyanVQyV2Mzm+RlEVTsFqWjBbx1rNVM+pd6/o8O0u+gKtfbYd
-         kuY/huEGvddRg==
-From:   Justin Iurman <justin.iurman@uliege.be>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, yoshfuji@linux-ipv6.org,
-        dsahern@kernel.org, pabeni@redhat.com, edumazet@google.com,
-        justin.iurman@uliege.be, stable@vger.kernel.org
-Subject: [RFC net] Fixes: b63c5478e9cb ("ipv6: ioam: Support for Queue depth data field")
-Date:   Mon,  5 Dec 2022 16:35:57 +0100
-Message-Id: <20221205153557.28549-1-justin.iurman@uliege.be>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S230000AbiLEPlx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 10:41:53 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A2E160C7;
+        Mon,  5 Dec 2022 07:41:52 -0800 (PST)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1p2DbK-0001yr-4U; Mon, 05 Dec 2022 16:41:50 +0100
+Message-ID: <9c414060-989d-55bb-9a7b-0f33bf103c4f@leemhuis.info>
+Date:   Mon, 5 Dec 2022 16:41:49 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEXHASH_WORD,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Subject: Re: [PATCH] ext4: Fix deadlock due to mbcache entry corruption
+Content-Language: en-US, de-DE
+To:     Ted Tso <tytso@mit.edu>, Andreas Dilger <adilger.kernel@dilger.ca>
+Cc:     Jan Kara <jack@suse.cz>, linux-ext4@vger.kernel.org,
+        stable@vger.kernel.org, Thilo Fromm <t-lo@linux.microsoft.com>,
+        Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+References: <20221123193950.16758-1-jack@suse.cz>
+ <20221201151021.GA18380@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <20221201151021.GA18380@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1670254912;5bdd3230;
+X-HE-SMSGID: 1p2DbK-0001yr-4U
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch fixes a NULL qdisc pointer when retrieving the TX queue depth
-for IOAM.
+On 01.12.22 16:10, Jeremi Piotrowski wrote:
+> On Wed, Nov 23, 2022 at 08:39:50PM +0100, Jan Kara wrote:
+>> When manipulating xattr blocks, we can deadlock infinitely looping
+>> inside ext4_xattr_block_set() where we constantly keep finding xattr
+>> block for reuse in mbcache but we are unable to reuse it because its
+>> reference count is too big. This happens because cache entry for the
+>> xattr block is marked as reusable (e_reusable set) although its
+>> reference count is too big. When this inconsistency happens, this
+>> inconsistent state is kept indefinitely and so ext4_xattr_block_set()
+>> keeps retrying indefinitely.
+>>
+>> The inconsistent state is caused by non-atomic update of e_reusable bit.
+>> e_reusable is part of a bitfield and e_reusable update can race with
+>> update of e_referenced bit in the same bitfield resulting in loss of one
+>> of the updates. Fix the problem by using atomic bitops instead.
+>>
+>> CC: stable@vger.kernel.org
+>> Fixes: 6048c64b2609 ("mbcache: add reusable flag to cache entries")
+>> Reported-and-tested-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+>> Reported-by: Thilo Fromm <t-lo@linux.microsoft.com>
+>> Link: https://lore.kernel.org/r/c77bf00f-4618-7149-56f1-b8d1664b9d07@linux.microsoft.com/
+>> Signed-off-by: Jan Kara <jack@suse.cz>
+> 
+> Could it be that you didn't see this email? We have users who are hitting this
+> and are very eager to see this bugfix get merged and backported to stable. 
 
-IMPORTANT: I suspect this fix is local only and the bug goes deeper (see
-reasoning below).
+Andreas, Ted, or any other trusted ext4 reviewer:
 
-Kernel panic:
-[...]
-RIP: 0010:ioam6_fill_trace_data+0x54f/0x5b0
-[...]
+Jan's patch to fix the regression is now our 12 days out and afaics
+didn't make any progress (or did I miss something?). Is there are reason
+why or did it simply fall through the cracks? Just asking, because it
+would be good to finally get this resolved.
 
-...which basically points to the call to qdisc_qstats_qlen_backlog
-inside net/ipv6/ioam6.c.
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
 
-From there, I directly thought of a NULL pointer (queue->qdisc). To make
-sure, I added some printk's to know exactly *why* and *when* it happens.
-Here is the (summarized by queue) output:
+P.S.: As the Linux kernel's regression tracker I deal with a lot of
+reports and sometimes miss something important when writing mails like
+this. If that's the case here, don't hesitate to tell me in a public
+reply, it's in everyone's interest to set the public record straight.
 
-skb for TX queue 1, qdisc is ffff8b375eee9800, qdisc_sleeping is ffff8b375eee9800
-skb for TX queue 2, qdisc is ffff8b375eeefc00, qdisc_sleeping is ffff8b375eeefc00
-skb for TX queue 3, qdisc is ffff8b375eeef800, qdisc_sleeping is ffff8b375eeef800
-skb for TX queue 4, qdisc is ffff8b375eeec800, qdisc_sleeping is ffff8b375eeec800
-skb for TX queue 5, qdisc is ffff8b375eeea400, qdisc_sleeping is ffff8b375eeea400
-skb for TX queue 6, qdisc is ffff8b375eeee000, qdisc_sleeping is ffff8b375eeee000
-skb for TX queue 7, qdisc is ffff8b375eee8800, qdisc_sleeping is ffff8b375eee8800
-skb for TX queue 8, qdisc is ffff8b375eeedc00, qdisc_sleeping is ffff8b375eeedc00
-skb for TX queue 9, qdisc is ffff8b375eee9400, qdisc_sleeping is ffff8b375eee9400
-skb for TX queue 10, qdisc is ffff8b375eee8000, qdisc_sleeping is ffff8b375eee8000
-skb for TX queue 11, qdisc is ffff8b375eeed400, qdisc_sleeping is ffff8b375eeed400
-skb for TX queue 12, qdisc is ffff8b375eeea800, qdisc_sleeping is ffff8b375eeea800
-skb for TX queue 13, qdisc is ffff8b375eee8c00, qdisc_sleeping is ffff8b375eee8c00
-skb for TX queue 14, qdisc is ffff8b375eeea000, qdisc_sleeping is ffff8b375eeea000
-skb for TX queue 15, qdisc is ffff8b375eeeb800, qdisc_sleeping is ffff8b375eeeb800
-skb for TX queue 16, qdisc is NULL, qdisc_sleeping is NULL
-
-What the hell? So, not sure why queue #16 would *never* have a qdisc
-attached. Is it something expected I'm not aware of? As an FYI, here is
-the output of "tc qdisc list dev xxx":
-
-qdisc mq 0: root
-qdisc fq_codel 0: parent :10 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :f limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :e limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :d limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :c limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :b limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :a limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :9 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :8 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :7 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :6 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :5 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :4 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :3 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :2 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-qdisc fq_codel 0: parent :1 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-
-By the way, the NIC is an Intel XL710 40GbE QSFP+ (i40e driver, firmware
-version 8.50 0x8000b6c7 1.3082.0) and it was tested on latest "net"
-version (6.1.0-rc7+). Is this a bug in the i40e driver?
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Justin Iurman <justin.iurman@uliege.be>
----
- net/ipv6/ioam6.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
-
-diff --git a/net/ipv6/ioam6.c b/net/ipv6/ioam6.c
-index 571f0e4d9cf3..2472a8a043c4 100644
---- a/net/ipv6/ioam6.c
-+++ b/net/ipv6/ioam6.c
-@@ -727,10 +727,13 @@ static void __ioam6_fill_trace_data(struct sk_buff *skb,
- 			*(__be32 *)data = cpu_to_be32(IOAM6_U32_UNAVAILABLE);
- 		} else {
- 			queue = skb_get_tx_queue(skb_dst(skb)->dev, skb);
--			qdisc = rcu_dereference(queue->qdisc);
--			qdisc_qstats_qlen_backlog(qdisc, &qlen, &backlog);
--
--			*(__be32 *)data = cpu_to_be32(backlog);
-+			if (!queue->qdisc) {
-+				*(__be32 *)data = cpu_to_be32(IOAM6_U32_UNAVAILABLE);
-+			} else {
-+				qdisc = rcu_dereference(queue->qdisc);
-+				qdisc_qstats_qlen_backlog(qdisc, &qlen, &backlog);
-+				*(__be32 *)data = cpu_to_be32(backlog);
-+			}
- 		}
- 		data += sizeof(__be32);
- 	}
--- 
-2.25.1
-
+>>  fs/ext4/xattr.c         |  4 ++--
+>>  fs/mbcache.c            | 14 ++++++++------
+>>  include/linux/mbcache.h |  9 +++++++--
+>>  3 files changed, 17 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
+>> index 800ce5cdb9d2..08043aa72cf1 100644
+>> --- a/fs/ext4/xattr.c
+>> +++ b/fs/ext4/xattr.c
+>> @@ -1281,7 +1281,7 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
+>>  				ce = mb_cache_entry_get(ea_block_cache, hash,
+>>  							bh->b_blocknr);
+>>  				if (ce) {
+>> -					ce->e_reusable = 1;
+>> +					set_bit(MBE_REUSABLE_B, &ce->e_flags);
+>>  					mb_cache_entry_put(ea_block_cache, ce);
+>>  				}
+>>  			}
+>> @@ -2042,7 +2042,7 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
+>>  				}
+>>  				BHDR(new_bh)->h_refcount = cpu_to_le32(ref);
+>>  				if (ref == EXT4_XATTR_REFCOUNT_MAX)
+>> -					ce->e_reusable = 0;
+>> +					clear_bit(MBE_REUSABLE_B, &ce->e_flags);
+>>  				ea_bdebug(new_bh, "reusing; refcount now=%d",
+>>  					  ref);
+>>  				ext4_xattr_block_csum_set(inode, new_bh);
+>> diff --git a/fs/mbcache.c b/fs/mbcache.c
+>> index e272ad738faf..2a4b8b549e93 100644
+>> --- a/fs/mbcache.c
+>> +++ b/fs/mbcache.c
+>> @@ -100,8 +100,9 @@ int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
+>>  	atomic_set(&entry->e_refcnt, 2);
+>>  	entry->e_key = key;
+>>  	entry->e_value = value;
+>> -	entry->e_reusable = reusable;
+>> -	entry->e_referenced = 0;
+>> +	entry->e_flags = 0;
+>> +	if (reusable)
+>> +		set_bit(MBE_REUSABLE_B, &entry->e_flags);
+>>  	head = mb_cache_entry_head(cache, key);
+>>  	hlist_bl_lock(head);
+>>  	hlist_bl_for_each_entry(dup, dup_node, head, e_hash_list) {
+>> @@ -165,7 +166,8 @@ static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
+>>  	while (node) {
+>>  		entry = hlist_bl_entry(node, struct mb_cache_entry,
+>>  				       e_hash_list);
+>> -		if (entry->e_key == key && entry->e_reusable &&
+>> +		if (entry->e_key == key &&
+>> +		    test_bit(MBE_REUSABLE_B, &entry->e_flags) &&
+>>  		    atomic_inc_not_zero(&entry->e_refcnt))
+>>  			goto out;
+>>  		node = node->next;
+>> @@ -284,7 +286,7 @@ EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
+>>  void mb_cache_entry_touch(struct mb_cache *cache,
+>>  			  struct mb_cache_entry *entry)
+>>  {
+>> -	entry->e_referenced = 1;
+>> +	set_bit(MBE_REFERENCED_B, &entry->e_flags);
+>>  }
+>>  EXPORT_SYMBOL(mb_cache_entry_touch);
+>>  
+>> @@ -309,9 +311,9 @@ static unsigned long mb_cache_shrink(struct mb_cache *cache,
+>>  		entry = list_first_entry(&cache->c_list,
+>>  					 struct mb_cache_entry, e_list);
+>>  		/* Drop initial hash reference if there is no user */
+>> -		if (entry->e_referenced ||
+>> +		if (test_bit(MBE_REFERENCED_B, &entry->e_flags) ||
+>>  		    atomic_cmpxchg(&entry->e_refcnt, 1, 0) != 1) {
+>> -			entry->e_referenced = 0;
+>> +			clear_bit(MBE_REFERENCED_B, &entry->e_flags);
+>>  			list_move_tail(&entry->e_list, &cache->c_list);
+>>  			continue;
+>>  		}
+>> diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
+>> index 2da63fd7b98f..97e64184767d 100644
+>> --- a/include/linux/mbcache.h
+>> +++ b/include/linux/mbcache.h
+>> @@ -10,6 +10,12 @@
+>>  
+>>  struct mb_cache;
+>>  
+>> +/* Cache entry flags */
+>> +enum {
+>> +	MBE_REFERENCED_B = 0,
+>> +	MBE_REUSABLE_B
+>> +};
+>> +
+>>  struct mb_cache_entry {
+>>  	/* List of entries in cache - protected by cache->c_list_lock */
+>>  	struct list_head	e_list;
+>> @@ -26,8 +32,7 @@ struct mb_cache_entry {
+>>  	atomic_t		e_refcnt;
+>>  	/* Key in hash - stable during lifetime of the entry */
+>>  	u32			e_key;
+>> -	u32			e_referenced:1;
+>> -	u32			e_reusable:1;
+>> +	unsigned long		e_flags;
+>>  	/* User provided value - stable during lifetime of the entry */
+>>  	u64			e_value;
+>>  };
+>> -- 
+>> 2.35.3
