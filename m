@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C14643318
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E85D6433A1
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234232AbiLETeP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:34:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33472 "EHLO
+        id S234557AbiLETiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:38:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234094AbiLETdz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:33:55 -0500
+        with ESMTP id S233926AbiLEThu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:37:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06A8429C86
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:28:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BDD027FDA
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FAEDB81151
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:28:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F10E6C433C1;
-        Mon,  5 Dec 2022 19:28:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B22A7B81157
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2858EC433C1;
+        Mon,  5 Dec 2022 19:34:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268535;
-        bh=uRiz/7ZR84PYbS5hlv7q4zz95OQcM1eDd4FDAbcQ+BM=;
+        s=korg; t=1670268881;
+        bh=+WFqcAr1g/NY+Mqs7VndDxG92ngCZI81Fyv1D9QeYoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GIqxfsCu3eUHhPIwmFsADVB8MaPfkC5xRXiBSH6Z5udjObpq3KIFTwOXbPoFhZDcl
-         JMzjzzPha/nITOdwvti6z03ENBy8rtK0SoqdGbTaq5okD3EwoabKCxOVH1258QTKc/
-         6gg79qGmnIHXKUY7M1J5ixWW7nhrlMhBvTf0dqkU=
+        b=WgUnO82QB11V1n9WawWyssRhHQ10m8jYWEAglGYbKZQPx26ek0PynNRc2WFzzLIEO
+         U1moSUCAMGSg3ObchSm9g1816G+tizAYaB7DJyOyZfkuaopuOy06QNKZKFGdGA58Vc
+         hY/9SaRp5TLJuSYTjN6uOT1Xyg+EHXjoWCbMP5Ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lyude Paul <lyude@redhat.com>,
-        Wayne Lin <Wayne.Lin@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 05/92] drm/display/dp_mst: Fix drm_dp_mst_add_affected_dsc_crtcs() return code
+Subject: [PATCH 5.15 018/120] scripts/faddr2line: Fix regression in name resolution on ppc64le
 Date:   Mon,  5 Dec 2022 20:09:18 +0100
-Message-Id: <20221205190803.649979530@linuxfoundation.org>
+Message-Id: <20221205190807.124076949@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +57,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit 2f3a1273862cb82cca227630cc7f04ce0c94b6bb ]
+[ Upstream commit 2d77de1581bb5b470486edaf17a7d70151131afd ]
 
-Looks like that we're accidentally dropping a pretty important return code
-here. For some reason, we just return -EINVAL if we fail to get the MST
-topology state. This is wrong: error codes are important and should never
-be squashed without being handled, which here seems to have the potential
-to cause a deadlock.
+Commit 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section
+failures") can cause faddr2line to fail on ppc64le on some
+distributions, while it works fine on other distributions. The failure
+can be attributed to differences in the readelf output.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
-Fixes: 8ec046716ca8 ("drm/dp_mst: Add helper to trigger modeset on affected DSC MST CRTCs")
-Cc: <stable@vger.kernel.org> # v5.6+
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+  $ ./scripts/faddr2line vmlinux find_busiest_group+0x00
+  no match for find_busiest_group+0x00
+
+On ppc64le, readelf adds the localentry tag before the symbol name on
+some distributions, and adds the localentry tag after the symbol name on
+other distributions. This problem has been discussed previously:
+
+  https://lore.kernel.org/bpf/20191211160133.GB4580@calabresa/
+
+This problem can be overcome by filtering out the localentry tags in the
+readelf output. Similar fixes are already present in the kernel by way
+of the following commits:
+
+  1fd6cee127e2 ("libbpf: Fix VERSIONED_SYM_COUNT number parsing")
+  aa915931ac3e ("libbpf: Fix readelf output parsing for Fedora")
+
+[jpoimboe: rework commit log]
+
+Fixes: 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section failures")
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Reviewed-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Link: https://lore.kernel.org/r/20220927075211.897152-1-srikar@linux.vnet.ibm.com
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/faddr2line | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index 4272cd3622f8..0feeac52e4eb 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -5238,7 +5238,7 @@ int drm_dp_mst_add_affected_dsc_crtcs(struct drm_atomic_state *state, struct drm
- 	mst_state = drm_atomic_get_mst_topology_state(state, mgr);
+diff --git a/scripts/faddr2line b/scripts/faddr2line
+index 57099687e5e1..9e730b805e87 100755
+--- a/scripts/faddr2line
++++ b/scripts/faddr2line
+@@ -73,7 +73,8 @@ command -v ${ADDR2LINE} >/dev/null 2>&1 || die "${ADDR2LINE} isn't installed"
+ find_dir_prefix() {
+ 	local objfile=$1
  
- 	if (IS_ERR(mst_state))
--		return -EINVAL;
-+		return PTR_ERR(mst_state);
+-	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | ${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
++	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' |
++		${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
+ 	[[ -z $start_kernel_addr ]] && return
  
- 	list_for_each_entry(pos, &mst_state->vcpis, next) {
+ 	local file_line=$(${ADDR2LINE} -e $objfile $start_kernel_addr)
+@@ -177,7 +178,7 @@ __faddr2line() {
+ 				found=2
+ 				break
+ 			fi
+-		done < <(${READELF} --symbols --wide $objfile | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
++		done < <(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
  
+ 		if [[ $found = 0 ]]; then
+ 			warn "can't find symbol: sym_name: $sym_name sym_sec: $sym_sec sym_addr: $sym_addr sym_elf_size: $sym_elf_size"
+@@ -258,7 +259,7 @@ __faddr2line() {
+ 
+ 		DONE=1
+ 
+-	done < <(${READELF} --symbols --wide $objfile | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
++	done < <(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
+ }
+ 
+ [[ $# -lt 2 ]] && usage
 -- 
 2.35.1
 
