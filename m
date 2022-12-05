@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6795764349B
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:48:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7596643499
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:48:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235020AbiLETsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:48:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54550 "EHLO
+        id S235133AbiLETs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:48:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235127AbiLETrv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3A102615
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:44:33 -0800 (PST)
+        with ESMTP id S235031AbiLETrw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:52 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D069E65A0
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:44:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57B7761314
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:44:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62D4BC433C1;
-        Mon,  5 Dec 2022 19:44:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 44A44CE13AD
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:44:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E506C433C1;
+        Mon,  5 Dec 2022 19:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269472;
-        bh=DZe4cbtR0ookrs+Ji5JYi1AJmCbg5jrRdGx4NXD3veY=;
+        s=korg; t=1670269475;
+        bh=er4GKzqFGZjIbcn7JeO62oNLtsL20kJueG00tEX+8zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XaZRObH1/Uwde2q5cBXzHnepRM6P3QIrAyd7zc8VQJ8UsC/8SV6Zlx8u6+RxMx+I/
-         yyOCEVmMQ9seX9gfdw5TAb+k2Nnwbp3Ia7E/3UUQ9dq99M1ttxMMJCczwPn909WTeh
-         oKghkeWvyjKxg75LvKGt8Y6CGBOEkf422FHYDj64=
+        b=gut3shZEBKtoOGjjvWFGTZFWDai4jLM263NpL8KrgjCAEeJRVC5hBn36x9vPF9cre
+         GTTCqURgqHKwj8orLYimNK2v9w9EFlUHQDL0I/r4f0hwFXDMaUWg3X0CLR0c81X8al
+         vXVpgyqn+VPo9xux1ZWnjF2sBufFKLh/DPv2b0jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gwangun Jung <exsociety@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
+        patches@lists.linux.dev, Jonas Gorski <jonas.gorski@gmail.com>,
         Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Nikolay Aleksandrov <razor@blackwall.org>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 139/153] ipv4: Handle attempt to delete multipath route when fib_info contains an nh reference
-Date:   Mon,  5 Dec 2022 20:11:03 +0100
-Message-Id: <20221205190812.624269613@linuxfoundation.org>
+Subject: [PATCH 5.4 140/153] ipv4: Fix route deletion when nexthop info is not specified
+Date:   Mon,  5 Dec 2022 20:11:04 +0100
+Message-Id: <20221205190812.646864982@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
 References: <20221205190808.733996403@linuxfoundation.org>
@@ -55,69 +56,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 61b91eb33a69c3be11b259c5ea484505cd79f883 ]
+[ Upstream commit d5082d386eee7e8ec46fa8581932c81a4961dcef ]
 
-Gwangun Jung reported a slab-out-of-bounds access in fib_nh_match:
-    fib_nh_match+0xf98/0x1130 linux-6.0-rc7/net/ipv4/fib_semantics.c:961
-    fib_table_delete+0x5f3/0xa40 linux-6.0-rc7/net/ipv4/fib_trie.c:1753
-    inet_rtm_delroute+0x2b3/0x380 linux-6.0-rc7/net/ipv4/fib_frontend.c:874
+When the kernel receives a route deletion request from user space it
+tries to delete a route that matches the route attributes specified in
+the request.
 
-Separate nexthop objects are mutually exclusive with the legacy
-multipath spec. Fix fib_nh_match to return if the config for the
-to be deleted route contains a multipath spec while the fib_info
-is using a nexthop object.
+If only prefix information is specified in the request, the kernel
+should delete the first matching FIB alias regardless of its associated
+FIB info. However, an error is currently returned when the FIB info is
+backed by a nexthop object:
 
+ # ip nexthop add id 1 via 192.0.2.2 dev dummy10
+ # ip route add 198.51.100.0/24 nhid 1
+ # ip route del 198.51.100.0/24
+ RTNETLINK answers: No such process
+
+Fix by matching on such a FIB info when legacy nexthop attributes are
+not specified in the request. An earlier check already covers the case
+where a nexthop ID is specified in the request.
+
+Add tests that cover these flows. Before the fix:
+
+ # ./fib_nexthops.sh -t ipv4_fcnal
+ ...
+ TEST: Delete route when not specifying nexthop attributes           [FAIL]
+
+ Tests passed:  11
+ Tests failed:   1
+
+After the fix:
+
+ # ./fib_nexthops.sh -t ipv4_fcnal
+ ...
+ TEST: Delete route when not specifying nexthop attributes           [ OK ]
+
+ Tests passed:  12
+ Tests failed:   0
+
+No regressions in other tests:
+
+ # ./fib_nexthops.sh
+ ...
+ Tests passed: 228
+ Tests failed:   0
+
+ # ./fib_tests.sh
+ ...
+ Tests passed: 186
+ Tests failed:   0
+
+Cc: stable@vger.kernel.org
+Reported-by: Jonas Gorski <jonas.gorski@gmail.com>
+Tested-by: Jonas Gorski <jonas.gorski@gmail.com>
 Fixes: 493ced1ac47c ("ipv4: Allow routes to use nexthop objects")
 Fixes: 6bf92d70e690 ("net: ipv4: fix route with nexthop object delete warning")
-Reported-by: Gwangun Jung <exsociety@gmail.com>
-Signed-off-by: David Ahern <dsahern@kernel.org>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: d5082d386eee ("ipv4: Fix route deletion when nexthop info is not specified")
+Fixes: 61b91eb33a69 ("ipv4: Handle attempt to delete multipath route when fib_info contains an nh reference")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20221124210932.2470010-1-idosch@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_semantics.c                    | 8 ++++----
- tools/testing/selftests/net/fib_nexthops.sh | 5 +++++
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ net/ipv4/fib_semantics.c                    |  8 +++++---
+ tools/testing/selftests/net/fib_nexthops.sh | 11 +++++++++++
+ 2 files changed, 16 insertions(+), 3 deletions(-)
 
 diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-index 28da0443f3e9..31424172ff18 100644
+index 31424172ff18..908913d75847 100644
 --- a/net/ipv4/fib_semantics.c
 +++ b/net/ipv4/fib_semantics.c
-@@ -875,13 +875,13 @@ int fib_nh_match(struct fib_config *cfg, struct fib_info *fi,
+@@ -875,9 +875,11 @@ int fib_nh_match(struct fib_config *cfg, struct fib_info *fi,
  		return 1;
  	}
  
-+	/* cannot match on nexthop object attributes */
-+	if (fi->nh)
-+		return 1;
-+
+-	/* cannot match on nexthop object attributes */
+-	if (fi->nh)
+-		return 1;
++	if (fi->nh) {
++		if (cfg->fc_oif || cfg->fc_gw_family || cfg->fc_mp)
++			return 1;
++		return 0;
++	}
+ 
  	if (cfg->fc_oif || cfg->fc_gw_family) {
  		struct fib_nh *nh;
- 
--		/* cannot match on nexthop object attributes */
--		if (fi->nh)
--			return 1;
--
- 		nh = fib_info_nh(fi, 0);
- 		if (cfg->fc_encap) {
- 			if (fib_encap_match(cfg->fc_encap_type, cfg->fc_encap,
 diff --git a/tools/testing/selftests/net/fib_nexthops.sh b/tools/testing/selftests/net/fib_nexthops.sh
-index 7b154b61d108..28f5121fac44 100755
+index 28f5121fac44..0bdca3a2e673 100755
 --- a/tools/testing/selftests/net/fib_nexthops.sh
 +++ b/tools/testing/selftests/net/fib_nexthops.sh
-@@ -597,6 +597,11 @@ ipv4_fcnal()
- 	log_test $rc 0 "Delete nexthop route warning"
- 	run_cmd "$IP route delete 172.16.101.1/32 nhid 12"
- 	run_cmd "$IP nexthop del id 12"
+@@ -602,6 +602,17 @@ ipv4_fcnal()
+ 	run_cmd "$IP ro add 172.16.101.0/24 nhid 21"
+ 	run_cmd "$IP ro del 172.16.101.0/24 nexthop via 172.16.1.7 dev veth1 nexthop via 172.16.1.8 dev veth1"
+ 	log_test $? 2 "Delete multipath route with only nh id based entry"
 +
-+	run_cmd "$IP nexthop add id 21 via 172.16.1.6 dev veth1"
-+	run_cmd "$IP ro add 172.16.101.0/24 nhid 21"
-+	run_cmd "$IP ro del 172.16.101.0/24 nexthop via 172.16.1.7 dev veth1 nexthop via 172.16.1.8 dev veth1"
-+	log_test $? 2 "Delete multipath route with only nh id based entry"
++	run_cmd "$IP nexthop add id 22 via 172.16.1.6 dev veth1"
++	run_cmd "$IP ro add 172.16.102.0/24 nhid 22"
++	run_cmd "$IP ro del 172.16.102.0/24 dev veth1"
++	log_test $? 2 "Delete route when specifying only nexthop device"
++
++	run_cmd "$IP ro del 172.16.102.0/24 via 172.16.1.6"
++	log_test $? 2 "Delete route when specifying only gateway"
++
++	run_cmd "$IP ro del 172.16.102.0/24"
++	log_test $? 0 "Delete route when not specifying nexthop attributes"
  }
  
  ipv4_grp_fcnal()
