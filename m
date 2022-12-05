@@ -2,98 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA86E643866
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 23:50:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C18B16438E1
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 00:02:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233311AbiLEWu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 17:50:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45660 "EHLO
+        id S233960AbiLEXBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 18:01:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233808AbiLEWuY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 17:50:24 -0500
-Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97F559FF0;
-        Mon,  5 Dec 2022 14:50:17 -0800 (PST)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4NQzJx3NtCz4xP9;
-        Tue,  6 Dec 2022 09:50:09 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1670280611;
-        bh=FNsUgJ4FY4mftzXnZsxTHw8V/RkJzfvhTQjoxw+A9u8=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=sBNn/PWDAk5aGDHOQQNW1NEGjnuKVmBDghLBo+OS97RfnE9Y49J4BQvAzkLvi5XE6
-         UXOy6IZMJCfhCyRP9N5oFPnb4ooxy+m+MtJazKxH4va1fIFJUIeOTlNCNia4zPhQPy
-         nA69eP4m0wz6AbNVR697lJK821TSPTvzorKgRkEbsp4t95knr8VPw+18W+yZjjZJcS
-         ghNbSyKQqgiXnpEmoQd1NGQO+O6O4BIuoCxzJ5kopp0rnbhSDyXGM0FnZ6W1KXkkpS
-         8PeAEjbeRLgZ3ltZjP5BJNCDan2h2qYAEMT1gdFg5SUlRgccqy6Xf5dA0momIcWAvY
-         n/TfJUdI8GRLw==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Michael Jeanson <mjeanson@efficios.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Steven Rostedt <rostedt@goodmis.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michal Suchanek <msuchanek@suse.de>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Subject: Re: [PATCH] powerpc/ftrace: fix syscall tracing on PPC64_ELF_ABI_V1
-In-Reply-To: <dfe0b9ba-828d-e1a5-f9a3-416c6b5b1cf3@efficios.com>
-References: <20221201161442.2127231-1-mjeanson@efficios.com>
- <87pmcys9ae.fsf@mpe.ellerman.id.au>
- <d5dd1491-5d59-7987-9b5b-83f5fb1b29ee@efficios.com>
- <219580de-7473-f142-5ef2-1ed40e41d13d@csgroup.eu>
- <323f83c7-38fe-8a12-d77a-0a7249aad316@efficios.com>
- <dfe0b9ba-828d-e1a5-f9a3-416c6b5b1cf3@efficios.com>
-Date:   Tue, 06 Dec 2022 09:50:08 +1100
-Message-ID: <87mt81sbxb.fsf@mpe.ellerman.id.au>
+        with ESMTP id S234026AbiLEXBY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 18:01:24 -0500
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AA441EC7B;
+        Mon,  5 Dec 2022 15:01:12 -0800 (PST)
+Received: by mail-pg1-x52b.google.com with SMTP id 136so11816136pga.1;
+        Mon, 05 Dec 2022 15:01:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=NRfbi/7mK0992Ud9pUnMAZNOCs3Qjj5lk/O/IQ8DmTg=;
+        b=OJFopkK4vdpDj5kA1KrDG8LWycERHKy0KH9cz8AbsCOtyGKt81ko1B/LZJYHhY7mRa
+         F2bgA61LK3+SPChVepJmGUPDRr1H9o1IfF8LfbFwuy4ozZi9mb9Aud8YWrepRgvrX+YE
+         LZCiZupBHjcNdlPfGhY6qKAPUcttkzeJ7AbKHyAisUhd3VdzW5MxdYo1bGCsF1A6kErx
+         5QFKpVjI5JmgJ5po8yeUQNYSrPyLbjw4ecjhzcUpKj/Eha6LY3IH7C1/EYwDVTUPOW9v
+         1gBYZfgUuh7RGc2TJgdENDkJ2nA+KEyQALiN510CnO7PCjhwWKkSNq1HY3r7YDZsNclx
+         vAJA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=NRfbi/7mK0992Ud9pUnMAZNOCs3Qjj5lk/O/IQ8DmTg=;
+        b=B9maUuN8xkKf887OlKm5zywYp9JvPFJBS1bXSE1/kLmdQzWnd0C3PjtZ9Zq41kmSTS
+         zV4uNJVDxfGHmn8H2Ie71ZKY/GBDvJLA8744+v9PLVcVDFWOlMQk8pY6kMPS7tFZZUjR
+         dHFmAHnYBnVYFUTIkvgX0wIl5hZtZ4+H/9NLtieYQizyyu6dv9oKU94ZzkUym3u4D+NG
+         pPwSt7NmOatHmzH6oxJ0n1UV9B/W9HFWwsyl8REPHf3JFSDPaK/+aiJoaGW8/ZBz03F3
+         IK+TZNcjCWbaYvCgdzJsOWLsL77lCuCwNmd6k47ZiDrhjvbIwGLGh6CKzBG1Oh+vWL1o
+         5lFQ==
+X-Gm-Message-State: ANoB5pneWpOLKshWdF6LCFGqvEYkAdnJf0XY0XrlKiyqRsOFHp9KS1/W
+        z0fjNCf6SZdzBZPdmBIFjRA=
+X-Google-Smtp-Source: AA0mqf6an23h6z5qDBR5RyQpqy8s40D5A5vlI1NjTnQaCsuOpdGbRYVMdr4Pwmjnm8LCVVUm4XZMTg==
+X-Received: by 2002:a62:820b:0:b0:576:a748:8fa3 with SMTP id w11-20020a62820b000000b00576a7488fa3mr11629502pfd.37.1670281271795;
+        Mon, 05 Dec 2022 15:01:11 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id q15-20020a170902a3cf00b00188ea79fae0sm11211276plb.48.2022.12.05.15.01.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 05 Dec 2022 15:01:11 -0800 (PST)
+Message-ID: <f849932f-0a9e-9a41-1663-d3e8e47ea5d2@gmail.com>
+Date:   Mon, 5 Dec 2022 15:01:09 -0800
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH 5.4 000/153] 5.4.226-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221205190808.733996403@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Michael Jeanson <mjeanson@efficios.com> writes:
-> On 2022-12-05 15:11, Michael Jeanson wrote:
->>>>> Michael Jeanson <mjeanson@efficios.com> writes:
->>>>>> In v5.7 the powerpc syscall entry/exit logic was rewritten in C, on
->>>>>> PPC64_ELF_ABI_V1 this resulted in the symbols in the syscall table
->>>>>> changing from their dot prefixed variant to the non-prefixed ones.
->>>>>>
->>>>>> Since ftrace prefixes a dot to the syscall names when matching them to
->>>>>> build its syscall event list, this resulted in no syscall events being
->>>>>> available.
->>>>>>
->>>>>> Remove the PPC64_ELF_ABI_V1 specific version of
->>>>>> arch_syscall_match_sym_name to have the same behavior across all powerpc
->>>>>> variants.
->>>>>
->>>>> This doesn't seem to work for me.
->>>>>
->>>>> Event with it applied I still don't see anything in
->>>>> /sys/kernel/debug/tracing/events/syscalls
->>>>>
->>>>> Did we break it in some other way recently?
->>>>>
->>>>> cheers
->
-> I did some further testing, my config also enabled KALLSYMS_ALL, when I remove 
-> it there is indeed no syscall events.
+On 12/5/22 11:08, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.226 release.
+> There are 153 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 07 Dec 2022 19:07:46 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.226-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Aha, OK that explains it I guess.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-I was using ppc64_guest_defconfig which has ABI_V1 and FTRACE_SYSCALLS,
-but does not have KALLSYMS_ALL. So I guess there's some other bug
-lurking in there.
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
 
-cheers
