@@ -2,111 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B9526431AD
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:17:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4919C643317
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233700AbiLETQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:16:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35916 "EHLO
+        id S234040AbiLETeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:34:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233504AbiLETPv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:15:51 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFF6225C72
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:15:20 -0800 (PST)
+        with ESMTP id S234060AbiLETdy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:33:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EED2427CE4
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:28:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 31A10CE139F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:15:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AD96C433C1;
-        Mon,  5 Dec 2022 19:15:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32BA261312
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:28:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 376E9C433C1;
+        Mon,  5 Dec 2022 19:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267717;
-        bh=GeM8jSPV90yRYvFiROibduVggR0yqmfhtrDGGGfEjug=;
+        s=korg; t=1670268532;
+        bh=q/AV4J9UVOPtgfg6bk3xjNC4CZOsAUFIzz/mosao1hE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KzgTRIX6/znDDlN8okrkn4ckNrsQa62z6VdDUSaA32I/6RD2tSeqkpHQsf2EXzjmm
-         W6PAyShjyINLBESPyYNxYwniUlZagSUdxxDHSjd3uszp2mBpZLSkgu623Mu6arYOme
-         JaR0S8JATPx30FxvVShujqaE61yBlXkF5WFMbYrE=
+        b=f5bp/K5dl4NPJdQpfHs4F4J8nBsl/S8GpnsONG/vT6HJs7ZVRcrr52poInEzccyrc
+         IcxBuHB0ckpyErNSkmUF+IM9HDZC4w9rmjDCWd/7CZ6C8934SRrSllS/atZBR3D1zx
+         jisKg/iZ1SEYtSnycd6c9oqTxmLykB4+myRmaWaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alejandro Concepcion-Rodriguez <asconcepcion@acoro.eu>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 26/77] iio: light: apds9960: fix wrong register for gesture gain
+        patches@lists.linux.dev, Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 04/92] btrfs: move QUOTA_ENABLED check to rescan_should_stop from btrfs_qgroup_rescan_worker
 Date:   Mon,  5 Dec 2022 20:09:17 +0100
-Message-Id: <20221205190801.791800817@linuxfoundation.org>
+Message-Id: <20221205190803.616552660@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alejandro Concepción Rodríguez <asconcepcion@acoro.eu>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit 0aa60ff5d996d4ecdd4a62699c01f6d00f798d59 upstream.
+[ Upstream commit db5df254120004471e1c957957ab2f1e612dcbd6 ]
 
-Gesture Gain Control is in REG_GCONF_2 (0xa3), not in REG_CONFIG_2 (0x90).
+Instead of having 2 places that short circuit the qgroup leaf scan have
+everything in the qgroup_rescan_leaf function. In addition to that, also
+ensure that the inconsistent qgroup flag is set when rescan_should_stop
+returns true. This both retains the old behavior when -EINTR was set in
+the body of the loop and at the same time also extends this behavior
+when scanning is interrupted due to remount or unmount operations.
 
-Fixes: aff268cd532e ("iio: light: add APDS9960 ALS + promixity driver")
-Signed-off-by: Alejandro Concepcion-Rodriguez <asconcepcion@acoro.eu>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/EaT-NKC-H4DNX5z4Lg9B6IWPD5TrTrYBr5DYB784wfDKQkTmzPXkoYqyUOrOgJH-xvTsEkFLcVkeAPZRUODEFI5dGziaWXwjpfBNLeNGfNc=@acoro.eu
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Stable-dep-of: f7e942b5bb35 ("btrfs: qgroup: fix sleep from invalid context bug in btrfs_qgroup_inherit()")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/apds9960.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ fs/btrfs/qgroup.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/drivers/iio/light/apds9960.c
-+++ b/drivers/iio/light/apds9960.c
-@@ -63,9 +63,6 @@
- #define APDS9960_REG_CONTROL_PGAIN_MASK_SHIFT	2
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index 36da77534076..81bbb7532eb9 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -3290,7 +3290,8 @@ static int qgroup_rescan_leaf(struct btrfs_trans_handle *trans,
+ static bool rescan_should_stop(struct btrfs_fs_info *fs_info)
+ {
+ 	return btrfs_fs_closing(fs_info) ||
+-		test_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state);
++		test_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state) ||
++		!test_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags);
+ }
  
- #define APDS9960_REG_CONFIG_2	0x90
--#define APDS9960_REG_CONFIG_2_GGAIN_MASK	0x60
--#define APDS9960_REG_CONFIG_2_GGAIN_MASK_SHIFT	5
--
- #define APDS9960_REG_ID		0x92
- 
- #define APDS9960_REG_STATUS	0x93
-@@ -86,6 +83,9 @@
- #define APDS9960_REG_GCONF_1_GFIFO_THRES_MASK_SHIFT	6
- 
- #define APDS9960_REG_GCONF_2	0xa3
-+#define APDS9960_REG_GCONF_2_GGAIN_MASK			0x60
-+#define APDS9960_REG_GCONF_2_GGAIN_MASK_SHIFT		5
+ static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
+@@ -3320,11 +3321,9 @@ static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
+ 			err = PTR_ERR(trans);
+ 			break;
+ 		}
+-		if (!test_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags)) {
+-			err = -EINTR;
+-		} else {
+-			err = qgroup_rescan_leaf(trans, path);
+-		}
 +
- #define APDS9960_REG_GOFFSET_U	0xa4
- #define APDS9960_REG_GOFFSET_D	0xa5
- #define APDS9960_REG_GPULSE	0xa6
-@@ -404,9 +404,9 @@ static int apds9960_set_pxs_gain(struct
- 			}
- 
- 			ret = regmap_update_bits(data->regmap,
--				APDS9960_REG_CONFIG_2,
--				APDS9960_REG_CONFIG_2_GGAIN_MASK,
--				idx << APDS9960_REG_CONFIG_2_GGAIN_MASK_SHIFT);
-+				APDS9960_REG_GCONF_2,
-+				APDS9960_REG_GCONF_2_GGAIN_MASK,
-+				idx << APDS9960_REG_GCONF_2_GGAIN_MASK_SHIFT);
- 			if (!ret)
- 				data->pxs_gain = idx;
- 			mutex_unlock(&data->lock);
++		err = qgroup_rescan_leaf(trans, path);
++
+ 		if (err > 0)
+ 			btrfs_commit_transaction(trans);
+ 		else
+@@ -3338,7 +3337,7 @@ static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
+ 	if (err > 0 &&
+ 	    fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT) {
+ 		fs_info->qgroup_flags &= ~BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
+-	} else if (err < 0) {
++	} else if (err < 0 || stopped) {
+ 		fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
+ 	}
+ 	mutex_unlock(&fs_info->qgroup_rescan_lock);
+-- 
+2.35.1
+
 
 
