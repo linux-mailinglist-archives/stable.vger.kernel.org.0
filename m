@@ -2,44 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AE0764336C
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4D4E6433F8
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234375AbiLETgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:36:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35376 "EHLO
+        id S234788AbiLETlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:41:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234300AbiLETgD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:36:03 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A006F388
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:32:37 -0800 (PST)
+        with ESMTP id S234811AbiLETkt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:40:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 292902610F
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:38:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E1884CE13A6
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:32:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA3EBC433C1;
-        Mon,  5 Dec 2022 19:32:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E196AB81157
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:38:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DC70C433D6;
+        Mon,  5 Dec 2022 19:38:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268754;
-        bh=iEZASdYcMLfiChLP2M43CaKa1LoFlle/SWDKs/ZdL00=;
+        s=korg; t=1670269094;
+        bh=0Ny/4dzeP670hxsZcSqkSQeDvT0iENprUMPxKn3XOO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IHtnU0i9d9OgvTrP6bH3bJYB/62W0Cjo+GpFjYU1PN5OJO93YIEqLoSNpaaoPcsAj
-         LMdmT6MuUotnHSk8grCOEFc2c0Az5Z7mGt1BCAwfqM4ZID9VpjhCFVdlF6XBPvxujo
-         eWBWhAGNmkiNyqPnA2cGO/RTOIH2kgS+nrKCRVmM=
+        b=unuFZHiWPsIzzBCqdUdJ0aSAPQ2cHrJOWu1yFyVVT87+arh0CVTkieWw9yEMu8zDX
+         wudDINgn9hJ0LtUUcWpBdljGdU4wOkazgUzANSSab3lfAiavdqQXqiDDCZGPimsvHe
+         RM6VjDVDLHuMtiRTG+RiRpWFgbLfRjrAG6HZVPco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shiwei Cui <cuishw@inspur.com>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 92/92] [PATCH 5.10.y stable v2] block: unhash blkdev part inode when the part is deleted
-Date:   Mon,  5 Dec 2022 20:10:45 +0100
-Message-Id: <20221205190806.496531608@linuxfoundation.org>
+        patches@lists.linux.dev, Lee Jones <lee@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@gmail.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Tom Rix <trix@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 106/120] Kconfig.debug: provide a little extra FRAME_WARN leeway when KASAN is enabled
+Date:   Mon,  5 Dec 2022 20:10:46 +0100
+Message-Id: <20221205190809.727163931@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +68,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Lee Jones <lee@kernel.org>
 
-v5.11 changes the blkdev lookup mechanism completely since commit
-22ae8ce8b892 ("block: simplify bdev/disk lookup in blkdev_get"),
-and small part of the change is to unhash part bdev inode when
-deleting partition. Turns out this kind of change does fix one
-nasty issue in case of BLOCK_EXT_MAJOR:
+[ Upstream commit 152fe65f300e1819d59b80477d3e0999b4d5d7d2 ]
 
-1) when one partition is deleted & closed, disk_put_part() is always
-called before bdput(bdev), see blkdev_put(); so the part's devt can
-be freed & re-used before the inode is dropped
+When enabled, KASAN enlarges function's stack-frames.  Pushing quite a few
+over the current threshold.  This can mainly be seen on 32-bit
+architectures where the present limit (when !GCC) is a lowly 1024-Bytes.
 
-2) then new partition with same devt can be created just before the
-inode in 1) is dropped, then the old inode/bdev structurein 1) is
-re-used for this new partition, this way causes use-after-free and
-kernel panic.
-
-It isn't possible to backport the whole big patchset of "merge struct
-block_device and struct hd_struct v4" for addressing this issue.
-
-https://lore.kernel.org/linux-block/20201128161510.347752-1-hch@lst.de/
-
-So fixes it by unhashing part bdev in delete_partition(), and this way
-is actually aligned with v5.11+'s behavior.
-
-Reported-by: Shiwei Cui <cuishw@inspur.com>
-Tested-by: Shiwei Cui <cuishw@inspur.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Jan Kara <jack@suse.cz>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Acked-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20221125120750.3537134-3-lee@kernel.org
+Signed-off-by: Lee Jones <lee@kernel.org>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: David Airlie <airlied@gmail.com>
+Cc: Harry Wentland <harry.wentland@amd.com>
+Cc: Leo Li <sunpeng.li@amd.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: "Pan, Xinhui" <Xinhui.Pan@amd.com>
+Cc: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Tom Rix <trix@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/partitions/core.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ lib/Kconfig.debug | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/block/partitions/core.c
-+++ b/block/partitions/core.c
-@@ -329,6 +329,7 @@ void delete_partition(struct hd_struct *
- 	struct gendisk *disk = part_to_disk(part);
- 	struct disk_part_tbl *ptbl =
- 		rcu_dereference_protected(disk->part_tbl, 1);
-+	struct block_device *bdev;
- 
- 	/*
- 	 * ->part_tbl is referenced in this part's release handler, so
-@@ -346,6 +347,12 @@ void delete_partition(struct hd_struct *
- 	 * "in-use" until we really free the gendisk.
- 	 */
- 	blk_invalidate_devt(part_devt(part));
-+
-+	bdev = bdget_part(part);
-+	if (bdev) {
-+		remove_inode_hash(bdev->bd_inode);
-+		bdput(bdev);
-+	}
- 	percpu_ref_kill(&part->ref);
- }
- 
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index 23b7b1fccc54..f71db0cc3bf1 100644
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -354,6 +354,7 @@ config FRAME_WARN
+ 	default 2048 if GCC_PLUGIN_LATENT_ENTROPY
+ 	default 2048 if PARISC
+ 	default 1536 if (!64BIT && XTENSA)
++	default 1280 if KASAN && !64BIT
+ 	default 1024 if !64BIT
+ 	default 2048 if 64BIT
+ 	help
+-- 
+2.35.1
+
 
 
