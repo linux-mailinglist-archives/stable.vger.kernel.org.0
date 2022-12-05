@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E26D64314C
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CA7E6432B0
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:28:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231906AbiLETNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:13:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60956 "EHLO
+        id S234153AbiLET2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:28:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232627AbiLETNX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:13:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DBD424BC0
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:13:21 -0800 (PST)
+        with ESMTP id S234158AbiLET1z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:27:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1EE27FF9
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:24:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C05A3B81202
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:13:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36401C433C1;
-        Mon,  5 Dec 2022 19:13:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A48461315
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:24:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B9D1C433D6;
+        Mon,  5 Dec 2022 19:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267598;
-        bh=D1bmwdOy8IdN6y2YGhzEVTBYbib8LTYBjOP6I/vA7S4=;
+        s=korg; t=1670268289;
+        bh=vyB7Dr5dTwIjfelJfSs8bEcds1DIZm/W1E+vdpUOGpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sW6lkYkRUOVd7a+uVYktvfPK4yyAhF8ElNp/661iPka8mIO/FOpPuYCt7UkgXBczj
-         gfvnLXJ27bhINSGc4fuk3n9AXgLDYfkMpquEWK7tg1obzGsjqsIgDjIF/YCaxbr3bN
-         +m8pvJID6LHvxPXRCXWonDQSl4LcH8foOfsc3QRc=
+        b=XvxP4f14Pa0hFsYKMrLb/n9jgiFdXE+X6VXQa6eVAYJSFt81IyLszEI8XOzOIPNkO
+         SkJm8oxbj0pKBqDfXS2IbLqGogM/af4P9htQojpQ6i+sVNFhTu6IGgVgKU5CqRDHTe
+         DbZu7+xaObzgWV/3E/3BL/7ZIt1ikGQTtjhf4zII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Denis Efremov <denis.e.efremov@oracle.com>,
-        Guenter Roeck <groeck@google.com>,
-        Martin Faltesek <mfaltesek@google.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 17/62] nfc: st-nci: fix memory leaks in EVT_TRANSACTION
+        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>
+Subject: [PATCH 6.0 048/124] wifi: cfg80211: dont allow multi-BSSID in S1G
 Date:   Mon,  5 Dec 2022 20:09:14 +0100
-Message-Id: <20221205190758.749494521@linuxfoundation.org>
+Message-Id: <20221205190809.802211838@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Faltesek <mfaltesek@google.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 440f2ae9c9f06e26f5dcea697a53717fc61a318c ]
+[ Upstream commit acd3c92acc7aaec50a94d0a7faf7ccd74e952493 ]
 
-Error path does not free previously allocated memory. Add devm_kfree() to
-the failure path.
+In S1G beacon frames there shouldn't be multi-BSSID elements
+since that's not supported, remove that to avoid a potential
+integer underflow and/or misparsing the frames due to the
+different length of the fixed part of the frame.
 
-Reported-by: Denis Efremov <denis.e.efremov@oracle.com>
-Reviewed-by: Guenter Roeck <groeck@google.com>
-Fixes: 5d1ceb7f5e56 ("NFC: st21nfcb: Add HCI transaction event support")
-Signed-off-by: Martin Faltesek <mfaltesek@google.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+While at it, initialize non_tx_data so we don't send garbage
+values to the user (even if it doesn't seem to matter now.)
+
+Reported-and-tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
+Fixes: 9eaffe5078ca ("cfg80211: convert S1G beacon to scan results")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st-nci/se.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/wireless/scan.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/st-nci/se.c b/drivers/nfc/st-nci/se.c
-index e75929ff330e..b1d23b35aac4 100644
---- a/drivers/nfc/st-nci/se.c
-+++ b/drivers/nfc/st-nci/se.c
-@@ -352,8 +352,10 @@ static int st_nci_hci_connectivity_event_received(struct nci_dev *ndev,
+diff --git a/net/wireless/scan.c b/net/wireless/scan.c
+index 56db0f12ca7c..b4d788572992 100644
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -2527,10 +2527,15 @@ cfg80211_inform_bss_frame_data(struct wiphy *wiphy,
+ 	const struct cfg80211_bss_ies *ies1, *ies2;
+ 	size_t ielen = len - offsetof(struct ieee80211_mgmt,
+ 				      u.probe_resp.variable);
+-	struct cfg80211_non_tx_bss non_tx_data;
++	struct cfg80211_non_tx_bss non_tx_data = {};
  
- 		/* Check next byte is PARAMETERS tag (82) */
- 		if (skb->data[transaction->aid_len + 2] !=
--		    NFC_EVT_TRANSACTION_PARAMS_TAG)
-+		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
-+			devm_kfree(dev, transaction);
- 			return -EPROTO;
-+		}
- 
- 		transaction->params_len = skb->data[transaction->aid_len + 3];
- 		memcpy(transaction->params, skb->data +
+ 	res = cfg80211_inform_single_bss_frame_data(wiphy, data, mgmt,
+ 						    len, gfp);
++
++	/* don't do any further MBSSID handling for S1G */
++	if (ieee80211_is_s1g_beacon(mgmt->frame_control))
++		return res;
++
+ 	if (!res || !wiphy->support_mbssid ||
+ 	    !cfg80211_find_elem(WLAN_EID_MULTIPLE_BSSID, ie, ielen))
+ 		return res;
 -- 
 2.35.1
 
