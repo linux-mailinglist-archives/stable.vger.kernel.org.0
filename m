@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 613B16433A5
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35330643327
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234449AbiLETiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:38:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39908 "EHLO
+        id S234418AbiLETei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:34:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234451AbiLETiF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E3492AC47
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:55 -0800 (PST)
+        with ESMTP id S234082AbiLETeN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 623BA27DED
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:29:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0128B811EC
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E45DEC433D6;
-        Mon,  5 Dec 2022 19:34:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9164612FB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:29:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09212C433D6;
+        Mon,  5 Dec 2022 19:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268892;
-        bh=b1OAmXDQ+8qv84YF61emyBCmbR0Vn+MoF3AZTJHg08k=;
+        s=korg; t=1670268573;
+        bh=7kQo18oB//e3qiksCGrQ+SBHe/l0OeMg1JZYyheIKIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iizy8YfG7QNWo2KlJlTME3ZRkcVJCJ3/51MfjWREFuAWs8HYQ4Udb8AnDOuEwFJTc
-         TwW44oLm/unxSmwj8AQO4S2a+TSfUITI/y4zMmghre2I4wkK800Nb8bYiF+TRRoiTz
-         WW6q2NP6v2z/HcCZ7WQ7Q1Du7W9xjW3HODnq2hOk=
+        b=g7mhnzBYQSLizEPiRyUVl5h41L7lXI+ADFiaftkDIT1YagY+9f42k5pXjIs0ltlBK
+         rDyO0ye7PcCcHSBeXxqR3KiyeZJd4dGVdA7bI26YE8aT32mgv/+Fa13lZJfg/JepJ1
+         nqNdzZAM1Pf24jvkYdl/R91cD0qv3E7GPimOLIE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ninad Malwade <nmalwade@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Qu Wenruo <wqu@suse.com>,
+        ChenXiaoSong <chenxiaosong2@huawei.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 022/120] hwmon: (ina3221) Fix shunt sum critical calculation
+Subject: [PATCH 5.10 09/92] btrfs: qgroup: fix sleep from invalid context bug in btrfs_qgroup_inherit()
 Date:   Mon,  5 Dec 2022 20:09:22 +0100
-Message-Id: <20221205190807.237164748@linuxfoundation.org>
+Message-Id: <20221205190803.785116595@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ninad Malwade <nmalwade@nvidia.com>
+From: ChenXiaoSong <chenxiaosong2@huawei.com>
 
-[ Upstream commit b8d27d2ce8dfc207e4b67b929a86f2be76fbc6ef ]
+[ Upstream commit f7e942b5bb35d8e3af54053d19a6bf04143a3955 ]
 
-The shunt sum critical limit register value should be left shifted
-by one bit as its LSB-0 is a reserved bit.
+Syzkaller reported BUG as follows:
 
-Fixes: 2057bdfb7184 ("hwmon: (ina3221) Add summation feature support")
-Signed-off-by: Ninad Malwade <nmalwade@nvidia.com>
-Reviewed-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20221108044508.23463-1-nmalwade@nvidia.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+  BUG: sleeping function called from invalid context at
+       include/linux/sched/mm.h:274
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0xcd/0x134
+   __might_resched.cold+0x222/0x26b
+   kmem_cache_alloc+0x2e7/0x3c0
+   update_qgroup_limit_item+0xe1/0x390
+   btrfs_qgroup_inherit+0x147b/0x1ee0
+   create_subvol+0x4eb/0x1710
+   btrfs_mksubvol+0xfe5/0x13f0
+   __btrfs_ioctl_snap_create+0x2b0/0x430
+   btrfs_ioctl_snap_create_v2+0x25a/0x520
+   btrfs_ioctl+0x2a1c/0x5ce0
+   __x64_sys_ioctl+0x193/0x200
+   do_syscall_64+0x35/0x80
+
+Fix this by calling qgroup_dirty() on @dstqgroup, and update limit item in
+btrfs_run_qgroups() later outside of the spinlock context.
+
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/ina3221.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/qgroup.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/hwmon/ina3221.c b/drivers/hwmon/ina3221.c
-index 58d3828e2ec0..14586b2fb17d 100644
---- a/drivers/hwmon/ina3221.c
-+++ b/drivers/hwmon/ina3221.c
-@@ -228,7 +228,7 @@ static int ina3221_read_value(struct ina3221_data *ina, unsigned int reg,
- 	 * Shunt Voltage Sum register has 14-bit value with 1-bit shift
- 	 * Other Shunt Voltage registers have 12 bits with 3-bit shift
- 	 */
--	if (reg == INA3221_SHUNT_SUM)
-+	if (reg == INA3221_SHUNT_SUM || reg == INA3221_CRIT_SUM)
- 		*val = sign_extend32(regval >> 1, 14);
- 	else
- 		*val = sign_extend32(regval >> 3, 12);
-@@ -465,7 +465,7 @@ static int ina3221_write_curr(struct device *dev, u32 attr,
- 	 *     SHUNT_SUM: (1 / 40uV) << 1 = 1 / 20uV
- 	 *     SHUNT[1-3]: (1 / 40uV) << 3 = 1 / 5uV
- 	 */
--	if (reg == INA3221_SHUNT_SUM)
-+	if (reg == INA3221_SHUNT_SUM || reg == INA3221_CRIT_SUM)
- 		regval = DIV_ROUND_CLOSEST(voltage_uv, 20) & 0xfffe;
- 	else
- 		regval = DIV_ROUND_CLOSEST(voltage_uv, 5) & 0xfff8;
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index 81bbb7532eb9..74cbbb5d8897 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -2913,14 +2913,7 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
+ 		dstgroup->rsv_rfer = inherit->lim.rsv_rfer;
+ 		dstgroup->rsv_excl = inherit->lim.rsv_excl;
+ 
+-		ret = update_qgroup_limit_item(trans, dstgroup);
+-		if (ret) {
+-			fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
+-			btrfs_info(fs_info,
+-				   "unable to update quota limit for %llu",
+-				   dstgroup->qgroupid);
+-			goto unlock;
+-		}
++		qgroup_dirty(fs_info, dstgroup);
+ 	}
+ 
+ 	if (srcid) {
 -- 
 2.35.1
 
