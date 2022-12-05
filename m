@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 517866431FB
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 382B0643291
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232208AbiLETWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:22:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46328 "EHLO
+        id S234042AbiLET1C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:27:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234124AbiLETW3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:22:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE3432717C
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:18:18 -0800 (PST)
+        with ESMTP id S233941AbiLET0p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C99A4264AC
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:23:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 699C0B81205
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:18:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEDDAC433C1;
-        Mon,  5 Dec 2022 19:18:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 353C4612FB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43501C433D6;
+        Mon,  5 Dec 2022 19:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267897;
-        bh=viE4P24RDIv2rTdc3YeZXChecX0oKJEApwFtsA6SAS4=;
+        s=korg; t=1670268210;
+        bh=fnhSODLAcno3KqncfRPfQJNekfLDBy7vnQmC5+sxIUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a7IqnN4dRU5ecyV0JnOsKsrf9NAvZFRy5nRQSD0gkJgyuXGX5wH94lxBTvKjDY59c
-         5piIGXVJ6+pCbHUf1APK+LtoTBCFf1LJE+6imV98p/aFij/WNKSa4HpLCZ4Y3QlYPA
-         HTVsy+ueMx7Z0tB0wP/7xO/gkZOzVyqsJzwHNeJg=
+        b=PM9F/YROLwIBnSCwzpjMhbHA+rlWOM00MhfxHjo4UAOQMhkiF4sBGpT0uwIKGwHeO
+         Ig8hggvwPeDAqjSHrCjt9PPoZQFR2WdGqST28RCCVo/ZOhlCdRcr5oweVGprAbbc4v
+         FaUDOaoMIm09bB11A7IivIHmcXvx/1jDZZu27vc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Hai <wanghai38@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Derek Nguyen <derek.nguyen@collins.com>,
+        Brandon Maier <brandon.maier@collins.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 014/105] net: pch_gbe: fix potential memleak in pch_gbe_tx_queue()
+Subject: [PATCH 6.0 020/124] hwmon: (ltc2947) fix temperature scaling
 Date:   Mon,  5 Dec 2022 20:08:46 +0100
-Message-Id: <20221205190803.612628295@linuxfoundation.org>
+Message-Id: <20221205190809.025437319@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Derek Nguyen <derek.nguyen@collins.com>
 
-[ Upstream commit 2360f9b8c4e81d242d4cbf99d630a2fffa681fab ]
+[ Upstream commit 07e06193ead86d4812f431b4d87bbd4161222e3f ]
 
-In pch_gbe_xmit_frame(), NETDEV_TX_OK will be returned whether
-pch_gbe_tx_queue() sends data successfully or not, so pch_gbe_tx_queue()
-needs to free skb before returning. But pch_gbe_tx_queue() returns without
-freeing skb in case of dma_map_single() fails. Add dev_kfree_skb_any()
-to fix it.
+The LTC2947 datasheet (Rev. B) calls out in the section "Register
+Description: Non-Accumulated Result Registers" (pg. 30) that "To
+calculate temperature, multiply the TEMP register value by 0.204°C
+and add 5.5°C". Fix to add 5.5C and not 0.55C.
 
-Fixes: 77555ee72282 ("net: Add Gigabit Ethernet driver of Topcliff PCH")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9f90fd652bed ("hwmon: Add support for ltc2947")
+Signed-off-by: Derek Nguyen <derek.nguyen@collins.com>
+Signed-off-by: Brandon Maier <brandon.maier@collins.com>
+Link: https://lore.kernel.org/r/20221110192108.20624-1-brandon.maier@collins.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwmon/ltc2947-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-index 5a45648e3124..9cbed8fa505a 100644
---- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-+++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-@@ -1177,6 +1177,7 @@ static void pch_gbe_tx_queue(struct pch_gbe_adapter *adapter,
- 		buffer_info->dma = 0;
- 		buffer_info->time_stamp = 0;
- 		tx_ring->next_to_use = ring_num;
-+		dev_kfree_skb_any(skb);
- 		return;
- 	}
- 	buffer_info->mapped = true;
+diff --git a/drivers/hwmon/ltc2947-core.c b/drivers/hwmon/ltc2947-core.c
+index 5423466de697..e918490f3ff7 100644
+--- a/drivers/hwmon/ltc2947-core.c
++++ b/drivers/hwmon/ltc2947-core.c
+@@ -396,7 +396,7 @@ static int ltc2947_read_temp(struct device *dev, const u32 attr, long *val,
+ 		return ret;
+ 
+ 	/* in milidegrees celcius, temp is given by: */
+-	*val = (__val * 204) + 550;
++	*val = (__val * 204) + 5500;
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
