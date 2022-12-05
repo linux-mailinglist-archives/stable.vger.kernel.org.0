@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 132A56434AF
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:48:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5DB6434B0
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:49:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235107AbiLETs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:48:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54474 "EHLO
+        id S235156AbiLETs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:48:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235162AbiLETsB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:48:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 363F62A423
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:45:06 -0800 (PST)
+        with ESMTP id S235164AbiLETsS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:48:18 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 360272A728
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:45:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA9656131D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:45:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAA63C433B5;
-        Mon,  5 Dec 2022 19:45:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A2252CE1386
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:45:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A271C433C1;
+        Mon,  5 Dec 2022 19:45:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269505;
-        bh=rCYRBnIq3CM+eGsOeS0pgSET77x7ZQ59gWBbGzcflxI=;
+        s=korg; t=1670269507;
+        bh=qUisg/O95gez66h+6ITkId1URxFOPnxws1xVlCXqU1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJWVwxA/5yKeUdXD7Aqsg4GZNlFBbytJlyB0gIZIIhzhfezcXSJva5i1pjHWQnh06
-         1csnJM200bawiJa5I5QXXvQ2K19x0Hxiwnvv+h/4eVFCBlj7Gp38ytAuAOsq7gTuqq
-         jxNN+KRYN+pEwYLgE2gdIQR3PUkByzYZ/90DA8Uk=
+        b=k+ZsBcwMe4236KWd6VkQSaQMZdou/ms4JHXjO/MI6hAuhJTIMlhpi0U8nGrd24K08
+         UYFG6ba+WW228fBb6CwQLPrNAEVbjnWMGcIZdEkhMmg6g9DOdFKP6K4FFJJbmwKUQg
+         +Geo8BcHMvtQS4RhhFlQZdmkh44K2G65Bc1V/EhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 152/153] mmc: sdhci: use FIELD_GET for preset value bit masks
-Date:   Mon,  5 Dec 2022 20:11:16 +0100
-Message-Id: <20221205190812.936109893@linuxfoundation.org>
+Subject: [PATCH 5.4 153/153] mmc: sdhci: Fix voltage switch delay
+Date:   Mon,  5 Dec 2022 20:11:17 +0100
+Message-Id: <20221205190812.960710653@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
 References: <20221205190808.733996403@linuxfoundation.org>
@@ -53,81 +52,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit fa0910107a9fea170b817f31da2a65463e00e80e upstream.
+commit c981cdfb9925f64a364f13c2b4f98f877308a408 upstream.
 
-Use the FIELD_GET macro to get access to the register fields.
-Delete the shift macros.
+Commit 20b92a30b561 ("mmc: sdhci: update signal voltage switch code")
+removed voltage switch delays from sdhci because mmc core had been
+enhanced to support them. However that assumed that sdhci_set_ios()
+did a single clock change, which it did not, and so the delays in mmc
+core, which should have come after the first clock change, were not
+effective.
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Link: https://lore.kernel.org/r/20200312110050.21732-1-yamada.masahiro@socionext.com
+Fix by avoiding re-configuring UHS and preset settings when the clock
+is turning on and the settings have not changed. That then also avoids
+the associated clock changes, so that then sdhci_set_ios() does a single
+clock change when voltage switching, and the mmc core delays become
+effective.
+
+To do that has meant keeping track of driver strength (host->drv_type),
+and cases of reinitialization (host->reinit_uhs).
+
+Note also, the 'turning_on_clk' restriction should not be necessary
+but is done to minimize the impact of the change on stable kernels.
+
+Fixes: 20b92a30b561 ("mmc: sdhci: update signal voltage switch code")
+Cc: stable@vger.kernel.org
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20221128133259.38305-2-adrian.hunter@intel.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci.c |   10 +++++-----
- drivers/mmc/host/sdhci.h |   10 ++++------
- 2 files changed, 9 insertions(+), 11 deletions(-)
+ drivers/mmc/host/sdhci.c |   61 +++++++++++++++++++++++++++++++++++++++++------
+ drivers/mmc/host/sdhci.h |    2 +
+ 2 files changed, 56 insertions(+), 7 deletions(-)
 
 --- a/drivers/mmc/host/sdhci.c
 +++ b/drivers/mmc/host/sdhci.c
-@@ -9,6 +9,7 @@
-  *     - JMicron (hardware and technical support)
-  */
+@@ -332,6 +332,7 @@ static void sdhci_init(struct sdhci_host
+ 	if (soft) {
+ 		/* force clock reconfiguration */
+ 		host->clock = 0;
++		host->reinit_uhs = true;
+ 		mmc->ops->set_ios(mmc, &mmc->ios);
+ 	}
+ }
+@@ -1911,11 +1912,46 @@ void sdhci_set_uhs_signaling(struct sdhc
+ }
+ EXPORT_SYMBOL_GPL(sdhci_set_uhs_signaling);
  
-+#include <linux/bitfield.h>
- #include <linux/delay.h>
- #include <linux/ktime.h>
- #include <linux/highmem.h>
-@@ -1570,10 +1571,9 @@ u16 sdhci_calc_clk(struct sdhci_host *ho
++static bool sdhci_timing_has_preset(unsigned char timing)
++{
++	switch (timing) {
++	case MMC_TIMING_UHS_SDR12:
++	case MMC_TIMING_UHS_SDR25:
++	case MMC_TIMING_UHS_SDR50:
++	case MMC_TIMING_UHS_SDR104:
++	case MMC_TIMING_UHS_DDR50:
++	case MMC_TIMING_MMC_DDR52:
++		return true;
++	};
++	return false;
++}
++
++static bool sdhci_preset_needed(struct sdhci_host *host, unsigned char timing)
++{
++	return !(host->quirks2 & SDHCI_QUIRK2_PRESET_VALUE_BROKEN) &&
++	       sdhci_timing_has_preset(timing);
++}
++
++static bool sdhci_presetable_values_change(struct sdhci_host *host, struct mmc_ios *ios)
++{
++	/*
++	 * Preset Values are: Driver Strength, Clock Generator and SDCLK/RCLK
++	 * Frequency. Check if preset values need to be enabled, or the Driver
++	 * Strength needs updating. Note, clock changes are handled separately.
++	 */
++	return !host->preset_enabled &&
++	       (sdhci_preset_needed(host, ios->timing) || host->drv_type != ios->drv_type);
++}
++
+ void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ {
+ 	struct sdhci_host *host = mmc_priv(mmc);
++	bool reinit_uhs = host->reinit_uhs;
++	bool turning_on_clk = false;
+ 	u8 ctrl;
  
- 			clk = sdhci_readw(host, SDHCI_CLOCK_CONTROL);
- 			pre_val = sdhci_get_preset_value(host);
--			div = (pre_val & SDHCI_PRESET_SDCLK_FREQ_MASK)
--				>> SDHCI_PRESET_SDCLK_FREQ_SHIFT;
-+			div = FIELD_GET(SDHCI_PRESET_SDCLK_FREQ_MASK, pre_val);
- 			if (host->clk_mul &&
--				(pre_val & SDHCI_PRESET_CLKGEN_SEL_MASK)) {
-+				(pre_val & SDHCI_PRESET_CLKGEN_SEL)) {
- 				clk = SDHCI_PROG_CLOCK_MODE;
- 				real_div = div + 1;
- 				clk_mul = host->clk_mul;
-@@ -2048,8 +2048,8 @@ void sdhci_set_ios(struct mmc_host *mmc,
++	host->reinit_uhs = false;
++
+ 	if (ios->power_mode == MMC_POWER_UNDEFINED)
+ 		return;
+ 
+@@ -1941,6 +1977,8 @@ void sdhci_set_ios(struct mmc_host *mmc,
+ 		sdhci_enable_preset_value(host, false);
+ 
+ 	if (!ios->clock || ios->clock != host->clock) {
++		turning_on_clk = ios->clock && !host->clock;
++
+ 		host->ops->set_clock(host, ios->clock);
+ 		host->clock = ios->clock;
+ 
+@@ -1967,6 +2005,17 @@ void sdhci_set_ios(struct mmc_host *mmc,
+ 
+ 	host->ops->set_bus_width(host, ios->bus_width);
+ 
++	/*
++	 * Special case to avoid multiple clock changes during voltage
++	 * switching.
++	 */
++	if (!reinit_uhs &&
++	    turning_on_clk &&
++	    host->timing == ios->timing &&
++	    host->version >= SDHCI_SPEC_300 &&
++	    !sdhci_presetable_values_change(host, ios))
++		return;
++
+ 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
+ 
+ 	if (!(host->quirks & SDHCI_QUIRK_NO_HISPD_BIT)) {
+@@ -2010,6 +2059,7 @@ void sdhci_set_ios(struct mmc_host *mmc,
+ 			}
+ 
+ 			sdhci_writew(host, ctrl_2, SDHCI_HOST_CONTROL2);
++			host->drv_type = ios->drv_type;
+ 		} else {
+ 			/*
+ 			 * According to SDHC Spec v3.00, if the Preset Value
+@@ -2037,19 +2087,14 @@ void sdhci_set_ios(struct mmc_host *mmc,
+ 		host->ops->set_uhs_signaling(host, ios->timing);
+ 		host->timing = ios->timing;
+ 
+-		if (!(host->quirks2 & SDHCI_QUIRK2_PRESET_VALUE_BROKEN) &&
+-				((ios->timing == MMC_TIMING_UHS_SDR12) ||
+-				 (ios->timing == MMC_TIMING_UHS_SDR25) ||
+-				 (ios->timing == MMC_TIMING_UHS_SDR50) ||
+-				 (ios->timing == MMC_TIMING_UHS_SDR104) ||
+-				 (ios->timing == MMC_TIMING_UHS_DDR50) ||
+-				 (ios->timing == MMC_TIMING_MMC_DDR52))) {
++		if (sdhci_preset_needed(host, ios->timing)) {
+ 			u16 preset;
  
  			sdhci_enable_preset_value(host, true);
  			preset = sdhci_get_preset_value(host);
--			ios->drv_type = (preset & SDHCI_PRESET_DRV_MASK)
--				>> SDHCI_PRESET_DRV_SHIFT;
-+			ios->drv_type = FIELD_GET(SDHCI_PRESET_DRV_MASK,
-+						  preset);
+ 			ios->drv_type = FIELD_GET(SDHCI_PRESET_DRV_MASK,
+ 						  preset);
++			host->drv_type = ios->drv_type;
  		}
  
  		/* Re-enable SD Clock */
+@@ -3327,6 +3372,7 @@ int sdhci_resume_host(struct sdhci_host
+ 		sdhci_init(host, 0);
+ 		host->pwr = 0;
+ 		host->clock = 0;
++		host->reinit_uhs = true;
+ 		mmc->ops->set_ios(mmc, &mmc->ios);
+ 	} else {
+ 		sdhci_init(host, (host->mmc->pm_flags & MMC_PM_KEEP_POWER));
+@@ -3389,6 +3435,7 @@ int sdhci_runtime_resume_host(struct sdh
+ 		/* Force clock and power re-program */
+ 		host->pwr = 0;
+ 		host->clock = 0;
++		host->reinit_uhs = true;
+ 		mmc->ops->start_signal_voltage_switch(mmc, &mmc->ios);
+ 		mmc->ops->set_ios(mmc, &mmc->ios);
+ 
 --- a/drivers/mmc/host/sdhci.h
 +++ b/drivers/mmc/host/sdhci.h
-@@ -9,6 +9,7 @@
- #ifndef __SDHCI_HW_H
- #define __SDHCI_HW_H
+@@ -528,6 +528,8 @@ struct sdhci_host {
  
-+#include <linux/bits.h>
- #include <linux/scatterlist.h>
- #include <linux/compiler.h>
- #include <linux/types.h>
-@@ -268,12 +269,9 @@
- #define SDHCI_PRESET_FOR_SDR104        0x6C
- #define SDHCI_PRESET_FOR_DDR50 0x6E
- #define SDHCI_PRESET_FOR_HS400 0x74 /* Non-standard */
--#define SDHCI_PRESET_DRV_MASK  0xC000
--#define SDHCI_PRESET_DRV_SHIFT  14
--#define SDHCI_PRESET_CLKGEN_SEL_MASK   0x400
--#define SDHCI_PRESET_CLKGEN_SEL_SHIFT	10
--#define SDHCI_PRESET_SDCLK_FREQ_MASK   0x3FF
--#define SDHCI_PRESET_SDCLK_FREQ_SHIFT	0
-+#define SDHCI_PRESET_DRV_MASK		GENMASK(15, 14)
-+#define SDHCI_PRESET_CLKGEN_SEL		BIT(10)
-+#define SDHCI_PRESET_SDCLK_FREQ_MASK	GENMASK(9, 0)
+ 	unsigned int clock;	/* Current clock (MHz) */
+ 	u8 pwr;			/* Current voltage */
++	u8 drv_type;		/* Current UHS-I driver type */
++	bool reinit_uhs;	/* Force UHS-related re-initialization */
  
- #define SDHCI_SLOT_INT_STATUS	0xFC
- 
+ 	bool runtime_suspended;	/* Host is runtime suspended */
+ 	bool bus_on;		/* Bus power prevents runtime suspend */
 
 
