@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A65F6432BF
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:29:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA6E7643333
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234152AbiLET3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:29:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52414 "EHLO
+        id S234444AbiLETfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:35:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233926AbiLET2n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:28:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5311327CFE
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:25:21 -0800 (PST)
+        with ESMTP id S234372AbiLETeh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8368272
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:30:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E45AC6131A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:25:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04564C433C1;
-        Mon,  5 Dec 2022 19:25:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64EF8B81151
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:30:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF707C433D7;
+        Mon,  5 Dec 2022 19:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268320;
-        bh=/6DMGXY9EomA1dt5qHgxcdohcaUpMHPAa2tJlcMoShk=;
+        s=korg; t=1670268606;
+        bh=hMzoLuMMJx3+y2WDRW16NrwjG+DbrgJ5+S4mjHWiMYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jfLncwAGrf7VJKdM6ndAhwGEag0m5++VA38NxR6poacjFEtgj3CriN8MpW0ys1ZZc
-         1OAnlrs7LSFt/L+Mi7Lv8TbufRTl+2NDw6uhB8kscbqMaOYatrt0/fvP0JAcOrFgOj
-         068DYqmVvpc3XvKv0HWDzK6gIEJL1W2bA4BPFyiM=
+        b=SZUzA+cC8XsuPdQdfF8cFskQHIUbkxHymQZsWS4JvGQcxM53pQbkNz1obLi+06Wdt
+         CWPcf1BAttda/M2DCsWSh/ArUlg+3SSlGepA8g20Ko8QmbC+wKMsTad0ai4R2LoUTe
+         kMeSxh6bw5LQPHLaACCaI1wmPo9LYkB2YBro3kW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        M Chetan Kumar <m.chetan.kumar@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        Andrew Davis <afd@ti.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 058/124] net: wwan: iosm: fix incorrect skb length
+Subject: [PATCH 5.10 11/92] iio: health: afe4404: Fix oob read in afe4404_[read|write]_raw
 Date:   Mon,  5 Dec 2022 20:09:24 +0100
-Message-Id: <20221205190810.070735927@linuxfoundation.org>
+Message-Id: <20221205190803.861796432@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: M Chetan Kumar <m.chetan.kumar@linux.intel.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit c34ca4f32c24bf748493b49085e43cd714cf8357 ]
+[ Upstream commit fc92d9e3de0b2d30a3ccc08048a5fad533e4672b ]
 
-skb passed to network layer contains incorrect length.
+KASAN report out-of-bounds read as follows:
 
-In mux aggregation protocol, the datagram block received
-from device contains block signature, packet & datagram
-header. The right skb len to be calculated by subracting
-datagram pad len from datagram length.
+BUG: KASAN: global-out-of-bounds in afe4404_read_raw+0x2ce/0x380
+Read of size 4 at addr ffffffffc00e4658 by task cat/278
 
-Whereas in mux lite protocol, the skb contains single
-datagram so skb len is calculated by subtracting the
-packet offset from datagram header.
+Call Trace:
+ afe4404_read_raw
+ iio_read_channel_info
+ dev_attr_show
 
-Fixes: 1f52d7b62285 ("net: wwan: iosm: Enable M.2 7360 WWAN card support")
-Signed-off-by: M Chetan Kumar <m.chetan.kumar@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The buggy address belongs to the variable:
+ afe4404_channel_leds+0x18/0xffffffffffffe9c0
+
+This issue can be reproduce by singe command:
+
+ $ cat /sys/bus/i2c/devices/0-0058/iio\:device0/in_intensity6_raw
+
+The array size of afe4404_channel_leds and afe4404_channel_offdacs
+are less than channels, so access with chan->address cause OOB read
+in afe4404_[read|write]_raw. Fix it by moving access before use them.
+
+Fixes: b36e8257641a ("iio: health/afe440x: Use regmap fields")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Andrew Davis <afd@ti.com>
+Link: https://lore.kernel.org/r/20221107152010.95937-1-weiyongjun@huaweicloud.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wwan/iosm/iosm_ipc_mux_codec.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/iio/health/afe4404.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wwan/iosm/iosm_ipc_mux_codec.c b/drivers/net/wwan/iosm/iosm_ipc_mux_codec.c
-index 738420bd14af..d6b166fc5c0e 100644
---- a/drivers/net/wwan/iosm/iosm_ipc_mux_codec.c
-+++ b/drivers/net/wwan/iosm/iosm_ipc_mux_codec.c
-@@ -365,7 +365,8 @@ static void ipc_mux_dl_cmd_decode(struct iosm_mux *ipc_mux, struct sk_buff *skb)
- /* Pass the DL packet to the netif layer. */
- static int ipc_mux_net_receive(struct iosm_mux *ipc_mux, int if_id,
- 			       struct iosm_wwan *wwan, u32 offset,
--			       u8 service_class, struct sk_buff *skb)
-+			       u8 service_class, struct sk_buff *skb,
-+			       u32 pkt_len)
+diff --git a/drivers/iio/health/afe4404.c b/drivers/iio/health/afe4404.c
+index 61fe4932d81d..0eaa34da59a8 100644
+--- a/drivers/iio/health/afe4404.c
++++ b/drivers/iio/health/afe4404.c
+@@ -250,20 +250,20 @@ static int afe4404_read_raw(struct iio_dev *indio_dev,
+ 			    int *val, int *val2, long mask)
  {
- 	struct sk_buff *dest_skb = skb_clone(skb, GFP_ATOMIC);
+ 	struct afe4404_data *afe = iio_priv(indio_dev);
+-	unsigned int value_reg = afe4404_channel_values[chan->address];
+-	unsigned int led_field = afe4404_channel_leds[chan->address];
+-	unsigned int offdac_field = afe4404_channel_offdacs[chan->address];
++	unsigned int value_reg, led_field, offdac_field;
+ 	int ret;
  
-@@ -373,7 +374,7 @@ static int ipc_mux_net_receive(struct iosm_mux *ipc_mux, int if_id,
- 		return -ENOMEM;
- 
- 	skb_pull(dest_skb, offset);
--	skb_set_tail_pointer(dest_skb, dest_skb->len);
-+	skb_trim(dest_skb, pkt_len);
- 	/* Pass the packet to the netif layer. */
- 	dest_skb->priority = service_class;
- 
-@@ -429,7 +430,7 @@ static void ipc_mux_dl_fcth_decode(struct iosm_mux *ipc_mux,
- static void ipc_mux_dl_adgh_decode(struct iosm_mux *ipc_mux,
- 				   struct sk_buff *skb)
+ 	switch (chan->type) {
+ 	case IIO_INTENSITY:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_RAW:
++			value_reg = afe4404_channel_values[chan->address];
+ 			ret = regmap_read(afe->regmap, value_reg, val);
+ 			if (ret)
+ 				return ret;
+ 			return IIO_VAL_INT;
+ 		case IIO_CHAN_INFO_OFFSET:
++			offdac_field = afe4404_channel_offdacs[chan->address];
+ 			ret = regmap_field_read(afe->fields[offdac_field], val);
+ 			if (ret)
+ 				return ret;
+@@ -273,6 +273,7 @@ static int afe4404_read_raw(struct iio_dev *indio_dev,
+ 	case IIO_CURRENT:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_RAW:
++			led_field = afe4404_channel_leds[chan->address];
+ 			ret = regmap_field_read(afe->fields[led_field], val);
+ 			if (ret)
+ 				return ret;
+@@ -295,19 +296,20 @@ static int afe4404_write_raw(struct iio_dev *indio_dev,
+ 			     int val, int val2, long mask)
  {
--	u32 pad_len, packet_offset;
-+	u32 pad_len, packet_offset, adgh_len;
- 	struct iosm_wwan *wwan;
- 	struct mux_adgh *adgh;
- 	u8 *block = skb->data;
-@@ -470,10 +471,12 @@ static void ipc_mux_dl_adgh_decode(struct iosm_mux *ipc_mux,
- 	packet_offset = sizeof(*adgh) + pad_len;
+ 	struct afe4404_data *afe = iio_priv(indio_dev);
+-	unsigned int led_field = afe4404_channel_leds[chan->address];
+-	unsigned int offdac_field = afe4404_channel_offdacs[chan->address];
++	unsigned int led_field, offdac_field;
  
- 	if_id += ipc_mux->wwan_q_offset;
-+	adgh_len = le16_to_cpu(adgh->length);
- 
- 	/* Pass the packet to the netif layer */
- 	rc = ipc_mux_net_receive(ipc_mux, if_id, wwan, packet_offset,
--				 adgh->service_class, skb);
-+				 adgh->service_class, skb,
-+				 adgh_len - packet_offset);
- 	if (rc) {
- 		dev_err(ipc_mux->dev, "mux adgh decoding error");
- 		return;
-@@ -547,7 +550,7 @@ static int mux_dl_process_dg(struct iosm_mux *ipc_mux, struct mux_adbh *adbh,
- 			     int if_id, int nr_of_dg)
- {
- 	u32 dl_head_pad_len = ipc_mux->session[if_id].dl_head_pad_len;
--	u32 packet_offset, i, rc;
-+	u32 packet_offset, i, rc, dg_len;
- 
- 	for (i = 0; i < nr_of_dg; i++, dg++) {
- 		if (le32_to_cpu(dg->datagram_index)
-@@ -562,11 +565,12 @@ static int mux_dl_process_dg(struct iosm_mux *ipc_mux, struct mux_adbh *adbh,
- 			packet_offset =
- 				le32_to_cpu(dg->datagram_index) +
- 				dl_head_pad_len;
-+			dg_len = le16_to_cpu(dg->datagram_length);
- 			/* Pass the packet to the netif layer. */
- 			rc = ipc_mux_net_receive(ipc_mux, if_id, ipc_mux->wwan,
- 						 packet_offset,
--						 dg->service_class,
--						 skb);
-+						 dg->service_class, skb,
-+						 dg_len - dl_head_pad_len);
- 			if (rc)
- 				goto dg_error;
+ 	switch (chan->type) {
+ 	case IIO_INTENSITY:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_OFFSET:
++			offdac_field = afe4404_channel_offdacs[chan->address];
+ 			return regmap_field_write(afe->fields[offdac_field], val);
  		}
+ 		break;
+ 	case IIO_CURRENT:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_RAW:
++			led_field = afe4404_channel_leds[chan->address];
+ 			return regmap_field_write(afe->fields[led_field], val);
+ 		}
+ 		break;
 -- 
 2.35.1
 
