@@ -2,49 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 113846433FE
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F60364348C
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234840AbiLETlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:41:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40454 "EHLO
+        id S235027AbiLETrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:47:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234848AbiLETlB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:41:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC781FD0;
-        Mon,  5 Dec 2022 11:38:30 -0800 (PST)
+        with ESMTP id S235028AbiLETrc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F09AA26122
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 827C8B811E3;
-        Mon,  5 Dec 2022 19:38:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5561C433C1;
-        Mon,  5 Dec 2022 19:38:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C53761309
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DBA4C433C1;
+        Mon,  5 Dec 2022 19:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269108;
-        bh=l9MW/Gc9+ArnRwl2DRT7IsjnbxX0PY11C3AcQhaRJJc=;
+        s=korg; t=1670269439;
+        bh=NGHpLucI3LhIGxGrhJC3yvdfOHhhxLgBHKQFkKkKpXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vweAv1uhlzM2P3xqlbOC7I8Z6fcLw0m/LcWnSkTVRsh1RtRwYMjJrhWBFx+gLKc91
-         A2R67vF0ejSDxWilzb37I6IKNV+NsDgurK1SJ3E1KelTzDq7MwTmMF2VPg1p+qxYTK
-         OQMzNP32vLNs04VDhOyKWASharm+zUsjqDRA/OKk=
+        b=wjSHKk9K1kyAsMBfWG6LX6JuxlhS6peWGoibIzC0R60j6m+8pTi+omzkSED6ZVyk2
+         MENnlmWcEeJpbieUg9mv5EhmOCN8p/sOv0Zi2GbBFFW7qyyaN1vyrYd/LLjNkGJh7h
+         PZS+gr+XZZ8tPTFbHn6uv8p8bgcJAjP2Wssx17OM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org, linux-serial@vger.kernel.org
+To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Erwan Le Ray <erwan.leray@foss.st.com>,
-        Jean Philippe Romain <jean-philippe.romain@foss.st.com>,
-        Valentin Caron <valentin.caron@foss.st.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 111/120] serial: stm32: Factor out GPIO RTS toggling into separate function
-Date:   Mon,  5 Dec 2022 20:10:51 +0100
-Message-Id: <20221205190809.866241880@linuxfoundation.org>
+        patches@lists.linux.dev, James Morse <james.morse@arm.com>
+Subject: [PATCH 5.4 128/153] arm64: errata: Fix KVM Spectre-v2 mitigation selection  for Cortex-A57/A72
+Date:   Mon,  5 Dec 2022 20:10:52 +0100
+Message-Id: <20221205190812.365328608@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,122 +51,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit 3bcea529b295a993b1b05db63f245ae8030c5acf ]
+Both the Spectre-v2 and Spectre-BHB mitigations involve running a sequence
+immediately after exiting a guest, before any branches. In the stable
+kernels these sequences are built by copying templates into an empty vector
+slot.
 
-Pull out the GPIO RTS enable and disable handling into separate function.
-Limit the scope of GPIO RTS toggling only to GPIO emulated RS485 too.
+For Spectre-BHB, Cortex-A57 and A72 require the branchy loop with k=8.
+If Spectre-v2 needs mitigating at the same time, a firmware call to EL3 is
+needed. The work EL3 does at this point is also enough to mitigate
+Spectre-BHB.
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Erwan Le Ray <erwan.leray@foss.st.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jean Philippe Romain <jean-philippe.romain@foss.st.com>
-Cc: Valentin Caron <valentin.caron@foss.st.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-serial@vger.kernel.org
-Link: https://lore.kernel.org/r/20220430162845.244655-1-marex@denx.de
+When enabling the Spectre-BHB mitigation, spectre_bhb_enable_mitigation()
+should check if a slot has already been allocated for Spectre-v2, meaning
+no work is needed for Spectre-BHB.
+
+This check was missed in the earlier backport, add it.
+
+Fixes: 9013fd4bc958 ("arm64: Mitigate spectre style branch history side channels")
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 61 ++++++++++++++++++++------------
- 1 file changed, 38 insertions(+), 23 deletions(-)
+ arch/arm64/kernel/cpu_errata.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index fc166cc2c856..f2cef5f7ae5a 100644
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -325,6 +325,42 @@ static void stm32_usart_tx_interrupt_disable(struct uart_port *port)
- 		stm32_usart_clr_bits(port, ofs->cr1, USART_CR1_TXEIE);
- }
- 
-+static void stm32_usart_rs485_rts_enable(struct uart_port *port)
-+{
-+	struct stm32_port *stm32_port = to_stm32_port(port);
-+	struct serial_rs485 *rs485conf = &port->rs485;
-+
-+	if (stm32_port->hw_flow_control ||
-+	    !(rs485conf->flags & SER_RS485_ENABLED))
-+		return;
-+
-+	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
-+		mctrl_gpio_set(stm32_port->gpios,
-+			       stm32_port->port.mctrl | TIOCM_RTS);
-+	} else {
-+		mctrl_gpio_set(stm32_port->gpios,
-+			       stm32_port->port.mctrl & ~TIOCM_RTS);
-+	}
-+}
-+
-+static void stm32_usart_rs485_rts_disable(struct uart_port *port)
-+{
-+	struct stm32_port *stm32_port = to_stm32_port(port);
-+	struct serial_rs485 *rs485conf = &port->rs485;
-+
-+	if (stm32_port->hw_flow_control ||
-+	    !(rs485conf->flags & SER_RS485_ENABLED))
-+		return;
-+
-+	if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
-+		mctrl_gpio_set(stm32_port->gpios,
-+			       stm32_port->port.mctrl & ~TIOCM_RTS);
-+	} else {
-+		mctrl_gpio_set(stm32_port->gpios,
-+			       stm32_port->port.mctrl | TIOCM_RTS);
-+	}
-+}
-+
- static void stm32_usart_transmit_chars_pio(struct uart_port *port)
- {
- 	struct stm32_port *stm32_port = to_stm32_port(port);
-@@ -566,41 +602,20 @@ static void stm32_usart_disable_ms(struct uart_port *port)
- /* Transmit stop */
- static void stm32_usart_stop_tx(struct uart_port *port)
- {
--	struct stm32_port *stm32_port = to_stm32_port(port);
--	struct serial_rs485 *rs485conf = &port->rs485;
--
- 	stm32_usart_tx_interrupt_disable(port);
- 
--	if (rs485conf->flags & SER_RS485_ENABLED) {
--		if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
--			mctrl_gpio_set(stm32_port->gpios,
--					stm32_port->port.mctrl & ~TIOCM_RTS);
--		} else {
--			mctrl_gpio_set(stm32_port->gpios,
--					stm32_port->port.mctrl | TIOCM_RTS);
--		}
--	}
-+	stm32_usart_rs485_rts_disable(port);
- }
- 
- /* There are probably characters waiting to be transmitted. */
- static void stm32_usart_start_tx(struct uart_port *port)
- {
--	struct stm32_port *stm32_port = to_stm32_port(port);
--	struct serial_rs485 *rs485conf = &port->rs485;
- 	struct circ_buf *xmit = &port->state->xmit;
- 
- 	if (uart_circ_empty(xmit) && !port->x_char)
- 		return;
- 
--	if (rs485conf->flags & SER_RS485_ENABLED) {
--		if (rs485conf->flags & SER_RS485_RTS_ON_SEND) {
--			mctrl_gpio_set(stm32_port->gpios,
--					stm32_port->port.mctrl | TIOCM_RTS);
--		} else {
--			mctrl_gpio_set(stm32_port->gpios,
--					stm32_port->port.mctrl & ~TIOCM_RTS);
--		}
--	}
-+	stm32_usart_rs485_rts_enable(port);
- 
- 	stm32_usart_transmit_chars(port);
- }
--- 
-2.35.1
-
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -1363,7 +1363,13 @@ void spectre_bhb_enable_mitigation(const
+ 	} else if (spectre_bhb_loop_affected(SCOPE_LOCAL_CPU)) {
+ 		switch (spectre_bhb_loop_affected(SCOPE_SYSTEM)) {
+ 		case 8:
+-			kvm_setup_bhb_slot(__spectre_bhb_loop_k8_start);
++			/*
++			 * A57/A72-r0 will already have selected the
++			 * spectre-indirect vector, which is sufficient
++			 * for BHB too.
++			 */
++			if (!__this_cpu_read(bp_hardening_data.fn))
++				kvm_setup_bhb_slot(__spectre_bhb_loop_k8_start);
+ 			break;
+ 		case 24:
+ 			kvm_setup_bhb_slot(__spectre_bhb_loop_k24_start);
 
 
