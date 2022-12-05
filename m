@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF240643239
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:25:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B023F6432C6
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:29:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233897AbiLETZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:25:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46628 "EHLO
+        id S234120AbiLET32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:29:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233902AbiLETYw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3CB27DFE
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:29 -0800 (PST)
+        with ESMTP id S234139AbiLET3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:29:06 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E495627DF9
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:25:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76E55B81151
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C23E4C433C1;
-        Mon,  5 Dec 2022 19:20:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3F2C6CE139F
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:25:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 300ECC433C1;
+        Mon,  5 Dec 2022 19:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268027;
-        bh=TfD+7SvJDJUGZ7KBfCb81nCijJCM440PhJZdrIPpIZs=;
+        s=korg; t=1670268339;
+        bh=bs1qClPq9D2DGP0HhNFJxlpkPCprdzHiYrg8kxjProA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CBXFMjDQ/FK3LsdLP804XcGALdjqiT7dQrK0I2qWf3TvBqugGtVshkNye+sy29K4h
-         B1Xjp8+Yl4YI4Ju1Oa2V/H/ZvKqtX2fjBUbyunvjt1sRdfNdZK2ksq0zKSeYFqgvI+
-         J2qjJlDe6OL4B9FB+RK0o26/R1XOUUPtrVskI2pM=
+        b=bv/JEacyz0GH1ySAGXeyCY9+4OFJ2opl7858CH9S7tRvg9U8FNK6z7px6lkP3yhc+
+         Jk/9R6TrEJzausP5t3o9SWrUuNqv97E32Z489bvgBaOrzclUEB94Fu/q4DoxVPLxP9
+         7PGr3UJPb6J8eCQVf1LlF+Mk/BjiD/Ctp3obF2oI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Denis Efremov <denis.e.efremov@oracle.com>,
-        Guenter Roeck <groeck@google.com>,
-        Martin Faltesek <mfaltesek@google.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Roi Dayan <roid@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 032/105] nfc: st-nci: fix memory leaks in EVT_TRANSACTION
+Subject: [PATCH 6.0 038/124] net/mlx5e: Fix use-after-free when reverting termination table
 Date:   Mon,  5 Dec 2022 20:09:04 +0100
-Message-Id: <20221205190804.230923758@linuxfoundation.org>
+Message-Id: <20221205190809.522855947@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Faltesek <mfaltesek@google.com>
+From: Roi Dayan <roid@nvidia.com>
 
-[ Upstream commit 440f2ae9c9f06e26f5dcea697a53717fc61a318c ]
+[ Upstream commit 52c795af04441d76f565c4634f893e5b553df2ae ]
 
-Error path does not free previously allocated memory. Add devm_kfree() to
-the failure path.
+When having multiple dests with termination tables and second one
+or afterwards fails the driver reverts usage of term tables but
+doesn't reset the assignment in attr->dests[num_vport_dests].termtbl
+which case a use-after-free when releasing the rule.
+Fix by resetting the assignment of termtbl to null.
 
-Reported-by: Denis Efremov <denis.e.efremov@oracle.com>
-Reviewed-by: Guenter Roeck <groeck@google.com>
-Fixes: 5d1ceb7f5e56 ("NFC: st21nfcb: Add HCI transaction event support")
-Signed-off-by: Martin Faltesek <mfaltesek@google.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 10caabdaad5a ("net/mlx5e: Use termination table for VLAN push actions")
+Signed-off-by: Roi Dayan <roid@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st-nci/se.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c  | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nfc/st-nci/se.c b/drivers/nfc/st-nci/se.c
-index 7774a7196bb3..cdf9e915c974 100644
---- a/drivers/nfc/st-nci/se.c
-+++ b/drivers/nfc/st-nci/se.c
-@@ -352,8 +352,10 @@ static int st_nci_hci_connectivity_event_received(struct nci_dev *ndev,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
+index 108a3503f413..edd910258314 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
+@@ -312,6 +312,8 @@ mlx5_eswitch_add_termtbl_rule(struct mlx5_eswitch *esw,
+ 	for (curr_dest = 0; curr_dest < num_vport_dests; curr_dest++) {
+ 		struct mlx5_termtbl_handle *tt = attr->dests[curr_dest].termtbl;
  
- 		/* Check next byte is PARAMETERS tag (82) */
- 		if (skb->data[transaction->aid_len + 2] !=
--		    NFC_EVT_TRANSACTION_PARAMS_TAG)
-+		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
-+			devm_kfree(dev, transaction);
- 			return -EPROTO;
-+		}
- 
- 		transaction->params_len = skb->data[transaction->aid_len + 3];
- 		memcpy(transaction->params, skb->data +
++		attr->dests[curr_dest].termtbl = NULL;
++
+ 		/* search for the destination associated with the
+ 		 * current term table
+ 		 */
 -- 
 2.35.1
 
