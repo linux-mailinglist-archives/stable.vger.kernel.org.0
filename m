@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0164864334D
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A42536433C8
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:39:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234420AbiLETfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:35:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33864 "EHLO
+        id S234462AbiLETja (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:39:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234083AbiLETfC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A1BA3A6
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:31:10 -0800 (PST)
+        with ESMTP id S234597AbiLETjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:39:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E15C226AEB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:36:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BBD5B612D8
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:31:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF192C433D6;
-        Mon,  5 Dec 2022 19:31:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53CF9B811F3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:36:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC14AC433C1;
+        Mon,  5 Dec 2022 19:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268669;
-        bh=US7oShXQJBDEtU+at6sdVslNjiXJPtYp5fCk8brToDM=;
+        s=korg; t=1670268979;
+        bh=L3kgdZOQ5pvywc5QKsjq99jdefEUXM25NwWiInQeUOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OV9OH4Z1mRXoiWyJkJ386yGOYHNSP3IPK1ncD/36pv2OpRaPZEzweqhwYNqzyA2RK
-         Se1JZ1eeyQ9dYGfeAqTbvxPxknk1sus4mjZixKYHdzKn/fudjelTKG+t2ylIASQPx9
-         9qgbx0nawtuxCy3TCRjsLRrnPT7r5cI3NIXxOc2c=
+        b=BWiErch9IW146gEent94Hj3FKL5ii87hpU6a2oJTfwZ13yQ/2aMd0Qo//PiCalhB+
+         aNoFdLkYFv3Gxp4Gy/1v5/oWO1q6u/E38a+vi6OQzvQO5hBgyKLTxG0toxHUqHRhgH
+         LLYs/8W8T8pkTEy/9SoeImDTyutuaVMteYQF9ifc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 61/92] mmc: mmc_test: Fix removal of debugfs file
+        patches@lists.linux.dev, Seth Jenkins <sethjenkins@google.com>,
+        Hans Verkuil <hverkuil@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        David Hildenbrand <david@redhat.com>, Jan Kara <jack@suse.cz>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 074/120] v4l2: dont fall back to follow_pfn() if pin_user_pages_fast() fails
 Date:   Mon,  5 Dec 2022 20:10:14 +0100
-Message-Id: <20221205190805.536818216@linuxfoundation.org>
+Message-Id: <20221205190808.838567743@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +55,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit f4307b4df1c28842bb1950ff0e1b97e17031b17f upstream.
+commit 6647e76ab623b2b3fb2efe03a86e9c9046c52c33 upstream.
 
-In __mmc_test_register_dbgfs_file(), we need to assign 'file', as it's
-being used when removing the debugfs files when the mmc_test module is
-removed.
+The V4L2_MEMORY_USERPTR interface is long deprecated and shouldn't be
+used (and is discouraged for any modern v4l drivers).  And Seth Jenkins
+points out that the fallback to VM_PFNMAP/VM_IO is fundamentally racy
+and dangerous.
 
-Fixes: a04c50aaa916 ("mmc: core: no need to check return value of debugfs_create functions")
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-[Ulf: Re-wrote the commit msg]
-Link: https://lore.kernel.org/r/20221123095506.1965691-1-yebin@huaweicloud.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Note that it's not even a case that should trigger, since any normal
+user pointer logic ends up just using the pin_user_pages_fast() call
+that does the proper page reference counting.  That's not the problem
+case, only if you try to use special device mappings do you have any
+issues.
+
+Normally I'd just remove this during the merge window, but since Seth
+pointed out the problem cases, we really want to know as soon as
+possible if there are actually any users of this odd special case of a
+legacy interface.  Neither Hans nor Mauro seem to think that such
+mis-uses of the old legacy interface should exist.  As Mauro says:
+
+ "See, V4L2 has actually 4 streaming APIs:
+        - Kernel-allocated mmap (usually referred simply as just mmap);
+        - USERPTR mmap;
+        - read();
+        - dmabuf;
+
+  The USERPTR is one of the oldest way to use it, coming from V4L
+  version 1 times, and by far the least used one"
+
+And Hans chimed in on the USERPTR interface:
+
+ "To be honest, I wouldn't mind if it goes away completely, but that's a
+  bit of a pipe dream right now"
+
+but while removing this legacy interface entirely may be a pipe dream we
+can at least try to remove the unlikely (and actively broken) case of
+using special device mappings for USERPTR accesses.
+
+This replaces it with a WARN_ONCE() that we can remove once we've
+hopefully confirmed that no actual users exist.
+
+NOTE! Longer term, this means that a 'struct frame_vector' only ever
+contains proper page pointers, and all the games we have with converting
+them to pages can go away (grep for 'frame_vector_to_pages()' and the
+uses of 'vec->is_pfns').  But this is just the first step, to verify
+that this code really is all dead, and do so as quickly as possible.
+
+Reported-by: Seth Jenkins <sethjenkins@google.com>
+Acked-by: Hans Verkuil <hverkuil@xs4all.nl>
+Acked-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/mmc_test.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/common/videobuf2/frame_vector.c |   55 +++++---------------------
+ 1 file changed, 12 insertions(+), 43 deletions(-)
 
---- a/drivers/mmc/core/mmc_test.c
-+++ b/drivers/mmc/core/mmc_test.c
-@@ -3195,7 +3195,8 @@ static int __mmc_test_register_dbgfs_fil
- 	struct mmc_test_dbgfs_file *df;
+--- a/drivers/media/common/videobuf2/frame_vector.c
++++ b/drivers/media/common/videobuf2/frame_vector.c
+@@ -35,10 +35,7 @@
+ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
+ 		     struct frame_vector *vec)
+ {
+-	struct mm_struct *mm = current->mm;
+-	struct vm_area_struct *vma;
+-	int ret = 0;
+-	int err;
++	int ret;
  
- 	if (card->debugfs_root)
--		debugfs_create_file(name, mode, card->debugfs_root, card, fops);
-+		file = debugfs_create_file(name, mode, card->debugfs_root,
-+					   card, fops);
+ 	if (nr_frames == 0)
+ 		return 0;
+@@ -51,45 +48,17 @@ int get_vaddr_frames(unsigned long start
+ 	ret = pin_user_pages_fast(start, nr_frames,
+ 				  FOLL_FORCE | FOLL_WRITE | FOLL_LONGTERM,
+ 				  (struct page **)(vec->ptrs));
+-	if (ret > 0) {
+-		vec->got_ref = true;
+-		vec->is_pfns = false;
+-		goto out_unlocked;
+-	}
+-
+-	mmap_read_lock(mm);
+-	vec->got_ref = false;
+-	vec->is_pfns = true;
+-	ret = 0;
+-	do {
+-		unsigned long *nums = frame_vector_pfns(vec);
+-
+-		vma = vma_lookup(mm, start);
+-		if (!vma)
+-			break;
+-
+-		while (ret < nr_frames && start + PAGE_SIZE <= vma->vm_end) {
+-			err = follow_pfn(vma, start, &nums[ret]);
+-			if (err) {
+-				if (ret == 0)
+-					ret = err;
+-				goto out;
+-			}
+-			start += PAGE_SIZE;
+-			ret++;
+-		}
+-		/* Bail out if VMA doesn't completely cover the tail page. */
+-		if (start < vma->vm_end)
+-			break;
+-	} while (ret < nr_frames);
+-out:
+-	mmap_read_unlock(mm);
+-out_unlocked:
+-	if (!ret)
+-		ret = -EFAULT;
+-	if (ret > 0)
+-		vec->nr_frames = ret;
+-	return ret;
++	vec->got_ref = true;
++	vec->is_pfns = false;
++	vec->nr_frames = ret;
++
++	if (likely(ret > 0))
++		return ret;
++
++	/* This used to (racily) return non-refcounted pfns. Let people know */
++	WARN_ONCE(1, "get_vaddr_frames() cannot follow VM_IO mapping");
++	vec->nr_frames = 0;
++	return ret ? ret : -EFAULT;
+ }
+ EXPORT_SYMBOL(get_vaddr_frames);
  
- 	df = kmalloc(sizeof(*df), GFP_KERNEL);
- 	if (!df) {
 
 
