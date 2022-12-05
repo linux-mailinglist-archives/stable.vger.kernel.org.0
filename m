@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AC4F643208
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:23:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0788643401
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233806AbiLETXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:23:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46666 "EHLO
+        id S234673AbiLETlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:41:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233807AbiLETXf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:23:35 -0500
+        with ESMTP id S234756AbiLETlM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:41:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C485F2AC70
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:18:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F66262A
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:38:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2FA49B81211
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:18:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73621C433D6;
-        Mon,  5 Dec 2022 19:18:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA1A2B811EC
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:38:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27576C433C1;
+        Mon,  5 Dec 2022 19:38:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267921;
-        bh=ZTQG2cMz9eYCYbxj9LaO9qdwyVntHj5UAA0+LULgqrE=;
+        s=korg; t=1670269116;
+        bh=ztm02Gn/G7F29dXHd5OV0BChkRHmKfXzFle/MiApMi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qFTRf2c/DyQvS8Jw9gn9KAKM9Bzbeqf5cKLh8hEMGTpLhEJpeFzrloxdZV2N1wJ+W
-         2grm5pBbzxnYKcVGKvH0ueJJwmQwmyiQOfybtSs2nWAtIkdLl34TVMcVOglo8tHchS
-         fSJw92qXu+s+PVZ6tfigmJn9zcvB90g68hhVj++w=
+        b=hb/abgs6XfRXy/8fU0TIl5GqY4NxYrHfporuEhz9EX1rPCp2cxY4vCcs6MAd2dBBq
+         3YdXmXIePHcBFd3Aa9atnzudDNfBJ0kjIPFFZst5+V6+ZasagCYq/T2uBLOP7nX9qE
+         qRIfayBLftCcRjQ4VBr36KoKTGf340OD8OGQRV/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Moshe Shemesh <moshe@nvidia.com>,
-        Feras Daoud <ferasda@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 022/105] net/mlx5: Fix FW tracer timestamp calculation
+Subject: [PATCH 5.4 010/153] MIPS: pic32: treat port as signed integer
 Date:   Mon,  5 Dec 2022 20:08:54 +0100
-Message-Id: <20221205190803.903039631@linuxfoundation.org>
+Message-Id: <20221205190809.053128604@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@nvidia.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 61db3d7b99a367416e489ccf764cc5f9b00d62a1 ]
+[ Upstream commit 648060902aa302331b5d6e4f26d8ee0761d239ab ]
 
-Fix a bug in calculation of FW tracer timestamp. Decreasing one in the
-calculation should effect only bits 52_7 and not effect bits 6_0 of the
-timestamp, otherwise bits 6_0 are always set in this calculation.
+get_port_from_cmdline() returns an int, yet is assigned to a char, which
+is wrong in its own right, but also, with char becoming unsigned, this
+poses problems, because -1 is used as an error value. Further
+complicating things, fw_init_early_console() is only ever called with a
+-1 argument. Fix this up by removing the unused argument from
+fw_init_early_console() and treating port as a proper signed integer.
 
-Fixes: 70dd6fdb8987 ("net/mlx5: FW tracer, parse traces and kernel tracing support")
-Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Feras Daoud <ferasda@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/include/asm/fw/fw.h             |  2 +-
+ arch/mips/pic32/pic32mzda/early_console.c | 13 ++++++-------
+ arch/mips/pic32/pic32mzda/init.c          |  2 +-
+ 3 files changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-index a22e932a00b0..ef9f932f0226 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-@@ -600,7 +600,7 @@ static void mlx5_tracer_handle_timestamp_trace(struct mlx5_fw_tracer *tracer,
- 			trace_timestamp = (timestamp_event.timestamp & MASK_52_7) |
- 					  (str_frmt->timestamp & MASK_6_0);
- 		else
--			trace_timestamp = ((timestamp_event.timestamp & MASK_52_7) - 1) |
-+			trace_timestamp = ((timestamp_event.timestamp - 1) & MASK_52_7) |
- 					  (str_frmt->timestamp & MASK_6_0);
+diff --git a/arch/mips/include/asm/fw/fw.h b/arch/mips/include/asm/fw/fw.h
+index d0ef8b4892bb..d0494ce4b337 100644
+--- a/arch/mips/include/asm/fw/fw.h
++++ b/arch/mips/include/asm/fw/fw.h
+@@ -26,6 +26,6 @@ extern char *fw_getcmdline(void);
+ extern void fw_meminit(void);
+ extern char *fw_getenv(char *name);
+ extern unsigned long fw_getenvl(char *name);
+-extern void fw_init_early_console(char port);
++extern void fw_init_early_console(void);
  
- 		mlx5_tracer_print_trace(str_frmt, dev, trace_timestamp);
+ #endif /* __ASM_FW_H_ */
+diff --git a/arch/mips/pic32/pic32mzda/early_console.c b/arch/mips/pic32/pic32mzda/early_console.c
+index 8c236738b5ee..5d48408f84b1 100644
+--- a/arch/mips/pic32/pic32mzda/early_console.c
++++ b/arch/mips/pic32/pic32mzda/early_console.c
+@@ -27,7 +27,7 @@
+ #define U_BRG(x)	(UART_BASE(x) + 0x40)
+ 
+ static void __iomem *uart_base;
+-static char console_port = -1;
++static int console_port = -1;
+ 
+ static int __init configure_uart_pins(int port)
+ {
+@@ -47,7 +47,7 @@ static int __init configure_uart_pins(int port)
+ 	return 0;
+ }
+ 
+-static void __init configure_uart(char port, int baud)
++static void __init configure_uart(int port, int baud)
+ {
+ 	u32 pbclk;
+ 
+@@ -60,7 +60,7 @@ static void __init configure_uart(char port, int baud)
+ 		     uart_base + PIC32_SET(U_STA(port)));
+ }
+ 
+-static void __init setup_early_console(char port, int baud)
++static void __init setup_early_console(int port, int baud)
+ {
+ 	if (configure_uart_pins(port))
+ 		return;
+@@ -130,16 +130,15 @@ static int __init get_baud_from_cmdline(char *arch_cmdline)
+ 	return baud;
+ }
+ 
+-void __init fw_init_early_console(char port)
++void __init fw_init_early_console(void)
+ {
+ 	char *arch_cmdline = pic32_getcmdline();
+-	int baud = -1;
++	int baud, port;
+ 
+ 	uart_base = ioremap_nocache(PIC32_BASE_UART, 0xc00);
+ 
+ 	baud = get_baud_from_cmdline(arch_cmdline);
+-	if (port == -1)
+-		port = get_port_from_cmdline(arch_cmdline);
++	port = get_port_from_cmdline(arch_cmdline);
+ 
+ 	if (port == -1)
+ 		port = EARLY_CONSOLE_PORT;
+diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
+index f232c77ff526..488c0bee7ebf 100644
+--- a/arch/mips/pic32/pic32mzda/init.c
++++ b/arch/mips/pic32/pic32mzda/init.c
+@@ -60,7 +60,7 @@ void __init plat_mem_setup(void)
+ 		strlcpy(arcs_cmdline, boot_command_line, COMMAND_LINE_SIZE);
+ 
+ #ifdef CONFIG_EARLY_PRINTK
+-	fw_init_early_console(-1);
++	fw_init_early_console();
+ #endif
+ 	pic32_config_init();
+ }
 -- 
 2.35.1
 
