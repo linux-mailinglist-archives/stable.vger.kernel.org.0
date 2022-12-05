@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE0FD643482
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 248C7643285
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235045AbiLETre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:47:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54578 "EHLO
+        id S233991AbiLET03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:26:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235049AbiLETrO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EABF610DE
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:32 -0800 (PST)
+        with ESMTP id S233937AbiLET0C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ECEA10E7
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:22:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88B126131D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C558C433C1;
-        Mon,  5 Dec 2022 19:43:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D86FDB81181
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:22:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44A7DC433C1;
+        Mon,  5 Dec 2022 19:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269412;
-        bh=ptpptAr43wclbTesGN6Gpy4TDE9/dPdDOPMgc1I/QH8=;
+        s=korg; t=1670268142;
+        bh=1DJzPskboBtUXsdqAbjIvUURMyDvMycn7q27aKEbEQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TcGbHMAq5D0XwCttnxQflBkdW2j6eJYytwVMwNHQ1cNgz6OFB7TH1wJVjyXl6fPWD
-         B5Of7+0HVmTh2rEeJyiZs9sxQGgdAIBIOwp8DUFVkNkvjoOa57yiiZUZ9wYXFK94tz
-         EQotJ1/dwbT4V4Z8Or5YHT49CxDasU4AjBG0SSPw=
+        b=HQJxHuEtn5qsDEwslvsHKwE9NSqymDHJ7ix/ZvL7rG96XcfOwTAUxr+7ZC0b6r7Pg
+         PM6f2wWpGDrYXb9zaQEaDR4F1blOrSXqswnS/R/dOwm/bNUcSkQHCWi5f2ITOhfWmE
+         Kv4zx/Pn+pwbSkVshZl5OphP9yGDxaOyUU5vhEkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Andrew Davis <afd@ti.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 090/153] iio: health: afe4403: Fix oob read in afe4403_read_raw
+        patches@lists.linux.dev,
+        =?UTF-8?q?Tam=C3=A1s=20Koczka?= <poprdi@google.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Tedd Ho-Jeong An <tedd.an@intel.com>
+Subject: [PATCH 4.19 102/105] Bluetooth: L2CAP: Fix accepting connection request for invalid SPSM
 Date:   Mon,  5 Dec 2022 20:10:14 +0100
-Message-Id: <20221205190811.308896184@linuxfoundation.org>
+Message-Id: <20221205190806.546064260@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 58143c1ed5882c138a3cd2251a336fc8755f23d9 ]
+commit 711f8c3fb3db61897080468586b970c87c61d9e4 upstream.
 
-KASAN report out-of-bounds read as follows:
+The Bluetooth spec states that the valid range for SPSM is from
+0x0001-0x00ff so it is invalid to accept values outside of this range:
 
-BUG: KASAN: global-out-of-bounds in afe4403_read_raw+0x42e/0x4c0
-Read of size 4 at addr ffffffffc02ac638 by task cat/279
+  BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
+  page 1059:
+  Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
 
-Call Trace:
- afe4403_read_raw
- iio_read_channel_info
- dev_attr_show
-
-The buggy address belongs to the variable:
- afe4403_channel_leds+0x18/0xffffffffffffe9e0
-
-This issue can be reproduced by singe command:
-
- $ cat /sys/bus/spi/devices/spi0.0/iio\:device0/in_intensity6_raw
-
-The array size of afe4403_channel_leds is less than channels, so access
-with chan->address cause OOB read in afe4403_read_raw. Fix it by moving
-access before use it.
-
-Fixes: b36e8257641a ("iio: health/afe440x: Use regmap fields")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Andrew Davis <afd@ti.com>
-Link: https://lore.kernel.org/r/20221107151946.89260-1-weiyongjun@huaweicloud.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CVE: CVE-2022-42896
+CC: stable@vger.kernel.org
+Reported-by: Tamás Koczka <poprdi@google.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/health/afe4403.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/bluetooth/l2cap_core.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/iio/health/afe4403.c b/drivers/iio/health/afe4403.c
-index 29104656a537..3fdaf3104cce 100644
---- a/drivers/iio/health/afe4403.c
-+++ b/drivers/iio/health/afe4403.c
-@@ -245,14 +245,14 @@ static int afe4403_read_raw(struct iio_dev *indio_dev,
- 			    int *val, int *val2, long mask)
- {
- 	struct afe4403_data *afe = iio_priv(indio_dev);
--	unsigned int reg = afe4403_channel_values[chan->address];
--	unsigned int field = afe4403_channel_leds[chan->address];
-+	unsigned int reg, field;
- 	int ret;
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -5553,6 +5553,19 @@ static int l2cap_le_connect_req(struct l
+ 	BT_DBG("psm 0x%2.2x scid 0x%4.4x mtu %u mps %u", __le16_to_cpu(psm),
+ 	       scid, mtu, mps);
  
- 	switch (chan->type) {
- 	case IIO_INTENSITY:
- 		switch (mask) {
- 		case IIO_CHAN_INFO_RAW:
-+			reg = afe4403_channel_values[chan->address];
- 			ret = afe4403_read(afe, reg, val);
- 			if (ret)
- 				return ret;
-@@ -262,6 +262,7 @@ static int afe4403_read_raw(struct iio_dev *indio_dev,
- 	case IIO_CURRENT:
- 		switch (mask) {
- 		case IIO_CHAN_INFO_RAW:
-+			field = afe4403_channel_leds[chan->address];
- 			ret = regmap_field_read(afe->fields[field], val);
- 			if (ret)
- 				return ret;
--- 
-2.35.1
-
++	/* BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
++	 * page 1059:
++	 *
++	 * Valid range: 0x0001-0x00ff
++	 *
++	 * Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
++	 */
++	if (!psm || __le16_to_cpu(psm) > L2CAP_PSM_LE_DYN_END) {
++		result = L2CAP_CR_BAD_PSM;
++		chan = NULL;
++		goto response;
++	}
++
+ 	/* Check if we have socket listening on psm */
+ 	pchan = l2cap_global_chan_by_psm(BT_LISTEN, psm, &conn->hcon->src,
+ 					 &conn->hcon->dst, LE_LINK);
 
 
