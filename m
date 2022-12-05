@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22C4564324F
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D99CA6432AC
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:28:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232733AbiLETZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:25:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46648 "EHLO
+        id S234180AbiLET15 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:27:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232805AbiLETZO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC96827FCC
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:35 -0800 (PST)
+        with ESMTP id S234001AbiLET1Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:27:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E2C527923
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:24:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDEBC612D8
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE928C433C1;
-        Mon,  5 Dec 2022 19:20:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B0E8B81181
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:24:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5B58C433C1;
+        Mon,  5 Dec 2022 19:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268035;
-        bh=DxJwb42Bw47wORMQSI0BhmFy88Xyi8Sv4ee+/mqon+0=;
+        s=korg; t=1670268268;
+        bh=sgXKMCAZawMW6mWoddJ0hSZ5YRzISGdLE6c+B47mhHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=narVhLl1Wol8/8B0iNVDvaMYQm/Mzpgj/0S/waNdmidClaZbbXhblZQKfB/7w6PaW
-         cgoUOer9l+MlWQWghmk7Fpm9AOHzVKYQl8rx8z9KGhUzgsM/R69sVjNelE+spoE8fp
-         Q7UtQRvd3ifN5B6MICVxNewRt1HHVsEH7pPblOxQ=
+        b=QE7vjGBACqZ3nfyiUofvtlN1OJLQmsJa3hzILyzK4+Rp1XbE2WIyyjegrBP8JVXuM
+         EN15HDyzWhTU5/nR2cdAE8SiZjTMWeFlHp3uCe7UKliVz6KTZZ1kcMF/rLypQuoI++
+         u1CAvB9f3914ntsCDFtxwkviMd3stEXVjGXWd0Mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 034/105] s390/crashdump: fix TOD programmable field size
+Subject: [PATCH 6.0 040/124] can: cc770: cc770_isa_probe(): add missing free_cc770dev()
 Date:   Mon,  5 Dec 2022 20:09:06 +0100
-Message-Id: <20221205190804.290796242@linuxfoundation.org>
+Message-Id: <20221205190809.583043312@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit f44e07a8afdd713ddc1a8832c39372fe5dd86895 ]
+[ Upstream commit 62ec89e74099a3d6995988ed9f2f996b368417ec ]
 
-The size of the TOD programmable field was incorrectly increased from
-four to eight bytes with commit 1a2c5840acf9 ("s390/dump: cleanup CPU
-save area handling").
-This leads to an elf notes section NT_S390_TODPREG which has a size of
-eight instead of four bytes in case of kdump, however even worse is
-that the contents is incorrect: it is supposed to contain only the
-contents of the TOD programmable field, but in fact contains a mix of
-the TOD programmable field (32 bit upper bits) and parts of the CPU
-timer register (lower 32 bits).
+Add the missing free_cc770dev() before return from cc770_isa_probe()
+in the register_cc770dev() error handling case.
 
-Fix this by simply changing the size of the todpreg field within the
-save area structure. This will implicitly also fix the size of the
-corresponding elf notes sections.
+In addition, remove blanks before goto labels.
 
-This also gets rid of this compile time warning:
-
-in function ‘fortify_memcpy_chk’,
-    inlined from ‘save_area_add_regs’ at arch/s390/kernel/crash_dump.c:99:2:
-./include/linux/fortify-string.h:413:25: error: call to ‘__read_overflow2_field’
-   declared with attribute warning: detected read beyond size of field
-   (2nd parameter); maybe use struct_group()? [-Werror=attribute-warning]
-  413 |                         __read_overflow2_field(q_size_field, size);
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Fixes: 1a2c5840acf9 ("s390/dump: cleanup CPU save area handling")
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Fixes: 7e02e5433e00 ("can: cc770: legacy CC770 ISA bus driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/all/1668168557-6024-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/crash_dump.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/cc770/cc770_isa.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index 376f6b6dfb3c..7fb7d4dc18dc 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -45,7 +45,7 @@ struct save_area {
- 	u64 fprs[16];
- 	u32 fpc;
- 	u32 prefix;
--	u64 todpreg;
-+	u32 todpreg;
- 	u64 timer;
- 	u64 todcmp;
- 	u64 vxrs_low[16];
+diff --git a/drivers/net/can/cc770/cc770_isa.c b/drivers/net/can/cc770/cc770_isa.c
+index 194c86e0f340..8f6dccd5a587 100644
+--- a/drivers/net/can/cc770/cc770_isa.c
++++ b/drivers/net/can/cc770/cc770_isa.c
+@@ -264,22 +264,24 @@ static int cc770_isa_probe(struct platform_device *pdev)
+ 	if (err) {
+ 		dev_err(&pdev->dev,
+ 			"couldn't register device (err=%d)\n", err);
+-		goto exit_unmap;
++		goto exit_free;
+ 	}
+ 
+ 	dev_info(&pdev->dev, "device registered (reg_base=0x%p, irq=%d)\n",
+ 		 priv->reg_base, dev->irq);
+ 	return 0;
+ 
+- exit_unmap:
++exit_free:
++	free_cc770dev(dev);
++exit_unmap:
+ 	if (mem[idx])
+ 		iounmap(base);
+- exit_release:
++exit_release:
+ 	if (mem[idx])
+ 		release_mem_region(mem[idx], iosize);
+ 	else
+ 		release_region(port[idx], iosize);
+- exit:
++exit:
+ 	return err;
+ }
+ 
 -- 
 2.35.1
 
