@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDB33643365
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A3B66433DC
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:40:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234483AbiLETgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:36:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33664 "EHLO
+        id S234651AbiLETkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:40:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234473AbiLETfx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1251F2A722
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:32:15 -0800 (PST)
+        with ESMTP id S234788AbiLETj6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:39:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 744A52AE20
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:37:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98393B811CF
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:32:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB427C433D6;
-        Mon,  5 Dec 2022 19:32:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D344C61321
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:37:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2CE0C433D6;
+        Mon,  5 Dec 2022 19:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268732;
-        bh=rUYk3I9KVuVYEYyMZEggKJWyVee62u67LLJ10gBBILE=;
+        s=korg; t=1670269027;
+        bh=rXNK/ejhukvAjml9AyCedwlO2C0Xuvdrufw1DJyA3qU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EnNdPUGcWPYdaWpRI0SiHCv5b3StGgZSfBT91SB8YHuOwUMoTWmEGil9jUP4QIiCy
-         pS9Bk59N/ncsOd1cLu6VoDa1BZEn19zEzeIMx/2TdKyxlJW67fvVXS7E68NE9PyfTG
-         kcNzIbZRZCOnsd1dhbsY7wIHPB7xKHe4X2lvEbRU=
+        b=wX3K0QAWlFGu/2ODwes2f8ublgyNRWp1Mlq9pTXuK3XQieYYirM3CDC4hgYHqVx45
+         CoZxWYtxC+YxhaFbZBmXKTOlnkaGRA9mFKI62CWzovAcQ7ikj2gpb5mPekhMpnOnVW
+         QFZnjF34fPApj6xQCLSvYq+ITyWp39k2169eQznA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Tali Perry <tali.perry@nuvoton.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 85/92] i2c: npcm7xx: Fix error handling in npcm_i2c_init()
+        patches@lists.linux.dev, Guo Ren <guoren@linux.alibaba.com>,
+        Guo Ren <guoren@kernel.org>,
+        Xianting Tian <xianting.tian@linux.alibaba.com>,
+        Nick Kossifidis <mick@ics.forth.gr>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 098/120] riscv: kexec: Fixup irq controller broken in kexec crash path
 Date:   Mon,  5 Dec 2022 20:10:38 +0100
-Message-Id: <20221205190806.279191756@linuxfoundation.org>
+Message-Id: <20221205190809.502929775@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +56,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-[ Upstream commit 145900cf91c4b32ac05dbc8675a0c7f4a278749d ]
+[ Upstream commit b17d19a5314a37f7197afd1a0200affd21a7227d ]
 
-A problem about i2c-npcm7xx create debugfs failed is triggered with the
-following log given:
+If a crash happens on cpu3 and all interrupts are binding on cpu0, the
+bad irq routing will cause a crash kernel which can't receive any irq.
+Because crash kernel won't clean up all harts' PLIC enable bits in
+enable registers. This patch is similar to 9141a003a491 ("ARM: 7316/1:
+kexec: EOI active and mask all interrupts in kexec crash path") and
+78fd584cdec0 ("arm64: kdump: implement machine_crash_shutdown()"), and
+PowerPC also has the same mechanism.
 
- [  173.827310] debugfs: Directory 'npcm_i2c' with parent '/' already present!
-
-The reason is that npcm_i2c_init() returns platform_driver_register()
-directly without checking its return value, if platform_driver_register()
-failed, it returns without destroy the newly created debugfs, resulting
-the debugfs of npcm_i2c can never be created later.
-
- npcm_i2c_init()
-   debugfs_create_dir() # create debugfs directory
-   platform_driver_register()
-     driver_register()
-       bus_add_driver()
-         priv = kzalloc(...) # OOM happened
-   # return without destroy debugfs directory
-
-Fix by removing debugfs when platform_driver_register() returns error.
-
-Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Tali Perry <tali.perry@nuvoton.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: fba8a8674f68 ("RISC-V: Add kexec support")
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Reviewed-by: Xianting Tian <xianting.tian@linux.alibaba.com>
+Cc: Nick Kossifidis <mick@ics.forth.gr>
+Cc: Palmer Dabbelt <palmer@rivosinc.com>
+Link: https://lore.kernel.org/r/20221020141603.2856206-2-guoren@kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-npcm7xx.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/riscv/kernel/machine_kexec.c | 35 +++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-index 31e3d2c9d6bc..c1b679737240 100644
---- a/drivers/i2c/busses/i2c-npcm7xx.c
-+++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -2362,8 +2362,17 @@ static struct platform_driver npcm_i2c_bus_driver = {
+diff --git a/arch/riscv/kernel/machine_kexec.c b/arch/riscv/kernel/machine_kexec.c
+index ee79e6839b86..db41c676e5a2 100644
+--- a/arch/riscv/kernel/machine_kexec.c
++++ b/arch/riscv/kernel/machine_kexec.c
+@@ -15,6 +15,8 @@
+ #include <linux/compiler.h>	/* For unreachable() */
+ #include <linux/cpu.h>		/* For cpu_down() */
+ #include <linux/reboot.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
  
- static int __init npcm_i2c_init(void)
- {
-+	int ret;
-+
- 	npcm_i2c_debugfs_dir = debugfs_create_dir("npcm_i2c", NULL);
--	return platform_driver_register(&npcm_i2c_bus_driver);
-+
-+	ret = platform_driver_register(&npcm_i2c_bus_driver);
-+	if (ret) {
-+		debugfs_remove_recursive(npcm_i2c_debugfs_dir);
-+		return ret;
-+	}
-+
-+	return 0;
+ /*
+  * kexec_image_info - Print received image details
+@@ -154,6 +156,37 @@ void crash_smp_send_stop(void)
+ 	cpus_stopped = 1;
  }
- module_init(npcm_i2c_init);
+ 
++static void machine_kexec_mask_interrupts(void)
++{
++	unsigned int i;
++	struct irq_desc *desc;
++
++	for_each_irq_desc(i, desc) {
++		struct irq_chip *chip;
++		int ret;
++
++		chip = irq_desc_get_chip(desc);
++		if (!chip)
++			continue;
++
++		/*
++		 * First try to remove the active state. If this
++		 * fails, try to EOI the interrupt.
++		 */
++		ret = irq_set_irqchip_state(i, IRQCHIP_STATE_ACTIVE, false);
++
++		if (ret && irqd_irq_inprogress(&desc->irq_data) &&
++		    chip->irq_eoi)
++			chip->irq_eoi(&desc->irq_data);
++
++		if (chip->irq_mask)
++			chip->irq_mask(&desc->irq_data);
++
++		if (chip->irq_disable && !irqd_irq_disabled(&desc->irq_data))
++			chip->irq_disable(&desc->irq_data);
++	}
++}
++
+ /*
+  * machine_crash_shutdown - Prepare to kexec after a kernel crash
+  *
+@@ -169,6 +202,8 @@ machine_crash_shutdown(struct pt_regs *regs)
+ 	crash_smp_send_stop();
+ 
+ 	crash_save_cpu(regs, smp_processor_id());
++	machine_kexec_mask_interrupts();
++
+ 	pr_info("Starting crashdump kernel...\n");
+ }
  
 -- 
 2.35.1
