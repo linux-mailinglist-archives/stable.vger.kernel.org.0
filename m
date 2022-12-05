@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CF5A64325F
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AB89643157
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232307AbiLET0H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:26:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46312 "EHLO
+        id S231895AbiLETOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:14:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233847AbiLETZg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C6D2610C
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:21:28 -0800 (PST)
+        with ESMTP id S232627AbiLETNu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:13:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 297541F2F9
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:13:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E7CB612FE
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:21:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3239DC433D6;
-        Mon,  5 Dec 2022 19:21:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7F276130B
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:13:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C84E3C433D7;
+        Mon,  5 Dec 2022 19:13:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268087;
-        bh=6I5CMeNdEHAuanP4/Mpo5jutVAWJdHSdEK64wyihe4M=;
+        s=korg; t=1670267628;
+        bh=RaN0rz4QkZYvnSrfkoyhWbOXmcWVT/v6ZH0psLftSJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AsEoQRlAwrG8Pzilkh4QDMolgdKW+nC9zve7WxWqkkktTd6CQ7qTU88QbEiylnJIC
-         f2RYzQuYFDDAs2Kfn/6dAAyAGYy0bsJnTYOxUU1R/I9qBQWSPa0uRjaiYU3KgYBYk4
-         CziSFoV3dh6no8i3SBbcXvAHAZlAecb4iGVELfeY=
+        b=h5+mfDazqZkmfYa1yocuHVg4wGPWY5/9Y3rogJkCx3qmoImJf/Mkvtr0UQifrNKWw
+         iJUf6tEtutJFLfVg/c88i07cMBTh3+zX/nQp+5OdZU+X/4s5ceZyuaDL+sG2tEVWBn
+         O9lrz4uj3tRbRiLfM6CF6yvZG1bpqSnb/JpNBP0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 081/105] hwmon: (coretemp) fix pci device refcount leak in nv1a_ram_new()
+        patches@lists.linux.dev, Ulrich Hecht <uli+cip@fpond.eu>
+Subject: [PATCH 4.9 56/62] Revert "fbdev: fb_pm2fb: Avoid potential divide by zero error"
 Date:   Mon,  5 Dec 2022 20:09:53 +0100
-Message-Id: <20221205190805.892898146@linuxfoundation.org>
+Message-Id: <20221205190800.194717678@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
+References: <20221205190758.073114639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +51,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Ulrich Hecht <uli+cip@fpond.eu>
 
-[ Upstream commit 7dec14537c5906b8bf40fd6fd6d9c3850f8df11d ]
+This reverts commit 6577e903a9e193ad70f2db92eba57c4f335afd1a. It's a
+duplicate of a commit that is already in this tree
+(0f1174f4972ea9fad6becf8881d71adca8e9ca91).
 
-As comment of pci_get_domain_bus_and_slot() says, it returns
-a pci device with refcount increment, when finish using it,
-the caller must decrement the reference count by calling
-pci_dev_put(). So call it after using to avoid refcount leak.
-
-Fixes: 14513ee696a0 ("hwmon: (coretemp) Use PCI host bridge ID to identify CPU if necessary")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221118093303.214163-1-yangyingliang@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ulrich Hecht <uli+cip@fpond.eu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/coretemp.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/pm2fb.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
-index 02711014aee7..1b2f750577da 100644
---- a/drivers/hwmon/coretemp.c
-+++ b/drivers/hwmon/coretemp.c
-@@ -255,10 +255,13 @@ static int adjust_tjmax(struct cpuinfo_x86 *c, u32 id, struct device *dev)
- 	 */
- 	if (host_bridge && host_bridge->vendor == PCI_VENDOR_ID_INTEL) {
- 		for (i = 0; i < ARRAY_SIZE(tjmax_pci_table); i++) {
--			if (host_bridge->device == tjmax_pci_table[i].device)
-+			if (host_bridge->device == tjmax_pci_table[i].device) {
-+				pci_dev_put(host_bridge);
- 				return tjmax_pci_table[i].tjmax;
-+			}
- 		}
+--- a/drivers/video/fbdev/pm2fb.c
++++ b/drivers/video/fbdev/pm2fb.c
+@@ -619,11 +619,6 @@ static int pm2fb_check_var(struct fb_var
+ 		return -EINVAL;
  	}
-+	pci_dev_put(host_bridge);
  
- 	for (i = 0; i < ARRAY_SIZE(tjmax_table); i++) {
- 		if (strstr(c->x86_model_id, tjmax_table[i].id))
--- 
-2.35.1
-
+-	if (!var->pixclock) {
+-		DPRINTK("pixclock is zero\n");
+-		return -EINVAL;
+-	}
+-
+ 	if (PICOS2KHZ(var->pixclock) > PM2_MAX_PIXCLOCK) {
+ 		DPRINTK("pixclock too high (%ldKHz)\n",
+ 			PICOS2KHZ(var->pixclock));
 
 
