@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E25C6433A7
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43E65643252
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234485AbiLETi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:38:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37108 "EHLO
+        id S233309AbiLETZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:25:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234492AbiLETiI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D53B14
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:35:00 -0800 (PST)
+        with ESMTP id S233758AbiLETZT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEFD124F24
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:21:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D687DB81205
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B2FFC433D7;
-        Mon,  5 Dec 2022 19:34:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C48DB81200
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:21:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D85E4C433C1;
+        Mon,  5 Dec 2022 19:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268897;
-        bh=7WvN6O3B3NrszyhvuFlHQJwIGzSuZZXHFehhCxmMAxc=;
+        s=korg; t=1670268060;
+        bh=0ZZkmZYhYFLmBxRix8kkbXqUBlIzb04ksDrwJPp8hy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WQo2iLfu3Mdy2ZUVNufNdPNbX09tnruPFTkc1kHIJ7d1Gje2QxZbpzK4XqbHmrsBV
-         zVn0d03pdQODUpyt6deN+Wj+82we60n21fFwTSnHTYvxwtfOqopmlJBadhPl4EFlXp
-         J2RKh5RIW8ig7T1ivG8MxS7wxGnO833Zx4x7N8d8=
+        b=Kz793yL9nNE/c0QkBCmJU4wBy28MGygr2e8L78YrEHvUfousBkFc72PYiRiM5XJjw
+         KJ/V6pGeYpHPBSL52zKi5Hk2CInYgTW8KcuQETlV/vg5r81Ygn/poRBchQdLM2B1US
+         xTH6ymas0cPEP+0eLDQfm140Ow4yo4ttTOjj85Wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Izabela Bakollari <ibakolla@redhat.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 044/120] aquantia: Do not purge addresses when setting the number of rings
+Subject: [PATCH 4.19 072/105] net: phy: fix null-ptr-deref while probe() failed
 Date:   Mon,  5 Dec 2022 20:09:44 +0100
-Message-Id: <20221205190807.871853296@linuxfoundation.org>
+Message-Id: <20221205190805.602706178@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Izabela Bakollari <ibakolla@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 2a83891130512dafb321418a8e7c9c09268d8c59 ]
+[ Upstream commit 369eb2c9f1f72adbe91e0ea8efb130f0a2ba11a6 ]
 
-IPV6 addresses are purged when setting the number of rx/tx
-rings using ethtool -G. The function aq_set_ringparam
-calls dev_close, which removes the addresses. As a solution,
-call an internal function (aq_ndev_close).
+I got a null-ptr-deref report as following when doing fault injection test:
 
-Fixes: c1af5427954b ("net: aquantia: Ethtool based ring size configuration")
-Signed-off-by: Izabela Bakollari <ibakolla@redhat.com>
+BUG: kernel NULL pointer dereference, address: 0000000000000058
+Oops: 0000 [#1] PREEMPT SMP KASAN PTI
+CPU: 1 PID: 253 Comm: 507-spi-dm9051 Tainted: G    B            N 6.1.0-rc3+
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:klist_put+0x2d/0xd0
+Call Trace:
+ <TASK>
+ klist_remove+0xf1/0x1c0
+ device_release_driver_internal+0x23e/0x2d0
+ bus_remove_device+0x1bd/0x240
+ device_del+0x357/0x770
+ phy_device_remove+0x11/0x30
+ mdiobus_unregister+0xa5/0x140
+ release_nodes+0x6a/0xa0
+ devres_release_all+0xf8/0x150
+ device_unbind_cleanup+0x19/0xd0
+
+//probe path:
+phy_device_register()
+  device_add()
+
+phy_connect
+  phy_attach_direct() //set device driver
+    probe() //it's failed, driver is not bound
+    device_bind_driver() // probe failed, it's not called
+
+//remove path:
+phy_device_remove()
+  device_del()
+    device_release_driver_internal()
+      __device_release_driver() //dev->drv is not NULL
+        klist_remove() <- knode_driver is not added yet, cause null-ptr-deref
+
+In phy_attach_direct(), after setting the 'dev->driver', probe() fails,
+device_bind_driver() is not called, so the knode_driver->n_klist is not
+set, then it causes null-ptr-deref in __device_release_driver() while
+deleting device. Fix this by setting dev->driver to NULL in the error
+path in phy_attach_direct().
+
+Fixes: e13934563db0 ("[PATCH] PHY Layer fixup")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c | 5 +++--
- drivers/net/ethernet/aquantia/atlantic/aq_main.c    | 4 ++--
- drivers/net/ethernet/aquantia/atlantic/aq_main.h    | 2 ++
- 3 files changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/phy/phy_device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c b/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
-index a9ef0544e30f..715859cb6560 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
-@@ -13,6 +13,7 @@
- #include "aq_ptp.h"
- #include "aq_filters.h"
- #include "aq_macsec.h"
-+#include "aq_main.h"
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index a03d0627efb0..4d29865d97a4 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -1083,6 +1083,7 @@ int phy_attach_direct(struct net_device *dev, struct phy_device *phydev,
  
- #include <linux/ptp_clock_kernel.h>
- 
-@@ -845,7 +846,7 @@ static int aq_set_ringparam(struct net_device *ndev,
- 
- 	if (netif_running(ndev)) {
- 		ndev_running = true;
--		dev_close(ndev);
-+		aq_ndev_close(ndev);
- 	}
- 
- 	cfg->rxds = max(ring->rx_pending, hw_caps->rxds_min);
-@@ -861,7 +862,7 @@ static int aq_set_ringparam(struct net_device *ndev,
- 		goto err_exit;
- 
- 	if (ndev_running)
--		err = dev_open(ndev, NULL);
-+		err = aq_ndev_open(ndev);
- 
- err_exit:
- 	return err;
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_main.c b/drivers/net/ethernet/aquantia/atlantic/aq_main.c
-index f069312463fb..45ed097bfe49 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_main.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_main.c
-@@ -53,7 +53,7 @@ struct net_device *aq_ndev_alloc(void)
- 	return ndev;
- }
- 
--static int aq_ndev_open(struct net_device *ndev)
-+int aq_ndev_open(struct net_device *ndev)
- {
- 	struct aq_nic_s *aq_nic = netdev_priv(ndev);
- 	int err = 0;
-@@ -83,7 +83,7 @@ static int aq_ndev_open(struct net_device *ndev)
- 	return err;
- }
- 
--static int aq_ndev_close(struct net_device *ndev)
-+int aq_ndev_close(struct net_device *ndev)
- {
- 	struct aq_nic_s *aq_nic = netdev_priv(ndev);
- 	int err = 0;
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_main.h b/drivers/net/ethernet/aquantia/atlantic/aq_main.h
-index a5a624b9ce73..2a562ab7a5af 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_main.h
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_main.h
-@@ -14,5 +14,7 @@
- 
- void aq_ndev_schedule_work(struct work_struct *work);
- struct net_device *aq_ndev_alloc(void);
-+int aq_ndev_open(struct net_device *ndev);
-+int aq_ndev_close(struct net_device *ndev);
- 
- #endif /* AQ_MAIN_H */
+ error_module_put:
+ 	module_put(d->driver->owner);
++	d->driver = NULL;
+ error_put_device:
+ 	put_device(d);
+ 	if (ndev_owner != bus->owner)
 -- 
 2.35.1
 
