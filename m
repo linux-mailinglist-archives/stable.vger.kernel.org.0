@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0292643483
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EDB0643286
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235061AbiLETrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:47:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52584 "EHLO
+        id S233917AbiLET0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:26:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235072AbiLETrP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A275126F7
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:35 -0800 (PST)
+        with ESMTP id S233892AbiLET0K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 153D06164
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:22:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FB85612EA
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F430C433C1;
-        Mon,  5 Dec 2022 19:43:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D28CB81151
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:22:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FA9CC433C1;
+        Mon,  5 Dec 2022 19:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269414;
-        bh=2zb17M+tACjXU5ka8LUoOI0mkgF/fyr3rncP5z9Fw8c=;
+        s=korg; t=1670268156;
+        bh=f26FviH9Ojc5377JhuCtrhXPgrQ2thV8/WZHICpc4LU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EQzOvbJpOFPiupEXtqvvQt9frcywsWyaTZMnr8yVGsfpzWK2gZvwu1hZETomkTa+z
-         fyKucl0ezcQxUf+HUG61cqI9CI7y5yd4mPGnenDpJ/ss9aR6McLWR/Wpl4WWg0ywUe
-         kHfC91dahMGX0xAloKAf/PQDkbPEz6xQQF2kHOCo=
+        b=ZeooNdo6XMZ5rqbRHtBC8qQqqmsIM4pELKgOrxD+KGKg28TFwYtlNk1zUeyaa/7UZ
+         EQsmwuHnl0s1+HCfyNTzZ3VVRHKsoXfySrnqd3/ohl3VDOKlGCz/ErOu4l9nmvapyd
+         EbtHxDKtLHPsjHY4gdkxNOKvQOKhb8N8PzZdgY7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Wilson <chris.p.wilson@intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 081/153] drm/i915: fix TLB invalidation for Gen12 video and compute engines
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 093/105] iommu/vt-d: Fix PCI device refcount leak in dmar_dev_scope_init()
 Date:   Mon,  5 Dec 2022 20:10:05 +0100
-Message-Id: <20221205190811.048084667@linuxfoundation.org>
+Message-Id: <20221205190806.267044352@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrzej Hajda <andrzej.hajda@intel.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-commit 04aa64375f48a5d430b5550d9271f8428883e550 upstream.
+[ Upstream commit 4bedbbd782ebbe7287231fea862c158d4f08a9e3 ]
 
-In case of Gen12 video and compute engines, TLB_INV registers are masked -
-to modify one bit, corresponding bit in upper half of the register must
-be enabled, otherwise nothing happens.
+for_each_pci_dev() is implemented by pci_get_device(). The comment of
+pci_get_device() says that it will increase the reference count for the
+returned pci_dev and also decrease the reference count for the input
+pci_dev @from if it is not NULL.
 
-CVE: CVE-2022-4139
-Suggested-by: Chris Wilson <chris.p.wilson@intel.com>
-Signed-off-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Fixes: 7938d61591d3 ("drm/i915: Flush TLBs before releasing backing store")
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+If we break for_each_pci_dev() loop with pdev not NULL, we need to call
+pci_dev_put() to decrease the reference count. Add the missing
+pci_dev_put() for the error path to avoid reference count leak.
+
+Fixes: 2e4552893038 ("iommu/vt-d: Unify the way to process DMAR device scope array")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Link: https://lore.kernel.org/r/20221121113649.190393-3-wangxiongfeng2@huawei.com
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_gt.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/iommu/dmar.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -348,6 +348,10 @@ void intel_gt_invalidate_tlbs(struct int
- 		if (!i915_mmio_reg_offset(rb.reg))
- 			continue;
- 
-+		if (INTEL_GEN(i915) == 12 && (engine->class == VIDEO_DECODE_CLASS ||
-+		    engine->class == VIDEO_ENHANCEMENT_CLASS))
-+			rb.bit = _MASKED_BIT_ENABLE(rb.bit);
-+
- 		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
- 	}
- 
+diff --git a/drivers/iommu/dmar.c b/drivers/iommu/dmar.c
+index 017786d62f47..3ea851583724 100644
+--- a/drivers/iommu/dmar.c
++++ b/drivers/iommu/dmar.c
+@@ -804,6 +804,7 @@ int __init dmar_dev_scope_init(void)
+ 			info = dmar_alloc_pci_notify_info(dev,
+ 					BUS_NOTIFY_ADD_DEVICE);
+ 			if (!info) {
++				pci_dev_put(dev);
+ 				return dmar_dev_scope_status;
+ 			} else {
+ 				dmar_pci_bus_add_dev(info);
+-- 
+2.35.1
+
 
 
