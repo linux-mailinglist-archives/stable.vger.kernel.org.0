@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAA7E6432BA
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C866433A2
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234174AbiLET2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:28:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49954 "EHLO
+        id S234595AbiLETiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:38:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233522AbiLET2e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:28:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94F8029C9F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:25:09 -0800 (PST)
+        with ESMTP id S234462AbiLEThu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:37:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3318B25E98;
+        Mon,  5 Dec 2022 11:34:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39931B81201
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:25:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83848C433C1;
-        Mon,  5 Dec 2022 19:25:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C30B261335;
+        Mon,  5 Dec 2022 19:34:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC751C433D6;
+        Mon,  5 Dec 2022 19:34:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268306;
-        bh=/yEZWT9cyjBbpupMJ8pXa9Z4pppWixJQy4hL7oceQHQ=;
+        s=korg; t=1670268884;
+        bh=tGe3E7rsjegcxXYBvUN+80kpXgkL52+FhXRG7Djf2Uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffjZWKVCXgh8lioLGFZxBC7MHgeKTD6gMpBSvPrnvtOOUNeVFVJcwFEwvF52W1kaN
-         PIQ6j3vipdQPAqXrUvUYo/NQ3dZPICAn784TptTqu4/clDFSZuNpeEr0gfJhPB9aJT
-         HO/Fuf7wm3OA8H5Dz8VJymHvh+owiVT4zSfj+Yg8=
+        b=seGSCrwifJfBiOOGf+Tl8yrjXIKoyV0gfbprDr75YnIFFIYduu4xChIJNItsx9W9q
+         xTNQuhLP+0doO3/kuyK+AQZk+xLdQf6US8mrO960EQ4bZ6258IAiiwGED33y56gCxx
+         Hw3PehVSlA1RedEkf4xv5WidjInDD6CgjGnVjNuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Hai <wanghai38@huawei.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, nicolas.ferre@microchip.com,
+        ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        claudiu.beznea@microchip.com, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 053/124] net/9p: Fix a potential socket leak in p9_socket_open
+Subject: [PATCH 5.15 019/120] ARM: at91: rm9200: fix usb device clock id
 Date:   Mon,  5 Dec 2022 20:09:19 +0100
-Message-Id: <20221205190809.938649269@linuxfoundation.org>
+Message-Id: <20221205190807.152315013@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +57,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-[ Upstream commit dcc14cfd7debe11b825cb077e75d91d2575b4cb8 ]
+[ Upstream commit 57976762428675f259339385d3324d28ee53ec02 ]
 
-Both p9_fd_create_tcp() and p9_fd_create_unix() will call
-p9_socket_open(). If the creation of p9_trans_fd fails,
-p9_fd_create_tcp() and p9_fd_create_unix() will return an
-error directly instead of releasing the cscoket, which will
-result in a socket leak.
+Referring to the datasheet the index 2 is the MCKUDP. When enabled, it
+"Enables the automatic disable of the Master Clock of the USB Device
+Port when a suspend condition occurs". We fix the index to the real UDP
+id which "Enables the 48 MHz clock of the USB Device Port".
 
-This patch adds sock_release() to fix the leak issue.
-
-Fixes: 6b18662e239a ("9p connect fixes")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-ACKed-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: nicolas.ferre@microchip.com
+Cc: ludovic.desroches@microchip.com
+Cc: alexandre.belloni@bootlin.com
+Cc: mturquette@baylibre.com
+Cc: sboyd@kernel.org
+Cc: claudiu.beznea@microchip.com
+Cc: linux-clk@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: kernel@pengutronix.de
+Fixes: 02ff48e4d7f7 ("clk: at91: add at91rm9200 pmc driver")
+Fixes: 0e0e528d8260 ("ARM: dts: at91: rm9200: switch to new clock bindings")
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20221114185923.1023249-2-m.grzeschik@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_fd.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/at91rm9200.dtsi | 2 +-
+ drivers/clk/at91/at91rm9200.c     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
-index 8487321c1fc7..3e056fb043bb 100644
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -862,8 +862,10 @@ static int p9_socket_open(struct p9_client *client, struct socket *csocket)
- 	struct file *file;
+diff --git a/arch/arm/boot/dts/at91rm9200.dtsi b/arch/arm/boot/dts/at91rm9200.dtsi
+index d1181ead18e5..21344fbc89e5 100644
+--- a/arch/arm/boot/dts/at91rm9200.dtsi
++++ b/arch/arm/boot/dts/at91rm9200.dtsi
+@@ -660,7 +660,7 @@ usb1: gadget@fffb0000 {
+ 				compatible = "atmel,at91rm9200-udc";
+ 				reg = <0xfffb0000 0x4000>;
+ 				interrupts = <11 IRQ_TYPE_LEVEL_HIGH 2>;
+-				clocks = <&pmc PMC_TYPE_PERIPHERAL 11>, <&pmc PMC_TYPE_SYSTEM 2>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 11>, <&pmc PMC_TYPE_SYSTEM 1>;
+ 				clock-names = "pclk", "hclk";
+ 				status = "disabled";
+ 			};
+diff --git a/drivers/clk/at91/at91rm9200.c b/drivers/clk/at91/at91rm9200.c
+index 428a6f4b9ebc..8d36e615cd9d 100644
+--- a/drivers/clk/at91/at91rm9200.c
++++ b/drivers/clk/at91/at91rm9200.c
+@@ -40,7 +40,7 @@ static const struct clk_pll_characteristics rm9200_pll_characteristics = {
+ };
  
- 	p = kzalloc(sizeof(struct p9_trans_fd), GFP_KERNEL);
--	if (!p)
-+	if (!p) {
-+		sock_release(csocket);
- 		return -ENOMEM;
-+	}
- 
- 	csocket->sk->sk_allocation = GFP_NOIO;
- 	file = sock_alloc_file(csocket, 0, NULL);
+ static const struct sck at91rm9200_systemck[] = {
+-	{ .n = "udpck", .p = "usbck",    .id = 2 },
++	{ .n = "udpck", .p = "usbck",    .id = 1 },
+ 	{ .n = "uhpck", .p = "usbck",    .id = 4 },
+ 	{ .n = "pck0",  .p = "prog0",    .id = 8 },
+ 	{ .n = "pck1",  .p = "prog1",    .id = 9 },
 -- 
 2.35.1
 
