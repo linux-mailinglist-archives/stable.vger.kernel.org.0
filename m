@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50BA66433CE
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:39:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDC0E64330D
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234682AbiLETji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:39:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40582 "EHLO
+        id S234288AbiLETeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:34:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234453AbiLETjU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:39:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D6A6BE3
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:36:33 -0800 (PST)
+        with ESMTP id S234127AbiLETdo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:33:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6490E2D778
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:28:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C3D661321
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:36:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D768C433C1;
-        Mon,  5 Dec 2022 19:36:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0286FB80EFD
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:28:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA59C433D6;
+        Mon,  5 Dec 2022 19:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268992;
-        bh=Eh7/aH1Q7jJ4iH8EF2bQQfSSNfVzsIPwDs1qIQ/UIq0=;
+        s=korg; t=1670268510;
+        bh=ipSJSQkL1kzU648WQdGvF8202dy1RqdSgpRc+thfUTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ry4DtFAo+KhJ5DPQe4sRkTqBRZ3Ye2WaQDC1Dct2iwSSY+OKMsQUCMP3Sz/JqeqSx
-         qZeMbh/XLaHbcm0g4apRCV4XgEzANfqCkwhuFpxs6B6N02y3hYBLNqyfYn/E/MttCP
-         zP+X9rLKSdJzKJtdMNtoR7p6xJGLoLXFFAv4JgyQ=
+        b=qjW/Zv51zbaVmFmklMd/TPy+qbLdTxJT2sUXkAGVkS6lGdpMsuclV8cMPFSsEwkMS
+         ZZv7icHm7E/1J+OTcmaHncHRb0KsGm1ck4DPaqqk1I10tcYVjkU4Z6AZEuWcxoBLd4
+         OW0uz01aw0DTp09d1kGaA2z9YPaX8wWKku5SK6CU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
-        Zheng Yejian <zhengyejian1@huawei.com>,
-        Yujie Liu <yujie.liu@intel.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 087/120] tracing: Free buffers when a used dynamic event is removed
+        patches@lists.linux.dev, Conor Dooley <conor.dooley@microchip.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 121/124] Revert "clocksource/drivers/riscv: Events are stopped during CPU suspend"
 Date:   Mon,  5 Dec 2022 20:10:27 +0100
-Message-Id: <20221205190809.200349785@linuxfoundation.org>
+Message-Id: <20221205190811.886494481@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,201 +55,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-commit 4313e5a613049dfc1819a6dfb5f94cf2caff9452 upstream.
+[ Upstream commit d9f15a9de44affe733e34f93bc184945ba277e6d ]
 
-After 65536 dynamic events have been added and removed, the "type" field
-of the event then uses the first type number that is available (not
-currently used by other events). A type number is the identifier of the
-binary blobs in the tracing ring buffer (known as events) to map them to
-logic that can parse the binary blob.
+This reverts commit 232ccac1bd9b5bfe73895f527c08623e7fa0752d.
 
-The issue is that if a dynamic event (like a kprobe event) is traced and
-is in the ring buffer, and then that event is removed (because it is
-dynamic, which means it can be created and destroyed), if another dynamic
-event is created that has the same number that new event's logic on
-parsing the binary blob will be used.
+On the subject of suspend, the RISC-V SBI spec states:
 
-To show how this can be an issue, the following can crash the kernel:
+  This does not cover whether any given events actually reach the hart or
+  not, just what the hart will do if it receives an event. On PolarFire
+  SoC, and potentially other SiFive based implementations, events from the
+  RISC-V timer do reach a hart during suspend. This is not the case for the
+  implementation on the Allwinner D1 - there timer events are not received
+  during suspend.
 
- # cd /sys/kernel/tracing
- # for i in `seq 65536`; do
-     echo 'p:kprobes/foo do_sys_openat2 $arg1:u32' > kprobe_events
- # done
+To fix this, the CLOCK_EVT_FEAT_C3STOP (mis)feature was enabled for the
+timer driver - but this has broken both RCU stall detection and timers
+generally on PolarFire SoC and potentially other SiFive based
+implementations.
 
-For every iteration of the above, the writing to the kprobe_events will
-remove the old event and create a new one (with the same format) and
-increase the type number to the next available on until the type number
-reaches over 65535 which is the max number for the 16 bit type. After it
-reaches that number, the logic to allocate a new number simply looks for
-the next available number. When an dynamic event is removed, that number
-is then available to be reused by the next dynamic event created. That is,
-once the above reaches the max number, the number assigned to the event in
-that loop will remain the same.
+If an AXI read to the PCIe controller on PolarFire SoC times out, the
+system will stall, however, with CLOCK_EVT_FEAT_C3STOP active, the system
+just locks up without RCU stalling:
 
-Now that means deleting one dynamic event and created another will reuse
-the previous events type number. This is where bad things can happen.
-After the above loop finishes, the kprobes/foo event which reads the
-do_sys_openat2 function call's first parameter as an integer.
+	io scheduler mq-deadline registered
+	io scheduler kyber registered
+	microchip-pcie 2000000000.pcie: host bridge /soc/pcie@2000000000 ranges:
+	microchip-pcie 2000000000.pcie:      MEM 0x2008000000..0x2087ffffff -> 0x0008000000
+	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: axi read request error
+	microchip-pcie 2000000000.pcie: axi read timeout
+	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
+	Freeing initrd memory: 7332K
 
- # echo 1 > kprobes/foo/enable
- # cat /etc/passwd > /dev/null
- # cat trace
-             cat-2211    [005] ....  2007.849603: foo: (do_sys_openat2+0x0/0x130) arg1=4294967196
-             cat-2211    [005] ....  2007.849620: foo: (do_sys_openat2+0x0/0x130) arg1=4294967196
-             cat-2211    [005] ....  2007.849838: foo: (do_sys_openat2+0x0/0x130) arg1=4294967196
-             cat-2211    [005] ....  2007.849880: foo: (do_sys_openat2+0x0/0x130) arg1=4294967196
- # echo 0 > kprobes/foo/enable
+Similarly issues were reported with clock_nanosleep() - with a test app
+that sleeps each cpu for 6, 5, 4, 3 ms respectively, HZ=250 & the blamed
+commit in place, the sleep times are rounded up to the next jiffy:
 
-Now if we delete the kprobe and create a new one that reads a string:
+== CPU: 1 ==      == CPU: 2 ==      == CPU: 3 ==      == CPU: 4 ==
+Mean: 7.974992    Mean: 7.976534    Mean: 7.962591    Mean: 3.952179
+Std Dev: 0.154374 Std Dev: 0.156082 Std Dev: 0.171018 Std Dev: 0.076193
+Hi: 9.472000      Hi: 10.495000     Hi: 8.864000      Hi: 4.736000
+Lo: 6.087000      Lo: 6.380000      Lo: 4.872000      Lo: 3.403000
+Samples: 521      Samples: 521      Samples: 521      Samples: 521
 
- # echo 'p:kprobes/foo do_sys_openat2 +0($arg2):string' > kprobe_events
+Fortunately, the D1 has a second timer, which is "currently used in
+preference to the RISC-V/SBI timer driver" so a revert here does not
+hurt operation of D1 in its current form.
 
-And now we can the trace:
+Ultimately, a DeviceTree property (or node) will be added to encode the
+behaviour of the timers, but until then revert the addition of
+CLOCK_EVT_FEAT_C3STOP.
 
- # cat trace
-        sendmail-1942    [002] .....   530.136320: foo: (do_sys_openat2+0x0/0x240) arg1=             cat-2046    [004] .....   530.930817: foo: (do_sys_openat2+0x0/0x240) arg1="������������������������������������������������������������������������������������������������"
-             cat-2046    [004] .....   530.930961: foo: (do_sys_openat2+0x0/0x240) arg1="������������������������������������������������������������������������������������������������"
-             cat-2046    [004] .....   530.934278: foo: (do_sys_openat2+0x0/0x240) arg1="������������������������������������������������������������������������������������������������"
-             cat-2046    [004] .....   530.934563: foo: (do_sys_openat2+0x0/0x240) arg1="������������������������������������������������������������������������������������������������"
-            bash-1515    [007] .....   534.299093: foo: (do_sys_openat2+0x0/0x240) arg1="kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk���������@��4Z����;Y�����U
-
-And dmesg has:
-
-==================================================================
-BUG: KASAN: use-after-free in string+0xd4/0x1c0
-Read of size 1 at addr ffff88805fdbbfa0 by task cat/2049
-
- CPU: 0 PID: 2049 Comm: cat Not tainted 6.1.0-rc6-test+ #641
- Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01 v03.03 07/14/2016
- Call Trace:
-  <TASK>
-  dump_stack_lvl+0x5b/0x77
-  print_report+0x17f/0x47b
-  kasan_report+0xad/0x130
-  string+0xd4/0x1c0
-  vsnprintf+0x500/0x840
-  seq_buf_vprintf+0x62/0xc0
-  trace_seq_printf+0x10e/0x1e0
-  print_type_string+0x90/0xa0
-  print_kprobe_event+0x16b/0x290
-  print_trace_line+0x451/0x8e0
-  s_show+0x72/0x1f0
-  seq_read_iter+0x58e/0x750
-  seq_read+0x115/0x160
-  vfs_read+0x11d/0x460
-  ksys_read+0xa9/0x130
-  do_syscall_64+0x3a/0x90
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
- RIP: 0033:0x7fc2e972ade2
- Code: c0 e9 b2 fe ff ff 50 48 8d 3d b2 3f 0a 00 e8 05 f0 01 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
- RSP: 002b:00007ffc64e687c8 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
- RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007fc2e972ade2
- RDX: 0000000000020000 RSI: 00007fc2e980d000 RDI: 0000000000000003
- RBP: 00007fc2e980d000 R08: 00007fc2e980c010 R09: 0000000000000000
- R10: 0000000000000022 R11: 0000000000000246 R12: 0000000000020f00
- R13: 0000000000000003 R14: 0000000000020000 R15: 0000000000020000
-  </TASK>
-
- The buggy address belongs to the physical page:
- page:ffffea00017f6ec0 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x5fdbb
- flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
- raw: 000fffffc0000000 0000000000000000 ffffea00017f6ec8 0000000000000000
- raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
- page dumped because: kasan: bad access detected
-
- Memory state around the buggy address:
-  ffff88805fdbbe80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-  ffff88805fdbbf00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- >ffff88805fdbbf80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-                                ^
-  ffff88805fdbc000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-  ffff88805fdbc080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ==================================================================
-
-This was found when Zheng Yejian sent a patch to convert the event type
-number assignment to use IDA, which gives the next available number, and
-this bug showed up in the fuzz testing by Yujie Liu and the kernel test
-robot. But after further analysis, I found that this behavior is the same
-as when the event type numbers go past the 16bit max (and the above shows
-that).
-
-As modules have a similar issue, but is dealt with by setting a
-"WAS_ENABLED" flag when a module event is enabled, and when the module is
-freed, if any of its events were enabled, the ring buffer that holds that
-event is also cleared, to prevent reading stale events. The same can be
-done for dynamic events.
-
-If any dynamic event that is being removed was enabled, then make sure the
-buffers they were enabled in are now cleared.
-
-Link: https://lkml.kernel.org/r/20221123171434.545706e3@gandalf.local.home
-Link: https://lore.kernel.org/all/20221110020319.1259291-1-zhengyejian1@huawei.com/
-
-Cc: stable@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Depends-on: e18eb8783ec49 ("tracing: Add tracing_reset_all_online_cpus_unlocked() function")
-Depends-on: 5448d44c38557 ("tracing: Add unified dynamic event framework")
-Depends-on: 6212dd29683ee ("tracing/kprobes: Use dyn_event framework for kprobe events")
-Depends-on: 065e63f951432 ("tracing: Only have rmmod clear buffers that its events were active in")
-Depends-on: 575380da8b469 ("tracing: Only clear trace buffer on module unload if event was traced")
-Fixes: 77b44d1b7c283 ("tracing/kprobes: Rename Kprobe-tracer to kprobe-event")
-Reported-by: Zheng Yejian <zhengyejian1@huawei.com>
-Reported-by: Yujie Liu <yujie.liu@intel.com>
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 232ccac1bd9b ("clocksource/drivers/riscv: Events are stopped during CPU suspend")
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Acked-by: Samuel Holland <samuel@sholland.org>
+Link: https://lore.kernel.org/linux-riscv/YzYTNQRxLr7Q9JR0@spud/
+Link: https://github.com/riscv-non-isa/riscv-sbi-doc/issues/98/
+Link: https://lore.kernel.org/linux-riscv/bf6d3b1f-f703-4a25-833e-972a44a04114@sholland.org/
+Link: https://lore.kernel.org/r/20221122121620.3522431-1-conor.dooley@microchip.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_dynevent.c |    2 ++
- kernel/trace/trace_events.c   |   11 ++++++++++-
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ drivers/clocksource/timer-riscv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/trace_dynevent.c
-+++ b/kernel/trace/trace_dynevent.c
-@@ -118,6 +118,7 @@ int dyn_event_release(const char *raw_co
- 		if (ret)
- 			break;
- 	}
-+	tracing_reset_all_online_cpus();
- 	mutex_unlock(&event_mutex);
- out:
- 	argv_free(argv);
-@@ -214,6 +215,7 @@ int dyn_events_release_all(struct dyn_ev
- 			break;
- 	}
- out:
-+	tracing_reset_all_online_cpus();
- 	mutex_unlock(&event_mutex);
- 
- 	return ret;
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -2874,7 +2874,10 @@ static int probe_remove_event_call(struc
- 		 * TRACE_REG_UNREGISTER.
- 		 */
- 		if (file->flags & EVENT_FILE_FL_ENABLED)
--			return -EBUSY;
-+			goto busy;
-+
-+		if (file->flags & EVENT_FILE_FL_WAS_ENABLED)
-+			tr->clear_trace = true;
- 		/*
- 		 * The do_for_each_event_file_safe() is
- 		 * a double loop. After finding the call for this
-@@ -2887,6 +2890,12 @@ static int probe_remove_event_call(struc
- 	__trace_remove_event_call(call);
- 
- 	return 0;
-+ busy:
-+	/* No need to clear the trace now */
-+	list_for_each_entry(tr, &ftrace_trace_arrays, list) {
-+		tr->clear_trace = false;
-+	}
-+	return -EBUSY;
- }
- 
- /* Remove an event_call */
+diff --git a/drivers/clocksource/timer-riscv.c b/drivers/clocksource/timer-riscv.c
+index 969a552da8d2..a0d66fabf073 100644
+--- a/drivers/clocksource/timer-riscv.c
++++ b/drivers/clocksource/timer-riscv.c
+@@ -51,7 +51,7 @@ static int riscv_clock_next_event(unsigned long delta,
+ static unsigned int riscv_clock_event_irq;
+ static DEFINE_PER_CPU(struct clock_event_device, riscv_clock_event) = {
+ 	.name			= "riscv_timer_clockevent",
+-	.features		= CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_C3STOP,
++	.features		= CLOCK_EVT_FEAT_ONESHOT,
+ 	.rating			= 100,
+ 	.set_next_event		= riscv_clock_next_event,
+ };
+-- 
+2.35.1
+
 
 
