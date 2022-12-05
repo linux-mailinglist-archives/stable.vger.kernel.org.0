@@ -2,59 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4D4E6433F8
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75EB8643486
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234788AbiLETlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:41:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40790 "EHLO
+        id S234728AbiLETrq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:47:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234811AbiLETkt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:40:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 292902610F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:38:17 -0800 (PST)
+        with ESMTP id S234654AbiLETrY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:24 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EA6928E20
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E196AB81157
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:38:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DC70C433D6;
-        Mon,  5 Dec 2022 19:38:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 991B9CE13A5
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7225EC433D6;
+        Mon,  5 Dec 2022 19:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269094;
-        bh=0Ny/4dzeP670hxsZcSqkSQeDvT0iENprUMPxKn3XOO0=;
+        s=korg; t=1670269422;
+        bh=Ze4TB5bhEUsJNgG/N8V+A9my32TLXgUh5CvfMc9erSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=unuFZHiWPsIzzBCqdUdJ0aSAPQ2cHrJOWu1yFyVVT87+arh0CVTkieWw9yEMu8zDX
-         wudDINgn9hJ0LtUUcWpBdljGdU4wOkazgUzANSSab3lfAiavdqQXqiDDCZGPimsvHe
-         RM6VjDVDLHuMtiRTG+RiRpWFgbLfRjrAG6HZVPco=
+        b=weuJ78jaIGQTin31wmcHhevI+OJDsVGSLLtJBI0uwwfjSYYwkxW1410eE7G5iE5Bv
+         Uf90yP7OptvQUNekmrkBkpzhRR0HoAWOSOcS10y7n/7N/NAhbkmipukjIQ1A8S3E+a
+         2E6ZPzsCpoxtJudE8VxWYyo1zhdZKQHhFceJ6JtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lee Jones <lee@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        David Airlie <airlied@gmail.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Tom Rix <trix@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 106/120] Kconfig.debug: provide a little extra FRAME_WARN leeway when KASAN is enabled
+        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 122/153] mmc: mmc_test: Fix removal of debugfs file
 Date:   Mon,  5 Dec 2022 20:10:46 +0100
-Message-Id: <20221205190809.727163931@linuxfoundation.org>
+Message-Id: <20221205190812.206402104@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,52 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee@kernel.org>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 152fe65f300e1819d59b80477d3e0999b4d5d7d2 ]
+commit f4307b4df1c28842bb1950ff0e1b97e17031b17f upstream.
 
-When enabled, KASAN enlarges function's stack-frames.  Pushing quite a few
-over the current threshold.  This can mainly be seen on 32-bit
-architectures where the present limit (when !GCC) is a lowly 1024-Bytes.
+In __mmc_test_register_dbgfs_file(), we need to assign 'file', as it's
+being used when removing the debugfs files when the mmc_test module is
+removed.
 
-Link: https://lkml.kernel.org/r/20221125120750.3537134-3-lee@kernel.org
-Signed-off-by: Lee Jones <lee@kernel.org>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Christian König" <christian.koenig@amd.com>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: David Airlie <airlied@gmail.com>
-Cc: Harry Wentland <harry.wentland@amd.com>
-Cc: Leo Li <sunpeng.li@amd.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: "Pan, Xinhui" <Xinhui.Pan@amd.com>
-Cc: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Tom Rix <trix@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a04c50aaa916 ("mmc: core: no need to check return value of debugfs_create functions")
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+[Ulf: Re-wrote the commit msg]
+Link: https://lore.kernel.org/r/20221123095506.1965691-1-yebin@huaweicloud.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/Kconfig.debug | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/core/mmc_test.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 23b7b1fccc54..f71db0cc3bf1 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -354,6 +354,7 @@ config FRAME_WARN
- 	default 2048 if GCC_PLUGIN_LATENT_ENTROPY
- 	default 2048 if PARISC
- 	default 1536 if (!64BIT && XTENSA)
-+	default 1280 if KASAN && !64BIT
- 	default 1024 if !64BIT
- 	default 2048 if 64BIT
- 	help
--- 
-2.35.1
-
+--- a/drivers/mmc/core/mmc_test.c
++++ b/drivers/mmc/core/mmc_test.c
+@@ -3167,7 +3167,8 @@ static int __mmc_test_register_dbgfs_fil
+ 	struct mmc_test_dbgfs_file *df;
+ 
+ 	if (card->debugfs_root)
+-		debugfs_create_file(name, mode, card->debugfs_root, card, fops);
++		file = debugfs_create_file(name, mode, card->debugfs_root,
++					   card, fops);
+ 
+ 	df = kmalloc(sizeof(*df), GFP_KERNEL);
+ 	if (!df) {
 
 
