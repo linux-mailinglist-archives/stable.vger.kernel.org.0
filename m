@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B3D7643417
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:42:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A52D664320C
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:24:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234685AbiLETmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:42:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40790 "EHLO
+        id S233832AbiLETYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:24:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234453AbiLETle (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:41:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5439525D2
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:39:12 -0800 (PST)
+        with ESMTP id S233835AbiLETXn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:23:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C4172B1B3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:18:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 086FDB81157
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:39:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68E93C433C1;
-        Mon,  5 Dec 2022 19:39:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9859B8120F
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:18:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C504C433D6;
+        Mon,  5 Dec 2022 19:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269149;
-        bh=dJ/I0wKawby+oC2z/HqjAP/uGjoC/977JpNtRPYryaE=;
+        s=korg; t=1670267902;
+        bh=IUazWeTxobJECcYh3z89Bl/jOzcwT+93aRzEwi95fyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wkfPdO+iPjq0RA6JzQZFm5DIGOsBVnbWM8sab/M/h8H33YuYOJ9DswbOnLLHJ1hJ5
-         EIo4CgbCOOHI0nknGZlL7Oeydm9Kqu/t2kWi9OHCX/NJ8QfjXZoHE7XpgeJpFCz4xn
-         otNJrSvGitf2iQBNI/jmeOqf7QVCwbgnUSpQcMag=
+        b=GqyfjK+3YYq8Ke87IK+okxvxy4xCafoSfGTJM2vB6WNVfDMX6mXk3FZ4Kr8tpPHT7
+         B6KZhI/t3UyMbn3F6Z/6roRhSVllM5h3/cj/q/wrpO9JAMxZKITqRoqZGwDWzexRB8
+         G+Uri8PWzcOKQ/vNNe1LbDEpYxMNvJQP8TDuiI0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nicolas Cavallari <nicolas.cavallari@green-communications.fr>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 004/153] wifi: mac80211: Fix ack frame idr leak when mesh has no route
+Subject: [PATCH 4.19 016/105] ARM: mxs: fix memory leak in mxs_machine_init()
 Date:   Mon,  5 Dec 2022 20:08:48 +0100
-Message-Id: <20221205190808.875291738@linuxfoundation.org>
+Message-Id: <20221205190803.684284704@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 39e7b5de9853bd92ddbfa4b14165babacd7da0ba ]
+[ Upstream commit f31e3c204d1844b8680a442a48868af5ac3d5481 ]
 
-When trying to transmit an data frame with tx_status to a destination
-that have no route in the mesh, then it is dropped without recrediting
-the ack_status_frames idr.
+If of_property_read_string() failed, 'soc_dev_attr' should be
+freed before return. Otherwise there is a memory leak.
 
-Once it is exhausted, wpa_supplicant starts failing to do SAE with
-NL80211_CMD_FRAME and logs "nl80211: Frame command failed".
-
-Use ieee80211_free_txskb() instead of kfree_skb() to fix it.
-
-Signed-off-by: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
-Link: https://lore.kernel.org/r/20221027140133.1504-1-nicolas.cavallari@green-communications.fr
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 2046338dcbc6 ("ARM: mxs: Use soc bus infrastructure")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_pathtbl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-mxs/mach-mxs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
-index d7ae7415d54d..80a83d0d9550 100644
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -720,7 +720,7 @@ int mesh_path_send_to_gates(struct mesh_path *mpath)
- void mesh_path_discard_frame(struct ieee80211_sub_if_data *sdata,
- 			     struct sk_buff *skb)
- {
--	kfree_skb(skb);
-+	ieee80211_free_txskb(&sdata->local->hw, skb);
- 	sdata->u.mesh.mshstats.dropped_frames_no_route++;
- }
+diff --git a/arch/arm/mach-mxs/mach-mxs.c b/arch/arm/mach-mxs/mach-mxs.c
+index 1c6062d240c8..4063fc1f435b 100644
+--- a/arch/arm/mach-mxs/mach-mxs.c
++++ b/arch/arm/mach-mxs/mach-mxs.c
+@@ -393,8 +393,10 @@ static void __init mxs_machine_init(void)
  
+ 	root = of_find_node_by_path("/");
+ 	ret = of_property_read_string(root, "model", &soc_dev_attr->machine);
+-	if (ret)
++	if (ret) {
++		kfree(soc_dev_attr);
+ 		return;
++	}
+ 
+ 	soc_dev_attr->family = "Freescale MXS Family";
+ 	soc_dev_attr->soc_id = mxs_get_soc_id();
 -- 
 2.35.1
 
