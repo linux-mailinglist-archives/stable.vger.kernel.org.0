@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D513C6432CD
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:29:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED64E64326E
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234131AbiLET3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:29:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53806 "EHLO
+        id S233879AbiLET0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:26:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233747AbiLET33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:29:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE48D2A43C;
-        Mon,  5 Dec 2022 11:25:58 -0800 (PST)
+        with ESMTP id S233920AbiLETZt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69DFC2F9
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:22:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34917B80EFD;
-        Mon,  5 Dec 2022 19:25:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ECE8C433D6;
-        Mon,  5 Dec 2022 19:25:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2845EB81151
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:22:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94DD2C433D6;
+        Mon,  5 Dec 2022 19:22:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268356;
-        bh=H9DQtSj8UGik2MVrk4VzBLqAhkEYy0Fz+u+b+ef1PbE=;
+        s=korg; t=1670268120;
+        bh=ciJ8RwnLVDRh3QcGYCa1O4DKrcsK0HUuDxhMstbQCWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a80pEIlMELwncOau+39DsZ8qF5LU9Vmr/gYOSPkEYCkfmJGPso7D6GivIAZeO7gWZ
-         D2bOqJlGF0Ihb1JLHI32f9z5p05mmMHUNogtHWYvMRFHu4HCdXCsHAEbKTAWPmA74h
-         PUtvkzZ5gThg54suObnrTKvnKfUC/AQ8+MHSu79k=
+        b=SzL8qQU9HNV8okZrPOIj2tg36RrMnJqeyQi/OrEz9ugVvipt5hD71eaCIXUdJ8f7b
+         9zKjsVn8kIFn4JBhOisU+K9yI9OTuz/2zrVSjEu/2FGsKxu1pMTCPaLQerOiGyXAYA
+         TcVtOqGEfGpMZj38Rm6DSJWIrWPfmy7iKC6WFuh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Phil Auld <pauld@redhat.com>,
-        linux-hwmon@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
-        Jean Delvare <jdelvare@suse.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 072/124] hwmon: (coretemp) Check for null before removing sysfs attrs
+Subject: [PATCH 4.19 066/105] hwmon: (ibmpex) Fix possible UAF when ibmpex_register_bmc() fails
 Date:   Mon,  5 Dec 2022 20:09:38 +0100
-Message-Id: <20221205190810.471812692@linuxfoundation.org>
+Message-Id: <20221205190805.406147646@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Auld <pauld@redhat.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit a89ff5f5cc64b9fe7a992cf56988fd36f56ca82a ]
+[ Upstream commit e2a87785aab0dac190ac89be6a9ba955e2c634f2 ]
 
-If coretemp_add_core() gets an error then pdata->core_data[indx]
-is already NULL and has been kfreed. Don't pass that to
-sysfs_remove_group() as that will crash in sysfs_remove_group().
+Smatch report warning as follows:
 
-[Shortened for readability]
-[91854.020159] sysfs: cannot create duplicate filename '/devices/platform/coretemp.0/hwmon/hwmon2/temp20_label'
-<cpu offline>
-[91855.126115] BUG: kernel NULL pointer dereference, address: 0000000000000188
-[91855.165103] #PF: supervisor read access in kernel mode
-[91855.194506] #PF: error_code(0x0000) - not-present page
-[91855.224445] PGD 0 P4D 0
-[91855.238508] Oops: 0000 [#1] PREEMPT SMP PTI
-...
-[91855.342716] RIP: 0010:sysfs_remove_group+0xc/0x80
-...
-[91855.796571] Call Trace:
-[91855.810524]  coretemp_cpu_offline+0x12b/0x1dd [coretemp]
-[91855.841738]  ? coretemp_cpu_online+0x180/0x180 [coretemp]
-[91855.871107]  cpuhp_invoke_callback+0x105/0x4b0
-[91855.893432]  cpuhp_thread_fun+0x8e/0x150
-...
+drivers/hwmon/ibmpex.c:509 ibmpex_register_bmc() warn:
+  '&data->list' not removed from list
 
-Fix this by checking for NULL first.
+If ibmpex_find_sensors() fails in ibmpex_register_bmc(), data will
+be freed, but data->list will not be removed from driver_data.bmc_data,
+then list traversal may cause UAF.
 
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Cc: linux-hwmon@vger.kernel.org
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20221117162313.3164803-1-pauld@redhat.com
-Fixes: 199e0de7f5df3 ("hwmon: (coretemp) Merge pkgtemp with coretemp")
+Fix by removeing it from driver_data.bmc_data before free().
+
+Fixes: 57c7c3a0fdea ("hwmon: IBM power meter driver")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Link: https://lore.kernel.org/r/20221117034423.2935739-1-cuigaosheng1@huawei.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/coretemp.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hwmon/ibmpex.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
-index 8bf32c6c85d9..30a19d711f89 100644
---- a/drivers/hwmon/coretemp.c
-+++ b/drivers/hwmon/coretemp.c
-@@ -533,6 +533,10 @@ static void coretemp_remove_core(struct platform_data *pdata, int indx)
- {
- 	struct temp_data *tdata = pdata->core_data[indx];
+diff --git a/drivers/hwmon/ibmpex.c b/drivers/hwmon/ibmpex.c
+index ab72cabf5a95..e289c845f970 100644
+--- a/drivers/hwmon/ibmpex.c
++++ b/drivers/hwmon/ibmpex.c
+@@ -517,6 +517,7 @@ static void ibmpex_register_bmc(int iface, struct device *dev)
+ 	return;
  
-+	/* if we errored on add then this is already gone */
-+	if (!tdata)
-+		return;
-+
- 	/* Remove the sysfs attributes */
- 	sysfs_remove_group(&pdata->hwmon_dev->kobj, &tdata->attr_group);
- 
+ out_register:
++	list_del(&data->list);
+ 	hwmon_device_unregister(data->hwmon_dev);
+ out_user:
+ 	ipmi_destroy_user(data->user);
 -- 
 2.35.1
 
