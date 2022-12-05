@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 979E064316A
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:15:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 484E964345E
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:45:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232841AbiLETOn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:14:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33212 "EHLO
+        id S235017AbiLETp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:45:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231814AbiLETON (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:14:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E45E1F61F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:14:12 -0800 (PST)
+        with ESMTP id S235061AbiLETpf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:45:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B2F626560
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:42:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E918B811EC
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:14:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57505C433D6;
-        Mon,  5 Dec 2022 19:14:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEC7861335
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:42:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1FA5C433C1;
+        Mon,  5 Dec 2022 19:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267649;
-        bh=sUnxPNt+OUIRNGT3wcmqfqSUUtRuBhbbQTJ4YAUVwJM=;
+        s=korg; t=1670269327;
+        bh=cYb27BGY8SejQ3AIoV3asHQMvxsSPUbpmRYdgDbOY+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zeybyqJZdYjbw/MPrfILzL+bbI1oOytWlguQLWKMwhtUmeipoZwNuSAeL/sbjt2BG
-         uivpr4BAufgZC64k+px57TEXlUeJYqc7GyPcBDCjgnPYbGqtXxeRJMDeUJnmSRuj5e
-         msl/0UW/pcSYfEpDU62DqA4WCm8+eAMFGMjxKXQg=
+        b=qUaHODXld/eWwJ2Qye26ePHpo9q7XdCeNquBldlro3tt8v5v0rKv2dTlTR1+J77YD
+         Ws5KvLggIq1Ux3JM+/my5xgR3drvaMvUmp4lAG8hf6/isgXkdb+w77YOdx4f06cnix
+         VYXdIOgsN3FqR3XqKDp5bO+6TkL3W7I8pD2oVF2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Aman Dhoot <amandhoot12@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 46/62] hwmon: (coretemp) fix pci device refcount leak in nv1a_ram_new()
+Subject: [PATCH 5.4 059/153] Input: synaptics - switch touchpad on HP Laptop 15-da3001TU to RMI mode
 Date:   Mon,  5 Dec 2022 20:09:43 +0100
-Message-Id: <20221205190759.834769455@linuxfoundation.org>
+Message-Id: <20221205190810.419081803@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Aman Dhoot <amandhoot12@gmail.com>
 
-[ Upstream commit 7dec14537c5906b8bf40fd6fd6d9c3850f8df11d ]
+[ Upstream commit ac5408991ea6b06e29129b4d4861097c4c3e0d59 ]
 
-As comment of pci_get_domain_bus_and_slot() says, it returns
-a pci device with refcount increment, when finish using it,
-the caller must decrement the reference count by calling
-pci_dev_put(). So call it after using to avoid refcount leak.
+The device works fine in native RMI mode, there is no reason to use legacy
+PS/2 mode with it.
 
-Fixes: 14513ee696a0 ("hwmon: (coretemp) Use PCI host bridge ID to identify CPU if necessary")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221118093303.214163-1-yangyingliang@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Aman Dhoot <amandhoot12@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/coretemp.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
-index 9e81842cff7d..7e796d68e23a 100644
---- a/drivers/hwmon/coretemp.c
-+++ b/drivers/hwmon/coretemp.c
-@@ -256,10 +256,13 @@ static int adjust_tjmax(struct cpuinfo_x86 *c, u32 id, struct device *dev)
- 	 */
- 	if (host_bridge && host_bridge->vendor == PCI_VENDOR_ID_INTEL) {
- 		for (i = 0; i < ARRAY_SIZE(tjmax_pci_table); i++) {
--			if (host_bridge->device == tjmax_pci_table[i].device)
-+			if (host_bridge->device == tjmax_pci_table[i].device) {
-+				pci_dev_put(host_bridge);
- 				return tjmax_pci_table[i].tjmax;
-+			}
- 		}
- 	}
-+	pci_dev_put(host_bridge);
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 4b81b2d0fe06..05b007d0a89b 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -189,6 +189,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"SYN3221", /* HP 15-ay000 */
+ 	"SYN323d", /* HP Spectre X360 13-w013dx */
+ 	"SYN3257", /* HP Envy 13-ad105ng */
++	"SYN3286", /* HP Laptop 15-da3001TU */
+ 	NULL
+ };
  
- 	for (i = 0; i < ARRAY_SIZE(tjmax_table); i++) {
- 		if (strstr(c->x86_model_id, tjmax_table[i].id))
 -- 
 2.35.1
 
