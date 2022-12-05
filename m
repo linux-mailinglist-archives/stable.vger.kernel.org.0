@@ -2,66 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96DD6642CD0
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 17:30:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5E14642CD4
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 17:31:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231648AbiLEQaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 11:30:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54482 "EHLO
+        id S231483AbiLEQbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 11:31:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231345AbiLEQaX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 11:30:23 -0500
-Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D40ABCE1A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 08:30:22 -0800 (PST)
-Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-3bf4ade3364so123721557b3.3
-        for <stable@vger.kernel.org>; Mon, 05 Dec 2022 08:30:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=/1zxzft3XQrLGJBHO2P4bZMMXf1MxBr6IUIeTJ5M8UY=;
-        b=cU2xFMa74iU7af0EOrwp5tt+e6R56Vndwh0dnsSRmhqjiTgQeuWaVtVDQ9mR5jkZ1o
-         20BCxpKLqlon9vANt/5C9mHp1fd+KhHMLrSIz9hXUkSDPdc1yC2fUQKimVomx8oIWZlj
-         6UzKVupDjFxoFhj6eGaYEk+Um7i82h5rCvz36TwdCK5y4XNL9qWhB9AbI0jzJqMTSbuA
-         1brt5cKAa4bC/sWGTDLipI0l2ZHB81tMmLHCHqfs+/cVKuu6ScACI3AYuDEeKcv2Tf1+
-         MdFrqK4AlObBuyky1vBexouLgFE3qEXYmtoFbfvEY1jaxSqJphVgX5GiwESlOgu3gE5N
-         O4xw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=/1zxzft3XQrLGJBHO2P4bZMMXf1MxBr6IUIeTJ5M8UY=;
-        b=t1LzP1TZPBLBu+StKc6zxhJu0fahHhGXKIHa6RKX7oQiI+kVvhn6VEA88zqRSSdDqk
-         Qa6/I9xo4om4cyxUnKHfD+1utusPvDJiXIDCIMTXTQ8m3yGrYcRjcaf2Ma6tMLMxRl0D
-         2jCsV/m8TdiC4/LmfKo9eVwS3VC4Rbv+7SRJoahLZR3SAs9da+52LYQx+UcWNqRLxyEP
-         fHbO7f/tf7Ssmb81wGE/Ls78uMEvkAGF1QJRtSGxILXrc9SAwUeOMT3MhWtjiX/vGwwG
-         nF/XuILBYBq5oUfnYv78SatLrVdDdlagt5kQhSQBk4hvqvb6+ng6F/DZ+PjyVRYXAQNE
-         Uy5A==
-X-Gm-Message-State: ANoB5pnUCAlYXxwZDUvdIoCcnqHE+hypE3Ux7nFoI9bBNvH5Unl+erRh
-        tlcxVQvDxtRRLP2kOzbK3cluzEQTXS+r/M4yfi1zkf5ZiBSbHksQ
-X-Google-Smtp-Source: AA0mqf72/qz5y6QJlOCO00pR3OxEpQTwykBu1SWbrD5hO4HP+w5QmA/1E1DIEL5CUHoe5BlyEm1b93RQSYZrrd4MZvc=
-X-Received: by 2002:a81:6ec6:0:b0:3c7:38d8:798f with SMTP id
- j189-20020a816ec6000000b003c738d8798fmr35149570ywc.489.1670257821450; Mon, 05
- Dec 2022 08:30:21 -0800 (PST)
-MIME-Version: 1.0
-References: <20221205153557.28549-1-justin.iurman@uliege.be>
-In-Reply-To: <20221205153557.28549-1-justin.iurman@uliege.be>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Mon, 5 Dec 2022 17:30:10 +0100
-Message-ID: <CANn89iLjGnyh0GgW_5kkMQJBCi-KfgwyvZwT1ou2FMY4ZDcMXw@mail.gmail.com>
-Subject: Re: [RFC net] Fixes: b63c5478e9cb ("ipv6: ioam: Support for Queue
- depth data field")
-To:     Justin Iurman <justin.iurman@uliege.be>
-Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        yoshfuji@linux-ipv6.org, dsahern@kernel.org, pabeni@redhat.com,
+        with ESMTP id S231345AbiLEQbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 11:31:32 -0500
+Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [217.70.183.199])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC9C71E722;
+        Mon,  5 Dec 2022 08:31:30 -0800 (PST)
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id B0222FF806;
+        Mon,  5 Dec 2022 16:31:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1670257889;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=l9EE3fQMr3pSS04VorK2MV9hiMfHZVXwxlbDklYuvHA=;
+        b=Q2HsDL+5s3L7eQ8Z5HOvuFUiLBtCuucxTpAFLJvFPIYZqm1r/6Nqmeft1/+HSfEOzOWJ+M
+        H1CSYCD8edKGBmIwAXQj4Aj+LWAtNDI38iTxYn2cPSfwtYgbcdxbcndbc/tZcSmir1jd8n
+        J+Z6uZzfy4dBZpWcXTYDROchI7cx7rKt9D0PN/1/SUL6h75aebpgB0IGpsZG31BKMqJ5it
+        TrSFD9tE2ZjDrW1OHzL4Lo4xrfzcrFlQlvQLpr9JEJ+Bh26qNOtDchoDGgMGRJXjhp5g2r
+        o2nA5cYG/cw9MBedF7ojvLj99epW77r7ZGXu52RSZUAuN6+6dirU4j2iA81JAA==
+Date:   Mon, 5 Dec 2022 17:31:17 +0100
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Francesco Dolcini <francesco@dolcini.it>
+Cc:     Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, Marek Vasut <marex@denx.de>,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        devicetree@vger.kernel.org, linux-mtd@lists.infradead.org,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+Subject: Re: [PATCH v1] Revert "ARM: dts: imx7: Fix NAND controller
+ size-cells"
+Message-ID: <20221205172754.5a67e51d@xps-13>
+In-Reply-To: <20221205152327.26881-1-francesco@dolcini.it>
+References: <20221205152327.26881-1-francesco@dolcini.it>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,119 +63,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Patch title seems
+Hi Francesco,
 
-On Mon, Dec 5, 2022 at 4:36 PM Justin Iurman <justin.iurman@uliege.be> wrote:
->
-> This patch fixes a NULL qdisc pointer when retrieving the TX queue depth
-> for IOAM.
->
-> IMPORTANT: I suspect this fix is local only and the bug goes deeper (see
-> reasoning below).
->
-> Kernel panic:
-> [...]
-> RIP: 0010:ioam6_fill_trace_data+0x54f/0x5b0
-> [...]
->
-> ...which basically points to the call to qdisc_qstats_qlen_backlog
-> inside net/ipv6/ioam6.c.
->
-> From there, I directly thought of a NULL pointer (queue->qdisc). To make
-> sure, I added some printk's to know exactly *why* and *when* it happens.
-> Here is the (summarized by queue) output:
->
-> skb for TX queue 1, qdisc is ffff8b375eee9800, qdisc_sleeping is ffff8b375eee9800
-> skb for TX queue 2, qdisc is ffff8b375eeefc00, qdisc_sleeping is ffff8b375eeefc00
-> skb for TX queue 3, qdisc is ffff8b375eeef800, qdisc_sleeping is ffff8b375eeef800
-> skb for TX queue 4, qdisc is ffff8b375eeec800, qdisc_sleeping is ffff8b375eeec800
-> skb for TX queue 5, qdisc is ffff8b375eeea400, qdisc_sleeping is ffff8b375eeea400
-> skb for TX queue 6, qdisc is ffff8b375eeee000, qdisc_sleeping is ffff8b375eeee000
-> skb for TX queue 7, qdisc is ffff8b375eee8800, qdisc_sleeping is ffff8b375eee8800
-> skb for TX queue 8, qdisc is ffff8b375eeedc00, qdisc_sleeping is ffff8b375eeedc00
-> skb for TX queue 9, qdisc is ffff8b375eee9400, qdisc_sleeping is ffff8b375eee9400
-> skb for TX queue 10, qdisc is ffff8b375eee8000, qdisc_sleeping is ffff8b375eee8000
-> skb for TX queue 11, qdisc is ffff8b375eeed400, qdisc_sleeping is ffff8b375eeed400
-> skb for TX queue 12, qdisc is ffff8b375eeea800, qdisc_sleeping is ffff8b375eeea800
-> skb for TX queue 13, qdisc is ffff8b375eee8c00, qdisc_sleeping is ffff8b375eee8c00
-> skb for TX queue 14, qdisc is ffff8b375eeea000, qdisc_sleeping is ffff8b375eeea000
-> skb for TX queue 15, qdisc is ffff8b375eeeb800, qdisc_sleeping is ffff8b375eeeb800
-> skb for TX queue 16, qdisc is NULL, qdisc_sleeping is NULL
->
-> What the hell? So, not sure why queue #16 would *never* have a qdisc
-> attached. Is it something expected I'm not aware of? As an FYI, here is
-> the output of "tc qdisc list dev xxx":
->
-> qdisc mq 0: root
-> qdisc fq_codel 0: parent :10 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :f limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :e limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :d limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :c limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :b limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :a limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :9 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :8 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :7 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :6 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :5 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :4 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :3 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :2 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
-> qdisc fq_codel 0: parent :1 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
->
-> By the way, the NIC is an Intel XL710 40GbE QSFP+ (i40e driver, firmware
-> version 8.50 0x8000b6c7 1.3082.0) and it was tested on latest "net"
-> version (6.1.0-rc7+). Is this a bug in the i40e driver?
->
+francesco@dolcini.it wrote on Mon,  5 Dec 2022 16:23:27 +0100:
 
+> From: Francesco Dolcini <francesco.dolcini@toradex.com>
+>=20
+> This reverts commit 753395ea1e45c724150070b5785900b6a44bd5fb.
+>=20
+> It introduced a boot regression on colibri-imx7, and potentially any
+> other i.MX7 boards with MTD partition list generated into the fdt by
+> U-Boot.
+>=20
+> While the commit we are reverting here is not obviously wrong, it fixes
+> only a dt binding checker warning that is non-functional, while it
+> introduces a boot regression and there is no obvious fix ready.
+>=20
 > Cc: stable@vger.kernel.org
+> Fixes: 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
+> Link: https://lore.kernel.org/all/Y4dgBTGNWpM6SQXI@francesco-nb.int.torad=
+ex.com/
+> Link: https://lore.kernel.org/all/20221205144917.6514168a@xps-13/
+> Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
 
-Patch title is mangled. The Fixes: tag should appear here, not in the title.
+Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
 
-
-Fixes: b63c5478e9cb ("ipv6: ioam: Support for Queue depth data field")
-
-> Signed-off-by: Justin Iurman <justin.iurman@uliege.be>
 > ---
->  net/ipv6/ioam6.c | 11 +++++++----
->  1 file changed, 7 insertions(+), 4 deletions(-)
->
-> diff --git a/net/ipv6/ioam6.c b/net/ipv6/ioam6.c
-> index 571f0e4d9cf3..2472a8a043c4 100644
-> --- a/net/ipv6/ioam6.c
-> +++ b/net/ipv6/ioam6.c
-> @@ -727,10 +727,13 @@ static void __ioam6_fill_trace_data(struct sk_buff *skb,
->                         *(__be32 *)data = cpu_to_be32(IOAM6_U32_UNAVAILABLE);
->                 } else {
->                         queue = skb_get_tx_queue(skb_dst(skb)->dev, skb);
+>  arch/arm/boot/dts/imx7s.dtsi | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/arch/arm/boot/dts/imx7s.dtsi b/arch/arm/boot/dts/imx7s.dtsi
+> index 03d2e8544a4e..0fc9e6b8b05d 100644
+> --- a/arch/arm/boot/dts/imx7s.dtsi
+> +++ b/arch/arm/boot/dts/imx7s.dtsi
+> @@ -1270,10 +1270,10 @@ dma_apbh: dma-apbh@33000000 {
+>  			clocks =3D <&clks IMX7D_NAND_USDHC_BUS_RAWNAND_CLK>;
+>  		};
+> =20
+> -		gpmi: nand-controller@33002000 {
+> +		gpmi: nand-controller@33002000{
+>  			compatible =3D "fsl,imx7d-gpmi-nand";
+>  			#address-cells =3D <1>;
+> -			#size-cells =3D <0>;
+> +			#size-cells =3D <1>;
+>  			reg =3D <0x33002000 0x2000>, <0x33004000 0x4000>;
+>  			reg-names =3D "gpmi-nand", "bch";
+>  			interrupts =3D <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
 
-Are you sure skb_dst(skb)->dev is correct at this stage, what about
-stacked devices ?
 
-> -                       qdisc = rcu_dereference(queue->qdisc);
-> -                       qdisc_qstats_qlen_backlog(qdisc, &qlen, &backlog);
-> -
-> -                       *(__be32 *)data = cpu_to_be32(backlog);
-> +                       if (!queue->qdisc) {
-
-This is racy.
-
-> +                               *(__be32 *)data = cpu_to_be32(IOAM6_U32_UNAVAILABLE);
-> +                       } else {
-> +                               qdisc = rcu_dereference(queue->qdisc);
-> +                               qdisc_qstats_qlen_backlog(qdisc, &qlen, &backlog);
-> +                               *(__be32 *)data = cpu_to_be32(backlog);
-> +                       }
->                 }
->                 data += sizeof(__be32);
->         }
-> --
-> 2.25.1
->
-
-Quite frankly I suggest to revert b63c5478e9cb completely.
-
-The notion of Queue depth can not be properly gathered in Linux with a
-multi queue model,
-so why trying to get a wrong value ?
+Thanks,
+Miqu=C3=A8l
