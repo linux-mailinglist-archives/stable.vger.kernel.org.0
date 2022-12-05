@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5AB643453
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:44:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 391A66431EA
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234851AbiLEToo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:44:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47906 "EHLO
+        id S232664AbiLETWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:22:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234834AbiLETo1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:44:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFCBF2B60A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:41:37 -0800 (PST)
+        with ESMTP id S232753AbiLETVw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:21:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC1F56556
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:17:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 35646CE1386
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:41:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 267C5C433C1;
-        Mon,  5 Dec 2022 19:41:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A1B9B81205
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:17:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0EE1C433C1;
+        Mon,  5 Dec 2022 19:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269294;
-        bh=BQNdWReGvAkUwVullySob+6qwTixLw9cbIcBpGqJwBE=;
+        s=korg; t=1670267832;
+        bh=+BNRaD0xwtaBsJKRGjoiMqb5s2JYGtHlbf91q7NJndw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FekrII2T1qRajSeUBsjoYU/HPfQjt3cRvQ3NyOjyp+Y4AaCAat8umAmHAYKukvYtf
-         0w4on1TgAEPyWgExzPNQV02e5AjGxfZfVUWlYWjt7bQIWbOdhjI2rX+LGbZwMsFZPz
-         lfpNooS9eqGwOVGjG4wEKJkUhj0VRQguIQjmgsyo=
+        b=E8NKTKkUsimOTNkGJuqfpZjZgiI2lWuZzKa6/FReI9K6UkpmKdCk+uIOo25FCS19+
+         KjBNqdzD2Q3Rp8vVnFgXRpZKgyxSNhzHFxfymBrY+vPjgunPVHGr8b5iTS2ZKxyFJ3
+         e6WxhIW1YFFZEplT7eQ54K6nJaOLTaNePKEWoOY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Todd Kjos <tkjos@google.com>,
-        stable <stable@kernel.org>,
-        Alessandro Astone <ales.astone@gmail.com>,
-        Carlos Llamas <cmllamas@google.com>
-Subject: [PATCH 5.4 074/153] binder: Gracefully handle BINDER_TYPE_FDA objects with num_fds=0
+        patches@lists.linux.dev, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 67/77] ASoC: ops: Fix bounds check for _sx controls
 Date:   Mon,  5 Dec 2022 20:09:58 +0100
-Message-Id: <20221205190810.843870132@linuxfoundation.org>
+Message-Id: <20221205190803.234766154@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alessandro Astone <ales.astone@gmail.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit ef38de9217a04c9077629a24652689d8fdb4c6c6 upstream.
+[ Upstream commit 698813ba8c580efb356ace8dbf55f61dac6063a8 ]
 
-Some android userspace is sending BINDER_TYPE_FDA objects with
-num_fds=0. Like the previous patch, this is reproducible when
-playing a video.
+For _sx controls the semantics of the max field is not the usual one, max
+is the number of steps rather than the maximum value. This means that our
+check in snd_soc_put_volsw_sx() needs to just check against the maximum
+value.
 
-Before commit 09184ae9b575 BINDER_TYPE_FDA objects with num_fds=0
-were 'correctly handled', as in no fixup was performed.
-
-After commit 09184ae9b575 we aggregate fixup and skip regions in
-binder_ptr_fixup structs and distinguish between the two by using
-the skip_size field: if it's 0, then it's a fixup, otherwise skip.
-When processing BINDER_TYPE_FDA objects with num_fds=0 we add a
-skip region of skip_size=0, and this causes issues because now
-binder_do_deferred_txn_copies will think this was a fixup region.
-
-To address that, return early from binder_translate_fd_array to
-avoid adding an empty skip region.
-
-Fixes: 09184ae9b575 ("binder: defer copies of pre-patched txn data")
-Acked-by: Todd Kjos <tkjos@google.com>
-Cc: stable <stable@kernel.org>
-Signed-off-by: Alessandro Astone <ales.astone@gmail.com>
-Link: https://lore.kernel.org/r/20220415120015.52684-1-ales.astone@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4f1e50d6a9cf9c1b ("ASoC: ops: Reject out of bounds values in snd_soc_put_volsw_sx()")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220511134137.169575-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/soc-ops.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2894,6 +2894,9 @@ static int binder_translate_fd_array(str
- 	struct binder_proc *proc = thread->proc;
- 	int ret;
- 
-+	if (fda->num_fds == 0)
-+		return 0;
-+
- 	fd_buf_size = sizeof(u32) * fda->num_fds;
- 	if (fda->num_fds >= SIZE_MAX / sizeof(u32)) {
- 		binder_user_error("%d:%d got transaction with invalid number of fds (%lld)\n",
+diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
+index 81c9ecfa7c7f..b734bf911470 100644
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -450,7 +450,7 @@ int snd_soc_put_volsw_sx(struct snd_kcontrol *kcontrol,
+ 	val = ucontrol->value.integer.value[0];
+ 	if (mc->platform_max && val > mc->platform_max)
+ 		return -EINVAL;
+-	if (val > max - min)
++	if (val > max)
+ 		return -EINVAL;
+ 	if (val < 0)
+ 		return -EINVAL;
+-- 
+2.35.1
+
 
 
