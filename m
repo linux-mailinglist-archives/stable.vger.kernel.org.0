@@ -2,146 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71799643857
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 23:48:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA86E643866
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 23:50:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232926AbiLEWs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 17:48:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43722 "EHLO
+        id S233311AbiLEWu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 17:50:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233584AbiLEWsP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 17:48:15 -0500
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88E2FB494;
-        Mon,  5 Dec 2022 14:48:08 -0800 (PST)
-Received: by mail-pj1-x1036.google.com with SMTP id o12so12652511pjo.4;
-        Mon, 05 Dec 2022 14:48:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=FIM8cOZnFf+hJ/RzssfzC4c3e6l34LrRCuOKeBtFZkw=;
-        b=Uy3vLli75PvUovwv3R6LxBei9NdEpaSxYl0ovO9Si0tXUgAvolVy6v0AHA6gcaXEGe
-         SRc5mROuDqeN/io4TtI2jn9JiS16HLdfoCIysIB8RunhhKSOQLvO3OB7xAM5SdiKXYOk
-         npQhkIKbKT2AHFIFewvc74aSLPdBLMC5B0Cy9iFxg63hPfFB3b2h9YRwkcaB1N/Q8eNB
-         UkC/60IJH3svb64yV1WlhXTT5yz/7pNlADVF95oMtBXiF9n7dxcurBoSpC9UxW4c+F1J
-         QfIIcsKex4Hgxr0AgGYu/tV0PGEPSujao98o6gioSm02HZZ1tJUOb6/FRwCJm7GhxGdp
-         MtYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FIM8cOZnFf+hJ/RzssfzC4c3e6l34LrRCuOKeBtFZkw=;
-        b=66rbDRdk3M7aNkWC8X1UEsdEDwvMW2M4i2AF2WilJKBxuniX2FobgF1/VeEZPaJ3AK
-         kdairNyf7FUzvfJ4CQNf2OFUtQoXjAtvq2kFY4cDHh69uTc3N6nNJnP+V7A3Pjr3+5ta
-         gcgr/l3tiYHL2yJ5PLhCmPq2aS8y9ecbhjNWEmbzhzYe0v4UHsAT4SxkPEPT4i5SsMSi
-         BsLdnxKw75NeiimPLVtsMWvRsFdDCsxoEJXyi2vueoInAifMnBvx/SC7/JH3/rDlfQrN
-         AiMtHVwabWNIYXQcjCxUsYrJVsKcDMAH7m06pWWybGVxSnFBbAynj7M3zbGODvPndtM/
-         SENg==
-X-Gm-Message-State: ANoB5pkHvvg38VmxFhkVHPazMwSzT22gCA7l0uBC9vfdtjwgaYm6UMbx
-        zLfBzkN/FefcFc7uqtgTC+o=
-X-Google-Smtp-Source: AA0mqf414ZUiW8PrWeib6fKdHGgyKZi5tmPVx/zBfMsY62OY/7jl9MeCItNH0XOcxs9Aouhu7tMaug==
-X-Received: by 2002:a17:90b:108:b0:219:36d3:678d with SMTP id p8-20020a17090b010800b0021936d3678dmr41751133pjz.187.1670280487958;
-        Mon, 05 Dec 2022 14:48:07 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id a3-20020a170902710300b0018963b8e131sm1814407pll.290.2022.12.05.14.48.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 05 Dec 2022 14:48:07 -0800 (PST)
-Message-ID: <2bb37989-7c22-ae06-6568-8419ce57e44b@gmail.com>
-Date:   Mon, 5 Dec 2022 14:48:05 -0800
+        with ESMTP id S233808AbiLEWuY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 17:50:24 -0500
+Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97F559FF0;
+        Mon,  5 Dec 2022 14:50:17 -0800 (PST)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4NQzJx3NtCz4xP9;
+        Tue,  6 Dec 2022 09:50:09 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1670280611;
+        bh=FNsUgJ4FY4mftzXnZsxTHw8V/RkJzfvhTQjoxw+A9u8=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=sBNn/PWDAk5aGDHOQQNW1NEGjnuKVmBDghLBo+OS97RfnE9Y49J4BQvAzkLvi5XE6
+         UXOy6IZMJCfhCyRP9N5oFPnb4ooxy+m+MtJazKxH4va1fIFJUIeOTlNCNia4zPhQPy
+         nA69eP4m0wz6AbNVR697lJK821TSPTvzorKgRkEbsp4t95knr8VPw+18W+yZjjZJcS
+         ghNbSyKQqgiXnpEmoQd1NGQO+O6O4BIuoCxzJ5kopp0rnbhSDyXGM0FnZ6W1KXkkpS
+         8PeAEjbeRLgZ3ltZjP5BJNCDan2h2qYAEMT1gdFg5SUlRgccqy6Xf5dA0momIcWAvY
+         n/TfJUdI8GRLw==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Michael Jeanson <mjeanson@efficios.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Steven Rostedt <rostedt@goodmis.org>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michal Suchanek <msuchanek@suse.de>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Subject: Re: [PATCH] powerpc/ftrace: fix syscall tracing on PPC64_ELF_ABI_V1
+In-Reply-To: <dfe0b9ba-828d-e1a5-f9a3-416c6b5b1cf3@efficios.com>
+References: <20221201161442.2127231-1-mjeanson@efficios.com>
+ <87pmcys9ae.fsf@mpe.ellerman.id.au>
+ <d5dd1491-5d59-7987-9b5b-83f5fb1b29ee@efficios.com>
+ <219580de-7473-f142-5ef2-1ed40e41d13d@csgroup.eu>
+ <323f83c7-38fe-8a12-d77a-0a7249aad316@efficios.com>
+ <dfe0b9ba-828d-e1a5-f9a3-416c6b5b1cf3@efficios.com>
+Date:   Tue, 06 Dec 2022 09:50:08 +1100
+Message-ID: <87mt81sbxb.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH 4.9 00/62] 4.9.335-rc1 review
-Content-Language: en-US
-To:     Jon Hunter <jonathanh@nvidia.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Kamal Dasu <kdasu.kdev@gmail.com>
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20221205190758.073114639@linuxfoundation.org>
- <80305ea1-4d52-b1d3-e078-3c1084d96cc7@nvidia.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <80305ea1-4d52-b1d3-e078-3c1084d96cc7@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/5/22 14:28, Jon Hunter wrote:
-> Hi Greg,
-> 
-> On 05/12/2022 19:08, Greg Kroah-Hartman wrote:
->> This is the start of the stable review cycle for the 4.9.335 release.
->> There are 62 patches in this series, all will be posted as a response
->> to this one.  If anyone has any issues with these being applied, please
->> let me know.
->>
->> Responses should be made by Wed, 07 Dec 2022 19:07:46 +0000.
->> Anything received after that time might be too late.
->>
->> The whole patch series can be found in one patch at:
->>     https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.335-rc1.gz
->> or in the git tree and branch at:
->>     git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
->> and the diffstat can be found below.
->>
->> thanks,
->>
->> greg k-h
->>
->> -------------
->> Pseudo-Shortlog of commits:
->>
->> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>      Linux 4.9.335-rc1
->>
->> Adrian Hunter <adrian.hunter@intel.com>
->>      mmc: sdhci: Fix voltage switch delay
-> 
-> 
-> I am seeing a boot regression on a couple boards and bisect is pointing 
-> to the above commit.
+Michael Jeanson <mjeanson@efficios.com> writes:
+> On 2022-12-05 15:11, Michael Jeanson wrote:
+>>>>> Michael Jeanson <mjeanson@efficios.com> writes:
+>>>>>> In v5.7 the powerpc syscall entry/exit logic was rewritten in C, on
+>>>>>> PPC64_ELF_ABI_V1 this resulted in the symbols in the syscall table
+>>>>>> changing from their dot prefixed variant to the non-prefixed ones.
+>>>>>>
+>>>>>> Since ftrace prefixes a dot to the syscall names when matching them to
+>>>>>> build its syscall event list, this resulted in no syscall events being
+>>>>>> available.
+>>>>>>
+>>>>>> Remove the PPC64_ELF_ABI_V1 specific version of
+>>>>>> arch_syscall_match_sym_name to have the same behavior across all powerpc
+>>>>>> variants.
+>>>>>
+>>>>> This doesn't seem to work for me.
+>>>>>
+>>>>> Event with it applied I still don't see anything in
+>>>>> /sys/kernel/debug/tracing/events/syscalls
+>>>>>
+>>>>> Did we break it in some other way recently?
+>>>>>
+>>>>> cheers
+>
+> I did some further testing, my config also enabled KALLSYMS_ALL, when I remove 
+> it there is indeed no syscall events.
 
-Same thing here, getting a hard lock for our devices with the SDHCI 
-controller enabled, sometimes we are lucky to see the following:
+Aha, OK that explains it I guess.
 
-[    4.790367] mmc0: SDHCI controller on 84b0000.sdhci [84b0000.sdhci] 
-using ADMA 64-bit
-[   25.802351] INFO: rcu_sched detected stalls on CPUs/tasks:
-[   25.807871]  1-...: (1 GPs behind) idle=561/140000000000000/0 
-softirq=728/728 fqs=5252
-[   25.815892]  (detected by 0, t=21017 jiffies, g=61, c=60, q=55)
-[   25.821834] Task dump for CPU 1:
-[   25.825069] kworker/1:1     R  running task        0   509      2 
-0x00000002
-[   25.832164] Workqueue: events_freezable mmc_rescan
-[   25.836974] Backtrace:
-[   25.839440] [<ce32fea4>] (0xce32fea4) from [<ce32fed4>] (0xce32fed4)
-[   25.845803] Backtrace aborted due to bad frame pointer <cd2f0a54>
+I was using ppc64_guest_defconfig which has ABI_V1 and FTRACE_SYSCALLS,
+but does not have KALLSYMS_ALL. So I guess there's some other bug
+lurking in there.
 
-Also confirmed that reverting that change ("mmc: sdhci: Fix voltage 
-switch delay") allows devices to boot properly.
-
-Had not a chance to test the change when submitted for mainline despite 
-being copied, sorry about that.
-
-Since that specific commit is also included in the other stable trees 
-(5.4, 5.10, 5.15 and 6.0) I will let you know whether the same issue is 
-present in those trees shortly thereafter.
--- 
-Florian
-
+cheers
