@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C757964343E
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:43:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ABB964324A
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234809AbiLETnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:43:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44130 "EHLO
+        id S234007AbiLETZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:25:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235006AbiLETnS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:43:18 -0500
+        with ESMTP id S233920AbiLETZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:16 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF1512AC6
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:40:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D0CA26122
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 791F2B8118F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:40:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3811C433C1;
-        Mon,  5 Dec 2022 19:40:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54B79B81200
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D951C433C1;
+        Mon,  5 Dec 2022 19:20:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269240;
-        bh=273o+0zNsWLkRViHXtdCrz0CLk8WkOC8lE6pgoZ4+QM=;
+        s=korg; t=1670268046;
+        bh=K9TJDVY2HuVHNp/cMDY5hM0816oJm+Bagu2l78lwMiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WrBy6slmsh1ns72AyjLme2biorOK0PJPfoBMV9oPtvqADY7wDcngVr7ppw0cdpKO9
-         07DqPFHpii3pPGDqhu422qd4ljj2h2PbtDl8iK3TuELt93xZoO/vHk9eIgpTCaCFqs
-         vADb0KyKpx12Ao/mzFItHi+FrFyXAYH9V31P56nw=
+        b=WigJyQJfs81wGCV13n8H9x0nLSfCaaCDUxLbCeQh1eT3WZQ7fBHXd9yEurw5Q2O9w
+         kO9xEiErLNG8I7voEPInnbXzU+khvf0Pg4GyjxZnBBxFKafsS0Rlp6fwyu6ghCgwFR
+         0c9bMbnBJ4unpj+CyCbt1wns3FsNDKoj7Wqzn1r8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 026/153] net: pch_gbe: fix pci device refcount leak while module exiting
+Subject: [PATCH 4.19 038/105] nios2: add FORCE for vmlinuz.gz
 Date:   Mon,  5 Dec 2022 20:09:10 +0100
-Message-Id: <20221205190809.490591701@linuxfoundation.org>
+Message-Id: <20221205190804.421243740@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 5619537284f1017e9f6c7500b02b859b3830a06d ]
+[ Upstream commit 869e4ae4cd2a23d625aaa14ae62dbebf768cb77d ]
 
-As comment of pci_get_domain_bus_and_slot() says, it returns
-a pci device with refcount increment, when finish using it,
-the caller must decrement the reference count by calling
-pci_dev_put().
+Add FORCE to placate a warning from make:
 
-In pch_gbe_probe(), pci_get_domain_bus_and_slot() is called,
-so in error path in probe() and remove() function, pci_dev_put()
-should be called to avoid refcount leak. Compile tested only.
+arch/nios2/boot/Makefile:24: FORCE prerequisite is missing
 
-Fixes: 1a0bdadb4e36 ("net/pch_gbe: supports eg20t ptp clock")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221117135148.301014-1-yangyingliang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/nios2/boot/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-index cc442cd775ff..45b7f0f419c9 100644
---- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-+++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-@@ -2481,6 +2481,7 @@ static void pch_gbe_remove(struct pci_dev *pdev)
- 	unregister_netdev(netdev);
+diff --git a/arch/nios2/boot/Makefile b/arch/nios2/boot/Makefile
+index 2ba23a679732..70139de9a0df 100644
+--- a/arch/nios2/boot/Makefile
++++ b/arch/nios2/boot/Makefile
+@@ -20,7 +20,7 @@ $(obj)/vmlinux.bin: vmlinux FORCE
+ $(obj)/vmlinux.gz: $(obj)/vmlinux.bin FORCE
+ 	$(call if_changed,gzip)
  
- 	pch_gbe_phy_hw_reset(&adapter->hw);
-+	pci_dev_put(adapter->ptp_pdev);
+-$(obj)/vmImage: $(obj)/vmlinux.gz
++$(obj)/vmImage: $(obj)/vmlinux.gz FORCE
+ 	$(call if_changed,uimage)
+ 	@$(kecho) 'Kernel: $@ is ready'
  
- 	free_netdev(netdev);
- }
-@@ -2562,7 +2563,7 @@ static int pch_gbe_probe(struct pci_dev *pdev,
- 	/* setup the private structure */
- 	ret = pch_gbe_sw_init(adapter);
- 	if (ret)
--		goto err_free_netdev;
-+		goto err_put_dev;
- 
- 	/* Initialize PHY */
- 	ret = pch_gbe_init_phy(adapter);
-@@ -2620,6 +2621,8 @@ static int pch_gbe_probe(struct pci_dev *pdev,
- 
- err_free_adapter:
- 	pch_gbe_phy_hw_reset(&adapter->hw);
-+err_put_dev:
-+	pci_dev_put(adapter->ptp_pdev);
- err_free_netdev:
- 	free_netdev(netdev);
- 	return ret;
 -- 
 2.35.1
 
