@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2572F64315A
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE37264344E
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:44:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232323AbiLETOR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:14:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33072 "EHLO
+        id S234996AbiLEToU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:44:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232656AbiLETNw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:13:52 -0500
+        with ESMTP id S234993AbiLEToC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:44:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCA581F2FC
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:13:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E998A2AE37
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:41:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68FDF6130B
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:13:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78B27C433D6;
-        Mon,  5 Dec 2022 19:13:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 785D461315
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:41:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84E32C433D7;
+        Mon,  5 Dec 2022 19:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267630;
-        bh=QYNSZJr5ccCmocK+vVCY3qmJx8zETPYiFFbz/h9pVE0=;
+        s=korg; t=1670269280;
+        bh=f+A6j1WLvSzvMjEehbbS6kxkW600T5vMR2nvkJDlZZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8lZbrbZG45mz8LjKQ54BlC+kJnhe/bISt1Kfiy+dIHkK6eWLq7qbf+KFwcsjiWQ6
-         2hG0S77iWrWIJHOG9CH72WCPkc8CqETpGz4UxPC/TDJzj0qmE8TL3Pexz7+t271ex2
-         bRaH0KFTUvjHdQ1vzt2YDWHWT8v6HX3tD+9hCd4A=
+        b=f0ixp68K84gNjzhfncDQZXIp72xUSpvyC/MOqJNgdKaSHbQdNxe/oG0Qgb04i1Zxh
+         WuX1EeJTE+IbWJI62xXzkEfWyJUVb8vhLudYNIyazCh/ZM6vn4nYwmD6yznA2qM/7H
+         AzFrEoncNd6HtlMuPp1tbzc+ELi6OMq2MSdHh8HQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Cooper <andrew.cooper3@citrix.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, stable@kernel.org
-Subject: [PATCH 4.9 57/62] x86/tsx: Add a feature bit for TSX control MSR support
+        patches@lists.linux.dev, Martijn Coenen <maco@android.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Todd Kjos <tkjos@google.com>,
+        Carlos Llamas <cmllamas@google.com>
+Subject: [PATCH 5.4 070/153] binder: read pre-translated fds from sender buffer
 Date:   Mon,  5 Dec 2022 20:09:54 +0100
-Message-Id: <20221205190800.230395881@linuxfoundation.org>
+Message-Id: <20221205190810.729778484@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +54,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Todd Kjos <tkjos@google.com>
 
-commit aaa65d17eec372c6a9756833f3964ba05b05ea14 upstream.
+commit 656e01f3ab54afe71bed066996fc2640881e1220 upstream.
 
-Support for the TSX control MSR is enumerated in MSR_IA32_ARCH_CAPABILITIES.
-This is different from how other CPU features are enumerated i.e. via
-CPUID. Currently, a call to tsx_ctrl_is_supported() is required for
-enumerating the feature. In the absence of a feature bit for TSX control,
-any code that relies on checking feature bits directly will not work.
+This patch is to prepare for an up coming patch where we read
+pre-translated fds from the sender buffer and translate them before
+copying them to the target.  It does not change run time.
 
-In preparation for adding a feature bit check in MSR save/restore
-during suspend/resume, set a new feature bit X86_FEATURE_TSX_CTRL when
-MSR_IA32_TSX_CTRL is present.
+The patch adds two new parameters to binder_translate_fd_array() to
+hold the sender buffer and sender buffer parent.  These parameters let
+us call copy_from_user() directly from the sender instead of using
+binder_alloc_copy_from_buffer() to copy from the target.  Also the patch
+adds some new alignment checks.  Previously the alignment checks would
+have been done in a different place, but this lets us print more
+useful error messages.
 
-  [ bp: Remove tsx_ctrl_is_supported()]
-
-  [Pawan: Resolved conflicts in backport; Removed parts of commit message
-          referring to removed function tsx_ctrl_is_supported()]
-
-Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/de619764e1d98afbb7a5fa58424f1278ede37b45.1668539735.git.pawan.kumar.gupta@linux.intel.com
+Reviewed-by: Martijn Coenen <maco@android.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Link: https://lore.kernel.org/r/20211130185152.437403-4-tkjos@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/cpufeatures.h |    1 +
- arch/x86/kernel/cpu/tsx.c          |   33 ++++++++++++++-------------------
- 2 files changed, 15 insertions(+), 19 deletions(-)
+ drivers/android/binder.c |   39 ++++++++++++++++++++++++++++++++-------
+ 1 file changed, 32 insertions(+), 7 deletions(-)
 
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -196,6 +196,7 @@
- #define X86_FEATURE_FENCE_SWAPGS_KERNEL	( 7*32+11) /* "" LFENCE in kernel entry SWAPGS path */
- #define X86_FEATURE_RETPOLINE	( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
- #define X86_FEATURE_RETPOLINE_LFENCE	( 7*32+13) /* "" Use LFENCE for Spectre variant 2 */
-+#define X86_FEATURE_MSR_TSX_CTRL	( 7*32+14) /* "" MSR IA32_TSX_CTRL (Intel) implemented */
- 
- #define X86_FEATURE_MSR_SPEC_CTRL ( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
- #define X86_FEATURE_SSBD	( 7*32+17) /* Speculative Store Bypass Disable */
---- a/arch/x86/kernel/cpu/tsx.c
-+++ b/arch/x86/kernel/cpu/tsx.c
-@@ -55,24 +55,6 @@ void tsx_enable(void)
- 	wrmsrl(MSR_IA32_TSX_CTRL, tsx);
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -2637,15 +2637,17 @@ err_fd_not_accepted:
  }
  
--static bool __init tsx_ctrl_is_supported(void)
--{
--	u64 ia32_cap = x86_read_arch_cap_msr();
--
--	/*
--	 * TSX is controlled via MSR_IA32_TSX_CTRL.  However, support for this
--	 * MSR is enumerated by ARCH_CAP_TSX_MSR bit in MSR_IA32_ARCH_CAPABILITIES.
--	 *
--	 * TSX control (aka MSR_IA32_TSX_CTRL) is only available after a
--	 * microcode update on CPUs that have their MSR_IA32_ARCH_CAPABILITIES
--	 * bit MDS_NO=1. CPUs with MDS_NO=0 are not planned to get
--	 * MSR_IA32_TSX_CTRL support even after a microcode update. Thus,
--	 * tsx= cmdline requests will do nothing on CPUs without
--	 * MSR_IA32_TSX_CTRL support.
--	 */
--	return !!(ia32_cap & ARCH_CAP_TSX_CTRL_MSR);
--}
--
- static enum tsx_ctrl_states x86_get_tsx_auto_mode(void)
+ static int binder_translate_fd_array(struct binder_fd_array_object *fda,
++				     const void __user *sender_ubuffer,
+ 				     struct binder_buffer_object *parent,
++				     struct binder_buffer_object *sender_uparent,
+ 				     struct binder_transaction *t,
+ 				     struct binder_thread *thread,
+ 				     struct binder_transaction *in_reply_to)
  {
- 	if (boot_cpu_has_bug(X86_BUG_TAA))
-@@ -86,9 +68,22 @@ void __init tsx_init(void)
- 	char arg[5] = {};
- 	int ret;
+ 	binder_size_t fdi, fd_buf_size;
+ 	binder_size_t fda_offset;
++	const void __user *sender_ufda_base;
+ 	struct binder_proc *proc = thread->proc;
+-	struct binder_proc *target_proc = t->to_proc;
  
--	if (!tsx_ctrl_is_supported())
-+	/*
-+	 * TSX is controlled via MSR_IA32_TSX_CTRL.  However, support for this
-+	 * MSR is enumerated by ARCH_CAP_TSX_MSR bit in MSR_IA32_ARCH_CAPABILITIES.
-+	 *
-+	 * TSX control (aka MSR_IA32_TSX_CTRL) is only available after a
-+	 * microcode update on CPUs that have their MSR_IA32_ARCH_CAPABILITIES
-+	 * bit MDS_NO=1. CPUs with MDS_NO=0 are not planned to get
-+	 * MSR_IA32_TSX_CTRL support even after a microcode update. Thus,
-+	 * tsx= cmdline requests will do nothing on CPUs without
-+	 * MSR_IA32_TSX_CTRL support.
-+	 */
-+	if (!(x86_read_arch_cap_msr() & ARCH_CAP_TSX_CTRL_MSR))
- 		return;
- 
-+	setup_force_cpu_cap(X86_FEATURE_MSR_TSX_CTRL);
+ 	fd_buf_size = sizeof(u32) * fda->num_fds;
+ 	if (fda->num_fds >= SIZE_MAX / sizeof(u32)) {
+@@ -2669,7 +2671,10 @@ static int binder_translate_fd_array(str
+ 	 */
+ 	fda_offset = (parent->buffer - (uintptr_t)t->buffer->user_data) +
+ 		fda->parent_offset;
+-	if (!IS_ALIGNED((unsigned long)fda_offset, sizeof(u32))) {
++	sender_ufda_base = (void __user *)sender_uparent->buffer + fda->parent_offset;
 +
- 	ret = cmdline_find_option(boot_command_line, "tsx", arg, sizeof(arg));
- 	if (ret >= 0) {
- 		if (!strcmp(arg, "on")) {
++	if (!IS_ALIGNED((unsigned long)fda_offset, sizeof(u32)) ||
++	    !IS_ALIGNED((unsigned long)sender_ufda_base, sizeof(u32))) {
+ 		binder_user_error("%d:%d parent offset not aligned correctly.\n",
+ 				  proc->pid, thread->pid);
+ 		return -EINVAL;
+@@ -2678,10 +2683,9 @@ static int binder_translate_fd_array(str
+ 		u32 fd;
+ 		int ret;
+ 		binder_size_t offset = fda_offset + fdi * sizeof(fd);
++		binder_size_t sender_uoffset = fdi * sizeof(fd);
+ 
+-		ret = binder_alloc_copy_from_buffer(&target_proc->alloc,
+-						    &fd, t->buffer,
+-						    offset, sizeof(fd));
++		ret = copy_from_user(&fd, sender_ufda_base + sender_uoffset, sizeof(fd));
+ 		if (!ret)
+ 			ret = binder_translate_fd(fd, offset, t, thread,
+ 						  in_reply_to);
+@@ -3348,6 +3352,8 @@ static void binder_transaction(struct bi
+ 		case BINDER_TYPE_FDA: {
+ 			struct binder_object ptr_object;
+ 			binder_size_t parent_offset;
++			struct binder_object user_object;
++			size_t user_parent_size;
+ 			struct binder_fd_array_object *fda =
+ 				to_binder_fd_array_object(hdr);
+ 			size_t num_valid = (buffer_offset - off_start_offset) /
+@@ -3379,8 +3385,27 @@ static void binder_transaction(struct bi
+ 				return_error_line = __LINE__;
+ 				goto err_bad_parent;
+ 			}
+-			ret = binder_translate_fd_array(fda, parent, t, thread,
+-							in_reply_to);
++			/*
++			 * We need to read the user version of the parent
++			 * object to get the original user offset
++			 */
++			user_parent_size =
++				binder_get_object(proc, user_buffer, t->buffer,
++						  parent_offset, &user_object);
++			if (user_parent_size != sizeof(user_object.bbo)) {
++				binder_user_error("%d:%d invalid ptr object size: %zd vs %zd\n",
++						  proc->pid, thread->pid,
++						  user_parent_size,
++						  sizeof(user_object.bbo));
++				return_error = BR_FAILED_REPLY;
++				return_error_param = -EINVAL;
++				return_error_line = __LINE__;
++				goto err_bad_parent;
++			}
++			ret = binder_translate_fd_array(fda, user_buffer,
++							parent,
++							&user_object.bbo, t,
++							thread, in_reply_to);
+ 			if (!ret)
+ 				ret = binder_alloc_copy_to_buffer(&target_proc->alloc,
+ 								  t->buffer,
 
 
