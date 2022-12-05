@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D06436433FB
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCD4064348A
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234822AbiLETlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:41:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42566 "EHLO
+        id S234976AbiLETru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:47:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234407AbiLETkw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:40:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 342A839E
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:38:23 -0800 (PST)
+        with ESMTP id S234997AbiLETrc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:32 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09F1A27CFA
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 670B361321
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:38:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77BA2C433D6;
-        Mon,  5 Dec 2022 19:38:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5742BCE13A5
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 463F3C433C1;
+        Mon,  5 Dec 2022 19:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269102;
-        bh=nmLppwoK/3GrdKG/0OTlnEvwmaJJFM/Vn5ewfJXvaCw=;
+        s=korg; t=1670269433;
+        bh=tal8BI64zv/BWECWxKARYnuIKIWAb95/1UL5qwXPlzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NGdcjmCPGUIzcYBqPl2c4BHqvHM6lsMhyQuB6A8BbsQFPC/5YZt/LBVw/th0wozaH
-         1jNKPM2THNH2zCpj3+L+SvjnwZktAloKh4CVnKIgPMX0jNCH1cSWgkX6GWD8gEZGwJ
-         nBUUmoppsZKwT7zn6KSqL8TuReJkrG3uZoJJdjF4=
+        b=TTXrz0Co+GNBGS8qhghEh4o6EdHu3BV31gjHqxj5t6vvmyWTyKyqDQO06BHyxkES2
+         /w57z2SJZaXGXEvkgzxufvYxS9qOt8jNHQYhowJU+415niJu7CLGFSVbnbcbV82P3/
+         1kX0g4KN1h7j8GXAKr769cVWjdyUj8rnwQ10DHjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gwangun Jung <exsociety@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 109/120] ipv4: Handle attempt to delete multipath route when fib_info contains an nh reference
-Date:   Mon,  5 Dec 2022 20:10:49 +0100
-Message-Id: <20221205190809.809114744@linuxfoundation.org>
+        patches@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
+        Zheng Yejian <zhengyejian1@huawei.com>,
+        Yujie Liu <yujie.liu@intel.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 126/153] tracing: Free buffers when a used dynamic event is removed
+Date:   Mon,  5 Dec 2022 20:10:50 +0100
+Message-Id: <20221205190812.315751900@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +55,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit 61b91eb33a69c3be11b259c5ea484505cd79f883 ]
+commit 4313e5a613049dfc1819a6dfb5f94cf2caff9452 upstream.
 
-Gwangun Jung reported a slab-out-of-bounds access in fib_nh_match:
-    fib_nh_match+0xf98/0x1130 linux-6.0-rc7/net/ipv4/fib_semantics.c:961
-    fib_table_delete+0x5f3/0xa40 linux-6.0-rc7/net/ipv4/fib_trie.c:1753
-    inet_rtm_delroute+0x2b3/0x380 linux-6.0-rc7/net/ipv4/fib_frontend.c:874
+After 65536 dynamic events have been added and removed, the "type" field
+of the event then uses the first type number that is available (not
+currently used by other events). A type number is the identifier of the
+binary blobs in the tracing ring buffer (known as events) to map them to
+logic that can parse the binary blob.
 
-Separate nexthop objects are mutually exclusive with the legacy
-multipath spec. Fix fib_nh_match to return if the config for the
-to be deleted route contains a multipath spec while the fib_info
-is using a nexthop object.
+The issue is that if a dynamic event (like a kprobe event) is traced and
+is in the ring buffer, and then that event is removed (because it is
+dynamic, which means it can be created and destroyed), if another dynamic
+event is created that has the same number that new event's logic on
+parsing the binary blob will be used.
 
-Fixes: 493ced1ac47c ("ipv4: Allow routes to use nexthop objects")
-Fixes: 6bf92d70e690 ("net: ipv4: fix route with nexthop object delete warning")
-Reported-by: Gwangun Jung <exsociety@gmail.com>
-Signed-off-by: David Ahern <dsahern@kernel.org>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: d5082d386eee ("ipv4: Fix route deletion when nexthop info is not specified")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To show how this can be an issue, the following can crash the kernel:
+
+ # cd /sys/kernel/tracing
+ # for i in `seq 65536`; do
+     echo 'p:kprobes/foo do_sys_openat2 $arg1:u32' > kprobe_events
+ # done
+
+For every iteration of the above, the writing to the kprobe_events will
+remove the old event and create a new one (with the same format) and
+increase the type number to the next available on until the type number
+reaches over 65535 which is the max number for the 16 bit type. After it
+reaches that number, the logic to allocate a new number simply looks for
+the next available number. When an dynamic event is removed, that number
+is then available to be reused by the next dynamic event created. That is,
+once the above reaches the max number, the number assigned to the event in
+that loop will remain the same.
+
+Now that means deleting one dynamic event and created another will reuse
+the previous events type number. This is where bad things can happen.
+After the above loop finishes, the kprobes/foo event which reads the
+do_sys_openat2 function call's first parameter as an integer.
+
+ # echo 1 > kprobes/foo/enable
+ # cat /etc/passwd > /dev/null
+ # cat trace
+             cat-2211    [005] ....  2007.849603: foo: (do_sys_openat2+0x0/0x130) arg1=4294967196
+             cat-2211    [005] ....  2007.849620: foo: (do_sys_openat2+0x0/0x130) arg1=4294967196
+             cat-2211    [005] ....  2007.849838: foo: (do_sys_openat2+0x0/0x130) arg1=4294967196
+             cat-2211    [005] ....  2007.849880: foo: (do_sys_openat2+0x0/0x130) arg1=4294967196
+ # echo 0 > kprobes/foo/enable
+
+Now if we delete the kprobe and create a new one that reads a string:
+
+ # echo 'p:kprobes/foo do_sys_openat2 +0($arg2):string' > kprobe_events
+
+And now we can the trace:
+
+ # cat trace
+        sendmail-1942    [002] .....   530.136320: foo: (do_sys_openat2+0x0/0x240) arg1=             cat-2046    [004] .....   530.930817: foo: (do_sys_openat2+0x0/0x240) arg1="������������������������������������������������������������������������������������������������"
+             cat-2046    [004] .....   530.930961: foo: (do_sys_openat2+0x0/0x240) arg1="������������������������������������������������������������������������������������������������"
+             cat-2046    [004] .....   530.934278: foo: (do_sys_openat2+0x0/0x240) arg1="������������������������������������������������������������������������������������������������"
+             cat-2046    [004] .....   530.934563: foo: (do_sys_openat2+0x0/0x240) arg1="������������������������������������������������������������������������������������������������"
+            bash-1515    [007] .....   534.299093: foo: (do_sys_openat2+0x0/0x240) arg1="kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk���������@��4Z����;Y�����U
+
+And dmesg has:
+
+==================================================================
+BUG: KASAN: use-after-free in string+0xd4/0x1c0
+Read of size 1 at addr ffff88805fdbbfa0 by task cat/2049
+
+ CPU: 0 PID: 2049 Comm: cat Not tainted 6.1.0-rc6-test+ #641
+ Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01 v03.03 07/14/2016
+ Call Trace:
+  <TASK>
+  dump_stack_lvl+0x5b/0x77
+  print_report+0x17f/0x47b
+  kasan_report+0xad/0x130
+  string+0xd4/0x1c0
+  vsnprintf+0x500/0x840
+  seq_buf_vprintf+0x62/0xc0
+  trace_seq_printf+0x10e/0x1e0
+  print_type_string+0x90/0xa0
+  print_kprobe_event+0x16b/0x290
+  print_trace_line+0x451/0x8e0
+  s_show+0x72/0x1f0
+  seq_read_iter+0x58e/0x750
+  seq_read+0x115/0x160
+  vfs_read+0x11d/0x460
+  ksys_read+0xa9/0x130
+  do_syscall_64+0x3a/0x90
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ RIP: 0033:0x7fc2e972ade2
+ Code: c0 e9 b2 fe ff ff 50 48 8d 3d b2 3f 0a 00 e8 05 f0 01 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
+ RSP: 002b:00007ffc64e687c8 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+ RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007fc2e972ade2
+ RDX: 0000000000020000 RSI: 00007fc2e980d000 RDI: 0000000000000003
+ RBP: 00007fc2e980d000 R08: 00007fc2e980c010 R09: 0000000000000000
+ R10: 0000000000000022 R11: 0000000000000246 R12: 0000000000020f00
+ R13: 0000000000000003 R14: 0000000000020000 R15: 0000000000020000
+  </TASK>
+
+ The buggy address belongs to the physical page:
+ page:ffffea00017f6ec0 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x5fdbb
+ flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
+ raw: 000fffffc0000000 0000000000000000 ffffea00017f6ec8 0000000000000000
+ raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
+ page dumped because: kasan: bad access detected
+
+ Memory state around the buggy address:
+  ffff88805fdbbe80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+  ffff88805fdbbf00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ >ffff88805fdbbf80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                                ^
+  ffff88805fdbc000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+  ffff88805fdbc080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ==================================================================
+
+This was found when Zheng Yejian sent a patch to convert the event type
+number assignment to use IDA, which gives the next available number, and
+this bug showed up in the fuzz testing by Yujie Liu and the kernel test
+robot. But after further analysis, I found that this behavior is the same
+as when the event type numbers go past the 16bit max (and the above shows
+that).
+
+As modules have a similar issue, but is dealt with by setting a
+"WAS_ENABLED" flag when a module event is enabled, and when the module is
+freed, if any of its events were enabled, the ring buffer that holds that
+event is also cleared, to prevent reading stale events. The same can be
+done for dynamic events.
+
+If any dynamic event that is being removed was enabled, then make sure the
+buffers they were enabled in are now cleared.
+
+Link: https://lkml.kernel.org/r/20221123171434.545706e3@gandalf.local.home
+Link: https://lore.kernel.org/all/20221110020319.1259291-1-zhengyejian1@huawei.com/
+
+Cc: stable@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Depends-on: e18eb8783ec49 ("tracing: Add tracing_reset_all_online_cpus_unlocked() function")
+Depends-on: 5448d44c38557 ("tracing: Add unified dynamic event framework")
+Depends-on: 6212dd29683ee ("tracing/kprobes: Use dyn_event framework for kprobe events")
+Depends-on: 065e63f951432 ("tracing: Only have rmmod clear buffers that its events were active in")
+Depends-on: 575380da8b469 ("tracing: Only clear trace buffer on module unload if event was traced")
+Fixes: 77b44d1b7c283 ("tracing/kprobes: Rename Kprobe-tracer to kprobe-event")
+Reported-by: Zheng Yejian <zhengyejian1@huawei.com>
+Reported-by: Yujie Liu <yujie.liu@intel.com>
+Reported-by: kernel test robot <yujie.liu@intel.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_semantics.c                    | 8 ++++----
- tools/testing/selftests/net/fib_nexthops.sh | 5 +++++
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ kernel/trace/trace_dynevent.c |    2 ++
+ kernel/trace/trace_events.c   |   11 ++++++++++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-index 55de6fa83dea..c35afa20f6d0 100644
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -886,13 +886,13 @@ int fib_nh_match(struct net *net, struct fib_config *cfg, struct fib_info *fi,
- 		return 1;
+--- a/kernel/trace/trace_dynevent.c
++++ b/kernel/trace/trace_dynevent.c
+@@ -70,6 +70,7 @@ int dyn_event_release(int argc, char **a
+ 		if (ret)
+ 			break;
  	}
++	tracing_reset_all_online_cpus();
+ 	mutex_unlock(&event_mutex);
  
-+	/* cannot match on nexthop object attributes */
-+	if (fi->nh)
-+		return 1;
-+
- 	if (cfg->fc_oif || cfg->fc_gw_family) {
- 		struct fib_nh *nh;
+ 	return ret;
+@@ -165,6 +166,7 @@ int dyn_events_release_all(struct dyn_ev
+ 			break;
+ 	}
+ out:
++	tracing_reset_all_online_cpus();
+ 	mutex_unlock(&event_mutex);
  
--		/* cannot match on nexthop object attributes */
--		if (fi->nh)
--			return 1;
--
- 		nh = fib_info_nh(fi, 0);
- 		if (cfg->fc_encap) {
- 			if (fib_encap_match(net, cfg->fc_encap_type,
-diff --git a/tools/testing/selftests/net/fib_nexthops.sh b/tools/testing/selftests/net/fib_nexthops.sh
-index 4afc4b20c546..4280c9b6ee2d 100755
---- a/tools/testing/selftests/net/fib_nexthops.sh
-+++ b/tools/testing/selftests/net/fib_nexthops.sh
-@@ -1159,6 +1159,11 @@ ipv4_fcnal()
- 	log_test $rc 0 "Delete nexthop route warning"
- 	run_cmd "$IP route delete 172.16.101.1/32 nhid 12"
- 	run_cmd "$IP nexthop del id 12"
+ 	return ret;
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -2351,7 +2351,10 @@ static int probe_remove_event_call(struc
+ 		 * TRACE_REG_UNREGISTER.
+ 		 */
+ 		if (file->flags & EVENT_FILE_FL_ENABLED)
+-			return -EBUSY;
++			goto busy;
 +
-+	run_cmd "$IP nexthop add id 21 via 172.16.1.6 dev veth1"
-+	run_cmd "$IP ro add 172.16.101.0/24 nhid 21"
-+	run_cmd "$IP ro del 172.16.101.0/24 nexthop via 172.16.1.7 dev veth1 nexthop via 172.16.1.8 dev veth1"
-+	log_test $? 2 "Delete multipath route with only nh id based entry"
++		if (file->flags & EVENT_FILE_FL_WAS_ENABLED)
++			tr->clear_trace = true;
+ 		/*
+ 		 * The do_for_each_event_file_safe() is
+ 		 * a double loop. After finding the call for this
+@@ -2364,6 +2367,12 @@ static int probe_remove_event_call(struc
+ 	__trace_remove_event_call(call);
+ 
+ 	return 0;
++ busy:
++	/* No need to clear the trace now */
++	list_for_each_entry(tr, &ftrace_trace_arrays, list) {
++		tr->clear_trace = false;
++	}
++	return -EBUSY;
  }
  
- ipv4_grp_fcnal()
--- 
-2.35.1
-
+ /* Remove an event_call */
 
 
