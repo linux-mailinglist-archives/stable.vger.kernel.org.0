@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AF886431CD
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:19:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DD22643142
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233146AbiLETT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:19:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36640 "EHLO
+        id S232047AbiLETNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:13:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233807AbiLETSU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:18:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70D9925C53
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:16:04 -0800 (PST)
+        with ESMTP id S232481AbiLETMw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:12:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29FF71F2EF
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:12:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0283A6130C
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:15:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 128A4C433C1;
-        Mon,  5 Dec 2022 19:15:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAB7FB81202
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:12:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53224C433D7;
+        Mon,  5 Dec 2022 19:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267755;
-        bh=PCAuKKzGvlXb1fuVH36O9PqFoXID0z8etIj4lC0vIhE=;
+        s=korg; t=1670267568;
+        bh=vl/cmCgCiqUufCbXalm+zqYBEznXLDx5kvwpNplukEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dm9qKuAhWzFiurTD05Ocw3pw5LBuWEQcxjTe/Y9DM/VuW2pkShKlK5o1HX9GXBQmf
-         I52M3mYvQoG3a235btdOsUpLlOe0Xs84AIel6K4Cj6lXyns380hWHovjRSYr37k5RH
-         JWMLBG173E6S8eOx3rn+sUtCqobS/iVNeyEmliSg=
+        b=QLGjJatKLJKsk6dv1hDbvrEhcGjB9SKNW8xvn4JG/uIMoAzv6TdEUJ4baBKdH6oR8
+         c1WN+7egDrE/+ytquWkPPCd3P5llewbqMi7QHmYWVAxZePLEUZJxIxtimMcwN3bUQN
+         naNsZUXCiLh8bZo1PA+nsatLlOJ2+zAaOO+DOs9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Andrew Davis <afd@ti.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 39/77] iio: health: afe4403: Fix oob read in afe4403_read_raw
+Subject: [PATCH 4.9 33/62] hwmon: (i5500_temp) fix missing pci_disable_device()
 Date:   Mon,  5 Dec 2022 20:09:30 +0100
-Message-Id: <20221205190802.260170955@linuxfoundation.org>
+Message-Id: <20221205190759.337753850@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
+References: <20221205190758.073114639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 58143c1ed5882c138a3cd2251a336fc8755f23d9 ]
+[ Upstream commit 3b7f98f237528c496ea0b689bace0e35eec3e060 ]
 
-KASAN report out-of-bounds read as follows:
+pci_disable_device() need be called while module exiting, switch to use
+pcim_enable(), pci_disable_device() will be called in pcim_release().
 
-BUG: KASAN: global-out-of-bounds in afe4403_read_raw+0x42e/0x4c0
-Read of size 4 at addr ffffffffc02ac638 by task cat/279
-
-Call Trace:
- afe4403_read_raw
- iio_read_channel_info
- dev_attr_show
-
-The buggy address belongs to the variable:
- afe4403_channel_leds+0x18/0xffffffffffffe9e0
-
-This issue can be reproduced by singe command:
-
- $ cat /sys/bus/spi/devices/spi0.0/iio\:device0/in_intensity6_raw
-
-The array size of afe4403_channel_leds is less than channels, so access
-with chan->address cause OOB read in afe4403_read_raw. Fix it by moving
-access before use it.
-
-Fixes: b36e8257641a ("iio: health/afe440x: Use regmap fields")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Andrew Davis <afd@ti.com>
-Link: https://lore.kernel.org/r/20221107151946.89260-1-weiyongjun@huaweicloud.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: ada072816be1 ("hwmon: (i5500_temp) New driver for the Intel 5500/5520/X58 chipsets")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221112125606.3751430-1-yangyingliang@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/health/afe4403.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/hwmon/i5500_temp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/health/afe4403.c b/drivers/iio/health/afe4403.c
-index 2f07c4d1398c..4756e9645f7d 100644
---- a/drivers/iio/health/afe4403.c
-+++ b/drivers/iio/health/afe4403.c
-@@ -253,14 +253,14 @@ static int afe4403_read_raw(struct iio_dev *indio_dev,
- 			    int *val, int *val2, long mask)
- {
- 	struct afe4403_data *afe = iio_priv(indio_dev);
--	unsigned int reg = afe4403_channel_values[chan->address];
--	unsigned int field = afe4403_channel_leds[chan->address];
-+	unsigned int reg, field;
- 	int ret;
+diff --git a/drivers/hwmon/i5500_temp.c b/drivers/hwmon/i5500_temp.c
+index 3e3ccbf18b4e..0064249fcc37 100644
+--- a/drivers/hwmon/i5500_temp.c
++++ b/drivers/hwmon/i5500_temp.c
+@@ -117,7 +117,7 @@ static int i5500_temp_probe(struct pci_dev *pdev,
+ 	u32 tstimer;
+ 	s8 tsfsc;
  
- 	switch (chan->type) {
- 	case IIO_INTENSITY:
- 		switch (mask) {
- 		case IIO_CHAN_INFO_RAW:
-+			reg = afe4403_channel_values[chan->address];
- 			ret = afe4403_read(afe, reg, val);
- 			if (ret)
- 				return ret;
-@@ -270,6 +270,7 @@ static int afe4403_read_raw(struct iio_dev *indio_dev,
- 	case IIO_CURRENT:
- 		switch (mask) {
- 		case IIO_CHAN_INFO_RAW:
-+			field = afe4403_channel_leds[chan->address];
- 			ret = regmap_field_read(afe->fields[field], val);
- 			if (ret)
- 				return ret;
+-	err = pci_enable_device(pdev);
++	err = pcim_enable_device(pdev);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "Failed to enable device\n");
+ 		return err;
 -- 
 2.35.1
 
