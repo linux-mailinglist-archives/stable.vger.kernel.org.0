@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD3CC6431EC
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83657643348
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233221AbiLETWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:22:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46334 "EHLO
+        id S234493AbiLETfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:35:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233672AbiLETVx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:21:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BC5338A0
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:17:48 -0800 (PST)
+        with ESMTP id S232827AbiLETe6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E4EE6456
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:30:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D3E9961313
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:16:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6F5AC433D6;
-        Mon,  5 Dec 2022 19:16:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AECF5B811EC
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:30:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B0E4C433D6;
+        Mon,  5 Dec 2022 19:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267810;
-        bh=frqHTGXnKsHMOqjTTWdC0RKszXPOGEkoQMaXSUrzAWM=;
+        s=korg; t=1670268655;
+        bh=SdJQWARgQaB28Ti5xKgTmEcBs+Mz6G6T2u42RJZ1dsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nwW9727ryGC1gV4xPN+x1JzyWaWKebiO68z5tdGjblNn55guQO1TomZv0SjZx6FcW
-         eBPK0bsCXl8SNzfgMx3j+HRoRfrVm27SQHKOzAoU18e8BKT0r/hZfj4yJC1cvGhJVI
-         M8XqJWWTMwTcLJ5mJyE73e2GcMi2+0ECtRz7DW6A=
+        b=R/vWPO+S2f09LbLz2RlqM6VX1JbcmBx1gwAXJbA1uvO9jdItiefvL2o3PeBhfQ5kO
+         T4FAOgs9L3rDPGYaJHTxeJJSdfXO8tvW/xAL/XL5J+wfaPBdo86kRnKg0paxswdI1c
+         yV0HB6Zx40ppHQ4+lIZxBp4RoDdsMcR9/s6ntxxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qu Wenruo <wqu@suse.com>,
-        ChenXiaoSong <chenxiaosong2@huawei.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 60/77] btrfs: qgroup: fix sleep from invalid context bug in btrfs_qgroup_inherit()
-Date:   Mon,  5 Dec 2022 20:09:51 +0100
-Message-Id: <20221205190802.985899006@linuxfoundation.org>
+Subject: [PATCH 5.10 39/92] net: phy: fix null-ptr-deref while probe() failed
+Date:   Mon,  5 Dec 2022 20:09:52 +0100
+Message-Id: <20221205190804.757159978@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f7e942b5bb35d8e3af54053d19a6bf04143a3955 ]
+[ Upstream commit 369eb2c9f1f72adbe91e0ea8efb130f0a2ba11a6 ]
 
-Syzkaller reported BUG as follows:
+I got a null-ptr-deref report as following when doing fault injection test:
 
-  BUG: sleeping function called from invalid context at
-       include/linux/sched/mm.h:274
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0xcd/0x134
-   __might_resched.cold+0x222/0x26b
-   kmem_cache_alloc+0x2e7/0x3c0
-   update_qgroup_limit_item+0xe1/0x390
-   btrfs_qgroup_inherit+0x147b/0x1ee0
-   create_subvol+0x4eb/0x1710
-   btrfs_mksubvol+0xfe5/0x13f0
-   __btrfs_ioctl_snap_create+0x2b0/0x430
-   btrfs_ioctl_snap_create_v2+0x25a/0x520
-   btrfs_ioctl+0x2a1c/0x5ce0
-   __x64_sys_ioctl+0x193/0x200
-   do_syscall_64+0x35/0x80
+BUG: kernel NULL pointer dereference, address: 0000000000000058
+Oops: 0000 [#1] PREEMPT SMP KASAN PTI
+CPU: 1 PID: 253 Comm: 507-spi-dm9051 Tainted: G    B            N 6.1.0-rc3+
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:klist_put+0x2d/0xd0
+Call Trace:
+ <TASK>
+ klist_remove+0xf1/0x1c0
+ device_release_driver_internal+0x23e/0x2d0
+ bus_remove_device+0x1bd/0x240
+ device_del+0x357/0x770
+ phy_device_remove+0x11/0x30
+ mdiobus_unregister+0xa5/0x140
+ release_nodes+0x6a/0xa0
+ devres_release_all+0xf8/0x150
+ device_unbind_cleanup+0x19/0xd0
 
-Fix this by calling qgroup_dirty() on @dstqgroup, and update limit item in
-btrfs_run_qgroups() later outside of the spinlock context.
+//probe path:
+phy_device_register()
+  device_add()
 
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+phy_connect
+  phy_attach_direct() //set device driver
+    probe() //it's failed, driver is not bound
+    device_bind_driver() // probe failed, it's not called
+
+//remove path:
+phy_device_remove()
+  device_del()
+    device_release_driver_internal()
+      __device_release_driver() //dev->drv is not NULL
+        klist_remove() <- knode_driver is not added yet, cause null-ptr-deref
+
+In phy_attach_direct(), after setting the 'dev->driver', probe() fails,
+device_bind_driver() is not called, so the knode_driver->n_klist is not
+set, then it causes null-ptr-deref in __device_release_driver() while
+deleting device. Fix this by setting dev->driver to NULL in the error
+path in phy_attach_direct().
+
+Fixes: e13934563db0 ("[PATCH] PHY Layer fixup")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/qgroup.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/net/phy/phy_device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
-index 47c28983fd01..4ad588ed5813 100644
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -2239,14 +2239,7 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans,
- 		dstgroup->rsv_rfer = inherit->lim.rsv_rfer;
- 		dstgroup->rsv_excl = inherit->lim.rsv_excl;
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index d2f6d8107595..3ef5aa6b72a7 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -1423,6 +1423,7 @@ int phy_attach_direct(struct net_device *dev, struct phy_device *phydev,
  
--		ret = update_qgroup_limit_item(trans, quota_root, dstgroup);
--		if (ret) {
--			fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
--			btrfs_info(fs_info,
--				   "unable to update quota limit for %llu",
--				   dstgroup->qgroupid);
--			goto unlock;
--		}
-+		qgroup_dirty(fs_info, dstgroup);
- 	}
- 
- 	if (srcid) {
+ error_module_put:
+ 	module_put(d->driver->owner);
++	d->driver = NULL;
+ error_put_device:
+ 	put_device(d);
+ 	if (ndev_owner != bus->owner)
 -- 
 2.35.1
 
