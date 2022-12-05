@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 759256431E0
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:21:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2DCD643170
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:15:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233774AbiLETV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:21:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46406 "EHLO
+        id S232600AbiLETOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:14:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233563AbiLETVH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:21:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 577E02A423
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:17:19 -0800 (PST)
+        with ESMTP id S232709AbiLETO0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:14:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 032D21F2FF
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:14:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72496B81200
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:16:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6604AC433D6;
-        Mon,  5 Dec 2022 19:16:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A876EB81151
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:14:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F045CC433D7;
+        Mon,  5 Dec 2022 19:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267802;
-        bh=VGliu1t+sj6nVrxzZEQ3a4X17XIuDJR0Nbqhul+clVA=;
+        s=korg; t=1670267663;
+        bh=PFSHXP9ix/z3PxJJeKQyAxzMjNuiwNLxJ079FIsn1Eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZY9KcM5R5O3bpOxoeFq0pYotVd3va2TCtbeUfZ4DK3ru46RU4u6zT7amgJAirw7w6
-         NugBHquk/bcF/vB5cZ35miHlzYP9aFx1H2Q8I/romDth80aV63bDarfXdOa8363P/4
-         Z9EHIfLuScONFN0uS/WoEo6jeayt2ohT9FxFpq0A=
+        b=eIdniZJcAYvEbflO2AzL0nrsDscaCLhx9X8xUQo7XmjAVfKS4vPFzliaAlG8S+Ypt
+         ZIZ+yMtleB0QNtoa90NwOK0jl1H/P4KOXImMbsCoNmRbt7jRrUJ8O3BIaqglP4TjmW
+         kNwTMi+qwjim0bj0/NuKOHax96nNiyjAbl6D5fpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 57/77] hwmon: (coretemp) fix pci device refcount leak in nv1a_ram_new()
+        patches@lists.linux.dev, James Morse <james.morse@arm.com>
+Subject: [PATCH 4.9 51/62] arm64: errata: Fix KVM Spectre-v2 mitigation selection for Cortex-A57/A72
 Date:   Mon,  5 Dec 2022 20:09:48 +0100
-Message-Id: <20221205190802.882740990@linuxfoundation.org>
+Message-Id: <20221205190800.019054465@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
+References: <20221205190758.073114639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +51,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit 7dec14537c5906b8bf40fd6fd6d9c3850f8df11d ]
+Both the Spectre-v2 and Spectre-BHB mitigations involve running a sequence
+immediately after exiting a guest, before any branches. In the stable
+kernels these sequences are built by copying templates into an empty vector
+slot.
 
-As comment of pci_get_domain_bus_and_slot() says, it returns
-a pci device with refcount increment, when finish using it,
-the caller must decrement the reference count by calling
-pci_dev_put(). So call it after using to avoid refcount leak.
+For Spectre-BHB, Cortex-A57 and A72 require the branchy loop with k=8.
+If Spectre-v2 needs mitigating at the same time, a firmware call to EL3 is
+needed. The work EL3 does at this point is also enough to mitigate
+Spectre-BHB.
 
-Fixes: 14513ee696a0 ("hwmon: (coretemp) Use PCI host bridge ID to identify CPU if necessary")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221118093303.214163-1-yangyingliang@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When enabling the Spectre-BHB mitigation, spectre_bhb_enable_mitigation()
+should check if a slot has already been allocated for Spectre-v2, meaning
+no work is needed for Spectre-BHB.
+
+This check was missed in the earlier backport, add it.
+
+Fixes: 4dd8aae585a5 ("arm64: Mitigate spectre style branch history side channels")
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/coretemp.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/cpu_errata.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
-index ee35bbc1714a..770bf76a5348 100644
---- a/drivers/hwmon/coretemp.c
-+++ b/drivers/hwmon/coretemp.c
-@@ -255,10 +255,13 @@ static int adjust_tjmax(struct cpuinfo_x86 *c, u32 id, struct device *dev)
- 	 */
- 	if (host_bridge && host_bridge->vendor == PCI_VENDOR_ID_INTEL) {
- 		for (i = 0; i < ARRAY_SIZE(tjmax_pci_table); i++) {
--			if (host_bridge->device == tjmax_pci_table[i].device)
-+			if (host_bridge->device == tjmax_pci_table[i].device) {
-+				pci_dev_put(host_bridge);
- 				return tjmax_pci_table[i].tjmax;
-+			}
- 		}
- 	}
-+	pci_dev_put(host_bridge);
- 
- 	for (i = 0; i < ARRAY_SIZE(tjmax_table); i++) {
- 		if (strstr(c->x86_model_id, tjmax_table[i].id))
--- 
-2.35.1
-
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -876,7 +876,13 @@ void spectre_bhb_enable_mitigation(const
+ 	} else if (spectre_bhb_loop_affected(SCOPE_LOCAL_CPU)) {
+ 		switch (spectre_bhb_loop_affected(SCOPE_SYSTEM)) {
+ 		case 8:
+-			kvm_setup_bhb_slot(__spectre_bhb_loop_k8_start);
++			/*
++			 * A57/A72-r0 will already have selected the
++			 * spectre-indirect vector, which is sufficient
++			 * for BHB too.
++			 */
++			if (!__this_cpu_read(bp_hardening_data.fn))
++				kvm_setup_bhb_slot(__spectre_bhb_loop_k8_start);
+ 			break;
+ 		case 24:
+ 			kvm_setup_bhb_slot(__spectre_bhb_loop_k24_start);
 
 
