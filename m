@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 194986432EE
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:32:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9CA064347E
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234264AbiLETcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:32:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34166 "EHLO
+        id S234883AbiLETr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:47:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234372AbiLETcD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:32:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20F726AE5
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:23 -0800 (PST)
+        with ESMTP id S234951AbiLETrI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79FEE27170
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92464612FE
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:27:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4E1AC433C1;
-        Mon,  5 Dec 2022 19:27:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28FDFB811CF
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F991C433D7;
+        Mon,  5 Dec 2022 19:43:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268443;
-        bh=1oWFaXyJkLlXDfLwnQTgrWueCPxizwa0tzSMjUnwR14=;
+        s=korg; t=1670269400;
+        bh=uAcEGX2MGTC75WWplc3SUbyyqcxOA4T4is2zGQzMNB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=098idSqxHT4ZG/LEuyrk+Jj1d/xBYwXUvPWkpyX/HhTUvTxQZJSIwcCNKBcxliIiT
-         +8aLcZVgSpLjuvFYgkKc2sOAAwT4Si5f8LNlVQJtgWBrLUYOWSQ1/VJI9BYC1BBPlb
-         4B5PedE06oP07/O5mxBLkcrgVtZ3JAq4KQSWEOiI=
+        b=ER/DKwUF//Nvf/1AF5PYVZNkpbRkBtlErzGtpN40CpnNSPJredVZmpfpLDX9SqAIO
+         ZPAk7wEHFloK0Obv7rVaXCkWIP9DY1Cmk5+Eu109+3WSPMSxXUgpud42HZy6HRHr2e
+         sYTmfY2DtKfoRDFzu4EN1fBpj9hxDpBT4rHojNlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
-        Atish Patra <atishp@rivosinc.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev, Sam James <sam@gentoo.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 104/124] riscv: Sync efi page tables kernel mappings before switching
+Subject: [PATCH 5.4 086/153] kbuild: fix -Wimplicit-function-declaration in license_is_gpl_compatible
 Date:   Mon,  5 Dec 2022 20:10:10 +0100
-Message-Id: <20221205190811.381527756@linuxfoundation.org>
+Message-Id: <20221205190811.188760824@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,85 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alexghiti@rivosinc.com>
+From: Sam James <sam@gentoo.org>
 
-[ Upstream commit 3f105a742725a1b78766a55169f1d827732e62b8 ]
+[ Upstream commit 50c697215a8cc22f0e58c88f06f2716c05a26e85 ]
 
-The EFI page table is initially created as a copy of the kernel page table.
-With VMAP_STACK enabled, kernel stacks are allocated in the vmalloc area:
-if the stack is allocated in a new PGD (one that was not present at the
-moment of the efi page table creation or not synced in a previous vmalloc
-fault), the kernel will take a trap when switching to the efi page table
-when the vmalloc kernel stack is accessed, resulting in a kernel panic.
+Add missing <linux/string.h> include for strcmp.
 
-Fix that by updating the efi kernel mappings before switching to the efi
-page table.
+Clang 16 makes -Wimplicit-function-declaration an error by default.
+Unfortunately, out of tree modules may use this in configure scripts,
+which means failure might cause silent miscompilation or misconfiguration.
 
-Signed-off-by: Alexandre Ghiti <alexghiti@rivosinc.com>
-Fixes: b91540d52a08 ("RISC-V: Add EFI runtime services")
-Tested-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Reviewed-by: Atish Patra <atishp@rivosinc.com>
-Link: https://lore.kernel.org/r/20221121133303.1782246-1-alexghiti@rivosinc.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+For more information, see LWN.net [0] or LLVM's Discourse [1], gentoo-dev@ [2],
+or the (new) c-std-porting mailing list [3].
+
+[0] https://lwn.net/Articles/913505/
+[1] https://discourse.llvm.org/t/configure-script-breakage-with-the-new-werror-implicit-function-declaration/65213
+[2] https://archives.gentoo.org/gentoo-dev/message/dd9f2d3082b8b6f8dfbccb0639e6e240
+[3] hosted at lists.linux.dev.
+
+[akpm@linux-foundation.org: remember "linux/"]
+Link: https://lkml.kernel.org/r/20221116182634.2823136-1-sam@gentoo.org
+Signed-off-by: Sam James <sam@gentoo.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/efi.h     |  6 +++++-
- arch/riscv/include/asm/pgalloc.h | 11 ++++++++---
- 2 files changed, 13 insertions(+), 4 deletions(-)
+ include/linux/license.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/riscv/include/asm/efi.h b/arch/riscv/include/asm/efi.h
-index f74879a8f1ea..e229d7be4b66 100644
---- a/arch/riscv/include/asm/efi.h
-+++ b/arch/riscv/include/asm/efi.h
-@@ -10,6 +10,7 @@
- #include <asm/mmu_context.h>
- #include <asm/ptrace.h>
- #include <asm/tlbflush.h>
-+#include <asm/pgalloc.h>
+diff --git a/include/linux/license.h b/include/linux/license.h
+index decdbf43cb5c..87a21d5d6758 100644
+--- a/include/linux/license.h
++++ b/include/linux/license.h
+@@ -1,6 +1,8 @@
+ #ifndef __LICENSE_H
+ #define __LICENSE_H
  
- #ifdef CONFIG_EFI
- extern void efi_init(void);
-@@ -20,7 +21,10 @@ extern void efi_init(void);
- int efi_create_mapping(struct mm_struct *mm, efi_memory_desc_t *md);
- int efi_set_mapping_permissions(struct mm_struct *mm, efi_memory_desc_t *md);
- 
--#define arch_efi_call_virt_setup()      efi_virtmap_load()
-+#define arch_efi_call_virt_setup()      ({		\
-+		sync_kernel_mappings(efi_mm.pgd);	\
-+		efi_virtmap_load();			\
-+	})
- #define arch_efi_call_virt_teardown()   efi_virtmap_unload()
- 
- #define ARCH_EFI_IRQ_FLAGS_MASK (SR_IE | SR_SPIE)
-diff --git a/arch/riscv/include/asm/pgalloc.h b/arch/riscv/include/asm/pgalloc.h
-index 947f23d7b6af..59dc12b5b7e8 100644
---- a/arch/riscv/include/asm/pgalloc.h
-+++ b/arch/riscv/include/asm/pgalloc.h
-@@ -127,6 +127,13 @@ static inline void p4d_free(struct mm_struct *mm, p4d_t *p4d)
- #define __p4d_free_tlb(tlb, p4d, addr)  p4d_free((tlb)->mm, p4d)
- #endif /* __PAGETABLE_PMD_FOLDED */
- 
-+static inline void sync_kernel_mappings(pgd_t *pgd)
-+{
-+	memcpy(pgd + USER_PTRS_PER_PGD,
-+	       init_mm.pgd + USER_PTRS_PER_PGD,
-+	       (PTRS_PER_PGD - USER_PTRS_PER_PGD) * sizeof(pgd_t));
-+}
++#include <linux/string.h>
 +
- static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+ static inline int license_is_gpl_compatible(const char *license)
  {
- 	pgd_t *pgd;
-@@ -135,9 +142,7 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
- 	if (likely(pgd != NULL)) {
- 		memset(pgd, 0, USER_PTRS_PER_PGD * sizeof(pgd_t));
- 		/* Copy kernel mappings */
--		memcpy(pgd + USER_PTRS_PER_PGD,
--			init_mm.pgd + USER_PTRS_PER_PGD,
--			(PTRS_PER_PGD - USER_PTRS_PER_PGD) * sizeof(pgd_t));
-+		sync_kernel_mappings(pgd);
- 	}
- 	return pgd;
- }
+ 	return (strcmp(license, "GPL") == 0
 -- 
 2.35.1
 
