@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E732A643346
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93771643281
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234364AbiLETfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:35:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34746 "EHLO
+        id S234048AbiLET0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:26:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234368AbiLETe5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:57 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 780F45FFD
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:30:53 -0800 (PST)
+        with ESMTP id S234058AbiLET0P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A051E48
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:22:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C3735CE13A8
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:30:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A9B8C433D7;
-        Mon,  5 Dec 2022 19:30:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E030761307
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:22:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00C4FC433D6;
+        Mon,  5 Dec 2022 19:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268650;
-        bh=HYYj7R+g9Rr+JE+q8CsL4XZOt3TzagA13sj+0FZvd6g=;
+        s=korg; t=1670268164;
+        bh=/+UlnU2V7tdbldITT+6Y1e1edaZtEq0GyZcj0pZQnmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c2UNM4WX4sDlIr58QqaN3lx5i1gIvTbc65v0VRL8darOoj3K2HvV6aQ/Q9lf70c3n
-         Qqr6t4+sxJdw581Me99D9GBWcqt75cKghiw18001xmjyfddPh/1i9LnB6tkV+OwMWH
-         aYmXWt5DHiuN/+aPsoXP4Db66whGA2M6gtbcqITg=
+        b=jFDueQxM9kVbp8/nQccQ0BrSjqRxYPudeSvQCSULah8lXirOtDK6NrsjwQBfKmmqs
+         CbY5Y0BvO99wHjbEhsi67e8QGkY1jNZIQ6Do+BNOBwltP0RwsbmiSGxlav9VgYPeN9
+         R4J/7Uu6eECPtjr5rmpWmEznze8VWeC1fEG5RbVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 55/92] error-injection: Add prompt for function error injection
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 096/105] parisc: Increase FRAME_WARN to 2048 bytes on parisc
 Date:   Mon,  5 Dec 2022 20:10:08 +0100
-Message-Id: <20221205190805.333088072@linuxfoundation.org>
+Message-Id: <20221205190806.364954535@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Helge Deller <deller@gmx.de>
 
-commit a4412fdd49dc011bcc2c0d81ac4cab7457092650 upstream.
+[ Upstream commit 8d192bec534bd5b778135769a12e5f04580771f7 ]
 
-The config to be able to inject error codes into any function annotated
-with ALLOW_ERROR_INJECTION() is enabled when FUNCTION_ERROR_INJECTION is
-enabled.  But unfortunately, this is always enabled on x86 when KPROBES
-is enabled, and there's no way to turn it off.
+PA-RISC uses a much bigger frame size for functions than other
+architectures. So increase it to 2048 for 32- and 64-bit kernels.
+This fixes e.g. a warning in lib/xxhash.c.
 
-As kprobes is useful for observability of the kernel, it is useful to
-have it enabled in production environments.  But error injection should
-be avoided.  Add a prompt to the config to allow it to be disabled even
-when kprobes is enabled, and get rid of the "def_bool y".
-
-This is a kernel debug feature (it's in Kconfig.debug), and should have
-never been something enabled by default.
-
-Cc: stable@vger.kernel.org
-Fixes: 540adea3809f6 ("error-injection: Separate error-injection from kprobe")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Stable-dep-of: 152fe65f300e ("Kconfig.debug: provide a little extra FRAME_WARN leeway when KASAN is enabled")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ lib/Kconfig.debug | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index 12fc801811d3..67c98f664a61 100644
 --- a/lib/Kconfig.debug
 +++ b/lib/Kconfig.debug
-@@ -1801,8 +1801,14 @@ config NETDEV_NOTIFIER_ERROR_INJECT
- 	  If unsure, say N.
- 
- config FUNCTION_ERROR_INJECTION
--	def_bool y
-+	bool "Fault-injections of functions"
- 	depends on HAVE_FUNCTION_ERROR_INJECTION && KPROBES
-+	help
-+	  Add fault injections into various functions that are annotated with
-+	  ALLOW_ERROR_INJECTION() in the kernel. BPF may also modify the return
-+	  value of theses functions. This is useful to test error paths of code.
-+
-+	  If unsure, say N
- 
- config FAULT_INJECTION
- 	bool "Fault-injection framework"
+@@ -224,8 +224,9 @@ config FRAME_WARN
+ 	range 0 8192
+ 	default 3072 if KASAN_EXTRA
+ 	default 2048 if GCC_PLUGIN_LATENT_ENTROPY
+-	default 1536 if (!64BIT && (PARISC || XTENSA))
+-	default 1024 if (!64BIT && !PARISC)
++	default 2048 if PARISC
++	default 1536 if (!64BIT && XTENSA)
++	default 1024 if !64BIT
+ 	default 2048 if 64BIT
+ 	help
+ 	  Tell gcc to warn at build time for stack frames larger than this.
+-- 
+2.35.1
+
 
 
