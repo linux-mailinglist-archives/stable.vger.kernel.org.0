@@ -2,99 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46CEF64397C
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 00:31:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 559B7643998
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 00:36:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230108AbiLEXbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 18:31:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48308 "EHLO
+        id S231863AbiLEXfl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 18:35:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230036AbiLEXbI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 18:31:08 -0500
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C8E13F3F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 15:31:04 -0800 (PST)
-Received: by mail-pj1-x102f.google.com with SMTP id cm20so12754930pjb.1
-        for <stable@vger.kernel.org>; Mon, 05 Dec 2022 15:31:04 -0800 (PST)
+        with ESMTP id S233678AbiLEXe4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 18:34:56 -0500
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FDAB1F9E4;
+        Mon,  5 Dec 2022 15:34:38 -0800 (PST)
+Received: by mail-pg1-x531.google.com with SMTP id r18so11830544pgr.12;
+        Mon, 05 Dec 2022 15:34:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=B64nahlnQTvizzFWN/MKOqXMuPOFiJayfJ71EF7WbGA=;
-        b=OdoCO3aIPMdfROqUjmXL7OEIA9CYBS2QJpBEQA/J/lXle82NRW52w+zlIhfg8ms1LH
-         /TaN9ef8SYhihXbLecW289xcKfk+r8jWkj++QJwpEkQ1fXVsZ/FXGTthxTDx3eTv2LqU
-         aF9+9jCAsL/TJziFYfMd+KTj2pD0QOxM5LCYt8tjyk5XsS1+uOrVx9Njw5OmkcBBVEYX
-         KSGIvwzQcHLKi0zMkznu7zvWfx7VwIEZnBvI3Jh70JzLhhauK0TvqwYPjpm562G4twQ5
-         bH2/dgjDSmgv5Ucv41xkKot6rQ9Ok5rWk8g0NNt3g0bAOZFq60lEilO/MyCxX0rMGr7l
-         LCBA==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=aHpH0koW71v/gNWUs8go+lrDnb52j7CWUOqHhEfGdM0=;
+        b=gsFde3HUYz7Yz53ctyOl999WurTwkF6KGafYkT+A62Z1gxrY1M3n8F0zJACffptg62
+         FEtd/PVbdC4SE1pg+noGbT7G03EIzyDfL9pXlRyeZzyvLgrcPScv66fHbwMSnfy8LnJ7
+         xPmfAO8bmBTdAknl+sC8ORt21covOyMN1WlK2S+rLWk5JZEftu3R+QDR6EPYRn7738Gl
+         V2i/0Eyyry6QRfBiJByQjg1/oeRsFBF+4Z12yI0MD/U2AepAwCei5Ung3HKHgXRGZSuK
+         4ll5WYP3TRC4wMI0YG76VbBlejlUpC2ewsnDZnSuau7RWQBkFTBNIfH2VhrmP3260BPU
+         KVkQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=B64nahlnQTvizzFWN/MKOqXMuPOFiJayfJ71EF7WbGA=;
-        b=fP+udX5sXr9z/X0Sm+Z6L0Rj3H6ylJeACQA+VqSmxessAhRQRVV0dP+Jhu8zK/Fp+v
-         q2HQXC9B30l+ayVdYtqa+nPk8GF8eD/pD+B9uuIVItFUi3RyxNTbY7/fhmrR9h24zsdd
-         WRYsMuS5xxHMWI2FEIJZ1RLUT6ecATdvnUnJzBawpCdZytCi8oAaIOHf7YnizBdQ6KoI
-         xHXsZPwD+GzpyCXPeITa4zxd6EDAjPLaiJjwAO1ePjjE72gB5Y48L4YhHuOWtboQzbGo
-         NXEKYBEgvtbVLluo4FCNg9xDrryOhnDF8lEiSBJxyNwtnGh/BYy4jkH/ZuU00M63bR/1
-         I14g==
-X-Gm-Message-State: ANoB5pm/8huvLzll7AVFuce3/HZowJeqfTbenqJ/Fr9YeVqasTjqo/Qe
-        jX+/oskLbVAtdfhYfdIaK5Ktjlbqv8gz0GH4
-X-Google-Smtp-Source: AA0mqf5QjTlWvI5ubzCjEUZ2XSBplUYzhwiX2VZlK2wbZvvlG5QcSd1Z2Q5+Y5Ulo+DwDdjITx4zAA==
-X-Received: by 2002:a17:902:b685:b0:186:5e2f:44b4 with SMTP id c5-20020a170902b68500b001865e2f44b4mr59374pls.29.1670283064040;
-        Mon, 05 Dec 2022 15:31:04 -0800 (PST)
-Received: from localhost ([122.172.87.149])
-        by smtp.gmail.com with ESMTPSA id e8-20020a17090301c800b00189b2b8dbedsm9188203plh.228.2022.12.05.15.31.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Dec 2022 15:31:03 -0800 (PST)
-Date:   Tue, 6 Dec 2022 05:00:59 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-pm@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        regressions@leemhuis.info, daniel@makrotopia.org,
-        thomas.huehn@hs-nordhausen.de, "v5 . 19+" <stable@vger.kernel.org>,
-        Nick <vincent@systemli.org>, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH] Revert "cpufreq: mediatek: Refine
- mtk_cpufreq_voltage_tracking()"
-Message-ID: <20221205233059.izdqcilbhjmkh6ew@vireshk-i7>
-References: <930778a1-5e8b-6df6-3276-42dcdadaf682@systemli.org>
- <18947e09733a17935af9a123ccf9b6e92faeaf9b.1669958641.git.viresh.kumar@linaro.org>
- <CAJZ5v0ixHocQbu6-zs3dMDsiw8vdPyv=8Re7N4kUckeGkLhUzg@mail.gmail.com>
- <CAJZ5v0hc8CsvqLKxi5iRq7iR0bkt25dRnLBd23mx-zdi2Sjgsw@mail.gmail.com>
- <20221205043044.bgecubnw7d3xlyi5@vireshk-i7>
- <CAJZ5v0gTV5LM_qRKncPq5Z2TRENMgVer6oZiGAKJn6ndrNSKxg@mail.gmail.com>
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=aHpH0koW71v/gNWUs8go+lrDnb52j7CWUOqHhEfGdM0=;
+        b=RHi8RCILDdF0HvzmDXxikHFlk4JlMpkSj2KGCGXJX+K/wfD8wDtwmd4wlneRhoybHR
+         tE86y5gyXWhAlGy8unHO0MAma5Q9wcqQndTCtOVAEwLFN3kLFLwToe1LCNGhZHyJm4Vu
+         o4PExK++qr0lZNJpXe1r1GMau1bSSGKlg2GkD0GhCpp7z2WbuIcVqqGJwoyZHeh/GZ2y
+         H7JoqfanAajf7bHrWIMcGZh4cXzZJd8EN3Iqajflzm/6fsy45t2Zbu5IBlZ3TKgvLpAJ
+         ObuBN8Yb6IjyTdz2sFhCmswKbpZquqcFNTFc+ahX5UN7HQiT/aTr70PMGMbGWjv/2dpj
+         QlPA==
+X-Gm-Message-State: ANoB5pnpNE+PKk6sKCm9HBo7cJc51ssR2j+Du1cMD5EGmEESh6zMG3pV
+        vLzBpQeMhWB6GIhECXcC2i4=
+X-Google-Smtp-Source: AA0mqf6PnUuIQY0pCVuIeDYd5kASTPnCO1yfcd8JTB7BhrHfxMM/jy0ZZDES+A9qQOwoeWjhtatNcA==
+X-Received: by 2002:a05:6a00:1c8d:b0:56c:f87e:c662 with SMTP id y13-20020a056a001c8d00b0056cf87ec662mr68183904pfw.65.1670283277656;
+        Mon, 05 Dec 2022 15:34:37 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id a23-20020a621a17000000b0057630286100sm7952974pfa.164.2022.12.05.15.34.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 05 Dec 2022 15:34:37 -0800 (PST)
+Message-ID: <ae9f8db2-38a4-8410-6d94-222e8f48d8e4@gmail.com>
+Date:   Mon, 5 Dec 2022 15:34:35 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJZ5v0gTV5LM_qRKncPq5Z2TRENMgVer6oZiGAKJn6ndrNSKxg@mail.gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH 5.10 00/92] 5.10.158-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221205190803.464934752@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05-12-22, 13:08, Rafael J. Wysocki wrote:
-> Well, this was a bit unclear.
+On 12/5/22 11:09, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.158 release.
+> There are 92 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 07 Dec 2022 19:07:46 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.158-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Hmm, yeah. I assumed that the arm stuff will go via my tree and you
-will be in sync with this. But yeah, a comment in the patch won't have
-hurt.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-> Alright then, I'll assume that the proper fix will come in through
-> your pull request for 6.2 (but please send that one before the merge
-> window opens), thanks!
-
-I was ready with pull request since several days, was just waiting for
-this to get sorted out. And I think this may get delayed a bit too, so
-I better send the first pull request now and worry about this later.
-
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-viresh
+Florian
+
