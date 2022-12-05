@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6FF26431D1
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:19:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48553643129
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:12:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233777AbiLETTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:19:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42038 "EHLO
+        id S230169AbiLETME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:12:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233791AbiLETT1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:19:27 -0500
+        with ESMTP id S230377AbiLETLr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:11:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD42427CE9
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:16:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55CC8FAF0
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:11:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 944B9B8120C
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:16:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F28ADC433D6;
-        Mon,  5 Dec 2022 19:16:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02017B81201
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:11:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64BDEC433D7;
+        Mon,  5 Dec 2022 19:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267766;
-        bh=EGSkEilU0Oot2DpZdatTRZDaX0eASLyor1qyavGdJ+I=;
+        s=korg; t=1670267502;
+        bh=HG+Knn3OUs6gaMkBJGgeADbiSdgPvxca2snM/f9FvCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDhdLHcFGGANYaXBWXcSRoDW/WinNU5pORfZ4rXL+ITpX5WgLBUHHp0keIeu4EAbE
-         ZA0XA6HXukYHF4/rlLMhHGAfqqJz9E6PWRUhoaM5YKg01lZmWk3xS/7iY4yODRpIzY
-         hQE+doaDSlU1aMoZBzXf02Q1I2BO94Zahn44I2Fg=
+        b=q3xXnWF3VWItY5bP69zUDsSSQ0Kd6mBn7KuGzCjaND0PSf6wlZAI4iRUC+loii9M0
+         KkZ5marNZPtDsd6HIbvxBH+pHaMNv3x4fP2vXS2vqnAjIMbDF2lhxrhjNAhGZj4jOD
+         /cFawJU1IhWabBbZSB99nosuQyjTUS8DIapK9oug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        syzbot+9b69b8d10ab4a7d88056@syzkaller.appspotmail.com,
+        Zhengchao Shao <shaozhengchao@huawei.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/77] net/qla3xxx: fix potential memleak in ql3xxx_send()
-Date:   Mon,  5 Dec 2022 20:09:06 +0100
-Message-Id: <20221205190801.410831575@linuxfoundation.org>
+Subject: [PATCH 4.9 10/62] 9p/fd: fix issue of list_del corruption in p9_fd_cancel()
+Date:   Mon,  5 Dec 2022 20:09:07 +0100
+Message-Id: <20221205190758.474809786@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
+References: <20221205190758.073114639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 62a7311fb96c61d281da9852dbee4712fc8c3277 ]
+[ Upstream commit 11c10956515b8ec44cf4f2a7b9d8bf8b9dc05ec4 ]
 
-The ql3xxx_send() returns NETDEV_TX_OK without freeing skb in error
-handling case, add dev_kfree_skb_any() to fix it.
+Syz reported the following issue:
+kernel BUG at lib/list_debug.c:53!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+RIP: 0010:__list_del_entry_valid.cold+0x5c/0x72
+Call Trace:
+<TASK>
+p9_fd_cancel+0xb1/0x270
+p9_client_rpc+0x8ea/0xba0
+p9_client_create+0x9c0/0xed0
+v9fs_session_init+0x1e0/0x1620
+v9fs_mount+0xba/0xb80
+legacy_get_tree+0x103/0x200
+vfs_get_tree+0x89/0x2d0
+path_mount+0x4c0/0x1ac0
+__x64_sys_mount+0x33b/0x430
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+</TASK>
 
-Fixes: bd36b0ac5d06 ("qla3xxx: Add support for Qlogic 4032 chip.")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Link: https://lore.kernel.org/r/1668675039-21138-1-git-send-email-zhangchangzhong@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The process is as follows:
+Thread A:                       Thread B:
+p9_poll_workfn()                p9_client_create()
+...                                 ...
+    p9_conn_cancel()                p9_fd_cancel()
+        list_del()                      ...
+        ...                             list_del()  //list_del
+                                                      corruption
+There is no lock protection when deleting list in p9_conn_cancel(). After
+deleting list in Thread A, thread B will delete the same list again. It
+will cause issue of list_del corruption.
+
+Setting req->status to REQ_STATUS_ERROR under lock prevents other
+cleanup paths from trying to manipulate req_list.
+The other thread can safely check req->status because it still holds a
+reference to req at this point.
+
+Link: https://lkml.kernel.org/r/20221110122606.383352-1-shaozhengchao@huawei.com
+Fixes: 52f1c45dde91 ("9p: trans_fd/p9_conn_cancel: drop client lock earlier")
+Reported-by: syzbot+9b69b8d10ab4a7d88056@syzkaller.appspotmail.com
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+[Dominique: add description of the fix in commit message]
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/9p/trans_fd.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
-index 9d384fb3b746..82f13d69631f 100644
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -2476,6 +2476,7 @@ static netdev_tx_t ql3xxx_send(struct sk_buff *skb,
- 					     skb_shinfo(skb)->nr_frags);
- 	if (tx_cb->seg_count == -1) {
- 		netdev_err(ndev, "%s: invalid segment count!\n", __func__);
-+		dev_kfree_skb_any(skb);
- 		return NETDEV_TX_OK;
+diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
+index a7973bd56a40..e70e843ee48f 100644
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -210,9 +210,11 @@ static void p9_conn_cancel(struct p9_conn *m, int err)
+ 
+ 	list_for_each_entry_safe(req, rtmp, &m->req_list, req_list) {
+ 		list_move(&req->req_list, &cancel_list);
++		req->status = REQ_STATUS_ERROR;
+ 	}
+ 	list_for_each_entry_safe(req, rtmp, &m->unsent_req_list, req_list) {
+ 		list_move(&req->req_list, &cancel_list);
++		req->status = REQ_STATUS_ERROR;
  	}
  
+ 	spin_unlock(&m->client->lock);
 -- 
 2.35.1
 
