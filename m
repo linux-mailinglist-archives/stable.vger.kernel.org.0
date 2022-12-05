@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 054D7643380
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 570CF6432A8
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:28:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234414AbiLETgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:36:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39466 "EHLO
+        id S234051AbiLET2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:28:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234462AbiLETg3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:36:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E314B220F0
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:33:29 -0800 (PST)
+        with ESMTP id S234075AbiLET1a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:27:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DA727FE2
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:24:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8CD6EB81157
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:33:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08096C433C1;
-        Mon,  5 Dec 2022 19:33:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A70FB612D8
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:24:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCEC5C433C1;
+        Mon,  5 Dec 2022 19:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268807;
-        bh=yD4KWUQ3KdvD52boQDxFCJXWgEQ2eX2LaHIdjB+ceKY=;
+        s=korg; t=1670268276;
+        bh=IptsQPsjwnuQGBlRZzG3uTTy+8or39/mkD5ZRVBWo9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jFvZBpFU/u0PMWZpARuYzwwg+V32t7AtdwF5t4lKz9cnryN4x1KkE4HG52zC7C3Ao
-         iCPIbCAoc87qnWjTO4fednANFX3A+ol9H6C6p/ELOTGjYcD34dBpLgrRifp+b0JVk9
-         PQUTKCGzsMEKMlLA4CKscC6IJDnUmQkqb8TCAaNY=
+        b=RTt6l9uo/kiMkmogLcnUaGbe8BLTyg/kddlSbexqTX/VPIQvO0mmkV/jqnlxuzD4b
+         G5AIJ7Bx2jD7Vn8WsyGm9Yj6pqaKCqB6QpROrwDAChgwbT93PR4egVjCRuiE6tElQq
+         n14rHOBwMEa48lLpPAKllFRbGGGqt0wm95kc9Ogk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 008/120] btrfs: move QUOTA_ENABLED check to rescan_should_stop from btrfs_qgroup_rescan_worker
-Date:   Mon,  5 Dec 2022 20:09:08 +0100
-Message-Id: <20221205190806.811796189@linuxfoundation.org>
+Subject: [PATCH 6.0 043/124] can: m_can: Add check for devm_clk_get
+Date:   Mon,  5 Dec 2022 20:09:09 +0100
+Message-Id: <20221205190809.665662358@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit db5df254120004471e1c957957ab2f1e612dcbd6 ]
+[ Upstream commit 68b4f9e0bdd0f920d7303d07bfe226cd0976961d ]
 
-Instead of having 2 places that short circuit the qgroup leaf scan have
-everything in the qgroup_rescan_leaf function. In addition to that, also
-ensure that the inconsistent qgroup flag is set when rescan_should_stop
-returns true. This both retains the old behavior when -EINTR was set in
-the body of the loop and at the same time also extends this behavior
-when scanning is interrupted due to remount or unmount operations.
+Since the devm_clk_get may return error,
+it should be better to add check for the cdev->hclk,
+as same as cdev->cclk.
 
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Stable-dep-of: f7e942b5bb35 ("btrfs: qgroup: fix sleep from invalid context bug in btrfs_qgroup_inherit()")
+Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/all/20221123063651.26199-1-jiasheng@iscas.ac.cn
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/qgroup.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/net/can/m_can/m_can.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
-index e01065696e9c..b9db096c5286 100644
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -3280,7 +3280,8 @@ static int qgroup_rescan_leaf(struct btrfs_trans_handle *trans,
- static bool rescan_should_stop(struct btrfs_fs_info *fs_info)
- {
- 	return btrfs_fs_closing(fs_info) ||
--		test_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state);
-+		test_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state) ||
-+		!test_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags);
- }
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index 4dc67fdfcdb9..153d8fd08bd8 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -1910,7 +1910,7 @@ int m_can_class_get_clocks(struct m_can_classdev *cdev)
+ 	cdev->hclk = devm_clk_get(cdev->dev, "hclk");
+ 	cdev->cclk = devm_clk_get(cdev->dev, "cclk");
  
- static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
-@@ -3310,11 +3311,9 @@ static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
- 			err = PTR_ERR(trans);
- 			break;
- 		}
--		if (!test_bit(BTRFS_FS_QUOTA_ENABLED, &fs_info->flags)) {
--			err = -EINTR;
--		} else {
--			err = qgroup_rescan_leaf(trans, path);
--		}
-+
-+		err = qgroup_rescan_leaf(trans, path);
-+
- 		if (err > 0)
- 			btrfs_commit_transaction(trans);
- 		else
-@@ -3328,7 +3327,7 @@ static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
- 	if (err > 0 &&
- 	    fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT) {
- 		fs_info->qgroup_flags &= ~BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
--	} else if (err < 0) {
-+	} else if (err < 0 || stopped) {
- 		fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
+-	if (IS_ERR(cdev->cclk)) {
++	if (IS_ERR(cdev->hclk) || IS_ERR(cdev->cclk)) {
+ 		dev_err(cdev->dev, "no clock found\n");
+ 		ret = -ENODEV;
  	}
- 	mutex_unlock(&fs_info->qgroup_rescan_lock);
 -- 
 2.35.1
 
