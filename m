@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDC0E64330D
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5C32643473
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234288AbiLETeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:34:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34246 "EHLO
+        id S233913AbiLETrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:47:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234127AbiLETdo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:33:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6490E2D778
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:28:32 -0800 (PST)
+        with ESMTP id S234948AbiLETql (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:46:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E57F9FC7
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:42:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0286FB80EFD
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:28:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA59C433D6;
-        Mon,  5 Dec 2022 19:28:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 195726130C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:42:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2291AC433D7;
+        Mon,  5 Dec 2022 19:42:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268510;
-        bh=ipSJSQkL1kzU648WQdGvF8202dy1RqdSgpRc+thfUTw=;
+        s=korg; t=1670269373;
+        bh=RI0QCr/eAHID6w6t/fCHV5QzcPVi2V2e+E0VFvpTmP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qjW/Zv51zbaVmFmklMd/TPy+qbLdTxJT2sUXkAGVkS6lGdpMsuclV8cMPFSsEwkMS
-         ZZv7icHm7E/1J+OTcmaHncHRb0KsGm1ck4DPaqqk1I10tcYVjkU4Z6AZEuWcxoBLd4
-         OW0uz01aw0DTp09d1kGaA2z9YPaX8wWKku5SK6CU=
+        b=Xj0JO+QXIUHhEyKR7uhccNLyybz6H/gK0N9tqBuQkmqYRxNBfyW4duC+bEwMwAdP2
+         nXFQtoLJt+wdhVRs32QgP6YJ+QvJhOKoSt/Fx18EUwkE2GvGQLqXJ1DahtAYQXKSl/
+         ztbWpRrNn0/LXN5OU5UKPo2M61K1hEXmzqurR6J4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Conor Dooley <conor.dooley@microchip.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Samuel Holland <samuel@sholland.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 121/124] Revert "clocksource/drivers/riscv: Events are stopped during CPU suspend"
+Subject: [PATCH 5.4 103/153] net: phy: fix null-ptr-deref while probe() failed
 Date:   Mon,  5 Dec 2022 20:10:27 +0100
-Message-Id: <20221205190811.886494481@linuxfoundation.org>
+Message-Id: <20221205190811.702024930@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,93 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit d9f15a9de44affe733e34f93bc184945ba277e6d ]
+[ Upstream commit 369eb2c9f1f72adbe91e0ea8efb130f0a2ba11a6 ]
 
-This reverts commit 232ccac1bd9b5bfe73895f527c08623e7fa0752d.
+I got a null-ptr-deref report as following when doing fault injection test:
 
-On the subject of suspend, the RISC-V SBI spec states:
+BUG: kernel NULL pointer dereference, address: 0000000000000058
+Oops: 0000 [#1] PREEMPT SMP KASAN PTI
+CPU: 1 PID: 253 Comm: 507-spi-dm9051 Tainted: G    B            N 6.1.0-rc3+
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:klist_put+0x2d/0xd0
+Call Trace:
+ <TASK>
+ klist_remove+0xf1/0x1c0
+ device_release_driver_internal+0x23e/0x2d0
+ bus_remove_device+0x1bd/0x240
+ device_del+0x357/0x770
+ phy_device_remove+0x11/0x30
+ mdiobus_unregister+0xa5/0x140
+ release_nodes+0x6a/0xa0
+ devres_release_all+0xf8/0x150
+ device_unbind_cleanup+0x19/0xd0
 
-  This does not cover whether any given events actually reach the hart or
-  not, just what the hart will do if it receives an event. On PolarFire
-  SoC, and potentially other SiFive based implementations, events from the
-  RISC-V timer do reach a hart during suspend. This is not the case for the
-  implementation on the Allwinner D1 - there timer events are not received
-  during suspend.
+//probe path:
+phy_device_register()
+  device_add()
 
-To fix this, the CLOCK_EVT_FEAT_C3STOP (mis)feature was enabled for the
-timer driver - but this has broken both RCU stall detection and timers
-generally on PolarFire SoC and potentially other SiFive based
-implementations.
+phy_connect
+  phy_attach_direct() //set device driver
+    probe() //it's failed, driver is not bound
+    device_bind_driver() // probe failed, it's not called
 
-If an AXI read to the PCIe controller on PolarFire SoC times out, the
-system will stall, however, with CLOCK_EVT_FEAT_C3STOP active, the system
-just locks up without RCU stalling:
+//remove path:
+phy_device_remove()
+  device_del()
+    device_release_driver_internal()
+      __device_release_driver() //dev->drv is not NULL
+        klist_remove() <- knode_driver is not added yet, cause null-ptr-deref
 
-	io scheduler mq-deadline registered
-	io scheduler kyber registered
-	microchip-pcie 2000000000.pcie: host bridge /soc/pcie@2000000000 ranges:
-	microchip-pcie 2000000000.pcie:      MEM 0x2008000000..0x2087ffffff -> 0x0008000000
-	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
-	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
-	microchip-pcie 2000000000.pcie: axi read request error
-	microchip-pcie 2000000000.pcie: axi read timeout
-	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
-	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
-	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
-	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
-	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
-	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
-	Freeing initrd memory: 7332K
+In phy_attach_direct(), after setting the 'dev->driver', probe() fails,
+device_bind_driver() is not called, so the knode_driver->n_klist is not
+set, then it causes null-ptr-deref in __device_release_driver() while
+deleting device. Fix this by setting dev->driver to NULL in the error
+path in phy_attach_direct().
 
-Similarly issues were reported with clock_nanosleep() - with a test app
-that sleeps each cpu for 6, 5, 4, 3 ms respectively, HZ=250 & the blamed
-commit in place, the sleep times are rounded up to the next jiffy:
-
-== CPU: 1 ==      == CPU: 2 ==      == CPU: 3 ==      == CPU: 4 ==
-Mean: 7.974992    Mean: 7.976534    Mean: 7.962591    Mean: 3.952179
-Std Dev: 0.154374 Std Dev: 0.156082 Std Dev: 0.171018 Std Dev: 0.076193
-Hi: 9.472000      Hi: 10.495000     Hi: 8.864000      Hi: 4.736000
-Lo: 6.087000      Lo: 6.380000      Lo: 4.872000      Lo: 3.403000
-Samples: 521      Samples: 521      Samples: 521      Samples: 521
-
-Fortunately, the D1 has a second timer, which is "currently used in
-preference to the RISC-V/SBI timer driver" so a revert here does not
-hurt operation of D1 in its current form.
-
-Ultimately, a DeviceTree property (or node) will be added to encode the
-behaviour of the timers, but until then revert the addition of
-CLOCK_EVT_FEAT_C3STOP.
-
-Fixes: 232ccac1bd9b ("clocksource/drivers/riscv: Events are stopped during CPU suspend")
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
-Acked-by: Samuel Holland <samuel@sholland.org>
-Link: https://lore.kernel.org/linux-riscv/YzYTNQRxLr7Q9JR0@spud/
-Link: https://github.com/riscv-non-isa/riscv-sbi-doc/issues/98/
-Link: https://lore.kernel.org/linux-riscv/bf6d3b1f-f703-4a25-833e-972a44a04114@sholland.org/
-Link: https://lore.kernel.org/r/20221122121620.3522431-1-conor.dooley@microchip.com
+Fixes: e13934563db0 ("[PATCH] PHY Layer fixup")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-riscv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/phy_device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clocksource/timer-riscv.c b/drivers/clocksource/timer-riscv.c
-index 969a552da8d2..a0d66fabf073 100644
---- a/drivers/clocksource/timer-riscv.c
-+++ b/drivers/clocksource/timer-riscv.c
-@@ -51,7 +51,7 @@ static int riscv_clock_next_event(unsigned long delta,
- static unsigned int riscv_clock_event_irq;
- static DEFINE_PER_CPU(struct clock_event_device, riscv_clock_event) = {
- 	.name			= "riscv_timer_clockevent",
--	.features		= CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_C3STOP,
-+	.features		= CLOCK_EVT_FEAT_ONESHOT,
- 	.rating			= 100,
- 	.set_next_event		= riscv_clock_next_event,
- };
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index 78b918dcd547..388799985720 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -1312,6 +1312,7 @@ int phy_attach_direct(struct net_device *dev, struct phy_device *phydev,
+ 
+ error_module_put:
+ 	module_put(d->driver->owner);
++	d->driver = NULL;
+ error_put_device:
+ 	put_device(d);
+ 	if (ndev_owner != bus->owner)
 -- 
 2.35.1
 
