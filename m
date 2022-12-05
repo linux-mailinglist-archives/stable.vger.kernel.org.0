@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AB16643311
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BC85643477
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233901AbiLETeI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:34:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34558 "EHLO
+        id S235013AbiLETrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:47:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233846AbiLETdu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:33:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2E712871D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:28:38 -0800 (PST)
+        with ESMTP id S235085AbiLETqx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:46:53 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5D6F29CA0
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6231EB80EFD
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:28:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B47A5C433D6;
-        Mon,  5 Dec 2022 19:28:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AA21CCE1386
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 976D5C433D6;
+        Mon,  5 Dec 2022 19:42:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268516;
-        bh=T5Zp9xJko18pa8PZ/nDcaF3xcOGNe7UuoIhp3k8VmY8=;
+        s=korg; t=1670269379;
+        bh=mfZdEGzz66M2VcOdFaAK5Lm14QPzpFrcvMa9puNty6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mUNsrX02ay/qq+kxe6i5aegfQhT+4zXmaNVPxtuJqMQCzWVQg2mYB5/mQz3JHr0UW
-         M0J2MoFzhZHTx1/+GOvon0kXw8hUhJxfB9rFrnYfSM2qvOFEYJ2Uj/CEd3tE5C5s2Q
-         MgYiZ9Ug4zeivdW2BhWkCA39/hmpz3rWNuO1bgcY=
+        b=BzRO+8kRnhLWlH2KCA2IRUkEpjTKM8pFaieSOEa2f6hxVUZz/4zDtl/QLojU+vBxe
+         BXPMToiwz3t4xUrGrXlk33hHREESwPa0IyCJdChWtWUSY6fDZgiKpqx+D100iWbwXQ
+         0ZlBXEPMpzvTUmM44j3hSdYhFdeNA9DM5SRXeNzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 6.0 123/124] Input: raydium_ts_i2c - fix memory leak in raydium_i2c_send()
+        patches@lists.linux.dev, Wang Hai <wanghai38@huawei.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 105/153] net/9p: Fix a potential socket leak in p9_socket_open
 Date:   Mon,  5 Dec 2022 20:10:29 +0100
-Message-Id: <20221205190811.937347036@linuxfoundation.org>
+Message-Id: <20221205190811.758713154@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,85 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit 8c9a59939deb4bfafdc451100c03d1e848b4169b upstream.
+[ Upstream commit dcc14cfd7debe11b825cb077e75d91d2575b4cb8 ]
 
-There is a kmemleak when test the raydium_i2c_ts with bpf mock device:
+Both p9_fd_create_tcp() and p9_fd_create_unix() will call
+p9_socket_open(). If the creation of p9_trans_fd fails,
+p9_fd_create_tcp() and p9_fd_create_unix() will return an
+error directly instead of releasing the cscoket, which will
+result in a socket leak.
 
-  unreferenced object 0xffff88812d3675a0 (size 8):
-    comm "python3", pid 349, jiffies 4294741067 (age 95.695s)
-    hex dump (first 8 bytes):
-      11 0e 10 c0 01 00 04 00                          ........
-    backtrace:
-      [<0000000068427125>] __kmalloc+0x46/0x1b0
-      [<0000000090180f91>] raydium_i2c_send+0xd4/0x2bf [raydium_i2c_ts]
-      [<000000006e631aee>] raydium_i2c_initialize.cold+0xbc/0x3e4 [raydium_i2c_ts]
-      [<00000000dc6fcf38>] raydium_i2c_probe+0x3cd/0x6bc [raydium_i2c_ts]
-      [<00000000a310de16>] i2c_device_probe+0x651/0x680
-      [<00000000f5a96bf3>] really_probe+0x17c/0x3f0
-      [<00000000096ba499>] __driver_probe_device+0xe3/0x170
-      [<00000000c5acb4d9>] driver_probe_device+0x49/0x120
-      [<00000000264fe082>] __device_attach_driver+0xf7/0x150
-      [<00000000f919423c>] bus_for_each_drv+0x114/0x180
-      [<00000000e067feca>] __device_attach+0x1e5/0x2d0
-      [<0000000054301fc2>] bus_probe_device+0x126/0x140
-      [<00000000aad93b22>] device_add+0x810/0x1130
-      [<00000000c086a53f>] i2c_new_client_device+0x352/0x4e0
-      [<000000003c2c248c>] of_i2c_register_device+0xf1/0x110
-      [<00000000ffec4177>] of_i2c_notify+0x100/0x160
-  unreferenced object 0xffff88812d3675c8 (size 8):
-    comm "python3", pid 349, jiffies 4294741070 (age 95.692s)
-    hex dump (first 8 bytes):
-      22 00 36 2d 81 88 ff ff                          ".6-....
-    backtrace:
-      [<0000000068427125>] __kmalloc+0x46/0x1b0
-      [<0000000090180f91>] raydium_i2c_send+0xd4/0x2bf [raydium_i2c_ts]
-      [<000000001d5c9620>] raydium_i2c_initialize.cold+0x223/0x3e4 [raydium_i2c_ts]
-      [<00000000dc6fcf38>] raydium_i2c_probe+0x3cd/0x6bc [raydium_i2c_ts]
-      [<00000000a310de16>] i2c_device_probe+0x651/0x680
-      [<00000000f5a96bf3>] really_probe+0x17c/0x3f0
-      [<00000000096ba499>] __driver_probe_device+0xe3/0x170
-      [<00000000c5acb4d9>] driver_probe_device+0x49/0x120
-      [<00000000264fe082>] __device_attach_driver+0xf7/0x150
-      [<00000000f919423c>] bus_for_each_drv+0x114/0x180
-      [<00000000e067feca>] __device_attach+0x1e5/0x2d0
-      [<0000000054301fc2>] bus_probe_device+0x126/0x140
-      [<00000000aad93b22>] device_add+0x810/0x1130
-      [<00000000c086a53f>] i2c_new_client_device+0x352/0x4e0
-      [<000000003c2c248c>] of_i2c_register_device+0xf1/0x110
-      [<00000000ffec4177>] of_i2c_notify+0x100/0x160
+This patch adds sock_release() to fix the leak issue.
 
-After BANK_SWITCH command from i2c BUS, no matter success or error
-happened, the tx_buf should be freed.
-
-Fixes: 3b384bd6c3f2 ("Input: raydium_ts_i2c - do not split tx transactions")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Link: https://lore.kernel.org/r/20221202103412.2120169-1-zhangxiaoxu5@huawei.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6b18662e239a ("9p connect fixes")
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+ACKed-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/raydium_i2c_ts.c |    4 +++-
+ net/9p/trans_fd.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -211,12 +211,14 @@ static int raydium_i2c_send(struct i2c_c
+diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
+index 5d6284adbac0..23c1d78ab1e4 100644
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -852,8 +852,10 @@ static int p9_socket_open(struct p9_client *client, struct socket *csocket)
+ 	struct file *file;
  
- 		error = raydium_i2c_xfer(client, addr, xfer, ARRAY_SIZE(xfer));
- 		if (likely(!error))
--			return 0;
-+			goto out;
+ 	p = kzalloc(sizeof(struct p9_trans_fd), GFP_KERNEL);
+-	if (!p)
++	if (!p) {
++		sock_release(csocket);
+ 		return -ENOMEM;
++	}
  
- 		msleep(RM_RETRY_DELAY_MS);
- 	} while (++tries < RM_MAX_RETRIES);
- 
- 	dev_err(&client->dev, "%s failed: %d\n", __func__, error);
-+out:
-+	kfree(tx_buf);
- 	return error;
- }
- 
+ 	csocket->sk->sk_allocation = GFP_NOIO;
+ 	file = sock_alloc_file(csocket, 0, NULL);
+-- 
+2.35.1
+
 
 
