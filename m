@@ -2,64 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6767B642DD2
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 17:51:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A462642DF6
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 17:53:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233302AbiLEQvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 11:51:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47510 "EHLO
+        id S231213AbiLEQwv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 11:52:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233111AbiLEQuj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 11:50:39 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D02F20F4E
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 08:48:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1670258930;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=4KZ/zgtG2GkdUtgg8vJDdSHxlbgaAY07w0uujmcN/Po=;
-        b=E6KV408sIpAmR9r74OjvZCD3GIq4NlzJuuNA4nVy7LRv7AFMH/qcckAtOxaWlXsiYRIqsC
-        Sc+i01exm9ohnNzuX0/ZptoLIVLC8zJGVPpXGWwRBpmoK91qWfqUN/ufIRlsyynNaQ5PzF
-        pEwVwNKa7Ft3CFd5IsdvWVw+rve5Lus=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-493-P58rRdR5NlCDBAphtSryZw-1; Mon, 05 Dec 2022 11:48:47 -0500
-X-MC-Unique: P58rRdR5NlCDBAphtSryZw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 976B638164D3;
-        Mon,  5 Dec 2022 16:48:46 +0000 (UTC)
-Received: from llong.com (unknown [10.22.9.203])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D570A17595;
-        Mon,  5 Dec 2022 16:48:45 +0000 (UTC)
-From:   Waiman Long <longman@redhat.com>
-To:     Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc:     Phil Auld <pauld@redhat.com>,
-        Wenjie Li <wenjieli@qti.qualcomm.com>,
-        =?UTF-8?q?David=20Wang=20=E7=8E=8B=E6=A0=87?= 
-        <wangbiao3@xiaomi.com>, linux-kernel@vger.kernel.org,
-        Waiman Long <longman@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH-tip v2] sched: Fix use-after-free bug in dup_user_cpus_ptr()
-Date:   Mon,  5 Dec 2022 11:48:32 -0500
-Message-Id: <20221205164832.2151247-1-longman@redhat.com>
+        with ESMTP id S230465AbiLEQwI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 11:52:08 -0500
+Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7238D138
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 08:50:41 -0800 (PST)
+Received: by mail-yb1-xb35.google.com with SMTP id e141so15244638ybh.3
+        for <stable@vger.kernel.org>; Mon, 05 Dec 2022 08:50:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=omxPhxygGi15DInRWNsEIsnqTdfZ/lF3i1adfZBYqUs=;
+        b=scqda3yNywWG6P6eVxTAMfyltHtKiS1vZtEYCCcWsy5ylNETkg4WCJXkQTeVWI6Gqg
+         mtl3j/cidoQ7g3YDQS04ZpJJ8z5kGVUK5Mn+uG5J6hY4tbUrPSuXNE2ra7EQM1lUWejQ
+         Tg4Tgbw2PsAooGbaL3Zi9hiJV+KiT5U9GMSA1Y0OxFENvRBFqrtu3IZ9TvT6OZzcxF9B
+         IXldqDJdkpaVuErS4pm9ZDd9xoJcZmCH7ggm84sJ21XYckL5+SeECspb0vdurPorkGb5
+         L39PxZEk4ww76D4LsVz13qiPNDqp7/RoR/cOBZNMpPHTtZIuR5vIYAGl7ci6LEe6ITaD
+         88sw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=omxPhxygGi15DInRWNsEIsnqTdfZ/lF3i1adfZBYqUs=;
+        b=YFUy1D02G/9pMyopFl7disCwgsmdQGAoG/y7/uNcJ68NpdaKt/06Yz1f3f90zOmOJZ
+         BvpZQ+rc1esTWjowXvlnl7epn90QBuVW0WeiTQg8p8L6GUmUMGmwP/ho4Q7zcv1KiS+V
+         72qKt3Flfq95zcc8t0XNLTyN5LdLZ76lkQJMVrA15wBPNxY4Z5umtW/oun7RnLjUHiTJ
+         7LNRnMiUB+u58bIh824+3yCZE1TZcIqa/KhPbzQKD+ir+BA2UOv5menk67n+T5SJdaPi
+         NUPypfd3rSBztoQESHQ/GbHXA4KYQ1Eiaw4pnHWjQBFIJ5JJJFFza4GlE92neCPYeXCX
+         A9Lg==
+X-Gm-Message-State: ANoB5pkGVvJPgZ5pxSdQvRlNLGzzVhHTJRGqC1QVeDpz0j4fy64DXXsP
+        tlIeXQVVl30A8TgiYcd0HIg2CHXC495xyFrX6m87aw==
+X-Google-Smtp-Source: AA0mqf44nhhZrtHWPcx3MqYDBxCJTtCrWPDxuLtpIYyntxCI8F/ZvXwwdp5paXz5Xkx/21IBz+pcYa3nhxk3c9LNaok=
+X-Received: by 2002:a05:6902:1004:b0:6fe:d784:282a with SMTP id
+ w4-20020a056902100400b006fed784282amr9840834ybt.598.1670259040447; Mon, 05
+ Dec 2022 08:50:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+References: <20221205153557.28549-1-justin.iurman@uliege.be> <CANn89iLjGnyh0GgW_5kkMQJBCi-KfgwyvZwT1ou2FMY4ZDcMXw@mail.gmail.com>
+In-Reply-To: <CANn89iLjGnyh0GgW_5kkMQJBCi-KfgwyvZwT1ou2FMY4ZDcMXw@mail.gmail.com>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Mon, 5 Dec 2022 17:50:28 +0100
+Message-ID: <CANn89iK3hMpJQ1w4peg2g35W+Oi3t499C5rUv7rcwzYtxDGBuw@mail.gmail.com>
+Subject: Re: [RFC net] Fixes: b63c5478e9cb ("ipv6: ioam: Support for Queue
+ depth data field")
+To:     Justin Iurman <justin.iurman@uliege.be>
+Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        yoshfuji@linux-ipv6.org, dsahern@kernel.org, pabeni@redhat.com,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -67,92 +69,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit 07ec77a1d4e8 ("sched: Allow task CPU affinity to be
-restricted on asymmetric systems"), the setting and clearing of
-user_cpus_ptr are done under pi_lock for arm64 architecture. However,
-dup_user_cpus_ptr() accesses user_cpus_ptr without any lock
-protection. When racing with the clearing of user_cpus_ptr in
-__set_cpus_allowed_ptr_locked(), it can lead to user-after-free and
-double-free in arm64 kernel.
+On Mon, Dec 5, 2022 at 5:30 PM Eric Dumazet <edumazet@google.com> wrote:
+>
+> Patch title seems
+>
+> On Mon, Dec 5, 2022 at 4:36 PM Justin Iurman <justin.iurman@uliege.be> wrote:
+> >
+> > This patch fixes a NULL qdisc pointer when retrieving the TX queue depth
+> > for IOAM.
+> >
+> > IMPORTANT: I suspect this fix is local only and the bug goes deeper (see
+> > reasoning below).
+> >
+> > Kernel panic:
+> > [...]
+> > RIP: 0010:ioam6_fill_trace_data+0x54f/0x5b0
+> > [...]
+> >
+> > ...which basically points to the call to qdisc_qstats_qlen_backlog
+> > inside net/ipv6/ioam6.c.
+> >
+> > From there, I directly thought of a NULL pointer (queue->qdisc). To make
+> > sure, I added some printk's to know exactly *why* and *when* it happens.
+> > Here is the (summarized by queue) output:
+> >
+> > skb for TX queue 1, qdisc is ffff8b375eee9800, qdisc_sleeping is ffff8b375eee9800
+> > skb for TX queue 2, qdisc is ffff8b375eeefc00, qdisc_sleeping is ffff8b375eeefc00
+> > skb for TX queue 3, qdisc is ffff8b375eeef800, qdisc_sleeping is ffff8b375eeef800
+> > skb for TX queue 4, qdisc is ffff8b375eeec800, qdisc_sleeping is ffff8b375eeec800
+> > skb for TX queue 5, qdisc is ffff8b375eeea400, qdisc_sleeping is ffff8b375eeea400
+> > skb for TX queue 6, qdisc is ffff8b375eeee000, qdisc_sleeping is ffff8b375eeee000
+> > skb for TX queue 7, qdisc is ffff8b375eee8800, qdisc_sleeping is ffff8b375eee8800
+> > skb for TX queue 8, qdisc is ffff8b375eeedc00, qdisc_sleeping is ffff8b375eeedc00
+> > skb for TX queue 9, qdisc is ffff8b375eee9400, qdisc_sleeping is ffff8b375eee9400
+> > skb for TX queue 10, qdisc is ffff8b375eee8000, qdisc_sleeping is ffff8b375eee8000
+> > skb for TX queue 11, qdisc is ffff8b375eeed400, qdisc_sleeping is ffff8b375eeed400
+> > skb for TX queue 12, qdisc is ffff8b375eeea800, qdisc_sleeping is ffff8b375eeea800
+> > skb for TX queue 13, qdisc is ffff8b375eee8c00, qdisc_sleeping is ffff8b375eee8c00
+> > skb for TX queue 14, qdisc is ffff8b375eeea000, qdisc_sleeping is ffff8b375eeea000
+> > skb for TX queue 15, qdisc is ffff8b375eeeb800, qdisc_sleeping is ffff8b375eeeb800
+> > skb for TX queue 16, qdisc is NULL, qdisc_sleeping is NULL
+> >
+> > What the hell? So, not sure why queue #16 would *never* have a qdisc
+> > attached. Is it something expected I'm not aware of? As an FYI, here is
+> > the output of "tc qdisc list dev xxx":
+> >
+> > qdisc mq 0: root
+> > qdisc fq_codel 0: parent :10 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :f limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :e limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :d limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :c limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :b limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :a limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :9 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :8 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :7 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :6 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :5 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :4 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :3 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :2 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> > qdisc fq_codel 0: parent :1 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+> >
+> > By the way, the NIC is an Intel XL710 40GbE QSFP+ (i40e driver, firmware
+> > version 8.50 0x8000b6c7 1.3082.0) and it was tested on latest "net"
+> > version (6.1.0-rc7+). Is this a bug in the i40e driver?
+> >
+>
+> > Cc: stable@vger.kernel.org
+>
+> Patch title is mangled. The Fixes: tag should appear here, not in the title.
+>
+>
+> Fixes: b63c5478e9cb ("ipv6: ioam: Support for Queue depth data field")
+>
+> > Signed-off-by: Justin Iurman <justin.iurman@uliege.be>
+> > ---
+> >  net/ipv6/ioam6.c | 11 +++++++----
+> >  1 file changed, 7 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/net/ipv6/ioam6.c b/net/ipv6/ioam6.c
+> > index 571f0e4d9cf3..2472a8a043c4 100644
+> > --- a/net/ipv6/ioam6.c
+> > +++ b/net/ipv6/ioam6.c
+> > @@ -727,10 +727,13 @@ static void __ioam6_fill_trace_data(struct sk_buff *skb,
+> >                         *(__be32 *)data = cpu_to_be32(IOAM6_U32_UNAVAILABLE);
+> >                 } else {
+> >                         queue = skb_get_tx_queue(skb_dst(skb)->dev, skb);
+>
+> Are you sure skb_dst(skb)->dev is correct at this stage, what about
+> stacked devices ?
+>
+> > -                       qdisc = rcu_dereference(queue->qdisc);
+> > -                       qdisc_qstats_qlen_backlog(qdisc, &qlen, &backlog);
+> > -
+> > -                       *(__be32 *)data = cpu_to_be32(backlog);
+> > +                       if (!queue->qdisc) {
+>
+> This is racy.
+>
+> > +                               *(__be32 *)data = cpu_to_be32(IOAM6_U32_UNAVAILABLE);
+> > +                       } else {
+> > +                               qdisc = rcu_dereference(queue->qdisc);
+> > +                               qdisc_qstats_qlen_backlog(qdisc, &qlen, &backlog);
+> > +                               *(__be32 *)data = cpu_to_be32(backlog);
+> > +                       }
+> >                 }
+> >                 data += sizeof(__be32);
+> >         }
+> > --
+> > 2.25.1
+> >
+>
+> Quite frankly I suggest to revert b63c5478e9cb completely.
+>
+> The notion of Queue depth can not be properly gathered in Linux with a
+> multi queue model,
+> so why trying to get a wrong value ?
 
-Commit 8f9ea86fdf99 ("sched: Always preserve the user requested
-cpumask") fixes this problem as user_cpus_ptr, once set, will never
-be cleared in a task's lifetime. However, this bug was re-introduced
-in commit 851a723e45d1 ("sched: Always clear user_cpus_ptr in
-do_set_cpus_allowed()") which allows the clearing of user_cpus_ptr in
-do_set_cpus_allowed(). This time, it will affect all arches.
-
-Fix this bug by always clearing the user_cpus_ptr of the newly
-cloned/forked task before the copying process starts and check the
-user_cpus_ptr state of the source task under pi_lock.
-
-Note to stable, this patch won't be applicable to stable releases.
-Just copy the new dup_user_cpus_ptr() function over.
-
-Fixes: 07ec77a1d4e8 ("sched: Allow task CPU affinity to be restricted on asymmetric systems")
-Fixes: 851a723e45d1 ("sched: Always clear user_cpus_ptr in do_set_cpus_allowed()")
-CC: stable@vger.kernel.org
-Reported-by: David Wang 王标 <wangbiao3@xiaomi.com>
-Signed-off-by: Waiman Long <longman@redhat.com>
----
- kernel/sched/core.c | 34 +++++++++++++++++++++++++++++-----
- 1 file changed, 29 insertions(+), 5 deletions(-)
-
- [v2: Use data_race() macro as suggested by Will]
-
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 78b2d5cabcc5..57e5932f81a9 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -2612,19 +2612,43 @@ void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
- int dup_user_cpus_ptr(struct task_struct *dst, struct task_struct *src,
- 		      int node)
- {
-+	cpumask_t *user_mask;
- 	unsigned long flags;
- 
--	if (!src->user_cpus_ptr)
-+	/*
-+	 * Always clear dst->user_cpus_ptr first as their user_cpus_ptr's
-+	 * may differ by now due to racing.
-+	 */
-+	dst->user_cpus_ptr = NULL;
-+
-+	/*
-+	 * This check is racy and losing the race is a valid situation.
-+	 * It is not worth the extra overhead of taking the pi_lock on
-+	 * every fork/clone.
-+	 */
-+	if (data_race(!src->user_cpus_ptr))
- 		return 0;
- 
--	dst->user_cpus_ptr = kmalloc_node(cpumask_size(), GFP_KERNEL, node);
--	if (!dst->user_cpus_ptr)
-+	user_mask = kmalloc_node(cpumask_size(), GFP_KERNEL, node);
-+	if (!user_mask)
- 		return -ENOMEM;
- 
--	/* Use pi_lock to protect content of user_cpus_ptr */
-+	/*
-+	 * Use pi_lock to protect content of user_cpus_ptr
-+	 *
-+	 * Though unlikely, user_cpus_ptr can be reset to NULL by a concurrent
-+	 * do_set_cpus_allowed().
-+	 */
- 	raw_spin_lock_irqsave(&src->pi_lock, flags);
--	cpumask_copy(dst->user_cpus_ptr, src->user_cpus_ptr);
-+	if (src->user_cpus_ptr) {
-+		swap(dst->user_cpus_ptr, user_mask);
-+		cpumask_copy(dst->user_cpus_ptr, src->user_cpus_ptr);
-+	}
- 	raw_spin_unlock_irqrestore(&src->pi_lock, flags);
-+
-+	if (unlikely(user_mask))
-+		kfree(user_mask);
-+
- 	return 0;
- }
- 
--- 
-2.31.1
-
+Additional reason for a revert is that qdisc_qstats_qlen_backlog() is
+reserved for net/sched
+code, I think it needs the qdisc lock to be held.
