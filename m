@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 478A16433C9
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:39:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3CB2643471
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234600AbiLETjb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:39:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44140 "EHLO
+        id S231290AbiLETrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:47:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234603AbiLETjN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:39:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3A76DFA8
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:36:22 -0800 (PST)
+        with ESMTP id S235066AbiLETqf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:46:35 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ECDAEE07
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:42:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 619E461335
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:36:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76EB1C433D7;
-        Mon,  5 Dec 2022 19:36:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8C959CE13AA
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:42:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 664C6C433D6;
+        Mon,  5 Dec 2022 19:42:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268981;
-        bh=BdjOTldohBvTZY4JVOEt+AEvpAULx76lOKL2SAdMeqM=;
+        s=korg; t=1670269359;
+        bh=oAyRmoJz9hq9M3Kk8U2zfjJyb89pR9dd4SF4EwrVkLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lz4hO6pPZ7fq12qoBSXw1AMA0S8tNRk/xif/hIqKSW0sYEf8I/7PphHsJWGYSpYu9
-         BNwFHhVVsAlVA2xle7fbVglV+HZ3ixsbged6jonvtrwSysTzSxuYnhUWRI9y10lAKF
-         EUtk/uasvClK+bz7vljJJQppqp3EQWZslcCiOZ3c=
+        b=NsgNaqbNCH2bMUUqZtMDlvhEV3DOLHbLMe1pxiPIIZI8Hq/Hy0eV5WLYZGYR5uJHh
+         KZG2sQ26s2o+RRyyVEPTHropcHOThZ9a0bgvIO00/BiC8DW6lyLeVTXjOUjHIXfsUR
+         VP3W4faNWzdI2QFKapgckUEAAcJkB5NayrSvetEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.15 083/120] drm/i915: Fix negative value passed as remaining time
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 099/153] can: sja1000_isa: sja1000_isa_probe(): add missing free_sja1000dev()
 Date:   Mon,  5 Dec 2022 20:10:23 +0100
-Message-Id: <20221205190809.089476777@linuxfoundation.org>
+Message-Id: <20221205190811.583225882@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit a8899b8728013c7b2456f0bfa20e5fea85ee0fd1 upstream.
+[ Upstream commit 92dfd9310a71d28cefe6a2d5174d43fab240e631 ]
 
-Commit b97060a99b01 ("drm/i915/guc: Update intel_gt_wait_for_idle to work
-with GuC") extended the API of intel_gt_retire_requests_timeout() with an
-extra argument 'remaining_timeout', intended for passing back unconsumed
-portion of requested timeout when 0 (success) is returned.  However, when
-request retirement happens to succeed despite an error returned by a call
-to dma_fence_wait_timeout(), that error code (a negative value) is passed
-back instead of remaining time.  If we then pass that negative value
-forward as requested timeout to intel_uc_wait_for_idle(), an explicit BUG
-will be triggered.
+Add the missing free_sja1000dev() before return from
+sja1000_isa_probe() in the register_sja1000dev() error handling case.
 
-If request retirement succeeds but an error code is passed back via
-remaininig_timeout, we may have no clue on how much of the initial timeout
-might have been left for spending it on waiting for GuC to become idle.
-OTOH, since all pending requests have been successfully retired, that
-error code has been already ignored by intel_gt_retire_requests_timeout(),
-then we shouldn't fail.
+In addition, remove blanks before goto labels.
 
-Assume no more time has been left on error and pass 0 timeout value to
-intel_uc_wait_for_idle() to give it a chance to return success if GuC is
-already idle.
-
-v3: Don't fail on any error passed back via remaining_timeout.
-
-v2: Fix the issue on the caller side, not the provider.
-
-Fixes: b97060a99b01 ("drm/i915/guc: Update intel_gt_wait_for_idle to work with GuC")
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Cc: stable@vger.kernel.org # v5.15+
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221121145655.75141-2-janusz.krzysztofik@linux.intel.com
-(cherry picked from commit f235dbd5b768e238d365fd05d92de5a32abc1c1f)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2a6ba39ad6a2 ("can: sja1000: legacy SJA1000 ISA bus driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/all/1668168521-5540-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_gt.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/can/sja1000/sja1000_isa.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -650,8 +650,13 @@ int intel_gt_wait_for_idle(struct intel_
- 			return -EINTR;
+diff --git a/drivers/net/can/sja1000/sja1000_isa.c b/drivers/net/can/sja1000/sja1000_isa.c
+index 1c4d32d1a542..fe8441be716b 100644
+--- a/drivers/net/can/sja1000/sja1000_isa.c
++++ b/drivers/net/can/sja1000/sja1000_isa.c
+@@ -202,22 +202,24 @@ static int sja1000_isa_probe(struct platform_device *pdev)
+ 	if (err) {
+ 		dev_err(&pdev->dev, "registering %s failed (err=%d)\n",
+ 			DRV_NAME, err);
+-		goto exit_unmap;
++		goto exit_free;
  	}
  
--	return timeout ? timeout : intel_uc_wait_for_idle(&gt->uc,
--							  remaining_timeout);
-+	if (timeout)
-+		return timeout;
-+
-+	if (remaining_timeout < 0)
-+		remaining_timeout = 0;
-+
-+	return intel_uc_wait_for_idle(&gt->uc, remaining_timeout);
+ 	dev_info(&pdev->dev, "%s device registered (reg_base=0x%p, irq=%d)\n",
+ 		 DRV_NAME, priv->reg_base, dev->irq);
+ 	return 0;
+ 
+- exit_unmap:
++exit_free:
++	free_sja1000dev(dev);
++exit_unmap:
+ 	if (mem[idx])
+ 		iounmap(base);
+- exit_release:
++exit_release:
+ 	if (mem[idx])
+ 		release_mem_region(mem[idx], iosize);
+ 	else
+ 		release_region(port[idx], iosize);
+- exit:
++exit:
+ 	return err;
  }
  
- int intel_gt_init(struct intel_gt *gt)
+-- 
+2.35.1
+
 
 
