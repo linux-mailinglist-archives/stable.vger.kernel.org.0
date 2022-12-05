@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 123F46431A6
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:17:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1B6564321D
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:24:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231812AbiLETPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:15:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34052 "EHLO
+        id S233702AbiLETYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:24:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233114AbiLETPC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:15:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 320D122B1A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:15:01 -0800 (PST)
+        with ESMTP id S233748AbiLETYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 934AE27927
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:19:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFBE4B81200
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:14:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B86BC433C1;
-        Mon,  5 Dec 2022 19:14:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2EAE2B80EFD
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:19:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A3B3C433D6;
+        Mon,  5 Dec 2022 19:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267698;
-        bh=EsZgUXgm/Uz+tvsXpxGJmErMUTJL+fxhfFvzjTpnjIM=;
+        s=korg; t=1670267965;
+        bh=/chpz9o2UYSfhbAdgaaZ6jCbXtu78MS1mAlEKYbQiP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r2/VC5XcScrqRjfOhSsFt8E4H41fwL87j/iwjpivYe5g5Mvob4YIouV0TO0Db8XzE
-         5RCZfY9bPRSSa6t4xoMYWmi5CmaFTRtfuj8iwuhUpFGa6uVZuRbmTQwShUDbK3ioKF
-         m0sURgPJ7MDwp6wwphkXSCuyghSKlCqMQPi0kvak=
+        b=YKRZAOCI7sA56Rn8atuAOP9R2tre62WKkbnVItmzO6VISgUzyM/FYW1+PbZJtOfcn
+         NmNH6kfYjYeCzv8tEbsqdAaCzI/x0wbBNj07fj+Rodk+IsqiyTX6fqnZbATqvhX4s+
+         ceMgpHEWucl8T/3p3ImKEtWjb+QoC9g+SrvHU4MM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Hai <wanghai38@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 11/77] net: pch_gbe: fix potential memleak in pch_gbe_tx_queue()
+        patches@lists.linux.dev, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 030/105] s390/dasd: fix no record found for raw_track_access
 Date:   Mon,  5 Dec 2022 20:09:02 +0100
-Message-Id: <20221205190801.268442703@linuxfoundation.org>
+Message-Id: <20221205190804.162700930@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-[ Upstream commit 2360f9b8c4e81d242d4cbf99d630a2fffa681fab ]
+[ Upstream commit 590ce6d96d6a224b470a3862c33a483d5022bfdb ]
 
-In pch_gbe_xmit_frame(), NETDEV_TX_OK will be returned whether
-pch_gbe_tx_queue() sends data successfully or not, so pch_gbe_tx_queue()
-needs to free skb before returning. But pch_gbe_tx_queue() returns without
-freeing skb in case of dma_map_single() fails. Add dev_kfree_skb_any()
-to fix it.
+For DASD devices in raw_track_access mode only full track images are
+read and written.
+For this purpose it is not necessary to do search operation in the
+locate record extended function. The documentation even states that
+this might fail if the searched record is not found on a track.
 
-Fixes: 77555ee72282 ("net: Add Gigabit Ethernet driver of Topcliff PCH")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Currently the driver sets a value of 1 in the search field for the first
+record after record zero. This is the default for disks not in
+raw_track_access mode but record 1 might be missing on a completely
+empty track.
+
+There has not been any problem with this on IBM storage servers but it
+might lead to errors with DASD devices on other vendors storage servers.
+
+Fix this by setting the search field to 0. Record zero is always available
+even on a completely empty track.
+
+Fixes: e4dbb0f2b5dd ("[S390] dasd: Add support for raw ECKD access.")
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Link: https://lore.kernel.org/r/20221123160719.3002694-4-sth@linux.ibm.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/block/dasd_eckd.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-index 22e63ae80a10..119220c79226 100644
---- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-+++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-@@ -1221,6 +1221,7 @@ static void pch_gbe_tx_queue(struct pch_gbe_adapter *adapter,
- 		buffer_info->dma = 0;
- 		buffer_info->time_stamp = 0;
- 		tx_ring->next_to_use = ring_num;
-+		dev_kfree_skb_any(skb);
- 		return;
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index a2e34c853ca9..4d6fd3205be7 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -3788,7 +3788,6 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
+ 	struct dasd_device *basedev;
+ 	struct req_iterator iter;
+ 	struct dasd_ccw_req *cqr;
+-	unsigned int first_offs;
+ 	unsigned int trkcount;
+ 	unsigned long *idaws;
+ 	unsigned int size;
+@@ -3822,7 +3821,6 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
+ 	last_trk = (blk_rq_pos(req) + blk_rq_sectors(req) - 1) /
+ 		DASD_RAW_SECTORS_PER_TRACK;
+ 	trkcount = last_trk - first_trk + 1;
+-	first_offs = 0;
+ 
+ 	if (rq_data_dir(req) == READ)
+ 		cmd = DASD_ECKD_CCW_READ_TRACK;
+@@ -3866,13 +3864,13 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
+ 
+ 	if (use_prefix) {
+ 		prefix_LRE(ccw++, data, first_trk, last_trk, cmd, basedev,
+-			   startdev, 1, first_offs + 1, trkcount, 0, 0);
++			   startdev, 1, 0, trkcount, 0, 0);
+ 	} else {
+ 		define_extent(ccw++, data, first_trk, last_trk, cmd, basedev, 0);
+ 		ccw[-1].flags |= CCW_FLAG_CC;
+ 
+ 		data += sizeof(struct DE_eckd_data);
+-		locate_record_ext(ccw++, data, first_trk, first_offs + 1,
++		locate_record_ext(ccw++, data, first_trk, 0,
+ 				  trkcount, cmd, basedev, 0, 0);
  	}
- 	buffer_info->mapped = true;
+ 
 -- 
 2.35.1
 
