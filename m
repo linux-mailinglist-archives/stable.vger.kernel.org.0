@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D56C1643249
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23CB26432BC
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:29:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232548AbiLETZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:25:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46502 "EHLO
+        id S234194AbiLET3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:29:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233385AbiLETYo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:44 -0500
+        with ESMTP id S234120AbiLET2h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:28:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D38AAE5F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 444F529CB3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:25:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE8A5612D8
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0D29C433C1;
-        Mon,  5 Dec 2022 19:19:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1AE4612FB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:25:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0A0AC433D6;
+        Mon,  5 Dec 2022 19:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268000;
-        bh=l5TuZedNmaUjYPnLDbPcfkou/4J+3WdXQxgT2JqrNcY=;
+        s=korg; t=1670268312;
+        bh=LBzpaqq7MMeWU0zBrB4T8GwA7+BwVUeepb7gcK4lmvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wka9uODAZFwwL1cQcpsHURJRSQCHXVHmqkE1f16ovi+rfI+PFeeYe1WhKvMlSPQ2g
-         3ZpVh/eUjRmmQnDVoIE+U9x03z1gN++UAWVAdIvCUUAebdAgQcyrFggl0ob5US+yWt
-         08AlfRulm6zIHt3xncXZ7qn1++xXiWeiIxugS4lw=
+        b=Mre2WhS3hhTkYWtO4SHId05nWCdF3Tz4/oK9Txfe6lf4fghWGQ12UAz+zpWrod3OW
+         VwADx2R5f4DkZOgLQvHDItmWGQ9Hd7meEt2pdcyhcgQ/v6KJ8eu+8e3EjONWuz14l5
+         L9uDRftTf99JMiAhelLDn+YxxoxSYFl71cMyKnwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        M Chetan Kumar <m.chetan.kumar@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 049/105] platform/x86: hp-wmi: Ignore Smart Experience App event
+Subject: [PATCH 6.0 055/124] net: wwan: iosm: fix kernel test robot reported error
 Date:   Mon,  5 Dec 2022 20:09:21 +0100
-Message-Id: <20221205190804.806357018@linuxfoundation.org>
+Message-Id: <20221205190809.992049143@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: M Chetan Kumar <m.chetan.kumar@linux.intel.com>
 
-[ Upstream commit 8b9b6a044b408283b086702b1d9e3cf4ba45b426 ]
+[ Upstream commit 985a02e75881b73a43c9433a718b49d272a9dd6b ]
 
-Sometimes hp-wmi driver complains on system resume:
-[ 483.116451] hp_wmi: Unknown event_id - 33 - 0x0
+sparse warnings - iosm_ipc_mux_codec.c:1474 using plain
+integer as NULL pointer.
 
-According to HP it's a feature called "HP Smart Experience App" and it's
-safe to be ignored.
+Use skb_trim() to reset skb tail & len.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20221114073842.205392-1-kai.heng.feng@canonical.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 9413491e20e1 ("net: iosm: encode or decode datagram")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: M Chetan Kumar <m.chetan.kumar@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/hp-wmi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wwan/iosm/iosm_ipc_mux_codec.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
-index ba1a3e2fcebe..c65b800310f3 100644
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -76,6 +76,7 @@ enum hp_wmi_event_ids {
- 	HPWMI_PEAKSHIFT_PERIOD		= 0x0F,
- 	HPWMI_BATTERY_CHARGE_PERIOD	= 0x10,
- 	HPWMI_SANITIZATION_MODE		= 0x17,
-+	HPWMI_SMART_EXPERIENCE_APP	= 0x21,
- };
+diff --git a/drivers/net/wwan/iosm/iosm_ipc_mux_codec.c b/drivers/net/wwan/iosm/iosm_ipc_mux_codec.c
+index d41e373f9c0a..c16365123660 100644
+--- a/drivers/net/wwan/iosm/iosm_ipc_mux_codec.c
++++ b/drivers/net/wwan/iosm/iosm_ipc_mux_codec.c
+@@ -1471,8 +1471,7 @@ void ipc_mux_ul_encoded_process(struct iosm_mux *ipc_mux, struct sk_buff *skb)
+ 			ipc_mux->ul_data_pend_bytes);
  
- struct bios_args {
-@@ -634,6 +635,8 @@ static void hp_wmi_notify(u32 value, void *context)
- 		break;
- 	case HPWMI_SANITIZATION_MODE:
- 		break;
-+	case HPWMI_SMART_EXPERIENCE_APP:
-+		break;
- 	default:
- 		pr_info("Unknown event_id - %d - 0x%x\n", event_id, event_data);
- 		break;
+ 	/* Reset the skb settings. */
+-	skb->tail = 0;
+-	skb->len = 0;
++	skb_trim(skb, 0);
+ 
+ 	/* Add the consumed ADB to the free list. */
+ 	skb_queue_tail((&ipc_mux->ul_adb.free_list), skb);
 -- 
 2.35.1
 
