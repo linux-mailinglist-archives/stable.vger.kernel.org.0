@@ -2,102 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D77B264281B
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 13:09:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22D67642864
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 13:26:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231628AbiLEMJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 07:09:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47442 "EHLO
+        id S229985AbiLEM0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 07:26:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231327AbiLEMJF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 07:09:05 -0500
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4811FDF7C;
-        Mon,  5 Dec 2022 04:09:03 -0800 (PST)
-Received: by mail-qk1-f170.google.com with SMTP id j26so4725340qki.10;
-        Mon, 05 Dec 2022 04:09:03 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=6MIB3xvxCZJU4GWFyhSO9TpaK2tmBFBEo8wuA140FSA=;
-        b=qYM2jVSoJMRmv1m9t02NFO4W/TeCC9/RAmPXjY9uiXFvXSD+T2odxmesKUykYK5Kqb
-         RRBn4FPAoB2qBrjUyUMyx74OSFMvirMbZV+1FWk8CjjuqgTCFf8xTF1N7u48YaUosTMC
-         5PIr46uvfkhQl7sk6LdzuTkZWQbEQ/CxWTNLHI8hIylVf+fAs/WiX4nk04xyqDARwMqr
-         dOfLW6U2OE55phPWGpsK0yyHCJn+iqCEvv4fUYMh1FpnVDFINPOyRGcMh6VKpKyCirsW
-         6ZsEDRc9B2ZThhHz+m8qGYD7pQTGHxWxtk+S2NkPmgM6DRPUfbSxrLGOEDfOotcJpt9p
-         nbsg==
-X-Gm-Message-State: ANoB5pkTGZSaYV6gYjpsnF2R3CnNSK13bCWY+nkpZvo/DuDX4z0c7cYK
-        8n4U5FC7oSudcyvfS4Du6xYWF6UKPQtXEDu0F34=
-X-Google-Smtp-Source: AA0mqf7FMTmERIGbZY2w/Q82ozUpwVdcf9Crh6uuy78ifwFCCa0OM9jDIT99xZgX8z/1kHUGB4tv5EJTfgsWNfg0mHM=
-X-Received: by 2002:a05:620a:4611:b0:6fa:af7e:927c with SMTP id
- br17-20020a05620a461100b006faaf7e927cmr71338620qkb.443.1670242142398; Mon, 05
- Dec 2022 04:09:02 -0800 (PST)
+        with ESMTP id S231744AbiLEM0O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 07:26:14 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EFEECE9
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 04:25:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1670243115;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=0/lPTp7lVynVMq0c+szAs3DzdDpFpUGy1TPnJKo1ThQ=;
+        b=fUamYoCBLIu79zjfInTEe0LU9EGUsglPTyFWXxsIDcODdbJl/afO2zRkTOxez9tHKzxtJZ
+        1GugukhcwcuEh15Fpu9C8D1KhVfqsSSXJu0TuUvyQumog5lHNGcH+oX4l0Ey+BBoEnw6Pr
+        aWjST/H8ZqVN+P6+FI9v4HnMDwipuqw=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-491-7cvNzi1OPOGPRWe7RCbykQ-1; Mon, 05 Dec 2022 07:25:14 -0500
+X-MC-Unique: 7cvNzi1OPOGPRWe7RCbykQ-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B7F77833AEE;
+        Mon,  5 Dec 2022 12:25:13 +0000 (UTC)
+Received: from localhost (ovpn-8-24.pek2.redhat.com [10.72.8.24])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AA369492B07;
+        Mon,  5 Dec 2022 12:25:12 +0000 (UTC)
+From:   Ming Lei <ming.lei@redhat.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+        Ming Lei <ming.lei@redhat.com>, cuishw@inspur.com,
+        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.10.y stable] block: unhash blkdev part inode when the part is deleted
+Date:   Mon,  5 Dec 2022 20:25:02 +0800
+Message-Id: <20221205122502.841896-1-ming.lei@redhat.com>
 MIME-Version: 1.0
-References: <930778a1-5e8b-6df6-3276-42dcdadaf682@systemli.org>
- <18947e09733a17935af9a123ccf9b6e92faeaf9b.1669958641.git.viresh.kumar@linaro.org>
- <CAJZ5v0ixHocQbu6-zs3dMDsiw8vdPyv=8Re7N4kUckeGkLhUzg@mail.gmail.com>
- <CAJZ5v0hc8CsvqLKxi5iRq7iR0bkt25dRnLBd23mx-zdi2Sjgsw@mail.gmail.com> <20221205043044.bgecubnw7d3xlyi5@vireshk-i7>
-In-Reply-To: <20221205043044.bgecubnw7d3xlyi5@vireshk-i7>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Mon, 5 Dec 2022 13:08:47 +0100
-Message-ID: <CAJZ5v0gTV5LM_qRKncPq5Z2TRENMgVer6oZiGAKJn6ndrNSKxg@mail.gmail.com>
-Subject: Re: [PATCH] Revert "cpufreq: mediatek: Refine mtk_cpufreq_voltage_tracking()"
-To:     Viresh Kumar <viresh.kumar@linaro.org>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-pm@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        regressions@leemhuis.info, daniel@makrotopia.org,
-        thomas.huehn@hs-nordhausen.de, "v5 . 19+" <stable@vger.kernel.org>,
-        Nick <vincent@systemli.org>, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 5, 2022 at 5:30 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
->
-> On 02-12-22, 20:46, Rafael J. Wysocki wrote:
-> > On Fri, Dec 2, 2022 at 1:17 PM Rafael J. Wysocki <rafael@kernel.org> wrote:
-> > >
-> > > On Fri, Dec 2, 2022 at 6:26 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
-> > > >
-> > > > This reverts commit 6a17b3876bc8303612d7ad59ecf7cbc0db418bcd.
-> > > >
-> > > > This commit caused regression on Banana Pi R64 (MT7622), revert until
-> > > > the problem is identified and fixed properly.
-> > > >
-> > > > Link: https://lore.kernel.org/all/930778a1-5e8b-6df6-3276-42dcdadaf682@systemli.org/
-> > > > Cc: v5.19+ <stable@vger.kernel.org> # v5.19+
-> > > > Reported-by: Nick <vincent@systemli.org>
-> > > > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> > >
-> > > Do you want me to push this revert for -rc8?
->
-> No, I was planning to make it part of my pull request.
+v5.11 changes the blkdev lookup mechanism completely since commit
+22ae8ce8b892 ("block: simplify bdev/disk lookup in blkdev_get"),
+and small part of the change is to unhash part bdev inode when
+deleting partition. Turns out this kind of change does fix one
+nasty issue in case of BLOCK_EXT_MAJOR:
 
-Well, this was a bit unclear.
+1) when one partition is deleted & closed, disk_put_part() is always
+called before bdput(bdev), see blkdev_put(); so the part's devt can
+be freed & re-used before the inode is dropped
 
-> > After all, I've decided to queue it up for 6.2, thanks!
->
-> Can you please drop that ? AngeloGioacchino already reported that
-> Reverting the proposed commit will make MT8183 unstable.
+2) then new partition with same devt can be created just before the
+inode in 1) is dropped, then the old inode/bdev structurein 1) is
+re-used for this new partition, this way causes use-after-free and
+kernel panic.
 
-OK, dropped now.
+It isn't possible to backport the whole fbig patchset of "merge struct
+block_device and struct hd_struct v4" for addressing this issue.
 
-> So the right thing to do now is apply the fix, which is on the list
-> and getting tested.
+https://lore.kernel.org/linux-block/20201128161510.347752-1-hch@lst.de/
 
-Alright then, I'll assume that the proper fix will come in through
-your pull request for 6.2 (but please send that one before the merge
-window opens), thanks!
+So fixes it by unhashing part bdev in delete_partition(), and this way
+is actually aligned with v5.11+'s behavior.
+
+Reported-by: cuishw@inspur.com
+Tested-by: cuishw@inspur.com
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Jan Kara <jack@suse.cz>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+---
+ block/partitions/core.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/block/partitions/core.c b/block/partitions/core.c
+index a02e22411594..e3d61ec4a5a6 100644
+--- a/block/partitions/core.c
++++ b/block/partitions/core.c
+@@ -329,6 +329,7 @@ void delete_partition(struct hd_struct *part)
+ 	struct gendisk *disk = part_to_disk(part);
+ 	struct disk_part_tbl *ptbl =
+ 		rcu_dereference_protected(disk->part_tbl, 1);
++	struct block_device *bdev;
+ 
+ 	/*
+ 	 * ->part_tbl is referenced in this part's release handler, so
+@@ -346,6 +347,12 @@ void delete_partition(struct hd_struct *part)
+ 	 * "in-use" until we really free the gendisk.
+ 	 */
+ 	blk_invalidate_devt(part_devt(part));
++
++	bdev = bdget_part(part);
++	if (bdev) {
++		remove_inode_hash(bdev->bd_inode);
++		bdput(bdev);
++	}
+ 	percpu_ref_kill(&part->ref);
+ }
+ 
+-- 
+2.37.3
+
