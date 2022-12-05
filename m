@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CD4F6433D2
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:39:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2FC8643476
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234758AbiLETj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:39:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40824 "EHLO
+        id S235014AbiLETrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:47:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234529AbiLETj0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:39:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE0D7101EC
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:36:42 -0800 (PST)
+        with ESMTP id S232849AbiLETqy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:46:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 108412A247
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B2CA612C5
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:36:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BA1EC433D7;
-        Mon,  5 Dec 2022 19:36:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 480F86130D
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59BD1C433D6;
+        Mon,  5 Dec 2022 19:43:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269001;
-        bh=f3m9sWW8su0LLcneKWL7CjsOFCIWHi43c0szgiAqwSk=;
+        s=korg; t=1670269381;
+        bh=AsbUmn0BX8KmK2l7ztyROW2witm0pS7tfbhmJNoDJ+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TK9tR3L9nPb5h3eJFUzzAuTdSHa4FxZHNdRPUbSjdaJs0+vaR9VRM2mswnSVuMn5G
-         2U6eYVllGBgdHd/90iop1SiXNJsl6hp8Oqqi+De12/XH5K5A5CHbCDmA/9w5aE9wYL
-         8KP0NdWFBeEUD8MNXiwFOeELP9Ti4m1OpKoovhWU=
+        b=vglLI9KCfKXgUyVF3zL5fro9cEcls/hjLXs04ZWc1Bpc+G4wynaITUmfLrABWst9e
+         gWXjgwgAV9DAkfPbh8BT4BLSlzVVv8aGDbrxPLXebHT9RIa9CQ5M06/2YmAVP/r1+t
+         4l8SUfSh3avr9TmuI2ljCgxCpEYnOPlm7fh6Ki2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 090/120] io_uring: cmpxchg for poll arm refs release
+        patches@lists.linux.dev, Yuri Karpov <YKarpov@ispras.ru>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 106/153] net: ethernet: nixge: fix NULL dereference
 Date:   Mon,  5 Dec 2022 20:10:30 +0100
-Message-Id: <20221205190809.282885771@linuxfoundation.org>
+Message-Id: <20221205190811.784862637@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Yuri Karpov <YKarpov@ispras.ru>
 
-[ upstream commit 2f3893437a4ebf2e892ca172e9e122841319d675 ]
+[ Upstream commit 9256db4e45e8b497b0e993cc3ed4ad08eb2389b6 ]
 
-Replace atomically substracting the ownership reference at the end of
-arming a poll with a cmpxchg. We try to release ownership by setting 0
-assuming that poll_refs didn't change while we were arming. If it did
-change, we keep the ownership and use it to queue a tw, which is fully
-capable to process all events and (even tolerates spurious wake ups).
+In function nixge_hw_dma_bd_release() dereference of NULL pointer
+priv->rx_bd_v is possible for the case of its allocation failure in
+nixge_hw_dma_bd_init().
 
-It's a bit more elegant as we reduce races b/w setting the cancellation
-flag and getting refs with this release, and with that we don't have to
-worry about any kinds of underflows. It's not the fastest path for
-polling. The performance difference b/w cmpxchg and atomic dec is
-usually negligible and it's not the fastest path.
+Move for() loop with priv->rx_bd_v dereference under the check for
+its validity.
 
-Cc: stable@vger.kernel.org
-Fixes: aa43477b04025 ("io_uring: poll rework")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/0c95251624397ea6def568ff040cad2d7926fd51.1668963050.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: 492caffa8a1a ("net: ethernet: nixge: Add support for National Instruments XGE netdev")
+Signed-off-by: Yuri Karpov <YKarpov@ispras.ru>
+Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/ni/nixge.c | 29 +++++++++++++++--------------
+ 1 file changed, 15 insertions(+), 14 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5650,7 +5650,6 @@ static int __io_arm_poll_handler(struct
- 				 struct io_poll_table *ipt, __poll_t mask)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
--	int v;
+diff --git a/drivers/net/ethernet/ni/nixge.c b/drivers/net/ethernet/ni/nixge.c
+index ffd44edfffbf..acb25b8c9458 100644
+--- a/drivers/net/ethernet/ni/nixge.c
++++ b/drivers/net/ethernet/ni/nixge.c
+@@ -249,25 +249,26 @@ static void nixge_hw_dma_bd_release(struct net_device *ndev)
+ 	struct sk_buff *skb;
+ 	int i;
  
- 	INIT_HLIST_NODE(&req->hash_node);
- 	io_init_poll_iocb(poll, mask, io_poll_wake);
-@@ -5696,11 +5695,10 @@ static int __io_arm_poll_handler(struct
- 	}
+-	for (i = 0; i < RX_BD_NUM; i++) {
+-		phys_addr = nixge_hw_dma_bd_get_addr(&priv->rx_bd_v[i],
+-						     phys);
+-
+-		dma_unmap_single(ndev->dev.parent, phys_addr,
+-				 NIXGE_MAX_JUMBO_FRAME_SIZE,
+-				 DMA_FROM_DEVICE);
+-
+-		skb = (struct sk_buff *)(uintptr_t)
+-			nixge_hw_dma_bd_get_addr(&priv->rx_bd_v[i],
+-						 sw_id_offset);
+-		dev_kfree_skb(skb);
+-	}
++	if (priv->rx_bd_v) {
++		for (i = 0; i < RX_BD_NUM; i++) {
++			phys_addr = nixge_hw_dma_bd_get_addr(&priv->rx_bd_v[i],
++							     phys);
++
++			dma_unmap_single(ndev->dev.parent, phys_addr,
++					 NIXGE_MAX_JUMBO_FRAME_SIZE,
++					 DMA_FROM_DEVICE);
++
++			skb = (struct sk_buff *)(uintptr_t)
++				nixge_hw_dma_bd_get_addr(&priv->rx_bd_v[i],
++							 sw_id_offset);
++			dev_kfree_skb(skb);
++		}
  
- 	/*
--	 * Release ownership. If someone tried to queue a tw while it was
--	 * locked, kick it off for them.
-+	 * Try to release ownership. If we see a change of state, e.g.
-+	 * poll was waken up, queue up a tw, it'll deal with it.
- 	 */
--	v = atomic_dec_return(&req->poll_refs);
--	if (unlikely(v & IO_POLL_REF_MASK))
-+	if (atomic_cmpxchg(&req->poll_refs, 1, 0) != 1)
- 		__io_poll_execute(req, 0);
- 	return 0;
- }
+-	if (priv->rx_bd_v)
+ 		dma_free_coherent(ndev->dev.parent,
+ 				  sizeof(*priv->rx_bd_v) * RX_BD_NUM,
+ 				  priv->rx_bd_v,
+ 				  priv->rx_bd_p);
++	}
+ 
+ 	if (priv->tx_skb)
+ 		devm_kfree(ndev->dev.parent, priv->tx_skb);
+-- 
+2.35.1
+
 
 
