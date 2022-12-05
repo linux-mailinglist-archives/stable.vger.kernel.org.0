@@ -2,44 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C65F36433BC
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:39:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D746064327F
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234684AbiLETjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:39:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40066 "EHLO
+        id S234067AbiLET0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:26:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234711AbiLETiq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B7AA2A403
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:35:49 -0800 (PST)
+        with ESMTP id S234079AbiLET0R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE9C6E02C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:22:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E8DDB81157
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:35:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63836C433D7;
-        Mon,  5 Dec 2022 19:35:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F7A7B80EFD
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:22:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75278C433C1;
+        Mon,  5 Dec 2022 19:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268946;
-        bh=JvmiSyaxlLqnmxUfrXlgh44m+y2++kkJohwZzrE+Cvo=;
+        s=korg; t=1670268167;
+        bh=WSexZN50shxzMr2ueYl5pu6z/renVMYyeu7oPANd8PE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qGx9qpMBmfIKzalxx00RICC4b0NKZuGYwCpCD5DAZO+OqEVjdHsGU6yrWfyleoPuX
-         d9vIZLG8pqyTVhoEONWZiwFmYzUsluEdvnV2ulctKO6LiFpi2748WDmEeXb+u/e/KU
-         hWHmWWMCPjrqP5/x1dkib00uvRHtIEBab7H/YVaI=
+        b=rU5/Oo5DoADq5hT8pnp4FqlObz2Z+TD4zI0v9jwpXrgowhtx4DXju4OqMXSRJuiB+
+         Qx/X5+iymmov5a0WkMpCp+ctsD29VSqozQ4bkxKK2iuE6URRMCahcJjumjjC7ecE00
+         tGl50iSpGsyN2tpWPvnYS8dmIikRsIzHBql31q7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 069/120] error-injection: Add prompt for function error injection
+        patches@lists.linux.dev, Lee Jones <lee@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@gmail.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Tom Rix <trix@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 097/105] Kconfig.debug: provide a little extra FRAME_WARN leeway when KASAN is enabled
 Date:   Mon,  5 Dec 2022 20:10:09 +0100
-Message-Id: <20221205190808.698949739@linuxfoundation.org>
+Message-Id: <20221205190806.400753209@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +68,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Lee Jones <lee@kernel.org>
 
-commit a4412fdd49dc011bcc2c0d81ac4cab7457092650 upstream.
+[ Upstream commit 152fe65f300e1819d59b80477d3e0999b4d5d7d2 ]
 
-The config to be able to inject error codes into any function annotated
-with ALLOW_ERROR_INJECTION() is enabled when FUNCTION_ERROR_INJECTION is
-enabled.  But unfortunately, this is always enabled on x86 when KPROBES
-is enabled, and there's no way to turn it off.
+When enabled, KASAN enlarges function's stack-frames.  Pushing quite a few
+over the current threshold.  This can mainly be seen on 32-bit
+architectures where the present limit (when !GCC) is a lowly 1024-Bytes.
 
-As kprobes is useful for observability of the kernel, it is useful to
-have it enabled in production environments.  But error injection should
-be avoided.  Add a prompt to the config to allow it to be disabled even
-when kprobes is enabled, and get rid of the "def_bool y".
-
-This is a kernel debug feature (it's in Kconfig.debug), and should have
-never been something enabled by default.
-
-Cc: stable@vger.kernel.org
-Fixes: 540adea3809f6 ("error-injection: Separate error-injection from kprobe")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20221125120750.3537134-3-lee@kernel.org
+Signed-off-by: Lee Jones <lee@kernel.org>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: David Airlie <airlied@gmail.com>
+Cc: Harry Wentland <harry.wentland@amd.com>
+Cc: Leo Li <sunpeng.li@amd.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: "Pan, Xinhui" <Xinhui.Pan@amd.com>
+Cc: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Tom Rix <trix@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ lib/Kconfig.debug | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index 67c98f664a61..d03fe7780184 100644
 --- a/lib/Kconfig.debug
 +++ b/lib/Kconfig.debug
-@@ -1872,8 +1872,14 @@ config NETDEV_NOTIFIER_ERROR_INJECT
- 	  If unsure, say N.
- 
- config FUNCTION_ERROR_INJECTION
--	def_bool y
-+	bool "Fault-injections of functions"
- 	depends on HAVE_FUNCTION_ERROR_INJECTION && KPROBES
-+	help
-+	  Add fault injections into various functions that are annotated with
-+	  ALLOW_ERROR_INJECTION() in the kernel. BPF may also modify the return
-+	  value of theses functions. This is useful to test error paths of code.
-+
-+	  If unsure, say N
- 
- config FAULT_INJECTION
- 	bool "Fault-injection framework"
+@@ -226,6 +226,7 @@ config FRAME_WARN
+ 	default 2048 if GCC_PLUGIN_LATENT_ENTROPY
+ 	default 2048 if PARISC
+ 	default 1536 if (!64BIT && XTENSA)
++	default 1280 if KASAN && !64BIT
+ 	default 1024 if !64BIT
+ 	default 2048 if 64BIT
+ 	help
+-- 
+2.35.1
+
 
 
