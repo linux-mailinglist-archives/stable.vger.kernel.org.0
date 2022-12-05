@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC366432DC
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:31:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C343764344A
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:44:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234147AbiLETbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:31:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60198 "EHLO
+        id S235032AbiLEToC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:44:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234001AbiLETa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:30:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6568B2BB0A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:26:40 -0800 (PST)
+        with ESMTP id S235034AbiLETns (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:43:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C7B72A968
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:41:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEE566131D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB8AC433C1;
-        Mon,  5 Dec 2022 19:26:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 488B861309
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:41:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59B0AC433D6;
+        Mon,  5 Dec 2022 19:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268394;
-        bh=zGxXD27XeAphn3rLRUFYy+4QC/WBxcqqp6dqm1tIm6Q=;
+        s=korg; t=1670269272;
+        bh=ferL4fhdoP/toBE1TG+pzfCG4drM9L6b8kRwlhb+SHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f80qXL3hk9uGR66Uy1FWpakJWeMSLwlAYaQFU/mI0pSXykZoup/PLYOplHxFON02s
-         2ODHYC/9VlU6tLdPadno4ahzi30TcCyQVWM6RhIvmCJ5b/O4xvDUATrrwuEobYpU0P
-         ed+Umg/nzsp0C0xVjSCIK26TU0zChj6fx9HSRNYI=
+        b=Xp5ZgoeSfqYT46TzlprS6npa7AdjMflJopAj/LgKP2ABTE+jVcBgreAeTaACbyWyC
+         SAN5PJqCjyV757N6pmJoq4M9RvUbplLvYBkZGtwr0i0MTKLXWJgOfnvA9FKkeGd2A9
+         Ix/r991SlWnb8Hga5xqsNxYAsB92drrRrsAHOCMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gavin Shan <gshan@redhat.com>,
-        Zhenyu Zhang <zhenyzha@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Hugh Dickins <hughd@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        William Kucharski <william.kucharski@oracle.com>,
-        Zi Yan <ziy@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.0 085/124] mm: migrate: fix THPs mapcount on isolation
+        patches@lists.linux.dev, Enrico Sau <enrico.sau@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 067/153] net: usb: qmi_wwan: add Telit 0x103a composition
 Date:   Mon,  5 Dec 2022 20:09:51 +0100
-Message-Id: <20221205190810.832681913@linuxfoundation.org>
+Message-Id: <20221205190810.646203904@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,83 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Shan <gshan@redhat.com>
+From: Enrico Sau <enrico.sau@gmail.com>
 
-commit 829ae0f81ce093d674ff2256f66a714753e9ce32 upstream.
+[ Upstream commit e103ba33998d0f25653cc8ebe745b68d1ee10cda ]
 
-The issue is reported when removing memory through virtio_mem device.  The
-transparent huge page, experienced copy-on-write fault, is wrongly
-regarded as pinned.  The transparent huge page is escaped from being
-isolated in isolate_migratepages_block().  The transparent huge page can't
-be migrated and the corresponding memory block can't be put into offline
-state.
+Add the following Telit LE910C4-WWX composition:
 
-Fix it by replacing page_mapcount() with total_mapcount().  With this, the
-transparent huge page can be isolated and migrated, and the memory block
-can be put into offline state.  Besides, The page's refcount is increased
-a bit earlier to avoid the page is released when the check is executed.
+0x103a: rmnet
 
-Link: https://lkml.kernel.org/r/20221124095523.31061-1-gshan@redhat.com
-Fixes: 1da2f328fa64 ("mm,thp,compaction,cma: allow THP migration for CMA allocations")
-Signed-off-by: Gavin Shan <gshan@redhat.com>
-Reported-by: Zhenyu Zhang <zhenyzha@redhat.com>
-Tested-by: Zhenyu Zhang <zhenyzha@redhat.com>
-Suggested-by: David Hildenbrand <david@redhat.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: William Kucharski <william.kucharski@oracle.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: <stable@vger.kernel.org>	[5.7+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20221115105859.14324-1-enrico.sau@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/compaction.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -987,28 +987,28 @@ isolate_migratepages_block(struct compac
- 		}
- 
- 		/*
-+		 * Be careful not to clear PageLRU until after we're
-+		 * sure the page is not being freed elsewhere -- the
-+		 * page release code relies on it.
-+		 */
-+		if (unlikely(!get_page_unless_zero(page)))
-+			goto isolate_fail;
-+
-+		/*
- 		 * Migration will fail if an anonymous page is pinned in memory,
- 		 * so avoid taking lru_lock and isolating it unnecessarily in an
- 		 * admittedly racy check.
- 		 */
- 		mapping = page_mapping(page);
--		if (!mapping && page_count(page) > page_mapcount(page))
--			goto isolate_fail;
-+		if (!mapping && (page_count(page) - 1) > total_mapcount(page))
-+			goto isolate_fail_put;
- 
- 		/*
- 		 * Only allow to migrate anonymous pages in GFP_NOFS context
- 		 * because those do not depend on fs locks.
- 		 */
- 		if (!(cc->gfp_mask & __GFP_FS) && mapping)
--			goto isolate_fail;
--
--		/*
--		 * Be careful not to clear PageLRU until after we're
--		 * sure the page is not being freed elsewhere -- the
--		 * page release code relies on it.
--		 */
--		if (unlikely(!get_page_unless_zero(page)))
--			goto isolate_fail;
-+			goto isolate_fail_put;
- 
- 		/* Only take pages on LRU: a check now makes later tests safe */
- 		if (!PageLRU(page))
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 6f82436ff72f..7f0e3b09f776 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1314,6 +1314,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
+ 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1031, 3)}, /* Telit LE910C1-EUX */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x103a, 0)}, /* Telit LE910C4-WWX */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
+-- 
+2.35.1
+
 
 
