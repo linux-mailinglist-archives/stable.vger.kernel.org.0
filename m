@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AC80643397
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:37:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 586A864344F
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:44:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234520AbiLETht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:37:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40088 "EHLO
+        id S234804AbiLEToZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:44:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234557AbiLEThY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:37:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67C2C2A73F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:22 -0800 (PST)
+        with ESMTP id S234810AbiLEToH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:44:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D5292B1A8
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:41:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21178B811CF
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81544C433D6;
-        Mon,  5 Dec 2022 19:34:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F12E8B81201
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:41:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44C2CC433C1;
+        Mon,  5 Dec 2022 19:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268859;
-        bh=2dBe2TeArxWYPIgUREUaY4xvRopIreNYXbAQ/G6JD5I=;
+        s=korg; t=1670269283;
+        bh=JDHc1vzQ+4HlJU9L1ivdr2mWyPY2RaGxKiuNKEDhF+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t1K6zvPLR7zBHwjRkre3HcE/94660qKvO5e+/TGTT/7KaOz5AUIAg/fQBiiT0MhSP
-         AJ2Mlk4bX/lOER5fkjrmOo+iwrEgltg8Mr0PyUqI0gC8EFsFpQusjMoBfdcJ80FxSk
-         d4GkuvmkOahFeY422hQlC4pP1XcPpgRFEKa8TZhk=
+        b=VN/uz2fWdJZtjqaiBMm6h8r4uXGBt8KN0W2G1RjHwyOoofqj0FTL5A7VixS8fQFst
+         2uEhS8z5gjra/0CeHeTS7RyHQHPLtqpZwmC6PEX9yp91vYpaIhr1uNXCgsGJNS7QNO
+         YjnjiXTlS2/gtINMQBJznA/22HcDKi0beKQADsc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roi Dayan <roid@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Xiubo Li <xiubli@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 037/120] net/mlx5e: Fix use-after-free when reverting termination table
+Subject: [PATCH 5.4 053/153] ceph: do not update snapshot context when there is no new snapshot
 Date:   Mon,  5 Dec 2022 20:09:37 +0100
-Message-Id: <20221205190807.662764489@linuxfoundation.org>
+Message-Id: <20221205190810.243993591@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@nvidia.com>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit 52c795af04441d76f565c4634f893e5b553df2ae ]
+[ Upstream commit 2e586641c950e7f3e7e008404bd783a466b9b590 ]
 
-When having multiple dests with termination tables and second one
-or afterwards fails the driver reverts usage of term tables but
-doesn't reset the assignment in attr->dests[num_vport_dests].termtbl
-which case a use-after-free when releasing the rule.
-Fix by resetting the assignment of termtbl to null.
+We will only track the uppest parent snapshot realm from which we
+need to rebuild the snapshot contexts _downward_ in hierarchy. For
+all the others having no new snapshot we will do nothing.
 
-Fixes: 10caabdaad5a ("net/mlx5e: Use termination table for VLAN push actions")
-Signed-off-by: Roi Dayan <roid@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+This fix will avoid calling ceph_queue_cap_snap() on some inodes
+inappropriately. For example, with the code in mainline, suppose there
+are 2 directory hierarchies (with 6 directories total), like this:
+
+/dir_X1/dir_X2/dir_X3/
+/dir_Y1/dir_Y2/dir_Y3/
+
+Firstly, make a snapshot under /dir_X1/dir_X2/.snap/snap_X2, then make a
+root snapshot under /.snap/root_snap. Every time we make snapshots under
+/dir_Y1/..., the kclient will always try to rebuild the snap context for
+snap_X2 realm and finally will always try to queue cap snaps for dir_Y2
+and dir_Y3, which makes no sense.
+
+That's because the snap_X2's seq is 2 and root_snap's seq is 3. So when
+creating a new snapshot under /dir_Y1/... the new seq will be 4, and
+the mds will send the kclient a snapshot backtrace in _downward_
+order: seqs 4, 3.
+
+When ceph_update_snap_trace() is called, it will always rebuild the from
+the last realm, that's the root_snap. So later when rebuilding the snap
+context, the current logic will always cause it to rebuild the snap_X2
+realm and then try to queue cap snaps for all the inodes related in that
+realm, even though it's not necessary.
+
+This is accompanied by a lot of these sorts of dout messages:
+
+    "ceph:  queue_cap_snap 00000000a42b796b nothing dirty|writing"
+
+Fix the logic to avoid this situation.
+
+Also, the 'invalidate' word is not precise here. In actuality, it will
+cause a rebuild of the existing snapshot contexts or just build
+non-existent ones. Rename it to 'rebuild_snapcs'.
+
+URL: https://tracker.ceph.com/issues/44100
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Stable-dep-of: 51884d153f7e ("ceph: avoid putting the realm twice when decoding snaps fails")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c  | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/ceph/snap.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-index 8f86b62e49e3..1b417b1d1cf8 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-@@ -309,6 +309,8 @@ mlx5_eswitch_add_termtbl_rule(struct mlx5_eswitch *esw,
- 	for (curr_dest = 0; curr_dest < num_vport_dests; curr_dest++) {
- 		struct mlx5_termtbl_handle *tt = attr->dests[curr_dest].termtbl;
+diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
+index e1b9b224fcb2..f2731f9efc31 100644
+--- a/fs/ceph/snap.c
++++ b/fs/ceph/snap.c
+@@ -696,7 +696,8 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
+ 	__le64 *prior_parent_snaps;        /* encoded */
+ 	struct ceph_snap_realm *realm = NULL;
+ 	struct ceph_snap_realm *first_realm = NULL;
+-	int invalidate = 0;
++	struct ceph_snap_realm *realm_to_rebuild = NULL;
++	int rebuild_snapcs;
+ 	int err = -ENOMEM;
+ 	LIST_HEAD(dirty_realms);
  
-+		attr->dests[curr_dest].termtbl = NULL;
+@@ -704,6 +705,7 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
+ 
+ 	dout("update_snap_trace deletion=%d\n", deletion);
+ more:
++	rebuild_snapcs = 0;
+ 	ceph_decode_need(&p, e, sizeof(*ri), bad);
+ 	ri = p;
+ 	p += sizeof(*ri);
+@@ -727,7 +729,7 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
+ 	err = adjust_snap_realm_parent(mdsc, realm, le64_to_cpu(ri->parent));
+ 	if (err < 0)
+ 		goto fail;
+-	invalidate += err;
++	rebuild_snapcs += err;
+ 
+ 	if (le64_to_cpu(ri->seq) > realm->seq) {
+ 		dout("update_snap_trace updating %llx %p %lld -> %lld\n",
+@@ -752,22 +754,30 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
+ 		if (realm->seq > mdsc->last_snap_seq)
+ 			mdsc->last_snap_seq = realm->seq;
+ 
+-		invalidate = 1;
++		rebuild_snapcs = 1;
+ 	} else if (!realm->cached_context) {
+ 		dout("update_snap_trace %llx %p seq %lld new\n",
+ 		     realm->ino, realm, realm->seq);
+-		invalidate = 1;
++		rebuild_snapcs = 1;
+ 	} else {
+ 		dout("update_snap_trace %llx %p seq %lld unchanged\n",
+ 		     realm->ino, realm, realm->seq);
+ 	}
+ 
+-	dout("done with %llx %p, invalidated=%d, %p %p\n", realm->ino,
+-	     realm, invalidate, p, e);
++	dout("done with %llx %p, rebuild_snapcs=%d, %p %p\n", realm->ino,
++	     realm, rebuild_snapcs, p, e);
+ 
+-	/* invalidate when we reach the _end_ (root) of the trace */
+-	if (invalidate && p >= e)
+-		rebuild_snap_realms(realm, &dirty_realms);
++	/*
++	 * this will always track the uppest parent realm from which
++	 * we need to rebuild the snapshot contexts _downward_ in
++	 * hierarchy.
++	 */
++	if (rebuild_snapcs)
++		realm_to_rebuild = realm;
 +
- 		/* search for the destination associated with the
- 		 * current term table
- 		 */
++	/* rebuild_snapcs when we reach the _end_ (root) of the trace */
++	if (realm_to_rebuild && p >= e)
++		rebuild_snap_realms(realm_to_rebuild, &dirty_realms);
+ 
+ 	if (!first_realm)
+ 		first_realm = realm;
 -- 
 2.35.1
 
