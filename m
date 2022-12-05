@@ -2,46 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37680643359
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27BA6643301
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:33:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234484AbiLETfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:35:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33472 "EHLO
+        id S234011AbiLETd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:33:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234440AbiLETfd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12C052A43B
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:31:45 -0800 (PST)
+        with ESMTP id S234040AbiLETdO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:33:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38D852D1C4
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:28:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 999C2B81181
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:31:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC636C433D6;
-        Mon,  5 Dec 2022 19:31:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0523EB81202
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:28:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FD14C433D6;
+        Mon,  5 Dec 2022 19:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268702;
-        bh=jCEbXdqFgLF0bEvMYdFL3egx7y6jDk7vxXNc6UDPry0=;
+        s=korg; t=1670268491;
+        bh=H2WXo92YaJbHDZHNIJ48LwEDU/O0D4WeZZdANL0uvJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZmVriOkbM/iwUJcX9e0kfNLbp/Qma1cexD2xw6KAa/Iq2v9Y+JYBzMaN4DhmRMgp
-         JcJM2BSSdUONM8j9gQ1cjdludX9k4GOYuo7f8KG2WOvg0cer+3KRcM/5Eji5Q3f7Kv
-         lbXNtXlJF3fSJEpP053SGTgaW9AauBqoJ+vZoCOE=
+        b=AWJ+3o4l1hHlmCffOKxwJ5F0AyclclXKhM1KLNHXVJ2xewLLs/oeMr89vBU9n8bys
+         Rmeck2CQTCfXKr/xCpYZWa0pcwNbhGKDrmjvu76HFtT8OVIlI7hAhkRnC24j98O25X
+         EPGZHVSRJclv2vRljYWN16pN/TPyJKc3LLv35b10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 46/92] afs: Fix fileserver probe RTT handling
+        patches@lists.linux.dev, Lee Jones <lee@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@gmail.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Tom Rix <trix@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.0 093/124] Kconfig.debug: provide a little extra FRAME_WARN leeway when KASAN is enabled
 Date:   Mon,  5 Dec 2022 20:09:59 +0100
-Message-Id: <20221205190805.013091158@linuxfoundation.org>
+Message-Id: <20221205190811.059105188@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +67,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Lee Jones <lee@kernel.org>
 
-[ Upstream commit ca57f02295f188d6c65ec02202402979880fa6d8 ]
+commit 152fe65f300e1819d59b80477d3e0999b4d5d7d2 upstream.
 
-The fileserver probing code attempts to work out the best fileserver to
-use for a volume by retrieving the RTT calculated by AF_RXRPC for the
-probe call sent to each server and comparing them.  Sometimes, however,
-no RTT estimate is available and rxrpc_kernel_get_srtt() returns false,
-leading good fileservers to be given an RTT of UINT_MAX and thus causing
-the rotation algorithm to ignore them.
+When enabled, KASAN enlarges function's stack-frames.  Pushing quite a few
+over the current threshold.  This can mainly be seen on 32-bit
+architectures where the present limit (when !GCC) is a lowly 1024-Bytes.
 
-Fix afs_select_fileserver() to ignore rxrpc_kernel_get_srtt()'s return
-value and just take the estimated RTT it provides - which will be capped
-at 1 second.
-
-Fixes: 1d4adfaf6574 ("rxrpc: Make rxrpc_kernel_get_srtt() indicate validity")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/166965503999.3392585.13954054113218099395.stgit@warthog.procyon.org.uk/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20221125120750.3537134-3-lee@kernel.org
+Signed-off-by: Lee Jones <lee@kernel.org>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: David Airlie <airlied@gmail.com>
+Cc: Harry Wentland <harry.wentland@amd.com>
+Cc: Leo Li <sunpeng.li@amd.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: "Pan, Xinhui" <Xinhui.Pan@amd.com>
+Cc: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Tom Rix <trix@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/afs/fs_probe.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/Kconfig.debug |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/afs/fs_probe.c b/fs/afs/fs_probe.c
-index e7e98ad63a91..04d42e49fc59 100644
---- a/fs/afs/fs_probe.c
-+++ b/fs/afs/fs_probe.c
-@@ -161,8 +161,8 @@ void afs_fileserver_probe_result(struct afs_call *call)
- 		}
- 	}
- 
--	if (rxrpc_kernel_get_srtt(call->net->socket, call->rxcall, &rtt_us) &&
--	    rtt_us < server->probe.rtt) {
-+	rxrpc_kernel_get_srtt(call->net->socket, call->rxcall, &rtt_us);
-+	if (rtt_us < server->probe.rtt) {
- 		server->probe.rtt = rtt_us;
- 		server->rtt = rtt_us;
- 		alist->preferred = index;
--- 
-2.35.1
-
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -398,6 +398,7 @@ config FRAME_WARN
+ 	default 2048 if GCC_PLUGIN_LATENT_ENTROPY
+ 	default 2048 if PARISC
+ 	default 1536 if (!64BIT && XTENSA)
++	default 1280 if KASAN && !64BIT
+ 	default 1024 if !64BIT
+ 	default 2048 if 64BIT
+ 	help
 
 
