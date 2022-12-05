@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D93D6433CA
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:39:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 251A364336E
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234619AbiLETjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:39:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40474 "EHLO
+        id S233674AbiLETgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:36:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234624AbiLETjS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:39:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E19B2AE5
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:36:27 -0800 (PST)
+        with ESMTP id S234547AbiLETgF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:36:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE19E266C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:32:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5F89B811E3
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:36:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BFBDC433D6;
-        Mon,  5 Dec 2022 19:36:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2658761311
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:32:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A261C433D6;
+        Mon,  5 Dec 2022 19:32:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268984;
-        bh=2EAanNauODdYBR7w2XCTHCQSJmnnz1bBWOaetfT1cwY=;
+        s=korg; t=1670268759;
+        bh=vXi1kLOLuHZrQEAsAmNRR0UMz+QKg450MoLWD7geVNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NDDCkjsPq7p5WiM+N9VtpqdrMaaAfla9gl/mRgVtRaIFklsxD2hrfBexk6NG+ICC5
-         FNBxV1aYGjfZspOy6muzWU0d0txCryTdcI1W9D0GQDVXkWkpX16b17BtKmB5MhiChO
-         z3ehxPirKz7H7WBdOJMjktvOG6xATmpQybJtwctw=
+        b=T9Klwe4tmYOFnGZxeuy3HeHNvNIUW++mpVAeJtrCkZLGtQ25VNXP2lmOesh3gKyw0
+         H1hymAeHiI1szHLmoL9Ia5CXmlX6InQXY19RdcpxlJXMwnhFaTMC8jqQLCpwfZLWKz
+         r9YZgfyLD1OrEnzStSrbsND7E4CoZGDJkw8LdsTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.15 084/120] drm/i915: Never return 0 if not all requests retired
+        Maxim Korotkov <korotkov.maxim.s@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 71/92] pinctrl: single: Fix potential division by zero
 Date:   Mon,  5 Dec 2022 20:10:24 +0100
-Message-Id: <20221205190809.118912053@linuxfoundation.org>
+Message-Id: <20221205190805.849370617@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+From: Maxim Korotkov <korotkov.maxim.s@gmail.com>
 
-commit 12b8b046e4c9de40fa59b6f067d6826f4e688f68 upstream.
+[ Upstream commit 64c150339e7f6c5cbbe8c17a56ef2b3902612798 ]
 
-Users of intel_gt_retire_requests_timeout() expect 0 return value on
-success.  However, we have no protection from passing back 0 potentially
-returned by a call to dma_fence_wait_timeout() when it succedes right
-after its timeout has expired.
+There is a possibility of dividing by zero due to the pcs->bits_per_pin
+if pcs->fmask() also has a value of zero and called fls
+from asm-generic/bitops/builtin-fls.h or arch/x86/include/asm/bitops.h.
+The function pcs_probe() has the branch that assigned to fmask 0 before
+pcs_allocate_pin_table() was called
 
-Replace 0 with -ETIME before potentially using the timeout value as return
-code, so -ETIME is returned if there are still some requests not retired
-after timeout, 0 otherwise.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-v3: Use conditional expression, more compact but also better reflecting
-    intention standing behind the change.
-
-v2: Move the added lines down so flush_submission() is not affected.
-
-Fixes: f33a8a51602c ("drm/i915: Merge wait_for_timelines with retire_request")
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Cc: stable@vger.kernel.org # v5.5+
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221121145655.75141-3-janusz.krzysztofik@linux.intel.com
-(cherry picked from commit f301a29f143760ce8d3d6b6a8436d45d3448cde6)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4e7e8017a80e ("pinctrl: pinctrl-single: enhance to configure multiple pins of different modules")
+Signed-off-by: Maxim Korotkov <korotkov.maxim.s@gmail.com>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20221117123034.27383-1-korotkov.maxim.s@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_gt_requests.c |    2 +-
+ drivers/pinctrl/pinctrl-single.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_gt_requests.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt_requests.c
-@@ -199,7 +199,7 @@ out_active:	spin_lock(&timelines->lock);
- 	if (remaining_timeout)
- 		*remaining_timeout = timeout;
+diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
+index 17aa0d542d92..d139cd9e6d13 100644
+--- a/drivers/pinctrl/pinctrl-single.c
++++ b/drivers/pinctrl/pinctrl-single.c
+@@ -726,7 +726,7 @@ static int pcs_allocate_pin_table(struct pcs_device *pcs)
  
--	return active_count ? timeout : 0;
-+	return active_count ? timeout ?: -ETIME : 0;
- }
+ 	mux_bytes = pcs->width / BITS_PER_BYTE;
  
- static void retire_work_handler(struct work_struct *work)
+-	if (pcs->bits_per_mux) {
++	if (pcs->bits_per_mux && pcs->fmask) {
+ 		pcs->bits_per_pin = fls(pcs->fmask);
+ 		nr_pins = (pcs->size * BITS_PER_BYTE) / pcs->bits_per_pin;
+ 		num_pins_in_register = pcs->width / pcs->bits_per_pin;
+-- 
+2.35.1
+
 
 
