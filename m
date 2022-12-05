@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2255D643322
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E678964338E
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:37:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234341AbiLETeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:34:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34282 "EHLO
+        id S234622AbiLEThb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:37:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234202AbiLETeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:01 -0500
+        with ESMTP id S234673AbiLEThA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:37:00 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B714A25C5D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:29:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08B5C2A729
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61E62B81151
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:29:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3CC9C433D6;
-        Mon,  5 Dec 2022 19:29:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B49FAB811CF
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AFE1C433C1;
+        Mon,  5 Dec 2022 19:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268549;
-        bh=jFWS9svE5rXeHxoXXh0KE869rSj8wgNXlBOTGuBpMI4=;
+        s=korg; t=1670268843;
+        bh=hSDrkl+XLwQQ5B1pfpYrbsz68KDUoBdhbEokbrcKx7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8i1MhE6dTa7QlqcBlCdwancnOnifS8+O9xU8HyDYAr3Aym8M0zMuv9IJg2mYXlBJ
-         Ibiks72+mW+ysCQT7Bo9i94CAoe2jdsUKuF/i/e+9tjU0jiEEeGzRfn78j1pfma1Yo
-         DYHD5hbZzy6Y64x2Ga9z9AhY+QW5d3C60TS0Tl4E=
+        b=aIZLka5h2MRL2DVF58wnRCt0PjQRJsGENdylC/VMw1/Fa8R3R35BIlJCnjYRYkAU5
+         96Ritt1j7dk5jS5Ir9wXLddR/SEGL5+wWMhwYeTtrergVvM8FmdTK6BUA+qqhOMw4x
+         FpNVJ4kpRZj9YN09rDCAhPoGY08XAZvBP0PGlRh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ninad Malwade <nmalwade@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 18/92] hwmon: (ina3221) Fix shunt sum critical calculation
-Date:   Mon,  5 Dec 2022 20:09:31 +0100
-Message-Id: <20221205190804.094153276@linuxfoundation.org>
+Subject: [PATCH 5.15 032/120] iavf: Fix error handling in iavf_init_module()
+Date:   Mon,  5 Dec 2022 20:09:32 +0100
+Message-Id: <20221205190807.524414125@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ninad Malwade <nmalwade@nvidia.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit b8d27d2ce8dfc207e4b67b929a86f2be76fbc6ef ]
+[ Upstream commit 227d8d2f7f2278b8468c5531b0cd0f2a905b4486 ]
 
-The shunt sum critical limit register value should be left shifted
-by one bit as its LSB-0 is a reserved bit.
+The iavf_init_module() won't destroy workqueue when pci_register_driver()
+failed. Call destroy_workqueue() when pci_register_driver() failed to
+prevent the resource leak.
 
-Fixes: 2057bdfb7184 ("hwmon: (ina3221) Add summation feature support")
-Signed-off-by: Ninad Malwade <nmalwade@nvidia.com>
-Reviewed-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20221108044508.23463-1-nmalwade@nvidia.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Similar to the handling of u132_hcd_init in commit f276e002793c
+("usb: u132-hcd: fix resource leak")
+
+Fixes: 2803b16c10ea ("i40e/i40evf: Use private workqueue")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/ina3221.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/ina3221.c b/drivers/hwmon/ina3221.c
-index ad11cbddc3a7..d3c98115042b 100644
---- a/drivers/hwmon/ina3221.c
-+++ b/drivers/hwmon/ina3221.c
-@@ -230,7 +230,7 @@ static int ina3221_read_value(struct ina3221_data *ina, unsigned int reg,
- 	 * Shunt Voltage Sum register has 14-bit value with 1-bit shift
- 	 * Other Shunt Voltage registers have 12 bits with 3-bit shift
- 	 */
--	if (reg == INA3221_SHUNT_SUM)
-+	if (reg == INA3221_SHUNT_SUM || reg == INA3221_CRIT_SUM)
- 		*val = sign_extend32(regval >> 1, 14);
- 	else
- 		*val = sign_extend32(regval >> 3, 12);
-@@ -465,7 +465,7 @@ static int ina3221_write_curr(struct device *dev, u32 attr,
- 	 *     SHUNT_SUM: (1 / 40uV) << 1 = 1 / 20uV
- 	 *     SHUNT[1-3]: (1 / 40uV) << 3 = 1 / 5uV
- 	 */
--	if (reg == INA3221_SHUNT_SUM)
-+	if (reg == INA3221_SHUNT_SUM || reg == INA3221_CRIT_SUM)
- 		regval = DIV_ROUND_CLOSEST(voltage_uv, 20) & 0xfffe;
- 	else
- 		regval = DIV_ROUND_CLOSEST(voltage_uv, 5) & 0xfff8;
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index f2f8f2a43a34..82c4f1190e41 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -4341,6 +4341,8 @@ static struct pci_driver iavf_driver = {
+  **/
+ static int __init iavf_init_module(void)
+ {
++	int ret;
++
+ 	pr_info("iavf: %s\n", iavf_driver_string);
+ 
+ 	pr_info("%s\n", iavf_copyright);
+@@ -4351,7 +4353,12 @@ static int __init iavf_init_module(void)
+ 		pr_err("%s: Failed to create workqueue\n", iavf_driver_name);
+ 		return -ENOMEM;
+ 	}
+-	return pci_register_driver(&iavf_driver);
++
++	ret = pci_register_driver(&iavf_driver);
++	if (ret)
++		destroy_workqueue(iavf_wq);
++
++	return ret;
+ }
+ 
+ module_init(iavf_init_module);
 -- 
 2.35.1
 
