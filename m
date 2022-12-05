@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDB0C643341
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 209FC6433B4
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234479AbiLETfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:35:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33376 "EHLO
+        id S234523AbiLETix (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:38:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232894AbiLETeu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE1141159
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:30:38 -0800 (PST)
+        with ESMTP id S234577AbiLETih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C5BD2A264
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:35:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA2DFB81200
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:30:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 143C9C433C1;
-        Mon,  5 Dec 2022 19:30:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0D19B811F3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:35:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 388C5C433D6;
+        Mon,  5 Dec 2022 19:35:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268636;
-        bh=3nqWMvNrybhqd1/ZT/1pPraz7foUQ9vI1qB5affJDcw=;
+        s=korg; t=1670268930;
+        bh=h3RyOLsHQ2Iay+oG81+7CC6e69NXb0Sy1C4sKQ5fJ2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yQiYu6NT1oC/BVyTWQCHyIwlSzMuXX2r4XH3Cl+nH5x5OIDFmx/SAc59lZ0oqftgB
-         zyE15B8AOU1PGGQo6YP0yI7BSvHJFMjHE1/XtvZzGYRz77ncG9Qk7gsCjtka1n3Csf
-         sQZR+rhisR+/zs4BJYAKMHn1yH8E9vwLQfKxGi/E=
+        b=qBl1h3+VdepPhyJ6kx7CaBLsPqM3v+BNraD5pIopK5T8IUT9DljdxKREOJRL5qjzE
+         8TQ5oyxSEiLrlNoSeTk0Cve2xPH0wqxdSVKwwbK0sj6FyO6Tq5HCWrAkZL/2G02XlI
+         pn7QLLTRlhkPwKSkSKTpENWGm7nNR9FPHa5n12Cs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,19 +37,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sergey Shtylyov <s.shtylyov@omp.ru>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 50/92] net: ethernet: renesas: ravb: Fix promiscuous mode after system resumed
+Subject: [PATCH 5.15 063/120] net: ethernet: renesas: ravb: Fix promiscuous mode after system resumed
 Date:   Mon,  5 Dec 2022 20:10:03 +0100
-Message-Id: <20221205190805.146883961@linuxfoundation.org>
+Message-Id: <20221205190808.518281592@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -77,10 +78,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index f96eed67e1a2..9e7b85e178fd 100644
+index 12420239c8ca..77a19336abec 100644
 --- a/drivers/net/ethernet/renesas/ravb_main.c
 +++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -2364,6 +2364,7 @@ static int __maybe_unused ravb_resume(struct device *dev)
+@@ -2491,6 +2491,7 @@ static int __maybe_unused ravb_resume(struct device *dev)
  		ret = ravb_open(ndev);
  		if (ret < 0)
  			return ret;
