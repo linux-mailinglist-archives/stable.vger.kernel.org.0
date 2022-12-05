@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A807D64314A
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31B56643325
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230509AbiLETNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:13:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60798 "EHLO
+        id S232397AbiLETeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:34:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232515AbiLETNW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:13:22 -0500
+        with ESMTP id S233941AbiLETeJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:09 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 485061F2FF
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:13:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6E5427FCD
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:29:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0328B81201
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:13:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 339D3C433B5;
-        Mon,  5 Dec 2022 19:13:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6334EB80EFD
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:29:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA131C433D6;
+        Mon,  5 Dec 2022 19:29:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267590;
-        bh=HR9ThG2rHLHc6JV1l1KcLUxKX9fVsctANgy8HrOzd6U=;
+        s=korg; t=1670268568;
+        bh=oocX9swpCmyT29snFlOf5T+6pJbh6dKaGWy3pSSedwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZGQp+ElptQBU143pB9yWlQtvxqqBXA7PbQ/FxTIeTPra5AICxlamrru2ldxA8wcZB
-         h+6q6fJtwNSbWipnhfU8tCWihuejaJ51Ii+qRKhXPpUDYtFNMO2fhYVQNv9d8+De+t
-         /6wwTb3pyxHcuDX+PzIbuO3fv63QzKxErxk3WcMI=
+        b=WHv4HbjAQLuMAFLfOWX6HBJkegDfIWUPLlT5yjnTuonc3bof2pyiGmvBVpGsu1T6T
+         XrpmwWoqcCB18Tr1c5joq2qGhuJhj/TcO7QK8WF63qxm/ydDYJVcb1K525eGEVFC2J
+         clOb557zSzIAbDHacgjaO5VgnqTNLDMkOvup3+Ag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Hai <wanghai38@huawei.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 41/62] net/9p: Fix a potential socket leak in p9_socket_open
+Subject: [PATCH 5.10 25/92] fm10k: Fix error handling in fm10k_init_module()
 Date:   Mon,  5 Dec 2022 20:09:38 +0100
-Message-Id: <20221205190759.645291647@linuxfoundation.org>
+Message-Id: <20221205190804.298778959@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit dcc14cfd7debe11b825cb077e75d91d2575b4cb8 ]
+[ Upstream commit 771a794c0a3c3e7f0d86cc34be4f9537e8c0a20c ]
 
-Both p9_fd_create_tcp() and p9_fd_create_unix() will call
-p9_socket_open(). If the creation of p9_trans_fd fails,
-p9_fd_create_tcp() and p9_fd_create_unix() will return an
-error directly instead of releasing the cscoket, which will
-result in a socket leak.
+A problem about modprobe fm10k failed is triggered with the following log
+given:
 
-This patch adds sock_release() to fix the leak issue.
+ Intel(R) Ethernet Switch Host Interface Driver
+ Copyright(c) 2013 - 2019 Intel Corporation.
+ debugfs: Directory 'fm10k' with parent '/' already present!
 
-Fixes: 6b18662e239a ("9p connect fixes")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-ACKed-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The reason is that fm10k_init_module() returns fm10k_register_pci_driver()
+directly without checking its return value, if fm10k_register_pci_driver()
+failed, it returns without removing debugfs and destroy workqueue,
+resulting the debugfs of fm10k can never be created later and leaks the
+workqueue.
+
+ fm10k_init_module()
+   alloc_workqueue()
+   fm10k_dbg_init() # create debugfs
+   fm10k_register_pci_driver()
+     pci_register_driver()
+       driver_register()
+         bus_add_driver()
+           priv = kzalloc(...) # OOM happened
+   # return without remove debugfs and destroy workqueue
+
+Fix by remove debugfs and destroy workqueue when
+fm10k_register_pci_driver() returns error.
+
+Fixes: 7461fd913afe ("fm10k: Add support for debugfs")
+Fixes: b382bb1b3e2d ("fm10k: use separate workqueue for fm10k driver")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_fd.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/fm10k/fm10k_main.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
-index e70e843ee48f..7e484f5b140c 100644
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -851,8 +851,10 @@ static int p9_socket_open(struct p9_client *client, struct socket *csocket)
- 	struct file *file;
+diff --git a/drivers/net/ethernet/intel/fm10k/fm10k_main.c b/drivers/net/ethernet/intel/fm10k/fm10k_main.c
+index 99b8252eb969..a388a0fcbeed 100644
+--- a/drivers/net/ethernet/intel/fm10k/fm10k_main.c
++++ b/drivers/net/ethernet/intel/fm10k/fm10k_main.c
+@@ -32,6 +32,8 @@ struct workqueue_struct *fm10k_workqueue;
+  **/
+ static int __init fm10k_init_module(void)
+ {
++	int ret;
++
+ 	pr_info("%s\n", fm10k_driver_string);
+ 	pr_info("%s\n", fm10k_copyright);
  
- 	p = kzalloc(sizeof(struct p9_trans_fd), GFP_KERNEL);
--	if (!p)
-+	if (!p) {
-+		sock_release(csocket);
- 		return -ENOMEM;
+@@ -43,7 +45,13 @@ static int __init fm10k_init_module(void)
+ 
+ 	fm10k_dbg_init();
+ 
+-	return fm10k_register_pci_driver();
++	ret = fm10k_register_pci_driver();
++	if (ret) {
++		fm10k_dbg_exit();
++		destroy_workqueue(fm10k_workqueue);
 +	}
++
++	return ret;
+ }
+ module_init(fm10k_init_module);
  
- 	csocket->sk->sk_allocation = GFP_NOIO;
- 	file = sock_alloc_file(csocket, 0, NULL);
 -- 
 2.35.1
 
