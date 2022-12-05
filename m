@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 283CA64325C
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC366432DC
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:31:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233895AbiLET0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:26:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46180 "EHLO
+        id S234147AbiLETbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:31:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232691AbiLETZa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:30 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B54DD1F2FC
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:21:22 -0800 (PST)
+        with ESMTP id S234001AbiLETa4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:30:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6568B2BB0A
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:26:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2D5D3CE13A3
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:21:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06746C433D6;
-        Mon,  5 Dec 2022 19:21:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEE566131D
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB8AC433C1;
+        Mon,  5 Dec 2022 19:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268079;
-        bh=NZhukwqmEYGZ98x4wA6xs3CPUjVU19bC2V823JnRVq8=;
+        s=korg; t=1670268394;
+        bh=zGxXD27XeAphn3rLRUFYy+4QC/WBxcqqp6dqm1tIm6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cXi976pNM0GlUVpaTBbEXJfiNThb9YU9XIEg7mGlPSQx6rfd8ajkfvXn6OdA1xiXu
-         z/QEyh+oZ3OtDL5GxQ1YsIpg2qOJyTFRr3vM04C5cbwy4BvUvERcW3X0UmOlvb2H82
-         hB3FsUhoRCvNOBvwrxMASzYKLvqKAiVVmAUI/f80=
+        b=f80qXL3hk9uGR66Uy1FWpakJWeMSLwlAYaQFU/mI0pSXykZoup/PLYOplHxFON02s
+         2ODHYC/9VlU6tLdPadno4ahzi30TcCyQVWM6RhIvmCJ5b/O4xvDUATrrwuEobYpU0P
+         ed+Umg/nzsp0C0xVjSCIK26TU0zChj6fx9HSRNYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tho Vu <tho.vu.wh@renesas.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 079/105] net: ethernet: renesas: ravb: Fix promiscuous mode after system resumed
+        patches@lists.linux.dev, Gavin Shan <gshan@redhat.com>,
+        Zhenyu Zhang <zhenyzha@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Hugh Dickins <hughd@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        William Kucharski <william.kucharski@oracle.com>,
+        Zi Yan <ziy@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.0 085/124] mm: migrate: fix THPs mapcount on isolation
 Date:   Mon,  5 Dec 2022 20:09:51 +0100
-Message-Id: <20221205190805.834024548@linuxfoundation.org>
+Message-Id: <20221205190810.832681913@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +60,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Gavin Shan <gshan@redhat.com>
 
-[ Upstream commit d66233a312ec9013af3e37e4030b479a20811ec3 ]
+commit 829ae0f81ce093d674ff2256f66a714753e9ce32 upstream.
 
-After system resumed on some environment board, the promiscuous mode
-is disabled because the SoC turned off. So, call ravb_set_rx_mode() in
-the ravb_resume() to fix the issue.
+The issue is reported when removing memory through virtio_mem device.  The
+transparent huge page, experienced copy-on-write fault, is wrongly
+regarded as pinned.  The transparent huge page is escaped from being
+isolated in isolate_migratepages_block().  The transparent huge page can't
+be migrated and the corresponding memory block can't be put into offline
+state.
 
-Reported-by: Tho Vu <tho.vu.wh@renesas.com>
-Fixes: 0184165b2f42 ("ravb: add sleep PM suspend/resume support")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/20221128065604.1864391-1-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix it by replacing page_mapcount() with total_mapcount().  With this, the
+transparent huge page can be isolated and migrated, and the memory block
+can be put into offline state.  Besides, The page's refcount is increased
+a bit earlier to avoid the page is released when the check is executed.
+
+Link: https://lkml.kernel.org/r/20221124095523.31061-1-gshan@redhat.com
+Fixes: 1da2f328fa64 ("mm,thp,compaction,cma: allow THP migration for CMA allocations")
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Reported-by: Zhenyu Zhang <zhenyzha@redhat.com>
+Tested-by: Zhenyu Zhang <zhenyzha@redhat.com>
+Suggested-by: David Hildenbrand <david@redhat.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: William Kucharski <william.kucharski@oracle.com>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: <stable@vger.kernel.org>	[5.7+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/renesas/ravb_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/compaction.c |   22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index c24b7ea37e39..9077014f6f40 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -2310,6 +2310,7 @@ static int __maybe_unused ravb_resume(struct device *dev)
- 		ret = ravb_open(ndev);
- 		if (ret < 0)
- 			return ret;
-+		ravb_set_rx_mode(ndev);
- 		netif_device_attach(ndev);
- 	}
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -987,28 +987,28 @@ isolate_migratepages_block(struct compac
+ 		}
  
--- 
-2.35.1
-
+ 		/*
++		 * Be careful not to clear PageLRU until after we're
++		 * sure the page is not being freed elsewhere -- the
++		 * page release code relies on it.
++		 */
++		if (unlikely(!get_page_unless_zero(page)))
++			goto isolate_fail;
++
++		/*
+ 		 * Migration will fail if an anonymous page is pinned in memory,
+ 		 * so avoid taking lru_lock and isolating it unnecessarily in an
+ 		 * admittedly racy check.
+ 		 */
+ 		mapping = page_mapping(page);
+-		if (!mapping && page_count(page) > page_mapcount(page))
+-			goto isolate_fail;
++		if (!mapping && (page_count(page) - 1) > total_mapcount(page))
++			goto isolate_fail_put;
+ 
+ 		/*
+ 		 * Only allow to migrate anonymous pages in GFP_NOFS context
+ 		 * because those do not depend on fs locks.
+ 		 */
+ 		if (!(cc->gfp_mask & __GFP_FS) && mapping)
+-			goto isolate_fail;
+-
+-		/*
+-		 * Be careful not to clear PageLRU until after we're
+-		 * sure the page is not being freed elsewhere -- the
+-		 * page release code relies on it.
+-		 */
+-		if (unlikely(!get_page_unless_zero(page)))
+-			goto isolate_fail;
++			goto isolate_fail_put;
+ 
+ 		/* Only take pages on LRU: a check now makes later tests safe */
+ 		if (!PageLRU(page))
 
 
