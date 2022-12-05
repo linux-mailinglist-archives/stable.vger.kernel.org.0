@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BC8A6433C2
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:39:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 136956432D8
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:30:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234696AbiLETjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:39:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39344 "EHLO
+        id S233873AbiLETav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:30:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234685AbiLETix (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:53 -0500
+        with ESMTP id S233926AbiLETa3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:30:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1BB22A40E
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:36:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29B3B2B1B6
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:26:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E9C361311
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:36:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E4C4C433D6;
-        Mon,  5 Dec 2022 19:36:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6244612FB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B24E2C433D7;
+        Mon,  5 Dec 2022 19:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268963;
-        bh=ZW0ksXCeBwbCbjwMSupAU187RcFixrrqtCGXWTp+2Gk=;
+        s=korg; t=1670268386;
+        bh=PG5M9zw4PMRqwKyoAGeRoWBeEUEj6vRAkV8I3RTMkZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1YwICShbka5eXqiAY8HbIF6DCxAcJTN0MyITUJQ+96wLOk1g+StTXBwWyVDYaDcU
-         EzrZLtQPs+ZsYSHHvIfLW+zDW2EsQi8N8vBQbDuFYFk7gMp3yJNBuNkYh7FlU7dN57
-         iXdFGdED37rblSYzfo70R2xWWLW8Jd+rQ53haI8E=
+        b=ccjGwhmhABvVolwknfOViwPGdpVMy4W/+IOJanm5DqsW0db/Bjyi8zA3gXJIPQEQt
+         lof5fwygYd4cUn+FKBuJLN+bnK4fHc7BZCUsThi7gnDfTETLhV85AHzkR9TtN3ZLAh
+         6CpXnnTfGz3fCNJccCAZ/Luk8I9q3xOT+nlc5vVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 048/120] net: phy: fix null-ptr-deref while probe() failed
+        patches@lists.linux.dev, Borislav Petkov <bp@alien8.de>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 6.0 082/124] x86/bugs: Make sure MSR_SPEC_CTRL is updated properly upon resume from S3
 Date:   Mon,  5 Dec 2022 20:09:48 +0100
-Message-Id: <20221205190808.018714162@linuxfoundation.org>
+Message-Id: <20221205190810.745650186@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +54,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-[ Upstream commit 369eb2c9f1f72adbe91e0ea8efb130f0a2ba11a6 ]
+commit 66065157420c5b9b3f078f43d313c153e1ff7f83 upstream.
 
-I got a null-ptr-deref report as following when doing fault injection test:
+The "force" argument to write_spec_ctrl_current() is currently ambiguous
+as it does not guarantee the MSR write. This is due to the optimization
+that writes to the MSR happen only when the new value differs from the
+cached value.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000058
-Oops: 0000 [#1] PREEMPT SMP KASAN PTI
-CPU: 1 PID: 253 Comm: 507-spi-dm9051 Tainted: G    B            N 6.1.0-rc3+
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:klist_put+0x2d/0xd0
-Call Trace:
- <TASK>
- klist_remove+0xf1/0x1c0
- device_release_driver_internal+0x23e/0x2d0
- bus_remove_device+0x1bd/0x240
- device_del+0x357/0x770
- phy_device_remove+0x11/0x30
- mdiobus_unregister+0xa5/0x140
- release_nodes+0x6a/0xa0
- devres_release_all+0xf8/0x150
- device_unbind_cleanup+0x19/0xd0
+This is fine in most cases, but breaks for S3 resume when the cached MSR
+value gets out of sync with the hardware MSR value due to S3 resetting
+it.
 
-//probe path:
-phy_device_register()
-  device_add()
+When x86_spec_ctrl_current is same as x86_spec_ctrl_base, the MSR write
+is skipped. Which results in SPEC_CTRL mitigations not getting restored.
 
-phy_connect
-  phy_attach_direct() //set device driver
-    probe() //it's failed, driver is not bound
-    device_bind_driver() // probe failed, it's not called
+Move the MSR write from write_spec_ctrl_current() to a new function that
+unconditionally writes to the MSR. Update the callers accordingly and
+rename functions.
 
-//remove path:
-phy_device_remove()
-  device_del()
-    device_release_driver_internal()
-      __device_release_driver() //dev->drv is not NULL
-        klist_remove() <- knode_driver is not added yet, cause null-ptr-deref
+  [ bp: Rework a bit. ]
 
-In phy_attach_direct(), after setting the 'dev->driver', probe() fails,
-device_bind_driver() is not called, so the knode_driver->n_klist is not
-set, then it causes null-ptr-deref in __device_release_driver() while
-deleting device. Fix this by setting dev->driver to NULL in the error
-path in phy_attach_direct().
-
-Fixes: e13934563db0 ("[PATCH] PHY Layer fixup")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: caa0ff24d5d0 ("x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value")
+Suggested-by: Borislav Petkov <bp@alien8.de>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/806d39b0bfec2fe8f50dc5446dff20f5bb24a959.1669821572.git.pawan.kumar.gupta@linux.intel.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/phy_device.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/nospec-branch.h |    2 +-
+ arch/x86/kernel/cpu/bugs.c           |   21 ++++++++++++++-------
+ arch/x86/kernel/process.c            |    2 +-
+ 3 files changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index c5b92ffaffb9..1dd521c99725 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -1518,6 +1518,7 @@ int phy_attach_direct(struct net_device *dev, struct phy_device *phydev,
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -321,7 +321,7 @@ static inline void indirect_branch_predi
+ /* The Intel SPEC CTRL MSR base value cache */
+ extern u64 x86_spec_ctrl_base;
+ DECLARE_PER_CPU(u64, x86_spec_ctrl_current);
+-extern void write_spec_ctrl_current(u64 val, bool force);
++extern void update_spec_ctrl_cond(u64 val);
+ extern u64 spec_ctrl_current(void);
  
- error_module_put:
- 	module_put(d->driver->owner);
-+	d->driver = NULL;
- error_put_device:
- 	put_device(d);
- 	if (ndev_owner != bus->owner)
--- 
-2.35.1
-
+ /*
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -60,11 +60,18 @@ EXPORT_SYMBOL_GPL(x86_spec_ctrl_current)
+ 
+ static DEFINE_MUTEX(spec_ctrl_mutex);
+ 
++/* Update SPEC_CTRL MSR and its cached copy unconditionally */
++static void update_spec_ctrl(u64 val)
++{
++	this_cpu_write(x86_spec_ctrl_current, val);
++	wrmsrl(MSR_IA32_SPEC_CTRL, val);
++}
++
+ /*
+  * Keep track of the SPEC_CTRL MSR value for the current task, which may differ
+  * from x86_spec_ctrl_base due to STIBP/SSB in __speculation_ctrl_update().
+  */
+-void write_spec_ctrl_current(u64 val, bool force)
++void update_spec_ctrl_cond(u64 val)
+ {
+ 	if (this_cpu_read(x86_spec_ctrl_current) == val)
+ 		return;
+@@ -75,7 +82,7 @@ void write_spec_ctrl_current(u64 val, bo
+ 	 * When KERNEL_IBRS this MSR is written on return-to-user, unless
+ 	 * forced the update can be delayed until that time.
+ 	 */
+-	if (force || !cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS))
++	if (!cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS))
+ 		wrmsrl(MSR_IA32_SPEC_CTRL, val);
+ }
+ 
+@@ -1328,7 +1335,7 @@ static void __init spec_ctrl_disable_ker
+ 
+ 	if (ia32_cap & ARCH_CAP_RRSBA) {
+ 		x86_spec_ctrl_base |= SPEC_CTRL_RRSBA_DIS_S;
+-		write_spec_ctrl_current(x86_spec_ctrl_base, true);
++		update_spec_ctrl(x86_spec_ctrl_base);
+ 	}
+ }
+ 
+@@ -1450,7 +1457,7 @@ static void __init spectre_v2_select_mit
+ 
+ 	if (spectre_v2_in_ibrs_mode(mode)) {
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+-		write_spec_ctrl_current(x86_spec_ctrl_base, true);
++		update_spec_ctrl(x86_spec_ctrl_base);
+ 	}
+ 
+ 	switch (mode) {
+@@ -1564,7 +1571,7 @@ static void __init spectre_v2_select_mit
+ static void update_stibp_msr(void * __unused)
+ {
+ 	u64 val = spec_ctrl_current() | (x86_spec_ctrl_base & SPEC_CTRL_STIBP);
+-	write_spec_ctrl_current(val, true);
++	update_spec_ctrl(val);
+ }
+ 
+ /* Update x86_spec_ctrl_base in case SMT state changed. */
+@@ -1797,7 +1804,7 @@ static enum ssb_mitigation __init __ssb_
+ 			x86_amd_ssb_disable();
+ 		} else {
+ 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
+-			write_spec_ctrl_current(x86_spec_ctrl_base, true);
++			update_spec_ctrl(x86_spec_ctrl_base);
+ 		}
+ 	}
+ 
+@@ -2048,7 +2055,7 @@ int arch_prctl_spec_ctrl_get(struct task
+ void x86_spec_ctrl_setup_ap(void)
+ {
+ 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
+-		write_spec_ctrl_current(x86_spec_ctrl_base, true);
++		update_spec_ctrl(x86_spec_ctrl_base);
+ 
+ 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
+ 		x86_amd_ssb_disable();
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -600,7 +600,7 @@ static __always_inline void __speculatio
+ 	}
+ 
+ 	if (updmsr)
+-		write_spec_ctrl_current(msr, false);
++		update_spec_ctrl_cond(msr);
+ }
+ 
+ static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
 
 
