@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F8D64335A
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48A24643155
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233812AbiLETfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:35:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33664 "EHLO
+        id S231393AbiLETOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:14:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234491AbiLETfd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAD9521B6
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:31:45 -0800 (PST)
+        with ESMTP id S232444AbiLETNp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:13:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B96A122B2D
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:13:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AF88612FB
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:31:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E86DC433C1;
-        Mon,  5 Dec 2022 19:31:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DDA1B81201
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:13:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB467C4314E;
+        Mon,  5 Dec 2022 19:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268705;
-        bh=VLuRiyZC1rvMXRyIT/fnf8lLB/uEzuwa94MNE+ira3U=;
+        s=korg; t=1670267620;
+        bh=aYM6zp6ANSO3dHqudNE8a926CgfPfWiFdIWycUB3QqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2FG0H8h9W3U2CeiIHPbYs1fnNG//EGBJs03NSLLf7rx9Hr/6MhNX6cUnCN2YtvpCq
-         XXqv0djPzv2vIY5sZeCo013ZGyeUEz9UiESE5UUi3SPjlrfxtuE/Fdr7dFOC75vKWz
-         f6oaPGKeqBivKl6RMZdMhnc9NBcbGgOblQcVI2Jg=
+        b=GNJNlxBCq4nA32tkgvzQyYJzC3/usXb/5eu/Z9uToY6a4Tshr0CAD/cGnjrCClt3b
+         qY0N2x4EVdB4uxMuCwFDwLWG1HtMwEtes8kgBC5vvlc8D1pTMfwoBPmwH8HwZ36EuI
+         RUbvWlf+SymAInik40WYJh7gCu925d2hlm9ZqElw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>
-Subject: [PATCH 5.10 37/92] wifi: cfg80211: dont allow multi-BSSID in S1G
+        patches@lists.linux.dev,
+        Maxim Korotkov <korotkov.maxim.s@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 53/62] pinctrl: single: Fix potential division by zero
 Date:   Mon,  5 Dec 2022 20:09:50 +0100
-Message-Id: <20221205190804.693386612@linuxfoundation.org>
+Message-Id: <20221205190800.084344727@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
+References: <20221205190758.073114639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Maxim Korotkov <korotkov.maxim.s@gmail.com>
 
-[ Upstream commit acd3c92acc7aaec50a94d0a7faf7ccd74e952493 ]
+[ Upstream commit 64c150339e7f6c5cbbe8c17a56ef2b3902612798 ]
 
-In S1G beacon frames there shouldn't be multi-BSSID elements
-since that's not supported, remove that to avoid a potential
-integer underflow and/or misparsing the frames due to the
-different length of the fixed part of the frame.
+There is a possibility of dividing by zero due to the pcs->bits_per_pin
+if pcs->fmask() also has a value of zero and called fls
+from asm-generic/bitops/builtin-fls.h or arch/x86/include/asm/bitops.h.
+The function pcs_probe() has the branch that assigned to fmask 0 before
+pcs_allocate_pin_table() was called
 
-While at it, initialize non_tx_data so we don't send garbage
-values to the user (even if it doesn't seem to matter now.)
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-Reported-and-tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Fixes: 9eaffe5078ca ("cfg80211: convert S1G beacon to scan results")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 4e7e8017a80e ("pinctrl: pinctrl-single: enhance to configure multiple pins of different modules")
+Signed-off-by: Maxim Korotkov <korotkov.maxim.s@gmail.com>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20221117123034.27383-1-korotkov.maxim.s@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/scan.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-single.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/wireless/scan.c b/net/wireless/scan.c
-index 8102ee7b2047..d09dabae5627 100644
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -2467,10 +2467,15 @@ cfg80211_inform_bss_frame_data(struct wiphy *wiphy,
- 	const struct cfg80211_bss_ies *ies1, *ies2;
- 	size_t ielen = len - offsetof(struct ieee80211_mgmt,
- 				      u.probe_resp.variable);
--	struct cfg80211_non_tx_bss non_tx_data;
-+	struct cfg80211_non_tx_bss non_tx_data = {};
+diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
+index 01f42090cd03..d2180bf2da95 100644
+--- a/drivers/pinctrl/pinctrl-single.c
++++ b/drivers/pinctrl/pinctrl-single.c
+@@ -812,7 +812,7 @@ static int pcs_allocate_pin_table(struct pcs_device *pcs)
  
- 	res = cfg80211_inform_single_bss_frame_data(wiphy, data, mgmt,
- 						    len, gfp);
-+
-+	/* don't do any further MBSSID handling for S1G */
-+	if (ieee80211_is_s1g_beacon(mgmt->frame_control))
-+		return res;
-+
- 	if (!res || !wiphy->support_mbssid ||
- 	    !cfg80211_find_ie(WLAN_EID_MULTIPLE_BSSID, ie, ielen))
- 		return res;
+ 	mux_bytes = pcs->width / BITS_PER_BYTE;
+ 
+-	if (pcs->bits_per_mux) {
++	if (pcs->bits_per_mux && pcs->fmask) {
+ 		pcs->bits_per_pin = fls(pcs->fmask);
+ 		nr_pins = (pcs->size * BITS_PER_BYTE) / pcs->bits_per_pin;
+ 		num_pins_in_register = pcs->width / pcs->bits_per_pin;
 -- 
 2.35.1
 
