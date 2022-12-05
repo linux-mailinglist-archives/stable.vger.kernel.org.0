@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEB496433BD
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:39:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B35164347F
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234316AbiLETjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:39:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40638 "EHLO
+        id S234940AbiLETr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:47:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234250AbiLETir (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 182CB2A40A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:35:53 -0800 (PST)
+        with ESMTP id S234969AbiLETrJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9262F2E6AD
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAD6D61321
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:35:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDC96C433C1;
-        Mon,  5 Dec 2022 19:35:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CC8E6130D
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41810C433C1;
+        Mon,  5 Dec 2022 19:43:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268952;
-        bh=jes/b9baVpTtzoU4BvzHzrA7wgmkJdGgbrzBpkt2NAY=;
+        s=korg; t=1670269403;
+        bh=FX833208ZxmHkqjl1EAlNjIw3LBfBn4jsA2MXS0yCMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XSW6zVzf0lkPrzK4P3rRfH/6Pnp6QapSCIEWyZNu4jsYrKxP4g3tUEnHF82wX1RzF
-         H0NF6jCmr9izV5HAfqT+QDS6uJdLNNeMLuU1W82MjGNOQyhzj5/2JzeR9S86zC+8tY
-         wsR8dYwe8ubEA2OqfovrTYY+t0gOoU6dW9dLAqGM=
+        b=Ny2bAk/LyNXFQj5oMZRe9vWdr9R/ts3b7LHuXTtElsU6LS4XLbONxWZPix5ECJN2L
+         8RO68aOwkD2QgA9AOxJ61Y6aLt5xlHGsELRNno7CI43ub2oLkcSaGkMsme+RSkWVeK
+         7H9zbAu2aNfw9q0Y9QoPlGM0gbu6RjOxjSX+4k5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+ebe05ee8e98f755f61d0@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 071/120] nilfs2: fix NULL pointer dereference in nilfs_palloc_commit_free_entry()
+        patches@lists.linux.dev, Harry Wentland <harry.wentland@amd.com>,
+        Claudio Suarez <cssk@net-c.es>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 087/153] drm/amdgpu: update drm_display_info correctly when the edid is read
 Date:   Mon,  5 Dec 2022 20:10:11 +0100
-Message-Id: <20221205190808.753318233@linuxfoundation.org>
+Message-Id: <20221205190811.222699408@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Claudio Suarez <cssk@net-c.es>
 
-commit f0a0ccda18d6fd826d7c7e7ad48a6ed61c20f8b4 upstream.
+[ Upstream commit 20543be93ca45968f344261c1a997177e51bd7e1 ]
 
-Syzbot reported a null-ptr-deref bug:
+drm_display_info is updated by drm_get_edid() or
+drm_connector_update_edid_property(). In the amdgpu driver it is almost
+always updated when the edid is read in amdgpu_connector_get_edid(),
+but not always.  Change amdgpu_connector_get_edid() and
+amdgpu_connector_free_edid() to keep drm_display_info updated.
 
- NILFS (loop0): segctord starting. Construction interval = 5 seconds, CP
- frequency < 30 seconds
- general protection fault, probably for non-canonical address
- 0xdffffc0000000002: 0000 [#1] PREEMPT SMP KASAN
- KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
- CPU: 1 PID: 3603 Comm: segctord Not tainted
- 6.1.0-rc2-syzkaller-00105-gb229b6ca5abb #0
- Hardware name: Google Compute Engine/Google Compute Engine, BIOS Google
- 10/11/2022
- RIP: 0010:nilfs_palloc_commit_free_entry+0xe5/0x6b0
- fs/nilfs2/alloc.c:608
- Code: 00 00 00 00 fc ff df 80 3c 02 00 0f 85 cd 05 00 00 48 b8 00 00 00
- 00 00 fc ff df 4c 8b 73 08 49 8d 7e 10 48 89 fa 48 c1 ea 03 <80> 3c 02
- 00 0f 85 26 05 00 00 49 8b 46 10 be a6 00 00 00 48 c7 c7
- RSP: 0018:ffffc90003dff830 EFLAGS: 00010212
- RAX: dffffc0000000000 RBX: ffff88802594e218 RCX: 000000000000000d
- RDX: 0000000000000002 RSI: 0000000000002000 RDI: 0000000000000010
- RBP: ffff888071880222 R08: 0000000000000005 R09: 000000000000003f
- R10: 000000000000000d R11: 0000000000000000 R12: ffff888071880158
- R13: ffff88802594e220 R14: 0000000000000000 R15: 0000000000000004
- FS:  0000000000000000(0000) GS:ffff8880b9b00000(0000)
- knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007fb1c08316a8 CR3: 0000000018560000 CR4: 0000000000350ee0
- Call Trace:
-  <TASK>
-  nilfs_dat_commit_free fs/nilfs2/dat.c:114 [inline]
-  nilfs_dat_commit_end+0x464/0x5f0 fs/nilfs2/dat.c:193
-  nilfs_dat_commit_update+0x26/0x40 fs/nilfs2/dat.c:236
-  nilfs_btree_commit_update_v+0x87/0x4a0 fs/nilfs2/btree.c:1940
-  nilfs_btree_commit_propagate_v fs/nilfs2/btree.c:2016 [inline]
-  nilfs_btree_propagate_v fs/nilfs2/btree.c:2046 [inline]
-  nilfs_btree_propagate+0xa00/0xd60 fs/nilfs2/btree.c:2088
-  nilfs_bmap_propagate+0x73/0x170 fs/nilfs2/bmap.c:337
-  nilfs_collect_file_data+0x45/0xd0 fs/nilfs2/segment.c:568
-  nilfs_segctor_apply_buffers+0x14a/0x470 fs/nilfs2/segment.c:1018
-  nilfs_segctor_scan_file+0x3f4/0x6f0 fs/nilfs2/segment.c:1067
-  nilfs_segctor_collect_blocks fs/nilfs2/segment.c:1197 [inline]
-  nilfs_segctor_collect fs/nilfs2/segment.c:1503 [inline]
-  nilfs_segctor_do_construct+0x12fc/0x6af0 fs/nilfs2/segment.c:2045
-  nilfs_segctor_construct+0x8e3/0xb30 fs/nilfs2/segment.c:2379
-  nilfs_segctor_thread_construct fs/nilfs2/segment.c:2487 [inline]
-  nilfs_segctor_thread+0x3c3/0xf30 fs/nilfs2/segment.c:2570
-  kthread+0x2e4/0x3a0 kernel/kthread.c:376
-  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
-  </TASK>
- ...
-
-If DAT metadata file is corrupted on disk, there is a case where
-req->pr_desc_bh is NULL and blocknr is 0 at nilfs_dat_commit_end() during
-a b-tree operation that cascadingly updates ancestor nodes of the b-tree,
-because nilfs_dat_commit_alloc() for a lower level block can initialize
-the blocknr on the same DAT entry between nilfs_dat_prepare_end() and
-nilfs_dat_commit_end().
-
-If this happens, nilfs_dat_commit_end() calls nilfs_dat_commit_free()
-without valid buffer heads in req->pr_desc_bh and req->pr_bitmap_bh, and
-causes the NULL pointer dereference above in
-nilfs_palloc_commit_free_entry() function, which leads to a crash.
-
-Fix this by adding a NULL check on req->pr_desc_bh and req->pr_bitmap_bh
-before nilfs_palloc_commit_free_entry() in nilfs_dat_commit_free().
-
-This also calls nilfs_error() in that case to notify that there is a fatal
-flaw in the filesystem metadata and prevent further operations.
-
-Link: https://lkml.kernel.org/r/00000000000097c20205ebaea3d6@google.com
-Link: https://lkml.kernel.org/r/20221114040441.1649940-1-zhangpeng362@huawei.com
-Link: https://lkml.kernel.org/r/20221119120542.17204-1-konishi.ryusuke@gmail.com
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+ebe05ee8e98f755f61d0@syzkaller.appspotmail.com
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Claudio Suarez <cssk@net-c.es>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Stable-dep-of: 602ad43c3cd8 ("drm/amdgpu: Partially revert "drm/amdgpu: update drm_display_info correctly when the edid is read"")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/dat.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c    | 5 ++++-
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 +--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/nilfs2/dat.c
-+++ b/fs/nilfs2/dat.c
-@@ -111,6 +111,13 @@ static void nilfs_dat_commit_free(struct
- 	kunmap_atomic(kaddr);
- 
- 	nilfs_dat_commit_entry(dat, req);
-+
-+	if (unlikely(req->pr_desc_bh == NULL || req->pr_bitmap_bh == NULL)) {
-+		nilfs_error(dat->i_sb,
-+			    "state inconsistency probably due to duplicate use of vblocknr = %llu",
-+			    (unsigned long long)req->pr_entry_nr);
-+		return;
-+	}
- 	nilfs_palloc_commit_free_entry(dat, req);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+index cf80da354ba1..448ad5ade19a 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -316,8 +316,10 @@ static void amdgpu_connector_get_edid(struct drm_connector *connector)
+ 	if (!amdgpu_connector->edid) {
+ 		/* some laptops provide a hardcoded edid in rom for LCDs */
+ 		if (((connector->connector_type == DRM_MODE_CONNECTOR_LVDS) ||
+-		     (connector->connector_type == DRM_MODE_CONNECTOR_eDP)))
++		     (connector->connector_type == DRM_MODE_CONNECTOR_eDP))) {
+ 			amdgpu_connector->edid = amdgpu_connector_get_hardcoded_edid(adev);
++			drm_connector_update_edid_property(connector, amdgpu_connector->edid);
++		}
+ 	}
  }
  
+@@ -327,6 +329,7 @@ static void amdgpu_connector_free_edid(struct drm_connector *connector)
+ 
+ 	kfree(amdgpu_connector->edid);
+ 	amdgpu_connector->edid = NULL;
++	drm_connector_update_edid_property(connector, NULL);
+ }
+ 
+ static int amdgpu_connector_ddc_get_modes(struct drm_connector *connector)
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index de33864af70b..fe9c135fee0e 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1436,13 +1436,12 @@ amdgpu_dm_update_connector_after_detect(struct amdgpu_dm_connector *aconnector)
+ 			aconnector->edid =
+ 				(struct edid *)sink->dc_edid.raw_edid;
+ 
+-			drm_connector_update_edid_property(connector,
+-							   aconnector->edid);
+ 			if (aconnector->dc_link->aux_mode)
+ 				drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
+ 						    aconnector->edid);
+ 		}
+ 
++		drm_connector_update_edid_property(connector, aconnector->edid);
+ 		amdgpu_dm_update_freesync_caps(connector, aconnector->edid);
+ 
+ 	} else {
+-- 
+2.35.1
+
 
 
