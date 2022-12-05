@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F124643391
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:37:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81C9664325D
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234471AbiLEThj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:37:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38194 "EHLO
+        id S232691AbiLET0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:26:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234506AbiLEThQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:37:16 -0500
+        with ESMTP id S233814AbiLETZb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:31 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5881E28E14
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD43E25E98
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:21:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 168B9B81157
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B501C433D6;
-        Mon,  5 Dec 2022 19:34:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7719FB80EFD
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:21:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDBB0C433C1;
+        Mon,  5 Dec 2022 19:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268851;
-        bh=KfifV/m9vLyzh1d5g8rMvThbXUT27g6VgEmsDcBkYpQ=;
+        s=korg; t=1670268082;
+        bh=TbB/IY1k5ZosCF5Gq7xlbYa3AFbUVXrFjwmUBt2hJh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvChW5a2D5lGyTpQYusaD/eP1dlINeEYfbPr3043OKYmmi5adrslUHOnXIF1yKFfD
-         iLOTSX7M9DAtR2tyl7urfS/oOXAoPS3CPi7WPTO+WSEpzlnPqpcZLVOf/Vxc9nBVt8
-         vH9w1r6l8wRsrc5BBetK8hlGSshdQFJllWwP2sdc=
+        b=g5UzdrKsRZyeOZv8T9eJ/zHG82ZwoJppDGsvM3/nsNK3zhmYZEyVuyRDRw30+KPWL
+         0IBgk8F0sr4VP2vdDSP+PDr7Py3Q5EYDrewOZsM11fuFvjryowjajDke5CncbK+tSr
+         mKWIJFWP3YFMUjkZ6Sw4ohOVgm5BktB4XF3weki8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yevgeny Kliteynik <kliteyn@nvidia.com>,
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        Andrew Davis <afd@ti.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 034/120] net/mlx5: DR, Rename list field in matcher struct to list_node
+Subject: [PATCH 4.19 062/105] iio: health: afe4404: Fix oob read in afe4404_[read|write]_raw
 Date:   Mon,  5 Dec 2022 20:09:34 +0100
-Message-Id: <20221205190807.577696681@linuxfoundation.org>
+Message-Id: <20221205190805.259360960@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,131 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yevgeny Kliteynik <kliteyn@nvidia.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 08fac109f7bb5e12ae14def56b3ad57ce67cd9fe ]
+[ Upstream commit fc92d9e3de0b2d30a3ccc08048a5fad533e4672b ]
 
-In dr_types structs, some list fields are list heads, and some
-are just list nodes that are stored on the other structs' lists.
-Rename the appropriate list field to reflect this distinction.
+KASAN report out-of-bounds read as follows:
 
-Signed-off-by: Yevgeny Kliteynik <kliteyn@nvidia.com>
-Stable-dep-of: 52f7cf70eb8f ("net/mlx5: DR, Fix uninitialized var warning")
+BUG: KASAN: global-out-of-bounds in afe4404_read_raw+0x2ce/0x380
+Read of size 4 at addr ffffffffc00e4658 by task cat/278
+
+Call Trace:
+ afe4404_read_raw
+ iio_read_channel_info
+ dev_attr_show
+
+The buggy address belongs to the variable:
+ afe4404_channel_leds+0x18/0xffffffffffffe9c0
+
+This issue can be reproduce by singe command:
+
+ $ cat /sys/bus/i2c/devices/0-0058/iio\:device0/in_intensity6_raw
+
+The array size of afe4404_channel_leds and afe4404_channel_offdacs
+are less than channels, so access with chan->address cause OOB read
+in afe4404_[read|write]_raw. Fix it by moving access before use them.
+
+Fixes: b36e8257641a ("iio: health/afe440x: Use regmap fields")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Andrew Davis <afd@ti.com>
+Link: https://lore.kernel.org/r/20221107152010.95937-1-weiyongjun@huaweicloud.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../mellanox/mlx5/core/steering/dr_matcher.c  | 26 +++++++++----------
- .../mellanox/mlx5/core/steering/dr_table.c    |  2 +-
- .../mellanox/mlx5/core/steering/dr_types.h    |  2 +-
- 3 files changed, 15 insertions(+), 15 deletions(-)
+ drivers/iio/health/afe4404.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_matcher.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_matcher.c
-index a19e8157c100..0f99d3612f89 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_matcher.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_matcher.c
-@@ -709,7 +709,7 @@ static int dr_matcher_add_to_tbl(struct mlx5dr_matcher *matcher)
+diff --git a/drivers/iio/health/afe4404.c b/drivers/iio/health/afe4404.c
+index 23e1ac6501a1..a081cdfd7071 100644
+--- a/drivers/iio/health/afe4404.c
++++ b/drivers/iio/health/afe4404.c
+@@ -258,20 +258,20 @@ static int afe4404_read_raw(struct iio_dev *indio_dev,
+ 			    int *val, int *val2, long mask)
+ {
+ 	struct afe4404_data *afe = iio_priv(indio_dev);
+-	unsigned int value_reg = afe4404_channel_values[chan->address];
+-	unsigned int led_field = afe4404_channel_leds[chan->address];
+-	unsigned int offdac_field = afe4404_channel_offdacs[chan->address];
++	unsigned int value_reg, led_field, offdac_field;
  	int ret;
  
- 	next_matcher = NULL;
--	list_for_each_entry(tmp_matcher, &tbl->matcher_list, matcher_list) {
-+	list_for_each_entry(tmp_matcher, &tbl->matcher_list, list_node) {
- 		if (tmp_matcher->prio >= matcher->prio) {
- 			next_matcher = tmp_matcher;
- 			break;
-@@ -719,11 +719,11 @@ static int dr_matcher_add_to_tbl(struct mlx5dr_matcher *matcher)
+ 	switch (chan->type) {
+ 	case IIO_INTENSITY:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_RAW:
++			value_reg = afe4404_channel_values[chan->address];
+ 			ret = regmap_read(afe->regmap, value_reg, val);
+ 			if (ret)
+ 				return ret;
+ 			return IIO_VAL_INT;
+ 		case IIO_CHAN_INFO_OFFSET:
++			offdac_field = afe4404_channel_offdacs[chan->address];
+ 			ret = regmap_field_read(afe->fields[offdac_field], val);
+ 			if (ret)
+ 				return ret;
+@@ -281,6 +281,7 @@ static int afe4404_read_raw(struct iio_dev *indio_dev,
+ 	case IIO_CURRENT:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_RAW:
++			led_field = afe4404_channel_leds[chan->address];
+ 			ret = regmap_field_read(afe->fields[led_field], val);
+ 			if (ret)
+ 				return ret;
+@@ -303,19 +304,20 @@ static int afe4404_write_raw(struct iio_dev *indio_dev,
+ 			     int val, int val2, long mask)
+ {
+ 	struct afe4404_data *afe = iio_priv(indio_dev);
+-	unsigned int led_field = afe4404_channel_leds[chan->address];
+-	unsigned int offdac_field = afe4404_channel_offdacs[chan->address];
++	unsigned int led_field, offdac_field;
  
- 	prev_matcher = NULL;
- 	if (next_matcher && !first)
--		prev_matcher = list_prev_entry(next_matcher, matcher_list);
-+		prev_matcher = list_prev_entry(next_matcher, list_node);
- 	else if (!first)
- 		prev_matcher = list_last_entry(&tbl->matcher_list,
- 					       struct mlx5dr_matcher,
--					       matcher_list);
-+					       list_node);
- 
- 	if (dmn->type == MLX5DR_DOMAIN_TYPE_FDB ||
- 	    dmn->type == MLX5DR_DOMAIN_TYPE_NIC_RX) {
-@@ -744,12 +744,12 @@ static int dr_matcher_add_to_tbl(struct mlx5dr_matcher *matcher)
- 	}
- 
- 	if (prev_matcher)
--		list_add(&matcher->matcher_list, &prev_matcher->matcher_list);
-+		list_add(&matcher->list_node, &prev_matcher->list_node);
- 	else if (next_matcher)
--		list_add_tail(&matcher->matcher_list,
--			      &next_matcher->matcher_list);
-+		list_add_tail(&matcher->list_node,
-+			      &next_matcher->list_node);
- 	else
--		list_add(&matcher->matcher_list, &tbl->matcher_list);
-+		list_add(&matcher->list_node, &tbl->matcher_list);
- 
- 	return 0;
- }
-@@ -922,7 +922,7 @@ mlx5dr_matcher_create(struct mlx5dr_table *tbl,
- 	matcher->prio = priority;
- 	matcher->match_criteria = match_criteria_enable;
- 	refcount_set(&matcher->refcount, 1);
--	INIT_LIST_HEAD(&matcher->matcher_list);
-+	INIT_LIST_HEAD(&matcher->list_node);
- 
- 	mlx5dr_domain_lock(tbl->dmn);
- 
-@@ -985,15 +985,15 @@ static int dr_matcher_remove_from_tbl(struct mlx5dr_matcher *matcher)
- 	struct mlx5dr_domain *dmn = tbl->dmn;
- 	int ret = 0;
- 
--	if (list_is_last(&matcher->matcher_list, &tbl->matcher_list))
-+	if (list_is_last(&matcher->list_node, &tbl->matcher_list))
- 		next_matcher = NULL;
- 	else
--		next_matcher = list_next_entry(matcher, matcher_list);
-+		next_matcher = list_next_entry(matcher, list_node);
- 
--	if (matcher->matcher_list.prev == &tbl->matcher_list)
-+	if (matcher->list_node.prev == &tbl->matcher_list)
- 		prev_matcher = NULL;
- 	else
--		prev_matcher = list_prev_entry(matcher, matcher_list);
-+		prev_matcher = list_prev_entry(matcher, list_node);
- 
- 	if (dmn->type == MLX5DR_DOMAIN_TYPE_FDB ||
- 	    dmn->type == MLX5DR_DOMAIN_TYPE_NIC_RX) {
-@@ -1013,7 +1013,7 @@ static int dr_matcher_remove_from_tbl(struct mlx5dr_matcher *matcher)
- 			return ret;
- 	}
- 
--	list_del(&matcher->matcher_list);
-+	list_del(&matcher->list_node);
- 
- 	return 0;
- }
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c
-index 30ae3cda6d2e..4c40178e7d1e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c
-@@ -19,7 +19,7 @@ int mlx5dr_table_set_miss_action(struct mlx5dr_table *tbl,
- 	if (!list_empty(&tbl->matcher_list))
- 		last_matcher = list_last_entry(&tbl->matcher_list,
- 					       struct mlx5dr_matcher,
--					       matcher_list);
-+					       list_node);
- 
- 	if (tbl->dmn->type == MLX5DR_DOMAIN_TYPE_NIC_RX ||
- 	    tbl->dmn->type == MLX5DR_DOMAIN_TYPE_FDB) {
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
-index bc206836af6a..9e2102f8bed1 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
-@@ -891,7 +891,7 @@ struct mlx5dr_matcher {
- 	struct mlx5dr_table *tbl;
- 	struct mlx5dr_matcher_rx_tx rx;
- 	struct mlx5dr_matcher_rx_tx tx;
--	struct list_head matcher_list;
-+	struct list_head list_node;
- 	u32 prio;
- 	struct mlx5dr_match_param mask;
- 	u8 match_criteria;
+ 	switch (chan->type) {
+ 	case IIO_INTENSITY:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_OFFSET:
++			offdac_field = afe4404_channel_offdacs[chan->address];
+ 			return regmap_field_write(afe->fields[offdac_field], val);
+ 		}
+ 		break;
+ 	case IIO_CURRENT:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_RAW:
++			led_field = afe4404_channel_leds[chan->address];
+ 			return regmap_field_write(afe->fields[led_field], val);
+ 		}
+ 		break;
 -- 
 2.35.1
 
