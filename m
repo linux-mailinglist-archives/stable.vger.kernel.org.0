@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A38D6643389
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:37:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CF23643337
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234542AbiLEThT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:37:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40474 "EHLO
+        id S234267AbiLETfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:35:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234607AbiLETgu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:36:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89C3927CCE
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:33:52 -0800 (PST)
+        with ESMTP id S234088AbiLETej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 973E3DD1
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:30:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3FE72B811CF
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:33:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A39E7C433C1;
-        Mon,  5 Dec 2022 19:33:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3274C6130C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:30:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46C35C433C1;
+        Mon,  5 Dec 2022 19:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268830;
-        bh=4eLQxE83CtURY/G7mZF4SO5aD6esafo3fV7kTn+p2eU=;
+        s=korg; t=1670268614;
+        bh=+WFqcAr1g/NY+Mqs7VndDxG92ngCZI81Fyv1D9QeYoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vpbg9HMN272PCunB8BUMs6kCxt3C1naxCccg7nYCCFDfzyR8tiFzbIBXaKzweFzUu
-         1OqEQhrNXwBjGkvpjKSIUgMxK9HE5d6ZRynYDd/ceZcFmgwVBHhfQNiDg4Ez2lhDfl
-         3vCilaRdZCi7Gv2Uei6uN7DPnqLGE7SY9f9YhQmA=
+        b=wus+xnXJsfCuXs2QeLn5MsMv/cmQOnW/Do6qz0cJPKqFWXbhqV6VBuSVZa4GGHwbQ
+         owNOMoEvjsfHsj0Bshvotd7l8MITOVpWTyUcwEcV+3k/E1nFaylSEjiZmqsS5KD/S6
+         73fUK6A/U6xkKAHpaN3RZrQ9z14Zf5CUN5rk458g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 027/120] of: property: decrement node refcount in of_fwnode_get_reference_args()
+        patches@lists.linux.dev,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 14/92] scripts/faddr2line: Fix regression in name resolution on ppc64le
 Date:   Mon,  5 Dec 2022 20:09:27 +0100
-Message-Id: <20221205190807.385120803@linuxfoundation.org>
+Message-Id: <20221205190803.968245049@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +57,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit 60d865bd5a9b15a3961eb1c08bd4155682a3c81e ]
+[ Upstream commit 2d77de1581bb5b470486edaf17a7d70151131afd ]
 
-In of_fwnode_get_reference_args(), the refcount of of_args.np has
-been incremented in the case of successful return from
-of_parse_phandle_with_args() or of_parse_phandle_with_fixed_args().
+Commit 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section
+failures") can cause faddr2line to fail on ppc64le on some
+distributions, while it works fine on other distributions. The failure
+can be attributed to differences in the readelf output.
 
-Decrement the refcount if of_args is not returned to the caller of
-of_fwnode_get_reference_args().
+  $ ./scripts/faddr2line vmlinux find_busiest_group+0x00
+  no match for find_busiest_group+0x00
 
-Fixes: 3e3119d3088f ("device property: Introduce fwnode_property_get_reference_args")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Frank Rowand <frowand.list@gmail.com>
-Link: https://lore.kernel.org/r/20221121023209.3909759-1-yangyingliang@huawei.com
-Signed-off-by: Rob Herring <robh@kernel.org>
+On ppc64le, readelf adds the localentry tag before the symbol name on
+some distributions, and adds the localentry tag after the symbol name on
+other distributions. This problem has been discussed previously:
+
+  https://lore.kernel.org/bpf/20191211160133.GB4580@calabresa/
+
+This problem can be overcome by filtering out the localentry tags in the
+readelf output. Similar fixes are already present in the kernel by way
+of the following commits:
+
+  1fd6cee127e2 ("libbpf: Fix VERSIONED_SYM_COUNT number parsing")
+  aa915931ac3e ("libbpf: Fix readelf output parsing for Fedora")
+
+[jpoimboe: rework commit log]
+
+Fixes: 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section failures")
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Reviewed-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Link: https://lore.kernel.org/r/20220927075211.897152-1-srikar@linux.vnet.ibm.com
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/property.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ scripts/faddr2line | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/of/property.c b/drivers/of/property.c
-index a3483484a5a2..acf0d3110357 100644
---- a/drivers/of/property.c
-+++ b/drivers/of/property.c
-@@ -975,8 +975,10 @@ of_fwnode_get_reference_args(const struct fwnode_handle *fwnode,
- 						       nargs, index, &of_args);
- 	if (ret < 0)
- 		return ret;
--	if (!args)
-+	if (!args) {
-+		of_node_put(of_args.np);
- 		return 0;
-+	}
+diff --git a/scripts/faddr2line b/scripts/faddr2line
+index 57099687e5e1..9e730b805e87 100755
+--- a/scripts/faddr2line
++++ b/scripts/faddr2line
+@@ -73,7 +73,8 @@ command -v ${ADDR2LINE} >/dev/null 2>&1 || die "${ADDR2LINE} isn't installed"
+ find_dir_prefix() {
+ 	local objfile=$1
  
- 	args->nargs = of_args.args_count;
- 	args->fwnode = of_fwnode_handle(of_args.np);
+-	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | ${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
++	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' |
++		${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
+ 	[[ -z $start_kernel_addr ]] && return
+ 
+ 	local file_line=$(${ADDR2LINE} -e $objfile $start_kernel_addr)
+@@ -177,7 +178,7 @@ __faddr2line() {
+ 				found=2
+ 				break
+ 			fi
+-		done < <(${READELF} --symbols --wide $objfile | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
++		done < <(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
+ 
+ 		if [[ $found = 0 ]]; then
+ 			warn "can't find symbol: sym_name: $sym_name sym_sec: $sym_sec sym_addr: $sym_addr sym_elf_size: $sym_elf_size"
+@@ -258,7 +259,7 @@ __faddr2line() {
+ 
+ 		DONE=1
+ 
+-	done < <(${READELF} --symbols --wide $objfile | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
++	done < <(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
+ }
+ 
+ [[ $# -lt 2 ]] && usage
 -- 
 2.35.1
 
