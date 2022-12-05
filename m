@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 570CF6432A8
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:28:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8996A643243
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234051AbiLET2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:28:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53264 "EHLO
+        id S233944AbiLETZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:25:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234075AbiLET1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:27:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DA727FE2
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:24:37 -0800 (PST)
+        with ESMTP id S233924AbiLETZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E48EB25C55
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A70FB612D8
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:24:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCEC5C433C1;
-        Mon,  5 Dec 2022 19:24:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84494B81200
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2975C433C1;
+        Mon,  5 Dec 2022 19:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268276;
-        bh=IptsQPsjwnuQGBlRZzG3uTTy+8or39/mkD5ZRVBWo9s=;
+        s=korg; t=1670268043;
+        bh=XuyQpxrer/vdOQG04Abrb68X+A5RtuQdM2/BD4+AKts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RTt6l9uo/kiMkmogLcnUaGbe8BLTyg/kddlSbexqTX/VPIQvO0mmkV/jqnlxuzD4b
-         G5AIJ7Bx2jD7Vn8WsyGm9Yj6pqaKCqB6QpROrwDAChgwbT93PR4egVjCRuiE6tElQq
-         n14rHOBwMEa48lLpPAKllFRbGGGqt0wm95kc9Ogk=
+        b=Vi1beMifkC2gTS0XauX+iMGbI2OLEXihJZCVyNfGpWgnf9912/1lRXmnWpKqrJ0Ns
+         3pG2Ege7YVzUX8A6mhGnnxaf0Ry2Nq00atHkF5VjDKHhVyjvw1AdzSVESQrvVVeVLR
+         NzY3DseI3BhAtGxKxZDoDGMoK1EhN84mZLC5UM8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 043/124] can: m_can: Add check for devm_clk_get
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 037/105] iio: core: Fix entry not deleted when iio_register_sw_trigger_type() fails
 Date:   Mon,  5 Dec 2022 20:09:09 +0100
-Message-Id: <20221205190809.665662358@linuxfoundation.org>
+Message-Id: <20221205190804.388474130@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 68b4f9e0bdd0f920d7303d07bfe226cd0976961d ]
+commit 4ad09d956f8eacff61e67e5b13ba8ebec3232f76 upstream.
 
-Since the devm_clk_get may return error,
-it should be better to add check for the cdev->hclk,
-as same as cdev->cclk.
+In iio_register_sw_trigger_type(), configfs_register_default_group() is
+possible to fail, but the entry add to iio_trigger_types_list is not
+deleted.
 
-Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/all/20221123063651.26199-1-jiasheng@iscas.ac.cn
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This leaves wild in iio_trigger_types_list, which can cause page fault
+when module is loading again. So fix this by list_del(&t->list) in error
+path.
+
+BUG: unable to handle page fault for address: fffffbfff81d7400
+Call Trace:
+<TASK>
+ iio_register_sw_trigger_type
+ do_one_initcall
+ do_init_module
+ load_module
+ ...
+
+Fixes: b662f809d410 ("iio: core: Introduce IIO software triggers")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221108032802.168623-1-chenzhongjin@huawei.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/m_can/m_can.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/industrialio-sw-trigger.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index 4dc67fdfcdb9..153d8fd08bd8 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -1910,7 +1910,7 @@ int m_can_class_get_clocks(struct m_can_classdev *cdev)
- 	cdev->hclk = devm_clk_get(cdev->dev, "hclk");
- 	cdev->cclk = devm_clk_get(cdev->dev, "cclk");
+--- a/drivers/iio/industrialio-sw-trigger.c
++++ b/drivers/iio/industrialio-sw-trigger.c
+@@ -61,8 +61,12 @@ int iio_register_sw_trigger_type(struct
  
--	if (IS_ERR(cdev->cclk)) {
-+	if (IS_ERR(cdev->hclk) || IS_ERR(cdev->cclk)) {
- 		dev_err(cdev->dev, "no clock found\n");
- 		ret = -ENODEV;
- 	}
--- 
-2.35.1
-
+ 	t->group = configfs_register_default_group(iio_triggers_group, t->name,
+ 						&iio_trigger_type_group_type);
+-	if (IS_ERR(t->group))
++	if (IS_ERR(t->group)) {
++		mutex_lock(&iio_trigger_types_lock);
++		list_del(&t->list);
++		mutex_unlock(&iio_trigger_types_lock);
+ 		ret = PTR_ERR(t->group);
++	}
+ 
+ 	return ret;
+ }
 
 
