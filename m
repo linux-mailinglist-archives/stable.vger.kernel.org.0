@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9557B64345D
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:45:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E1664315E
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235006AbiLETpz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:45:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48344 "EHLO
+        id S232574AbiLETOU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:14:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234109AbiLETpf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:45:35 -0500
+        with ESMTP id S232766AbiLETOK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:14:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5D8B2CE29
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:42:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CC0E1F613;
+        Mon,  5 Dec 2022 11:14:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9BFEB81205
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:42:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13BBBC433D6;
-        Mon,  5 Dec 2022 19:42:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31335B811EC;
+        Mon,  5 Dec 2022 19:14:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94936C433C1;
+        Mon,  5 Dec 2022 19:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269324;
-        bh=oqG+IQtVoH+tSphIa4c2TVSL/tIj3/UNBF1UQeUd0Vg=;
+        s=korg; t=1670267646;
+        bh=HIpm+cFt8RabJ7f65n6L4CaCXn1+9k52bADMy2Ve66A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NbIBF29JVcwi67vJ8pEZ5Jo64FztwLHAeoQPPvoJjGgwAc1T6Qokpjl8gC+sDHm6Z
-         RsTpkwI4MunLfuCX+1Yr7/ZTsDzgN0mBqgqqrNlPSoyGaXp2tqOiY+Ve6Gmz84zTW3
-         pqBYEIkd+GwmI1sv8j/Yf+cv2cCVVv8r9bQIbaFE=
+        b=IX1f00HxOgusLw6iTANfagl3v0zgNrYcVcyQODFAiDQRceWQjYBthggbiLkc4O9hg
+         Y2YRKhKzyDymi6Xi4VSSDVJILPxydoCILgDIXlcCGsxLvBXQhqYFsca5Hnoj8McqFW
+         lgbpDT9g5iQvpsDx0/dWIwA95QOj8xyDGE0TE/rI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mukesh Ojha <quic_mojha@quicinc.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Tom Rix <trix@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 058/153] gcov: clang: fix the buffer overflow issue
+        patches@lists.linux.dev, Phil Auld <pauld@redhat.com>,
+        linux-hwmon@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 45/62] hwmon: (coretemp) Check for null before removing sysfs attrs
 Date:   Mon,  5 Dec 2022 20:09:42 +0100
-Message-Id: <20221205190810.386990882@linuxfoundation.org>
+Message-Id: <20221205190759.804334208@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
+References: <20221205190758.073114639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,88 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mukesh Ojha <quic_mojha@quicinc.com>
+From: Phil Auld <pauld@redhat.com>
 
-commit a6f810efabfd789d3bbafeacb4502958ec56c5ce upstream.
+[ Upstream commit a89ff5f5cc64b9fe7a992cf56988fd36f56ca82a ]
 
-Currently, in clang version of gcov code when module is getting removed
-gcov_info_add() incorrectly adds the sfn_ptr->counter to all the
-dst->functions and it result in the kernel panic in below crash report.
-Fix this by properly handling it.
+If coretemp_add_core() gets an error then pdata->core_data[indx]
+is already NULL and has been kfreed. Don't pass that to
+sysfs_remove_group() as that will crash in sysfs_remove_group().
 
-[    8.899094][  T599] Unable to handle kernel write to read-only memory at virtual address ffffff80461cc000
-[    8.899100][  T599] Mem abort info:
-[    8.899102][  T599]   ESR = 0x9600004f
-[    8.899103][  T599]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    8.899105][  T599]   SET = 0, FnV = 0
-[    8.899107][  T599]   EA = 0, S1PTW = 0
-[    8.899108][  T599]   FSC = 0x0f: level 3 permission fault
-[    8.899110][  T599] Data abort info:
-[    8.899111][  T599]   ISV = 0, ISS = 0x0000004f
-[    8.899113][  T599]   CM = 0, WnR = 1
-[    8.899114][  T599] swapper pgtable: 4k pages, 39-bit VAs, pgdp=00000000ab8de000
-[    8.899116][  T599] [ffffff80461cc000] pgd=18000009ffcde003, p4d=18000009ffcde003, pud=18000009ffcde003, pmd=18000009ffcad003, pte=00600000c61cc787
-[    8.899124][  T599] Internal error: Oops: 9600004f [#1] PREEMPT SMP
-[    8.899265][  T599] Skip md ftrace buffer dump for: 0x1609e0
-....
-..,
-[    8.899544][  T599] CPU: 7 PID: 599 Comm: modprobe Tainted: G S         OE     5.15.41-android13-8-g38e9b1af6bce #1
-[    8.899547][  T599] Hardware name: XXX (DT)
-[    8.899549][  T599] pstate: 82400005 (Nzcv daif +PAN -UAO +TCO -DIT -SSBS BTYPE=--)
-[    8.899551][  T599] pc : gcov_info_add+0x9c/0xb8
-[    8.899557][  T599] lr : gcov_event+0x28c/0x6b8
-[    8.899559][  T599] sp : ffffffc00e733b00
-[    8.899560][  T599] x29: ffffffc00e733b00 x28: ffffffc00e733d30 x27: ffffffe8dc297470
-[    8.899563][  T599] x26: ffffffe8dc297000 x25: ffffffe8dc297000 x24: ffffffe8dc297000
-[    8.899566][  T599] x23: ffffffe8dc0a6200 x22: ffffff880f68bf20 x21: 0000000000000000
-[    8.899569][  T599] x20: ffffff880f68bf00 x19: ffffff8801babc00 x18: ffffffc00d7f9058
-[    8.899572][  T599] x17: 0000000000088793 x16: ffffff80461cbe00 x15: 9100052952800785
-[    8.899575][  T599] x14: 0000000000000200 x13: 0000000000000041 x12: 9100052952800785
-[    8.899577][  T599] x11: ffffffe8dc297000 x10: ffffffe8dc297000 x9 : ffffff80461cbc80
-[    8.899580][  T599] x8 : ffffff8801babe80 x7 : ffffffe8dc2ec000 x6 : ffffffe8dc2ed000
-[    8.899583][  T599] x5 : 000000008020001f x4 : fffffffe2006eae0 x3 : 000000008020001f
-[    8.899586][  T599] x2 : ffffff8027c49200 x1 : ffffff8801babc20 x0 : ffffff80461cb3a0
-[    8.899589][  T599] Call trace:
-[    8.899590][  T599]  gcov_info_add+0x9c/0xb8
-[    8.899592][  T599]  gcov_module_notifier+0xbc/0x120
-[    8.899595][  T599]  blocking_notifier_call_chain+0xa0/0x11c
-[    8.899598][  T599]  do_init_module+0x2a8/0x33c
-[    8.899600][  T599]  load_module+0x23cc/0x261c
-[    8.899602][  T599]  __arm64_sys_finit_module+0x158/0x194
-[    8.899604][  T599]  invoke_syscall+0x94/0x2bc
-[    8.899607][  T599]  el0_svc_common+0x1d8/0x34c
-[    8.899609][  T599]  do_el0_svc+0x40/0x54
-[    8.899611][  T599]  el0_svc+0x94/0x2f0
-[    8.899613][  T599]  el0t_64_sync_handler+0x88/0xec
-[    8.899615][  T599]  el0t_64_sync+0x1b4/0x1b8
-[    8.899618][  T599] Code: f905f56c f86e69ec f86e6a0f 8b0c01ec (f82e6a0c)
-[    8.899620][  T599] ---[ end trace ed5218e9e5b6e2e6 ]---
+[Shortened for readability]
+[91854.020159] sysfs: cannot create duplicate filename '/devices/platform/coretemp.0/hwmon/hwmon2/temp20_label'
+<cpu offline>
+[91855.126115] BUG: kernel NULL pointer dereference, address: 0000000000000188
+[91855.165103] #PF: supervisor read access in kernel mode
+[91855.194506] #PF: error_code(0x0000) - not-present page
+[91855.224445] PGD 0 P4D 0
+[91855.238508] Oops: 0000 [#1] PREEMPT SMP PTI
+...
+[91855.342716] RIP: 0010:sysfs_remove_group+0xc/0x80
+...
+[91855.796571] Call Trace:
+[91855.810524]  coretemp_cpu_offline+0x12b/0x1dd [coretemp]
+[91855.841738]  ? coretemp_cpu_online+0x180/0x180 [coretemp]
+[91855.871107]  cpuhp_invoke_callback+0x105/0x4b0
+[91855.893432]  cpuhp_thread_fun+0x8e/0x150
+...
 
-Link: https://lkml.kernel.org/r/1668020497-13142-1-git-send-email-quic_mojha@quicinc.com
-Fixes: e178a5beb369 ("gcov: clang support")
-Signed-off-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Tested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Tom Rix <trix@redhat.com>
-Cc: <stable@vger.kernel.org>	[5.2+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by checking for NULL first.
+
+Signed-off-by: Phil Auld <pauld@redhat.com>
+Cc: linux-hwmon@vger.kernel.org
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221117162313.3164803-1-pauld@redhat.com
+Fixes: 199e0de7f5df3 ("hwmon: (coretemp) Merge pkgtemp with coretemp")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/gcov/clang.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hwmon/coretemp.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/kernel/gcov/clang.c
-+++ b/kernel/gcov/clang.c
-@@ -327,6 +327,8 @@ void gcov_info_add(struct gcov_info *dst
+diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
+index be1e380fa1c3..9e81842cff7d 100644
+--- a/drivers/hwmon/coretemp.c
++++ b/drivers/hwmon/coretemp.c
+@@ -557,6 +557,10 @@ static void coretemp_remove_core(struct platform_data *pdata,
+ {
+ 	struct temp_data *tdata = pdata->core_data[indx];
  
- 		for (i = 0; i < sfn_ptr->num_counters; i++)
- 			dfn_ptr->counters[i] += sfn_ptr->counters[i];
++	/* if we errored on add then this is already gone */
++	if (!tdata)
++		return;
 +
-+		sfn_ptr = list_next_entry(sfn_ptr, head);
- 	}
- }
+ 	/* Remove the sysfs attributes */
+ 	sysfs_remove_group(&pdata->hwmon_dev->kobj, &tdata->attr_group);
  
+-- 
+2.35.1
+
 
 
