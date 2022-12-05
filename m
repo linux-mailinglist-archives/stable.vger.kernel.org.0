@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4233D64328D
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A5166431FE
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:23:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234030AbiLET1A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:27:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53688 "EHLO
+        id S232481AbiLETXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:23:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234056AbiLET0l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:41 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2712326498
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:23:23 -0800 (PST)
+        with ESMTP id S233044AbiLETWe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:22:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD2E2A961
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:18:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 94E54CE13A3
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:23:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8467CC433C1;
-        Mon,  5 Dec 2022 19:23:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62E7E6130C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:18:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71A35C433D7;
+        Mon,  5 Dec 2022 19:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268199;
-        bh=CGJb/qq/XwWwOA1owVd7Kv/0bZ4pMsLis82oiQ7zpzU=;
+        s=korg; t=1670267888;
+        bh=GGqsAMnFZSKv3syM7IhBU32kCl+K32kqEAJcZqiKjGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2u1bMc2/4aem/h/XghmDHSj8AqsmPhe2/buARhWjIzn8Q+9kAWBbQRxBRUwoqq+Lg
-         bly2pm2hsCf226R7JdTwuwbzDpHNo+XKNuQO8V2wFDn4Ev4qMtvkgziOK9nElqJiaJ
-         gf3s0O+HpXYlrTkVEGuFP2YHsrkdzW8hVdUqPNl4=
+        b=b+VlDmWvouUPErz7tOB1/w1CIyciiko5hHyw/BKB4AM63ZK9jN9U2y8dQiISuMJgf
+         m2eRdkSyuvoIyqK1MiP9PwZP6egWS8/fAxX5wXu5YtOQQgBURkV3ByDvtBGrj3nqB2
+         QWgyHSEvsYFoekg4bK8J9DnejkumROfTPohYyjd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+        patches@lists.linux.dev, Samuel Holland <samuel@sholland.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 017/124] scripts/faddr2line: Fix regression in name resolution on ppc64le
+Subject: [PATCH 4.19 011/105] bus: sunxi-rsb: Support atomic transfers
 Date:   Mon,  5 Dec 2022 20:08:43 +0100
-Message-Id: <20221205190808.939629201@linuxfoundation.org>
+Message-Id: <20221205190803.502363771@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,77 +53,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit 2d77de1581bb5b470486edaf17a7d70151131afd ]
+[ Upstream commit 077686da0e2162c4ea5ae0df205849c2a7a84479 ]
 
-Commit 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section
-failures") can cause faddr2line to fail on ppc64le on some
-distributions, while it works fine on other distributions. The failure
-can be attributed to differences in the readelf output.
+When communicating with a PMIC during system poweroff (pm_power_off()),
+IRQs are disabled and we are in a RCU read-side critical section, so we
+cannot use wait_for_completion_io_timeout(). Instead, poll the status
+register for transfer completion.
 
-  $ ./scripts/faddr2line vmlinux find_busiest_group+0x00
-  no match for find_busiest_group+0x00
-
-On ppc64le, readelf adds the localentry tag before the symbol name on
-some distributions, and adds the localentry tag after the symbol name on
-other distributions. This problem has been discussed previously:
-
-  https://lore.kernel.org/bpf/20191211160133.GB4580@calabresa/
-
-This problem can be overcome by filtering out the localentry tags in the
-readelf output. Similar fixes are already present in the kernel by way
-of the following commits:
-
-  1fd6cee127e2 ("libbpf: Fix VERSIONED_SYM_COUNT number parsing")
-  aa915931ac3e ("libbpf: Fix readelf output parsing for Fedora")
-
-[jpoimboe: rework commit log]
-
-Fixes: 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section failures")
-Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Reviewed-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Link: https://lore.kernel.org/r/20220927075211.897152-1-srikar@linux.vnet.ibm.com
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
+Fixes: d787dcdb9c8f ("bus: sunxi-rsb: Add driver for Allwinner Reduced Serial Bus")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20221114015749.28490-3-samuel@sholland.org
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/faddr2line | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/bus/sunxi-rsb.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/scripts/faddr2line b/scripts/faddr2line
-index 5514c23f45c2..0e73aca4f908 100755
---- a/scripts/faddr2line
-+++ b/scripts/faddr2line
-@@ -74,7 +74,8 @@ command -v ${ADDR2LINE} >/dev/null 2>&1 || die "${ADDR2LINE} isn't installed"
- find_dir_prefix() {
- 	local objfile=$1
+diff --git a/drivers/bus/sunxi-rsb.c b/drivers/bus/sunxi-rsb.c
+index b85d013a9185..d3fb350dc9ee 100644
+--- a/drivers/bus/sunxi-rsb.c
++++ b/drivers/bus/sunxi-rsb.c
+@@ -268,6 +268,9 @@ EXPORT_SYMBOL_GPL(sunxi_rsb_driver_register);
+ /* common code that starts a transfer */
+ static int _sunxi_rsb_run_xfer(struct sunxi_rsb *rsb)
+ {
++	u32 int_mask, status;
++	bool timeout;
++
+ 	if (readl(rsb->regs + RSB_CTRL) & RSB_CTRL_START_TRANS) {
+ 		dev_dbg(rsb->dev, "RSB transfer still in progress\n");
+ 		return -EBUSY;
+@@ -275,13 +278,23 @@ static int _sunxi_rsb_run_xfer(struct sunxi_rsb *rsb)
  
--	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | ${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
-+	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' |
-+		${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
- 	[[ -z $start_kernel_addr ]] && return
+ 	reinit_completion(&rsb->complete);
  
- 	local file_line=$(${ADDR2LINE} -e $objfile $start_kernel_addr)
-@@ -178,7 +179,7 @@ __faddr2line() {
- 				found=2
- 				break
- 			fi
--		done < <(${READELF} --symbols --wide $objfile | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
-+		done < <(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
+-	writel(RSB_INTS_LOAD_BSY | RSB_INTS_TRANS_ERR | RSB_INTS_TRANS_OVER,
+-	       rsb->regs + RSB_INTE);
++	int_mask = RSB_INTS_LOAD_BSY | RSB_INTS_TRANS_ERR | RSB_INTS_TRANS_OVER;
++	writel(int_mask, rsb->regs + RSB_INTE);
+ 	writel(RSB_CTRL_START_TRANS | RSB_CTRL_GLOBAL_INT_ENB,
+ 	       rsb->regs + RSB_CTRL);
  
- 		if [[ $found = 0 ]]; then
- 			warn "can't find symbol: sym_name: $sym_name sym_sec: $sym_sec sym_addr: $sym_addr sym_elf_size: $sym_elf_size"
-@@ -259,7 +260,7 @@ __faddr2line() {
+-	if (!wait_for_completion_io_timeout(&rsb->complete,
+-					    msecs_to_jiffies(100))) {
++	if (irqs_disabled()) {
++		timeout = readl_poll_timeout_atomic(rsb->regs + RSB_INTS,
++						    status, (status & int_mask),
++						    10, 100000);
++		writel(status, rsb->regs + RSB_INTS);
++	} else {
++		timeout = !wait_for_completion_io_timeout(&rsb->complete,
++							  msecs_to_jiffies(100));
++		status = rsb->status;
++	}
++
++	if (timeout) {
+ 		dev_dbg(rsb->dev, "RSB timeout\n");
  
- 		DONE=1
+ 		/* abort the transfer */
+@@ -293,18 +306,18 @@ static int _sunxi_rsb_run_xfer(struct sunxi_rsb *rsb)
+ 		return -ETIMEDOUT;
+ 	}
  
--	done < <(${READELF} --symbols --wide $objfile | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
-+	done < <(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
- }
+-	if (rsb->status & RSB_INTS_LOAD_BSY) {
++	if (status & RSB_INTS_LOAD_BSY) {
+ 		dev_dbg(rsb->dev, "RSB busy\n");
+ 		return -EBUSY;
+ 	}
  
- [[ $# -lt 2 ]] && usage
+-	if (rsb->status & RSB_INTS_TRANS_ERR) {
+-		if (rsb->status & RSB_INTS_TRANS_ERR_ACK) {
++	if (status & RSB_INTS_TRANS_ERR) {
++		if (status & RSB_INTS_TRANS_ERR_ACK) {
+ 			dev_dbg(rsb->dev, "RSB slave nack\n");
+ 			return -EINVAL;
+ 		}
+ 
+-		if (rsb->status & RSB_INTS_TRANS_ERR_DATA) {
++		if (status & RSB_INTS_TRANS_ERR_DATA) {
+ 			dev_dbg(rsb->dev, "RSB transfer data error\n");
+ 			return -EIO;
+ 		}
 -- 
 2.35.1
 
