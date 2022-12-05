@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB5B3643128
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:12:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71BA1643407
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230012AbiLETMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:12:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59210 "EHLO
+        id S234857AbiLETlh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:41:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230156AbiLETLn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:11:43 -0500
+        with ESMTP id S234752AbiLETlR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:41:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93091EE10
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:11:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E886865B0
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:38:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5150AB811FF
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:11:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B8CBC433D6;
-        Mon,  5 Dec 2022 19:11:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E9DEB811E3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:38:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B54AC43470;
+        Mon,  5 Dec 2022 19:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267500;
-        bh=fqeGAc5+fS401bCbDjWqaUnh7yp2mdmv6cuNy0iLfNU=;
+        s=korg; t=1670269127;
+        bh=EocvsbAXXfxhbL+5OrFe8As7jUzsBFywCp7AgiZvN40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wOFhIUSgAMROW4kq17GsBjkfkd9v7n+tpL3dgLYZFXWZ8iy0Fec0ZmMJm6ZGyzPBO
-         FfveCqssPVsoWvGp5qaCff6D0q6ai4lw7T9nIf08pR1SHO08RqWRSgzkhnwH/51F/7
-         /03dIvBX7wzOb5BGiZiMskW0OYLG+jFh744xYKLA=
+        b=jZwppIB0rP8X3WVLCESio3G21xjf9PiDxFlt93Xh4N+EAS5jE6aPWQVmk0mlKMvLo
+         OT+VGPjhKOAOcJz2cnpldllRhPKI8w7+8X5GxqO4r95B5IwHWGcErman8588T1Vj8d
+         rODh8fSaAJcdvPP8xutbM1aphxgS0q2fF6SQPz7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jonas Jelonek <jelonek.jonas@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 01/62] wifi: mac80211_hwsim: fix debugfs attribute ps with rc table support
+Subject: [PATCH 5.4 014/153] regulator: core: fix kobject release warning and memory leak in regulator_register()
 Date:   Mon,  5 Dec 2022 20:08:58 +0100
-Message-Id: <20221205190758.127142054@linuxfoundation.org>
+Message-Id: <20221205190809.159933979@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,55 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Jelonek <jelonek.jonas@gmail.com>
+From: Zeng Heng <zengheng4@huawei.com>
 
-[ Upstream commit 69188df5f6e4cecc6b76b958979ba363cd5240e8 ]
+[ Upstream commit 5f4b204b6b8153923d5be8002c5f7082985d153f ]
 
-Fixes a warning that occurs when rc table support is enabled
-(IEEE80211_HW_SUPPORTS_RC_TABLE) in mac80211_hwsim and the PS mode
-is changed via the exported debugfs attribute.
+Here is a warning report about lack of registered release()
+from kobject lib:
 
-When the PS mode is changed, a packet is broadcasted via
-hwsim_send_nullfunc by creating and transmitting a plain skb with only
-header initialized. The ieee80211 rate array in the control buffer is
-zero-initialized. When ratetbl support is enabled, ieee80211_get_tx_rates
-is called for the skb with sta parameter set to NULL and thus no
-ratetbl can be used. The final rate array then looks like
-[-1,0; 0,0; 0,0; 0,0] which causes the warning in ieee80211_get_tx_rate.
+Device '(null)' does not have a release() function, it is broken and must be fixed.
+WARNING: CPU: 0 PID: 48430 at drivers/base/core.c:2332 device_release+0x104/0x120
+Call Trace:
+ kobject_put+0xdc/0x180
+ put_device+0x1b/0x30
+ regulator_register+0x651/0x1170
+ devm_regulator_register+0x4f/0xb0
 
-The issue is fixed by setting the count of the first rate with idx '0'
-to 1 and hence ieee80211_get_tx_rates won't overwrite it with idx '-1'.
+When regulator_register() returns fail and directly goto `clean` symbol,
+rdev->dev has not registered release() function yet (which is registered
+by regulator_class in the following), so rdev needs to be freed manually.
+If rdev->dev.of_node is not NULL, which means the of_node has gotten by
+regulator_of_get_init_data(), it needs to call of_node_put() to avoid
+refcount leak.
 
-Signed-off-by: Jonas Jelonek <jelonek.jonas@gmail.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Otherwise, only calling put_device() would lead memory leak of rdev
+in further:
+
+unreferenced object 0xffff88810d0b1000 (size 2048):
+  comm "107-i2c-rtq6752", pid 48430, jiffies 4342258431 (age 1341.780s)
+  backtrace:
+    kmalloc_trace+0x22/0x110
+    regulator_register+0x184/0x1170
+    devm_regulator_register+0x4f/0xb0
+
+When regulator_register() returns fail and goto `wash` symbol,
+rdev->dev has registered release() function, so directly call
+put_device() to cleanup everything.
+
+Fixes: d3c731564e09 ("regulator: plug of_node leak in regulator_register()'s error path")
+Signed-off-by: Zeng Heng <zengheng4@huawei.com>
+Link: https://lore.kernel.org/r/20221116074339.1024240-1-zengheng4@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/regulator/core.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index 70251c703c9e..53e0fec274a4 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -671,6 +671,7 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
- 	struct hwsim_vif_priv *vp = (void *)vif->drv_priv;
- 	struct sk_buff *skb;
- 	struct ieee80211_hdr *hdr;
-+	struct ieee80211_tx_info *cb;
- 
- 	if (!vp->assoc)
- 		return;
-@@ -691,6 +692,10 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
- 	memcpy(hdr->addr2, mac, ETH_ALEN);
- 	memcpy(hdr->addr3, vp->bssid, ETH_ALEN);
- 
-+	cb = IEEE80211_SKB_CB(skb);
-+	cb->control.rates[0].count = 1;
-+	cb->control.rates[1].idx = -1;
-+
- 	rcu_read_lock();
- 	mac80211_hwsim_tx_frame(data->hw, skb,
- 				rcu_dereference(vif->chanctx_conf)->def.chan);
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 6ba3f6e7ea4f..173798c0fbcd 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -5269,11 +5269,15 @@ regulator_register(const struct regulator_desc *regulator_desc,
+ 	mutex_lock(&regulator_list_mutex);
+ 	regulator_ena_gpio_free(rdev);
+ 	mutex_unlock(&regulator_list_mutex);
++	put_device(&rdev->dev);
++	rdev = NULL;
+ clean:
+ 	if (dangling_of_gpiod)
+ 		gpiod_put(config->ena_gpiod);
++	if (rdev && rdev->dev.of_node)
++		of_node_put(rdev->dev.of_node);
++	kfree(rdev);
+ 	kfree(config);
+-	put_device(&rdev->dev);
+ rinse:
+ 	if (dangling_cfg_gpiod)
+ 		gpiod_put(cfg->ena_gpiod);
 -- 
 2.35.1
 
