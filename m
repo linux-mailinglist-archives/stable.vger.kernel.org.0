@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FCA66432F5
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:32:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7467B643463
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:46:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232529AbiLETcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:32:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57700 "EHLO
+        id S234939AbiLETqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:46:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232300AbiLETcX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:32:23 -0500
+        with ESMTP id S234940AbiLETqA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:46:00 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9637ABE0A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E622DA91
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:42:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28B1EB81151
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:27:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9200DC433C1;
-        Mon,  5 Dec 2022 19:27:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35AABB81202
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:42:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AD43C433C1;
+        Mon,  5 Dec 2022 19:42:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268461;
-        bh=zutUAQHf8fvt55OJ0dbySAta+ws84O2600lIULFr86s=;
+        s=korg; t=1670269340;
+        bh=FfwOoc26eZ7zgWNLw3AzZp9vNZ3GMply4niiDijKkKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PMmq4ty1NkR2w+R/xNYB9VEsupMrhhQmmQmvq8xnmN5dN+gkeSVaJrL6OpG6zidUB
-         aVKbFMH3GbkWjqXaThdfgBma8WaHDVstshLZOa5O2uUNOnl1tFTNLoyFfWSpCtydLb
-         Oh5HLhn1thcgSoWRvtCKiMO2OWmQ0ZuoZNM+ojbo=
+        b=jBhyoJZGeEse6ioQiBsd6xpauYeCfxwOMrC7BLSh3uEByYXhwxDTc0fQnVpHckqFI
+         zWa5//HA/+swNHCAes4upgmWNT+RerEGMqtN/DpMLk1dJjthBieacW1BKZI7iWcnEQ
+         KIJyezEQeqXgBVRucrN2OV3l7thTveXB3/J5PCDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 110/124] iommu/vt-d: Fix PCI device refcount leak in dmar_dev_scope_init()
+        patches@lists.linux.dev, Paul Gazzillo <paul@pgazz.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 092/153] iio: light: rpr0521: add missing Kconfig dependencies
 Date:   Mon,  5 Dec 2022 20:10:16 +0100
-Message-Id: <20221205190811.567462843@linuxfoundation.org>
+Message-Id: <20221205190811.376832801@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Paul Gazzillo <paul@pgazz.com>
 
-[ Upstream commit 4bedbbd782ebbe7287231fea862c158d4f08a9e3 ]
+[ Upstream commit 6ac12303572ef9ace5603c2c07f5f1b00a33f580 ]
 
-for_each_pci_dev() is implemented by pci_get_device(). The comment of
-pci_get_device() says that it will increase the reference count for the
-returned pci_dev and also decrease the reference count for the input
-pci_dev @from if it is not NULL.
+Fix an implicit declaration of function error for rpr0521 under some configs
 
-If we break for_each_pci_dev() loop with pdev not NULL, we need to call
-pci_dev_put() to decrease the reference count. Add the missing
-pci_dev_put() for the error path to avoid reference count leak.
+When CONFIG_RPR0521 is enabled without CONFIG_IIO_TRIGGERED_BUFFER,
+the build results in "implicit declaration of function" errors, e.g.,
+  drivers/iio/light/rpr0521.c:434:3: error: implicit declaration of function
+           'iio_trigger_poll_chained' [-Werror=implicit-function-declaration]
+    434 |   iio_trigger_poll_chained(data->drdy_trigger0);
+        |   ^~~~~~~~~~~~~~~~~~~~~~~~
 
-Fixes: 2e4552893038 ("iommu/vt-d: Unify the way to process DMAR device scope array")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221121113649.190393-3-wangxiongfeng2@huawei.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+This fix adds select dependencies to RPR0521's configuration declaration.
+
+Fixes: e12ffd241c00 ("iio: light: rpr0521 triggered buffer")
+Signed-off-by: Paul Gazzillo <paul@pgazz.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216678
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221110214729.ls5ixav5kxpeftk7@device
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/dmar.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/light/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
-index 5a8f780e7ffd..bc94059a5b87 100644
---- a/drivers/iommu/intel/dmar.c
-+++ b/drivers/iommu/intel/dmar.c
-@@ -820,6 +820,7 @@ int __init dmar_dev_scope_init(void)
- 			info = dmar_alloc_pci_notify_info(dev,
- 					BUS_NOTIFY_ADD_DEVICE);
- 			if (!info) {
-+				pci_dev_put(dev);
- 				return dmar_dev_scope_status;
- 			} else {
- 				dmar_pci_bus_add_dev(info);
+diff --git a/drivers/iio/light/Kconfig b/drivers/iio/light/Kconfig
+index 42b64b85d06c..83885f6c93cd 100644
+--- a/drivers/iio/light/Kconfig
++++ b/drivers/iio/light/Kconfig
+@@ -239,6 +239,8 @@ config RPR0521
+ 	tristate "ROHM RPR0521 ALS and proximity sensor driver"
+ 	depends on I2C
+ 	select REGMAP_I2C
++	select IIO_BUFFER
++	select IIO_TRIGGERED_BUFFER
+ 	help
+ 	  Say Y here if you want to build support for ROHM's RPR0521
+ 	  ambient light and proximity sensor device.
 -- 
 2.35.1
 
