@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D3B64333B
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D3CC64323B
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:25:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234387AbiLETfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:35:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36124 "EHLO
+        id S233955AbiLETZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:25:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234116AbiLETen (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E52610DF
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:30:25 -0800 (PST)
+        with ESMTP id S233801AbiLETYn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9BA25C70
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:19:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DD73B81181
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:30:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F2E6C433D6;
-        Mon,  5 Dec 2022 19:30:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1FBC61307
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:19:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE11FC433B5;
+        Mon,  5 Dec 2022 19:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268622;
-        bh=zeMcSjNLcYVCZF1f48aEaBNtzNbUHj8jy3DbuZ4NQxw=;
+        s=korg; t=1670267994;
+        bh=uI87BH1h83OAO10AjlHj/StSTNr9FfFMrNPNe3LjPtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f9ud7g1+vibVE6O2s6rUALuQa6ew7hSExAU+7Ef446fM9oxyw8/pd/OU1raLe9YG0
-         CVcgVlegVS/1n52ErlpryiieCp6IyT/XPabO22NJM8lPx/ETFxw+EbbeZl5Q9TkIz4
-         hojZcLvBL/bhoJ+EPxJK+Ls3PzPQlO6giRYtX048=
+        b=DySi4EbIP0i9ES+TwXm1qY8lBKdIbImN0Tnb8u1xpiGeYlf+2qFrA7uZKz7whQSIc
+         CN7lC87cJ1K69MvPBjH+mNWLuvspfLbFD2f69OVNRDs0ism89BFWis9tmNXwfPQJY1
+         1ReBTyvJQ8EKw4a+dTpbC959tNq5H5zkRwqudbio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Harry Wentland <harry.wentland@amd.com>,
-        Claudio Suarez <cssk@net-c.es>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Rudolf Polzer <rpolzer@google.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 07/92] drm/amdgpu: update drm_display_info correctly when the edid is read
+Subject: [PATCH 4.19 048/105] platform/x86: acer-wmi: Enable SW_TABLET_MODE on Switch V 10 (SW5-017)
 Date:   Mon,  5 Dec 2022 20:09:20 +0100
-Message-Id: <20221205190803.715245463@linuxfoundation.org>
+Message-Id: <20221205190804.772870030@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudio Suarez <cssk@net-c.es>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 20543be93ca45968f344261c1a997177e51bd7e1 ]
+[ Upstream commit 1e817b889c7d8c14e7005258e15fec62edafe03c ]
 
-drm_display_info is updated by drm_get_edid() or
-drm_connector_update_edid_property(). In the amdgpu driver it is almost
-always updated when the edid is read in amdgpu_connector_get_edid(),
-but not always.  Change amdgpu_connector_get_edid() and
-amdgpu_connector_free_edid() to keep drm_display_info updated.
+Like the Acer Switch 10 (SW5-012) and Acer Switch 10 (S1003) models
+the Acer Switch V 10 (SW5-017) supports reporting SW_TABLET_MODE
+through acer-wmi.
 
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Claudio Suarez <cssk@net-c.es>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Stable-dep-of: 602ad43c3cd8 ("drm/amdgpu: Partially revert "drm/amdgpu: update drm_display_info correctly when the edid is read"")
+Add a DMI quirk for the SW5-017 setting force_caps to ACER_CAP_KBD_DOCK
+(these devices have no other acer-wmi based functionality).
+
+Cc: Rudolf Polzer <rpolzer@google.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20221111111639.35730-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c    | 5 ++++-
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 +--
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ drivers/platform/x86/acer-wmi.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-index 98d3661336a4..b352c4eb5bbd 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-@@ -315,8 +315,10 @@ static void amdgpu_connector_get_edid(struct drm_connector *connector)
- 	if (!amdgpu_connector->edid) {
- 		/* some laptops provide a hardcoded edid in rom for LCDs */
- 		if (((connector->connector_type == DRM_MODE_CONNECTOR_LVDS) ||
--		     (connector->connector_type == DRM_MODE_CONNECTOR_eDP)))
-+		     (connector->connector_type == DRM_MODE_CONNECTOR_eDP))) {
- 			amdgpu_connector->edid = amdgpu_connector_get_hardcoded_edid(adev);
-+			drm_connector_update_edid_property(connector, amdgpu_connector->edid);
-+		}
- 	}
- }
- 
-@@ -326,6 +328,7 @@ static void amdgpu_connector_free_edid(struct drm_connector *connector)
- 
- 	kfree(amdgpu_connector->edid);
- 	amdgpu_connector->edid = NULL;
-+	drm_connector_update_edid_property(connector, NULL);
- }
- 
- static int amdgpu_connector_ddc_get_modes(struct drm_connector *connector)
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 55ecc67592eb..167a1ee518a8 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2348,13 +2348,12 @@ void amdgpu_dm_update_connector_after_detect(
- 			aconnector->edid =
- 				(struct edid *)sink->dc_edid.raw_edid;
- 
--			drm_connector_update_edid_property(connector,
--							   aconnector->edid);
- 			if (aconnector->dc_link->aux_mode)
- 				drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
- 						    aconnector->edid);
- 		}
- 
-+		drm_connector_update_edid_property(connector, aconnector->edid);
- 		amdgpu_dm_update_freesync_caps(connector, aconnector->edid);
- 		update_connector_ext_caps(aconnector);
- 	} else {
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index c73ce07b66c9..9387a370b2ff 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -550,6 +550,15 @@ static const struct dmi_system_id acer_quirks[] __initconst = {
+ 		},
+ 		.driver_data = (void *)ACER_CAP_KBD_DOCK,
+ 	},
++	{
++		.callback = set_force_caps,
++		.ident = "Acer Aspire Switch V 10 SW5-017",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SW5-017"),
++		},
++		.driver_data = (void *)ACER_CAP_KBD_DOCK,
++	},
+ 	{
+ 		.callback = set_force_caps,
+ 		.ident = "Acer One 10 (S1003)",
 -- 
 2.35.1
 
