@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61F33643431
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:43:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CACEF64313B
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:13:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234990AbiLETnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:43:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46840 "EHLO
+        id S230236AbiLETNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:13:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234993AbiLETmq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:42:46 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7627F24BEC
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:40:10 -0800 (PST)
+        with ESMTP id S230519AbiLETMh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:12:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A9C863A6
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:12:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E37D9CE10A6
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:40:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5D76C433C1;
-        Mon,  5 Dec 2022 19:40:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7B3561309
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:12:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB1A6C433D6;
+        Mon,  5 Dec 2022 19:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269207;
-        bh=8wfRChrTQwzgxhI7pfWZUMcVW6opy72oA2rrv+A24OQ=;
+        s=korg; t=1670267555;
+        bh=zXlJgsvtqu8kM078CNiqmXkgQoxGm8FG/etmJMr6BX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UcB0yeTWhzWzfMjxxgU7kKHvtbBDv/M7oimVqUKX7xZnaYedPPXpSKM+u5FyInGjV
-         onXrwcXHqBseYD6hw016U+sODIxdppu7OPChLZHOC1SW2rqe0ite3/L9+cpBtUNlNL
-         qkwCkmDXnQyazWqfoDh4Bm1l7RQl6AWPzBti/pL4=
+        b=kF15BmA9/f75tMcDKK3Jl/Jps7kI4zbZf3M44K43nPwoXX1Dr7lRPovjPZrBLsTg0
+         /es7HuOH2V9cK490LN//x55Vv4t93Bj4AWpl09z1uzj7DWlU4a4LLzA9j9ARc6Y6tf
+         OZlENJWfbQYv+pXDx7IltRAPQ7VqWEx/0ctufOnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Liao <liaoyu15@huawei.com>,
+        patches@lists.linux.dev, Enrico Sau <enrico.sau@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 042/153] net: thunderx: Fix the ACPI memory leak
+Subject: [PATCH 4.9 29/62] net: usb: qmi_wwan: add Telit 0x103a composition
 Date:   Mon,  5 Dec 2022 20:09:26 +0100
-Message-Id: <20221205190809.929253793@linuxfoundation.org>
+Message-Id: <20221205190759.191922033@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
+References: <20221205190758.073114639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Liao <liaoyu15@huawei.com>
+From: Enrico Sau <enrico.sau@gmail.com>
 
-[ Upstream commit 661e5ebbafd26d9d2e3c749f5cf591e55c7364f5 ]
+[ Upstream commit e103ba33998d0f25653cc8ebe745b68d1ee10cda ]
 
-The ACPI buffer memory (string.pointer) should be freed as the buffer is
-not used after returning from bgx_acpi_match_id(), free it to prevent
-memory leak.
+Add the following Telit LE910C4-WWX composition:
 
-Fixes: 46b903a01c05 ("net, thunder, bgx: Add support to get MAC address from ACPI.")
-Signed-off-by: Yu Liao <liaoyu15@huawei.com>
-Link: https://lore.kernel.org/r/20221123082237.1220521-1-liaoyu15@huawei.com
+0x103a: rmnet
+
+Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20221115105859.14324-1-enrico.sau@gmail.com
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/thunder/thunder_bgx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/cavium/thunder/thunder_bgx.c b/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
-index 76ff42ec3ae5..a34c33e8a8ad 100644
---- a/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
-+++ b/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
-@@ -1438,8 +1438,10 @@ static acpi_status bgx_acpi_match_id(acpi_handle handle, u32 lvl,
- 		return AE_OK;
- 	}
- 
--	if (strncmp(string.pointer, bgx_sel, 4))
-+	if (strncmp(string.pointer, bgx_sel, 4)) {
-+		kfree(string.pointer);
- 		return AE_OK;
-+	}
- 
- 	acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
- 			    bgx_acpi_register_phy, NULL, bgx, NULL);
--- 
-2.35.1
-
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -926,6 +926,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
+ 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1031, 3)}, /* Telit LE910C1-EUX */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x103a, 0)}, /* Telit LE910C4-WWX */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
 
 
