@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C553B643479
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CECA964335B
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235071AbiLETrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:47:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54368 "EHLO
+        id S234108AbiLETgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:36:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235121AbiLETq6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:46:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92D861B780
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:09 -0800 (PST)
+        with ESMTP id S234109AbiLETfl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78CE226499
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:31:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52EFBB811F3
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4F83C433D6;
-        Mon,  5 Dec 2022 19:43:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36A11B81151
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:31:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 972CFC433C1;
+        Mon,  5 Dec 2022 19:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269387;
-        bh=r8iJWmkEuaDE2zYjqQuDzh8HowzR+SQcc6iSuDwdcGg=;
+        s=korg; t=1670268716;
+        bh=ddI077uCtjRLmkfr4f36TPjoDkYtsBAzZ7fGdgKbXKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ctwAfdUUeT6XXVniDqxVyIRvNjipHB73y8VO5Bv70J5NmugJQeZDAVHGulKCHqlUt
-         ptT2yjzzlbNs+/lUqpAJj5Gm/JX52k3bTY7sdP+0c0GR1kHOmlxO3sZE1CmQqRX6aN
-         QB0kzqeYdzjaHFMjfLMYFtw0OiZAL+W7shjkkBaE=
+        b=Oe6S4SuUT+//4RM3++XWo4rOz4uSPyMZGeVlUBbRGwrMzj4C7H/PiYZXwtEj2GCD+
+         xeyLXuqhO93LTBylUb/syFHYec5ESIjy2lNSsKf/UXZ5nlBtcUyGRqYFMBg9CX8GX0
+         LIeGIfLzxVSoeihCJTOcQGO3qVHBUQezx3Izeb6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Nikolay Aleksandrov <razor@blackwall.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 108/153] net: hsr: Fix potential use-after-free
+Subject: [PATCH 5.10 79/92] selftests: net: fix nexthop warning cleanup double ip typo
 Date:   Mon,  5 Dec 2022 20:10:32 +0100
-Message-Id: <20221205190811.843548663@linuxfoundation.org>
+Message-Id: <20221205190806.090553010@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
 
-[ Upstream commit 7e177d32442b7ed08a9fa61b61724abc548cb248 ]
+[ Upstream commit 692930cc435099580a4b9e32fa781b0688c18439 ]
 
-The skb is delivered to netif_rx() which may free it, after calling this,
-dereferencing skb may trigger use-after-free.
+I made a stupid typo when adding the nexthop route warning selftest and
+added both $IP and ip after it (double ip) on the cleanup path. The
+error doesn't show up when running the test, but obviously it doesn't
+cleanup properly after it.
 
-Fixes: f421436a591d ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20221125075724.27912-1-yuehaibing@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 392baa339c6a ("selftests: net: add delete nexthop route warning test")
+Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: d5082d386eee ("ipv4: Fix route deletion when nexthop info is not specified")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_forward.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/testing/selftests/net/fib_nexthops.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/hsr/hsr_forward.c b/net/hsr/hsr_forward.c
-index bf3ecf792688..7073724fdfa6 100644
---- a/net/hsr/hsr_forward.c
-+++ b/net/hsr/hsr_forward.c
-@@ -198,17 +198,18 @@ static void hsr_deliver_master(struct sk_buff *skb, struct net_device *dev,
- 			       struct hsr_node *node_src)
- {
- 	bool was_multicast_frame;
--	int res;
-+	int res, recv_len;
+diff --git a/tools/testing/selftests/net/fib_nexthops.sh b/tools/testing/selftests/net/fib_nexthops.sh
+index 8cca92c969b6..56d90335605d 100755
+--- a/tools/testing/selftests/net/fib_nexthops.sh
++++ b/tools/testing/selftests/net/fib_nexthops.sh
+@@ -943,8 +943,8 @@ ipv4_fcnal()
+ 	[ $out1 -eq $out2 ]
+ 	rc=$?
+ 	log_test $rc 0 "Delete nexthop route warning"
+-	run_cmd "$IP ip route delete 172.16.101.1/32 nhid 12"
+-	run_cmd "$IP ip nexthop del id 12"
++	run_cmd "$IP route delete 172.16.101.1/32 nhid 12"
++	run_cmd "$IP nexthop del id 12"
+ }
  
- 	was_multicast_frame = (skb->pkt_type == PACKET_MULTICAST);
- 	hsr_addr_subst_source(node_src, skb);
- 	skb_pull(skb, ETH_HLEN);
-+	recv_len = skb->len;
- 	res = netif_rx(skb);
- 	if (res == NET_RX_DROP) {
- 		dev->stats.rx_dropped++;
- 	} else {
- 		dev->stats.rx_packets++;
--		dev->stats.rx_bytes += skb->len;
-+		dev->stats.rx_bytes += recv_len;
- 		if (was_multicast_frame)
- 			dev->stats.multicast++;
- 	}
+ ipv4_grp_fcnal()
 -- 
 2.35.1
 
