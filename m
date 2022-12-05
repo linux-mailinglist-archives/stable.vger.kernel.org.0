@@ -2,149 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29AAA643517
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:59:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14A9A643558
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 21:11:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230289AbiLET7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:59:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39138 "EHLO
+        id S232636AbiLEUL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 15:11:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231454AbiLET6n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:58:43 -0500
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 178FD1055B
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:58:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
-        t=1670270288; bh=2gFYzCTJIOULN9LJknChVckVSBJGN1eSRMJYrB2BzR0=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=tydd0lQsH8wCWtzK6uNrq9/RmlKi2uisIFf2aaqCpD3O4CxoAOSVnPHZ4cC1h6v0H
-         9SZI2NfeBbG41Dc1OwoxJzzbFkDzB7aw4apxzSVhm+xWceFpFZ4GIukK4VA7U1pJ48
-         HQ3Mivs+btbeSyZtjZu+/iavM2ZvZZBgfBHT3QkXVmkgiUMZglitXvrScJwHjpEHFi
-         nZHJ4mI/q/fd7sBi6IyT3EEkcApWFwJN8YP7uwnd0LyQZ7v00bRj1Itowoi7buSG1v
-         g9BEUdJnajJrBFfUZtHH9sxBgrvLSlLzwiLccgi3i8aPV5FSJVi+4+0J/hP3Fsr0bQ
-         WVJXiG9losy3Q==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from [192.168.20.60] ([92.116.161.205]) by mail.gmx.net (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1M5wPh-1p4DXf0sDT-007Y7s; Mon, 05
- Dec 2022 20:58:08 +0100
-Message-ID: <4676311f-1c08-a611-a3be-48e841093e45@gmx.de>
-Date:   Mon, 5 Dec 2022 20:58:06 +0100
-MIME-Version: 1.0
+        with ESMTP id S232414AbiLEULP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 15:11:15 -0500
+Received: from CAN01-YT3-obe.outbound.protection.outlook.com (mail-yt3can01on2086.outbound.protection.outlook.com [40.107.115.86])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DABB2790D;
+        Mon,  5 Dec 2022 12:11:10 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Po+U40hONbcC+mg/FXi+mAiT+RvPOODWv4mV6snxuz4FYpH/LKsH5h7n3wjiaS6M2C0lRJuDee6BqtViQGLXQTLijSCnlrgAH3CrE4nij76I3DXjj56R2n8FaQoM2JJP/0HVYyFoD9dHC3vkkod4H9MMucERZeQuGESt1sGUE5NhmaZrFw/SRqbruKxjJN/B/TZFyaPt0bES2a8MW1NZCpGycOLbS9aPv6DExt1dlZS78P8Tel59yDJwbijokhIlowwPoianuG5mH/Q0IJn+PnQZwao5alSKEqzCL6/py6pdCMqpo2oF44InMXCTTPqPoofv5y2rQZGqPHNs6wgd9Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=O1GS8gZh13jGJCws645054if+4IOvINXyo4Ckl5u2JI=;
+ b=UkHUPC5oAGC/K7pmJlPIE0rGsLYjm9Z40lH22cn3vlOwLZ2E79F166WK0Df9nX182yUpWXzQFtm72lhtxhZF8E1vohE3joZDIvNwZFxYdHBVxTv+cK1OnfwjwnndjQWd1KggydkrMVKs7vDAAx2tFp5cCl2n5mUWlDf+g23Wuit1Gdc8L4vPGZyxHLqqokE39496nJdIdYGjevN2lTsKbL6oGbR8QvbVSwxYIxBEsoFIkfCFhp4E+Ab+Q51930MIGCsrgHQlvFgtXxK8OVjE5clUigZlu6Zp9uU4HV+57Nhdl28Sg43QhlAz9Emjkn3ei/YtqYCgVAJXp2V8sWbotg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=efficios.com; dmarc=pass action=none header.from=efficios.com;
+ dkim=pass header.d=efficios.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=O1GS8gZh13jGJCws645054if+4IOvINXyo4Ckl5u2JI=;
+ b=T5wl12uU85qxmDjbeBn72FHk5Pbs+C+LoGOsv4b9OzOYC8cejMzlKv0rqce9ovyYm5bKPv9GGRDokQlLtcOVV5iu4S3cXEPUVwgGAJSkbZf2neJd+VQ5UEm3SZmuLUYE2ey1A3YG7KQXNPY9YDpvxv6Vo6092snGv3RG1zRACfSm1nzTsMpNUmL8UToferUFs3yrjGzitKs63Mrzaaw6xM6pwGhGxzBaFmm3MqykFS+H7xOkf4VloRPDtc4/H21Uft7nSfz31uTWxem4Zx3dMNGUrjab6UjQADS/jCtIT29TKulaudM2Pn0vp5sddjzdcsoRReMAvVMkwjAj+O1mCA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=efficios.com;
+Received: from YQBPR0101MB5080.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:c01:24::5)
+ by YT3PR01MB8611.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:78::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.14; Mon, 5 Dec
+ 2022 20:11:09 +0000
+Received: from YQBPR0101MB5080.CANPRD01.PROD.OUTLOOK.COM
+ ([fe80::2bff:5fa3:434e:517]) by YQBPR0101MB5080.CANPRD01.PROD.OUTLOOK.COM
+ ([fe80::2bff:5fa3:434e:517%9]) with mapi id 15.20.5880.014; Mon, 5 Dec 2022
+ 20:11:09 +0000
+Message-ID: <323f83c7-38fe-8a12-d77a-0a7249aad316@efficios.com>
+Date:   Mon, 5 Dec 2022 15:11:07 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.5.0
-Subject: Re: [PATCH 4.19 094/105] parisc: Increase size of gcc stack frame
- check
+Subject: Re: [PATCH] powerpc/ftrace: fix syscall tracing on PPC64_ELF_ABI_V1
 Content-Language: en-US
-To:     Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev,
-        Abd-Alrhman Masalkhi <abd.masalkhi@gmail.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
-        John David Anglin <dave.anglin@bell.net>
-References: <20221205190803.124472741@linuxfoundation.org>
- <20221205190806.296201818@linuxfoundation.org>
- <dfa8305f-f52f-4322-a22e-9a1e90fcfad4@app.fastmail.com>
-From:   Helge Deller <deller@gmx.de>
-In-Reply-To: <dfa8305f-f52f-4322-a22e-9a1e90fcfad4@app.fastmail.com>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Steven Rostedt <rostedt@goodmis.org>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michal Suchanek <msuchanek@suse.de>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+References: <20221201161442.2127231-1-mjeanson@efficios.com>
+ <87pmcys9ae.fsf@mpe.ellerman.id.au>
+ <d5dd1491-5d59-7987-9b5b-83f5fb1b29ee@efficios.com>
+ <219580de-7473-f142-5ef2-1ed40e41d13d@csgroup.eu>
+From:   Michael Jeanson <mjeanson@efficios.com>
+In-Reply-To: <219580de-7473-f142-5ef2-1ed40e41d13d@csgroup.eu>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:dOAkOnQa3QmOZPQkvX1e1bF9W53Gu4PO76EgjfY0+b7wcv1qfU9
- nHFnYcSjYimpBkA+yTlubQyUXvNRBjLl4sqOLWBZSCTDvMFjPDMRR3+yhuVuGLdSsrvVvqm
- G5vkJlnfcyUwUK2xAS6RPpOs8ntoXShrjVXRMZnq3r0Kaqg+A65mfnqiPkVdUPlQPcb/C1t
- JjO1AV+oqxnOrfxIL5syw==
-UI-OutboundReport: notjunk:1;M01:P0:WAJw04KI6j8=;vxI7oixbqXmY0RGjQ9Z+xd2aKdJ
- mxjU8SAWaTUDVhz4uNRODHbav/+XdQhfjNS9iaBPvmJP/Hv/MuAUS4sK4WNszzSSDLignfJMM
- JGkhSYbe+/NEuTR6VXS9owjnDWezyLbUTaLRORBiryhFsgtgQ5bf7K+KY31N6+5usfuat8XE5
- ZNwGNWyOON2xGfd4gwMa8Hj8BO6wQhptYT9VEZUU9YTF4q3qAkMQuU5IafazAEiER+ZLhjfsj
- xhTYZKzYRBEYF6DPW7Q06S1sX1O1A6pRQ8Yh6M0+ulo7bk3T9XU6Ig4bCN1isNyGummeVzmUy
- /ndrjwEyswlPml4FsZ1e1E5RR8f5Qh4RdwxAS3bwPd8L4byZxyVHzrNek0VKDuUZ/zKMhPO5a
- UN4JCvLXXYLbA+z1jj73dn3ZcgXJWMgEF+CXevco0E5GSzh+UWk7KvhBBQwtAbs9uPpOB99kK
- PhhRV/bjNLYO6z3DaOt3CjblAPOESmgfKQ9KKyyWUFiM6knxFBrjbqdK8DcMf7CgSyp20hfpg
- QiAlWxTXl3fAsfb4IlM3LCI5yzwwWsvXy7yeWVnXRz52sd1harfwsua/bUNPkR0tLkrvI3Lk2
- dH9WNoU3I0NMXF4aWdmM92rLKH1pMDNqqnh4MLCx7GF/YTatCmsW5fYCPSD+UJ6Kzoj6HGe2H
- PJ1B3cyNZQMVeW4u03lKc1URd8YfztgyJmFzHpt7XNaC0C74P27tnsH1FyBHyPNQtg2j5zWkY
- upEYf1POJlHngebLHILni/ZhZVezSRqLzcKDlACAIwaZJdadPgX/DJ2tWUVudVyW+eHtLx/8m
- CsgdP9ORqiYGbDCCcf09ZkxqCFcP2bNrQKr6bMwmX7O6y1RP07OZbnlEs5hTIekjkC7KC5//l
- s/9trVHH3uqBcxTWbwiGTOZSRHKr+/zFjsOtw/4oMRFYmr9hSmWRAOiFvb6441YirDcyNuSBX
- DX9/kg==
-X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: YQBPR01CA0018.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:c01::26)
+ To YQBPR0101MB5080.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:c01:24::5)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: YQBPR0101MB5080:EE_|YT3PR01MB8611:EE_
+X-MS-Office365-Filtering-Correlation-Id: b3871620-dc50-4f62-7ce3-08dad6fcd91e
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: JMIO0U5w1IB5fA543lBINZUEFUg992UXB1h0iWd0RMj+8bKxKrTNh2KyK0f8fW99cko14V2p7PM8zLzIjYpoJhIWrKwYYtE+qCbpKegFj2vrxcbn1aUdrjlc/y1jMDyfNN1E67Nr1qTYTtOCsSTdZFJboS9fQRQPI2TN1prEIMA4IPRFHP5fJGFxNeu/fliWZtezpKyXDKXgbiB/2sD40GTH4kgi0d9FhBzxKhJgs43S/Xy/JFsa0hIXqKKcngU6QYfqhOb6PUyRBBf1C4R/TW8zuAIjf+VyAqMTFwhAanOxH1fUUCjsXLbsjjkDXXN4xCelZ0C8bCilsRKV8GD6AevtOmarTHjB22f/mWocowVz9CM67PVUvWHAKEm7/OYSROv2GAFmFmYl0UqQnyfbrhyqaBWYltQ1XbqdIN0RvrASpbfULiRSyMTpmBy9OHVt6HjKEHWASNCJa7KTEVCykBbPM5oEqIZOkuYyZkXGzu147fzvZnciB0iwoI3ZlZ+p6zRtQvpk+2IJ+vreFwlRBljWC+iA9mDlCg3hj28KnwAklRu7c5CEMNDQ+WHWEj+86ZjfqUXdGzq6CPlRUbKslmw9noCrOM+4IKdKjRmhG9u9y6R2rPRlTOQXbto/pS9Lhfk+P2PCAHXyTpNMrpqqFLSaBEF+it7Tm2ZmpVJybPJlhrjVA2sSi9nPdTiNfEs+RQHOJqwOsVATepydw+9xv65G0ZOeW/yQSFGoZe0YkLA=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:YQBPR0101MB5080.CANPRD01.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230022)(366004)(346002)(39830400003)(136003)(396003)(376002)(451199015)(6486002)(53546011)(966005)(31686004)(6506007)(6512007)(4326008)(26005)(316002)(110136005)(54906003)(86362001)(31696002)(66476007)(66556008)(66946007)(8676002)(2906002)(186003)(41300700001)(2616005)(38100700002)(7416002)(66574015)(8936002)(107886003)(478600001)(83380400001)(5660300002)(36756003)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?bllOb2tHTW1sTDZZQ04zY05nZWdXQVJQeWZJSEEyNXUyRWhEUnhTZ2lITlA3?=
+ =?utf-8?B?b01mMWNQMmIyci9UTWs1Q1VVUEtWMU1wVjF2T1RBL0tUT25PYWxvU3R3WUF0?=
+ =?utf-8?B?OHhTbmZBOXEzRkRzMGJVRmFrQmkrYU8wNVpkdUtFT1psUmNHcXZ2bnJwdDZk?=
+ =?utf-8?B?ZXVQaEFaRGQ5cWF5Vyt1aTd2RnJDZTdUOVZBaDJqcEhYd2JqbkJZRDNHVHJo?=
+ =?utf-8?B?empsZkxKU29Rb0thdldQN1hFWnNTcHNmZ0JDakw2aitvakQvTkVMS2lzdG12?=
+ =?utf-8?B?Z1B0UUhFclFUZS9mZUhkYVJuOTVHWmFHN3JjSWpxNTArVkdOcGpFTnlwNVlX?=
+ =?utf-8?B?eXlUaWJBcDlwbFdMcHFYNUtxUmgxSVdwazlEQmRnZlhBVFNIZThoL1ZiVjBS?=
+ =?utf-8?B?czNBSjBQNmMydExMM1BpTmJyRWFTWWI3WXAvRlN3ZVRPYmNKbXRIRVRIbjM3?=
+ =?utf-8?B?QmFJam1LK0VEcUJWVHo4dDluS2p6RmRXZ2oyNkQ3WERaS3MrUWhGc2tsdWQv?=
+ =?utf-8?B?R0hyaG5kZUcxQ29kSTVzS3J0UDljZ2QrTTZMM1RCZEFFdU9aRnp1YlVKU3A1?=
+ =?utf-8?B?YW5RREpHOTYwMGV1RU9waVcrdEFRc3ZOLzJxOTRnb05zdGRPcm9NOVRKRC9M?=
+ =?utf-8?B?RGRXRG90N0VLUUJaUE1ITitZRFlKTWo2YVB1T1lENElBZExhR2psaU4rTkgx?=
+ =?utf-8?B?UEpBcXc4MWhKREo2MEI0ekZCNjdtL0xFSk5aNjh3OFh1NHhRSncrRWZpdDhK?=
+ =?utf-8?B?MjZyNW9aZXZlT1MyM0s3S1FIWVRNcnJhR09pZ25yOTRqTFlLWmhEQWcvNVRj?=
+ =?utf-8?B?NjJIUEw2UFY0c3FkMXN3OVBvV0hCQVBBU0l1RDRhd2pGOG5jQ0VUaDBzczBr?=
+ =?utf-8?B?eERsbzJkb2Y4Y00yajJpRWNJVVFzZVdtOHA3a3RXZFRPcDNOK1FocC9obkZt?=
+ =?utf-8?B?cHJJV3pCSG5wOURSNXBjZGRBQmZuRDhxQXBZUyt6NFNFUCtISzE2aGZSVm1a?=
+ =?utf-8?B?a3FMRzY1Nm9LVzJZUmZLNGhaWERJbUZWRUR4SUtZOHhvbkszS1Y2TEJXWmdx?=
+ =?utf-8?B?ZlhMTTlKRHdzeEVSR0VacmxRZElsMXhVOEpaWG5sYkgxNmJ6aDJockMzWUww?=
+ =?utf-8?B?NWUwV3pObzlBYlpmdkdiR2RQMVVHNmdWMVVzTFR2dGl4K2dybzVQbU9FODEr?=
+ =?utf-8?B?VkhabGQ5cWl6d0NCNnFhRVNUbzdGMjBwZm9MK3J1L2FueHFTZkl3cmtjQWN6?=
+ =?utf-8?B?NnR0VWFlRkNUY2FGVVp1eldYWUtxMm1DODVRSG1JaDZTa3pwSCs4QVVWemRR?=
+ =?utf-8?B?a0c4a295UTlYWFB1ZWZqUy9MNE44OHh3M0Q5aDZtQ2FlVW1xdjJKekxZU3E2?=
+ =?utf-8?B?blZQL1BML1Y5Zm9pNkt3WExXd3VVaVNQMHFSeGxwTytMZThCT0Z5MjM5Y1c2?=
+ =?utf-8?B?YnpYRGVoQ2tJNXBONWJCeFh1OFAwaElITWh6M2pxRVZGREF6alN3OVpvVGNV?=
+ =?utf-8?B?bnJ1Sit2a3FyRzRvaW5ZT3h5dnFhWHVSeXhHRnZhR2FxM0FmeW9xeVpxM3Av?=
+ =?utf-8?B?a1BzOEpTWXlJeXVsSFA0WnVJUXZucDZqL2t0ajNEOGQ0ZExwRi9ZeHRkdzVN?=
+ =?utf-8?B?OXAxbHpWOENhay9acEZzZ0hxQlFmOGNzS3RvN1MwL25Jc01vSk03WUMxUVNH?=
+ =?utf-8?B?c2lyR2NIdXV1WEVJRlR1WUsvL1J5RTdXMHl2NUtkU2xaZlZNTnVsUDQ1aWxz?=
+ =?utf-8?B?TEFIMGF1cjNKSWYvdGFYdGdWOUlWWlZDV3dOS0NHQkJzYitUZ3BBbnZwc0hh?=
+ =?utf-8?B?d0JHekNBTWNwK2pBRSt5YWNwc2hrMDRFdC9MNktReUVjU29KYXF3cDBIc2sr?=
+ =?utf-8?B?OVRxRTlCbUh3T3hDdkYvdi8rN2NVam0vOTdtQjJTUlVhWDNna1dsWFYvNFBR?=
+ =?utf-8?B?RjA3Rnl5T2RkQmpTaVNET1RtZWYvT1N2YVlReHhaSzUvNkErR3QydFBmb1dr?=
+ =?utf-8?B?K2tWM0JZOUZDQUEwajFaUnZwcm41UFhSaTdaL3hUYXl4S1RXWWsyZGlraEJk?=
+ =?utf-8?B?ekJjWUdwa3kxQi9jT2didzdnZEE5VmF6c2JlZUlTUXJQY2czd0g0eE1ubWdu?=
+ =?utf-8?Q?pC82foX/efdpTCCXSVo6UwROb?=
+X-OriginatorOrg: efficios.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b3871620-dc50-4f62-7ce3-08dad6fcd91e
+X-MS-Exchange-CrossTenant-AuthSource: YQBPR0101MB5080.CANPRD01.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Dec 2022 20:11:09.0196
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4f278736-4ab6-415c-957e-1f55336bd31e
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: wY6CAcxOdqd8K1Sx/kFoYsP5SJNZlegRFoe+vkhTDxSHzjFotBaF2Z18wktTugIbibD5/Z5XhapO8bb42MFoOg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: YT3PR01MB8611
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/5/22 20:27, Arnd Bergmann wrote:
-> On Mon, Dec 5, 2022, at 20:10, Greg Kroah-Hartman wrote:
->> From: Helge Deller <deller@gmx.de>
+On 2022-12-05 13:56, Christophe Leroy wrote:
+> 
+> 
+> Le 05/12/2022 à 19:19, Michael Jeanson a écrit :
+>> [Vous ne recevez pas souvent de courriers de mjeanson@efficios.com.
+>> Découvrez pourquoi ceci est important à
+>> https://aka.ms/LearnAboutSenderIdentification ]
 >>
->> [ Upstream commit 55b70eed81cba1331773d4aaf5cba2bb07475cd8 ]
+>> On 2022-12-05 00:34, Michael Ellerman wrote:
+>>> Michael Jeanson <mjeanson@efficios.com> writes:
+>>>> In v5.7 the powerpc syscall entry/exit logic was rewritten in C, on
+>>>> PPC64_ELF_ABI_V1 this resulted in the symbols in the syscall table
+>>>> changing from their dot prefixed variant to the non-prefixed ones.
+>>>>
+>>>> Since ftrace prefixes a dot to the syscall names when matching them to
+>>>> build its syscall event list, this resulted in no syscall events being
+>>>> available.
+>>>>
+>>>> Remove the PPC64_ELF_ABI_V1 specific version of
+>>>> arch_syscall_match_sym_name to have the same behavior across all powerpc
+>>>> variants.
+>>>
+>>> This doesn't seem to work for me.
+>>>
+>>> Event with it applied I still don't see anything in
+>>> /sys/kernel/debug/tracing/events/syscalls
+>>>
+>>> Did we break it in some other way recently?
+>>>
+>>> cheers
 >>
->> parisc uses much bigger frames than other architectures, so increase th=
-e
->> stack frame check value to avoid compiler warnings.
->
-> I had not seen this one originally, commenting on it now:
+>> I've just tried this change on top of v6.1-rc8 in qemu with a base
+>> config of
+>> 'corenet32_smp_defconfig' and these options on top:
+>>
+>> CONFIG_FTRACE=y
+>> CONFIG_FTRACE_SYSCALLS=y
+>>
+>> And I can trace syscalls with ftrace.
+>>
+>> What kernel tree and config are you using?
+> 
+> If you are using a ppc32 config, CONFIG_PPC64_ELF_ABI_V1 won't be set,
+> so it doesn't matter whether this change is there or not.
+> 
+> You should try corenet64_smp_defconfig if you want
+> CONFIG_PPC64_ELF_ABI_V1 to be set.
+> 
+> You can also use ppc64_defconfig, that's a different platform but it
+> also has CONFIG_PPC64_ELF_ABI_V1.
 
-Hi Arnd,
-Thanks for commenting!
-By the way, those patches went in for 5.16 kernel, so I nearly forgot
-about them in the meantime and wonder why they pop up now... (they weren't
-tagged for stable, but I think it's ok to push them backwards).
+You are absolutely right, I used the wrong environment, I blame Monday 
+morning. I tested again this time using 'corenet64_smp_defconfig' with the 
+same options and syscall tracing with ftrace also works.
 
->> index 9ded3c1f68eb..556aae95d69b 100644
->> --- a/lib/Kconfig.debug
->> +++ b/lib/Kconfig.debug
->> @@ -224,7 +224,7 @@ config FRAME_WARN
->>   	range 0 8192
->>   	default 3072 if KASAN_EXTRA
->>   	default 2048 if GCC_PLUGIN_LATENT_ENTROPY
->> -	default 1280 if (!64BIT && PARISC)
->> +	default 1536 if (!64BIT && PARISC)
->>   	default 1024 if (!64BIT && !PARISC)
->
-> 1536 is a /lot/ when we're dealing with 32-bit platforms.
+I double checked that /proc/config.gz contained CONFIG_PPC64_ELF_ABI_V1 to be 
+sure.
 
-True.
-It's actually 2048 bytes in the meantime, see commit
-8d192bec534bd5b778135769a12e5f04580771f7
+> 
+> Christophe
+> 
+>>
+>> Thanks for looking into this.
+>>
 
-> My understanding of the parisc overhead was that this
-> was just based on a few bytes per function call,
-
-What exactly do you mean by a few bytes?
-On parisc the frame size is a multiple of 64-bytes (on 32-bit)
-and 128 bytes (on 64bit).
-For function calls with more than 5 (need to check exact number)
-parameters those will be put on the stack as well.
-
-> not something that makes everything bigger. We have a few functions
-> that get close to the normal 1024 byte limit, everything else should
-> be no more than a few hundred bytes on any architecture.
-
-Sadly not on parisc.
-Again, see commit message of 8d192bec534b, which mentions
-compile warnings from the kernel test robot for lib/xxhash.c.
-
-> Could it be that this only happens when KASAN or some
-> other feature is enabled?
-
-No, it happens even without KASAN or such.
-
-> If this happens for normal parisc builds without any
-> special compilation options, that would indicate that the
-> compiler is very broken.
-
-No, it does a good job. It's the ABI which requires so big stacks.
-I see problems with some userspace apps as well which configure too
-small stacks.
-
-By the way, since those patches are in I don't see any stack
-overflows any longer. Those happened rarely in the past though.
-
-Helge
