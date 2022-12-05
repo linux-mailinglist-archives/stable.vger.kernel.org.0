@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6E076433DA
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:40:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44091643362
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234250AbiLETkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:40:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39306 "EHLO
+        id S234397AbiLETgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:36:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234729AbiLETjz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:39:55 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499C32AC5D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:37:05 -0800 (PST)
+        with ESMTP id S234202AbiLETfq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D621A2655B
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:32:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B492ACE139F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:37:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BBFCC433C1;
-        Mon,  5 Dec 2022 19:37:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7111D61307
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:32:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84173C433D7;
+        Mon,  5 Dec 2022 19:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269021;
-        bh=oVOrNB0wgxy9UYvG+J/oOixjmfaLKXTPTti5nfZlH3E=;
+        s=korg; t=1670268726;
+        bh=bM1m3vmojJ4/C6InrM1pwjuawdVqf1YGtQkiVlvT5v0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d1LPYTdyl6nGo+dMRdIBSQMEo+K3RsbQJiWXgNNSSKF96BfIHtI9Ix9KcXRWydPjm
-         YW8VMRI2zN4OihTJCpNZ9Rkmf52tGlcTboOAkC245sFB8HsQI90AYwEQTfCFLWsYc+
-         DSeR7WHJnZdSCTeKh4cXVArH9KSJEujKzKcHax6Y=
+        b=sd01RJwuSvzw/+eRrB5nESKKyTjumo75aU2+h8Vet2RzpKGUc+ACYo15h1hxUo4dk
+         yGxQRmUD6aiMndcYIP5K408jmAVjKehAv1pKYsjeLgTg0cuf5CEtr9XOx9+m+SZNVF
+         GlngADNzJletbjTz/IWKVMwqXlK26gQh0SgQqfhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexandre Ghiti <alexghiti@rivosinc.com>,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
-        Atish Patra <atishp@rivosinc.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 096/120] riscv: Sync efi page tables kernel mappings before switching
+        patches@lists.linux.dev, Andrew Cooper <andrew.cooper3@citrix.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, stable@kernel.org
+Subject: [PATCH 5.10 83/92] x86/tsx: Add a feature bit for TSX control MSR support
 Date:   Mon,  5 Dec 2022 20:10:36 +0100
-Message-Id: <20221205190809.448815773@linuxfoundation.org>
+Message-Id: <20221205190806.215858524@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,87 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alexghiti@rivosinc.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-[ Upstream commit 3f105a742725a1b78766a55169f1d827732e62b8 ]
+commit aaa65d17eec372c6a9756833f3964ba05b05ea14 upstream.
 
-The EFI page table is initially created as a copy of the kernel page table.
-With VMAP_STACK enabled, kernel stacks are allocated in the vmalloc area:
-if the stack is allocated in a new PGD (one that was not present at the
-moment of the efi page table creation or not synced in a previous vmalloc
-fault), the kernel will take a trap when switching to the efi page table
-when the vmalloc kernel stack is accessed, resulting in a kernel panic.
+Support for the TSX control MSR is enumerated in MSR_IA32_ARCH_CAPABILITIES.
+This is different from how other CPU features are enumerated i.e. via
+CPUID. Currently, a call to tsx_ctrl_is_supported() is required for
+enumerating the feature. In the absence of a feature bit for TSX control,
+any code that relies on checking feature bits directly will not work.
 
-Fix that by updating the efi kernel mappings before switching to the efi
-page table.
+In preparation for adding a feature bit check in MSR save/restore
+during suspend/resume, set a new feature bit X86_FEATURE_TSX_CTRL when
+MSR_IA32_TSX_CTRL is present.
 
-Signed-off-by: Alexandre Ghiti <alexghiti@rivosinc.com>
-Fixes: b91540d52a08 ("RISC-V: Add EFI runtime services")
-Tested-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Reviewed-by: Atish Patra <atishp@rivosinc.com>
-Link: https://lore.kernel.org/r/20221121133303.1782246-1-alexghiti@rivosinc.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  [ bp: Remove tsx_ctrl_is_supported()]
+
+  [Pawan: Resolved conflicts in backport; Removed parts of commit message
+          referring to removed function tsx_ctrl_is_supported()]
+
+Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/de619764e1d98afbb7a5fa58424f1278ede37b45.1668539735.git.pawan.kumar.gupta@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/efi.h     |  6 +++++-
- arch/riscv/include/asm/pgalloc.h | 11 ++++++++---
- 2 files changed, 13 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/cpufeatures.h |    1 +
+ arch/x86/kernel/cpu/tsx.c          |   33 ++++++++++++++-------------------
+ 2 files changed, 15 insertions(+), 19 deletions(-)
 
-diff --git a/arch/riscv/include/asm/efi.h b/arch/riscv/include/asm/efi.h
-index cc4f6787f937..1bb8662875dd 100644
---- a/arch/riscv/include/asm/efi.h
-+++ b/arch/riscv/include/asm/efi.h
-@@ -10,6 +10,7 @@
- #include <asm/mmu_context.h>
- #include <asm/ptrace.h>
- #include <asm/tlbflush.h>
-+#include <asm/pgalloc.h>
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -300,6 +300,7 @@
+ #define X86_FEATURE_UNRET		(11*32+15) /* "" AMD BTB untrain return */
+ #define X86_FEATURE_USE_IBPB_FW		(11*32+16) /* "" Use IBPB during runtime firmware calls */
+ #define X86_FEATURE_RSB_VMEXIT_LITE	(11*32+17) /* "" Fill RSB on VM exit when EIBRS is enabled */
++#define X86_FEATURE_MSR_TSX_CTRL	(11*32+18) /* "" MSR IA32_TSX_CTRL (Intel) implemented */
  
- #ifdef CONFIG_EFI
- extern void efi_init(void);
-@@ -20,7 +21,10 @@ extern void efi_init(void);
- int efi_create_mapping(struct mm_struct *mm, efi_memory_desc_t *md);
- int efi_set_mapping_permissions(struct mm_struct *mm, efi_memory_desc_t *md);
- 
--#define arch_efi_call_virt_setup()      efi_virtmap_load()
-+#define arch_efi_call_virt_setup()      ({		\
-+		sync_kernel_mappings(efi_mm.pgd);	\
-+		efi_virtmap_load();			\
-+	})
- #define arch_efi_call_virt_teardown()   efi_virtmap_unload()
- 
- #define arch_efi_call_virt(p, f, args...) p->f(args)
-diff --git a/arch/riscv/include/asm/pgalloc.h b/arch/riscv/include/asm/pgalloc.h
-index 0af6933a7100..98e040332482 100644
---- a/arch/riscv/include/asm/pgalloc.h
-+++ b/arch/riscv/include/asm/pgalloc.h
-@@ -38,6 +38,13 @@ static inline void pud_populate(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
+ /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
+ #define X86_FEATURE_AVX512_BF16		(12*32+ 5) /* AVX512 BFLOAT16 instructions */
+--- a/arch/x86/kernel/cpu/tsx.c
++++ b/arch/x86/kernel/cpu/tsx.c
+@@ -58,24 +58,6 @@ void tsx_enable(void)
+ 	wrmsrl(MSR_IA32_TSX_CTRL, tsx);
  }
- #endif /* __PAGETABLE_PMD_FOLDED */
  
-+static inline void sync_kernel_mappings(pgd_t *pgd)
-+{
-+	memcpy(pgd + USER_PTRS_PER_PGD,
-+	       init_mm.pgd + USER_PTRS_PER_PGD,
-+	       (PTRS_PER_PGD - USER_PTRS_PER_PGD) * sizeof(pgd_t));
-+}
-+
- static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+-static bool __init tsx_ctrl_is_supported(void)
+-{
+-	u64 ia32_cap = x86_read_arch_cap_msr();
+-
+-	/*
+-	 * TSX is controlled via MSR_IA32_TSX_CTRL.  However, support for this
+-	 * MSR is enumerated by ARCH_CAP_TSX_MSR bit in MSR_IA32_ARCH_CAPABILITIES.
+-	 *
+-	 * TSX control (aka MSR_IA32_TSX_CTRL) is only available after a
+-	 * microcode update on CPUs that have their MSR_IA32_ARCH_CAPABILITIES
+-	 * bit MDS_NO=1. CPUs with MDS_NO=0 are not planned to get
+-	 * MSR_IA32_TSX_CTRL support even after a microcode update. Thus,
+-	 * tsx= cmdline requests will do nothing on CPUs without
+-	 * MSR_IA32_TSX_CTRL support.
+-	 */
+-	return !!(ia32_cap & ARCH_CAP_TSX_CTRL_MSR);
+-}
+-
+ static enum tsx_ctrl_states x86_get_tsx_auto_mode(void)
  {
- 	pgd_t *pgd;
-@@ -46,9 +53,7 @@ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
- 	if (likely(pgd != NULL)) {
- 		memset(pgd, 0, USER_PTRS_PER_PGD * sizeof(pgd_t));
- 		/* Copy kernel mappings */
--		memcpy(pgd + USER_PTRS_PER_PGD,
--			init_mm.pgd + USER_PTRS_PER_PGD,
--			(PTRS_PER_PGD - USER_PTRS_PER_PGD) * sizeof(pgd_t));
-+		sync_kernel_mappings(pgd);
- 	}
- 	return pgd;
- }
--- 
-2.35.1
-
+ 	if (boot_cpu_has_bug(X86_BUG_TAA))
+@@ -89,9 +71,22 @@ void __init tsx_init(void)
+ 	char arg[5] = {};
+ 	int ret;
+ 
+-	if (!tsx_ctrl_is_supported())
++	/*
++	 * TSX is controlled via MSR_IA32_TSX_CTRL.  However, support for this
++	 * MSR is enumerated by ARCH_CAP_TSX_MSR bit in MSR_IA32_ARCH_CAPABILITIES.
++	 *
++	 * TSX control (aka MSR_IA32_TSX_CTRL) is only available after a
++	 * microcode update on CPUs that have their MSR_IA32_ARCH_CAPABILITIES
++	 * bit MDS_NO=1. CPUs with MDS_NO=0 are not planned to get
++	 * MSR_IA32_TSX_CTRL support even after a microcode update. Thus,
++	 * tsx= cmdline requests will do nothing on CPUs without
++	 * MSR_IA32_TSX_CTRL support.
++	 */
++	if (!(x86_read_arch_cap_msr() & ARCH_CAP_TSX_CTRL_MSR))
+ 		return;
+ 
++	setup_force_cpu_cap(X86_FEATURE_MSR_TSX_CTRL);
++
+ 	ret = cmdline_find_option(boot_command_line, "tsx", arg, sizeof(arg));
+ 	if (ret >= 0) {
+ 		if (!strcmp(arg, "on")) {
 
 
