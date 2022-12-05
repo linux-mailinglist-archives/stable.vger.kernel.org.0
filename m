@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 323D96433F6
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 963656434A5
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:48:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234606AbiLETlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:41:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43926 "EHLO
+        id S235167AbiLETsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:48:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234577AbiLETkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:40:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E1229362
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:38:05 -0800 (PST)
+        with ESMTP id S234752AbiLETrr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54860D77
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:44:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9854B612C5
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:38:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A93C0C433D6;
-        Mon,  5 Dec 2022 19:38:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E503D61309
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:44:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04970C433D6;
+        Mon,  5 Dec 2022 19:44:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269084;
-        bh=6USEt5q+PYRxMT7sL9GpHFmTqM97lOjmpeoCAbl/kUI=;
+        s=korg; t=1670269461;
+        bh=mdrr/4Kk9yMjkMwHYbYbdgAouBMiCdLP7fBBM/NUt2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qivgWPBx7WmA1c+yJSJpxHZSIrlEDTd6iFL5ZG+GpB8aQbOcG1Fyz7S5LCj1ns+cB
-         PZwZ6GTiN8v4E5Ejr1f0bZgYD8Wfygs4t79O0MXynja2lqK43PIlYJ2FPv/tyBKx4O
-         YeVwBEaBeLNm2KeZztuvnnXd51BL9OKFUc8dBNas=
+        b=yI8Djz+qCBSSBzZVU1wP0YFGQr+v4Wc+UJnMNch0iIKqqCGA8gZ+J3fMRnvpPeRld
+         A0eglJzJhV7bKZ9I8xXyLRWJFqd+1a91wK/7iaxAXEBs4y1yvYEWO+OArkZVJYD2P8
+         +NnkN4Q4gzFasufn53CugZXd/vJFK9paAyvmyurQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Dabros <jsd@semihalf.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 119/120] char: tpm: Protect tpm_pm_suspend with locks
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 135/153] parisc: Increase FRAME_WARN to 2048 bytes on parisc
 Date:   Mon,  5 Dec 2022 20:10:59 +0100
-Message-Id: <20221205190810.088606151@linuxfoundation.org>
+Message-Id: <20221205190812.530679366@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Dabros <jsd@semihalf.com>
+From: Helge Deller <deller@gmx.de>
 
-commit 23393c6461422df5bf8084a086ada9a7e17dc2ba upstream.
+[ Upstream commit 8d192bec534bd5b778135769a12e5f04580771f7 ]
 
-Currently tpm transactions are executed unconditionally in
-tpm_pm_suspend() function, which may lead to races with other tpm
-accessors in the system.
+PA-RISC uses a much bigger frame size for functions than other
+architectures. So increase it to 2048 for 32- and 64-bit kernels.
+This fixes e.g. a warning in lib/xxhash.c.
 
-Specifically, the hw_random tpm driver makes use of tpm_get_random(),
-and this function is called in a loop from a kthread, which means it's
-not frozen alongside userspace, and so can race with the work done
-during system suspend:
-
-  tpm tpm0: tpm_transmit: tpm_recv: error -52
-  tpm tpm0: invalid TPM_STS.x 0xff, dumping stack for forensics
-  CPU: 0 PID: 1 Comm: init Not tainted 6.1.0-rc5+ #135
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-20220807_005459-localhost 04/01/2014
-  Call Trace:
-   tpm_tis_status.cold+0x19/0x20
-   tpm_transmit+0x13b/0x390
-   tpm_transmit_cmd+0x20/0x80
-   tpm1_pm_suspend+0xa6/0x110
-   tpm_pm_suspend+0x53/0x80
-   __pnp_bus_suspend+0x35/0xe0
-   __device_suspend+0x10f/0x350
-
-Fix this by calling tpm_try_get_ops(), which itself is a wrapper around
-tpm_chip_start(), but takes the appropriate mutex.
-
-Signed-off-by: Jan Dabros <jsd@semihalf.com>
-Reported-by: Vlastimil Babka <vbabka@suse.cz>
-Tested-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Tested-by: Vlastimil Babka <vbabka@suse.cz>
-Link: https://lore.kernel.org/all/c5ba47ef-393f-1fba-30bd-1230d1b4b592@suse.cz/
-Cc: stable@vger.kernel.org
-Fixes: e891db1a18bf ("tpm: turn on TPM on suspend for TPM 1.x")
-[Jason: reworked commit message, added metadata]
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Stable-dep-of: 152fe65f300e ("Kconfig.debug: provide a little extra FRAME_WARN leeway when KASAN is enabled")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm-interface.c |    5 +++--
+ lib/Kconfig.debug | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/char/tpm/tpm-interface.c
-+++ b/drivers/char/tpm/tpm-interface.c
-@@ -401,13 +401,14 @@ int tpm_pm_suspend(struct device *dev)
- 	    !pm_suspend_via_firmware())
- 		goto suspended;
- 
--	if (!tpm_chip_start(chip)) {
-+	rc = tpm_try_get_ops(chip);
-+	if (!rc) {
- 		if (chip->flags & TPM_CHIP_FLAG_TPM2)
- 			tpm2_shutdown(chip, TPM2_SU_STATE);
- 		else
- 			rc = tpm1_pm_suspend(chip, tpm_suspend_pcr);
- 
--		tpm_chip_stop(chip);
-+		tpm_put_ops(chip);
- 	}
- 
- suspended:
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index 42b6fff962b7..3ab05ca63c6e 100644
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -253,8 +253,9 @@ config FRAME_WARN
+ 	int "Warn for stack frames larger than (needs gcc 4.4)"
+ 	range 0 8192
+ 	default 2048 if GCC_PLUGIN_LATENT_ENTROPY
+-	default 1536 if (!64BIT && (PARISC || XTENSA))
+-	default 1024 if (!64BIT && !PARISC)
++	default 2048 if PARISC
++	default 1536 if (!64BIT && XTENSA)
++	default 1024 if !64BIT
+ 	default 2048 if 64BIT
+ 	help
+ 	  Tell gcc to warn at build time for stack frames larger than this.
+-- 
+2.35.1
+
 
 
