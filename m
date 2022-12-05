@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DD22643142
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:13:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D46CB6432E1
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:31:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232047AbiLETNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:13:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60420 "EHLO
+        id S233552AbiLETbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:31:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232481AbiLETMw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:12:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29FF71F2EF
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:12:51 -0800 (PST)
+        with ESMTP id S232867AbiLETbM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:31:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B663A2BB27
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:26:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAB7FB81202
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:12:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53224C433D7;
-        Mon,  5 Dec 2022 19:12:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7BE161335
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 015B2C433D6;
+        Mon,  5 Dec 2022 19:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267568;
-        bh=vl/cmCgCiqUufCbXalm+zqYBEznXLDx5kvwpNplukEs=;
+        s=korg; t=1670268410;
+        bh=pjNLh3f1VP7Fs969IUVqk9j1c1zKBwjtdeu6cGqdHyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QLGjJatKLJKsk6dv1hDbvrEhcGjB9SKNW8xvn4JG/uIMoAzv6TdEUJ4baBKdH6oR8
-         c1WN+7egDrE/+ytquWkPPCd3P5llewbqMi7QHmYWVAxZePLEUZJxIxtimMcwN3bUQN
-         naNsZUXCiLh8bZo1PA+nsatLlOJ2+zAaOO+DOs9Y=
+        b=Bk2YOMrPMsWIdsl+QU/qAZoGZg6vh6Fkr7+RuCacWJ3PqACpusBczcdw3E1xqTp1R
+         ufGidKX8jJ+fftFIwxrwukJM6JMNK2TYGtdqqxrmvA7gfTW/0QfRhGPELqDEI9joMA
+         HVD0RbXBYJ1VNQIROTryapZqmippYVCGWA9qzWpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 33/62] hwmon: (i5500_temp) fix missing pci_disable_device()
+Subject: [PATCH 6.0 064/124] net: mdiobus: fix unbalanced node reference count
 Date:   Mon,  5 Dec 2022 20:09:30 +0100
-Message-Id: <20221205190759.337753850@linuxfoundation.org>
+Message-Id: <20221205190810.240758152@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,33 +55,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 3b7f98f237528c496ea0b689bace0e35eec3e060 ]
+[ Upstream commit cdde1560118f82498fc9e9a7c1ef7f0ef7755891 ]
 
-pci_disable_device() need be called while module exiting, switch to use
-pcim_enable(), pci_disable_device() will be called in pcim_release().
+I got the following report while doing device(mscc-miim) load test
+with CONFIG_OF_UNITTEST and CONFIG_OF_DYNAMIC enabled:
 
-Fixes: ada072816be1 ("hwmon: (i5500_temp) New driver for the Intel 5500/5520/X58 chipsets")
+  OF: ERROR: memory leak, expected refcount 1 instead of 2,
+  of_node_get()/of_node_put() unbalanced - destroy cset entry:
+  attach overlay node /spi/soc@0/mdio@7107009c/ethernet-phy@0
+
+If the 'fwnode' is not an acpi node, the refcount is get in
+fwnode_mdiobus_phy_device_register(), but it has never been
+put when the device is freed in the normal path. So call
+fwnode_handle_put() in phy_device_release() to avoid leak.
+
+If it's an acpi node, it has never been get, but it's put
+in the error path, so call fwnode_handle_get() before
+phy_device_register() to keep get/put operation balanced.
+
+Fixes: bc1bee3b87ee ("net: mdiobus: Introduce fwnode_mdiobus_register_phy()")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221112125606.3751430-1-yangyingliang@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20221124150130.609420-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/i5500_temp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/mdio/fwnode_mdio.c | 2 +-
+ drivers/net/phy/phy_device.c   | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/i5500_temp.c b/drivers/hwmon/i5500_temp.c
-index 3e3ccbf18b4e..0064249fcc37 100644
---- a/drivers/hwmon/i5500_temp.c
-+++ b/drivers/hwmon/i5500_temp.c
-@@ -117,7 +117,7 @@ static int i5500_temp_probe(struct pci_dev *pdev,
- 	u32 tstimer;
- 	s8 tsfsc;
+diff --git a/drivers/net/mdio/fwnode_mdio.c b/drivers/net/mdio/fwnode_mdio.c
+index 1c1584fca632..40e745a1d185 100644
+--- a/drivers/net/mdio/fwnode_mdio.c
++++ b/drivers/net/mdio/fwnode_mdio.c
+@@ -120,7 +120,7 @@ int fwnode_mdiobus_register_phy(struct mii_bus *bus,
+ 		/* Associate the fwnode with the device structure so it
+ 		 * can be looked up later.
+ 		 */
+-		phy->mdio.dev.fwnode = child;
++		phy->mdio.dev.fwnode = fwnode_handle_get(child);
  
--	err = pci_enable_device(pdev);
-+	err = pcim_enable_device(pdev);
- 	if (err) {
- 		dev_err(&pdev->dev, "Failed to enable device\n");
- 		return err;
+ 		/* All data is now stored in the phy struct, so register it */
+ 		rc = phy_device_register(phy);
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index 70c4d48f32c6..3607077cf86f 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -216,6 +216,7 @@ static void phy_mdio_device_free(struct mdio_device *mdiodev)
+ 
+ static void phy_device_release(struct device *dev)
+ {
++	fwnode_handle_put(dev->fwnode);
+ 	kfree(to_phy_device(dev));
+ }
+ 
 -- 
 2.35.1
 
