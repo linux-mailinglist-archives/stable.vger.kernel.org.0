@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91D366432E8
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:32:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4380D6433AD
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232952AbiLETcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:32:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60200 "EHLO
+        id S234698AbiLETih (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:38:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234138AbiLETbh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:31:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CB532C11B
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:09 -0800 (PST)
+        with ESMTP id S234675AbiLETiQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 565D52708
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:35:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E7DAB81181
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:27:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70718C433D6;
-        Mon,  5 Dec 2022 19:27:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0075DB811E3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:35:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD09C433C1;
+        Mon,  5 Dec 2022 19:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268426;
-        bh=t0sh537lY/tynIianXOW8nlBPLeTqnOdZGJftal9+jU=;
+        s=korg; t=1670268908;
+        bh=NWuLVmMsGZPO+wLbCrn+xo87uQhIInyOFWyLH0tu6ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dg1PjV2TKKC1/I6ikTBlV5UTgqTccjQQp2PB5TgjJygH+y4Eq0mG7B5VRkZsfBUtX
-         Zs1MiduHmyqmVvYBrWix8uCzu5UohiJj0ex/0iYLuLdzj/BvJEZ52XJ/yodidbDjme
-         l2w3b2XG7EITFiTA2z58F2xSAktXKVb4GbDH5mfA=
+        b=TDhgBqFPbFfbl6MMiJhlL7o7G4Us2Zr13YK2WSLr3TMTex3zT9g2kBePSwR0XO5/p
+         ylXhhDiDL91gRcemLdhvBGCVu0Tuho9Nu9JlmwOjHFd3ISGPmt+lVtFmwxfiAeXaxS
+         CA7G9PnMnoRo9FEWJZ2vOu19QJ0d8Thp6bI9wJ/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sebastian Falbesoner <sebastian.falbesoner@gmail.com>,
-        Haibo Chen <haibo.chen@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.0 090/124] mmc: sdhci-esdhc-imx: correct CQHCI exit halt state check
+        patches@lists.linux.dev, Shuang Li <shuali@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 056/120] tipc: re-fetch skb cb after tipc_msg_validate
 Date:   Mon,  5 Dec 2022 20:09:56 +0100
-Message-Id: <20221205190810.972682049@linuxfoundation.org>
+Message-Id: <20221205190808.308354242@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Falbesoner <sebastian.falbesoner@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit a3cab1d2132474969871b5d7f915c5c0167b48b0 upstream.
+[ Upstream commit 3067bc61fcfe3081bf4807ce65560f499e895e77 ]
 
-With the current logic the "failed to exit halt state" error would be
-shown even if any other bit than CQHCI_HALT was set in the CQHCI_CTL
-register, since the right hand side is always true. Fix this by using
-the correct operator (bit-wise instead of logical AND) to only check for
-the halt bit flag, which was obviously intended here.
+As the call trace shows, the original skb was freed in tipc_msg_validate(),
+and dereferencing the old skb cb would cause an use-after-free crash.
 
-Fixes: 85236d2be844 ("mmc: sdhci-esdhc-imx: clear the HALT bit when enable CQE")
-Signed-off-by: Sebastian Falbesoner <sebastian.falbesoner@gmail.com>
-Acked-by: Haibo Chen <haibo.chen@nxp.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221121105721.1903878-1-sebastian.falbesoner@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  BUG: KASAN: use-after-free in tipc_crypto_rcv_complete+0x1835/0x2240 [tipc]
+  Call Trace:
+   <IRQ>
+   tipc_crypto_rcv_complete+0x1835/0x2240 [tipc]
+   tipc_crypto_rcv+0xd32/0x1ec0 [tipc]
+   tipc_rcv+0x744/0x1150 [tipc]
+  ...
+  Allocated by task 47078:
+   kmem_cache_alloc_node+0x158/0x4d0
+   __alloc_skb+0x1c1/0x270
+   tipc_buf_acquire+0x1e/0xe0 [tipc]
+   tipc_msg_create+0x33/0x1c0 [tipc]
+   tipc_link_build_proto_msg+0x38a/0x2100 [tipc]
+   tipc_link_timeout+0x8b8/0xef0 [tipc]
+   tipc_node_timeout+0x2a1/0x960 [tipc]
+   call_timer_fn+0x2d/0x1c0
+  ...
+  Freed by task 47078:
+   tipc_msg_validate+0x7b/0x440 [tipc]
+   tipc_crypto_rcv_complete+0x4b5/0x2240 [tipc]
+   tipc_crypto_rcv+0xd32/0x1ec0 [tipc]
+   tipc_rcv+0x744/0x1150 [tipc]
+
+This patch fixes it by re-fetching the skb cb from the new allocated skb
+after calling tipc_msg_validate().
+
+Fixes: fc1b6d6de220 ("tipc: introduce TIPC encryption & authentication")
+Reported-by: Shuang Li <shuali@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/1b1cdba762915325bd8ef9a98d0276eb673df2a5.1669398403.git.lucien.xin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-esdhc-imx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/tipc/crypto.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1512,7 +1512,7 @@ static void esdhc_cqe_enable(struct mmc_
- 	 * system resume back.
- 	 */
- 	cqhci_writel(cq_host, 0, CQHCI_CTL);
--	if (cqhci_readl(cq_host, CQHCI_CTL) && CQHCI_HALT)
-+	if (cqhci_readl(cq_host, CQHCI_CTL) & CQHCI_HALT)
- 		dev_err(mmc_dev(host->mmc),
- 			"failed to exit halt state when enable CQE\n");
+diff --git a/net/tipc/crypto.c b/net/tipc/crypto.c
+index b5074957e881..4243d2ab8adf 100644
+--- a/net/tipc/crypto.c
++++ b/net/tipc/crypto.c
+@@ -1982,6 +1982,9 @@ static void tipc_crypto_rcv_complete(struct net *net, struct tipc_aead *aead,
+ 	/* Ok, everything's fine, try to synch own keys according to peers' */
+ 	tipc_crypto_key_synch(rx, *skb);
  
++	/* Re-fetch skb cb as skb might be changed in tipc_msg_validate */
++	skb_cb = TIPC_SKB_CB(*skb);
++
+ 	/* Mark skb decrypted */
+ 	skb_cb->decrypted = 1;
+ 
+-- 
+2.35.1
+
 
 
