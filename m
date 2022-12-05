@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB4A86431C8
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E39E86432E6
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:31:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232865AbiLETS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:18:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36846 "EHLO
+        id S233844AbiLETbu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:31:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233044AbiLETSL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:18:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8119D275F4
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:15:56 -0800 (PST)
+        with ESMTP id S234083AbiLETbb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:31:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0723B2C655
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14875B81200
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:15:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81ED7C433D6;
-        Mon,  5 Dec 2022 19:15:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89C67612FB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:27:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 987F2C433C1;
+        Mon,  5 Dec 2022 19:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267741;
-        bh=uLK2qBqWH04pfEpnLVKNF8keNq7GOfn5celNQqw6U94=;
+        s=korg; t=1670268424;
+        bh=GUQ6c3yVQg+7taBqazpsQQ8NJEiB6iPo6qTi2QEXEfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DmdkglUSTFoKV0b4G4FHA14Fed3Z/DtEn8nmbnD+LAM9x4/qhCTaZJ9VZqkvcgoFw
-         JxpcCuQaaOuvV4/cbQ9fQ+fCsQj9V8RERFtXCXBejgOp/xHq/CmWPk3kfkf7eCZsOO
-         QdWiPOGI6tPMgrX1boNrDJes422ds3teX1FJxftI=
+        b=0ga2FJ+occ5D7uY+iJqMNDACRPf6ewxVoB1COjGaOphC5tR8f2YK81XG5CXMFnuuo
+         W2iGJOLeljT9bdzqDOiR0SqgdEWeYvNmTIaWzdwqQVgvC0GsA3iW0OMcIFAL1VMOoN
+         bSNZeA1nmupTVvMGx8cwy0Toqx7Pv6EkOreFrE24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rudolf Polzer <rpolzer@google.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Jerry Ray <jerry.ray@microchip.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 34/77] platform/x86: acer-wmi: Enable SW_TABLET_MODE on Switch V 10 (SW5-017)
+Subject: [PATCH 6.0 059/124] dsa: lan9303: Correct stat name
 Date:   Mon,  5 Dec 2022 20:09:25 +0100
-Message-Id: <20221205190802.081199579@linuxfoundation.org>
+Message-Id: <20221205190810.097624070@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Jerry Ray <jerry.ray@microchip.com>
 
-[ Upstream commit 1e817b889c7d8c14e7005258e15fec62edafe03c ]
+[ Upstream commit 39f59bca275d2d819a8788c0f962e9e89843efc9 ]
 
-Like the Acer Switch 10 (SW5-012) and Acer Switch 10 (S1003) models
-the Acer Switch V 10 (SW5-017) supports reporting SW_TABLET_MODE
-through acer-wmi.
+This patch changes the reported ethtool statistics for the lan9303
+family of parts covered by this driver.
 
-Add a DMI quirk for the SW5-017 setting force_caps to ACER_CAP_KBD_DOCK
-(these devices have no other acer-wmi based functionality).
+The TxUnderRun statistic label is renamed to RxShort to accurately
+reflect what stat the device is reporting.  I did not reorder the
+statistics as that might cause problems with existing user code that
+are expecting the stats at a certain offset.
 
-Cc: Rudolf Polzer <rpolzer@google.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20221111111639.35730-1-hdegoede@redhat.com
+Fixes: a1292595e006 ("net: dsa: add new DSA switch driver for the SMSC-LAN9303")
+Signed-off-by: Jerry Ray <jerry.ray@microchip.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20221128193559.6572-1-jerry.ray@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/acer-wmi.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/dsa/lan9303-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index 8b4af118ff94..e2f054112fba 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -549,6 +549,15 @@ static const struct dmi_system_id acer_quirks[] __initconst = {
- 		},
- 		.driver_data = (void *)ACER_CAP_KBD_DOCK,
- 	},
-+	{
-+		.callback = set_force_caps,
-+		.ident = "Acer Aspire Switch V 10 SW5-017",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SW5-017"),
-+		},
-+		.driver_data = (void *)ACER_CAP_KBD_DOCK,
-+	},
- 	{
- 		.callback = set_force_caps,
- 		.ident = "Acer One 10 (S1003)",
+diff --git a/drivers/net/dsa/lan9303-core.c b/drivers/net/dsa/lan9303-core.c
+index e03ff1f267bb..1de62604434d 100644
+--- a/drivers/net/dsa/lan9303-core.c
++++ b/drivers/net/dsa/lan9303-core.c
+@@ -959,7 +959,7 @@ static const struct lan9303_mib_desc lan9303_mib[] = {
+ 	{ .offset = LAN9303_MAC_TX_BRDCST_CNT_0, .name = "TxBroad", },
+ 	{ .offset = LAN9303_MAC_TX_PAUSE_CNT_0, .name = "TxPause", },
+ 	{ .offset = LAN9303_MAC_TX_MULCST_CNT_0, .name = "TxMulti", },
+-	{ .offset = LAN9303_MAC_RX_UNDSZE_CNT_0, .name = "TxUnderRun", },
++	{ .offset = LAN9303_MAC_RX_UNDSZE_CNT_0, .name = "RxShort", },
+ 	{ .offset = LAN9303_MAC_TX_64_CNT_0, .name = "Tx64Byte", },
+ 	{ .offset = LAN9303_MAC_TX_127_CNT_0, .name = "Tx128Byte", },
+ 	{ .offset = LAN9303_MAC_TX_255_CNT_0, .name = "Tx256Byte", },
 -- 
 2.35.1
 
