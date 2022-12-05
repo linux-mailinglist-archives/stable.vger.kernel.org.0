@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 432696433BF
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:39:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 373BC643264
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234735AbiLETjF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:39:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40778 "EHLO
+        id S234006AbiLET0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:26:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234413AbiLETit (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3198F25C4A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:36:00 -0800 (PST)
+        with ESMTP id S232695AbiLETZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74F252648C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:21:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF49DB81201
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:35:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19F5DC433D6;
-        Mon,  5 Dec 2022 19:35:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E105061315
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:16:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00AD6C433D7;
+        Mon,  5 Dec 2022 19:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268957;
-        bh=7cLohowrTqi+J5FHoSAZS3Yt0yXI6XzmQk6RCw0bKCg=;
+        s=korg; t=1670267796;
+        bh=rN1A+ineWHA1wh1ysZ1YO17BHfw+tjq1plJA1rfXpBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dBRn2Z5LZazx9KkOPt/nmOS4NoGmuEWxOdOv3NvOG8Fs/DXdGAWgxs+F/SAiP7vZ4
-         NCccR0sSpBwQpfSVOWu9xUib9us7yCb5DGEWukT8xuam7cYM9FaW0rl5lPhg0DP1is
-         zUqjJkPQvBXvA6pMS00EQBjk9Orz8kqR/VreBCZY=
+        b=jhW0i8B4/6UbbyENMnTHx03mwJEJdFOih74k0DEG+ji95DYrmKJBXOxvcgHo0yI2U
+         6wpMIoq1YjcwW5kO3KsxkUKtjWcZG0d//WuWKdPHLEdMXWG7Idk51Z/gxjNK3YeUpC
+         jgBTgfa6CY2/grIlvxcaSSbS5iHXLtue5bX4Apwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <shuster@seemoo.tu-darmstadt.de>
-Subject: [PATCH 5.15 046/120] wifi: cfg80211: dont allow multi-BSSID in S1G
+        patches@lists.linux.dev, Tho Vu <tho.vu.wh@renesas.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 55/77] net: ethernet: renesas: ravb: Fix promiscuous mode after system resumed
 Date:   Mon,  5 Dec 2022 20:09:46 +0100
-Message-Id: <20221205190807.945882699@linuxfoundation.org>
+Message-Id: <20221205190802.814475472@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit acd3c92acc7aaec50a94d0a7faf7ccd74e952493 ]
+[ Upstream commit d66233a312ec9013af3e37e4030b479a20811ec3 ]
 
-In S1G beacon frames there shouldn't be multi-BSSID elements
-since that's not supported, remove that to avoid a potential
-integer underflow and/or misparsing the frames due to the
-different length of the fixed part of the frame.
+After system resumed on some environment board, the promiscuous mode
+is disabled because the SoC turned off. So, call ravb_set_rx_mode() in
+the ravb_resume() to fix the issue.
 
-While at it, initialize non_tx_data so we don't send garbage
-values to the user (even if it doesn't seem to matter now.)
-
-Reported-and-tested-by: Sönke Huster <shuster@seemoo.tu-darmstadt.de>
-Fixes: 9eaffe5078ca ("cfg80211: convert S1G beacon to scan results")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: Tho Vu <tho.vu.wh@renesas.com>
+Fixes: 0184165b2f42 ("ravb: add sleep PM suspend/resume support")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/20221128065604.1864391-1-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/scan.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/renesas/ravb_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/wireless/scan.c b/net/wireless/scan.c
-index 937ec4c2a3bf..ef31e401d791 100644
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -2477,10 +2477,15 @@ cfg80211_inform_bss_frame_data(struct wiphy *wiphy,
- 	const struct cfg80211_bss_ies *ies1, *ies2;
- 	size_t ielen = len - offsetof(struct ieee80211_mgmt,
- 				      u.probe_resp.variable);
--	struct cfg80211_non_tx_bss non_tx_data;
-+	struct cfg80211_non_tx_bss non_tx_data = {};
+diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
+index 58496fb84b05..5513475e2a82 100644
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -2335,6 +2335,7 @@ static int __maybe_unused ravb_resume(struct device *dev)
+ 		ret = ravb_open(ndev);
+ 		if (ret < 0)
+ 			return ret;
++		ravb_set_rx_mode(ndev);
+ 		netif_device_attach(ndev);
+ 	}
  
- 	res = cfg80211_inform_single_bss_frame_data(wiphy, data, mgmt,
- 						    len, gfp);
-+
-+	/* don't do any further MBSSID handling for S1G */
-+	if (ieee80211_is_s1g_beacon(mgmt->frame_control))
-+		return res;
-+
- 	if (!res || !wiphy->support_mbssid ||
- 	    !cfg80211_find_ie(WLAN_EID_MULTIPLE_BSSID, ie, ielen))
- 		return res;
 -- 
 2.35.1
 
