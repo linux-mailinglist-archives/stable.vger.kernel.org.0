@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 278626431D0
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:19:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D1326432E3
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:31:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233701AbiLETTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:19:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36962 "EHLO
+        id S234000AbiLETbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:31:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231826AbiLETTB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:19:01 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99AB527B2F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:16:11 -0800 (PST)
+        with ESMTP id S234011AbiLETbO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:31:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D1912C135
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:26:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AD854CE13A8
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:16:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97A8FC433D6;
-        Mon,  5 Dec 2022 19:16:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 365CFB81181
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0F08C433C1;
+        Mon,  5 Dec 2022 19:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267761;
-        bh=Xv4QjT9MH+Sq6klSePxCtil5JaqXZBzxKRl43ee0kA0=;
+        s=korg; t=1670268413;
+        bh=nYxaMz/dhDEP2WkEiYUY/5yXD7vBj78uKEjWJ9+IS8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0k977WGTQdTQXWldPI1FjpWzcVWxVYx9O4k1FhUq0RpZEml8nyqyAfWZKdTh1s+WK
-         tuE25gI1y2eKXTR0TXF1d+ftCsGqvVefHdzPwz4zrl+0d5Vtzq3U9latV/GSujmCyh
-         +CbS7i4hIrkyS1ioS1zbdVW8wQDcAcRdqxPyJZYE=
+        b=12Wdg1IZc7Jl01XD/aLv2+dUvK3mfk7VvZS0W1VlMQOHNd0Qn5QlXD3ruMmEFQQpo
+         KB52p2WD0eoVDMdWX85k8/UX3KanuyQT93HWe+rB9/oBHXANEtn9aTyih5C6BBD/GY
+         alVjeP6x+lvdApz/6dRu/1TyRLmb4VUoiD76HqHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Andrew Davis <afd@ti.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        patches@lists.linux.dev, David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 40/77] iio: health: afe4404: Fix oob read in afe4404_[read|write]_raw
+Subject: [PATCH 6.0 065/124] afs: Fix fileserver probe RTT handling
 Date:   Mon,  5 Dec 2022 20:09:31 +0100
-Message-Id: <20221205190802.294743875@linuxfoundation.org>
+Message-Id: <20221205190810.267184589@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,100 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit fc92d9e3de0b2d30a3ccc08048a5fad533e4672b ]
+[ Upstream commit ca57f02295f188d6c65ec02202402979880fa6d8 ]
 
-KASAN report out-of-bounds read as follows:
+The fileserver probing code attempts to work out the best fileserver to
+use for a volume by retrieving the RTT calculated by AF_RXRPC for the
+probe call sent to each server and comparing them.  Sometimes, however,
+no RTT estimate is available and rxrpc_kernel_get_srtt() returns false,
+leading good fileservers to be given an RTT of UINT_MAX and thus causing
+the rotation algorithm to ignore them.
 
-BUG: KASAN: global-out-of-bounds in afe4404_read_raw+0x2ce/0x380
-Read of size 4 at addr ffffffffc00e4658 by task cat/278
+Fix afs_select_fileserver() to ignore rxrpc_kernel_get_srtt()'s return
+value and just take the estimated RTT it provides - which will be capped
+at 1 second.
 
-Call Trace:
- afe4404_read_raw
- iio_read_channel_info
- dev_attr_show
-
-The buggy address belongs to the variable:
- afe4404_channel_leds+0x18/0xffffffffffffe9c0
-
-This issue can be reproduce by singe command:
-
- $ cat /sys/bus/i2c/devices/0-0058/iio\:device0/in_intensity6_raw
-
-The array size of afe4404_channel_leds and afe4404_channel_offdacs
-are less than channels, so access with chan->address cause OOB read
-in afe4404_[read|write]_raw. Fix it by moving access before use them.
-
-Fixes: b36e8257641a ("iio: health/afe440x: Use regmap fields")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Andrew Davis <afd@ti.com>
-Link: https://lore.kernel.org/r/20221107152010.95937-1-weiyongjun@huaweicloud.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 1d4adfaf6574 ("rxrpc: Make rxrpc_kernel_get_srtt() indicate validity")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Tested-by: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Link: https://lore.kernel.org/r/166965503999.3392585.13954054113218099395.stgit@warthog.procyon.org.uk/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/health/afe4404.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ fs/afs/fs_probe.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/health/afe4404.c b/drivers/iio/health/afe4404.c
-index 5e256b11ac87..29a906411bd8 100644
---- a/drivers/iio/health/afe4404.c
-+++ b/drivers/iio/health/afe4404.c
-@@ -258,20 +258,20 @@ static int afe4404_read_raw(struct iio_dev *indio_dev,
- 			    int *val, int *val2, long mask)
- {
- 	struct afe4404_data *afe = iio_priv(indio_dev);
--	unsigned int value_reg = afe4404_channel_values[chan->address];
--	unsigned int led_field = afe4404_channel_leds[chan->address];
--	unsigned int offdac_field = afe4404_channel_offdacs[chan->address];
-+	unsigned int value_reg, led_field, offdac_field;
- 	int ret;
+diff --git a/fs/afs/fs_probe.c b/fs/afs/fs_probe.c
+index c0031a3ab42f..3ac5fcf98d0d 100644
+--- a/fs/afs/fs_probe.c
++++ b/fs/afs/fs_probe.c
+@@ -167,8 +167,8 @@ void afs_fileserver_probe_result(struct afs_call *call)
+ 			clear_bit(AFS_SERVER_FL_HAS_FS64, &server->flags);
+ 	}
  
- 	switch (chan->type) {
- 	case IIO_INTENSITY:
- 		switch (mask) {
- 		case IIO_CHAN_INFO_RAW:
-+			value_reg = afe4404_channel_values[chan->address];
- 			ret = regmap_read(afe->regmap, value_reg, val);
- 			if (ret)
- 				return ret;
- 			return IIO_VAL_INT;
- 		case IIO_CHAN_INFO_OFFSET:
-+			offdac_field = afe4404_channel_offdacs[chan->address];
- 			ret = regmap_field_read(afe->fields[offdac_field], val);
- 			if (ret)
- 				return ret;
-@@ -281,6 +281,7 @@ static int afe4404_read_raw(struct iio_dev *indio_dev,
- 	case IIO_CURRENT:
- 		switch (mask) {
- 		case IIO_CHAN_INFO_RAW:
-+			led_field = afe4404_channel_leds[chan->address];
- 			ret = regmap_field_read(afe->fields[led_field], val);
- 			if (ret)
- 				return ret;
-@@ -303,19 +304,20 @@ static int afe4404_write_raw(struct iio_dev *indio_dev,
- 			     int val, int val2, long mask)
- {
- 	struct afe4404_data *afe = iio_priv(indio_dev);
--	unsigned int led_field = afe4404_channel_leds[chan->address];
--	unsigned int offdac_field = afe4404_channel_offdacs[chan->address];
-+	unsigned int led_field, offdac_field;
- 
- 	switch (chan->type) {
- 	case IIO_INTENSITY:
- 		switch (mask) {
- 		case IIO_CHAN_INFO_OFFSET:
-+			offdac_field = afe4404_channel_offdacs[chan->address];
- 			return regmap_field_write(afe->fields[offdac_field], val);
- 		}
- 		break;
- 	case IIO_CURRENT:
- 		switch (mask) {
- 		case IIO_CHAN_INFO_RAW:
-+			led_field = afe4404_channel_leds[chan->address];
- 			return regmap_field_write(afe->fields[led_field], val);
- 		}
- 		break;
+-	if (rxrpc_kernel_get_srtt(call->net->socket, call->rxcall, &rtt_us) &&
+-	    rtt_us < server->probe.rtt) {
++	rxrpc_kernel_get_srtt(call->net->socket, call->rxcall, &rtt_us);
++	if (rtt_us < server->probe.rtt) {
+ 		server->probe.rtt = rtt_us;
+ 		server->rtt = rtt_us;
+ 		alist->preferred = index;
 -- 
 2.35.1
 
