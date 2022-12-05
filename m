@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 027E0643282
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4760E6432F2
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:32:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233928AbiLET0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:26:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51888 "EHLO
+        id S234182AbiLETcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:32:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233430AbiLETZ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21870F5D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:22:18 -0800 (PST)
+        with ESMTP id S234186AbiLETcR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:32:17 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ACD2210
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1F5C61309
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:22:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8199C433C1;
-        Mon,  5 Dec 2022 19:22:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DCFB8CE13A4
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:27:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE02FC433D6;
+        Mon,  5 Dec 2022 19:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268137;
-        bh=Mrix7/j/6eZQwvME9Qds8VSsuJdCk4YMlc8YOXlucHU=;
+        s=korg; t=1670268451;
+        bh=Zcj0KzlMTiIDbvSR4qKUMUQVy5kDVL+9Vn/eQXZFivc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I0OSpDTjGiddMN+dmKlMVHZjDwuYVscADP8ovBQPkGK++dBtjANTko66QxBc4+oOi
-         mFqFaP3xwF0CcScYanxTYsJlWz8sXWDMXygF29fgp+utRhId466WxW+r0FgTrHX8D0
-         1HBF2jVph4ovPY4b/08SbrSEnLexl701cyzZj58I=
+        b=DHgpzdlIct/O9kz8beEHdRip/lgC7ztMpQ4CkYHInwjsRjoP1FcC4NqF0z2ElI1G1
+         6PcN5cTVgiZsyIjhE4QvJpkNDk5XdaQiW1CILEu8WgpXHdX1lJcRlaImOysfEHgnjZ
+         ChIp5H2u58x+uXHJGW0IZvKNNqg0BFwvSyEQMuOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Cooper <andrew.cooper3@citrix.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, stable@kernel.org
-Subject: [PATCH 4.19 100/105] x86/tsx: Add a feature bit for TSX control MSR support
-Date:   Mon,  5 Dec 2022 20:10:12 +0100
-Message-Id: <20221205190806.484964644@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Xianting Tian <xianting.tian@linux.alibaba.com>,
+        Guo Ren <guoren@linux.alibaba.com>,
+        Guo Ren <guoren@kernel.org>,
+        Nick Kossifidis <mick@ics.forth.gr>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 107/124] riscv: kexec: Fixup crash_smp_send_stop without multi cores
+Date:   Mon,  5 Dec 2022 20:10:13 +0100
+Message-Id: <20221205190811.477997214@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +57,314 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-commit aaa65d17eec372c6a9756833f3964ba05b05ea14 upstream.
+[ Upstream commit 9b932aadfc47de5d70b53ea04b0d1b5f6c82945b ]
 
-Support for the TSX control MSR is enumerated in MSR_IA32_ARCH_CAPABILITIES.
-This is different from how other CPU features are enumerated i.e. via
-CPUID. Currently, a call to tsx_ctrl_is_supported() is required for
-enumerating the feature. In the absence of a feature bit for TSX control,
-any code that relies on checking feature bits directly will not work.
+Current crash_smp_send_stop is the same as the generic one in
+kernel/panic and misses crash_save_cpu in percpu. This patch is inspired
+by 78fd584cdec0 ("arm64: kdump: implement machine_crash_shutdown()")
+and adds the same mechanism for riscv.
 
-In preparation for adding a feature bit check in MSR save/restore
-during suspend/resume, set a new feature bit X86_FEATURE_TSX_CTRL when
-MSR_IA32_TSX_CTRL is present.
+Before this patch, test result:
+crash> help -r
+CPU 0: [OFFLINE]
 
-  [ bp: Remove tsx_ctrl_is_supported()]
+CPU 1:
+epc : ffffffff80009ff0 ra : ffffffff800b789a sp : ff2000001098bb40
+ gp : ffffffff815fca60 tp : ff60000004680000 t0 : 6666666666663c5b
+ t1 : 0000000000000000 t2 : 666666666666663c s0 : ff2000001098bc90
+ s1 : ffffffff81600798 a0 : ff2000001098bb48 a1 : 0000000000000000
+ a2 : 0000000000000000 a3 : 0000000000000001 a4 : 0000000000000000
+ a5 : ff60000004690800 a6 : 0000000000000000 a7 : 0000000000000000
+ s2 : ff2000001098bb48 s3 : ffffffff81093ec8 s4 : ffffffff816004ac
+ s5 : 0000000000000000 s6 : 0000000000000007 s7 : ffffffff80e7f720
+ s8 : 00fffffffffff3f0 s9 : 0000000000000007 s10: 00aaaaaaaab98700
+ s11: 0000000000000001 t3 : ffffffff819a8097 t4 : ffffffff819a8097
+ t5 : ffffffff819a8098 t6 : ff2000001098b9a8
 
-  [Pawan: Resolved conflicts in backport; Removed parts of commit message
-          referring to removed function tsx_ctrl_is_supported()]
+CPU 2: [OFFLINE]
 
-Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/de619764e1d98afbb7a5fa58424f1278ede37b45.1668539735.git.pawan.kumar.gupta@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CPU 3: [OFFLINE]
+
+After this patch, test result:
+crash> help -r
+CPU 0:
+epc : ffffffff80003f34 ra : ffffffff808caa7c sp : ffffffff81403eb0
+ gp : ffffffff815fcb48 tp : ffffffff81413400 t0 : 0000000000000000
+ t1 : 0000000000000000 t2 : 0000000000000000 s0 : ffffffff81403ec0
+ s1 : 0000000000000000 a0 : 0000000000000000 a1 : 0000000000000000
+ a2 : 0000000000000000 a3 : 0000000000000000 a4 : 0000000000000000
+ a5 : 0000000000000000 a6 : 0000000000000000 a7 : 0000000000000000
+ s2 : ffffffff816001c8 s3 : ffffffff81600370 s4 : ffffffff80c32e18
+ s5 : ffffffff819d3018 s6 : ffffffff810e2110 s7 : 0000000000000000
+ s8 : 0000000000000000 s9 : 0000000080039eac s10: 0000000000000000
+ s11: 0000000000000000 t3 : 0000000000000000 t4 : 0000000000000000
+ t5 : 0000000000000000 t6 : 0000000000000000
+
+CPU 1:
+epc : ffffffff80003f34 ra : ffffffff808caa7c sp : ff2000000068bf30
+ gp : ffffffff815fcb48 tp : ff6000000240d400 t0 : 0000000000000000
+ t1 : 0000000000000000 t2 : 0000000000000000 s0 : ff2000000068bf40
+ s1 : 0000000000000001 a0 : 0000000000000000 a1 : 0000000000000000
+ a2 : 0000000000000000 a3 : 0000000000000000 a4 : 0000000000000000
+ a5 : 0000000000000000 a6 : 0000000000000000 a7 : 0000000000000000
+ s2 : ffffffff816001c8 s3 : ffffffff81600370 s4 : ffffffff80c32e18
+ s5 : ffffffff819d3018 s6 : ffffffff810e2110 s7 : 0000000000000000
+ s8 : 0000000000000000 s9 : 0000000080039ea8 s10: 0000000000000000
+ s11: 0000000000000000 t3 : 0000000000000000 t4 : 0000000000000000
+ t5 : 0000000000000000 t6 : 0000000000000000
+
+CPU 2:
+epc : ffffffff80003f34 ra : ffffffff808caa7c sp : ff20000000693f30
+ gp : ffffffff815fcb48 tp : ff6000000240e900 t0 : 0000000000000000
+ t1 : 0000000000000000 t2 : 0000000000000000 s0 : ff20000000693f40
+ s1 : 0000000000000002 a0 : 0000000000000000 a1 : 0000000000000000
+ a2 : 0000000000000000 a3 : 0000000000000000 a4 : 0000000000000000
+ a5 : 0000000000000000 a6 : 0000000000000000 a7 : 0000000000000000
+ s2 : ffffffff816001c8 s3 : ffffffff81600370 s4 : ffffffff80c32e18
+ s5 : ffffffff819d3018 s6 : ffffffff810e2110 s7 : 0000000000000000
+ s8 : 0000000000000000 s9 : 0000000080039eb0 s10: 0000000000000000
+ s11: 0000000000000000 t3 : 0000000000000000 t4 : 0000000000000000
+ t5 : 0000000000000000 t6 : 0000000000000000
+
+CPU 3:
+epc : ffffffff8000a1e4 ra : ffffffff800b7bba sp : ff200000109bbb40
+ gp : ffffffff815fcb48 tp : ff6000000373aa00 t0 : 6666666666663c5b
+ t1 : 0000000000000000 t2 : 666666666666663c s0 : ff200000109bbc90
+ s1 : ffffffff816007a0 a0 : ff200000109bbb48 a1 : 0000000000000000
+ a2 : 0000000000000000 a3 : 0000000000000001 a4 : 0000000000000000
+ a5 : ff60000002c61c00 a6 : 0000000000000000 a7 : 0000000000000000
+ s2 : ff200000109bbb48 s3 : ffffffff810941a8 s4 : ffffffff816004b4
+ s5 : 0000000000000000 s6 : 0000000000000007 s7 : ffffffff80e7f7a0
+ s8 : 00fffffffffff3f0 s9 : 0000000000000007 s10: 00aaaaaaaab98700
+ s11: 0000000000000001 t3 : ffffffff819a8097 t4 : ffffffff819a8097
+ t5 : ffffffff819a8098 t6 : ff200000109bb9a8
+
+Fixes: ad943893d5f1 ("RISC-V: Fixup schedule out issue in machine_crash_shutdown()")
+Reviewed-by: Xianting Tian <xianting.tian@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Cc: Nick Kossifidis <mick@ics.forth.gr>
+Link: https://lore.kernel.org/r/20221020141603.2856206-3-guoren@kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/cpufeatures.h |    1 +
- arch/x86/kernel/cpu/tsx.c          |   33 ++++++++++++++-------------------
- 2 files changed, 15 insertions(+), 19 deletions(-)
+ arch/riscv/include/asm/smp.h      |  3 +
+ arch/riscv/kernel/machine_kexec.c | 21 ++-----
+ arch/riscv/kernel/smp.c           | 97 ++++++++++++++++++++++++++++++-
+ 3 files changed, 103 insertions(+), 18 deletions(-)
 
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -292,6 +292,7 @@
- #define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
- #define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
- #define X86_FEATURE_RSB_VMEXIT_LITE	(11*32+17) /* "" Fill RSB on VM exit when EIBRS is enabled */
-+#define X86_FEATURE_MSR_TSX_CTRL	(11*32+18) /* "" MSR IA32_TSX_CTRL (Intel) implemented */
+diff --git a/arch/riscv/include/asm/smp.h b/arch/riscv/include/asm/smp.h
+index d3443be7eedc..3831b638ecab 100644
+--- a/arch/riscv/include/asm/smp.h
++++ b/arch/riscv/include/asm/smp.h
+@@ -50,6 +50,9 @@ void riscv_set_ipi_ops(const struct riscv_ipi_ops *ops);
+ /* Clear IPI for current CPU */
+ void riscv_clear_ipi(void);
  
- /* AMD-defined CPU features, CPUID level 0x80000008 (EBX), word 13 */
- #define X86_FEATURE_CLZERO		(13*32+ 0) /* CLZERO instruction */
---- a/arch/x86/kernel/cpu/tsx.c
-+++ b/arch/x86/kernel/cpu/tsx.c
-@@ -55,24 +55,6 @@ void tsx_enable(void)
- 	wrmsrl(MSR_IA32_TSX_CTRL, tsx);
++/* Check other CPUs stop or not */
++bool smp_crash_stop_failed(void);
++
+ /* Secondary hart entry */
+ asmlinkage void smp_callin(void);
+ 
+diff --git a/arch/riscv/kernel/machine_kexec.c b/arch/riscv/kernel/machine_kexec.c
+index db41c676e5a2..2d139b724bc8 100644
+--- a/arch/riscv/kernel/machine_kexec.c
++++ b/arch/riscv/kernel/machine_kexec.c
+@@ -140,22 +140,6 @@ void machine_shutdown(void)
+ #endif
  }
  
--static bool __init tsx_ctrl_is_supported(void)
+-/* Override the weak function in kernel/panic.c */
+-void crash_smp_send_stop(void)
 -{
--	u64 ia32_cap = x86_read_arch_cap_msr();
+-	static int cpus_stopped;
 -
 -	/*
--	 * TSX is controlled via MSR_IA32_TSX_CTRL.  However, support for this
--	 * MSR is enumerated by ARCH_CAP_TSX_MSR bit in MSR_IA32_ARCH_CAPABILITIES.
--	 *
--	 * TSX control (aka MSR_IA32_TSX_CTRL) is only available after a
--	 * microcode update on CPUs that have their MSR_IA32_ARCH_CAPABILITIES
--	 * bit MDS_NO=1. CPUs with MDS_NO=0 are not planned to get
--	 * MSR_IA32_TSX_CTRL support even after a microcode update. Thus,
--	 * tsx= cmdline requests will do nothing on CPUs without
--	 * MSR_IA32_TSX_CTRL support.
+-	 * This function can be called twice in panic path, but obviously
+-	 * we execute this only once.
 -	 */
--	return !!(ia32_cap & ARCH_CAP_TSX_CTRL_MSR);
+-	if (cpus_stopped)
+-		return;
+-
+-	smp_send_stop();
+-	cpus_stopped = 1;
 -}
 -
- static enum tsx_ctrl_states x86_get_tsx_auto_mode(void)
+ static void machine_kexec_mask_interrupts(void)
  {
- 	if (boot_cpu_has_bug(X86_BUG_TAA))
-@@ -86,9 +68,22 @@ void __init tsx_init(void)
- 	char arg[5] = {};
- 	int ret;
+ 	unsigned int i;
+@@ -230,6 +214,11 @@ machine_kexec(struct kimage *image)
+ 	void *control_code_buffer = page_address(image->control_code_page);
+ 	riscv_kexec_method kexec_method = NULL;
  
--	if (!tsx_ctrl_is_supported())
-+	/*
-+	 * TSX is controlled via MSR_IA32_TSX_CTRL.  However, support for this
-+	 * MSR is enumerated by ARCH_CAP_TSX_MSR bit in MSR_IA32_ARCH_CAPABILITIES.
-+	 *
-+	 * TSX control (aka MSR_IA32_TSX_CTRL) is only available after a
-+	 * microcode update on CPUs that have their MSR_IA32_ARCH_CAPABILITIES
-+	 * bit MDS_NO=1. CPUs with MDS_NO=0 are not planned to get
-+	 * MSR_IA32_TSX_CTRL support even after a microcode update. Thus,
-+	 * tsx= cmdline requests will do nothing on CPUs without
-+	 * MSR_IA32_TSX_CTRL support.
-+	 */
-+	if (!(x86_read_arch_cap_msr() & ARCH_CAP_TSX_CTRL_MSR))
- 		return;
- 
-+	setup_force_cpu_cap(X86_FEATURE_MSR_TSX_CTRL);
++#ifdef CONFIG_SMP
++	WARN(smp_crash_stop_failed(),
++		"Some CPUs may be stale, kdump will be unreliable.\n");
++#endif
 +
- 	ret = cmdline_find_option(boot_command_line, "tsx", arg, sizeof(arg));
- 	if (ret >= 0) {
- 		if (!strcmp(arg, "on")) {
+ 	if (image->type != KEXEC_TYPE_CRASH)
+ 		kexec_method = control_code_buffer;
+ 	else
+diff --git a/arch/riscv/kernel/smp.c b/arch/riscv/kernel/smp.c
+index 760a64518c58..8c3b59f1f9b8 100644
+--- a/arch/riscv/kernel/smp.c
++++ b/arch/riscv/kernel/smp.c
+@@ -12,6 +12,7 @@
+ #include <linux/clockchips.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
++#include <linux/kexec.h>
+ #include <linux/profile.h>
+ #include <linux/smp.h>
+ #include <linux/sched.h>
+@@ -22,11 +23,13 @@
+ #include <asm/sbi.h>
+ #include <asm/tlbflush.h>
+ #include <asm/cacheflush.h>
++#include <asm/cpu_ops.h>
+ 
+ enum ipi_message_type {
+ 	IPI_RESCHEDULE,
+ 	IPI_CALL_FUNC,
+ 	IPI_CPU_STOP,
++	IPI_CPU_CRASH_STOP,
+ 	IPI_IRQ_WORK,
+ 	IPI_TIMER,
+ 	IPI_MAX
+@@ -71,6 +74,32 @@ static void ipi_stop(void)
+ 		wait_for_interrupt();
+ }
+ 
++#ifdef CONFIG_KEXEC_CORE
++static atomic_t waiting_for_crash_ipi = ATOMIC_INIT(0);
++
++static inline void ipi_cpu_crash_stop(unsigned int cpu, struct pt_regs *regs)
++{
++	crash_save_cpu(regs, cpu);
++
++	atomic_dec(&waiting_for_crash_ipi);
++
++	local_irq_disable();
++
++#ifdef CONFIG_HOTPLUG_CPU
++	if (cpu_has_hotplug(cpu))
++		cpu_ops[cpu]->cpu_stop();
++#endif
++
++	for(;;)
++		wait_for_interrupt();
++}
++#else
++static inline void ipi_cpu_crash_stop(unsigned int cpu, struct pt_regs *regs)
++{
++	unreachable();
++}
++#endif
++
+ static const struct riscv_ipi_ops *ipi_ops __ro_after_init;
+ 
+ void riscv_set_ipi_ops(const struct riscv_ipi_ops *ops)
+@@ -124,8 +153,9 @@ void arch_irq_work_raise(void)
+ 
+ void handle_IPI(struct pt_regs *regs)
+ {
+-	unsigned long *pending_ipis = &ipi_data[smp_processor_id()].bits;
+-	unsigned long *stats = ipi_data[smp_processor_id()].stats;
++	unsigned int cpu = smp_processor_id();
++	unsigned long *pending_ipis = &ipi_data[cpu].bits;
++	unsigned long *stats = ipi_data[cpu].stats;
+ 
+ 	riscv_clear_ipi();
+ 
+@@ -154,6 +184,10 @@ void handle_IPI(struct pt_regs *regs)
+ 			ipi_stop();
+ 		}
+ 
++		if (ops & (1 << IPI_CPU_CRASH_STOP)) {
++			ipi_cpu_crash_stop(cpu, get_irq_regs());
++		}
++
+ 		if (ops & (1 << IPI_IRQ_WORK)) {
+ 			stats[IPI_IRQ_WORK]++;
+ 			irq_work_run();
+@@ -176,6 +210,7 @@ static const char * const ipi_names[] = {
+ 	[IPI_RESCHEDULE]	= "Rescheduling interrupts",
+ 	[IPI_CALL_FUNC]		= "Function call interrupts",
+ 	[IPI_CPU_STOP]		= "CPU stop interrupts",
++	[IPI_CPU_CRASH_STOP]	= "CPU stop (for crash dump) interrupts",
+ 	[IPI_IRQ_WORK]		= "IRQ work interrupts",
+ 	[IPI_TIMER]		= "Timer broadcast interrupts",
+ };
+@@ -235,6 +270,64 @@ void smp_send_stop(void)
+ 			   cpumask_pr_args(cpu_online_mask));
+ }
+ 
++#ifdef CONFIG_KEXEC_CORE
++/*
++ * The number of CPUs online, not counting this CPU (which may not be
++ * fully online and so not counted in num_online_cpus()).
++ */
++static inline unsigned int num_other_online_cpus(void)
++{
++	unsigned int this_cpu_online = cpu_online(smp_processor_id());
++
++	return num_online_cpus() - this_cpu_online;
++}
++
++void crash_smp_send_stop(void)
++{
++	static int cpus_stopped;
++	cpumask_t mask;
++	unsigned long timeout;
++
++	/*
++	 * This function can be called twice in panic path, but obviously
++	 * we execute this only once.
++	 */
++	if (cpus_stopped)
++		return;
++
++	cpus_stopped = 1;
++
++	/*
++	 * If this cpu is the only one alive at this point in time, online or
++	 * not, there are no stop messages to be sent around, so just back out.
++	 */
++	if (num_other_online_cpus() == 0)
++		return;
++
++	cpumask_copy(&mask, cpu_online_mask);
++	cpumask_clear_cpu(smp_processor_id(), &mask);
++
++	atomic_set(&waiting_for_crash_ipi, num_other_online_cpus());
++
++	pr_crit("SMP: stopping secondary CPUs\n");
++	send_ipi_mask(&mask, IPI_CPU_CRASH_STOP);
++
++	/* Wait up to one second for other CPUs to stop */
++	timeout = USEC_PER_SEC;
++	while ((atomic_read(&waiting_for_crash_ipi) > 0) && timeout--)
++		udelay(1);
++
++	if (atomic_read(&waiting_for_crash_ipi) > 0)
++		pr_warn("SMP: failed to stop secondary CPUs %*pbl\n",
++			cpumask_pr_args(&mask));
++}
++
++bool smp_crash_stop_failed(void)
++{
++	return (atomic_read(&waiting_for_crash_ipi) > 0);
++}
++#endif
++
+ void smp_send_reschedule(int cpu)
+ {
+ 	send_ipi_single(cpu, IPI_RESCHEDULE);
+-- 
+2.35.1
+
 
 
