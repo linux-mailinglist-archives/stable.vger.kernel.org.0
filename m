@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B5C5643242
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93A226432D4
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:30:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232971AbiLETZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:25:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46188 "EHLO
+        id S234139AbiLETab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:30:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233854AbiLETYs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6778D27DCE
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:17 -0800 (PST)
+        with ESMTP id S234147AbiLETaI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:30:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D609D2A969
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:26:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F377A612FB
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E34AC433D6;
-        Mon,  5 Dec 2022 19:20:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AC67B81181
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74012C433D7;
+        Mon,  5 Dec 2022 19:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268016;
-        bh=1sLharsBAkt90pSKVUMd50YBlh+hgXuwHd7ppPfuMS0=;
+        s=korg; t=1670268374;
+        bh=OfJ0yH/uYV+aWqzoUpcA/UzEc56Gw4fnLstOqpCCTsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aMVTo/GQSou3+XCwAH0DG9uv/BJ3DQX7c1OHxuQ8AKYkJpMqzjb9h/IeqYFjaNE6K
-         7/Fl9Luk0NNeW2UZtP9oagsp4izowVInJ9on/jrQ+sDEHFu4KDyYGMGeX0HXktY8La
-         0+mkCHu5QB0mUIA1rTLeR7XyASiugFpn/Qd1GaoI=
+        b=CJrvWGpelDhgUSlTwS8iMdQDnTl5XirbnPncJ15yZw9pEQ29uArlFN0LiCa30yHAh
+         vLTYqxTkZqOVSWs5y4uycSmSuk2+cFX12UJ4V86M28UVoQx+mguBPjPOyQjXxv/9gC
+         FTL8Z4dl3/JNGKN7G99QaabH6dtsbiaT6ie4F8MI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 055/105] btrfs: free btrfs_path before copying subvol info to userspace
+        patches@lists.linux.dev,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 061/124] mptcp: fix sleep in atomic at close time
 Date:   Mon,  5 Dec 2022 20:09:27 +0100
-Message-Id: <20221205190805.011900646@linuxfoundation.org>
+Message-Id: <20221205190810.154628939@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit 013c1c5585ebcfb19c88efe79063d0463b1b6159 upstream.
+[ Upstream commit b4f166651d03b5484fa179817ba8ad4899a5a6ac ]
 
-btrfs_ioctl_get_subvol_info() frees the search path after the userspace
-copy from the temp buffer @subvol_info. This can lead to a lock splat
-warning.
+Matt reported a splat at msk close time:
 
-Fix this by freeing the path before we copy it to userspace.
+    BUG: sleeping function called from invalid context at net/mptcp/protocol.c:2877
+    in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 155, name: packetdrill
+    preempt_count: 201, expected: 0
+    RCU nest depth: 0, expected: 0
+    4 locks held by packetdrill/155:
+    #0: ffff888001536990 (&sb->s_type->i_mutex_key#6){+.+.}-{3:3}, at: __sock_release (net/socket.c:650)
+    #1: ffff88800b498130 (sk_lock-AF_INET){+.+.}-{0:0}, at: mptcp_close (net/mptcp/protocol.c:2973)
+    #2: ffff88800b49a130 (sk_lock-AF_INET/1){+.+.}-{0:0}, at: __mptcp_close_ssk (net/mptcp/protocol.c:2363)
+    #3: ffff88800b49a0b0 (slock-AF_INET){+...}-{2:2}, at: __lock_sock_fast (include/net/sock.h:1820)
+    Preemption disabled at:
+    0x0
+    CPU: 1 PID: 155 Comm: packetdrill Not tainted 6.1.0-rc5 #365
+    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+    Call Trace:
+    <TASK>
+    dump_stack_lvl (lib/dump_stack.c:107 (discriminator 4))
+    __might_resched.cold (kernel/sched/core.c:9891)
+    __mptcp_destroy_sock (include/linux/kernel.h:110)
+    __mptcp_close (net/mptcp/protocol.c:2959)
+    mptcp_subflow_queue_clean (include/net/sock.h:1777)
+    __mptcp_close_ssk (net/mptcp/protocol.c:2363)
+    mptcp_destroy_common (net/mptcp/protocol.c:3170)
+    mptcp_destroy (include/net/sock.h:1495)
+    __mptcp_destroy_sock (net/mptcp/protocol.c:2886)
+    __mptcp_close (net/mptcp/protocol.c:2959)
+    mptcp_close (net/mptcp/protocol.c:2974)
+    inet_release (net/ipv4/af_inet.c:432)
+    __sock_release (net/socket.c:651)
+    sock_close (net/socket.c:1367)
+    __fput (fs/file_table.c:320)
+    task_work_run (kernel/task_work.c:181 (discriminator 1))
+    exit_to_user_mode_prepare (include/linux/resume_user_mode.h:49)
+    syscall_exit_to_user_mode (kernel/entry/common.c:130)
+    do_syscall_64 (arch/x86/entry/common.c:87)
+    entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
 
-CC: stable@vger.kernel.org # 4.19+
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We can't call mptcp_close under the 'fast' socket lock variant, replace
+it with a sock_lock_nested() as the relevant code is already under the
+listening msk socket lock protection.
+
+Reported-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/316
+Fixes: 30e51b923e43 ("mptcp: fix unreleased socket in accept queue")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ioctl.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/mptcp/subflow.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -2759,6 +2759,8 @@ static int btrfs_ioctl_get_subvol_info(s
- 		}
- 	}
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index 02a54d59697b..2159b5f9988f 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -1745,16 +1745,16 @@ void mptcp_subflow_queue_clean(struct sock *listener_ssk)
  
-+	btrfs_free_path(path);
-+	path = NULL;
- 	if (copy_to_user(argp, subvol_info, sizeof(*subvol_info)))
- 		ret = -EFAULT;
+ 	for (msk = head; msk; msk = next) {
+ 		struct sock *sk = (struct sock *)msk;
+-		bool slow, do_cancel_work;
++		bool do_cancel_work;
  
+ 		sock_hold(sk);
+-		slow = lock_sock_fast_nested(sk);
++		lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+ 		next = msk->dl_next;
+ 		msk->first = NULL;
+ 		msk->dl_next = NULL;
+ 
+ 		do_cancel_work = __mptcp_close(sk, 0);
+-		unlock_sock_fast(sk, slow);
++		release_sock(sk);
+ 		if (do_cancel_work)
+ 			mptcp_cancel_work(sk);
+ 		sock_put(sk);
+-- 
+2.35.1
+
 
 
