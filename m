@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 125A8643309
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4716F64327D
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234173AbiLETd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:33:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34166 "EHLO
+        id S233924AbiLET0W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:26:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234227AbiLETdc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:33:32 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 115622D768
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:28:25 -0800 (PST)
+        with ESMTP id S233951AbiLETZ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B93DFD6
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:22:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 657F1CE13A4
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:28:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40997C433C1;
-        Mon,  5 Dec 2022 19:28:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 089B0612FE
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:22:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D7CBC433D6;
+        Mon,  5 Dec 2022 19:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268502;
-        bh=2EAanNauODdYBR7w2XCTHCQSJmnnz1bBWOaetfT1cwY=;
+        s=korg; t=1670268134;
+        bh=r7Q+BkF0GpjiHmYzV8vp9O7957lfOyi9AysFUEtRR5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WvnrczJNI7iWekVS0C0oFMuTlZM9ZTR8FsRfI4sNm70Bz/5aC879aSzv+DMvRXC/D
-         Xq0PmlAzNsyCGz6vNGw1uyh8FoR3K71MYEux2SquPLUsvu6eBOr+qG+b7WuKvZwqt+
-         VT0zSTAFf1OIqIjqVDfbL0GVuHREz/dUhIyY8GOo=
+        b=Zr9dv22+SXo/CTL/JLuqez+kYc99ziI3VRvJC3/Xie867TZvscJv+4+VdUrux0xwi
+         vRuibhRtfvGGGcNpBYIbJrlxDiKCP4EaiZZWTD/SLDnmhHZY1XYeO1PypeY7GYrAYn
+         iLCrmPQgaWgDw3DM8+gC8G9biQpgbKspgDiaw1l8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 6.0 097/124] drm/i915: Never return 0 if not all requests retired
+        patches@lists.linux.dev, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 091/105] ASoC: ops: Fix bounds check for _sx controls
 Date:   Mon,  5 Dec 2022 20:10:03 +0100
-Message-Id: <20221205190811.171417413@linuxfoundation.org>
+Message-Id: <20221205190806.203338506@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 12b8b046e4c9de40fa59b6f067d6826f4e688f68 upstream.
+[ Upstream commit 698813ba8c580efb356ace8dbf55f61dac6063a8 ]
 
-Users of intel_gt_retire_requests_timeout() expect 0 return value on
-success.  However, we have no protection from passing back 0 potentially
-returned by a call to dma_fence_wait_timeout() when it succedes right
-after its timeout has expired.
+For _sx controls the semantics of the max field is not the usual one, max
+is the number of steps rather than the maximum value. This means that our
+check in snd_soc_put_volsw_sx() needs to just check against the maximum
+value.
 
-Replace 0 with -ETIME before potentially using the timeout value as return
-code, so -ETIME is returned if there are still some requests not retired
-after timeout, 0 otherwise.
-
-v3: Use conditional expression, more compact but also better reflecting
-    intention standing behind the change.
-
-v2: Move the added lines down so flush_submission() is not affected.
-
-Fixes: f33a8a51602c ("drm/i915: Merge wait_for_timelines with retire_request")
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Cc: stable@vger.kernel.org # v5.5+
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221121145655.75141-3-janusz.krzysztofik@linux.intel.com
-(cherry picked from commit f301a29f143760ce8d3d6b6a8436d45d3448cde6)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4f1e50d6a9cf9c1b ("ASoC: ops: Reject out of bounds values in snd_soc_put_volsw_sx()")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220511134137.169575-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_gt_requests.c |    2 +-
+ sound/soc/soc-ops.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_gt_requests.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt_requests.c
-@@ -199,7 +199,7 @@ out_active:	spin_lock(&timelines->lock);
- 	if (remaining_timeout)
- 		*remaining_timeout = timeout;
- 
--	return active_count ? timeout : 0;
-+	return active_count ? timeout ?: -ETIME : 0;
- }
- 
- static void retire_work_handler(struct work_struct *work)
+diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
+index 453b61b42dd9..2faf95d4bb75 100644
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -445,7 +445,7 @@ int snd_soc_put_volsw_sx(struct snd_kcontrol *kcontrol,
+ 	val = ucontrol->value.integer.value[0];
+ 	if (mc->platform_max && val > mc->platform_max)
+ 		return -EINVAL;
+-	if (val > max - min)
++	if (val > max)
+ 		return -EINVAL;
+ 	if (val < 0)
+ 		return -EINVAL;
+-- 
+2.35.1
+
 
 
