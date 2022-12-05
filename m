@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F578643143
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:13:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FC2E6432E5
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:31:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232245AbiLETNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:13:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60454 "EHLO
+        id S234218AbiLETbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:31:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232492AbiLETNA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:13:00 -0500
+        with ESMTP id S234242AbiLETb2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:31:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F301EC5A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:12:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522D8252B6
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17837B811EC
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:12:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 809DBC433D7;
-        Mon,  5 Dec 2022 19:12:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC49BB80EFD
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05874C433D6;
+        Mon,  5 Dec 2022 19:26:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267576;
-        bh=Q5SFnxgkZo2nLvhkNswS5raho+M6CLw0oQxMUoEXl90=;
+        s=korg; t=1670268418;
+        bh=y4KLJomoHTT8cA5/NKCnpPzh7+wVYDc6gBSNuyodz30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=raiYQP5dlprE524jvXv/AuuKi2HF9rwEBbtlLh3VRPA9TqMYdQi7ZHZNUpSxZ1Tqf
-         HlSNyNBmE8K2rMyiYDBEDwOCLRksEgaNI5FIv/asyB7NQ69U8kKCHzZFpdM1FFerl+
-         czDuLgM2tQC+sSh1Q7Whc1BcHXyrdM7oBDmSQfxw=
+        b=thNAouAnN4KFTs1BJJ1zsvJdB5Y4ww1Lt8ohLW7XWSixj+X62tGldv4D528JMNRRx
+         KVCjZw2BKCBaDqLrNaqumPyopGWnYRlVG7tJg1IjU/QMk9OT297vhmYv15Rb6EdP+6
+         tVhLXcBIU5rXIrKTR4jUy77PKylUpil/rS8q6OHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Chris Mi <cmi@nvidia.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 36/62] can: sja1000_isa: sja1000_isa_probe(): add missing free_sja1000dev()
+Subject: [PATCH 6.0 067/124] net/mlx5: Lag, Fix for loop when checking lag
 Date:   Mon,  5 Dec 2022 20:09:33 +0100
-Message-Id: <20221205190759.456086108@linuxfoundation.org>
+Message-Id: <20221205190810.322623995@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Chris Mi <cmi@nvidia.com>
 
-[ Upstream commit 92dfd9310a71d28cefe6a2d5174d43fab240e631 ]
+[ Upstream commit 0e682f04b4b59eac0b0a030251513589c4607458 ]
 
-Add the missing free_sja1000dev() before return from
-sja1000_isa_probe() in the register_sja1000dev() error handling case.
+The cited commit adds a for loop to check if each port supports lag
+or not. But dev is not initialized correctly. Fix it by initializing
+dev for each iteration.
 
-In addition, remove blanks before goto labels.
-
-Fixes: 2a6ba39ad6a2 ("can: sja1000: legacy SJA1000 ISA bus driver")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Link: https://lore.kernel.org/all/1668168521-5540-1-git-send-email-zhangchangzhong@huawei.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: e87c6a832f88 ("net/mlx5: E-switch, Fix duplicate lag creation")
+Signed-off-by: Chris Mi <cmi@nvidia.com>
+Reported-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Link: https://lore.kernel.org/r/20221129093006.378840-2-saeed@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/sja1000/sja1000_isa.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/sja1000/sja1000_isa.c b/drivers/net/can/sja1000/sja1000_isa.c
-index e97e6d35b300..5187fdabdca9 100644
---- a/drivers/net/can/sja1000/sja1000_isa.c
-+++ b/drivers/net/can/sja1000/sja1000_isa.c
-@@ -213,22 +213,24 @@ static int sja1000_isa_probe(struct platform_device *pdev)
- 	if (err) {
- 		dev_err(&pdev->dev, "registering %s failed (err=%d)\n",
- 			DRV_NAME, err);
--		goto exit_unmap;
-+		goto exit_free;
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
+index a879e0b0f702..48f86e12f5c0 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
+@@ -648,11 +648,13 @@ static bool mlx5_lag_check_prereq(struct mlx5_lag *ldev)
+ 			return false;
  
- 	dev_info(&pdev->dev, "%s device registered (reg_base=0x%p, irq=%d)\n",
- 		 DRV_NAME, priv->reg_base, dev->irq);
- 	return 0;
+ #ifdef CONFIG_MLX5_ESWITCH
+-	dev = ldev->pf[MLX5_LAG_P1].dev;
+-	for (i = 0; i  < ldev->ports; i++)
++	for (i = 0; i < ldev->ports; i++) {
++		dev = ldev->pf[i].dev;
+ 		if (mlx5_eswitch_num_vfs(dev->priv.eswitch) && !is_mdev_switchdev_mode(dev))
+ 			return false;
++	}
  
-- exit_unmap:
-+exit_free:
-+	free_sja1000dev(dev);
-+exit_unmap:
- 	if (mem[idx])
- 		iounmap(base);
-- exit_release:
-+exit_release:
- 	if (mem[idx])
- 		release_mem_region(mem[idx], iosize);
- 	else
- 		release_region(port[idx], iosize);
-- exit:
-+exit:
- 	return err;
- }
- 
++	dev = ldev->pf[MLX5_LAG_P1].dev;
+ 	mode = mlx5_eswitch_mode(dev);
+ 	for (i = 0; i < ldev->ports; i++)
+ 		if (mlx5_eswitch_mode(ldev->pf[i].dev) != mode)
 -- 
 2.35.1
 
