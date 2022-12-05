@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E18643216
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:24:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 785756432A0
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232317AbiLETYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:24:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46518 "EHLO
+        id S234045AbiLET1a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:27:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232867AbiLETYD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E1BC275F2
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:19:12 -0800 (PST)
+        with ESMTP id S234056AbiLET1D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:27:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 326592717B
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:24:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B6966130C
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:19:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D52BC433D6;
-        Mon,  5 Dec 2022 19:19:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7B9E612D8
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:24:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C526BC433D7;
+        Mon,  5 Dec 2022 19:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267942;
-        bh=+erf4JSvlN1dv6enXI2Pe9KxqxehNWpH2vefNq7EfqQ=;
+        s=korg; t=1670268257;
+        bh=mau/BnPvUdpsNKgmTUgDPAQwzLNpDh6A5qnc6YH4Sc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TEK6fOJR18Cy+7ooOulIYpHgEZASdS+oYHAUwSP2poY0m8remI3RMEZsX7+15IAEB
-         AsGneZIul61rpH9swg/unjmOcJ1tYfVO0kDmyYFCYoKsQxr4RiqwT6LY7d8JDaX5As
-         xr/B6SBJW0xXP5Z7bdIAJf88q9juupMY2altbXBk=
+        b=djbbdTUVomPJ5dyYVrrdp3TTnzqj54muh5KLyXJN0usJgFdoL1l6n9mD33CHnFt0Q
+         tYHMpFTxjnKoROLYAvP0tMKuh2TkCeS0mkslFCDEdeG1rDMb3cHf8HPbGqJWlXs6yV
+         uyKX/SWsFPED4TuGB8/eoMbtAixUblvTTrYCrPnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nicolas Cavallari <nicolas.cavallari@green-communications.fr>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, David Virag <virag.david003@gmail.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 003/105] wifi: mac80211: Fix ack frame idr leak when mesh has no route
+Subject: [PATCH 6.0 009/124] clk: samsung: exynos7885: Correct "div4" clock parents
 Date:   Mon,  5 Dec 2022 20:08:35 +0100
-Message-Id: <20221205190803.240284035@linuxfoundation.org>
+Message-Id: <20221205190808.707281682@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
+From: David Virag <virag.david003@gmail.com>
 
-[ Upstream commit 39e7b5de9853bd92ddbfa4b14165babacd7da0ba ]
+[ Upstream commit ef80c95c29dc67c3034f32d93c41e2ede398e387 ]
 
-When trying to transmit an data frame with tx_status to a destination
-that have no route in the mesh, then it is dropped without recrediting
-the ack_status_frames idr.
+"div4" DIVs which divide PLLs by 4 are actually dividing "div2" DIVs by
+2 to achieve a by 4 division, thus their parents are the respective
+"div2" DIVs. These DIVs were mistakenly set to have the PLLs as parents.
+This leads to the kernel thinking "div4"s and everything under them run
+at 2x the clock speed. Fix this.
 
-Once it is exhausted, wpa_supplicant starts failing to do SAE with
-NL80211_CMD_FRAME and logs "nl80211: Frame command failed".
-
-Use ieee80211_free_txskb() instead of kfree_skb() to fix it.
-
-Signed-off-by: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
-Link: https://lore.kernel.org/r/20221027140133.1504-1-nicolas.cavallari@green-communications.fr
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 45bd8166a1d8 ("clk: samsung: Add initial Exynos7885 clock driver")
+Signed-off-by: David Virag <virag.david003@gmail.com>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Link: https://lore.kernel.org/r/20221013151341.151208-1-virag.david003@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_pathtbl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/samsung/clk-exynos7885.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
-index 06b44c3c831a..71ebdc85755c 100644
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -731,7 +731,7 @@ int mesh_path_send_to_gates(struct mesh_path *mpath)
- void mesh_path_discard_frame(struct ieee80211_sub_if_data *sdata,
- 			     struct sk_buff *skb)
- {
--	kfree_skb(skb);
-+	ieee80211_free_txskb(&sdata->local->hw, skb);
- 	sdata->u.mesh.mshstats.dropped_frames_no_route++;
- }
+diff --git a/drivers/clk/samsung/clk-exynos7885.c b/drivers/clk/samsung/clk-exynos7885.c
+index a7b106302706..368c50badd15 100644
+--- a/drivers/clk/samsung/clk-exynos7885.c
++++ b/drivers/clk/samsung/clk-exynos7885.c
+@@ -182,7 +182,7 @@ static const struct samsung_div_clock top_div_clks[] __initconst = {
+ 	    CLK_CON_DIV_PLL_SHARED0_DIV2, 0, 1),
+ 	DIV(CLK_DOUT_SHARED0_DIV3, "dout_shared0_div3", "fout_shared0_pll",
+ 	    CLK_CON_DIV_PLL_SHARED0_DIV3, 0, 2),
+-	DIV(CLK_DOUT_SHARED0_DIV4, "dout_shared0_div4", "fout_shared0_pll",
++	DIV(CLK_DOUT_SHARED0_DIV4, "dout_shared0_div4", "dout_shared0_div2",
+ 	    CLK_CON_DIV_PLL_SHARED0_DIV4, 0, 1),
+ 	DIV(CLK_DOUT_SHARED0_DIV5, "dout_shared0_div5", "fout_shared0_pll",
+ 	    CLK_CON_DIV_PLL_SHARED0_DIV5, 0, 3),
+@@ -190,7 +190,7 @@ static const struct samsung_div_clock top_div_clks[] __initconst = {
+ 	    CLK_CON_DIV_PLL_SHARED1_DIV2, 0, 1),
+ 	DIV(CLK_DOUT_SHARED1_DIV3, "dout_shared1_div3", "fout_shared1_pll",
+ 	    CLK_CON_DIV_PLL_SHARED1_DIV3, 0, 2),
+-	DIV(CLK_DOUT_SHARED1_DIV4, "dout_shared1_div4", "fout_shared1_pll",
++	DIV(CLK_DOUT_SHARED1_DIV4, "dout_shared1_div4", "dout_shared1_div2",
+ 	    CLK_CON_DIV_PLL_SHARED1_DIV4, 0, 1),
  
+ 	/* CORE */
 -- 
 2.35.1
 
