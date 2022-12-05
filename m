@@ -2,125 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D93FE6424FB
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 09:47:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64BD5642518
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 09:54:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231924AbiLEIqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 03:46:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36634 "EHLO
+        id S231696AbiLEIy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 03:54:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232331AbiLEIqY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 03:46:24 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B546175B3
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 00:46:14 -0800 (PST)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1p276t-0004mn-5J; Mon, 05 Dec 2022 09:45:59 +0100
-Received: from pengutronix.de (hardanger-8.fritz.box [IPv6:2a03:f580:87bc:d400:c1b8:7ff9:10eb:2660])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        (Authenticated sender: mkl-all@blackshift.org)
-        by smtp.blackshift.org (Postfix) with ESMTPSA id B9E471361CF;
-        Mon,  5 Dec 2022 08:45:56 +0000 (UTC)
-Date:   Mon, 5 Dec 2022 09:45:56 +0100
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     Max Staudt <max@enpas.org>
-Cc:     Wolfgang Grandegger <wg@grandegger.com>,
-        Vincent Mailhol <vincent.mailhol@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>, linux-kernel@vger.kernel.org,
-        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] can: can327: Flush tx_work on ldisc .close()
-Message-ID: <20221205084556.etpo2xufbsl5753d@pengutronix.de>
-References: <20221202160148.282564-1-max@enpas.org>
+        with ESMTP id S231540AbiLEIxv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 03:53:51 -0500
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7095F7678;
+        Mon,  5 Dec 2022 00:52:57 -0800 (PST)
+Received: from dggpemm500013.china.huawei.com (unknown [172.30.72.57])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4NQck06QY8z15N6H;
+        Mon,  5 Dec 2022 16:52:08 +0800 (CST)
+Received: from ubuntu1804.huawei.com (10.67.175.36) by
+ dggpemm500013.china.huawei.com (7.185.36.172) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Mon, 5 Dec 2022 16:52:55 +0800
+From:   Chen Zhongjin <chenzhongjin@huawei.com>
+To:     <linux-fbdev@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
+        <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     <chenzhongjin@huawei.com>, <daniel@ffwll.ch>, <deller@gmx.de>,
+        <sam@ravnborg.org>, <tzimmermann@suse.de>,
+        <geert+renesas@glider.be>,
+        <syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com>
+Subject: [PATCH] fbcon: Fix memleak when fbcon_set_font() fails
+Date:   Mon, 5 Dec 2022 16:49:59 +0800
+Message-ID: <20221205084959.147904-1-chenzhongjin@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="y3v7ghucklse6fhe"
-Content-Disposition: inline
-In-Reply-To: <20221202160148.282564-1-max@enpas.org>
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain
+X-Originating-IP: [10.67.175.36]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpemm500013.china.huawei.com (7.185.36.172)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+syzkaller reported a memleak:
+https://syzkaller.appspot.com/bug?id=7cc8bce62e201c60e36ef0133dab7f6b8afbc626
 
---y3v7ghucklse6fhe
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+BUG: memory leak
+unreferenced object 0xffff888111648000 (size 18448):
+  backtrace:
+    [<ffffffff8250c359>] kmalloc
+    [<ffffffff8250c359>] fbcon_set_font+0x1a9/0x470
+    [<ffffffff8262cd59>] con_font_set
+    [<ffffffff8262cd59>] con_font_op+0x3a9/0x600
+    ...
 
-On 03.12.2022 01:01:48, Max Staudt wrote:
-> Additionally, remove it from .ndo_stop().
->=20
-> This ensures that the worker is not called after being freed, and that
-> the UART TX queue remains active to send final commands when the netdev
-> is stopped.
->=20
-> Thanks to Jiri Slaby for finding this in slcan:
->=20
->   https://lore.kernel.org/linux-can/20221201073426.17328-1-jirislaby@kern=
-el.org/
->=20
-> A variant of this patch for slcan, with the flush in .ndo_stop() still
-> present, has been tested successfully on physical hardware:
->=20
->   https://bugzilla.suse.com/show_bug.cgi?id=3D1205597
->=20
-> Fixes: 43da2f07622f ("can: can327: CAN/ldisc driver for ELM327 based OBD-=
-II adapters")
-> Cc: "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
-> Cc: Max Staudt <max@enpas.org>
-> Cc: Wolfgang Grandegger <wg@grandegger.com>
-> Cc: Marc Kleine-Budde <mkl@pengutronix.de>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Eric Dumazet <edumazet@google.com>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Paolo Abeni <pabeni@redhat.com>
-> Cc: linux-can@vger.kernel.org
-> Cc: netdev@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Max Staudt <max@enpas.org>
+It's because when fbcon_do_set_font() fails in fbcon_set_font(), it
+return error directly and doesn't free allocated memory 'new_data'.
 
-Applied to linux-can.
+Reported-by: syzbot+25bdb7b1703639abd498@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+---
+ drivers/video/fbdev/core/fbcon.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-regards,
-Marc
+diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
+index c0143d38df83..edb01d200b5b 100644
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2480,7 +2480,7 @@ static int fbcon_set_font(struct vc_data *vc, struct console_font *font,
+ 	int w = font->width;
+ 	int h = font->height;
+ 	int size;
+-	int i, csum;
++	int i, csum, ret;
+ 	u8 *new_data, *data = font->data;
+ 	int pitch = PITCH(font->width);
+ 
+@@ -2539,7 +2539,11 @@ static int fbcon_set_font(struct vc_data *vc, struct console_font *font,
+ 			break;
+ 		}
+ 	}
+-	return fbcon_do_set_font(vc, font->width, font->height, charcount, new_data, 1);
++
++	ret = fbcon_do_set_font(vc, font->width, font->height, charcount, new_data, 1);
++	if (ret && i > last_fb_vc)
++		kfree(new_data - FONT_EXTRA_WORDS * sizeof(int));
++	return ret;
+ }
+ 
+ static int fbcon_set_def_font(struct vc_data *vc, struct console_font *font, char *name)
+-- 
+2.17.1
 
---=20
-Pengutronix e.K.                 | Marc Kleine-Budde           |
-Embedded Linux                   | https://www.pengutronix.de  |
-Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
-
---y3v7ghucklse6fhe
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEBsvAIBsPu6mG7thcrX5LkNig010FAmONr8EACgkQrX5LkNig
-012LCwf8CMDCZv6PnSKRAlBjjjDBvBq29KA/kv21asReFn7i+WoSd6hqvKIT0mnM
-7oKfo57cdk2qPJC1hjzsRtnMHlvgEXlqHFFkJtqD08IXPW/n+hJt3O3R4qpe6q0Q
-ooLTpZTC7l8Ze6MEdeO95DOfFj71ziLBk+583Xjm+caUNwE9IeDzXHBlv3F6+Sji
-efgmaCKqsgmEoJMc7Enz+412PAiMtN/8mHfH4par5n3WP0nIOD4njkWXpyOu7WnU
-ORiRJideTEgeSQwDkiUJkjfDo+iFVvtWLeSVViYcUXlOeOfDTYvhhYGjTofRd6Ja
-XWGZDP69+co9pHGh58o78sd+jbI+ag==
-=urxd
------END PGP SIGNATURE-----
-
---y3v7ghucklse6fhe--
