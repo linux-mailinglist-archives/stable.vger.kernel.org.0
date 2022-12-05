@@ -2,47 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC8DE64329E
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAF706431A1
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:17:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234128AbiLET1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:27:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52060 "EHLO
+        id S232772AbiLETP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:15:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233984AbiLET0u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 952F5B87B
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:23:42 -0800 (PST)
+        with ESMTP id S233086AbiLETO7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:14:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8213224BD2;
+        Mon,  5 Dec 2022 11:14:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3135D61315
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:23:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E198C433D6;
-        Mon,  5 Dec 2022 19:23:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14215B81151;
+        Mon,  5 Dec 2022 19:14:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5211AC433D6;
+        Mon,  5 Dec 2022 19:14:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268221;
-        bh=vjyVKoq7oqhGfzgHrl5x+aFVo/ZYk4B9wcdQEx2Yc8s=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIJnmKluK+P770/JM7blP6WVRWUS9m6RvS7M/JUuVFHyqXVxZ9jxSGMrdkk/6vFY7
-         eqgsGpUdgXfnLNKj5qZhtHiXrIPkoMaaO1ooU0L9Re+NYEe/iys5SbA8wuW0Hb6ZNl
-         /DspaBgl7uTIticxU9C1JEKmUZbwhGbOLs5mcSec=
+        s=korg; t=1670267695;
+        bh=AUbMPonmvyCU8H/q8EicIIfdv0qXhGpgyIPDbHrvksI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=PFeqOS2UhtAZjjJtR8/DjITSedq30zF5hkrP9HJB7NGGDzpj9p0xKYEuzGVRTaO6D
+         LboqCa8YFf3dPrGSBHjACp6y62SL1hk8o3BowxH/19v86FvDutUh5r6bMu3kJGcue0
+         EnZOLA8UHrTNIrcjTWd2NF4m268p6aJXU7R5vFzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Joe Korty <joe.korty@concurrent-rt.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 024/124] clocksource/drivers/arm_arch_timer: Fix XGene-1 TVAL register math error
-Date:   Mon,  5 Dec 2022 20:08:50 +0100
-Message-Id: <20221205190809.140234761@linuxfoundation.org>
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: [PATCH 4.14 00/77] 4.14.301-rc1 review
+Date:   Mon,  5 Dec 2022 20:08:51 +0100
+Message-Id: <20221205190800.868551051@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
-User-Agent: quilt/0.67
 MIME-Version: 1.0
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.301-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.301-rc1
+X-KernelTest-Deadline: 2022-12-07T19:08+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -54,93 +62,350 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Korty <joe.korty@concurrent-rt.com>
+This is the start of the stable review cycle for the 4.14.301 release.
+There are 77 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 839a973988a94c15002cbd81536e4af6ced2bd30 ]
+Responses should be made by Wed, 07 Dec 2022 19:07:46 +0000.
+Anything received after that time might be too late.
 
-The TVAL register is 32 bit signed.  Thus only the lower 31 bits are
-available to specify when an interrupt is to occur at some time in the
-near future.  Attempting to specify a larger interval with TVAL results
-in a negative time delta which means the timer fires immediately upon
-being programmed, rather than firing at that expected future time.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.301-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-The solution is for Linux to declare that TVAL is a 31 bit register rather
-than give its true size of 32 bits.  This prevents Linux from programming
-TVAL with a too-large value.  Note that, prior to 5.16, this little trick
-was the standard way to handle TVAL in Linux, so there is nothing new
-happening here on that front.
+thanks,
 
-The softlockup detector hides the issue, because it keeps generating
-short timer deadlines that are within the scope of the broken timer.
+greg k-h
 
-Disabling it, it starts using NO_HZ with much longer timer deadlines, which
-turns into an interrupt flood:
+-------------
+Pseudo-Shortlog of commits:
 
- 11: 1124855130  949168462  758009394   76417474  104782230   30210281
-         310890 1734323687     GICv2  29 Level     arch_timer
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.301-rc1
 
-And "much longer" isn't that long: it takes less than 43s to underflow
-TVAL at 50MHz (the frequency of the counter on XGene-1).
+Adrian Hunter <adrian.hunter@intel.com>
+    mmc: sdhci: Fix voltage switch delay
 
-Some comments on the v1 version of this patch by Marc Zyngier:
+Masahiro Yamada <yamada.masahiro@socionext.com>
+    mmc: sdhci: use FIELD_GET for preset value bit masks
 
-  XGene implements CVAL (a 64bit comparator) in terms of TVAL (a countdown
-  register) instead of the other way around. TVAL being a 32bit register,
-  the width of the counter should equally be 32.  However, TVAL is a
-  *signed* value, and keeps counting down in the negative range once the
-  timer fires.
+Michael Kelley <mikelley@microsoft.com>
+    x86/ioremap: Fix page aligned size calculation in __ioremap_caller()
 
-  It means that any TVAL value with bit 31 set will fire immediately,
-  as it cannot be distinguished from an already expired timer. Reducing
-  the timer range back to a paltry 31 bits papers over the issue.
+Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+    Bluetooth: L2CAP: Fix accepting connection request for invalid SPSM
 
-  Another problem cannot be fixed though, which is that the timer interrupt
-  *must* be handled within the negative countdown period, or the interrupt
-  will be lost (TVAL will rollover to a positive value, indicative of a
-  new timer deadline).
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/pm: Add enumeration check before spec MSRs save/restore setup
 
-Fixes: 012f18850452 ("clocksource/drivers/arm_arch_timer: Work around broken CVAL implementations")
-Signed-off-by: Joe Korty <joe.korty@concurrent-rt.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20221024165422.GA51107@zipoli.concurrent-rt.com
-Link: https://lore.kernel.org/r/20221121145343.896018-1-maz@kernel.org
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/tsx: Add a feature bit for TSX control MSR support
 
-[maz: revamped the commit message]
+Keith Busch <kbusch@kernel.org>
+    nvme: restrict management ioctls to admin
 
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/clocksource/arm_arch_timer.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    tcp/udp: Fix memory leak in ipv6_renew_options().
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index a7ff77550e17..933bb960490d 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -806,6 +806,9 @@ static u64 __arch_timer_check_delta(void)
- 		/*
- 		 * XGene-1 implements CVAL in terms of TVAL, meaning
- 		 * that the maximum timer range is 32bit. Shame on them.
-+		 *
-+		 * Note that TVAL is signed, thus has only 31 of its
-+		 * 32 bits to express magnitude.
- 		 */
- 		MIDR_ALL_VERSIONS(MIDR_CPU_MODEL(ARM_CPU_IMP_APM,
- 						 APM_CPU_PART_POTENZA)),
-@@ -813,8 +816,8 @@ static u64 __arch_timer_check_delta(void)
- 	};
- 
- 	if (is_midr_in_range_list(read_cpuid_id(), broken_cval_midrs)) {
--		pr_warn_once("Broken CNTx_CVAL_EL1, limiting width to 32bits");
--		return CLOCKSOURCE_MASK(32);
-+		pr_warn_once("Broken CNTx_CVAL_EL1, using 31 bit TVAL instead.\n");
-+		return CLOCKSOURCE_MASK(31);
- 	}
- #endif
- 	return CLOCKSOURCE_MASK(arch_counter_get_width());
--- 
-2.35.1
+Xiongfeng Wang <wangxiongfeng2@huawei.com>
+    iommu/vt-d: Fix PCI device refcount leak in dmar_dev_scope_init()
 
+Maxim Korotkov <korotkov.maxim.s@gmail.com>
+    pinctrl: single: Fix potential division by zero
+
+Mark Brown <broonie@kernel.org>
+    ASoC: ops: Fix bounds check for _sx controls
+
+Ben Hutchings <ben@decadent.org.uk>
+    efi: random: Properly limit the size of the random seed
+
+James Morse <james.morse@arm.com>
+    arm64: errata: Fix KVM Spectre-v2 mitigation selection for Cortex-A57/A72
+
+James Morse <james.morse@arm.com>
+    arm64: Fix panic() when Spectre-v2 causes Spectre-BHB to re-allocate KVM vectors
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/bugs: Make sure MSR_SPEC_CTRL is updated properly upon resume from S3
+
+ZhangPeng <zhangpeng362@huawei.com>
+    nilfs2: fix NULL pointer dereference in nilfs_palloc_commit_free_entry()
+
+Tiezhu Yang <yangtiezhu@loongson.cn>
+    tools/vm/slabinfo-gnuplot: use "grep -E" instead of "egrep"
+
+ChenXiaoSong <chenxiaosong2@huawei.com>
+    btrfs: qgroup: fix sleep from invalid context bug in btrfs_qgroup_inherit()
+
+Kan Liang <kan.liang@linux.intel.com>
+    perf: Add sample_flags to indicate the PMU-filled sample data
+
+Sam James <sam@gentoo.org>
+    kbuild: fix -Wimplicit-function-declaration in license_is_gpl_compatible
+
+Yang Yingliang <yangyingliang@huawei.com>
+    hwmon: (coretemp) fix pci device refcount leak in nv1a_ram_new()
+
+Phil Auld <pauld@redhat.com>
+    hwmon: (coretemp) Check for null before removing sysfs attrs
+
+Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+    net: ethernet: renesas: ravb: Fix promiscuous mode after system resumed
+
+Willem de Bruijn <willemb@google.com>
+    packet: do not set TP_STATUS_CSUM_VALID on CHECKSUM_COMPLETE
+
+YueHaibing <yuehaibing@huawei.com>
+    net: hsr: Fix potential use-after-free
+
+Jerry Ray <jerry.ray@microchip.com>
+    dsa: lan9303: Correct stat name
+
+Wang Hai <wanghai38@huawei.com>
+    net/9p: Fix a potential socket leak in p9_socket_open
+
+Yuan Can <yuancan@huawei.com>
+    net: net_netdev: Fix error handling in ntb_netdev_init_module()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net: phy: fix null-ptr-deref while probe() failed
+
+Duoming Zhou <duoming@zju.edu.cn>
+    qlcnic: fix sleep-in-atomic-context bugs caused by msleep
+
+Zhang Changzhong <zhangchangzhong@huawei.com>
+    can: cc770: cc770_isa_probe(): add missing free_cc770dev()
+
+Zhang Changzhong <zhangchangzhong@huawei.com>
+    can: sja1000_isa: sja1000_isa_probe(): add missing free_sja1000dev()
+
+YueHaibing <yuehaibing@huawei.com>
+    net/mlx5: Fix uninitialized variable bug in outlen_write()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    of: property: decrement node refcount in of_fwnode_get_reference_args()
+
+Gaosheng Cui <cuigaosheng1@huawei.com>
+    hwmon: (ibmpex) Fix possible UAF when ibmpex_register_bmc() fails
+
+Yang Yingliang <yangyingliang@huawei.com>
+    hwmon: (i5500_temp) fix missing pci_disable_device()
+
+Paul Gazzillo <paul@pgazz.com>
+    iio: light: rpr0521: add missing Kconfig dependencies
+
+Wei Yongjun <weiyongjun1@huawei.com>
+    iio: health: afe4404: Fix oob read in afe4404_[read|write]_raw
+
+Wei Yongjun <weiyongjun1@huawei.com>
+    iio: health: afe4403: Fix oob read in afe4403_read_raw
+
+Christian König <christian.koenig@amd.com>
+    drm/amdgpu: always register an MMU notifier for userptr
+
+Enrico Sau <enrico.sau@gmail.com>
+    net: usb: qmi_wwan: add Telit 0x103a composition
+
+Gleb Mazovetskiy <glex.spb@gmail.com>
+    tcp: configurable source port perturb table size
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    platform/x86: hp-wmi: Ignore Smart Experience App event
+
+Hans de Goede <hdegoede@redhat.com>
+    platform/x86: acer-wmi: Enable SW_TABLET_MODE on Switch V 10 (SW5-017)
+
+Xiongfeng Wang <wangxiongfeng2@huawei.com>
+    platform/x86: asus-wmi: add missing pci_dev_put() in asus_wmi_set_xusb2pr()
+
+ruanjinjie <ruanjinjie@huawei.com>
+    xen/platform-pci: add missing free_irq() in error path
+
+Lukas Wunner <lukas@wunner.de>
+    serial: 8250: 8250_omap: Avoid RS485 RTS glitch on ->set_termios()
+
+Aman Dhoot <amandhoot12@gmail.com>
+    Input: synaptics - switch touchpad on HP Laptop 15-da3001TU to RMI mode
+
+Chen Zhongjin <chenzhongjin@huawei.com>
+    nilfs2: fix nilfs_sufile_mark_dirty() not set segment usage as dirty
+
+Masahiro Yamada <yamada.masahiro@socionext.com>
+    kconfig: display recursive dependency resolution hint just once
+
+Chen Zhongjin <chenzhongjin@huawei.com>
+    iio: core: Fix entry not deleted when iio_register_sw_trigger_type() fails
+
+Alejandro Concepción Rodríguez <asconcepcion@acoro.eu>
+    iio: light: apds9960: fix wrong register for gesture gain
+
+Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
+    arm64: dts: rockchip: lower rk3399-puma-haikou SD controller clock frequency
+
+Randy Dunlap <rdunlap@infradead.org>
+    nios2: add FORCE for vmlinuz.gz
+
+Heiko Carstens <hca@linux.ibm.com>
+    s390/crashdump: fix TOD programmable field size
+
+Yu Liao <liaoyu15@huawei.com>
+    net: thunderx: Fix the ACPI memory leak
+
+Martin Faltesek <mfaltesek@google.com>
+    nfc: st-nci: fix memory leaks in EVT_TRANSACTION
+
+Martin Faltesek <mfaltesek@google.com>
+    nfc: st-nci: fix incorrect validating logic in EVT_TRANSACTION
+
+Stefan Haberland <sth@linux.ibm.com>
+    s390/dasd: fix no record found for raw_track_access
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    dccp/tcp: Reset saddr on failure after inet6?_hash_connect().
+
+Liu Shixin <liushixin2@huawei.com>
+    NFC: nci: fix memory leak in nci_rx_data_packet()
+
+Chen Zhongjin <chenzhongjin@huawei.com>
+    xfrm: Fix ignored return value in xfrm6_init()
+
+Zhang Changzhong <zhangchangzhong@huawei.com>
+    net/qla3xxx: fix potential memleak in ql3xxx_send()
+
+Peter Kosyh <pkosyh@yandex.ru>
+    net/mlx4: Check retval of mlx4_bitmap_init
+
+Zheng Yongjun <zhengyongjun3@huawei.com>
+    ARM: mxs: fix memory leak in mxs_machine_init()
+
+Zhengchao Shao <shaozhengchao@huawei.com>
+    9p/fd: fix issue of list_del corruption in p9_fd_cancel()
+
+Wang Hai <wanghai38@huawei.com>
+    net: pch_gbe: fix potential memleak in pch_gbe_tx_queue()
+
+Lin Ma <linma@zju.edu.cn>
+    nfc/nci: fix race with opening and closing
+
+Michael Grzeschik <m.grzeschik@pengutronix.de>
+    ARM: dts: at91: sam9g20ek: enable udc vbus gpio pinctrl
+
+Samuel Holland <samuel@sholland.org>
+    bus: sunxi-rsb: Support atomic transfers
+
+Dominik Haller <d.haller@phytec.de>
+    ARM: dts: am335x-pcm-953: Define fixed regulators in root node
+
+Herbert Xu <herbert@gondor.apana.org.au>
+    af_key: Fix send_acquire race with pfkey_register
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    MIPS: pic32: treat port as signed integer
+
+Sean Nyekjaer <sean@geanix.com>
+    spi: stm32: fix stm32_spi_prepare_mbr() that halves spi clk for every run
+
+Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
+    wifi: mac80211: Fix ack frame idr leak when mesh has no route
+
+Gaosheng Cui <cuigaosheng1@huawei.com>
+    audit: fix undefined behavior in bit shift for AUDIT_BIT
+
+Jonas Jelonek <jelonek.jonas@gmail.com>
+    wifi: mac80211_hwsim: fix debugfs attribute ps with rc table support
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/arm/boot/dts/am335x-pcm-953.dtsi              | 28 ++++-----
+ arch/arm/boot/dts/at91sam9g20ek_common.dtsi        |  9 +++
+ arch/arm/mach-mxs/mach-mxs.c                       |  4 +-
+ .../arm64/boot/dts/rockchip/rk3399-puma-haikou.dts |  2 +-
+ arch/arm64/kernel/cpu_errata.c                     | 24 ++++++--
+ arch/mips/include/asm/fw/fw.h                      |  2 +-
+ arch/mips/pic32/pic32mzda/early_console.c          | 13 ++--
+ arch/mips/pic32/pic32mzda/init.c                   |  2 +-
+ arch/nios2/boot/Makefile                           |  2 +-
+ arch/s390/kernel/crash_dump.c                      |  2 +-
+ arch/x86/include/asm/cpufeatures.h                 |  1 +
+ arch/x86/include/asm/nospec-branch.h               |  2 +-
+ arch/x86/kernel/cpu/bugs.c                         | 21 ++++---
+ arch/x86/kernel/cpu/tsx.c                          | 33 +++++-----
+ arch/x86/kernel/process.c                          |  2 +-
+ arch/x86/mm/ioremap.c                              |  8 ++-
+ arch/x86/power/cpu.c                               | 23 ++++---
+ drivers/bus/sunxi-rsb.c                            | 29 ++++++---
+ drivers/firmware/efi/efi.c                         |  2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c            |  8 +--
+ drivers/hwmon/coretemp.c                           |  9 ++-
+ drivers/hwmon/i5500_temp.c                         |  2 +-
+ drivers/hwmon/ibmpex.c                             |  1 +
+ drivers/iio/health/afe4403.c                       |  5 +-
+ drivers/iio/health/afe4404.c                       | 12 ++--
+ drivers/iio/industrialio-sw-trigger.c              |  6 +-
+ drivers/iio/light/Kconfig                          |  2 +
+ drivers/iio/light/apds9960.c                       | 12 ++--
+ drivers/input/mouse/synaptics.c                    |  1 +
+ drivers/iommu/dmar.c                               |  1 +
+ drivers/mmc/host/sdhci.c                           | 71 ++++++++++++++++++----
+ drivers/mmc/host/sdhci.h                           | 12 ++--
+ drivers/net/can/cc770/cc770_isa.c                  | 10 +--
+ drivers/net/can/sja1000/sja1000_isa.c              | 10 +--
+ drivers/net/dsa/lan9303-core.c                     |  2 +-
+ drivers/net/ethernet/cavium/thunder/thunder_bgx.c  |  4 +-
+ drivers/net/ethernet/mellanox/mlx4/qp.c            |  3 +-
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c      |  4 +-
+ .../net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c   |  1 +
+ drivers/net/ethernet/qlogic/qla3xxx.c              |  1 +
+ .../net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c    |  4 +-
+ drivers/net/ethernet/renesas/ravb_main.c           |  1 +
+ drivers/net/ntb_netdev.c                           |  9 ++-
+ drivers/net/phy/phy_device.c                       |  1 +
+ drivers/net/usb/qmi_wwan.c                         |  1 +
+ drivers/net/wireless/mac80211_hwsim.c              |  5 ++
+ drivers/nfc/st-nci/se.c                            |  6 +-
+ drivers/nvme/host/core.c                           |  6 ++
+ drivers/of/property.c                              |  4 +-
+ drivers/pinctrl/pinctrl-single.c                   |  2 +-
+ drivers/platform/x86/acer-wmi.c                    |  9 +++
+ drivers/platform/x86/asus-wmi.c                    |  2 +
+ drivers/platform/x86/hp-wmi.c                      |  3 +
+ drivers/s390/block/dasd_eckd.c                     |  6 +-
+ drivers/spi/spi-stm32.c                            |  2 +-
+ drivers/tty/serial/8250/8250_omap.c                |  7 ++-
+ drivers/xen/platform-pci.c                         |  7 ++-
+ fs/btrfs/qgroup.c                                  |  9 +--
+ fs/nilfs2/dat.c                                    |  7 +++
+ fs/nilfs2/sufile.c                                 |  8 +++
+ include/linux/license.h                            |  2 +
+ include/linux/perf_event.h                         |  2 +
+ include/uapi/linux/audit.h                         |  2 +-
+ kernel/events/core.c                               | 17 ++++--
+ net/9p/trans_fd.c                                  |  6 +-
+ net/bluetooth/l2cap_core.c                         | 13 ++++
+ net/dccp/ipv4.c                                    |  2 +
+ net/dccp/ipv6.c                                    |  2 +
+ net/hsr/hsr_forward.c                              |  5 +-
+ net/ipv4/Kconfig                                   | 10 +++
+ net/ipv4/inet_hashtables.c                         | 10 +--
+ net/ipv4/tcp_ipv4.c                                |  2 +
+ net/ipv6/ipv6_sockglue.c                           |  7 +++
+ net/ipv6/tcp_ipv6.c                                |  2 +
+ net/ipv6/xfrm6_policy.c                            |  6 +-
+ net/key/af_key.c                                   | 32 +++++++---
+ net/mac80211/mesh_pathtbl.c                        |  2 +-
+ net/nfc/nci/core.c                                 |  2 +-
+ net/nfc/nci/data.c                                 |  4 +-
+ net/packet/af_packet.c                             |  6 +-
+ scripts/kconfig/symbol.c                           |  8 ++-
+ sound/soc/soc-ops.c                                |  2 +-
+ tools/vm/slabinfo-gnuplot.sh                       |  4 +-
+ 84 files changed, 440 insertions(+), 197 deletions(-)
 
 
