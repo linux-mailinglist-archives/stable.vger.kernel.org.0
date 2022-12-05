@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A6664339D
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CEC5643250
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234391AbiLETiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:38:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41770 "EHLO
+        id S233708AbiLETZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:25:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234116AbiLEThh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:37:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61E5527DEF
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:34 -0800 (PST)
+        with ESMTP id S233928AbiLETZS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D94C27FDA
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E157D612C5
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0CFEC433B5;
-        Mon,  5 Dec 2022 19:34:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05208B81151
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AE4CC433D6;
+        Mon,  5 Dec 2022 19:20:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268873;
-        bh=VkOFT7DBQT7Up2BTSVl1Iqk88N6FZaJHKY6oqZRsDbs=;
+        s=korg; t=1670268054;
+        bh=jwU1wlp1DuoIWIr0iwZCZhzH8TLCOyt8NfliukWhgM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhZ36DLu03Nmx7yM6ULFjDBK0VxzVO15Z0UNzXHY237BziSQ4fJBcmOhnlozplZqr
-         FWkAsPYWmXwFR+SJp3hzKRboE8JlIBF4we7XXfIZ1TXXc5vkzJdtS5b/La2Z9zJdm/
-         0rRd0mU1dVFIuW77Wcl0TF/hLrL9QPzYUoSHCYXw=
+        b=DrqSYzOEh8ATJye2vrp0abhAaMFHdwV4agyS8Ppe9bihKvFXi3C83ntCG5vkVuEat
+         VRx630HxPrnFKN6G7PaDnZ37trl3uS7XCT69ukBxH2d1M9Sf04+XzfYNcXiaX6GLQt
+         kMjOwv1Ro/ImZrvH4CQDzYgq9clUQhZia7ZwBdEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        patches@lists.linux.dev,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 042/120] can: m_can: Add check for devm_clk_get
+Subject: [PATCH 4.19 070/105] can: cc770: cc770_isa_probe(): add missing free_cc770dev()
 Date:   Mon,  5 Dec 2022 20:09:42 +0100
-Message-Id: <20221205190807.801435141@linuxfoundation.org>
+Message-Id: <20221205190805.541895407@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 68b4f9e0bdd0f920d7303d07bfe226cd0976961d ]
+[ Upstream commit 62ec89e74099a3d6995988ed9f2f996b368417ec ]
 
-Since the devm_clk_get may return error,
-it should be better to add check for the cdev->hclk,
-as same as cdev->cclk.
+Add the missing free_cc770dev() before return from cc770_isa_probe()
+in the register_cc770dev() error handling case.
 
-Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/all/20221123063651.26199-1-jiasheng@iscas.ac.cn
+In addition, remove blanks before goto labels.
+
+Fixes: 7e02e5433e00 ("can: cc770: legacy CC770 ISA bus driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/all/1668168557-6024-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/m_can.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/cc770/cc770_isa.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index c4596fbe6d2f..46ab6155795c 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -1931,7 +1931,7 @@ int m_can_class_get_clocks(struct m_can_classdev *cdev)
- 	cdev->hclk = devm_clk_get(cdev->dev, "hclk");
- 	cdev->cclk = devm_clk_get(cdev->dev, "cclk");
- 
--	if (IS_ERR(cdev->cclk)) {
-+	if (IS_ERR(cdev->hclk) || IS_ERR(cdev->cclk)) {
- 		dev_err(cdev->dev, "no clock found\n");
- 		ret = -ENODEV;
+diff --git a/drivers/net/can/cc770/cc770_isa.c b/drivers/net/can/cc770/cc770_isa.c
+index fcd34698074f..9f2bc66572e4 100644
+--- a/drivers/net/can/cc770/cc770_isa.c
++++ b/drivers/net/can/cc770/cc770_isa.c
+@@ -272,22 +272,24 @@ static int cc770_isa_probe(struct platform_device *pdev)
+ 	if (err) {
+ 		dev_err(&pdev->dev,
+ 			"couldn't register device (err=%d)\n", err);
+-		goto exit_unmap;
++		goto exit_free;
  	}
+ 
+ 	dev_info(&pdev->dev, "device registered (reg_base=0x%p, irq=%d)\n",
+ 		 priv->reg_base, dev->irq);
+ 	return 0;
+ 
+- exit_unmap:
++exit_free:
++	free_cc770dev(dev);
++exit_unmap:
+ 	if (mem[idx])
+ 		iounmap(base);
+- exit_release:
++exit_release:
+ 	if (mem[idx])
+ 		release_mem_region(mem[idx], iosize);
+ 	else
+ 		release_region(port[idx], iosize);
+- exit:
++exit:
+ 	return err;
+ }
+ 
 -- 
 2.35.1
 
