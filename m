@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94EEA6433A3
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDC33643135
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234688AbiLETiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:38:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39306 "EHLO
+        id S231755AbiLETMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:12:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233941AbiLEThx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:37:53 -0500
+        with ESMTP id S232064AbiLETMU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:12:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFC822AC46
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA8EBDF4D
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:12:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CE4361335
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E559C433D6;
-        Mon,  5 Dec 2022 19:34:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86FA861311
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:12:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93D61C433C1;
+        Mon,  5 Dec 2022 19:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268886;
-        bh=pqjXRLDeDU42CC6W+w4CM5n80Y/ZLSl8ZW5c/RyXzPM=;
+        s=korg; t=1670267539;
+        bh=pNPdTM4ERY1IHA7FdDfBcNHZ/D0GoK8zFMc2qs9ZYGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sw+96KDfIc0l6KxM4HXCcyNcwGI9rXe82s0QS2ELjC276IsZoR/2lwlPa3emw7jCJ
-         HF6UNwktf8fTyX717hUeqlzEvC0ahhp32ExCsNqWNNjKD92hz4+id1Tny+pL4bqwp5
-         vLYE/rAV9WTvPzOck30/03ZcPAIFiyw6tAX2Mp8g=
+        b=FHYYSBHGrVJxSusF49FTAtnykuznReN4uTqICZXDZ80iCs5d4xmoCkqQbNAITCGfD
+         FgtFLvARItffUzFdJKF75eRXO1pSAgaLE7E3sRQGo8tL2TNiCr4LnluCN6Tsl0jdYk
+         OLtE6rJvlb488YUKe3fnn73t57x2NYbEMpc9tRNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hou Tao <houtao1@huawei.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 020/120] libbpf: Handle size overflow for ringbuf mmap
+Subject: [PATCH 4.9 23/62] nios2: add FORCE for vmlinuz.gz
 Date:   Mon,  5 Dec 2022 20:09:20 +0100
-Message-Id: <20221205190807.180998122@linuxfoundation.org>
+Message-Id: <20221205190758.974671361@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
+References: <20221205190758.073114639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 927cbb478adf917e0a142b94baa37f06279cc466 ]
+[ Upstream commit 869e4ae4cd2a23d625aaa14ae62dbebf768cb77d ]
 
-The maximum size of ringbuf is 2GB on x86-64 host, so 2 * max_entries
-will overflow u32 when mapping producer page and data pages. Only
-casting max_entries to size_t is not enough, because for 32-bits
-application on 64-bits kernel the size of read-only mmap region
-also could overflow size_t.
+Add FORCE to placate a warning from make:
 
-So fixing it by casting the size of read-only mmap region into a __u64
-and checking whether or not there will be overflow during mmap.
+arch/nios2/boot/Makefile:24: FORCE prerequisite is missing
 
-Fixes: bf99c936f947 ("libbpf: Add BPF ring buffer support")
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20221116072351.1168938-3-houtao@huaweicloud.com
+Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/ringbuf.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/nios2/boot/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/ringbuf.c b/tools/lib/bpf/ringbuf.c
-index 8bc117bcc7bc..c42ba9358d8c 100644
---- a/tools/lib/bpf/ringbuf.c
-+++ b/tools/lib/bpf/ringbuf.c
-@@ -59,6 +59,7 @@ int ring_buffer__add(struct ring_buffer *rb, int map_fd,
- 	__u32 len = sizeof(info);
- 	struct epoll_event *e;
- 	struct ring *r;
-+	__u64 mmap_sz;
- 	void *tmp;
- 	int err;
+diff --git a/arch/nios2/boot/Makefile b/arch/nios2/boot/Makefile
+index c899876320df..76dce0a438a6 100644
+--- a/arch/nios2/boot/Makefile
++++ b/arch/nios2/boot/Makefile
+@@ -20,7 +20,7 @@ $(obj)/vmlinux.bin: vmlinux FORCE
+ $(obj)/vmlinux.gz: $(obj)/vmlinux.bin FORCE
+ 	$(call if_changed,gzip)
  
-@@ -97,8 +98,7 @@ int ring_buffer__add(struct ring_buffer *rb, int map_fd,
- 	r->mask = info.max_entries - 1;
+-$(obj)/vmImage: $(obj)/vmlinux.gz
++$(obj)/vmImage: $(obj)/vmlinux.gz FORCE
+ 	$(call if_changed,uimage)
+ 	@$(kecho) 'Kernel: $@ is ready'
  
- 	/* Map writable consumer page */
--	tmp = mmap(NULL, rb->page_size, PROT_READ | PROT_WRITE, MAP_SHARED,
--		   map_fd, 0);
-+	tmp = mmap(NULL, rb->page_size, PROT_READ | PROT_WRITE, MAP_SHARED, map_fd, 0);
- 	if (tmp == MAP_FAILED) {
- 		err = -errno;
- 		pr_warn("ringbuf: failed to mmap consumer page for map fd=%d: %d\n",
-@@ -111,8 +111,12 @@ int ring_buffer__add(struct ring_buffer *rb, int map_fd,
- 	 * data size to allow simple reading of samples that wrap around the
- 	 * end of a ring buffer. See kernel implementation for details.
- 	 * */
--	tmp = mmap(NULL, rb->page_size + 2 * info.max_entries, PROT_READ,
--		   MAP_SHARED, map_fd, rb->page_size);
-+	mmap_sz = rb->page_size + 2 * (__u64)info.max_entries;
-+	if (mmap_sz != (__u64)(size_t)mmap_sz) {
-+		pr_warn("ringbuf: ring buffer size (%u) is too big\n", info.max_entries);
-+		return libbpf_err(-E2BIG);
-+	}
-+	tmp = mmap(NULL, (size_t)mmap_sz, PROT_READ, MAP_SHARED, map_fd, rb->page_size);
- 	if (tmp == MAP_FAILED) {
- 		err = -errno;
- 		ringbuf_unmap_ring(rb, r);
 -- 
 2.35.1
 
