@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F3AF6431DB
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:21:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C64B36432DF
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:31:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233678AbiLETVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:21:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42042 "EHLO
+        id S232726AbiLETbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:31:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233672AbiLETUs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:20:48 -0500
+        with ESMTP id S234170AbiLETbH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:31:07 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 843612610D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:17:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58B812BB0E
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:26:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0294D6131C
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:16:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12992C433C1;
-        Mon,  5 Dec 2022 19:16:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B82661307
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DD0DC433D6;
+        Mon,  5 Dec 2022 19:26:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267818;
-        bh=3yQsfh6+Oj9ny6imetoWkcKFmnGIguwoWR5t4eQ0hM4=;
+        s=korg; t=1670268399;
+        bh=HoAq+zn1N/llhQpAkwvf26s6HY/NxsjsjvVUPOn9oNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ihYrQP3gYomv8LKsFio3cv6HHNjbLZW7ncbZIkQe5BlYaNNnNnaQJo8zFRiMTdl+0
-         VfS+SG58iOs89DDYvj+32z/Z43NA3j36vpA8NIjzRPPe1eMbLMYPjllDQ1V1Q4E+8B
-         2K0AdYbjbzpVDpO+m3DspUsT8jJv49OPaVtXL9pc=
+        b=lMPXZ39JEUaeWJP3SnHkhWypGSHwczUY76y7900otUeL5kgAEHV+MN/T02sJSFrrq
+         iRLF9q7PTk+swzEKQCJkBuXfeCrjUWQJPvHgNXsQTTPgisjgDZLXT1JSmQk7jPJwVv
+         Ighvm0kYMFIl5f1AMoNNz8HIsGWt0GCbtiLPHhLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+ebe05ee8e98f755f61d0@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 62/77] nilfs2: fix NULL pointer dereference in nilfs_palloc_commit_free_entry()
+        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 6.0 087/124] mmc: mmc_test: Fix removal of debugfs file
 Date:   Mon,  5 Dec 2022 20:09:53 +0100
-Message-Id: <20221205190803.048375113@linuxfoundation.org>
+Message-Id: <20221205190810.891684639@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit f0a0ccda18d6fd826d7c7e7ad48a6ed61c20f8b4 upstream.
+commit f4307b4df1c28842bb1950ff0e1b97e17031b17f upstream.
 
-Syzbot reported a null-ptr-deref bug:
+In __mmc_test_register_dbgfs_file(), we need to assign 'file', as it's
+being used when removing the debugfs files when the mmc_test module is
+removed.
 
- NILFS (loop0): segctord starting. Construction interval = 5 seconds, CP
- frequency < 30 seconds
- general protection fault, probably for non-canonical address
- 0xdffffc0000000002: 0000 [#1] PREEMPT SMP KASAN
- KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
- CPU: 1 PID: 3603 Comm: segctord Not tainted
- 6.1.0-rc2-syzkaller-00105-gb229b6ca5abb #0
- Hardware name: Google Compute Engine/Google Compute Engine, BIOS Google
- 10/11/2022
- RIP: 0010:nilfs_palloc_commit_free_entry+0xe5/0x6b0
- fs/nilfs2/alloc.c:608
- Code: 00 00 00 00 fc ff df 80 3c 02 00 0f 85 cd 05 00 00 48 b8 00 00 00
- 00 00 fc ff df 4c 8b 73 08 49 8d 7e 10 48 89 fa 48 c1 ea 03 <80> 3c 02
- 00 0f 85 26 05 00 00 49 8b 46 10 be a6 00 00 00 48 c7 c7
- RSP: 0018:ffffc90003dff830 EFLAGS: 00010212
- RAX: dffffc0000000000 RBX: ffff88802594e218 RCX: 000000000000000d
- RDX: 0000000000000002 RSI: 0000000000002000 RDI: 0000000000000010
- RBP: ffff888071880222 R08: 0000000000000005 R09: 000000000000003f
- R10: 000000000000000d R11: 0000000000000000 R12: ffff888071880158
- R13: ffff88802594e220 R14: 0000000000000000 R15: 0000000000000004
- FS:  0000000000000000(0000) GS:ffff8880b9b00000(0000)
- knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007fb1c08316a8 CR3: 0000000018560000 CR4: 0000000000350ee0
- Call Trace:
-  <TASK>
-  nilfs_dat_commit_free fs/nilfs2/dat.c:114 [inline]
-  nilfs_dat_commit_end+0x464/0x5f0 fs/nilfs2/dat.c:193
-  nilfs_dat_commit_update+0x26/0x40 fs/nilfs2/dat.c:236
-  nilfs_btree_commit_update_v+0x87/0x4a0 fs/nilfs2/btree.c:1940
-  nilfs_btree_commit_propagate_v fs/nilfs2/btree.c:2016 [inline]
-  nilfs_btree_propagate_v fs/nilfs2/btree.c:2046 [inline]
-  nilfs_btree_propagate+0xa00/0xd60 fs/nilfs2/btree.c:2088
-  nilfs_bmap_propagate+0x73/0x170 fs/nilfs2/bmap.c:337
-  nilfs_collect_file_data+0x45/0xd0 fs/nilfs2/segment.c:568
-  nilfs_segctor_apply_buffers+0x14a/0x470 fs/nilfs2/segment.c:1018
-  nilfs_segctor_scan_file+0x3f4/0x6f0 fs/nilfs2/segment.c:1067
-  nilfs_segctor_collect_blocks fs/nilfs2/segment.c:1197 [inline]
-  nilfs_segctor_collect fs/nilfs2/segment.c:1503 [inline]
-  nilfs_segctor_do_construct+0x12fc/0x6af0 fs/nilfs2/segment.c:2045
-  nilfs_segctor_construct+0x8e3/0xb30 fs/nilfs2/segment.c:2379
-  nilfs_segctor_thread_construct fs/nilfs2/segment.c:2487 [inline]
-  nilfs_segctor_thread+0x3c3/0xf30 fs/nilfs2/segment.c:2570
-  kthread+0x2e4/0x3a0 kernel/kthread.c:376
-  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
-  </TASK>
- ...
-
-If DAT metadata file is corrupted on disk, there is a case where
-req->pr_desc_bh is NULL and blocknr is 0 at nilfs_dat_commit_end() during
-a b-tree operation that cascadingly updates ancestor nodes of the b-tree,
-because nilfs_dat_commit_alloc() for a lower level block can initialize
-the blocknr on the same DAT entry between nilfs_dat_prepare_end() and
-nilfs_dat_commit_end().
-
-If this happens, nilfs_dat_commit_end() calls nilfs_dat_commit_free()
-without valid buffer heads in req->pr_desc_bh and req->pr_bitmap_bh, and
-causes the NULL pointer dereference above in
-nilfs_palloc_commit_free_entry() function, which leads to a crash.
-
-Fix this by adding a NULL check on req->pr_desc_bh and req->pr_bitmap_bh
-before nilfs_palloc_commit_free_entry() in nilfs_dat_commit_free().
-
-This also calls nilfs_error() in that case to notify that there is a fatal
-flaw in the filesystem metadata and prevent further operations.
-
-Link: https://lkml.kernel.org/r/00000000000097c20205ebaea3d6@google.com
-Link: https://lkml.kernel.org/r/20221114040441.1649940-1-zhangpeng362@huawei.com
-Link: https://lkml.kernel.org/r/20221119120542.17204-1-konishi.ryusuke@gmail.com
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+ebe05ee8e98f755f61d0@syzkaller.appspotmail.com
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: a04c50aaa916 ("mmc: core: no need to check return value of debugfs_create functions")
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+[Ulf: Re-wrote the commit msg]
+Link: https://lore.kernel.org/r/20221123095506.1965691-1-yebin@huaweicloud.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/dat.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/mmc/core/mmc_test.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/nilfs2/dat.c
-+++ b/fs/nilfs2/dat.c
-@@ -120,6 +120,13 @@ static void nilfs_dat_commit_free(struct
- 	kunmap_atomic(kaddr);
+--- a/drivers/mmc/core/mmc_test.c
++++ b/drivers/mmc/core/mmc_test.c
+@@ -3179,7 +3179,8 @@ static int __mmc_test_register_dbgfs_fil
+ 	struct mmc_test_dbgfs_file *df;
  
- 	nilfs_dat_commit_entry(dat, req);
-+
-+	if (unlikely(req->pr_desc_bh == NULL || req->pr_bitmap_bh == NULL)) {
-+		nilfs_error(dat->i_sb,
-+			    "state inconsistency probably due to duplicate use of vblocknr = %llu",
-+			    (unsigned long long)req->pr_entry_nr);
-+		return;
-+	}
- 	nilfs_palloc_commit_free_entry(dat, req);
- }
+ 	if (card->debugfs_root)
+-		debugfs_create_file(name, mode, card->debugfs_root, card, fops);
++		file = debugfs_create_file(name, mode, card->debugfs_root,
++					   card, fops);
  
+ 	df = kmalloc(sizeof(*df), GFP_KERNEL);
+ 	if (!df) {
 
 
