@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07E91643193
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:17:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDD81643150
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233086AbiLETQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:16:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35960 "EHLO
+        id S232618AbiLETNs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:13:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233543AbiLETPw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:15:52 -0500
+        with ESMTP id S232656AbiLETNd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:13:33 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC60925E85
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:15:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3A761FFAB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:13:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 718FC61326
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:15:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CA06C433C1;
-        Mon,  5 Dec 2022 19:15:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CB1161309
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:13:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99A0AC433C1;
+        Mon,  5 Dec 2022 19:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267722;
-        bh=g/SOH7vgQxbLgAEvP+geatIZCVFwyqXjMZkXzhjPKbw=;
+        s=korg; t=1670267612;
+        bh=OiVCMzxBpokfiKyR4FCXyHYoK3kAfy7xcqYDUZ0rJEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ML4D1yBNn2kaB0ntxCJm6+LYs2xgCz1GkrjsgC8oxq514sQbY8DTv619mBEjKQch+
-         3LFnq+qNjlywK6Zzg5PmLzApLsMQR4Tx+grrtvCgKfeeojuOrgQiZ6y6W8wffBPBNA
-         xVyx6VDwnD6g249pQeVHmK7oaW0pqKaGFvMyq1Sw=
+        b=zatDNY1RNHSBoscYzdk6wa+NZZoVpWMxe220LE+zQjuSRSeyky8EZZV7emNQ+FPwA
+         0qS/JmU3yvzXptb0jU+505mQu0420mx52XPZvC9R9hbrJm2Fa6yGvc3O6Gg+Pt9z2z
+         4yq7JCfreOBF14EyAQ96073Z8DcJePE9R8tiVynk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,20 +35,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Masahiro Yamada <yamada.masahiro@socionext.com>,
         "Luis R. Rodriguez" <mcgrof@kernel.org>,
         =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>
-Subject: [PATCH 4.14 28/77] kconfig: display recursive dependency resolution hint just once
+Subject: [PATCH 4.9 22/62] kconfig: display recursive dependency resolution hint just once
 Date:   Mon,  5 Dec 2022 20:09:19 +0100
-Message-Id: <20221205190801.866714071@linuxfoundation.org>
+Message-Id: <20221205190758.936336320@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
+References: <20221205190758.073114639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -89,7 +88,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/scripts/kconfig/symbol.c
 +++ b/scripts/kconfig/symbol.c
-@@ -1150,8 +1150,7 @@ static void sym_check_print_recursive(st
+@@ -1130,8 +1130,7 @@ static void sym_check_print_recursive(st
  		if (stack->sym == last_sym)
  			fprintf(stderr, "%s:%d:error: recursive dependency detected!\n",
  				prop->file->name, prop->lineno);
@@ -99,7 +98,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		if (stack->expr) {
  			fprintf(stderr, "%s:%d:\tsymbol %s %s value contains %s\n",
  				prop->file->name, prop->lineno,
-@@ -1181,6 +1180,11 @@ static void sym_check_print_recursive(st
+@@ -1161,6 +1160,11 @@ static void sym_check_print_recursive(st
  		}
  	}
  
