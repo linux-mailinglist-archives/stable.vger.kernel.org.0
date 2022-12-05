@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ACFB6434A9
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:48:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94BCE643367
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235085AbiLETsb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:48:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50876 "EHLO
+        id S234555AbiLETgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:36:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235067AbiLETrz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E4CF617A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:44:44 -0800 (PST)
+        with ESMTP id S234536AbiLETf5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:57 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24F3826563
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:32:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B86961321
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:44:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E6B4C433D6;
-        Mon,  5 Dec 2022 19:44:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 72D87CE13A9
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:32:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D08FC433C1;
+        Mon,  5 Dec 2022 19:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269483;
-        bh=z1s9yHn+Awsj/UN8hvBUd0/pUXJJbr1Lny7UPO/GVcM=;
+        s=korg; t=1670268740;
+        bh=2ZBM5bbmiVnc/4uUacqA1Sp4IFcHk4hcdP9ds5k5tEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7YiwGs74mNX1FRstLS3R8Bq1gNXHxfUUFzVqQnK4vyLhaMJa6c5ftbsMUZxabeAF
-         aiBOmNQgoUcVyiSv1kqlFbJhjxQ66FSLFwVnoGw+7Vo6O316ZM8qmI3sNCgHUawa62
-         TxBq+ShY0mxMyejAyEwrjiQCsMmH4TvRTdIn6msM=
+        b=U4u8x8vzjdiWAn0wPRofEqJ7gqs9VeND3rRbPGt+y0EDn2JBdMNGMfjFny1OpNh9t
+         QPJOfqDY0JMFE2LzZRgdsbvUEhaletVOI+u94tbVXkvfHE5YiMgVrzb4VY8t5pBdnn
+         RiCW1OfpN6AQYsGGZF3n0HB2eSmFt4FpXcKAphLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, "Rafael J. Wysocki" <rafael@kernel.org>,
+        Liu Shixin <liushixin2@huawei.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 116/153] net/mlx5: DR, Fix uninitialized var warning
+Subject: [PATCH 5.10 87/92] ACPI: HMAT: remove unnecessary variable initialization
 Date:   Mon,  5 Dec 2022 20:10:40 +0100
-Message-Id: <20221205190812.047434167@linuxfoundation.org>
+Message-Id: <20221205190806.344792874@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Vishal Verma <vishal.l.verma@intel.com>
 
-[ Upstream commit 52f7cf70eb8fac6111786c59ae9dfc5cf2bee710 ]
+[ Upstream commit 14f16d47561ba9249efc6c2db9d47ed56841f070 ]
 
-Smatch warns this:
+In hmat_register_target_initiators(), the variable 'best' gets
+initialized in the outer per-locality-type for loop. The initialization
+just before setting up 'Access 1' targets was unnecessary. Remove it.
 
-drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c:81
- mlx5dr_table_set_miss_action() error: uninitialized symbol 'ret'.
-
-Initializing ret with -EOPNOTSUPP and fix missing action case.
-
-Fixes: 7838e1725394 ("net/mlx5: DR, Expose steering table functionality")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Cc: Rafael J. Wysocki <rafael@kernel.org>
+Cc: Liu Shixin <liushixin2@huawei.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
+Link: https://lore.kernel.org/r/20221116-acpi_hmat_fix-v2-1-3712569be691@intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Stable-dep-of: 48d4180939e1 ("ACPI: HMAT: Fix initiator registration for single-initiator systems")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/acpi/numa/hmat.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c
-index e178d8d3dbc9..077b4bec1b13 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c
-@@ -9,7 +9,7 @@ int mlx5dr_table_set_miss_action(struct mlx5dr_table *tbl,
- 	struct mlx5dr_matcher *last_matcher = NULL;
- 	struct mlx5dr_htbl_connect_info info;
- 	struct mlx5dr_ste_htbl *last_htbl;
--	int ret;
-+	int ret = -EOPNOTSUPP;
- 
- 	if (action && action->action_type != DR_ACTION_TYP_FT)
- 		return -EOPNOTSUPP;
-@@ -68,6 +68,9 @@ int mlx5dr_table_set_miss_action(struct mlx5dr_table *tbl,
- 		}
- 	}
- 
-+	if (ret)
-+		goto out;
-+
- 	/* Release old action */
- 	if (tbl->miss_action)
- 		refcount_dec(&tbl->miss_action->refcount);
+diff --git a/drivers/acpi/numa/hmat.c b/drivers/acpi/numa/hmat.c
+index 137a5dd880c2..fd202689dcda 100644
+--- a/drivers/acpi/numa/hmat.c
++++ b/drivers/acpi/numa/hmat.c
+@@ -645,7 +645,6 @@ static void hmat_register_target_initiators(struct memory_target *target)
+ 	/* Access 1 ignores Generic Initiators */
+ 	bitmap_zero(p_nodes, MAX_NUMNODES);
+ 	list_sort(p_nodes, &initiators, initiator_cmp);
+-	best = 0;
+ 	for (i = WRITE_LATENCY; i <= READ_BANDWIDTH; i++) {
+ 		loc = localities_types[i];
+ 		if (!loc)
 -- 
 2.35.1
 
