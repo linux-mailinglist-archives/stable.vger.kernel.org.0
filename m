@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB8CF643419
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:42:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 852806431FF
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:23:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233785AbiLETmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:42:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40778 "EHLO
+        id S233480AbiLETXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:23:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234646AbiLETle (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:41:34 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEEDE26487
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:39:15 -0800 (PST)
+        with ESMTP id S233758AbiLETWo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:22:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAEE8275CB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:18:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 29ADDCE10A6
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:39:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15D91C433D6;
-        Mon,  5 Dec 2022 19:39:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D482161307
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:18:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E66FAC433C1;
+        Mon,  5 Dec 2022 19:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269152;
-        bh=e2NO2p4Qwo2nUvhtD/96a1SsWUjxUqlESGKieRx6rJc=;
+        s=korg; t=1670267905;
+        bh=ELfAWij46Wt02A5ynXbjy8/nvc20JrIwgveo3uDJNNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3iWHQ4OKP84sFCuQj/OwyD5RfIr9Pqwtm5/cveBF0meGDXrBGZJ+gEVXRjoYSyHw
-         Si3hPWAX2WPuR4nVQHn0YOP28eb2i7vy1BKHZ9ymxg7fI+ylAcHhej8jMC7Jooo3hE
-         ktzAYtgTeBD925OM1ZpgjJyGUG0lSyOJ8tzxkq/k=
+        b=eJ6Ltdq2BJrmq44vGgBn2B3W0xkbBDbvon6UWMB1Pg/uKFYC9qPtLR8QMPUGDsaJ1
+         IMU6TdWH7ZZj/I+LSd4cKM2vFOvRMnB4nnvbvcxCFRsIbPzpUw8S4T2zqdtDrPMqoB
+         F8J7ORylsgBClKWZJknlz+zUI23p9gl0EFsiYLAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Nyekjaer <sean@geanix.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Tariq Toukan <tariqt@nvidia.com>,
+        Peter Kosyh <pkosyh@yandex.ru>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 005/153] spi: stm32: fix stm32_spi_prepare_mbr() that halves spi clk for every run
+Subject: [PATCH 4.19 017/105] net/mlx4: Check retval of mlx4_bitmap_init
 Date:   Mon,  5 Dec 2022 20:08:49 +0100
-Message-Id: <20221205190808.904128424@linuxfoundation.org>
+Message-Id: <20221205190803.718976606@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Nyekjaer <sean@geanix.com>
+From: Peter Kosyh <pkosyh@yandex.ru>
 
-[ Upstream commit 62aa1a344b0904549f6de7af958e8a1136fd5228 ]
+[ Upstream commit 594c61ffc77de0a197934aa0f1df9285c68801c6 ]
 
-When this driver is used with a driver that uses preallocated spi_transfer
-structs. The speed_hz is halved by every run. This results in:
+If mlx4_bitmap_init fails, mlx4_bitmap_alloc_range will dereference
+the NULL pointer (bitmap->table).
 
-spi_stm32 44004000.spi: SPI transfer setup failed
-ads7846 spi0.0: SPI transfer failed: -22
+Make sure, that mlx4_bitmap_alloc_range called in no error case.
 
-Example when running with DIV_ROUND_UP():
-- First run; speed_hz = 1000000, spi->clk_rate 125000000
-  div 125 -> mbrdiv = 7, cur_speed = 976562
-- Second run; speed_hz = 976562
-  div 128,00007 (roundup to 129) -> mbrdiv = 8, cur_speed = 488281
-- Third run; speed_hz = 488281
-  div 256,000131072067109 (roundup to 257) and then -EINVAL is returned.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-Use DIV_ROUND_CLOSEST to allow to round down and allow us to keep the
-set speed.
-
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Link: https://lore.kernel.org/r/20221103080043.3033414-1-sean@geanix.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: d57febe1a478 ("net/mlx4: Add A0 hybrid steering")
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Peter Kosyh <pkosyh@yandex.ru>
+Link: https://lore.kernel.org/r/20221117152806.278072-1-pkosyh@yandex.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx4/qp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index a1961a973839..e843e9453c71 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -444,7 +444,7 @@ static int stm32_spi_prepare_mbr(struct stm32_spi *spi, u32 speed_hz,
- 	u32 div, mbrdiv;
+diff --git a/drivers/net/ethernet/mellanox/mlx4/qp.c b/drivers/net/ethernet/mellanox/mlx4/qp.c
+index 427e7a31862c..d7f2890c254f 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/qp.c
++++ b/drivers/net/ethernet/mellanox/mlx4/qp.c
+@@ -697,7 +697,8 @@ static int mlx4_create_zones(struct mlx4_dev *dev,
+ 			err = mlx4_bitmap_init(*bitmap + k, 1,
+ 					       MLX4_QP_TABLE_RAW_ETH_SIZE - 1, 0,
+ 					       0);
+-			mlx4_bitmap_alloc_range(*bitmap + k, 1, 1, 0);
++			if (!err)
++				mlx4_bitmap_alloc_range(*bitmap + k, 1, 1, 0);
+ 		}
  
- 	/* Ensure spi->clk_rate is even */
--	div = DIV_ROUND_UP(spi->clk_rate & ~0x1, speed_hz);
-+	div = DIV_ROUND_CLOSEST(spi->clk_rate & ~0x1, speed_hz);
- 
- 	/*
- 	 * SPI framework set xfer->speed_hz to master->max_speed_hz if
+ 		if (err)
 -- 
 2.35.1
 
