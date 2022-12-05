@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB6696432E9
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:32:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AA3F643345
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229891AbiLETcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:32:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32804 "EHLO
+        id S233522AbiLETfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:35:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233637AbiLETbj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:31:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 924642C678
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:10 -0800 (PST)
+        with ESMTP id S233932AbiLETez (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6711C29CAA
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:30:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0435061314
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:27:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15A45C433D6;
-        Mon,  5 Dec 2022 19:27:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D279B81151
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:30:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B6B2C433D6;
+        Mon,  5 Dec 2022 19:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268429;
-        bh=2qrNcdi3q9e7wrhLinHLfNcp86c0LHO60Bv0vmkR1RY=;
+        s=korg; t=1670268641;
+        bh=03wiSt1qizDetDxIrMbc/4AFaE+kfNAo9DLs091B+ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KRU6q2eXKcB9XoxEgzsUGg4TEZ7AHy7mWCfdDI845OK4teX37ZQjlY87AR90/2Uvj
-         nC5B4H39d7do9exyXQW2+LRFFD5+w0lfPfFEhw+xsYMz6hl9yrIrF5sk3hLyGSUY41
-         hH/bIcVbHB+ctf0qrBZV3otHNyBIHyrblmRF+qVQ=
+        b=mg40t1kslJeoKv6ZIdXMiYydjNQWjebBckrsAIb5ezGxEXooFpSPXENyYJFWuIlLS
+         B5TiL+AifKcA+xP5CYF7egt56lbyuXTQyQsT37k21mkKuAJbj5xtk2SE4/7kR+QcvI
+         gZZwN8+Wis4+9bGxRt4LU1YIwBdVWjXZqDS7o3tY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tom Zanussi <zanussi@kernel.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.0 099/124] tracing: Fix race where histograms can be called before the event
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 52/92] hwmon: (coretemp) fix pci device refcount leak in nv1a_ram_new()
 Date:   Mon,  5 Dec 2022 20:10:05 +0100
-Message-Id: <20221205190811.227075300@linuxfoundation.org>
+Message-Id: <20221205190805.215627515@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit ef38c79a522b660f7f71d45dad2d6244bc741841 upstream.
+[ Upstream commit 7dec14537c5906b8bf40fd6fd6d9c3850f8df11d ]
 
-commit 94eedf3dded5 ("tracing: Fix race where eprobes can be called before
-the event") fixed an issue where if an event is soft disabled, and the
-trigger is being added, there's a small window where the event sees that
-there's a trigger but does not see that it requires reading the event yet,
-and then calls the trigger with the record == NULL.
+As comment of pci_get_domain_bus_and_slot() says, it returns
+a pci device with refcount increment, when finish using it,
+the caller must decrement the reference count by calling
+pci_dev_put(). So call it after using to avoid refcount leak.
 
-This could be solved with adding memory barriers in the hot path, or to
-make sure that all the triggers requiring a record check for NULL. The
-latter was chosen.
-
-Commit 94eedf3dded5 set the eprobe trigger handle to check for NULL, but
-the same needs to be done with histograms.
-
-Link: https://lore.kernel.org/linux-trace-kernel/20221118211809.701d40c0f8a757b0df3c025a@kernel.org/
-Link: https://lore.kernel.org/linux-trace-kernel/20221123164323.03450c3a@gandalf.local.home
-
-Cc: Tom Zanussi <zanussi@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 7491e2c442781 ("tracing: Add a probe that attaches to trace events")
-Reported-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 14513ee696a0 ("hwmon: (coretemp) Use PCI host bridge ID to identify CPU if necessary")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221118093303.214163-1-yangyingliang@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_hist.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hwmon/coretemp.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -5051,6 +5051,9 @@ static void event_hist_trigger(struct ev
- 	void *key = NULL;
- 	unsigned int i;
+diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
+index 9b49bfc63ffc..42b84ebff057 100644
+--- a/drivers/hwmon/coretemp.c
++++ b/drivers/hwmon/coretemp.c
+@@ -242,10 +242,13 @@ static int adjust_tjmax(struct cpuinfo_x86 *c, u32 id, struct device *dev)
+ 	 */
+ 	if (host_bridge && host_bridge->vendor == PCI_VENDOR_ID_INTEL) {
+ 		for (i = 0; i < ARRAY_SIZE(tjmax_pci_table); i++) {
+-			if (host_bridge->device == tjmax_pci_table[i].device)
++			if (host_bridge->device == tjmax_pci_table[i].device) {
++				pci_dev_put(host_bridge);
+ 				return tjmax_pci_table[i].tjmax;
++			}
+ 		}
+ 	}
++	pci_dev_put(host_bridge);
  
-+	if (unlikely(!rbe))
-+		return;
-+
- 	memset(compound_key, 0, hist_data->key_size);
- 
- 	for_each_hist_key_field(i, hist_data) {
+ 	for (i = 0; i < ARRAY_SIZE(tjmax_table); i++) {
+ 		if (strstr(c->x86_model_id, tjmax_table[i].id))
+-- 
+2.35.1
+
 
 
