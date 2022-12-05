@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8153643457
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:45:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B40F564330B
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234763AbiLETpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:45:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45066 "EHLO
+        id S233931AbiLETdv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:33:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234742AbiLETok (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:44:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33C442C678
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:41:46 -0800 (PST)
+        with ESMTP id S233973AbiLETd1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:33:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6B9E2D1F3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:28:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19A18612ED
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:41:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FC71C43150;
-        Mon,  5 Dec 2022 19:41:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AA60B81181
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:28:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F6B3C433D7;
+        Mon,  5 Dec 2022 19:28:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269305;
-        bh=B5bAviYb4rjoA/QSY+VVumt0tAskH7nTTO/ChzZwV90=;
+        s=korg; t=1670268499;
+        bh=fYK8Qug3mDbrZUUg2lSjcwauwY8vB05wyN7twNkCbBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rfB6O9pubESEMgUNQ+ejPuqiHUaf5kpoP6UNGvEQb+9G1qGPP8vvA6DgIYpslLfEg
-         Bmv1MowYCYp/OaWe3U3SUL3CdyT9F2l/FIVHpbI6MTBdM0uwtUNYmEy4dI4b/b+mpw
-         Tly8Mbo0FaH7bsYsZr/P3hiAeqgWkEEkTqoUJrDk=
+        b=tuAeX7dn22Q89hm4VRWStz+/+BFK40BYTgBr1AwJ+SniXAeqj/U1l7XyNOnitA0at
+         FRCJod6mcRwb/uRM+3axwRcBs32/VOZqAm9zqep1K3VS9CkQeqiTCnucxoPVmE/0kW
+         gWeJeJ+8XfhT3DsxMTdx33NSYIyv+MT20+tmnXJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qu Wenruo <wqu@suse.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 078/153] btrfs: sysfs: normalize the error handling branch in btrfs_init_sysfs()
+        patches@lists.linux.dev,
+        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 6.0 096/124] drm/i915: Fix negative value passed as remaining time
 Date:   Mon,  5 Dec 2022 20:10:02 +0100
-Message-Id: <20221205190810.963522420@linuxfoundation.org>
+Message-Id: <20221205190811.142249298@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
 
-commit ffdbb44f2f23f963b8f5672e35c3a26088177a62 upstream.
+commit a8899b8728013c7b2456f0bfa20e5fea85ee0fd1 upstream.
 
-Although kset_unregister() can eventually remove all attribute files,
-explicitly rolling back with the matching function makes the code logic
-look clearer.
+Commit b97060a99b01 ("drm/i915/guc: Update intel_gt_wait_for_idle to work
+with GuC") extended the API of intel_gt_retire_requests_timeout() with an
+extra argument 'remaining_timeout', intended for passing back unconsumed
+portion of requested timeout when 0 (success) is returned.  However, when
+request retirement happens to succeed despite an error returned by a call
+to dma_fence_wait_timeout(), that error code (a negative value) is passed
+back instead of remaining time.  If we then pass that negative value
+forward as requested timeout to intel_uc_wait_for_idle(), an explicit BUG
+will be triggered.
 
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+If request retirement succeeds but an error code is passed back via
+remaininig_timeout, we may have no clue on how much of the initial timeout
+might have been left for spending it on waiting for GuC to become idle.
+OTOH, since all pending requests have been successfully retired, that
+error code has been already ignored by intel_gt_retire_requests_timeout(),
+then we shouldn't fail.
+
+Assume no more time has been left on error and pass 0 timeout value to
+intel_uc_wait_for_idle() to give it a chance to return success if GuC is
+already idle.
+
+v3: Don't fail on any error passed back via remaining_timeout.
+
+v2: Fix the issue on the caller side, not the provider.
+
+Fixes: b97060a99b01 ("drm/i915/guc: Update intel_gt_wait_for_idle to work with GuC")
+Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Cc: stable@vger.kernel.org # v5.15+
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221121145655.75141-2-janusz.krzysztofik@linux.intel.com
+(cherry picked from commit f235dbd5b768e238d365fd05d92de5a32abc1c1f)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/sysfs.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_gt.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/sysfs.c
-+++ b/fs/btrfs/sysfs.c
-@@ -1154,8 +1154,11 @@ int __init btrfs_init_sysfs(void)
+--- a/drivers/gpu/drm/i915/gt/intel_gt.c
++++ b/drivers/gpu/drm/i915/gt/intel_gt.c
+@@ -616,8 +616,13 @@ int intel_gt_wait_for_idle(struct intel_
+ 			return -EINTR;
+ 	}
  
- #ifdef CONFIG_BTRFS_DEBUG
- 	ret = sysfs_create_group(&btrfs_kset->kobj, &btrfs_debug_feature_attr_group);
--	if (ret)
--		goto out2;
-+	if (ret) {
-+		sysfs_unmerge_group(&btrfs_kset->kobj,
-+				    &btrfs_static_feature_attr_group);
-+		goto out_remove_group;
-+	}
- #endif
+-	return timeout ? timeout : intel_uc_wait_for_idle(&gt->uc,
+-							  remaining_timeout);
++	if (timeout)
++		return timeout;
++
++	if (remaining_timeout < 0)
++		remaining_timeout = 0;
++
++	return intel_uc_wait_for_idle(&gt->uc, remaining_timeout);
+ }
  
- 	return 0;
+ int intel_gt_init(struct intel_gt *gt)
 
 
