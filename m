@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5CDA643138
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:13:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFE1D64323E
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232020AbiLETMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:12:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59462 "EHLO
+        id S232149AbiLETZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:25:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232230AbiLETM0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:12:26 -0500
+        with ESMTP id S233846AbiLETYq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A4A5DF4D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:12:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EB3B264B4
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2542461314
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:12:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31EEEC433D6;
-        Mon,  5 Dec 2022 19:12:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34CD1612D8
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42104C433D7;
+        Mon,  5 Dec 2022 19:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267544;
-        bh=CmaQ+XemFDcRWW+AsvxWL6/iIP7hOak1pHqnum1gQPA=;
+        s=korg; t=1670268005;
+        bh=s7DGeJvcd98IAo46F3nQMLH1dTWYu/cCMv/7KZdfigA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKeaaFgdYI+N4XWUEvq75ckYSNTODw9h+z/Med0ecLRtD4wTi4l3Jkr+KE71Hr1sN
-         U/kmrOJyGzg50t/3fukS0SGeXcUEDQNXhRcjV5JfKGdxh/TGkp7MJ55u8OUj/o5MjE
-         SW2MiJAGMtrnLdvG7NLswr6uoobwgNeEfMu4925Q=
+        b=rryhuTH1ooa43l2GLjSj/zNI1wCYmtLOtZwJK49lms4ACOLi3NioyU3aZ8OcUAI20
+         PfHXgnDdrdwCd6cbRmeeyHIvb62brlXnCQX+GsVQ9Gcwr+zzNYSEMpkZKbWrk3bAil
+         KHLPmVoisnfg3FPqqWH/xdtcFt0ryj/p6CsWq3cI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kiszka <jan.kiszka@siemens.com>,
-        Su Bao Cheng <baocheng.su@siemens.com>,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Lukas Wunner <lukas@wunner.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 25/62] serial: 8250: 8250_omap: Avoid RS485 RTS glitch on ->set_termios()
-Date:   Mon,  5 Dec 2022 20:09:22 +0100
-Message-Id: <20221205190759.046900279@linuxfoundation.org>
+        patches@lists.linux.dev, Enrico Sau <enrico.sau@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 051/105] net: usb: qmi_wwan: add Telit 0x103a composition
+Date:   Mon,  5 Dec 2022 20:09:23 +0100
+Message-Id: <20221205190804.871884550@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,92 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Enrico Sau <enrico.sau@gmail.com>
 
-[ Upstream commit 038ee49fef18710bedd38b531d173ccd746b2d8d ]
+[ Upstream commit e103ba33998d0f25653cc8ebe745b68d1ee10cda ]
 
-RS485-enabled UART ports on TI Sitara SoCs with active-low polarity
-exhibit a Transmit Enable glitch on ->set_termios():
+Add the following Telit LE910C4-WWX composition:
 
-omap8250_restore_regs(), which is called from omap_8250_set_termios(),
-sets the TCRTLR bit in the MCR register and clears all other bits,
-including RTS.  If RTS uses active-low polarity, it is now asserted
-for no reason.
+0x103a: rmnet
 
-The TCRTLR bit is subsequently cleared by writing up->mcr to the MCR
-register.  That variable is always zero, so the RTS bit is still cleared
-(incorrectly so if RTS is active-high).
-
-(up->mcr is not, as one might think, a cache of the MCR register's
-current value.  Rather, it only caches a single bit of that register,
-the AFE bit.  And it only does so if the UART supports the AFE bit,
-which OMAP does not.  For details see serial8250_do_set_termios() and
-serial8250_do_set_mctrl().)
-
-Finally at the end of omap8250_restore_regs(), the MCR register is
-restored (and RTS deasserted) by a call to up->port.ops->set_mctrl()
-(which equals serial8250_set_mctrl()) and serial8250_em485_stop_tx().
-
-So there's an RTS glitch between setting TCRTLR and calling
-serial8250_em485_stop_tx().  Avoid by using a read-modify-write
-when setting TCRTLR.
-
-While at it, drop a redundant initialization of up->mcr.  As explained
-above, the variable isn't used by the driver and it is already
-initialized to zero because it is part of the static struct
-serial8250_ports[] declared in 8250_core.c.  (Static structs are
-initialized to zero per section 6.7.8 nr. 10 of the C99 standard.)
-
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Su Bao Cheng <baocheng.su@siemens.com>
-Tested-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/6554b0241a2c7fd50f32576fdbafed96709e11e8.1664278942.git.lukas@wunner.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20221115105859.14324-1-enrico.sau@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index d5962162c590..b37e6619af9c 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -242,6 +242,7 @@ static void omap8250_restore_regs(struct uart_8250_port *up)
- {
- 	struct omap8250_priv *priv = up->port.private_data;
- 	struct uart_8250_dma	*dma = up->dma;
-+	u8 mcr = serial8250_in_MCR(up);
- 
- 	if (dma && dma->tx_running) {
- 		/*
-@@ -258,7 +259,7 @@ static void omap8250_restore_regs(struct uart_8250_port *up)
- 	serial_out(up, UART_EFR, UART_EFR_ECB);
- 
- 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_A);
--	serial8250_out_MCR(up, UART_MCR_TCRTLR);
-+	serial8250_out_MCR(up, mcr | UART_MCR_TCRTLR);
- 	serial_out(up, UART_FCR, up->fcr);
- 
- 	omap8250_update_scr(up, priv);
-@@ -274,7 +275,8 @@ static void omap8250_restore_regs(struct uart_8250_port *up)
- 	serial_out(up, UART_LCR, 0);
- 
- 	/* drop TCR + TLR access, we setup XON/XOFF later */
--	serial8250_out_MCR(up, up->mcr);
-+	serial8250_out_MCR(up, mcr);
-+
- 	serial_out(up, UART_IER, up->ier);
- 
- 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
-@@ -583,7 +585,6 @@ static int omap_8250_startup(struct uart_port *port)
- 
- 	pm_runtime_get_sync(port->dev);
- 
--	up->mcr = 0;
- 	serial_out(up, UART_FCR, UART_FCR_CLEAR_RCVR | UART_FCR_CLEAR_XMIT);
- 
- 	serial_out(up, UART_LCR, UART_LCR_WLEN8);
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 56115792bea1..24fb9708fb11 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1317,6 +1317,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
+ 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1031, 3)}, /* Telit LE910C1-EUX */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x103a, 0)}, /* Telit LE910C4-WWX */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
 -- 
 2.35.1
 
