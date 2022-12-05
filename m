@@ -2,87 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2D5E6435CA
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 21:36:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 803746435F1
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 21:44:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229970AbiLEUg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 15:36:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42414 "EHLO
+        id S232686AbiLEUoU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 15:44:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232952AbiLEUgv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 15:36:51 -0500
-Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com [66.111.4.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96F5813DEA
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 12:36:50 -0800 (PST)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailout.nyi.internal (Postfix) with ESMTP id 3E8535C01D4;
-        Mon,  5 Dec 2022 15:36:48 -0500 (EST)
-Received: from imap51 ([10.202.2.101])
-  by compute6.internal (MEProxy); Mon, 05 Dec 2022 15:36:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; t=1670272608; x=1670359008; bh=AR3KlDoBcI
-        VyuBEUEFyxxsbbBAfGvBk7uczmbc+6RoU=; b=rNZFyehtlA9O7wED4hjwZ3yL8V
-        yNLbEfvjiA7iC3UxaILI6EgB/fPl+edvdn+QYFc4NEdDkTdhO7SxwcCr2N6u9P2j
-        kVUNggAyLavTQ0dhA1jdkfe2hLwQA1Rhnp4zTY0Kqd2CDuFDW7Ik3PgsvUboTuMa
-        KAAgZODfg89j9IcyZgLpwDpauPockCj2le43+rpncsZkxNM8p7y7jczvjoHoPI9j
-        XMf0lIYPc0uZeyoyjRM8BZstYvfh4E8sK6OptG6RKOFM5eKbv6NflkPmSW/3OD6l
-        bv7AoJbNGUGYH1yGJeHNoSmOzRbRNgrnGP0WtfVESqkSclg8Av8S2Ap32zAA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; t=1670272608; x=1670359008; bh=AR3KlDoBcIVyuBEUEFyxxsbbBAfG
-        vBk7uczmbc+6RoU=; b=Q7tWuABfK0W347C3JeaYWRUEm0kz6f7g+9m1i9OH3RIZ
-        cd+/nrCnZI532QtEMSXRoo1H09AV/yY2X9oNKblHX3fU4Y9/+MDrJ0L3Zdzkjvjn
-        DL6ttO68ia3jHfvVGPWF2kh4jEzPVI++olCmIke3H2D+Mp27bb+oxvK+RrRPnlPU
-        2fS/YSM30tvcamtyN1edSR89AXtNZ4qZEQtWvDhp6zaFJQF6jrek/My8DeS8/2Ku
-        Byaxf0SoOn8AwKPdnwYTCgRIgqA1RP2kJZMdakReVedRSljQ6VPmADocmfhLQqVX
-        mKp/OJFFC9hWTLMVT9P71eskEvn28w5C6HOavQ1rUw==
-X-ME-Sender: <xms:X1aOY898LBU4HYijddReu34kEdUAn_gDL51upSN_76YJ-Rpx7TXdow>
-    <xme:X1aOY0s63dRJkUubUktrVLIybhwmGHEJqjncY62MuLjy9j-sc50PQ9tAws7gLGevT
-    uYEg4mmH3Ae8rL8MM4>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudeggddugedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
-    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:X1aOYyCMFSN2BS-11M_4rJPNO9_TNM4pQ6xp3Dsaq51hW5IvC1J1_Q>
-    <xmx:X1aOY8fVdH787q8KB8nzV2SZxJCwhe7lx-foGPJBXt8t4I8nXG0yoA>
-    <xmx:X1aOYxOUh7E42k66ZtC2F_StrBCfp24rwzASg6miQFJxseIl-9uIiw>
-    <xmx:YFaOY00MLmdU1HOh_0C4GbLI0I5jnkJnfBj8FgvNuzCJ2qpKsFo08w>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id C2A9CB60086; Mon,  5 Dec 2022 15:36:47 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.7.0-alpha0-1115-g8b801eadce-fm-20221102.001-g8b801ead
-Mime-Version: 1.0
-Message-Id: <c86881a8-61b4-46ad-a02a-5252a38a9ad5@app.fastmail.com>
-In-Reply-To: <4676311f-1c08-a611-a3be-48e841093e45@gmx.de>
-References: <20221205190803.124472741@linuxfoundation.org>
- <20221205190806.296201818@linuxfoundation.org>
- <dfa8305f-f52f-4322-a22e-9a1e90fcfad4@app.fastmail.com>
- <4676311f-1c08-a611-a3be-48e841093e45@gmx.de>
-Date:   Mon, 05 Dec 2022 21:36:27 +0100
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Helge Deller" <deller@gmx.de>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        with ESMTP id S230254AbiLEUoT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 15:44:19 -0500
+Received: from serv108.segi.ulg.ac.be (serv108.segi.ulg.ac.be [139.165.32.111])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63ED1FAFC;
+        Mon,  5 Dec 2022 12:44:14 -0800 (PST)
+Received: from [192.168.1.33] (148.24-240-81.adsl-dyn.isp.belgacom.be [81.240.24.148])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by serv108.segi.ulg.ac.be (Postfix) with ESMTPSA id 1C837200DFB5;
+        Mon,  5 Dec 2022 21:44:10 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 serv108.segi.ulg.ac.be 1C837200DFB5
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uliege.be;
+        s=ulg20190529; t=1670273050;
+        bh=R7NAWbc/sCBj7lLILmPIAKDv17G+CxjF70h+S1ur3pE=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=ScRccmwLvxLkuysid38gAxQs6B/OVTvBrnpvsLDUNMIHiy0GVE7so4w71oxGDvb8K
+         4iAE0MziaRR6bx/tccIZrrMzR5WSrh3QqLyMwb81RjdjjJB7vzDfeFit6O+/2eM7E6
+         1JpSIh6aXOJH6dnQSmdgYPhrrMHi95+hgm16jYktxjcvF7XGqnSt45RZYDtn0Puo5E
+         m+I1BlK8A1YROzJgpKI/z2Hk9GVlEB6dlCvY3GDvQRnFwrzldrL7KFTMELn+D9mr5O
+         U9JdHUkyqLexlZDjjDP9fXeIz9/xmHFflhURD9j+IdUV7SpQCXHO19l9ZKWL12/R7G
+         lNIoNIxGDIrFQ==
+Message-ID: <d579c817-50c7-5bd5-4b28-f044daabf7f6@uliege.be>
+Date:   Mon, 5 Dec 2022 21:44:09 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [RFC net] Fixes: b63c5478e9cb ("ipv6: ioam: Support for Queue
+ depth data field")
+Content-Language: en-US
+To:     Eric Dumazet <edumazet@google.com>
+Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        yoshfuji@linux-ipv6.org, dsahern@kernel.org, pabeni@redhat.com,
         stable@vger.kernel.org
-Cc:     patches@lists.linux.dev,
-        "Abd-Alrhman Masalkhi" <abd.masalkhi@gmail.com>,
-        "Christoph Hellwig" <hch@infradead.org>,
-        "Sasha Levin" <sashal@kernel.org>,
-        "John David Anglin" <dave.anglin@bell.net>
-Subject: Re: [PATCH 4.19 094/105] parisc: Increase size of gcc stack frame check
-Content-Type: text/plain
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
+References: <20221205153557.28549-1-justin.iurman@uliege.be>
+ <CANn89iLjGnyh0GgW_5kkMQJBCi-KfgwyvZwT1ou2FMY4ZDcMXw@mail.gmail.com>
+ <CANn89iK3hMpJQ1w4peg2g35W+Oi3t499C5rUv7rcwzYtxDGBuw@mail.gmail.com>
+ <a8dcb88c-16be-058b-b890-5d479d22c8a8@uliege.be>
+ <CANn89iKgeVFRAstW3QRwOdn8SV_EbHqcKYqmoWT6m5nGQwPWUg@mail.gmail.com>
+From:   Justin Iurman <justin.iurman@uliege.be>
+In-Reply-To: <CANn89iKgeVFRAstW3QRwOdn8SV_EbHqcKYqmoWT6m5nGQwPWUg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -90,75 +61,198 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 5, 2022, at 20:58, Helge Deller wrote:
-> On 12/5/22 20:27, Arnd Bergmann wrote:
->> On Mon, Dec 5, 2022, at 20:10, Greg Kroah-Hartman wrote:
->>> From: Helge Deller <deller@gmx.de>
->>>
->>> [ Upstream commit 55b70eed81cba1331773d4aaf5cba2bb07475cd8 ]
->>>
->>> parisc uses much bigger frames than other architectures, so increase the
->>> stack frame check value to avoid compiler warnings.
+On 12/5/22 19:34, Eric Dumazet wrote:
+> On Mon, Dec 5, 2022 at 7:24 PM Justin Iurman <justin.iurman@uliege.be> wrote:
 >>
->> I had not seen this one originally, commenting on it now:
->
-> Hi Arnd,
-> Thanks for commenting!
-> By the way, those patches went in for 5.16 kernel, so I nearly forgot
-> about them in the meantime and wonder why they pop up now... (they weren't
-> tagged for stable, but I think it's ok to push them backwards).
+>> On 12/5/22 17:50, Eric Dumazet wrote:
+>>> On Mon, Dec 5, 2022 at 5:30 PM Eric Dumazet <edumazet@google.com> wrote:
+>>>>
+>>>> Patch title seems
+>>>>
+>>>> On Mon, Dec 5, 2022 at 4:36 PM Justin Iurman <justin.iurman@uliege.be> wrote:
+>>>>>
+>>>>> This patch fixes a NULL qdisc pointer when retrieving the TX queue depth
+>>>>> for IOAM.
+>>>>>
+>>>>> IMPORTANT: I suspect this fix is local only and the bug goes deeper (see
+>>>>> reasoning below).
+>>>>>
+>>>>> Kernel panic:
+>>>>> [...]
+>>>>> RIP: 0010:ioam6_fill_trace_data+0x54f/0x5b0
+>>>>> [...]
+>>>>>
+>>>>> ...which basically points to the call to qdisc_qstats_qlen_backlog
+>>>>> inside net/ipv6/ioam6.c.
+>>>>>
+>>>>>   From there, I directly thought of a NULL pointer (queue->qdisc). To make
+>>>>> sure, I added some printk's to know exactly *why* and *when* it happens.
+>>>>> Here is the (summarized by queue) output:
+>>>>>
+>>>>> skb for TX queue 1, qdisc is ffff8b375eee9800, qdisc_sleeping is ffff8b375eee9800
+>>>>> skb for TX queue 2, qdisc is ffff8b375eeefc00, qdisc_sleeping is ffff8b375eeefc00
+>>>>> skb for TX queue 3, qdisc is ffff8b375eeef800, qdisc_sleeping is ffff8b375eeef800
+>>>>> skb for TX queue 4, qdisc is ffff8b375eeec800, qdisc_sleeping is ffff8b375eeec800
+>>>>> skb for TX queue 5, qdisc is ffff8b375eeea400, qdisc_sleeping is ffff8b375eeea400
+>>>>> skb for TX queue 6, qdisc is ffff8b375eeee000, qdisc_sleeping is ffff8b375eeee000
+>>>>> skb for TX queue 7, qdisc is ffff8b375eee8800, qdisc_sleeping is ffff8b375eee8800
+>>>>> skb for TX queue 8, qdisc is ffff8b375eeedc00, qdisc_sleeping is ffff8b375eeedc00
+>>>>> skb for TX queue 9, qdisc is ffff8b375eee9400, qdisc_sleeping is ffff8b375eee9400
+>>>>> skb for TX queue 10, qdisc is ffff8b375eee8000, qdisc_sleeping is ffff8b375eee8000
+>>>>> skb for TX queue 11, qdisc is ffff8b375eeed400, qdisc_sleeping is ffff8b375eeed400
+>>>>> skb for TX queue 12, qdisc is ffff8b375eeea800, qdisc_sleeping is ffff8b375eeea800
+>>>>> skb for TX queue 13, qdisc is ffff8b375eee8c00, qdisc_sleeping is ffff8b375eee8c00
+>>>>> skb for TX queue 14, qdisc is ffff8b375eeea000, qdisc_sleeping is ffff8b375eeea000
+>>>>> skb for TX queue 15, qdisc is ffff8b375eeeb800, qdisc_sleeping is ffff8b375eeeb800
+>>>>> skb for TX queue 16, qdisc is NULL, qdisc_sleeping is NULL
+>>>>>
+>>>>> What the hell? So, not sure why queue #16 would *never* have a qdisc
+>>>>> attached. Is it something expected I'm not aware of? As an FYI, here is
+>>>>> the output of "tc qdisc list dev xxx":
+>>>>>
+>>>>> qdisc mq 0: root
+>>>>> qdisc fq_codel 0: parent :10 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :f limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :e limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :d limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :c limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :b limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :a limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :9 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :8 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :7 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :6 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :5 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :4 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :3 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :2 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>> qdisc fq_codel 0: parent :1 limit 10240p flows 1024 quantum 1514 target 5ms interval 100ms memory_limit 32Mb ecn drop_batch 64
+>>>>>
+>>>>> By the way, the NIC is an Intel XL710 40GbE QSFP+ (i40e driver, firmware
+>>>>> version 8.50 0x8000b6c7 1.3082.0) and it was tested on latest "net"
+>>>>> version (6.1.0-rc7+). Is this a bug in the i40e driver?
+>>>>>
+>>>>
+>>>>> Cc: stable@vger.kernel.org
+>>>>
+>>>> Patch title is mangled. The Fixes: tag should appear here, not in the title.
+>>>>
+>>>>
+>>>> Fixes: b63c5478e9cb ("ipv6: ioam: Support for Queue depth data field")
+>>>>
+>>>>> Signed-off-by: Justin Iurman <justin.iurman@uliege.be>
+>>>>> ---
+>>>>>    net/ipv6/ioam6.c | 11 +++++++----
+>>>>>    1 file changed, 7 insertions(+), 4 deletions(-)
+>>>>>
+>>>>> diff --git a/net/ipv6/ioam6.c b/net/ipv6/ioam6.c
+>>>>> index 571f0e4d9cf3..2472a8a043c4 100644
+>>>>> --- a/net/ipv6/ioam6.c
+>>>>> +++ b/net/ipv6/ioam6.c
+>>>>> @@ -727,10 +727,13 @@ static void __ioam6_fill_trace_data(struct sk_buff *skb,
+>>>>>                           *(__be32 *)data = cpu_to_be32(IOAM6_U32_UNAVAILABLE);
+>>>>>                   } else {
+>>>>>                           queue = skb_get_tx_queue(skb_dst(skb)->dev, skb);
+>>>>
+>>>> Are you sure skb_dst(skb)->dev is correct at this stage, what about
+>>>> stacked devices ?
+>>>>
+>>>>> -                       qdisc = rcu_dereference(queue->qdisc);
+>>>>> -                       qdisc_qstats_qlen_backlog(qdisc, &qlen, &backlog);
+>>>>> -
+>>>>> -                       *(__be32 *)data = cpu_to_be32(backlog);
+>>>>> +                       if (!queue->qdisc) {
+>>>>
+>>>> This is racy.
+>>>>
+>>>>> +                               *(__be32 *)data = cpu_to_be32(IOAM6_U32_UNAVAILABLE);
+>>>>> +                       } else {
+>>>>> +                               qdisc = rcu_dereference(queue->qdisc);
+>>>>> +                               qdisc_qstats_qlen_backlog(qdisc, &qlen, &backlog);
+>>>>> +                               *(__be32 *)data = cpu_to_be32(backlog);
+>>>>> +                       }
+>>>>>                   }
+>>>>>                   data += sizeof(__be32);
+>>>>>           }
+>>>>> --
+>>>>> 2.25.1
+>>>>>
+>>>>
+>>>> Quite frankly I suggest to revert b63c5478e9cb completely.
+>>>>
+>>>> The notion of Queue depth can not be properly gathered in Linux with a
+>>>> multi queue model,
+>>>> so why trying to get a wrong value ?
+>>>
+>>> Additional reason for a revert is that qdisc_qstats_qlen_backlog() is
+>>> reserved for net/sched
+>>
+>> If by "reserved" you mean "only used by at the moment", then yes (with
+>> the only exception being IOAM). But some other functions are defined as
+>> well, and some are used elsewhere than the "net/sched" context. So I
+>> don't think it's really an issue to use this function "from somewhere else".
+>>
+>>> code, I think it needs the qdisc lock to be held.
+>>
+>> Good point. But is it really needed when called with rcu_read_lock?
+> 
+> It is needed.
 
-Ok, got it, I misread this as being a result of the recent
-patch that increased the limit for KASAN.
+So I guess I could just submit a patch to wrap that part with:
 
->> My understanding of the parisc overhead was that this
->> was just based on a few bytes per function call,
->
-> What exactly do you mean by a few bytes?
-> On parisc the frame size is a multiple of 64-bytes (on 32-bit)
-> and 128 bytes (on 64bit).
-> For function calls with more than 5 (need to check exact number)
-> parameters those will be put on the stack as well.
+spin_lock(qdisc_lock(qdisc));
+[...]
+spin_unlock(qdisc_lock(qdisc));
 
-If the frame size gets rounded up to a multiple of 64 bytes, that
-would add 32 bytes (i.e. a few) on average, but it should not
-double the stack usage. Similarly limit of five register arguments
-is just one less than the typical six, so that only explains
-a few bytes of extra stack usage, but not the huge increase you
-see.
+Anyway, there'd still be that queue-without-qdisc bug out there that I'd 
+like to discuss but which seems to be avoided in the conversation somehow.
 
->> not something that makes everything bigger. We have a few functions
->> that get close to the normal 1024 byte limit, everything else should
->> be no more than a few hundred bytes on any architecture.
->
-> Sadly not on parisc.
-> Again, see commit message of 8d192bec534b, which mentions
-> compile warnings from the kernel test robot for lib/xxhash.c.
+> Please revert this patch.
+> 
+> Many people use FQ qdisc, where packets are waiting for their Earliest
+> Departure Time to be released.
 
-lib/xxhash.c is similar to some other ones that we've seen
-grow too much on some architecture/toolchain combinations,
-as compilers tend to struggle with register allocation for
-crypto code that looks like the compiler should be able
-to unroll it all into a simpler operation, but then ends up
-spilling registers to the stack, which is of course both
-slow and wasteful to the stack size.
+The IOAM queue depth is a very important value and is already used. Just 
+reverting the patch is not really an option. Besides, if IOAM is not 
+used, then what you described above would not be a problem (probably 
+most of the time as IOAM is enabled on limited domains). Not to mention 
+that you probably don't need the queue depth in every packet.
 
->> If this happens for normal parisc builds without any
->> special compilation options, that would indicate that the
->> compiler is very broken.
->
-> No, it does a good job. It's the ABI which requires so big stacks.
-> I see problems with some userspace apps as well which configure too
-> small stacks.
->
-> By the way, since those patches are in I don't see any stack
-> overflows any longer. Those happened rarely in the past though.
+> Also, the draft says:
+> 
+> 5.4.2.7.  queue depth
+> 
+>     The "queue depth" field is a 4-octet unsigned integer field.  This
+>     field indicates the current length of the egress interface queue of
+>     the interface from where the packet is forwarded out.  The queue
+>     depth is expressed as the current amount of memory buffers used by
+>     the queue (a packet could consume one or more memory buffers,
+>     depending on its size).
+> 
+>      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+>     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+>     |                       queue depth                             |
+>     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+> 
+> 
+> It is relatively clear that the egress interface is the aggregate
+> egress interface,
+> not a subset of the interface.
 
-It certainly helps that you also have twice the THREAD_SIZE of
-most other architectures.
+Correct, even though the definition of an interface in RFC 9197 is quite 
+abstract (see the end of section 4.4.2.2: "[...] could represent a 
+physical interface, a virtual or logical interface, or even a queue").
 
-On a related note, we recently enabled CONFIG_VMAP_STACK on
-32-bit arm, and this has already caught some stack overflows
-that would have otherwise resulted in silent data corruption.
+> If you have 32 TX queues on a NIC, all of them being backlogged (line rate),
+> sensing the queue length of one of the queues would give a 97% error
+> on the measure.
 
-     Arnd
+Why would it? Not sure I get your idea based on that example.
+
+> To properly implement that 'Queue depth' metric, you would need to use
+> the backlog of the MQ qdisc.
+> That would be very expensive.
+
+Could be a solution, thanks for the suggestion. But if it's too 
+expensive, I'd rather have the current solution (with locks) than 
+nothing at all. At least it has provided an acceptable solution so far.
