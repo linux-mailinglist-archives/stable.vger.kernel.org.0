@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 550496434A1
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:48:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 094CE643368
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235083AbiLETsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:48:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54904 "EHLO
+        id S234075AbiLETgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:36:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235068AbiLETrz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29F2E6598
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:44:47 -0800 (PST)
+        with ESMTP id S234537AbiLETf5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2743BE3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:32:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B957961321
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:44:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDBBCC433D6;
-        Mon,  5 Dec 2022 19:44:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E920B81157
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:32:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF500C433D6;
+        Mon,  5 Dec 2022 19:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269486;
-        bh=97zCjMVNzmdlmIskIidDpK7Lzxmc3JquiqnkwFgwY1g=;
+        s=korg; t=1670268743;
+        bh=Idq5ss8F/qUiszwjiPKjBldqBzZB20tvAvS3w0PgrFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PNxangmcYYr3Rvbxtpsm4wfHg/cDbGAtsN7BZCQWzbF/rSjt1YEhQsNNNFcM994uy
-         d4QHRINtMdFiF5TCP0OejER2atAqxcYD3HomncEMsXeJupN74rfz/s0QveYt2YDEvg
-         xHdLEY22CO2qSCuPO6g5tEWaW8gxG4YNzNZfKPpA=
+        b=imRIo0lWmnZOYs56Kvfn2JPTpjeyozyyZWCE8CYUc1wicawVT8AIQp8wlbd4bO7rO
+         UpMbHWvfJ5wYUkJgw6TJ3rsByAtUGBRCwR1JA31UqO4c6cDXDwEpWbOPVG6v1wXaSF
+         /P7yV58dRFLQkmnCq6a09EklF+77PL7FUXjNJNxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 117/153] error-injection: Add prompt for function error injection
+        patches@lists.linux.dev, "Rafael J. Wysocki" <rafael@kernel.org>,
+        Liu Shixin <liushixin2@huawei.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Chris Piper <chris.d.piper@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 88/92] ACPI: HMAT: Fix initiator registration for single-initiator systems
 Date:   Mon,  5 Dec 2022 20:10:41 +0100
-Message-Id: <20221205190812.073047229@linuxfoundation.org>
+Message-Id: <20221205190806.372746560@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +58,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Vishal Verma <vishal.l.verma@intel.com>
 
-commit a4412fdd49dc011bcc2c0d81ac4cab7457092650 upstream.
+[ Upstream commit 48d4180939e12c4bd2846f984436d895bb9699ed ]
 
-The config to be able to inject error codes into any function annotated
-with ALLOW_ERROR_INJECTION() is enabled when FUNCTION_ERROR_INJECTION is
-enabled.  But unfortunately, this is always enabled on x86 when KPROBES
-is enabled, and there's no way to turn it off.
+In a system with a single initiator node, and one or more memory-only
+'target' nodes, the memory-only node(s) would fail to register their
+initiator node correctly. i.e. in sysfs:
 
-As kprobes is useful for observability of the kernel, it is useful to
-have it enabled in production environments.  But error injection should
-be avoided.  Add a prompt to the config to allow it to be disabled even
-when kprobes is enabled, and get rid of the "def_bool y".
+  # ls /sys/devices/system/node/node0/access0/targets/
+  node0
 
-This is a kernel debug feature (it's in Kconfig.debug), and should have
-never been something enabled by default.
+Where as the correct behavior should be:
 
-Cc: stable@vger.kernel.org
-Fixes: 540adea3809f6 ("error-injection: Separate error-injection from kprobe")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  # ls /sys/devices/system/node/node0/access0/targets/
+  node0 node1
+
+This happened because hmat_register_target_initiators() uses list_sort()
+to sort the initiator list, but the sort comparision function
+(initiator_cmp()) is overloaded to also set the node mask's bits.
+
+In a system with a single initiator, the list is singular, and list_sort
+elides the comparision helper call. Thus the node mask never gets set,
+and the subsequent search for the best initiator comes up empty.
+
+Add a new helper to consume the sorted initiator list, and generate the
+nodemask, decoupling it from the overloaded initiator_cmp() comparision
+callback. This prevents the singular list corner case naturally, and
+makes the code easier to follow as well.
+
+Cc: <stable@vger.kernel.org>
+Cc: Rafael J. Wysocki <rafael@kernel.org>
+Cc: Liu Shixin <liushixin2@huawei.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Reported-by: Chris Piper <chris.d.piper@intel.com>
+Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Link: https://lore.kernel.org/r/20221116-acpi_hmat_fix-v2-2-3712569be691@intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/acpi/numa/hmat.c | 26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1525,8 +1525,14 @@ config NETDEV_NOTIFIER_ERROR_INJECT
- 	  If unsure, say N.
+diff --git a/drivers/acpi/numa/hmat.c b/drivers/acpi/numa/hmat.c
+index fd202689dcda..26453a945da4 100644
+--- a/drivers/acpi/numa/hmat.c
++++ b/drivers/acpi/numa/hmat.c
+@@ -563,17 +563,26 @@ static int initiator_cmp(void *priv, const struct list_head *a,
+ {
+ 	struct memory_initiator *ia;
+ 	struct memory_initiator *ib;
+-	unsigned long *p_nodes = priv;
  
- config FUNCTION_ERROR_INJECTION
--	def_bool y
-+	bool "Fault-injections of functions"
- 	depends on HAVE_FUNCTION_ERROR_INJECTION && KPROBES
-+	help
-+	  Add fault injections into various functions that are annotated with
-+	  ALLOW_ERROR_INJECTION() in the kernel. BPF may also modify the return
-+	  value of theses functions. This is useful to test error paths of code.
+ 	ia = list_entry(a, struct memory_initiator, node);
+ 	ib = list_entry(b, struct memory_initiator, node);
+ 
+-	set_bit(ia->processor_pxm, p_nodes);
+-	set_bit(ib->processor_pxm, p_nodes);
+-
+ 	return ia->processor_pxm - ib->processor_pxm;
+ }
+ 
++static int initiators_to_nodemask(unsigned long *p_nodes)
++{
++	struct memory_initiator *initiator;
 +
-+	  If unsure, say N
++	if (list_empty(&initiators))
++		return -ENXIO;
++
++	list_for_each_entry(initiator, &initiators, node)
++		set_bit(initiator->processor_pxm, p_nodes);
++
++	return 0;
++}
++
+ static void hmat_register_target_initiators(struct memory_target *target)
+ {
+ 	static DECLARE_BITMAP(p_nodes, MAX_NUMNODES);
+@@ -610,7 +619,10 @@ static void hmat_register_target_initiators(struct memory_target *target)
+ 	 * initiators.
+ 	 */
+ 	bitmap_zero(p_nodes, MAX_NUMNODES);
+-	list_sort(p_nodes, &initiators, initiator_cmp);
++	list_sort(NULL, &initiators, initiator_cmp);
++	if (initiators_to_nodemask(p_nodes) < 0)
++		return;
++
+ 	if (!access0done) {
+ 		for (i = WRITE_LATENCY; i <= READ_BANDWIDTH; i++) {
+ 			loc = localities_types[i];
+@@ -644,7 +656,9 @@ static void hmat_register_target_initiators(struct memory_target *target)
  
- config FAULT_INJECTION
- 	bool "Fault-injection framework"
+ 	/* Access 1 ignores Generic Initiators */
+ 	bitmap_zero(p_nodes, MAX_NUMNODES);
+-	list_sort(p_nodes, &initiators, initiator_cmp);
++	if (initiators_to_nodemask(p_nodes) < 0)
++		return;
++
+ 	for (i = WRITE_LATENCY; i <= READ_BANDWIDTH; i++) {
+ 		loc = localities_types[i];
+ 		if (!loc)
+-- 
+2.35.1
+
 
 
