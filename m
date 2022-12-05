@@ -2,159 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52723643504
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:56:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29AAA643517
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:59:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233654AbiLETz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:55:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60204 "EHLO
+        id S230289AbiLET7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:59:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231602AbiLETz2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:55:28 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40C7FE3;
-        Mon,  5 Dec 2022 11:54:07 -0800 (PST)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 5C91621F77;
-        Mon,  5 Dec 2022 19:54:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1670270046; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=+CEPKOUcs58XcBBC3BmQTUM9eA7+p9pfmnjTyRe6bBU=;
-        b=n9QqsjMXkjVk9c9DLv/RkVJfCO9dPih0612QxVCsDr+1PT8pnsh0nGyLwBKApivdlnEfqy
-        qRTkgRdzdPx5gCagyJP2auvzxIf+WPv82F1jw1wpqdjg+Cfq9bsPSsUHobH6jqS8YDUdRx
-        YsDiexm+yib29GBLyhET7yHwLiJNozg=
-Received: from suse.cz (unknown [10.100.208.146])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 3F5722C141;
-        Mon,  5 Dec 2022 19:54:06 +0000 (UTC)
-Date:   Mon, 5 Dec 2022 20:54:05 +0100
-From:   Petr Mladek <pmladek@suse.com>
-To:     Petr Pavlu <petr.pavlu@suse.com>
-Cc:     mcgrof@kernel.org, prarit@redhat.com, david@redhat.com,
-        mwilck@suse.com, linux-modules@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] module: Don't wait for GOING modules
-Message-ID: <Y45MXVrGNkY/bGSl@alley>
-References: <20221205103557.18363-1-petr.pavlu@suse.com>
+        with ESMTP id S231454AbiLET6n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:58:43 -0500
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 178FD1055B
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:58:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
+        t=1670270288; bh=2gFYzCTJIOULN9LJknChVckVSBJGN1eSRMJYrB2BzR0=;
+        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=tydd0lQsH8wCWtzK6uNrq9/RmlKi2uisIFf2aaqCpD3O4CxoAOSVnPHZ4cC1h6v0H
+         9SZI2NfeBbG41Dc1OwoxJzzbFkDzB7aw4apxzSVhm+xWceFpFZ4GIukK4VA7U1pJ48
+         HQ3Mivs+btbeSyZtjZu+/iavM2ZvZZBgfBHT3QkXVmkgiUMZglitXvrScJwHjpEHFi
+         nZHJ4mI/q/fd7sBi6IyT3EEkcApWFwJN8YP7uwnd0LyQZ7v00bRj1Itowoi7buSG1v
+         g9BEUdJnajJrBFfUZtHH9sxBgrvLSlLzwiLccgi3i8aPV5FSJVi+4+0J/hP3Fsr0bQ
+         WVJXiG9losy3Q==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from [192.168.20.60] ([92.116.161.205]) by mail.gmx.net (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1M5wPh-1p4DXf0sDT-007Y7s; Mon, 05
+ Dec 2022 20:58:08 +0100
+Message-ID: <4676311f-1c08-a611-a3be-48e841093e45@gmx.de>
+Date:   Mon, 5 Dec 2022 20:58:06 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221205103557.18363-1-petr.pavlu@suse.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Subject: Re: [PATCH 4.19 094/105] parisc: Increase size of gcc stack frame
+ check
+Content-Language: en-US
+To:     Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev,
+        Abd-Alrhman Masalkhi <abd.masalkhi@gmail.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        John David Anglin <dave.anglin@bell.net>
+References: <20221205190803.124472741@linuxfoundation.org>
+ <20221205190806.296201818@linuxfoundation.org>
+ <dfa8305f-f52f-4322-a22e-9a1e90fcfad4@app.fastmail.com>
+From:   Helge Deller <deller@gmx.de>
+In-Reply-To: <dfa8305f-f52f-4322-a22e-9a1e90fcfad4@app.fastmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:dOAkOnQa3QmOZPQkvX1e1bF9W53Gu4PO76EgjfY0+b7wcv1qfU9
+ nHFnYcSjYimpBkA+yTlubQyUXvNRBjLl4sqOLWBZSCTDvMFjPDMRR3+yhuVuGLdSsrvVvqm
+ G5vkJlnfcyUwUK2xAS6RPpOs8ntoXShrjVXRMZnq3r0Kaqg+A65mfnqiPkVdUPlQPcb/C1t
+ JjO1AV+oqxnOrfxIL5syw==
+UI-OutboundReport: notjunk:1;M01:P0:WAJw04KI6j8=;vxI7oixbqXmY0RGjQ9Z+xd2aKdJ
+ mxjU8SAWaTUDVhz4uNRODHbav/+XdQhfjNS9iaBPvmJP/Hv/MuAUS4sK4WNszzSSDLignfJMM
+ JGkhSYbe+/NEuTR6VXS9owjnDWezyLbUTaLRORBiryhFsgtgQ5bf7K+KY31N6+5usfuat8XE5
+ ZNwGNWyOON2xGfd4gwMa8Hj8BO6wQhptYT9VEZUU9YTF4q3qAkMQuU5IafazAEiER+ZLhjfsj
+ xhTYZKzYRBEYF6DPW7Q06S1sX1O1A6pRQ8Yh6M0+ulo7bk3T9XU6Ig4bCN1isNyGummeVzmUy
+ /ndrjwEyswlPml4FsZ1e1E5RR8f5Qh4RdwxAS3bwPd8L4byZxyVHzrNek0VKDuUZ/zKMhPO5a
+ UN4JCvLXXYLbA+z1jj73dn3ZcgXJWMgEF+CXevco0E5GSzh+UWk7KvhBBQwtAbs9uPpOB99kK
+ PhhRV/bjNLYO6z3DaOt3CjblAPOESmgfKQ9KKyyWUFiM6knxFBrjbqdK8DcMf7CgSyp20hfpg
+ QiAlWxTXl3fAsfb4IlM3LCI5yzwwWsvXy7yeWVnXRz52sd1harfwsua/bUNPkR0tLkrvI3Lk2
+ dH9WNoU3I0NMXF4aWdmM92rLKH1pMDNqqnh4MLCx7GF/YTatCmsW5fYCPSD+UJ6Kzoj6HGe2H
+ PJ1B3cyNZQMVeW4u03lKc1URd8YfztgyJmFzHpt7XNaC0C74P27tnsH1FyBHyPNQtg2j5zWkY
+ upEYf1POJlHngebLHILni/ZhZVezSRqLzcKDlACAIwaZJdadPgX/DJ2tWUVudVyW+eHtLx/8m
+ CsgdP9ORqiYGbDCCcf09ZkxqCFcP2bNrQKr6bMwmX7O6y1RP07OZbnlEs5hTIekjkC7KC5//l
+ s/9trVHH3uqBcxTWbwiGTOZSRHKr+/zFjsOtw/4oMRFYmr9hSmWRAOiFvb6441YirDcyNuSBX
+ DX9/kg==
+X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon 2022-12-05 11:35:57, Petr Pavlu wrote:
-> During a system boot, it can happen that the kernel receives a burst of
-> requests to insert the same module but loading it eventually fails
-> during its init call. For instance, udev can make a request to insert
-> a frequency module for each individual CPU when another frequency module
-> is already loaded which causes the init function of the new module to
-> return an error.
-> 
-> Since commit 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for
-> modules that have finished loading"), the kernel waits for modules in
-> MODULE_STATE_GOING state to finish unloading before making another
-> attempt to load the same module.
-> 
-> This creates unnecessary work in the described scenario and delays the
-> boot. In the worst case, it can prevent udev from loading drivers for
-> other devices and might cause timeouts of services waiting on them and
-> subsequently a failed boot.
-> 
-> This patch attempts a different solution for the problem 6e6de3dee51a
-> was trying to solve. Rather than waiting for the unloading to complete,
-> it returns a different error code (-EBUSY) for modules in the GOING
-> state. This should avoid the error situation that was described in
-> 6e6de3dee51a (user space attempting to load a dependent module because
-> the -EEXIST error code would suggest to user space that the first module
-> had been loaded successfully), while avoiding the delay situation too.
-> 
-> Fixes: 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for modules that have finished loading")
-> Co-developed-by: Martin Wilck <mwilck@suse.com>
-> Signed-off-by: Martin Wilck <mwilck@suse.com>
-> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
-> Cc: stable@vger.kernel.org
-> ---
-> 
-> Changes since v1 [1]:
-> - Don't attempt a new module initialization when a same-name module
->   completely disappeared while waiting on it, which means it went
->   through the GOING state implicitly already.
-> 
-> [1] https://lore.kernel.org/linux-modules/20221123131226.24359-1-petr.pavlu@suse.com/
-> 
->  kernel/module/main.c | 26 +++++++++++++++++++++-----
->  1 file changed, 21 insertions(+), 5 deletions(-)
-> 
-> diff --git a/kernel/module/main.c b/kernel/module/main.c
-> index d02d39c7174e..7a627345d4fd 100644
-> --- a/kernel/module/main.c
-> +++ b/kernel/module/main.c
-> @@ -2386,7 +2386,8 @@ static bool finished_loading(const char *name)
->  	sched_annotate_sleep();
->  	mutex_lock(&module_mutex);
->  	mod = find_module_all(name, strlen(name), true);
-> -	ret = !mod || mod->state == MODULE_STATE_LIVE;
-> +	ret = !mod || mod->state == MODULE_STATE_LIVE
-> +		|| mod->state == MODULE_STATE_GOING;
+On 12/5/22 20:27, Arnd Bergmann wrote:
+> On Mon, Dec 5, 2022, at 20:10, Greg Kroah-Hartman wrote:
+>> From: Helge Deller <deller@gmx.de>
+>>
+>> [ Upstream commit 55b70eed81cba1331773d4aaf5cba2bb07475cd8 ]
+>>
+>> parisc uses much bigger frames than other architectures, so increase th=
+e
+>> stack frame check value to avoid compiler warnings.
+>
+> I had not seen this one originally, commenting on it now:
 
-There is a actually one more race.
+Hi Arnd,
+Thanks for commenting!
+By the way, those patches went in for 5.16 kernel, so I nearly forgot
+about them in the meantime and wonder why they pop up now... (they weren't
+tagged for stable, but I think it's ok to push them backwards).
 
-This function is supposed to wait until load of a particular module
-finishes. But we might find some another module of the same name here.
+>> index 9ded3c1f68eb..556aae95d69b 100644
+>> --- a/lib/Kconfig.debug
+>> +++ b/lib/Kconfig.debug
+>> @@ -224,7 +224,7 @@ config FRAME_WARN
+>>   	range 0 8192
+>>   	default 3072 if KASAN_EXTRA
+>>   	default 2048 if GCC_PLUGIN_LATENT_ENTROPY
+>> -	default 1280 if (!64BIT && PARISC)
+>> +	default 1536 if (!64BIT && PARISC)
+>>   	default 1024 if (!64BIT && !PARISC)
+>
+> 1536 is a /lot/ when we're dealing with 32-bit platforms.
 
-Maybe, it is not that bad. If many modules of the same name are loaded
-in parallel then hopefully most of them would wait for the first one
-in add_unformed_module(). And they will never appear in the @modules
-list.
+True.
+It's actually 2048 bytes in the meantime, see commit
+8d192bec534bd5b778135769a12e5f04580771f7
 
-Anyway, to be on the safe side. We might want to pass the pointer
-to the @old module found in add_unformed_module() and make sure
-that we find the same module here. Something like:
+> My understanding of the parisc overhead was that this
+> was just based on a few bytes per function call,
 
-/*
- * @pending_mod: pointer to module that we are waiting for
- * @name: name of the module; the string must stay even when
- *	the pending module goes away completely
- */
-static bool finished_loading(const struct module *pending_mod,
-			    const char *name)
-{
-	struct module *mod;
-	bool ret = true;
+What exactly do you mean by a few bytes?
+On parisc the frame size is a multiple of 64-bytes (on 32-bit)
+and 128 bytes (on 64bit).
+For function calls with more than 5 (need to check exact number)
+parameters those will be put on the stack as well.
 
-	/*
-	 * The module_mutex should not be a heavily contended lock;
-	 * if we get the occasional sleep here, we'll go an extra iteration
-	 * in the wait_event_interruptible(), which is harmless.
-	 */
-	sched_annotate_sleep();
-	mutex_lock(&module_mutex);
+> not something that makes everything bigger. We have a few functions
+> that get close to the normal 1024 byte limit, everything else should
+> be no more than a few hundred bytes on any architecture.
 
-	mod = find_module_all(name, strlen(name), true);
-	/* Check if the pending module is still being loaded */
-	if (mod == pending_mod &&
-	    (mod->state == MODULE_STATE_UNFORMED ||
-	       mod->state == MODULE_STATE_COMMING))
-	       ret = false;
-	mutex_unlock(&module_mutex);
+Sadly not on parisc.
+Again, see commit message of 8d192bec534b, which mentions
+compile warnings from the kernel test robot for lib/xxhash.c.
 
-	return ret;
-}
+> Could it be that this only happens when KASAN or some
+> other feature is enabled?
 
-Another advantage is that this is using the very same logic
-(if condition) as add_formed_module() and not the inverted one ;-)
+No, it happens even without KASAN or such.
 
-Otherwise, the patch looks good. I wonder how it works for Prarit.
+> If this happens for normal parisc builds without any
+> special compilation options, that would indicate that the
+> compiler is very broken.
 
-Best Regards,
-Petr
+No, it does a good job. It's the ABI which requires so big stacks.
+I see problems with some userspace apps as well which configure too
+small stacks.
+
+By the way, since those patches are in I don't see any stack
+overflows any longer. Those happened rarely in the past though.
+
+Helge
