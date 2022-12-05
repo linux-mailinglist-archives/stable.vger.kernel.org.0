@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCFA16431E1
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:21:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C6DA64332D
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233732AbiLETVg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:21:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37150 "EHLO
+        id S234159AbiLETeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:34:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233747AbiLETVQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:21:16 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4CFF2A704
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:17:23 -0800 (PST)
+        with ESMTP id S234127AbiLETeT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B357D27FCF
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:29:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 519BECE13A8
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:16:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40EBCC433D7;
-        Mon,  5 Dec 2022 19:16:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53912612FB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:29:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65616C433D7;
+        Mon,  5 Dec 2022 19:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267793;
-        bh=FCW2VatGbSHdymSxJgiAs32uem4+W7Lh72B1bQ9sstM=;
+        s=korg; t=1670268589;
+        bh=bx2QDi+70ZC7WKXvJ5K7xand1bn0lSxKl62Tv4c0qWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2LlnG04qK9XMcKozNh0msc0g+oPL/xopV9KN3TQryc1O+ZfVbNXqy3JuKh0eLfdoi
-         1lGNSPkbKJa9slGWHpHML8ZVQ/DN7O7VndyKrcf0XGlp7FJgNgNxapvuNLl2w7I9eV
-         dt1mw37qGjKsuZzNNlXByGkO5L2lDjY2pfZKBXm0=
+        b=EdZNWfqTViZxa2VcLlv6Po9N/kLe9/myx5YjY91wTNyYEsQ3Iqao5+9XfetTmwl4q
+         R1EsdFSrn/VOsf+DsEdCYkXNvYqdIEe7IqZ7jMEEGefYCHQOb9VW37pfKXGmSnWHN/
+         bnesoxb1txLCfzrOi6bDj/pJF73970T0yunDoZ20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 54/77] packet: do not set TP_STATUS_CSUM_VALID on CHECKSUM_COMPLETE
+Subject: [PATCH 5.10 32/92] can: sja1000_isa: sja1000_isa_probe(): add missing free_sja1000dev()
 Date:   Mon,  5 Dec 2022 20:09:45 +0100
-Message-Id: <20221205190802.780399569@linuxfoundation.org>
+Message-Id: <20221205190804.531242703@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit b85f628aa158a653c006e9c1405a117baef8c868 ]
+[ Upstream commit 92dfd9310a71d28cefe6a2d5174d43fab240e631 ]
 
-CHECKSUM_COMPLETE signals that skb->csum stores the sum over the
-entire packet. It does not imply that an embedded l4 checksum
-field has been validated.
+Add the missing free_sja1000dev() before return from
+sja1000_isa_probe() in the register_sja1000dev() error handling case.
 
-Fixes: 682f048bd494 ("af_packet: pass checksum validation status to the user")
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20221128161812.640098-1-willemdebruijn.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+In addition, remove blanks before goto labels.
+
+Fixes: 2a6ba39ad6a2 ("can: sja1000: legacy SJA1000 ISA bus driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/all/1668168521-5540-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/can/sja1000/sja1000_isa.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 61093ce76b61..1be5fb6af017 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2248,8 +2248,7 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
- 	if (skb->ip_summed == CHECKSUM_PARTIAL)
- 		status |= TP_STATUS_CSUMNOTREADY;
- 	else if (skb->pkt_type != PACKET_OUTGOING &&
--		 (skb->ip_summed == CHECKSUM_COMPLETE ||
--		  skb_csum_unnecessary(skb)))
-+		 skb_csum_unnecessary(skb))
- 		status |= TP_STATUS_CSUM_VALID;
+diff --git a/drivers/net/can/sja1000/sja1000_isa.c b/drivers/net/can/sja1000/sja1000_isa.c
+index d513fac50718..db3e767d5320 100644
+--- a/drivers/net/can/sja1000/sja1000_isa.c
++++ b/drivers/net/can/sja1000/sja1000_isa.c
+@@ -202,22 +202,24 @@ static int sja1000_isa_probe(struct platform_device *pdev)
+ 	if (err) {
+ 		dev_err(&pdev->dev, "registering %s failed (err=%d)\n",
+ 			DRV_NAME, err);
+-		goto exit_unmap;
++		goto exit_free;
+ 	}
  
- 	if (snaplen > res)
-@@ -3488,8 +3487,7 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 		if (skb->ip_summed == CHECKSUM_PARTIAL)
- 			aux.tp_status |= TP_STATUS_CSUMNOTREADY;
- 		else if (skb->pkt_type != PACKET_OUTGOING &&
--			 (skb->ip_summed == CHECKSUM_COMPLETE ||
--			  skb_csum_unnecessary(skb)))
-+			 skb_csum_unnecessary(skb))
- 			aux.tp_status |= TP_STATUS_CSUM_VALID;
+ 	dev_info(&pdev->dev, "%s device registered (reg_base=0x%p, irq=%d)\n",
+ 		 DRV_NAME, priv->reg_base, dev->irq);
+ 	return 0;
  
- 		aux.tp_len = origlen;
+- exit_unmap:
++exit_free:
++	free_sja1000dev(dev);
++exit_unmap:
+ 	if (mem[idx])
+ 		iounmap(base);
+- exit_release:
++exit_release:
+ 	if (mem[idx])
+ 		release_mem_region(mem[idx], iosize);
+ 	else
+ 		release_region(port[idx], iosize);
+- exit:
++exit:
+ 	return err;
+ }
+ 
 -- 
 2.35.1
 
