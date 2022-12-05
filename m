@@ -2,106 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9131A643235
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:25:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07E91643193
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:17:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233770AbiLETZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:25:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49912 "EHLO
+        id S233086AbiLETQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:16:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233788AbiLETYl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 414E62C124
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:19:51 -0800 (PST)
+        with ESMTP id S233543AbiLETPw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:15:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC60925E85
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:15:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAD4EB81181
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:19:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 630E8C433C1;
-        Mon,  5 Dec 2022 19:19:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 718FC61326
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:15:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CA06C433C1;
+        Mon,  5 Dec 2022 19:15:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267988;
-        bh=3Z5VSz+IaXP3WVAY6Thqe7EqruPoNaXQOHKek17Oe7E=;
+        s=korg; t=1670267722;
+        bh=g/SOH7vgQxbLgAEvP+geatIZCVFwyqXjMZkXzhjPKbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HTZiReDoNJ7DCKuPvdjjtlcKKD7yp5KrPmW7POjweU9w8ZaHfR5F/g2Ko1wzGEXk6
-         pFe62im6E59MeXZGuXg/q0a2WydnRVkUNmdm7o/VLsmOQFW8u/J9EEKUOP1L0kVUg0
-         e+zMMRZtZuO8t/+6+mAFfVyzYzKew5hi3NdbxKmc=
+        b=ML4D1yBNn2kaB0ntxCJm6+LYs2xgCz1GkrjsgC8oxq514sQbY8DTv619mBEjKQch+
+         3LFnq+qNjlywK6Zzg5PmLzApLsMQR4Tx+grrtvCgKfeeojuOrgQiZ6y6W8wffBPBNA
+         xVyx6VDwnD6g249pQeVHmK7oaW0pqKaGFvMyq1Sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ruanjinjie <ruanjinjie@huawei.com>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 046/105] xen/platform-pci: add missing free_irq() in error path
-Date:   Mon,  5 Dec 2022 20:09:18 +0100
-Message-Id: <20221205190804.701634940@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        "Luis R. Rodriguez" <mcgrof@kernel.org>,
+        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>
+Subject: [PATCH 4.14 28/77] kconfig: display recursive dependency resolution hint just once
+Date:   Mon,  5 Dec 2022 20:09:19 +0100
+Message-Id: <20221205190801.866714071@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ruanjinjie <ruanjinjie@huawei.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit c53717e1e3f0d0f9129b2e0dbc6dcc5e0a8132e9 ]
+commit e3b03bf29d6b99fab7001fb20c33fe54928c157a upstream.
 
-free_irq() is missing in case of error in platform_pci_probe(), fix that.
+Commit 1c199f2878f6 ("kbuild: document recursive dependency limitation
+/ resolution") probably intended to show a hint along with "recursive
+dependency detected!" error, but it missed to add {...} guard, and the
+hint is displayed in every loop of the dep_stack traverse, annoyingly.
 
-Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Link: https://lore.kernel.org/r/20221114112124.1965611-1-ruanjinjie@huawei.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This error was detected by GCC's -Wmisleading-indentation when switching
+to build-time generation of lexer/parser.
+
+scripts/kconfig/symbol.c: In function ‘sym_check_print_recursive’:
+scripts/kconfig/symbol.c:1150:3: warning: this ‘if’ clause does not guard... [-Wmisleading-indentation]
+   if (stack->sym == last_sym)
+   ^~
+scripts/kconfig/symbol.c:1153:4: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+    fprintf(stderr, "For a resolution refer to Documentation/kbuild/kconfig-language.txt\n");
+    ^~~~~~~
+
+I could simply add {...} to surround the three fprintf(), but I rather
+chose to move the hint after the loop to make the whole message readable.
+
+Fixes: 1c199f2878f6 ("kbuild: document recursive dependency limitation / resolution"
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Acked-by: Luis R. Rodriguez <mcgrof@kernel.org>
+Cc: Daniel Díaz <daniel.diaz@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/platform-pci.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ scripts/kconfig/symbol.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/xen/platform-pci.c b/drivers/xen/platform-pci.c
-index 4cec8146609a..c7e190e5db30 100644
---- a/drivers/xen/platform-pci.c
-+++ b/drivers/xen/platform-pci.c
-@@ -150,7 +150,7 @@ static int platform_pci_probe(struct pci_dev *pdev,
- 		if (ret) {
- 			dev_warn(&pdev->dev, "Unable to set the evtchn callback "
- 					 "err=%d\n", ret);
--			goto out;
-+			goto irq_out;
+--- a/scripts/kconfig/symbol.c
++++ b/scripts/kconfig/symbol.c
+@@ -1150,8 +1150,7 @@ static void sym_check_print_recursive(st
+ 		if (stack->sym == last_sym)
+ 			fprintf(stderr, "%s:%d:error: recursive dependency detected!\n",
+ 				prop->file->name, prop->lineno);
+-			fprintf(stderr, "For a resolution refer to Documentation/kbuild/kconfig-language.txt\n");
+-			fprintf(stderr, "subsection \"Kconfig recursive dependency limitations\"\n");
++
+ 		if (stack->expr) {
+ 			fprintf(stderr, "%s:%d:\tsymbol %s %s value contains %s\n",
+ 				prop->file->name, prop->lineno,
+@@ -1181,6 +1180,11 @@ static void sym_check_print_recursive(st
  		}
  	}
  
-@@ -158,13 +158,16 @@ static int platform_pci_probe(struct pci_dev *pdev,
- 	grant_frames = alloc_xen_mmio(PAGE_SIZE * max_nr_gframes);
- 	ret = gnttab_setup_auto_xlat_frames(grant_frames);
- 	if (ret)
--		goto out;
-+		goto irq_out;
- 	ret = gnttab_init();
- 	if (ret)
- 		goto grant_out;
- 	return 0;
- grant_out:
- 	gnttab_free_auto_xlat_frames();
-+irq_out:
-+	if (!xen_have_vector_callback)
-+		free_irq(pdev->irq, pdev);
- out:
- 	pci_release_region(pdev, 0);
- mem_out:
--- 
-2.35.1
-
++	fprintf(stderr,
++		"For a resolution refer to Documentation/kbuild/kconfig-language.txt\n"
++		"subsection \"Kconfig recursive dependency limitations\"\n"
++		"\n");
++
+ 	if (check_top == &cv_stack)
+ 		dep_stack_remove();
+ }
 
 
