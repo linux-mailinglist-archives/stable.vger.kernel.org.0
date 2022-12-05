@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 311B664337C
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF240643239
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:25:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234568AbiLETgs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:36:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34724 "EHLO
+        id S233897AbiLETZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:25:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234567AbiLETgW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:36:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E020A1EC65
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:33:17 -0800 (PST)
+        with ESMTP id S233902AbiLETYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3CB27DFE
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8704AB811E3
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:33:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1189C433D6;
-        Mon,  5 Dec 2022 19:33:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76E55B81151
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C23E4C433C1;
+        Mon,  5 Dec 2022 19:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268795;
-        bh=uX9pye5y8zlsZPEPmAbioGWdQIZXZjdHpdgBNDIJKh0=;
+        s=korg; t=1670268027;
+        bh=TfD+7SvJDJUGZ7KBfCb81nCijJCM440PhJZdrIPpIZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sDmwvWjKn2FfJ1t3Ye/P+b0fov3ZxMUmz6FqnJmSfvwSALSxdtQn0VbBO6ysEhCsZ
-         zgLPaW5M2/8HvIJaDy/zvbv0Tpb2nUvY8VQD3PcCJQ/SgYOGjc3S6f6i48Fiz6sHRX
-         YjKV8VSdTUQSNf+kBGmAYklJMXPLSfjQYDIw8CPE=
+        b=CBXFMjDQ/FK3LsdLP804XcGALdjqiT7dQrK0I2qWf3TvBqugGtVshkNye+sy29K4h
+         B1Xjp8+Yl4YI4Ju1Oa2V/H/ZvKqtX2fjBUbyunvjt1sRdfNdZK2ksq0zKSeYFqgvI+
+         J2qjJlDe6OL4B9FB+RK0o26/R1XOUUPtrVskI2pM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+f966c13b1b4fc0403b19@syzkaller.appspotmail.com,
-        Yue Hu <huyue2@coolpad.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Denis Efremov <denis.e.efremov@oracle.com>,
+        Guenter Roeck <groeck@google.com>,
+        Martin Faltesek <mfaltesek@google.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 004/120] erofs: fix order >= MAX_ORDER warning due to crafted negative i_size
+Subject: [PATCH 4.19 032/105] nfc: st-nci: fix memory leaks in EVT_TRANSACTION
 Date:   Mon,  5 Dec 2022 20:09:04 +0100
-Message-Id: <20221205190806.676284261@linuxfoundation.org>
+Message-Id: <20221205190804.230923758@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Martin Faltesek <mfaltesek@google.com>
 
-[ Upstream commit 1dd73601a1cba37a0ed5f89a8662c90191df5873 ]
+[ Upstream commit 440f2ae9c9f06e26f5dcea697a53717fc61a318c ]
 
-As syzbot reported [1], the root cause is that i_size field is a
-signed type, and negative i_size is also less than EROFS_BLKSIZ.
-As a consequence, it's handled as fast symlink unexpectedly.
+Error path does not free previously allocated memory. Add devm_kfree() to
+the failure path.
 
-Let's fall back to the generic path to deal with such unusual i_size.
-
-[1] https://lore.kernel.org/r/000000000000ac8efa05e7feaa1f@google.com
-
-Reported-by: syzbot+f966c13b1b4fc0403b19@syzkaller.appspotmail.com
-Fixes: 431339ba9042 ("staging: erofs: add inode operations")
-Reviewed-by: Yue Hu <huyue2@coolpad.com>
-Link: https://lore.kernel.org/r/20220909023948.28925-1-hsiangkao@linux.alibaba.com
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reported-by: Denis Efremov <denis.e.efremov@oracle.com>
+Reviewed-by: Guenter Roeck <groeck@google.com>
+Fixes: 5d1ceb7f5e56 ("NFC: st21nfcb: Add HCI transaction event support")
+Signed-off-by: Martin Faltesek <mfaltesek@google.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/erofs/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nfc/st-nci/se.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/erofs/inode.c b/fs/erofs/inode.c
-index a552399e211d..0c293ff6697b 100644
---- a/fs/erofs/inode.c
-+++ b/fs/erofs/inode.c
-@@ -222,7 +222,7 @@ static int erofs_fill_symlink(struct inode *inode, void *data,
+diff --git a/drivers/nfc/st-nci/se.c b/drivers/nfc/st-nci/se.c
+index 7774a7196bb3..cdf9e915c974 100644
+--- a/drivers/nfc/st-nci/se.c
++++ b/drivers/nfc/st-nci/se.c
+@@ -352,8 +352,10 @@ static int st_nci_hci_connectivity_event_received(struct nci_dev *ndev,
  
- 	/* if it cannot be handled with fast symlink scheme */
- 	if (vi->datalayout != EROFS_INODE_FLAT_INLINE ||
--	    inode->i_size >= PAGE_SIZE) {
-+	    inode->i_size >= PAGE_SIZE || inode->i_size < 0) {
- 		inode->i_op = &erofs_symlink_iops;
- 		return 0;
- 	}
+ 		/* Check next byte is PARAMETERS tag (82) */
+ 		if (skb->data[transaction->aid_len + 2] !=
+-		    NFC_EVT_TRANSACTION_PARAMS_TAG)
++		    NFC_EVT_TRANSACTION_PARAMS_TAG) {
++			devm_kfree(dev, transaction);
+ 			return -EPROTO;
++		}
+ 
+ 		transaction->params_len = skb->data[transaction->aid_len + 3];
+ 		memcpy(transaction->params, skb->data +
 -- 
 2.35.1
 
