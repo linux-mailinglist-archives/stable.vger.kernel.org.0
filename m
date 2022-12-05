@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 248C7643285
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0164864334D
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233991AbiLET03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:26:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46538 "EHLO
+        id S234420AbiLETfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:35:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233937AbiLET0C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ECEA10E7
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:22:25 -0800 (PST)
+        with ESMTP id S234083AbiLETfC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:35:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A1BA3A6
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:31:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D86FDB81181
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:22:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44A7DC433C1;
-        Mon,  5 Dec 2022 19:22:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBD5B612D8
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:31:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF192C433D6;
+        Mon,  5 Dec 2022 19:31:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268142;
-        bh=1DJzPskboBtUXsdqAbjIvUURMyDvMycn7q27aKEbEQk=;
+        s=korg; t=1670268669;
+        bh=US7oShXQJBDEtU+at6sdVslNjiXJPtYp5fCk8brToDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HQJxHuEtn5qsDEwslvsHKwE9NSqymDHJ7ix/ZvL7rG96XcfOwTAUxr+7ZC0b6r7Pg
-         PM6f2wWpGDrYXb9zaQEaDR4F1blOrSXqswnS/R/dOwm/bNUcSkQHCWi5f2ITOhfWmE
-         Kv4zx/Pn+pwbSkVshZl5OphP9yGDxaOyUU5vhEkE=
+        b=OV9OH4Z1mRXoiWyJkJ386yGOYHNSP3IPK1ncD/36pv2OpRaPZEzweqhwYNqzyA2RK
+         Se1JZ1eeyQ9dYGfeAqTbvxPxknk1sus4mjZixKYHdzKn/fudjelTKG+t2ylIASQPx9
+         9qgbx0nawtuxCy3TCRjsLRrnPT7r5cI3NIXxOc2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Tam=C3=A1s=20Koczka?= <poprdi@google.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Tedd Ho-Jeong An <tedd.an@intel.com>
-Subject: [PATCH 4.19 102/105] Bluetooth: L2CAP: Fix accepting connection request for invalid SPSM
+        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 61/92] mmc: mmc_test: Fix removal of debugfs file
 Date:   Mon,  5 Dec 2022 20:10:14 +0100
-Message-Id: <20221205190806.546064260@linuxfoundation.org>
+Message-Id: <20221205190805.536818216@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 711f8c3fb3db61897080468586b970c87c61d9e4 upstream.
+commit f4307b4df1c28842bb1950ff0e1b97e17031b17f upstream.
 
-The Bluetooth spec states that the valid range for SPSM is from
-0x0001-0x00ff so it is invalid to accept values outside of this range:
+In __mmc_test_register_dbgfs_file(), we need to assign 'file', as it's
+being used when removing the debugfs files when the mmc_test module is
+removed.
 
-  BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
-  page 1059:
-  Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
-
-CVE: CVE-2022-42896
-CC: stable@vger.kernel.org
-Reported-by: Tamás Koczka <poprdi@google.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Fixes: a04c50aaa916 ("mmc: core: no need to check return value of debugfs_create functions")
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+[Ulf: Re-wrote the commit msg]
+Link: https://lore.kernel.org/r/20221123095506.1965691-1-yebin@huaweicloud.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/mmc/core/mmc_test.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -5553,6 +5553,19 @@ static int l2cap_le_connect_req(struct l
- 	BT_DBG("psm 0x%2.2x scid 0x%4.4x mtu %u mps %u", __le16_to_cpu(psm),
- 	       scid, mtu, mps);
+--- a/drivers/mmc/core/mmc_test.c
++++ b/drivers/mmc/core/mmc_test.c
+@@ -3195,7 +3195,8 @@ static int __mmc_test_register_dbgfs_fil
+ 	struct mmc_test_dbgfs_file *df;
  
-+	/* BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
-+	 * page 1059:
-+	 *
-+	 * Valid range: 0x0001-0x00ff
-+	 *
-+	 * Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
-+	 */
-+	if (!psm || __le16_to_cpu(psm) > L2CAP_PSM_LE_DYN_END) {
-+		result = L2CAP_CR_BAD_PSM;
-+		chan = NULL;
-+		goto response;
-+	}
-+
- 	/* Check if we have socket listening on psm */
- 	pchan = l2cap_global_chan_by_psm(BT_LISTEN, psm, &conn->hcon->src,
- 					 &conn->hcon->dst, LE_LINK);
+ 	if (card->debugfs_root)
+-		debugfs_create_file(name, mode, card->debugfs_root, card, fops);
++		file = debugfs_create_file(name, mode, card->debugfs_root,
++					   card, fops);
+ 
+ 	df = kmalloc(sizeof(*df), GFP_KERNEL);
+ 	if (!df) {
 
 
