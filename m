@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD35643469
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:46:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A76A6433E4
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:40:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235056AbiLETq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:46:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47950 "EHLO
+        id S234776AbiLETkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:40:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233431AbiLETqM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:46:12 -0500
+        with ESMTP id S234708AbiLETkP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:40:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 092B82DAA9
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:42:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D37D727FFD
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:37:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A1EA612ED
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:42:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9DFEC433D6;
-        Mon,  5 Dec 2022 19:42:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DB3761315
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:37:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ABE5C433D6;
+        Mon,  5 Dec 2022 19:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269349;
-        bh=b1CbOiWRUw/e80CJapgJt3Jhdul/Ig9uRW3+UhFwcjA=;
+        s=korg; t=1670269046;
+        bh=YPrkSZcHmssOwqYPWtHg0dZ5FWUmJQNDA2byJRLUxIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEBr3y11OzPYKPEDreQ2Z98UcaY6mvzKxaHsng4Ee1ksmNLlQ/iYrfmrru3hA4TEs
-         90R6bSObR2fihFtkMhOxmFcESljnsxkMPcZJVYrTgT9LcnK7C2uTXznhI5tpAlhD81
-         R8XI5mHY/lgrC4j830Mp3Jx6qzVlK7kM0Avlv3SM=
+        b=WbZkrkmJTFEN4ekRpiHBXPk8jMPqN10pZRE8j+vGaER9uUprwi15BDDeJX98oPJp+
+         NYZXE+sq7VWlSkWs9QQZBJKamR0McM9w346jgFOeT4rG3khmgNBMhPMm6Bx7BmmynA
+         TufWSLu2WroBY2qJpx1utpI3x4v0WDSPFJCEogTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 095/153] hwmon: (ibmpex) Fix possible UAF when ibmpex_register_bmc() fails
+        patches@lists.linux.dev, Wenchao Chen <wenchao.chen@unisoc.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 079/120] mmc: sdhci-sprd: Fix no reset data and command after voltage switch
 Date:   Mon,  5 Dec 2022 20:10:19 +0100
-Message-Id: <20221205190811.465818039@linuxfoundation.org>
+Message-Id: <20221205190808.980896827@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Wenchao Chen <wenchao.chen@unisoc.com>
 
-[ Upstream commit e2a87785aab0dac190ac89be6a9ba955e2c634f2 ]
+commit dd30dcfa7a74a06f8dcdab260d8d5adf32f17333 upstream.
 
-Smatch report warning as follows:
+After switching the voltage, no reset data and command will cause
+CMD2 timeout.
 
-drivers/hwmon/ibmpex.c:509 ibmpex_register_bmc() warn:
-  '&data->list' not removed from list
-
-If ibmpex_find_sensors() fails in ibmpex_register_bmc(), data will
-be freed, but data->list will not be removed from driver_data.bmc_data,
-then list traversal may cause UAF.
-
-Fix by removeing it from driver_data.bmc_data before free().
-
-Fixes: 57c7c3a0fdea ("hwmon: IBM power meter driver")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Link: https://lore.kernel.org/r/20221117034423.2935739-1-cuigaosheng1@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 29ca763fc26f ("mmc: sdhci-sprd: Add pin control support for voltage switch")
+Signed-off-by: Wenchao Chen <wenchao.chen@unisoc.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221130121328.25553-1-wenchao.chen@unisoc.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/ibmpex.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/sdhci-sprd.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/ibmpex.c b/drivers/hwmon/ibmpex.c
-index b2ab83c9fd9a..fe90f0536d76 100644
---- a/drivers/hwmon/ibmpex.c
-+++ b/drivers/hwmon/ibmpex.c
-@@ -502,6 +502,7 @@ static void ibmpex_register_bmc(int iface, struct device *dev)
- 	return;
+--- a/drivers/mmc/host/sdhci-sprd.c
++++ b/drivers/mmc/host/sdhci-sprd.c
+@@ -457,7 +457,7 @@ static int sdhci_sprd_voltage_switch(str
+ 	}
  
- out_register:
-+	list_del(&data->list);
- 	hwmon_device_unregister(data->hwmon_dev);
- out_user:
- 	ipmi_destroy_user(data->user);
--- 
-2.35.1
-
+ 	if (IS_ERR(sprd_host->pinctrl))
+-		return 0;
++		goto reset;
+ 
+ 	switch (ios->signal_voltage) {
+ 	case MMC_SIGNAL_VOLTAGE_180:
+@@ -485,6 +485,8 @@ static int sdhci_sprd_voltage_switch(str
+ 
+ 	/* Wait for 300 ~ 500 us for pin state stable */
+ 	usleep_range(300, 500);
++
++reset:
+ 	sdhci_reset(host, SDHCI_RESET_CMD | SDHCI_RESET_DATA);
+ 
+ 	return 0;
 
 
