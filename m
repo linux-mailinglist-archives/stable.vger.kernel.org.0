@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29A5164312E
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:12:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE9F26431DA
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:20:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231169AbiLETMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:12:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59300 "EHLO
+        id S233533AbiLETUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:20:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232480AbiLETL6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:11:58 -0500
+        with ESMTP id S233548AbiLETUg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:20:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8BB6EE1C
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:11:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 052172A24F
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:16:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 550236130E
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:11:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69B60C433D6;
-        Mon,  5 Dec 2022 19:11:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7429B61307
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:16:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86F00C433C1;
+        Mon,  5 Dec 2022 19:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267516;
-        bh=1X6gJXTtxjw7b7FHfMdIgWQ1gqKh95GYIm9/vt5aQ8g=;
+        s=korg; t=1670267779;
+        bh=sg5HHIKNNo6ORzPd5iL/qOGTp9eN7Ld3/znCI3ZZACM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SWyQEJWZoV7SbebwVq17Y77Gl2zEWYq+ziL3M5hXQmnONp3mXrAR4pcvLV1QJzt+h
-         BNYARrb/5wTJ1nakq1Fo/f8+UZ8nkfmag8Jwq5gLNkxLJXXykGE09mM/nG+VJqVz9A
-         ShGhMBPfX04DGxO0iB6hbaP9b46g9JMEVbF4/dzY=
+        b=F1wc98AkuHPNFfJcpDynFlDoR1N+CKjEFah+BCfMtm0EDM/UqnXjSgRhUhliZpKZ9
+         /PN1+LNPrSDd+aKEbSOeCuG+ClgtdGKiadXPRv3/VcrI+hV4neTnPvQ/jast+S4oEH
+         FToeFg5Frdo7n53E4c0OJnNnA2xzpnnCLLoZxhc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        syzbot+43475bf3cfbd6e41f5b7@syzkaller.appspotmail.com,
+        Lin Ma <linma@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 04/62] MIPS: pic32: treat port as signed integer
+Subject: [PATCH 4.14 10/77] nfc/nci: fix race with opening and closing
 Date:   Mon,  5 Dec 2022 20:09:01 +0100
-Message-Id: <20221205190758.234822146@linuxfoundation.org>
+Message-Id: <20221205190801.232776174@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,103 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 648060902aa302331b5d6e4f26d8ee0761d239ab ]
+[ Upstream commit 0ad6bded175e829c2ca261529c9dce39a32a042d ]
 
-get_port_from_cmdline() returns an int, yet is assigned to a char, which
-is wrong in its own right, but also, with char becoming unsigned, this
-poses problems, because -1 is used as an error value. Further
-complicating things, fw_init_early_console() is only ever called with a
--1 argument. Fix this up by removing the unused argument from
-fw_init_early_console() and treating port as a proper signed integer.
+Previously we leverage NCI_UNREG and the lock inside nci_close_device to
+prevent the race condition between opening a device and closing a
+device. However, it still has problem because a failed opening command
+will erase the NCI_UNREG flag and allow another opening command to
+bypass the status checking.
 
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+This fix corrects that by making sure the NCI_UNREG is held.
+
+Reported-by: syzbot+43475bf3cfbd6e41f5b7@syzkaller.appspotmail.com
+Fixes: 48b71a9e66c2 ("NFC: add NCI_UNREG flag to eliminate the race")
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/fw/fw.h             |  2 +-
- arch/mips/pic32/pic32mzda/early_console.c | 13 ++++++-------
- arch/mips/pic32/pic32mzda/init.c          |  2 +-
- 3 files changed, 8 insertions(+), 9 deletions(-)
+ net/nfc/nci/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/include/asm/fw/fw.h b/arch/mips/include/asm/fw/fw.h
-index d0ef8b4892bb..d0494ce4b337 100644
---- a/arch/mips/include/asm/fw/fw.h
-+++ b/arch/mips/include/asm/fw/fw.h
-@@ -26,6 +26,6 @@ extern char *fw_getcmdline(void);
- extern void fw_meminit(void);
- extern char *fw_getenv(char *name);
- extern unsigned long fw_getenvl(char *name);
--extern void fw_init_early_console(char port);
-+extern void fw_init_early_console(void);
+diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
+index 99f4573fd917..216228c39acb 100644
+--- a/net/nfc/nci/core.c
++++ b/net/nfc/nci/core.c
+@@ -542,7 +542,7 @@ static int nci_open_device(struct nci_dev *ndev)
+ 		skb_queue_purge(&ndev->tx_q);
  
- #endif /* __ASM_FW_H_ */
-diff --git a/arch/mips/pic32/pic32mzda/early_console.c b/arch/mips/pic32/pic32mzda/early_console.c
-index d7b783463fac..4933c5337059 100644
---- a/arch/mips/pic32/pic32mzda/early_console.c
-+++ b/arch/mips/pic32/pic32mzda/early_console.c
-@@ -34,7 +34,7 @@
- #define U_BRG(x)	(UART_BASE(x) + 0x40)
+ 		ndev->ops->close(ndev);
+-		ndev->flags = 0;
++		ndev->flags &= BIT(NCI_UNREG);
+ 	}
  
- static void __iomem *uart_base;
--static char console_port = -1;
-+static int console_port = -1;
- 
- static int __init configure_uart_pins(int port)
- {
-@@ -54,7 +54,7 @@ static int __init configure_uart_pins(int port)
- 	return 0;
- }
- 
--static void __init configure_uart(char port, int baud)
-+static void __init configure_uart(int port, int baud)
- {
- 	u32 pbclk;
- 
-@@ -67,7 +67,7 @@ static void __init configure_uart(char port, int baud)
- 		     uart_base + PIC32_SET(U_STA(port)));
- }
- 
--static void __init setup_early_console(char port, int baud)
-+static void __init setup_early_console(int port, int baud)
- {
- 	if (configure_uart_pins(port))
- 		return;
-@@ -137,16 +137,15 @@ static int __init get_baud_from_cmdline(char *arch_cmdline)
- 	return baud;
- }
- 
--void __init fw_init_early_console(char port)
-+void __init fw_init_early_console(void)
- {
- 	char *arch_cmdline = pic32_getcmdline();
--	int baud = -1;
-+	int baud, port;
- 
- 	uart_base = ioremap_nocache(PIC32_BASE_UART, 0xc00);
- 
- 	baud = get_baud_from_cmdline(arch_cmdline);
--	if (port == -1)
--		port = get_port_from_cmdline(arch_cmdline);
-+	port = get_port_from_cmdline(arch_cmdline);
- 
- 	if (port == -1)
- 		port = EARLY_CONSOLE_PORT;
-diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
-index 406c6c5cec29..cf2625551b45 100644
---- a/arch/mips/pic32/pic32mzda/init.c
-+++ b/arch/mips/pic32/pic32mzda/init.c
-@@ -68,7 +68,7 @@ void __init plat_mem_setup(void)
- 		strlcpy(arcs_cmdline, boot_command_line, COMMAND_LINE_SIZE);
- 
- #ifdef CONFIG_EARLY_PRINTK
--	fw_init_early_console(-1);
-+	fw_init_early_console();
- #endif
- 	pic32_config_init();
- }
+ done:
 -- 
 2.35.1
 
