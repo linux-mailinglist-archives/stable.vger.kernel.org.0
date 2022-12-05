@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12FAD643269
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 810E36433B1
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234062AbiLET0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:26:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46472 "EHLO
+        id S234717AbiLETir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:38:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234000AbiLETZq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E7B272
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:21:51 -0800 (PST)
+        with ESMTP id S234506AbiLETi1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25E429CB8
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:35:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 96DCA612FB
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:21:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A605AC433C1;
-        Mon,  5 Dec 2022 19:21:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 31428CE139A
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:35:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AA6FC433D6;
+        Mon,  5 Dec 2022 19:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268110;
-        bh=iCR9tVPFb3GyNrpEFTYZErPW4yeXucjC05FSy3ScDew=;
+        s=korg; t=1670268922;
+        bh=F7kDeoHbhizPKAofIQETZ/eM+BksCXjQ/2DfLuNhlug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZ/tmAhDkHfTE8UVBTZs9r6F78L5chCeh226hpj24q0Yvt3tlxLAKCggu4OEFk2Ae
-         OxhZb1Q0T7208DXXHAdvd1g4o1lg7t/8AJJvlHMZpMx/d2TX3J2PyjKEqZilDBVRnB
-         XMInCkRFh5+mFSQwHwLj2gtK9UjwzpQUWo6oCHwo=
+        b=DNwJPQ+XOsX5YFzenxFDj6M0vBAcnYLvaEpKc02FZw5JYwhT0v5d9phF1UTYUBnT0
+         pPHAxnMzuBKzD2LCgacW0h/Pm+ssePqgNQ/9F8eVzHbW3Cu8EYajd212bgpGcXPnIx
+         Bo/KVn5VA3Ex20WJi9iBrYlDeNaDoyT8e3ziLYZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, James Morse <james.morse@arm.com>
-Subject: [PATCH 4.19 089/105] arm64: errata: Fix KVM Spectre-v2 mitigation selection for Cortex-A57/A72
+        patches@lists.linux.dev, Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 061/120] packet: do not set TP_STATUS_CSUM_VALID on CHECKSUM_COMPLETE
 Date:   Mon,  5 Dec 2022 20:10:01 +0100
-Message-Id: <20221205190806.142991249@linuxfoundation.org>
+Message-Id: <20221205190808.459380339@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,47 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Willem de Bruijn <willemb@google.com>
 
-Both the Spectre-v2 and Spectre-BHB mitigations involve running a sequence
-immediately after exiting a guest, before any branches. In the stable
-kernels these sequences are built by copying templates into an empty vector
-slot.
+[ Upstream commit b85f628aa158a653c006e9c1405a117baef8c868 ]
 
-For Spectre-BHB, Cortex-A57 and A72 require the branchy loop with k=8.
-If Spectre-v2 needs mitigating at the same time, a firmware call to EL3 is
-needed. The work EL3 does at this point is also enough to mitigate
-Spectre-BHB.
+CHECKSUM_COMPLETE signals that skb->csum stores the sum over the
+entire packet. It does not imply that an embedded l4 checksum
+field has been validated.
 
-When enabling the Spectre-BHB mitigation, spectre_bhb_enable_mitigation()
-should check if a slot has already been allocated for Spectre-v2, meaning
-no work is needed for Spectre-BHB.
-
-This check was missed in the earlier backport, add it.
-
-Fixes: c20d55174479 ("arm64: Mitigate spectre style branch history side channels")
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 682f048bd494 ("af_packet: pass checksum validation status to the user")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/20221128161812.640098-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpu_errata.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/packet/af_packet.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -1246,7 +1246,13 @@ void spectre_bhb_enable_mitigation(const
- 	} else if (spectre_bhb_loop_affected(SCOPE_LOCAL_CPU)) {
- 		switch (spectre_bhb_loop_affected(SCOPE_SYSTEM)) {
- 		case 8:
--			kvm_setup_bhb_slot(__spectre_bhb_loop_k8_start);
-+			/*
-+			 * A57/A72-r0 will already have selected the
-+			 * spectre-indirect vector, which is sufficient
-+			 * for BHB too.
-+			 */
-+			if (!__this_cpu_read(bp_hardening_data.fn))
-+				kvm_setup_bhb_slot(__spectre_bhb_loop_k8_start);
- 			break;
- 		case 24:
- 			kvm_setup_bhb_slot(__spectre_bhb_loop_k24_start);
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index 968dac3fcf58..ceca0d6c41b5 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -2246,8 +2246,7 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL)
+ 		status |= TP_STATUS_CSUMNOTREADY;
+ 	else if (skb->pkt_type != PACKET_OUTGOING &&
+-		 (skb->ip_summed == CHECKSUM_COMPLETE ||
+-		  skb_csum_unnecessary(skb)))
++		 skb_csum_unnecessary(skb))
+ 		status |= TP_STATUS_CSUM_VALID;
+ 
+ 	if (snaplen > res)
+@@ -3480,8 +3479,7 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 		if (skb->ip_summed == CHECKSUM_PARTIAL)
+ 			aux.tp_status |= TP_STATUS_CSUMNOTREADY;
+ 		else if (skb->pkt_type != PACKET_OUTGOING &&
+-			 (skb->ip_summed == CHECKSUM_COMPLETE ||
+-			  skb_csum_unnecessary(skb)))
++			 skb_csum_unnecessary(skb))
+ 			aux.tp_status |= TP_STATUS_CSUM_VALID;
+ 
+ 		aux.tp_len = origlen;
+-- 
+2.35.1
+
 
 
