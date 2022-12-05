@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DD40643326
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A3C86431F7
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234008AbiLETeh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:34:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37108 "EHLO
+        id S233768AbiLETWq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:22:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234371AbiLETeL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D41D2982A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:29:33 -0800 (PST)
+        with ESMTP id S234075AbiLETWZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:22:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EA4927CE6
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:18:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E55B7B81181
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:29:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56BB2C433D7;
-        Mon,  5 Dec 2022 19:29:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 164C661314
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:17:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A62BC433D6;
+        Mon,  5 Dec 2022 19:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268570;
-        bh=rcsZaLEw+ekVDS3b2zLC/oGw8xeBpSXtMEzNk3vfv3A=;
+        s=korg; t=1670267856;
+        bh=Pq34dXDKrqQp2q8DmQ/c37nAnMsIKg1JqrW53KanHYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rr9qR0vG7ctabzyw30MXYC6YSPQ5CrO6Q9K9qFhKI+7rxy3C4dm28mf8b/eFoi1UG
-         +gGi8HDazisQqRgNamS4QpfcWLGTMbBh1zI1sM3weVpSknvFp1W/y5304XtUnWycHg
-         loQc4ef+WLDmUtNcMzT4GYJVkp2m03ut+oxfI1yg=
+        b=itV8Nq119XRj+Z/pYXc83I7WmtcJQ+z6Y4RJESYhr/KUePs9XWOSTa43h6N9ZXhQ8
+         KaPS3V2PLjD9KRynegSHM93qkWEC02FHK3tsmXfRPzJ0NEY+wTUtiZzMjkYv1cdW3s
+         dYNu0PVNELBQj4e3iIA9PlldrOLAC4JvWxYXsBKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeal Robot <zealci@zte.com.cn>,
-        Minghao Chi <chi.minghao@zte.com.cn>,
-        CGEL ZTE <cgel.zte@gmail.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 26/92] iavf: remove redundant ret variable
+Subject: [PATCH 4.14 48/77] qlcnic: fix sleep-in-atomic-context bugs caused by msleep
 Date:   Mon,  5 Dec 2022 20:09:39 +0100
-Message-Id: <20221205190804.329760855@linuxfoundation.org>
+Message-Id: <20221205190802.576430073@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minghao Chi <chi.minghao@zte.com.cn>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit c3fec56e12678c3ad68084048a73818a7968d6b8 ]
+[ Upstream commit 8dbd6e4ce1b9c527921643d9e34f188a10d4e893 ]
 
-Return value directly instead of taking this in another redundant
-variable.
+The watchdog timer is used to monitor whether the process
+of transmitting data is timeout. If we use qlcnic driver,
+the dev_watchdog() that is the timer handler of watchdog
+timer will call qlcnic_tx_timeout() to process the timeout.
+But the qlcnic_tx_timeout() calls msleep(), as a result,
+the sleep-in-atomic-context bugs will happen. The processes
+are shown below:
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
-Signed-off-by: CGEL ZTE <cgel.zte@gmail.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Stable-dep-of: 227d8d2f7f22 ("iavf: Fix error handling in iavf_init_module()")
+   (atomic context)
+dev_watchdog
+  qlcnic_tx_timeout
+    qlcnic_83xx_idc_request_reset
+      qlcnic_83xx_lock_driver
+        msleep
+
+---------------------------
+
+   (atomic context)
+dev_watchdog
+  qlcnic_tx_timeout
+    qlcnic_83xx_idc_request_reset
+      qlcnic_83xx_lock_driver
+        qlcnic_83xx_recover_driver_lock
+          msleep
+
+Fix by changing msleep() to mdelay(), the mdelay() is
+busy-waiting and the bugs could be mitigated.
+
+Fixes: 629263acaea3 ("qlcnic: 83xx CNA inter driver communication mechanism")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index a9cea7ccdd86..af515c3ccd5c 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -1318,7 +1318,6 @@ static void iavf_fill_rss_lut(struct iavf_adapter *adapter)
- static int iavf_init_rss(struct iavf_adapter *adapter)
- {
- 	struct iavf_hw *hw = &adapter->hw;
--	int ret;
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
+index 3c0862f9b381..079480b2786d 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
+@@ -2992,7 +2992,7 @@ static void qlcnic_83xx_recover_driver_lock(struct qlcnic_adapter *adapter)
+ 		QLCWRX(adapter->ahw, QLC_83XX_RECOVER_DRV_LOCK, val);
+ 		dev_info(&adapter->pdev->dev,
+ 			 "%s: lock recovery initiated\n", __func__);
+-		msleep(QLC_83XX_DRV_LOCK_RECOVERY_DELAY);
++		mdelay(QLC_83XX_DRV_LOCK_RECOVERY_DELAY);
+ 		val = QLCRDX(adapter->ahw, QLC_83XX_RECOVER_DRV_LOCK);
+ 		id = ((val >> 2) & 0xF);
+ 		if (id == adapter->portnum) {
+@@ -3028,7 +3028,7 @@ int qlcnic_83xx_lock_driver(struct qlcnic_adapter *adapter)
+ 		if (status)
+ 			break;
  
- 	if (!RSS_PF(adapter)) {
- 		/* Enable PCTYPES for RSS, TCP/UDP with IPv4/IPv6 */
-@@ -1334,9 +1333,8 @@ static int iavf_init_rss(struct iavf_adapter *adapter)
+-		msleep(QLC_83XX_DRV_LOCK_WAIT_DELAY);
++		mdelay(QLC_83XX_DRV_LOCK_WAIT_DELAY);
+ 		i++;
  
- 	iavf_fill_rss_lut(adapter);
- 	netdev_rss_key_fill((void *)adapter->rss_key, adapter->rss_key_size);
--	ret = iavf_config_rss(adapter);
- 
--	return ret;
-+	return iavf_config_rss(adapter);
- }
- 
- /**
-@@ -4028,8 +4026,6 @@ static struct pci_driver iavf_driver = {
-  **/
- static int __init iavf_init_module(void)
- {
--	int ret;
--
- 	pr_info("iavf: %s\n", iavf_driver_string);
- 
- 	pr_info("%s\n", iavf_copyright);
-@@ -4040,8 +4036,7 @@ static int __init iavf_init_module(void)
- 		pr_err("%s: Failed to create workqueue\n", iavf_driver_name);
- 		return -ENOMEM;
- 	}
--	ret = pci_register_driver(&iavf_driver);
--	return ret;
-+	return pci_register_driver(&iavf_driver);
- }
- 
- module_init(iavf_init_module);
+ 		if (i == 1)
 -- 
 2.35.1
 
