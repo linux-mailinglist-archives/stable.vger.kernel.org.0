@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAB676432DD
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:31:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CF5A64325F
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234200AbiLETbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:31:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53646 "EHLO
+        id S232307AbiLET0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:26:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233868AbiLETa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:30:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3432B2C11D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:26:45 -0800 (PST)
+        with ESMTP id S233847AbiLETZg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C6D2610C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:21:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 425AFB80EFD
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81A54C433D6;
-        Mon,  5 Dec 2022 19:26:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E7CB612FE
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:21:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3239DC433D6;
+        Mon,  5 Dec 2022 19:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268396;
-        bh=clZKKTGggwTEc4vqixsznUbxJmesubFaoeMVOleeTio=;
+        s=korg; t=1670268087;
+        bh=6I5CMeNdEHAuanP4/Mpo5jutVAWJdHSdEK64wyihe4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abnM8ae09LKVM8twj0ftz3jNpLZlulZruUHV72cxEg19okfkNQmORmnjlEoxctS+I
-         hhJx6/rZNMMKgZ08ccSMAuoZ7L9JQ0brInpldb6cB90RzJQCKC3we22JQrDFQHlDXG
-         WDYNvLnefh3jDqQIF6hmYRAnG/3M5lErD0KPPvdg=
+        b=AsEoQRlAwrG8Pzilkh4QDMolgdKW+nC9zve7WxWqkkktTd6CQ7qTU88QbEiylnJIC
+         f2RYzQuYFDDAs2Kfn/6dAAyAGYy0bsJnTYOxUU1R/I9qBQWSPa0uRjaiYU3KgYBYk4
+         CziSFoV3dh6no8i3SBbcXvAHAZlAecb4iGVELfeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Goh, Wei Sheng" <wei.sheng.goh@intel.com>,
-        Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>,
-        "David S. Miller" <davem@davemloft.net>, Goh@vger.kernel.org
-Subject: [PATCH 6.0 086/124] net: stmmac: Set MACs flow control register to reflect current settings
-Date:   Mon,  5 Dec 2022 20:09:52 +0100
-Message-Id: <20221205190810.862023518@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 081/105] hwmon: (coretemp) fix pci device refcount leak in nv1a_ram_new()
+Date:   Mon,  5 Dec 2022 20:09:53 +0100
+Message-Id: <20221205190805.892898146@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Goh, Wei Sheng <wei.sheng.goh@intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit cc3d2b5fc0d6f8ad8a52da5ea679e5c2ec2adbd4 upstream.
+[ Upstream commit 7dec14537c5906b8bf40fd6fd6d9c3850f8df11d ]
 
-Currently, pause frame register GMAC_RX_FLOW_CTRL_RFE is not updated
-correctly when 'ethtool -A <IFACE> autoneg off rx off tx off' command
-is issued. This fix ensures the flow control change is reflected directly
-in the GMAC_RX_FLOW_CTRL_RFE register.
+As comment of pci_get_domain_bus_and_slot() says, it returns
+a pci device with refcount increment, when finish using it,
+the caller must decrement the reference count by calling
+pci_dev_put(). So call it after using to avoid refcount leak.
 
-Fixes: 46f69ded988d ("net: stmmac: Use resolved link config in mac_link_up()")
-Cc: <stable@vger.kernel.org> # 5.10.x
-Signed-off-by: Goh, Wei Sheng <wei.sheng.goh@intel.com>
-Signed-off-by: Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 14513ee696a0 ("hwmon: (coretemp) Use PCI host bridge ID to identify CPU if necessary")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221118093303.214163-1-yangyingliang@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c |    2 ++
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   12 ++++++++++--
- 2 files changed, 12 insertions(+), 2 deletions(-)
+ drivers/hwmon/coretemp.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-@@ -749,6 +749,8 @@ static void dwmac4_flow_ctrl(struct mac_
- 	if (fc & FLOW_RX) {
- 		pr_debug("\tReceive Flow-Control ON\n");
- 		flow |= GMAC_RX_FLOW_CTRL_RFE;
-+	} else {
-+		pr_debug("\tReceive Flow-Control OFF\n");
+diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
+index 02711014aee7..1b2f750577da 100644
+--- a/drivers/hwmon/coretemp.c
++++ b/drivers/hwmon/coretemp.c
+@@ -255,10 +255,13 @@ static int adjust_tjmax(struct cpuinfo_x86 *c, u32 id, struct device *dev)
+ 	 */
+ 	if (host_bridge && host_bridge->vendor == PCI_VENDOR_ID_INTEL) {
+ 		for (i = 0; i < ARRAY_SIZE(tjmax_pci_table); i++) {
+-			if (host_bridge->device == tjmax_pci_table[i].device)
++			if (host_bridge->device == tjmax_pci_table[i].device) {
++				pci_dev_put(host_bridge);
+ 				return tjmax_pci_table[i].tjmax;
++			}
+ 		}
  	}
- 	writel(flow, ioaddr + GMAC_RX_FLOW_CTRL);
++	pci_dev_put(host_bridge);
  
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -1061,8 +1061,16 @@ static void stmmac_mac_link_up(struct ph
- 		ctrl |= priv->hw->link.duplex;
- 
- 	/* Flow Control operation */
--	if (tx_pause && rx_pause)
--		stmmac_mac_flow_ctrl(priv, duplex);
-+	if (rx_pause && tx_pause)
-+		priv->flow_ctrl = FLOW_AUTO;
-+	else if (rx_pause && !tx_pause)
-+		priv->flow_ctrl = FLOW_RX;
-+	else if (!rx_pause && tx_pause)
-+		priv->flow_ctrl = FLOW_TX;
-+	else
-+		priv->flow_ctrl = FLOW_OFF;
-+
-+	stmmac_mac_flow_ctrl(priv, duplex);
- 
- 	if (ctrl != old_ctrl)
- 		writel(ctrl, priv->ioaddr + MAC_CTRL_REG);
+ 	for (i = 0; i < ARRAY_SIZE(tjmax_table); i++) {
+ 		if (strstr(c->x86_model_id, tjmax_table[i].id))
+-- 
+2.35.1
+
 
 
