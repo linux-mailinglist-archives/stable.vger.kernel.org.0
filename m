@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF38C64315C
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BB776431E8
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:22:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232491AbiLETOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:14:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33096 "EHLO
+        id S232141AbiLETWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:22:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232664AbiLETOC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:14:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A7741F2F9
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:14:01 -0800 (PST)
+        with ESMTP id S233772AbiLETVu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:21:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 956BD64DC
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:17:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 495A8B81151
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:14:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89015C433C1;
-        Mon,  5 Dec 2022 19:13:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FA13B81151
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:17:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBCDDC433D6;
+        Mon,  5 Dec 2022 19:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267638;
-        bh=z7rJajtSq9kjBSIIkiiGWxOBOCQckGoTRL/iaeMpEck=;
+        s=korg; t=1670267829;
+        bh=WAxraTpmsL1Q0ikHoa4tAU5Pl7RfxGgKHD8w32vFFS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1EuGnTpaUqXHLZC2HhZ2W42xdnc/hI4AQmXv50PubN9m4vyHECgz4VAYlBEllN5rl
-         T/v2N84VPEBeyzQB2SBBbOkJooow2PY7h8e5jR4AdpRYI8M2DUNFaYLvgTFx36SC8T
-         vp886UTHhjR1rNO96X+5Yf/9jAiy163j2onVsCHY=
+        b=K2IgcPGX6kINKexyU2vBL+ulJdMkjace0Af777xNs6vAr7pde/uWS/lYAtuscpO83
+         BgU1sAV7a2sM9gxbMCYhT1NPXxvv3MoeZXUx6YtlI/f8ldWgWSSst4DvqrZGerAaVJ
+         oq7bIUvBXaPV7d4l3q63VSenxU0jF8CydTU4bhSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Kelley <mikelley@microsoft.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, stable@kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 60/62] x86/ioremap: Fix page aligned size calculation in __ioremap_caller()
+        patches@lists.linux.dev, Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.14 66/77] efi: random: Properly limit the size of the random seed
 Date:   Mon,  5 Dec 2022 20:09:57 +0100
-Message-Id: <20221205190800.348567859@linuxfoundation.org>
+Message-Id: <20221205190803.196418876@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +51,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-[ Upstream commit 4dbd6a3e90e03130973688fd79e19425f720d999 ]
+Commit be36f9e7517e ("efi: READ_ONCE rng seed size before munmap")
+added a READ_ONCE() and also changed the call to
+add_bootloader_randomness() to use the local size variable.  Neither
+of these changes was actually needed and this was not backported to
+the 4.14 stable branch.
 
-Current code re-calculates the size after aligning the starting and
-ending physical addresses on a page boundary. But the re-calculation
-also embeds the masking of high order bits that exceed the size of
-the physical address space (via PHYSICAL_PAGE_MASK). If the masking
-removes any high order bits, the size calculation results in a huge
-value that is likely to immediately fail.
+Commit 161a438d730d ("efi: random: reduce seed size to 32 bytes")
+reverted the addition of READ_ONCE() and added a limit to the value of
+size.  This depends on the earlier commit, because size can now differ
+from seed->size, but it was wrongly backported to the 4.14 stable
+branch by itself.
 
-Fix this by re-calculating the page-aligned size first. Then mask any
-high order bits using PHYSICAL_PAGE_MASK.
+Apply the missing change to the add_bootloader_randomness() parameter
+(except that here we are still using add_device_randomness()).
 
-Fixes: ffa71f33a820 ("x86, ioremap: Fix incorrect physical address handling in PAE mode")
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/1668624097-14884-2-git-send-email-mikelley@microsoft.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 700485f70e50 ("efi: random: reduce seed size to 32 bytes")
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/mm/ioremap.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/firmware/efi/efi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/mm/ioremap.c b/arch/x86/mm/ioremap.c
-index ecae9ac216fa..696fd6fdc107 100644
---- a/arch/x86/mm/ioremap.c
-+++ b/arch/x86/mm/ioremap.c
-@@ -126,9 +126,15 @@ static void __iomem *__ioremap_caller(resource_size_t phys_addr,
- 	 * Mappings have to be page-aligned
- 	 */
- 	offset = phys_addr & ~PAGE_MASK;
--	phys_addr &= PHYSICAL_PAGE_MASK;
-+	phys_addr &= PAGE_MASK;
- 	size = PAGE_ALIGN(last_addr+1) - phys_addr;
- 
-+	/*
-+	 * Mask out any bits not part of the actual physical
-+	 * address, like memory encryption bits.
-+	 */
-+	phys_addr &= PHYSICAL_PAGE_MASK;
-+
- 	retval = reserve_memtype(phys_addr, (u64)phys_addr + size,
- 						pcm, &new_pcm);
- 	if (retval) {
--- 
-2.35.1
-
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -541,7 +541,7 @@ int __init efi_config_parse_tables(void
+ 			seed = early_memremap(efi.rng_seed,
+ 					      sizeof(*seed) + size);
+ 			if (seed != NULL) {
+-				add_device_randomness(seed->bits, seed->size);
++				add_device_randomness(seed->bits, size);
+ 				early_memunmap(seed, sizeof(*seed) + size);
+ 				pr_notice("seeding entropy pool\n");
+ 			} else {
 
 
