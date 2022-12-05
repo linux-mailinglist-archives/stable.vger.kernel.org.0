@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C23EB64329C
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91361643176
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:15:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234104AbiLET1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:27:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46864 "EHLO
+        id S232733AbiLETOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:14:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233637AbiLET0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B409C26555
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:23:52 -0800 (PST)
+        with ESMTP id S232766AbiLETOh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:14:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCDE71F2FC
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:14:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51D0961311
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:23:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B6F8C433D7;
-        Mon,  5 Dec 2022 19:23:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82B6DB81200
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:14:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2AD1C433C1;
+        Mon,  5 Dec 2022 19:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268231;
-        bh=R6T1HikAAeYSv7LBvZFiTMQo06xlSarkLpelg8PygGE=;
+        s=korg; t=1670267674;
+        bh=y4NQjqFGXCzcE7ZhSNE0wI3/9STxSnMU/G8+3Qh99y8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ANPZGIc81cJsUQqpGEaQFgI8pC7f4HsjaMIrlqvoK2aCEKsxdZm3KwmzrqaMu+EK/
-         /V5YaGbD1dLagnNOo64F32mc6pxmxPWzilHdOshTA3w77fbYkn3i1LcLcoZs/e078x
-         LeMHTqBYz7Qd0VKt/i1ceR+y+gfUd6dJQ2FAT4U8=
+        b=ditkEPb4B2y7suV/hmoOD1jsn2EB0VPwTvCeseRkkCgYClbFtrplyNXuk/wIrk+1Y
+         KKPptJ2YKk9Jwih4b8bYd+9cTLRh/vTYpRGElQUZGXLG2VjwvmTFJ01Qpz1S+zZu1/
+         L2wOvkLHvZOg1GSQRQIZnAXzkk09nP9C5wUHdOII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 027/124] of: property: decrement node refcount in of_fwnode_get_reference_args()
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 02/77] audit: fix undefined behavior in bit shift for AUDIT_BIT
 Date:   Mon,  5 Dec 2022 20:08:53 +0100
-Message-Id: <20221205190809.221333749@linuxfoundation.org>
+Message-Id: <20221205190800.954974078@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 60d865bd5a9b15a3961eb1c08bd4155682a3c81e ]
+[ Upstream commit 986d93f55bdeab1cac858d1e47b41fac10b2d7f6 ]
 
-In of_fwnode_get_reference_args(), the refcount of of_args.np has
-been incremented in the case of successful return from
-of_parse_phandle_with_args() or of_parse_phandle_with_fixed_args().
+Shifting signed 32-bit value by 31 bits is undefined, so changing
+significant bit to unsigned. The UBSAN warning calltrace like below:
 
-Decrement the refcount if of_args is not returned to the caller of
-of_fwnode_get_reference_args().
+UBSAN: shift-out-of-bounds in kernel/auditfilter.c:179:23
+left shift of 1 by 31 places cannot be represented in type 'int'
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x7d/0xa5
+ dump_stack+0x15/0x1b
+ ubsan_epilogue+0xe/0x4e
+ __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
+ audit_register_class+0x9d/0x137
+ audit_classes_init+0x4d/0xb8
+ do_one_initcall+0x76/0x430
+ kernel_init_freeable+0x3b3/0x422
+ kernel_init+0x24/0x1e0
+ ret_from_fork+0x1f/0x30
+ </TASK>
 
-Fixes: 3e3119d3088f ("device property: Introduce fwnode_property_get_reference_args")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Frank Rowand <frowand.list@gmail.com>
-Link: https://lore.kernel.org/r/20221121023209.3909759-1-yangyingliang@huawei.com
-Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+[PM: remove bad 'Fixes' tag as issue predates git, added in v2.6.6-rc1]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/property.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/uapi/linux/audit.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/of/property.c b/drivers/of/property.c
-index 967f79b59016..134cfc980b70 100644
---- a/drivers/of/property.c
-+++ b/drivers/of/property.c
-@@ -993,8 +993,10 @@ of_fwnode_get_reference_args(const struct fwnode_handle *fwnode,
- 						       nargs, index, &of_args);
- 	if (ret < 0)
- 		return ret;
--	if (!args)
-+	if (!args) {
-+		of_node_put(of_args.np);
- 		return 0;
-+	}
+diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
+index 7668582db6ba..68847af5e16d 100644
+--- a/include/uapi/linux/audit.h
++++ b/include/uapi/linux/audit.h
+@@ -172,7 +172,7 @@
+ #define AUDIT_MAX_KEY_LEN  256
+ #define AUDIT_BITMASK_SIZE 64
+ #define AUDIT_WORD(nr) ((__u32)((nr)/32))
+-#define AUDIT_BIT(nr)  (1 << ((nr) - AUDIT_WORD(nr)*32))
++#define AUDIT_BIT(nr)  (1U << ((nr) - AUDIT_WORD(nr)*32))
  
- 	args->nargs = of_args.args_count;
- 	args->fwnode = of_fwnode_handle(of_args.np);
+ #define AUDIT_SYSCALL_CLASSES 16
+ #define AUDIT_CLASS_DIR_WRITE 0
 -- 
 2.35.1
 
