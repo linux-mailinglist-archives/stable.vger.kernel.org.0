@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A43B06434B3
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:49:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A7106434B5
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:49:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235181AbiLETtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:49:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56752 "EHLO
+        id S235004AbiLETtF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:49:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234983AbiLETsW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:48:22 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70371286F6
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:45:19 -0800 (PST)
+        with ESMTP id S234984AbiLETsX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:48:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 228142A94C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:45:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BBF50CE13A4
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:45:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95288C433D6;
-        Mon,  5 Dec 2022 19:45:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8A86B811F3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:45:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41CEAC433D6;
+        Mon,  5 Dec 2022 19:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269516;
-        bh=SV54H3b20cmZrFp6OFnftLTKEjkznxhfLjat88ahnh8=;
+        s=korg; t=1670269518;
+        bh=fuhE+vtmCZER5HscYjbnmUXMSB8VskTcgNUQ84AyKqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mnT7w6lUKiLvFmrHXFiJKcuFxVyovTtAMvldEbFYCm8LdfVVE0HhDhPVguB3CjXOL
-         VdSAN92+5OPZb8h2psdcHMaTg71rOBqYO2R4PFae66lBcWOPUjnlRYQGm9dHqKGhqu
-         ZpxA7sgz/+PqQ+/PGeqDdV9vlPtK95CHZY1kXI6k=
+        b=pXHJwyWJIHoxGzitwQX27g+rmQ1zqGFsSjRqf/BQbBdZQD34Ur/yIoQJWLSAqfexG
+         NAsGTe5MUs6bTidgIAfE1dCEyVIl132EfPe7u4r/jyiQV8fLQzZo69aAKrFrjT7rlb
+         tda7MHDWtePak8kPMpiuvZQglk+okGU51YiEtIJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 145/153] nvme: ensure subsystem reset is single threaded
-Date:   Mon,  5 Dec 2022 20:11:09 +0100
-Message-Id: <20221205190812.762465586@linuxfoundation.org>
+        patches@lists.linux.dev, Andrew Cooper <andrew.cooper3@citrix.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, stable@kernel.org
+Subject: [PATCH 5.4 146/153] x86/tsx: Add a feature bit for TSX control MSR support
+Date:   Mon,  5 Dec 2022 20:11:10 +0100
+Message-Id: <20221205190812.786099674@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
 References: <20221205190808.733996403@linuxfoundation.org>
@@ -53,67 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit 1e866afd4bcdd01a70a5eddb4371158d3035ce03 upstream.
+commit aaa65d17eec372c6a9756833f3964ba05b05ea14 upstream.
 
-The subsystem reset writes to a register, so we have to ensure the
-device state is capable of handling that otherwise the driver may access
-unmapped registers. Use the state machine to ensure the subsystem reset
-doesn't try to write registers on a device already undergoing this type
-of reset.
+Support for the TSX control MSR is enumerated in MSR_IA32_ARCH_CAPABILITIES.
+This is different from how other CPU features are enumerated i.e. via
+CPUID. Currently, a call to tsx_ctrl_is_supported() is required for
+enumerating the feature. In the absence of a feature bit for TSX control,
+any code that relies on checking feature bits directly will not work.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214771
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+In preparation for adding a feature bit check in MSR save/restore
+during suspend/resume, set a new feature bit X86_FEATURE_TSX_CTRL when
+MSR_IA32_TSX_CTRL is present.
+
+  [ bp: Remove tsx_ctrl_is_supported()]
+
+  [Pawan: Resolved conflicts in backport; Removed parts of commit message
+          referring to removed function tsx_ctrl_is_supported()]
+
+Suggested-by: Andrew Cooper <andrew.cooper3@citrix.com>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/de619764e1d98afbb7a5fa58424f1278ede37b45.1668539735.git.pawan.kumar.gupta@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/nvme.h |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/cpufeatures.h |    1 +
+ arch/x86/kernel/cpu/tsx.c          |   33 ++++++++++++++-------------------
+ 2 files changed, 15 insertions(+), 19 deletions(-)
 
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -422,11 +422,23 @@ static inline void nvme_fault_inject_fin
- static inline void nvme_should_fail(struct request *req) {}
- #endif
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -290,6 +290,7 @@
+ #define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
+ #define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
+ #define X86_FEATURE_RSB_VMEXIT_LITE	(11*32+17) /* "" Fill RSB on VM exit when EIBRS is enabled */
++#define X86_FEATURE_MSR_TSX_CTRL	(11*32+18) /* "" MSR IA32_TSX_CTRL (Intel) implemented */
  
-+bool nvme_wait_reset(struct nvme_ctrl *ctrl);
-+int nvme_try_sched_reset(struct nvme_ctrl *ctrl);
-+
- static inline int nvme_reset_subsystem(struct nvme_ctrl *ctrl)
- {
-+	int ret;
-+
- 	if (!ctrl->subsystem)
- 		return -ENOTTY;
--	return ctrl->ops->reg_write32(ctrl, NVME_REG_NSSR, 0x4E564D65);
-+	if (!nvme_wait_reset(ctrl))
-+		return -EBUSY;
-+
-+	ret = ctrl->ops->reg_write32(ctrl, NVME_REG_NSSR, 0x4E564D65);
-+	if (ret)
-+		return ret;
-+
-+	return nvme_try_sched_reset(ctrl);
+ /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
+ #define X86_FEATURE_AVX512_BF16		(12*32+ 5) /* AVX512 BFLOAT16 instructions */
+--- a/arch/x86/kernel/cpu/tsx.c
++++ b/arch/x86/kernel/cpu/tsx.c
+@@ -55,24 +55,6 @@ void tsx_enable(void)
+ 	wrmsrl(MSR_IA32_TSX_CTRL, tsx);
  }
  
- /*
-@@ -473,7 +485,6 @@ void nvme_cancel_tagset(struct nvme_ctrl
- void nvme_cancel_admin_tagset(struct nvme_ctrl *ctrl);
- bool nvme_change_ctrl_state(struct nvme_ctrl *ctrl,
- 		enum nvme_ctrl_state new_state);
--bool nvme_wait_reset(struct nvme_ctrl *ctrl);
- int nvme_disable_ctrl(struct nvme_ctrl *ctrl);
- int nvme_enable_ctrl(struct nvme_ctrl *ctrl);
- int nvme_shutdown_ctrl(struct nvme_ctrl *ctrl);
-@@ -525,7 +536,6 @@ int nvme_set_queue_count(struct nvme_ctr
- void nvme_stop_keep_alive(struct nvme_ctrl *ctrl);
- int nvme_reset_ctrl(struct nvme_ctrl *ctrl);
- int nvme_reset_ctrl_sync(struct nvme_ctrl *ctrl);
--int nvme_try_sched_reset(struct nvme_ctrl *ctrl);
- int nvme_delete_ctrl(struct nvme_ctrl *ctrl);
+-static bool __init tsx_ctrl_is_supported(void)
+-{
+-	u64 ia32_cap = x86_read_arch_cap_msr();
+-
+-	/*
+-	 * TSX is controlled via MSR_IA32_TSX_CTRL.  However, support for this
+-	 * MSR is enumerated by ARCH_CAP_TSX_MSR bit in MSR_IA32_ARCH_CAPABILITIES.
+-	 *
+-	 * TSX control (aka MSR_IA32_TSX_CTRL) is only available after a
+-	 * microcode update on CPUs that have their MSR_IA32_ARCH_CAPABILITIES
+-	 * bit MDS_NO=1. CPUs with MDS_NO=0 are not planned to get
+-	 * MSR_IA32_TSX_CTRL support even after a microcode update. Thus,
+-	 * tsx= cmdline requests will do nothing on CPUs without
+-	 * MSR_IA32_TSX_CTRL support.
+-	 */
+-	return !!(ia32_cap & ARCH_CAP_TSX_CTRL_MSR);
+-}
+-
+ static enum tsx_ctrl_states x86_get_tsx_auto_mode(void)
+ {
+ 	if (boot_cpu_has_bug(X86_BUG_TAA))
+@@ -86,9 +68,22 @@ void __init tsx_init(void)
+ 	char arg[5] = {};
+ 	int ret;
  
- int nvme_get_log(struct nvme_ctrl *ctrl, u32 nsid, u8 log_page, u8 lsp,
+-	if (!tsx_ctrl_is_supported())
++	/*
++	 * TSX is controlled via MSR_IA32_TSX_CTRL.  However, support for this
++	 * MSR is enumerated by ARCH_CAP_TSX_MSR bit in MSR_IA32_ARCH_CAPABILITIES.
++	 *
++	 * TSX control (aka MSR_IA32_TSX_CTRL) is only available after a
++	 * microcode update on CPUs that have their MSR_IA32_ARCH_CAPABILITIES
++	 * bit MDS_NO=1. CPUs with MDS_NO=0 are not planned to get
++	 * MSR_IA32_TSX_CTRL support even after a microcode update. Thus,
++	 * tsx= cmdline requests will do nothing on CPUs without
++	 * MSR_IA32_TSX_CTRL support.
++	 */
++	if (!(x86_read_arch_cap_msr() & ARCH_CAP_TSX_CTRL_MSR))
+ 		return;
+ 
++	setup_force_cpu_cap(X86_FEATURE_MSR_TSX_CTRL);
++
+ 	ret = cmdline_find_option(boot_command_line, "tsx", arg, sizeof(arg));
+ 	if (ret >= 0) {
+ 		if (!strcmp(arg, "on")) {
 
 
