@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C1C564332C
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E25C6433A7
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234340AbiLETep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:34:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34246 "EHLO
+        id S234485AbiLETi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:38:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234339AbiLETeS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7484F25E98
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:29:49 -0800 (PST)
+        with ESMTP id S234492AbiLETiI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:38:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D53B14
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:35:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3553BB81151
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:29:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E4C3C433D6;
-        Mon,  5 Dec 2022 19:29:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D687DB81205
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B2FFC433D7;
+        Mon,  5 Dec 2022 19:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268587;
-        bh=BM63kgZNPWqQiJ30RJdjUvQwuqOutHTr7IhxROV+cbM=;
+        s=korg; t=1670268897;
+        bh=7WvN6O3B3NrszyhvuFlHQJwIGzSuZZXHFehhCxmMAxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kKNwvi8OFNE25hQSCmJpYiBGn0xGZYeKMfgAXr20KqTHbcnHRMsqEFJPhCRlMGzBz
-         LJ2z8A5rB0HIZgKULLP3E2AfAPvyJLYXTM2zMma8ygjGddHt0ebdLM2zdM8SVNVzSl
-         8tahu1xg0FG/AkEmNmsUxm0d+4TM5QPgDfjTDo6Q=
+        b=WQo2iLfu3Mdy2ZUVNufNdPNbX09tnruPFTkc1kHIJ7d1Gje2QxZbpzK4XqbHmrsBV
+         zVn0d03pdQODUpyt6deN+Wj+82we60n21fFwTSnHTYvxwtfOqopmlJBadhPl4EFlXp
+         J2RKh5RIW8ig7T1ivG8MxS7wxGnO833Zx4x7N8d8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roi Dayan <roid@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Izabela Bakollari <ibakolla@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 31/92] net/mlx5e: Fix use-after-free when reverting termination table
+Subject: [PATCH 5.15 044/120] aquantia: Do not purge addresses when setting the number of rings
 Date:   Mon,  5 Dec 2022 20:09:44 +0100
-Message-Id: <20221205190804.497815784@linuxfoundation.org>
+Message-Id: <20221205190807.871853296@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@nvidia.com>
+From: Izabela Bakollari <ibakolla@redhat.com>
 
-[ Upstream commit 52c795af04441d76f565c4634f893e5b553df2ae ]
+[ Upstream commit 2a83891130512dafb321418a8e7c9c09268d8c59 ]
 
-When having multiple dests with termination tables and second one
-or afterwards fails the driver reverts usage of term tables but
-doesn't reset the assignment in attr->dests[num_vport_dests].termtbl
-which case a use-after-free when releasing the rule.
-Fix by resetting the assignment of termtbl to null.
+IPV6 addresses are purged when setting the number of rx/tx
+rings using ethtool -G. The function aq_set_ringparam
+calls dev_close, which removes the addresses. As a solution,
+call an internal function (aq_ndev_close).
 
-Fixes: 10caabdaad5a ("net/mlx5e: Use termination table for VLAN push actions")
-Signed-off-by: Roi Dayan <roid@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: c1af5427954b ("net: aquantia: Ethtool based ring size configuration")
+Signed-off-by: Izabela Bakollari <ibakolla@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c  | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c | 5 +++--
+ drivers/net/ethernet/aquantia/atlantic/aq_main.c    | 4 ++--
+ drivers/net/ethernet/aquantia/atlantic/aq_main.h    | 2 ++
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-index 6c865cb7f445..132ea9997676 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-@@ -308,6 +308,8 @@ mlx5_eswitch_add_termtbl_rule(struct mlx5_eswitch *esw,
- 	for (curr_dest = 0; curr_dest < num_vport_dests; curr_dest++) {
- 		struct mlx5_termtbl_handle *tt = attr->dests[curr_dest].termtbl;
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c b/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
+index a9ef0544e30f..715859cb6560 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_ethtool.c
+@@ -13,6 +13,7 @@
+ #include "aq_ptp.h"
+ #include "aq_filters.h"
+ #include "aq_macsec.h"
++#include "aq_main.h"
  
-+		attr->dests[curr_dest].termtbl = NULL;
-+
- 		/* search for the destination associated with the
- 		 * current term table
- 		 */
+ #include <linux/ptp_clock_kernel.h>
+ 
+@@ -845,7 +846,7 @@ static int aq_set_ringparam(struct net_device *ndev,
+ 
+ 	if (netif_running(ndev)) {
+ 		ndev_running = true;
+-		dev_close(ndev);
++		aq_ndev_close(ndev);
+ 	}
+ 
+ 	cfg->rxds = max(ring->rx_pending, hw_caps->rxds_min);
+@@ -861,7 +862,7 @@ static int aq_set_ringparam(struct net_device *ndev,
+ 		goto err_exit;
+ 
+ 	if (ndev_running)
+-		err = dev_open(ndev, NULL);
++		err = aq_ndev_open(ndev);
+ 
+ err_exit:
+ 	return err;
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_main.c b/drivers/net/ethernet/aquantia/atlantic/aq_main.c
+index f069312463fb..45ed097bfe49 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_main.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_main.c
+@@ -53,7 +53,7 @@ struct net_device *aq_ndev_alloc(void)
+ 	return ndev;
+ }
+ 
+-static int aq_ndev_open(struct net_device *ndev)
++int aq_ndev_open(struct net_device *ndev)
+ {
+ 	struct aq_nic_s *aq_nic = netdev_priv(ndev);
+ 	int err = 0;
+@@ -83,7 +83,7 @@ static int aq_ndev_open(struct net_device *ndev)
+ 	return err;
+ }
+ 
+-static int aq_ndev_close(struct net_device *ndev)
++int aq_ndev_close(struct net_device *ndev)
+ {
+ 	struct aq_nic_s *aq_nic = netdev_priv(ndev);
+ 	int err = 0;
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_main.h b/drivers/net/ethernet/aquantia/atlantic/aq_main.h
+index a5a624b9ce73..2a562ab7a5af 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_main.h
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_main.h
+@@ -14,5 +14,7 @@
+ 
+ void aq_ndev_schedule_work(struct work_struct *work);
+ struct net_device *aq_ndev_alloc(void);
++int aq_ndev_open(struct net_device *ndev);
++int aq_ndev_close(struct net_device *ndev);
+ 
+ #endif /* AQ_MAIN_H */
 -- 
 2.35.1
 
