@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A61C6432F6
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:32:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B6F643464
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:46:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233709AbiLETcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:32:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34278 "EHLO
+        id S234671AbiLETqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:46:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233846AbiLETcZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:32:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 946E9FCF1
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:45 -0800 (PST)
+        with ESMTP id S234617AbiLETqE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:46:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A27F306
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:42:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 315B1612FE
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:27:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45C5DC433D6;
-        Mon,  5 Dec 2022 19:27:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C28B1B8120F
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:42:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F88C433D7;
+        Mon,  5 Dec 2022 19:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268464;
-        bh=g15NscczAD7M+9XhXJ0KZwLF916KQu4jvupeOxM9gH8=;
+        s=korg; t=1670269343;
+        bh=+WFqcAr1g/NY+Mqs7VndDxG92ngCZI81Fyv1D9QeYoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xpviPTfAoPIiRxH6iVuseq77xV0C4BAuAZ/pRTrzUEOaHeCLXumeOwQmou+PtMyzo
-         Q46Y8DTbDwMPByCY5hy6Yg7xBBFqeUjKEVg5wB+bq4533ws5TiUb5RdZU0W+11MLrB
-         L1gxjQf7RZ1sU67M0TEouB8Zmm2BF2BjpwGviJd0=
+        b=nlsMiRY9c5Wn5Ngth8n9qsD85FKeZThRfgNQ8lOsv8MmRXGU2CwOT9JSF5AOcKwCl
+         4IWtgFGTbOpVsc2Agzq7JiJ/phMA5i6LK2UqSpqTvOvwq6yJtEhruCdz+NU0H9twRf
+         AiKtXZ9GE/IoXiiIbZSjJ+rDAZy7mBw3IRzfIkL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gwangun Jung <exsociety@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 111/124] ipv4: Handle attempt to delete multipath route when fib_info contains an nh reference
+Subject: [PATCH 5.4 093/153] scripts/faddr2line: Fix regression in name resolution on ppc64le
 Date:   Mon,  5 Dec 2022 20:10:17 +0100
-Message-Id: <20221205190811.594623147@linuxfoundation.org>
+Message-Id: <20221205190811.404573748@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +57,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit 61b91eb33a69c3be11b259c5ea484505cd79f883 ]
+[ Upstream commit 2d77de1581bb5b470486edaf17a7d70151131afd ]
 
-Gwangun Jung reported a slab-out-of-bounds access in fib_nh_match:
-    fib_nh_match+0xf98/0x1130 linux-6.0-rc7/net/ipv4/fib_semantics.c:961
-    fib_table_delete+0x5f3/0xa40 linux-6.0-rc7/net/ipv4/fib_trie.c:1753
-    inet_rtm_delroute+0x2b3/0x380 linux-6.0-rc7/net/ipv4/fib_frontend.c:874
+Commit 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section
+failures") can cause faddr2line to fail on ppc64le on some
+distributions, while it works fine on other distributions. The failure
+can be attributed to differences in the readelf output.
 
-Separate nexthop objects are mutually exclusive with the legacy
-multipath spec. Fix fib_nh_match to return if the config for the
-to be deleted route contains a multipath spec while the fib_info
-is using a nexthop object.
+  $ ./scripts/faddr2line vmlinux find_busiest_group+0x00
+  no match for find_busiest_group+0x00
 
-Fixes: 493ced1ac47c ("ipv4: Allow routes to use nexthop objects")
-Fixes: 6bf92d70e690 ("net: ipv4: fix route with nexthop object delete warning")
-Reported-by: Gwangun Jung <exsociety@gmail.com>
-Signed-off-by: David Ahern <dsahern@kernel.org>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: d5082d386eee ("ipv4: Fix route deletion when nexthop info is not specified")
+On ppc64le, readelf adds the localentry tag before the symbol name on
+some distributions, and adds the localentry tag after the symbol name on
+other distributions. This problem has been discussed previously:
+
+  https://lore.kernel.org/bpf/20191211160133.GB4580@calabresa/
+
+This problem can be overcome by filtering out the localentry tags in the
+readelf output. Similar fixes are already present in the kernel by way
+of the following commits:
+
+  1fd6cee127e2 ("libbpf: Fix VERSIONED_SYM_COUNT number parsing")
+  aa915931ac3e ("libbpf: Fix readelf output parsing for Fedora")
+
+[jpoimboe: rework commit log]
+
+Fixes: 1d1a0e7c5100 ("scripts/faddr2line: Fix overlapping text section failures")
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Reviewed-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Link: https://lore.kernel.org/r/20220927075211.897152-1-srikar@linux.vnet.ibm.com
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_semantics.c                    | 8 ++++----
- tools/testing/selftests/net/fib_nexthops.sh | 5 +++++
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ scripts/faddr2line | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-index 2dc97583d279..e9a7f70a54df 100644
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -888,13 +888,13 @@ int fib_nh_match(struct net *net, struct fib_config *cfg, struct fib_info *fi,
- 		return 1;
- 	}
+diff --git a/scripts/faddr2line b/scripts/faddr2line
+index 57099687e5e1..9e730b805e87 100755
+--- a/scripts/faddr2line
++++ b/scripts/faddr2line
+@@ -73,7 +73,8 @@ command -v ${ADDR2LINE} >/dev/null 2>&1 || die "${ADDR2LINE} isn't installed"
+ find_dir_prefix() {
+ 	local objfile=$1
  
-+	/* cannot match on nexthop object attributes */
-+	if (fi->nh)
-+		return 1;
-+
- 	if (cfg->fc_oif || cfg->fc_gw_family) {
- 		struct fib_nh *nh;
+-	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | ${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
++	local start_kernel_addr=$(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' |
++		${AWK} '$8 == "start_kernel" {printf "0x%s", $2}')
+ 	[[ -z $start_kernel_addr ]] && return
  
--		/* cannot match on nexthop object attributes */
--		if (fi->nh)
--			return 1;
--
- 		nh = fib_info_nh(fi, 0);
- 		if (cfg->fc_encap) {
- 			if (fib_encap_match(net, cfg->fc_encap_type,
-diff --git a/tools/testing/selftests/net/fib_nexthops.sh b/tools/testing/selftests/net/fib_nexthops.sh
-index d5a0dd548989..ee5e98204d3d 100755
---- a/tools/testing/selftests/net/fib_nexthops.sh
-+++ b/tools/testing/selftests/net/fib_nexthops.sh
-@@ -1223,6 +1223,11 @@ ipv4_fcnal()
- 	log_test $rc 0 "Delete nexthop route warning"
- 	run_cmd "$IP route delete 172.16.101.1/32 nhid 12"
- 	run_cmd "$IP nexthop del id 12"
-+
-+	run_cmd "$IP nexthop add id 21 via 172.16.1.6 dev veth1"
-+	run_cmd "$IP ro add 172.16.101.0/24 nhid 21"
-+	run_cmd "$IP ro del 172.16.101.0/24 nexthop via 172.16.1.7 dev veth1 nexthop via 172.16.1.8 dev veth1"
-+	log_test $? 2 "Delete multipath route with only nh id based entry"
+ 	local file_line=$(${ADDR2LINE} -e $objfile $start_kernel_addr)
+@@ -177,7 +178,7 @@ __faddr2line() {
+ 				found=2
+ 				break
+ 			fi
+-		done < <(${READELF} --symbols --wide $objfile | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
++		done < <(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' | ${AWK} -v sec=$sym_sec '$7 == sec' | sort --key=2)
+ 
+ 		if [[ $found = 0 ]]; then
+ 			warn "can't find symbol: sym_name: $sym_name sym_sec: $sym_sec sym_addr: $sym_addr sym_elf_size: $sym_elf_size"
+@@ -258,7 +259,7 @@ __faddr2line() {
+ 
+ 		DONE=1
+ 
+-	done < <(${READELF} --symbols --wide $objfile | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
++	done < <(${READELF} --symbols --wide $objfile | sed 's/\[.*\]//' | ${AWK} -v fn=$sym_name '$4 == "FUNC" && $8 == fn')
  }
  
- ipv4_grp_fcnal()
+ [[ $# -lt 2 ]] && usage
 -- 
 2.35.1
 
