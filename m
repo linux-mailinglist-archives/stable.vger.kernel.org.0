@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A39F4643173
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:15:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 351F6643449
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:43:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230246AbiLETOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:14:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33474 "EHLO
+        id S234880AbiLETn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:43:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232726AbiLETO3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:14:29 -0500
+        with ESMTP id S234870AbiLETnk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:43:40 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F95C1F2FC
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:14:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF5BE2A43C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:41:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4481BB81201
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:14:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5AB0C433C1;
-        Mon,  5 Dec 2022 19:14:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6FF3BB811F3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:41:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D350EC433D6;
+        Mon,  5 Dec 2022 19:41:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267666;
-        bh=NSsEic6aRvSnBjUPRvE9nxR/IvJN9h8aQ8XkbEDyRkw=;
+        s=korg; t=1670269267;
+        bh=9e1bDwrzC8xjHeM+GlfAFgxwD1ki7khbQsbjjYy1rAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u0vPe359dL8bwtxzYzUGZSX8/CE0ffc73Fawh6cfiEQY2Rp8FIY8IDmCy36fPkzjw
-         xdiHPo/N7ylEk7oGpnplrH0cH9Vxg+kQpfRUrGyLDDg4Uc2VYatV2HhLDE46tI4nM9
-         wPfL94nmvZ6LS1qgduB82kY6UlSxkqHuYAyd0ERE=
+        b=hWIQQj/KiFd/GqnHJ7Yul4w2+Kqq37L3B6LA+7r9S3GiDhRRYnaUcgoYab6gCVCt7
+         O6bFquJefrlpjDEThz6fjBnoCLdem2EceepWCYXQSLbPS4xKvr5QOakD3m8fCl07l1
+         KnW3rFODS5hsOepncWFG6WPxntIPzTkorPshPcE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 52/62] ASoC: ops: Fix bounds check for _sx controls
+Subject: [PATCH 5.4 065/153] platform/x86: hp-wmi: Ignore Smart Experience App event
 Date:   Mon,  5 Dec 2022 20:09:49 +0100
-Message-Id: <20221205190800.050279118@linuxfoundation.org>
+Message-Id: <20221205190810.588364070@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 698813ba8c580efb356ace8dbf55f61dac6063a8 ]
+[ Upstream commit 8b9b6a044b408283b086702b1d9e3cf4ba45b426 ]
 
-For _sx controls the semantics of the max field is not the usual one, max
-is the number of steps rather than the maximum value. This means that our
-check in snd_soc_put_volsw_sx() needs to just check against the maximum
-value.
+Sometimes hp-wmi driver complains on system resume:
+[ 483.116451] hp_wmi: Unknown event_id - 33 - 0x0
 
-Fixes: 4f1e50d6a9cf9c1b ("ASoC: ops: Reject out of bounds values in snd_soc_put_volsw_sx()")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220511134137.169575-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+According to HP it's a feature called "HP Smart Experience App" and it's
+safe to be ignored.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20221114073842.205392-1-kai.heng.feng@canonical.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-ops.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/hp-wmi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
-index 4fda8c24be29..5479927391d4 100644
---- a/sound/soc/soc-ops.c
-+++ b/sound/soc/soc-ops.c
-@@ -450,7 +450,7 @@ int snd_soc_put_volsw_sx(struct snd_kcontrol *kcontrol,
- 	val = ucontrol->value.integer.value[0];
- 	if (mc->platform_max && val > mc->platform_max)
- 		return -EINVAL;
--	if (val > max - min)
-+	if (val > max)
- 		return -EINVAL;
- 	if (val < 0)
- 		return -EINVAL;
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index a67773eca3ac..d3a329b201b1 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -63,6 +63,7 @@ enum hp_wmi_event_ids {
+ 	HPWMI_PEAKSHIFT_PERIOD		= 0x0F,
+ 	HPWMI_BATTERY_CHARGE_PERIOD	= 0x10,
+ 	HPWMI_SANITIZATION_MODE		= 0x17,
++	HPWMI_SMART_EXPERIENCE_APP	= 0x21,
+ };
+ 
+ struct bios_args {
+@@ -632,6 +633,8 @@ static void hp_wmi_notify(u32 value, void *context)
+ 		break;
+ 	case HPWMI_SANITIZATION_MODE:
+ 		break;
++	case HPWMI_SMART_EXPERIENCE_APP:
++		break;
+ 	default:
+ 		pr_info("Unknown event_id - %d - 0x%x\n", event_id, event_data);
+ 		break;
 -- 
 2.35.1
 
