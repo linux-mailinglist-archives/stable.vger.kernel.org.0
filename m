@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 661576432B7
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:28:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE23C64338F
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:37:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233430AbiLET2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:28:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52034 "EHLO
+        id S234094AbiLEThf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:37:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234060AbiLET2E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:28:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A26828709
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:24:58 -0800 (PST)
+        with ESMTP id S234127AbiLEThM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:37:12 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AED82870E
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D1B6B81201
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:24:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62CD8C433D6;
-        Mon,  5 Dec 2022 19:24:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 12D9ACE13A5
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1146C433C1;
+        Mon,  5 Dec 2022 19:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268295;
-        bh=BVHtn1wPVp9DBdlMTfxYEKyHN/whf7zvRWWYZ3Dl3Yg=;
+        s=korg; t=1670268846;
+        bh=MNz/7UDp6ZSHAUrazs/BHFlPtScNFmNKIkJjSe4JswY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2vng2CYctEUwx0dLMZe76kO+M61ZCciR8utBWTuMIk4/AkfWRhsFPciyFxSz37iZc
-         rmUjOq5rp9/2RT+hmR9U86RV3uV4BCJ5aHDyJCfFKwDkXqbobeWmA2c8xcC7GHfi3Q
-         u5Dl0UAhJX7P17kc9ENitzdsa/TqseUFLUyzTRm0=
+        b=LNBWjHThaySn/Zz/cLiUfb/Yh5JvBD1QoJnnO/Ho7skEa3BGsfkHKXELGaidIVFZP
+         ytAsap0hmIsrQK8YN7DhkzfOQAjTFGqn+pxejknGYdbIBHG19HWAkw+3/U8GvDPgNC
+         8zbvTXgxLCQrmho64A1NrLItM9qblGwGvTcIHQhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        Andrew Davis <afd@ti.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 049/124] wifi: mac8021: fix possible oob access in ieee80211_get_rate_duration
+Subject: [PATCH 5.15 015/120] iio: health: afe4404: Fix oob read in afe4404_[read|write]_raw
 Date:   Mon,  5 Dec 2022 20:09:15 +0100
-Message-Id: <20221205190809.829201639@linuxfoundation.org>
+Message-Id: <20221205190807.038479732@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 3e8f7abcc3473bc9603323803aeaed4ffcc3a2ab ]
+[ Upstream commit fc92d9e3de0b2d30a3ccc08048a5fad533e4672b ]
 
-Fix possible out-of-bound access in ieee80211_get_rate_duration routine
-as reported by the following UBSAN report:
+KASAN report out-of-bounds read as follows:
 
-UBSAN: array-index-out-of-bounds in net/mac80211/airtime.c:455:47
-index 15 is out of range for type 'u16 [12]'
-CPU: 2 PID: 217 Comm: kworker/u32:10 Not tainted 6.1.0-060100rc3-generic
-Hardware name: Acer Aspire TC-281/Aspire TC-281, BIOS R01-A2 07/18/2017
-Workqueue: mt76 mt76u_tx_status_data [mt76_usb]
+BUG: KASAN: global-out-of-bounds in afe4404_read_raw+0x2ce/0x380
+Read of size 4 at addr ffffffffc00e4658 by task cat/278
+
 Call Trace:
- <TASK>
- show_stack+0x4e/0x61
- dump_stack_lvl+0x4a/0x6f
- dump_stack+0x10/0x18
- ubsan_epilogue+0x9/0x43
- __ubsan_handle_out_of_bounds.cold+0x42/0x47
-ieee80211_get_rate_duration.constprop.0+0x22f/0x2a0 [mac80211]
- ? ieee80211_tx_status_ext+0x32e/0x640 [mac80211]
- ieee80211_calc_rx_airtime+0xda/0x120 [mac80211]
- ieee80211_calc_tx_airtime+0xb4/0x100 [mac80211]
- mt76x02_send_tx_status+0x266/0x480 [mt76x02_lib]
- mt76x02_tx_status_data+0x52/0x80 [mt76x02_lib]
- mt76u_tx_status_data+0x67/0xd0 [mt76_usb]
- process_one_work+0x225/0x400
- worker_thread+0x50/0x3e0
- ? process_one_work+0x400/0x400
- kthread+0xe9/0x110
- ? kthread_complete_and_exit+0x20/0x20
- ret_from_fork+0x22/0x30
+ afe4404_read_raw
+ iio_read_channel_info
+ dev_attr_show
 
-Fixes: db3e1c40cf2f ("mac80211: Import airtime calculation code from mt76")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+The buggy address belongs to the variable:
+ afe4404_channel_leds+0x18/0xffffffffffffe9c0
+
+This issue can be reproduce by singe command:
+
+ $ cat /sys/bus/i2c/devices/0-0058/iio\:device0/in_intensity6_raw
+
+The array size of afe4404_channel_leds and afe4404_channel_offdacs
+are less than channels, so access with chan->address cause OOB read
+in afe4404_[read|write]_raw. Fix it by moving access before use them.
+
+Fixes: b36e8257641a ("iio: health/afe440x: Use regmap fields")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Andrew Davis <afd@ti.com>
+Link: https://lore.kernel.org/r/20221107152010.95937-1-weiyongjun@huaweicloud.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/airtime.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/iio/health/afe4404.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/net/mac80211/airtime.c b/net/mac80211/airtime.c
-index 2e66598fac79..e8ebd343e2bf 100644
---- a/net/mac80211/airtime.c
-+++ b/net/mac80211/airtime.c
-@@ -452,6 +452,9 @@ static u32 ieee80211_get_rate_duration(struct ieee80211_hw *hw,
- 			 (status->encoding == RX_ENC_HE && streams > 8)))
- 		return 0;
+diff --git a/drivers/iio/health/afe4404.c b/drivers/iio/health/afe4404.c
+index d8a27dfe074a..70f0f6f6351c 100644
+--- a/drivers/iio/health/afe4404.c
++++ b/drivers/iio/health/afe4404.c
+@@ -250,20 +250,20 @@ static int afe4404_read_raw(struct iio_dev *indio_dev,
+ 			    int *val, int *val2, long mask)
+ {
+ 	struct afe4404_data *afe = iio_priv(indio_dev);
+-	unsigned int value_reg = afe4404_channel_values[chan->address];
+-	unsigned int led_field = afe4404_channel_leds[chan->address];
+-	unsigned int offdac_field = afe4404_channel_offdacs[chan->address];
++	unsigned int value_reg, led_field, offdac_field;
+ 	int ret;
  
-+	if (idx >= MCS_GROUP_RATES)
-+		return 0;
-+
- 	duration = airtime_mcs_groups[group].duration[idx];
- 	duration <<= airtime_mcs_groups[group].shift;
- 	*overhead = 36 + (streams << 2);
+ 	switch (chan->type) {
+ 	case IIO_INTENSITY:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_RAW:
++			value_reg = afe4404_channel_values[chan->address];
+ 			ret = regmap_read(afe->regmap, value_reg, val);
+ 			if (ret)
+ 				return ret;
+ 			return IIO_VAL_INT;
+ 		case IIO_CHAN_INFO_OFFSET:
++			offdac_field = afe4404_channel_offdacs[chan->address];
+ 			ret = regmap_field_read(afe->fields[offdac_field], val);
+ 			if (ret)
+ 				return ret;
+@@ -273,6 +273,7 @@ static int afe4404_read_raw(struct iio_dev *indio_dev,
+ 	case IIO_CURRENT:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_RAW:
++			led_field = afe4404_channel_leds[chan->address];
+ 			ret = regmap_field_read(afe->fields[led_field], val);
+ 			if (ret)
+ 				return ret;
+@@ -295,19 +296,20 @@ static int afe4404_write_raw(struct iio_dev *indio_dev,
+ 			     int val, int val2, long mask)
+ {
+ 	struct afe4404_data *afe = iio_priv(indio_dev);
+-	unsigned int led_field = afe4404_channel_leds[chan->address];
+-	unsigned int offdac_field = afe4404_channel_offdacs[chan->address];
++	unsigned int led_field, offdac_field;
+ 
+ 	switch (chan->type) {
+ 	case IIO_INTENSITY:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_OFFSET:
++			offdac_field = afe4404_channel_offdacs[chan->address];
+ 			return regmap_field_write(afe->fields[offdac_field], val);
+ 		}
+ 		break;
+ 	case IIO_CURRENT:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_RAW:
++			led_field = afe4404_channel_leds[chan->address];
+ 			return regmap_field_write(afe->fields[led_field], val);
+ 		}
+ 		break;
 -- 
 2.35.1
 
