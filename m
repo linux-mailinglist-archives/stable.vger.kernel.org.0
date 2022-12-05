@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D74E643440
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:43:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F94964313F
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:13:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234835AbiLETng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:43:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44140 "EHLO
+        id S232019AbiLETNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:13:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234841AbiLETnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:43:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 979CDBE0C
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:40:46 -0800 (PST)
+        with ESMTP id S232434AbiLETMt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:12:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B47721C138
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:12:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2ED5C612EA
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:40:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F494C433C1;
-        Mon,  5 Dec 2022 19:40:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6720DB81200
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:12:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFA80C433D6;
+        Mon,  5 Dec 2022 19:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269245;
-        bh=GbeAGtGb+hmD/366B8UHdfz7z/YG+MhVjvzk4XHaPOY=;
+        s=korg; t=1670267566;
+        bh=3i7x2Ld7v4tG7nMHpsrzXqgX4yBsYgoSFHWhcwO587Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fSfjISwwsZzLmO0gczkdId9pK0BJ/CB/+L08SW5QeqkEKXfIYOkjRYmUn7bFck1/t
-         RrlVkRr1KTM4p5U7HbduiSae/jv5I8esPsTw0P11RCybu440nSvJNtMLxLip2IQx1J
-         np8/BDLlyjBy/dthajuSCxJdKdB1i7oWIsaYL7aM=
+        b=O2tL7x2UCdh/Wtpf52F1FoI8kPZu+UnhsEuHr6nBvu/8SNxug/rxHwaxAvoTPkKAD
+         /aDDKJExJ2kgjA+nDD8U1bR2Dem6QIcmsiXUGXdPooj8M6SElqrcj0LvH2AiNCKVLL
+         sZ004s2busbirDYcEDyrzpddbGM7SBUlyhu/fO+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Kelley <mikelley@microsoft.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 028/153] Drivers: hv: vmbus: fix double free in the error path of vmbus_add_channel_work()
+        patches@lists.linux.dev,
+        syzbot+cdb9a427d1bc08815104@syzkaller.appspotmail.com,
+        Liu Shixin <liushixin2@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 15/62] NFC: nci: fix memory leak in nci_rx_data_packet()
 Date:   Mon,  5 Dec 2022 20:09:12 +0100
-Message-Id: <20221205190809.544035141@linuxfoundation.org>
+Message-Id: <20221205190758.662175473@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
+References: <20221205190758.073114639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit f92a4b50f0bd7fd52391dc4bb9a309085d278f91 ]
+[ Upstream commit 53270fb0fd77fe786d8c07a0793981d797836b93 ]
 
-In the error path of vmbus_device_register(), device_unregister()
-is called, which calls vmbus_device_release().  The latter frees
-the struct hv_device that was passed in to vmbus_device_register().
-So remove the kfree() in vmbus_add_channel_work() to avoid a double
-free.
+Syzbot reported a memory leak about skb:
 
-Fixes: c2e5df616e1a ("vmbus: add per-channel sysfs info")
-Suggested-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20221119081135.1564691-2-yangyingliang@huawei.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+unreferenced object 0xffff88810e144e00 (size 240):
+  comm "syz-executor284", pid 3701, jiffies 4294952403 (age 12.620s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff83ab79a9>] __alloc_skb+0x1f9/0x270 net/core/skbuff.c:497
+    [<ffffffff82a5cf64>] alloc_skb include/linux/skbuff.h:1267 [inline]
+    [<ffffffff82a5cf64>] virtual_ncidev_write+0x24/0xe0 drivers/nfc/virtual_ncidev.c:116
+    [<ffffffff815f6503>] do_loop_readv_writev fs/read_write.c:759 [inline]
+    [<ffffffff815f6503>] do_loop_readv_writev fs/read_write.c:743 [inline]
+    [<ffffffff815f6503>] do_iter_write+0x253/0x300 fs/read_write.c:863
+    [<ffffffff815f66ed>] vfs_writev+0xdd/0x240 fs/read_write.c:934
+    [<ffffffff815f68f6>] do_writev+0xa6/0x1c0 fs/read_write.c:977
+    [<ffffffff848802d5>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff848802d5>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff84a00087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+In nci_rx_data_packet(), if we don't get a valid conn_info, we will return
+directly but forget to release the skb.
+
+Reported-by: syzbot+cdb9a427d1bc08815104@syzkaller.appspotmail.com
+Fixes: 4aeee6871e8c ("NFC: nci: Add dynamic logical connections support")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Link: https://lore.kernel.org/r/20221118082419.239475-1-liushixin2@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/channel_mgmt.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/nfc/nci/data.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
-index 9260ad47350f..3adf4fae452a 100644
---- a/drivers/hv/channel_mgmt.c
-+++ b/drivers/hv/channel_mgmt.c
-@@ -493,13 +493,17 @@ static void vmbus_add_channel_work(struct work_struct *work)
- 	 * Add the new device to the bus. This will kick off device-driver
- 	 * binding which eventually invokes the device driver's AddDevice()
- 	 * method.
-+	 *
-+	 * If vmbus_device_register() fails, the 'device_obj' is freed in
-+	 * vmbus_device_release() as called by device_unregister() in the
-+	 * error path of vmbus_device_register(). In the outside error
-+	 * path, there's no need to free it.
- 	 */
- 	ret = vmbus_device_register(newchannel->device_obj);
+diff --git a/net/nfc/nci/data.c b/net/nfc/nci/data.c
+index b8a295dd15d8..45b654dca6f9 100644
+--- a/net/nfc/nci/data.c
++++ b/net/nfc/nci/data.c
+@@ -291,8 +291,10 @@ void nci_rx_data_packet(struct nci_dev *ndev, struct sk_buff *skb)
+ 		 nci_plen(skb->data));
  
- 	if (ret != 0) {
- 		pr_err("unable to add child device object (relid %d)\n",
- 			newchannel->offermsg.child_relid);
--		kfree(newchannel->device_obj);
- 		goto err_deq_chan;
- 	}
+ 	conn_info = nci_get_conn_info_by_conn_id(ndev, nci_conn_id(skb->data));
+-	if (!conn_info)
++	if (!conn_info) {
++		kfree_skb(skb);
+ 		return;
++	}
  
+ 	/* strip the nci data header */
+ 	skb_pull(skb, NCI_DATA_HDR_SIZE);
 -- 
 2.35.1
 
