@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10CA964342C
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:42:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC6FF6432BD
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:29:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235011AbiLETmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:42:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44130 "EHLO
+        id S234122AbiLET3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:29:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234302AbiLETmP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:42:15 -0500
+        with ESMTP id S234138AbiLET2k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:28:40 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF5732656A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:39:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE0C329CA8
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:25:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B24F612C5
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:39:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66730C433D7;
-        Mon,  5 Dec 2022 19:39:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B7F461311
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:25:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E0AEC433D6;
+        Mon,  5 Dec 2022 19:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269193;
-        bh=nZa/HDA9ubZrjSqkNuCVIawzzFHXP7yEZaunCeUHQmU=;
+        s=korg; t=1670268315;
+        bh=xS6rCsevKMFtKWavKlC0g5Qa/TkfSEgsZvtvjRvm8vE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JKicW9CjVI+spNjTu5bQ4mZKN3lqBgIxb+7+69bTrpW6tzvkm1VRejuC36aej+wPz
-         nZ0pUBMIPYobdJMNmK/WXvPnKP+20e5L/ZQPZ5ZO0IB3ja9ZhlaKBUBHtTNqU8dIFD
-         b6AYeIqWFgyL3m+xJHm9uJNhEt/GNK5NvH1t3Qbk=
+        b=wQy4ZS2xMzZhs5DO2jwRDRpAp0MADD8ZlQu2ArRs1zFv2+OvaliYj5i7Ctt0ms9VE
+         D2zonmb+MpWq78QVeJ040fpvKFzBW3oXZz3GiU+hVKktL6dF+KH/nFGEcCnsY4vTwI
+         F4+70OQaBbVe7Swd42IgA1hUdprvRmx8FtWDsM0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Joanne Koong <joannelkoong@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Bonaccorso Salvatore <carnil@debian.org>,
+        M Chetan Kumar <m.chetan.kumar@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 038/153] dccp/tcp: Reset saddr on failure after inet6?_hash_connect().
+Subject: [PATCH 6.0 056/124] net: wwan: iosm: fix dma_alloc_coherent incompatible pointer type
 Date:   Mon,  5 Dec 2022 20:09:22 +0100
-Message-Id: <20221205190809.819217181@linuxfoundation.org>
+Message-Id: <20221205190810.018735553@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,111 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: M Chetan Kumar <m.chetan.kumar@linux.intel.com>
 
-[ Upstream commit 77934dc6db0d2b111a8f2759e9ad2fb67f5cffa5 ]
+[ Upstream commit 4a99e3c8ed888577b947cbed97d88c9706896105 ]
 
-When connect() is called on a socket bound to the wildcard address,
-we change the socket's saddr to a local address.  If the socket
-fails to connect() to the destination, we have to reset the saddr.
+Fix build error reported on armhf while preparing 6.1-rc5
+for Debian.
 
-However, when an error occurs after inet_hash6?_connect() in
-(dccp|tcp)_v[46]_conect(), we forget to reset saddr and leave
-the socket bound to the address.
+iosm_ipc_protocol.c:244:36: error: passing argument 3 of
+'dma_alloc_coherent' from incompatible pointer type.
 
->From the user's point of view, whether saddr is reset or not varies
-with errno.  Let's fix this inconsistent behaviour.
+Change phy_ap_shm type from phys_addr_t to dma_addr_t.
 
-Note that after this patch, the repro [0] will trigger the WARN_ON()
-in inet_csk_get_port() again, but this patch is not buggy and rather
-fixes a bug papering over the bhash2's bug for which we need another
-fix.
-
-For the record, the repro causes -EADDRNOTAVAIL in inet_hash6_connect()
-by this sequence:
-
-  s1 = socket()
-  s1.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-  s1.bind(('127.0.0.1', 10000))
-  s1.sendto(b'hello', MSG_FASTOPEN, (('127.0.0.1', 10000)))
-  # or s1.connect(('127.0.0.1', 10000))
-
-  s2 = socket()
-  s2.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-  s2.bind(('0.0.0.0', 10000))
-  s2.connect(('127.0.0.1', 10000))  # -EADDRNOTAVAIL
-
-  s2.listen(32)  # WARN_ON(inet_csk(sk)->icsk_bind2_hash != tb2);
-
-[0]: https://syzkaller.appspot.com/bug?extid=015d756bbd1f8b5c8f09
-
-Fixes: 3df80d9320bc ("[DCCP]: Introduce DCCPv6")
-Fixes: 7c657876b63c ("[DCCP]: Initial implementation")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Acked-by: Joanne Koong <joannelkoong@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: faed4c6f6f48 ("net: iosm: shared memory protocol")
+Reported-by: Bonaccorso Salvatore <carnil@debian.org>
+Signed-off-by: M Chetan Kumar <m.chetan.kumar@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dccp/ipv4.c     | 2 ++
- net/dccp/ipv6.c     | 2 ++
- net/ipv4/tcp_ipv4.c | 2 ++
- net/ipv6/tcp_ipv6.c | 2 ++
- 4 files changed, 8 insertions(+)
+ drivers/net/wwan/iosm/iosm_ipc_protocol.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/dccp/ipv4.c b/net/dccp/ipv4.c
-index 7cf903f9e29a..cd59a669b8a7 100644
---- a/net/dccp/ipv4.c
-+++ b/net/dccp/ipv4.c
-@@ -130,6 +130,8 @@ int dccp_v4_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)
- 	 * This unhashes the socket and releases the local port, if necessary.
- 	 */
- 	dccp_set_state(sk, DCCP_CLOSED);
-+	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
-+		inet_reset_saddr(sk);
- 	ip_rt_put(rt);
- 	sk->sk_route_caps = 0;
- 	inet->inet_dport = 0;
-diff --git a/net/dccp/ipv6.c b/net/dccp/ipv6.c
-index 7c24927e9c2c..1bf267d36a9c 100644
---- a/net/dccp/ipv6.c
-+++ b/net/dccp/ipv6.c
-@@ -957,6 +957,8 @@ static int dccp_v6_connect(struct sock *sk, struct sockaddr *uaddr,
+diff --git a/drivers/net/wwan/iosm/iosm_ipc_protocol.h b/drivers/net/wwan/iosm/iosm_ipc_protocol.h
+index 9b3a6d86ece7..289397c4ea6c 100644
+--- a/drivers/net/wwan/iosm/iosm_ipc_protocol.h
++++ b/drivers/net/wwan/iosm/iosm_ipc_protocol.h
+@@ -122,7 +122,7 @@ struct iosm_protocol {
+ 	struct iosm_imem *imem;
+ 	struct ipc_rsp *rsp_ring[IPC_MEM_MSG_ENTRIES];
+ 	struct device *dev;
+-	phys_addr_t phy_ap_shm;
++	dma_addr_t phy_ap_shm;
+ 	u32 old_msg_tail;
+ };
  
- late_failure:
- 	dccp_set_state(sk, DCCP_CLOSED);
-+	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
-+		inet_reset_saddr(sk);
- 	__sk_dst_reset(sk);
- failure:
- 	inet->inet_dport = 0;
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index eb9c05acf77e..a54505c29a5c 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -323,6 +323,8 @@ int tcp_v4_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)
- 	 * if necessary.
- 	 */
- 	tcp_set_state(sk, TCP_CLOSE);
-+	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
-+		inet_reset_saddr(sk);
- 	ip_rt_put(rt);
- 	sk->sk_route_caps = 0;
- 	inet->inet_dport = 0;
-diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
-index 831f779aba7b..e84b79357b2f 100644
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -334,6 +334,8 @@ static int tcp_v6_connect(struct sock *sk, struct sockaddr *uaddr,
- 
- late_failure:
- 	tcp_set_state(sk, TCP_CLOSE);
-+	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
-+		inet_reset_saddr(sk);
- failure:
- 	inet->inet_dport = 0;
- 	sk->sk_route_caps = 0;
 -- 
 2.35.1
 
