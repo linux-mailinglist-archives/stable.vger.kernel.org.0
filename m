@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F97D643342
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF5676432EB
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:32:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234438AbiLETfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:35:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34042 "EHLO
+        id S234017AbiLETcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:32:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234363AbiLETe4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DF1B29CAF
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:30:48 -0800 (PST)
+        with ESMTP id S234088AbiLETbv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:31:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A0F72CDE5
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DDF9361307
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:30:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1340C433D6;
-        Mon,  5 Dec 2022 19:30:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38B39B80EFD
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:27:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76A18C433D6;
+        Mon,  5 Dec 2022 19:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268647;
-        bh=7gv1xfDN5Bt5AFxAltxGTnGqlfzFNIi27KSRVfTryN0=;
+        s=korg; t=1670268434;
+        bh=uW5uTRZTuxMZHR3U7WFYwoQg8VuSbGwHOiiMqYZKELI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W+x2yaUX1Mrx8A+fYXYfCb+wgbbvPBE2dl5uQRCgwn0uMjRDiuSaemKOUpyLGMgKK
-         7AT6fUjtdz0DXLB6a1HFGfYEiAZNU6Df5kCtWFiDDgrltBnEcfWFqUr0f9UHKqaqs4
-         9gfplrBCSIxrqrepG/lSuymghYfjK9ib1KIbq5vA=
+        b=DvBNW/T4RNEGTvewERkudLJd5HCBMD3UzzjqUmgE2xTNk/V6mAfYhrb7cpvrVw65+
+         BjIAjd0CfKHL6kMQ/evydU/6iH45RUVenbFUJHSoYw65xn44zzOVctW9DsI+nBxQeH
+         mwwDSXUNBiYfEmPeIsHq6gIgkzIze1uG6wUkEuAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Jisheng Zhang <jszhang@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.10 54/92] riscv: vdso: fix section overlapping under some conditions
+        patches@lists.linux.dev, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 101/124] ASoC: ops: Fix bounds check for _sx controls
 Date:   Mon,  5 Dec 2022 20:10:07 +0100
-Message-Id: <20221205190805.303179359@linuxfoundation.org>
+Message-Id: <20221205190811.290021521@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Mark Brown <broonie@kernel.org>
 
-commit 74f6bb55c834da6d4bac24f44868202743189b2b upstream.
+[ Upstream commit 698813ba8c580efb356ace8dbf55f61dac6063a8 ]
 
-lkp reported a build error, I tried the config and can reproduce
-build error as below:
+For _sx controls the semantics of the max field is not the usual one, max
+is the number of steps rather than the maximum value. This means that our
+check in snd_soc_put_volsw_sx() needs to just check against the maximum
+value.
 
-  VDSOLD  arch/riscv/kernel/vdso/vdso.so.dbg
-ld.lld: error: section .note file range overlaps with .text
->>> .note range is [0x7C8, 0x803]
->>> .text range is [0x800, 0x1993]
-
-ld.lld: error: section .text file range overlaps with .dynamic
->>> .text range is [0x800, 0x1993]
->>> .dynamic range is [0x808, 0x937]
-
-ld.lld: error: section .note virtual address range overlaps with .text
->>> .note range is [0x7C8, 0x803]
->>> .text range is [0x800, 0x1993]
-
-Fix it by setting DISABLE_BRANCH_PROFILING which will disable branch
-tracing for vdso, thus avoid useless _ftrace_annotated_branch section
-and _ftrace_branch section. Although we can also fix it by removing
-the hardcoded .text begin address, but I think that's another story
-and should be put into another patch.
-
-Link: https://lore.kernel.org/lkml/202210122123.Cc4FPShJ-lkp@intel.com/#r
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Link: https://lore.kernel.org/r/20221102170254.1925-1-jszhang@kernel.org
-Fixes: ad5d1122b82f ("riscv: use vDSO common flow to reduce the latency of the time-related functions")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4f1e50d6a9cf9c1b ("ASoC: ops: Reject out of bounds values in snd_soc_put_volsw_sx()")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220511134137.169575-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/vdso/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/soc-ops.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-index db6548509bb3..06e6b27f3bcc 100644
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -17,6 +17,7 @@ vdso-syms += flush_icache
- obj-vdso = $(patsubst %, %.o, $(vdso-syms)) note.o
- 
- ccflags-y := -fno-stack-protector
-+ccflags-y += -DDISABLE_BRANCH_PROFILING
- 
- ifneq ($(c-gettimeofday-y),)
-   CFLAGS_vgettimeofday.o += -fPIC -include $(c-gettimeofday-y)
+diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
+index bd88de056358..47691119306f 100644
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -452,7 +452,7 @@ int snd_soc_put_volsw_sx(struct snd_kcontrol *kcontrol,
+ 	val = ucontrol->value.integer.value[0];
+ 	if (mc->platform_max && val > mc->platform_max)
+ 		return -EINVAL;
+-	if (val > max - min)
++	if (val > max)
+ 		return -EINVAL;
+ 	val_mask = mask << shift;
+ 	val = (val + min) & mask;
 -- 
-2.38.1
+2.35.1
 
 
 
