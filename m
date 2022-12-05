@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 144786432C5
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:29:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59CF56431CE
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:19:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233759AbiLET30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:29:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59990 "EHLO
+        id S233795AbiLETTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:19:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234120AbiLET3F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:29:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2E5325C7D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:25:37 -0800 (PST)
+        with ESMTP id S233529AbiLETSX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:18:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9915F2793E
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:16:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FAE5612FB
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:25:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81653C433D6;
-        Mon,  5 Dec 2022 19:25:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89956B81205
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:15:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDA9CC43470;
+        Mon,  5 Dec 2022 19:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268336;
-        bh=Eq6Gm/yqWqY1iJt+guGl0bTNq1Uv82JhY41+8QYNEO0=;
+        s=korg; t=1670267758;
+        bh=IUazWeTxobJECcYh3z89Bl/jOzcwT+93aRzEwi95fyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OnvvphbeQgO2N56+DXLCUABqfNocA98Sfy8NxzqsGVUZ4uXxoX6BdPFpfO4/SsTyB
-         mcPQn+wbxDbeGWm2mbXcgOlFGYFYZhC0VxqFp0CCn201Cxp2V6VkEPvd7OzUb9dmp9
-         bjPUIN5aeKVptV019EYL9YnsggOv1rFFmxiru9mI=
+        b=KX45o4a2Y0VbcdBTNW4W81JGOeyu5E/oK/a7Or4x2h5dnPLeg7JiQl4ZfRU0nWvzZ
+         1eGSpYTX9ABzrKyzXmFd+alDKoRztAHdvXkP0iWsGQNzd+ed99L9qimIIM6Kezowr2
+         I8MazlLogDyp9sfK714BpJhqcxHF+FeqLaPqhVPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 037/124] net/mlx5: Fix uninitialized variable bug in outlen_write()
-Date:   Mon,  5 Dec 2022 20:09:03 +0100
-Message-Id: <20221205190809.496693325@linuxfoundation.org>
+Subject: [PATCH 4.14 13/77] ARM: mxs: fix memory leak in mxs_machine_init()
+Date:   Mon,  5 Dec 2022 20:09:04 +0100
+Message-Id: <20221205190801.334306536@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
+References: <20221205190800.868551051@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 3f5769a074c13d8f08455e40586600419e02a880 ]
+[ Upstream commit f31e3c204d1844b8680a442a48868af5ac3d5481 ]
 
-If sscanf() return 0, outlen is uninitialized and used in kzalloc(),
-this is unexpected. We should return -EINVAL if the string is invalid.
+If of_property_read_string() failed, 'soc_dev_attr' should be
+freed before return. Otherwise there is a memory leak.
 
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 2046338dcbc6 ("ARM: mxs: Use soc bus infrastructure")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/mach-mxs/mach-mxs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-index 74bd05e5dda2..e7a894ba5c3e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-@@ -1497,8 +1497,8 @@ static ssize_t outlen_write(struct file *filp, const char __user *buf,
- 		return -EFAULT;
+diff --git a/arch/arm/mach-mxs/mach-mxs.c b/arch/arm/mach-mxs/mach-mxs.c
+index 1c6062d240c8..4063fc1f435b 100644
+--- a/arch/arm/mach-mxs/mach-mxs.c
++++ b/arch/arm/mach-mxs/mach-mxs.c
+@@ -393,8 +393,10 @@ static void __init mxs_machine_init(void)
  
- 	err = sscanf(outlen_str, "%d", &outlen);
--	if (err < 0)
--		return err;
-+	if (err != 1)
-+		return -EINVAL;
+ 	root = of_find_node_by_path("/");
+ 	ret = of_property_read_string(root, "model", &soc_dev_attr->machine);
+-	if (ret)
++	if (ret) {
++		kfree(soc_dev_attr);
+ 		return;
++	}
  
- 	ptr = kzalloc(outlen, GFP_KERNEL);
- 	if (!ptr)
+ 	soc_dev_attr->family = "Freescale MXS Family";
+ 	soc_dev_attr->soc_id = mxs_get_soc_id();
 -- 
 2.35.1
 
