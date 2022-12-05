@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3111643205
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:23:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4E18643216
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233836AbiLETXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:23:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46180 "EHLO
+        id S232317AbiLETYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:24:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233281AbiLETXY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:23:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49D3A2A72D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:18:35 -0800 (PST)
+        with ESMTP id S232867AbiLETYD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E1BC275F2
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:19:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4AADB81200
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:18:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36E64C433C1;
-        Mon,  5 Dec 2022 19:18:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B6966130C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:19:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D52BC433D6;
+        Mon,  5 Dec 2022 19:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267913;
-        bh=mba1F/j+7n5C0gfxfn5N40P/edJxLx43upNjOueW8XM=;
+        s=korg; t=1670267942;
+        bh=+erf4JSvlN1dv6enXI2Pe9KxqxehNWpH2vefNq7EfqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QDs/w9zhFjwdf/mNuete+gIrOo7J7i/zKXA9CwJrNLvP5uo2rQmCRq0+jfyfNIhBC
-         3+7ySwOnZx3ZJzohSzzGUJUaT5zGlc3mb54ftrE8GcOWljEGBzw5+w0dDb+FdJmoSI
-         M7lnNLmt01DjrLxzjm5L203crAIuhJ8F9CQtRrwU=
+        b=TEK6fOJR18Cy+7ooOulIYpHgEZASdS+oYHAUwSP2poY0m8remI3RMEZsX7+15IAEB
+         AsGneZIul61rpH9swg/unjmOcJ1tYfVO0kDmyYFCYoKsQxr4RiqwT6LY7d8JDaX5As
+         xr/B6SBJW0xXP5Z7bdIAJf88q9juupMY2altbXBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Paul Moore <paul@paul-moore.com>,
+        patches@lists.linux.dev,
+        Nicolas Cavallari <nicolas.cavallari@green-communications.fr>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 002/105] audit: fix undefined behavior in bit shift for AUDIT_BIT
-Date:   Mon,  5 Dec 2022 20:08:34 +0100
-Message-Id: <20221205190803.210021155@linuxfoundation.org>
+Subject: [PATCH 4.19 003/105] wifi: mac80211: Fix ack frame idr leak when mesh has no route
+Date:   Mon,  5 Dec 2022 20:08:35 +0100
+Message-Id: <20221205190803.240284035@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
 References: <20221205190803.124472741@linuxfoundation.org>
@@ -53,50 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
 
-[ Upstream commit 986d93f55bdeab1cac858d1e47b41fac10b2d7f6 ]
+[ Upstream commit 39e7b5de9853bd92ddbfa4b14165babacd7da0ba ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+When trying to transmit an data frame with tx_status to a destination
+that have no route in the mesh, then it is dropped without recrediting
+the ack_status_frames idr.
 
-UBSAN: shift-out-of-bounds in kernel/auditfilter.c:179:23
-left shift of 1 by 31 places cannot be represented in type 'int'
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7d/0xa5
- dump_stack+0x15/0x1b
- ubsan_epilogue+0xe/0x4e
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
- audit_register_class+0x9d/0x137
- audit_classes_init+0x4d/0xb8
- do_one_initcall+0x76/0x430
- kernel_init_freeable+0x3b3/0x422
- kernel_init+0x24/0x1e0
- ret_from_fork+0x1f/0x30
- </TASK>
+Once it is exhausted, wpa_supplicant starts failing to do SAE with
+NL80211_CMD_FRAME and logs "nl80211: Frame command failed".
 
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-[PM: remove bad 'Fixes' tag as issue predates git, added in v2.6.6-rc1]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Use ieee80211_free_txskb() instead of kfree_skb() to fix it.
+
+Signed-off-by: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
+Link: https://lore.kernel.org/r/20221027140133.1504-1-nicolas.cavallari@green-communications.fr
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/audit.h | 2 +-
+ net/mac80211/mesh_pathtbl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
-index 818ae690ab79..b163911b1d39 100644
---- a/include/uapi/linux/audit.h
-+++ b/include/uapi/linux/audit.h
-@@ -177,7 +177,7 @@
- #define AUDIT_MAX_KEY_LEN  256
- #define AUDIT_BITMASK_SIZE 64
- #define AUDIT_WORD(nr) ((__u32)((nr)/32))
--#define AUDIT_BIT(nr)  (1 << ((nr) - AUDIT_WORD(nr)*32))
-+#define AUDIT_BIT(nr)  (1U << ((nr) - AUDIT_WORD(nr)*32))
+diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
+index 06b44c3c831a..71ebdc85755c 100644
+--- a/net/mac80211/mesh_pathtbl.c
++++ b/net/mac80211/mesh_pathtbl.c
+@@ -731,7 +731,7 @@ int mesh_path_send_to_gates(struct mesh_path *mpath)
+ void mesh_path_discard_frame(struct ieee80211_sub_if_data *sdata,
+ 			     struct sk_buff *skb)
+ {
+-	kfree_skb(skb);
++	ieee80211_free_txskb(&sdata->local->hw, skb);
+ 	sdata->u.mesh.mshstats.dropped_frames_no_route++;
+ }
  
- #define AUDIT_SYSCALL_CLASSES 16
- #define AUDIT_CLASS_DIR_WRITE 0
 -- 
 2.35.1
 
