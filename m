@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A5166431FE
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:23:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A92564328E
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232481AbiLETXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:23:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46628 "EHLO
+        id S234033AbiLET1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:27:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233044AbiLETWe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:22:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD2E2A961
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:18:17 -0800 (PST)
+        with ESMTP id S234003AbiLET0l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40034DF5F;
+        Mon,  5 Dec 2022 11:23:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62E7E6130C
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:18:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71A35C433D7;
-        Mon,  5 Dec 2022 19:18:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E451CB81181;
+        Mon,  5 Dec 2022 19:23:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15B35C433D6;
+        Mon,  5 Dec 2022 19:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267888;
-        bh=GGqsAMnFZSKv3syM7IhBU32kCl+K32kqEAJcZqiKjGE=;
+        s=korg; t=1670268202;
+        bh=VWRmsTnTxteKlKEnDmKZBH56uXr4D90INbfFJKThrTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b+VlDmWvouUPErz7tOB1/w1CIyciiko5hHyw/BKB4AM63ZK9jN9U2y8dQiISuMJgf
-         m2eRdkSyuvoIyqK1MiP9PwZP6egWS8/fAxX5wXu5YtOQQgBURkV3ByDvtBGrj3nqB2
-         QWgyHSEvsYFoekg4bK8J9DnejkumROfTPohYyjd4=
+        b=JE0qWa9g8cZZpitvF3hTeXwr1iFXs2PNVvldn5BrJpYaWdjepO4EkRPgFRbc4jm1A
+         Q/EObBxPdulzxKJu5OrtiSuzW5K3hy0AiTTHmPbNBWVfzxfDrLTpxsylLxN+zA2JTT
+         pPUB6W6RJLdvlxRfMd8FMd+KFfnLPAPNtCSVsX/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        patches@lists.linux.dev, nicolas.ferre@microchip.com,
+        ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        claudiu.beznea@microchip.com, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 011/105] bus: sunxi-rsb: Support atomic transfers
-Date:   Mon,  5 Dec 2022 20:08:43 +0100
-Message-Id: <20221205190803.502363771@linuxfoundation.org>
+Subject: [PATCH 6.0 018/124] ARM: at91: rm9200: fix usb device clock id
+Date:   Mon,  5 Dec 2022 20:08:44 +0100
+Message-Id: <20221205190808.967261689@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,90 +57,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-[ Upstream commit 077686da0e2162c4ea5ae0df205849c2a7a84479 ]
+[ Upstream commit 57976762428675f259339385d3324d28ee53ec02 ]
 
-When communicating with a PMIC during system poweroff (pm_power_off()),
-IRQs are disabled and we are in a RCU read-side critical section, so we
-cannot use wait_for_completion_io_timeout(). Instead, poll the status
-register for transfer completion.
+Referring to the datasheet the index 2 is the MCKUDP. When enabled, it
+"Enables the automatic disable of the Master Clock of the USB Device
+Port when a suspend condition occurs". We fix the index to the real UDP
+id which "Enables the 48 MHz clock of the USB Device Port".
 
-Fixes: d787dcdb9c8f ("bus: sunxi-rsb: Add driver for Allwinner Reduced Serial Bus")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20221114015749.28490-3-samuel@sholland.org
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Cc: nicolas.ferre@microchip.com
+Cc: ludovic.desroches@microchip.com
+Cc: alexandre.belloni@bootlin.com
+Cc: mturquette@baylibre.com
+Cc: sboyd@kernel.org
+Cc: claudiu.beznea@microchip.com
+Cc: linux-clk@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: kernel@pengutronix.de
+Fixes: 02ff48e4d7f7 ("clk: at91: add at91rm9200 pmc driver")
+Fixes: 0e0e528d8260 ("ARM: dts: at91: rm9200: switch to new clock bindings")
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20221114185923.1023249-2-m.grzeschik@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/sunxi-rsb.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/at91rm9200.dtsi | 2 +-
+ drivers/clk/at91/at91rm9200.c     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bus/sunxi-rsb.c b/drivers/bus/sunxi-rsb.c
-index b85d013a9185..d3fb350dc9ee 100644
---- a/drivers/bus/sunxi-rsb.c
-+++ b/drivers/bus/sunxi-rsb.c
-@@ -268,6 +268,9 @@ EXPORT_SYMBOL_GPL(sunxi_rsb_driver_register);
- /* common code that starts a transfer */
- static int _sunxi_rsb_run_xfer(struct sunxi_rsb *rsb)
- {
-+	u32 int_mask, status;
-+	bool timeout;
-+
- 	if (readl(rsb->regs + RSB_CTRL) & RSB_CTRL_START_TRANS) {
- 		dev_dbg(rsb->dev, "RSB transfer still in progress\n");
- 		return -EBUSY;
-@@ -275,13 +278,23 @@ static int _sunxi_rsb_run_xfer(struct sunxi_rsb *rsb)
+diff --git a/arch/arm/boot/dts/at91rm9200.dtsi b/arch/arm/boot/dts/at91rm9200.dtsi
+index d1181ead18e5..21344fbc89e5 100644
+--- a/arch/arm/boot/dts/at91rm9200.dtsi
++++ b/arch/arm/boot/dts/at91rm9200.dtsi
+@@ -660,7 +660,7 @@ usb1: gadget@fffb0000 {
+ 				compatible = "atmel,at91rm9200-udc";
+ 				reg = <0xfffb0000 0x4000>;
+ 				interrupts = <11 IRQ_TYPE_LEVEL_HIGH 2>;
+-				clocks = <&pmc PMC_TYPE_PERIPHERAL 11>, <&pmc PMC_TYPE_SYSTEM 2>;
++				clocks = <&pmc PMC_TYPE_PERIPHERAL 11>, <&pmc PMC_TYPE_SYSTEM 1>;
+ 				clock-names = "pclk", "hclk";
+ 				status = "disabled";
+ 			};
+diff --git a/drivers/clk/at91/at91rm9200.c b/drivers/clk/at91/at91rm9200.c
+index b174f727a8ef..16870943a13e 100644
+--- a/drivers/clk/at91/at91rm9200.c
++++ b/drivers/clk/at91/at91rm9200.c
+@@ -40,7 +40,7 @@ static const struct clk_pll_characteristics rm9200_pll_characteristics = {
+ };
  
- 	reinit_completion(&rsb->complete);
- 
--	writel(RSB_INTS_LOAD_BSY | RSB_INTS_TRANS_ERR | RSB_INTS_TRANS_OVER,
--	       rsb->regs + RSB_INTE);
-+	int_mask = RSB_INTS_LOAD_BSY | RSB_INTS_TRANS_ERR | RSB_INTS_TRANS_OVER;
-+	writel(int_mask, rsb->regs + RSB_INTE);
- 	writel(RSB_CTRL_START_TRANS | RSB_CTRL_GLOBAL_INT_ENB,
- 	       rsb->regs + RSB_CTRL);
- 
--	if (!wait_for_completion_io_timeout(&rsb->complete,
--					    msecs_to_jiffies(100))) {
-+	if (irqs_disabled()) {
-+		timeout = readl_poll_timeout_atomic(rsb->regs + RSB_INTS,
-+						    status, (status & int_mask),
-+						    10, 100000);
-+		writel(status, rsb->regs + RSB_INTS);
-+	} else {
-+		timeout = !wait_for_completion_io_timeout(&rsb->complete,
-+							  msecs_to_jiffies(100));
-+		status = rsb->status;
-+	}
-+
-+	if (timeout) {
- 		dev_dbg(rsb->dev, "RSB timeout\n");
- 
- 		/* abort the transfer */
-@@ -293,18 +306,18 @@ static int _sunxi_rsb_run_xfer(struct sunxi_rsb *rsb)
- 		return -ETIMEDOUT;
- 	}
- 
--	if (rsb->status & RSB_INTS_LOAD_BSY) {
-+	if (status & RSB_INTS_LOAD_BSY) {
- 		dev_dbg(rsb->dev, "RSB busy\n");
- 		return -EBUSY;
- 	}
- 
--	if (rsb->status & RSB_INTS_TRANS_ERR) {
--		if (rsb->status & RSB_INTS_TRANS_ERR_ACK) {
-+	if (status & RSB_INTS_TRANS_ERR) {
-+		if (status & RSB_INTS_TRANS_ERR_ACK) {
- 			dev_dbg(rsb->dev, "RSB slave nack\n");
- 			return -EINVAL;
- 		}
- 
--		if (rsb->status & RSB_INTS_TRANS_ERR_DATA) {
-+		if (status & RSB_INTS_TRANS_ERR_DATA) {
- 			dev_dbg(rsb->dev, "RSB transfer data error\n");
- 			return -EIO;
- 		}
+ static const struct sck at91rm9200_systemck[] = {
+-	{ .n = "udpck", .p = "usbck",    .id = 2 },
++	{ .n = "udpck", .p = "usbck",    .id = 1 },
+ 	{ .n = "uhpck", .p = "usbck",    .id = 4 },
+ 	{ .n = "pck0",  .p = "prog0",    .id = 8 },
+ 	{ .n = "pck1",  .p = "prog1",    .id = 9 },
 -- 
 2.35.1
 
