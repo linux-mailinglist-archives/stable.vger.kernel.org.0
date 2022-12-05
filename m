@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F7A76433FF
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAA796434A3
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:48:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233846AbiLETl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:41:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39536 "EHLO
+        id S235067AbiLETsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:48:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234666AbiLETlD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:41:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D52110DF
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:38:32 -0800 (PST)
+        with ESMTP id S235099AbiLETr5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96AFB27FD9
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:44:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CA9361315
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:38:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE943C433D6;
-        Mon,  5 Dec 2022 19:38:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F6DDB81202
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:44:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DB3EC433D6;
+        Mon,  5 Dec 2022 19:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269111;
-        bh=3NZEkU0notptiz0ioGUAGgeZybSJG80riUxZSavH21g=;
+        s=korg; t=1670269488;
+        bh=eAoZsK6o2Bju5VPk+vZi3Pt0Dbmb6vr4pL0fqPCuKrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BEsWEoAJ6WeKMuAc3v+nfSF2o807IKdbhwBbJwMhudgYtpavBsre/n7rAlIzSCmdD
-         5cD24F81+gcBZxZwBW+GLa9IX30QENNNea+8TeblfNyQciuc+WkN3Jb2tyxXApK4/T
-         kd5YuUbbqySCJLuNGL2hQnxXm7W4ASVtX+AOoOyY=
+        b=D2f+5nx1Rh2IfCxM2pS1rIyQ3Nm+JwTST3Bzt5H/88xTuUuEdk58ppSXjA7t3E9CZ
+         YX1wpADWrx+44NKnbqqdLTECaITsoguahb0jg1ihMpdzSUUuVn9EXESaa5wzCdFsfq
+         jGywaCAGbDWw/KxKdf808JZIkx6KwdQSPaV40eJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 102/120] iommu/vt-d: Fix PCI device refcount leak in dmar_dev_scope_init()
+        patches@lists.linux.dev, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 118/153] tools/vm/slabinfo-gnuplot: use "grep -E" instead of "egrep"
 Date:   Mon,  5 Dec 2022 20:10:42 +0100
-Message-Id: <20221205190809.616107105@linuxfoundation.org>
+Message-Id: <20221205190812.097610988@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit 4bedbbd782ebbe7287231fea862c158d4f08a9e3 ]
+commit a435874bf626f55d7147026b059008c8de89fbb8 upstream.
 
-for_each_pci_dev() is implemented by pci_get_device(). The comment of
-pci_get_device() says that it will increase the reference count for the
-returned pci_dev and also decrease the reference count for the input
-pci_dev @from if it is not NULL.
+The latest version of grep claims the egrep is now obsolete so the build
+now contains warnings that look like:
 
-If we break for_each_pci_dev() loop with pdev not NULL, we need to call
-pci_dev_put() to decrease the reference count. Add the missing
-pci_dev_put() for the error path to avoid reference count leak.
+	egrep: warning: egrep is obsolescent; using grep -E
 
-Fixes: 2e4552893038 ("iommu/vt-d: Unify the way to process DMAR device scope array")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221121113649.190393-3-wangxiongfeng2@huawei.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+fix this up by moving the related file to use "grep -E" instead.
+
+  sed -i "s/egrep/grep -E/g" `grep egrep -rwl tools/vm`
+
+Here are the steps to install the latest grep:
+
+  wget http://ftp.gnu.org/gnu/grep/grep-3.8.tar.gz
+  tar xf grep-3.8.tar.gz
+  cd grep-3.8 && ./configure && make
+  sudo make install
+  export PATH=/usr/local/bin:$PATH
+
+Link: https://lkml.kernel.org/r/1668825419-30584-1-git-send-email-yangtiezhu@loongson.cn
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel/dmar.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/vm/slabinfo-gnuplot.sh |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
-index f026bd269cb0..bff2420fc3e1 100644
---- a/drivers/iommu/intel/dmar.c
-+++ b/drivers/iommu/intel/dmar.c
-@@ -822,6 +822,7 @@ int __init dmar_dev_scope_init(void)
- 			info = dmar_alloc_pci_notify_info(dev,
- 					BUS_NOTIFY_ADD_DEVICE);
- 			if (!info) {
-+				pci_dev_put(dev);
- 				return dmar_dev_scope_status;
- 			} else {
- 				dmar_pci_bus_add_dev(info);
--- 
-2.35.1
-
+--- a/tools/vm/slabinfo-gnuplot.sh
++++ b/tools/vm/slabinfo-gnuplot.sh
+@@ -150,7 +150,7 @@ do_preprocess()
+ 	let lines=3
+ 	out=`basename "$in"`"-slabs-by-loss"
+ 	`cat "$in" | grep -A "$lines" 'Slabs sorted by loss' |\
+-		egrep -iv '\-\-|Name|Slabs'\
++		grep -E -iv '\-\-|Name|Slabs'\
+ 		| awk '{print $1" "$4+$2*$3" "$4}' > "$out"`
+ 	if [ $? -eq 0 ]; then
+ 		do_slabs_plotting "$out"
+@@ -159,7 +159,7 @@ do_preprocess()
+ 	let lines=3
+ 	out=`basename "$in"`"-slabs-by-size"
+ 	`cat "$in" | grep -A "$lines" 'Slabs sorted by size' |\
+-		egrep -iv '\-\-|Name|Slabs'\
++		grep -E -iv '\-\-|Name|Slabs'\
+ 		| awk '{print $1" "$4" "$4-$2*$3}' > "$out"`
+ 	if [ $? -eq 0 ]; then
+ 		do_slabs_plotting "$out"
 
 
