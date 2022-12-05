@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FBAE6432B6
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:28:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2470D64314E
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234171AbiLET2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:28:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53470 "EHLO
+        id S232341AbiLETNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:13:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234174AbiLET2H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:28:07 -0500
+        with ESMTP id S232726AbiLETNZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:13:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C2E92871A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:24:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E449D22B2D
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:13:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38ACC612D8
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:24:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ED6EC433C1;
-        Mon,  5 Dec 2022 19:24:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 808696130C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:13:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CE54C433C1;
+        Mon,  5 Dec 2022 19:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268298;
-        bh=9IyoGToyKyq6XoqSchPaIAinocmhxYEFwsQ7tyxp0+k=;
+        s=korg; t=1670267603;
+        bh=H5lwGCl2MVA5wbnPwGJBimamV4vQ9Ws6fJy7LW9PYZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GXAyixKSMOGMOvffYNHAC+De2PzVcj7lzR/rW0Gptb1TJHLWXXYRaBesdbjoH8Kjq
-         BoDjh50XQ/lFJC8539+sK6nSmIlTy1HhDfPAP9gwmv1NHpM044Ga3OCd6TPtdARfJl
-         sh6bFBMEwfZBvg9s9+767OCoo8io2CAAjGbDg4K0=
+        b=03aLJkA9AMXmHrMkNtMTN2jSS01Q6CzgvmwaEnn9xLAZHtHVgk4MZS45o9NgB4SML
+         JXR98ZB9vLJh6JM8jhYS0ovT9zKbhraKkxmuT8i0CIQcKSowHRpig84Dpz270e3DAk
+         cW8HF+7ADY5ixtwok8r6T+jNkSYMqoDxyai4Cvcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 050/124] net: phy: fix null-ptr-deref while probe() failed
+Subject: [PATCH 4.9 19/62] s390/crashdump: fix TOD programmable field size
 Date:   Mon,  5 Dec 2022 20:09:16 +0100
-Message-Id: <20221205190809.855241304@linuxfoundation.org>
+Message-Id: <20221205190758.825724096@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
+References: <20221205190758.073114639@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 369eb2c9f1f72adbe91e0ea8efb130f0a2ba11a6 ]
+[ Upstream commit f44e07a8afdd713ddc1a8832c39372fe5dd86895 ]
 
-I got a null-ptr-deref report as following when doing fault injection test:
+The size of the TOD programmable field was incorrectly increased from
+four to eight bytes with commit 1a2c5840acf9 ("s390/dump: cleanup CPU
+save area handling").
+This leads to an elf notes section NT_S390_TODPREG which has a size of
+eight instead of four bytes in case of kdump, however even worse is
+that the contents is incorrect: it is supposed to contain only the
+contents of the TOD programmable field, but in fact contains a mix of
+the TOD programmable field (32 bit upper bits) and parts of the CPU
+timer register (lower 32 bits).
 
-BUG: kernel NULL pointer dereference, address: 0000000000000058
-Oops: 0000 [#1] PREEMPT SMP KASAN PTI
-CPU: 1 PID: 253 Comm: 507-spi-dm9051 Tainted: G    B            N 6.1.0-rc3+
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:klist_put+0x2d/0xd0
-Call Trace:
- <TASK>
- klist_remove+0xf1/0x1c0
- device_release_driver_internal+0x23e/0x2d0
- bus_remove_device+0x1bd/0x240
- device_del+0x357/0x770
- phy_device_remove+0x11/0x30
- mdiobus_unregister+0xa5/0x140
- release_nodes+0x6a/0xa0
- devres_release_all+0xf8/0x150
- device_unbind_cleanup+0x19/0xd0
+Fix this by simply changing the size of the todpreg field within the
+save area structure. This will implicitly also fix the size of the
+corresponding elf notes sections.
 
-//probe path:
-phy_device_register()
-  device_add()
+This also gets rid of this compile time warning:
 
-phy_connect
-  phy_attach_direct() //set device driver
-    probe() //it's failed, driver is not bound
-    device_bind_driver() // probe failed, it's not called
+in function ‘fortify_memcpy_chk’,
+    inlined from ‘save_area_add_regs’ at arch/s390/kernel/crash_dump.c:99:2:
+./include/linux/fortify-string.h:413:25: error: call to ‘__read_overflow2_field’
+   declared with attribute warning: detected read beyond size of field
+   (2nd parameter); maybe use struct_group()? [-Werror=attribute-warning]
+  413 |                         __read_overflow2_field(q_size_field, size);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-//remove path:
-phy_device_remove()
-  device_del()
-    device_release_driver_internal()
-      __device_release_driver() //dev->drv is not NULL
-        klist_remove() <- knode_driver is not added yet, cause null-ptr-deref
-
-In phy_attach_direct(), after setting the 'dev->driver', probe() fails,
-device_bind_driver() is not called, so the knode_driver->n_klist is not
-set, then it causes null-ptr-deref in __device_release_driver() while
-deleting device. Fix this by setting dev->driver to NULL in the error
-path in phy_attach_direct().
-
-Fixes: e13934563db0 ("[PATCH] PHY Layer fixup")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1a2c5840acf9 ("s390/dump: cleanup CPU save area handling")
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy_device.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/kernel/crash_dump.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index 4df8c337221b..70c4d48f32c6 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -1518,6 +1518,7 @@ int phy_attach_direct(struct net_device *dev, struct phy_device *phydev,
- 
- error_module_put:
- 	module_put(d->driver->owner);
-+	d->driver = NULL;
- error_put_device:
- 	put_device(d);
- 	if (ndev_owner != bus->owner)
--- 
-2.35.1
-
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -42,7 +42,7 @@ struct save_area {
+ 	u64 fprs[16];
+ 	u32 fpc;
+ 	u32 prefix;
+-	u64 todpreg;
++	u32 todpreg;
+ 	u64 timer;
+ 	u64 todcmp;
+ 	u64 vxrs_low[16];
 
 
