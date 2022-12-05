@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B023F6432C6
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:29:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE67C64324E
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234120AbiLET32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:29:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57702 "EHLO
+        id S233910AbiLETZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:25:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234139AbiLET3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:29:06 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E495627DF9
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:25:42 -0800 (PST)
+        with ESMTP id S232733AbiLETZN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8518527FC2
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3F2C6CE139F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:25:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 300ECC433C1;
-        Mon,  5 Dec 2022 19:25:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EE5A61307
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 301D7C433D6;
+        Mon,  5 Dec 2022 19:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268339;
-        bh=bs1qClPq9D2DGP0HhNFJxlpkPCprdzHiYrg8kxjProA=;
+        s=korg; t=1670268032;
+        bh=534c8bjAzEJ5BXzmcRCxuJ8Z/e8WaA3l5cy410r9NC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bv/JEacyz0GH1ySAGXeyCY9+4OFJ2opl7858CH9S7tRvg9U8FNK6z7px6lkP3yhc+
-         Jk/9R6TrEJzausP5t3o9SWrUuNqv97E32Z489bvgBaOrzclUEB94Fu/q4DoxVPLxP9
-         7PGr3UJPb6J8eCQVf1LlF+Mk/BjiD/Ctp3obF2oI=
+        b=CCxCgzeW+T29qshrY4ND3R3UhmHYj3MFOGPH8NNgZMz23NpUvCkD99SPGI2JWtT3r
+         NbD52xpd2KzwxjaraH79OkGdxC2EYVuBnCgGQwZbW9QpKTxmXfkEwwJgf/RpqFp1lx
+         VhBKOoUkP+RTVi1E1LmLFWQ71uUld8GlF3Amw7Y4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roi Dayan <roid@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Yu Liao <liaoyu15@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 038/124] net/mlx5e: Fix use-after-free when reverting termination table
-Date:   Mon,  5 Dec 2022 20:09:04 +0100
-Message-Id: <20221205190809.522855947@linuxfoundation.org>
+Subject: [PATCH 4.19 033/105] net: thunderx: Fix the ACPI memory leak
+Date:   Mon,  5 Dec 2022 20:09:05 +0100
+Message-Id: <20221205190804.260925904@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@nvidia.com>
+From: Yu Liao <liaoyu15@huawei.com>
 
-[ Upstream commit 52c795af04441d76f565c4634f893e5b553df2ae ]
+[ Upstream commit 661e5ebbafd26d9d2e3c749f5cf591e55c7364f5 ]
 
-When having multiple dests with termination tables and second one
-or afterwards fails the driver reverts usage of term tables but
-doesn't reset the assignment in attr->dests[num_vport_dests].termtbl
-which case a use-after-free when releasing the rule.
-Fix by resetting the assignment of termtbl to null.
+The ACPI buffer memory (string.pointer) should be freed as the buffer is
+not used after returning from bgx_acpi_match_id(), free it to prevent
+memory leak.
 
-Fixes: 10caabdaad5a ("net/mlx5e: Use termination table for VLAN push actions")
-Signed-off-by: Roi Dayan <roid@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 46b903a01c05 ("net, thunder, bgx: Add support to get MAC address from ACPI.")
+Signed-off-by: Yu Liao <liaoyu15@huawei.com>
+Link: https://lore.kernel.org/r/20221123082237.1220521-1-liaoyu15@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c  | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/cavium/thunder/thunder_bgx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-index 108a3503f413..edd910258314 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-@@ -312,6 +312,8 @@ mlx5_eswitch_add_termtbl_rule(struct mlx5_eswitch *esw,
- 	for (curr_dest = 0; curr_dest < num_vport_dests; curr_dest++) {
- 		struct mlx5_termtbl_handle *tt = attr->dests[curr_dest].termtbl;
+diff --git a/drivers/net/ethernet/cavium/thunder/thunder_bgx.c b/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
+index e5fc89813852..3cde9a2a0ab7 100644
+--- a/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
++++ b/drivers/net/ethernet/cavium/thunder/thunder_bgx.c
+@@ -1447,8 +1447,10 @@ static acpi_status bgx_acpi_match_id(acpi_handle handle, u32 lvl,
+ 		return AE_OK;
+ 	}
  
-+		attr->dests[curr_dest].termtbl = NULL;
-+
- 		/* search for the destination associated with the
- 		 * current term table
- 		 */
+-	if (strncmp(string.pointer, bgx_sel, 4))
++	if (strncmp(string.pointer, bgx_sel, 4)) {
++		kfree(string.pointer);
+ 		return AE_OK;
++	}
+ 
+ 	acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
+ 			    bgx_acpi_register_phy, NULL, bgx, NULL);
 -- 
 2.35.1
 
