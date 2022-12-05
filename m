@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A788B64312A
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:12:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3291643152
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230289AbiLETMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:12:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59248 "EHLO
+        id S232619AbiLETNt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:13:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230519AbiLETLu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:11:50 -0500
+        with ESMTP id S232772AbiLETNg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:13:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EEA9DF4D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:11:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A56351F2F9
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:13:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 258626130E
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:11:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39196C433D7;
-        Mon,  5 Dec 2022 19:11:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FF4B61307
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:13:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 537FCC433C1;
+        Mon,  5 Dec 2022 19:13:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267508;
-        bh=AbukNit9jrGYedSRVJ73HZEQC0VkQCOluTF7P4Lp7TA=;
+        s=korg; t=1670267614;
+        bh=NWxlKCDh4Kcu5dEAqc4mfxwNtdQoeIPBJx17f/9MiFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvTiIZu14Fe3jKclWbO6tCtr6+oozKWIBqtSWj0V0uGySpdTM5J7hFB96r8fQClSq
-         c9c2eMsnW2uEnF3FDq097ROyLVKmDF9r7wNIhqVFwncyE5eDTFmMSXtCV2+INmk6yf
-         MUcRW7GufQVO86lDRz2yktIbPlgvScl//p7y8NxM=
+        b=gtVOgBuCQwORQsfS2r08zhdel/FSpMnvj2lLY5c6MpIz8tV+tG4DmGzJma20dvt3F
+         IKJ1rNb7z5qhexpegx7+FhggESjYWOmim9Q/n5AM4HZW8ACTdl4Ve4RGYlN+Sa87LP
+         JNKdT/xVqYJS8bZy+ZQCCAPs95B9kmMp68dVWqqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tariq Toukan <tariqt@nvidia.com>,
-        Peter Kosyh <pkosyh@yandex.ru>,
+        patches@lists.linux.dev,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 12/62] net/mlx4: Check retval of mlx4_bitmap_init
-Date:   Mon,  5 Dec 2022 20:09:09 +0100
-Message-Id: <20221205190758.555662803@linuxfoundation.org>
+Subject: [PATCH 4.9 13/62] net/qla3xxx: fix potential memleak in ql3xxx_send()
+Date:   Mon,  5 Dec 2022 20:09:10 +0100
+Message-Id: <20221205190758.592549922@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
 References: <20221205190758.073114639@linuxfoundation.org>
@@ -54,41 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Kosyh <pkosyh@yandex.ru>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 594c61ffc77de0a197934aa0f1df9285c68801c6 ]
+[ Upstream commit 62a7311fb96c61d281da9852dbee4712fc8c3277 ]
 
-If mlx4_bitmap_init fails, mlx4_bitmap_alloc_range will dereference
-the NULL pointer (bitmap->table).
+The ql3xxx_send() returns NETDEV_TX_OK without freeing skb in error
+handling case, add dev_kfree_skb_any() to fix it.
 
-Make sure, that mlx4_bitmap_alloc_range called in no error case.
-
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Fixes: d57febe1a478 ("net/mlx4: Add A0 hybrid steering")
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Peter Kosyh <pkosyh@yandex.ru>
-Link: https://lore.kernel.org/r/20221117152806.278072-1-pkosyh@yandex.ru
+Fixes: bd36b0ac5d06 ("qla3xxx: Add support for Qlogic 4032 chip.")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1668675039-21138-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/qp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qla3xxx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/qp.c b/drivers/net/ethernet/mellanox/mlx4/qp.c
-index 71578d48efbc..54026043b5e2 100644
---- a/drivers/net/ethernet/mellanox/mlx4/qp.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/qp.c
-@@ -696,7 +696,8 @@ static int mlx4_create_zones(struct mlx4_dev *dev,
- 			err = mlx4_bitmap_init(*bitmap + k, 1,
- 					       MLX4_QP_TABLE_RAW_ETH_SIZE - 1, 0,
- 					       0);
--			mlx4_bitmap_alloc_range(*bitmap + k, 1, 1, 0);
-+			if (!err)
-+				mlx4_bitmap_alloc_range(*bitmap + k, 1, 1, 0);
- 		}
+diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
+index e62e3a9d5249..4ad4fb832a4a 100644
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -2472,6 +2472,7 @@ static netdev_tx_t ql3xxx_send(struct sk_buff *skb,
+ 					     skb_shinfo(skb)->nr_frags);
+ 	if (tx_cb->seg_count == -1) {
+ 		netdev_err(ndev, "%s: invalid segment count!\n", __func__);
++		dev_kfree_skb_any(skb);
+ 		return NETDEV_TX_OK;
+ 	}
  
- 		if (err)
 -- 
 2.35.1
 
