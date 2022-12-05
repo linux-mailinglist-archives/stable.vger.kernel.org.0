@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC2E6432E5
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:31:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C04864323F
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:26:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234218AbiLETbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:31:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33908 "EHLO
+        id S233818AbiLETZy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:25:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234242AbiLETb2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:31:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522D8252B6
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:02 -0800 (PST)
+        with ESMTP id S233708AbiLETZS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:25:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72EF25EAE
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:20:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC49BB80EFD
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05874C433D6;
-        Mon,  5 Dec 2022 19:26:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 436B1612FB
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:20:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 492AAC433C1;
+        Mon,  5 Dec 2022 19:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268418;
-        bh=y4KLJomoHTT8cA5/NKCnpPzh7+wVYDc6gBSNuyodz30=;
+        s=korg; t=1670268051;
+        bh=BmlZnEvcCZ0/8Flk7cVxiuigu/V1EeM835B1K3XeIlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=thNAouAnN4KFTs1BJJ1zsvJdB5Y4ww1Lt8ohLW7XWSixj+X62tGldv4D528JMNRRx
-         KVCjZw2BKCBaDqLrNaqumPyopGWnYRlVG7tJg1IjU/QMk9OT297vhmYv15Rb6EdP+6
-         tVhLXcBIU5rXIrKTR4jUy77PKylUpil/rS8q6OHY=
+        b=hD4acXX4H+WsJNZQNvAaFn1J14dcUmk1mHhMGRsKNw9dMkn+bOEvgUiu4LjELJ+M3
+         v2arJ5JffMjuwYlEZkXBkA+t72152iUSFK7nCNSqcDFr9wluRMrXoCF9xLQuL3Qoiu
+         SGcB9nqoUjU/kAgQq8s29rySCaBHuvI4h22/456A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Mi <cmi@nvidia.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        Andrew Davis <afd@ti.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 067/124] net/mlx5: Lag, Fix for loop when checking lag
+Subject: [PATCH 4.19 061/105] iio: health: afe4403: Fix oob read in afe4403_read_raw
 Date:   Mon,  5 Dec 2022 20:09:33 +0100
-Message-Id: <20221205190810.322623995@linuxfoundation.org>
+Message-Id: <20221205190805.225499394@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
+References: <20221205190803.124472741@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Mi <cmi@nvidia.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 0e682f04b4b59eac0b0a030251513589c4607458 ]
+[ Upstream commit 58143c1ed5882c138a3cd2251a336fc8755f23d9 ]
 
-The cited commit adds a for loop to check if each port supports lag
-or not. But dev is not initialized correctly. Fix it by initializing
-dev for each iteration.
+KASAN report out-of-bounds read as follows:
 
-Fixes: e87c6a832f88 ("net/mlx5: E-switch, Fix duplicate lag creation")
-Signed-off-by: Chris Mi <cmi@nvidia.com>
-Reported-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/20221129093006.378840-2-saeed@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+BUG: KASAN: global-out-of-bounds in afe4403_read_raw+0x42e/0x4c0
+Read of size 4 at addr ffffffffc02ac638 by task cat/279
+
+Call Trace:
+ afe4403_read_raw
+ iio_read_channel_info
+ dev_attr_show
+
+The buggy address belongs to the variable:
+ afe4403_channel_leds+0x18/0xffffffffffffe9e0
+
+This issue can be reproduced by singe command:
+
+ $ cat /sys/bus/spi/devices/spi0.0/iio\:device0/in_intensity6_raw
+
+The array size of afe4403_channel_leds is less than channels, so access
+with chan->address cause OOB read in afe4403_read_raw. Fix it by moving
+access before use it.
+
+Fixes: b36e8257641a ("iio: health/afe440x: Use regmap fields")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Andrew Davis <afd@ti.com>
+Link: https://lore.kernel.org/r/20221107151946.89260-1-weiyongjun@huaweicloud.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/iio/health/afe4403.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-index a879e0b0f702..48f86e12f5c0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-@@ -648,11 +648,13 @@ static bool mlx5_lag_check_prereq(struct mlx5_lag *ldev)
- 			return false;
+diff --git a/drivers/iio/health/afe4403.c b/drivers/iio/health/afe4403.c
+index 63210a3b1b87..ae5682101181 100644
+--- a/drivers/iio/health/afe4403.c
++++ b/drivers/iio/health/afe4403.c
+@@ -253,14 +253,14 @@ static int afe4403_read_raw(struct iio_dev *indio_dev,
+ 			    int *val, int *val2, long mask)
+ {
+ 	struct afe4403_data *afe = iio_priv(indio_dev);
+-	unsigned int reg = afe4403_channel_values[chan->address];
+-	unsigned int field = afe4403_channel_leds[chan->address];
++	unsigned int reg, field;
+ 	int ret;
  
- #ifdef CONFIG_MLX5_ESWITCH
--	dev = ldev->pf[MLX5_LAG_P1].dev;
--	for (i = 0; i  < ldev->ports; i++)
-+	for (i = 0; i < ldev->ports; i++) {
-+		dev = ldev->pf[i].dev;
- 		if (mlx5_eswitch_num_vfs(dev->priv.eswitch) && !is_mdev_switchdev_mode(dev))
- 			return false;
-+	}
- 
-+	dev = ldev->pf[MLX5_LAG_P1].dev;
- 	mode = mlx5_eswitch_mode(dev);
- 	for (i = 0; i < ldev->ports; i++)
- 		if (mlx5_eswitch_mode(ldev->pf[i].dev) != mode)
+ 	switch (chan->type) {
+ 	case IIO_INTENSITY:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_RAW:
++			reg = afe4403_channel_values[chan->address];
+ 			ret = afe4403_read(afe, reg, val);
+ 			if (ret)
+ 				return ret;
+@@ -270,6 +270,7 @@ static int afe4403_read_raw(struct iio_dev *indio_dev,
+ 	case IIO_CURRENT:
+ 		switch (mask) {
+ 		case IIO_CHAN_INFO_RAW:
++			field = afe4403_channel_leds[chan->address];
+ 			ret = regmap_field_read(afe->fields[field], val);
+ 			if (ret)
+ 				return ret;
 -- 
 2.35.1
 
