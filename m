@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 419816434A7
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:48:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA0F86433F5
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:41:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235120AbiLETsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:48:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55414 "EHLO
+        id S233926AbiLETlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:41:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235113AbiLETrq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0181B5D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:44:19 -0800 (PST)
+        with ESMTP id S234805AbiLETkh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:40:37 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9533729358
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:38:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EF4E612EA
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:44:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58F66C433C1;
-        Mon,  5 Dec 2022 19:44:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0AE2CCE10A6
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:38:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1BF1C433D6;
+        Mon,  5 Dec 2022 19:38:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269458;
-        bh=+273FMoA2A3cnFUJPZN9nHqfDczJFAX8TsvDawqFNzU=;
+        s=korg; t=1670269081;
+        bh=zophd0bTMsSAIMQt/BrSTBOx4zjU3W7E2m5L0J60ZxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OE6hKk/QLQ7Nv8ikvfR6U4BjzQMl0678uLpKpn/bMyfu6IEHMFdK1vOgeaWNsuU6T
-         6k1ju/Ho4RpkecFRkJdve2tRdVLVK/5DmUSU/boz9jSbOOA3Gf3BUK0POXl9JgznGm
-         kY2hKUxOMVD0FVFziLWZCAxzr7bcoq5NXDctP6gM=
+        b=xfzsCPR4UtWlL/EIbbAzv18wtbKHJllOeb9Vtj9LQjCUcgi3G2crByy2Lg83ntFgg
+         ghTnllBNWFdLTq64nQAI6DwLaxK1DLZMEqyUkkLiIJBTd6YqgE8MamWO87BocKBf6U
+         MBLRG+rpmqAkWq+ILheXqAvcoV6VPO5MJS/Qu0LM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Chris Zankel <chris@zankel.net>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        patches@lists.linux.dev, Conor Dooley <conor.dooley@microchip.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Samuel Holland <samuel@sholland.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 134/153] xtensa: increase size of gcc stack frame check
+Subject: [PATCH 5.15 118/120] Revert "clocksource/drivers/riscv: Events are stopped during CPU suspend"
 Date:   Mon,  5 Dec 2022 20:10:58 +0100
-Message-Id: <20221205190812.507148215@linuxfoundation.org>
+Message-Id: <20221205190810.060614280@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,44 +55,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit 867050247e295cf20fce046a92a7e6491fcfe066 ]
+[ Upstream commit d9f15a9de44affe733e34f93bc184945ba277e6d ]
 
-xtensa frame size is larger than the frame size for almost all other
-architectures.  This results in more than 50 "the frame size of <n> is
-larger than 1024 bytes" errors when trying to build xtensa:allmodconfig.
+This reverts commit 232ccac1bd9b5bfe73895f527c08623e7fa0752d.
 
-Increase frame size for xtensa to 1536 bytes to avoid compile errors due
-to frame size limits.
+On the subject of suspend, the RISC-V SBI spec states:
 
-Link: https://lkml.kernel.org/r/20210912025235.3514761-1-linux@roeck-us.net
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Max Filippov <jcmvbkbc@gmail.com>
-Cc: Chris Zankel <chris@zankel.net>
-Cc: David Laight <David.Laight@ACULAB.COM>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Stable-dep-of: 152fe65f300e ("Kconfig.debug: provide a little extra FRAME_WARN leeway when KASAN is enabled")
+  This does not cover whether any given events actually reach the hart or
+  not, just what the hart will do if it receives an event. On PolarFire
+  SoC, and potentially other SiFive based implementations, events from the
+  RISC-V timer do reach a hart during suspend. This is not the case for the
+  implementation on the Allwinner D1 - there timer events are not received
+  during suspend.
+
+To fix this, the CLOCK_EVT_FEAT_C3STOP (mis)feature was enabled for the
+timer driver - but this has broken both RCU stall detection and timers
+generally on PolarFire SoC and potentially other SiFive based
+implementations.
+
+If an AXI read to the PCIe controller on PolarFire SoC times out, the
+system will stall, however, with CLOCK_EVT_FEAT_C3STOP active, the system
+just locks up without RCU stalling:
+
+	io scheduler mq-deadline registered
+	io scheduler kyber registered
+	microchip-pcie 2000000000.pcie: host bridge /soc/pcie@2000000000 ranges:
+	microchip-pcie 2000000000.pcie:      MEM 0x2008000000..0x2087ffffff -> 0x0008000000
+	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: axi read request error
+	microchip-pcie 2000000000.pcie: axi read timeout
+	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: sec error in pcie2axi buffer
+	microchip-pcie 2000000000.pcie: ded error in pcie2axi buffer
+	Freeing initrd memory: 7332K
+
+Similarly issues were reported with clock_nanosleep() - with a test app
+that sleeps each cpu for 6, 5, 4, 3 ms respectively, HZ=250 & the blamed
+commit in place, the sleep times are rounded up to the next jiffy:
+
+== CPU: 1 ==      == CPU: 2 ==      == CPU: 3 ==      == CPU: 4 ==
+Mean: 7.974992    Mean: 7.976534    Mean: 7.962591    Mean: 3.952179
+Std Dev: 0.154374 Std Dev: 0.156082 Std Dev: 0.171018 Std Dev: 0.076193
+Hi: 9.472000      Hi: 10.495000     Hi: 8.864000      Hi: 4.736000
+Lo: 6.087000      Lo: 6.380000      Lo: 4.872000      Lo: 3.403000
+Samples: 521      Samples: 521      Samples: 521      Samples: 521
+
+Fortunately, the D1 has a second timer, which is "currently used in
+preference to the RISC-V/SBI timer driver" so a revert here does not
+hurt operation of D1 in its current form.
+
+Ultimately, a DeviceTree property (or node) will be added to encode the
+behaviour of the timers, but until then revert the addition of
+CLOCK_EVT_FEAT_C3STOP.
+
+Fixes: 232ccac1bd9b ("clocksource/drivers/riscv: Events are stopped during CPU suspend")
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Acked-by: Samuel Holland <samuel@sholland.org>
+Link: https://lore.kernel.org/linux-riscv/YzYTNQRxLr7Q9JR0@spud/
+Link: https://github.com/riscv-non-isa/riscv-sbi-doc/issues/98/
+Link: https://lore.kernel.org/linux-riscv/bf6d3b1f-f703-4a25-833e-972a44a04114@sholland.org/
+Link: https://lore.kernel.org/r/20221122121620.3522431-1-conor.dooley@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug | 2 +-
+ drivers/clocksource/timer-riscv.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index f610b47b74cc..42b6fff962b7 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -253,7 +253,7 @@ config FRAME_WARN
- 	int "Warn for stack frames larger than (needs gcc 4.4)"
- 	range 0 8192
- 	default 2048 if GCC_PLUGIN_LATENT_ENTROPY
--	default 1536 if (!64BIT && PARISC)
-+	default 1536 if (!64BIT && (PARISC || XTENSA))
- 	default 1024 if (!64BIT && !PARISC)
- 	default 2048 if 64BIT
- 	help
+diff --git a/drivers/clocksource/timer-riscv.c b/drivers/clocksource/timer-riscv.c
+index 0e7748df4be3..c51c5ed15aa7 100644
+--- a/drivers/clocksource/timer-riscv.c
++++ b/drivers/clocksource/timer-riscv.c
+@@ -32,7 +32,7 @@ static int riscv_clock_next_event(unsigned long delta,
+ static unsigned int riscv_clock_event_irq;
+ static DEFINE_PER_CPU(struct clock_event_device, riscv_clock_event) = {
+ 	.name			= "riscv_timer_clockevent",
+-	.features		= CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_C3STOP,
++	.features		= CLOCK_EVT_FEAT_ONESHOT,
+ 	.rating			= 100,
+ 	.set_next_event		= riscv_clock_next_event,
+ };
 -- 
 2.35.1
 
