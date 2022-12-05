@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3141C6431D3
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:19:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEFDD64343C
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:43:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233789AbiLETTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:19:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35798 "EHLO
+        id S234986AbiLETna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:43:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233548AbiLETTb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:19:31 -0500
+        with ESMTP id S234989AbiLETnL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:43:11 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A842C25C5D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:16:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D5E92871A
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:40:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58F9CB8120F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:16:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EEE7C433D6;
-        Mon,  5 Dec 2022 19:16:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C39FCB8118F
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:40:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 369BFC433C1;
+        Mon,  5 Dec 2022 19:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267769;
-        bh=/QZGNDSOC/V0dtZvjhbBYW6P0wDe4KA8DR3cWse3xHg=;
+        s=korg; t=1670269234;
+        bh=ELfAWij46Wt02A5ynXbjy8/nvc20JrIwgveo3uDJNNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a42+gWua5I5asFg/qwq/DNDVYnsAxtcjM8gy7knYKlVLSau33wSmnElkKoAsdaYyB
-         EFHCWVVDM7EihVdCbS0AwhLpa9OZ+Bx15MNC+pWiP8W/+lZthMpL4wZ31uHSoltrpL
-         Vx2Vigtn16/LFpbbGBjNbfNZB36rlACIL9y9ECC8=
+        b=Tg/SJ+rwgOn5ObWYrh+NjBTPOohYAKabkU/RtaXoYUVj+TTqR8y+7sZLXhDIN33eH
+         HyZakcCKyDmHVsYQ+hQ39+83UZLD+JS8BQyuplXlynsp4m6Tr5fwSC5yJRrnU+jNwi
+         YMINn3udq/tye4Vbs1Dv7K/1cSfPRoE/8cYCv58o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        patches@lists.linux.dev, Tariq Toukan <tariqt@nvidia.com>,
+        Peter Kosyh <pkosyh@yandex.ru>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 16/77] xfrm: Fix ignored return value in xfrm6_init()
-Date:   Mon,  5 Dec 2022 20:09:07 +0100
-Message-Id: <20221205190801.448876256@linuxfoundation.org>
+Subject: [PATCH 5.4 024/153] net/mlx4: Check retval of mlx4_bitmap_init
+Date:   Mon,  5 Dec 2022 20:09:08 +0100
+Message-Id: <20221205190809.429592241@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Peter Kosyh <pkosyh@yandex.ru>
 
-[ Upstream commit 40781bfb836eda57d19c0baa37c7e72590e05fdc ]
+[ Upstream commit 594c61ffc77de0a197934aa0f1df9285c68801c6 ]
 
-When IPv6 module initializing in xfrm6_init(), register_pernet_subsys()
-is possible to fail but its return value is ignored.
+If mlx4_bitmap_init fails, mlx4_bitmap_alloc_range will dereference
+the NULL pointer (bitmap->table).
 
-If IPv6 initialization fails later and xfrm6_fini() is called,
-removing uninitialized list in xfrm6_net_ops will cause null-ptr-deref:
+Make sure, that mlx4_bitmap_alloc_range called in no error case.
 
-KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-CPU: 1 PID: 330 Comm: insmod
-RIP: 0010:unregister_pernet_operations+0xc9/0x450
-Call Trace:
- <TASK>
- unregister_pernet_subsys+0x31/0x3e
- xfrm6_fini+0x16/0x30 [ipv6]
- ip6_route_init+0xcd/0x128 [ipv6]
- inet6_init+0x29c/0x602 [ipv6]
- ...
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-Fix it by catching the error return value of register_pernet_subsys().
-
-Fixes: 8d068875caca ("xfrm: make gc_thresh configurable in all namespaces")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: d57febe1a478 ("net/mlx4: Add A0 hybrid steering")
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Peter Kosyh <pkosyh@yandex.ru>
+Link: https://lore.kernel.org/r/20221117152806.278072-1-pkosyh@yandex.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/xfrm6_policy.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx4/qp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv6/xfrm6_policy.c b/net/ipv6/xfrm6_policy.c
-index b0d80cef7c2b..44d616d0bd00 100644
---- a/net/ipv6/xfrm6_policy.c
-+++ b/net/ipv6/xfrm6_policy.c
-@@ -412,9 +412,13 @@ int __init xfrm6_init(void)
- 	if (ret)
- 		goto out_state;
+diff --git a/drivers/net/ethernet/mellanox/mlx4/qp.c b/drivers/net/ethernet/mellanox/mlx4/qp.c
+index 427e7a31862c..d7f2890c254f 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/qp.c
++++ b/drivers/net/ethernet/mellanox/mlx4/qp.c
+@@ -697,7 +697,8 @@ static int mlx4_create_zones(struct mlx4_dev *dev,
+ 			err = mlx4_bitmap_init(*bitmap + k, 1,
+ 					       MLX4_QP_TABLE_RAW_ETH_SIZE - 1, 0,
+ 					       0);
+-			mlx4_bitmap_alloc_range(*bitmap + k, 1, 1, 0);
++			if (!err)
++				mlx4_bitmap_alloc_range(*bitmap + k, 1, 1, 0);
+ 		}
  
--	register_pernet_subsys(&xfrm6_net_ops);
-+	ret = register_pernet_subsys(&xfrm6_net_ops);
-+	if (ret)
-+		goto out_protocol;
- out:
- 	return ret;
-+out_protocol:
-+	xfrm6_protocol_fini();
- out_state:
- 	xfrm6_state_fini();
- out_policy:
+ 		if (err)
 -- 
 2.35.1
 
