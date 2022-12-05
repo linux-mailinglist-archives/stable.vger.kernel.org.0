@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42502643175
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:15:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA3D26432A1
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232695AbiLETOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:14:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33486 "EHLO
+        id S234101AbiLET1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:27:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232745AbiLETOe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:14:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129B71F2FC
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:14:34 -0800 (PST)
+        with ESMTP id S234104AbiLET0w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9CA1B495
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:23:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3831B81200
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:14:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F6C8C433D6;
-        Mon,  5 Dec 2022 19:14:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46227612D8
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:23:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CAF4C433D6;
+        Mon,  5 Dec 2022 19:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267671;
-        bh=cjTrgrVFzgMJe4GU+Tpzl4DHiEKRkV7BwTp/DWRcKYw=;
+        s=korg; t=1670268227;
+        bh=7byHlP5ufhy761TVqmwuLgFBxPP3Cgr0AZESwIy16cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HnBmKaxKnHhk8hjNySlcuoypxCXjM+/nuNuoZtfa5DNeuyQaufxS5jf5h7DDLT+Kw
-         e7SwscEPHkDTJGEIiayp7XOU9WfM0AYTGSgG4rd0T2Ju+0lBnv28z5enBHyw/5VRTJ
-         +cvNg+Wh/Bt7jwj4tjfNWcaHUU4map7RxZJWdeHQ=
+        b=CJvLkVKZe34ExJWnZABX/LdThFGdRGgF6S4Bp/v5Kf9sfakxo3qdXu7wpUbGBOq08
+         2wJj74Fouzj4MIZ8si8qQIFACwOkl3CiN4AA3DyWeM8W0JbOdwNYBl/vhRAKkXuT/y
+         wAr3JOwXnmLZt3nswU8EqdqE6y9hOhACr2Nr/6iY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jonas Jelonek <jelonek.jonas@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/77] wifi: mac80211_hwsim: fix debugfs attribute ps with rc table support
+Subject: [PATCH 6.0 026/124] nvmem: rmem: Fix return value check in rmem_read()
 Date:   Mon,  5 Dec 2022 20:08:52 +0100
-Message-Id: <20221205190800.922964919@linuxfoundation.org>
+Message-Id: <20221205190809.194305629@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190800.868551051@linuxfoundation.org>
-References: <20221205190800.868551051@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,55 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Jelonek <jelonek.jonas@gmail.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 69188df5f6e4cecc6b76b958979ba363cd5240e8 ]
+[ Upstream commit 58e92c4a496b27156020a59a98c7f4a92c2b1533 ]
 
-Fixes a warning that occurs when rc table support is enabled
-(IEEE80211_HW_SUPPORTS_RC_TABLE) in mac80211_hwsim and the PS mode
-is changed via the exported debugfs attribute.
+In case of error, the function memremap() returns NULL pointer
+not ERR_PTR(). The IS_ERR() test in the return value check
+should be replaced with NULL test.
 
-When the PS mode is changed, a packet is broadcasted via
-hwsim_send_nullfunc by creating and transmitting a plain skb with only
-header initialized. The ieee80211 rate array in the control buffer is
-zero-initialized. When ratetbl support is enabled, ieee80211_get_tx_rates
-is called for the skb with sta parameter set to NULL and thus no
-ratetbl can be used. The final rate array then looks like
-[-1,0; 0,0; 0,0; 0,0] which causes the warning in ieee80211_get_tx_rate.
-
-The issue is fixed by setting the count of the first rate with idx '0'
-to 1 and hence ieee80211_get_tx_rates won't overwrite it with idx '-1'.
-
-Signed-off-by: Jonas Jelonek <jelonek.jonas@gmail.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 5a3fa75a4d9c ("nvmem: Add driver to expose reserved memory as nvmem")
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20221118063840.6357-3-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/nvmem/rmem.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index 55cca2ffa392..d3905e70b1e9 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -670,6 +670,7 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
- 	struct hwsim_vif_priv *vp = (void *)vif->drv_priv;
- 	struct sk_buff *skb;
- 	struct ieee80211_hdr *hdr;
-+	struct ieee80211_tx_info *cb;
+diff --git a/drivers/nvmem/rmem.c b/drivers/nvmem/rmem.c
+index b11c3c974b3d..80cb187f1481 100644
+--- a/drivers/nvmem/rmem.c
++++ b/drivers/nvmem/rmem.c
+@@ -37,9 +37,9 @@ static int rmem_read(void *context, unsigned int offset,
+ 	 * but as of Dec 2020 this isn't possible on arm64.
+ 	 */
+ 	addr = memremap(priv->mem->base, available, MEMREMAP_WB);
+-	if (IS_ERR(addr)) {
++	if (!addr) {
+ 		dev_err(priv->dev, "Failed to remap memory region\n");
+-		return PTR_ERR(addr);
++		return -ENOMEM;
+ 	}
  
- 	if (!vp->assoc)
- 		return;
-@@ -690,6 +691,10 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
- 	memcpy(hdr->addr2, mac, ETH_ALEN);
- 	memcpy(hdr->addr3, vp->bssid, ETH_ALEN);
- 
-+	cb = IEEE80211_SKB_CB(skb);
-+	cb->control.rates[0].count = 1;
-+	cb->control.rates[1].idx = -1;
-+
- 	rcu_read_lock();
- 	mac80211_hwsim_tx_frame(data->hw, skb,
- 				rcu_dereference(vif->chanctx_conf)->def.chan);
+ 	count = memory_read_from_buffer(val, bytes, &off, addr, available);
 -- 
 2.35.1
 
