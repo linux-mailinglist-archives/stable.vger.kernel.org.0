@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 016B46433D5
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:40:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2125C64347A
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:47:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234736AbiLETj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:39:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41710 "EHLO
+        id S235103AbiLETrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:47:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234767AbiLETj3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:39:29 -0500
+        with ESMTP id S235160AbiLETrC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:47:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E6A363DB
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:36:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF58A2E9C3
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:43:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C12DE61315
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:36:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1ED8C433D7;
-        Mon,  5 Dec 2022 19:36:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A3B561315
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:43:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7884FC433C1;
+        Mon,  5 Dec 2022 19:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269007;
-        bh=3i6zjMD7NFls4XmsmtAG04Gkllhd7DDOhsyKi9CoT2I=;
+        s=korg; t=1670269389;
+        bh=bRqdeSdg0UopUKDXfEBckA2rb76aku/3pYWAqfRWkNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oGAs/cQxTwvg2kY4hVVID/hp9bItkjhY+/ju/nGSg6H2jxgjkxrAhOcXCKbEbOlde
-         zntwF4Lz4O58RTdQ23eCNrvni0/mpM2k95mbaVQPVbfv9+degZ1/SM+M+jPXNQyKvT
-         NQXInwuLkZvMJ5Q8YJBkSMc01+xVZFDkfZqxX55U=
+        b=VyaRaq21MLYS07U8qHRbepTfW2UqKomooab2AmJ3PVz3LK75Y2nVz9WSxdljkhUkC
+         dUEfPsq+nM17YiEFcsw7n8KtOnJ3P0gDhm+IrzOJSq4UaXL1da2JfF/LMbvwJnAbS/
+         zRNBbLMRAowgtJdqFNkxKBetLb6YdnyQJ1nZQnDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lin Ma <linma@zju.edu.cn>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 092/120] io_uring/poll: fix poll_refs race with cancelation
-Date:   Mon,  5 Dec 2022 20:10:32 +0100
-Message-Id: <20221205190809.338219043@linuxfoundation.org>
+        patches@lists.linux.dev, David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 109/153] afs: Fix fileserver probe RTT handling
+Date:   Mon,  5 Dec 2022 20:10:33 +0100
+Message-Id: <20221205190811.869569102@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-References: <20221205190806.528972574@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,150 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: David Howells <dhowells@redhat.com>
 
-[ upstream commit 12ad3d2d6c5b0131a6052de91360849e3e154846 ]
+[ Upstream commit ca57f02295f188d6c65ec02202402979880fa6d8 ]
 
-There is an interesting race condition of poll_refs which could result
-in a NULL pointer dereference. The crash trace is like:
+The fileserver probing code attempts to work out the best fileserver to
+use for a volume by retrieving the RTT calculated by AF_RXRPC for the
+probe call sent to each server and comparing them.  Sometimes, however,
+no RTT estimate is available and rxrpc_kernel_get_srtt() returns false,
+leading good fileservers to be given an RTT of UINT_MAX and thus causing
+the rotation algorithm to ignore them.
 
-KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-CPU: 0 PID: 30781 Comm: syz-executor.2 Not tainted 6.0.0-g493ffd6605b2 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:io_poll_remove_entry io_uring/poll.c:154 [inline]
-RIP: 0010:io_poll_remove_entries+0x171/0x5b4 io_uring/poll.c:190
-Code: ...
-RSP: 0018:ffff88810dfefba0 EFLAGS: 00010202
-RAX: 0000000000000001 RBX: 0000000000000000 RCX: 0000000000040000
-RDX: ffffc900030c4000 RSI: 000000000003ffff RDI: 0000000000040000
-RBP: 0000000000000008 R08: ffffffff9764d3dd R09: fffffbfff3836781
-R10: fffffbfff3836781 R11: 0000000000000000 R12: 1ffff11003422d60
-R13: ffff88801a116b04 R14: ffff88801a116ac0 R15: dffffc0000000000
-FS:  00007f9c07497700(0000) GS:ffff88811a600000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffb5c00ea98 CR3: 0000000105680005 CR4: 0000000000770ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- <TASK>
- io_apoll_task_func+0x3f/0xa0 io_uring/poll.c:299
- handle_tw_list io_uring/io_uring.c:1037 [inline]
- tctx_task_work+0x37e/0x4f0 io_uring/io_uring.c:1090
- task_work_run+0x13a/0x1b0 kernel/task_work.c:177
- get_signal+0x2402/0x25a0 kernel/signal.c:2635
- arch_do_signal_or_restart+0x3b/0x660 arch/x86/kernel/signal.c:869
- exit_to_user_mode_loop kernel/entry/common.c:166 [inline]
- exit_to_user_mode_prepare+0xc2/0x160 kernel/entry/common.c:201
- __syscall_exit_to_user_mode_work kernel/entry/common.c:283 [inline]
- syscall_exit_to_user_mode+0x58/0x160 kernel/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+Fix afs_select_fileserver() to ignore rxrpc_kernel_get_srtt()'s return
+value and just take the estimated RTT it provides - which will be capped
+at 1 second.
 
-The root cause for this is a tiny overlooking in
-io_poll_check_events() when cocurrently run with poll cancel routine
-io_poll_cancel_req().
-
-The interleaving to trigger use-after-free:
-
-CPU0                                       |  CPU1
-                                           |
-io_apoll_task_func()                       |  io_poll_cancel_req()
- io_poll_check_events()                    |
-  // do while first loop                   |
-  v = atomic_read(...)                     |
-  // v = poll_refs = 1                     |
-  ...                                      |  io_poll_mark_cancelled()
-                                           |   atomic_or()
-                                           |   // poll_refs =
-IO_POLL_CANCEL_FLAG | 1
-                                           |
-  atomic_sub_return(...)                   |
-  // poll_refs = IO_POLL_CANCEL_FLAG       |
-  // loop continue                         |
-                                           |
-                                           |  io_poll_execute()
-                                           |   io_poll_get_ownership()
-                                           |   // poll_refs =
-IO_POLL_CANCEL_FLAG | 1
-                                           |   // gets the ownership
-  v = atomic_read(...)                     |
-  // poll_refs not change                  |
-                                           |
-  if (v & IO_POLL_CANCEL_FLAG)             |
-   return -ECANCELED;                      |
-  // io_poll_check_events return           |
-  // will go into                          |
-  // io_req_complete_failed() free req     |
-                                           |
-                                           |  io_apoll_task_func()
-                                           |  // also go into
-io_req_complete_failed()
-
-And the interleaving to trigger the kernel WARNING:
-
-CPU0                                       |  CPU1
-                                           |
-io_apoll_task_func()                       |  io_poll_cancel_req()
- io_poll_check_events()                    |
-  // do while first loop                   |
-  v = atomic_read(...)                     |
-  // v = poll_refs = 1                     |
-  ...                                      |  io_poll_mark_cancelled()
-                                           |   atomic_or()
-                                           |   // poll_refs =
-IO_POLL_CANCEL_FLAG | 1
-                                           |
-  atomic_sub_return(...)                   |
-  // poll_refs = IO_POLL_CANCEL_FLAG       |
-  // loop continue                         |
-                                           |
-  v = atomic_read(...)                     |
-  // v = IO_POLL_CANCEL_FLAG               |
-                                           |  io_poll_execute()
-                                           |   io_poll_get_ownership()
-                                           |   // poll_refs =
-IO_POLL_CANCEL_FLAG | 1
-                                           |   // gets the ownership
-                                           |
-  WARN_ON_ONCE(!(v & IO_POLL_REF_MASK)))   |
-  // v & IO_POLL_REF_MASK = 0 WARN         |
-                                           |
-                                           |  io_apoll_task_func()
-                                           |  // also go into
-io_req_complete_failed()
-
-By looking up the source code and communicating with Pavel, the
-implementation of this atomic poll refs should continue the loop of
-io_poll_check_events() just to avoid somewhere else to grab the
-ownership. Therefore, this patch simply adds another AND operation to
-make sure the loop will stop if it finds the poll_refs is exactly equal
-to IO_POLL_CANCEL_FLAG. Since io_poll_cancel_req() grabs ownership and
-will finally make its way to io_req_complete_failed(), the req will
-be reclaimed as expected.
-
-Fixes: aa43477b0402 ("io_uring: poll rework")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
-[axboe: tweak description and code style]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1d4adfaf6574 ("rxrpc: Make rxrpc_kernel_get_srtt() indicate validity")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Tested-by: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Link: https://lore.kernel.org/r/166965503999.3392585.13954054113218099395.stgit@warthog.procyon.org.uk/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/afs/fs_probe.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5512,7 +5512,8 @@ static int io_poll_check_events(struct i
- 		 * Release all references, retry if someone tried to restart
- 		 * task_work while we were executing it.
- 		 */
--	} while (atomic_sub_return(v & IO_POLL_REF_MASK, &req->poll_refs));
-+	} while (atomic_sub_return(v & IO_POLL_REF_MASK, &req->poll_refs) &
-+					IO_POLL_REF_MASK);
+diff --git a/fs/afs/fs_probe.c b/fs/afs/fs_probe.c
+index 51ee3dd79700..e9282e025912 100644
+--- a/fs/afs/fs_probe.c
++++ b/fs/afs/fs_probe.c
+@@ -92,8 +92,8 @@ void afs_fileserver_probe_result(struct afs_call *call)
+ 		}
+ 	}
  
- 	return 1;
- }
+-	if (rxrpc_kernel_get_srtt(call->net->socket, call->rxcall, &rtt_us) &&
+-	    rtt_us < server->probe.rtt) {
++	rxrpc_kernel_get_srtt(call->net->socket, call->rxcall, &rtt_us);
++	if (rtt_us < server->probe.rtt) {
+ 		server->probe.rtt = rtt_us;
+ 		alist->preferred = index;
+ 		have_result = true;
+-- 
+2.35.1
+
 
 
