@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C42643215
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:24:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D47A8643289
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233529AbiLETYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:24:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46510 "EHLO
+        id S233953AbiLET06 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:26:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233520AbiLETYC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:24:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED2E27900
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:19:15 -0800 (PST)
+        with ESMTP id S233709AbiLET0e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F315B2528C
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:23:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0356612FE
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:19:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0B50C433D6;
-        Mon,  5 Dec 2022 19:19:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C3A961309
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:23:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D660C433D7;
+        Mon,  5 Dec 2022 19:23:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267954;
-        bh=m6tHUFLLVGdeTZJ41sgTVPRrebEIFFmczQhEY7MnA2c=;
+        s=korg; t=1670268191;
+        bh=VRFvTlJOr+osNVrqqolkMpOh0MnYjW/TaNxZsghp4UY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aXQRrovMNTld/+s2Pzn4j9g8uT4uJ4PsAwkx6A6/Pz177fNAC+XnXkz+S/TOGfniu
-         CmB6pgz/eoZpAfZY+HNtXZu2Rxb+/SMO7KrKZVMcR2sh/ESz1J15z02xgXmpFtOofc
-         b8X3RVc5KUeHbjAIS2/EuzzAFJss7VpMGxtmmYdc=
+        b=aiSIijoQz/+VKxcYDHEXcb2kEcn6/mWK3OtKnJ7GJgw/Ul5FC1dDBW3SLJv97/JQP
+         viB0MFqW3tORdv3pnlTxd402bAnUU9+Otv+N5A2j+jxQ/ypil+13o4omKhTX8yn0fg
+         qyXBvE2YDvkxhHRZkN0xuoAYuL0Kx4GZHu6mHSuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        patches@lists.linux.dev, Paul Gazzillo <paul@pgazz.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 007/105] MIPS: pic32: treat port as signed integer
-Date:   Mon,  5 Dec 2022 20:08:39 +0100
-Message-Id: <20221205190803.356444828@linuxfoundation.org>
+Subject: [PATCH 6.0 014/124] iio: light: rpr0521: add missing Kconfig dependencies
+Date:   Mon,  5 Dec 2022 20:08:40 +0100
+Message-Id: <20221205190808.852434732@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.124472741@linuxfoundation.org>
-References: <20221205190803.124472741@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,103 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Paul Gazzillo <paul@pgazz.com>
 
-[ Upstream commit 648060902aa302331b5d6e4f26d8ee0761d239ab ]
+[ Upstream commit 6ac12303572ef9ace5603c2c07f5f1b00a33f580 ]
 
-get_port_from_cmdline() returns an int, yet is assigned to a char, which
-is wrong in its own right, but also, with char becoming unsigned, this
-poses problems, because -1 is used as an error value. Further
-complicating things, fw_init_early_console() is only ever called with a
--1 argument. Fix this up by removing the unused argument from
-fw_init_early_console() and treating port as a proper signed integer.
+Fix an implicit declaration of function error for rpr0521 under some configs
 
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+When CONFIG_RPR0521 is enabled without CONFIG_IIO_TRIGGERED_BUFFER,
+the build results in "implicit declaration of function" errors, e.g.,
+  drivers/iio/light/rpr0521.c:434:3: error: implicit declaration of function
+           'iio_trigger_poll_chained' [-Werror=implicit-function-declaration]
+    434 |   iio_trigger_poll_chained(data->drdy_trigger0);
+        |   ^~~~~~~~~~~~~~~~~~~~~~~~
+
+This fix adds select dependencies to RPR0521's configuration declaration.
+
+Fixes: e12ffd241c00 ("iio: light: rpr0521 triggered buffer")
+Signed-off-by: Paul Gazzillo <paul@pgazz.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216678
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221110214729.ls5ixav5kxpeftk7@device
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/fw/fw.h             |  2 +-
- arch/mips/pic32/pic32mzda/early_console.c | 13 ++++++-------
- arch/mips/pic32/pic32mzda/init.c          |  2 +-
- 3 files changed, 8 insertions(+), 9 deletions(-)
+ drivers/iio/light/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/include/asm/fw/fw.h b/arch/mips/include/asm/fw/fw.h
-index d0ef8b4892bb..d0494ce4b337 100644
---- a/arch/mips/include/asm/fw/fw.h
-+++ b/arch/mips/include/asm/fw/fw.h
-@@ -26,6 +26,6 @@ extern char *fw_getcmdline(void);
- extern void fw_meminit(void);
- extern char *fw_getenv(char *name);
- extern unsigned long fw_getenvl(char *name);
--extern void fw_init_early_console(char port);
-+extern void fw_init_early_console(void);
- 
- #endif /* __ASM_FW_H_ */
-diff --git a/arch/mips/pic32/pic32mzda/early_console.c b/arch/mips/pic32/pic32mzda/early_console.c
-index 8ed4961b1271..c00c6149ee30 100644
---- a/arch/mips/pic32/pic32mzda/early_console.c
-+++ b/arch/mips/pic32/pic32mzda/early_console.c
-@@ -35,7 +35,7 @@
- #define U_BRG(x)	(UART_BASE(x) + 0x40)
- 
- static void __iomem *uart_base;
--static char console_port = -1;
-+static int console_port = -1;
- 
- static int __init configure_uart_pins(int port)
- {
-@@ -55,7 +55,7 @@ static int __init configure_uart_pins(int port)
- 	return 0;
- }
- 
--static void __init configure_uart(char port, int baud)
-+static void __init configure_uart(int port, int baud)
- {
- 	u32 pbclk;
- 
-@@ -68,7 +68,7 @@ static void __init configure_uart(char port, int baud)
- 		     uart_base + PIC32_SET(U_STA(port)));
- }
- 
--static void __init setup_early_console(char port, int baud)
-+static void __init setup_early_console(int port, int baud)
- {
- 	if (configure_uart_pins(port))
- 		return;
-@@ -138,16 +138,15 @@ static int __init get_baud_from_cmdline(char *arch_cmdline)
- 	return baud;
- }
- 
--void __init fw_init_early_console(char port)
-+void __init fw_init_early_console(void)
- {
- 	char *arch_cmdline = pic32_getcmdline();
--	int baud = -1;
-+	int baud, port;
- 
- 	uart_base = ioremap_nocache(PIC32_BASE_UART, 0xc00);
- 
- 	baud = get_baud_from_cmdline(arch_cmdline);
--	if (port == -1)
--		port = get_port_from_cmdline(arch_cmdline);
-+	port = get_port_from_cmdline(arch_cmdline);
- 
- 	if (port == -1)
- 		port = EARLY_CONSOLE_PORT;
-diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
-index 406c6c5cec29..cf2625551b45 100644
---- a/arch/mips/pic32/pic32mzda/init.c
-+++ b/arch/mips/pic32/pic32mzda/init.c
-@@ -68,7 +68,7 @@ void __init plat_mem_setup(void)
- 		strlcpy(arcs_cmdline, boot_command_line, COMMAND_LINE_SIZE);
- 
- #ifdef CONFIG_EARLY_PRINTK
--	fw_init_early_console(-1);
-+	fw_init_early_console();
- #endif
- 	pic32_config_init();
- }
+diff --git a/drivers/iio/light/Kconfig b/drivers/iio/light/Kconfig
+index 8537e88f02e3..c02393009a2c 100644
+--- a/drivers/iio/light/Kconfig
++++ b/drivers/iio/light/Kconfig
+@@ -293,6 +293,8 @@ config RPR0521
+ 	tristate "ROHM RPR0521 ALS and proximity sensor driver"
+ 	depends on I2C
+ 	select REGMAP_I2C
++	select IIO_BUFFER
++	select IIO_TRIGGERED_BUFFER
+ 	help
+ 	  Say Y here if you want to build support for ROHM's RPR0521
+ 	  ambient light and proximity sensor device.
 -- 
 2.35.1
 
