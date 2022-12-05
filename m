@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 382B0643291
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:27:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D469D643416
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:42:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234042AbiLET1C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:27:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53810 "EHLO
+        id S234759AbiLETmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:42:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233941AbiLET0p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:26:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C99A4264AC
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:23:31 -0800 (PST)
+        with ESMTP id S234685AbiLETlb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:41:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5B49264A2
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:39:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 353C4612FB
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:23:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43501C433D6;
-        Mon,  5 Dec 2022 19:23:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 31044CE131B
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:39:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DC6EC433C1;
+        Mon,  5 Dec 2022 19:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268210;
-        bh=fnhSODLAcno3KqncfRPfQJNekfLDBy7vnQmC5+sxIUk=;
+        s=korg; t=1670269144;
+        bh=YdOd16i8larOJiF6IQ6t9W+csn8yjRr238dJY+8X0wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PM9F/YROLwIBnSCwzpjMhbHA+rlWOM00MhfxHjo4UAOQMhkiF4sBGpT0uwIKGwHeO
-         Ig8hggvwPeDAqjSHrCjt9PPoZQFR2WdGqST28RCCVo/ZOhlCdRcr5oweVGprAbbc4v
-         FaUDOaoMIm09bB11A7IivIHmcXvx/1jDZZu27vc0=
+        b=pqgctn01tAGg+6iNJ41dWwAmkuRTn+A8kJzo0PyEjrkLZVJYzK1mnqo4spOp35XOP
+         A0lUKjvfYIhaxPTgeDWLjPobVyFAe44dHRXtJkUEo2WEuQht0ir8rMo+kSHIA+LiGX
+         X50d2vXbXr5uxMRtnj/t9s0rKwxW7XtuyeUxRW9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Derek Nguyen <derek.nguyen@collins.com>,
-        Brandon Maier <brandon.maier@collins.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Jonas Jelonek <jelonek.jonas@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 020/124] hwmon: (ltc2947) fix temperature scaling
+Subject: [PATCH 5.4 002/153] wifi: mac80211_hwsim: fix debugfs attribute ps with rc table support
 Date:   Mon,  5 Dec 2022 20:08:46 +0100
-Message-Id: <20221205190809.025437319@linuxfoundation.org>
+Message-Id: <20221205190808.814933369@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Derek Nguyen <derek.nguyen@collins.com>
+From: Jonas Jelonek <jelonek.jonas@gmail.com>
 
-[ Upstream commit 07e06193ead86d4812f431b4d87bbd4161222e3f ]
+[ Upstream commit 69188df5f6e4cecc6b76b958979ba363cd5240e8 ]
 
-The LTC2947 datasheet (Rev. B) calls out in the section "Register
-Description: Non-Accumulated Result Registers" (pg. 30) that "To
-calculate temperature, multiply the TEMP register value by 0.204°C
-and add 5.5°C". Fix to add 5.5C and not 0.55C.
+Fixes a warning that occurs when rc table support is enabled
+(IEEE80211_HW_SUPPORTS_RC_TABLE) in mac80211_hwsim and the PS mode
+is changed via the exported debugfs attribute.
 
-Fixes: 9f90fd652bed ("hwmon: Add support for ltc2947")
-Signed-off-by: Derek Nguyen <derek.nguyen@collins.com>
-Signed-off-by: Brandon Maier <brandon.maier@collins.com>
-Link: https://lore.kernel.org/r/20221110192108.20624-1-brandon.maier@collins.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+When the PS mode is changed, a packet is broadcasted via
+hwsim_send_nullfunc by creating and transmitting a plain skb with only
+header initialized. The ieee80211 rate array in the control buffer is
+zero-initialized. When ratetbl support is enabled, ieee80211_get_tx_rates
+is called for the skb with sta parameter set to NULL and thus no
+ratetbl can be used. The final rate array then looks like
+[-1,0; 0,0; 0,0; 0,0] which causes the warning in ieee80211_get_tx_rate.
+
+The issue is fixed by setting the count of the first rate with idx '0'
+to 1 and hence ieee80211_get_tx_rates won't overwrite it with idx '-1'.
+
+Signed-off-by: Jonas Jelonek <jelonek.jonas@gmail.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/ltc2947-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mac80211_hwsim.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/hwmon/ltc2947-core.c b/drivers/hwmon/ltc2947-core.c
-index 5423466de697..e918490f3ff7 100644
---- a/drivers/hwmon/ltc2947-core.c
-+++ b/drivers/hwmon/ltc2947-core.c
-@@ -396,7 +396,7 @@ static int ltc2947_read_temp(struct device *dev, const u32 attr, long *val,
- 		return ret;
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index 3a3a5a570694..f80b1d57d6c3 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -663,6 +663,7 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
+ 	struct hwsim_vif_priv *vp = (void *)vif->drv_priv;
+ 	struct sk_buff *skb;
+ 	struct ieee80211_hdr *hdr;
++	struct ieee80211_tx_info *cb;
  
- 	/* in milidegrees celcius, temp is given by: */
--	*val = (__val * 204) + 550;
-+	*val = (__val * 204) + 5500;
+ 	if (!vp->assoc)
+ 		return;
+@@ -684,6 +685,10 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
+ 	memcpy(hdr->addr2, mac, ETH_ALEN);
+ 	memcpy(hdr->addr3, vp->bssid, ETH_ALEN);
  
- 	return 0;
- }
++	cb = IEEE80211_SKB_CB(skb);
++	cb->control.rates[0].count = 1;
++	cb->control.rates[1].idx = -1;
++
+ 	rcu_read_lock();
+ 	mac80211_hwsim_tx_frame(data->hw, skb,
+ 				rcu_dereference(vif->chanctx_conf)->def.chan);
 -- 
 2.35.1
 
