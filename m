@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 917F16432C0
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:29:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB5B3643128
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:12:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234226AbiLET3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:29:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53810 "EHLO
+        id S230012AbiLETMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:12:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234204AbiLET2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:28:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1882F25296
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:25:24 -0800 (PST)
+        with ESMTP id S230156AbiLETLn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:11:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93091EE10
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:11:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA4D761315
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:25:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4382C433D6;
-        Mon,  5 Dec 2022 19:25:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5150AB811FF
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:11:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B8CBC433D6;
+        Mon,  5 Dec 2022 19:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268323;
-        bh=LXKzYJ7Jr8pppxHfgLFiEJ5vM0Y1HSKQ+cdDykRvyLY=;
+        s=korg; t=1670267500;
+        bh=fqeGAc5+fS401bCbDjWqaUnh7yp2mdmv6cuNy0iLfNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QCMAjIzAxxb+Zy8MdEIRPV0u1PZH65EQm/2dMNDp57+AxxHCOAgj7XbOpFpXeMQFe
-         5uKqr0owgrvXNF7vqA3g1LGZ1I6u2n0bMnSEsTtiKcXvdKjIKmgnrTClM462dh+nMf
-         8xDhBsL6FpZALdJgMeniJB1kP0Po+3QfPDPpIHps=
+        b=wOFhIUSgAMROW4kq17GsBjkfkd9v7n+tpL3dgLYZFXWZ8iy0Fec0ZmMJm6ZGyzPBO
+         FfveCqssPVsoWvGp5qaCff6D0q6ai4lw7T9nIf08pR1SHO08RqWRSgzkhnwH/51F/7
+         /03dIvBX7wzOb5BGiZiMskW0OYLG+jFh744xYKLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        patches@lists.linux.dev, Jonas Jelonek <jelonek.jonas@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 032/124] iavf: Fix error handling in iavf_init_module()
+Subject: [PATCH 4.9 01/62] wifi: mac80211_hwsim: fix debugfs attribute ps with rc table support
 Date:   Mon,  5 Dec 2022 20:08:58 +0100
-Message-Id: <20221205190809.356967552@linuxfoundation.org>
+Message-Id: <20221205190758.127142054@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
+References: <20221205190758.073114639@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,53 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Jonas Jelonek <jelonek.jonas@gmail.com>
 
-[ Upstream commit 227d8d2f7f2278b8468c5531b0cd0f2a905b4486 ]
+[ Upstream commit 69188df5f6e4cecc6b76b958979ba363cd5240e8 ]
 
-The iavf_init_module() won't destroy workqueue when pci_register_driver()
-failed. Call destroy_workqueue() when pci_register_driver() failed to
-prevent the resource leak.
+Fixes a warning that occurs when rc table support is enabled
+(IEEE80211_HW_SUPPORTS_RC_TABLE) in mac80211_hwsim and the PS mode
+is changed via the exported debugfs attribute.
 
-Similar to the handling of u132_hcd_init in commit f276e002793c
-("usb: u132-hcd: fix resource leak")
+When the PS mode is changed, a packet is broadcasted via
+hwsim_send_nullfunc by creating and transmitting a plain skb with only
+header initialized. The ieee80211 rate array in the control buffer is
+zero-initialized. When ratetbl support is enabled, ieee80211_get_tx_rates
+is called for the skb with sta parameter set to NULL and thus no
+ratetbl can be used. The final rate array then looks like
+[-1,0; 0,0; 0,0; 0,0] which causes the warning in ieee80211_get_tx_rate.
 
-Fixes: 2803b16c10ea ("i40e/i40evf: Use private workqueue")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+The issue is fixed by setting the count of the first rate with idx '0'
+to 1 and hence ieee80211_get_tx_rates won't overwrite it with idx '-1'.
+
+Signed-off-by: Jonas Jelonek <jelonek.jonas@gmail.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mac80211_hwsim.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index cff03723f4f9..4e03712726f2 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -5196,6 +5196,8 @@ static struct pci_driver iavf_driver = {
-  **/
- static int __init iavf_init_module(void)
- {
-+	int ret;
-+
- 	pr_info("iavf: %s\n", iavf_driver_string);
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index 70251c703c9e..53e0fec274a4 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -671,6 +671,7 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
+ 	struct hwsim_vif_priv *vp = (void *)vif->drv_priv;
+ 	struct sk_buff *skb;
+ 	struct ieee80211_hdr *hdr;
++	struct ieee80211_tx_info *cb;
  
- 	pr_info("%s\n", iavf_copyright);
-@@ -5206,7 +5208,12 @@ static int __init iavf_init_module(void)
- 		pr_err("%s: Failed to create workqueue\n", iavf_driver_name);
- 		return -ENOMEM;
- 	}
--	return pci_register_driver(&iavf_driver);
-+
-+	ret = pci_register_driver(&iavf_driver);
-+	if (ret)
-+		destroy_workqueue(iavf_wq);
-+
-+	return ret;
- }
+ 	if (!vp->assoc)
+ 		return;
+@@ -691,6 +692,10 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
+ 	memcpy(hdr->addr2, mac, ETH_ALEN);
+ 	memcpy(hdr->addr3, vp->bssid, ETH_ALEN);
  
- module_init(iavf_init_module);
++	cb = IEEE80211_SKB_CB(skb);
++	cb->control.rates[0].count = 1;
++	cb->control.rates[1].idx = -1;
++
+ 	rcu_read_lock();
+ 	mac80211_hwsim_tx_frame(data->hw, skb,
+ 				rcu_dereference(vif->chanctx_conf)->def.chan);
 -- 
 2.35.1
 
