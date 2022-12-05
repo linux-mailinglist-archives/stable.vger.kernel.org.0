@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC115643343
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71BB9643461
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:46:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234209AbiLETfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:35:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34724 "EHLO
+        id S235057AbiLETqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:46:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234414AbiLETez (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:55 -0500
+        with ESMTP id S235068AbiLETpr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:45:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48C2E29CB0
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:30:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 106692D75A
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:42:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC9D0B81181
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:30:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 425B3C433D6;
-        Mon,  5 Dec 2022 19:30:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 874C6B811CF
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:42:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D47CAC433C1;
+        Mon,  5 Dec 2022 19:42:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268644;
-        bh=rQWusIHDkKz2sJaXe2wEgKSE/0CKqG0l5WsPyk7drnw=;
+        s=korg; t=1670269335;
+        bh=S+mJVPtqd+RyWTkOJN/UoNmh4qeQeVppC5hhqKOW9AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dShPkAhjqooehKY+WbXHCNwXzXpA2qV2pn3AGiHpD3zj+6WsOlszjVMt9CuXZqAvB
-         AElSQyE8ol1uYikgXRvyhwqALI9VsD0tyWUT+cwvXq305KrUXy/ZBFpmIhsYpt0pH7
-         flKLW6CZH4d0rv/KoHNKff5yGnQjgoIEA6KDFVUQ=
+        b=yOTkWC7+iULq43KxBNXm4mnE8SVTOLd9iMRMLFwCWsIFZIKFrd5R+L3mQyx/ap/T6
+         bXkuZvwNj2o9qYIO3uUvwuhG6P+M2PiVC9ghvIFaNS/L3KlEVCM6D6CNm9kaqaO9kV
+         /v4nwFvUcEprAvL620KOKSvZY9JFbBwy5W7wJuqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 53/92] net/mlx5: DR, Fix uninitialized var warning
+        patches@lists.linux.dev, Pengfei Xu <pengfei.xu@intel.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        syzbot+462da39f0667b357c4b6@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 082/153] fuse: lock inode unconditionally in fuse_fallocate()
 Date:   Mon,  5 Dec 2022 20:10:06 +0100
-Message-Id: <20221205190805.261040479@linuxfoundation.org>
+Message-Id: <20221205190811.076299662@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
+References: <20221205190808.733996403@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 52f7cf70eb8fac6111786c59ae9dfc5cf2bee710 ]
+commit 44361e8cf9ddb23f17bdcc40ca944abf32e83e79 upstream.
 
-Smatch warns this:
+file_modified() must be called with inode lock held.  fuse_fallocate()
+didn't lock the inode in case of just FALLOC_KEEP_SIZE flags value, which
+resulted in a kernel Warning in notify_change().
 
-drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c:81
- mlx5dr_table_set_miss_action() error: uninitialized symbol 'ret'.
+Lock the inode unconditionally, like all other fallocate implementations
+do.
 
-Initializing ret with -EOPNOTSUPP and fix missing action case.
-
-Fixes: 7838e1725394 ("net/mlx5: DR, Expose steering table functionality")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Pengfei Xu <pengfei.xu@intel.com>
+Reported-and-tested-by: syzbot+462da39f0667b357c4b6@syzkaller.appspotmail.com
+Fixes: 4a6f278d4827 ("fuse: add file_modified() to fallocate")
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/fuse/file.c |   22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c
-index b599b6beb5b9..6a4b997c258a 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_table.c
-@@ -9,7 +9,7 @@ int mlx5dr_table_set_miss_action(struct mlx5dr_table *tbl,
- 	struct mlx5dr_matcher *last_matcher = NULL;
- 	struct mlx5dr_htbl_connect_info info;
- 	struct mlx5dr_ste_htbl *last_htbl;
--	int ret;
-+	int ret = -EOPNOTSUPP;
- 
- 	if (action && action->action_type != DR_ACTION_TYP_FT)
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -3212,24 +3212,19 @@ static long fuse_file_fallocate(struct f
+ 		.mode = mode
+ 	};
+ 	int err;
+-	bool lock_inode = !(mode & FALLOC_FL_KEEP_SIZE) ||
+-			   (mode & FALLOC_FL_PUNCH_HOLE);
+-
+ 	if (mode & ~(FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE))
  		return -EOPNOTSUPP;
-@@ -68,6 +68,9 @@ int mlx5dr_table_set_miss_action(struct mlx5dr_table *tbl,
- 		}
+ 
+ 	if (fc->no_fallocate)
+ 		return -EOPNOTSUPP;
+ 
+-	if (lock_inode) {
+-		inode_lock(inode);
+-		if (mode & FALLOC_FL_PUNCH_HOLE) {
+-			loff_t endbyte = offset + length - 1;
+-
+-			err = fuse_writeback_range(inode, offset, endbyte);
+-			if (err)
+-				goto out;
+-		}
++	inode_lock(inode);
++	if (mode & FALLOC_FL_PUNCH_HOLE) {
++		loff_t endbyte = offset + length - 1;
++
++		err = fuse_writeback_range(inode, offset, endbyte);
++		if (err)
++			goto out;
  	}
  
-+	if (ret)
-+		goto out;
-+
- 	/* Release old action */
- 	if (tbl->miss_action)
- 		refcount_dec(&tbl->miss_action->refcount);
--- 
-2.35.1
-
+ 	if (!(mode & FALLOC_FL_KEEP_SIZE) &&
+@@ -3276,8 +3271,7 @@ out:
+ 	if (!(mode & FALLOC_FL_KEEP_SIZE))
+ 		clear_bit(FUSE_I_SIZE_UNSTABLE, &fi->state);
+ 
+-	if (lock_inode)
+-		inode_unlock(inode);
++	inode_unlock(inode);
+ 
+ 	return err;
+ }
 
 
