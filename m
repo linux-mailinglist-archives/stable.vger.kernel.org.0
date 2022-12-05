@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBDD2643374
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:36:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 834A16432F9
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:33:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234370AbiLETgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:36:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36124 "EHLO
+        id S233898AbiLETdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:33:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234285AbiLETgQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:36:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46A4017437
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:32:58 -0800 (PST)
+        with ESMTP id S233868AbiLETcr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:32:47 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C72032DF9
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2EDE0B81201
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:32:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77D05C433D6;
-        Mon,  5 Dec 2022 19:32:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A8881CE13A6
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:27:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83638C433D6;
+        Mon,  5 Dec 2022 19:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268775;
-        bh=wS2rbojpk/er2WTDgbuek2AGdd7sLrfue0DR5un57bI=;
+        s=korg; t=1670268472;
+        bh=A8JQCtPJ3+jGJOtGS97HCVJLClB7cJX+gYo1fOk63pI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BL6yD3YRPlAcEgEgmVX1IDaPqkD7cDFdfdvsYhQE4msUwLyfxmj4xsrDinVIo8KRT
-         RI0zmA2X9FvQRShbiKYXFGEk84pvg+yvA3FxBsuYlgkIAxnVbre+Al022RQMovyXrc
-         6cXUTIQVCXds2KfDnBLEL6qI6fktYnrm/XdmXbyA=
+        b=IU+zRTfKz7SCJK7scypzNF2zYwgl/FHVjQZwmaP914iMwxUVZCaEpK/xUJaRu0wqy
+         8FzykMd1ZrGIRZCHbr59ije87aRM8dvOc8mTAiHVoDXDHD0V3B5GEBLtXgp1BO5s4W
+         zmxrfBgJzYXZLnRu/JuP5h1Nx5joRNe0wMPOUKWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.10 67/92] drm/i915: Never return 0 if not all requests retired
+        patches@lists.linux.dev, SeongJae Park <sj@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 114/124] mm/damon/sysfs: fix wrong empty schemes assumption under online tuning in damon_sysfs_set_schemes()
 Date:   Mon,  5 Dec 2022 20:10:20 +0100
-Message-Id: <20221205190805.724492186@linuxfoundation.org>
+Message-Id: <20221205190811.686158294@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
-References: <20221205190803.464934752@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+From: SeongJae Park <sj@kernel.org>
 
-commit 12b8b046e4c9de40fa59b6f067d6826f4e688f68 upstream.
+[ Upstream commit 95bc35f9bee5220dad4e8567654ab3288a181639 ]
 
-Users of intel_gt_retire_requests_timeout() expect 0 return value on
-success.  However, we have no protection from passing back 0 potentially
-returned by a call to dma_fence_wait_timeout() when it succedes right
-after its timeout has expired.
+Commit da87878010e5 ("mm/damon/sysfs: support online inputs update") made
+'damon_sysfs_set_schemes()' to be called for running DAMON context, which
+could have schemes.  In the case, DAMON sysfs interface is supposed to
+update, remove, or add schemes to reflect the sysfs files.  However, the
+code is assuming the DAMON context wouldn't have schemes at all, and
+therefore creates and adds new schemes.  As a result, the code doesn't
+work as intended for online schemes tuning and could have more than
+expected memory footprint.  The schemes are all in the DAMON context, so
+it doesn't leak the memory, though.
 
-Replace 0 with -ETIME before potentially using the timeout value as return
-code, so -ETIME is returned if there are still some requests not retired
-after timeout, 0 otherwise.
+Remove the wrong asssumption (the DAMON context wouldn't have schemes) in
+'damon_sysfs_set_schemes()' to fix the bug.
 
-v3: Use conditional expression, more compact but also better reflecting
-    intention standing behind the change.
-
-v2: Move the added lines down so flush_submission() is not affected.
-
-Fixes: f33a8a51602c ("drm/i915: Merge wait_for_timelines with retire_request")
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Cc: stable@vger.kernel.org # v5.5+
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221121145655.75141-3-janusz.krzysztofik@linux.intel.com
-(cherry picked from commit f301a29f143760ce8d3d6b6a8436d45d3448cde6)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20221122194831.3472-1-sj@kernel.org
+Fixes: da87878010e5 ("mm/damon/sysfs: support online inputs update")
+Signed-off-by: SeongJae Park <sj@kernel.org>
+Cc: <stable@vger.kernel.org>	[5.19+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_gt_requests.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/damon/sysfs.c | 46 ++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 44 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_gt_requests.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt_requests.c
-@@ -200,7 +200,7 @@ out_active:	spin_lock(&timelines->lock);
- 	if (flush_submission(gt, timeout)) /* Wait, there's more! */
- 		active_count++;
- 
--	return active_count ? timeout : 0;
-+	return active_count ? timeout ?: -ETIME : 0;
+diff --git a/mm/damon/sysfs.c b/mm/damon/sysfs.c
+index ec88644c51df..1b782ca41396 100644
+--- a/mm/damon/sysfs.c
++++ b/mm/damon/sysfs.c
+@@ -2293,12 +2293,54 @@ static struct damos *damon_sysfs_mk_scheme(
+ 			&wmarks);
  }
  
- int intel_gt_wait_for_idle(struct intel_gt *gt, long timeout)
++static void damon_sysfs_update_scheme(struct damos *scheme,
++		struct damon_sysfs_scheme *sysfs_scheme)
++{
++	struct damon_sysfs_access_pattern *access_pattern =
++		sysfs_scheme->access_pattern;
++	struct damon_sysfs_quotas *sysfs_quotas = sysfs_scheme->quotas;
++	struct damon_sysfs_weights *sysfs_weights = sysfs_quotas->weights;
++	struct damon_sysfs_watermarks *sysfs_wmarks = sysfs_scheme->watermarks;
++
++	scheme->pattern.min_sz_region = access_pattern->sz->min;
++	scheme->pattern.max_sz_region = access_pattern->sz->max;
++	scheme->pattern.min_nr_accesses = access_pattern->nr_accesses->min;
++	scheme->pattern.max_nr_accesses = access_pattern->nr_accesses->max;
++	scheme->pattern.min_age_region = access_pattern->age->min;
++	scheme->pattern.max_age_region = access_pattern->age->max;
++
++	scheme->action = sysfs_scheme->action;
++
++	scheme->quota.ms = sysfs_quotas->ms;
++	scheme->quota.sz = sysfs_quotas->sz;
++	scheme->quota.reset_interval = sysfs_quotas->reset_interval_ms;
++	scheme->quota.weight_sz = sysfs_weights->sz;
++	scheme->quota.weight_nr_accesses = sysfs_weights->nr_accesses;
++	scheme->quota.weight_age = sysfs_weights->age;
++
++	scheme->wmarks.metric = sysfs_wmarks->metric;
++	scheme->wmarks.interval = sysfs_wmarks->interval_us;
++	scheme->wmarks.high = sysfs_wmarks->high;
++	scheme->wmarks.mid = sysfs_wmarks->mid;
++	scheme->wmarks.low = sysfs_wmarks->low;
++}
++
+ static int damon_sysfs_set_schemes(struct damon_ctx *ctx,
+ 		struct damon_sysfs_schemes *sysfs_schemes)
+ {
+-	int i;
++	struct damos *scheme, *next;
++	int i = 0;
++
++	damon_for_each_scheme_safe(scheme, next, ctx) {
++		if (i < sysfs_schemes->nr)
++			damon_sysfs_update_scheme(scheme,
++					sysfs_schemes->schemes_arr[i]);
++		else
++			damon_destroy_scheme(scheme);
++		i++;
++	}
+ 
+-	for (i = 0; i < sysfs_schemes->nr; i++) {
++	for (; i < sysfs_schemes->nr; i++) {
+ 		struct damos *scheme, *next;
+ 
+ 		scheme = damon_sysfs_mk_scheme(sysfs_schemes->schemes_arr[i]);
+-- 
+2.35.1
+
 
 
