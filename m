@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6507643451
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:44:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91D366432E8
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:32:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234892AbiLEToa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:44:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51864 "EHLO
+        id S232952AbiLETcG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:32:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234876AbiLEToO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:44:14 -0500
+        with ESMTP id S234138AbiLETbh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:31:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96D23261A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:41:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CB532C11B
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:27:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48468B8118F
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:41:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE90CC433C1;
-        Mon,  5 Dec 2022 19:41:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E7DAB81181
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:27:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70718C433D6;
+        Mon,  5 Dec 2022 19:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670269289;
-        bh=VHa0UVcFclgV0/CRLiJhQE8bAwgj5mUvm97pZNe4sUM=;
+        s=korg; t=1670268426;
+        bh=t0sh537lY/tynIianXOW8nlBPLeTqnOdZGJftal9+jU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V7WMRtPFuswswCFwUWNdRcO7zYr+JEoJp7RORBTPRh9W0RWOmoUEzBrN6NQnp6UGj
-         D5OFEExFDesApqVXNMl33mG8AU3gR82cE2KcEYh2HYZi8ZdXVAnrpXEXFMkvAqrfwj
-         sUdE04bLWtGcyQ+UCAnvdxZKvtm/tKQUZoozZ6Ds=
+        b=dg1PjV2TKKC1/I6ikTBlV5UTgqTccjQQp2PB5TgjJygH+y4Eq0mG7B5VRkZsfBUtX
+         Zs1MiduHmyqmVvYBrWix8uCzu5UohiJj0ex/0iYLuLdzj/BvJEZ52XJ/yodidbDjme
+         l2w3b2XG7EITFiTA2z58F2xSAktXKVb4GbDH5mfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Todd Kjos <tkjos@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Carlos Llamas <cmllamas@google.com>,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 5.4 072/153] binder: fix pointer cast warning
+        patches@lists.linux.dev,
+        Sebastian Falbesoner <sebastian.falbesoner@gmail.com>,
+        Haibo Chen <haibo.chen@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 6.0 090/124] mmc: sdhci-esdhc-imx: correct CQHCI exit halt state check
 Date:   Mon,  5 Dec 2022 20:09:56 +0100
-Message-Id: <20221205190810.787354843@linuxfoundation.org>
+Message-Id: <20221205190810.972682049@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.733996403@linuxfoundation.org>
-References: <20221205190808.733996403@linuxfoundation.org>
+In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
+References: <20221205190808.422385173@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sebastian Falbesoner <sebastian.falbesoner@gmail.com>
 
-commit 9a0a930fe2535a76ad70d3f43caeccf0d86a3009 upstream.
+commit a3cab1d2132474969871b5d7f915c5c0167b48b0 upstream.
 
-binder_uintptr_t is not the same as uintptr_t, so converting it into a
-pointer requires a second cast:
+With the current logic the "failed to exit halt state" error would be
+shown even if any other bit than CQHCI_HALT was set in the CQHCI_CTL
+register, since the right hand side is always true. Fix this by using
+the correct operator (bit-wise instead of logical AND) to only check for
+the halt bit flag, which was obviously intended here.
 
-drivers/android/binder.c: In function 'binder_translate_fd_array':
-drivers/android/binder.c:2511:28: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
- 2511 |         sender_ufda_base = (void __user *)sender_uparent->buffer + fda->parent_offset;
-      |                            ^
-
-Fixes: 656e01f3ab54 ("binder: read pre-translated fds from sender buffer")
-Acked-by: Todd Kjos <tkjos@google.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20211207122448.1185769-1-arnd@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
+Fixes: 85236d2be844 ("mmc: sdhci-esdhc-imx: clear the HALT bit when enable CQE")
+Signed-off-by: Sebastian Falbesoner <sebastian.falbesoner@gmail.com>
+Acked-by: Haibo Chen <haibo.chen@nxp.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221121105721.1903878-1-sebastian.falbesoner@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-esdhc-imx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2911,7 +2911,8 @@ static int binder_translate_fd_array(str
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -1512,7 +1512,7 @@ static void esdhc_cqe_enable(struct mmc_
+ 	 * system resume back.
  	 */
- 	fda_offset = (parent->buffer - (uintptr_t)t->buffer->user_data) +
- 		fda->parent_offset;
--	sender_ufda_base = (void __user *)sender_uparent->buffer + fda->parent_offset;
-+	sender_ufda_base = (void __user *)(uintptr_t)sender_uparent->buffer +
-+				fda->parent_offset;
+ 	cqhci_writel(cq_host, 0, CQHCI_CTL);
+-	if (cqhci_readl(cq_host, CQHCI_CTL) && CQHCI_HALT)
++	if (cqhci_readl(cq_host, CQHCI_CTL) & CQHCI_HALT)
+ 		dev_err(mmc_dev(host->mmc),
+ 			"failed to exit halt state when enable CQE\n");
  
- 	if (!IS_ALIGNED((unsigned long)fda_offset, sizeof(u32)) ||
- 	    !IS_ALIGNED((unsigned long)sender_ufda_base, sizeof(u32))) {
 
 
