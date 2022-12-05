@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDC33643135
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:13:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84D3B64333B
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:35:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231755AbiLETMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:12:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59444 "EHLO
+        id S234387AbiLETfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:35:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232064AbiLETMU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:12:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA8EBDF4D
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:12:19 -0800 (PST)
+        with ESMTP id S234116AbiLETen (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E52610DF
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:30:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86FA861311
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:12:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93D61C433C1;
-        Mon,  5 Dec 2022 19:12:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DD73B81181
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:30:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F2E6C433D6;
+        Mon,  5 Dec 2022 19:30:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267539;
-        bh=pNPdTM4ERY1IHA7FdDfBcNHZ/D0GoK8zFMc2qs9ZYGI=;
+        s=korg; t=1670268622;
+        bh=zeMcSjNLcYVCZF1f48aEaBNtzNbUHj8jy3DbuZ4NQxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FHYYSBHGrVJxSusF49FTAtnykuznReN4uTqICZXDZ80iCs5d4xmoCkqQbNAITCGfD
-         FgtFLvARItffUzFdJKF75eRXO1pSAgaLE7E3sRQGo8tL2TNiCr4LnluCN6Tsl0jdYk
-         OLtE6rJvlb488YUKe3fnn73t57x2NYbEMpc9tRNQ=
+        b=f9ud7g1+vibVE6O2s6rUALuQa6ew7hSExAU+7Ef446fM9oxyw8/pd/OU1raLe9YG0
+         CVcgVlegVS/1n52ErlpryiieCp6IyT/XPabO22NJM8lPx/ETFxw+EbbeZl5Q9TkIz4
+         hojZcLvBL/bhoJ+EPxJK+Ls3PzPQlO6giRYtX048=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        patches@lists.linux.dev, Harry Wentland <harry.wentland@amd.com>,
+        Claudio Suarez <cssk@net-c.es>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 23/62] nios2: add FORCE for vmlinuz.gz
+Subject: [PATCH 5.10 07/92] drm/amdgpu: update drm_display_info correctly when the edid is read
 Date:   Mon,  5 Dec 2022 20:09:20 +0100
-Message-Id: <20221205190758.974671361@linuxfoundation.org>
+Message-Id: <20221205190803.715245463@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Claudio Suarez <cssk@net-c.es>
 
-[ Upstream commit 869e4ae4cd2a23d625aaa14ae62dbebf768cb77d ]
+[ Upstream commit 20543be93ca45968f344261c1a997177e51bd7e1 ]
 
-Add FORCE to placate a warning from make:
+drm_display_info is updated by drm_get_edid() or
+drm_connector_update_edid_property(). In the amdgpu driver it is almost
+always updated when the edid is read in amdgpu_connector_get_edid(),
+but not always.  Change amdgpu_connector_get_edid() and
+amdgpu_connector_free_edid() to keep drm_display_info updated.
 
-arch/nios2/boot/Makefile:24: FORCE prerequisite is missing
-
-Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Claudio Suarez <cssk@net-c.es>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Stable-dep-of: 602ad43c3cd8 ("drm/amdgpu: Partially revert "drm/amdgpu: update drm_display_info correctly when the edid is read"")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/nios2/boot/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c    | 5 ++++-
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 +--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/nios2/boot/Makefile b/arch/nios2/boot/Makefile
-index c899876320df..76dce0a438a6 100644
---- a/arch/nios2/boot/Makefile
-+++ b/arch/nios2/boot/Makefile
-@@ -20,7 +20,7 @@ $(obj)/vmlinux.bin: vmlinux FORCE
- $(obj)/vmlinux.gz: $(obj)/vmlinux.bin FORCE
- 	$(call if_changed,gzip)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+index 98d3661336a4..b352c4eb5bbd 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -315,8 +315,10 @@ static void amdgpu_connector_get_edid(struct drm_connector *connector)
+ 	if (!amdgpu_connector->edid) {
+ 		/* some laptops provide a hardcoded edid in rom for LCDs */
+ 		if (((connector->connector_type == DRM_MODE_CONNECTOR_LVDS) ||
+-		     (connector->connector_type == DRM_MODE_CONNECTOR_eDP)))
++		     (connector->connector_type == DRM_MODE_CONNECTOR_eDP))) {
+ 			amdgpu_connector->edid = amdgpu_connector_get_hardcoded_edid(adev);
++			drm_connector_update_edid_property(connector, amdgpu_connector->edid);
++		}
+ 	}
+ }
  
--$(obj)/vmImage: $(obj)/vmlinux.gz
-+$(obj)/vmImage: $(obj)/vmlinux.gz FORCE
- 	$(call if_changed,uimage)
- 	@$(kecho) 'Kernel: $@ is ready'
+@@ -326,6 +328,7 @@ static void amdgpu_connector_free_edid(struct drm_connector *connector)
  
+ 	kfree(amdgpu_connector->edid);
+ 	amdgpu_connector->edid = NULL;
++	drm_connector_update_edid_property(connector, NULL);
+ }
+ 
+ static int amdgpu_connector_ddc_get_modes(struct drm_connector *connector)
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 55ecc67592eb..167a1ee518a8 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -2348,13 +2348,12 @@ void amdgpu_dm_update_connector_after_detect(
+ 			aconnector->edid =
+ 				(struct edid *)sink->dc_edid.raw_edid;
+ 
+-			drm_connector_update_edid_property(connector,
+-							   aconnector->edid);
+ 			if (aconnector->dc_link->aux_mode)
+ 				drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
+ 						    aconnector->edid);
+ 		}
+ 
++		drm_connector_update_edid_property(connector, aconnector->edid);
+ 		amdgpu_dm_update_freesync_caps(connector, aconnector->edid);
+ 		update_connector_ext_caps(aconnector);
+ 	} else {
 -- 
 2.35.1
 
