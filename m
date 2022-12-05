@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BACBB6432D1
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:30:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36C7464332A
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:34:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234237AbiLETaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:30:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54248 "EHLO
+        id S234422AbiLETem (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:34:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234008AbiLET3y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:29:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2817D2A729
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:26:07 -0800 (PST)
+        with ESMTP id S234375AbiLETeQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:34:16 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 096B228E12
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:29:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C4416131A
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:26:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F30DC433C1;
-        Mon,  5 Dec 2022 19:26:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4D9AACE13A8
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:29:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25517C433C1;
+        Mon,  5 Dec 2022 19:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670268366;
-        bh=ZPEcwlxSAlSYFdvr8SPLDAbU7FTX6XWVrnAybQy8PwE=;
+        s=korg; t=1670268581;
+        bh=BizvfJA1a54veZRiEAJhMZsBkutO+MxR/qhl/Ts29I0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxqa1T5TnVIlAdWQjrJ5h1752yP7R1Pb60ADakibwPvoM1nnEqYoMxfEUO17JkTBW
-         ko9QUVF5RvXrHrpnEXJFtbQmZkVkGoH1PjoEtFIZlsAirc4Q37Clzhx660nwkg+Mns
-         yLLR4+F0woB485sg5OeVU8xONPRQ6YEBbcofWrxo=
+        b=v82bnDwqRi3dqBencMoqDi1tSTxCH7OHTtewdBLTKM05poPVubk3yxxRp7iH1lO/Q
+         7gLSsinCaDXAN6X1TNriwwyBPJsdjAy9qbNSEiBGsdUFipZauZe9rxGz0kQbKl9CTu
+         SBvrwoZCh4OkAcpxDBIwUdlJMKRQVHEO5QhG6MhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
-        Alexandre Ghiti <alex@ghiti.fr>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.0 076/124] riscv: mm: Proper page permissions after initmem free
+        patches@lists.linux.dev, Wang Hai <wanghai38@huawei.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 29/92] e100: Fix possible use after free in e100_xmit_prepare
 Date:   Mon,  5 Dec 2022 20:09:42 +0100
-Message-Id: <20221205190810.579214841@linuxfoundation.org>
+Message-Id: <20221205190804.430816162@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-References: <20221205190808.422385173@linuxfoundation.org>
+In-Reply-To: <20221205190803.464934752@linuxfoundation.org>
+References: <20221205190803.464934752@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Töpel <bjorn@rivosinc.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit 6fdd5d2f8c2f54b7fad4ff4df2a19542aeaf6102 upstream.
+[ Upstream commit 45605c75c52c7ae7bfe902214343aabcfe5ba0ff ]
 
-64-bit RISC-V kernels have the kernel image mapped separately to alias
-the linear map. The linear map and the kernel image map are documented
-as "direct mapping" and "kernel" respectively in [1].
+In e100_xmit_prepare(), if we can't map the skb, then return -ENOMEM, so
+e100_xmit_frame() will return NETDEV_TX_BUSY and the upper layer will
+resend the skb. But the skb is already freed, which will cause UAF bug
+when the upper layer resends the skb.
 
-At image load time, the linear map corresponding to the kernel image
-is set to PAGE_READ permission, and the kernel image map is set to
-PAGE_READ|PAGE_EXEC.
+Remove the harmful free.
 
-When the initmem is freed, the pages in the linear map should be
-restored to PAGE_READ|PAGE_WRITE, whereas the corresponding pages in
-the kernel image map should be restored to PAGE_READ, by removing the
-PAGE_EXEC permission.
-
-This is not the case. For 64-bit kernels, only the linear map is
-restored to its proper page permissions at initmem free, and not the
-kernel image map.
-
-In practise this results in that the kernel can potentially jump to
-dead __init code, and start executing invalid instructions, without
-getting an exception.
-
-Restore the freed initmem properly, by setting both the kernel image
-map to the correct permissions.
-
-[1] Documentation/riscv/vm-layout.rst
-
-Fixes: e5c35fa04019 ("riscv: Map the kernel with correct permissions the first time")
-Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
-Reviewed-by: Alexandre Ghiti <alex@ghiti.fr>
-Tested-by: Alexandre Ghiti <alex@ghiti.fr>
-Link: https://lore.kernel.org/r/20221115090641.258476-1-bjorn@kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5e5d49422dfb ("e100: Release skb when DMA mapping is failed in e100_xmit_prepare")
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/setup.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/intel/e100.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/arch/riscv/kernel/setup.c
-+++ b/arch/riscv/kernel/setup.c
-@@ -322,10 +322,11 @@ subsys_initcall(topology_init);
+diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
+index 7ccf890ee735..001850d578e8 100644
+--- a/drivers/net/ethernet/intel/e100.c
++++ b/drivers/net/ethernet/intel/e100.c
+@@ -1742,11 +1742,8 @@ static int e100_xmit_prepare(struct nic *nic, struct cb *cb,
+ 	dma_addr = dma_map_single(&nic->pdev->dev, skb->data, skb->len,
+ 				  DMA_TO_DEVICE);
+ 	/* If we can't map the skb, have the upper layer try later */
+-	if (dma_mapping_error(&nic->pdev->dev, dma_addr)) {
+-		dev_kfree_skb_any(skb);
+-		skb = NULL;
++	if (dma_mapping_error(&nic->pdev->dev, dma_addr))
+ 		return -ENOMEM;
+-	}
  
- void free_initmem(void)
- {
--	if (IS_ENABLED(CONFIG_STRICT_KERNEL_RWX))
--		set_kernel_memory(lm_alias(__init_begin), lm_alias(__init_end),
--				  IS_ENABLED(CONFIG_64BIT) ?
--					set_memory_rw : set_memory_rw_nx);
-+	if (IS_ENABLED(CONFIG_STRICT_KERNEL_RWX)) {
-+		set_kernel_memory(lm_alias(__init_begin), lm_alias(__init_end), set_memory_rw_nx);
-+		if (IS_ENABLED(CONFIG_64BIT))
-+			set_kernel_memory(__init_begin, __init_end, set_memory_nx);
-+	}
- 
- 	free_initmem_default(POISON_FREE_INITMEM);
- }
+ 	/*
+ 	 * Use the last 4 bytes of the SKB payload packet as the CRC, used for
+-- 
+2.35.1
+
 
 
