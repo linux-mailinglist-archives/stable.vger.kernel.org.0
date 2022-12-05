@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E1664315E
-	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:14:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A6664339D
+	for <lists+stable@lfdr.de>; Mon,  5 Dec 2022 20:38:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232574AbiLETOU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 14:14:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33176 "EHLO
+        id S234391AbiLETiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 14:38:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232766AbiLETOK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:14:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CC0E1F613;
-        Mon,  5 Dec 2022 11:14:09 -0800 (PST)
+        with ESMTP id S234116AbiLEThh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 14:37:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61E5527DEF
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 11:34:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31335B811EC;
-        Mon,  5 Dec 2022 19:14:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94936C433C1;
-        Mon,  5 Dec 2022 19:14:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E157D612C5
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:34:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0CFEC433B5;
+        Mon,  5 Dec 2022 19:34:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670267646;
-        bh=HIpm+cFt8RabJ7f65n6L4CaCXn1+9k52bADMy2Ve66A=;
+        s=korg; t=1670268873;
+        bh=VkOFT7DBQT7Up2BTSVl1Iqk88N6FZaJHKY6oqZRsDbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IX1f00HxOgusLw6iTANfagl3v0zgNrYcVcyQODFAiDQRceWQjYBthggbiLkc4O9hg
-         Y2YRKhKzyDymi6Xi4VSSDVJILPxydoCILgDIXlcCGsxLvBXQhqYFsca5Hnoj8McqFW
-         lgbpDT9g5iQvpsDx0/dWIwA95QOj8xyDGE0TE/rI=
+        b=uhZ36DLu03Nmx7yM6ULFjDBK0VxzVO15Z0UNzXHY237BziSQ4fJBcmOhnlozplZqr
+         FWkAsPYWmXwFR+SJp3hzKRboE8JlIBF4we7XXfIZ1TXXc5vkzJdtS5b/La2Z9zJdm/
+         0rRd0mU1dVFIuW77Wcl0TF/hLrL9QPzYUoSHCYXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Phil Auld <pauld@redhat.com>,
-        linux-hwmon@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 45/62] hwmon: (coretemp) Check for null before removing sysfs attrs
+Subject: [PATCH 5.15 042/120] can: m_can: Add check for devm_clk_get
 Date:   Mon,  5 Dec 2022 20:09:42 +0100
-Message-Id: <20221205190759.804334208@linuxfoundation.org>
+Message-Id: <20221205190807.801435141@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
+In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
+References: <20221205190806.528972574@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Auld <pauld@redhat.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit a89ff5f5cc64b9fe7a992cf56988fd36f56ca82a ]
+[ Upstream commit 68b4f9e0bdd0f920d7303d07bfe226cd0976961d ]
 
-If coretemp_add_core() gets an error then pdata->core_data[indx]
-is already NULL and has been kfreed. Don't pass that to
-sysfs_remove_group() as that will crash in sysfs_remove_group().
+Since the devm_clk_get may return error,
+it should be better to add check for the cdev->hclk,
+as same as cdev->cclk.
 
-[Shortened for readability]
-[91854.020159] sysfs: cannot create duplicate filename '/devices/platform/coretemp.0/hwmon/hwmon2/temp20_label'
-<cpu offline>
-[91855.126115] BUG: kernel NULL pointer dereference, address: 0000000000000188
-[91855.165103] #PF: supervisor read access in kernel mode
-[91855.194506] #PF: error_code(0x0000) - not-present page
-[91855.224445] PGD 0 P4D 0
-[91855.238508] Oops: 0000 [#1] PREEMPT SMP PTI
-...
-[91855.342716] RIP: 0010:sysfs_remove_group+0xc/0x80
-...
-[91855.796571] Call Trace:
-[91855.810524]  coretemp_cpu_offline+0x12b/0x1dd [coretemp]
-[91855.841738]  ? coretemp_cpu_online+0x180/0x180 [coretemp]
-[91855.871107]  cpuhp_invoke_callback+0x105/0x4b0
-[91855.893432]  cpuhp_thread_fun+0x8e/0x150
-...
-
-Fix this by checking for NULL first.
-
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Cc: linux-hwmon@vger.kernel.org
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20221117162313.3164803-1-pauld@redhat.com
-Fixes: 199e0de7f5df3 ("hwmon: (coretemp) Merge pkgtemp with coretemp")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/all/20221123063651.26199-1-jiasheng@iscas.ac.cn
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/coretemp.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/can/m_can/m_can.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
-index be1e380fa1c3..9e81842cff7d 100644
---- a/drivers/hwmon/coretemp.c
-+++ b/drivers/hwmon/coretemp.c
-@@ -557,6 +557,10 @@ static void coretemp_remove_core(struct platform_data *pdata,
- {
- 	struct temp_data *tdata = pdata->core_data[indx];
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index c4596fbe6d2f..46ab6155795c 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -1931,7 +1931,7 @@ int m_can_class_get_clocks(struct m_can_classdev *cdev)
+ 	cdev->hclk = devm_clk_get(cdev->dev, "hclk");
+ 	cdev->cclk = devm_clk_get(cdev->dev, "cclk");
  
-+	/* if we errored on add then this is already gone */
-+	if (!tdata)
-+		return;
-+
- 	/* Remove the sysfs attributes */
- 	sysfs_remove_group(&pdata->hwmon_dev->kobj, &tdata->attr_group);
- 
+-	if (IS_ERR(cdev->cclk)) {
++	if (IS_ERR(cdev->hclk) || IS_ERR(cdev->cclk)) {
+ 		dev_err(cdev->dev, "no clock found\n");
+ 		ret = -ENODEV;
+ 	}
 -- 
 2.35.1
 
