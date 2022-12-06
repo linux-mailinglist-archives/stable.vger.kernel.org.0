@@ -2,130 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C46A6447C1
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 16:16:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B7946447DF
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 16:21:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235045AbiLFPQN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 10:16:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42940 "EHLO
+        id S235415AbiLFPVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 10:21:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235314AbiLFPPp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 10:15:45 -0500
-Received: from mail-oa1-x2e.google.com (mail-oa1-x2e.google.com [IPv6:2001:4860:4864:20::2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A4C2EF00;
-        Tue,  6 Dec 2022 07:11:51 -0800 (PST)
-Received: by mail-oa1-x2e.google.com with SMTP id 586e51a60fabf-14449b7814bso12793522fac.3;
-        Tue, 06 Dec 2022 07:11:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id:sender
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=U2aqfWiC18IWaJPfen75guUebWdcC57mYfUOjSginJ8=;
-        b=X7P/ipumWPrS53pnFJPhLt9S4ZXC7xstFKw+LYRBYGoL8V0635Ef1gkYhcHKzrb5f+
-         MnlhsS3zuxOw6FgQJzYWNFVPlP72Fxi3cjXv0Mn02oa0Kpc0I7OoLMMnHcbfzjJjWoBD
-         FCxxZhOh322UZ9AEOQpL5Bj3+/3JUvzcZ9/g/bM9Azk0VvxCsY3epXqZT6C9GI1dg2jh
-         B+4hTmqjjLQkq4dd/+Bycm6d0CWrvTterUKqz1nvNKCBibmHtLrpHgNQHwpFts0k1/EO
-         1ZdnlgJs/mT8Id2NlA0DXnbbio5r/chWWGhX3/lmUpe2WPR2x/nkGEQQbXnqLEStA55o
-         MH8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id:sender
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=U2aqfWiC18IWaJPfen75guUebWdcC57mYfUOjSginJ8=;
-        b=eo716D619xsd8JSLvR1ODpBlFV6Un2iM0c4jRqKXjCNfrYL6lO/uzLhvTOqhxwnHA7
-         +aLhLyOBZmQJF06WmcHEQLiGT/ifkZlov8rEAhhtpTONfuKmB1tGpbTRoaiCv6zH9wH3
-         LIkGAJ5w4Y2Rf9G4R/3ccNr+ZlkIullfYFHko+1OQ0zrUJ6xTtuqNT5cvvdaCrXLsIPS
-         zNcOCgHWpRBP/UzaFY7/tyDhRWkdFJ5xc114TEUaoF8I10L9PxLxsNIJhLa4JvPD9m3a
-         OkoIbU6sh8/Xmi+IvFbWXkuGvSTbB8/CIT/LNspmlpprD/tLdzc3oqv+dBa8swpfiWAi
-         eriQ==
-X-Gm-Message-State: ANoB5pl8atDYpCDttJfez94JwhrY3QDlFxcyXK+jE1VKDfea4B3405f4
-        uBgJyg5Ss6b8uY7fVqteuJg=
-X-Google-Smtp-Source: AA0mqf5k6TyODTmFnas1gSjxxVcp5bgqj2cC6uaE41NtITw/OPvmc0Mnf/joQBZzQK8uqXxfMoApAg==
-X-Received: by 2002:a05:6870:9d95:b0:13b:a163:ca6 with SMTP id pv21-20020a0568709d9500b0013ba1630ca6mr53683510oab.125.1670339501593;
-        Tue, 06 Dec 2022 07:11:41 -0800 (PST)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id ce11-20020a056830628b00b00670461b8be4sm2200619otb.33.2022.12.06.07.11.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 06 Dec 2022 07:11:41 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <792a6fba-aa15-2e2a-7527-99ab1116a01d@roeck-us.net>
-Date:   Tue, 6 Dec 2022 07:11:39 -0800
+        with ESMTP id S235363AbiLFPUh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 10:20:37 -0500
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1B13EB1
+        for <stable@vger.kernel.org>; Tue,  6 Dec 2022 07:20:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1670340006; x=1701876006;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   in-reply-to;
+  bh=px51s1I8Q20++rz+44sqxe8BinnmrgYrIMOiGxLwkog=;
+  b=csQVnbIj/9AXXv8SGQXGslJtErg6pMIIc7IaNUsPGgMD1KRBRgjVhgMj
+   zQT0vsmcu9SguFnk0fpvv2ZIuNiytd92PUaY7YRJqwDZSJYS6P2PhFhEJ
+   I42GRWRjbsVm7KLQ6OXxazdAaKOLd1xCYw5Zjdt0j/PHa3EUthlRouIdj
+   P779l15EEK1y8yKPGUsa5GSvcSoN1cK9bs7CM5anegindUff+Ce6ul36k
+   1ynwsfD8F53389V7FkpEGZRdONYnHWkWwPRgObX5nVzGLZj780/1LD6oi
+   4hyIPEq+BN9xj5mVTRP4dduEF4+3trsBhNovoCia6Wkf6QNdlaPJqZh5G
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10553"; a="297003681"
+X-IronPort-AV: E=Sophos;i="5.96,222,1665471600"; 
+   d="scan'208";a="297003681"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Dec 2022 07:19:10 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10553"; a="770755357"
+X-IronPort-AV: E=Sophos;i="5.96,222,1665471600"; 
+   d="scan'208";a="770755357"
+Received: from lkp-server01.sh.intel.com (HELO b3c45e08cbc1) ([10.239.97.150])
+  by orsmga004.jf.intel.com with ESMTP; 06 Dec 2022 07:19:08 -0800
+Received: from kbuild by b3c45e08cbc1 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1p2Ziu-00011J-0W;
+        Tue, 06 Dec 2022 15:19:08 +0000
+Date:   Tue, 6 Dec 2022 23:18:19 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     "Radu Nicolae Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>
+Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
+Subject: Re: [PATCH] net: dsa: sja1105: fix slab-out-of-bounds in
+ sja1105_setup
+Message-ID: <Y49dO6qcmcWfZ+k0@0d7994225921>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20221206124052.595650754@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 5.15 000/123] 5.15.82-rc2 review
-In-Reply-To: <20221206124052.595650754@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221206151136.802344-1-radu-nicolae.pirea@oss.nxp.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/6/22 04:42, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.82 release.
-> There are 123 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 08 Dec 2022 12:40:31 +0000.
-> Anything received after that time might be too late.
-> 
+Hi,
 
-arch/riscv/kernel/smp.c: In function 'handle_IPI':
-arch/riscv/kernel/smp.c:195:44: error: 'cpu' undeclared (first use in this function)
-   195 |                         ipi_cpu_crash_stop(cpu, get_irq_regs());
-       |                                            ^~~
-arch/riscv/kernel/smp.c:195:44: note: each undeclared identifier is reported only once for each function it appears in
-arch/riscv/kernel/smp.c:217:22: error: 'old_regs' undeclared (first use in this function)
-   217 |         set_irq_regs(old_regs);
-       |                      ^~~~~~~~
+Thanks for your patch.
 
-This is with v5.15.81-124-g9269e46bc838.
+FYI: kernel test robot notices the stable kernel rule is not satisfied.
 
-The backport of commit 9b932aadfc47d seems wrong. The original version introduces
-the cpu variable in handle_IPI(). The backport doesn't, and removes old_regs
-instead.
+Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
+Subject: [PATCH] net: dsa: sja1105: fix slab-out-of-bounds in sja1105_setup
+Link: https://lore.kernel.org/stable/20221206151136.802344-1-radu-nicolae.pirea%40oss.nxp.com
 
-Backport:
+The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
 
-  void handle_IPI(struct pt_regs *regs)
-  {
--       struct pt_regs *old_regs = set_irq_regs(regs);
-         unsigned long *pending_ipis = &ipi_data[smp_processor_id()].bits;
-         unsigned long *stats = ipi_data[smp_processor_id()].stats;
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp
 
-Original:
 
-void handle_IPI(struct pt_regs *regs)
-  {
--       unsigned long *pending_ipis = &ipi_data[smp_processor_id()].bits;
--       unsigned long *stats = ipi_data[smp_processor_id()].stats;
-+       unsigned int cpu = smp_processor_id();
-+       unsigned long *pending_ipis = &ipi_data[cpu].bits;
-+       unsigned long *stats = ipi_data[cpu].stats;
-
-Upstream includes commit 7ecbc648102f which removes the old_regs variable.
-That doesn't mean it can be removed in the backport.
-
-Guenter
 
