@@ -2,63 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4824A644AD7
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 19:08:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B7A3644AD9
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 19:09:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229683AbiLFSIg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 13:08:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55072 "EHLO
+        id S229640AbiLFSJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 13:09:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229673AbiLFSIf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 13:08:35 -0500
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0EDD2630;
-        Tue,  6 Dec 2022 10:08:34 -0800 (PST)
-Received: by mail-pg1-x534.google.com with SMTP id 62so14062672pgb.13;
-        Tue, 06 Dec 2022 10:08:34 -0800 (PST)
+        with ESMTP id S229673AbiLFSJY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 13:09:24 -0500
+Received: from mail-oa1-x2e.google.com (mail-oa1-x2e.google.com [IPv6:2001:4860:4864:20::2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BAAA3AC16;
+        Tue,  6 Dec 2022 10:09:23 -0800 (PST)
+Received: by mail-oa1-x2e.google.com with SMTP id 586e51a60fabf-1447c7aa004so10235318fac.11;
+        Tue, 06 Dec 2022 10:09:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=ebNy6ciyWP/1wiyDXiZM5ebyIeGQ1+JDe4V/MHiBZ+Q=;
-        b=OtUqvnwUVOzkQtcy9vnKjntBdvIkNoE1QdM6g7d4AFJQnKruGjuo/jIu+0Why58dxo
-         Cwk/orPSQPpBPc6O12Mfd2+BGM3xeAxVJASCTKRpnWguwv/Jwr8aQLUNDhZrx4Hlq6lP
-         5GqdrF8v8myEeXDypCZgW9mmN74IRaLMZ6w0Ipsn7iOQDY5JPThw2UeqJfCd45HSa1ht
-         6JjQx4q4gqfVcAbQ6zvL3yYfbyP6NiebJe3QgJJwUJNBQvfP3TjYqEC0t0cJB3sRDsTA
-         JZIlormHlVuav8KMtAFgkcywAfCmW5qYtN2VvEcxIsAsIzM+1g6dxPV3/iw7fT4nm77o
-         TTag==
+        bh=CWev+jDg0dJZ3iRe8fmDv7sVMbP2pNiYIK+0iXz8Ozw=;
+        b=gGQ4+B1AD0prkHHQTMEZSg0B+Po3EeECzMeGxLiglZQCMnadIghRxwxHWlMxquyKfM
+         lZYGC0USPIpX+prT+vtaowDIjN0L6IDesiXaKcbI0I8Tf/Z5LyT4gabJEv7w2YrxbBxc
+         nJedvuGElXiXAtWQ49k9akfBY7U9WtFgCQBOsm9B/E0SzOXZcYBq6tVQYi5feQ5RS90Y
+         1W2VHnpMB1vz/6R4PSPHvA596hjbHdO/46l/DkU8+E0w9rIvWwzQ/U77GhiuIEEoy1iz
+         d0xHLBpDdDsSdRW7StAyzBge8nQ6rho0G8KlYlfjVf2WzxzHKCi0pwRxnXGf7nOZRWlW
+         2SNQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=ebNy6ciyWP/1wiyDXiZM5ebyIeGQ1+JDe4V/MHiBZ+Q=;
-        b=x6f0ZuTiobPp2GuB2waHPlFOfJa/XH8V2WRG1u1KiEDzB/RmluL2awUTxCkeyu3HAb
-         EBzN31gQM2TPZKHXn5RfooHwHxmEscfZ/QfKXrCqI/TDgqZJgAO4BLlURX3MXbMlg1n9
-         +m7QE6Zc2TnoF5P4QOMeISJe/dRCxDVQ1+u5FrNdpWYxqX7YW8AzycCj2lyEPfLtmdWQ
-         kFoWHzqxRdBYT5XHYHvSORANdJdXVf8UEKYBvetz/NmMvTG5FVsgtFiHrYfoKFxwHRej
-         spddbW/hCuN7J8okoeMgs4iGlWd2qt6DGsrdBXnZqXGZsArHUPwe84YVNP8NHhRrjJRo
-         bY0Q==
-X-Gm-Message-State: ANoB5pkQrkOzPdeABSh6JepYCOKODG12KJviVKP1/lPRM0ZRssers7c3
-        xgC+pn7KndjVNV7kQl1mTpQp2JKDUHq6oYmKiwo=
-X-Google-Smtp-Source: AA0mqf7MgxRO98B9Da0Eyo7NARQx3m8FWTBB2bKRqrCBhIW4Wo17Y44H1pXz3YVK4KbEL1WLqDEbyHVAeVaDQ1b7pLk=
-X-Received: by 2002:a05:6a00:1d22:b0:577:16ac:8447 with SMTP id
- a34-20020a056a001d2200b0057716ac8447mr7955316pfx.56.1670350114320; Tue, 06
- Dec 2022 10:08:34 -0800 (PST)
+        bh=CWev+jDg0dJZ3iRe8fmDv7sVMbP2pNiYIK+0iXz8Ozw=;
+        b=nad3VrToehX+U3e0+A2x3TACDLFEdXV8+fKVubxnoQNNGqhVUVgkoYMzWvjsyL/mSr
+         AoJYu6eSJq7Gm1W7yYpjb4XGtbX3mpLzze7UlGR/NVHgvBCrop19L6NNRTF1gERkV0bV
+         pQvH22al+ZX5fQGQvVSyZwcAbMxRp9pTy/ERb81N4tssgSpd8zvMu97lIIeWryOlVxTm
+         nEY55X/r/596qERE5f9aSv1ZElB/1zCCC789Fe1epsLHnsaveDYHn3X/ssIFNSIWSTKb
+         qPCCt5g1ygK2zz6exwpjluXHuZIosV+ep9FkR185Ta7l5dPnZBAr9jC7ZGY5rNI50IC1
+         NIdA==
+X-Gm-Message-State: ANoB5pmjEKNZxZuN/M/yDAMFIACpvANKhmQ4+H3X9OjQYInEgJyOeAoA
+        PMaTD24spsdUEtKgDh4dVrTGvrDteoWspP06UhA=
+X-Google-Smtp-Source: AA0mqf6iKPcyytwwVsEHd6kTCR7WtQHQnDpEAdLZZGz40NnxjMAO+4rIEjR8fUj3WHshRxS+nwOfEgXqCvw1ZdDfDiY=
+X-Received: by 2002:a05:6870:e749:b0:144:5f0d:9fcb with SMTP id
+ t9-20020a056870e74900b001445f0d9fcbmr8272974oak.38.1670350162551; Tue, 06 Dec
+ 2022 10:09:22 -0800 (PST)
 MIME-Version: 1.0
-References: <20221205190808.422385173@linuxfoundation.org>
-In-Reply-To: <20221205190808.422385173@linuxfoundation.org>
-From:   Allen Pais <stable.kernel.dev@gmail.com>
-Date:   Tue, 6 Dec 2022 10:08:23 -0800
-Message-ID: <CAJq+SaCrQG4WBvPPV05E-206-G=kVjyEBNyVs498nOEGzzx9Sw@mail.gmail.com>
-Subject: Re: [PATCH 6.0 000/124] 6.0.12-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221130185748.357410-1-robdclark@gmail.com> <20221130185748.357410-2-robdclark@gmail.com>
+ <3e9e157d-e740-ee5b-b8d3-07822b2c9a9b@collabora.com>
+In-Reply-To: <3e9e157d-e740-ee5b-b8d3-07822b2c9a9b@collabora.com>
+From:   Rob Clark <robdclark@gmail.com>
+Date:   Tue, 6 Dec 2022 10:09:16 -0800
+Message-ID: <CAF6AEGud11KEJvBY9J_TPahFOvo=C0VhG0An7nfNbsHXKbKC2w@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] drm/shmem-helper: Remove errant put in error path
+To:     Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc:     dri-devel@lists.freedesktop.org,
+        Rob Clark <robdclark@chromium.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        open list <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Eric Anholt <eric@anholt.net>,
+        =?UTF-8?Q?Noralf_Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        syzbot+c8ae65286134dd1b800d@syzkaller.appspotmail.com
 Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
@@ -70,29 +73,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Dec 4, 2022 at 12:45 PM Dmitry Osipenko
+<dmitry.osipenko@collabora.com> wrote:
 >
-> This is the start of the stable review cycle for the 6.0.12 release.
-> There are 124 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> On 11/30/22 21:57, Rob Clark wrote:
+> > From: Rob Clark <robdclark@chromium.org>
+> >
+> > drm_gem_shmem_mmap() doesn't own this reference, resulting in the GEM
+> > object getting prematurely freed leading to a later use-after-free.
+> >
+> > Link: https://syzkaller.appspot.com/bug?extid=c8ae65286134dd1b800d
+> > Reported-by: syzbot+c8ae65286134dd1b800d@syzkaller.appspotmail.com
+> > Fixes: 2194a63a818d ("drm: Add library for shmem backed GEM objects")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Rob Clark <robdclark@chromium.org>
+> > Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> > ---
+> >  drivers/gpu/drm/drm_gem_shmem_helper.c | 4 +---
+> >  1 file changed, 1 insertion(+), 3 deletions(-)
+> >
+> > diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> > index 35138f8a375c..3b7b71391a4c 100644
+> > --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> > +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> > @@ -622,10 +622,8 @@ int drm_gem_shmem_mmap(struct drm_gem_shmem_object *shmem, struct vm_area_struct
+> >       }
+> >
+> >       ret = drm_gem_shmem_get_pages(shmem);
+> > -     if (ret) {
+> > -             drm_gem_vm_close(vma);
+> > +     if (ret)
+> >               return ret;
+> > -     }
+> >
+> >       vma->vm_flags |= VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP;
+> >       vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
 >
-> Responses should be made by Wed, 07 Dec 2022 19:07:46 +0000.
-> Anything received after that time might be too late.
+> AFAICS, the dmabuf mmaping code path needs a similar fix, isn't it?
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.12-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
-> and the diffstat can be found below.
+> -               /* Drop the reference drm_gem_mmap_obj() acquired.*/
+> -               drm_gem_object_put(obj);
+>                 vma->vm_private_data = NULL;
 >
-> thanks,
->
-> greg k-h
+> -               return dma_buf_mmap(obj->dma_buf, vma, 0);
+> +               ret = dma_buf_mmap(obj->dma_buf, vma, 0);
+> +
+> +               /* Drop the reference drm_gem_mmap_obj() acquired.*/
+> +               if (!ret)
+> +                       drm_gem_object_put(obj);
+> +
+> +               return ret;
 >
 
-Compiled and booted on my x86_64 and ARM64 test systems. No errors or
-regressions.
+Yes, it seems that way.. I wish the shmem helpers worked in a less
+"special" way with regards to refcnting :-(
 
-Tested-by: Allen Pais <apais@linux.microsoft.com>
-
-Thanks.
+BR,
+-R
