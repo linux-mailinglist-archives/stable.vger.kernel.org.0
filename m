@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4962064414C
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 11:31:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6909644231
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 12:33:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230459AbiLFKbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 05:31:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35396 "EHLO
+        id S233661AbiLFLdz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 06:33:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234216AbiLFKbr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 05:31:47 -0500
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1058F1BEBC;
-        Tue,  6 Dec 2022 02:31:43 -0800 (PST)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 8ADF61C0A0E; Tue,  6 Dec 2022 11:31:42 +0100 (CET)
-Date:   Tue, 6 Dec 2022 11:31:42 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 4.9 00/62] 4.9.335-rc1 review
-Message-ID: <Y48aDpD1rW8xaA7H@duo.ucw.cz>
-References: <20221205190758.073114639@linuxfoundation.org>
+        with ESMTP id S229690AbiLFLdy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 06:33:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C701262A
+        for <stable@vger.kernel.org>; Tue,  6 Dec 2022 03:33:54 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACE9761684
+        for <stable@vger.kernel.org>; Tue,  6 Dec 2022 11:33:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5EC3C433D6;
+        Tue,  6 Dec 2022 11:33:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1670326433;
+        bh=+O3fP5uf6NikPGZzxo4/Fp/NjzlNua9tDI2oaraI0Rw=;
+        h=Subject:To:Cc:From:Date:From;
+        b=ZfN5i7MNLIYpoUNnnoDfotfXPsCYiBqiDzX7+YxYS72HhOCZZz1aFxP0gat7qN8uj
+         4eiEVWR48itCKq96a4S41sZbnCd1w6I3nEo4CHqSpopj9Y1+7+ISJ8q1zV1ETK+Jny
+         vtpXyU1jcqtZLdkUVdHVym8WiLFSmhpeVyPoozIw=
+Subject: FAILED: patch "[PATCH] ipc/sem: Fix dangling sem_array access in semtimedop race" failed to apply to 5.10-stable tree
+To:     jannh@google.com, torvalds@linux-foundation.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 06 Dec 2022 12:33:49 +0100
+Message-ID: <16703264291854@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="7uwovfPFJibtsLIv"
-Content-Disposition: inline
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -42,43 +47,80 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---7uwovfPFJibtsLIv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Hi!
+Possible dependencies:
 
-> This is the start of the stable review cycle for the 4.9.335 release.
-> There are 62 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
 
-CIP testing did not find any problems here:
 
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-4.9.y
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-4.19.y
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-5.10.y
+thanks,
 
-Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+greg k-h
 
-Best regards,
-                                                                Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+------------------ original commit in Linus's tree ------------------
 
---7uwovfPFJibtsLIv
-Content-Type: application/pgp-signature; name="signature.asc"
+From b52be557e24c47286738276121177a41f54e3b83 Mon Sep 17 00:00:00 2001
+From: Jann Horn <jannh@google.com>
+Date: Mon, 5 Dec 2022 17:59:27 +0100
+Subject: [PATCH] ipc/sem: Fix dangling sem_array access in semtimedop race
 
------BEGIN PGP SIGNATURE-----
+When __do_semtimedop() goes to sleep because it has to wait for a
+semaphore value becoming zero or becoming bigger than some threshold, it
+links the on-stack sem_queue to the sem_array, then goes to sleep
+without holding a reference on the sem_array.
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY48aDgAKCRAw5/Bqldv6
-8tCDAJ445sAHxuYyA4yF3QxuNv+gliKuQACePoJT8b0rmV8dMfUaUFLXMgDzQdY=
-=R3MZ
------END PGP SIGNATURE-----
+When __do_semtimedop() comes back out of sleep, one of two things must
+happen:
 
---7uwovfPFJibtsLIv--
+ a) We prove that the on-stack sem_queue has been disconnected from the
+    (possibly freed) sem_array, making it safe to return from the stack
+    frame that the sem_queue exists in.
+
+ b) We stabilize our reference to the sem_array, lock the sem_array, and
+    detach the sem_queue from the sem_array ourselves.
+
+sem_array has RCU lifetime, so for case (b), the reference can be
+stabilized inside an RCU read-side critical section by locklessly
+checking whether the sem_queue is still connected to the sem_array.
+
+However, the current code does the lockless check on sem_queue before
+starting an RCU read-side critical section, so the result of the
+lockless check immediately becomes useless.
+
+Fix it by doing rcu_read_lock() before the lockless check.  Now RCU
+ensures that if we observe the object being on our queue, the object
+can't be freed until rcu_read_unlock().
+
+This bug is only hittable on kernel builds with full preemption support
+(either CONFIG_PREEMPT or PREEMPT_DYNAMIC with preempt=full).
+
+Fixes: 370b262c896e ("ipc/sem: avoid idr tree lookup for interrupted semop")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/ipc/sem.c b/ipc/sem.c
+index c8496f98b139..00f88aa01ac5 100644
+--- a/ipc/sem.c
++++ b/ipc/sem.c
+@@ -2179,14 +2179,15 @@ long __do_semtimedop(int semid, struct sembuf *sops,
+ 		 * scenarios where we were awakened externally, during the
+ 		 * window between wake_q_add() and wake_up_q().
+ 		 */
++		rcu_read_lock();
+ 		error = READ_ONCE(queue.status);
+ 		if (error != -EINTR) {
+ 			/* see SEM_BARRIER_2 for purpose/pairing */
+ 			smp_acquire__after_ctrl_dep();
++			rcu_read_unlock();
+ 			goto out;
+ 		}
+ 
+-		rcu_read_lock();
+ 		locknum = sem_lock(sma, sops, nsops);
+ 
+ 		if (!ipc_valid_object(&sma->sem_perm))
+
