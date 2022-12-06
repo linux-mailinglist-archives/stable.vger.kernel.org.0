@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DF6A644351
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 13:42:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 436F0644352
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 13:42:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234232AbiLFMmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 07:42:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50352 "EHLO
+        id S234167AbiLFMmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 07:42:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234260AbiLFMmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 07:42:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 082EC222AE;
-        Tue,  6 Dec 2022 04:41:56 -0800 (PST)
+        with ESMTP id S234304AbiLFMmH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 07:42:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2493529834;
+        Tue,  6 Dec 2022 04:42:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 951D1616FB;
-        Tue,  6 Dec 2022 12:41:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BAC1C433C1;
-        Tue,  6 Dec 2022 12:41:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B080361668;
+        Tue,  6 Dec 2022 12:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C5FCC433C1;
+        Tue,  6 Dec 2022 12:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670330515;
-        bh=eT7GiH8dkMv1jsz/wY2uwTqf37FapMpo8rNsnmU3roU=;
+        s=korg; t=1670330523;
+        bh=jGyzwGX3fm6Hpn0NS9indGmSsG4ARAG75OiPYm5qcVs=;
         h=From:To:Cc:Subject:Date:From;
-        b=QkNwLI+RhGJjWEzMvkx7aqpQmUYGbZyLihhJlTHtgKJD7r2kBINAE7n83K7IrgMMX
-         qmAz+pU/3zPxXMTwa01q449A4/uLkwiVzfjGsgBh4UTmZnUYqa3i3lWCtDxBaIn+IL
-         Y306YZ5HgkOia89XnmGZu2taoCDc0e4EdRny4iPU=
+        b=CvCIu2KRdZhZAaFyhNq38YFdcYWtXAEbBj8QwoM3Lm3vdAlOvw7ix9Sb4GDzJSp6X
+         TmH4FTeNof/6m2hSAyUZOrmT/sTAI3gqbBonHQmJaJz/rUSo5W2aVu9njqBDBKPiPR
+         Za5M7yWlMzPEePF3Ob2T/bPpNRqVA6+nL/L8N3vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,19 +37,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
         srw@sladewatkins.net, rwarsow@gmx.de
-Subject: [PATCH 4.14 00/83] 4.14.301-rc2 review
-Date:   Tue,  6 Dec 2022 13:41:52 +0100
-Message-Id: <20221206124046.347571765@linuxfoundation.org>
+Subject: [PATCH 4.19 000/110] 4.19.268-rc2 review
+Date:   Tue,  6 Dec 2022 13:42:00 +0100
+Message-Id: <20221206124049.108349681@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.301-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.268-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Branch: linux-4.19.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.301-rc2
+X-KernelTest-Version: 4.19.268-rc2
 X-KernelTest-Deadline: 2022-12-08T12:40+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -62,8 +62,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.301 release.
-There are 83 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 4.19.268 release.
+There are 110 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
@@ -71,9 +71,9 @@ Responses should be made by Thu, 08 Dec 2022 12:40:31 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.301-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.268-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
 and the diffstat can be found below.
 
 thanks,
@@ -84,25 +84,10 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.301-rc2
-
-Ben Hutchings <ben@decadent.org.uk>
-    Revert "x86/speculation: Change FILL_RETURN_BUFFER to work with objtool"
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/nospec: Fix i386 RSB stuffing
+    Linux 4.19.268-rc2
 
 Jann Horn <jannh@google.com>
     ipc/sem: Fix dangling sem_array access in semtimedop race
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    v4l2: don't fall back to follow_pfn() if pin_user_pages_fast() fails
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    proc: proc_skip_spaces() shouldn't think it is working on C strings
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    proc: avoid integer type confusion in get_proc_long
 
 Adrian Hunter <adrian.hunter@intel.com>
     mmc: sdhci: Fix voltage switch delay
@@ -128,6 +113,18 @@ Keith Busch <kbusch@kernel.org>
 Kuniyuki Iwashima <kuniyu@amazon.com>
     tcp/udp: Fix memory leak in ipv6_renew_options().
 
+Lee Jones <lee@kernel.org>
+    Kconfig.debug: provide a little extra FRAME_WARN leeway when KASAN is enabled
+
+Helge Deller <deller@gmx.de>
+    parisc: Increase FRAME_WARN to 2048 bytes on parisc
+
+Guenter Roeck <linux@roeck-us.net>
+    xtensa: increase size of gcc stack frame check
+
+Helge Deller <deller@gmx.de>
+    parisc: Increase size of gcc stack frame check
+
 Xiongfeng Wang <wangxiongfeng2@huawei.com>
     iommu/vt-d: Fix PCI device refcount leak in dmar_dev_scope_init()
 
@@ -137,14 +134,17 @@ Maxim Korotkov <korotkov.maxim.s@gmail.com>
 Mark Brown <broonie@kernel.org>
     ASoC: ops: Fix bounds check for _sx controls
 
-Ben Hutchings <ben@decadent.org.uk>
-    efi: random: Properly limit the size of the random seed
+Nathan Chancellor <nathan@kernel.org>
+    mm: Fix '.data.once' orphan section warning
 
 James Morse <james.morse@arm.com>
     arm64: errata: Fix KVM Spectre-v2 mitigation selection for Cortex-A57/A72
 
 James Morse <james.morse@arm.com>
     arm64: Fix panic() when Spectre-v2 causes Spectre-BHB to re-allocate KVM vectors
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    pinctrl: intel: Save and restore pins in "direct IRQ" mode
 
 Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
     x86/bugs: Make sure MSR_SPEC_CTRL is updated properly upon resume from S3
@@ -155,14 +155,11 @@ ZhangPeng <zhangpeng362@huawei.com>
 Tiezhu Yang <yangtiezhu@loongson.cn>
     tools/vm/slabinfo-gnuplot: use "grep -E" instead of "egrep"
 
+Steven Rostedt (Google) <rostedt@goodmis.org>
+    error-injection: Add prompt for function error injection
+
 ChenXiaoSong <chenxiaosong2@huawei.com>
     btrfs: qgroup: fix sleep from invalid context bug in btrfs_qgroup_inherit()
-
-Kan Liang <kan.liang@linux.intel.com>
-    perf: Add sample_flags to indicate the PMU-filled sample data
-
-Sam James <sam@gentoo.org>
-    kbuild: fix -Wimplicit-function-declaration in license_is_gpl_compatible
 
 Yang Yingliang <yangyingliang@huawei.com>
     hwmon: (coretemp) fix pci device refcount leak in nv1a_ram_new()
@@ -175,6 +172,9 @@ Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
 Willem de Bruijn <willemb@google.com>
     packet: do not set TP_STATUS_CSUM_VALID on CHECKSUM_COMPLETE
+
+Shigeru Yoshida <syoshida@redhat.com>
+    net: tun: Fix use-after-free in tun_detach()
 
 YueHaibing <yuehaibing@huawei.com>
     net: hsr: Fix potential use-after-free
@@ -212,6 +212,9 @@ Gaosheng Cui <cuigaosheng1@huawei.com>
 Yang Yingliang <yangyingliang@huawei.com>
     hwmon: (i5500_temp) fix missing pci_disable_device()
 
+Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+    scripts/faddr2line: Fix regression in name resolution on ppc64le
+
 Paul Gazzillo <paul@pgazz.com>
     iio: light: rpr0521: add missing Kconfig dependencies
 
@@ -221,8 +224,44 @@ Wei Yongjun <weiyongjun1@huawei.com>
 Wei Yongjun <weiyongjun1@huawei.com>
     iio: health: afe4403: Fix oob read in afe4403_read_raw
 
+Sam James <sam@gentoo.org>
+    kbuild: fix -Wimplicit-function-declaration in license_is_gpl_compatible
+
+Ben Hutchings <ben@decadent.org.uk>
+    Revert "x86/speculation: Change FILL_RETURN_BUFFER to work with objtool"
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    v4l2: don't fall back to follow_pfn() if pin_user_pages_fast() fails
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    proc: proc_skip_spaces() shouldn't think it is working on C strings
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    proc: avoid integer type confusion in get_proc_long
+
+Frieder Schrempf <frieder.schrempf@kontron.de>
+    spi: spi-imx: Fix spi_bus_clk if requested clock is higher than input clock
+
+Anand Jain <anand.jain@oracle.com>
+    btrfs: free btrfs_path before copying inodes to userspace
+
 Christian König <christian.koenig@amd.com>
     drm/amdgpu: always register an MMU notifier for userptr
+
+Lyude Paul <lyude@redhat.com>
+    drm/amd/dc/dce120: Fix audio register mapping, stop triggering KASAN
+
+Anand Jain <anand.jain@oracle.com>
+    btrfs: free btrfs_path before copying subvol info to userspace
+
+Anand Jain <anand.jain@oracle.com>
+    btrfs: free btrfs_path before copying fspath to userspace
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: free btrfs_path before copying root refs to userspace
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm integrity: flush the journal on suspend
 
 Enrico Sau <enrico.sau@gmail.com>
     net: usb: qmi_wwan: add Telit 0x103a composition
@@ -251,8 +290,20 @@ Aman Dhoot <amandhoot12@gmail.com>
 Chen Zhongjin <chenzhongjin@huawei.com>
     nilfs2: fix nilfs_sufile_mark_dirty() not set segment usage as dirty
 
-Masahiro Yamada <yamada.masahiro@socionext.com>
-    kconfig: display recursive dependency resolution hint just once
+Xiubo Li <xiubli@redhat.com>
+    ceph: avoid putting the realm twice when decoding snaps fails
+
+Xiubo Li <xiubli@redhat.com>
+    ceph: do not update snapshot context when there is no new snapshot
+
+Mitja Spes <mitja@lxnav.com>
+    iio: pressure: ms5611: fixed value compensation bug
+
+Lars-Peter Clausen <lars@metafoo.de>
+    iio: ms5611: Simplify IO callback parameters
+
+Randy Dunlap <rdunlap@infradead.org>
+    nios2: add FORCE for vmlinuz.gz
 
 Chen Zhongjin <chenzhongjin@huawei.com>
     iio: core: Fix entry not deleted when iio_register_sw_trigger_type() fails
@@ -262,9 +313,6 @@ Alejandro Concepción Rodríguez <asconcepcion@acoro.eu>
 
 Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
     arm64: dts: rockchip: lower rk3399-puma-haikou SD controller clock frequency
-
-Randy Dunlap <rdunlap@infradead.org>
-    nios2: add FORCE for vmlinuz.gz
 
 Heiko Carstens <hca@linux.ibm.com>
     s390/crashdump: fix TOD programmable field size
@@ -284,11 +332,35 @@ Stefan Haberland <sth@linux.ibm.com>
 Kuniyuki Iwashima <kuniyu@amazon.com>
     dccp/tcp: Reset saddr on failure after inet6?_hash_connect().
 
+Yang Yingliang <yangyingliang@huawei.com>
+    bnx2x: fix pci device refcount leak in bnx2x_vf_is_pcie_pending()
+
 Liu Shixin <liushixin2@huawei.com>
     NFC: nci: fix memory leak in nci_rx_data_packet()
 
 Chen Zhongjin <chenzhongjin@huawei.com>
     xfrm: Fix ignored return value in xfrm6_init()
+
+YueHaibing <yuehaibing@huawei.com>
+    tipc: check skb_linearize() return value in tipc_disc_rcv()
+
+Xin Long <lucien.xin@gmail.com>
+    tipc: add an extra conn_get in tipc_conn_alloc
+
+Xin Long <lucien.xin@gmail.com>
+    tipc: set con sock in tipc_conn_alloc
+
+Moshe Shemesh <moshe@nvidia.com>
+    net/mlx5: Fix FW tracer timestamp calculation
+
+Yang Yingliang <yangyingliang@huawei.com>
+    Drivers: hv: vmbus: fix possible memory leak in vmbus_device_register()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    Drivers: hv: vmbus: fix double free in the error path of vmbus_add_channel_work()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net: pch_gbe: fix pci device refcount leak while module exiting
 
 Zhang Changzhong <zhangchangzhong@huawei.com>
     net/qla3xxx: fix potential memleak in ql3xxx_send()
@@ -314,6 +386,9 @@ Michael Grzeschik <m.grzeschik@pengutronix.de>
 Samuel Holland <samuel@sholland.org>
     bus: sunxi-rsb: Support atomic transfers
 
+Detlev Casanova <detlev.casanova@collabora.com>
+    ASoC: sgtl5000: Reset the CHIP_CLK_CTRL reg on remove
+
 Dominik Haller <d.haller@phytec.de>
     ARM: dts: am335x-pcm-953: Define fixed regulators in root node
 
@@ -322,6 +397,12 @@ Herbert Xu <herbert@gondor.apana.org.au>
 
 Jason A. Donenfeld <Jason@zx2c4.com>
     MIPS: pic32: treat port as signed integer
+
+Nathan Chancellor <nathan@kernel.org>
+    RISC-V: vdso: Do not add missing symbols to version section in linker script
+
+Hans de Goede <hdegoede@redhat.com>
+    drm: panel-orientation-quirks: Add quirk for Acer Switch V 10 (SW5-017)
 
 Sean Nyekjaer <sean@geanix.com>
     spi: stm32: fix stm32_spi_prepare_mbr() that halves spi clk for every run
@@ -350,17 +431,22 @@ Diffstat:
  arch/mips/pic32/pic32mzda/early_console.c          | 13 ++--
  arch/mips/pic32/pic32mzda/init.c                   |  2 +-
  arch/nios2/boot/Makefile                           |  2 +-
+ arch/riscv/kernel/vdso/Makefile                    |  3 +
+ arch/riscv/kernel/vdso/vdso.lds.S                  |  2 +
  arch/s390/kernel/crash_dump.c                      |  2 +-
  arch/x86/include/asm/cpufeatures.h                 |  1 +
- arch/x86/include/asm/nospec-branch.h               | 26 ++++++--
+ arch/x86/include/asm/nospec-branch.h               | 12 ++--
  arch/x86/kernel/cpu/bugs.c                         | 21 ++++---
  arch/x86/kernel/cpu/tsx.c                          | 33 +++++-----
  arch/x86/kernel/process.c                          |  2 +-
  arch/x86/mm/ioremap.c                              |  8 ++-
  arch/x86/power/cpu.c                               | 23 ++++---
  drivers/bus/sunxi-rsb.c                            | 29 ++++++---
- drivers/firmware/efi/efi.c                         |  2 +-
  drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c            |  8 +--
+ .../drm/amd/display/dc/dce120/dce120_resource.c    |  3 +-
+ drivers/gpu/drm/drm_panel_orientation_quirks.c     |  6 ++
+ drivers/hv/channel_mgmt.c                          |  6 +-
+ drivers/hv/vmbus_drv.c                             |  1 +
  drivers/hwmon/coretemp.c                           |  9 ++-
  drivers/hwmon/i5500_temp.c                         |  2 +-
  drivers/hwmon/ibmpex.c                             |  1 +
@@ -369,44 +455,56 @@ Diffstat:
  drivers/iio/industrialio-sw-trigger.c              |  6 +-
  drivers/iio/light/Kconfig                          |  2 +
  drivers/iio/light/apds9960.c                       | 12 ++--
+ drivers/iio/pressure/ms5611.h                      | 18 +++---
+ drivers/iio/pressure/ms5611_core.c                 | 56 +++++++++--------
+ drivers/iio/pressure/ms5611_i2c.c                  | 11 ++--
+ drivers/iio/pressure/ms5611_spi.c                  | 17 +++---
  drivers/input/mouse/synaptics.c                    |  1 +
  drivers/iommu/dmar.c                               |  1 +
+ drivers/md/dm-integrity.c                          |  7 +--
  drivers/mmc/host/sdhci.c                           | 71 ++++++++++++++++++----
  drivers/mmc/host/sdhci.h                           | 12 ++--
  drivers/net/can/cc770/cc770_isa.c                  | 10 +--
  drivers/net/can/sja1000/sja1000_isa.c              | 10 +--
  drivers/net/dsa/lan9303-core.c                     |  2 +-
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c  | 12 ++--
  drivers/net/ethernet/cavium/thunder/thunder_bgx.c  |  4 +-
  drivers/net/ethernet/mellanox/mlx4/qp.c            |  3 +-
  drivers/net/ethernet/mellanox/mlx5/core/cmd.c      |  4 +-
- .../net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c   |  1 +
+ .../ethernet/mellanox/mlx5/core/diag/fw_tracer.c   |  2 +-
+ .../net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c   |  6 +-
  drivers/net/ethernet/qlogic/qla3xxx.c              |  1 +
  .../net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c    |  4 +-
  drivers/net/ethernet/renesas/ravb_main.c           |  1 +
  drivers/net/ntb_netdev.c                           |  9 ++-
  drivers/net/phy/phy_device.c                       |  1 +
+ drivers/net/tun.c                                  |  4 +-
  drivers/net/usb/qmi_wwan.c                         |  1 +
  drivers/net/wireless/mac80211_hwsim.c              |  5 ++
  drivers/nfc/st-nci/se.c                            |  6 +-
  drivers/nvme/host/core.c                           |  6 ++
  drivers/of/property.c                              |  4 +-
+ drivers/pinctrl/intel/pinctrl-intel.c              | 27 +++++++-
  drivers/pinctrl/pinctrl-single.c                   |  2 +-
  drivers/platform/x86/acer-wmi.c                    |  9 +++
  drivers/platform/x86/asus-wmi.c                    |  2 +
  drivers/platform/x86/hp-wmi.c                      |  3 +
  drivers/s390/block/dasd_eckd.c                     |  6 +-
+ drivers/spi/spi-imx.c                              |  3 +-
  drivers/spi/spi-stm32.c                            |  2 +-
  drivers/tty/serial/8250/8250_omap.c                |  7 ++-
  drivers/xen/platform-pci.c                         |  7 ++-
+ fs/btrfs/ioctl.c                                   | 23 ++++---
  fs/btrfs/qgroup.c                                  |  9 +--
+ fs/ceph/snap.c                                     | 31 +++++++---
  fs/nilfs2/dat.c                                    |  7 +++
  fs/nilfs2/sufile.c                                 |  8 +++
  include/linux/license.h                            |  2 +
- include/linux/perf_event.h                         |  2 +
+ include/linux/mmdebug.h                            |  2 +-
  include/uapi/linux/audit.h                         |  2 +-
  ipc/sem.c                                          |  3 +-
- kernel/events/core.c                               | 17 ++++--
  kernel/sysctl.c                                    | 30 ++++-----
+ lib/Kconfig.debug                                  | 14 ++++-
  mm/frame_vector.c                                  | 31 ++--------
  net/9p/trans_fd.c                                  |  6 +-
  net/bluetooth/l2cap_core.c                         | 13 ++++
@@ -424,9 +522,12 @@ Diffstat:
  net/nfc/nci/core.c                                 |  2 +-
  net/nfc/nci/data.c                                 |  4 +-
  net/packet/af_packet.c                             |  6 +-
- scripts/kconfig/symbol.c                           |  8 ++-
+ net/tipc/discover.c                                |  5 +-
+ net/tipc/topsrv.c                                  | 20 +++---
+ scripts/faddr2line                                 |  7 ++-
+ sound/soc/codecs/sgtl5000.c                        |  1 +
  sound/soc/soc-ops.c                                |  2 +-
  tools/vm/slabinfo-gnuplot.sh                       |  4 +-
- 87 files changed, 482 insertions(+), 243 deletions(-)
+ 107 files changed, 624 insertions(+), 344 deletions(-)
 
 
