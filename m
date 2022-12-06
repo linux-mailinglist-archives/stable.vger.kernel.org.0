@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7F43644092
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 10:52:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B95AE644089
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 10:52:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235430AbiLFJwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 04:52:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58078 "EHLO
+        id S235360AbiLFJw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 04:52:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235172AbiLFJvY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 04:51:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D39CB2AE0;
-        Tue,  6 Dec 2022 01:50:32 -0800 (PST)
+        with ESMTP id S235175AbiLFJv0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 04:51:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10BF92229F;
+        Tue,  6 Dec 2022 01:50:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 706AD615FA;
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA569B818E9;
+        Tue,  6 Dec 2022 09:50:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 855B9C43148;
         Tue,  6 Dec 2022 09:50:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D73E7C433C1;
-        Tue,  6 Dec 2022 09:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670320231;
-        bh=auDQjwHm6h2ALybttMU6AStHAYjCwp3thiNoP+tCx8I=;
-        h=From:To:Cc:Subject:Date:From;
-        b=W3kM5c5HeGF67FMxswHU35XnrPmQlW3GGi+R4RB4ddeaxmPrD3isjrXxtR4U8vd3i
-         ijfU90HGzgVHMtzsa9N6iqTQ35fSvN3LhEv3vpgrX5k1IQ6oV3xFLPilVlJ81xm3y1
-         GXnlM040C7IOltxV8UGo5WBSddPzx+D7g1gx3fsI5biKQ/wPytUw72AFLpPi5DdHj9
-         E0f8G6pJGDA+JoYj5ZaWMXhWKJzrr5VqBgsZZVqRQuaCmEkf81xk+ltHvC18+8msEl
-         a3k3qvgm1xM4fHs1pufte76srhtN1zm/xsgtjBjt+f7g+D2Nyuq7vBr6P6Eeznp32u
-         sDMdFQ1oChj3A==
+        s=k20201202; t=1670320234;
+        bh=fnYpf1KMAowkcUXWPb36W/ocy6bzlV1c1fTke1mPyUk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=tvUuC84fQHFCf78pQ0fxsC4nHTa9rfrAArVivVGFmhROf9+jcuoyIC7ml+faJ3IR/
+         +NVVckO1RDcFa+VbCzcLCzv/v22QWA3rB472V0WAx3pTsWG0n17sPMvQcvRDjdc32/
+         ryDC52MyBG963nLepBwnr9jix7qHCLwaNGBffWJXkIfL0ijl/DZ3caCXZju9wWyN8I
+         CP/4Z2pLD09w9ZzC8jTMJeHvlIahpN4pXp3eIDh7Ky0sp7pmsErxUT/1FvIU4g+ket
+         GId8LsssFDnTkhSr4fnIrVr7HzR7BxbxnGpxLnyB03/7hVILO9CDKao7FSFwnwaXsH
+         bWWO+K9zuxj6Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
@@ -39,10 +39,12 @@ Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
         Xiubo.Lee@gmail.com, lgirdwood@gmail.com, perex@perex.cz,
         tiwai@suse.com, alsa-devel@alsa-project.org,
         linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.10 01/10] ASoC: fsl_micfil: explicitly clear software reset bit
-Date:   Tue,  6 Dec 2022 04:50:18 -0500
-Message-Id: <20221206095027.987587-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 02/10] ASoC: fsl_micfil: explicitly clear CHnF flags
+Date:   Tue,  6 Dec 2022 04:50:19 -0500
+Message-Id: <20221206095027.987587-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221206095027.987587-1-sashal@kernel.org>
+References: <20221206095027.987587-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,37 +60,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 292709b9cf3ba470af94b62c9bb60284cc581b79 ]
+[ Upstream commit b776c4a4618ec1b5219d494c423dc142f23c4e8f ]
 
-SRES is self-cleared bit, but REG_MICFIL_CTRL1 is defined as
-non volatile register, it still remain in regmap cache after set,
-then every update of REG_MICFIL_CTRL1, software reset happens.
-to avoid this, clear it explicitly.
+There may be failure when start 1 channel recording after
+8 channels recording. The reason is that the CHnF
+flags are not cleared successfully by software reset.
+
+This issue is triggerred by the change of clearing
+software reset bit.
+
+CHnF flags are write 1 clear bits. Clear them by force
+write.
 
 Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1651925654-32060-1-git-send-email-shengjiu.wang@nxp.com
+Link: https://lore.kernel.org/r/1651925654-32060-2-git-send-email-shengjiu.wang@nxp.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_micfil.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/soc/fsl/fsl_micfil.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/sound/soc/fsl/fsl_micfil.c b/sound/soc/fsl/fsl_micfil.c
-index efc5daf53bba..ead4bfa13561 100644
+index ead4bfa13561..6c794605e33c 100644
 --- a/sound/soc/fsl/fsl_micfil.c
 +++ b/sound/soc/fsl/fsl_micfil.c
-@@ -190,6 +190,17 @@ static int fsl_micfil_reset(struct device *dev)
+@@ -201,6 +201,14 @@ static int fsl_micfil_reset(struct device *dev)
+ 	if (ret)
  		return ret;
- 	}
  
 +	/*
-+	 * SRES is self-cleared bit, but REG_MICFIL_CTRL1 is defined
-+	 * as non-volatile register, so SRES still remain in regmap
-+	 * cache after set, that every update of REG_MICFIL_CTRL1,
-+	 * software reset happens. so clear it explicitly.
++	 * Set SRES should clear CHnF flags, But even add delay here
++	 * the CHnF may not be cleared sometimes, so clear CHnF explicitly.
 +	 */
-+	ret = regmap_clear_bits(micfil->regmap, REG_MICFIL_CTRL1,
-+				MICFIL_CTRL1_SRES);
++	ret = regmap_write_bits(micfil->regmap, REG_MICFIL_STAT, 0xFF, 0xFF);
 +	if (ret)
 +		return ret;
 +
