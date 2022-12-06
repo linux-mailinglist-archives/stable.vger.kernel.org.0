@@ -2,66 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 506FD644E49
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 23:00:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2E7C644E6B
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 23:14:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229798AbiLFWAH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 17:00:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47532 "EHLO
+        id S229663AbiLFWOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 17:14:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229700AbiLFWAE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 17:00:04 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD0D7442E1
-        for <stable@vger.kernel.org>; Tue,  6 Dec 2022 13:59:59 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id v13-20020a17090a6b0d00b00219c3be9830so8176436pjj.4
-        for <stable@vger.kernel.org>; Tue, 06 Dec 2022 13:59:59 -0800 (PST)
+        with ESMTP id S229496AbiLFWOe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 17:14:34 -0500
+Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FA4A31EDD;
+        Tue,  6 Dec 2022 14:14:33 -0800 (PST)
+Received: by mail-qk1-x730.google.com with SMTP id j26so8707451qki.10;
+        Tue, 06 Dec 2022 14:14:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:user-agent:message-id:date:subject:cc:to:from:from:to
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:from:user-agent:mime-version:date:message-id:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=4sS3/Bfwt7TvEDXuu7/He/mgRn4IfxDIex6g4PACeMk=;
-        b=pQO92IjQKB+SOGPWNMh0aE4nFKYW/Pn7ZUmkjc6/P+o83c6xL7XPGkrAZulj5NphgB
-         Lij1XDxyRTjH5mDYKYtI0WFyLdUgQLunyYR6cQe/KQIUUfvNDrZWf7yjWgxeEscz0IeY
-         pnXDqMvKu8dVpe2ItbrqisZY3O6L5+S6OsFvcV4qkZKhXoACvAFJQSKNoMOwWxy4Rczn
-         sxJJvrDUIz/dNZRLF/o+U9fPFTW7Nc0wMeXzzXMQC4DqsOfB3HlwMo1iyHy8JuIXDcOZ
-         RvU7vP0CUuNxQLGHaKAyN/MrJxVUw8cVtNXrn7SBIrCvJhq09ZuJf6zyWaVaxDVBFJFL
-         0Hjg==
+        bh=K2zu23twNKS54cXNdL78RlekF8d1xuGtuL1+G3LtJiY=;
+        b=U6yX3xI9s2oaC0HxMDnJcLgU0zKMCKXHyXtw/lRJaog4VmLf/HKrketdBslIoMVEdU
+         6I4oPOhPmChSRL8n52y05OvyL0EovhKCbJqwVtIlI7ui+3GV3GnOdKcLJN+uNa7WvjHl
+         5XCA/6Pj/KJpXTW8RFgKCeHKqbq3DSrjtLeC7CmgjmWba2GbV5ImqTOqPnjURf2O94jk
+         Do/H2Vyj7erufXPy7IfJykTQ1BB8nz7+CjJDbzmFOCbkTDN7ERCBs008vBEXQg0IwcnV
+         NuIqd/aPOWi3vLrtLKcbRspouDiK4DVNow+nqQXCdafVigzcL/qjfpsnrbf0Y2iP4lT1
+         ly7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=mime-version:user-agent:message-id:date:subject:cc:to:from
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:from:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4sS3/Bfwt7TvEDXuu7/He/mgRn4IfxDIex6g4PACeMk=;
-        b=ECXSjbmfa/x2GmhNkghFV8bE7WAP0GugiQpwO/8O87Zjy9hnxsq/7OGgIzdA3USVEg
-         g49lBK2VcXcibbuo2zic9hLeuSrwwkZ97gWT7cWklWgBTcstOXAkTl1IroeVEiIxofF0
-         IaNyDRE1aV3Dgdd4yyM+xroDy4zEG7jatbTeMT4s6Strbtzvkv4dVN64j8GVKnggglUl
-         JiPZLocT7Rt2sp83Tvw85CWmqSDaQpeRJ8J01Wda9/DOhXGwFDty7eXXsIh+6oadTwLd
-         eC4PZNi6gGXr7Fu90ren91HK6w5lUrEUhRa8Ne8A64HqTME5UBMotGLLW7zUej2JtgD+
-         h2gg==
-X-Gm-Message-State: ANoB5pmSI0MvD961mhX3EjgnRGKwOo2H3Y25oY9svAds7Vg9rZuwcNfk
-        OuuA/Z4qC1RizGQxEH3oCpit9qsQTemwxg6L
-X-Google-Smtp-Source: AA0mqf44Vu6I5P1NQX0oOC74yAQp/ChdhSl8xuR6L0bGeV30BhGtFFrXa2TWloSLWpC+S5wd+U6ibQ==
-X-Received: by 2002:a17:902:bd83:b0:180:87d7:9be8 with SMTP id q3-20020a170902bd8300b0018087d79be8mr84987371pls.85.1670363998428;
-        Tue, 06 Dec 2022 13:59:58 -0800 (PST)
-Received: from bsegall-glaptop.localhost (c-67-188-112-16.hsd1.ca.comcast.net. [67.188.112.16])
-        by smtp.gmail.com with ESMTPSA id iz21-20020a170902ef9500b001811a197797sm13055997plb.194.2022.12.06.13.59.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Dec 2022 13:59:56 -0800 (PST)
-From:   Benjamin Segall <bsegall@google.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] epoll: ep_autoremove_wake_function should use
- list_del_init_careful
-Date:   Tue, 06 Dec 2022 13:59:55 -0800
-Message-ID: <xm26h6y8mbvo.fsf@google.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.1 (gnu/linux)
+        bh=K2zu23twNKS54cXNdL78RlekF8d1xuGtuL1+G3LtJiY=;
+        b=fmY0JHMtLPkP7fouECOsS2ogCICja45pXeWmJjrGVPI8g2k6dd/e5+3TS6PXtVoRok
+         73bKMWmodGAXfdJzuZTGZ5hX/pkfNWOMHchDFidgZgZiTnf5bwL7EWpoDdDUb6Mz7xrC
+         WhcJZ/n5Rvaisb+PiFrSoMciEbsMwDGMN6vh4RaeDKcRfW08abECi/92RL9A8SD+PJSn
+         K7Nva+7AWToAG1Jnx5QUsHCJd0nzG+VjaesNfW4jaFJ4u4/J1ai6YC/zKEkS5vEfQPH3
+         1SIUOWMGcikyx5ppuKdXHChC7tzZ8j8uVheMfQHKxO36LtwO1jywoRaKYu9NoTDPeats
+         IFMg==
+X-Gm-Message-State: ANoB5pl+6js053EhwYwBf8tuJd6tAgiw8SWOYdanhDISaebD5eQYaWKp
+        xnXKhFe6y/ZtJex97Ci7a0m04TOE5RPyPQ==
+X-Google-Smtp-Source: AA0mqf4prugQ/SUV8HMwy28gpVRMbEQ3kHOT98e/LtOYHRIQYKwLjisCad+0hsMXRFB95KVhwkmapg==
+X-Received: by 2002:a05:620a:3720:b0:6fa:faad:2008 with SMTP id de32-20020a05620a372000b006fafaad2008mr62815393qkb.668.1670364872274;
+        Tue, 06 Dec 2022 14:14:32 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id bm1-20020a05620a198100b006fa2b1c3c1esm15931304qkb.58.2022.12.06.14.14.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 06 Dec 2022 14:14:31 -0800 (PST)
+Message-ID: <df796897-fe12-4470-8fe7-63d11eebf5ce@gmail.com>
+Date:   Tue, 6 Dec 2022 14:14:28 -0800
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Subject: Re: [PATCH 5.15 000/121] 5.15.82-rc3 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221206163439.841627689@linuxfoundation.org>
+Content-Language: en-US
+In-Reply-To: <20221206163439.841627689@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,34 +78,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-autoremove_wake_function uses list_del_init_careful, so should epoll's
-more aggressive variant. It only doesn't because it was copied from an
-older wait.c rather than the most recent.
 
-Fixes: a16ceb139610 ("epoll: autoremove wakers even more aggressively")
-Signed-off-by: Ben Segall <bsegall@google.com>
-Cc: stable@vger.kernel.org
----
- fs/eventpoll.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index 52954d4637b5..081df056398a 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1756,11 +1756,11 @@ static struct timespec64 *ep_timeout_to_timespec(struct timespec64 *to, long ms)
- static int ep_autoremove_wake_function(struct wait_queue_entry *wq_entry,
- 				       unsigned int mode, int sync, void *key)
- {
- 	int ret = default_wake_function(wq_entry, mode, sync, key);
- 
--	list_del_init(&wq_entry->entry);
-+	list_del_init_careful(&wq_entry->entry);
- 	return ret;
- }
- 
- /**
-  * ep_poll - Retrieves ready events, and delivers them to the caller-supplied
+On 12/6/2022 8:39 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.82 release.
+> There are 121 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 08 Dec 2022 16:34:23 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.82-rc3.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.39.0.rc0.267.gcb52ba06e7-goog
+Florian
 
