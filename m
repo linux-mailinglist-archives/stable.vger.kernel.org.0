@@ -2,104 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 217A4644D6C
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 21:43:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E5C644DA7
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 22:02:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229462AbiLFUnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 15:43:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37682 "EHLO
+        id S229776AbiLFVCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 16:02:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229511AbiLFUnr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 15:43:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE3443851;
-        Tue,  6 Dec 2022 12:43:47 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 62FB9CE1ADE;
-        Tue,  6 Dec 2022 20:43:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50695C433D6;
-        Tue,  6 Dec 2022 20:43:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670359423;
-        bh=nakWPfl/JPzwhzckIxUS+kQsv0RDMmrnqYA8gUFyCTU=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=BuO9tr0vZz7M2wK6L/5GF4fw5fBLo6XuXDKMiR57OmTVRZBjcVnBZBvbSuEJyHHsB
-         yGqilZlLOvnL+mutjQ+vcsHgY3nMHcYGjYAMJZkSERm1BhaAXos5cZkR01zcjYJyMg
-         EvsWl02E/vMK6KYMP47pa/HxNNkX23SzewQZ1lS65voS6xP8XIZCUns+4i5XXhEqj8
-         TKqXTwrtFLpU/YyDMAcY+tBtG8Cfvu0qXgsX6QjUjD/nkN4dijI0k2VisJVZNb9DuQ
-         JXtaC97t0YjNy0mhNceK1zC6DhNvkTCgkGElSyAYXl4VFjdjOADHzUNY7RUYJdg8zJ
-         ga7VKJM0FBLYQ==
-Date:   Tue, 6 Dec 2022 12:43:42 -0800
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Justin Iurman <justin.iurman@uliege.be>
-Cc:     Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org,
-        davem@davemloft.net, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
-        pabeni@redhat.com, stable@vger.kernel.org
-Subject: Re: [RFC net] Fixes: b63c5478e9cb ("ipv6: ioam: Support for Queue
- depth data field")
-Message-ID: <20221206124342.7f429399@kernel.org>
-In-Reply-To: <d579c817-50c7-5bd5-4b28-f044daabf7f6@uliege.be>
-References: <20221205153557.28549-1-justin.iurman@uliege.be>
-        <CANn89iLjGnyh0GgW_5kkMQJBCi-KfgwyvZwT1ou2FMY4ZDcMXw@mail.gmail.com>
-        <CANn89iK3hMpJQ1w4peg2g35W+Oi3t499C5rUv7rcwzYtxDGBuw@mail.gmail.com>
-        <a8dcb88c-16be-058b-b890-5d479d22c8a8@uliege.be>
-        <CANn89iKgeVFRAstW3QRwOdn8SV_EbHqcKYqmoWT6m5nGQwPWUg@mail.gmail.com>
-        <d579c817-50c7-5bd5-4b28-f044daabf7f6@uliege.be>
+        with ESMTP id S229456AbiLFVCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 16:02:06 -0500
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F66B45EE9;
+        Tue,  6 Dec 2022 13:02:05 -0800 (PST)
+Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2B6L1sU5001527
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 6 Dec 2022 16:01:55 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+        t=1670360516; bh=ODQvcrPTn9RADyagdb6ol57IAff8wz0X0HXgGWqOtU0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=K95iNMJtkNVJ44MzIxkjQFvmjyBdSxFHt06ONmBKvz1ym/QW0NPJg/dTnayuQd09e
+         8ZnQw7ujaJA6YrSyJ0Tds+/fMI4oyZx4uYiU/+P+3eSkEuwZREO0xLT6YucbROr+Fj
+         gLJ6v8CDAVB0VXjdKOHdYLfq12u8vyIZQYO+LX6EHSjL5CkmeVG5RP4mKSKMQo81Ir
+         c3NKM2GV+LHm4ecSlVW9WRePw4pN2TsU/40Ngepj5wud6R1cLdxNqWsy6vATL+6g7g
+         vcmzSrA3S+nypwhLP9iP1lR6BcSLFh1pmkgXH2MFLn/ZWy50LyMEBrzR+BIpVvYl52
+         sh8wBkPSyNIuA==
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id D3F5715C39E4; Tue,  6 Dec 2022 16:01:54 -0500 (EST)
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     Eric Biggers <ebiggers@kernel.org>, linux-ext4@vger.kernel.org
+Cc:     "Theodore Ts'o" <tytso@mit.edu>,
+        syzbot+ba9dac45bc76c490b7c3@syzkaller.appspotmail.com,
+        linux-fscrypt@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] ext4: don't allow journal inode to have encrypt flag
+Date:   Tue,  6 Dec 2022 16:01:48 -0500
+Message-Id: <167036049593.156498.14603526492088665546.b4-ty@mit.edu>
+X-Mailer: git-send-email 2.31.0
+In-Reply-To: <20221102053312.189962-1-ebiggers@kernel.org>
+References: <20221102053312.189962-1-ebiggers@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 5 Dec 2022 21:44:09 +0100 Justin Iurman wrote:
-> > Please revert this patch.
-> > 
-> > Many people use FQ qdisc, where packets are waiting for their Earliest
-> > Departure Time to be released.  
+On Tue, 1 Nov 2022 22:33:12 -0700, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
 > 
-> The IOAM queue depth is a very important value and is already used.
+> Mounting a filesystem whose journal inode has the encrypt flag causes a
+> NULL dereference in fscrypt_limit_io_blocks() when the 'inlinecrypt'
+> mount option is used.
+> 
+> The problem is that when jbd2_journal_init_inode() calls bmap(), it
+> eventually finds its way into ext4_iomap_begin(), which calls
+> fscrypt_limit_io_blocks().  fscrypt_limit_io_blocks() requires that if
+> the inode is encrypted, then its encryption key must already be set up.
+> That's not the case here, since the journal inode is never "opened" like
+> a normal file would be.  Hence the crash.
+> 
+> [...]
 
-Can you say more about the use? What signal do you derive from it?
-I do track qlen on Meta's servers but haven't found a strong use 
-for it yet (I did for backlog drops but not the qlen itself).
+Applied, thanks!
 
-> > Also, the draft says:
-> > 
-> > 5.4.2.7.  queue depth
-> > 
-> >     The "queue depth" field is a 4-octet unsigned integer field.  This
-> >     field indicates the current length of the egress interface queue of
-> >     the interface from where the packet is forwarded out.  The queue
-> >     depth is expressed as the current amount of memory buffers used by
-> >     the queue (a packet could consume one or more memory buffers,
-> >     depending on its size).
-> > 
-> >      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-> >     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-> >     |                       queue depth                             |
-> >     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-> > 
-> > 
-> > It is relatively clear that the egress interface is the aggregate
-> > egress interface,
-> > not a subset of the interface.  
-> 
-> Correct, even though the definition of an interface in RFC 9197 is quite 
-> abstract (see the end of section 4.4.2.2: "[...] could represent a 
-> physical interface, a virtual or logical interface, or even a queue").
-> 
-> > If you have 32 TX queues on a NIC, all of them being backlogged (line rate),
-> > sensing the queue length of one of the queues would give a 97% error
-> > on the measure.  
-> 
-> Why would it? Not sure I get your idea based on that example.
+[1/1] ext4: don't allow journal inode to have encrypt flag
+      commit: 29cef51d8522c4d8953856afaffcaf1b754e4f6c
 
-Because it measures the length of a single queue not the device.
+Best regards,
+-- 
+Theodore Ts'o <tytso@mit.edu>
