@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F399B644095
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 10:53:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1AAE64409C
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 10:53:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235324AbiLFJwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 04:52:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57240 "EHLO
+        id S235355AbiLFJw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 04:52:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235250AbiLFJvm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 04:51:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84ECB13F7F;
-        Tue,  6 Dec 2022 01:50:55 -0800 (PST)
+        with ESMTP id S235259AbiLFJvn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 04:51:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CADD2315B;
+        Tue,  6 Dec 2022 01:50:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41AEDB818E9;
-        Tue,  6 Dec 2022 09:50:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF26DC433D6;
-        Tue,  6 Dec 2022 09:50:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41C7FB818F0;
+        Tue,  6 Dec 2022 09:50:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66613C43143;
+        Tue,  6 Dec 2022 09:50:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670320252;
-        bh=d/a33XgM9HzAP8+lMgtDkj14R0RyBozaL/xSZ9eD4UY=;
+        s=k20201202; t=1670320255;
+        bh=lqVU3SBmQ1eCIYMlGUwkPNT1E5x77hO70+K76rh3sNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FzKPBybeKlNWxsc2ilDpei5R2bbkLnIlRzllHRxR41fzL6T8X4DWhv1kVBn8h8mYv
-         pI7GqSnfal49IL9eLwY9bptnCq46tK3gINNdTX414TLhkh2MMV0CJ0Ot8XF1LsTV88
-         a3ZRiKPgjFxmDUD4KKbOpBMJynB+ggZnFum5k1WU+3rCcLX6QgruV2Rywo9eqVOjMJ
-         06EAQ0seIap5i5ud2pUobuJ66iRvks6IIp8KJhijjxNjnD9v//JyLzhYux9guUI4SN
-         4vWmjMXUOpyr3z50uKUXfink6MivFqZimQwJMltfw9jAdeSAW6oq0Bk/MkPF3U/T55
-         RDJFZgHA0HHuA==
+        b=qqNeANjpZGiJzUXeYQCRXUFj2XtD43ysfM9ul5m1EQMi2qjahDppFBV8XAhODb1Pv
+         SS72aRV4W+BI6bhdJRFgh+sguBBVRmB+LEyV+bYDLiWGjw7Q/Z0JYdwBykP64VR3DS
+         UEaFEvpzn45078sxmTW5VZSRsGyF+UxVRWk/49B9bVOD95FUv7B2Zvr0M7UviAUu20
+         h8wOeYph4h0sJuyA1117yIvlx+7X16fAVmhMJDjKquOdArVS9LiR9XCVO33DDlLMgS
+         dJAgnaLG1c+MRkSkygY90n2BFaoUb+2Ybj4jK8DJO4K9qahy+gosYkhq/KmRbFdnbh
+         Es9hamSJ3gbQA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, james.schulman@cirrus.com,
-        david.rhodes@cirrus.com, tanureal@opensource.cirrus.com,
-        rf@opensource.cirrus.com, lgirdwood@gmail.com, perex@perex.cz,
-        tiwai@suse.com, alsa-devel@alsa-project.org,
-        patches@opensource.cirrus.com
-Subject: [PATCH AUTOSEL 5.10 09/10] ASoC: cs42l51: Correct PGA Volume minimum value
-Date:   Tue,  6 Dec 2022 04:50:26 -0500
-Message-Id: <20221206095027.987587-9-sashal@kernel.org>
+Cc:     Lei Rao <lei.rao@intel.com>, Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
+        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 10/10] nvme-pci: clear the prp2 field when not used
+Date:   Tue,  6 Dec 2022 04:50:27 -0500
+Message-Id: <20221206095027.987587-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221206095027.987587-1-sashal@kernel.org>
 References: <20221206095027.987587-1-sashal@kernel.org>
@@ -59,36 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Lei Rao <lei.rao@intel.com>
 
-[ Upstream commit 3d1bb6cc1a654c8693a85b1d262e610196edec8b ]
+[ Upstream commit a56ea6147facce4ac1fc38675455f9733d96232b ]
 
-The table in the datasheet actually shows the volume values in the wrong
-order, with the two -3dB values being reversed. This appears to have
-caused the lower of the two values to be used in the driver when the
-higher should have been, correct this mixup.
+If the prp2 field is not filled in nvme_setup_prp_simple(), the prp2
+field is garbage data. According to nvme spec, the prp2 is reserved if
+the data transfer does not cross a memory page boundary, so clear it to
+zero if it is not used.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20221125162348.1288005-2-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Lei Rao <lei.rao@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l51.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/codecs/cs42l51.c b/sound/soc/codecs/cs42l51.c
-index fc6a2bc311b4..c61b17dc2af8 100644
---- a/sound/soc/codecs/cs42l51.c
-+++ b/sound/soc/codecs/cs42l51.c
-@@ -146,7 +146,7 @@ static const struct snd_kcontrol_new cs42l51_snd_controls[] = {
- 			0, 0xA0, 96, adc_att_tlv),
- 	SOC_DOUBLE_R_SX_TLV("PGA Volume",
- 			CS42L51_ALC_PGA_CTL, CS42L51_ALC_PGB_CTL,
--			0, 0x19, 30, pga_tlv),
-+			0, 0x1A, 30, pga_tlv),
- 	SOC_SINGLE("Playback Deemphasis Switch", CS42L51_DAC_CTL, 3, 1, 0),
- 	SOC_SINGLE("Auto-Mute Switch", CS42L51_DAC_CTL, 2, 1, 0),
- 	SOC_SINGLE("Soft Ramp Switch", CS42L51_DAC_CTL, 1, 1, 0),
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 089f39103584..c222d7bf6ce1 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -817,6 +817,8 @@ static blk_status_t nvme_setup_prp_simple(struct nvme_dev *dev,
+ 	cmnd->dptr.prp1 = cpu_to_le64(iod->first_dma);
+ 	if (bv->bv_len > first_prp_len)
+ 		cmnd->dptr.prp2 = cpu_to_le64(iod->first_dma + first_prp_len);
++	else
++		cmnd->dptr.prp2 = 0;
+ 	return BLK_STS_OK;
+ }
+ 
 -- 
 2.35.1
 
