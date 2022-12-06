@@ -2,104 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1346F643B8F
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 03:52:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F963643B98
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 04:00:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233951AbiLFCwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Dec 2022 21:52:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59234 "EHLO
+        id S233497AbiLFDA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Dec 2022 22:00:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233621AbiLFCv6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 21:51:58 -0500
-Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D90D5DF05
-        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 18:51:57 -0800 (PST)
-Received: by mail-il1-x12d.google.com with SMTP id s16so5977069iln.4
-        for <stable@vger.kernel.org>; Mon, 05 Dec 2022 18:51:57 -0800 (PST)
+        with ESMTP id S233676AbiLFDAV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Dec 2022 22:00:21 -0500
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 549E425287
+        for <stable@vger.kernel.org>; Mon,  5 Dec 2022 19:00:18 -0800 (PST)
+Received: by mail-pg1-x534.google.com with SMTP id q71so12192413pgq.8
+        for <stable@vger.kernel.org>; Mon, 05 Dec 2022 19:00:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=V3MdnT2Q8jLXM5s//gvYhHT+ZNu/mw7aKngm+TpuXkY=;
-        b=hljquEFxWH9gVm57LzSmKa5Boz6niaLrsVzNGCkHuXXgG5fmUXJSOBgnQgNm+WEyJh
-         QwdafYwlneQ2GWZ4PuokY3E6jUevpx9z5rKxnDS4j/d7P1znBQ82Vw5FGDtrktYlbusb
-         v8vk/BkqaPmWIl0uM5gfzRIGko6MGtsZPdAlM=
+        d=chromium.org; s=google;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZmfOuiJUmKizUaJwSZrGzGG944f1sKnzf3AucOctnww=;
+        b=bbkxpKLIbL6w4rOjoNuge1ld6X+QfZ78+wA2zsHn+GNNSpVEyOQV211KsqAjFWUzxK
+         vn8fFKRB6X8PpeVd4Du6N0HdVSV5yeVK0/9IdbXjWW2SPI7CveYfQAT0mhoLhnh755jz
+         AI5HIDpQZfdS0a5EBP79evJ88SR3GvCDc3t64=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=V3MdnT2Q8jLXM5s//gvYhHT+ZNu/mw7aKngm+TpuXkY=;
-        b=NCku58yksXj61pad39IS7GE6dHvjL8hKrS/5scoGzqLpC68CZ/Gy5AxHF93AyDKdje
-         J8Op459cbLtA8z6uUEhwPw3XplFCOxmvYHgOp4eGNBP+0qulk3nAJGK8LatJTaCde/dj
-         R5E+SIoHg4Gn34dLBIYz6etzQG+DTvMIZ4si/XLdZkwSEgXDEYbiK7TwCwKIOtzvR/TK
-         xXHe2lMBAuRve39i9DA+G2qK3Qjlm0vF5uxXFADMe8fRkA7ealgjh3NYFIKOtja7kIHB
-         GDoYgYZ5lUGD+GzIR+yOq0eN3WUt0tqzE1PR25Mos/oJ4RjFddikgDeIhYWJihwkTR5H
-         jypA==
-X-Gm-Message-State: ANoB5pmZZRjr0O/YxSMHe4qnB142sPT9Qy6RVLCzzLvZI5B/Bv3gA0PE
-        wQ5183irOPrMqzBuRh2Qw2hkmA==
-X-Google-Smtp-Source: AA0mqf4vnfK6800d5tmO8ssv2j07jmhTqhELwF6Y2JSA95pjebZYddw96ZCfwuZg/w58xuaEIu4Lwg==
-X-Received: by 2002:a92:db42:0:b0:303:26c0:e1fe with SMTP id w2-20020a92db42000000b0030326c0e1femr13434267ilq.102.1670295117272;
-        Mon, 05 Dec 2022 18:51:57 -0800 (PST)
-Received: from [192.168.1.128] ([38.15.45.1])
-        by smtp.gmail.com with ESMTPSA id n12-20020a92d9cc000000b002f966e3900bsm5672414ilq.80.2022.12.05.18.51.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 05 Dec 2022 18:51:57 -0800 (PST)
-Message-ID: <33b0b34b-8d51-a0f8-e559-5d5bea4e2008@linuxfoundation.org>
-Date:   Mon, 5 Dec 2022 19:51:56 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH 4.9 00/62] 4.9.335-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ZmfOuiJUmKizUaJwSZrGzGG944f1sKnzf3AucOctnww=;
+        b=OHLqbfEeIef3WyMfE6lmT7sdmX8W6Lhi+Lc0YCmmcR1l3ZWaAV17L1s2yRTEOcUB09
+         Amy8P2lOt4t++qhoBKxfYalQWvII2nAjgxObZNSi6xYfX3d9Q53IKQojPiu5iKkikhUB
+         izPd5jG9mpfPnTiOEiiXQgnzHtLNzsOS2J6BqDifn0HubZnNLsr2OQLgUaltM6RmN+0a
+         Roi+qN/ysZSypT3BGDD66B4fuHU5R/dKAMZolc+PP4VexGnraD8dWnPZQMfSHZ8VxqDQ
+         Pyfe+6ttPA9dGZLjd1J06eDDXNPa8elKn9qnYd7Wvke58Lmd1S0kBB4f1OaBJj3O9XOB
+         e56g==
+X-Gm-Message-State: ANoB5pklpPVW/yuxWp7CoUthOd2Qk3zldkhRXxIM0Cpg7JptJsrjB6LW
+        mDd9OPZP1ATW0eaDFAi+2LnQww==
+X-Google-Smtp-Source: AA0mqf7b65rmfPdUpwh5yAPL69AfhS8aUO27Jqo792Am1iZ6r9DRegVBV7UvqVHhOiV6u8NTy43tOQ==
+X-Received: by 2002:a62:54c2:0:b0:56b:fb4f:3d7c with SMTP id i185-20020a6254c2000000b0056bfb4f3d7cmr89652229pfb.54.1670295617795;
+        Mon, 05 Dec 2022 19:00:17 -0800 (PST)
+Received: from tigerii.tok.corp.google.com ([2401:fa00:8f:203:1133:9a88:d416:4bf])
+        by smtp.gmail.com with ESMTPSA id nn6-20020a17090b38c600b00219f8eb271fsm362196pjb.5.2022.12.05.19.00.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 05 Dec 2022 19:00:17 -0800 (PST)
+From:   Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc:     Linus Torvalds <torvalds@linuxfoundation.org>,
+        Seth Jenkins <sethjenkins@google.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        David Hildenbrand <david@redhat.com>, Jan Kara <jack@suse.cz>,
+        security <security@kernel.org>,
+        Project Zero Comms <project-zero-comms@google.com>,
+        Hans Verkuil <hverkuil@xs4all.nl>, senozhatsky@chromium.org,
+        m.szyprowski@samsung.com, Tomasz Figa <tfiga@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20221205190758.073114639@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-In-Reply-To: <20221205190758.073114639@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Subject: [PATCH] v4l2: don't fall back to follow_pfn() if pin_user_pages_fast() fails
+Date:   Tue,  6 Dec 2022 12:00:07 +0900
+Message-Id: <20221206030011.3197775-1-senozhatsky@chromium.org>
+X-Mailer: git-send-email 2.39.0.rc0.267.gcb52ba06e7-goog
+In-Reply-To: <Y42lTeWRPiJ4aRu2@kroah.com>
+References: <Y42lTeWRPiJ4aRu2@kroah.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/5/22 12:08, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.335 release.
-> There are 62 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 07 Dec 2022 19:07:46 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.335-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+[commit 6647e76ab623b2b3fb2efe03a86e9c9046c52c33 upstream]
 
-Compiled and booted on my test system. No dmesg regressions.
+The V4L2_MEMORY_USERPTR interface is long deprecated and shouldn't be
+used (and is discouraged for any modern v4l drivers).  And Seth Jenkins
+points out that the fallback to VM_PFNMAP/VM_IO is fundamentally racy
+and dangerous.
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+Note that it's not even a case that should trigger, since any normal
+user pointer logic ends up just using the pin_user_pages_fast() call
+that does the proper page reference counting.  That's not the problem
+case, only if you try to use special device mappings do you have any
+issues.
 
-thanks,
--- Shuah
+Normally I'd just remove this during the merge window, but since Seth
+pointed out the problem cases, we really want to know as soon as
+possible if there are actually any users of this odd special case of a
+legacy interface.  Neither Hans nor Mauro seem to think that such
+mis-uses of the old legacy interface should exist.  As Mauro says:
+
+ "See, V4L2 has actually 4 streaming APIs:
+        - Kernel-allocated mmap (usually referred simply as just mmap);
+        - USERPTR mmap;
+        - read();
+        - dmabuf;
+
+  The USERPTR is one of the oldest way to use it, coming from V4L
+  version 1 times, and by far the least used one"
+
+And Hans chimed in on the USERPTR interface:
+
+ "To be honest, I wouldn't mind if it goes away completely, but that's a
+  bit of a pipe dream right now"
+
+but while removing this legacy interface entirely may be a pipe dream we
+can at least try to remove the unlikely (and actively broken) case of
+using special device mappings for USERPTR accesses.
+
+This replaces it with a WARN_ONCE() that we can remove once we've
+hopefully confirmed that no actual users exist.
+
+NOTE! Longer term, this means that a 'struct frame_vector' only ever
+contains proper page pointers, and all the games we have with converting
+them to pages can go away (grep for 'frame_vector_to_pages()' and the
+uses of 'vec->is_pfns').  But this is just the first step, to verify
+that this code really is all dead, and do so as quickly as possible.
+
+Reported-by: Seth Jenkins <sethjenkins@google.com>
+Acked-by: Hans Verkuil <hverkuil@xs4all.nl>
+Acked-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+CC: stable@vger.kernel.org # 4.9
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+---
+ mm/frame_vector.c | 31 ++++++-------------------------
+ 1 file changed, 6 insertions(+), 25 deletions(-)
+
+diff --git a/mm/frame_vector.c b/mm/frame_vector.c
+index d73eed0443f6..aa5526e62c5e 100644
+--- a/mm/frame_vector.c
++++ b/mm/frame_vector.c
+@@ -36,7 +36,6 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+ 	int ret = 0;
+-	int err;
+ 	int locked;
+ 
+ 	if (nr_frames == 0)
+@@ -71,32 +70,14 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
+ 		vec->is_pfns = false;
+ 		ret = get_user_pages_locked(start, nr_frames,
+ 			gup_flags, (struct page **)(vec->ptrs), &locked);
+-		goto out;
++		if (likely(ret > 0))
++			goto out;
+ 	}
+ 
+-	vec->got_ref = false;
+-	vec->is_pfns = true;
+-	do {
+-		unsigned long *nums = frame_vector_pfns(vec);
+-
+-		while (ret < nr_frames && start + PAGE_SIZE <= vma->vm_end) {
+-			err = follow_pfn(vma, start, &nums[ret]);
+-			if (err) {
+-				if (ret == 0)
+-					ret = err;
+-				goto out;
+-			}
+-			start += PAGE_SIZE;
+-			ret++;
+-		}
+-		/*
+-		 * We stop if we have enough pages or if VMA doesn't completely
+-		 * cover the tail page.
+-		 */
+-		if (ret >= nr_frames || start < vma->vm_end)
+-			break;
+-		vma = find_vma_intersection(mm, start, start + 1);
+-	} while (vma && vma->vm_flags & (VM_IO | VM_PFNMAP));
++	/* This used to (racily) return non-refcounted pfns. Let people know */
++	WARN_ONCE(1, "get_vaddr_frames() cannot follow VM_IO mapping");
++	vec->nr_frames = 0;
++
+ out:
+ 	if (locked)
+ 		up_read(&mm->mmap_sem);
+-- 
+2.39.0.rc0.267.gcb52ba06e7-goog
+
