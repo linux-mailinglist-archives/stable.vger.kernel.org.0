@@ -2,127 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50DA1644315
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 13:25:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15463644319
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 13:27:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229449AbiLFMZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 07:25:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42142 "EHLO
+        id S231272AbiLFM10 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 07:27:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229457AbiLFMZS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 07:25:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EEE813F64;
-        Tue,  6 Dec 2022 04:25:14 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11575B819EB;
-        Tue,  6 Dec 2022 12:25:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76BE0C433D6;
-        Tue,  6 Dec 2022 12:25:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670329511;
-        bh=Zhel367AShSXh2mO9nrfDUKNLZGOArG9Z2AeqVaLZnk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=IcPpQFSRjbwvEp6A+iUmGWPoV1QzMAAlZRyW0S3H2tawPpVrXOkFV3rfuPXNMPn8E
-         Y14ZtHUn6mi+aAFqsBiJVZucTODmieiacAwty0OrEPOobJzxvUF2KdrxSqHMDiJi/r
-         TFqkQWPf0lyh5hA5GpnVKrY52hvRQae4D4rm/wqI=
-Date:   Tue, 6 Dec 2022 13:25:09 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Dicheng Wang <wangdicheng123@hotmail.com>
-Cc:     perex@perex.cz, tiwai@suse.com, sdoregor@sdore.me,
-        connerknoxpublic@gmail.com, wangdicheng@kylinos.cn,
-        hahnjo@hahnjo.de, john-linux@pelago.org.uk,
-        alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2 -next] ALSA:usb-audio:Add the information of KT0206
- device driven by USB audio
-Message-ID: <Y480pd/XynYddrHk@kroah.com>
-References: <SG2PR02MB58780ED138433086A3213AE98A1B9@SG2PR02MB5878.apcprd02.prod.outlook.com>
+        with ESMTP id S229457AbiLFM1Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 07:27:25 -0500
+Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com [66.111.4.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13AE826486
+        for <stable@vger.kernel.org>; Tue,  6 Dec 2022 04:27:22 -0800 (PST)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.nyi.internal (Postfix) with ESMTP id B230A5C00B4;
+        Tue,  6 Dec 2022 07:27:19 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Tue, 06 Dec 2022 07:27:19 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1670329639; x=1670416039; bh=hdVlZicn27
+        i4ziJlCRc/A2DQTg1fuWDJIOQBeNIaPN4=; b=EGpYTvZvtY3diUlYu8bQNSIYnT
+        +j0k1uNSvKhswsq/Izf44+/QEwbtGWs/vrXMLQsI+iqcSHPjd+0YAeGgj+zH2NHw
+        +tCBQ/9P3OWjT+VCK1J/z1zBv7NpbtvSSfmhbRpiaeY4kjy2UrYGw145/8xshd/p
+        OyUze8rRlwB0KUKDKa8VJeX6e/QaOb42KhM7q4drOnL1gewyFPC8DmMn+v5kbyFJ
+        sZOCmR1FVX4RXRBGWToFOoUrTAbQkneY1N4d1xcNN192C/IlLhcdltLTSJkoici4
+        Domo3/LWtTKBUfb9iMdqfQBTwVVhDcTT+o34TGmxeuLkvQVsAZYOAGkd6dvQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; t=1670329639; x=1670416039; bh=hdVlZicn27i4ziJlCRc/A2DQTg1f
+        uWDJIOQBeNIaPN4=; b=tSOEyN5K2aWOMhgerWsH0AInJB/VLmaIoXfOAoOELDpu
+        Ao4xRhZDQZI3P0pFhdI+SeHPE1sonA2zGGU00Cs1lGb7wKveWm0m3fSPnxStRkcM
+        k88sqdXsdQWVizmweubhho+2k7xREfQK1zVNTasEfzdaOicNjxZUVkuCzj6rFssw
+        XNYO+LFbpDY7Emx3GV0WoDGB4HogQp3FA17l6WG4txRg+B8rbqdcchrq3SIpZ5e+
+        cPKr9nnzM412pPKwpX5sAThd/mSD42495HKMLJG6SAEpMScSKTNmUl2mM4M+cnx0
+        vNWiFqDIkmNB3De3qeIuR5C3b6v+CY1ixLPrM6TOOQ==
+X-ME-Sender: <xms:JjWPY6liUxn__yFs88xscGfaQOOx7d29zu3IFrLbOAKNEFxq8BMeYg>
+    <xme:JjWPYx305nz-Fb9hntTgY02cEB84rhEumyNTaiw25E3MX_g8I3ErLhCNWNYbJrVLn
+    JsnCdeS6cEPww>
+X-ME-Received: <xmr:JjWPY4pWxNUMarXLlDlGPCb1e-Z1CfZkLYQnQTWn4b6a1S0zAGcMKWIEIEeuszaTHMlsIv_ysTqf1RABEVAsYw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudeigdeflecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeehgedvve
+    dvleejuefgtdduudfhkeeltdeihfevjeekjeeuhfdtueefhffgheekteenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:JjWPY-lAdCKAnSU0e10uSUFGjVd2VRAKQgeNjzCYahhvxiVnLuBH8g>
+    <xmx:JjWPY4294D46muw4NqglpLfLJ9Aw--dkQ3E2hxjGO_xDGrMZOO_Irg>
+    <xmx:JjWPY1v_3zRMaY4_HRwLtA1je0fLRFyQaDj5amgxdMpQWH6hrGkjIw>
+    <xmx:JzWPY-Pomn7-ykcqfZGSzmQPy0OxaiqNLU3-2febs79tubVgMVMXzA>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 6 Dec 2022 07:27:18 -0500 (EST)
+Date:   Tue, 6 Dec 2022 13:27:17 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Suleiman Souhlal <suleiman@google.com>
+Subject: Re: [PATCH 4.19] Revert "x86/speculation: Change FILL_RETURN_BUFFER
+ to work with objtool"
+Message-ID: <Y481JfkDZAac/6CF@kroah.com>
+References: <Y45jLPqv/0fJ+rmk@decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <SG2PR02MB58780ED138433086A3213AE98A1B9@SG2PR02MB5878.apcprd02.prod.outlook.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <Y45jLPqv/0fJ+rmk@decadent.org.uk>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 06, 2022 at 05:36:37PM +0800, Dicheng Wang wrote:
-> From: wangdicheng <wangdicheng@kylinos.cn>
+On Mon, Dec 05, 2022 at 10:31:24PM +0100, Ben Hutchings wrote:
+> This reverts commit 9f3330d4930e034d84ee6561fbfb098433ff0ab9, which
+> was commit 089dd8e53126ebaf506e2dc0bf89d652c36bfc12 upstream.
 > 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: wangdicheng <wangdicheng@kylinos.cn>
+> The necessary changes to objtool have not been backported to 4.19.
+> Backporting this commit alone only added build warnings.
+> 
+> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 > ---
-> v2:use USB_DEVICE_VENDOR_SPEC() suggested by Takashi Iwai
-> 
->  sound/usb/quirks-table.h | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-> index 874fcf245747..271884e35003 100644
-> --- a/sound/usb/quirks-table.h
-> +++ b/sound/usb/quirks-table.h
-> @@ -76,6 +76,8 @@
->  { USB_DEVICE_VENDOR_SPEC(0x041e, 0x3f0a) },
->  /* E-Mu 0204 USB */
->  { USB_DEVICE_VENDOR_SPEC(0x041e, 0x3f19) },
-> +/* Ktmicro Usb_audio device */
-> +{ USB_DEVICE_VENDOR_SPEC(0x31b2, 0x0011) },
->  
->  /*
->   * Creative Technology, Ltd Live! Cam Sync HD [VF0770]
-> -- 
-> 2.25.1
-> 
+>  arch/x86/include/asm/nospec-branch.h | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 
-Hi,
+Now queued up, thanks.
 
-This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
-a patch that has triggered this response.  He used to manually respond
-to these common problems, but in order to save his sanity (he kept
-writing the same thing over and over, yet to different people), I was
-created.  Hopefully you will not take offence and will fix the problem
-in your patch and resubmit it so that it can be accepted into the Linux
-kernel tree.
-
-You are receiving this message because of the following common error(s)
-as indicated below:
-
-- Your patch contains warnings and/or errors noticed by the
-  scripts/checkpatch.pl tool.
-
-- Your patch is malformed (tabs converted to spaces, linewrapped, etc.)
-  and can not be applied.  Please read the file,
-  Documentation/email-clients.txt in order to fix this.
-
-- You did not specify a description of why the patch is needed, or
-  possibly, any description at all, in the email body.  Please read the
-  section entitled "The canonical patch format" in the kernel file,
-  Documentation/SubmittingPatches for what is needed in order to
-  properly describe the change.
-
-- You did not write a descriptive Subject: for the patch, allowing Greg,
-  and everyone else, to know what this patch is all about.  Please read
-  the section entitled "The canonical patch format" in the kernel file,
-  Documentation/SubmittingPatches for what a proper Subject: line should
-  look like.
-
-- It looks like you did not use your "real" name for the patch on either
-  the Signed-off-by: line, or the From: line (both of which have to
-  match).  Please read the kernel file, Documentation/SubmittingPatches
-  for how to do this correctly.
-
-If you wish to discuss this problem further, or you have questions about
-how to resolve this issue, please feel free to respond to this email and
-Greg will reply once he has dug out from the pending patches received
-from other developers.
-
-thanks,
-
-greg k-h's patch email bot
+greg k-h
