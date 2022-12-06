@@ -2,81 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ADD964491D
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 17:23:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECE4A644925
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 17:26:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233317AbiLFQW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 11:22:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39308 "EHLO
+        id S231255AbiLFQ0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 11:26:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231990AbiLFQW4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 11:22:56 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4855038E
-        for <stable@vger.kernel.org>; Tue,  6 Dec 2022 08:21:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1670343717;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=sCUP81xXIy/70El6lCPLbAYE27sraoFkLSJy6O9sUWw=;
-        b=Qo//7Xwb1DTVE8DU8wSygrxu8g7bpbrM8kYE5wdRx2hKNQP6u9sInR4t7Y8SZCKCkZuDJk
-        O+uj26RSDpfEQTKvu2xSFiwSnzTTVJ16ysA7L3q4pMdd6+1pe53CcAD8dIWn1K37u5TqkH
-        xaeQ6K12AUp6uGibS8/9hIoJBYkeD8U=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-515-ycX4PvkuPZeX1eZcfqX0CA-1; Tue, 06 Dec 2022 11:21:56 -0500
-X-MC-Unique: ycX4PvkuPZeX1eZcfqX0CA-1
-Received: by mail-qv1-f70.google.com with SMTP id u15-20020a0cec8f000000b004c704e015f7so33139346qvo.1
-        for <stable@vger.kernel.org>; Tue, 06 Dec 2022 08:21:56 -0800 (PST)
+        with ESMTP id S231600AbiLFQ0B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 11:26:01 -0500
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7722981F;
+        Tue,  6 Dec 2022 08:26:00 -0800 (PST)
+Received: by mail-ed1-x531.google.com with SMTP id e13so20995195edj.7;
+        Tue, 06 Dec 2022 08:26:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=8ViQYjW1jYkpQ2+Xc5Y6fwo4Stf0Elolu0/yZsrAy48=;
+        b=H4lUG3gOM5sTbfhgudKZ1J1OlMQuJTGv+gCztYmFNmxXkmHdALNXy5tMoe1oeSVkD0
+         EhgOJfF5raKo+SUinm3p4eIDK9dh5CfIZH79Xac2Qd3TkXUvNRfaIqqESID7bF4zN6oK
+         dEdW1Fgg5j2U6+ecv0AYDzA2uFAxM1N0CHGQHeqzzAaBpR1Yj4D8fEdfS+CyZ/O6pFBi
+         CqEC62abGZn3YkQJrVxgqkVzdjzBMzdEZzqjReTt5eKj2lyZfQOOk7Hxljcs2tHHEvrR
+         hEKgvX1Ywh/pKFDVSS0S/BLRKSfc7YvKIJ1nxd0aQjno5DIDJtsHfholo4gzmEtKgh1U
+         S01w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=sCUP81xXIy/70El6lCPLbAYE27sraoFkLSJy6O9sUWw=;
-        b=gDiU2W6pSnKvoUu2vAw3lHb14ZYc8SpeaGQHHSVG3bXa/AtIrlkfS4LStBmwbabFS6
-         IrCNQEQxKqJEqJILqZFEmxrUmgdv10NwrzmitMeWslAw164IM+deVaHVf/TKTtLZbI2l
-         M3d0TdcLBAt70RrpW1CM/G9/ntNVCSPeryDGSB69xWCc0R36xt3QaElZOHkSv8HA61rz
-         7729f9sCre0PX4h2+qlFB9t1lBod8RTiqRJXNO8b7X0wfROf2CnatCoZfafssWueu23X
-         hJDzA8zZsf7T9uloTBYy2bxU5LAc4LYn797oxFr2FPJrGQ+L5Eso2w26Q4Rl5DGO7Aga
-         sMWg==
-X-Gm-Message-State: ANoB5pk8mxkhm0WHs8qvofEpBLG1QwPAjNwr+ElvOSG4dSAgtHZ4/lfe
-        DkAr2ZIrFTV00EwMvTtjBTXyJgZsyrUrEa0i53zx5jEEj51FnKuLd2mDeaP78u0s/GIVaA7rXnL
-        2PQ8d2nEaRrFqzU8T
-X-Received: by 2002:a05:620a:b9a:b0:6fa:432f:298a with SMTP id k26-20020a05620a0b9a00b006fa432f298amr63417873qkh.159.1670343715699;
-        Tue, 06 Dec 2022 08:21:55 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf4EsM3BohWqkEZPkf2Bazdn88pyZKyN2ExwE9KgYwrNWoq74e43cW2/M3n+Ei57iDV3EOHs+Q==
-X-Received: by 2002:a05:620a:b9a:b0:6fa:432f:298a with SMTP id k26-20020a05620a0b9a00b006fa432f298amr63417854qkh.159.1670343715469;
-        Tue, 06 Dec 2022 08:21:55 -0800 (PST)
-Received: from x1n (bras-base-aurron9127w-grc-46-70-31-27-79.dsl.bell.ca. [70.31.27.79])
-        by smtp.gmail.com with ESMTPSA id bj9-20020a05620a190900b006b95b0a714esm14931361qkb.17.2022.12.06.08.21.54
+        bh=8ViQYjW1jYkpQ2+Xc5Y6fwo4Stf0Elolu0/yZsrAy48=;
+        b=cc7+3JqwgKqyutmfYa9xVvjEd2t8elcfTX6PL4hICH8ULxXhTdjPQFbWVfPzZ1BTmN
+         qEbAwCz6BX32EVa0wiWNr7H7YiOtJg034CD/3ad9BOfmD8eb4H0T/OjLycmhByey3puB
+         2YIvUp19h8aXtzlpNQ7Du7FBjURbA4qNz+NYf0eSplSMsMG2O8isuln2BWZceoB7rDv1
+         yjm9XzpgadccrQPmfJ4M263ntw/xu68WsmmHYp9XRdnj39dqaaMTTbba/IBMxyAvDV7G
+         rVI2xShLpIb9JPhUglddhkgmNOOftRZYVB1svXWBhVDWP3hbEjk44772lOuPqdCiC5jW
+         Y8xQ==
+X-Gm-Message-State: ANoB5pmVSx88Jip9asW3aDB1awUI91r4bM+A7OAMi9iPEx19XR5YIQvE
+        +BwtjJtt7I9G8EVXm27n6hg=
+X-Google-Smtp-Source: AA0mqf5Oxb98rjN5v25OlaRPuvniN9NYq+HO0r/Wcmfq932mmgmnboLJlOBWoHcrs6Acp+onFY6d9w==
+X-Received: by 2002:aa7:d7c4:0:b0:46c:751a:faad with SMTP id e4-20020aa7d7c4000000b0046c751afaadmr11846895eds.163.1670343958817;
+        Tue, 06 Dec 2022 08:25:58 -0800 (PST)
+Received: from skbuf ([188.26.184.215])
+        by smtp.gmail.com with ESMTPSA id lb26-20020a170907785a00b00781e7d364ebsm7624651ejc.144.2022.12.06.08.25.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Dec 2022 08:21:55 -0800 (PST)
-Date:   Tue, 6 Dec 2022 11:21:53 -0500
-From:   Peter Xu <peterx@redhat.com>
-To:     kernel test robot <lkp@intel.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        oe-kbuild-all@lists.linux.dev, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, Ives van Hoorne <ives@codesandbox.io>,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hugh@veritas.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH] mm/uffd: Always wr-protect pte in pte_mkuffd_wp()
-Message-ID: <Y49sIRZ1y6wq884J@x1n>
-References: <Y45duzmGGUT0+u8t@x1n>
- <202212060801.yenOQCHL-lkp@intel.com>
+        Tue, 06 Dec 2022 08:25:58 -0800 (PST)
+Date:   Tue, 6 Dec 2022 18:25:56 +0200
+From:   Vladimir Oltean <olteanv@gmail.com>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        "Radu Nicolae Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>
+Cc:     netdev@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, andrew@lunn.ch, pabeni@redhat.com,
+        kuba@kernel.org, edumazet@google.com, davem@davemloft.net,
+        f.fainelli@gmail.com, Radu Pirea <radu-nicolae.pirea@nxp.com>
+Subject: Re: [PATCH] net: dsa: sja1105: fix slab-out-of-bounds in
+ sja1105_setup
+Message-ID: <20221206162556.ibgw6xyi7jnjwbsg@skbuf>
+References: <20221206151136.802344-1-radu-nicolae.pirea@oss.nxp.com>
+ <Y49oaMcgstaa+l5G@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <202212060801.yenOQCHL-lkp@intel.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+In-Reply-To: <Y49oaMcgstaa+l5G@kroah.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -84,20 +75,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 06, 2022 at 08:46:17AM +0800, kernel test robot wrote:
-> vim +316 arch/x86/include/asm/pgtable.h
+On Tue, Dec 06, 2022 at 05:06:00PM +0100, Greg KH wrote:
+> On Tue, Dec 06, 2022 at 05:11:36PM +0200, Radu Nicolae Pirea (OSS) wrote:
+> > From: Radu Pirea <radu-nicolae.pirea@nxp.com>
+> > 
+> > Fix slab-out-of-bounds in sja1105_setup.
+> > 
+> > Kernel log:
 > 
->    313	
->    314	static inline pte_t pte_mkuffd_wp(pte_t pte)
->    315	{
->  > 316		return pte_wrprotect(pte_set_flags(pte, _PAGE_UFFD_WP));
->    317	}
+> <snip>
+> 
+> This log doesn't say much, sorry.  Please read the kernel documentation
+> for how to write a good changelog text and how to submit a patch to the
+> stable trees (hint, this isn't how...)
 
-It's interesting to know the bot will test any patch I attach in an mail
-reply, which is very nice...
+Agree with Greg.
 
-I'll send a formal patch for this one soon.
+The commit description should say that the SJA1105 family has 45 L2
+policing table entries (SJA1105_MAX_L2_POLICING_COUNT) and SJA1110 has
+110 (SJA1110_MAX_L2_POLICING_COUNT). Keeping the table structure but
+accounting for the difference in port count (5 in SJA1105 vs 10 in SJA1110)
+does not fully explain the difference. Rather, the SJA1110 also has L2
+ingress policers for multicast traffic. If a packet is classified as
+multicast, it will be processed by the policer index 99 + SRCPORT.
 
--- 
-Peter Xu
+The sja1105_setup() function initializes all L2 policers such that they
+don't interfere with normal packet reception by default. To have common
+code between SJA1105 and SJA1110, the index of the multicast policer for
+the port is calculated, and because it's an index that is out of bounds
+for SJA1105 but in bounds for SJA1110, a bounds check is performed.
 
+The code fails to do the proper thing when determining what to do with
+the multicast policer of port 0 on SJA1105 (ds->num_ports = 5). The
+"mcast" index will be equal to 45, which is also equal to
+table->ops->max_entry_count (SJA1105_MAX_L2_POLICING_COUNT). So it
+passes through the check. But at the same time, SJA1105 doesn't have
+multicast policers. So the code programs the SHARINDX field of an
+out-of-bounds element in the L2 Policing table of the static config.
+
+The comparison between index 45 and 45 entries should have determined
+the code to not access this policer index on SJA1105, since its memory
+wasn't even allocated.
+
+With enough bad luck, the out of bounds write could even overwrite other
+valid kernel data, but in this case the issue was detected using KASAN.
+
+Or something like that. The point is that you should use the commit
+description to prove to yourself (and also to readers) that the change
+is correct.
