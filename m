@@ -2,358 +2,522 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4ADF64440A
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 14:06:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B675B644467
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 14:16:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232839AbiLFNGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 08:06:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39294 "EHLO
+        id S233895AbiLFNQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 08:16:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233690AbiLFNFr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 08:05:47 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C5D32A416;
-        Tue,  6 Dec 2022 05:04:18 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id s7so13828606plk.5;
-        Tue, 06 Dec 2022 05:04:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=IqQsTGzm4+sVIX3gKs336wfTyo94bCtj3KwX+tW9hU8=;
-        b=KG2GyJsx1A2g4lq+tzVwxvWwHN1+9907EZG20F4Bw7WpwgJNg6kONF1bGt7BmoMsWb
-         6xUsRZmdxud4sT2C6FRta4sZbSR/6W9XwE6EUMRVg/zOC5RRzzlVJ42cpN07j53sYnX2
-         E8L7W87gazsjvZA1n56ynQ1Lfg6agUHtBOUC7uWF2U5KsXrBMbHqu3Z+nABvlfh118Xq
-         d27Nqj920giORYDz9JhalCXEHIxdi+RHi4It7qJbxb8YljVJxDj/DLAlhyU2ZS+XTxsy
-         xM2IcwrQ10GRPO96Azsyf9aiYUc8biUZ+yE6aEII/u4vnuI4WQc/Am2QAgEUpZ7dT+A5
-         HQhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=IqQsTGzm4+sVIX3gKs336wfTyo94bCtj3KwX+tW9hU8=;
-        b=uukhwkL38ooSBmciA3fpIVlQ7YIbGsg12JNZH1i4s3p3HubC+zCz8TfFxQxwyXfLwA
-         zqeeMIdpCAbwpGgK1GMxZ+0B6905++66cGL7tM2/g8cYM4kiUxJgeMYl9sl8a86c4eS0
-         PYES/HrSXkcGx8S4jNJ64A1jb91khC8WyaSHgTogzoAghziCUnR/FTXvPdhf2HhDvbQa
-         alUeYNTWiexFi+G0VLUt+bHC/8UVCsDnkLWGxOKzrxpMSfloNcJUIVTDYAVpzyNj0N34
-         ZrGF4QZcdqszZOUbLoAQBG20GpeKioTQWgZGy78QOTGy4NN5V1VQWz9QNiZcAQFvuOm7
-         15Fw==
-X-Gm-Message-State: ANoB5pkpTP2v03OW6+Vbib0Fuk7ghUTepwQlMhM9UeWbSHJasWoxkVXK
-        wIeb77jx17LL50cMNGKCbOI=
-X-Google-Smtp-Source: AA0mqf7twGgkrwoLULCxEra25T6OTlJrCqXS1FI42xJ6RV4j+yuD33IBNYDJKhyrBKLu/VL480J84Q==
-X-Received: by 2002:a17:90a:2d81:b0:219:9676:fef4 with SMTP id p1-20020a17090a2d8100b002199676fef4mr19360394pjd.89.1670331823975;
-        Tue, 06 Dec 2022 05:03:43 -0800 (PST)
-Received: from octofox.hsd1.ca.comcast.net ([2601:641:401:1d20:36ff:cebd:223c:4588])
-        by smtp.gmail.com with ESMTPSA id c15-20020a170903234f00b00186c3afb49esm4360691plh.209.2022.12.06.05.03.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Dec 2022 05:03:43 -0800 (PST)
-From:   Max Filippov <jcmvbkbc@gmail.com>
-To:     linux-xtensa@linux-xtensa.org
-Cc:     Chris Zankel <chris@zankel.net>, linux-kernel@vger.kernel.org,
-        Max Filippov <jcmvbkbc@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] xtensa: add __umulsidi3 helper
-Date:   Tue,  6 Dec 2022 05:03:32 -0800
-Message-Id: <20221206130332.3398120-1-jcmvbkbc@gmail.com>
-X-Mailer: git-send-email 2.30.2
-MIME-Version: 1.0
+        with ESMTP id S230093AbiLFNQW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 08:16:22 -0500
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2048.outbound.protection.outlook.com [40.107.94.48])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A62202CE38;
+        Tue,  6 Dec 2022 05:15:41 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=MqMBKJIzOoUZmKPEvSPDV+zx7bPDIYoQ+rot5I4JtamvIK4CyM0gnWPS6nHAIcI7HEAdLe/ldxBk4upuDcAmxiwpFmZQgrJ9tGN2v8g9mfd/T2q9Nzp7/1jma4F88PmxjrfZio4ugkQTjmFIHCCtIJQF3iC/BKPULMgnmWYsWJ6q5DOqI6+RIRjmam6hTzQRh384ezc3zwgo6ovfhYRNue1n/b+jKJAeGxkgSElujHOR9d/zKPGdIkyqw/+lA+1AEMV4JVetGF9FywMfLva44dDW/Uicg1imo//jGoF6+g0qvtHeD8beOUJbnkqrwXIh4pgLQIqBRjnximRPeZsi+g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Lupi0vywCMGz4l+7xWo0DbQpUW1Fd7gq9CGETcmJ6D8=;
+ b=QZ+arzxIqRIAGM2sMBylQovHaKd0wJULn8zOfwXtK2RO319ZAYl7mGJI+vDbFxFLQXRvI3bmd3t2iD4Kf+NA3EDgom34bU/XcKdDMjrwbWLqQa7HRmjVDv7bJ2R5e/MnJXfn0dYc3y9KOAt9i+5dtzYH3LYS1a3A+eLpWy06+9GUz60n5LVw1S19pfC5F276iaFOQKX7FDTnXgx54gY0B4fHQlnvxlLg2luDoGf88LbuiG5ksSHyS8jIR33byaz7vAQ/qy5qwzLeuaugnA17TFBFXx/xEgYgppPg7LjleFgedTr0tAJnbAOQFua93E0hpgaaRN35vjFkCOyTZjSRNw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Lupi0vywCMGz4l+7xWo0DbQpUW1Fd7gq9CGETcmJ6D8=;
+ b=qQiVLooNn+B+b3H/dc2g66jzaPHHsmnhb82YtiPq5tQyjPD5N3q6RHE4WYe+Hg+SY+ZaZFWChzMi1zqRA+eWQiRS2G8HwpWdtkXvyzqQdmefANbFon+5r5LyguygbHUdSTElJDRk/vSQOMFe88VZPDFJPMx/jUMpXXoHDIn8z+0=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from CH0PR12MB5346.namprd12.prod.outlook.com (2603:10b6:610:d5::24)
+ by CY8PR12MB7340.namprd12.prod.outlook.com (2603:10b6:930:50::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.11; Tue, 6 Dec
+ 2022 13:15:39 +0000
+Received: from CH0PR12MB5346.namprd12.prod.outlook.com
+ ([fe80::64c4:4997:5e9d:2cd4]) by CH0PR12MB5346.namprd12.prod.outlook.com
+ ([fe80::64c4:4997:5e9d:2cd4%6]) with mapi id 15.20.5880.014; Tue, 6 Dec 2022
+ 13:15:39 +0000
+Message-ID: <5e0d26ac-4164-9c16-f7ea-54811ea56fc0@amd.com>
+Date:   Tue, 6 Dec 2022 18:45:26 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Subject: Re: [PATCH 1/1] crypto: ccp - Allocate TEE ring and cmd buffer using
+ DMA APIs
+To:     =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        John Allen <john.allen@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linaro-mm-sig@lists.linaro.org
+Cc:     Mythri PK <Mythri.Pandeshwarakrishna@amd.com>,
+        Jeshwanth <JESHWANTHKUMAR.NK@amd.com>,
+        Devaraj Rangasamy <Devaraj.Rangasamy@amd.com>,
+        stable@vger.kernel.org, Jens Wiklander <jens.wiklander@linaro.org>
+References: <43568d5e6395fcab48262fa5b3d1a5112918fbe8.1669372199.git.Rijo-john.Thomas@amd.com>
+ <78b23ccf-f50f-a793-ae6a-0a70faa2fb06@amd.com>
+ <f551325a-2033-bd9c-e863-a7e57993349a@amd.com>
+ <56917e3c-45c1-1930-9f55-22fdd536c16c@amd.com>
+Content-Language: en-US
+From:   Rijo Thomas <Rijo-john.Thomas@amd.com>
+In-Reply-To: <56917e3c-45c1-1930-9f55-22fdd536c16c@amd.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        FROM_LOCAL_NOVOWEL,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-ClientProxiedBy: PN3PR01CA0039.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:c01:98::15) To CH0PR12MB5346.namprd12.prod.outlook.com
+ (2603:10b6:610:d5::24)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH0PR12MB5346:EE_|CY8PR12MB7340:EE_
+X-MS-Office365-Filtering-Correlation-Id: e888fada-883e-4b67-3b61-08dad78bf81b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: pONngUvAFwoq14PftfZVxqiBhWz+Czmon73LHRr0GF8rnH2xKZmnyksmDn1kEsKSJiWjxMGPHQZ1lKeMNTskeXIJ2GyEWSaZsA+BGueI1FuIWtiR1vu5FhmhYpe/ty6sCgvyUhNjR7EQ3Ll4XBkd4oh5N2byGWAiemJA9ffGSDgE0RLur8ERv5ZKJ2twruR7dmoqLm/ECwFrhKxLLhbReLA/Hptq3kp5ou0PNKQ8aLHV/uiyzmLsqFn6Swer8vgsZ9GDYWuYJ/srUVLNcLavcf4tKOc2f+NzvGY89kpAuD7SlQJbwRQYp47B+t/WxYDPw12YjUalpvmqqDVQid/gW1BAZ4YQa6/AMEp8Omf8NPYHIXtpU0hnwoPmOk06uFuYVer7bB8bSZMynG7Tx8TOi4Du/RgITQ8tbPxqHBs3BvuEFrYFjZ/LZg3Sc9ViSubrHvIE6jg3awMcECiBWQlhMt9Eg52Je5/tFcE6153SBdVgpOpCgLDhJRHrBPkrTGEpX/t2dGL0QlEW4U+a7rvLgbLf1vmOn6YFK47RYzfWgPEoyxVkI6mO7Ke3CPaJKRmPAbWItFP2LjD7OuWcbVnr27jJl372OXgRM1m/eDwDEUDjc3SJydobQYmMLoVPwO3keBh1XN3syx/QLmyNLuTyvcMWL5IqqPfN5kS5Ra6qrioUeQ7SndTczEdthLG3VUpZsyAd4iYoBLytsn/2dskPOntVegIcSCJf1lWQBozBxkVQzidnbeAjW9TxS3UfJzOw
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR12MB5346.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(366004)(396003)(376002)(346002)(39860400002)(451199015)(30864003)(41300700001)(83380400001)(31686004)(66556008)(4326008)(8676002)(66946007)(66476007)(36756003)(186003)(2616005)(66574015)(31696002)(66899015)(86362001)(54906003)(110136005)(5660300002)(6506007)(2906002)(53546011)(6512007)(8936002)(7416002)(478600001)(26005)(6666004)(921005)(316002)(38100700002)(6486002)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?L216WFJJU0dUUzAvRFh5M05qaGQyUnBzaitFWmNSOGN2OHIwVDUySFJDb3dy?=
+ =?utf-8?B?Z2dOTWpHQTh6T09YRExjREo3clV3RjA2aW8rYllHa1dZTHB1ZnBYQTRTOHh6?=
+ =?utf-8?B?YW44UWFidXdnZTd3SnFPbWZtMXZCd09Yak94NHU1bmVQYjFFUmN3dW5Da2hx?=
+ =?utf-8?B?Y0Mxc3BaYjBkL0FCVGZyOWRFNG1YVGFxelNadmpmbHNnT2xFVXhLNzRUMk5z?=
+ =?utf-8?B?MzU0SldLbVkreHhpald6WUZUZlRQdkczNUdHUyt2S0dRSkJsY3RDRnlmRDVJ?=
+ =?utf-8?B?aVo4QUdFSkd5TGUrMmRCc1BWSlpmK2RzclJGU1lrRlJpSjkyWExuajZlTU5h?=
+ =?utf-8?B?VWNWQVhDVEt2S2FVOVFzYUxsbEhwSTdkNVIwdS9EdklEemZyYVp5ejFJNTla?=
+ =?utf-8?B?MGtMUEl4eVF5ckp4YWpaNnlUVnVoVDV4aTllWEJEOHVkVDdRM0lmWCtZaWRG?=
+ =?utf-8?B?QnBrd3hRT2k3OEFwRkpSd2VVMXhxRVZUdXNIYWI2MlVjMFJzVWdBTGhHdXFL?=
+ =?utf-8?B?ZVB5U3RFL2lkOG56SHlKYVdQZjhIQis5TitNOWduT0ZPUTVKV1dOcGkweGp4?=
+ =?utf-8?B?NXE3OStzMVFaRU1TMDZRNjdwbzFqVmRGb2VOWEdSUFpoK1U2bko5YXJYZHBJ?=
+ =?utf-8?B?WXBYVmNSbE1lM2pOUHp0QlhHdE85WWhhakU3dnRNaWloMCtYRmtHMmhDQzR3?=
+ =?utf-8?B?RVhBclVlQzlXdHlDR3BYTmVWMjRyOG1mMXdJNFFOQVUwR3NLaUthandkcXBT?=
+ =?utf-8?B?RW5uSXY3UnBSd1k2OGNKeFlWajd4VjJQamd6SzQrV1l0MGdjVnNONG04QW9q?=
+ =?utf-8?B?d0RGZEFqK1NmY2h6RVhjTkdKVXB1aHpWL2JKbnY3V1BoVHRId1N6TXFpZmg3?=
+ =?utf-8?B?V05tb2ZaNEJBVDFmeVQzVk9LOFdDeStWWmx2YUhuK2s3dXlvL29qNTN1Zkds?=
+ =?utf-8?B?WnI2ejdZODRCQnlBcG52V2ZtL1ltV053bXlvc2pjQ1pLM3VrRk9jOWJqVHNj?=
+ =?utf-8?B?N3hndG5nbEN1bXUrQVkydndEWDFWdXN5TlNTVDE5L2dLckUyRkcrS1VreENX?=
+ =?utf-8?B?VWFFb01YaTd5SzA4MExoUkNCRjBIbXIxNzBPVHROdHpTTldlL2ZVQ2U5aVVm?=
+ =?utf-8?B?RzBwNlVRektYMVVZVERqZ0plb3R4bGZHVHZxMlhESXRJMzhERjdnOEgwMnhT?=
+ =?utf-8?B?aGFxUElBQXkwZVVzdHJlTThqOHNaeFdXWHVXNlJ3bHNnS3RSVVI0NnR1US9L?=
+ =?utf-8?B?WlJQa0NraGlIRTgyQ1ZkOWUrbmJrVGMxMCthVjJqRjZZUiszY0NXZkxlOVIv?=
+ =?utf-8?B?SkxSOFVrbi9TL0Z6dVVwM3RCK1BQMFV6QlVTb0tQcWNzbkpldkJwLzNrQ0tY?=
+ =?utf-8?B?cjRQdjdQZDBmUVBUVXpmTnJCaHpYMUc5SzNTbkxMem5UalV5SmlQVkM0SDVS?=
+ =?utf-8?B?UVg4MGhvMFdyV1NiOGVlM0hzdzFmMjNKTGRQUzNjd0tqczJIODk5S3lEZTl5?=
+ =?utf-8?B?dFRqeXVHV2x2bXdMWW5sL0VWMmFWVElFR29XYUdMTjg3RmRwYktyWGM3b0ZS?=
+ =?utf-8?B?QkNVR1FlVjlHSXVudFBrZm9scmJDbVRYZEFaVWxrYzh1eVN1bk9rcnBkSFR6?=
+ =?utf-8?B?TlhWNGQ5c2djS0R6SC9aS0xWcXZwMlB1b0xWNEwxQmdOZWM0UWFjOXFXM1FS?=
+ =?utf-8?B?ZGR6TEVML2l3QU5mcS94ZXVoQXlITzIxaDdxZVQ0K0s2a2JpQ2RPWXFyNnVw?=
+ =?utf-8?B?WjlVVm1pcnBoU3Nvdjc0eGRjbStLZjZxUnI0K09WTGtrSnptK0FmVFo0NVZx?=
+ =?utf-8?B?WFZIRFZkd1oxSzdYSksyZ2dsTGJJaDRmV1AyT0FVSlpha0hOU1pDSUVHaFFm?=
+ =?utf-8?B?V2t6L1VEYkZSRXQ0d2NFVjVCS3V2aEUxOWlPOENvZlpZc0NXQ3NpNG5weWR6?=
+ =?utf-8?B?cmJSS1RTOEVTdldZWjl3bDUyWFdMak5wQkVNeStpTE0zbFFHVzhVTkdmOWZM?=
+ =?utf-8?B?VkFxZ3U5clZYV3NqOHRrb0NBWUEwUjRUUGFySXZNZ2VHS0dxc1p2eUVzT21C?=
+ =?utf-8?B?aDg1Mmc2djBLaEExNmo4K3kwSXZvZlBsb2pZa2N1Tm81T3N4cDA2d0xHdVlI?=
+ =?utf-8?Q?RV0u/uA3jKEv6NZAndSQM4ago?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e888fada-883e-4b67-3b61-08dad78bf81b
+X-MS-Exchange-CrossTenant-AuthSource: CH0PR12MB5346.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Dec 2022 13:15:39.2743
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 92KwIqoaXmpI6qlU5qlDndpeMOjce+M/S24Ew8wgIITatE8IoPoGZWhnWW1StNsVzlhAy3EWzPyrNoxILs/T7w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7340
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-xtensa gcc-13 has changed multiplication handling and may now use
-__umulsidi3 helper where it used to use __muldi3. As a result building
-the kernel with the new gcc may fail with the following error:
 
-    linux/init/main.c:1287: undefined reference to `__umulsidi3'
 
-Fix the build by providing __umulsidi3 implementation for xtensa.
+On 12/6/2022 6:26 PM, Christian König wrote:
+> Am 06.12.22 um 13:54 schrieb Rijo Thomas:
+>>
+>> On 12/6/2022 6:11 PM, Christian König wrote:
+>>> Am 06.12.22 um 13:30 schrieb Rijo Thomas:
+>>>> For AMD Secure Processor (ASP) to map and access TEE ring buffer, the
+>>>> ring buffer address sent by host to ASP must be a real physical
+>>>> address and the pages must be physically contiguous.
+>>>>
+>>>> In a virtualized environment though, when the driver is running in a
+>>>> guest VM, the pages allocated by __get_free_pages() may not be
+>>>> contiguous in the host (or machine) physical address space. Guests
+>>>> will see a guest (or pseudo) physical address and not the actual host
+>>>> (or machine) physical address. The TEE running on ASP cannot decipher
+>>>> pseudo physical addresses. It needs host or machine physical address.
+>>>>
+>>>> To resolve this problem, use DMA APIs for allocating buffers that must
+>>>> be shared with TEE. This will ensure that the pages are contiguous in
+>>>> host (or machine) address space. If the DMA handle is an IOVA,
+>>>> translate it into a physical address before sending it to ASP.
+>>>>
+>>>> This patch also exports two APIs (one for buffer allocation and
+>>>> another to free the buffer). This API can be used by AMD-TEE driver to
+>>>> share buffers with TEE.
+>>> Maybe use some other name than dma_buffer for your structure, cause that is usually something completely different in the Linux kernel.
+>>>
+>> Sure Christian. I shall rename "struct dma_buffer" to "struct shm_buffer" (Shared Memory Buffer) in the file include/linux/psp-tee.h
+>> The functions psp_tee_alloc_dmabuf() and psp_tee_free_dmabuf() shall be renamed to psp_tee_alloc_shmbuf() and psp_tee_free_shmbuf(), respectively.
+>> I shall do correction in next patch revision. I will wait for others to review as well before I post update.
+> 
+> I strongly suggest to use the name psp_buffer or something similar because shm_buffer is usually used for something else as well.
 
-Cc: stable@vger.kernel.org # 5.18+
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
----
- arch/xtensa/kernel/xtensa_ksyms.c |   2 +
- arch/xtensa/lib/Makefile          |   2 +-
- arch/xtensa/lib/umulsidi3.S       | 230 ++++++++++++++++++++++++++++++
- 3 files changed, 233 insertions(+), 1 deletion(-)
- create mode 100644 arch/xtensa/lib/umulsidi3.S
+I see that the TEE subsystem defines "struct tee_shm".
 
-diff --git a/arch/xtensa/kernel/xtensa_ksyms.c b/arch/xtensa/kernel/xtensa_ksyms.c
-index b0bc8897c924..2a31b1ab0c9f 100644
---- a/arch/xtensa/kernel/xtensa_ksyms.c
-+++ b/arch/xtensa/kernel/xtensa_ksyms.c
-@@ -62,6 +62,7 @@ extern int __modsi3(int, int);
- extern int __mulsi3(int, int);
- extern unsigned int __udivsi3(unsigned int, unsigned int);
- extern unsigned int __umodsi3(unsigned int, unsigned int);
-+extern unsigned long long __umulsidi3(unsigned int, unsigned int);
- 
- EXPORT_SYMBOL(__ashldi3);
- EXPORT_SYMBOL(__ashrdi3);
-@@ -71,6 +72,7 @@ EXPORT_SYMBOL(__modsi3);
- EXPORT_SYMBOL(__mulsi3);
- EXPORT_SYMBOL(__udivsi3);
- EXPORT_SYMBOL(__umodsi3);
-+EXPORT_SYMBOL(__umulsidi3);
- 
- unsigned int __sync_fetch_and_and_4(volatile void *p, unsigned int v)
- {
-diff --git a/arch/xtensa/lib/Makefile b/arch/xtensa/lib/Makefile
-index d4e9c397e3fd..7ecef0519a27 100644
---- a/arch/xtensa/lib/Makefile
-+++ b/arch/xtensa/lib/Makefile
-@@ -5,7 +5,7 @@
- 
- lib-y	+= memcopy.o memset.o checksum.o \
- 	   ashldi3.o ashrdi3.o lshrdi3.o \
--	   divsi3.o udivsi3.o modsi3.o umodsi3.o mulsi3.o \
-+	   divsi3.o udivsi3.o modsi3.o umodsi3.o mulsi3.o umulsidi3.o \
- 	   usercopy.o strncpy_user.o strnlen_user.o
- lib-$(CONFIG_PCI) += pci-auto.o
- lib-$(CONFIG_KCSAN) += kcsan-stubs.o
-diff --git a/arch/xtensa/lib/umulsidi3.S b/arch/xtensa/lib/umulsidi3.S
-new file mode 100644
-index 000000000000..136081647942
---- /dev/null
-+++ b/arch/xtensa/lib/umulsidi3.S
-@@ -0,0 +1,230 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later WITH GCC-exception-2.0 */
-+#include <linux/linkage.h>
-+#include <asm/asmmacro.h>
-+#include <asm/core.h>
-+
-+#if !XCHAL_HAVE_MUL16 && !XCHAL_HAVE_MUL32 && !XCHAL_HAVE_MAC16
-+#define XCHAL_NO_MUL 1
-+#endif
-+
-+ENTRY(__umulsidi3)
-+
-+#ifdef __XTENSA_CALL0_ABI__
-+	abi_entry(32)
-+	s32i	a12, sp, 16
-+	s32i	a13, sp, 20
-+	s32i	a14, sp, 24
-+	s32i	a15, sp, 28
-+#elif XCHAL_NO_MUL
-+	/* This is not really a leaf function; allocate enough stack space
-+	   to allow CALL12s to a helper function.  */
-+	abi_entry(32)
-+#else
-+	abi_entry_default
-+#endif
-+
-+#ifdef __XTENSA_EB__
-+#define wh a2
-+#define wl a3
-+#else
-+#define wh a3
-+#define wl a2
-+#endif /* __XTENSA_EB__ */
-+
-+	/* This code is taken from the mulsf3 routine in ieee754-sf.S.
-+	   See more comments there.  */
-+
-+#if XCHAL_HAVE_MUL32_HIGH
-+	mull	a6, a2, a3
-+	muluh	wh, a2, a3
-+	mov	wl, a6
-+
-+#else /* ! MUL32_HIGH */
-+
-+#if defined(__XTENSA_CALL0_ABI__) && XCHAL_NO_MUL
-+	/* a0 and a8 will be clobbered by calling the multiply function
-+	   but a8 is not used here and need not be saved.  */
-+	s32i	a0, sp, 0
-+#endif
-+
-+#if XCHAL_HAVE_MUL16 || XCHAL_HAVE_MUL32
-+
-+#define a2h a4
-+#define a3h a5
-+
-+	/* Get the high halves of the inputs into registers.  */
-+	srli	a2h, a2, 16
-+	srli	a3h, a3, 16
-+
-+#define a2l a2
-+#define a3l a3
-+
-+#if XCHAL_HAVE_MUL32 && !XCHAL_HAVE_MUL16
-+	/* Clear the high halves of the inputs.  This does not matter
-+	   for MUL16 because the high bits are ignored.  */
-+	extui	a2, a2, 0, 16
-+	extui	a3, a3, 0, 16
-+#endif
-+#endif /* MUL16 || MUL32 */
-+
-+
-+#if XCHAL_HAVE_MUL16
-+
-+#define do_mul(dst, xreg, xhalf, yreg, yhalf) \
-+	mul16u	dst, xreg ## xhalf, yreg ## yhalf
-+
-+#elif XCHAL_HAVE_MUL32
-+
-+#define do_mul(dst, xreg, xhalf, yreg, yhalf) \
-+	mull	dst, xreg ## xhalf, yreg ## yhalf
-+
-+#elif XCHAL_HAVE_MAC16
-+
-+/* The preprocessor insists on inserting a space when concatenating after
-+   a period in the definition of do_mul below.  These macros are a workaround
-+   using underscores instead of periods when doing the concatenation.  */
-+#define umul_aa_ll umul.aa.ll
-+#define umul_aa_lh umul.aa.lh
-+#define umul_aa_hl umul.aa.hl
-+#define umul_aa_hh umul.aa.hh
-+
-+#define do_mul(dst, xreg, xhalf, yreg, yhalf) \
-+	umul_aa_ ## xhalf ## yhalf	xreg, yreg; \
-+	rsr	dst, ACCLO
-+
-+#else /* no multiply hardware */
-+
-+#define set_arg_l(dst, src) \
-+	extui	dst, src, 0, 16
-+#define set_arg_h(dst, src) \
-+	srli	dst, src, 16
-+
-+#ifdef __XTENSA_CALL0_ABI__
-+#define do_mul(dst, xreg, xhalf, yreg, yhalf) \
-+	set_arg_ ## xhalf (a13, xreg); \
-+	set_arg_ ## yhalf (a14, yreg); \
-+	call0	.Lmul_mulsi3; \
-+	mov	dst, a12
-+#else
-+#define do_mul(dst, xreg, xhalf, yreg, yhalf) \
-+	set_arg_ ## xhalf (a14, xreg); \
-+	set_arg_ ## yhalf (a15, yreg); \
-+	call12	.Lmul_mulsi3; \
-+	mov	dst, a14
-+#endif /* __XTENSA_CALL0_ABI__ */
-+
-+#endif /* no multiply hardware */
-+
-+	/* Add pp1 and pp2 into a6 with carry-out in a9.  */
-+	do_mul(a6, a2, l, a3, h)	/* pp 1 */
-+	do_mul(a11, a2, h, a3, l)	/* pp 2 */
-+	movi	a9, 0
-+	add	a6, a6, a11
-+	bgeu	a6, a11, 1f
-+	addi	a9, a9, 1
-+1:
-+	/* Shift the high half of a9/a6 into position in a9.  Note that
-+	   this value can be safely incremented without any carry-outs.  */
-+	ssai	16
-+	src	a9, a9, a6
-+
-+	/* Compute the low word into a6.  */
-+	do_mul(a11, a2, l, a3, l)	/* pp 0 */
-+	sll	a6, a6
-+	add	a6, a6, a11
-+	bgeu	a6, a11, 1f
-+	addi	a9, a9, 1
-+1:
-+	/* Compute the high word into wh.  */
-+	do_mul(wh, a2, h, a3, h)	/* pp 3 */
-+	add	wh, wh, a9
-+	mov	wl, a6
-+
-+#endif /* !MUL32_HIGH */
-+
-+#if defined(__XTENSA_CALL0_ABI__) && XCHAL_NO_MUL
-+	/* Restore the original return address.  */
-+	l32i	a0, sp, 0
-+#endif
-+#ifdef __XTENSA_CALL0_ABI__
-+	l32i	a12, sp, 16
-+	l32i	a13, sp, 20
-+	l32i	a14, sp, 24
-+	l32i	a15, sp, 28
-+	abi_ret(32)
-+#else
-+	abi_ret_default
-+#endif
-+
-+#if XCHAL_NO_MUL
-+
-+	.macro	do_addx2 dst, as, at, tmp
-+#if XCHAL_HAVE_ADDX
-+	addx2	\dst, \as, \at
-+#else
-+	slli	\tmp, \as, 1
-+	add	\dst, \tmp, \at
-+#endif
-+	.endm
-+
-+	.macro	do_addx4 dst, as, at, tmp
-+#if XCHAL_HAVE_ADDX
-+	addx4	\dst, \as, \at
-+#else
-+	slli	\tmp, \as, 2
-+	add	\dst, \tmp, \at
-+#endif
-+	.endm
-+
-+	.macro	do_addx8 dst, as, at, tmp
-+#if XCHAL_HAVE_ADDX
-+	addx8	\dst, \as, \at
-+#else
-+	slli	\tmp, \as, 3
-+	add	\dst, \tmp, \at
-+#endif
-+	.endm
-+
-+	/* For Xtensa processors with no multiply hardware, this simplified
-+	   version of _mulsi3 is used for multiplying 16-bit chunks of
-+	   the floating-point mantissas.  When using CALL0, this function
-+	   uses a custom ABI: the inputs are passed in a13 and a14, the
-+	   result is returned in a12, and a8 and a15 are clobbered.  */
-+	.align	4
-+.Lmul_mulsi3:
-+	abi_entry_default
-+
-+	.macro mul_mulsi3_body dst, src1, src2, tmp1, tmp2
-+	movi	\dst, 0
-+1:	add	\tmp1, \src2, \dst
-+	extui	\tmp2, \src1, 0, 1
-+	movnez	\dst, \tmp1, \tmp2
-+
-+	do_addx2 \tmp1, \src2, \dst, \tmp1
-+	extui	\tmp2, \src1, 1, 1
-+	movnez	\dst, \tmp1, \tmp2
-+
-+	do_addx4 \tmp1, \src2, \dst, \tmp1
-+	extui	\tmp2, \src1, 2, 1
-+	movnez	\dst, \tmp1, \tmp2
-+
-+	do_addx8 \tmp1, \src2, \dst, \tmp1
-+	extui	\tmp2, \src1, 3, 1
-+	movnez	\dst, \tmp1, \tmp2
-+
-+	srli	\src1, \src1, 4
-+	slli	\src2, \src2, 4
-+	bnez	\src1, 1b
-+	.endm
-+
-+#ifdef __XTENSA_CALL0_ABI__
-+	mul_mulsi3_body a12, a13, a14, a15, a8
-+#else
-+	/* The result will be written into a2, so save that argument in a4.  */
-+	mov	a4, a2
-+	mul_mulsi3_body a2, a4, a3, a5, a6
-+#endif
-+	abi_ret_default
-+#endif /* XCHAL_NO_MUL */
-+
-+ENDPROC(__umulsidi3)
--- 
-2.30.2
+Okay, I will name the newly added structure as "struct psp_tee_buffer" and the APIs as psp_tee_alloc_buffer() and psp_tee_free_buffer().
 
+Complete function prototype:
+
+struct psp_tee_buffer *psp_tee_alloc_buffer(unsigned long size, gfp_t gfp);
+
+void psp_tee_free_buffer(struct psp_tee_buffer *buffer);
+
+Does this look okay?
+
+Thanks,
+Rijo
+
+> 
+> Regards,
+> Christian.
+> 
+>>
+>> Thanks,
+>> Rijo
+>>
+>>> Regards,
+>>> Christian.
+>>>
+>>>> Fixes: 33960acccfbd ("crypto: ccp - add TEE support for Raven Ridge")
+>>>> Cc: Tom Lendacky <thomas.lendacky@amd.com>
+>>>> Cc: stable@vger.kernel.org
+>>>> Signed-off-by: Rijo Thomas <Rijo-john.Thomas@amd.com>
+>>>> Co-developed-by: Jeshwanth <JESHWANTHKUMAR.NK@amd.com>
+>>>> Signed-off-by: Jeshwanth <JESHWANTHKUMAR.NK@amd.com>
+>>>> Reviewed-by: Devaraj Rangasamy <Devaraj.Rangasamy@amd.com>
+>>>> ---
+>>>>    drivers/crypto/ccp/psp-dev.c |   6 +-
+>>>>    drivers/crypto/ccp/tee-dev.c | 116 ++++++++++++++++++++++-------------
+>>>>    drivers/crypto/ccp/tee-dev.h |   9 +--
+>>>>    include/linux/psp-tee.h      |  47 ++++++++++++++
+>>>>    4 files changed, 127 insertions(+), 51 deletions(-)
+>>>>
+>>>> diff --git a/drivers/crypto/ccp/psp-dev.c b/drivers/crypto/ccp/psp-dev.c
+>>>> index c9c741ac8442..2b86158d7435 100644
+>>>> --- a/drivers/crypto/ccp/psp-dev.c
+>>>> +++ b/drivers/crypto/ccp/psp-dev.c
+>>>> @@ -161,13 +161,13 @@ int psp_dev_init(struct sp_device *sp)
+>>>>            goto e_err;
+>>>>        }
+>>>>    +    if (sp->set_psp_master_device)
+>>>> +        sp->set_psp_master_device(sp);
+>>>> +
+>>>>        ret = psp_init(psp);
+>>>>        if (ret)
+>>>>            goto e_irq;
+>>>>    -    if (sp->set_psp_master_device)
+>>>> -        sp->set_psp_master_device(sp);
+>>>> -
+>>>>        /* Enable interrupt */
+>>>>        iowrite32(-1, psp->io_regs + psp->vdata->inten_reg);
+>>>>    diff --git a/drivers/crypto/ccp/tee-dev.c b/drivers/crypto/ccp/tee-dev.c
+>>>> index 5c9d47f3be37..1631d9851e54 100644
+>>>> --- a/drivers/crypto/ccp/tee-dev.c
+>>>> +++ b/drivers/crypto/ccp/tee-dev.c
+>>>> @@ -12,8 +12,9 @@
+>>>>    #include <linux/mutex.h>
+>>>>    #include <linux/delay.h>
+>>>>    #include <linux/slab.h>
+>>>> +#include <linux/dma-direct.h>
+>>>> +#include <linux/iommu.h>
+>>>>    #include <linux/gfp.h>
+>>>> -#include <linux/psp-sev.h>
+>>>>    #include <linux/psp-tee.h>
+>>>>      #include "psp-dev.h"
+>>>> @@ -21,25 +22,64 @@
+>>>>      static bool psp_dead;
+>>>>    +struct dma_buffer *psp_tee_alloc_dmabuf(unsigned long size, gfp_t gfp)
+>>>> +{
+>>>> +    struct psp_device *psp = psp_get_master_device();
+>>>> +    struct dma_buffer *dma_buf;
+>>>> +    struct iommu_domain *dom;
+>>>> +
+>>>> +    if (!psp || !size)
+>>>> +        return NULL;
+>>>> +
+>>>> +    dma_buf = kzalloc(sizeof(*dma_buf), GFP_KERNEL);
+>>>> +    if (!dma_buf)
+>>>> +        return NULL;
+>>>> +
+>>>> +    dma_buf->vaddr = dma_alloc_coherent(psp->dev, size, &dma_buf->dma, gfp);
+>>>> +    if (!dma_buf->vaddr || !dma_buf->dma) {
+>>>> +        kfree(dma_buf);
+>>>> +        return NULL;
+>>>> +    }
+>>>> +
+>>>> +    dma_buf->size = size;
+>>>> +
+>>>> +    dom = iommu_get_domain_for_dev(psp->dev);
+>>>> +    if (dom)
+>>>> +        dma_buf->paddr = iommu_iova_to_phys(dom, dma_buf->dma);
+>>>> +    else
+>>>> +        dma_buf->paddr = dma_buf->dma;
+>>>> +
+>>>> +    return dma_buf;
+>>>> +}
+>>>> +EXPORT_SYMBOL(psp_tee_alloc_dmabuf);
+>>>> +
+>>>> +void psp_tee_free_dmabuf(struct dma_buffer *dma_buf)
+>>>> +{
+>>>> +    struct psp_device *psp = psp_get_master_device();
+>>>> +
+>>>> +    if (!psp || !dma_buf)
+>>>> +        return;
+>>>> +
+>>>> +    dma_free_coherent(psp->dev, dma_buf->size,
+>>>> +              dma_buf->vaddr, dma_buf->dma);
+>>>> +
+>>>> +    kfree(dma_buf);
+>>>> +}
+>>>> +EXPORT_SYMBOL(psp_tee_free_dmabuf);
+>>>> +
+>>>>    static int tee_alloc_ring(struct psp_tee_device *tee, int ring_size)
+>>>>    {
+>>>>        struct ring_buf_manager *rb_mgr = &tee->rb_mgr;
+>>>> -    void *start_addr;
+>>>>          if (!ring_size)
+>>>>            return -EINVAL;
+>>>>    -    /* We need actual physical address instead of DMA address, since
+>>>> -     * Trusted OS running on AMD Secure Processor will map this region
+>>>> -     */
+>>>> -    start_addr = (void *)__get_free_pages(GFP_KERNEL, get_order(ring_size));
+>>>> -    if (!start_addr)
+>>>> +    rb_mgr->ring_buf = psp_tee_alloc_dmabuf(ring_size,
+>>>> +                        GFP_KERNEL | __GFP_ZERO);
+>>>> +    if (!rb_mgr->ring_buf) {
+>>>> +        dev_err(tee->dev, "ring allocation failed\n");
+>>>>            return -ENOMEM;
+>>>> -
+>>>> -    memset(start_addr, 0x0, ring_size);
+>>>> -    rb_mgr->ring_start = start_addr;
+>>>> -    rb_mgr->ring_size = ring_size;
+>>>> -    rb_mgr->ring_pa = __psp_pa(start_addr);
+>>>> +    }
+>>>>        mutex_init(&rb_mgr->mutex);
+>>>>          return 0;
+>>>> @@ -49,15 +89,8 @@ static void tee_free_ring(struct psp_tee_device *tee)
+>>>>    {
+>>>>        struct ring_buf_manager *rb_mgr = &tee->rb_mgr;
+>>>>    -    if (!rb_mgr->ring_start)
+>>>> -        return;
+>>>> +    psp_tee_free_dmabuf(rb_mgr->ring_buf);
+>>>>    -    free_pages((unsigned long)rb_mgr->ring_start,
+>>>> -           get_order(rb_mgr->ring_size));
+>>>> -
+>>>> -    rb_mgr->ring_start = NULL;
+>>>> -    rb_mgr->ring_size = 0;
+>>>> -    rb_mgr->ring_pa = 0;
+>>>>        mutex_destroy(&rb_mgr->mutex);
+>>>>    }
+>>>>    @@ -81,35 +114,36 @@ static int tee_wait_cmd_poll(struct psp_tee_device *tee, unsigned int timeout,
+>>>>        return -ETIMEDOUT;
+>>>>    }
+>>>>    -static
+>>>> -struct tee_init_ring_cmd *tee_alloc_cmd_buffer(struct psp_tee_device *tee)
+>>>> +struct dma_buffer *tee_alloc_cmd_buffer(struct psp_tee_device *tee)
+>>>>    {
+>>>>        struct tee_init_ring_cmd *cmd;
+>>>> +    struct dma_buffer *cmd_buffer;
+>>>>    -    cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
+>>>> -    if (!cmd)
+>>>> +    cmd_buffer = psp_tee_alloc_dmabuf(sizeof(*cmd),
+>>>> +                      GFP_KERNEL | __GFP_ZERO);
+>>>> +    if (!cmd_buffer)
+>>>>            return NULL;
+>>>>    -    cmd->hi_addr = upper_32_bits(tee->rb_mgr.ring_pa);
+>>>> -    cmd->low_addr = lower_32_bits(tee->rb_mgr.ring_pa);
+>>>> -    cmd->size = tee->rb_mgr.ring_size;
+>>>> +    cmd = (struct tee_init_ring_cmd *)cmd_buffer->vaddr;
+>>>> +    cmd->hi_addr = upper_32_bits(tee->rb_mgr.ring_buf->paddr);
+>>>> +    cmd->low_addr = lower_32_bits(tee->rb_mgr.ring_buf->paddr);
+>>>> +    cmd->size = tee->rb_mgr.ring_buf->size;
+>>>>          dev_dbg(tee->dev, "tee: ring address: high = 0x%x low = 0x%x size = %u\n",
+>>>>            cmd->hi_addr, cmd->low_addr, cmd->size);
+>>>>    -    return cmd;
+>>>> +    return cmd_buffer;
+>>>>    }
+>>>>    -static inline void tee_free_cmd_buffer(struct tee_init_ring_cmd *cmd)
+>>>> +static inline void tee_free_cmd_buffer(struct dma_buffer *cmd_buffer)
+>>>>    {
+>>>> -    kfree(cmd);
+>>>> +    psp_tee_free_dmabuf(cmd_buffer);
+>>>>    }
+>>>>      static int tee_init_ring(struct psp_tee_device *tee)
+>>>>    {
+>>>>        int ring_size = MAX_RING_BUFFER_ENTRIES * sizeof(struct tee_ring_cmd);
+>>>> -    struct tee_init_ring_cmd *cmd;
+>>>> -    phys_addr_t cmd_buffer;
+>>>> +    struct dma_buffer *cmd_buffer;
+>>>>        unsigned int reg;
+>>>>        int ret;
+>>>>    @@ -123,21 +157,19 @@ static int tee_init_ring(struct psp_tee_device *tee)
+>>>>          tee->rb_mgr.wptr = 0;
+>>>>    -    cmd = tee_alloc_cmd_buffer(tee);
+>>>> -    if (!cmd) {
+>>>> +    cmd_buffer = tee_alloc_cmd_buffer(tee);
+>>>> +    if (!cmd_buffer) {
+>>>>            tee_free_ring(tee);
+>>>>            return -ENOMEM;
+>>>>        }
+>>>>    -    cmd_buffer = __psp_pa((void *)cmd);
+>>>> -
+>>>>        /* Send command buffer details to Trusted OS by writing to
+>>>>         * CPU-PSP message registers
+>>>>         */
+>>>>    -    iowrite32(lower_32_bits(cmd_buffer),
+>>>> +    iowrite32(lower_32_bits(cmd_buffer->paddr),
+>>>>              tee->io_regs + tee->vdata->cmdbuff_addr_lo_reg);
+>>>> -    iowrite32(upper_32_bits(cmd_buffer),
+>>>> +    iowrite32(upper_32_bits(cmd_buffer->paddr),
+>>>>              tee->io_regs + tee->vdata->cmdbuff_addr_hi_reg);
+>>>>        iowrite32(TEE_RING_INIT_CMD,
+>>>>              tee->io_regs + tee->vdata->cmdresp_reg);
+>>>> @@ -157,7 +189,7 @@ static int tee_init_ring(struct psp_tee_device *tee)
+>>>>        }
+>>>>      free_buf:
+>>>> -    tee_free_cmd_buffer(cmd);
+>>>> +    tee_free_cmd_buffer(cmd_buffer);
+>>>>          return ret;
+>>>>    }
+>>>> @@ -167,7 +199,7 @@ static void tee_destroy_ring(struct psp_tee_device *tee)
+>>>>        unsigned int reg;
+>>>>        int ret;
+>>>>    -    if (!tee->rb_mgr.ring_start)
+>>>> +    if (!tee->rb_mgr.ring_buf->vaddr)
+>>>>            return;
+>>>>          if (psp_dead)
+>>>> @@ -256,7 +288,7 @@ static int tee_submit_cmd(struct psp_tee_device *tee, enum tee_cmd_id cmd_id,
+>>>>        do {
+>>>>            /* Get pointer to ring buffer command entry */
+>>>>            cmd = (struct tee_ring_cmd *)
+>>>> -            (tee->rb_mgr.ring_start + tee->rb_mgr.wptr);
+>>>> +            (tee->rb_mgr.ring_buf->vaddr + tee->rb_mgr.wptr);
+>>>>              rptr = ioread32(tee->io_regs + tee->vdata->ring_rptr_reg);
+>>>>    @@ -305,7 +337,7 @@ static int tee_submit_cmd(struct psp_tee_device *tee, enum tee_cmd_id cmd_id,
+>>>>          /* Update local copy of write pointer */
+>>>>        tee->rb_mgr.wptr += sizeof(struct tee_ring_cmd);
+>>>> -    if (tee->rb_mgr.wptr >= tee->rb_mgr.ring_size)
+>>>> +    if (tee->rb_mgr.wptr >= tee->rb_mgr.ring_buf->size)
+>>>>            tee->rb_mgr.wptr = 0;
+>>>>          /* Trigger interrupt to Trusted OS */
+>>>> diff --git a/drivers/crypto/ccp/tee-dev.h b/drivers/crypto/ccp/tee-dev.h
+>>>> index 49d26158b71e..9238487ee8bf 100644
+>>>> --- a/drivers/crypto/ccp/tee-dev.h
+>>>> +++ b/drivers/crypto/ccp/tee-dev.h
+>>>> @@ -16,6 +16,7 @@
+>>>>      #include <linux/device.h>
+>>>>    #include <linux/mutex.h>
+>>>> +#include <linux/psp-tee.h>
+>>>>      #define TEE_DEFAULT_TIMEOUT        10
+>>>>    #define MAX_BUFFER_SIZE            988
+>>>> @@ -48,17 +49,13 @@ struct tee_init_ring_cmd {
+>>>>      /**
+>>>>     * struct ring_buf_manager - Helper structure to manage ring buffer.
+>>>> - * @ring_start:  starting address of ring buffer
+>>>> - * @ring_size:   size of ring buffer in bytes
+>>>> - * @ring_pa:     physical address of ring buffer
+>>>>     * @wptr:        index to the last written entry in ring buffer
+>>>> + * @ring_buf:    ring buffer allocated using DMA api
+>>>>     */
+>>>>    struct ring_buf_manager {
+>>>>        struct mutex mutex;    /* synchronizes access to ring buffer */
+>>>> -    void *ring_start;
+>>>> -    u32 ring_size;
+>>>> -    phys_addr_t ring_pa;
+>>>>        u32 wptr;
+>>>> +    struct dma_buffer *ring_buf;
+>>>>    };
+>>>>      struct psp_tee_device {
+>>>> diff --git a/include/linux/psp-tee.h b/include/linux/psp-tee.h
+>>>> index cb0c95d6d76b..c0fa922f24d4 100644
+>>>> --- a/include/linux/psp-tee.h
+>>>> +++ b/include/linux/psp-tee.h
+>>>> @@ -13,6 +13,7 @@
+>>>>      #include <linux/types.h>
+>>>>    #include <linux/errno.h>
+>>>> +#include <linux/dma-mapping.h>
+>>>>      /* This file defines the Trusted Execution Environment (TEE) interface commands
+>>>>     * and the API exported by AMD Secure Processor driver to communicate with
+>>>> @@ -40,6 +41,20 @@ enum tee_cmd_id {
+>>>>        TEE_CMD_ID_UNMAP_SHARED_MEM,
+>>>>    };
+>>>>    +/**
+>>>> + * struct dma_buffer - Structure for a DMA buffer.
+>>>> + * @dma:    DMA buffer address
+>>>> + * @paddr:  Physical address of DMA buffer
+>>>> + * @vaddr:  CPU virtual address of DMA buffer
+>>>> + * @size:   Size of DMA buffer in bytes
+>>>> + */
+>>>> +struct dma_buffer {
+>>>> +    dma_addr_t dma;
+>>>> +    phys_addr_t paddr;
+>>>> +    void *vaddr;
+>>>> +    unsigned long size;
+>>>> +};
+>>>> +
+>>>>    #ifdef CONFIG_CRYPTO_DEV_SP_PSP
+>>>>    /**
+>>>>     * psp_tee_process_cmd() - Process command in Trusted Execution Environment
+>>>> @@ -75,6 +90,28 @@ int psp_tee_process_cmd(enum tee_cmd_id cmd_id, void *buf, size_t len,
+>>>>     */
+>>>>    int psp_check_tee_status(void);
+>>>>    +/**
+>>>> + * psp_tee_alloc_dmabuf() - Allocates memory of requested size and flags using
+>>>> + * dma_alloc_coherent() API.
+>>>> + *
+>>>> + * This function can be used to allocate a shared memory region between the
+>>>> + * host and PSP TEE.
+>>>> + *
+>>>> + * Returns:
+>>>> + * non-NULL   a valid pointer to struct dma_buffer
+>>>> + * NULL       on failure
+>>>> + */
+>>>> +struct dma_buffer *psp_tee_alloc_dmabuf(unsigned long size, gfp_t gfp);
+>>>> +
+>>>> +/**
+>>>> + * psp_tee_free_dmabuf() - Deallocates memory using dma_free_coherent() API.
+>>>> + *
+>>>> + * This function can be used to release shared memory region between host
+>>>> + * and PSP TEE.
+>>>> + *
+>>>> + */
+>>>> +void psp_tee_free_dmabuf(struct dma_buffer *dma_buffer);
+>>>> +
+>>>>    #else /* !CONFIG_CRYPTO_DEV_SP_PSP */
+>>>>      static inline int psp_tee_process_cmd(enum tee_cmd_id cmd_id, void *buf,
+>>>> @@ -87,5 +124,15 @@ static inline int psp_check_tee_status(void)
+>>>>    {
+>>>>        return -ENODEV;
+>>>>    }
+>>>> +
+>>>> +static inline
+>>>> +struct dma_buffer *psp_tee_alloc_dmabuf(unsigned long size, gfp_t gfp)
+>>>> +{
+>>>> +    return NULL;
+>>>> +}
+>>>> +
+>>>> +static inline void psp_tee_free_dmabuf(struct dma_buffer *dma_buffer)
+>>>> +{
+>>>> +}
+>>>>    #endif /* CONFIG_CRYPTO_DEV_SP_PSP */
+>>>>    #endif /* __PSP_TEE_H_ */
+> 
