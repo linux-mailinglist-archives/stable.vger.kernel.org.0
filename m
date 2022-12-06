@@ -2,141 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 739B1643FD0
-	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 10:26:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61473643FEE
+	for <lists+stable@lfdr.de>; Tue,  6 Dec 2022 10:37:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233811AbiLFJ0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 04:26:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39702 "EHLO
+        id S231669AbiLFJhM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 04:37:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233558AbiLFJZr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 04:25:47 -0500
-Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D25E13D33
-        for <stable@vger.kernel.org>; Tue,  6 Dec 2022 01:25:47 -0800 (PST)
-Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
-        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id 1D2EA10044A69
-        for <stable@vger.kernel.org>; Tue,  6 Dec 2022 09:25:35 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id 2UCkpanlb5g7L2UCkpzd76; Tue, 06 Dec 2022 09:25:35 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=J5tvUCrS c=1 sm=1 tr=0 ts=638f0a8f
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=sHyYjHe8cH0A:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=1GQxe75yrw9fIeUcjpcA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:In-Reply-To:From:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=FlNqVGrvtNSL6qyd33cZ4bkIqjrXwRGEEZ0ySVFGUcw=; b=nNwlS5umgwHwWCv54vgsmn7fSI
-        D7Bv2A6AJKu42IEfA6eAa47qNbfh6C/y1J/ncDHoeKxJKS8/8dW+dAqjCQeq+8FKJo8VNOBh0Uuig
-        IF9MpU0S4huhhaazXjMq34iahkGwNiIUyumdJOmfcE7gHfsH+2q3KTOTP8dd8y8vdW5y7aS8EnueK
-        5/aFXuDqscGhx+j3XM8Ha6NPj6mFCc/qbpvIdu1IvFWiK31jb8hHRi2dO5JDE9PK2R0ehIBzkH/Rs
-        Ix3srIzp384d6jsP96wA951NpOzRVrYx6bsD7a2lSoPrerDSvMF5Wab0Mwtqap8433PNSoEdnbX8n
-        WFbMcBuw==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:60198 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1p2UCj-003cjK-CD;
-        Tue, 06 Dec 2022 02:25:33 -0700
-Subject: Re: [PATCH 5.15 000/120] 5.15.82-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        with ESMTP id S235108AbiLFJhI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 04:37:08 -0500
+Received: from APC01-SG2-obe.outbound.protection.outlook.com (mail-sgaapc01olkn2067.outbound.protection.outlook.com [40.92.53.67])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4AEEDF5F;
+        Tue,  6 Dec 2022 01:37:06 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=KqXpQb3/49Xp4Bg+RjSCcR2Url+ugfad9yLlRDd6G+tUCo1YzA8kHm897gSZsK5GI3fqXQff8TOq1s2+BOs/eXfalpLCdbzXM8nRm/u4OGTFbY/dFNoSKepIQ3xDQM7bLrAXRhwKIVFEqEOe9yXecV4x2xtZqe4Oxr5euW5M7sN6UMqETHplIojpoZBT8H+VGjTFZ7E2NlGm7dTaz9o/r2sbtgKjHTTjx4omi2PByL4XC1gd12eg+N+761jMgQvl5l1/j4+y3P1YfN4s1MsECchqORZi1eAMMK+aD4TmWRucJOITBccxXVax1UHNNlb8NLSb0DUD6fgNnguF9QwR7A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=u6IaMZZ9tebl5XumMYBGTVA6TlDmw79NvGt3X27cSVs=;
+ b=UB94Tcnnb/45DL5a7IHbuyTSoCvpTk2REKFWeCxxalHiDFf/9kSzwxTzzsFqKdDBn8/fxOq+YGUGxWldMTiOI9ePvd4mAmS/Ic1WBJfRghqEjeVEbE/GanRc1xChpdLXvarRqPGUwY3bbkQ60AlwtcAyDv4ow81dJm+bKLbI8Jh81Y2VFCSxmayFVHFg4pcGC/UGOMokMbeknFeOrI/QdIQqWoNm5P4dmS5sZnyxJoq0AJmvY1e2qaB3QhDTNhzzlei1pVBvBPUZ71AzExXTIjo3+ZcCQ1siGZ0uZSc7Lm/U8Mwsx9qnWRNWePTv0RglfnyTnKJ+saH+nZq9MxTkUw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hotmail.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=u6IaMZZ9tebl5XumMYBGTVA6TlDmw79NvGt3X27cSVs=;
+ b=fgytWXOT9ZGCm0aIfzuY3lZm4j+A5iOwG5gHgK0nFAJcPRcyHwQI+YxH28MyZwchjM1D1xanCAeFFaRmeDpTuooT9C8iGsNLvMsKCf3xfdYal8KXd/0d4/eOvW/EzvDB9/Rx07MFNncrJuP8vQyZHfi2hvrNowbvyJ394AJJ+iTcK/oLBe25Q4IeiR/20D+2i9BUF01PKwDh0ZD2oD4ltjs6R42nZHTagF4d3SBfGST0zKvESN82MRA+0AuocsBfM1d96zacRmkjgJSKbyCPM5Bjh6rrirXRl7q0nFN2xmS6aUzbkyCt7XesJEec/RDAWe4MWxSRClRxZ+2Lx8SvxA==
+Received: from SG2PR02MB5878.apcprd02.prod.outlook.com (2603:1096:4:1d2::9) by
+ TY0PR02MB5790.apcprd02.prod.outlook.com (2603:1096:400:1b5::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.14; Tue, 6 Dec
+ 2022 09:37:02 +0000
+Received: from SG2PR02MB5878.apcprd02.prod.outlook.com
+ ([fe80::2c81:c803:d49b:eebb]) by SG2PR02MB5878.apcprd02.prod.outlook.com
+ ([fe80::2c81:c803:d49b:eebb%6]) with mapi id 15.20.5880.014; Tue, 6 Dec 2022
+ 09:37:02 +0000
+From:   Dicheng Wang <wangdicheng123@hotmail.com>
+To:     perex@perex.cz, tiwai@suse.com, sdoregor@sdore.me,
+        connerknoxpublic@gmail.com, wangdicheng@kylinos.cn,
+        hahnjo@hahnjo.de, john-linux@pelago.org.uk
+Cc:     alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20221205190806.528972574@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-In-Reply-To: <20221205190806.528972574@linuxfoundation.org>
-Message-ID: <ad355e64-1a5a-a409-e404-13a70b481e9b@w6rz.net>
-Date:   Tue, 6 Dec 2022 01:25:29 -0800
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: [PATCH v2 -next] ALSA:usb-audio:Add the information of KT0206 device driven by USB audio
+Date:   Tue,  6 Dec 2022 17:36:37 +0800
+Message-ID: <SG2PR02MB58780ED138433086A3213AE98A1B9@SG2PR02MB5878.apcprd02.prod.outlook.com>
+X-Mailer: git-send-email 2.25.1
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1p2UCj-003cjK-CD
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:60198
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-TMN:  [kOYsakc9vfiiplObWFNDSx+Ar7j0WU7oP/cCeTZ1vPY=]
+X-ClientProxiedBy: TYAPR01CA0129.jpnprd01.prod.outlook.com
+ (2603:1096:404:2d::21) To SG2PR02MB5878.apcprd02.prod.outlook.com
+ (2603:1096:4:1d2::9)
+X-Microsoft-Original-Message-ID: <20221206093637.20093-1-wangdicheng123@hotmail.com>
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SG2PR02MB5878:EE_|TY0PR02MB5790:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9ffd90ad-788b-4e66-de53-08dad76d6dae
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: iw39xBgGz6/a4q3CW9PP4vsGPDJemFqlHS6elDwKIGZWoYrGb10xtj28dffvo8y59umC7RDe7IKKLZ8pIP5sL6o2saPCylBki2tKr3Hd3Q6B5svCjCaLVOvY4+Y+l3BofFoL/uCutKR72xxg7Dsgus9KLgQIRo+kYkPd07yxv47bWezn7Blb/ZUt0Sd0+bhMX57GdcPrF8SElfcyBdYUwOACxqR393AJOuAOxNqULqClMhdrETQQgR9wrWzpMcYCtHQ9W/D9mhDmIIqJjzm9R0ndTZBdX0iw0GjrDZ8rCatF5mrszswuaDlpulvZrPUEteimYdUrafAteE3JKEb9uOP9X6GBBJPJ/5/IfJpxQ7HQH8UV+Of235anuGddX7LBSbGjb8ZdomfCSFY8aVLZofktSbJl91/x4t2bhy78AJSIQKm8YbVZ/2Jq99hPL6miS/865AMsi+Ahs74w5tgvRDQuWJO199NmGajcI5YOk//XoOWQet+ARFheRf1FvlkS3sdW6OnoRoLf+kHjxxnAVe1VEYz9uyPk6wCNv3SIrzvB4EFZY9EROGkn7XPS/21iyaEgF0qJugBNGohytNQLvoMfgOvBSp34s12I1jiZRd0=
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Hnotf4Shh3yWV2bMpP8gAuDO6wpX+tEq9fsYqOpCMecasVLR8zKOyXGPmOd8?=
+ =?us-ascii?Q?DkXdAuh2181wY2E2EOo4l9sVYNDaLFYrU8sMinS7dniCEzg7igBOsSjy0IQE?=
+ =?us-ascii?Q?TSRqYLp1CjsuV416pWB+AiN95ojTjWMK0CWFLADcAodT4lO1kxGBV5rutOhE?=
+ =?us-ascii?Q?fd+7IgEAdmJxBcjx4ntNwe2C1xW6nPjhqDIFDfNlUZ5cEhuO/eIzO7nTpBxZ?=
+ =?us-ascii?Q?qroaUCJAHADNHLhAJ+9OpVAGYCesrmly/PV1kQ1H+9XQe/q+zPS1O2lANC9T?=
+ =?us-ascii?Q?OZcj7OOk+jSIAoRw+8qZqlIaJcMvT+PcNo6POQhazEn0N6Wd0OEN3QLSOM9p?=
+ =?us-ascii?Q?2F10IXHH5KiKUuRajNG/jgqzqqWpPeHidb3/SJlTHY24J51f5N7X9kMkC4PH?=
+ =?us-ascii?Q?o3t6gBDXkk+K6HmnitkIKYU1Q5OFxmLSgaONZ+730n8vQbGsDtBHk/o3uiSY?=
+ =?us-ascii?Q?LekJZIjnUuyGsIJ692D8kNNmeu/S+pvDwY3jabZpXSqgeZDSg1KHBtz67IJ2?=
+ =?us-ascii?Q?SJaXRP2+5CuguFme6W1ojf5YXXmEuPost35EPQU7u953DSje72xQZ5sgb5rx?=
+ =?us-ascii?Q?itVSVBs2ppMcu99lxs7h9WMFmX6bQnN8stjKZQg824AuTLBI/1Xji/re6Wr4?=
+ =?us-ascii?Q?IBNRsUTStSKe9kW5bA34neVgm5XNDnl8DweH5y4oZYiO9GsZ9lfpriekTHpi?=
+ =?us-ascii?Q?6wcLsEaIVgx+/x1VP6AxvEyhpubQ/E2HZj2oRPjNW1dNoMGBEVhuF+QeA4Q/?=
+ =?us-ascii?Q?MeYHpLAN8EGOv9lE7hh6eEsfXPB1aHkcX+PkhjTNwQ+0uEr98+yux9z96eOR?=
+ =?us-ascii?Q?OF6Uwa/O5qQKIsYsPuYYGHYFuky0H/Q+ZlhGgTr/PAtoVig+hqdcGF54Jqra?=
+ =?us-ascii?Q?81WXjSy9np8AjuPK8w5TSgV/mT2tP3iaRUK4rb6q0TmSyyexteNP+6GIjP3r?=
+ =?us-ascii?Q?vUO7Kf7IkUa1DnMEHESE5SyQVnGojJadahhf9lA2e6jJcg2Y3BS/0pm5B+9s?=
+ =?us-ascii?Q?Y4Yjno/soOWEsTDrjCwFLW+lHNVLlfFrJ3/B6yTuCQkTSah9Ixbflmt4VVzV?=
+ =?us-ascii?Q?WwsrbWQbtJ53dbVfx6U7p8J2e6xWxGVaaAibOOtanGtV66St+cgdZBjyBAlO?=
+ =?us-ascii?Q?EHqoNuo/xfnwG8SDGhsySdBrPVz1jvwUoA/yztegsjaeDhB/L5xvShk+PHjz?=
+ =?us-ascii?Q?KFMLXr+PJr1rMA4DFEd/1Zyd5BMioojySFKaulQ7bbYdSweO5f0hhGyL5edp?=
+ =?us-ascii?Q?CVv8oTQpb1l5npX1NXPXoqT7FosZR+F1Okko/wuLPjJ4M7MbR9rNaUT09hXi?=
+ =?us-ascii?Q?YKM=3D?=
+X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-20e34.templateTenant
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9ffd90ad-788b-4e66-de53-08dad76d6dae
+X-MS-Exchange-CrossTenant-AuthSource: SG2PR02MB5878.apcprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Dec 2022 09:37:02.4491
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TY0PR02MB5790
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/5/22 11:09 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.82 release.
-> There are 120 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 07 Dec 2022 19:07:46 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.82-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
-Fails to build on RISC-V RV64 with the following:
+From: wangdicheng <wangdicheng@kylinos.cn>
 
-arch/riscv/kernel/smp.c: In function ‘handle_IPI’:
-arch/riscv/kernel/smp.c:195:44: error: ‘cpu’ undeclared (first use in 
-this function)
-   195 |                         ipi_cpu_crash_stop(cpu, get_irq_regs());
-       |                                            ^~~
-arch/riscv/kernel/smp.c:195:44: note: each undeclared identifier is 
-reported only once for each function it appears in
-arch/riscv/kernel/smp.c:217:22: error: ‘old_regs’ undeclared (first use 
-in this function)
-   217 |         set_irq_regs(old_regs);
-       |                      ^~~~~~~~
+Cc: stable@vger.kernel.org
+Signed-off-by: wangdicheng <wangdicheng@kylinos.cn>
+---
+v2:use USB_DEVICE_VENDOR_SPEC() suggested by Takashi Iwai
 
-It's caused by the patch "riscv: kexec: Fixup crash_smp_send_stop 
-without multi cores".
+ sound/usb/quirks-table.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.15.y&id=87cc180470e099ae8f53e5e76cb6f4c1460d6d83
-
-That patch relies on a much older patch that was never backported to 5.15.
-
-The patch "riscv: kexec: Fixup irq controller broken in kexec crash 
-path" should also be reverted since it's part of the same series.
-
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.15.y&id=3be3dce50bdf92817d16b3495d573186b967484c
-
-Tested-by: Ron Economos <re@w6rz.net>
+diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
+index 874fcf245747..271884e35003 100644
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -76,6 +76,8 @@
+ { USB_DEVICE_VENDOR_SPEC(0x041e, 0x3f0a) },
+ /* E-Mu 0204 USB */
+ { USB_DEVICE_VENDOR_SPEC(0x041e, 0x3f19) },
++/* Ktmicro Usb_audio device */
++{ USB_DEVICE_VENDOR_SPEC(0x31b2, 0x0011) },
+ 
+ /*
+  * Creative Technology, Ltd Live! Cam Sync HD [VF0770]
+-- 
+2.25.1
 
