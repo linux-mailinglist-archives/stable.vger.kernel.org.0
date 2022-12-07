@@ -2,79 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 293446452C3
-	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 04:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5BA16452C6
+	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 04:57:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229456AbiLGD4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 22:56:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42620 "EHLO
+        id S229555AbiLGD5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 22:57:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229497AbiLGD4f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 22:56:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6622A27168;
-        Tue,  6 Dec 2022 19:56:34 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 190CDB81CBE;
-        Wed,  7 Dec 2022 03:56:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9169CC433C1;
-        Wed,  7 Dec 2022 03:56:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670385391;
-        bh=u7WuhkfBqj61Ys21ZeBlFuc9EPYmwG3OCdcBZpwxV/k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SG6g7AbM+ylx/ZeHq+UuBDoL+e7c5INlhtYSe6TzsF3YQ3Er+w/Lzow/f5k2yPo5V
-         ZiG3cYK13XRMvSFNxZWffXRMPP5r76f7p8hLEljRA/1Uw0gy4Q12TKtd4nopHti027
-         F0GdRifMbOU3LQwiRGoOKVqjeUDYELiFxRsU6h7AAtSwdz7tZaOPYPTvYYQAo54G4q
-         DbwSPm2hu3QZn167BcAVExL9sQ9dDEX15mh4PxkyQ24VUdNqBnw4qytv3VvtRTGpCo
-         ZZvndCodaybqBMPeOf5dEanPA2spYqdjudkiDXGubxYeezJ7VTTDLqoSvR6kPW/ua8
-         PADeLPZY1CwWg==
-Date:   Tue, 6 Dec 2022 22:56:29 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        "David S . Miller" <davem@davemloft.net>, edumazet@google.com,
-        pabeni@redhat.com, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 6.0 09/13] net: loopback: use
- NET_NAME_PREDICTABLE for name_assign_type
-Message-ID: <Y5AO7TrYsdeVqyI6@sashalap>
-References: <20221206094916.987259-1-sashal@kernel.org>
- <20221206094916.987259-9-sashal@kernel.org>
- <20221206114956.4c5a3605@kernel.org>
- <Y4/4Yts6nwDCqC1q@sashalap>
- <20221206184927.7c43d247@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20221206184927.7c43d247@kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229497AbiLGD5I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 22:57:08 -0500
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 647F55217A
+        for <stable@vger.kernel.org>; Tue,  6 Dec 2022 19:57:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1670385427; x=1701921427;
+  h=from:to:cc:subject:date:message-id;
+  bh=bYpSzbxXVlu2TVbGO/NK0IPz343H/Q4xYjXc3dj+6F0=;
+  b=Pq6ypKC+OaUap6KcN1oDVxZADlLOotPYNwtoEQxTiPY+Enrs73EhB07W
+   AoaRmu2aSwawl7mY48vsYwXu2SLD/J3vFrHt+mIXZ0XA4P65czFgDYTky
+   gwQLlvz67+ZYC2WugAlP4NSNH0vqFc304Us7w1edrFoCL1rimMXm/BadP
+   b0NIavsO9eizgDMoN6aaTlutq7oryxRr8peIwGRu/WDxB/H5I//UFNuV1
+   GiNnOkzoarelSixkY0pG3iCd5B0GcYO1CfMtf7KfjJFSK3yIlAdy50ECA
+   6XONuyXWgJUREvaCjUDKT/M7seV+77BYZ0kZyK0HdpJUyvLa28nOwaS+p
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10553"; a="378963527"
+X-IronPort-AV: E=Sophos;i="5.96,223,1665471600"; 
+   d="scan'208";a="378963527"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Dec 2022 19:57:06 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10553"; a="646457288"
+X-IronPort-AV: E=Sophos;i="5.96,223,1665471600"; 
+   d="scan'208";a="646457288"
+Received: from kkgame-x299-aorus-gaming-3-pro.itwn.intel.com ([10.5.253.159])
+  by orsmga002.jf.intel.com with ESMTP; 06 Dec 2022 19:57:06 -0800
+From:   Kane Chen <kane.chen@intel.com>
+To:     stable@vger.kernel.org
+Cc:     kane.chen@intel.com
+Subject: [PATCH v1] rtc: cmos: avoid UIP when writing/reading alarm time
+Date:   Wed,  7 Dec 2022 11:57:22 +0800
+Message-Id: <20221207035722.15749-1-kane.chen@intel.com>
+X-Mailer: git-send-email 2.17.1
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 06, 2022 at 06:49:27PM -0800, Jakub Kicinski wrote:
->On Tue, 6 Dec 2022 21:20:18 -0500 Sasha Levin wrote:
->> >Yeah... we should have applied it to -next, I think backporting it is
->> >a good idea but I wish it had more time in the -next tree since it's
->> >a "uAPI alignment" :(
->> >
->> >Oh, well, very unlikely it will break anything, tho, so let's do it.
->>
->> Want me to push it back a week to the next batch? It'll give it two
->> weeks instead of the usual week.
->
->Oh, perfect, I didn't know we can hold for a week. Yes, please!
+While runnings s0ix cycling test based on rtc alarm wakeup on ADL-P devices,
+We found the data from CMOS_READ is not reasonable and causes RTC wake up fail.
 
-Ack, you should get another AUTOSEL mail for this patch next week.
+With the below changes, we don't see unreasonable data from cmos and issue is gone.
+
+cd17420: rtc: cmos: avoid UIP when writing alarm time
+cdedc45: rtc: cmos: avoid UIP when reading alarm time
+ec5895c: rtc: mc146818-lib: extract mc146818_avoid_UIP
+ea6fa49: rtc: mc146818-lib: fix RTC presence check
+13be2ef: rtc: cmos: Disable irq around direct invocation of cmos_interrupt()
+0dd8d6c: rtc: Check return value from mc146818_get_time()
+e1aba37: rtc: cmos: remove stale REVISIT comments
+6950d04: rtc: cmos: Replace spin_lock_irqsave with spin_lock in hard IRQ
+d35786b: rtc: mc146818-lib: change return values of mc146818_get_time()
+ebb22a0: rtc: mc146818: Dont test for bit 0-5 in Register D
+211e5db: rtc: mc146818: Detect and handle broken RTCs
+dcf257e: rtc: mc146818: Reduce spinlock section in mc146818_set_time()
+05a0302: rtc: mc146818: Prevent reading garbage
+
+
+All of the above patches are landed on 6.0.11 stable kernel
+I'd like pick the above patches back to 5.10 longterm kernel
+Thanks
+
 
 -- 
-Thanks,
-Sasha
+2.17.1
+
