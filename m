@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34B7C645A54
-	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 14:03:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E203645A7A
+	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 14:10:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229709AbiLGNDh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Dec 2022 08:03:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40904 "EHLO
+        id S229870AbiLGNK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Dec 2022 08:10:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229694AbiLGNDh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 08:03:37 -0500
-Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 376B826579
-        for <stable@vger.kernel.org>; Wed,  7 Dec 2022 05:03:36 -0800 (PST)
-Received: by mail-qt1-x833.google.com with SMTP id cg5so16022741qtb.12
-        for <stable@vger.kernel.org>; Wed, 07 Dec 2022 05:03:36 -0800 (PST)
+        with ESMTP id S229850AbiLGNKx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 08:10:53 -0500
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBFE0578F3
+        for <stable@vger.kernel.org>; Wed,  7 Dec 2022 05:10:51 -0800 (PST)
+Received: by mail-qv1-xf2d.google.com with SMTP id o12so12582912qvn.3
+        for <stable@vger.kernel.org>; Wed, 07 Dec 2022 05:10:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=B2av9P4q0PWClAqjlk9+Sy30yJr7v0F5TZCLHKaqqno=;
-        b=mazFRj2d/QItG2GL7Vu0gXiEkXj5q49RE7uiQFWb+1kncwKex4qUT1U7glBufTLFYT
-         p2Aaq0sPV1ZyC/rjuWeyZ/aRTqb8Rgc5EmB+90sVsbAe9EYn6DS9sNgKEuHGhN0waWAg
-         2kRhpuwQBOTJPzi3CmOgXS4yx2YoJcEfcs7/mDst296JSugU2gV9UsAx1XS6uEzhoDJl
-         Npibkyjxd+MqQLU1weOXRq58t9s2NF5Qvpm/8c7BU2OLr9gTlZa3Q1o64uSnXVkZP2H1
-         CeBd+uujIeGoCtt+MVH7qYcLHbJMgj870bRSZxFya6JwJAiwG5JGCAcv9Xo1b8gV6Vcu
-         W4DA==
+        bh=tsLHBdKnFFD9xoYne3FhwA6YlwsQ45KU43rTHiw+YBc=;
+        b=fm7sK96F3OVQuWPqvs/UoPQ98MqTjJjE+HbF1kfiIKygxiFQIfarXEHT3Wp8mzyKmy
+         /WX+xn9EpdA1s4+QPcfS5E07ZPTinzLksqBzwskNMAtZttqF+I0A/8+7ihn5Q1TBCN1w
+         UkPUJQ3tiSVs68xzntl65WyaO21I+LxMzcbx16t8dN84HefpI6MXCtXY0KI+aW1ApYuA
+         5Tqh37vSj/fYP/NnalOn9nk6cdNPAId5exTW54wDbZGq/u/fepJMx5pK4rRqC222iSQ7
+         MeAnh6wiBBtFXO5zLdOkQ52nSRZP5A5KrPxaYFcEEAuzNGt8QAZKmMLbL3rJOH0aQ5WF
+         cP6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=B2av9P4q0PWClAqjlk9+Sy30yJr7v0F5TZCLHKaqqno=;
-        b=IyaiF5k774g43tDn6CGJoizrSITtsLrBwR1i/6VZdputhX4W6iuDCq1E6SXRREMVa/
-         jgGfcAHR6J5C5oslhSi0QudpYzENuWTHk+5DDMr+9D8Yw4IsocOsoqKtk53u8YzPBL8f
-         hXQIy/rygpv5UgAP4jOppO9s7c9VjbKctB5n0ZbE/gp2QIuC3UFuodS8XBBkrcTWYR9s
-         y7YbgoBmVunJxCqOBo4rIA1AWFPhVcOEca2qLcvR/dRrxZ5rRiPzKlw/e876Vp9ZHwsW
-         XaVO/3TqTVSca9qpC0lF8146gHFtK5qV9YSQwFwCD4tP2DFyQUPgud3NSBTu9vkNEpv3
-         61xw==
-X-Gm-Message-State: ANoB5pnKVU5Dry+6TAQiiAqTC2uxFSZrfAA4WKU59OyMMYJuCZ0lrUM5
-        o7zlFIUAoS0cg9Vy3w3aRec/O7PPxVczMuqjanlmlw==
-X-Google-Smtp-Source: AA0mqf7y4RypDqQ69GxKfE2SkP2KuvMCtQmjR0Ll8ehFHHQ5JvGK7wQPg5M/+gaS5rBRi9bTwsfthzdKPvjhrlu3bgE=
-X-Received: by 2002:ac8:148a:0:b0:399:a020:2aa with SMTP id
- l10-20020ac8148a000000b00399a02002aamr67545276qtj.247.1670418215133; Wed, 07
- Dec 2022 05:03:35 -0800 (PST)
+        bh=tsLHBdKnFFD9xoYne3FhwA6YlwsQ45KU43rTHiw+YBc=;
+        b=4NEp/YsC6G/atlLzwgkx1HheC9tpOEb72utJ6pjzLW0mVac+HtHTFUAcnoWaD1IyQr
+         YbqB+C9SJ77Evh1kgM9YXh7n64MUxuUZjVO+Y61UgtiWCCe6DpZl7E3L1bsmqdzdMYQb
+         /LrUVAkb6bcB94sKZctA/NKX4P6qoc49le027CBQ27u5H0VFmL60hoY2tTEK/+tDBYhX
+         aQpoJIJ13UB/lRFqOPrhXjjok2sQGl9uOBOwzdk+sqZXlHK+RePjdnBHyrY3cyFnncQw
+         5bYuUmsnLDAhu6JBwyiCs+13xtTPDeOlsezCOSOgpi7JkCE89l9lSHUQYPF4SJJaGrsk
+         sCEg==
+X-Gm-Message-State: ANoB5pkz2U4BCvRktJYipvHkk+S/vvyB7Olso6waWhkM5OI/yTcYf7Fw
+        IIKx+bpAXMHxIcdSZwSJcuiwN0sTkR+ClFQ9tQd5EQ==
+X-Google-Smtp-Source: AA0mqf5iXU8Nz6e2EmRbp9ZhR4aHLhWCSpzRjcKfnBu/hfvkq0kMvrHBMRthP+pKK2WWrEMg/K49DzTLxCXTnrYHqj4=
+X-Received: by 2002:a0c:f947:0:b0:4c7:8c20:9ec1 with SMTP id
+ i7-20020a0cf947000000b004c78c209ec1mr3861905qvo.91.1670418650763; Wed, 07 Dec
+ 2022 05:10:50 -0800 (PST)
 MIME-Version: 1.0
-References: <20221206124046.347571765@linuxfoundation.org>
-In-Reply-To: <20221206124046.347571765@linuxfoundation.org>
+References: <20221206124043.386388226@linuxfoundation.org>
+In-Reply-To: <20221206124043.386388226@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 7 Dec 2022 18:33:23 +0530
-Message-ID: <CA+G9fYtgAZwXn_BT86JM1m+RWsc0+_ebtvWPdCksVuYgbtp7ew@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/83] 4.14.301-rc2 review
+Date:   Wed, 7 Dec 2022 18:40:39 +0530
+Message-ID: <CA+G9fYvaW4d54mH_G5uRoK5GhV9YH4cFvPidywptX=-+L6gL2A@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/63] 4.9.335-rc2 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
@@ -74,8 +74,8 @@ X-Mailing-List: stable@vger.kernel.org
 On Tue, 6 Dec 2022 at 18:12, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 4.14.301 release.
-> There are 83 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.9.335 release.
+> There are 63 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -84,10 +84,10 @@ On Tue, 6 Dec 2022 at 18:12, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.301-rc2.gz
+4.9.335-rc2.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
+-rc.git linux-4.9.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -100,57 +100,43 @@ No regressions on arm64, arm, x86_64, and i386.
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 ## Build
-* kernel: 4.14.301-rc2
+* kernel: 4.9.335-rc2
 * git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.14.y
-* git commit: dd6fc0ede260695326bad7de0ba0122fe6ba8834
-* git describe: v4.14.300-84-gdd6fc0ede260
+* git branch: linux-4.9.y
+* git commit: 5e545e94a55985ee074b9d08e986e7a397e14a39
+* git describe: v4.9.334-64-g5e545e94a559
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
-.300-84-gdd6fc0ede260
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.3=
+34-64-g5e545e94a559
 
-## Test Regressions (compared to v4.14.299-88-g179ef7fe8677)
+## Test Regressions (compared to v4.9.333-76-gce705e13578d)
 
-## Metric Regressions (compared to v4.14.299-88-g179ef7fe8677)
+## Metric Regressions (compared to v4.9.333-76-gce705e13578d)
 
-## Test Fixes (compared to v4.14.299-88-g179ef7fe8677)
+## Test Fixes (compared to v4.9.333-76-gce705e13578d)
 
-## Metric Fixes (compared to v4.14.299-88-g179ef7fe8677)
+## Metric Fixes (compared to v4.9.333-76-gce705e13578d)
 
 ## Test result summary
-total: 48369, pass: 41437, fail: 896, skip: 5341, xfail: 695
+total: 23340, pass: 20077, fail: 273, skip: 2462, xfail: 528
 
 ## Build Summary
 * arc: 10 total, 10 passed, 0 failed
-* arm: 313 total, 308 passed, 5 failed
-* arm64: 53 total, 50 passed, 3 failed
+* arm: 280 total, 277 passed, 3 failed
+* arm64: 51 total, 46 passed, 5 failed
 * i386: 29 total, 28 passed, 1 failed
-* mips: 41 total, 41 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 20 total, 19 passed, 1 failed
+* mips: 41 total, 40 passed, 1 failed
+* powerpc: 45 total, 19 passed, 26 failed
 * s390: 15 total, 11 passed, 4 failed
 * sh: 24 total, 24 passed, 0 failed
 * sparc: 12 total, 12 passed, 0 failed
-* x86_64: 51 total, 50 passed, 1 failed
+* x86_64: 48 total, 47 passed, 1 failed
 
 ## Test suites summary
 * boot
 * fwts
 * igt-gpu-tools
 * kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
 * kselftest-breakpoints
 * kselftest-capabilities
 * kselftest-cgroup
@@ -175,7 +161,6 @@ total: 48369, pass: 41437, fail: 896, skip: 5341, xfail: 695
 * kselftest-lib
 * kselftest-livepatch
 * kselftest-membarrier
-* kselftest-net
 * kselftest-net-forwarding
 * kselftest-netfilter
 * kselftest-nsfs
@@ -198,11 +183,8 @@ total: 48369, pass: 41437, fail: 896, skip: 5341, xfail: 695
 * kselftest-tmpfs
 * kselftest-tpm2
 * kselftest-user
-* kselftest-vm
 * kselftest-x86
-* kselftest-zram
 * kunit
-* kvm-unit-tests
 * libhugetlbfs
 * log-parser-boot
 * log-parser-test
@@ -226,7 +208,6 @@ total: 48369, pass: 41437, fail: 896, skip: 5341, xfail: 695
 * ltp-math
 * ltp-mm
 * ltp-nptl
-* ltp-open-posix-tests
 * ltp-pty
 * ltp-sched
 * ltp-securebits
