@@ -2,75 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFB0D6451EC
-	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 03:20:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67B886450D7
+	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 02:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229500AbiLGCUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 21:20:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53926 "EHLO
+        id S229530AbiLGBO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 20:14:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229653AbiLGCU0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 21:20:26 -0500
-Received: from mail.academia-cj.ro (mail.academia-cj.ro [188.213.48.91])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72C054360
-        for <stable@vger.kernel.org>; Tue,  6 Dec 2022 18:20:25 -0800 (PST)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.academia-cj.ro (Postfix) with ESMTP id A31F3258EDE;
-        Wed,  7 Dec 2022 01:49:48 +0200 (EET)
-Received: from mail.academia-cj.ro ([127.0.0.1])
-        by localhost (mail.academia-cj.ro [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id 1c3EANXS0zhx; Wed,  7 Dec 2022 01:49:48 +0200 (EET)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.academia-cj.ro (Postfix) with ESMTP id 58A52253CB2;
-        Wed,  7 Dec 2022 01:49:43 +0200 (EET)
-X-Virus-Scanned: amavisd-new at mail.academia-cj.ro
-Received: from mail.academia-cj.ro ([127.0.0.1])
-        by localhost (mail.academia-cj.ro [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id gujeyHPha4Rh; Wed,  7 Dec 2022 01:49:43 +0200 (EET)
-Received: from mail.academia-cj.ro (mail.academia-cj.ro [188.213.48.91])
-        by mail.academia-cj.ro (Postfix) with ESMTP id 81CD5258EAE;
-        Wed,  7 Dec 2022 01:49:33 +0200 (EET)
-Date:   Wed, 7 Dec 2022 01:49:33 +0200 (EET)
-From:   Lucas <theodor.constantiniu@academia-cj.ro>
-Reply-To: Lucas <lukas@marineinzynieriagleam-jobs.com>
-Message-ID: <1961970041.29910.1670370573502.JavaMail.zimbra@academia-cj.ro>
-Subject: Direct Interview
+        with ESMTP id S229678AbiLGBOZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 20:14:25 -0500
+Received: from qproxy1-pub.mail.unifiedlayer.com (qproxy1-pub.mail.unifiedlayer.com [173.254.64.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A70F84C271
+        for <stable@vger.kernel.org>; Tue,  6 Dec 2022 17:14:24 -0800 (PST)
+Received: from alt-proxy28.mail.unifiedlayer.com (unknown [74.220.216.123])
+        by qproxy1.mail.unifiedlayer.com (Postfix) with ESMTP id B66248033B56
+        for <stable@vger.kernel.org>; Wed,  7 Dec 2022 01:14:22 +0000 (UTC)
+Received: from cmgw11.mail.unifiedlayer.com (unknown [10.0.90.126])
+        by progateway1.mail.pro1.eigbox.com (Postfix) with ESMTP id 60B37100A4372
+        for <stable@vger.kernel.org>; Wed,  7 Dec 2022 01:14:00 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id 2j0apNt1FLkvu2j0ap6tDE; Wed, 07 Dec 2022 01:14:00 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=GN7NrsBK c=1 sm=1 tr=0 ts=638fe8d8
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=sHyYjHe8cH0A:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=Df7VXoj-bu6BeNQDfzwA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=kbVUMlG8kem44gExv7WcZZiaiRDyGUBFBYwRYYgb4gY=; b=MMdXnyO8QkfIY+/6FKWpNCT8Gv
+        oFDq3XYRTMtoYoKN04ZGsR9x6fiW7ByZu3NTbLbVHbbaaZAAO0bPYj+wJpzzR24bHSqzZjGsb0gJl
+        turBE8+Bo71i05lBBA9UgRx70pof1UQU0OuRh27Xnb1bKFq0ED6Nba9XrCtel+WHr8P+28YozmWk0
+        +nnw/mvQS2l5GEh2WA7O8s7ZW91msKi+E5U3IHZfMJf7YXnBbiqW05Q33YV60zarmBiUvT2ANLk/s
+        pikf/7m14gDWNqP9L/lvV/0J670Z7xa2cer4Tpqg49ykFWKNlTB7ctN4Oi6LCuqd/UhFu4H3kUdIp
+        nig8DqOQ==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:60452 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1p2j0Z-001nCy-I9;
+        Tue, 06 Dec 2022 18:13:59 -0700
+Subject: Re: [PATCH 5.15 000/121] 5.15.82-rc3 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221206163439.841627689@linuxfoundation.org>
+In-Reply-To: <20221206163439.841627689@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <8c321602-1a68-d804-bc7d-94f176aa662f@w6rz.net>
+Date:   Tue, 6 Dec 2022 17:13:55 -0800
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [188.213.48.91]
-X-Mailer: Zimbra 8.8.15_GA_4308 (zclient/8.8.15_GA_4308)
-Thread-Index: WTXoNjnMG8lmrnc/DnbLhUguYxeqvA==
-Thread-Topic: Direct Interview
-X-Spam-Status: No, score=4.7 required=5.0 tests=ADVANCE_FEE_3_NEW_MONEY,
-        BAYES_50,LOTS_OF_MONEY,MISSING_HEADERS,NA_DOLLARS,RCVD_IN_MSPIKE_H2,
-        REPLYTO_WITHOUT_TO_CC,SPF_HELO_NONE,SPF_PASS,XFER_LOTSA_MONEY
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1p2j0Z-001nCy-I9
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:60452
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 2
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On 12/6/22 8:39 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.82 release.
+> There are 121 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 08 Dec 2022 16:34:23 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.82-rc3.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-I am writing to you on behalf of Mr. Yusuf Habib. My name is Lukas, I am an investment portfolio Manager at MetLife, and my client (Mr. Yusuf Habib) has a large sum of money he is looking for someone to help him manage the funds.The Saudi government filed charges against my-client Mr. Yusuf Habib with the aim of keeping him in prison indefinitely. A variety of local and foreign politicians, civil activists, and journalists consider the process leading to the imprisonment of Mr. Yusuf to be politically motivated. 
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-My client's involvement and financial support for Jamal Ahmad Khashoggi posed the most challenge ever to Mohammed bin Salman Al Saud who happens to be the current Crown Prince of Saudi Arabia the money is currently deposited in the name of an existing Investment entity.
+Tested-by: Ron Economos <re@w6rz.net>
 
-My client Mr. Yusuf Habib has presented a subtle offer that will need the help of a partner like you to complete successfully. Mr. Yusuf Habib is in a difficult situation, and he must immediately relocate certain sums of money and this must be done in such a way that it must not be tied to Mr. Yusuf Habib. The money is currently deposited in the name of an existing Investment entity. Your role will be to:
-
-[1]. Act as the original beneficiary of the funds.
-[2]. Receive the funds into a business / private bank account.
-[3]. Invest / Manage the funds outside of Turkey
-[4]. Value of funds: 35 million US Dollars.
-
-
-Everything will be done legally to ensure the rights to the funds are transferred to you. If you agree to partner with Mr. Yusuf Habib in this partnership business proposal, he will compensate you with 35% percent of the total sum. Terms will be discussed when you show interest and if you aren't interested and you know of someone looking for an investor, please give him / her my contact.
-
-Should you prefer I re-contact you with more express facts. Then make your interest known.
-
-Sincerely,
-Lukas.
