@@ -2,153 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0906D6454A0
-	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 08:33:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B83DC6454DB
+	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 08:50:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229580AbiLGHdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Dec 2022 02:33:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58310 "EHLO
+        id S229480AbiLGHuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Dec 2022 02:50:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229628AbiLGHdD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 02:33:03 -0500
-Received: from wout3-smtp.messagingengine.com (wout3-smtp.messagingengine.com [64.147.123.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C0418367;
-        Tue,  6 Dec 2022 23:33:01 -0800 (PST)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailout.west.internal (Postfix) with ESMTP id 3BFA83200911;
-        Wed,  7 Dec 2022 02:32:57 -0500 (EST)
-Received: from imap51 ([10.202.2.101])
-  by compute6.internal (MEProxy); Wed, 07 Dec 2022 02:32:58 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; t=1670398376; x=1670484776; bh=1xnvlijY+i
-        6/Li/GlHHN8n21RKCu4z9gY3vmv0zrHL0=; b=dw6u4JAkUfiBj828hEMryx+Yk8
-        d5UJBnw6eHIsh19+ODZGLCi8y/JGRNun5P4hbki2Mhdi/D2d9ro8dHWKrxzQjbBp
-        l3wpr3+uoMg5DDkhK+UJr1cObUafBBRm1qCN+FvyNxH1k4YRIsYqo+B+UBgyUVc3
-        IHMj2AlaPTxZEWw8LtPjUhEZgCm1GxSUZya1uKLRxOmkNJJuOAGJ4ccGxRKj/gNk
-        i7kqFBsCCDo7m201+xcl3U5P7mx7cdJCdl08fqXQjc4l02Birqk6CribbCOppMLy
-        U+BfjRAub8Ai8Rdqoxv0fsCmOY/BmERRWZyNQXXvImgwKdkvjA/18AgXODVw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; t=1670398376; x=1670484776; bh=1xnvlijY+i6/Li/GlHHN8n21RKCu
-        4z9gY3vmv0zrHL0=; b=keEdFEOjqB9htN4CFvMJ/VG+iKpl3J5wLTds6rl8zkXI
-        eGKnZNQPCwV1WQkgcSfDk1ISHRcsGWqZ+b5MXUoB1WgttZtokKAYRf45JGEJhKRx
-        SfzcEfmd7lKveEfj+0PZGyR6SYKKCUgphfblFAgUB1Cw3QzksO7OqIpCAuuy90ci
-        VA+apY8o26fbHWbIVUEBBlBU0DNex8GkMrEDG+OjlIvOCda4bW/1zmuh0lY90vcU
-        AJkB79HZLWaipzEt51dHaQW+wVrpg4dYoMPlVwZyjIax5l9Tr6yBCKpwPLwWqOB3
-        KEuSKZMRPRl4bHrdldS2C/4sxyyxZHU87pZKI4HnZQ==
-X-ME-Sender: <xms:qEGQY8HVyHEazmmC6wT1eV5CHqrY3BEJp0pBdHbThix0j9f65qP-0w>
-    <xme:qEGQY1WFcJb6jEVflDbfpeeulOOp20g8zL2vydnt66uDQExqHu5HTxVspgj0VyPti
-    H4ZsulV-ksEl7jwfQo>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudejgdduuddtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepvefhffeltdegheeffffhtdegvdehjedtgfekueevgfduffettedtkeekueef
-    hedunecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpe
-    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggv
-X-ME-Proxy: <xmx:qEGQY2J7b73OJmWWiEcRT8w37BLvJfR0DW9wFW3QoVfOG_XX7mEgEg>
-    <xmx:qEGQY-EAjdAm7jXP_lhMcyUM8QZ2o3qKvQ35QKnimUZMyDWjqAKuqg>
-    <xmx:qEGQYyVKg6SGjfYQH9yjkdcqMCc24bx9ipcyOn37HlFWD4y2QrkupQ>
-    <xmx:qEGQY0Iti1x4BKOthmTl4cR_8xmGTko0_8tWNNmRqqv5vKQB70hmXg>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 2669AB60086; Wed,  7 Dec 2022 02:32:56 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.7.0-alpha0-1115-g8b801eadce-fm-20221102.001-g8b801ead
-Mime-Version: 1.0
-Message-Id: <e2597ffc-34d0-470f-87ed-e70d3914956a@app.fastmail.com>
-In-Reply-To: <3beac08e-ffba-8c3b-a5b1-1a34e125b3a7@kernel.org>
-References: <20221203105425.180641-1-arnd@kernel.org>
- <95785bc5-ac4b-9c44-74ea-6b3afb11cf14@opensource.wdc.com>
- <3beac08e-ffba-8c3b-a5b1-1a34e125b3a7@kernel.org>
-Date:   Wed, 07 Dec 2022 08:32:34 +0100
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Jiri Slaby" <jirislaby@kernel.org>,
-        "Damien Le Moal" <damien.lemoal@opensource.wdc.com>,
-        "Arnd Bergmann" <arnd@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        "Luis Machado" <luis.machado@arm.com>, linux-ide@vger.kernel.org,
-        stable@vger.kernel.org, "Randy Dunlap" <rdunlap@infradead.org>,
-        "Nathan Huckleberry" <nhuck@google.com>
-Subject: Re: [PATCH] [v2] ata: ahci: fix enum constants for gcc-13
-Content-Type: text/plain
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229731AbiLGHuP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 02:50:15 -0500
+Received: from smtp-out-06.comm2000.it (smtp-out-06.comm2000.it [212.97.32.74])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71B472F67D;
+        Tue,  6 Dec 2022 23:50:13 -0800 (PST)
+Received: from francesco-nb.int.toradex.com (31-10-206-125.static.upc.ch [31.10.206.125])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: francesco@dolcini.it)
+        by smtp-out-06.comm2000.it (Postfix) with ESMTPSA id F2D9D5631EE;
+        Wed,  7 Dec 2022 08:50:01 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailserver.it;
+        s=mailsrv; t=1670399412;
+        bh=DDTBiWaHnF9iOPxez5l8MrXcNcPFqJ4pfnXgFn4qVxg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To;
+        b=KzwVfnhmWGbGSVN8eAOv1xsJitCAA/pl+qVCgfUrrJzUw/S/a3i9+I3L6UxzSY+8B
+         uJA6cYs/lFwzb1gmZQpyvTxz5doP5yMCNcyMqIb3UZxuFAMBRrNIgD/TQ58wTJdV3C
+         I7mdRAPA8NNd5JHhX0pwXqC1inz4xdBFDYa/on1Jchzb8JDmMEWqZNmWnpsh5trol6
+         r0UaKbJcXf1EgIAS22V0tFXrdS8Y+DLBo1RJ42REl+0beOjgTubjfnQikmixFDzKOI
+         jEWrB1ODt9QbezmGr+ymK2Ppw1Io7bX8VvY5jki7KDF+Ktwh2r1wtw1NT6KOTEI7n6
+         q8PEPbtUdkxHA==
+Date:   Wed, 7 Dec 2022 08:49:54 +0100
+From:   Francesco Dolcini <francesco@dolcini.it>
+To:     Marek Vasut <marex@denx.de>
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Francesco Dolcini <francesco@dolcini.it>,
+        Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        devicetree@vger.kernel.org, linux-mtd@lists.infradead.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v1] Revert "ARM: dts: imx7: Fix NAND controller
+ size-cells"
+Message-ID: <Y5BFos83ceVi2pu2@francesco-nb.int.toradex.com>
+References: <20221205152327.26881-1-francesco@dolcini.it>
+ <0aa2d48b-35a0-1781-f265-0387d213bdd6@denx.de>
+ <20221205185859.433d6cbf@xps-13>
+ <f69746b0-51c0-041c-4035-679c27fcba64@denx.de>
+ <20221205191828.3072d872@xps-13>
+ <29260d63-3240-6660-b002-cd00dc051574@denx.de>
+ <Y45BZs7dZokgz83I@francesco-nb.int.toradex.com>
+ <20221206111643.1af08a9b@xps-13>
+ <738f260d-225b-7ecf-20b2-a7541c368d36@denx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <738f260d-225b-7ecf-20b2-a7541c368d36@denx.de>
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 7, 2022, at 07:41, Jiri Slaby wrote:
-> Arnd,
->
-> I just noticed this on stable@. Do you have more of the gcc-13-enum 
-> patches? I sent some (this one incl.), but didn't have time for v2 of 
-> some of them. So should I respin the rest or have you fixed them all yet?
+On Tue, Dec 06, 2022 at 08:02:45PM +0100, Marek Vasut wrote:
+> On 12/6/22 11:16, Miquel Raynal wrote:
+> > Hi Francesco,
+> 
+> Hello everyone,
+> 
+> > francesco@dolcini.it wrote on Mon, 5 Dec 2022 20:07:18 +0100:
+> > 
+> > > On Mon, Dec 05, 2022 at 07:52:08PM +0100, Marek Vasut wrote:
+> > > > On 12/5/22 19:18, Miquel Raynal wrote:
+> > > > > marex@denx.de wrote on Mon, 5 Dec 2022 19:07:14 +0100:
+> > > > > > On 12/5/22 18:58, Miquel Raynal wrote:
+> > > > > > > , it's not
+> > > > > > > complex to do, there are plenty of examples. This would be IMHO a
+> > > > > > > better step ahead rather than just a cell change. Anyway, I don't mind
+> > > > > > > reverting this once we've sorted this mess out and fixed U-Boot.
+> > > > > > 
+> > > > > > Won't we still have issues with older bootloader versions which
+> > > > > > paste partitions directly into this &gpmi {} node, and which needs
+> > > > > > to be fixed up in the parser in the end ?
+> > > > > 
+> > > > > I believe fdt_fixup_mtdparts() should be killed, so we should no longer
+> > > > > have this problem.
+> > > > 
+> > > > The fdt_fixup_mtdparts is U-Boot code. If contemporary Linux kernel is
+> > > > booted with ancient U-Boot, then you would still get defective DT passed to
+> > > > Linux, and that should be fixed up by Linux. Removing fdt_fixup_mtdparts()
+> > > > from current mainline U-Boot won't solve this problem.
+> > > > 
+> > > > I think this is also what Francesco is trying to convey (please correct me
+> > > > if I'm wrong).
+> > 
+> > If we can get rid of fdt_fixup_mtdparts(), it means someone has to
+> > create the partitions. I guess the easy way would be to just provide
+> > mtdparts to Linux like all the other boards and let Linux deal with it.
+> 
+> This is based on an assumption that the platform kernel command line can be
+> updated to insert such a workaround. If Francesco cannot update the
+> bootloader, the kernel command line may be immutable all the same.
 
-I only have this one, as this is the only one that Luis asked me
-about. I haven't actually tried using gcc-13 myself yet.
+Exactly.
 
->  > [PATCH] ath11k (gcc13): synchronize 
-> ath11k_mac_he_gi_to_nl80211_he_gi()'s return type - "Jiri Slaby (SUSE)" 
-> <jirislaby@kernel.org> - 2022-10-31 1243.eml:Message-Id: 
-> <20221031114341.10377-1-jirislaby@kernel.org>
->  > [PATCH] block_blk-iocost (gcc13): cast enum members to int in prints 
-> - "Jiri Slaby (SUSE)" <jirislaby@kernel.org> - 2022-10-31 
-> 1245.eml:Message-Id: <20221031114520.10518-1-jirislaby@kernel.org>
->  > [PATCH] bonding (gcc13): synchronize bond_{a,t}lb_xmit() types - 
-> "Jiri Slaby (SUSE)" <jirislaby@kernel.org> - 2022-10-31 
-> 1244.eml:Message-Id: <20221031114409.10417-1-jirislaby@kernel.org>
->  > [PATCH] drm_amd_display (gcc13): fix enum mismatch - "Jiri Slaby 
-> (SUSE)" <jirislaby@kernel.org> - 2022-10-31 1242.eml:Message-Id: 
-> <20221031114247.10309-1-jirislaby@kernel.org>
->  > [PATCH] drm_nouveau_kms_nv50- (gcc13): fix nv50_wndw_new_ prototype - 
-> "Jiri Slaby (SUSE)" <jirislaby@kernel.org> - 2022-10-31 
-> 1242.eml:Message-Id: <20221031114229.10289-1-jirislaby@kernel.org>
->  > [PATCH] init: Kconfig (gcc13): disable -Warray-bounds on gcc-13 too - 
-> "Jiri Slaby (SUSE)" <jirislaby@kernel.org> - 2022-10-31 
-> 1242.eml:Message-Id: <20221031114212.10266-1-jirislaby@kernel.org>
->  > [PATCH] i40e (gcc13): synchronize allocate_free functions return type 
-> & values - "Jiri Slaby (SUSE)" <jirislaby@kernel.org> - 2022-10-31 
-> 1244.eml:Message-Id: <20221031114456.10482-1-jirislaby@kernel.org>
->  > [PATCH] qed (gcc13): use u16 for fid to be big enough - "Jiri Slaby 
-> (SUSE)" <jirislaby@kernel.org> - 2022-10-31 1243.eml:Message-Id: 
-> <20221031114354.10398-1-jirislaby@kernel.org>
->  > [PATCH] RDMA_srp (gcc13): force int types for max_send_sge and 
-> can_queue - "Jiri Slaby (SUSE)" <jirislaby@kernel.org> - 2022-10-31 
-> 1245.eml:Message-Id: <20221031114506.10501-1-jirislaby@kernel.org>
->  > [PATCH] sfc (gcc13): synchronize ef100_enqueue_skb()'s return type - 
-> "Jiri Slaby (SUSE)" <jirislaby@kernel.org> - 2022-10-31 
-> 1244.eml:Message-Id: <20221031114440.10461-1-jirislaby@kernel.org>
->  > [PATCH] thunderbolt (gcc13): synchronize tb_port_is_clx_enabled()'s 
-> 2nd param - "Jiri Slaby (SUSE)" <jirislaby@kernel.org> - 2022-10-31 
-> 1243.eml:Message-Id: <20221031114323.10356-1-jirislaby@kernel.org>
->  > [PATCH] wireguard (gcc13): cast enum limits members to int in prints 
-> - "Jiri Slaby (SUSE)" <jirislaby@kernel.org> - 2022-10-31 
-> 1244.eml:Message-Id: <20221031114424.10438-1-jirislaby@kernel.org>
->  > [PATCH 1_2] ata: ahci (gcc13): use BIT() for bit definitions in enum 
-> - "Jiri Slaby (SUSE)" <jirislaby@kernel.org> - 2022-10-31 
-> 1243.eml:Message-Id: <20221031114310.10337-1-jirislaby@kernel.org>
->  > [PATCH 2_2] ata: ahci (gcc13): use U suffix for enum definitions - 
-> "Jiri Slaby (SUSE)" <jirislaby@kernel.org> - 2022-10-31 
-> 1243.eml:Message-Id: <20221031114310.10337-2-jirislaby@kernel.org>
+What I can do is update the latest stuff and enable people to upgrade, eventually.
+But here we are talking about a board that is just generally available
+in high volume to a multitude of people since years ... in practice the
+vast majority of the users will not upgrade it.
 
-I had a look, these all look good to me, as expected. My guess is that
-these all only cause a build failure with -Werror, so Luis didn't
-get stuck on the warnings.
+> > Then we can just assume in Linux that perhaps if the partitions are
+> > invalid (#size-cell is wrong?) then we should just stop their creation
+> > and fallback to another mechanism instead of failing entirely. This way
+> > no need for hackish changes in the parsers and compatibility is still
+> > valid with old U-Boot (if mtdparts was provided on the cmdline, to be
+> > checked). Otherwise we'll have to deal with it in Linux, that's a pity.
+> 
+> I am very much banking toward -- fix it up in the parser, just like any
+> other firmware issue.
 
-Some of them appear to overlap with work that Nathan Huckleberry
-did a while ago to fix related clang-14 warnings, see e.g.
-https://lore.kernel.org/lkml/20220912214523.929094-1-nhuck@google.com/
+I agree again.
 
-I don't know what the state of those is.
+> Esp. since the fix up is printing a warning, and it is like a 2-liner
+> patch.
+Here we might assess if we need more to handle the other weird situation
+in which a `partitions{}` node is present, U-Boot ignores it and the
+kernel fails to detect the partitions. As of today colibri-imx7 is not
+affected by this.
 
-    Arnd
+Francesco
+
