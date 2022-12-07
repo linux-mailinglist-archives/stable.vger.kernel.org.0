@@ -2,307 +2,250 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE796645C06
-	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 15:07:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B04C645C0F
+	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 15:08:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229605AbiLGOHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Dec 2022 09:07:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35380 "EHLO
+        id S230264AbiLGOIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Dec 2022 09:08:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230283AbiLGOGf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 09:06:35 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE0763DE
-        for <stable@vger.kernel.org>; Wed,  7 Dec 2022 06:06:26 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id v13-20020a17090a6b0d00b00219c3be9830so1733698pjj.4
-        for <stable@vger.kernel.org>; Wed, 07 Dec 2022 06:06:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=rZZ+QM1R3JQroiVfh8VlTCzZhA5RV6/2+12KVAmHsxk=;
-        b=QSad23HRE1YyJnW35CON5SbD+UmTc5ox7hcu4zwyR5Hp/5oxntOHNTDSoj3U2GfybP
-         9BLoTOn+geKrOMHj13SmGtIZyn4pdqeghKkTCepJbmHSh810XD1k2T4ZebivpE8J1UKp
-         WKTPZmBOyrdDAO9fn9OVptU/XWOb/+8wFY+GknMap6HdatNe3tKo97j0Wc98iKbo4LAz
-         oFrse5sFi/YyotkENvxQELzHidQjidhHVRAPY2W6q3OXieCllRhoYBXSelbgbCuuGG96
-         SIMe2isPdGaSOeuUyb2jUB6NiFfyPbhpAfAOcmd94yfbiQBLDDXq+kWS6Lz+ipxK+GFa
-         IKYA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rZZ+QM1R3JQroiVfh8VlTCzZhA5RV6/2+12KVAmHsxk=;
-        b=XQ1y1WG/OV3lg3dfhMQ1cMuf4jgsWlVfRlzH10COTFiFRsaJOE0vDDARxy3Hj658gH
-         Pg9oV2l56L8reyNZSIfsnMXLgb8Qe30eWrYn7H4Mt1DbOoiq512ORfmiskean92e7wSC
-         7uVFEwBXg0nKsMNt7iBjzx9xquiRrAA0rfq5jhdxE5Ptn9PZAg6RtJnc5C/Q7WqMQRC0
-         OD/i8KL3Tr2s7CKYRpoxlSQdkSu4Vlb/FMm+w/0ykNVyAiz0NNWFRYW0CVY9F9WzTsQU
-         Ulf9TKduR/Dm7bMQyR4ZtAlXJnjiSMnd7lsvb0u5A/hHJ5TsEk76GHqiKM+OowlzqR0V
-         kZXQ==
-X-Gm-Message-State: ANoB5pkzjirhsEBGwlWgm4J+TgSUF2RdYJv5l6wuQLBFdr/IEFMvNx/1
-        Mwiyu44QRLtNfBSzulSc1jSs
-X-Google-Smtp-Source: AA0mqf60Ed271Trt9KBsA+UHPVieNuY+xz/SdSq8Uem3PNqiELt2wIslP8k5F6HxqOQK6vS66L4spQ==
-X-Received: by 2002:a17:903:41ca:b0:189:78d9:fe2e with SMTP id u10-20020a17090341ca00b0018978d9fe2emr54045472ple.96.1670421985450;
-        Wed, 07 Dec 2022 06:06:25 -0800 (PST)
-Received: from thinkpad ([117.216.123.5])
-        by smtp.gmail.com with ESMTPSA id fv3-20020a17090b0e8300b00217090ece49sm1253367pjb.31.2022.12.07.06.06.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Dec 2022 06:06:24 -0800 (PST)
-Date:   Wed, 7 Dec 2022 19:36:15 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     andersson@kernel.org, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, bp@alien8.de,
-        tony.luck@intel.com
-Cc:     quic_saipraka@quicinc.com, konrad.dybcio@linaro.org,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        james.morse@arm.com, mchehab@kernel.org, rric@kernel.org,
-        linux-edac@vger.kernel.org, quic_ppareek@quicinc.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 12/12] llcc/edac: Fix the base address used for accessing
- LLCC banks
-Message-ID: <20221207140615.GA315152@thinkpad>
-References: <20221207135922.314827-1-manivannan.sadhasivam@linaro.org>
- <20221207135922.314827-13-manivannan.sadhasivam@linaro.org>
+        with ESMTP id S230344AbiLGOIU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 09:08:20 -0500
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5672B101F
+        for <stable@vger.kernel.org>; Wed,  7 Dec 2022 06:08:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1670422099; x=1701958099;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=Kr0uQjEcUI+f0AT876Ta1xNtFSicgU6ZeX54Xf6xyww=;
+  b=fUREkEv7QIZ37Zs4wEAcCccmYGWFUXijYA6ppN8cZNkYo0LHd4AUxSao
+   nCcfPd7ti9DupDmDvDPdDRG+RbKHNo1H7Z/WVijR3l2HvRzAMoT85URLS
+   WXTkZEe3O4u+DfzDA4DQiysT7s+DStdkSv04oCQljBEwWAFD1/anPQRFo
+   1qs9vwtT8Ke1hPlsod0/xuWhzO2tcB0vsf2hl9E+CEoOV43Qita+MSBAa
+   qTxOeuOZYhTF35wbxJHjTi5MPs12TDklbJxsMDEGuSMDVlWsIeAFq6KbB
+   PUQDc+ShwqrXcYunMIT5PmJh30sPGTyZxx3Hd7vsD+V8chJgvCgrIgxjJ
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10553"; a="381190910"
+X-IronPort-AV: E=Sophos;i="5.96,225,1665471600"; 
+   d="scan'208";a="381190910"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2022 06:08:19 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10553"; a="640257488"
+X-IronPort-AV: E=Sophos;i="5.96,225,1665471600"; 
+   d="scan'208";a="640257488"
+Received: from ahunter6-mobl1.ger.corp.intel.com (HELO ahunter-VirtualBox.home\044ger.corp.intel.com) ([10.252.38.130])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2022 06:08:17 -0800
+From:   Adrian Hunter <adrian.hunter@intel.com>
+To:     stable@vger.kernel.org
+Cc:     Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.9] mmc: sdhci: Fix voltage switch delay
+Date:   Wed,  7 Dec 2022 16:08:06 +0200
+Message-Id: <20221207140806.19129-1-adrian.hunter@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20221207135922.314827-13-manivannan.sadhasivam@linaro.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 07, 2022 at 07:29:21PM +0530, Manivannan Sadhasivam wrote:
-> The LLCC driver has been using a fixed register offset stride for accessing
-> the CSRs of each LLCC bank. This offset only works for some SoCs like
-> SDM845 for which driver support was initially added.
-> 
-> But the later SoCs use different register stride that vary between the
-> banks with holes in-between. So it is not possible to use a single register
-> stride for accessing the CSRs of each bank.
-> 
-> Hence, obtain the base address of each LLCC bank from devicetree and get
-> rid of the fixed stride.
-> 
-> Cc: <stable@vger.kernel.org> # 4.20
-> Fixes: a3134fb09e0b ("drivers: soc: Add LLCC driver")
-> Fixes: 27450653f1db ("drivers: edac: Add EDAC driver support for QCOM SoCs")
-> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+commit c981cdfb9925f64a364f13c2b4f98f877308a408 upstream.
 
-Please ignore this patch as this is a duplicate that got sneaked in. I will
-remove it in next version.
+Backport to v4.9 by Adrian to cope with host->lock which was removed
+from sdhci_set_ios() in v4.12. Note dependency on fa0910107a9f.
 
-Thanks,
-Mani
+Commit 20b92a30b561 ("mmc: sdhci: update signal voltage switch code")
+removed voltage switch delays from sdhci because mmc core had been
+enhanced to support them. However that assumed that sdhci_set_ios()
+did a single clock change, which it did not, and so the delays in mmc
+core, which should have come after the first clock change, were not
+effective.
 
-> ---
->  drivers/edac/qcom_edac.c           | 14 +++----
->  drivers/soc/qcom/llcc-qcom.c       | 64 ++++++++++++++++++------------
->  include/linux/soc/qcom/llcc-qcom.h |  4 +-
->  3 files changed, 44 insertions(+), 38 deletions(-)
-> 
-> diff --git a/drivers/edac/qcom_edac.c b/drivers/edac/qcom_edac.c
-> index 97a27e42dd61..70bd39a91b89 100644
-> --- a/drivers/edac/qcom_edac.c
-> +++ b/drivers/edac/qcom_edac.c
-> @@ -213,7 +213,7 @@ dump_syn_reg_values(struct llcc_drv_data *drv, u32 bank, int err_type)
->  
->  	for (i = 0; i < reg_data.reg_cnt; i++) {
->  		synd_reg = reg_data.synd_reg + (i * 4);
-> -		ret = regmap_read(drv->regmap, drv->offsets[bank] + synd_reg,
-> +		ret = regmap_read(drv->regmap[bank], synd_reg,
->  				  &synd_val);
->  		if (ret)
->  			goto clear;
-> @@ -222,8 +222,7 @@ dump_syn_reg_values(struct llcc_drv_data *drv, u32 bank, int err_type)
->  			    reg_data.name, i, synd_val);
->  	}
->  
-> -	ret = regmap_read(drv->regmap,
-> -			  drv->offsets[bank] + reg_data.count_status_reg,
-> +	ret = regmap_read(drv->regmap[bank], reg_data.count_status_reg,
->  			  &err_cnt);
->  	if (ret)
->  		goto clear;
-> @@ -233,8 +232,7 @@ dump_syn_reg_values(struct llcc_drv_data *drv, u32 bank, int err_type)
->  	edac_printk(KERN_CRIT, EDAC_LLCC, "%s: Error count: 0x%4x\n",
->  		    reg_data.name, err_cnt);
->  
-> -	ret = regmap_read(drv->regmap,
-> -			  drv->offsets[bank] + reg_data.ways_status_reg,
-> +	ret = regmap_read(drv->regmap[bank], reg_data.ways_status_reg,
->  			  &err_ways);
->  	if (ret)
->  		goto clear;
-> @@ -296,8 +294,7 @@ llcc_ecc_irq_handler(int irq, void *edev_ctl)
->  
->  	/* Iterate over the banks and look for Tag RAM or Data RAM errors */
->  	for (i = 0; i < drv->num_banks; i++) {
-> -		ret = regmap_read(drv->regmap,
-> -				  drv->offsets[i] + DRP_INTERRUPT_STATUS,
-> +		ret = regmap_read(drv->regmap[i], DRP_INTERRUPT_STATUS,
->  				  &drp_error);
->  
->  		if (!ret && (drp_error & SB_ECC_ERROR)) {
-> @@ -312,8 +309,7 @@ llcc_ecc_irq_handler(int irq, void *edev_ctl)
->  		if (!ret)
->  			irq_rc = IRQ_HANDLED;
->  
-> -		ret = regmap_read(drv->regmap,
-> -				  drv->offsets[i] + TRP_INTERRUPT_0_STATUS,
-> +		ret = regmap_read(drv->regmap[i], TRP_INTERRUPT_0_STATUS,
->  				  &trp_error);
->  
->  		if (!ret && (trp_error & SB_ECC_ERROR)) {
-> diff --git a/drivers/soc/qcom/llcc-qcom.c b/drivers/soc/qcom/llcc-qcom.c
-> index 23ce2f78c4ed..7264ac9993e0 100644
-> --- a/drivers/soc/qcom/llcc-qcom.c
-> +++ b/drivers/soc/qcom/llcc-qcom.c
-> @@ -62,8 +62,6 @@
->  #define LLCC_TRP_WRSC_CACHEABLE_EN    0x21f2c
->  #define LLCC_TRP_ALGO_CFG8	      0x21f30
->  
-> -#define BANK_OFFSET_STRIDE	      0x80000
-> -
->  #define LLCC_VERSION_2_0_0_0          0x02000000
->  #define LLCC_VERSION_2_1_0_0          0x02010000
->  #define LLCC_VERSION_4_1_0_0          0x04010000
-> @@ -927,6 +925,7 @@ static int qcom_llcc_probe(struct platform_device *pdev)
->  	const struct llcc_slice_config *llcc_cfg;
->  	u32 sz;
->  	u32 version;
-> +	struct regmap *regmap;
->  
->  	drv_data = devm_kzalloc(dev, sizeof(*drv_data), GFP_KERNEL);
->  	if (!drv_data) {
-> @@ -934,12 +933,46 @@ static int qcom_llcc_probe(struct platform_device *pdev)
->  		goto err;
->  	}
->  
-> -	drv_data->regmap = qcom_llcc_init_mmio(pdev, "llcc_base");
-> -	if (IS_ERR(drv_data->regmap)) {
-> -		ret = PTR_ERR(drv_data->regmap);
-> +	/* Initialize the first LLCC bank regmap */
-> +	regmap = qcom_llcc_init_mmio(pdev, "llcc0_base");
-> +	if (IS_ERR(regmap)) {
-> +		ret = PTR_ERR(regmap);
-> +		goto err;
-> +	}
-> +
-> +	cfg = of_device_get_match_data(&pdev->dev);
-> +
-> +	ret = regmap_read(regmap, cfg->reg_offset[LLCC_COMMON_STATUS0],
-> +			  &num_banks);
-> +	if (ret)
-> +		goto err;
-> +
-> +	num_banks &= LLCC_LB_CNT_MASK;
-> +	num_banks >>= LLCC_LB_CNT_SHIFT;
-> +	drv_data->num_banks = num_banks;
-> +
-> +	drv_data->regmap = devm_kcalloc(dev, num_banks, sizeof(*drv_data->regmap), GFP_KERNEL);
-> +	if (!drv_data->regmap) {
-> +		ret = -ENOMEM;
->  		goto err;
->  	}
->  
-> +	drv_data->regmap[0] = regmap;
-> +
-> +	/* Initialize rest of LLCC bank regmaps */
-> +	for (i = 1; i < num_banks; i++) {
-> +		char *base = kasprintf(GFP_KERNEL, "llcc%d_base", i);
-> +
-> +		drv_data->regmap[i] = qcom_llcc_init_mmio(pdev, base);
-> +		if (IS_ERR(drv_data->regmap[i])) {
-> +			ret = PTR_ERR(drv_data->regmap[i]);
-> +			kfree(base);
-> +			goto err;
-> +		}
-> +
-> +		kfree(base);
-> +	}
-> +
->  	drv_data->bcast_regmap =
->  		qcom_llcc_init_mmio(pdev, "llcc_broadcast_base");
->  	if (IS_ERR(drv_data->bcast_regmap)) {
-> @@ -947,8 +980,6 @@ static int qcom_llcc_probe(struct platform_device *pdev)
->  		goto err;
->  	}
->  
-> -	cfg = of_device_get_match_data(&pdev->dev);
-> -
->  	/* Extract version of the IP */
->  	ret = regmap_read(drv_data->bcast_regmap, cfg->reg_offset[LLCC_COMMON_HW_INFO],
->  			  &version);
-> @@ -957,15 +988,6 @@ static int qcom_llcc_probe(struct platform_device *pdev)
->  
->  	drv_data->version = version;
->  
-> -	ret = regmap_read(drv_data->regmap, cfg->reg_offset[LLCC_COMMON_STATUS0],
-> -			  &num_banks);
-> -	if (ret)
-> -		goto err;
-> -
-> -	num_banks &= LLCC_LB_CNT_MASK;
-> -	num_banks >>= LLCC_LB_CNT_SHIFT;
-> -	drv_data->num_banks = num_banks;
-> -
->  	llcc_cfg = cfg->sct_data;
->  	sz = cfg->size;
->  
-> @@ -973,16 +995,6 @@ static int qcom_llcc_probe(struct platform_device *pdev)
->  		if (llcc_cfg[i].slice_id > drv_data->max_slices)
->  			drv_data->max_slices = llcc_cfg[i].slice_id;
->  
-> -	drv_data->offsets = devm_kcalloc(dev, num_banks, sizeof(u32),
-> -							GFP_KERNEL);
-> -	if (!drv_data->offsets) {
-> -		ret = -ENOMEM;
-> -		goto err;
-> -	}
-> -
-> -	for (i = 0; i < num_banks; i++)
-> -		drv_data->offsets[i] = i * BANK_OFFSET_STRIDE;
-> -
->  	drv_data->bitmap = devm_bitmap_zalloc(dev, drv_data->max_slices,
->  					      GFP_KERNEL);
->  	if (!drv_data->bitmap) {
-> diff --git a/include/linux/soc/qcom/llcc-qcom.h b/include/linux/soc/qcom/llcc-qcom.h
-> index ad1fd718169d..4b8bf585f9ba 100644
-> --- a/include/linux/soc/qcom/llcc-qcom.h
-> +++ b/include/linux/soc/qcom/llcc-qcom.h
-> @@ -129,12 +129,11 @@ struct llcc_edac_reg_offset {
->   * @max_slices: max slices as read from device tree
->   * @num_banks: Number of llcc banks
->   * @bitmap: Bit map to track the active slice ids
-> - * @offsets: Pointer to the bank offsets array
->   * @ecc_irq: interrupt for llcc cache error detection and reporting
->   * @version: Indicates the LLCC version
->   */
->  struct llcc_drv_data {
-> -	struct regmap *regmap;
-> +	struct regmap **regmap;
->  	struct regmap *bcast_regmap;
->  	const struct llcc_slice_config *cfg;
->  	const struct llcc_edac_reg_offset *edac_reg_offset;
-> @@ -143,7 +142,6 @@ struct llcc_drv_data {
->  	u32 max_slices;
->  	u32 num_banks;
->  	unsigned long *bitmap;
-> -	u32 *offsets;
->  	int ecc_irq;
->  	u32 version;
->  };
-> -- 
-> 2.25.1
-> 
+Fix by avoiding re-configuring UHS and preset settings when the clock
+is turning on and the settings have not changed. That then also avoids
+the associated clock changes, so that then sdhci_set_ios() does a single
+clock change when voltage switching, and the mmc core delays become
+effective.
 
+To do that has meant keeping track of driver strength (host->drv_type),
+and cases of reinitialization (host->reinit_uhs).
+
+Note also, the 'turning_on_clk' restriction should not be necessary
+but is done to minimize the impact of the change on stable kernels.
+
+Fixes: 20b92a30b561 ("mmc: sdhci: update signal voltage switch code")
+Cc: stable@vger.kernel.org # 4.9.x: fa0910107a9f mmc: sdhci: use FIELD_GET for preset value bit masks
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20221128133259.38305-2-adrian.hunter@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+---
+ drivers/mmc/host/sdhci.c | 63 +++++++++++++++++++++++++++++++++++-----
+ drivers/mmc/host/sdhci.h |  2 ++
+ 2 files changed, 57 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index a487985c0453..f3e2aba53ffa 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -240,6 +240,7 @@ static void sdhci_init(struct sdhci_host *host, int soft)
+ 	if (soft) {
+ 		/* force clock reconfiguration */
+ 		host->clock = 0;
++		host->reinit_uhs = true;
+ 		mmc->ops->set_ios(mmc, &mmc->ios);
+ 	}
+ }
+@@ -1580,12 +1581,47 @@ void sdhci_set_uhs_signaling(struct sdhci_host *host, unsigned timing)
+ }
+ EXPORT_SYMBOL_GPL(sdhci_set_uhs_signaling);
+ 
++static bool sdhci_timing_has_preset(unsigned char timing)
++{
++	switch (timing) {
++	case MMC_TIMING_UHS_SDR12:
++	case MMC_TIMING_UHS_SDR25:
++	case MMC_TIMING_UHS_SDR50:
++	case MMC_TIMING_UHS_SDR104:
++	case MMC_TIMING_UHS_DDR50:
++	case MMC_TIMING_MMC_DDR52:
++		return true;
++	};
++	return false;
++}
++
++static bool sdhci_preset_needed(struct sdhci_host *host, unsigned char timing)
++{
++	return !(host->quirks2 & SDHCI_QUIRK2_PRESET_VALUE_BROKEN) &&
++	       sdhci_timing_has_preset(timing);
++}
++
++static bool sdhci_presetable_values_change(struct sdhci_host *host, struct mmc_ios *ios)
++{
++	/*
++	 * Preset Values are: Driver Strength, Clock Generator and SDCLK/RCLK
++	 * Frequency. Check if preset values need to be enabled, or the Driver
++	 * Strength needs updating. Note, clock changes are handled separately.
++	 */
++	return !host->preset_enabled &&
++	       (sdhci_preset_needed(host, ios->timing) || host->drv_type != ios->drv_type);
++}
++
+ static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ {
+ 	struct sdhci_host *host = mmc_priv(mmc);
++	bool reinit_uhs = host->reinit_uhs;
++	bool turning_on_clk = false;
+ 	unsigned long flags;
+ 	u8 ctrl;
+ 
++	host->reinit_uhs = false;
++
+ 	spin_lock_irqsave(&host->lock, flags);
+ 
+ 	if (host->flags & SDHCI_DEVICE_DEAD) {
+@@ -1611,6 +1647,8 @@ static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ 		sdhci_enable_preset_value(host, false);
+ 
+ 	if (!ios->clock || ios->clock != host->clock) {
++		turning_on_clk = ios->clock && !host->clock;
++
+ 		host->ops->set_clock(host, ios->clock);
+ 		host->clock = ios->clock;
+ 
+@@ -1637,6 +1675,17 @@ static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ 
+ 	host->ops->set_bus_width(host, ios->bus_width);
+ 
++	/*
++	 * Special case to avoid multiple clock changes during voltage
++	 * switching.
++	 */
++	if (!reinit_uhs &&
++	    turning_on_clk &&
++	    host->timing == ios->timing &&
++	    host->version >= SDHCI_SPEC_300 &&
++	    !sdhci_presetable_values_change(host, ios))
++		goto out;
++
+ 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
+ 
+ 	if ((ios->timing == MMC_TIMING_SD_HS ||
+@@ -1682,6 +1731,7 @@ static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ 			}
+ 
+ 			sdhci_writew(host, ctrl_2, SDHCI_HOST_CONTROL2);
++			host->drv_type = ios->drv_type;
+ 		} else {
+ 			/*
+ 			 * According to SDHC Spec v3.00, if the Preset Value
+@@ -1709,26 +1759,21 @@ static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ 		host->ops->set_uhs_signaling(host, ios->timing);
+ 		host->timing = ios->timing;
+ 
+-		if (!(host->quirks2 & SDHCI_QUIRK2_PRESET_VALUE_BROKEN) &&
+-				((ios->timing == MMC_TIMING_UHS_SDR12) ||
+-				 (ios->timing == MMC_TIMING_UHS_SDR25) ||
+-				 (ios->timing == MMC_TIMING_UHS_SDR50) ||
+-				 (ios->timing == MMC_TIMING_UHS_SDR104) ||
+-				 (ios->timing == MMC_TIMING_UHS_DDR50) ||
+-				 (ios->timing == MMC_TIMING_MMC_DDR52))) {
++		if (sdhci_preset_needed(host, ios->timing)) {
+ 			u16 preset;
+ 
+ 			sdhci_enable_preset_value(host, true);
+ 			preset = sdhci_get_preset_value(host);
+ 			ios->drv_type = FIELD_GET(SDHCI_PRESET_DRV_MASK,
+ 						  preset);
++			host->drv_type = ios->drv_type;
+ 		}
+ 
+ 		/* Re-enable SD Clock */
+ 		host->ops->set_clock(host, host->clock);
+ 	} else
+ 		sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
+-
++out:
+ 	/*
+ 	 * Some (ENE) controllers go apeshit on some ios operation,
+ 	 * signalling timeout and CRC errors even on CMD0. Resetting
+@@ -2882,6 +2927,7 @@ int sdhci_resume_host(struct sdhci_host *host)
+ 		sdhci_init(host, 0);
+ 		host->pwr = 0;
+ 		host->clock = 0;
++		host->reinit_uhs = true;
+ 		mmc->ops->set_ios(mmc, &mmc->ios);
+ 	} else {
+ 		sdhci_init(host, (host->mmc->pm_flags & MMC_PM_KEEP_POWER));
+@@ -2946,6 +2992,7 @@ int sdhci_runtime_resume_host(struct sdhci_host *host)
+ 	/* Force clock and power re-program */
+ 	host->pwr = 0;
+ 	host->clock = 0;
++	host->reinit_uhs = true;
+ 	mmc->ops->start_signal_voltage_switch(mmc, &mmc->ios);
+ 	mmc->ops->set_ios(mmc, &mmc->ios);
+ 
+diff --git a/drivers/mmc/host/sdhci.h b/drivers/mmc/host/sdhci.h
+index 00d921eba964..4542f164a43f 100644
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -466,6 +466,8 @@ struct sdhci_host {
+ 
+ 	unsigned int clock;	/* Current clock (MHz) */
+ 	u8 pwr;			/* Current voltage */
++	u8 drv_type;		/* Current UHS-I driver type */
++	bool reinit_uhs;	/* Force UHS-related re-initialization */
+ 
+ 	bool runtime_suspended;	/* Host is runtime suspended */
+ 	bool bus_on;		/* Bus power prevents runtime suspend */
 -- 
-மணிவண்ணன் சதாசிவம்
+2.34.1
+
