@@ -2,256 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F9BE645AF5
-	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 14:32:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6233645B02
+	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 14:35:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229989AbiLGNcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Dec 2022 08:32:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33836 "EHLO
+        id S229743AbiLGNfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Dec 2022 08:35:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229993AbiLGNbz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 08:31:55 -0500
+        with ESMTP id S230017AbiLGNe7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 08:34:59 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1A9059179
-        for <stable@vger.kernel.org>; Wed,  7 Dec 2022 05:31:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6FD42FC32
+        for <stable@vger.kernel.org>; Wed,  7 Dec 2022 05:34:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1670419859;
+        s=mimecast20190719; t=1670420045;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=FS4nP8Dvl5Abr4Pj8BMVXPrPrR55oEEMgJ40HwYEeb4=;
-        b=AtbiwTZUtaGntJUaodLzmWLKjSaXDjXXG0RdoKjK4hUWnhwsCT65CsSIF1QzgAV7NU1GGv
-        7SFo7RNbALqy21QC0UkAG87dF/XpU4cOaJyNJwl7taEQdspnTiQ1Smkeczb+hXvwQ+zBAF
-        NwP2uSDPM7wH7oWyk4dU2hXikGTeprE=
-Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
- [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=PacGtqlFWYVFHK08vpyrRIk/v4jPepTFNKvA2M5ITow=;
+        b=FYwyZsfJMFw96sYFVIA47h6npAmjz71TwjLRBaHqUQZpAavU+1RVTxFwI36x710mHizqdE
+        NsM1OdsaCD2SRrL2RBS6zBtyeo620IkIllwIAHUogSv+TOuQzhSAiLmqSmDX/HJzrAmbb6
+        zJpXeYQ0SDUxUgT1WJjO5cTW/vVY0dA=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-479-9LbR05N3OA-3d2mskf_FJw-1; Wed, 07 Dec 2022 08:30:58 -0500
-X-MC-Unique: 9LbR05N3OA-3d2mskf_FJw-1
-Received: by mail-pf1-f199.google.com with SMTP id cp23-20020a056a00349700b005775c52dbceso2423499pfb.21
-        for <stable@vger.kernel.org>; Wed, 07 Dec 2022 05:30:58 -0800 (PST)
+ us-mta-645-Ccy9g5lxPGyBqclUthWrew-1; Wed, 07 Dec 2022 08:34:04 -0500
+X-MC-Unique: Ccy9g5lxPGyBqclUthWrew-1
+Received: by mail-wm1-f70.google.com with SMTP id r7-20020a1c4407000000b003d153a83d27so1471856wma.0
+        for <stable@vger.kernel.org>; Wed, 07 Dec 2022 05:34:04 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-language:content-transfer-encoding:in-reply-to:mime-version
-         :user-agent:date:message-id:references:cc:to:from:subject
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FS4nP8Dvl5Abr4Pj8BMVXPrPrR55oEEMgJ40HwYEeb4=;
-        b=bJ1ToaxjJ5Yecn+CP/8N5E11HJgfWMhcNK7DEBXr2HG13yZFC4OWZ9EeTIeM9yCMEy
-         4pcrn+N+0D1eKHkhl0JkuStUyPIiu0ITjWZPNK/ij+QJO6T+aj/2Ryii75D4iOnxIXDf
-         de8K9ybbyMt9560KPbDZiTUdBqUc2me29KHpbmaUAywUgjMT/OWiPfMxzLPOrBMlTTGp
-         Da/y/JT4MgqU7k0o/ok1UsUQiIbDMDGCdXzI6uhSUCbm5fLbSp7hgmY05itvhy4pUV0Y
-         4PD9CmU0UnJLUxmeE394YH77pNRIqVzYZNMccoro85ZBjI8iLTw/IKaSt0vvYmVrtdWD
-         Ygkw==
-X-Gm-Message-State: ANoB5pkIsf5kGzaO+nhj+VZX7gxsAmitqZ7W2j2C0Qd7LO+1UyjJObhh
-        gNcvIGgxE5Ak+AKYhDBfr4Nje5cI5ApkY229K5ijFQfsGU6Ujq9wIe7wAgK+ACg7LL8CQ4nG0gb
-        ouaSw/jQZxgjAS9YOVM0QZ41SswO9Ib9fTkL4V/tOET30OAGMy4M3xee/6AXPAlM8PA==
-X-Received: by 2002:a17:902:a514:b0:189:97c3:6382 with SMTP id s20-20020a170902a51400b0018997c36382mr43079418plq.168.1670419857695;
-        Wed, 07 Dec 2022 05:30:57 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf7JZSzIpR16yfAiGGCWy8EDHhpFN83uo/E5MVKkzglqHQjlqbbrxUuZYcFBz0h9Axrb4LBY0g==
-X-Received: by 2002:a17:902:a514:b0:189:97c3:6382 with SMTP id s20-20020a170902a51400b0018997c36382mr43079391plq.168.1670419857284;
-        Wed, 07 Dec 2022 05:30:57 -0800 (PST)
-Received: from [10.72.12.134] ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id a5-20020a170902710500b0018930dbc560sm14443062pll.96.2022.12.07.05.30.54
+        h=content-transfer-encoding:in-reply-to:subject:organization:from
+         :content-language:references:cc:to:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=PacGtqlFWYVFHK08vpyrRIk/v4jPepTFNKvA2M5ITow=;
+        b=v9hcJOms4oU9tl5jR2mrNdO2faSNoSt+pq9fM2RS7ypempvgJnRce0fCe+KxTS82/j
+         BHZri/mC22pCXxcgndve8VjK+eGbcvminoiPThipGHx3lSAiD6HTzrsw1MSk9FKaAwmH
+         h/pj6E83U8s0MwxR/L2HS7C7DtdLbWYBiG7xL2ELYB1ATRbcq58Qve4uO3VElzsmfo/m
+         CqUnttnCZmr0rFo/jI7KirQymaNv4zG8ug/XvGN+8No7YB3/6GFymOH/EOoqvkYXa8qQ
+         ega5S1cvRD079/w8PPTqgEH9/AZx7MVLWvhKSxKgJ1uC8H/jz3tIA+TdxG0YU5vFmQoj
+         TJkQ==
+X-Gm-Message-State: ANoB5pmoamdQz6KWtsO40sQAzQcd1bFpZlx+blVAnLaALxJlwKpJbJ5a
+        XcmZI5WJK7iWASMd0pxC2Sgnq2KPO5NtcHGpEEYeSMf80/hk49U5nSiOeEKsHXJKQo2EWlCb9bF
+        xJgbmjFRfIe8hAkk9
+X-Received: by 2002:a05:600c:1c1f:b0:3d1:e4eb:f10b with SMTP id j31-20020a05600c1c1f00b003d1e4ebf10bmr6109372wms.177.1670420043239;
+        Wed, 07 Dec 2022 05:34:03 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf4a2MUA3DcA1oUBjxiv78Kg8oZodekc9xEO92gstattJfwaiiWOBsV20RKSEATfQHIGCKb3zg==
+X-Received: by 2002:a05:600c:1c1f:b0:3d1:e4eb:f10b with SMTP id j31-20020a05600c1c1f00b003d1e4ebf10bmr6109360wms.177.1670420042894;
+        Wed, 07 Dec 2022 05:34:02 -0800 (PST)
+Received: from ?IPV6:2003:cb:c702:2500:fe2d:7534:ffa4:c1e5? (p200300cbc7022500fe2d7534ffa4c1e5.dip0.t-ipconnect.de. [2003:cb:c702:2500:fe2d:7534:ffa4:c1e5])
+        by smtp.gmail.com with ESMTPSA id m14-20020a5d624e000000b00241dd5de644sm19196977wrv.97.2022.12.07.05.33.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 07 Dec 2022 05:30:56 -0800 (PST)
-Subject: Re: [PATCH v3] ceph: blocklist the kclient when receiving corrupted
- snap trace
-From:   Xiubo Li <xiubli@redhat.com>
-To:     Ilya Dryomov <idryomov@gmail.com>
-Cc:     ceph-devel@vger.kernel.org, jlayton@kernel.org,
-        mchangir@redhat.com, atomlin@atomlin.com, stable@vger.kernel.org
-References: <20221206125915.37404-1-xiubli@redhat.com>
- <CAOi1vP8hkXZ7w9D5LnMViyjqVCmsKo3H2dg1QpzgHCPuNfvACQ@mail.gmail.com>
- <baa681e9-4472-bcfb-601f-132dc6658888@redhat.com>
-Message-ID: <ac1e95e6-f8fa-e243-97bd-a280b8e0fa66@redhat.com>
-Date:   Wed, 7 Dec 2022 21:30:52 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        Wed, 07 Dec 2022 05:34:00 -0800 (PST)
+Message-ID: <5a626d30-ccc9-6be3-29f7-78f83afbe5c4@redhat.com>
+Date:   Wed, 7 Dec 2022 14:33:58 +0100
 MIME-Version: 1.0
-In-Reply-To: <baa681e9-4472-bcfb-601f-132dc6658888@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+To:     Peter Xu <peterx@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Ives van Hoorne <ives@codesandbox.io>,
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hugh@veritas.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Andrea Arcangeli <aarcange@redhat.com>
+References: <20221202122748.113774-1-david@redhat.com> <Y4oo6cN1a4Yz5prh@x1n>
+ <690afe0f-c9a0-9631-b365-d11d98fdf56f@redhat.com>
+ <19800718-9cb6-9355-da1c-c7961b01e922@redhat.com> <Y45duzmGGUT0+u8t@x1n>
+ <92173bad-caa3-6b43-9d1e-9a471fdbc184@redhat.com> <Y4+zw4JU7JMlDHbM@x1n>
 Content-Language: en-US
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH RFC] mm/userfaultfd: enable writenotify while
+ userfaultfd-wp is enabled for a VMA
+In-Reply-To: <Y4+zw4JU7JMlDHbM@x1n>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 06.12.22 22:27, Peter Xu wrote:
+> On Tue, Dec 06, 2022 at 05:28:07PM +0100, David Hildenbrand wrote:
+>>> If no one is using mprotect() with uffd-wp like that, then the reproducer
+>>> may not be valid - the reproducer is defining how it should work, but does
+>>> that really stand?  That's why I said it's ambiguous, because the
+>>> definition in this case is unclear.
+>>
+>> There are interesting variations like:
+>>
+>> mmap(PROT_READ, MAP_POPULATE|MAP_SHARED)
+>> uffd_wp()
+>> mprotect(PROT_READ|PROT_WRITE)
+>>
+>> Where we start out with all-write permissions before we enable selective
+>> write permissions.
+> 
+> Could you elaborate what's the difference of above comparing to:
+> 
+> mmap(PROT_READ|PROT_WRITE, MAP_POPULATE|MAP_SHARED)
+> uffd_wp()
+> 
+> ?
 
-On 07/12/2022 21:19, Xiubo Li wrote:
->
-> On 07/12/2022 18:59, Ilya Dryomov wrote:
->> On Tue, Dec 6, 2022 at 1:59 PM <xiubli@redhat.com> wrote:
->>> From: Xiubo Li <xiubli@redhat.com>
->>>
->>> When received corrupted snap trace we don't know what exactly has
->>> happened in MDS side. And we shouldn't continue writing to OSD,
->>> which may corrupt the snapshot contents.
->>>
->>> Just try to blocklist this client and If fails we need to crash the
->>> client instead of leaving it writeable to OSDs.
->>>
->>> Cc: stable@vger.kernel.org
->>> URL: https://tracker.ceph.com/issues/57686
->>> Signed-off-by: Xiubo Li <xiubli@redhat.com>
->>> ---
->>>
->>> Thanks Aaron's feedback.
->>>
->>> V3:
->>> - Fixed ERROR: spaces required around that ':' (ctx:VxW)
->>>
->>> V2:
->>> - Switched to WARN() to taint the Linux kernel.
->>>
->>>   fs/ceph/mds_client.c |  3 ++-
->>>   fs/ceph/mds_client.h |  1 +
->>>   fs/ceph/snap.c       | 25 +++++++++++++++++++++++++
->>>   3 files changed, 28 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
->>> index cbbaf334b6b8..59094944af28 100644
->>> --- a/fs/ceph/mds_client.c
->>> +++ b/fs/ceph/mds_client.c
->>> @@ -5648,7 +5648,8 @@ static void mds_peer_reset(struct 
->>> ceph_connection *con)
->>>          struct ceph_mds_client *mdsc = s->s_mdsc;
->>>
->>>          pr_warn("mds%d closed our session\n", s->s_mds);
->>> -       send_mds_reconnect(mdsc, s);
->>> +       if (!mdsc->no_reconnect)
->>> +               send_mds_reconnect(mdsc, s);
->>>   }
->>>
->>>   static void mds_dispatch(struct ceph_connection *con, struct 
->>> ceph_msg *msg)
->>> diff --git a/fs/ceph/mds_client.h b/fs/ceph/mds_client.h
->>> index 728b7d72bf76..8e8f0447c0ad 100644
->>> --- a/fs/ceph/mds_client.h
->>> +++ b/fs/ceph/mds_client.h
->>> @@ -413,6 +413,7 @@ struct ceph_mds_client {
->>>          atomic_t                num_sessions;
->>>          int                     max_sessions;  /* len of sessions 
->>> array */
->>>          int                     stopping;      /* true if shutting 
->>> down */
->>> +       int                     no_reconnect;  /* true if snap trace 
->>> is corrupted */
->>>
->>>          atomic64_t              quotarealms_count; /* # realms with 
->>> quota */
->>>          /*
->>> diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
->>> index c1c452afa84d..023852b7c527 100644
->>> --- a/fs/ceph/snap.c
->>> +++ b/fs/ceph/snap.c
->>> @@ -767,8 +767,10 @@ int ceph_update_snap_trace(struct 
->>> ceph_mds_client *mdsc,
->>>          struct ceph_snap_realm *realm;
->>>          struct ceph_snap_realm *first_realm = NULL;
->>>          struct ceph_snap_realm *realm_to_rebuild = NULL;
->>> +       struct ceph_client *client = mdsc->fsc->client;
->>>          int rebuild_snapcs;
->>>          int err = -ENOMEM;
->>> +       int ret;
->>>          LIST_HEAD(dirty_realms);
->>>
->>>          lockdep_assert_held_write(&mdsc->snap_rwsem);
->>> @@ -885,6 +887,29 @@ int ceph_update_snap_trace(struct 
->>> ceph_mds_client *mdsc,
->>>          if (first_realm)
->>>                  ceph_put_snap_realm(mdsc, first_realm);
->>>          pr_err("%s error %d\n", __func__, err);
->>> +
->>> +       /*
->>> +        * When receiving a corrupted snap trace we don't know what
->>> +        * exactly has happened in MDS side. And we shouldn't continue
->>> +        * writing to OSD, which may corrupt the snapshot contents.
->>> +        *
->>> +        * Just try to blocklist this kclient and if it fails we need
->>> +        * to crash the kclient instead of leaving it writeable.
->> Hi Xiubo,
->>
->> I'm not sure I understand this "let's blocklist ourselves" concept.
->> If the kernel client shouldn't continue writing to OSDs in this case,
->> why not just stop issuing writes -- perhaps initiating some equivalent
->> of a read-only remount like many local filesystems would do on I/O
->> errors (e.g. errors=remount-ro mode)?
->
-> The following patch seems working. Let me do more test to make sure 
-> there is not further crash.
->
-> diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
-> index c1c452afa84d..cd487f8a4cb5 100644
-> --- a/fs/ceph/snap.c
-> +++ b/fs/ceph/snap.c
-> @@ -767,6 +767,7 @@ int ceph_update_snap_trace(struct ceph_mds_client 
-> *mdsc,
->         struct ceph_snap_realm *realm;
->         struct ceph_snap_realm *first_realm = NULL;
->         struct ceph_snap_realm *realm_to_rebuild = NULL;
-> +       struct super_block *sb = mdsc->fsc->sb;
->         int rebuild_snapcs;
->         int err = -ENOMEM;
->         LIST_HEAD(dirty_realms);
-> @@ -885,6 +886,9 @@ int ceph_update_snap_trace(struct ceph_mds_client 
-> *mdsc,
->         if (first_realm)
->                 ceph_put_snap_realm(mdsc, first_realm);
->         pr_err("%s error %d\n", __func__, err);
-> +       pr_err("Remounting filesystem read-only\n");
-> +       sb->s_flags |= SB_RDONLY;
-> +
->         return err;
->  }
->
->
-For readonly approach is also my first thought it should be, but I was 
-just not very sure whether it would be the best approach.
+That mapping would temporarily allow write access. I'd imagine that 
+something like that might be useful when atomically replacing an 
+existing mapping (MAP_FIXED), and the VMA might already be in use by 
+other threads. or when you really want to catch any possible write access.
 
-Because by evicting the kclient we could prevent the buffer to be wrote 
-to OSDs. But the readonly one seems won't ?
+For example, libvhost-user.c in QEMU uses for ordinary postcopy:
 
-- Xiubo
+         /*
+          * In postcopy we're using PROT_NONE here to catch anyone
+          * accessing it before we userfault.
+          */
+         mmap_addr = mmap(0, dev_region->size + dev_region->mmap_offset,
+                          PROT_NONE, MAP_SHARED | MAP_NORESERVE,
+                          vmsg->fds[0], 0);
 
->
->
+I'd imagine, when using uffd-wp (VM snapshotting with shmem?) one might 
+use PROT_READ instead before the write-protection is properly set. 
+Because read access would be fine in the meantime.
+
+But I'm just pulling use cases out of my magic hat ;) Nothing stops user 
+space from doing things that are not clearly forbidden (well, even then 
+users might complain, but that's a different story).
+
+[...]
+
+>> Case (2) is rather a corner case, and unless people complain about it being
+>> a real performance issue, it felt cleaner (less code) to not optimize for
+>> that now.
+> 
+> As I didn't have a closer look on the savedwrite removal patchset so I may
+> not speak anything sensible here..  What I hope is that we don't lose write
+> bits easily, after all we tried to even safe the dirty and young bits to
+> avoid the machine cycles in the MMUs.
+
+Hopefully, someone will complain loudly if that corner case is relevant.
+
+> 
 >>
->> Or, perhaps, all in-memory snap contexts could somehow be invalidated
->> in this case, making writes fail naturally -- on the client side,
->> without actually being sent to OSDs just to be nixed by the blocklist
->> hammer.
->>
->> But further, what makes a failure to decode a snap trace special?
->> AFAIK we don't do anything close to this for any other decoding
->> failure.  Wouldn't "when received corrupted XYZ we don't know what
->> exactly has happened in MDS side" argument apply to pretty much all
->> decoding failures?
->>
->>> +        *
->>> +        * Then this kclient must be remounted to continue after the
->>> +        * corrupted metadata fixed in the MDS side.
->>> +        */
->>> +       mdsc->no_reconnect = 1;
->>> +       ret = ceph_monc_blocklist_add(&client->monc, 
->>> &client->msgr.inst.addr);
->>> +       if (ret) {
->>> +               pr_err("%s blocklist of %s failed: %d", __func__,
->>> + ceph_pr_addr(&client->msgr.inst.addr), ret);
->>> +               BUG();
->> ... and this is a rough equivalent of errors=panic mode.
->>
->> Is there a corresponding userspace client PR that can be referenced?
->> This needs additional background and justification IMO.
->>
->> Thanks,
->>
->>                  Ilya
->>
+>> Again Peter, I am not against you, not at all. Sorry if I gave you the
+>> impression. I highly appreciate your work and this discussion.
+> 
+> No worry on that part.  You're doing great in this email explaining things
+> and write things up, especially I'm happy Hugh confirmed it so it's good to
+> have those.  Let's start with something like this when you NAK something
+> next time. :)
+
+:)
+
+-- 
+Thanks,
+
+David / dhildenb
 
