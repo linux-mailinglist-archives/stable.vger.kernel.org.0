@@ -2,82 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5BA16452C6
-	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 04:57:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D0316452D1
+	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 05:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229555AbiLGD5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 22:57:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43136 "EHLO
+        id S229714AbiLGEC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 23:02:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229497AbiLGD5I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 22:57:08 -0500
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 647F55217A
-        for <stable@vger.kernel.org>; Tue,  6 Dec 2022 19:57:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1670385427; x=1701921427;
-  h=from:to:cc:subject:date:message-id;
-  bh=bYpSzbxXVlu2TVbGO/NK0IPz343H/Q4xYjXc3dj+6F0=;
-  b=Pq6ypKC+OaUap6KcN1oDVxZADlLOotPYNwtoEQxTiPY+Enrs73EhB07W
-   AoaRmu2aSwawl7mY48vsYwXu2SLD/J3vFrHt+mIXZ0XA4P65czFgDYTky
-   gwQLlvz67+ZYC2WugAlP4NSNH0vqFc304Us7w1edrFoCL1rimMXm/BadP
-   b0NIavsO9eizgDMoN6aaTlutq7oryxRr8peIwGRu/WDxB/H5I//UFNuV1
-   GiNnOkzoarelSixkY0pG3iCd5B0GcYO1CfMtf7KfjJFSK3yIlAdy50ECA
-   6XONuyXWgJUREvaCjUDKT/M7seV+77BYZ0kZyK0HdpJUyvLa28nOwaS+p
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10553"; a="378963527"
-X-IronPort-AV: E=Sophos;i="5.96,223,1665471600"; 
-   d="scan'208";a="378963527"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Dec 2022 19:57:06 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10553"; a="646457288"
-X-IronPort-AV: E=Sophos;i="5.96,223,1665471600"; 
-   d="scan'208";a="646457288"
-Received: from kkgame-x299-aorus-gaming-3-pro.itwn.intel.com ([10.5.253.159])
-  by orsmga002.jf.intel.com with ESMTP; 06 Dec 2022 19:57:06 -0800
-From:   Kane Chen <kane.chen@intel.com>
-To:     stable@vger.kernel.org
-Cc:     kane.chen@intel.com
-Subject: [PATCH v1] rtc: cmos: avoid UIP when writing/reading alarm time
-Date:   Wed,  7 Dec 2022 11:57:22 +0800
-Message-Id: <20221207035722.15749-1-kane.chen@intel.com>
-X-Mailer: git-send-email 2.17.1
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229739AbiLGEC4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 23:02:56 -0500
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BADA11C19;
+        Tue,  6 Dec 2022 20:02:52 -0800 (PST)
+Received: by mail-pl1-x634.google.com with SMTP id b21so15913177plc.9;
+        Tue, 06 Dec 2022 20:02:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=gIIVDiA6O3R8AWSLOqlskI8v6XgtpOiioOau4DQUd/4=;
+        b=i2GYnfuB+2+O1kLixvLlcum8K8NFE3r9kxr23sxCkdsnkR9V2HbbIZs1zvCEVKDSik
+         gSn5jPdkXsO/eyNER8+FsWy5vNoYdfe4iO5AB7MqcWcsY2aZBKiKSG57Ryb/bKt64U84
+         XplaqU4am4YNyOj/PtqGfs+LX6AhqYi6ph5q+Gy8Df824W4xPO8gJNjfXZ4n0r/KUfDK
+         0t2vNa04Sz/+lKN/V8m6hJprK+iiIcbP35n45+eKSkzWd68qhM5Se1XOGpHJSg5v5Rb5
+         lg+NilPBWImI47df0bZtf62v36/8H+JdCEQywEZ3H+6kQULdjzUDfZeecrDJIeCNmnBI
+         Di6g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gIIVDiA6O3R8AWSLOqlskI8v6XgtpOiioOau4DQUd/4=;
+        b=p8SeTLCrWF+5ZJzPoJdNB+MgUwevmVLHW0f3AxoEh9voh62unMa5JJzrj7PoRyp9gp
+         i1p7Vx5Pblf++cvuodOJ3FOJj5OO9In6NFn0YvtcdkiuxmWiXcFv9d0FMxehCwOtuqSN
+         yRLv/7DRvGh3sUQoPMrLZppvYX7KNc48JmxbAXnkzJP2Y4otUdU2IPGO4fWgmzzelcoI
+         Bm8E9WuMhWaEIztBvPzbhJKN+DnrjddkphdUDQJvxNE1mIBdXdP9w3MyyKPPu5uVrSxo
+         Mr4916KVPpNzG/IUo+DtdlBjn3VIC/WI571Z4o8bX/WotSwN75K0GBXqSduhKViZo8A5
+         y2VQ==
+X-Gm-Message-State: ANoB5pmzIrifFfQP7cf4MMgmHA8wKd2UlCP9GbIr2E76KJpV8S/IpGd7
+        GbBjtxVHjmRg6JmLC5GHoPk=
+X-Google-Smtp-Source: AA0mqf4hCWSTp51T31E50oShmQ6K6IRU9l+gOM/nt5Crvt70lzo4yZT5hwf4YKd3BpyVWVqjan/Dlg==
+X-Received: by 2002:a17:90a:6c46:b0:21a:401:d2c0 with SMTP id x64-20020a17090a6c4600b0021a0401d2c0mr4968212pjj.34.1670385772133;
+        Tue, 06 Dec 2022 20:02:52 -0800 (PST)
+Received: from debian.me (subs09a-223-255-225-78.three.co.id. [223.255.225.78])
+        by smtp.gmail.com with ESMTPSA id c10-20020a056a00008a00b0057255b82bd1sm12365502pfj.217.2022.12.06.20.02.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 06 Dec 2022 20:02:50 -0800 (PST)
+Received: by debian.me (Postfix, from userid 1000)
+        id 08D1B1043D3; Wed,  7 Dec 2022 11:02:46 +0700 (WIB)
+Date:   Wed, 7 Dec 2022 11:02:46 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.15 000/121] 5.15.82-rc3 review
+Message-ID: <Y5AQZqNP9WI+LKV0@debian.me>
+References: <20221206163439.841627689@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="baYlNvgVIsIVFk5h"
+Content-Disposition: inline
+In-Reply-To: <20221206163439.841627689@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While runnings s0ix cycling test based on rtc alarm wakeup on ADL-P devices,
-We found the data from CMOS_READ is not reasonable and causes RTC wake up fail.
 
-With the below changes, we don't see unreasonable data from cmos and issue is gone.
+--baYlNvgVIsIVFk5h
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-cd17420: rtc: cmos: avoid UIP when writing alarm time
-cdedc45: rtc: cmos: avoid UIP when reading alarm time
-ec5895c: rtc: mc146818-lib: extract mc146818_avoid_UIP
-ea6fa49: rtc: mc146818-lib: fix RTC presence check
-13be2ef: rtc: cmos: Disable irq around direct invocation of cmos_interrupt()
-0dd8d6c: rtc: Check return value from mc146818_get_time()
-e1aba37: rtc: cmos: remove stale REVISIT comments
-6950d04: rtc: cmos: Replace spin_lock_irqsave with spin_lock in hard IRQ
-d35786b: rtc: mc146818-lib: change return values of mc146818_get_time()
-ebb22a0: rtc: mc146818: Dont test for bit 0-5 in Register D
-211e5db: rtc: mc146818: Detect and handle broken RTCs
-dcf257e: rtc: mc146818: Reduce spinlock section in mc146818_set_time()
-05a0302: rtc: mc146818: Prevent reading garbage
+On Tue, Dec 06, 2022 at 05:39:55PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.82 release.
+> There are 121 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
 
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.2.0).
 
-All of the above patches are landed on 6.0.11 stable kernel
-I'd like pick the above patches back to 5.10 longterm kernel
-Thanks
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
+--=20
+An old man doll... just what I always wanted! - Clara
 
--- 
-2.17.1
+--baYlNvgVIsIVFk5h
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY5AQYAAKCRD2uYlJVVFO
+ozOIAP91FP4DCdI2z2mZOt5hqJqBBLpORz4uwkJTDoUI+YBu1wEAuQlRrhzGS8sM
+qE+z4iXWNMc3jK4p2ipEaRwaREc5Lww=
+=fZ66
+-----END PGP SIGNATURE-----
+
+--baYlNvgVIsIVFk5h--
