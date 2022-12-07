@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B171E645BE9
-	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 15:02:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 563E6645BEE
+	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 15:02:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229843AbiLGOCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Dec 2022 09:02:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56454 "EHLO
+        id S229998AbiLGOCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Dec 2022 09:02:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230200AbiLGOB4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 09:01:56 -0500
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F7345E3D8
-        for <stable@vger.kernel.org>; Wed,  7 Dec 2022 06:00:53 -0800 (PST)
-Received: by mail-pj1-x1030.google.com with SMTP id u5so8305843pjy.5
-        for <stable@vger.kernel.org>; Wed, 07 Dec 2022 06:00:53 -0800 (PST)
+        with ESMTP id S230321AbiLGOCD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 09:02:03 -0500
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 296CC5E3FD
+        for <stable@vger.kernel.org>; Wed,  7 Dec 2022 06:00:59 -0800 (PST)
+Received: by mail-pg1-x530.google.com with SMTP id q71so16458892pgq.8
+        for <stable@vger.kernel.org>; Wed, 07 Dec 2022 06:00:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/tmf4FhGP2SUfnQq67BBBvYtBbMtS0YXHrJVypV9j0Y=;
-        b=jJKHCRg2Vybbn81b+bh3LhDDZKfk6Zo4u+chNJ134DR47RDufb6UiGNDlWNKDWAVBn
-         5YHBNMa8bWOD8MhBE8cEtjcdPqrx39mIauUf5FAAQ+10zcTwvTvmveZ28tMwcKcDt+7C
-         MUjdQufCjZpdPyMEvZW0ISl1mXNlVuKKXK66SlA/wqH8dtxN5GSrFb8AXgV8dHYhBq7P
-         f8cayHyFOYtR+AQ5GNJrkxjTPCMSEwhW1rqy+JPu9wDrBwZFM48e4AdkI/Yb7YYy3ph2
-         +TRue+hi4xHgBreIskOrLJPuu82H66zLOpfVIReN8YHDXZ07Qj4WPGX5pLU61t3QLX4m
-         ePVw==
+        bh=NhWX6rKQWUP57iw8+d4GFT7tQjEcrRRRTsFAecr4akA=;
+        b=A9v9lLV56An3GhPsH89Ik473JrofRyBdoLoOAQPzQLQbyppH1iHysZpC0Uli4f28PT
+         Jr+UzCAhJ4Wmoy3JXe25IScBIloO1gSmuRDg/+uUUiSrFA3Ynl/fFocpgyVhDgy4zcOM
+         qjjxN2afRdMvUNXqPEmQQ+764HOjVcqIxAHRYgPi+ape3usBOAhruzcg2KTwLGMDc/wO
+         yqYuQBDDfPOooe0BZ/f8ZXZQPlGYCAovECjM7P7/RSySESbiVolMeg4tljpXO7yboMlE
+         VkUz0E2umgbcDz7IPJcOYaAsUgoxzeJ6NNR8J1XfkRA8WO8KFS6R38WBc7ozgXuvZQMF
+         uZfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/tmf4FhGP2SUfnQq67BBBvYtBbMtS0YXHrJVypV9j0Y=;
-        b=Ksmj0tV9Lgm8s1n5ulwC+3e97UPZnPDd4WYHOp/G0DAGjF5EdQH1ZyAIB0+MJ3ouGS
-         oWG5EDgiKy1TYQQ7oLooWHKQkH/lcf0g+ce3QahSmX7DXLGNlF0FVi419+mkTI5j0lfI
-         vQvNdgZHM6JWS+eUY9QlNgyrLQVXdtnv5y/9iKiY8NsH+Zukp2LQ4J7RPQF+nq4kbVFR
-         9J+yg5+qG9L5Cc+L5mJeCSoDnWJQ4W41hK7vkIHk1BEuqgO/EdkmVJUI9+wLgOVjPXCi
-         qAwXLYB+ZSR7HTkCizKAWpKH/hukpBMzA8XgSShXAnVYs6C65THmYzTx5Y+EW1s1sH5T
-         m9dQ==
-X-Gm-Message-State: ANoB5pka8anRzOnTxjYI3TBHjvLWH+mGR7ZUZEajEGqFyT3AqB+6v/nW
-        Nm4ec22kjsB19zCrxfb0kEVQ
-X-Google-Smtp-Source: AA0mqf4DdbseasoYATfDJ7od5fTSrO9ZdSchGfXWVYpuzkqBUxpv6xlPrmwgrzdB0/R3N8B1Nas3Pw==
-X-Received: by 2002:a17:90a:708a:b0:20a:eaab:137 with SMTP id g10-20020a17090a708a00b0020aeaab0137mr101141295pjk.206.1670421652404;
-        Wed, 07 Dec 2022 06:00:52 -0800 (PST)
+        bh=NhWX6rKQWUP57iw8+d4GFT7tQjEcrRRRTsFAecr4akA=;
+        b=os+fr2yPq2kxvLxfySd6aXbIwgLJe8m50kxqEgImlv1cph5isM2Dp5T43QjT0IBUMO
+         1XTPOU2COMS4RbhGmtVD0UTwXLOHKH93jjfbDNuTQ5zqrBnYedaMhTtzJLYyseGmxr1p
+         yfVJePLOd47yKKZJno3bQg3X+0nB5hgKosuDStu846g3wna6CJeAQ2NkMBWOGEw4if8m
+         CGqY1Miaj6jX6jAAzfRkZPAy6eHEjHrruDityGcwkrRlHdIUB0hfk9lrodQB21kfouZi
+         Ibix5V/KrCY3FkovR1ZvddNKHm56cb49DXfZxlLwwQ425q7YTkCHNrfFo6bbA4wFlGDh
+         xcLA==
+X-Gm-Message-State: ANoB5pmzSeTQeWEO1A9UxruOEZ0u9eC/O3MEOtdpvqam8Yps1R/XNTlT
+        yqk6ZPCW00IsAG6Jyo+LMUtg
+X-Google-Smtp-Source: AA0mqf4RYtHL2QYHXNhUfXa/ongclBqtFtdfIORIDRXHajHgTCyU9tFwKK+wtOPwDBZD/b7xdrRcJA==
+X-Received: by 2002:a65:5aca:0:b0:478:b2d5:d843 with SMTP id d10-20020a655aca000000b00478b2d5d843mr14474926pgt.415.1670421658483;
+        Wed, 07 Dec 2022 06:00:58 -0800 (PST)
 Received: from localhost.localdomain ([117.216.123.5])
-        by smtp.gmail.com with ESMTPSA id c18-20020a170902d49200b00186b69157ecsm14720160plg.202.2022.12.07.06.00.45
+        by smtp.gmail.com with ESMTPSA id c18-20020a170902d49200b00186b69157ecsm14720160plg.202.2022.12.07.06.00.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Dec 2022 06:00:51 -0800 (PST)
+        Wed, 07 Dec 2022 06:00:57 -0800 (PST)
 From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 To:     andersson@kernel.org, robh+dt@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, bp@alien8.de,
@@ -59,9 +59,9 @@ Cc:     quic_saipraka@quicinc.com, konrad.dybcio@linaro.org,
         linux-edac@vger.kernel.org, quic_ppareek@quicinc.com,
         Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
         stable@vger.kernel.org
-Subject: [PATCH 12/12] llcc/edac: Fix the base address used for accessing LLCC banks
-Date:   Wed,  7 Dec 2022 19:29:21 +0530
-Message-Id: <20221207135922.314827-13-manivannan.sadhasivam@linaro.org>
+Subject: [PATCH 12/12] qcom: llcc/edac: Fix the base address used for accessing LLCC banks
+Date:   Wed,  7 Dec 2022 19:29:22 +0530
+Message-Id: <20221207135922.314827-14-manivannan.sadhasivam@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20221207135922.314827-1-manivannan.sadhasivam@linaro.org>
 References: <20221207135922.314827-1-manivannan.sadhasivam@linaro.org>
@@ -77,20 +77,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The LLCC driver has been using a fixed register offset stride for accessing
-the CSRs of each LLCC bank. This offset only works for some SoCs like
-SDM845 for which driver support was initially added.
+The Qualcomm LLCC/EDAC drivers were using a fixed register stride for
+accessing the (Control and Status Registers) CSRs of each LLCC bank.
+This stride only works for some SoCs like SDM845 for which driver
+support was initially added.
 
 But the later SoCs use different register stride that vary between the
 banks with holes in-between. So it is not possible to use a single register
-stride for accessing the CSRs of each bank.
+stride for accessing the CSRs of each bank. By doing so could result in a
+crash.
 
-Hence, obtain the base address of each LLCC bank from devicetree and get
-rid of the fixed stride.
+For fixing this issue, let's obtain the base address of each LLCC bank from
+devicetree and get rid of the fixed stride.
 
 Cc: <stable@vger.kernel.org> # 4.20
 Fixes: a3134fb09e0b ("drivers: soc: Add LLCC driver")
 Fixes: 27450653f1db ("drivers: edac: Add EDAC driver support for QCOM SoCs")
+Reported-by: Parikshit Pareek <quic_ppareek@quicinc.com>
 Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 ---
  drivers/edac/qcom_edac.c           | 14 +++----
