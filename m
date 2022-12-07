@@ -2,298 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D829645E8B
-	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 17:18:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A361F645EE3
+	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 17:28:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230018AbiLGQSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Dec 2022 11:18:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43992 "EHLO
+        id S229976AbiLGQ2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Dec 2022 11:28:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229604AbiLGQR7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 11:17:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A8F22E9D7;
-        Wed,  7 Dec 2022 08:17:58 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0565361AAD;
-        Wed,  7 Dec 2022 16:17:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5121BC433C1;
-        Wed,  7 Dec 2022 16:17:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670429877;
-        bh=Gp9ocZH5kbHtJXuoAFUnVDuGcyqPBfPHfoB/M6dMUVU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=S//2AksFISIKCbuE+zXdABcst8Bhx831rQ0rC/Odx055LCpNU42hRIN6Vg4fYaHG5
-         /9ljW/ptDcjmhHKGptSAVZn2vYpp6bSVVXB+BApWwSmlsD5p2Reoesnh9/HQ2umlv5
-         XFsGz0W/W+hRKoxSuhCSs9r9OfgT9EZ6OVsA33IWY2PsnXU0rlJtRWaEyL+5WRfxYI
-         suj62IFYjDFQfmgRfTXHfB6cNuiBzOsezw7b2/rv5e305tTygrLmXXjfOjBT/3Rwl4
-         uHW9/jz7wOemCATTsZBiXsrMagZPsTx7m9ZQv3xtyuZtvND6qC2IFIeQfgnrdGOJI2
-         6Dam9pgq0bl4A==
-Date:   Wed, 7 Dec 2022 10:17:54 -0600
-From:   Bjorn Andersson <andersson@kernel.org>
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Cc:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        bp@alien8.de, tony.luck@intel.com, quic_saipraka@quicinc.com,
-        konrad.dybcio@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, james.morse@arm.com,
-        mchehab@kernel.org, rric@kernel.org, linux-edac@vger.kernel.org,
-        quic_ppareek@quicinc.com, stable@vger.kernel.org
-Subject: Re: [PATCH 12/12] qcom: llcc/edac: Fix the base address used for
- accessing LLCC banks
-Message-ID: <20221207161754.ipiordkogu2fk2dd@builder.lan>
-References: <20221207135922.314827-1-manivannan.sadhasivam@linaro.org>
- <20221207135922.314827-14-manivannan.sadhasivam@linaro.org>
+        with ESMTP id S230102AbiLGQ1g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 11:27:36 -0500
+Received: from FRA01-PR2-obe.outbound.protection.outlook.com (mail-pr2fra01on2044.outbound.protection.outlook.com [40.107.12.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C360A69338;
+        Wed,  7 Dec 2022 08:26:56 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JdtUyXqVREM6ga5z7reHuTTZhc7R98vT2tW0RcF2wG5FIkrvm1XIuvAD1r5GTLKtrvwvQwyxGHWI1Z65g0vJrDS62o4AamOW9b5vVBc41bzROUegausovCBaf1l0aMZherIvnMVVNS4KjDoarKeRngQryyfNOY/Bp4QxqlMiWWH6bPbbY9nx+1HUFXSdrVdY3OOnqTmiW3K6/E7c12PdYTxTiNcnW9it/sLOlgWAuAbyj7IucaHlSg8h8zkQ7TtmdXEqp4qEw8p4Jbn0C5v2DVPFlHxvSCS4V9iAlqg2b4tz7Ha1kphjeK2dpxO4sDd8MEM7WGqIypYTDtEPf4IoPQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=TOcgG/OaNBRN6kTu9bq77YnY7CApM3DGBdU9iIZIQmk=;
+ b=KTDxVflVgwuXxucRjACxMYHRVgBTFb0CQfq+N9PA5oTUQirvsMc273XNwCg6Y6xb6RodiB2pOPbaMz2zWxgIBEzhxzcn4b22sWdxYkFp0rGi5LQ3VlI6gOnzD3T/13+aK1M/TH8vLVrnGhXTkeZF5pEAQSsZwX4Io1vVLwu6b1+FRkdkqP0aOm2GR52I5mg6vlBQJaoFzgnxEmKuoDNzk0+egX1jQtvTfmUIWMHtGp89Qfy0aQWi0OC5GP5w+Pffo9RuCl+1b03iBCf9afOysxHifTgmlruKq4DgpwGbJDJXQToR49/oM9wfTw28KA9T321qpcaQbL2fKb6JY1FUMQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=csgroup.eu; dmarc=pass action=none header.from=csgroup.eu;
+ dkim=pass header.d=csgroup.eu; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=csgroup.eu;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TOcgG/OaNBRN6kTu9bq77YnY7CApM3DGBdU9iIZIQmk=;
+ b=i+nIGM9RgAwlnkQK3hRsF+KnJeQgJDBCEvJvkki3It+SJZtghs5LO8i9a6OrIgbKihvIWPTTt9DqCc/Rdr1153M76BonUSi5wGpF0xguJZcq4mBrVEyTapr4YtigP2uGyoZQ9YsM+VKgsPWWqIU4k7JTawQt1E0jRJFzEuor+kAfuOJBWrgZR2j3rTi/YbeXyL8+/1CGGC9vNnaYkqwOfVFzHDVfBp9J8OCem+/msNfP8x033T8ZEhJB0z2RLNNBsKll145gOVQkvmoCwKu/yJSR4Wo3jwqI35SAC9ow6bcqiQiw2xZZn88yXh5zj8GBTUQpJ30NEfeoy/dnNzyYkw==
+Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:31::15)
+ by MRZP264MB2987.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:30::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.14; Wed, 7 Dec
+ 2022 16:26:54 +0000
+Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+ ([fe80::a85b:a9b6:cb36:fa6]) by MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+ ([fe80::a85b:a9b6:cb36:fa6%9]) with mapi id 15.20.5880.014; Wed, 7 Dec 2022
+ 16:26:54 +0000
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michael Jeanson <mjeanson@efficios.com>,
+        Steven Rostedt <rostedt@goodmis.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michal Suchanek <msuchanek@suse.de>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] powerpc/ftrace: fix syscall tracing on PPC64_ELF_ABI_V1
+Thread-Topic: [PATCH] powerpc/ftrace: fix syscall tracing on PPC64_ELF_ABI_V1
+Thread-Index: AQHZBaANAqqRYC4fWEmzGmz7Z31vrK5ey1WAgADVqwCAAApsAIAAFL6AgAAamACAABHWAIABCOKAgADBCYCAANx7gIAAEzEA
+Date:   Wed, 7 Dec 2022 16:26:54 +0000
+Message-ID: <61d98db6-68b3-1a5c-f59b-592048c742fd@csgroup.eu>
+References: <20221201161442.2127231-1-mjeanson@efficios.com>
+ <87pmcys9ae.fsf@mpe.ellerman.id.au>
+ <d5dd1491-5d59-7987-9b5b-83f5fb1b29ee@efficios.com>
+ <219580de-7473-f142-5ef2-1ed40e41d13d@csgroup.eu>
+ <323f83c7-38fe-8a12-d77a-0a7249aad316@efficios.com>
+ <dfe0b9ba-828d-e1a5-f9a3-416c6b5b1cf3@efficios.com>
+ <87mt81sbxb.fsf@mpe.ellerman.id.au>
+ <484763aa-e77b-b599-4786-ef4cdf16d7bd@efficios.com>
+ <87cz8wrmm6.fsf@mpe.ellerman.id.au>
+ <6db50470-ac37-0328-37a2-760665668b5f@efficios.com>
+In-Reply-To: <6db50470-ac37-0328-37a2-760665668b5f@efficios.com>
+Accept-Language: fr-FR, en-US
+Content-Language: fr-FR
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=csgroup.eu;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: MRZP264MB2988:EE_|MRZP264MB2987:EE_
+x-ms-office365-filtering-correlation-id: 2310b6c3-abb2-4283-d492-08dad86fda40
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: TSE0kGDUhVca6BzTG6odCWyP+J3Oq8fTU7HwVLkM+4rZ1waizbcI3q2wK9JNvnzdlsnCyZ7Cd8KPT3r2X3CXY+dwLQef8D1FVU7mDR1elnZOJ8YGkokeMgQog0rMpeKZKjRNdyCdgrCYt/S2zxG5p4lWUP6xYardW3s0km7vv/NVk71BGDVLHxWedAynbQWeNF0hVR8jTvEuMgHI1/3vM3PTPTE3uQLNW8q8846CF2mKBF+KEtZXZx906sQ/k4L4f5xBY1cUdkz0lzdWn9+WA8tcfogeqS/pEyiS6SvZBjUD/iPPFc9tLvOs2rCJR8n4UKfTbqLUG7XQKQvUCTiLcTZApBIZXdPcjynwhGbXBQDPf3DHD4gfcL/052hRe8SWlAZ7esYSVkUovTb88t1FGjsRapUrlt71vN2ganrW4o3gTgt0f31UG5xN8fmfslpRJ0yq6tiufZE/YZUDOfmaXNiiVSPdw/Dh1A3X0a/CSuSuydhc3xLasSFWIgcmXZ54mMmwQVwKu1qNR5YZ1eqbIyBG9Pnakvq1RB6M2H6E/I8QPB0ydjFMzP/KMCzCLfH/w7i8EG6N+tR+YjiUz4sNLPtpBcWk6xRLS+a4qC7Gv7PctIUGriMlpagMy409nTeEuKJZ7/l2yEeE5cBr47d89raBMyWb0+zNMa8mRVu58RXLeVqn2+CudTOyjGwPgkMdoYYCdeL0TlPxA+EDGKsL2+UwRxPlRlZRwuoA5Vb5oAHnbW+PwiieYqksBnfKAB3EKas+5sxOQjbB6M5bFiQZkg==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(366004)(136003)(396003)(376002)(346002)(451199015)(31686004)(38100700002)(83380400001)(38070700005)(478600001)(6486002)(44832011)(2906002)(8936002)(5660300002)(7416002)(53546011)(36756003)(31696002)(4744005)(186003)(71200400001)(66946007)(66446008)(66556008)(66476007)(64756008)(76116006)(6506007)(91956017)(8676002)(122000001)(4326008)(110136005)(54906003)(86362001)(2616005)(316002)(6512007)(41300700001)(26005)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?OUMzYytxRm05N3MzdTNrU2syTlRSem9Mdmljd2U0TmU3TWdvSTFtOHRzMVlF?=
+ =?utf-8?B?YTlDc2F2ZUpDMCtiNnJiU2hLUGJza2JqSmJVT0lIb2FlUnE4WE1MMTRWaDFT?=
+ =?utf-8?B?T2ZnR0tPckQzTUtVNlBHc21HbmIyK2NEWFZYb3BlVkZYZ0syam1qY3ROaUti?=
+ =?utf-8?B?K3VuR2Q3SktuMzlFa3FTTDU5UjUrSEErdFJ6Ykt4OTVIdm5DZ0RYQ1ZSWVY5?=
+ =?utf-8?B?RGJDQXh2cjJ1NWltV0R6REVLTHh6WmRzaThCUEhpVnpPRys4SUxlSnBvSklI?=
+ =?utf-8?B?TVpRbzRQaHhkZWpOOVZoejBMOUNNbDl4RnBGQy9LRk81aFd6SEtHRlNPT3V4?=
+ =?utf-8?B?TU1iNGZFaFNQZVRnU1BOTkRvZ1J0NkFDV3NlQXNDc21UNnpsTlBUQUVSeHBa?=
+ =?utf-8?B?V0RxQUIwSmNObnJnM3g0ZlRwL1lOMC9jNVMvd1dnSG0xd1FDaXY4eGVZYVQ5?=
+ =?utf-8?B?WFZJeW5UUVhrTFFXY04xSDZwcllwbUl4ckswZzZlZ3M1dlAzQVNxcXlCSXdx?=
+ =?utf-8?B?VjJhSDhnSmZ5RUl2S2kwQWNLTkZKU3pyTkQwSzUxUWFhN0d6WDROaVRxdTRM?=
+ =?utf-8?B?SWtiWW5oUlRvZmFQQ3h5TldzcGVhSEUrenJqeDN0UmZsSTRqYW5ET3pOQ09W?=
+ =?utf-8?B?QXJ6Vm9lUk1DeVdsbFV6emxZMmRESjBzcThtTXorNnNTMkhkOXB3OEgvOXFp?=
+ =?utf-8?B?NzNveGNpNFRsbEFWNnhxTGU5ajdITEtoSDlveDUyU2lhNmZKYzFYNXZ3TVht?=
+ =?utf-8?B?RDdQdG1Xa1BVUWZkTGdOamhSbWhsSjV2cGE3OUZ4ZUdienprWG5MRGFEMldL?=
+ =?utf-8?B?NitlZE1Dd3liMmRpdjU2SkdBbkZjQkJNSGI1d002dmJTdG1iZlpYOEhiRzJj?=
+ =?utf-8?B?enRHRlBwZHlJSW40a2tZQW1KanlsdzNmTFpKNzhHTXF3VFArbVZTVVVqT3dl?=
+ =?utf-8?B?TGNTcjBxa2grRmpiQ3dLTXdqSU55Y3k4N1BXRDVYZ05DSTlFRlR1YmtSNklB?=
+ =?utf-8?B?MnRZZEoyWUQxd0E0S1BHV0VpTTJaZ1FRSjRvbHhrQkxZQUVzQVhudFBRMzBD?=
+ =?utf-8?B?T0RtdUtoekNtd0RMbUNXa0hoWUwza2FDampLSm5YWTV2WWZLczRzMnh5WExG?=
+ =?utf-8?B?dEtGU1pmeXF1L092elF1ZjNpK0hnOVFaZC9VZ2p0MHl5YVhBbUk2dDJ2cmh2?=
+ =?utf-8?B?N3QyNmcvbWRVSVIrZ3NzczZmeTFhY09VbTM4Z2xjcFVaRUtMMy80bmpVMWRl?=
+ =?utf-8?B?ZmRCUlB3U1FjMURMMTRiUTlkb3JYVThwVXIxRUJMeTc4Y3lEMjNSbHF5cHQx?=
+ =?utf-8?B?RkJYU1J5Y1ZUbkxmRzdqSmxMNnhSQytDcE1mUEliZ0dYa3NEUzRXWWsyNkx0?=
+ =?utf-8?B?WVY2SThLWEQ2RGUxSGdwcjArWlBZdUdDcmZGVkxGTUtqcVhaMFRNcUhJVlpn?=
+ =?utf-8?B?T0svcG0zb25UQ1dJQ1U4ak5EU3JPc2xHb2dtVFk5K0xLSzR0dXp0VU1yekp0?=
+ =?utf-8?B?ZHB1SVdyU1l2V0plazRJREo4TFROSVFhWEhULzRxUGZOMFgrUTBtYXlTYnJv?=
+ =?utf-8?B?VUNwUG5IbmlFUmcwUGZOblFIbUNyeFlPZjB4REcyTlNIS0tuU2dEaHBKMHor?=
+ =?utf-8?B?U21vaGc5R3E1MUVtRmdhR1kxS3NHTXh3a1BhQVBWVVFmSmRhQ05sTHZFVzNT?=
+ =?utf-8?B?MmZwWXN2T1phanNWc1crOFcwMlJlWWdyb3hZejZEM3kwamxBS3ExdGo4UHp1?=
+ =?utf-8?B?dmg1enN2d29HaytkRW0rZ281M1Exd0NvVDNma1BQQWtRb2U4ZjdOOEVLN2lL?=
+ =?utf-8?B?c2FDMWswN1BGNVVncWVKZkJkVEs4ZWJzb3FPOHI1LzE3OG0vQWY0eWV1aGpT?=
+ =?utf-8?B?cUd2OEc4WEZuNFE4bTRSWU1KL0p5SkpOZzJtTE5OWDFKT3dsdnVDSkRLOWFn?=
+ =?utf-8?B?UytVdHBKMFJQa3E5czkzcE1NenNhZ05OdTBRUm8ySVJLUEdIdjUzQTY4UE5O?=
+ =?utf-8?B?M2tIMzFmeG4wRFRNSjZoSkVKOEVQa21laWdCZmdHZDMvRlcyM0tQTmt3ZVVv?=
+ =?utf-8?B?SmwvT2U0eThxSjhuSnN3YWRDSjkzd2ZRV2xvQ3Rheit4V3JsVCtnakhTV3Zr?=
+ =?utf-8?B?U3B4Zk5ONi9LZGEyM2tmQTlHQmpOL3ZxZytuMlJYaHJmMjNVQTQyeW1La1Y4?=
+ =?utf-8?B?bXc9PQ==?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <211A2B86C1ACD0438AB2605F15B6E781@FRAP264.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221207135922.314827-14-manivannan.sadhasivam@linaro.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-OriginatorOrg: csgroup.eu
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2310b6c3-abb2-4283-d492-08dad86fda40
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Dec 2022 16:26:54.0685
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 9914def7-b676-4fda-8815-5d49fb3b45c8
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: AJOQ6v+YRlbFr5qzsmXhZcbwRBYdsjv+KAUcAlmoJWA9+hK42LYTbmTeg934Bv0GX2nkfjVg+RgJ664V2tptd0R6m0XZEXxsM0FxMsm2cOY=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MRZP264MB2987
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 07, 2022 at 07:29:22PM +0530, Manivannan Sadhasivam wrote:
-> The Qualcomm LLCC/EDAC drivers were using a fixed register stride for
-> accessing the (Control and Status Registers) CSRs of each LLCC bank.
-> This stride only works for some SoCs like SDM845 for which driver
-> support was initially added.
-> 
-> But the later SoCs use different register stride that vary between the
-> banks with holes in-between. So it is not possible to use a single register
-> stride for accessing the CSRs of each bank. By doing so could result in a
-> crash.
-> 
-> For fixing this issue, let's obtain the base address of each LLCC bank from
-> devicetree and get rid of the fixed stride.
-> 
-> Cc: <stable@vger.kernel.org> # 4.20
-> Fixes: a3134fb09e0b ("drivers: soc: Add LLCC driver")
-> Fixes: 27450653f1db ("drivers: edac: Add EDAC driver support for QCOM SoCs")
-> Reported-by: Parikshit Pareek <quic_ppareek@quicinc.com>
-> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-> ---
->  drivers/edac/qcom_edac.c           | 14 +++----
->  drivers/soc/qcom/llcc-qcom.c       | 64 ++++++++++++++++++------------
->  include/linux/soc/qcom/llcc-qcom.h |  4 +-
->  3 files changed, 44 insertions(+), 38 deletions(-)
-> 
-> diff --git a/drivers/edac/qcom_edac.c b/drivers/edac/qcom_edac.c
-> index 97a27e42dd61..70bd39a91b89 100644
-> --- a/drivers/edac/qcom_edac.c
-> +++ b/drivers/edac/qcom_edac.c
-> @@ -213,7 +213,7 @@ dump_syn_reg_values(struct llcc_drv_data *drv, u32 bank, int err_type)
->  
->  	for (i = 0; i < reg_data.reg_cnt; i++) {
->  		synd_reg = reg_data.synd_reg + (i * 4);
-> -		ret = regmap_read(drv->regmap, drv->offsets[bank] + synd_reg,
-> +		ret = regmap_read(drv->regmap[bank], synd_reg,
->  				  &synd_val);
->  		if (ret)
->  			goto clear;
-> @@ -222,8 +222,7 @@ dump_syn_reg_values(struct llcc_drv_data *drv, u32 bank, int err_type)
->  			    reg_data.name, i, synd_val);
->  	}
->  
-> -	ret = regmap_read(drv->regmap,
-> -			  drv->offsets[bank] + reg_data.count_status_reg,
-> +	ret = regmap_read(drv->regmap[bank], reg_data.count_status_reg,
->  			  &err_cnt);
->  	if (ret)
->  		goto clear;
-> @@ -233,8 +232,7 @@ dump_syn_reg_values(struct llcc_drv_data *drv, u32 bank, int err_type)
->  	edac_printk(KERN_CRIT, EDAC_LLCC, "%s: Error count: 0x%4x\n",
->  		    reg_data.name, err_cnt);
->  
-> -	ret = regmap_read(drv->regmap,
-> -			  drv->offsets[bank] + reg_data.ways_status_reg,
-> +	ret = regmap_read(drv->regmap[bank], reg_data.ways_status_reg,
->  			  &err_ways);
->  	if (ret)
->  		goto clear;
-> @@ -296,8 +294,7 @@ llcc_ecc_irq_handler(int irq, void *edev_ctl)
->  
->  	/* Iterate over the banks and look for Tag RAM or Data RAM errors */
->  	for (i = 0; i < drv->num_banks; i++) {
-> -		ret = regmap_read(drv->regmap,
-> -				  drv->offsets[i] + DRP_INTERRUPT_STATUS,
-> +		ret = regmap_read(drv->regmap[i], DRP_INTERRUPT_STATUS,
->  				  &drp_error);
->  
->  		if (!ret && (drp_error & SB_ECC_ERROR)) {
-> @@ -312,8 +309,7 @@ llcc_ecc_irq_handler(int irq, void *edev_ctl)
->  		if (!ret)
->  			irq_rc = IRQ_HANDLED;
->  
-> -		ret = regmap_read(drv->regmap,
-> -				  drv->offsets[i] + TRP_INTERRUPT_0_STATUS,
-> +		ret = regmap_read(drv->regmap[i], TRP_INTERRUPT_0_STATUS,
->  				  &trp_error);
->  
->  		if (!ret && (trp_error & SB_ECC_ERROR)) {
-> diff --git a/drivers/soc/qcom/llcc-qcom.c b/drivers/soc/qcom/llcc-qcom.c
-> index 23ce2f78c4ed..7264ac9993e0 100644
-> --- a/drivers/soc/qcom/llcc-qcom.c
-> +++ b/drivers/soc/qcom/llcc-qcom.c
-> @@ -62,8 +62,6 @@
->  #define LLCC_TRP_WRSC_CACHEABLE_EN    0x21f2c
->  #define LLCC_TRP_ALGO_CFG8	      0x21f30
->  
-> -#define BANK_OFFSET_STRIDE	      0x80000
-> -
->  #define LLCC_VERSION_2_0_0_0          0x02000000
->  #define LLCC_VERSION_2_1_0_0          0x02010000
->  #define LLCC_VERSION_4_1_0_0          0x04010000
-> @@ -927,6 +925,7 @@ static int qcom_llcc_probe(struct platform_device *pdev)
->  	const struct llcc_slice_config *llcc_cfg;
->  	u32 sz;
->  	u32 version;
-> +	struct regmap *regmap;
->  
->  	drv_data = devm_kzalloc(dev, sizeof(*drv_data), GFP_KERNEL);
->  	if (!drv_data) {
-> @@ -934,12 +933,46 @@ static int qcom_llcc_probe(struct platform_device *pdev)
->  		goto err;
->  	}
->  
-> -	drv_data->regmap = qcom_llcc_init_mmio(pdev, "llcc_base");
-> -	if (IS_ERR(drv_data->regmap)) {
-> -		ret = PTR_ERR(drv_data->regmap);
-> +	/* Initialize the first LLCC bank regmap */
-> +	regmap = qcom_llcc_init_mmio(pdev, "llcc0_base");
-> +	if (IS_ERR(regmap)) {
-> +		ret = PTR_ERR(regmap);
-> +		goto err;
-> +	}
-> +
-> +	cfg = of_device_get_match_data(&pdev->dev);
-> +
-> +	ret = regmap_read(regmap, cfg->reg_offset[LLCC_COMMON_STATUS0],
-> +			  &num_banks);
-
-Don't be afraid of leaving this line unwrapped.
-
-There's a few lines changed above that would be easier to read if
-allowed beyond 80 chars as well.
-
-> +	if (ret)
-> +		goto err;
-> +
-> +	num_banks &= LLCC_LB_CNT_MASK;
-> +	num_banks >>= LLCC_LB_CNT_SHIFT;
-> +	drv_data->num_banks = num_banks;
-> +
-> +	drv_data->regmap = devm_kcalloc(dev, num_banks, sizeof(*drv_data->regmap), GFP_KERNEL);
-> +	if (!drv_data->regmap) {
-> +		ret = -ENOMEM;
->  		goto err;
->  	}
->  
-> +	drv_data->regmap[0] = regmap;
-> +
-> +	/* Initialize rest of LLCC bank regmaps */
-> +	for (i = 1; i < num_banks; i++) {
-> +		char *base = kasprintf(GFP_KERNEL, "llcc%d_base", i);
-
-As mentioned in the binding, I think you should obtain the regions by
-index instead of name.
-
-> +
-> +		drv_data->regmap[i] = qcom_llcc_init_mmio(pdev, base);
-> +		if (IS_ERR(drv_data->regmap[i])) {
-> +			ret = PTR_ERR(drv_data->regmap[i]);
-> +			kfree(base);
-> +			goto err;
-> +		}
-> +
-> +		kfree(base);
-> +	}
-> +
->  	drv_data->bcast_regmap =
->  		qcom_llcc_init_mmio(pdev, "llcc_broadcast_base");
->  	if (IS_ERR(drv_data->bcast_regmap)) {
-> @@ -947,8 +980,6 @@ static int qcom_llcc_probe(struct platform_device *pdev)
->  		goto err;
->  	}
->  
-> -	cfg = of_device_get_match_data(&pdev->dev);
-> -
->  	/* Extract version of the IP */
->  	ret = regmap_read(drv_data->bcast_regmap, cfg->reg_offset[LLCC_COMMON_HW_INFO],
->  			  &version);
-> @@ -957,15 +988,6 @@ static int qcom_llcc_probe(struct platform_device *pdev)
->  
->  	drv_data->version = version;
->  
-> -	ret = regmap_read(drv_data->regmap, cfg->reg_offset[LLCC_COMMON_STATUS0],
-> -			  &num_banks);
-> -	if (ret)
-> -		goto err;
-> -
-> -	num_banks &= LLCC_LB_CNT_MASK;
-> -	num_banks >>= LLCC_LB_CNT_SHIFT;
-> -	drv_data->num_banks = num_banks;
-> -
->  	llcc_cfg = cfg->sct_data;
->  	sz = cfg->size;
->  
-> @@ -973,16 +995,6 @@ static int qcom_llcc_probe(struct platform_device *pdev)
->  		if (llcc_cfg[i].slice_id > drv_data->max_slices)
->  			drv_data->max_slices = llcc_cfg[i].slice_id;
->  
-> -	drv_data->offsets = devm_kcalloc(dev, num_banks, sizeof(u32),
-> -							GFP_KERNEL);
-> -	if (!drv_data->offsets) {
-> -		ret = -ENOMEM;
-> -		goto err;
-> -	}
-> -
-> -	for (i = 0; i < num_banks; i++)
-> -		drv_data->offsets[i] = i * BANK_OFFSET_STRIDE;
-> -
->  	drv_data->bitmap = devm_bitmap_zalloc(dev, drv_data->max_slices,
->  					      GFP_KERNEL);
->  	if (!drv_data->bitmap) {
-> diff --git a/include/linux/soc/qcom/llcc-qcom.h b/include/linux/soc/qcom/llcc-qcom.h
-> index ad1fd718169d..4b8bf585f9ba 100644
-> --- a/include/linux/soc/qcom/llcc-qcom.h
-> +++ b/include/linux/soc/qcom/llcc-qcom.h
-> @@ -129,12 +129,11 @@ struct llcc_edac_reg_offset {
-
-Please also update @regmap description.
-
->   * @max_slices: max slices as read from device tree
->   * @num_banks: Number of llcc banks
->   * @bitmap: Bit map to track the active slice ids
-> - * @offsets: Pointer to the bank offsets array
->   * @ecc_irq: interrupt for llcc cache error detection and reporting
->   * @version: Indicates the LLCC version
->   */
->  struct llcc_drv_data {
-> -	struct regmap *regmap;
-> +	struct regmap **regmap;
-
-How about making this plural, to reflect that it's now a set of regmaps?
-
-Regards,
-Bjorn
-
->  	struct regmap *bcast_regmap;
->  	const struct llcc_slice_config *cfg;
->  	const struct llcc_edac_reg_offset *edac_reg_offset;
-> @@ -143,7 +142,6 @@ struct llcc_drv_data {
->  	u32 max_slices;
->  	u32 num_banks;
->  	unsigned long *bitmap;
-> -	u32 *offsets;
->  	int ecc_irq;
->  	u32 version;
->  };
-> -- 
-> 2.25.1
-> 
+DQoNCkxlIDA3LzEyLzIwMjIgw6AgMTY6MTgsIE1hdGhpZXUgRGVzbm95ZXJzIGEgw6ljcml0wqA6
+DQo+IE9uIDIwMjItMTItMDYgMjE6MDksIE1pY2hhZWwgRWxsZXJtYW4gd3JvdGU6DQo+PiBNYXRo
+aWV1IERlc25veWVycyA8bWF0aGlldS5kZXNub3llcnNAZWZmaWNpb3MuY29tPiB3cml0ZXM6DQo+
+Pj4gT24gMjAyMi0xMi0wNSAxNzo1MCwgTWljaGFlbCBFbGxlcm1hbiB3cm90ZToNCj4+PiBJTUhP
+IHRoZSBzZWNvbmQgb3B0aW9uIHdvdWxkIGJlIGJldHRlciBiZWNhdXNlIGl0IGRvZXMgbm90IGlu
+Y3JlYXNlIHRoZQ0KPj4+IGtlcm5lbCBpbWFnZSBzaXplIGFzIG11Y2ggYXMgS0FMTFNZTVNfQUxM
+Lg0KPj4NCj4+IFllcyBJIGFncmVlLg0KPj4NCj4+IEV2ZW4gaWYgdGhhdCBkaWQgYnJlYWsgc29t
+ZXRoaW5nLCBhbnkgYnJlYWthZ2Ugd291bGQgYmUgbGltaXRlZCB0bw0KPj4gYXJjaGVzIHdoaWNo
+IHVzZXMgZnVuY3Rpb24gZGVzY3JpcHRvcnMsIHdoaWNoIGFyZSBub3cgYWxsIHJhcmUuDQo+IA0K
+PiBZZXMsIGl0IHdvdWxkIG9ubHkgaW1wYWN0IHRob3NlIGFyY2hlcyB1c2luZyBmdW5jdGlvbiBk
+ZXNjcmlwdG9ycywgd2hpY2ggDQo+IGFyZSBicm9rZW4gdG9kYXkgd2l0aCByZXNwZWN0IHRvIHN5
+c3RlbSBjYWxsIHRyYWNpbmcuIEFyZSB5b3UgYXdhcmUgb2YgDQo+IG90aGVyIGFyY2hpdGVjdHVy
+ZXMgb3RoZXIgdGhhbiBQUEM2NCBFTEYgQUJJIHYxIHN1cHBvcnRlZCBieSB0aGUgTGludXggDQo+
+IGtlcm5lbCB0aGF0IHVzZSBmdW5jdGlvbiBkZXNjcmlwdG9ycyA/DQoNCiQgZ2l0IGdyZXAgInNl
+bGVjdCBIQVZFX0ZVTkNUSU9OX0RFU0NSSVBUT1JTIiBhcmNoLw0KYXJjaC9pYTY0L0tjb25maWc6
+ICAgICAgc2VsZWN0IEhBVkVfRlVOQ1RJT05fREVTQ1JJUFRPUlMNCmFyY2gvcGFyaXNjL0tjb25m
+aWc6ICAgIHNlbGVjdCBIQVZFX0ZVTkNUSU9OX0RFU0NSSVBUT1JTIGlmIDY0QklUDQphcmNoL3Bv
+d2VycGMvS2NvbmZpZzogICBzZWxlY3QgSEFWRV9GVU5DVElPTl9ERVNDUklQVE9SUyAgICAgICAg
+aWYgDQpQUEM2NF9FTEZfQUJJX1YxDQoNCg0KQ2hyaXN0b3BoZQ0K
