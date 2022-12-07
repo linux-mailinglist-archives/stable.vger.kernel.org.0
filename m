@@ -2,145 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 727E46451C3
-	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 03:09:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1D9E6451E9
+	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 03:20:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229506AbiLGCJV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Dec 2022 21:09:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48928 "EHLO
+        id S229562AbiLGCUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Dec 2022 21:20:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229486AbiLGCJV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 21:09:21 -0500
-Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92E030F72;
-        Tue,  6 Dec 2022 18:09:19 -0800 (PST)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        with ESMTP id S229500AbiLGCUW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Dec 2022 21:20:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CB7350D69;
+        Tue,  6 Dec 2022 18:20:22 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4NRgh83Bwsz4x1H;
-        Wed,  7 Dec 2022 13:09:12 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1670378955;
-        bh=qPerjcvxj//99SC+VDDOAu42pbFJqpbWCha/nmMfhU8=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=QM4X/72HsNwe9GIAqJf/W3dEcno9m5vWla3jduhaunahlWgrN0o87ypohobZgUo1N
-         fS4lotKKdSDs+mOGFhr3eZVjpmaQL+/MiGsdQ2KYY3cqfO0MvebGoPkGBOgTBUvsRg
-         JMoblaoJN2VUJN6fRJM1AIXRINgrtOg+PFxdz0OauFEcZ86hpdKlu3S7Z/q75tE1sy
-         mmQmlOeB5mJpRnbBgD+1q9wpmXKbIwCVE3GfHUhFrTK0FJ0aQLkHAJHV8hn1HXgEDh
-         83k4E+aVSgLCyC85MHSO0IWj2s53AdYldwOlVuHc4E0ioytSnBeAtTo7GViPhSLSOl
-         Nb6WZk9SolZZg==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Michael Jeanson <mjeanson@efficios.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Steven Rostedt <rostedt@goodmis.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michal Suchanek <msuchanek@suse.de>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] powerpc/ftrace: fix syscall tracing on PPC64_ELF_ABI_V1
-In-Reply-To: <484763aa-e77b-b599-4786-ef4cdf16d7bd@efficios.com>
-References: <20221201161442.2127231-1-mjeanson@efficios.com>
- <87pmcys9ae.fsf@mpe.ellerman.id.au>
- <d5dd1491-5d59-7987-9b5b-83f5fb1b29ee@efficios.com>
- <219580de-7473-f142-5ef2-1ed40e41d13d@csgroup.eu>
- <323f83c7-38fe-8a12-d77a-0a7249aad316@efficios.com>
- <dfe0b9ba-828d-e1a5-f9a3-416c6b5b1cf3@efficios.com>
- <87mt81sbxb.fsf@mpe.ellerman.id.au>
- <484763aa-e77b-b599-4786-ef4cdf16d7bd@efficios.com>
-Date:   Wed, 07 Dec 2022 13:09:05 +1100
-Message-ID: <87cz8wrmm6.fsf@mpe.ellerman.id.au>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DD4C611E6;
+        Wed,  7 Dec 2022 02:20:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFB85C433D7;
+        Wed,  7 Dec 2022 02:20:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1670379621;
+        bh=M7DAFgr5ThBCqevusk/kXC0uBMdqkqiwzdl12Q/57kw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rFPttW95JTwhqxZFIY8aR9h89fCfvy0+8zfWbk4Q9vxKFtM/rNjAZ9iAQ3Rts4vML
+         AQcYlGB1fwroNhmKI9Ydv6DkEEO1xjeHcPUEHSU/9Axf7fgWDV9jLz7i3HrkIPqltK
+         9ai4HwyLFrfyUZiqft0qI05s7IyyGpsVbw/ozpxCqGwTSlWNGvd2kTka1yQeOGLYtM
+         e9YOhUWqAuNO+ctyN7JZ6btBIYaj3X+ZUowF1rPBhlgAl4izdX3aPAhaBCAB/84d9t
+         4R/fDHWV5PRGDbvfdPkOw67hdFfomR9Tk4z2V/biDNAQpycQxaUqEsfzd577/3Vzs7
+         i+E39xfpUIwgQ==
+Date:   Tue, 6 Dec 2022 21:20:18 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        "David S . Miller" <davem@davemloft.net>, edumazet@google.com,
+        pabeni@redhat.com, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 6.0 09/13] net: loopback: use
+ NET_NAME_PREDICTABLE for name_assign_type
+Message-ID: <Y4/4Yts6nwDCqC1q@sashalap>
+References: <20221206094916.987259-1-sashal@kernel.org>
+ <20221206094916.987259-9-sashal@kernel.org>
+ <20221206114956.4c5a3605@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20221206114956.4c5a3605@kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Mathieu Desnoyers <mathieu.desnoyers@efficios.com> writes:
-> On 2022-12-05 17:50, Michael Ellerman wrote:
->> Michael Jeanson <mjeanson@efficios.com> writes:
->>> On 2022-12-05 15:11, Michael Jeanson wrote:
->>>>>>> Michael Jeanson <mjeanson@efficios.com> writes:
->>>>>>>> In v5.7 the powerpc syscall entry/exit logic was rewritten in C, on
->>>>>>>> PPC64_ELF_ABI_V1 this resulted in the symbols in the syscall table
->>>>>>>> changing from their dot prefixed variant to the non-prefixed ones.
->>>>>>>>
->>>>>>>> Since ftrace prefixes a dot to the syscall names when matching them to
->>>>>>>> build its syscall event list, this resulted in no syscall events being
->>>>>>>> available.
->>>>>>>>
->>>>>>>> Remove the PPC64_ELF_ABI_V1 specific version of
->>>>>>>> arch_syscall_match_sym_name to have the same behavior across all powerpc
->>>>>>>> variants.
->>>>>>>
->>>>>>> This doesn't seem to work for me.
->>>>>>>
->>>>>>> Event with it applied I still don't see anything in
->>>>>>> /sys/kernel/debug/tracing/events/syscalls
->>>>>>>
->>>>>>> Did we break it in some other way recently?
->>>>>>>
->>>>>>> cheers
->>>
->>> I did some further testing, my config also enabled KALLSYMS_ALL, when I remove
->>> it there is indeed no syscall events.
->> 
->> Aha, OK that explains it I guess.
->> 
->> I was using ppc64_guest_defconfig which has ABI_V1 and FTRACE_SYSCALLS,
->> but does not have KALLSYMS_ALL. So I guess there's some other bug
->> lurking in there.
+On Tue, Dec 06, 2022 at 11:49:56AM -0800, Jakub Kicinski wrote:
+>On Tue,  6 Dec 2022 04:49:12 -0500 Sasha Levin wrote:
+>> From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+>>
+>> [ Upstream commit 31d929de5a112ee1b977a89c57de74710894bbbf ]
+>>
+>> When the name_assign_type attribute was introduced (commit
+>> 685343fc3ba6, "net: add name_assign_type netdev attribute"), the
+>> loopback device was explicitly mentioned as one which would make use
+>> of NET_NAME_PREDICTABLE:
+>>
+>>     The name_assign_type attribute gives hints where the interface name of a
+>>     given net-device comes from. These values are currently defined:
+>> ...
+>>       NET_NAME_PREDICTABLE:
+>>         The ifname has been assigned by the kernel in a predictable way
+>>         that is guaranteed to avoid reuse and always be the same for a
+>>         given device. Examples include statically created devices like
+>>         the loopback device [...]
+>>
+>> Switch to that so that reading /sys/class/net/lo/name_assign_type
+>> produces something sensible instead of returning -EINVAL.
 >
-> I don't have the setup handy to validate it, but I suspect it is caused 
-> by the way scripts/kallsyms.c:symbol_valid() checks whether a symbol 
-> entry needs to be integrated into the assembler output when 
-> --all-symbols is not specified. It only keeps symbols which addresses 
-> are in the text range. On PPC64_ELF_ABI_V1, this means only the 
-> dot-prefixed symbols will be kept (those point to the function begin), 
-> leaving out the non-dot-prefixed symbols (those point to the function 
-> descriptors).
+>Yeah... we should have applied it to -next, I think backporting it is
+>a good idea but I wish it had more time in the -next tree since it's
+>a "uAPI alignment" :(
+>
+>Oh, well, very unlikely it will break anything, tho, so let's do it.
 
-OK. So I guess it never worked without KALLSYMS_ALL.
+Want me to push it back a week to the next batch? It'll give it two
+weeks instead of the usual week.
 
-It seems like most distros enable KALLSYMS_ALL, so I guess that's why
-we've never noticed.
-
-> So I see two possible solutions there: either we ensure that 
-> FTRACE_SYSCALLS selects KALLSYMS_ALL on PPC64_ELF_ABI_V1, or we modify 
-> scripts/kallsyms.c:symbol_valid() to also include function descriptor 
-> symbols. This would mean accepting symbols pointing into the .opd ELF 
-> section.
-
-My only worry is that will cause some other breakage, because .opd
-symbols are not really "text" in the normal sense, ie. you can't execute
-them directly.
-
-On the other hand the help for KALLSYMS_ALL says:
-
-  "Normally kallsyms only contains the symbols of functions"
-
-But without .opd included that's not really true. In practice it
-probably doesn't really matter, because eg. backtraces will point to dot
-symbols which can be resolved.
-
-> IMHO the second option would be better because it does not increase the 
-> kernel image size as much as KALLSYMS_ALL.
-
-Yes I agree.
-
-Even if that did break something, any breakage would be limited to
-arches which uses function descriptors, which are now all rare.
-
-Relatedly we have a patch in next to optionally use ABIv2 for 64-bit big
-endian builds.
-
-cheers
+-- 
+Thanks,
+Sasha
