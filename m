@@ -2,168 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8174646692
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 02:41:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB909646731
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 03:44:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229724AbiLHBlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Dec 2022 20:41:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56068 "EHLO
+        id S229829AbiLHCoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Dec 2022 21:44:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229694AbiLHBlH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 20:41:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB3964E695;
-        Wed,  7 Dec 2022 17:41:05 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50F0761D23;
-        Thu,  8 Dec 2022 01:41:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8A16C4347C;
-        Thu,  8 Dec 2022 01:41:04 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.96)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1p35uJ-000FSx-2H;
-        Wed, 07 Dec 2022 20:41:03 -0500
-Message-ID: <20221208014103.573704155@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Wed, 07 Dec 2022 20:40:43 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     "John Warthog9 Hawley" <warthog9@kernel.org>,
-        stable@vger.kernel.org,
-        "John Warthog9 Hawley (VMware)" <warthog9@eaglescrag.net>
-Subject: [for-next][PATCH 2/2] kest.pl: Fix grub2 menu handling for rebooting
-References: <20221208014041.842742311@goodmis.org>
+        with ESMTP id S229501AbiLHCog (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 21:44:36 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F382154354;
+        Wed,  7 Dec 2022 18:44:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=RgW1DCuq+lbWReQD6T0I79Mf1D+OEQXuPYzr5eUbe4A=; b=r2JHwqeZeDc0z6t4qVHOdSQCHT
+        rh2KbvwCmv7qnKXneE8ohfxnznX7OLUBcQ/gRyrd8cVI+xsseo7S1KvXVsHGBGVrbACwxyLfxvvy5
+        bj7QNkDw3YAv3M7fTS1NJBBF6p4+U3zv0ja/yKWLNqlIfCX68d706B9syo1ZdKE8aZ0gdE3TKUyl0
+        V66xmuHHKloHXETm4wikHsimu2QZffjJoSB7t3DQZ7BZ2LqdMRseyINOD4bHPBTXe9doDvjcAo8os
+        S6zkVP+aXNZpT9zT453l/0gUxAmGTboMi1/pPpFAPb7ZUOrXqfumyMT/hTp/USqnBWwrnZJOd4rTD
+        cViAH5wA==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1p36tk-000UPb-VQ; Thu, 08 Dec 2022 02:44:32 +0000
+Date:   Wed, 7 Dec 2022 18:44:32 -0800
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Petr Mladek <pmladek@suse.com>
+Cc:     Petr Pavlu <petr.pavlu@suse.com>, prarit@redhat.com,
+        david@redhat.com, mwilck@suse.com, linux-modules@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] module: Don't wait for GOING modules
+Message-ID: <Y5FPkEgEbDlVXkRK@bombadil.infradead.org>
+References: <20221205103557.18363-1-petr.pavlu@suse.com>
+ <Y45MXVrGNkY/bGSl@alley>
+ <d528111b-4caa-e292-59f4-4ce1eab1f27c@suse.com>
+ <Y5CuCVe02W5Ni/Fc@alley>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y5CuCVe02W5Ni/Fc@alley>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+On Wed, Dec 07, 2022 at 04:15:21PM +0100, Petr Mladek wrote:
+> Reviewed-by: Petr Mladek <pmladek@suse.com>
 
-grub2 has submenus where to use grub-reboot, it requires:
+Queued onto modules-next.
 
-  grub-reboot X>Y
+> Of course, the ideal solution would be to avoid the multiple
+> loads in the first place. AFAIK, everything starts in the kernel
+> that sends the same udev events for each CPU...
 
-where X is the main index and Y is the submenu. Thus if you have:
+Fixes go first, *then we can address enhancements. I have some old
+fixes I can send after htis is merged. I believe folks have others.
 
-menuentry 'Debian GNU/Linux' --class debian --class gnu-linux ...
-	[...]
-}
-submenu 'Advanced options for Debian GNU/Linux' $menuentry_id_option ...
-        menuentry 'Debian GNU/Linux, with Linux 6.0.0-4-amd64' --class debian --class gnu-linux ...
-                [...]
-        }
-        menuentry 'Debian GNU/Linux, with Linux 6.0.0-4-amd64 (recovery mode)' --class debian --class gnu-linux ...
-		[...]
-        }
-        menuentry 'Debian GNU/Linux, with Linux test' --class debian --class gnu-linux ...
-                [...]
-        }
-
-And wanted to boot to the "Linux test" kernel, you need to run:
-
- # grub-reboot 1>2
-
-As 1 is the second top menu (the submenu) and 2 is the third of the sub
-menu entries.
-
-Have the grub.cfg parsing for grub2 handle such cases.
-
-Cc: stable@vger.kernel.org
-Fixes: a15ba91361d46 ("ktest: Add support for grub2")
-Reviewed-by: John 'Warthog9' Hawley (VMware) <warthog9@eaglescrag.net>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
----
- tools/testing/ktest/ktest.pl | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
-
-diff --git a/tools/testing/ktest/ktest.pl b/tools/testing/ktest/ktest.pl
-index d391bf7abeee..1737c59e4ff6 100755
---- a/tools/testing/ktest/ktest.pl
-+++ b/tools/testing/ktest/ktest.pl
-@@ -1963,7 +1963,7 @@ sub run_scp_mod {
- 
- sub _get_grub_index {
- 
--    my ($command, $target, $skip) = @_;
-+    my ($command, $target, $skip, $submenu) = @_;
- 
-     return if (defined($grub_number) && defined($last_grub_menu) &&
- 	$last_grub_menu eq $grub_menu && defined($last_machine) &&
-@@ -1980,11 +1980,16 @@ sub _get_grub_index {
- 
-     my $found = 0;
- 
-+    my $submenu_number = 0;
-+
-     while (<IN>) {
- 	if (/$target/) {
- 	    $grub_number++;
- 	    $found = 1;
- 	    last;
-+	} elsif (defined($submenu) && /$submenu/) {
-+		$submenu_number++;
-+		$grub_number = -1;
- 	} elsif (/$skip/) {
- 	    $grub_number++;
- 	}
-@@ -1993,6 +1998,9 @@ sub _get_grub_index {
- 
-     dodie "Could not find '$grub_menu' through $command on $machine"
- 	if (!$found);
-+    if ($submenu_number > 0) {
-+	$grub_number = "$submenu_number>$grub_number";
-+    }
-     doprint "$grub_number\n";
-     $last_grub_menu = $grub_menu;
-     $last_machine = $machine;
-@@ -2003,6 +2011,7 @@ sub get_grub_index {
-     my $command;
-     my $target;
-     my $skip;
-+    my $submenu;
-     my $grub_menu_qt;
- 
-     if ($reboot_type !~ /^grub/) {
-@@ -2017,8 +2026,9 @@ sub get_grub_index {
- 	$skip = '^\s*title\s';
-     } elsif ($reboot_type eq "grub2") {
- 	$command = "cat $grub_file";
--	$target = '^menuentry.*' . $grub_menu_qt;
--	$skip = '^menuentry\s|^submenu\s';
-+	$target = '^\s*menuentry.*' . $grub_menu_qt;
-+	$skip = '^\s*menuentry';
-+	$submenu = '^\s*submenu\s';
-     } elsif ($reboot_type eq "grub2bls") {
- 	$command = $grub_bls_get;
- 	$target = '^title=.*' . $grub_menu_qt;
-@@ -2027,7 +2037,7 @@ sub get_grub_index {
- 	return;
-     }
- 
--    _get_grub_index($command, $target, $skip);
-+    _get_grub_index($command, $target, $skip, $submenu);
- }
- 
- sub wait_for_input {
-@@ -2090,7 +2100,7 @@ sub reboot_to {
-     if ($reboot_type eq "grub") {
- 	run_ssh "'(echo \"savedefault --default=$grub_number --once\" | grub --batch)'";
-     } elsif (($reboot_type eq "grub2") or ($reboot_type eq "grub2bls")) {
--	run_ssh "$grub_reboot $grub_number";
-+	run_ssh "$grub_reboot \"'$grub_number'\"";
-     } elsif ($reboot_type eq "syslinux") {
- 	run_ssh "$syslinux --once \\\"$syslinux_label\\\" $syslinux_path";
-     } elsif (defined $reboot_script) {
--- 
-2.35.1
-
-
+  Luis
