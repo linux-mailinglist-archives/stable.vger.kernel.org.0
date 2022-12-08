@@ -2,81 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23C95646637
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 02:06:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 744C464667D
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 02:26:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229619AbiLHBGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Dec 2022 20:06:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36932 "EHLO
+        id S229809AbiLHB04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Dec 2022 20:26:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229692AbiLHBGA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 20:06:00 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ABC570633
-        for <stable@vger.kernel.org>; Wed,  7 Dec 2022 17:05:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1670461504;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Rdq13wTSYVFmpzMSVo7RcvYDh43Y9yefY5Jog3FfE6Y=;
-        b=F8eqNSUD6g8brdPvXnIiiiKYm6IhbzOVaRHMN5//ULD+ABWHc6bzAp3aKYr50C1RwJVqu3
-        r5NRKchmckMByfJhMk1ojovjQMhrrYFprXOLZKXdGOcMN4SASM1L4UU+EjB6ByewWgIx8i
-        dkB+dt/+VirAuQNxnENSL0aneWIrbm8=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-259-kRhNArrLPby7NDSA6Y7pUA-1; Wed, 07 Dec 2022 20:05:02 -0500
-X-MC-Unique: kRhNArrLPby7NDSA6Y7pUA-1
-Received: by mail-pg1-f199.google.com with SMTP id x79-20020a633152000000b004785d1cf6bbso15473740pgx.6
-        for <stable@vger.kernel.org>; Wed, 07 Dec 2022 17:05:02 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-language:content-transfer-encoding:in-reply-to:mime-version
-         :user-agent:date:message-id:from:references:cc:to:subject
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Rdq13wTSYVFmpzMSVo7RcvYDh43Y9yefY5Jog3FfE6Y=;
-        b=n54AXRYqavpnqMluEbrOJBYtWQZPyAB+AIEhuJRvXu2Oh3cz/6maduWRsh5+JIg0i4
-         lH+cU/rGFETJp0F0G44h1kmXmE/05IBIBn8zQN/EPA7XVA5VGM9RP5tarIkqnlGCynnI
-         sgXucMGzUFAXAF/tfAW4+AgElMU8Tsv21unt1a4VPW8gRBpGWv0023dgawgJ7hvek0zj
-         XU4mA4k8R21LQX6ziTNE6fVCopiuTYCLw+gzpp0VsV4d6ZC0GCTlz1a+pHn0xCgiMnUu
-         5LD765qyrjpa//QF/YZ2gUDb6kyZ7j1c/z2cdZfnMQis4ZnHN1jYfrvGERlX+lCnbOXd
-         sJ5w==
-X-Gm-Message-State: ANoB5pn+yWz8FjkT5Ps8sgiWupOV5GNxi7Lpy9O6uzUp4Tfbcufw7Pvr
-        8ATKRKxjE1U9yIwQlcbSvtcWd1iXkQkdXxsjqbh3P3Z29B+GDz5+6bnQjwX2e3+p0Q/pUJgqAdH
-        ZYJQvuSsM+Ohf+bxBzkR0Tr6dGYugw97GLGsEb+X2G6jNneUOIwTIQKqM49WySqxBfQ==
-X-Received: by 2002:a05:6a00:1696:b0:566:94d0:8c96 with SMTP id k22-20020a056a00169600b0056694d08c96mr1724852pfc.26.1670461501462;
-        Wed, 07 Dec 2022 17:05:01 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf6rnJHnRNnvlHPghyA5uXTBtqc+Ev7KeTt0LcCh2KPTUgyNarU3cwYPQIRpdGTTlI8Ucb8hUw==
-X-Received: by 2002:a05:6a00:1696:b0:566:94d0:8c96 with SMTP id k22-20020a056a00169600b0056694d08c96mr1724830pfc.26.1670461501057;
-        Wed, 07 Dec 2022 17:05:01 -0800 (PST)
-Received: from [10.72.12.134] ([43.228.180.230])
-        by smtp.gmail.com with ESMTPSA id z20-20020aa79f94000000b0056be4dbd4besm14135412pfr.111.2022.12.07.17.04.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 07 Dec 2022 17:05:00 -0800 (PST)
-Subject: Re: [PATCH v3] ceph: blocklist the kclient when receiving corrupted
- snap trace
-To:     Ilya Dryomov <idryomov@gmail.com>
-Cc:     ceph-devel@vger.kernel.org, jlayton@kernel.org,
-        mchangir@redhat.com, atomlin@atomlin.com, stable@vger.kernel.org
-References: <20221206125915.37404-1-xiubli@redhat.com>
- <CAOi1vP8hkXZ7w9D5LnMViyjqVCmsKo3H2dg1QpzgHCPuNfvACQ@mail.gmail.com>
- <897fc89b-775f-88ce-1550-90c47220dc18@redhat.com>
- <CAOi1vP8f_qHpPT05yx2X+dbVb28qq+hkpWP988bVcpabU=b+1Q@mail.gmail.com>
-From:   Xiubo Li <xiubli@redhat.com>
-Message-ID: <6d3bdd08-d091-b20b-95bd-d97c7025d75e@redhat.com>
-Date:   Thu, 8 Dec 2022 09:04:51 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
-MIME-Version: 1.0
-In-Reply-To: <CAOi1vP8f_qHpPT05yx2X+dbVb28qq+hkpWP988bVcpabU=b+1Q@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+        with ESMTP id S229755AbiLHB0s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 20:26:48 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C5168E5BD;
+        Wed,  7 Dec 2022 17:26:48 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2B7NuCAB007810;
+        Thu, 8 Dec 2022 01:26:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=0U7NkuOQGqCf+AbL4x1M/DsyzZ0QRdnP/o7uPmqlkzo=;
+ b=YI/uuStUjg7pDRI/JxMxTP/PUa0M4JlR5qYxuLk3KlvJJwyImiUP2l+oWnxaOp4YGljd
+ 3WnTs/MbscctGA/JRulbS6puf5/I6e8aH2gvbkzG87Fn1q7ThdZvuCt+mBUK9kaWQd0K
+ UqJqZeZ004WUCXPuy9dbE1FA3W4kxZCs3hXXO2+DhvUhiXeelnYWxZw2+KSKNZb/HGBG
+ La/b0XVr3grDEXPa6Zj1XVJAQhSt/cjzJiwDxHRE0TAJ8sKck9JGpw04Sfq6nZo2l/Hj
+ ybi2MjVvXCLcKWlgwzZJyUpBVwRBhG+DZcPP6Ouq+ITm1/iBRyrRnu8MjFJEPO5WjvyM 0w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mb4xjsw33-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 08 Dec 2022 01:26:30 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2B818H7q031768;
+        Thu, 8 Dec 2022 01:26:30 GMT
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mb4xjsw24-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 08 Dec 2022 01:26:30 +0000
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.17.1.19/8.16.1.2) with ESMTP id 2B80HMlV019024;
+        Thu, 8 Dec 2022 01:26:28 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([9.208.129.120])
+        by ppma02wdc.us.ibm.com (PPS) with ESMTPS id 3m9nq8f15r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 08 Dec 2022 01:26:28 +0000
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+        by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2B81QRbg8979076
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 8 Dec 2022 01:26:27 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 25C435805E;
+        Thu,  8 Dec 2022 01:26:27 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6A7A458043;
+        Thu,  8 Dec 2022 01:26:26 +0000 (GMT)
+Received: from sig-9-65-245-72.ibm.com (unknown [9.65.245.72])
+        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Thu,  8 Dec 2022 01:26:26 +0000 (GMT)
+Message-ID: <b3d0cfa7f5391968ce332977eb602305cd57e891.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 1/2] evm: Alloc evm_digest in evm_verify_hmac() if
+ CONFIG_VMAP_STACK=y
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        Eric Biggers <ebiggers@kernel.org>
+Cc:     dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Date:   Wed, 07 Dec 2022 20:26:26 -0500
+In-Reply-To: <5813b77edf8f8c6c68da8343b7898f2a5c831077.camel@huaweicloud.com>
+References: <20221201100625.916781-1-roberto.sassu@huaweicloud.com>
+         <20221201100625.916781-2-roberto.sassu@huaweicloud.com>
+         <Y4j4MJzizgEHf4nv@sol.localdomain>
+         <c8ef0ab69635b99d5175eaf4c96bb3a8957c6210.camel@huaweicloud.com>
+         <Y4pIpxbjBdajymBJ@sol.localdomain>
+         <5813b77edf8f8c6c68da8343b7898f2a5c831077.camel@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: fK-L_tPf8ohPEfNIebm3DP5FRfmeWGUV
+X-Proofpoint-ORIG-GUID: E1Mk3SrlRiQhZqnRopE6DLUmU1RfGO4m
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-07_11,2022-12-07_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ bulkscore=0 priorityscore=1501 impostorscore=0 mlxlogscore=999
+ clxscore=1015 malwarescore=0 spamscore=0 suspectscore=0 lowpriorityscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2212080006
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -84,145 +101,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 2022-12-05 at 09:22 +0100, Roberto Sassu wrote:
+> On Fri, 2022-12-02 at 10:49 -0800, Eric Biggers wrote:
+> > On Fri, Dec 02, 2022 at 08:58:21AM +0100, Roberto Sassu wrote:
+> > > On Thu, 2022-12-01 at 10:53 -0800, Eric Biggers wrote:
+> > > > On Thu, Dec 01, 2022 at 11:06:24AM +0100, Roberto Sassu wrote:
+> > > > > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > > 
+> > > > > Commit ac4e97abce9b8 ("scatterlist: sg_set_buf() argument must be in linear
+> > > > > mapping") checks that both the signature and the digest reside in the
+> > > > > linear mapping area.
+> > > > > 
+> > > > > However, more recently commit ba14a194a434c ("fork: Add generic vmalloced
+> > > > > stack support"), made it possible to move the stack in the vmalloc area,
+> > > > > which is not contiguous, and thus not suitable for sg_set_buf() which needs
+> > > > > adjacent pages.
+> > > > > 
+> > > > > Fix this by checking if CONFIG_VMAP_STACK is enabled. If yes, allocate an
+> > > > > evm_digest structure, and use that instead of the in-stack counterpart.
+> > > > > 
+> > > > > Cc: stable@vger.kernel.org # 4.9.x
+> > > > > Fixes: ba14a194a434 ("fork: Add generic vmalloced stack support")
+> > > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > > ---
+> > > > >  security/integrity/evm/evm_main.c | 26 +++++++++++++++++++++-----
+> > > > >  1 file changed, 21 insertions(+), 5 deletions(-)
+> > > > > 
+> > > > > diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+> > > > > index 23d484e05e6f..7f76d6103f2e 100644
+> > > > > --- a/security/integrity/evm/evm_main.c
+> > > > > +++ b/security/integrity/evm/evm_main.c
+> > > > > @@ -174,6 +174,7 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+> > > > >  	struct signature_v2_hdr *hdr;
+> > > > >  	enum integrity_status evm_status = INTEGRITY_PASS;
+> > > > >  	struct evm_digest digest;
+> > > > > +	struct evm_digest *digest_ptr = &digest;
+> > > > >  	struct inode *inode;
+> > > > >  	int rc, xattr_len, evm_immutable = 0;
+> > > > >  
+> > > > > @@ -231,14 +232,26 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+> > > > >  		}
+> > > > >  
+> > > > >  		hdr = (struct signature_v2_hdr *)xattr_data;
+> > > > > -		digest.hdr.algo = hdr->hash_algo;
+> > > > > +
+> > > > > +		if (IS_ENABLED(CONFIG_VMAP_STACK)) {
+> > > > > +			digest_ptr = kmalloc(sizeof(*digest_ptr), GFP_NOFS);
+> > > > > +			if (!digest_ptr) {
+> > > > > +				rc = -ENOMEM;
+> > > > > +				break;
+> > > > > +			}
+> > > > > +		}
+> > > > > +
+> > > > > +		digest_ptr->hdr.algo = hdr->hash_algo;
+> > > > > +
+> > > > >  		rc = evm_calc_hash(dentry, xattr_name, xattr_value,
+> > > > > -				   xattr_value_len, xattr_data->type, &digest);
+> > > > > +				   xattr_value_len, xattr_data->type,
+> > > > > +				   digest_ptr);
+> > > > >  		if (rc)
+> > > > >  			break;
+> > > > >  		rc = integrity_digsig_verify(INTEGRITY_KEYRING_EVM,
+> > > > >  					(const char *)xattr_data, xattr_len,
+> > > > > -					digest.digest, digest.hdr.length);
+> > > > > +					digest_ptr->digest,
+> > > > > +					digest_ptr->hdr.length);
+> > > > >  		if (!rc) {
+> > > > >  			inode = d_backing_inode(dentry);
+> > > > >  
+> > > > > @@ -268,8 +281,11 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+> > > > >  		else
+> > > > >  			evm_status = INTEGRITY_FAIL;
+> > > > >  	}
+> > > > > -	pr_debug("digest: (%d) [%*phN]\n", digest.hdr.length, digest.hdr.length,
+> > > > > -		  digest.digest);
+> > > > > +	pr_debug("digest: (%d) [%*phN]\n", digest_ptr->hdr.length,
+> > > > > +		 digest_ptr->hdr.length, digest_ptr->digest);
+> > > > > +
+> > > > > +	if (digest_ptr && digest_ptr != &digest)
+> > > > > +		kfree(digest_ptr);
+> > > > 
+> > > > What is the actual problem here?  Where is a scatterlist being created from this
+> > > > buffer?  AFAICS it never happens.
+> > > 
+> > > Hi Eric
+> > > 
+> > > it is in public_key_verify_signature(), called by asymmetric_verify()
+> > > and integrity_digsig_verify().
+> > > 
+> > 
+> > Hmm, that's several steps down the stack then.  And not something I had
+> > expected.
+> > 
+> > Perhaps this should be fixed in public_key_verify_signature() instead?  It
+> > already does a kmalloc(), so that allocation size just could be made a bit
+> > larger to get space for a temporary copy of 's' and 'digest'.
+> 
+> Mimi asked to fix it in both IMA and EVM.
 
-On 07/12/2022 22:28, Ilya Dryomov wrote:
-> On Wed, Dec 7, 2022 at 1:35 PM Xiubo Li <xiubli@redhat.com> wrote:
->>
->> On 07/12/2022 18:59, Ilya Dryomov wrote:
->>> On Tue, Dec 6, 2022 at 1:59 PM <xiubli@redhat.com> wrote:
->>>> From: Xiubo Li <xiubli@redhat.com>
->>>>
->>>> When received corrupted snap trace we don't know what exactly has
->>>> happened in MDS side. And we shouldn't continue writing to OSD,
->>>> which may corrupt the snapshot contents.
->>>>
->>>> Just try to blocklist this client and If fails we need to crash the
->>>> client instead of leaving it writeable to OSDs.
->>>>
->>>> Cc: stable@vger.kernel.org
->>>> URL: https://tracker.ceph.com/issues/57686
->>>> Signed-off-by: Xiubo Li <xiubli@redhat.com>
->>>> ---
->>>>
->>>> Thanks Aaron's feedback.
->>>>
->>>> V3:
->>>> - Fixed ERROR: spaces required around that ':' (ctx:VxW)
->>>>
->>>> V2:
->>>> - Switched to WARN() to taint the Linux kernel.
->>>>
->>>>    fs/ceph/mds_client.c |  3 ++-
->>>>    fs/ceph/mds_client.h |  1 +
->>>>    fs/ceph/snap.c       | 25 +++++++++++++++++++++++++
->>>>    3 files changed, 28 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
->>>> index cbbaf334b6b8..59094944af28 100644
->>>> --- a/fs/ceph/mds_client.c
->>>> +++ b/fs/ceph/mds_client.c
->>>> @@ -5648,7 +5648,8 @@ static void mds_peer_reset(struct ceph_connection *con)
->>>>           struct ceph_mds_client *mdsc = s->s_mdsc;
->>>>
->>>>           pr_warn("mds%d closed our session\n", s->s_mds);
->>>> -       send_mds_reconnect(mdsc, s);
->>>> +       if (!mdsc->no_reconnect)
->>>> +               send_mds_reconnect(mdsc, s);
->>>>    }
->>>>
->>>>    static void mds_dispatch(struct ceph_connection *con, struct ceph_msg *msg)
->>>> diff --git a/fs/ceph/mds_client.h b/fs/ceph/mds_client.h
->>>> index 728b7d72bf76..8e8f0447c0ad 100644
->>>> --- a/fs/ceph/mds_client.h
->>>> +++ b/fs/ceph/mds_client.h
->>>> @@ -413,6 +413,7 @@ struct ceph_mds_client {
->>>>           atomic_t                num_sessions;
->>>>           int                     max_sessions;  /* len of sessions array */
->>>>           int                     stopping;      /* true if shutting down */
->>>> +       int                     no_reconnect;  /* true if snap trace is corrupted */
->>>>
->>>>           atomic64_t              quotarealms_count; /* # realms with quota */
->>>>           /*
->>>> diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
->>>> index c1c452afa84d..023852b7c527 100644
->>>> --- a/fs/ceph/snap.c
->>>> +++ b/fs/ceph/snap.c
->>>> @@ -767,8 +767,10 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
->>>>           struct ceph_snap_realm *realm;
->>>>           struct ceph_snap_realm *first_realm = NULL;
->>>>           struct ceph_snap_realm *realm_to_rebuild = NULL;
->>>> +       struct ceph_client *client = mdsc->fsc->client;
->>>>           int rebuild_snapcs;
->>>>           int err = -ENOMEM;
->>>> +       int ret;
->>>>           LIST_HEAD(dirty_realms);
->>>>
->>>>           lockdep_assert_held_write(&mdsc->snap_rwsem);
->>>> @@ -885,6 +887,29 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
->>>>           if (first_realm)
->>>>                   ceph_put_snap_realm(mdsc, first_realm);
->>>>           pr_err("%s error %d\n", __func__, err);
->>>> +
->>>> +       /*
->>>> +        * When receiving a corrupted snap trace we don't know what
->>>> +        * exactly has happened in MDS side. And we shouldn't continue
->>>> +        * writing to OSD, which may corrupt the snapshot contents.
->>>> +        *
->>>> +        * Just try to blocklist this kclient and if it fails we need
->>>> +        * to crash the kclient instead of leaving it writeable.
->>> Hi Xiubo,
->>>
->>> I'm not sure I understand this "let's blocklist ourselves" concept.
->>> If the kernel client shouldn't continue writing to OSDs in this case,
->>> why not just stop issuing writes -- perhaps initiating some equivalent
->>> of a read-only remount like many local filesystems would do on I/O
->>> errors (e.g. errors=remount-ro mode)?
->> I still haven't found how could I handle it this way from ceph layer. I
->> saw they are just marking the inodes as EIO when this happens.
->>
->>> Or, perhaps, all in-memory snap contexts could somehow be invalidated
->>> in this case, making writes fail naturally -- on the client side,
->>> without actually being sent to OSDs just to be nixed by the blocklist
->>> hammer.
->>>
->>> But further, what makes a failure to decode a snap trace special?
->>   From the known tracker the snapid was corrupted in one inode in MDS and
->> then when trying to build the snap trace with the corrupted snapid it
->> will corrupt.
->>
->> And also there maybe other cases.
->>
->>> AFAIK we don't do anything close to this for any other decoding
->>> failure.  Wouldn't "when received corrupted XYZ we don't know what
->>> exactly has happened in MDS side" argument apply to pretty much all
->>> decoding failures?
->> The snap trace is different from other cases. The corrupted snap trace
->> will affect the whole snap realm hierarchy, which will affect the whole
->> inodes in the mount in worst case.
->>
->> This is why I was trying to evict the mount to prevent further IOs.
-> I suspected as much and my other suggestion was to look at somehow
-> invalidating snap contexts/realms.  Perhaps decode out-of-place and on
-> any error set a flag indicating that the snap context can't be trusted
-> anymore?  The OSD client could then check whether this flag is set
-> before admitting the snap context blob into the request message and
-> return an error, effectively rejecting the write.
+At the time I thought the problem was limited to
+integrity_digsig_verify() and just to the digest.
 
-The snap realms are organize as tree-like hierarchy. When the snap trace 
-is corruppted maybe only one of the snap realms are affected and maybe 
-several or all. The problem is when decoding the corrupted snap trace we 
-couldn't know exactly which realms will be affected. If one realm is 
-marked as invalid all the child realms should be affected too.
+I'll leave it up to you and Eric to decide what is the preferable
+solution.
 
-So I don't think this is a better approach than read-only or evicting ones.
+> 
+> > Or at the very least, struct public_key_signature should have a *very* clear
+> > comment saying that the 's' and 'digest' fields must be located in physically
+> > contiguous memory...
+> 
+> That I could add as an additional patch.
 
-Thanks,
+Thanks, the new patch containing the comment looks fine.
 
-- Xiubo
+-- 
+thanks,
 
->
-> Thanks,
->
->                  Ilya
->
+Mimi
 
