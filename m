@@ -2,96 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9D65647017
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 13:53:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83B9F647046
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 13:59:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbiLHMxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 07:53:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52214 "EHLO
+        id S229749AbiLHM7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 07:59:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230132AbiLHMxC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 07:53:02 -0500
-Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7673A37F8F;
-        Thu,  8 Dec 2022 04:53:01 -0800 (PST)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4NSYwW0f9hz4xDn;
-        Thu,  8 Dec 2022 23:52:59 +1100 (AEDT)
-From:   Michael Ellerman <patch-notifications@ellerman.id.au>
-To:     Nicholas Piggin <npiggin@gmail.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Cc:     Jiri Olsa <jolsa@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        linuxppc-dev@lists.ozlabs.org,
-        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Yonghong Song <yhs@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Stanislav Fomichev <sdf@google.com>,
-        linux-kernel@vger.kernel.org, Hao Luo <haoluo@google.com>,
-        stable@vger.kernel.org, KP Singh <kpsingh@kernel.org>,
-        Song Liu <song@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>, bpf@vger.kernel.org
-In-Reply-To: <757acccb7fbfc78efa42dcf3c974b46678198905.1669278887.git.christophe.leroy@csgroup.eu>
-References: <757acccb7fbfc78efa42dcf3c974b46678198905.1669278887.git.christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH v2] powerpc/bpf/32: Fix Oops on tail call tests
-Message-Id: <167050396505.1462730.10974040872245094646.b4-ty@ellerman.id.au>
-Date:   Thu, 08 Dec 2022 23:52:45 +1100
+        with ESMTP id S230111AbiLHM7c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 07:59:32 -0500
+Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BDC08C44A;
+        Thu,  8 Dec 2022 04:59:30 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.30.67.153])
+        by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4NSZ3v4tGlz4f3pFV;
+        Thu,  8 Dec 2022 20:59:23 +0800 (CST)
+Received: from [10.174.176.73] (unknown [10.174.176.73])
+        by APP4 (Coremail) with SMTP id gCh0CgC329is35Fj97d8Bw--.45128S3;
+        Thu, 08 Dec 2022 20:59:26 +0800 (CST)
+Subject: Re: [PATCH 3/9] bfq: Split shared queues on move between cgroups
+To:     Jan Kara <jack@suse.cz>, Yu Kuai <yukuai1@huaweicloud.com>
+Cc:     linux-block@vger.kernel.org,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, stable@vger.kernel.org,
+        "yukuai (C)" <yukuai3@huawei.com>
+References: <20220330123438.32719-1-jack@suse.cz>
+ <20220330124255.24581-3-jack@suse.cz>
+ <89941655-baeb-9696-dc89-0a1f4bc9e8d6@huaweicloud.com>
+ <20221208093733.izj7irhzspmvpxxc@quack3>
+From:   Yu Kuai <yukuai1@huaweicloud.com>
+Message-ID: <5a712ac6-e6c7-0008-bee7-2383cc684c73@huaweicloud.com>
+Date:   Thu, 8 Dec 2022 20:59:24 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20221208093733.izj7irhzspmvpxxc@quack3>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-CM-TRANSID: gCh0CgC329is35Fj97d8Bw--.45128S3
+X-Coremail-Antispam: 1UD129KBjvJXoW7AFy3JF4xXFyUWF1DWw4DJwb_yoW8XFW5pF
+        W3ta4Skr18G3yakw17ur4rJF10qa1fJF43JryFqr1kZrn5Ary8tFnxtFn5XrWFq34v93s2
+        qw18trsrJFs7Za7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkC14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+        rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+        1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
+        6r4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+        Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
+        I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
+        4UM4x0Y48IcVAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCYjI0SjxkI62AI1cAE67vI
+        Y487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI
+        0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y
+        0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxV
+        WUJVW8JwCI42IY6xAIw20EY4v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv67AKxVWUJVW8
+        JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjfUoOJ5UU
+        UUU
+X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 24 Nov 2022 09:37:27 +0100, Christophe Leroy wrote:
-> test_bpf tail call tests end up as:
+Hi
+
+在 2022/12/08 17:37, Jan Kara 写道:
 > 
->   test_bpf: #0 Tail call leaf jited:1 85 PASS
->   test_bpf: #1 Tail call 2 jited:1 111 PASS
->   test_bpf: #2 Tail call 3 jited:1 145 PASS
->   test_bpf: #3 Tail call 4 jited:1 170 PASS
->   test_bpf: #4 Tail call load/store leaf jited:1 190 PASS
->   test_bpf: #5 Tail call load/store jited:1
->   BUG: Unable to handle kernel data access on write at 0xf1b4e000
->   Faulting instruction address: 0xbe86b710
->   Oops: Kernel access of bad area, sig: 11 [#1]
->   BE PAGE_SIZE=4K MMU=Hash PowerMac
->   Modules linked in: test_bpf(+)
->   CPU: 0 PID: 97 Comm: insmod Not tainted 6.1.0-rc4+ #195
->   Hardware name: PowerMac3,1 750CL 0x87210 PowerMac
->   NIP:  be86b710 LR: be857e88 CTR: be86b704
->   REGS: f1b4df20 TRAP: 0300   Not tainted  (6.1.0-rc4+)
->   MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 28008242  XER: 00000000
->   DAR: f1b4e000 DSISR: 42000000
->   GPR00: 00000001 f1b4dfe0 c11d2280 00000000 00000000 00000000 00000002 00000000
->   GPR08: f1b4e000 be86b704 f1b4e000 00000000 00000000 100d816a f2440000 fe73baa8
->   GPR16: f2458000 00000000 c1941ae4 f1fe2248 00000045 c0de0000 f2458030 00000000
->   GPR24: 000003e8 0000000f f2458000 f1b4dc90 3e584b46 00000000 f24466a0 c1941a00
->   NIP [be86b710] 0xbe86b710
->   LR [be857e88] __run_one+0xec/0x264 [test_bpf]
->   Call Trace:
->   [f1b4dfe0] [00000002] 0x2 (unreliable)
->   Instruction dump:
->   XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
->   XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
->   ---[ end trace 0000000000000000 ]---
+> So if this state happens, it would be indeed a problem. But I don't see how
+> it could happen. bics are associated with the process. So t1 will always
+> use bic1, t2 will always use bic2. In bfq_init_rq() we get bfqq either from
+> bic (so it would return bfqq3 for bic1) or we allocate a new queue (that
+> would be some bfqq4). So I see no way how bfqq2 could start pointing to
+> bic1...
+
+
 > 
-> [...]
+> 								Honza
+>
 
-Applied to powerpc/fixes.
+Following is possible scenarios that we derived:
 
-[1/1] powerpc/bpf/32: Fix Oops on tail call tests
-      https://git.kernel.org/powerpc/c/89d21e259a94f7d5582ec675aa445f5a79f347e4
+1) Initial state, two process with io.
 
-cheers
+Process 1       Process 2
+  (BIC1)          (BIC2)
+   |  Λ           |  Λ
+   |  |            |  |
+   V  |            V  |
+   bfqq1           bfqq2
+
+2) bfqq1 is merged to bfqq2, now bfqq2 has two process ref, bfqq2->bic
+    will not be set.
+
+Process 1       Process 2
+  (BIC1)          (BIC2)
+   |               |
+    \-------------\|
+                   V
+   bfqq1           bfqq2(coop)
+
+3) Process 1 exit, then issue io(denoted IOA) from Process 2.
+
+Process 2
+  (BIC1)
+   |  Λ
+   |  |
+   V  |
+bfqq2(coop)
+
+4) Before IOA completed, move Process 2 to another cgroup and issue
+    io.
+
+Process 2
+  (BIC2)
+    Λ
+    |\--------------\
+    |                V
+bfqq2(coop)      bfqq3
+
+Now that BIC2 point to bfqq3, while bfqq2 and bfqq3 both point to BIC2.
+
+5) If all the io are completed and Process 2 exit, BIC2 will be freed,
+    while bfqq2 still ponits to BIC2.
+
+It's easy to construct such scenario, however, I'm not able to trigger
+such UAF yet. It seems hard to let bfqq2 become in_service_queue again
+and access bfqq2->bic in bfq_select_queue.
+
+While I'm organizing the above procedures, I realized that my former
+solution is wrong. Now I think that the right thing to do is to also
+clear bfqq->bic while process ref is decreased to 0.
+
+Thanks,
+Kuai
+
