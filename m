@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D54464796E
-	for <lists+stable@lfdr.de>; Fri,  9 Dec 2022 00:02:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D621647979
+	for <lists+stable@lfdr.de>; Fri,  9 Dec 2022 00:06:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229692AbiLHXCE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 18:02:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47160 "EHLO
+        id S229995AbiLHXGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 18:06:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229545AbiLHXCD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 18:02:03 -0500
+        with ESMTP id S229950AbiLHXGK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 18:06:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90DA17DA68;
-        Thu,  8 Dec 2022 15:02:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC1C898EB1;
+        Thu,  8 Dec 2022 15:05:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C02AB82665;
-        Thu,  8 Dec 2022 23:02:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E85E6C433D2;
-        Thu,  8 Dec 2022 23:01:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 736EFB82664;
+        Thu,  8 Dec 2022 23:05:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AE75C433D2;
+        Thu,  8 Dec 2022 23:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1670540520;
-        bh=GsG/A7gc5EQ38JgYrW8NSLmew1yQwE9wTGXBHbsZUu4=;
+        s=korg; t=1670540755;
+        bh=dmPOv76KkvnxepE7k7KJGDs0L6fyPRiQij0kVYrhW/o=;
         h=Date:To:From:Subject:From;
-        b=bqaq1Y90kOsi+IDgWjiIHv9dP65E9FH1aCwi3T4PPlKdyA6RPKTBiFUvPX3Lg36qt
-         5JtoYmEI0ldgSLbtL7IRGlAXBEzZLLXKTK2YC3Os6Qw7tO7pGvGs7p0dXzYN/FIxhp
-         1/YEAzsAFKdbAvtNgDHcObcQ9qb2Rwr9uPVFE1S0=
-Date:   Thu, 08 Dec 2022 15:01:57 -0800
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        rppt@linux.vnet.ibm.com, nadav.amit@gmail.com, ives@codesandbox.io,
-        david@redhat.com, axelrasmussen@google.com, apopple@nvidia.com,
-        aarcange@redhat.com, peterx@redhat.com, akpm@linux-foundation.org
+        b=JRZHEgVA5XDytsZQvoi3F3qvdfNlYbLH5noAvT3tbVZTAXOOCifi1Q8B6eyu/mewU
+         dpsIrt6mvMuETelwo+SScILgz9lYfWiGuS/fHdetR4mJI7XH4cxMOyKLgCr/Fh2Ivj
+         x3WgNhs0yY5prd0W5UmcgIgWDOWcOTW0nXVlPAEg=
+Date:   Thu, 08 Dec 2022 15:05:52 -0800
+To:     mm-commits@vger.kernel.org, torvalds@linux-foundation.org,
+        stable@vger.kernel.org, songmuchun@bytedance.com,
+        shakeelb@google.com, roman.gushchin@linux.dev, mhocko@kernel.org,
+        jannh@google.com, hannes@cmpxchg.org, tj@kernel.org,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [to-be-updated] mm-migrate-fix-read-only-page-got-writable-when-recover-pte.patch removed from -mm tree
-Message-Id: <20221208230159.E85E6C433D2@smtp.kernel.org>
+Subject: + memcg-fix-possible-use-after-free-in-memcg_write_event_control.patch added to mm-hotfixes-unstable branch
+Message-Id: <20221208230555.0AE75C433D2@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -46,89 +47,136 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The quilt patch titled
-     Subject: mm/migrate: fix read-only page got writable when recover pte
-has been removed from the -mm tree.  Its filename was
-     mm-migrate-fix-read-only-page-got-writable-when-recover-pte.patch
+The patch titled
+     Subject: memcg: fix possible use-after-free in memcg_write_event_control()
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     memcg-fix-possible-use-after-free-in-memcg_write_event_control.patch
 
-This patch was dropped because an updated version will be merged
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/memcg-fix-possible-use-after-free-in-memcg_write_event_control.patch
+
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
 
 ------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: mm/migrate: fix read-only page got writable when recover pte
-Date: Sun, 13 Nov 2022 19:04:46 -0500
+From: Tejun Heo <tj@kernel.org>
+Subject: memcg: fix possible use-after-free in memcg_write_event_control()
+Date: Wed, 7 Dec 2022 16:53:15 -1000
 
-Ives van Hoorne from codesandbox.io reported an issue regarding possible
-data loss of uffd-wp when applied to memfds on heavily loaded systems. 
-The symptom is some read page got data mismatch from the snapshot child
-VMs.
+memcg_write_event_control() accesses the dentry->d_name of the specified
+control fd to route the write call.  As a cgroup interface file can't be
+renamed, it's safe to access d_name as long as the specified file is a
+regular cgroup file.  Also, as these cgroup interface files can't be
+removed before the directory, it's safe to access the parent too.
 
-Here I can also reproduce with a Rust reproducer that was provided by Ives
-that keeps taking snapshot of a 256MB VM, on a 32G system when I initiate
-80 instances I can trigger the issues in ten minutes.
+Prior to 347c4a874710 ("memcg: remove cgroup_event->cft"), there was a
+call to __file_cft() which verified that the specified file is a regular
+cgroupfs file before further accesses.  The cftype pointer returned from
+__file_cft() was no longer necessary and the commit inadvertently dropped
+the file type check with it allowing any file to slip through.  With the
+invarients broken, the d_name and parent accesses can now race against
+renames and removals of arbitrary files and cause use-after-free's.
 
-It turns out that we got some pages write-through even if uffd-wp is
-applied to the pte.
+Fix the bug by resurrecting the file type check in __file_cft().  Now that
+cgroupfs is implemented through kernfs, checking the file operations needs
+to go through a layer of indirection.  Instead, let's check the superblock
+and dentry type.
 
-The problem is, when removing migration entries, we didn't really worry
-about write bit as long as we know it's not a write migration entry.  That
-may not be true, for some memory types (e.g.  writable shmem) mk_pte can
-return a pte with write bit set, then to recover the migration entry to
-its original state we need to explicit wr-protect the pte or it'll has the
-write bit set if it's a read migration entry.  For uffd it can cause
-write-through.
-
-The relevant code on uffd was introduced in the anon support, which is
-commit f45ec5ff16a7 ("userfaultfd: wp: support swap and page migration",
-2020-04-07).  However anon shouldn't suffer from this problem because anon
-should already have the write bit cleared always, so that may not be a
-proper Fixes target, while I'm adding the Fixes to be uffd shmem support.
-
-[peterx@redhat.com: enhance comment]
-  Link: https://lkml.kernel.org/r/Y4jIHureiOd8XjDX@x1n
-Link: https://lkml.kernel.org/r/20221114000447.1681003-2-peterx@redhat.com
-Fixes: b1f9e876862d ("mm/uffd: enable write protection for shmem & hugetlbfs")
-Reported-by: Ives van Hoorne <ives@codesandbox.io>
-Reviewed-by: Alistair Popple <apopple@nvidia.com>
-Tested-by: Ives van Hoorne <ives@codesandbox.io>
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/Y5FRm/cfcKPGzWwl@slm.duckdns.org
+Fixes: 347c4a874710 ("memcg: remove cgroup_event->cft")
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Jann Horn <jannh@google.com>
+Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>	[3.14+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
 
---- a/mm/migrate.c~mm-migrate-fix-read-only-page-got-writable-when-recover-pte
-+++ a/mm/migrate.c
-@@ -213,8 +213,21 @@ static bool remove_migration_pte(struct
- 			pte = pte_mkdirty(pte);
- 		if (is_writable_migration_entry(entry))
- 			pte = maybe_mkwrite(pte, vma);
--		else if (pte_swp_uffd_wp(*pvmw.pte))
-+		else
-+			/*
-+			 * NOTE: mk_pte() can have write bit set per memory
-+			 * type (e.g. shmem), or pte_mkdirty() per archs
-+			 * (e.g., sparc64).  If this is a read migration
-+			 * entry, we need to make sure when we recover the
-+			 * pte from migration entry to present entry the
-+			 * write bit is cleared.
-+			 */
-+			pte = pte_wrprotect(pte);
-+
-+		if (pte_swp_uffd_wp(*pvmw.pte)) {
-+			WARN_ON_ONCE(pte_write(pte));
- 			pte = pte_mkuffd_wp(pte);
-+		}
+--- a/include/linux/cgroup.h~memcg-fix-possible-use-after-free-in-memcg_write_event_control
++++ a/include/linux/cgroup.h
+@@ -68,6 +68,7 @@ struct css_task_iter {
+ 	struct list_head		iters_node;	/* css_set->task_iters */
+ };
  
- 		if (folio_test_anon(folio) && !is_readable_migration_entry(entry))
- 			rmap_flags |= RMAP_EXCLUSIVE;
++extern struct file_system_type cgroup_fs_type;
+ extern struct cgroup_root cgrp_dfl_root;
+ extern struct css_set init_css_set;
+ 
+--- a/kernel/cgroup/cgroup-internal.h~memcg-fix-possible-use-after-free-in-memcg_write_event_control
++++ a/kernel/cgroup/cgroup-internal.h
+@@ -167,7 +167,6 @@ struct cgroup_mgctx {
+ extern spinlock_t css_set_lock;
+ extern struct cgroup_subsys *cgroup_subsys[];
+ extern struct list_head cgroup_roots;
+-extern struct file_system_type cgroup_fs_type;
+ 
+ /* iterate across the hierarchies */
+ #define for_each_root(root)						\
+--- a/mm/memcontrol.c~memcg-fix-possible-use-after-free-in-memcg_write_event_control
++++ a/mm/memcontrol.c
+@@ -4832,6 +4832,7 @@ static ssize_t memcg_write_event_control
+ 	unsigned int efd, cfd;
+ 	struct fd efile;
+ 	struct fd cfile;
++	struct dentry *cdentry;
+ 	const char *name;
+ 	char *endp;
+ 	int ret;
+@@ -4886,6 +4887,16 @@ static ssize_t memcg_write_event_control
+ 		goto out_put_cfile;
+ 
+ 	/*
++	 * The control file must be a regular cgroup1 file. As a regular cgroup
++	 * file can't be renamed, it's safe to access its name afterwards.
++	 */
++	cdentry = cfile.file->f_path.dentry;
++	if (cdentry->d_sb->s_type != &cgroup_fs_type || !d_is_reg(cdentry)) {
++		ret = -EINVAL;
++		goto out_put_cfile;
++	}
++
++	/*
+ 	 * Determine the event callbacks and set them in @event.  This used
+ 	 * to be done via struct cftype but cgroup core no longer knows
+ 	 * about these events.  The following is crude but the whole thing
+@@ -4893,7 +4904,7 @@ static ssize_t memcg_write_event_control
+ 	 *
+ 	 * DO NOT ADD NEW FILES.
+ 	 */
+-	name = cfile.file->f_path.dentry->d_name.name;
++	name = cdentry->d_name.name;
+ 
+ 	if (!strcmp(name, "memory.usage_in_bytes")) {
+ 		event->register_event = mem_cgroup_usage_register_event;
+@@ -4917,7 +4928,7 @@ static ssize_t memcg_write_event_control
+ 	 * automatically removed on cgroup destruction but the removal is
+ 	 * asynchronous, so take an extra ref on @css.
+ 	 */
+-	cfile_css = css_tryget_online_from_dir(cfile.file->f_path.dentry->d_parent,
++	cfile_css = css_tryget_online_from_dir(cdentry->d_parent,
+ 					       &memory_cgrp_subsys);
+ 	ret = -EINVAL;
+ 	if (IS_ERR(cfile_css))
 _
 
-Patches currently in -mm which might be from peterx@redhat.com are
+Patches currently in -mm which might be from tj@kernel.org are
 
+memcg-fix-possible-use-after-free-in-memcg_write_event_control.patch
 
