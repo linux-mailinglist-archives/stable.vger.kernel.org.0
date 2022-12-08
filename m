@@ -2,195 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26699646CBE
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 11:30:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D85BE646C0A
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 10:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229728AbiLHKai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 05:30:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36812 "EHLO
+        id S229479AbiLHJi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 04:38:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229572AbiLHKah (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 05:30:37 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 093C47BC30;
-        Thu,  8 Dec 2022 02:30:32 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 706DE20887;
-        Thu,  8 Dec 2022 10:30:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1670495431; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=M+bAb0574eGy8HD5RdUbfzdvVPdRwbdf16Yr8+WOH0U=;
-        b=0jOrjMaHdTXh8BSxcjrXqlAL8iy56svl+pRuefc/Ge/WaFb4jVVFGQjYS+WsnmFk7VXqMw
-        a/IljK2Z26YX6ivzySjZFoIY7tZNOeG1KmVfCShEOmihiJ9B0eQv3jkMPwuPySQ1Jdyqvx
-        f2uum26mM2BKDjJwBxE3GHeLD6tlBmU=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1670495431;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=M+bAb0574eGy8HD5RdUbfzdvVPdRwbdf16Yr8+WOH0U=;
-        b=MZ1fJUeZxG3Rd7s5vW+cm6N4eINDVXc0EdGvJtJ220xYBr5GT/2dBGy8UCs9pRErMZHunP
-        jKIY9aLEAWcbn1Cw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5155F13416;
-        Thu,  8 Dec 2022 10:30:31 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id OPbSE8e8kWP5FAAAMHmgww
-        (envelope-from <jack@suse.cz>); Thu, 08 Dec 2022 10:30:31 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 169ADA0728; Thu,  8 Dec 2022 10:37:33 +0100 (CET)
-Date:   Thu, 8 Dec 2022 10:37:33 +0100
-From:   Jan Kara <jack@suse.cz>
-To:     Yu Kuai <yukuai1@huaweicloud.com>
-Cc:     Jan Kara <jack@suse.cz>, linux-block@vger.kernel.org,
-        Paolo Valente <paolo.valente@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>, stable@vger.kernel.org,
-        "yukuai (C)" <yukuai3@huawei.com>
-Subject: Re: [PATCH 3/9] bfq: Split shared queues on move between cgroups
-Message-ID: <20221208093733.izj7irhzspmvpxxc@quack3>
-References: <20220330123438.32719-1-jack@suse.cz>
- <20220330124255.24581-3-jack@suse.cz>
- <89941655-baeb-9696-dc89-0a1f4bc9e8d6@huaweicloud.com>
+        with ESMTP id S230156AbiLHJiT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 04:38:19 -0500
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40F862E9DC;
+        Thu,  8 Dec 2022 01:38:18 -0800 (PST)
+Received: by mail-wr1-x42e.google.com with SMTP id w15so915191wrl.9;
+        Thu, 08 Dec 2022 01:38:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=VmylA4p6JIXEdV9jKTt9EugkkSk/Nd5xRV/APqKB6+8=;
+        b=I317LVxJl1AebamM5xxtwNP8J74f11NmqL0K5P7Kh7v5poKbYendla8reZ6IZLEo1b
+         csWcWwzVEhLaIKP0ERHUZxYFrMMw1NfTCeZOFTBEHQwZAni05tRpLw4nWdy0NuVio9lq
+         /k6Be3DAEkC0m1U/AmpcLbRI7+HITe4MiCBGxQc2CBHaFjVrUvJA6hN6iN3JyktOQM93
+         11CiPK+HprcnO+7Ky3BmrW/IizKU7NiBW6893iTEKW73LCVYcTBzh7tSVdNckV2XkxGY
+         5ERzTamBMHYzAbhpwFqzt4C/tZatx3K0wbikqQGHcwFtoFL/iGaMeHvFH0KT0t9892hY
+         s6Dg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VmylA4p6JIXEdV9jKTt9EugkkSk/Nd5xRV/APqKB6+8=;
+        b=IMRoGMc73mLzkYzD2B/Jqh5At8/wSOru8a/Qv8iTyYR9v174GG48Pavt2iNkaF0R1w
+         LjafzgqGHwFWvqdymKu8d6sbMZHSoUWwth1QC8Aqb9Xl8W2unrXy0iQAT+gcZHnMKiUv
+         cf1FbRvk13iyO6yK7bkQB8NCP+WXqe9yzXfyRR7qr+rYURIMfQOPcPTkdruAtzAmQcZM
+         jqd6SyBBqfXhVY1685KyzVuud5TvrdQrR1jpSD72WLNkYzL4efdReJNgW5kQdC4HqpQL
+         +XgOLMi9Nmjnqi/33jWEBh0eNAZaVWkDqG3HkCkYCftr9NOa6Q9qgHnKSZa51bVlKlOw
+         unfQ==
+X-Gm-Message-State: ANoB5plmcwecGD3K0Y2pbfsDjvMNOXXYz1KCsNiCBJHFYeUzGAz+ccV9
+        CayLZYFOkn1CxJSjMhjTbY4=
+X-Google-Smtp-Source: AA0mqf6s3vhO2x3ul3AAFBHxC7005Nl+5wqr8KZt+OdhO7g2RegrcqygugLliC9dvXmAcdMs1XFk0A==
+X-Received: by 2002:a5d:4086:0:b0:242:509a:ad42 with SMTP id o6-20020a5d4086000000b00242509aad42mr1096900wrp.36.1670492296692;
+        Thu, 08 Dec 2022 01:38:16 -0800 (PST)
+Received: from debian (host-78-150-37-98.as13285.net. [78.150.37.98])
+        by smtp.gmail.com with ESMTPSA id d5-20020a5d6445000000b002368f6b56desm25837594wrw.18.2022.12.08.01.38.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Dec 2022 01:38:16 -0800 (PST)
+Date:   Thu, 8 Dec 2022 09:38:14 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
+        rwarsow@gmx.de
+Subject: Re: [PATCH 5.15 000/121] 5.15.82-rc3 review
+Message-ID: <Y5Gwho1dzyxMdGyU@debian>
+References: <20221206163439.841627689@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <89941655-baeb-9696-dc89-0a1f4bc9e8d6@huaweicloud.com>
-X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_SOFTFAIL autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20221206163439.841627689@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 08-12-22 11:52:38, Yu Kuai wrote:
-> Hi, Jan!
-> 
-> 在 2022/03/30 20:42, Jan Kara 写道:
-> > When bfqq is shared by multiple processes it can happen that one of the
-> > processes gets moved to a different cgroup (or just starts submitting IO
-> > for different cgroup). In case that happens we need to split the merged
-> > bfqq as otherwise we will have IO for multiple cgroups in one bfqq and
-> > we will just account IO time to wrong entities etc.
-> > 
-> > Similarly if the bfqq is scheduled to merge with another bfqq but the
-> > merge didn't happen yet, cancel the merge as it need not be valid
-> > anymore.
-> > 
-> > CC: stable@vger.kernel.org
-> > Fixes: e21b7a0b9887 ("block, bfq: add full hierarchical scheduling and cgroups support")
-> > Signed-off-by: Jan Kara <jack@suse.cz>
-> > ---
-> >   block/bfq-cgroup.c  | 36 +++++++++++++++++++++++++++++++++---
-> >   block/bfq-iosched.c |  2 +-
-> >   block/bfq-iosched.h |  1 +
-> >   3 files changed, 35 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
-> > index 420eda2589c0..9352f3cc2377 100644
-> > --- a/block/bfq-cgroup.c
-> > +++ b/block/bfq-cgroup.c
-> > @@ -743,9 +743,39 @@ static struct bfq_group *__bfq_bic_change_cgroup(struct bfq_data *bfqd,
-> >   	}
-> >   	if (sync_bfqq) {
-> > -		entity = &sync_bfqq->entity;
-> > -		if (entity->sched_data != &bfqg->sched_data)
-> > -			bfq_bfqq_move(bfqd, sync_bfqq, bfqg);
-> > +		if (!sync_bfqq->new_bfqq && !bfq_bfqq_coop(sync_bfqq)) {
-> > +			/* We are the only user of this bfqq, just move it */
-> > +			if (sync_bfqq->entity.sched_data != &bfqg->sched_data)
-> > +				bfq_bfqq_move(bfqd, sync_bfqq, bfqg);
-> > +		} else {
-> > +			struct bfq_queue *bfqq;
-> > +
-> > +			/*
-> > +			 * The queue was merged to a different queue. Check
-> > +			 * that the merge chain still belongs to the same
-> > +			 * cgroup.
-> > +			 */
-> > +			for (bfqq = sync_bfqq; bfqq; bfqq = bfqq->new_bfqq)
-> > +				if (bfqq->entity.sched_data !=
-> > +				    &bfqg->sched_data)
-> > +					break;
-> > +			if (bfqq) {
-> > +				/*
-> > +				 * Some queue changed cgroup so the merge is
-> > +				 * not valid anymore. We cannot easily just
-> > +				 * cancel the merge (by clearing new_bfqq) as
-> > +				 * there may be other processes using this
-> > +				 * queue and holding refs to all queues below
-> > +				 * sync_bfqq->new_bfqq. Similarly if the merge
-> > +				 * already happened, we need to detach from
-> > +				 * bfqq now so that we cannot merge bio to a
-> > +				 * request from the old cgroup.
-> > +				 */
-> > +				bfq_put_cooperator(sync_bfqq);
-> > +				bfq_release_process_ref(bfqd, sync_bfqq);
-> > +				bic_set_bfqq(bic, NULL, 1);
-> > +			}
-> > +		}
-> >   	}
-> Our test found a use-after-free while accessing bfqq->bic->bfqq[] ([1]),
-> and I really suspect the above change.
+Hi Greg,
 
-OK, so bfqq points to bfq_io_cq that is already freed. Nasty.
-
-> 1) init state, 2 thread, 2 bic, and 2 bfqq
+On Tue, Dec 06, 2022 at 05:39:55PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.82 release.
+> There are 121 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> bic1->bfqq = bfqq1
-> bfqq1->bic = bic1
-> bic2->bfqq = bfqq2
-> bfqq2->bic = bic2
-> 
-> 2) bfqq1 and bfqq2 is merged
-> bic1->bfqq = bfqq2
-> bfqq1->bic = NULL
-> bic2->bfqq = bfqq2
-> bfqq2->bic = NULL
-> 
-> 3) bfqq1 issue a io, before such io reaches bfq, move t1 to a new
-> cgroup, and issues a new io. If the new io reaches bfq first:
+> Responses should be made by Thu, 08 Dec 2022 16:34:23 +0000.
+> Anything received after that time might be too late.
 
-What do you mean by 'bfqq1 issues IO'? Do you mean t1?
+Build test (gcc version 12.2.1 20221127):
+mips: 62 configs -> no failure
+arm: 99 configs -> no failure
+arm64: 3 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+csky allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
 
-> bic1->bfqq = NULL
-> bfqq1->bic = NULL
-> bic2->bfqq = bfqq2
-> bfqq2->bic = NULL
-> 
-> 4) while handling the new io, a new bfqq is created
-> bic1->bfqq = bfqq3
-> bfqq3->bic = bic1
-> bic2->bfqq = bfqq2
-> bfqq2->bic = NULL
-> 
-> 5) the old io reaches bfq, corresponding bic is got from rq:
-> bic1->bfqq = bfqq3
-> bfqq3->bic = bic1
-> bic2->bfqq = bfqq2
-> bfqq2->bic = bic1
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
+mips: Booted on ci20 board. No regression. [3]
 
-So if this state happens, it would be indeed a problem. But I don't see how
-it could happen. bics are associated with the process. So t1 will always
-use bic1, t2 will always use bic2. In bfq_init_rq() we get bfqq either from
-bic (so it would return bfqq3 for bic1) or we allocate a new queue (that
-would be some bfqq4). So I see no way how bfqq2 could start pointing to
-bic1...
+[1]. https://openqa.qa.codethink.co.uk/tests/2320
+[2]. https://openqa.qa.codethink.co.uk/tests/2300
+[3]. https://openqa.qa.codethink.co.uk/tests/2324
 
-								Honza
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
 -- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Regards
+Sudip
