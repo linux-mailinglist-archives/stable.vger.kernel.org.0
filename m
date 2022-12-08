@@ -2,56 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E076F646787
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 04:10:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 258806467A7
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 04:25:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229902AbiLHDKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Dec 2022 22:10:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53788 "EHLO
+        id S229571AbiLHDZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Dec 2022 22:25:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229777AbiLHDKS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 22:10:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD26F7616E;
-        Wed,  7 Dec 2022 19:10:17 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5821D61D4B;
-        Thu,  8 Dec 2022 03:10:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 9C1CFC433D7;
-        Thu,  8 Dec 2022 03:10:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670469016;
-        bh=JKY8taeO76lQp+JsyteED53SJMrGqBbdviof8+x0utc=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=t0XrHDgWndWrQZvfUAb2kzAcTS/n0KqiLeQoEDqroVWuPtYtp1sAwRayd8phD6ZSv
-         kJb730fQ6U7Wi5ewjkN8Wce1dNFfSPOQ8dCVn7hzmvFQdTjnfvv177jtkew19R2Xyl
-         YhRscrdOey9YCqAeEILt/a3cycLszEOcfzT5vcHH1NmbxxWd2jZELClHlIpirnlOwJ
-         V1pgLS9yOgdg3mnmyGjCdlEQpr2z7BO6RjrKmqBy0qHZdgpmlZmrXIe/z/yuYeWbH/
-         C8TAFdS0Vkp+RCays2LkNyBWu4cFnflJX4EwXb0Bbw5Rf23RXbkGilqVHNmVQ0IZPX
-         Obc6ZTCbuKEBg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 7FC9CE4D02C;
-        Thu,  8 Dec 2022 03:10:16 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229507AbiLHDZP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 22:25:15 -0500
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B40AD880FF;
+        Wed,  7 Dec 2022 19:25:14 -0800 (PST)
+Received: from dggpemm500013.china.huawei.com (unknown [172.30.72.53])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4NSKFK05lBzJp6x;
+        Thu,  8 Dec 2022 11:21:41 +0800 (CST)
+Received: from ubuntu1804.huawei.com (10.67.175.36) by
+ dggpemm500013.china.huawei.com (7.185.36.172) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Thu, 8 Dec 2022 11:25:12 +0800
+From:   Chen Zhongjin <chenzhongjin@huawei.com>
+To:     <syzbot+2f9183cb6f89b0e16586@syzkaller.appspotmail.com>,
+        <syzkaller-bugs@googlegroups.com>, <netdev@vger.kernel.org>,
+        <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     <chenzhongjin@huawei.com>, <jhs@mojatatu.com>,
+        <xiyou.wangcong@gmail.com>, <jiri@resnulli.us>,
+        <davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
+        <pabeni@redhat.com>, <gregkh@linuxfoundation.org>
+Subject: [PATCH net] net/sched: Fix memory leak in tcindex_set_parms
+Date:   Thu, 8 Dec 2022 11:22:16 +0800
+Message-ID: <20221208032216.63513-1-chenzhongjin@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 1/4] can: af_can: fix NULL pointer dereference in
- can_rcv_filter
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <167046901651.21108.4760310811680515367.git-patchwork-notify@kernel.org>
-Date:   Thu, 08 Dec 2022 03:10:16 +0000
-References: <20221207105243.2483884-2-mkl@pengutronix.de>
-In-Reply-To: <20221207105243.2483884-2-mkl@pengutronix.de>
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        linux-can@vger.kernel.org, kernel@pengutronix.de,
-        socketcan@hartkopp.net,
-        syzbot+2d7f58292cb5b29eb5ad@syzkaller.appspotmail.com,
-        harperchen1110@gmail.com, stable@vger.kernel.org
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+Content-Type: text/plain
+X-Originating-IP: [10.67.175.36]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpemm500013.china.huawei.com (7.185.36.172)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,38 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+syzkaller reported a memleak:
+https://syzkaller.appspot.com/bug?id=e061e6cd46417ee6566dc249d8f982c0b5977a52
 
-This series was applied to netdev/net.git (master)
-by Marc Kleine-Budde <mkl@pengutronix.de>:
+unreferenced object 0xffff888107813900 (size 256):
+  backtrace:
+    kcalloc include/linux/slab.h:636 [inline]
+    tcf_exts_init include/net/pkt_cls.h:250 [inline]
+    tcindex_set_parms+0xa7/0xbe0 net/sched/cls_tcindex.c:342
+    tcindex_change+0xdf/0x120 net/sched/cls_tcindex.c:553
+    tc_new_tfilter+0x4f2/0x1100 net/sched/cls_api.c:2147
+    ...
 
-On Wed,  7 Dec 2022 11:52:40 +0100 you wrote:
-> From: Oliver Hartkopp <socketcan@hartkopp.net>
-> 
-> Analogue to commit 8aa59e355949 ("can: af_can: fix NULL pointer
-> dereference in can_rx_register()") we need to check for a missing
-> initialization of ml_priv in the receive path of CAN frames.
-> 
-> Since commit 4e096a18867a ("net: introduce CAN specific pointer in the
-> struct net_device") the check for dev->type to be ARPHRD_CAN is not
-> sufficient anymore since bonding or tun netdevices claim to be CAN
-> devices but do not initialize ml_priv accordingly.
-> 
-> [...]
+The reproduce calls tc_new_tfilter() continuously:
 
-Here is the summary with links:
-  - [net,1/4] can: af_can: fix NULL pointer dereference in can_rcv_filter
-    https://git.kernel.org/netdev/net/c/0acc442309a0
-  - [net,2/4] can: slcan: fix freed work crash
-    https://git.kernel.org/netdev/net/c/fb855e9f3b6b
-  - [net,3/4] can: can327: flush TX_work on ldisc .close()
-    https://git.kernel.org/netdev/net/c/f4a4d121ebec
-  - [net,4/4] can: esd_usb: Allow REC and TEC to return to zero
-    https://git.kernel.org/netdev/net/c/918ee4911f7a
+tc_new_tfilter()...
+tcindex_set_parms()
+  tcf_exts_init(&e, ...) // alloc e->actions
+  tcf_exts_change(&r->exts, &e)
 
-You are awesome, thank you!
+tc_new_tfilter()...
+tcindex_set_parms()
+  old_r = r // same as first r
+  tcindex_filter_result_init(old_r, cp, net);
+  // old_r is holding e->actions but here it calls memset(old_r, 0)
+  // so the previous e->actions is leaked
+
+So here tcf_exts_destroy() should be called to free old_r->exts.actions
+before memset(old_r, 0) sets it to NULL.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+2f9183cb6f89b0e16586@syzkaller.appspotmail.com
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+---
+#syz test https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git 355479c70a48
+---
+ net/sched/cls_tcindex.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
+index 1c9eeb98d826..00a6c04a4b42 100644
+--- a/net/sched/cls_tcindex.c
++++ b/net/sched/cls_tcindex.c
+@@ -479,6 +479,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+ 	}
+ 
+ 	if (old_r && old_r != r) {
++		tcf_exts_destroy(&old_r->exts);
+ 		err = tcindex_filter_result_init(old_r, cp, net);
+ 		if (err < 0) {
+ 			kfree(f);
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.17.1
 
