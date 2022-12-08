@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 258806467A7
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 04:25:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 123696467E6
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 04:36:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229571AbiLHDZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Dec 2022 22:25:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34050 "EHLO
+        id S229828AbiLHDg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Dec 2022 22:36:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229507AbiLHDZP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 22:25:15 -0500
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B40AD880FF;
-        Wed,  7 Dec 2022 19:25:14 -0800 (PST)
-Received: from dggpemm500013.china.huawei.com (unknown [172.30.72.53])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4NSKFK05lBzJp6x;
-        Thu,  8 Dec 2022 11:21:41 +0800 (CST)
-Received: from ubuntu1804.huawei.com (10.67.175.36) by
- dggpemm500013.china.huawei.com (7.185.36.172) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Thu, 8 Dec 2022 11:25:12 +0800
-From:   Chen Zhongjin <chenzhongjin@huawei.com>
-To:     <syzbot+2f9183cb6f89b0e16586@syzkaller.appspotmail.com>,
-        <syzkaller-bugs@googlegroups.com>, <netdev@vger.kernel.org>,
-        <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     <chenzhongjin@huawei.com>, <jhs@mojatatu.com>,
-        <xiyou.wangcong@gmail.com>, <jiri@resnulli.us>,
-        <davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
-        <pabeni@redhat.com>, <gregkh@linuxfoundation.org>
-Subject: [PATCH net] net/sched: Fix memory leak in tcindex_set_parms
-Date:   Thu, 8 Dec 2022 11:22:16 +0800
-Message-ID: <20221208032216.63513-1-chenzhongjin@huawei.com>
-X-Mailer: git-send-email 2.17.1
+        with ESMTP id S230117AbiLHDgK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 22:36:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D144207;
+        Wed,  7 Dec 2022 19:35:44 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D63B2B821FF;
+        Thu,  8 Dec 2022 03:35:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E955C433C1;
+        Thu,  8 Dec 2022 03:35:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1670470541;
+        bh=3b5O7KzxVK5v6Enic7QwsmTYpgriCPuNr5Ncf/UzA1o=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XoOO2i7k4RlhGjMK+25Qipm85wYb5Nt2nMYBaI742so57TB4+HJfQy3F1+ZHMX2aQ
+         yC4iZ6LjqH04uZOh99NpALbH2ZCJ/J+t96CEjX7WzV4hPkur5QCNsq+T3rUIoJoy1n
+         uD6sNcrSBKfIh2CaxSGLey5b5CVT1AY8KANXREyPvkWSOTm93FeUQUZs9aLAgq/89E
+         W9ptvHu2sMFUlSjhPcpmKr2ddo7R9meyKnDG1oywJNjFpaOAG5k0xaqRyFkFqVc6Wv
+         J37oGR4xUZNpUbTvGhx7Qz8tPb1l6Z0mm9JzZJbMyXk7zYMk1Bx9MFC2fZMsttNIM3
+         9utjFcMXzdbHg==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-fscrypt@vger.kernel.org
+Cc:     linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        linux-btrfs@vger.kernel.org, linux-integrity@vger.kernel.org,
+        Luca Boccassi <bluca@debian.org>,
+        Jes Sorensen <jsorensen@meta.com>,
+        Victor Hsieh <victorhsieh@google.com>, stable@vger.kernel.org
+Subject: [PATCH] fsverity: don't check builtin signatures when require_signatures=0
+Date:   Wed,  7 Dec 2022 19:35:23 -0800
+Message-Id: <20221208033523.122642-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.175.36]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemm500013.china.huawei.com (7.185.36.172)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,57 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-syzkaller reported a memleak:
-https://syzkaller.appspot.com/bug?id=e061e6cd46417ee6566dc249d8f982c0b5977a52
+From: Eric Biggers <ebiggers@google.com>
 
-unreferenced object 0xffff888107813900 (size 256):
-  backtrace:
-    kcalloc include/linux/slab.h:636 [inline]
-    tcf_exts_init include/net/pkt_cls.h:250 [inline]
-    tcindex_set_parms+0xa7/0xbe0 net/sched/cls_tcindex.c:342
-    tcindex_change+0xdf/0x120 net/sched/cls_tcindex.c:553
-    tc_new_tfilter+0x4f2/0x1100 net/sched/cls_api.c:2147
-    ...
+An issue that arises when migrating from builtin signatures to userspace
+signatures is that existing files that have builtin signatures cannot be
+opened unless either CONFIG_FS_VERITY_BUILTIN_SIGNATURES is disabled or
+the signing certificate is left in the .fs-verity keyring.
 
-The reproduce calls tc_new_tfilter() continuously:
+Since builtin signatures provide no security benefit when
+fs.verity.require_signatures=0 anyway, let's just skip the signature
+verification in this case.
 
-tc_new_tfilter()...
-tcindex_set_parms()
-  tcf_exts_init(&e, ...) // alloc e->actions
-  tcf_exts_change(&r->exts, &e)
-
-tc_new_tfilter()...
-tcindex_set_parms()
-  old_r = r // same as first r
-  tcindex_filter_result_init(old_r, cp, net);
-  // old_r is holding e->actions but here it calls memset(old_r, 0)
-  // so the previous e->actions is leaked
-
-So here tcf_exts_destroy() should be called to free old_r->exts.actions
-before memset(old_r, 0) sets it to NULL.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+2f9183cb6f89b0e16586@syzkaller.appspotmail.com
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Fixes: 432434c9f8e1 ("fs-verity: support builtin file signatures")
+Cc: <stable@vger.kernel.org> # v5.4+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
-#syz test https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git 355479c70a48
----
- net/sched/cls_tcindex.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/verity/signature.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
-index 1c9eeb98d826..00a6c04a4b42 100644
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -479,6 +479,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+diff --git a/fs/verity/signature.c b/fs/verity/signature.c
+index 143a530a80088..dc6935701abda 100644
+--- a/fs/verity/signature.c
++++ b/fs/verity/signature.c
+@@ -13,8 +13,8 @@
+ #include <linux/verification.h>
+ 
+ /*
+- * /proc/sys/fs/verity/require_signatures
+- * If 1, all verity files must have a valid builtin signature.
++ * /proc/sys/fs/verity/require_signatures.  If 1, then builtin signatures are
++ * verified and all verity files must have a valid builtin signature.
+  */
+ static int fsverity_require_signatures;
+ 
+@@ -54,6 +54,20 @@ int fsverity_verify_signature(const struct fsverity_info *vi,
+ 		return 0;
  	}
  
- 	if (old_r && old_r != r) {
-+		tcf_exts_destroy(&old_r->exts);
- 		err = tcindex_filter_result_init(old_r, cp, net);
- 		if (err < 0) {
- 			kfree(f);
++	/*
++	 * If require_signatures=0, don't verify builtin signatures.
++	 * Originally, builtin signatures were verified opportunistically in
++	 * this case.  However, no security property is possible when
++	 * require_signatures=0 anyway.  Skipping the builtin signature
++	 * verification makes it easier to migrate existing files from builtin
++	 * signature verification to userspace signature verification.
++	 */
++	if (!fsverity_require_signatures) {
++		fsverity_warn(inode,
++			      "Not checking builtin signature due to require_signatures=0");
++		return 0;
++	}
++
+ 	d = kzalloc(sizeof(*d) + hash_alg->digest_size, GFP_KERNEL);
+ 	if (!d)
+ 		return -ENOMEM;
+
+base-commit: 479174d402bcf60789106eedc4def3957c060bad
 -- 
-2.17.1
+2.38.1
 
