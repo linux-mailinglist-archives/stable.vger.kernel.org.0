@@ -2,105 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6433F646DAB
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 11:59:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C79D646DA7
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 11:59:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229678AbiLHK7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 05:59:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35582 "EHLO
+        id S230211AbiLHK7l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 05:59:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229651AbiLHK7Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 05:59:24 -0500
-Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BDAC900E0;
-        Thu,  8 Dec 2022 02:51:29 -0800 (PST)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 67C6FC0004;
-        Thu,  8 Dec 2022 10:51:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1670496687;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        with ESMTP id S229898AbiLHK7S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 05:59:18 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59ED192A03;
+        Thu,  8 Dec 2022 02:51:25 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 8B055208AD;
+        Thu,  8 Dec 2022 10:51:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1670496684; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=jX4qpJhOZfq0Tc57pU2iw5g5rc8m7DS0d+5g0687Ft0=;
-        b=F7JNzgIt3I6hYU/+MJtFg6ivPmkYClN5wsy3v7G1m9kQzXfuztQaq1LgcvBGV8sSBBnhYU
-        bJdglueOmfSxR8ZR1WD0HWV41CHorRhPSqEdvGr0ZjOodhI1IlWvf91DoaVHILLYgy9kSM
-        HPk17yM46JhEGztJVFQ10ZjoYRo6gOipTTp6GcK8El04ZCG3TfMjo9DN22UIfr1NJiRbCq
-        M4zaed9uWAFIncMswV91KO1Tu7ehBppIAMeJwnSTWoL/edWIChknIC2M/HlpH3d2QHAZsT
-        qYY7ktnnHLj46WRausFpBJPcgSHJHmeHj2edNgwwt3nmOpfT2KZI4foEXxxl+w==
+        bh=BSaHkEqadKz6Lj4LX693awEbtIj1UyMwaIh3AiAJ7l0=;
+        b=TCQfldZoLzBcalU+ldxeRz8jICL2nDry/ntYAUdvGgipsJwBVmVfbBmzZeHdK5oDK/dODv
+        BPKpva7x9xgZh4H46H1+j9Nkb8cbuZkPB/Jy67GHIsiQHnnnxGlz9dA/jO+wJ46gf5++AW
+        zWu8AsBqavIBKrjYXie/adLrOf5t1a0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1670496684;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=BSaHkEqadKz6Lj4LX693awEbtIj1UyMwaIh3AiAJ7l0=;
+        b=Pw8tmZ6Jl716sFYtiV8lkZcndzW3ky7Ka09wMIX04atMtcSl8XXxV+CcsVYN1xBkPslmXq
+        q5y89az6rMVvO2BA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5163513416;
+        Thu,  8 Dec 2022 10:51:24 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 14wnE6zBkWP6GAAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Thu, 08 Dec 2022 10:51:24 +0000
+Message-ID: <6d13f2ba-7598-4522-e0e6-32f1577a2655@suse.cz>
 Date:   Thu, 8 Dec 2022 11:51:24 +0100
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Marek Vasut <marex@denx.de>
-Cc:     Francesco Dolcini <francesco@dolcini.it>,
-        Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        devicetree@vger.kernel.org, linux-mtd@lists.infradead.org,
-        stable@vger.kernel.org,
-        Thorsten Leemhuis <regressions@leemhuis.info>
-Subject: Re: [PATCH v1] Revert "ARM: dts: imx7: Fix NAND controller
- size-cells"
-Message-ID: <20221208115124.6cc7a8bf@xps-13>
-In-Reply-To: <0aa2d48b-35a0-1781-f265-0387d213bdd6@denx.de>
-References: <20221205152327.26881-1-francesco@dolcini.it>
-        <0aa2d48b-35a0-1781-f265-0387d213bdd6@denx.de>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Subject: Re: [PATCH v3] char: tpm: Protect tpm_pm_suspend with locks
+Content-Language: en-US
+To:     Jarkko Sakkinen <jarkko@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     =?UTF-8?B?SmFuIETEhWJyb8Wb?= <jsd@semihalf.com>,
+        linux-integrity@vger.kernel.org, peterhuewe@gmx.de, jgg@ziepe.ca,
+        gregkh@linuxfoundation.org, arnd@arndb.de, rrangel@chromium.org,
+        timvp@google.com, apronin@google.com, mw@semihalf.com,
+        upstream@semihalf.com, linux-kernel@vger.kernel.org,
+        linux-crypto@vger.kernel.org, stable@vger.kernel.org
+References: <20221128195651.322822-1-Jason@zx2c4.com>
+ <Y4zTnhgunXuwVXHe@kernel.org> <Y4zUotH0UeHlRBGP@kernel.org>
+ <Y4zxly0XABDg1OhU@zx2c4.com> <Y5Gs9jaSIGTNdRbV@kernel.org>
+From:   Vlastimil Babka <vbabka@suse.cz>
+In-Reply-To: <Y5Gs9jaSIGTNdRbV@kernel.org>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_SOFTFAIL autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Shawn,
+On 12/8/22 10:23, Jarkko Sakkinen wrote:
+> On Sun, Dec 04, 2022 at 08:14:31PM +0100, Jason A. Donenfeld wrote:
+>> > 
+>> > Applied to  git://git.kernel.org/pub/scm/linux/kernel/git/jarkko/linux-tpmdd.git
+>> 
+>> Oh thank goodness. You'll send this in for rc8 today?
+> 
+> for 6.2-rc1
 
-+ Thorsten
+Linus took it directly to rc8, so it would conflict now.
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v6.1-rc8&id=23393c6461422df5bf8084a086ada9a7e17dc2ba
 
-marex@denx.de wrote on Mon, 5 Dec 2022 17:26:53 +0100:
+> BR, Jarkko
 
-> On 12/5/22 16:23, Francesco Dolcini wrote:
-> > From: Francesco Dolcini <francesco.dolcini@toradex.com>
-> >=20
-> > This reverts commit 753395ea1e45c724150070b5785900b6a44bd5fb.
-> >=20
-> > It introduced a boot regression on colibri-imx7, and potentially any
-> > other i.MX7 boards with MTD partition list generated into the fdt by
-> > U-Boot.
-> >=20
-> > While the commit we are reverting here is not obviously wrong, it fixes
-> > only a dt binding checker warning that is non-functional, while it
-> > introduces a boot regression and there is no obvious fix ready.
-> >=20
-> > Cc: stable@vger.kernel.org
-> > Fixes: 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
-> > Link: https://lore.kernel.org/all/Y4dgBTGNWpM6SQXI@francesco-nb.int.tor=
-adex.com/
-> > Link: https://lore.kernel.org/all/20221205144917.6514168a@xps-13/
-> > Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-[...]
-> Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-[...]
-> Acked-by: Marek Vasut <marex@denx.de>
-[...]
-
-As discussed in the above links, boot is broken on imx7 Colibri boards,
-this revert was the most quick and straightforward fix we agreed upon
-with the hope (~ duty?) it would make it in v6.1. Any chance you could
-pick this up rapidly and forward it to Linus? Or should we involve
-him directly (Thorsten?).
-
-Thanks,
-Miqu=C3=A8l
