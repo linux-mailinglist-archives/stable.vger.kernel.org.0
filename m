@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0049D646F0C
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 12:52:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14CA3646F47
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 13:07:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230018AbiLHLw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 06:52:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40014 "EHLO
+        id S229554AbiLHMH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 07:07:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230135AbiLHLwc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 06:52:32 -0500
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B43B48C452
-        for <stable@vger.kernel.org>; Thu,  8 Dec 2022 03:51:05 -0800 (PST)
-Received: by mail-pl1-x630.google.com with SMTP id y17so1291672plp.3
-        for <stable@vger.kernel.org>; Thu, 08 Dec 2022 03:51:05 -0800 (PST)
+        with ESMTP id S229513AbiLHMH5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 07:07:57 -0500
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D29AB2A263
+        for <stable@vger.kernel.org>; Thu,  8 Dec 2022 04:07:54 -0800 (PST)
+Received: by mail-pj1-x1036.google.com with SMTP id v13-20020a17090a6b0d00b00219c3be9830so1347604pjj.4
+        for <stable@vger.kernel.org>; Thu, 08 Dec 2022 04:07:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=z91SYN+jXgEVReb+hmrAd65gAL5LTkqm9X6BtFSqlfs=;
-        b=U2yACxq3FgnuPICOGlRxCRo/6VHvtX2f0U+0/GkaS21QrMKCbKDLz3lcymE8AtPfnO
-         hanuih7asl51gYLjXioDKCCPzUYPY/0b1XbCLDqrxinjXrdIjW/o2DvjNNqNkkiI4UBl
-         oZA0LgKpnIc9rWqzW+DEBECcCn3hr8SYWtjga4FXEkl2oWMfOvSfNMB5+eY3hgtnX2I8
-         X8mYWgchkug6DB8oetBaXxmRLPiAy3V+tsLjX/H2P93Z2jZam5Dg0BAUDAcpGTvwASzg
-         Jg7AKPZOPJJGz+XJ32GN4ddIN9P/WKOcDR32dJvYPEg2sAafWHJPnMCTAYVapPDrGUIR
-         1Azw==
+        bh=jcYukaJCoDkW93PV7QD2vDa3VZRGndjlNIWhbnlPvI0=;
+        b=UENCZz6fdFjo+vGRRD9oPdDVKHB52jSAEtMIIPCbcc1ab8nVAZ0ZPEz82i+73Mgn4G
+         2HDXZkh0VMMI+2NebC7dWiM+Q9PherHzz6ooYI0RmI55KPDxOYtlxdQIDRMbCYoIgwWD
+         QwOZkuM84q6IjBgZD/l7IKchx3Y0JW+epofBcF46Gbfz963fkkJfRKKAHPQDvpPI5RZI
+         jvIQDP7Gf3xtRxdIsilHbdlX3f6pNs/eMJJTr4UokpCwCq0YdU2WExVU0zkgo47D3upb
+         bFY8x7V0QqHp13smqkl/kLHwdcw9D+aGLB49oK9/87rOgAxemtTGKbrV+yxjZjrnKr56
+         rONA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=z91SYN+jXgEVReb+hmrAd65gAL5LTkqm9X6BtFSqlfs=;
-        b=j6vruTOkEktVIrUtzwrLYbgBhMFmFMmCfcUypnhZH8KI+cWn4EnhvPLywCMiQ9P6oe
-         jNeJZEly3AQA5tHzkpZ7+0cO5PbZNxHPl+holaEWmf9Ug0yfkc5lW8/Zb9fHzIJ9UkMe
-         H+qLh6KFeHLqJCCgNGUqoO18jRlIux+dUXC8yQdLywwSinbYm23gmLUfrL7kgFEm6N0f
-         7AmziZFGVy3kks5VxFWpsMyoHlyu5uK0GTpkZgPNnEB7jbH2HqAYg1LH20V6CQG/HQ+w
-         pjd26g01H9uli743/jcpNu5N8LW0raQyEffI27LuTZ7dKWGIbG1pBXzWJZzhXh/dew5i
-         Hfjw==
-X-Gm-Message-State: ANoB5pl7+UcEJ0fa/jAaLw7hjW39aRBDLYdpXIN57NnYxu+gR7a5D3Gi
-        CRITOyzTbJDec9y0ysZzl/TMMORpP358flW8GVi21Q==
-X-Google-Smtp-Source: AA0mqf5R60Q3cjzGhDpTZRXj8cGVDCQawW+Qlldv1Fml5rvVLZt7+uy8I15efqQhMUfs8YpSHYoinA==
-X-Received: by 2002:a17:902:9341:b0:189:9299:a2cd with SMTP id g1-20020a170902934100b001899299a2cdmr1965160plp.18.1670500264055;
-        Thu, 08 Dec 2022 03:51:04 -0800 (PST)
+        bh=jcYukaJCoDkW93PV7QD2vDa3VZRGndjlNIWhbnlPvI0=;
+        b=wGTMuy9N5kKQ/4N4Waa3V+6Ksxr/+S+uxGoL3BdJPhK6SNdQ2Zj+TqcW+j9Ub7+fwh
+         a8zYjzOprYQoOVj5n4QM2l08MVcgN8qj3hjWN/c4q1PqPKa9l3bR8NyUoJzDOpv/p6Jz
+         zUap5B3czNAzNjNDQwrQyuylWJfzYvp+p9mCevjkzJ/mxCTss6hsJdfOtrMhFwmW0EEb
+         5sfGETXviQ4wGuAL8E0pxOprc36dC2Jf/DrYQdejOIjfknJ9KrALvfuJ/EGVq9UL+0UC
+         7pC9Kl/hkKKTV00O//Jr/7XyuW+6VwD7hZAlHci+EkYrRW1Kuan6kLDMTeR7r/d4/nAX
+         D0vw==
+X-Gm-Message-State: ANoB5pmJMtEsoWvf7lfSQUHZxuFsuNjSAIet/alf/kkMJppZ9MMx4UJZ
+        sGQZtmCDW6r1x2m8JjysYb4l0ti17dDzm61E3jxapg==
+X-Google-Smtp-Source: AA0mqf6+ACj2atestAOq8ccS37JoA/sGAPcBkn77hz0VxnkLLlaTpoi3ROrE8dNBh7nQkpRXqTaeTw==
+X-Received: by 2002:a17:90b:1891:b0:219:9a7b:b6a8 with SMTP id mn17-20020a17090b189100b002199a7bb6a8mr2094825pjb.32.1670501273135;
+        Thu, 08 Dec 2022 04:07:53 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u10-20020a170902e5ca00b00188f07c10c9sm16466379plf.192.2022.12.08.03.51.03
+        by smtp.gmail.com with ESMTPSA id nv14-20020a17090b1b4e00b00218fba260e2sm2775295pjb.43.2022.12.08.04.07.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Dec 2022 03:51:03 -0800 (PST)
-Message-ID: <6391cfa7.170a0220.5fc9d.f1f3@mx.google.com>
-Date:   Thu, 08 Dec 2022 03:51:03 -0800 (PST)
+        Thu, 08 Dec 2022 04:07:52 -0800 (PST)
+Message-ID: <6391d398.170a0220.66b0e.5517@mx.google.com>
+Date:   Thu, 08 Dec 2022 04:07:52 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.335
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Kernel: v5.4.225-156-g11c8557aff57
 X-Kernelci-Report-Type: build
-X-Kernelci-Tree: stable
-Subject: stable/linux-4.9.y build: 187 builds: 2 failed, 185 passed,
- 34 warnings (v4.9.335)
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.4 build: 188 builds: 2 failed, 186 passed,
+ 34 warnings (v5.4.225-156-g11c8557aff57)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -71,19 +71,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.9.y build: 187 builds: 2 failed, 185 passed, 34 warnings (v4=
-.9.335)
+stable-rc/queue/5.4 build: 188 builds: 2 failed, 186 passed, 34 warnings (v=
+5.4.225-156-g11c8557aff57)
 
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
-rnel/v4.9.335/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
+/kernel/v5.4.225-156-g11c8557aff57/
 
-Tree: stable
-Branch: linux-4.9.y
-Git Describe: v4.9.335
-Git Commit: b6097015eea4e9f1e0288d93c691f83b864efe11
+Tree: stable-rc
+Branch: queue/5.4
+Git Describe: v5.4.225-156-g11c8557aff57
+Git Commit: 11c8557aff5736e4eca52c892d6b094eaf7209ad
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Built: 6 unique architectures
+e-rc.git
+Built: 7 unique architectures
 
 Build Failures Detected:
 
@@ -96,52 +96,69 @@ Warnings Detected:
 arc:
 
 arm64:
+    defconfig (gcc-10): 2 warnings
+    defconfig+arm64-chromebook (gcc-10): 2 warnings
 
 arm:
-    mini2440_defconfig (gcc-10): 1 warning
-    omap1_defconfig (gcc-10): 1 warning
-    s3c2410_defconfig (gcc-10): 1 warning
+    assabet_defconfig (gcc-10): 1 warning
+    collie_defconfig (gcc-10): 1 warning
+    h3600_defconfig (gcc-10): 1 warning
+    neponset_defconfig (gcc-10): 1 warning
+    shannon_defconfig (gcc-10): 1 warning
 
 i386:
-    allnoconfig (gcc-10): 3 warnings
-    i386_defconfig (gcc-10): 3 warnings
-    tinyconfig (gcc-10): 3 warnings
+    allnoconfig (gcc-10): 2 warnings
+    i386_defconfig (gcc-10): 2 warnings
+    tinyconfig (gcc-10): 2 warnings
 
 mips:
     mtx1_defconfig (gcc-10): 3 warnings
 
+riscv:
+
 x86_64:
-    allnoconfig (gcc-10): 5 warnings
+    allnoconfig (gcc-10): 4 warnings
     tinyconfig (gcc-10): 4 warnings
-    x86_64_defconfig (gcc-10): 5 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 5 warnings
+    x86_64_defconfig (gcc-10): 4 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 4 warnings
 
 
 Warnings summary:
 
     7    ld: warning: creating DT_TEXTREL in a PIE
-    7    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
+    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
+min_dma_period=E2=80=99 defined but not used [-Wunused-function]
     4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
 d-only section `.head.text'
-    4    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic s=
-uffix given and no register operands; using default for `sysret'
+    4    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
+ to integer of different size [-Wpointer-to-int-cast]
     3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
 d-only section `.head.text'
-    3    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
     2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c2=
-4xx_uart_dt_match=E2=80=99 assumed to have one element
+    2    arch/x86/entry/entry_64.o: warning: objtool: If this is a retpolin=
+e, please patch it in with alternatives and annotate it with ANNOTATE_NOSPE=
+C_ALTERNATIVE.
+    2    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1: un=
+supported intra-function call
+    2    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: un=
+supported intra-function call
+    2    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
     1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpi=
-o_match=E2=80=99 assumed to have one element
 
 Section mismatches summary:
 
-    15   WARNING: modpost: Found 1 section mismatch(es).
+    10   WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section =
+mismatch in reference from the variable __ksymtab_vic_init_cascaded to the =
+function .init.text:vic_init_cascaded()
+    1    WARNING: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Section mi=
+smatch in reference from the variable __ksymtab_ixp4xx_irq_init to the func=
+tion .init.text:ixp4xx_irq_init()
+    1    WARNING: vmlinux.o(.text.unlikely+0x3a90): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -152,22 +169,15 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
 mismatches
 
 Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -179,21 +189,14 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
 n mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic suffix=
  given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: unsuppo=
+rted intra-function call
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -220,8 +223,12 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -283,16 +290,10 @@ tion mismatches
 bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
 ---------------------------------------------------------------------------=
 -----
 bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
 
 ---------------------------------------------------------------------------=
 -----
@@ -341,8 +342,12 @@ colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 
 ---------------------------------------------------------------------------=
 -----
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -361,24 +366,50 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
 decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x3a90): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
 ---------------------------------------------------------------------------=
 -----
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
 
 ---------------------------------------------------------------------------=
 -----
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warn=
 ings, 0 section mismatches
 
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+Warnings:
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
 
 ---------------------------------------------------------------------------=
 -----
@@ -411,7 +442,9 @@ ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -440,13 +473,27 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
+gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -460,17 +507,30 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
 hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
 on mismatches
 
 Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -496,21 +556,13 @@ integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
 iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
@@ -538,6 +590,11 @@ on mismatches
 ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
+Section mismatches:
+    WARNING: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Section mismatc=
+h in reference from the variable __ksymtab_ixp4xx_irq_init to the function =
+.init.text:ixp4xx_irq_init()
+
 ---------------------------------------------------------------------------=
 -----
 jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
@@ -557,11 +614,6 @@ section mismatches
 -----
 keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -675,12 +727,13 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
-Warnings:
-    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -691,6 +744,11 @@ mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 -----
 mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -731,7 +789,9 @@ multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -755,8 +815,12 @@ mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -765,19 +829,13 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
 nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -811,27 +869,8 @@ s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpio_mat=
-ch=E2=80=99 assumed to have one element
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -840,8 +879,18 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
+omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -856,6 +905,11 @@ ion mismatches
 ---------------------------------------------------------------------------=
 -----
 pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 ---------------------------------------------------------------------------=
@@ -910,11 +964,6 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
 rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -940,12 +989,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/tty/serial/samsung.c:1782:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -953,7 +998,9 @@ s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -961,7 +1008,9 @@ s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -975,8 +1024,12 @@ sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
 
 ---------------------------------------------------------------------------=
 -----
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1004,7 +1057,9 @@ spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1012,7 +1067,9 @@ spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1028,6 +1085,11 @@ on mismatches
 -----
 sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1056,17 +1118,10 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
 ismatches
 
 Warnings:
-    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -1077,10 +1132,10 @@ tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
  mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+    arch/x86/entry/entry_64.S:1756: Warning: no instruction mnemonic suffix=
  given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x151: unsuppo=
+rted intra-function call
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -1101,7 +1156,9 @@ u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1124,7 +1181,9 @@ versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
 Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
+    WARNING: vmlinux.o(___ksymtab_gpl+vic_init_cascaded+0x0): Section misma=
+tch in reference from the variable __ksymtab_vic_init_cascaded to the funct=
+ion .init.text:vic_init_cascaded()
 
 ---------------------------------------------------------------------------=
 -----
@@ -1143,6 +1202,11 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 0 section mismatches
 
@@ -1153,16 +1217,15 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 s=
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 s=
 ection mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1: unsuppo=
+rted intra-function call
+    arch/x86/entry/entry_64.o: warning: objtool: If this is a retpoline, pl=
+ease patch it in with alternatives and annotate it with ANNOTATE_NOSPEC_ALT=
+ERNATIVE.
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -1170,15 +1233,14 @@ y section `.head.text'
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-5 warnings, 0 section mismatches
+4 warnings, 0 section mismatches
 
 Warnings:
-    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
+    arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1: unsuppo=
+rted intra-function call
+    arch/x86/entry/entry_64.o: warning: objtool: If this is a retpoline, pl=
+ease patch it in with alternatives and annotate it with ANNOTATE_NOSPEC_ALT=
+ERNATIVE.
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
@@ -1187,21 +1249,6 @@ y section `.head.text'
 -----
 xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
 
 ---------------------------------------------------------------------------=
 -----
