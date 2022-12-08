@@ -2,104 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A677C6468CC
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 06:56:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A1C6468E8
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 07:10:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229500AbiLHF4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 00:56:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45568 "EHLO
+        id S229524AbiLHGKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 01:10:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229589AbiLHF4N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 00:56:13 -0500
-Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E6D99F01
-        for <stable@vger.kernel.org>; Wed,  7 Dec 2022 21:56:12 -0800 (PST)
-Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2B85ttmH006911
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 8 Dec 2022 00:55:57 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
-        t=1670478958; bh=+3dywkpkrOoRJwylUGWYlpKX7eTBtD29D+MvYyMmYlk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=oop/hXe1d/4vTfrwLTpJndCAjT1vK5Zx8+SU6l4ZYbN8dpMCxeTV+Ze2ijbNlsn8L
-         1wvCvZ53mhgxe3ynaLLEOnGXpIsEaxw+8AQGFnyf00vz5xho6Y7ImrWY6XFjD1cRt4
-         aCTGB0oUIzbDUu0mEVkdmsCEpihCP872I2eO5P9w3N88tXe0anO6+PdD90WjGoYi1N
-         sEtqwEFjxCifgHY5WNGtQFKsG2eDkEUkDwLDXxVRVX5BUkb1iuM7KgfBkQSuk9d7rJ
-         3+Hz7vNv/ny40Rx32qTLfOsi1T5RAdoodG+CZg5b6tI9P0f9dHqWMp6i/bnlN1QStK
-         gJhJ6faSVjqAA==
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id 6927915C39E4; Thu,  8 Dec 2022 00:55:55 -0500 (EST)
-Date:   Thu, 8 Dec 2022 00:55:55 -0500
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     Andreas Dilger <adilger.kernel@dilger.ca>, Jan Kara <jack@suse.cz>,
-        linux-ext4@vger.kernel.org, stable@vger.kernel.org,
-        Thilo Fromm <t-lo@linux.microsoft.com>,
-        Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: Re: [PATCH] ext4: Fix deadlock due to mbcache entry corruption
-Message-ID: <Y5F8ayz4gEtKn0LF@mit.edu>
-References: <20221123193950.16758-1-jack@suse.cz>
- <20221201151021.GA18380@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
- <9c414060-989d-55bb-9a7b-0f33bf103c4f@leemhuis.info>
+        with ESMTP id S229479AbiLHGKx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 01:10:53 -0500
+Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A102A950D7;
+        Wed,  7 Dec 2022 22:10:46 -0800 (PST)
+X-UUID: 157fdeb689334680903affddc9915e42-20221208
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=5DNaqASfHVIb9MGSMByPHhB7Ozxw+7h46PhZyPOs+jc=;
+        b=oyZVs1Xy8A1RNKHOy51YMvQPnL07bkAiMC4bKWYYP8Sf0tSm5yiUyVZyHETtV/jKxme3vzJY7g+KGykQ/WATex6znparvKyGrnOSB/IUNemd/NJo1DX7Lo80Hv938XaLvXbKzpEE2DGggQpJ/fJMsz8ui961HV8de7y25+p0m4s=;
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.14,REQID:6c18fb55-e095-4ab4-8ca2-443efdbd06ce,IP:0,U
+        RL:0,TC:0,Content:-25,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
+        N:release,TS:-25
+X-CID-META: VersionHash:dcaaed0,CLOUDID:c939a924-4387-4253-a41d-4f6f2296b154,B
+        ulkID:nil,BulkQuantity:0,Recheck:0,SF:102,TC:nil,Content:0,EDM:-3,IP:nil,U
+        RL:11|1,File:nil,Bulk:nil,QS:nil,BEC:nil,COL:0
+X-UUID: 157fdeb689334680903affddc9915e42-20221208
+Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw02.mediatek.com
+        (envelope-from <peter.wang@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1268273252; Thu, 08 Dec 2022 14:10:41 +0800
+Received: from mtkmbs11n1.mediatek.inc (172.21.101.185) by
+ mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.792.3;
+ Thu, 8 Dec 2022 14:10:39 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
+ mtkmbs11n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.2.792.15 via Frontend Transport; Thu, 8 Dec 2022 14:10:39 +0800
+From:   <peter.wang@mediatek.com>
+To:     <stanley.chu@mediatek.com>, <linux-scsi@vger.kernel.org>,
+        <martin.petersen@oracle.com>, <avri.altman@wdc.com>,
+        <alim.akhtar@samsung.com>, <jejb@linux.ibm.com>
+CC:     <wsd_upstream@mediatek.com>, <linux-mediatek@lists.infradead.org>,
+        <peter.wang@mediatek.com>, <chun-hung.wu@mediatek.com>,
+        <alice.chao@mediatek.com>, <cc.chou@mediatek.com>,
+        <chaotian.jing@mediatek.com>, <jiajie.hao@mediatek.com>,
+        <powen.kao@mediatek.com>, <qilin.tan@mediatek.com>,
+        <lin.gui@mediatek.com>, <tun-yu.yu@mediatek.com>,
+        <eddie.huang@mediatek.com>, <naomi.chu@mediatek.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v5] ufs: core: wlun suspend SSU/enter hibern8 fail recovery
+Date:   Thu, 8 Dec 2022 14:10:37 +0800
+Message-ID: <20221208061037.24313-1-peter.wang@mediatek.com>
+X-Mailer: git-send-email 2.18.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9c414060-989d-55bb-9a7b-0f33bf103c4f@leemhuis.info>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
-        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-MTK:  N
+X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,T_SPF_TEMPERROR,
+        UNPARSEABLE_RELAY autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 05, 2022 at 04:41:49PM +0100, Thorsten Leemhuis wrote:
-> 
-> Jan's patch to fix the regression is now our 12 days out and afaics
-> didn't make any progress (or did I miss something?). Is there are reason
-> why or did it simply fall through the cracks? Just asking, because it
-> would be good to finally get this resolved.
-> 
-> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+From: Peter Wang <peter.wang@mediatek.com>
 
-This patch showed up right before the Thanksgiving holiday, and (b) it
-just missed Q/A cutoff for the the ext4 bugfix pull request which I
-sent to Linus right before I went on my Thanksgiving break.
+When SSU/enter hibern8 fail in wlun suspend flow, trigger error
+handler and return busy to break the suspend.
+If not, wlun runtime pm status become error and the consumer will
+stuck in runtime suspend status.
 
-Since Thanksgiving, I've been busy with the realities of corporate
-life --- end of year performance evaluations, preparing for 2023
-roadmap reviews with management, etc.  So the next pull request I was
-planning to send to Linus is when the merge window opens, and I'm
-currently processing patches and running Q/A to be ready for the
-opening of that merge window.
+Fixes: b294ff3e3449 ("scsi: ufs: core: Enable power management for wlun")
+Cc: stable@vger.kernel.org
+Signed-off-by: Peter Wang <peter.wang@mediatek.com>
+---
+ drivers/ufs/core/ufshcd.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index b1f59a5fe632..c91d58d1486a 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -106,6 +106,13 @@
+ 		       16, 4, buf, __len, false);                        \
+ } while (0)
+ 
++#define ufshcd_force_error_recovery(hba) do {                           \
++	spin_lock_irq(hba->host->host_lock);                            \
++	hba->force_reset = true;                                        \
++	ufshcd_schedule_eh_work(hba);                                   \
++	spin_unlock_irq(hba->host->host_lock);                          \
++} while (0)
++
+ int ufshcd_dump_regs(struct ufs_hba *hba, size_t offset, size_t len,
+ 		     const char *prefix)
+ {
+@@ -9049,6 +9056,15 @@ static int __ufshcd_wl_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
+ 
+ 		if (!hba->dev_info.b_rpm_dev_flush_capable) {
+ 			ret = ufshcd_set_dev_pwr_mode(hba, req_dev_pwr_mode);
++			if (ret && pm_op != UFS_SHUTDOWN_PM) {
++				/*
++				 * If return err in suspend flow, IO will hang.
++				 * Trigger error handler and break suspend for
++				 * error recovery.
++				 */
++				ufshcd_force_error_recovery(hba);
++				ret = -EBUSY;
++			}
+ 			if (ret)
+ 				goto enable_scaling;
+ 		}
+@@ -9060,6 +9076,15 @@ static int __ufshcd_wl_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
+ 	 */
+ 	check_for_bkops = !ufshcd_is_ufs_dev_deepsleep(hba);
+ 	ret = ufshcd_link_state_transition(hba, req_link_state, check_for_bkops);
++	if (ret && pm_op != UFS_SHUTDOWN_PM) {
++		/*
++		 * If return err in suspend flow, IO will hang.
++		 * Trigger error handler and break suspend for
++		 * error recovery.
++		 */
++		ufshcd_force_error_recovery(hba);
++		ret = -EBUSY;
++	}
+ 	if (ret)
+ 		goto set_dev_active;
+ 
+-- 
+2.18.0
 
-One thing which is completely unclear to me is how this relates to the
-claimed regression.  I understand that Jeremi and Thilo have asserted
-that the hang goes away if a backport commit 51ae846cff5 ("ext4: fix
-warning in ext4_iomap_begin as race between bmap and write") is not in
-their 5.15 product tree.
-
-However, the stack traces point to a problem in the extended attribute
-code, which has nothing to do with ext4_bmap(), and commit 51ae846cff5
-only changes the ext4's bmap function --- which these days gets used
-for the FIBMAP ioctl and very little else.
-
-Furthermore, the fix which Jan provided, and which apparently fixes
-the user's problem, (a) doesn't touch the ext4_bmap function, and (b)
-has a fixes tag for the patch:
-
-    Fixes: 6048c64b2609 ("mbcache: add reusable flag to cache entries")
-
-... which is a commit which dates back to 2016, and the v4.6 kernel.  ?!?
-
-So at this point, I have no idea whether or not this is a regression
-or not, but we'll get the fix to Linus soon.
-
-Cheers,
-
-	   	    	      	      	 - Ted
