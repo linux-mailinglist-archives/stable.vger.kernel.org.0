@@ -2,167 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 418796477F6
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 22:29:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EDBF647845
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 22:54:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229651AbiLHV3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 16:29:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40664 "EHLO
+        id S229873AbiLHVyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 16:54:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229592AbiLHV3H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 16:29:07 -0500
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B9F84271
-        for <stable@vger.kernel.org>; Thu,  8 Dec 2022 13:29:06 -0800 (PST)
-Received: by mail-yb1-xb4a.google.com with SMTP id t5-20020a5b07c5000000b006dfa2102debso2847922ybq.4
-        for <stable@vger.kernel.org>; Thu, 08 Dec 2022 13:29:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=1/7SmmzO1fjUhk6gqNU1IGSXCaBrn6wr7PS0uHHL0Y4=;
-        b=LqiYpvieBDCbLQwkb+CSQO3e5kvlO9YkgEAx+uj4dvnOMSYSbFp+eB6H7weFJnTz89
-         8MDyvy5lu8E6NOlVICNsMMIWd2RXsQrhEHP/T+ym9fr0388elXolqAQVV5XMtGyPc7hB
-         mh47hi5HEFtu4bMGkuw7sLC+CgMhhQDK3rFxEm+R8vsaFvB3a8j6j2zQv0P+wJGMQLDy
-         6qYqDgN4YpiZmvCgZNbe6NfpIeJGuTrFf6M+9a2bJ+nkDnbJl61wH4k79YmSG333Qxbj
-         9U7xGHcetB4fBU33IHmW5ZSKzsib8LREKjD5mpb4io1ayunr/o9VMJFRteWlgb2E3MvY
-         WTSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=1/7SmmzO1fjUhk6gqNU1IGSXCaBrn6wr7PS0uHHL0Y4=;
-        b=YCCn+1CRci9sKVjkcN4WlShcjtcJXYCzqTq1BLU+nSBhM2ltAvV5/X/BPwl74yCiTe
-         oXdSWb8VcDRUXn/2Ki4KIKZhzuau/woYkhRtnCnSsUt7Onm9d4Iy/ci8SPaap4wNOKUo
-         f7aw1mtZvFTzA8XWJoN9Nj93uH+H1fJOQtNLyYtrJMqh08RJIpP4/S+3p9LvBYexA/Tc
-         gt2EvtshJpsM4NvbabuFQ4zmFev8+hr0ilO9LUVxmdvkyc73rkKM0SeJ9tyAMIlIt4tf
-         BmKCBXqeOiZgBUyIrtTOVFP9SA3pBMdOpkwDSY3gwdQAPiU2dx+B4xQO9QtWmlMwP8AY
-         GeAg==
-X-Gm-Message-State: ANoB5pkKiG8F/UVorCeGryIWQVqgyYCTTZrog6Vy6pVWqgll4QngIUHx
-        gkti9JesplOVHec7oSTfNl7oOtc1AaTrpGW/Q4AFWw==
-X-Google-Smtp-Source: AA0mqf5uSOfyS4zTT3VGBQCIxUQ4g9tCxEa+73pikowJ78eitpwdyfLrX+kPJHU3xsZsUmGtzI1+a4VpVYAb7VSEbSE1OQ==
-X-Received: from isaacmanjarres.irv.corp.google.com ([2620:15c:2d:3:c924:bf6:54d9:20e9])
- (user=isaacmanjarres job=sendgmr) by 2002:a05:690c:902:b0:3f6:489a:a06f with
- SMTP id cb2-20020a05690c090200b003f6489aa06fmr10039866ywb.470.1670534945529;
- Thu, 08 Dec 2022 13:29:05 -0800 (PST)
-Date:   Thu,  8 Dec 2022 13:29:01 -0800
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.39.0.rc1.256.g54fd8350bd-goog
-Message-ID: <20221208212902.765781-1-isaacmanjarres@google.com>
-Subject: [PATCH RESEND v1] loop: Fix the max_loop commandline argument
- treatment when it is set to 0
-From:   "Isaac J. Manjarres" <isaacmanjarres@google.com>
-To:     Jens Axboe <axboe@kernel.dk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ken Chen <kenchen@google.com>
-Cc:     Saravana Kannan <saravanak@google.com>,
-        "Isaac J. Manjarres" <isaacmanjarres@google.com>,
-        stable@vger.kernel.org, kernel-team@android.com,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229911AbiLHVyB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 16:54:01 -0500
+X-Greylist: delayed 399 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 08 Dec 2022 13:53:59 PST
+Received: from mx-out.tlen.pl (mx-out.tlen.pl [193.222.135.142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF3A6865A3
+        for <stable@vger.kernel.org>; Thu,  8 Dec 2022 13:53:59 -0800 (PST)
+Received: (wp-smtpd smtp.tlen.pl 12325 invoked from network); 8 Dec 2022 22:47:17 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
+          t=1670536037; bh=EBSs+vJL8c6Kq20TINutZX7cXWTadKq3z2+PMTBk734=;
+          h=Subject:To:Cc:From;
+          b=ySkECOXl0t4LYf1RBBSqDGCixsIc6p0d0xptQdVMWNYlzfzsBxrwlertCCSLwNKG6
+           2G/+0mxI9L1PjfoNqrkuYymvlOj/0wRrgIKsOi8VnXbKFAjwdbLP55dSCh7VRjIT90
+           OWUKsdZps5g0fQSeaR+pX8VuXJZZgyLmGzDc/1gU=
+Received: from aaev158.neoplus.adsl.tpnet.pl (HELO [192.168.1.22]) (mat.jonczyk@o2.pl@[83.4.125.158])
+          (envelope-sender <mat.jonczyk@o2.pl>)
+          by smtp.tlen.pl (WP-SMTPD) with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP
+          for <kane.chen@intel.com>; 8 Dec 2022 22:47:17 +0100
+Message-ID: <70ee669e-9d35-4ff0-13b4-c72e2448a1f7@o2.pl>
+Date:   Thu, 8 Dec 2022 22:47:17 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Subject: Re: RE: [PATCH v1] rtc: cmos: avoid UIP when writing/reading alarm
+ time
+Content-Language: en-GB
+To:     "Chen, Kane" <kane.chen@intel.com>, Sasha Levin <sashal@kernel.org>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+References: <20221207035722.15749-1-kane.chen@intel.com>
+ <Y5Ag6YhxcPPbs4Jr@sashalap>
+ <MW5PR11MB5857D26C66FA084280709384E01A9@MW5PR11MB5857.namprd11.prod.outlook.com>
+From:   =?UTF-8?Q?Mateusz_Jo=c5=84czyk?= <mat.jonczyk@o2.pl>
+In-Reply-To: <MW5PR11MB5857D26C66FA084280709384E01A9@MW5PR11MB5857.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-WP-MailID: ca973171d301ee2bfc35ceb4fa3efd10
+X-WP-AV: skaner antywirusowy Poczty o2
+X-WP-SPAM: NO 000000A [IVPk]                               
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently, the max_loop commandline argument can be used to specify how
-many loop block devices are created at init time. If it is not
-specified on the commandline, CONFIG_BLK_DEV_LOOP_MIN_COUNT loop block
-devices will be created.
+W dniu 7.12.2022 o 07:51, Chen, Kane pisze:
+>> -----Original Message-----
+>> From: Sasha Levin <sashal@kernel.org>
+>> Sent: Wednesday, December 7, 2022 1:13 PM
+>> To: Chen, Kane <kane.chen@intel.com>
+>> Cc: stable@vger.kernel.org
+>> Subject: Re: [PATCH v1] rtc: cmos: avoid UIP when writing/reading alarm time
+>>
+>> On Wed, Dec 07, 2022 at 11:57:22AM +0800, Kane Chen wrote:
+>>> While runnings s0ix cycling test based on rtc alarm wakeup on ADL-P
+>>> devices, We found the data from CMOS_READ is not reasonable and causes
+>> RTC wake up fail.
+>>> With the below changes, we don't see unreasonable data from cmos and
+>> issue is gone.
+>>
+>> Thanks for the analysis, I can queue most of these up. There are two which
+>> won't go in:
+>>
+>>> cd17420: rtc: cmos: avoid UIP when writing alarm time
+>>> cdedc45: rtc: cmos: avoid UIP when reading alarm time
+>>> ec5895c: rtc: mc146818-lib: extract mc146818_avoid_UIP
+>>> ea6fa49: rtc: mc146818-lib: fix RTC presence check
+>>> 13be2ef: rtc: cmos: Disable irq around direct invocation of
+>>> cmos_interrupt()
+>>> 0dd8d6c: rtc: Check return value from mc146818_get_time()
+>>> e1aba37: rtc: cmos: remove stale REVISIT comments
+>>> 6950d04: rtc: cmos: Replace spin_lock_irqsave with spin_lock in hard
+>>> IRQ
+>> This one fixes a commit which isn't in the 5.10 tree.
+>>
+>>> d35786b: rtc: mc146818-lib: change return values of mc146818_get_time()
+>>> ebb22a0: rtc: mc146818: Dont test for bit 0-5 in Register D
+>>> 211e5db: rtc: mc146818: Detect and handle broken RTCs
+>>> dcf257e: rtc: mc146818: Reduce spinlock section in mc146818_set_time()
+>> This one looks like an optimization.
+>>
+>> --
+> I'm sorry,
+> I thought dcf257e and  6950d04, 13be2ef  are also required to avoid cherry-pick conflict
+> After checking again, dcf257e, 6950d04, 13be2ef are not needed.
+>
+> Here is the list I would like to pick
+> cd17420: rtc: cmos: avoid UIP when writing alarm time
+> cdedc45: rtc: cmos: avoid UIP when reading alarm time
+> ec5895c: rtc: mc146818-lib: extract mc146818_avoid_UIP
+> ea6fa49: rtc: mc146818-lib: fix RTC presence check
+> 0dd8d6c: rtc: Check return value from mc146818_get_time()
+> e1aba37: rtc: cmos: remove stale REVISIT comments
+> d35786b: rtc: mc146818-lib: change return values of mc146818_get_time()
+> ebb22a0: rtc: mc146818: Dont test for bit 0-5 in Register D
+> 211e5db: rtc: mc146818: Detect and handle broken RTCs
+> 05a0302: rtc: mc146818: Prevent reading garbage
+>
+> Thanks a lot
+>
+>> Thanks,
+>> Sasha
+>>
+Hello,
 
-The max_loop commandline argument can be used to override the value of
-CONFIG_BLK_DEV_LOOP_MIN_COUNT. However, when max_loop is set to 0
-through the commandline, the current logic treats it as if it had not
-been set, and creates CONFIG_BLK_DEV_LOOP_MIN_COUNT devices anyway.
+I think that you should also pick these patches which fix issues in the series
+that is prepared for 5.4:
 
-Fix this by starting max_loop off as set to CONFIG_BLK_DEV_LOOP_MIN_COUNT.
-This preserves the intended behavior of creating
-CONFIG_BLK_DEV_LOOP_MIN_COUNT loop block devices if the max_loop
-commandline parameter is not specified, and allowing max_loop to
-be respected for all values, including 0.
+1) commit 7372971c1be5 ("rtc: mc146818-lib: fix signedness bug in mc146818_get_time()")
 
-This allows environments that can create all of their required loop
-block devices on demand to not have to unnecessarily preallocate loop
-block devices.
+which fixes d35786b: rtc: mc146818-lib: change return values of mc146818_get_time()
 
-Fixes: 732850827450 ("remove artificial software max_loop limit")
-Cc: stable@vger.kernel.org
-Cc: Ken Chen <kenchen@google.com>
-Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
----
- drivers/block/loop.c | 28 ++++++++++++----------------
- 1 file changed, 12 insertions(+), 16 deletions(-)
+2) commit 13be2efc390a ("rtc: cmos: Disable irq around direct invocation of cmos_interrupt()")
 
-This is a resend because I misspelled the address for
-stable@vger.kernel.org the first time.
+which fixes 6950d04: rtc: cmos: Replace spin_lock_irqsave with spin_lock in hard IRQ
+and is not prepared for 5.4 stable even though it was mentioned above.
 
---Isaac
+3) commit 811f5559270f ("rtc: mc146818-lib: fix locking in mc146818_set_time")
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index ad92192c7d61..d12d3d171ec4 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1773,7 +1773,16 @@ static const struct block_device_operations lo_fops = {
- /*
-  * And now the modules code and kernel interface.
-  */
--static int max_loop;
-+
-+/*
-+ * If max_loop is specified, create that many devices upfront.
-+ * This also becomes a hard limit. If max_loop is not specified,
-+ * create CONFIG_BLK_DEV_LOOP_MIN_COUNT loop devices at module
-+ * init time. Loop devices can be requested on-demand with the
-+ * /dev/loop-control interface, or be instantiated by accessing
-+ * a 'dead' device node.
-+ */
-+static int max_loop = CONFIG_BLK_DEV_LOOP_MIN_COUNT;
- module_param(max_loop, int, 0444);
- MODULE_PARM_DESC(max_loop, "Maximum number of loop devices");
- module_param(max_part, int, 0444);
-@@ -2181,7 +2190,7 @@ MODULE_ALIAS("devname:loop-control");
- 
- static int __init loop_init(void)
- {
--	int i, nr;
-+	int i;
- 	int err;
- 
- 	part_shift = 0;
-@@ -2209,19 +2218,6 @@ static int __init loop_init(void)
- 		goto err_out;
- 	}
- 
--	/*
--	 * If max_loop is specified, create that many devices upfront.
--	 * This also becomes a hard limit. If max_loop is not specified,
--	 * create CONFIG_BLK_DEV_LOOP_MIN_COUNT loop devices at module
--	 * init time. Loop devices can be requested on-demand with the
--	 * /dev/loop-control interface, or be instantiated by accessing
--	 * a 'dead' device node.
--	 */
--	if (max_loop)
--		nr = max_loop;
--	else
--		nr = CONFIG_BLK_DEV_LOOP_MIN_COUNT;
--
- 	err = misc_register(&loop_misc);
- 	if (err < 0)
- 		goto err_out;
-@@ -2233,7 +2229,7 @@ static int __init loop_init(void)
- 	}
- 
- 	/* pre-create number of devices given by config or max_loop */
--	for (i = 0; i < nr; i++)
-+	for (i = 0; i < max_loop; i++)
- 		loop_add(i);
- 
- 	printk(KERN_INFO "loop: module loaded\n");
--- 
-2.39.0.rc1.256.g54fd8350bd-goog
+which fixes dcf257e: rtc: mc146818: Reduce spinlock section in mc146818_set_time()
+
+
+When it comes to these two patches:
+
+cd17420: rtc: cmos: avoid UIP when writing alarm time
+cdedc45: rtc: cmos: avoid UIP when reading alarm time
+
+I used to think that the issues they fix were very unlikely to happen in practice,
+so I did not submit them into stable. So thanks for proving me wrong.
+
+Greetings,
+Mateusz
 
