@@ -2,145 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EDBF647845
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 22:54:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D3A9647842
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 22:53:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229873AbiLHVyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 16:54:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54958 "EHLO
+        id S229601AbiLHVxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 16:53:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229911AbiLHVyB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 16:54:01 -0500
-X-Greylist: delayed 399 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 08 Dec 2022 13:53:59 PST
-Received: from mx-out.tlen.pl (mx-out.tlen.pl [193.222.135.142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF3A6865A3
-        for <stable@vger.kernel.org>; Thu,  8 Dec 2022 13:53:59 -0800 (PST)
-Received: (wp-smtpd smtp.tlen.pl 12325 invoked from network); 8 Dec 2022 22:47:17 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
-          t=1670536037; bh=EBSs+vJL8c6Kq20TINutZX7cXWTadKq3z2+PMTBk734=;
-          h=Subject:To:Cc:From;
-          b=ySkECOXl0t4LYf1RBBSqDGCixsIc6p0d0xptQdVMWNYlzfzsBxrwlertCCSLwNKG6
-           2G/+0mxI9L1PjfoNqrkuYymvlOj/0wRrgIKsOi8VnXbKFAjwdbLP55dSCh7VRjIT90
-           OWUKsdZps5g0fQSeaR+pX8VuXJZZgyLmGzDc/1gU=
-Received: from aaev158.neoplus.adsl.tpnet.pl (HELO [192.168.1.22]) (mat.jonczyk@o2.pl@[83.4.125.158])
-          (envelope-sender <mat.jonczyk@o2.pl>)
-          by smtp.tlen.pl (WP-SMTPD) with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP
-          for <kane.chen@intel.com>; 8 Dec 2022 22:47:17 +0100
-Message-ID: <70ee669e-9d35-4ff0-13b4-c72e2448a1f7@o2.pl>
-Date:   Thu, 8 Dec 2022 22:47:17 +0100
+        with ESMTP id S229824AbiLHVxp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 16:53:45 -0500
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 331019AE21
+        for <stable@vger.kernel.org>; Thu,  8 Dec 2022 13:53:43 -0800 (PST)
+Received: by mail-pl1-x636.google.com with SMTP id d7so2856330pll.9
+        for <stable@vger.kernel.org>; Thu, 08 Dec 2022 13:53:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=L3cotTEKoVg/NI8hE3ajxkF4MJIW6yza9CRM4C5P02c=;
+        b=TsOCW2+Q9PEKLZ+qJDBzL5x4wibovr+mPGy2dxfWmm1icHmYsDocvWm4I2+NSyY4Qu
+         8Ii1fzmzbIVYop0XpcAX7prqK4GzV7qTPNdluP5Wt2eAmD5uDhr15+rSMunIt+SGXoPO
+         ac7+aOVg3rMQFjrFIWefHMLEXQ0Z0kQ1ErSpYrgTM1wCRwUmuxWfB9bZ95qWgsScmblg
+         liO2+BQ4sjid+7lyl+pn9e4GYcxfd3tYfIL4WnSHbHN1f8TfVcZHDDCLA2fgplmk9cWx
+         JjrmnHGTp2bGrH8OHoapbcQhN4KARcfz3WmbUQ48UZyBtrPNAN011EXAVVfhWIhDkM/a
+         F+xg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=L3cotTEKoVg/NI8hE3ajxkF4MJIW6yza9CRM4C5P02c=;
+        b=xdW1ud3djQly0zb4mVz6MAFJB5n0FNzJNOmbO/jA8FqKf+XFwICEYahy0uxH6o5eN4
+         tuxislyZPwMG+IDsXnKBsHajgay7+SxJ0df9xtLJbqhIhCXTcWbEn4r3N8CL3Bc2VUN4
+         cmiF6PC63HUvY4DWr9bRUiBXwes8ygGlxs6EYuAUU9Rm09zEnMCK5KyAFCPhWb2PEbDG
+         700Iah2xYzkcT8DX35uXelvQaj+VFx2Jhs08XYkMPWfIPaoPvyxKOpiUY/q2or+wCyVF
+         UBdGUsxTjp38Wwu6/Piw2YdHpQGjxFKkJ+8PyL1ycNm8s0d7qLiYtvBUJAEJe1xdPRHl
+         j4QQ==
+X-Gm-Message-State: ANoB5pku7blKokPPqQ+j7vgP2E8+SwFqJDJp6lB/tx1n5GfytbhygDaT
+        i6ky3lN4rkqfqXk9vcn+bISWfE+7b00Bn845N9jrlA==
+X-Google-Smtp-Source: AA0mqf5Bd4OhRYvhGqjETBAlhUr/Yj4wDI/jX9Xn8zMbA63qdFPkJL8FVU08S7P0wpuXf/fWaMKClw==
+X-Received: by 2002:a17:90a:ae03:b0:20d:bd5f:ced2 with SMTP id t3-20020a17090aae0300b0020dbd5fced2mr3550563pjq.34.1670536422351;
+        Thu, 08 Dec 2022 13:53:42 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id qe7-20020a17090b4f8700b00218d894fac3sm89875pjb.3.2022.12.08.13.53.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Dec 2022 13:53:41 -0800 (PST)
+Message-ID: <63925ce5.170a0220.f774d.054c@mx.google.com>
+Date:   Thu, 08 Dec 2022 13:53:41 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: RE: [PATCH v1] rtc: cmos: avoid UIP when writing/reading alarm
- time
-Content-Language: en-GB
-To:     "Chen, Kane" <kane.chen@intel.com>, Sasha Levin <sashal@kernel.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-References: <20221207035722.15749-1-kane.chen@intel.com>
- <Y5Ag6YhxcPPbs4Jr@sashalap>
- <MW5PR11MB5857D26C66FA084280709384E01A9@MW5PR11MB5857.namprd11.prod.outlook.com>
-From:   =?UTF-8?Q?Mateusz_Jo=c5=84czyk?= <mat.jonczyk@o2.pl>
-In-Reply-To: <MW5PR11MB5857D26C66FA084280709384E01A9@MW5PR11MB5857.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-WP-MailID: ca973171d301ee2bfc35ceb4fa3efd10
-X-WP-AV: skaner antywirusowy Poczty o2
-X-WP-SPAM: NO 000000A [IVPk]                               
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Kernel: v5.10.158-45-g6bfd2d2abf3f1
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.10 baseline: 102 runs,
+ 1 regressions (v5.10.158-45-g6bfd2d2abf3f1)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-W dniu 7.12.2022 o 07:51, Chen, Kane pisze:
->> -----Original Message-----
->> From: Sasha Levin <sashal@kernel.org>
->> Sent: Wednesday, December 7, 2022 1:13 PM
->> To: Chen, Kane <kane.chen@intel.com>
->> Cc: stable@vger.kernel.org
->> Subject: Re: [PATCH v1] rtc: cmos: avoid UIP when writing/reading alarm time
->>
->> On Wed, Dec 07, 2022 at 11:57:22AM +0800, Kane Chen wrote:
->>> While runnings s0ix cycling test based on rtc alarm wakeup on ADL-P
->>> devices, We found the data from CMOS_READ is not reasonable and causes
->> RTC wake up fail.
->>> With the below changes, we don't see unreasonable data from cmos and
->> issue is gone.
->>
->> Thanks for the analysis, I can queue most of these up. There are two which
->> won't go in:
->>
->>> cd17420: rtc: cmos: avoid UIP when writing alarm time
->>> cdedc45: rtc: cmos: avoid UIP when reading alarm time
->>> ec5895c: rtc: mc146818-lib: extract mc146818_avoid_UIP
->>> ea6fa49: rtc: mc146818-lib: fix RTC presence check
->>> 13be2ef: rtc: cmos: Disable irq around direct invocation of
->>> cmos_interrupt()
->>> 0dd8d6c: rtc: Check return value from mc146818_get_time()
->>> e1aba37: rtc: cmos: remove stale REVISIT comments
->>> 6950d04: rtc: cmos: Replace spin_lock_irqsave with spin_lock in hard
->>> IRQ
->> This one fixes a commit which isn't in the 5.10 tree.
->>
->>> d35786b: rtc: mc146818-lib: change return values of mc146818_get_time()
->>> ebb22a0: rtc: mc146818: Dont test for bit 0-5 in Register D
->>> 211e5db: rtc: mc146818: Detect and handle broken RTCs
->>> dcf257e: rtc: mc146818: Reduce spinlock section in mc146818_set_time()
->> This one looks like an optimization.
->>
->> --
-> I'm sorry,
-> I thought dcf257e and  6950d04, 13be2ef  are also required to avoid cherry-pick conflict
-> After checking again, dcf257e, 6950d04, 13be2ef are not needed.
->
-> Here is the list I would like to pick
-> cd17420: rtc: cmos: avoid UIP when writing alarm time
-> cdedc45: rtc: cmos: avoid UIP when reading alarm time
-> ec5895c: rtc: mc146818-lib: extract mc146818_avoid_UIP
-> ea6fa49: rtc: mc146818-lib: fix RTC presence check
-> 0dd8d6c: rtc: Check return value from mc146818_get_time()
-> e1aba37: rtc: cmos: remove stale REVISIT comments
-> d35786b: rtc: mc146818-lib: change return values of mc146818_get_time()
-> ebb22a0: rtc: mc146818: Dont test for bit 0-5 in Register D
-> 211e5db: rtc: mc146818: Detect and handle broken RTCs
-> 05a0302: rtc: mc146818: Prevent reading garbage
->
-> Thanks a lot
->
->> Thanks,
->> Sasha
->>
-Hello,
+stable-rc/queue/5.10 baseline: 102 runs, 1 regressions (v5.10.158-45-g6bfd2=
+d2abf3f1)
 
-I think that you should also pick these patches which fix issues in the series
-that is prepared for 5.4:
+Regressions Summary
+-------------------
 
-1) commit 7372971c1be5 ("rtc: mc146818-lib: fix signedness bug in mc146818_get_time()")
-
-which fixes d35786b: rtc: mc146818-lib: change return values of mc146818_get_time()
-
-2) commit 13be2efc390a ("rtc: cmos: Disable irq around direct invocation of cmos_interrupt()")
-
-which fixes 6950d04: rtc: cmos: Replace spin_lock_irqsave with spin_lock in hard IRQ
-and is not prepared for 5.4 stable even though it was mentioned above.
-
-3) commit 811f5559270f ("rtc: mc146818-lib: fix locking in mc146818_set_time")
-
-which fixes dcf257e: rtc: mc146818: Reduce spinlock section in mc146818_set_time()
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
-When it comes to these two patches:
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.158-45-g6bfd2d2abf3f1/plan/baseline/
 
-cd17420: rtc: cmos: avoid UIP when writing alarm time
-cdedc45: rtc: cmos: avoid UIP when reading alarm time
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.158-45-g6bfd2d2abf3f1
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6bfd2d2abf3f195413917dcd593093eccfb4f960 =
 
-I used to think that the issues they fix were very unlikely to happen in practice,
-so I did not submit them into stable. So thanks for proving me wrong.
 
-Greetings,
-Mateusz
 
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/63922b09143841072f2abd0f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.158=
+-45-g6bfd2d2abf3f1/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-bea=
+gle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.158=
+-45-g6bfd2d2abf3f1/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-bea=
+gle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63922b09143841072f2ab=
+d10
+        new failure (last pass: v5.10.157-95-g602512855c6c) =
+
+ =20
