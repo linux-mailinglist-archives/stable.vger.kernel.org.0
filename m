@@ -2,85 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D73B647520
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 18:50:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61D0D647523
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 18:50:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229897AbiLHRuT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 12:50:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54192 "EHLO
+        id S229941AbiLHRuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 12:50:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229847AbiLHRuS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 12:50:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1ED98B3AE;
-        Thu,  8 Dec 2022 09:50:17 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF046B825A9;
-        Thu,  8 Dec 2022 17:50:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 64905C433D2;
-        Thu,  8 Dec 2022 17:50:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670521815;
-        bh=zBK5KvggkjJJ3BCPGvnHXC2UKVb94RIF663iWX+BBgw=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=mIh+kFn2j8DROl+M//spbSOyIx36jsX2OPrau3yfynAHXwvau11vdk0zSmz4hZGnA
-         NqRdS/52/pQwIaFAsbHKvxlTq8zQrEIsP++TWOKWz9y3sVmQdbYBIgUNiRp5c8WpsA
-         FH9cjMb3FqRVLyAJezyqFBGRStLrDK5TZH8i5Ofx3QUPUlYVtw+eyoyrWH7y58E90A
-         Unyq7mCR24K+hsAFsfuqaGRN9TtUiXg9Js1Jir0WXPabo4+TcFpjl5T6vO6LDvpWtw
-         ShKLEzLxCk5EP53fqJLANDOaD3vGdjSMc0INajeno28uEvnyWfaPtA6n+MrCJv2D08
-         8mtd4M8hxiZtQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 47E75E1B4D8;
-        Thu,  8 Dec 2022 17:50:15 +0000 (UTC)
+        with ESMTP id S229895AbiLHRuW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 12:50:22 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A8D8B3AE
+        for <stable@vger.kernel.org>; Thu,  8 Dec 2022 09:50:20 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id y4so2235362plb.2
+        for <stable@vger.kernel.org>; Thu, 08 Dec 2022 09:50:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=8IMuFFio+3hXWiRYVrCsGLP2isTTpP3iBOZ2h3jrkVE=;
+        b=ANkgDXyXbvpa0ob8a891DuO/PU7Qdo59bOxOXm6CZp6fP37V+GIlWb8Ath30hjNRt4
+         4L3vHt38pWA13gvt+KXRR8a1ph1houUkYUMeq3+02GBcSoWB4RvI83fF25NaeoLh9gz1
+         kglZcSkgURnqWB/u7T5SgOIXwHr2mTBeOH3YbIG5nkhdWOqCBpIjRwBwYvgxlaJpYz6I
+         Mm67led1/PKHknFmvVST9GM2ZLSHYx8OgzlzYUMUlikSkwbptBq/7W9I4+WRq/PB9x35
+         OOidnBwdegT0Xk6xAdlg+F57Trj8HyCqvuT5XT2St9gk2TCka5xuygnj/TjtCkBt7PIc
+         EIwQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8IMuFFio+3hXWiRYVrCsGLP2isTTpP3iBOZ2h3jrkVE=;
+        b=gpXH13OTgDvTUkYvPNwHS+xuby3KTs+//Hz6KF7nPTbc1TSxXM1MXfoChztFbQntrL
+         q9pfUlXTWJ57ZRI/WT/eV8rk1g9pJHPRGYYJcPDI5MK/ONZwke+pPdUWY96sdPAEIYUt
+         +h6N1ADwrvr7+Oq6VusVEEQIhRSt9FRePY+dZQz9wFQoB3Jnrujk7/XOGyhAp0blb9+W
+         V9awDptYmwqiKTTG/CJij8nALL1mnvfKngF6Gssa+koUYGizcZWBHUqShJlo2p06f9Jh
+         gaJSPj0iU/zRadSy5CRoqjnbadjKGAXpaO5eyPHFRzeLqPKMKbvorR+vFVGW2IH3HJoq
+         AFvA==
+X-Gm-Message-State: ANoB5pkKFtTNPWZyW0pgOQoheibvMeTV5Wx8TdRLDCDgDHv8Lb00bhJH
+        ARnHfkcY2BjtN0hIoTu7RMRXkecFONuawgAnybJ/nA==
+X-Google-Smtp-Source: AA0mqf5tbLyfCrxoqZ1Szu0V5D12eAUfATr94J541jfHcTTWkSMbial+tMeSGenMmB9+WiC6Ub491g==
+X-Received: by 2002:a17:90a:af8a:b0:20d:bd5f:cec8 with SMTP id w10-20020a17090aaf8a00b0020dbd5fcec8mr2913285pjq.24.1670521819930;
+        Thu, 08 Dec 2022 09:50:19 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id nv14-20020a17090b1b4e00b00218fba260e2sm3140234pjb.43.2022.12.08.09.50.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Dec 2022 09:50:19 -0800 (PST)
+Message-ID: <639223db.170a0220.66b0e.6760@mx.google.com>
+Date:   Thu, 08 Dec 2022 09:50:19 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH RESEND v2] net: dsa: sja1105: avoid out of bounds access in
- sja1105_init_l2_policing()
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <167052181528.971.4904636382041460131.git-patchwork-notify@kernel.org>
-Date:   Thu, 08 Dec 2022 17:50:15 +0000
-References: <20221207132347.38698-1-radu-nicolae.pirea@oss.nxp.com>
-In-Reply-To: <20221207132347.38698-1-radu-nicolae.pirea@oss.nxp.com>
-To:     Radu Nicolae Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
-Cc:     olteanv@gmail.com, andrew@lunn.ch, f.fainelli@gmail.com,
-        davem@davemloft.net, gregkh@linuxfoundation.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Kernel: v5.15.82
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.15.y baseline: 155 runs, 1 regressions (v5.15.82)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+stable-rc/linux-5.15.y baseline: 155 runs, 1 regressions (v5.15.82)
 
-This patch was applied to netdev/net.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
+Regressions Summary
+-------------------
 
-On Wed,  7 Dec 2022 15:23:47 +0200 you wrote:
-> The SJA1105 family has 45 L2 policing table entries
-> (SJA1105_MAX_L2_POLICING_COUNT) and SJA1110 has 110
-> (SJA1110_MAX_L2_POLICING_COUNT). Keeping the table structure but
-> accounting for the difference in port count (5 in SJA1105 vs 10 in
-> SJA1110) does not fully explain the difference. Rather, the SJA1110 also
-> has L2 ingress policers for multicast traffic. If a packet is classified
-> as multicast, it will be processed by the policer index 99 + SRCPORT.
-> 
-> [...]
-
-Here is the summary with links:
-  - [RESEND,v2] net: dsa: sja1105: avoid out of bounds access in sja1105_init_l2_policing()
-    https://git.kernel.org/netdev/net/c/f8bac7f9fdb0
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.82/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.82
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d9790301361c52921c6e5bdf155fe0d3bf7a207d =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/6391edb67a1c134ed82abcfe
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.8=
+2/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.8=
+2/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6391edb67a1c134ed82ab=
+cff
+        failing since 209 days (last pass: v5.15.37-259-gab77581473a3, firs=
+t fail: v5.15.39) =
+
+ =20
