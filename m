@@ -2,181 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C80F6472C9
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 16:22:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD9746472BE
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 16:21:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230300AbiLHPWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 10:22:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37836 "EHLO
+        id S230297AbiLHPVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 10:21:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230308AbiLHPWj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 10:22:39 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E780871246
-        for <stable@vger.kernel.org>; Thu,  8 Dec 2022 07:21:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1670512883;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=1TCrGY30xtqKhvpkZ91gzI+bfZZQwx6XMMEYmjyVbA4=;
-        b=Z06Z8BchhQpGHHHs3F4XeGqlHq/CHrPP2kVnvTxGR4U0ms18diAS1OwjV1eJNKqu+EM78c
-        iSGB5qi6StHciNiBdp5S83otUAW3g4iS1FiCwDlrJz6xe4oS5ao40hl5IbUF80FGlRUxuT
-        PlEMKbsoeVMxEWFvXMSdp/Kz6jBa5NA=
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
- [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-70-lJdnghseOj2gfVdCeNknvA-1; Thu, 08 Dec 2022 10:17:31 -0500
-X-MC-Unique: lJdnghseOj2gfVdCeNknvA-1
-Received: by mail-qt1-f200.google.com with SMTP id s14-20020a05622a1a8e00b00397eacd9c1aso1621844qtc.21
-        for <stable@vger.kernel.org>; Thu, 08 Dec 2022 07:17:31 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1TCrGY30xtqKhvpkZ91gzI+bfZZQwx6XMMEYmjyVbA4=;
-        b=OBir2PMzoynvFIn97WoppJpKptIs5/rCr+w+IqF9oRGQ/tU+MgdsNS+R04404mWNNA
-         S2gsxdorTbp/hz+neZsrdPfe4r/imT2H1EKjPLCV6qO65vOOTLNdXLEOv5c97uJDghzO
-         yZOgAQRBomBbR6nlCMv2v6Jcwq3aALBDPoXDlEPGKWFI4PN/RlVOMSy4taARJK85+low
-         NJT5Pi02KQ7ZSvugQTRf6kFIvZ81uh7bTqWM9bJbNKLfDoGLTmucZG+b0090A6iXTFeI
-         f+qpZ4lDln9ybnUMjPqAv/2tOQKejK0O2umcx3RW3AO84+ShRHVfrKWcTeoF0HagUdd4
-         BgEw==
-X-Gm-Message-State: ANoB5pl2RMKhh0Nh7FBZtWMZrJzv0oucfk/T5lFsjzA4NCWJ9OloO/GG
-        U2Vt+l/J2a1JOVT8hH8GjScy/ramSivw0uiArsrYHZLaghlkE8Qnm58+Gg6o3ho2FbGd8sxHMOr
-        hbwp27Por7DxElWm7
-X-Received: by 2002:a05:622a:4a17:b0:3a5:3c5e:7b67 with SMTP id fv23-20020a05622a4a1700b003a53c5e7b67mr3659178qtb.37.1670512651094;
-        Thu, 08 Dec 2022 07:17:31 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf7xIQ66ISuHWGhfM3iVFJxH0myy6pVHyIzFHhJhtBI9sCg9WI0NXgOhibs7AlkbCRvBltMwCQ==
-X-Received: by 2002:a05:622a:4a17:b0:3a5:3c5e:7b67 with SMTP id fv23-20020a05622a4a1700b003a53c5e7b67mr3659149qtb.37.1670512650788;
-        Thu, 08 Dec 2022 07:17:30 -0800 (PST)
-Received: from x1n (bras-base-aurron9127w-grc-46-70-31-27-79.dsl.bell.ca. [70.31.27.79])
-        by smtp.gmail.com with ESMTPSA id c4-20020a05620a268400b006ec62032d3dsm19471430qkp.30.2022.12.08.07.17.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Dec 2022 07:17:29 -0800 (PST)
-Date:   Thu, 8 Dec 2022 10:17:28 -0500
-From:   Peter Xu <peterx@redhat.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Ives van Hoorne <ives@codesandbox.io>,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hugh@veritas.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH RFC] mm/userfaultfd: enable writenotify while
- userfaultfd-wp is enabled for a VMA
-Message-ID: <Y5IACIN6b5UaYq42@x1n>
-References: <20221202122748.113774-1-david@redhat.com>
- <Y4oo6cN1a4Yz5prh@x1n>
- <690afe0f-c9a0-9631-b365-d11d98fdf56f@redhat.com>
- <19800718-9cb6-9355-da1c-c7961b01e922@redhat.com>
- <Y45duzmGGUT0+u8t@x1n>
- <92173bad-caa3-6b43-9d1e-9a471fdbc184@redhat.com>
- <Y4+zw4JU7JMlDHbM@x1n>
- <5a626d30-ccc9-6be3-29f7-78f83afbe5c4@redhat.com>
- <Y5C4Zu9sDvZ7KiCk@x1n>
- <53e52007-e556-332d-ec4d-5fe48a90e9b0@redhat.com>
+        with ESMTP id S230223AbiLHPUy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 10:20:54 -0500
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BF74671243;
+        Thu,  8 Dec 2022 07:20:11 -0800 (PST)
+Received: by linux.microsoft.com (Postfix, from userid 1112)
+        id 7657B20B6C40; Thu,  8 Dec 2022 07:20:11 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 7657B20B6C40
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1670512811;
+        bh=Q/kTXQ0Cy2jF/9ctAGUSG3KpRvJg6WX6zQtjcqoVlt0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CjGkKGTcFFRj7T6RLwa3KZ6PyeqdS+urbWoxIk+/4ZPnj1//qiRG+Z6yVEJSsxH8v
+         PaWUn28Fv4rqqIyAQvkuzNXyoa0hZkTsDpmWJyykC4Dkp+yH7Y5CIA7+ulMCLrJdUn
+         y3YHn8w0BD/Dz6hfq4yIRMprk1SV05OtwFWTXKjM=
+Date:   Thu, 8 Dec 2022 07:20:11 -0800
+From:   Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+To:     Jan Kara <jack@suse.cz>
+Cc:     Theodore Ts'o <tytso@mit.edu>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        linux-ext4@vger.kernel.org, stable@vger.kernel.org,
+        Thilo Fromm <t-lo@linux.microsoft.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: Re: [PATCH] ext4: Fix deadlock due to mbcache entry corruption
+Message-ID: <20221208152011.GA12315@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+References: <20221123193950.16758-1-jack@suse.cz>
+ <20221201151021.GA18380@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <9c414060-989d-55bb-9a7b-0f33bf103c4f@leemhuis.info>
+ <Y5F8ayz4gEtKn0LF@mit.edu>
+ <20221208091523.t6ka6tqtclcxnsrp@quack3>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <53e52007-e556-332d-ec4d-5fe48a90e9b0@redhat.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20221208091523.t6ka6tqtclcxnsrp@quack3>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 07, 2022 at 09:10:41PM +0100, David Hildenbrand wrote:
-> Now, my 2 cents on the whole topic regarding "supported", "not supported"
-> etc:
+On Thu, Dec 08, 2022 at 10:15:23AM +0100, Jan Kara wrote:
+> Hi Ted!
 > 
-> (1) If something is not supported we should bail out or at least warn
->     the user. I'm pretty sure there are other uffd-wp dummy users like
->     me. Skimming over the man userfaultfd page nothing in particular
->     regarding PROT_WRITE, mprotect(), ... maybe I looked at the wrong
->     page.
-> (2) If something is easy to support, support it instead of having all
->     these surprises for users and having to document them and warn the
->     user. Makes all these discussions regarding what's supported, what's
->     a valid use case, etc ... much easier.
-> (3) Inconsistency confuses users. If something used to work for anon,
->     in an ideal world, we make shmem behave in a similar, non-surprising
->     way.
-> (4) There are much smarter people like me with much more advanced
->     magical hats. I'm pretty sure they will come up with use cases that
->     I am not even able to anticipate right now.
-> (5) Users will make any imaginable mistake possible and point at the
->     doc, that nothing speaks against it and that the system didn't bail
->     out.
+> On Thu 08-12-22 00:55:55, Theodore Ts'o wrote:
+> > One thing which is completely unclear to me is how this relates to the
+> > claimed regression.  I understand that Jeremi and Thilo have asserted
+> > that the hang goes away if a backport commit 51ae846cff5 ("ext4: fix
+> > warning in ext4_iomap_begin as race between bmap and write") is not in
+> > their 5.15 product tree.
 > 
-> Again, just my 2 cents. Maybe the dos and don'ts of userfaultfd-wp are
-> properly documented already and we just don't bail out.
+> IMHO the bisection was flawed and somehow the test of a revert (which guys
+> claimed to have done) must have been lucky and didn't trip the race. This
+> is not that hard to imagine because firstly, the commit 51ae846cff5 got
+> included in the same stable kernel release as ext4 xattr changes
+> (65f8b80053 ("ext4: fix race when reusing xattr blocks") and related
+> mbcache changes) which likely made the race more likely. Secondly, the
+> mbcache state corruption is not that easy to hit because you need an
+> interaction of slab reclaim on mbcache entry with ext4 xattr code adding
+> reference to xattr block and just hitting the reference limit.
+> 
 
-I just don't know how to properly document it with all the information.  If
-things missing we can always work on top, but again I hope we don't go too
-far from what will become useful.
+Yeah, sorry about that, there was never a bisect that led to 51ae846cff5, it
+was just a guess and at that point we were unable to reproduce it ourselves so
+we just had information from a user stating that when they revert that commit
+in their own test build the issue doesn't occur.
 
-Note that I never said mprotect is not supported... AFAIR there is a use
-case where one can (with non-cooperative mode) use uffd-wp to track a
-process who does mprotect.  For anon uffd-wp it should work already, now
-this also reminded me maybe yes with the vm_page_prot patch for shmem from
-you it'll also work with shmem and it's still good to have that.  In that
-case IIUC we'll just notify uffd-wp first then with SIGBUS.
+Once we were able to personally reproduce the actual bisect led to 65f8b80053,
+which as Honza stated made sure that the corruption/inconsistency leads to a
+busy loop which is harder to miss.
 
-Said that, it's still unclear how these things are used altogether in an
-intended way.  Let me give some examples.
-
- - What if uffd-wp is registered with SIGBUS mode?  How it'll work with
-   mprotect(RO) too which also use SIGBUS?
-
- - What if uffd-wp tracks a process that also use uffd-wp?  Now nest cannot
-   work, but do we need to document it explicitly, or should we just
-   implemented nesting of uffd-wp?
-
- - Even if uffd-wp seems to work well with mprotect(RO), what about all the
-   rest modes combined?  Uffd has missing and minor mode, mprotect can do
-   more than RO.  One thing we used to discuss but a slight different case:
-   what happens if one registers with uffd missing and also mprotect(NONE)?
-   When the page accessed IIUC we will notify SIGBUS first instead of uffd
-   because IIRC we'll check vma flags earlier.  Is this the behavior we
-   wanted?  What's the expected behavior?  This will also be a different
-   order we notify comparing to the case of "uffd-wp with mprotect(RO)"
-   because in that case we notify uffd-wp before SIGBUS.  Should we revert
-   the order there just to align with everything?
-
-Sorry to dump these examples.  What I wanted to say is to me there're just
-so many things to consider and that's just a start.  I am not sure whether
-it'll be even worth it to decide which should be the right order and make
-everything very much defined, even if I still think 99% of the people will
-not even care, when someone cares as a start from 1% then 0.99% of them
-will find that they can actually do it cleaner with other approaches with
-the same kernel facilities.
-
-What about the last 0.01%?  They're the driven force to enhance the kernel,
-that's always my understanding.  They'll either start to ask: "hey I have a
-use case that want to use uffd with mprotect() in this way, and that cannot
-be done by existing infras.  Would it make sense to allow it to happen?".
-Or they come with patches.  That's how things evolve to me.
-
-These may be seen as excuses of not having proper documentation, personally
-sometimes it's not easy for me to draw the line myself on which should be
-properly documented and which may not be needed.  What I worry is over
-engineer and we spend time on things that may not as important or more
-priority than something else.
-
-Going back - the solo request I was asking to not use a mprotect example is
-mprotect is really not the one that the majority should use for using
-uffd-wp.  It's not easy to help people understand the problem at all.
-That's all for that.
-
-Thanks,
-
--- 
-Peter Xu
-
+> > However, the stack traces point to a problem in the extended attribute
+> > code, which has nothing to do with ext4_bmap(), and commit 51ae846cff5
+> > only changes the ext4's bmap function --- which these days gets used
+> > for the FIBMAP ioctl and very little else.
+> > 
+> > Furthermore, the fix which Jan provided, and which apparently fixes
+> > the user's problem, (a) doesn't touch the ext4_bmap function, and (b)
+> > has a fixes tag for the patch:
+> > 
+> >     Fixes: 6048c64b2609 ("mbcache: add reusable flag to cache entries")
+> > 
+> > ... which is a commit which dates back to 2016, and the v4.6 kernel.  ?!?
+> 
+> Yes. AFAICT the bitfield race in mbcache was introduced in this commit but
+> somehow ext4 was using mbcache in a way that wasn't tripping the race.
+> After 65f8b80053 ("ext4: fix race when reusing xattr blocks"), the race
+> became much more likely and users started to notice...
+> 
+> 								Honza
+> -- 
+> Jan Kara <jack@suse.com>
+> SUSE Labs, CR
