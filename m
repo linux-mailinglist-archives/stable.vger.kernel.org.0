@@ -2,124 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E262964644E
-	for <lists+stable@lfdr.de>; Wed,  7 Dec 2022 23:52:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B71FF646597
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 01:04:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229853AbiLGWwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Dec 2022 17:52:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45014 "EHLO
+        id S230159AbiLHAEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Dec 2022 19:04:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229847AbiLGWwa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 17:52:30 -0500
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78C7B5C76C;
-        Wed,  7 Dec 2022 14:52:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1670453549; x=1701989549;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=t2DafPPSBT9Ml5FRPIZEHIKvXe0wTNw4tCplQE2Vzac=;
-  b=R4bj3/ty52OZ0gSGzG2PUAksCVSmcDe1ZLUUjxnSh63s2V3GTONwb8ZA
-   gZEC7ZO7wYcMrvLGpjg1Sras81vy6WqryUFcZPPtfNBTU/grFTkdm2459
-   HE6Xe1MNTHwPb88ppJ7V2hoSm2dYID0DSTaxPENIJlCuJhAZGdGymjo5d
-   Rpa+eDYJpj4EEeaMqV7lfj6m9SDItyl8IavnmhQG0JmGIEyjZzo2ae3jC
-   pevg2vv0PWgbcTUQDHkdAX15Q8aIyNHBaxMb2iM/AGMYS5+rC4PBkj00q
-   Ul4sD8fBP/5HY6klauiHwAqJKMobO5KDpfqyvrIPpu6pDzwq0ADn15PDJ
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10554"; a="300439518"
-X-IronPort-AV: E=Sophos;i="5.96,225,1665471600"; 
-   d="scan'208";a="300439518"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2022 14:52:27 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10554"; a="646781163"
-X-IronPort-AV: E=Sophos;i="5.96,225,1665471600"; 
-   d="scan'208";a="646781163"
-Received: from rchatre-ws.ostc.intel.com ([10.54.69.144])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2022 14:52:27 -0800
-From:   Reinette Chatre <reinette.chatre@intel.com>
-To:     fenghua.yu@intel.com, dave.jiang@intel.com, vkoul@kernel.org,
-        dmaengine@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH V2 3/3] dmaengine: idxd: Do not call DMX TX callbacks during workqueue disable
-Date:   Wed,  7 Dec 2022 14:52:22 -0800
-Message-Id: <37d06b772aa7f8863ca50f90930ea2fd80b38fc3.1670452419.git.reinette.chatre@intel.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <cover.1670452419.git.reinette.chatre@intel.com>
-References: <cover.1670452419.git.reinette.chatre@intel.com>
+        with ESMTP id S229449AbiLHAEX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 19:04:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1619C25;
+        Wed,  7 Dec 2022 16:04:22 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DB41B82193;
+        Thu,  8 Dec 2022 00:04:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB55EC433C1;
+        Thu,  8 Dec 2022 00:04:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1670457860;
+        bh=dGzD3MabdJ3gCO/vnjgNvWqrDyu07kPWOPO5r5Uket4=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=neGTvB+xf2NPBz6T3qCPQAVptu8rAxAJQJTo4zBhj/n8RLT5UdL+FtQGpmlArTLwH
+         ofh/hgYCPoOpGwroW8TDvNyaq5Kqt2QwBEJlxNIkdMLjskgZLvDmnMsyGOneTLYtuL
+         H9bphHHwqoLNim5SnVWPTDb5nlgKVIzGVV8u1Ij5H0cyHNo2ph2h/X/c25gbKTgF3r
+         B2Qq4PElqUbqnTIVwv7Gx8i3BeK35y0JvaUdj9bzejaoSRJV5lJsng/e3LV7SUjINn
+         B7WkfXi6yFD30qhyMNkoJeaM+AdCNOIum8KHSLzFo9nhPZawsB6+i2Ju7xzMKlG/aP
+         FHMIJ6D3FniSA==
+Date:   Wed, 7 Dec 2022 16:04:18 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Justin Iurman <justin.iurman@uliege.be>
+Cc:     Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org,
+        davem@davemloft.net, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        pabeni@redhat.com, stable@vger.kernel.org
+Subject: Re: [RFC net] Fixes: b63c5478e9cb ("ipv6: ioam: Support for Queue
+ depth data field")
+Message-ID: <20221207160418.68e408c3@kernel.org>
+In-Reply-To: <1328d117-70b5-b03c-c0be-cd046d728d53@uliege.be>
+References: <20221205153557.28549-1-justin.iurman@uliege.be>
+        <CANn89iLjGnyh0GgW_5kkMQJBCi-KfgwyvZwT1ou2FMY4ZDcMXw@mail.gmail.com>
+        <CANn89iK3hMpJQ1w4peg2g35W+Oi3t499C5rUv7rcwzYtxDGBuw@mail.gmail.com>
+        <a8dcb88c-16be-058b-b890-5d479d22c8a8@uliege.be>
+        <CANn89iKgeVFRAstW3QRwOdn8SV_EbHqcKYqmoWT6m5nGQwPWUg@mail.gmail.com>
+        <d579c817-50c7-5bd5-4b28-f044daabf7f6@uliege.be>
+        <20221206124342.7f429399@kernel.org>
+        <1328d117-70b5-b03c-c0be-cd046d728d53@uliege.be>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On driver unload any pending descriptors are flushed and pending
-DMA descriptors are explicitly completed:
-idxd_dmaengine_drv_remove() ->
-	drv_disable_wq() ->
-		idxd_wq_free_irq() ->
-			idxd_flush_pending_descs() ->
-				idxd_dma_complete_txd()
+On Wed, 7 Dec 2022 13:07:18 +0100 Justin Iurman wrote:
+> > Can you say more about the use? What signal do you derive from it?
+> > I do track qlen on Meta's servers but haven't found a strong use
+> > for it yet (I did for backlog drops but not the qlen itself).  
+> 
+> The specification goal of the queue depth was initially to be able to 
+> track the entire path with a detailed view for packets or flows (kind of 
+> a zoom on the interface to have details about its queues). With the 
+> current definition/implementation of the queue depth, if only one queue 
+> is congested, you're able to know it. Which doesn't necessarily mean 
+> that all queues are full, but this one is and there might be something 
+> going on. And this is something operators might want to be able to 
+> detect precisely, for a lot of use cases depending on the situation. On 
+> the contrary, if all queues are full, then you could deduce that as well 
+> for each queue separately, as soon as a packet is assigned to it. So I 
+> think that with "queue depth = sum(queues)", you don't have details and 
+> you're not able to detect a single queue congestion, while with "queue 
+> depth = queue" you could detect both. One might argue that it's fine to 
+> only have the aggregation in some situation. I'd say that we might need 
+> both, actually. Which is technically possible (even though expensive, as 
+> Eric mentioned) thanks to the way it is specified by the RFC, where some 
+> freedom was intentionally given. I could come up with a solution for that.
 
-With this done during driver unload any remaining descriptor is
-likely stuck and can be dropped. Even so, the descriptor may still
-have a callback set that could no longer be accessible. An
-example of such a problem is when the dmatest fails and the dmatest
-module is unloaded. The failure of dmatest leaves descriptors with
-dma_async_tx_descriptor::callback pointing to code that no longer
-exist. This causes a page fault as below at the time the IDXD driver
-is unloaded when it attempts to run the callback:
- BUG: unable to handle page fault for address: ffffffffc0665190
- #PF: supervisor instruction fetch in kernel mode
- #PF: error_code(0x0010) - not-present page
+Understood. My hope was that by now there was some in-field experience
+which could help us judge how much signal can one derive from a single
+queue. Or a user that could attest.
 
-Fix this by clearing the callback pointers on the transmit
-descriptors only when workqueue is disabled.
+> > Because it measures the length of a single queue not the device.  
+> 
+> Yep, I figured that out after the off-list discussion we've had with Eric.
+> 
+> So my plan would be, if you all agree with, to correct and repost this 
+> patch to fix the NULL qdisc issue. Then, I'd come with a solution to 
+> allow both (with and without aggregation of queues) and post it on 
+> net-next. But again, if the consensus is to revert this patch (which I 
+> think would bring no benefit IMHO), then so be it. Thoughts?
 
-Fixes: 403a2e236538 ("dmaengine: idxd: change MSIX allocation based on per wq activation")
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Reviewed-by: Fenghua Yu <fenghua.yu@intel.com>
-Cc: stable@vger.kernel.org
----
-Changes since V1:
-- Add Dave and Fenghua's Reviewed-by tags.
-- Cc stable team (Fenghua).
-- Move declaration local to block needing it (Fenghua).
-- Add appropriate Fixes tag (Fenghua).
+To summarize - we have reservations about correctness and about 
+breaking layering (ip6 calling down to net/sched).
 
- drivers/dma/idxd/device.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
-index b4d7bb923a40..6d8ff664fdfb 100644
---- a/drivers/dma/idxd/device.c
-+++ b/drivers/dma/idxd/device.c
-@@ -1173,8 +1173,19 @@ static void idxd_flush_pending_descs(struct idxd_irq_entry *ie)
- 	spin_unlock(&ie->list_lock);
- 
- 	list_for_each_entry_safe(desc, itr, &flist, list) {
-+		struct dma_async_tx_descriptor *tx;
-+
- 		list_del(&desc->list);
- 		ctype = desc->completion->status ? IDXD_COMPLETE_NORMAL : IDXD_COMPLETE_ABORT;
-+		/*
-+		 * wq is being disabled. Any remaining descriptors are
-+		 * likely to be stuck and can be dropped. callback could
-+		 * point to code that is no longer accessible, for example
-+		 * if dmatest module has been unloaded.
-+		 */
-+		tx = &desc->txd;
-+		tx->callback = NULL;
-+		tx->callback_result = NULL;
- 		idxd_dma_complete_txd(desc, ctype, true);
- 	}
- }
--- 
-2.34.1
-
+You can stick to your approach, respost and see if any of the other
+maintainer is willing to pick this up (i.e. missed this nack).
+If you ask for my option I'll side with Eric.
