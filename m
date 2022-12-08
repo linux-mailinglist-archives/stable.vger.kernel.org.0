@@ -2,193 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F25646A99
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 09:33:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDE16646AD5
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 09:44:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229725AbiLHIdH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 03:33:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39638 "EHLO
+        id S229787AbiLHIoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 03:44:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229589AbiLHIdG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 03:33:06 -0500
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B6CB27161;
-        Thu,  8 Dec 2022 00:33:03 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.228])
-        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4NSS0G66C5z9xHw7;
-        Thu,  8 Dec 2022 16:25:50 +0800 (CST)
-Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwBHM3AjoZFjn3rMAA--.59558S2;
-        Thu, 08 Dec 2022 09:32:43 +0100 (CET)
-Message-ID: <971b28db46dfb4437080b18ba042b290abaf960f.camel@huaweicloud.com>
-Subject: Re: [PATCH v2 1/2] evm: Alloc evm_digest in evm_verify_hmac() if
- CONFIG_VMAP_STACK=y
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>,
-        Eric Biggers <ebiggers@kernel.org>
-Cc:     dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
-        serge@hallyn.com, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        stable@vger.kernel.org
-Date:   Thu, 08 Dec 2022 09:32:33 +0100
-In-Reply-To: <b3d0cfa7f5391968ce332977eb602305cd57e891.camel@linux.ibm.com>
-References: <20221201100625.916781-1-roberto.sassu@huaweicloud.com>
-         <20221201100625.916781-2-roberto.sassu@huaweicloud.com>
-         <Y4j4MJzizgEHf4nv@sol.localdomain>
-         <c8ef0ab69635b99d5175eaf4c96bb3a8957c6210.camel@huaweicloud.com>
-         <Y4pIpxbjBdajymBJ@sol.localdomain>
-         <5813b77edf8f8c6c68da8343b7898f2a5c831077.camel@huaweicloud.com>
-         <b3d0cfa7f5391968ce332977eb602305cd57e891.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        with ESMTP id S229637AbiLHIn6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 03:43:58 -0500
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DB3FC57;
+        Thu,  8 Dec 2022 00:43:57 -0800 (PST)
+Received: from kwepemm600020.china.huawei.com (unknown [172.30.72.54])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4NSSJJ19GszqSXT;
+        Thu,  8 Dec 2022 16:39:44 +0800 (CST)
+Received: from [127.0.0.1] (10.174.178.94) by kwepemm600020.china.huawei.com
+ (7.193.23.147) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Thu, 8 Dec
+ 2022 16:43:54 +0800
+Message-ID: <bc27d6bf-83a9-d206-74bf-c1c0602cd174@huawei.com>
+Date:   Thu, 8 Dec 2022 16:43:52 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.0
+Subject: Re: [PATCH 5.4 000/157] 5.4.226-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <stable@vger.kernel.org>
+CC:     <patches@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <srw@sladewatkins.net>,
+        <rwarsow@gmx.de>
+References: <20221206124054.310184563@linuxfoundation.org>
+Content-Language: en-US
+From:   zhouzhixiu <zhouzhixiu@huawei.com>
+In-Reply-To: <20221206124054.310184563@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: LxC2BwBHM3AjoZFjn3rMAA--.59558S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxGFy8Ww4DuF1UGF15ZryUGFg_yoW7JF4kpa
-        1kK3W8Kr45Jr1fCF12v3WYy3Z5KrW8tryUWrs8Jw1YyFyqqrnFyw1Iyr1UWryFgry8GF12
-        qFW8trnxCr15Aa7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UWE__UUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAABF1jj4ZryQADsT
+X-Originating-IP: [10.174.178.94]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ kwepemm600020.china.huawei.com (7.193.23.147)
 X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2022-12-07 at 20:26 -0500, Mimi Zohar wrote:
-> On Mon, 2022-12-05 at 09:22 +0100, Roberto Sassu wrote:
-> > On Fri, 2022-12-02 at 10:49 -0800, Eric Biggers wrote:
-> > > On Fri, Dec 02, 2022 at 08:58:21AM +0100, Roberto Sassu wrote:
-> > > > On Thu, 2022-12-01 at 10:53 -0800, Eric Biggers wrote:
-> > > > > On Thu, Dec 01, 2022 at 11:06:24AM +0100, Roberto Sassu wrote:
-> > > > > > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > > > > > 
-> > > > > > Commit ac4e97abce9b8 ("scatterlist: sg_set_buf() argument must be in linear
-> > > > > > mapping") checks that both the signature and the digest reside in the
-> > > > > > linear mapping area.
-> > > > > > 
-> > > > > > However, more recently commit ba14a194a434c ("fork: Add generic vmalloced
-> > > > > > stack support"), made it possible to move the stack in the vmalloc area,
-> > > > > > which is not contiguous, and thus not suitable for sg_set_buf() which needs
-> > > > > > adjacent pages.
-> > > > > > 
-> > > > > > Fix this by checking if CONFIG_VMAP_STACK is enabled. If yes, allocate an
-> > > > > > evm_digest structure, and use that instead of the in-stack counterpart.
-> > > > > > 
-> > > > > > Cc: stable@vger.kernel.org # 4.9.x
-> > > > > > Fixes: ba14a194a434 ("fork: Add generic vmalloced stack support")
-> > > > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > > > > > ---
-> > > > > >  security/integrity/evm/evm_main.c | 26 +++++++++++++++++++++-----
-> > > > > >  1 file changed, 21 insertions(+), 5 deletions(-)
-> > > > > > 
-> > > > > > diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
-> > > > > > index 23d484e05e6f..7f76d6103f2e 100644
-> > > > > > --- a/security/integrity/evm/evm_main.c
-> > > > > > +++ b/security/integrity/evm/evm_main.c
-> > > > > > @@ -174,6 +174,7 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
-> > > > > >  	struct signature_v2_hdr *hdr;
-> > > > > >  	enum integrity_status evm_status = INTEGRITY_PASS;
-> > > > > >  	struct evm_digest digest;
-> > > > > > +	struct evm_digest *digest_ptr = &digest;
-> > > > > >  	struct inode *inode;
-> > > > > >  	int rc, xattr_len, evm_immutable = 0;
-> > > > > >  
-> > > > > > @@ -231,14 +232,26 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
-> > > > > >  		}
-> > > > > >  
-> > > > > >  		hdr = (struct signature_v2_hdr *)xattr_data;
-> > > > > > -		digest.hdr.algo = hdr->hash_algo;
-> > > > > > +
-> > > > > > +		if (IS_ENABLED(CONFIG_VMAP_STACK)) {
-> > > > > > +			digest_ptr = kmalloc(sizeof(*digest_ptr), GFP_NOFS);
-> > > > > > +			if (!digest_ptr) {
-> > > > > > +				rc = -ENOMEM;
-> > > > > > +				break;
-> > > > > > +			}
-> > > > > > +		}
-> > > > > > +
-> > > > > > +		digest_ptr->hdr.algo = hdr->hash_algo;
-> > > > > > +
-> > > > > >  		rc = evm_calc_hash(dentry, xattr_name, xattr_value,
-> > > > > > -				   xattr_value_len, xattr_data->type, &digest);
-> > > > > > +				   xattr_value_len, xattr_data->type,
-> > > > > > +				   digest_ptr);
-> > > > > >  		if (rc)
-> > > > > >  			break;
-> > > > > >  		rc = integrity_digsig_verify(INTEGRITY_KEYRING_EVM,
-> > > > > >  					(const char *)xattr_data, xattr_len,
-> > > > > > -					digest.digest, digest.hdr.length);
-> > > > > > +					digest_ptr->digest,
-> > > > > > +					digest_ptr->hdr.length);
-> > > > > >  		if (!rc) {
-> > > > > >  			inode = d_backing_inode(dentry);
-> > > > > >  
-> > > > > > @@ -268,8 +281,11 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
-> > > > > >  		else
-> > > > > >  			evm_status = INTEGRITY_FAIL;
-> > > > > >  	}
-> > > > > > -	pr_debug("digest: (%d) [%*phN]\n", digest.hdr.length, digest.hdr.length,
-> > > > > > -		  digest.digest);
-> > > > > > +	pr_debug("digest: (%d) [%*phN]\n", digest_ptr->hdr.length,
-> > > > > > +		 digest_ptr->hdr.length, digest_ptr->digest);
-> > > > > > +
-> > > > > > +	if (digest_ptr && digest_ptr != &digest)
-> > > > > > +		kfree(digest_ptr);
-> > > > > 
-> > > > > What is the actual problem here?  Where is a scatterlist being created from this
-> > > > > buffer?  AFAICS it never happens.
-> > > > 
-> > > > Hi Eric
-> > > > 
-> > > > it is in public_key_verify_signature(), called by asymmetric_verify()
-> > > > and integrity_digsig_verify().
-> > > > 
-> > > 
-> > > Hmm, that's several steps down the stack then.  And not something I had
-> > > expected.
-> > > 
-> > > Perhaps this should be fixed in public_key_verify_signature() instead?  It
-> > > already does a kmalloc(), so that allocation size just could be made a bit
-> > > larger to get space for a temporary copy of 's' and 'digest'.
-> > 
-> > Mimi asked to fix it in both IMA and EVM.
-> 
-> At the time I thought the problem was limited to
-> integrity_digsig_verify() and just to the digest.
-> 
-> I'll leave it up to you and Eric to decide what is the preferable
-> solution.
 
-Ok, yes. I think Eric's suggestion of making a copy in
-public_key_verify_signature() is better. Will do it.
+On 2022/12/6 20:42, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.226 release.
+> There are 157 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 08 Dec 2022 12:40:31 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.226-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
+> -------------
+Tested on arm64 and x86 for 5.4.226-rc2,
 
-> > > Or at the very least, struct public_key_signature should have a *very* clear
-> > > comment saying that the 's' and 'digest' fields must be located in physically
-> > > contiguous memory...
-> > 
-> > That I could add as an additional patch.
-> 
-> Thanks, the new patch containing the comment looks fine.
+Kernel 
+repo:https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.4.y
+Version: 5.4.226-rc2
+Commit: b5f84e63b272111a94d1a192e10dc955ea27f0c2
+Compiler: gcc version 7.3.0 (GCC)
 
-Thanks, not sure if I need to keep it with the new patch (probably
-not).
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9017
+passed: 9017
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-Roberto
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9017
+passed: 9017
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
 
