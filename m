@@ -2,75 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EB0F646E18
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 12:09:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C916646E2A
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 12:13:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230098AbiLHLJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 06:09:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42992 "EHLO
+        id S229521AbiLHLNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 06:13:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230022AbiLHLJ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 06:09:27 -0500
-Received: from mail-io1-f71.google.com (mail-io1-f71.google.com [209.85.166.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D067594935
-        for <stable@vger.kernel.org>; Thu,  8 Dec 2022 03:06:17 -0800 (PST)
-Received: by mail-io1-f71.google.com with SMTP id a14-20020a6b660e000000b006bd37975cdfso510351ioc.10
-        for <stable@vger.kernel.org>; Thu, 08 Dec 2022 03:06:17 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=MFNEjikdDKIGbIXcuAlk/+ki2ZmSz9fWBbGY16JNQhU=;
-        b=HGP8QB8hWJw7lKAOZ0OfoHRYaupzjnmNfEbfzAa49rEMiE3x3Aw+ikYWniSHDh17wz
-         iI92RtY2XXGhYBmfM9sOZnvM06OmQrX9ZsrGn79jWco7CqBtvb20HoqieietcuFk+BWM
-         tU6jXbhzHvVmsuZCsgEPYQMLmfNM9OtfM0X6VF4HeBKfklRWDTHiXE2i/Or9bi3MT9c2
-         Bq6FrTgNcNDyeRIzVrOPqCVADBob1+UvgY77ytvKnLi8cAkegzazPUi9RXwa0SaW2Rqu
-         lWfL/6YoI8oL7qTPA74oRGmCbAvnUfo4sG38QUfO8E5/OkBtb21+QajmvdN6WgKl9LUJ
-         Gh2g==
-X-Gm-Message-State: ANoB5pkd/zJm02p+lglx3G9w874eBGTIJsqYPRJEpLfGp5f4D1UYap1r
-        BsjkyqoNWxQgpwETvPNkXadD+abI6oBTXW3EZQnx7Ab7TzHf
-X-Google-Smtp-Source: AA0mqf6ZFw+5uYrfGquMZC8eelXMMwS1iAYVUo6vrzG+2km6Vk/VPAS7q7w8GQZUQzcZID2VZkquqKsEGkaClJQJC7YhB5cRVXGC
+        with ESMTP id S229522AbiLHLN3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 06:13:29 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4030D3E0B9;
+        Thu,  8 Dec 2022 03:13:28 -0800 (PST)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1p3Eq6-0002BL-Gj; Thu, 08 Dec 2022 12:13:18 +0100
+Message-ID: <e31c7d2c-d32b-844f-4a24-c68f726d531c@leemhuis.info>
+Date:   Thu, 8 Dec 2022 12:13:17 +0100
 MIME-Version: 1.0
-X-Received: by 2002:a92:870f:0:b0:302:501a:a25d with SMTP id
- m15-20020a92870f000000b00302501aa25dmr34269679ild.311.1670497577197; Thu, 08
- Dec 2022 03:06:17 -0800 (PST)
-Date:   Thu, 08 Dec 2022 03:06:17 -0800
-In-Reply-To: <20221208032216.63513-1-chenzhongjin@huawei.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000afe93f05ef4f063a@google.com>
-Subject: Re: [syzbot] memory leak in tcindex_set_parms (3)
-From:   syzbot <syzbot+2f9183cb6f89b0e16586@syzkaller.appspotmail.com>
-To:     chenzhongjin@huawei.com, davem@davemloft.net, edumazet@google.com,
-        gregkh@linuxfoundation.org, jhs@mojatatu.com, jiri@resnulli.us,
-        kuba@kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, pabeni@redhat.com, stable@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, xiyou.wangcong@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Subject: Re: [PATCH v1] Revert "ARM: dts: imx7: Fix NAND controller
+ size-cells"
+Content-Language: en-US, de-DE
+To:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Marek Vasut <marex@denx.de>
+Cc:     Francesco Dolcini <francesco@dolcini.it>,
+        Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        devicetree@vger.kernel.org, linux-mtd@lists.infradead.org,
+        stable@vger.kernel.org
+References: <20221205152327.26881-1-francesco@dolcini.it>
+ <0aa2d48b-35a0-1781-f265-0387d213bdd6@denx.de>
+ <20221208115124.6cc7a8bf@xps-13>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <20221208115124.6cc7a8bf@xps-13>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1670498008;2b675538;
+X-HE-SMSGID: 1p3Eq6-0002BL-Gj
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On 08.12.22 11:51, Miquel Raynal wrote:
+> Hi Shawn,
+> 
+> + Thorsten
+> 
+> marex@denx.de wrote on Mon, 5 Dec 2022 17:26:53 +0100:
+> 
+>> On 12/5/22 16:23, Francesco Dolcini wrote:
+>>> From: Francesco Dolcini <francesco.dolcini@toradex.com>
+>>>
+>>> This reverts commit 753395ea1e45c724150070b5785900b6a44bd5fb.
+>>>
+>>> It introduced a boot regression on colibri-imx7, and potentially any
+>>> other i.MX7 boards with MTD partition list generated into the fdt by
+>>> U-Boot.
+>>>
+>>> While the commit we are reverting here is not obviously wrong, it fixes
+>>> only a dt binding checker warning that is non-functional, while it
+>>> introduces a boot regression and there is no obvious fix ready.
+>>>
+>>> Cc: stable@vger.kernel.org
+>>> Fixes: 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
+>>> Link: https://lore.kernel.org/all/Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com/
+>>> Link: https://lore.kernel.org/all/20221205144917.6514168a@xps-13/
+>>> Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+> [...]
+>> Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
+> [...]
+>> Acked-by: Marek Vasut <marex@denx.de>
+> [...]
+> 
+> As discussed in the above links, boot is broken on imx7 Colibri boards,
+> this revert was the most quick and straightforward fix we agreed upon
+> with the hope (~ duty?) it would make it in v6.1. Any chance you could
+> pick this up rapidly and forward it to Linus? Or should we involve
+> him directly (Thorsten?).
 
-syzbot has tested the proposed patch and the reproducer did not trigger any issue:
+Asking Linus directly often is fine, if it's something urgent and the
+maintainer that usually would handle a patch is MIA. But in this
+particular case it's likely not the best strategy, as it seems
+753395ea1e45 was merged via the ARM soc tree. In that case I'd say the
+revert should ideally go through there as well, hence I'd suggest asking
+those maintainers (e.g. Arnd and Olof) is the right move at this point
+in time (would be something different if today was release day; but even
+then it would be wise to have them involved).
 
-Reported-and-tested-by: syzbot+2f9183cb6f89b0e16586@syzkaller.appspotmail.com
-
-Tested on:
-
-commit:         355479c7 Merge tag 'efi-fixes-for-v6.1-4' of git://git..
-git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-console output: https://syzkaller.appspot.com/x/log.txt?x=175b5b23880000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=979161df0e247659
-dashboard link: https://syzkaller.appspot.com/bug?extid=2f9183cb6f89b0e16586
-compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
-patch:          https://syzkaller.appspot.com/x/patch.diff?x=142313f3880000
-
-Note: testing is done by a robot and is best-effort only.
+Ciao, Thorsten
