@@ -2,159 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E5B5646A0C
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 09:03:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F25646A99
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 09:33:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbiLHIDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 03:03:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49560 "EHLO
+        id S229725AbiLHIdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 03:33:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229462AbiLHIDE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 03:03:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6E493FB84;
-        Thu,  8 Dec 2022 00:02:59 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB1EAB806A0;
-        Thu,  8 Dec 2022 08:02:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3439C433C1;
-        Thu,  8 Dec 2022 08:02:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670486576;
-        bh=AhZ8skKJk8Msl/OSCwNDTiNXAlnXCrNdyRVs0QknuAU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ARpwUGDwYKPok893gLJzzBF1P4ZP2UUH+ajyABfF67cXjZYqpgPtlXyuSxdc6Gg0G
-         OJpj4w2bTRLeCMA57n0F2J75rjH2gKrT9hJJ4C3AHDlKVRSnSl91y+QDCMbjJCVD/c
-         J1ngE2SokH6fRK6nEc5tlzhVlNVAsNYAs7ob1U68=
-Date:   Thu, 8 Dec 2022 09:02:53 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     peter.wang@mediatek.com
-Cc:     stanley.chu@mediatek.com, linux-scsi@vger.kernel.org,
-        martin.petersen@oracle.com, avri.altman@wdc.com,
-        alim.akhtar@samsung.com, jejb@linux.ibm.com,
-        wsd_upstream@mediatek.com, linux-mediatek@lists.infradead.org,
-        chun-hung.wu@mediatek.com, alice.chao@mediatek.com,
-        cc.chou@mediatek.com, chaotian.jing@mediatek.com,
-        jiajie.hao@mediatek.com, powen.kao@mediatek.com,
-        qilin.tan@mediatek.com, lin.gui@mediatek.com,
-        tun-yu.yu@mediatek.com, eddie.huang@mediatek.com,
-        naomi.chu@mediatek.com, stable@vger.kernel.org
-Subject: Re: [PATCH v6] ufs: core: wlun suspend SSU/enter hibern8 fail
- recovery
-Message-ID: <Y5GaLX6AYEtHFU9F@kroah.com>
-References: <20221208072520.26210-1-peter.wang@mediatek.com>
+        with ESMTP id S229589AbiLHIdG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 03:33:06 -0500
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B6CB27161;
+        Thu,  8 Dec 2022 00:33:03 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4NSS0G66C5z9xHw7;
+        Thu,  8 Dec 2022 16:25:50 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwBHM3AjoZFjn3rMAA--.59558S2;
+        Thu, 08 Dec 2022 09:32:43 +0100 (CET)
+Message-ID: <971b28db46dfb4437080b18ba042b290abaf960f.camel@huaweicloud.com>
+Subject: Re: [PATCH v2 1/2] evm: Alloc evm_digest in evm_verify_hmac() if
+ CONFIG_VMAP_STACK=y
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>,
+        Eric Biggers <ebiggers@kernel.org>
+Cc:     dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Date:   Thu, 08 Dec 2022 09:32:33 +0100
+In-Reply-To: <b3d0cfa7f5391968ce332977eb602305cd57e891.camel@linux.ibm.com>
+References: <20221201100625.916781-1-roberto.sassu@huaweicloud.com>
+         <20221201100625.916781-2-roberto.sassu@huaweicloud.com>
+         <Y4j4MJzizgEHf4nv@sol.localdomain>
+         <c8ef0ab69635b99d5175eaf4c96bb3a8957c6210.camel@huaweicloud.com>
+         <Y4pIpxbjBdajymBJ@sol.localdomain>
+         <5813b77edf8f8c6c68da8343b7898f2a5c831077.camel@huaweicloud.com>
+         <b3d0cfa7f5391968ce332977eb602305cd57e891.camel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221208072520.26210-1-peter.wang@mediatek.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: LxC2BwBHM3AjoZFjn3rMAA--.59558S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxGFy8Ww4DuF1UGF15ZryUGFg_yoW7JF4kpa
+        1kK3W8Kr45Jr1fCF12v3WYy3Z5KrW8tryUWrs8Jw1YyFyqqrnFyw1Iyr1UWryFgry8GF12
+        qFW8trnxCr15Aa7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UWE__UUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAABF1jj4ZryQADsT
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 08, 2022 at 03:25:20PM +0800, peter.wang@mediatek.com wrote:
-> From: Peter Wang <peter.wang@mediatek.com>
+On Wed, 2022-12-07 at 20:26 -0500, Mimi Zohar wrote:
+> On Mon, 2022-12-05 at 09:22 +0100, Roberto Sassu wrote:
+> > On Fri, 2022-12-02 at 10:49 -0800, Eric Biggers wrote:
+> > > On Fri, Dec 02, 2022 at 08:58:21AM +0100, Roberto Sassu wrote:
+> > > > On Thu, 2022-12-01 at 10:53 -0800, Eric Biggers wrote:
+> > > > > On Thu, Dec 01, 2022 at 11:06:24AM +0100, Roberto Sassu wrote:
+> > > > > > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > > > 
+> > > > > > Commit ac4e97abce9b8 ("scatterlist: sg_set_buf() argument must be in linear
+> > > > > > mapping") checks that both the signature and the digest reside in the
+> > > > > > linear mapping area.
+> > > > > > 
+> > > > > > However, more recently commit ba14a194a434c ("fork: Add generic vmalloced
+> > > > > > stack support"), made it possible to move the stack in the vmalloc area,
+> > > > > > which is not contiguous, and thus not suitable for sg_set_buf() which needs
+> > > > > > adjacent pages.
+> > > > > > 
+> > > > > > Fix this by checking if CONFIG_VMAP_STACK is enabled. If yes, allocate an
+> > > > > > evm_digest structure, and use that instead of the in-stack counterpart.
+> > > > > > 
+> > > > > > Cc: stable@vger.kernel.org # 4.9.x
+> > > > > > Fixes: ba14a194a434 ("fork: Add generic vmalloced stack support")
+> > > > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > > > ---
+> > > > > >  security/integrity/evm/evm_main.c | 26 +++++++++++++++++++++-----
+> > > > > >  1 file changed, 21 insertions(+), 5 deletions(-)
+> > > > > > 
+> > > > > > diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+> > > > > > index 23d484e05e6f..7f76d6103f2e 100644
+> > > > > > --- a/security/integrity/evm/evm_main.c
+> > > > > > +++ b/security/integrity/evm/evm_main.c
+> > > > > > @@ -174,6 +174,7 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+> > > > > >  	struct signature_v2_hdr *hdr;
+> > > > > >  	enum integrity_status evm_status = INTEGRITY_PASS;
+> > > > > >  	struct evm_digest digest;
+> > > > > > +	struct evm_digest *digest_ptr = &digest;
+> > > > > >  	struct inode *inode;
+> > > > > >  	int rc, xattr_len, evm_immutable = 0;
+> > > > > >  
+> > > > > > @@ -231,14 +232,26 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+> > > > > >  		}
+> > > > > >  
+> > > > > >  		hdr = (struct signature_v2_hdr *)xattr_data;
+> > > > > > -		digest.hdr.algo = hdr->hash_algo;
+> > > > > > +
+> > > > > > +		if (IS_ENABLED(CONFIG_VMAP_STACK)) {
+> > > > > > +			digest_ptr = kmalloc(sizeof(*digest_ptr), GFP_NOFS);
+> > > > > > +			if (!digest_ptr) {
+> > > > > > +				rc = -ENOMEM;
+> > > > > > +				break;
+> > > > > > +			}
+> > > > > > +		}
+> > > > > > +
+> > > > > > +		digest_ptr->hdr.algo = hdr->hash_algo;
+> > > > > > +
+> > > > > >  		rc = evm_calc_hash(dentry, xattr_name, xattr_value,
+> > > > > > -				   xattr_value_len, xattr_data->type, &digest);
+> > > > > > +				   xattr_value_len, xattr_data->type,
+> > > > > > +				   digest_ptr);
+> > > > > >  		if (rc)
+> > > > > >  			break;
+> > > > > >  		rc = integrity_digsig_verify(INTEGRITY_KEYRING_EVM,
+> > > > > >  					(const char *)xattr_data, xattr_len,
+> > > > > > -					digest.digest, digest.hdr.length);
+> > > > > > +					digest_ptr->digest,
+> > > > > > +					digest_ptr->hdr.length);
+> > > > > >  		if (!rc) {
+> > > > > >  			inode = d_backing_inode(dentry);
+> > > > > >  
+> > > > > > @@ -268,8 +281,11 @@ static enum integrity_status evm_verify_hmac(struct dentry *dentry,
+> > > > > >  		else
+> > > > > >  			evm_status = INTEGRITY_FAIL;
+> > > > > >  	}
+> > > > > > -	pr_debug("digest: (%d) [%*phN]\n", digest.hdr.length, digest.hdr.length,
+> > > > > > -		  digest.digest);
+> > > > > > +	pr_debug("digest: (%d) [%*phN]\n", digest_ptr->hdr.length,
+> > > > > > +		 digest_ptr->hdr.length, digest_ptr->digest);
+> > > > > > +
+> > > > > > +	if (digest_ptr && digest_ptr != &digest)
+> > > > > > +		kfree(digest_ptr);
+> > > > > 
+> > > > > What is the actual problem here?  Where is a scatterlist being created from this
+> > > > > buffer?  AFAICS it never happens.
+> > > > 
+> > > > Hi Eric
+> > > > 
+> > > > it is in public_key_verify_signature(), called by asymmetric_verify()
+> > > > and integrity_digsig_verify().
+> > > > 
+> > > 
+> > > Hmm, that's several steps down the stack then.  And not something I had
+> > > expected.
+> > > 
+> > > Perhaps this should be fixed in public_key_verify_signature() instead?  It
+> > > already does a kmalloc(), so that allocation size just could be made a bit
+> > > larger to get space for a temporary copy of 's' and 'digest'.
+> > 
+> > Mimi asked to fix it in both IMA and EVM.
 > 
-> When SSU/enter hibern8 fail in wlun suspend flow, trigger error
-> handler and return busy to break the suspend.
-> If not, wlun runtime pm status become error and the consumer will
-> stuck in runtime suspend status.
+> At the time I thought the problem was limited to
+> integrity_digsig_verify() and just to the digest.
 > 
-> Fixes: b294ff3e3449 ("scsi: ufs: core: Enable power management for wlun")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Peter Wang <peter.wang@mediatek.com>
-> Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-> Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-> Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-> ---
->  drivers/ufs/core/ufshcd.c | 26 ++++++++++++++++++++++++++
->  1 file changed, 26 insertions(+)
+> I'll leave it up to you and Eric to decide what is the preferable
+> solution.
+
+Ok, yes. I think Eric's suggestion of making a copy in
+public_key_verify_signature() is better. Will do it.
+
+> > > Or at the very least, struct public_key_signature should have a *very* clear
+> > > comment saying that the 's' and 'digest' fields must be located in physically
+> > > contiguous memory...
+> > 
+> > That I could add as an additional patch.
 > 
-> diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
-> index b1f59a5fe632..31ed3fdb5266 100644
-> --- a/drivers/ufs/core/ufshcd.c
-> +++ b/drivers/ufs/core/ufshcd.c
-> @@ -6070,6 +6070,14 @@ void ufshcd_schedule_eh_work(struct ufs_hba *hba)
->  	}
->  }
->  
-> +static void ufshcd_force_error_recovery(struct ufs_hba *hba) 
-> +{
-> +	spin_lock_irq(hba->host->host_lock);
-> +	hba->force_reset = true;
-> +	ufshcd_schedule_eh_work(hba);
-> +	spin_unlock_irq(hba->host->host_lock);
-> +}
-> +
->  static void ufshcd_clk_scaling_allow(struct ufs_hba *hba, bool allow)
->  {
->  	down_write(&hba->clk_scaling_lock);
-> @@ -9049,6 +9057,15 @@ static int __ufshcd_wl_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
->  
->  		if (!hba->dev_info.b_rpm_dev_flush_capable) {
->  			ret = ufshcd_set_dev_pwr_mode(hba, req_dev_pwr_mode);
-> +			if (ret && pm_op != UFS_SHUTDOWN_PM) {
-> +				/*
-> +				 * If return err in suspend flow, IO will hang.
-> +				 * Trigger error handler and break suspend for
-> +				 * error recovery.
-> +				 */
-> +				ufshcd_force_error_recovery(hba);
-> +				ret = -EBUSY;
-> +			}
->  			if (ret)
->  				goto enable_scaling;
->  		}
-> @@ -9060,6 +9077,15 @@ static int __ufshcd_wl_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
->  	 */
->  	check_for_bkops = !ufshcd_is_ufs_dev_deepsleep(hba);
->  	ret = ufshcd_link_state_transition(hba, req_link_state, check_for_bkops);
-> +	if (ret && pm_op != UFS_SHUTDOWN_PM) {
-> +		/*
-> +		 * If return err in suspend flow, IO will hang.
-> +		 * Trigger error handler and break suspend for
-> +		 * error recovery.
-> +		 */
-> +		ufshcd_force_error_recovery(hba);
-> +		ret = -EBUSY;
-> +	}
->  	if (ret)
->  		goto set_dev_active;
->  
-> -- 
-> 2.18.0
-> 
+> Thanks, the new patch containing the comment looks fine.
 
-Hi,
+Thanks, not sure if I need to keep it with the new patch (probably
+not).
 
-This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
-a patch that has triggered this response.  He used to manually respond
-to these common problems, but in order to save his sanity (he kept
-writing the same thing over and over, yet to different people), I was
-created.  Hopefully you will not take offence and will fix the problem
-in your patch and resubmit it so that it can be accepted into the Linux
-kernel tree.
+Roberto
 
-You are receiving this message because of the following common error(s)
-as indicated below:
-
-- This looks like a new version of a previously submitted patch, but you
-  did not list below the --- line any changes from the previous version.
-  Please read the section entitled "The canonical patch format" in the
-  kernel file, Documentation/SubmittingPatches for what needs to be done
-  here to properly describe this.
-
-If you wish to discuss this problem further, or you have questions about
-how to resolve this issue, please feel free to respond to this email and
-Greg will reply once he has dug out from the pending patches received
-from other developers.
-
-thanks,
-
-greg k-h's patch email bot
