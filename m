@@ -2,88 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1526764776C
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 21:43:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 418796477F6
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 22:29:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229628AbiLHUnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Dec 2022 15:43:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42422 "EHLO
+        id S229651AbiLHV3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Dec 2022 16:29:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229677AbiLHUnL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 15:43:11 -0500
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61A5618E32;
-        Thu,  8 Dec 2022 12:43:09 -0800 (PST)
-Received: by mail-qt1-f170.google.com with SMTP id h16so2085902qtu.2;
-        Thu, 08 Dec 2022 12:43:09 -0800 (PST)
+        with ESMTP id S229592AbiLHV3H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Dec 2022 16:29:07 -0500
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B9F84271
+        for <stable@vger.kernel.org>; Thu,  8 Dec 2022 13:29:06 -0800 (PST)
+Received: by mail-yb1-xb4a.google.com with SMTP id t5-20020a5b07c5000000b006dfa2102debso2847922ybq.4
+        for <stable@vger.kernel.org>; Thu, 08 Dec 2022 13:29:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=1/7SmmzO1fjUhk6gqNU1IGSXCaBrn6wr7PS0uHHL0Y4=;
+        b=LqiYpvieBDCbLQwkb+CSQO3e5kvlO9YkgEAx+uj4dvnOMSYSbFp+eB6H7weFJnTz89
+         8MDyvy5lu8E6NOlVICNsMMIWd2RXsQrhEHP/T+ym9fr0388elXolqAQVV5XMtGyPc7hB
+         mh47hi5HEFtu4bMGkuw7sLC+CgMhhQDK3rFxEm+R8vsaFvB3a8j6j2zQv0P+wJGMQLDy
+         6qYqDgN4YpiZmvCgZNbe6NfpIeJGuTrFf6M+9a2bJ+nkDnbJl61wH4k79YmSG333Qxbj
+         9U7xGHcetB4fBU33IHmW5ZSKzsib8LREKjD5mpb4io1ayunr/o9VMJFRteWlgb2E3MvY
+         WTSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=E980lveCUquKKhcMXhM1jQtjJxf2DwElGgp3q5gC3Vs=;
-        b=Xh/QACz95wxzfNV8c9M7caoShX954Fna90hnGu4dpRhkQQGs2X9vESgOsuT/O+v6wp
-         QziFe3GdUIZ0N16xZqPc6k9z/O/6ug03YA71YDm34jOuB0gVCwe8qZ6JitOGqjz+LgXz
-         udq8rEp26j7W6Rc9B0ErorV07qHNmjLoOVkrC07HwL0EGhaZE4T9c7WviuooTqQ7RCew
-         xdyYlHGJj79ly5c8DuNA41VlmzpCVbTqys09GNAPZsxWO3YEHJDW5UGlkpHYKVsDLHfh
-         Rz4scucouRG9hJmXjvAEfZIBFZedmvy/2cgspyAdh6SCjr47X+UGCRE3kXTMh8WBxqP/
-         up0Q==
-X-Gm-Message-State: ANoB5pn34mVUJ99PrG3JPLVVOBYgbDMY/9dAyd68vkZnHXLO+Wk0HjA/
-        biZyYH8k4tLe7a7EeKL9PlBWinOfD4FtXA==
-X-Google-Smtp-Source: AA0mqf5HObf4/3qYSijxhiI79REfQrArlQ1P9hWH6YEg0N9nMjm1qxAejzjSFFQCJmkKZHsi81pJTQ==
-X-Received: by 2002:ac8:1345:0:b0:3a7:ef31:a07b with SMTP id f5-20020ac81345000000b003a7ef31a07bmr4627184qtj.11.1670532188353;
-        Thu, 08 Dec 2022 12:43:08 -0800 (PST)
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com. [209.85.128.169])
-        by smtp.gmail.com with ESMTPSA id m10-20020ac8444a000000b0039cc944ebdasm15856956qtn.54.2022.12.08.12.43.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 08 Dec 2022 12:43:08 -0800 (PST)
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-3c21d6e2f3aso27852597b3.10;
-        Thu, 08 Dec 2022 12:43:08 -0800 (PST)
-X-Received: by 2002:a81:ff06:0:b0:3ab:6ff4:a598 with SMTP id
- k6-20020a81ff06000000b003ab6ff4a598mr5143379ywn.425.1670532187832; Thu, 08
- Dec 2022 12:43:07 -0800 (PST)
-MIME-Version: 1.0
-References: <20221208033523.122642-1-ebiggers@kernel.org>
-In-Reply-To: <20221208033523.122642-1-ebiggers@kernel.org>
-From:   Luca Boccassi <bluca@debian.org>
-Date:   Thu, 8 Dec 2022 20:42:56 +0000
-X-Gmail-Original-Message-ID: <CAMw=ZnQUmeOWQkMM9Kn5iYaT4dyDQ3j1K=dUgk9jFNcHPxxHrg@mail.gmail.com>
-Message-ID: <CAMw=ZnQUmeOWQkMM9Kn5iYaT4dyDQ3j1K=dUgk9jFNcHPxxHrg@mail.gmail.com>
-Subject: Re: [PATCH] fsverity: don't check builtin signatures when require_signatures=0
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-fscrypt@vger.kernel.org, linux-ext4@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net,
-        linux-btrfs@vger.kernel.org, linux-integrity@vger.kernel.org,
-        stable@vger.kernel.org
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=1/7SmmzO1fjUhk6gqNU1IGSXCaBrn6wr7PS0uHHL0Y4=;
+        b=YCCn+1CRci9sKVjkcN4WlShcjtcJXYCzqTq1BLU+nSBhM2ltAvV5/X/BPwl74yCiTe
+         oXdSWb8VcDRUXn/2Ki4KIKZhzuau/woYkhRtnCnSsUt7Onm9d4Iy/ci8SPaap4wNOKUo
+         f7aw1mtZvFTzA8XWJoN9Nj93uH+H1fJOQtNLyYtrJMqh08RJIpP4/S+3p9LvBYexA/Tc
+         gt2EvtshJpsM4NvbabuFQ4zmFev8+hr0ilO9LUVxmdvkyc73rkKM0SeJ9tyAMIlIt4tf
+         BmKCBXqeOiZgBUyIrtTOVFP9SA3pBMdOpkwDSY3gwdQAPiU2dx+B4xQO9QtWmlMwP8AY
+         GeAg==
+X-Gm-Message-State: ANoB5pkKiG8F/UVorCeGryIWQVqgyYCTTZrog6Vy6pVWqgll4QngIUHx
+        gkti9JesplOVHec7oSTfNl7oOtc1AaTrpGW/Q4AFWw==
+X-Google-Smtp-Source: AA0mqf5uSOfyS4zTT3VGBQCIxUQ4g9tCxEa+73pikowJ78eitpwdyfLrX+kPJHU3xsZsUmGtzI1+a4VpVYAb7VSEbSE1OQ==
+X-Received: from isaacmanjarres.irv.corp.google.com ([2620:15c:2d:3:c924:bf6:54d9:20e9])
+ (user=isaacmanjarres job=sendgmr) by 2002:a05:690c:902:b0:3f6:489a:a06f with
+ SMTP id cb2-20020a05690c090200b003f6489aa06fmr10039866ywb.470.1670534945529;
+ Thu, 08 Dec 2022 13:29:05 -0800 (PST)
+Date:   Thu,  8 Dec 2022 13:29:01 -0800
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.39.0.rc1.256.g54fd8350bd-goog
+Message-ID: <20221208212902.765781-1-isaacmanjarres@google.com>
+Subject: [PATCH RESEND v1] loop: Fix the max_loop commandline argument
+ treatment when it is set to 0
+From:   "Isaac J. Manjarres" <isaacmanjarres@google.com>
+To:     Jens Axboe <axboe@kernel.dk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ken Chen <kenchen@google.com>
+Cc:     Saravana Kannan <saravanak@google.com>,
+        "Isaac J. Manjarres" <isaacmanjarres@google.com>,
+        stable@vger.kernel.org, kernel-team@android.com,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 8 Dec 2022 at 03:35, Eric Biggers <ebiggers@kernel.org> wrote:
->
-> From: Eric Biggers <ebiggers@google.com>
->
-> An issue that arises when migrating from builtin signatures to userspace
-> signatures is that existing files that have builtin signatures cannot be
-> opened unless either CONFIG_FS_VERITY_BUILTIN_SIGNATURES is disabled or
-> the signing certificate is left in the .fs-verity keyring.
->
-> Since builtin signatures provide no security benefit when
-> fs.verity.require_signatures=0 anyway, let's just skip the signature
-> verification in this case.
->
-> Fixes: 432434c9f8e1 ("fs-verity: support builtin file signatures")
-> Cc: <stable@vger.kernel.org> # v5.4+
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-> ---
->  fs/verity/signature.c | 18 ++++++++++++++++--
->  1 file changed, 16 insertions(+), 2 deletions(-)
+Currently, the max_loop commandline argument can be used to specify how
+many loop block devices are created at init time. If it is not
+specified on the commandline, CONFIG_BLK_DEV_LOOP_MIN_COUNT loop block
+devices will be created.
 
-Acked-by: Luca Boccassi <bluca@debian.org>
+The max_loop commandline argument can be used to override the value of
+CONFIG_BLK_DEV_LOOP_MIN_COUNT. However, when max_loop is set to 0
+through the commandline, the current logic treats it as if it had not
+been set, and creates CONFIG_BLK_DEV_LOOP_MIN_COUNT devices anyway.
+
+Fix this by starting max_loop off as set to CONFIG_BLK_DEV_LOOP_MIN_COUNT.
+This preserves the intended behavior of creating
+CONFIG_BLK_DEV_LOOP_MIN_COUNT loop block devices if the max_loop
+commandline parameter is not specified, and allowing max_loop to
+be respected for all values, including 0.
+
+This allows environments that can create all of their required loop
+block devices on demand to not have to unnecessarily preallocate loop
+block devices.
+
+Fixes: 732850827450 ("remove artificial software max_loop limit")
+Cc: stable@vger.kernel.org
+Cc: Ken Chen <kenchen@google.com>
+Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
+---
+ drivers/block/loop.c | 28 ++++++++++++----------------
+ 1 file changed, 12 insertions(+), 16 deletions(-)
+
+This is a resend because I misspelled the address for
+stable@vger.kernel.org the first time.
+
+--Isaac
+
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index ad92192c7d61..d12d3d171ec4 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1773,7 +1773,16 @@ static const struct block_device_operations lo_fops = {
+ /*
+  * And now the modules code and kernel interface.
+  */
+-static int max_loop;
++
++/*
++ * If max_loop is specified, create that many devices upfront.
++ * This also becomes a hard limit. If max_loop is not specified,
++ * create CONFIG_BLK_DEV_LOOP_MIN_COUNT loop devices at module
++ * init time. Loop devices can be requested on-demand with the
++ * /dev/loop-control interface, or be instantiated by accessing
++ * a 'dead' device node.
++ */
++static int max_loop = CONFIG_BLK_DEV_LOOP_MIN_COUNT;
+ module_param(max_loop, int, 0444);
+ MODULE_PARM_DESC(max_loop, "Maximum number of loop devices");
+ module_param(max_part, int, 0444);
+@@ -2181,7 +2190,7 @@ MODULE_ALIAS("devname:loop-control");
+ 
+ static int __init loop_init(void)
+ {
+-	int i, nr;
++	int i;
+ 	int err;
+ 
+ 	part_shift = 0;
+@@ -2209,19 +2218,6 @@ static int __init loop_init(void)
+ 		goto err_out;
+ 	}
+ 
+-	/*
+-	 * If max_loop is specified, create that many devices upfront.
+-	 * This also becomes a hard limit. If max_loop is not specified,
+-	 * create CONFIG_BLK_DEV_LOOP_MIN_COUNT loop devices at module
+-	 * init time. Loop devices can be requested on-demand with the
+-	 * /dev/loop-control interface, or be instantiated by accessing
+-	 * a 'dead' device node.
+-	 */
+-	if (max_loop)
+-		nr = max_loop;
+-	else
+-		nr = CONFIG_BLK_DEV_LOOP_MIN_COUNT;
+-
+ 	err = misc_register(&loop_misc);
+ 	if (err < 0)
+ 		goto err_out;
+@@ -2233,7 +2229,7 @@ static int __init loop_init(void)
+ 	}
+ 
+ 	/* pre-create number of devices given by config or max_loop */
+-	for (i = 0; i < nr; i++)
++	for (i = 0; i < max_loop; i++)
+ 		loop_add(i);
+ 
+ 	printk(KERN_INFO "loop: module loaded\n");
+-- 
+2.39.0.rc1.256.g54fd8350bd-goog
+
