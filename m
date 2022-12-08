@@ -2,67 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB909646731
-	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 03:44:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E076F646787
+	for <lists+stable@lfdr.de>; Thu,  8 Dec 2022 04:10:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229829AbiLHCoh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Dec 2022 21:44:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37194 "EHLO
+        id S229902AbiLHDKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Dec 2022 22:10:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229501AbiLHCog (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 21:44:36 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F382154354;
-        Wed,  7 Dec 2022 18:44:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=RgW1DCuq+lbWReQD6T0I79Mf1D+OEQXuPYzr5eUbe4A=; b=r2JHwqeZeDc0z6t4qVHOdSQCHT
-        rh2KbvwCmv7qnKXneE8ohfxnznX7OLUBcQ/gRyrd8cVI+xsseo7S1KvXVsHGBGVrbACwxyLfxvvy5
-        bj7QNkDw3YAv3M7fTS1NJBBF6p4+U3zv0ja/yKWLNqlIfCX68d706B9syo1ZdKE8aZ0gdE3TKUyl0
-        V66xmuHHKloHXETm4wikHsimu2QZffjJoSB7t3DQZ7BZ2LqdMRseyINOD4bHPBTXe9doDvjcAo8os
-        S6zkVP+aXNZpT9zT453l/0gUxAmGTboMi1/pPpFAPb7ZUOrXqfumyMT/hTp/USqnBWwrnZJOd4rTD
-        cViAH5wA==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1p36tk-000UPb-VQ; Thu, 08 Dec 2022 02:44:32 +0000
-Date:   Wed, 7 Dec 2022 18:44:32 -0800
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Petr Mladek <pmladek@suse.com>
-Cc:     Petr Pavlu <petr.pavlu@suse.com>, prarit@redhat.com,
-        david@redhat.com, mwilck@suse.com, linux-modules@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] module: Don't wait for GOING modules
-Message-ID: <Y5FPkEgEbDlVXkRK@bombadil.infradead.org>
-References: <20221205103557.18363-1-petr.pavlu@suse.com>
- <Y45MXVrGNkY/bGSl@alley>
- <d528111b-4caa-e292-59f4-4ce1eab1f27c@suse.com>
- <Y5CuCVe02W5Ni/Fc@alley>
+        with ESMTP id S229777AbiLHDKS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Dec 2022 22:10:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD26F7616E;
+        Wed,  7 Dec 2022 19:10:17 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5821D61D4B;
+        Thu,  8 Dec 2022 03:10:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9C1CFC433D7;
+        Thu,  8 Dec 2022 03:10:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1670469016;
+        bh=JKY8taeO76lQp+JsyteED53SJMrGqBbdviof8+x0utc=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=t0XrHDgWndWrQZvfUAb2kzAcTS/n0KqiLeQoEDqroVWuPtYtp1sAwRayd8phD6ZSv
+         kJb730fQ6U7Wi5ewjkN8Wce1dNFfSPOQ8dCVn7hzmvFQdTjnfvv177jtkew19R2Xyl
+         YhRscrdOey9YCqAeEILt/a3cycLszEOcfzT5vcHH1NmbxxWd2jZELClHlIpirnlOwJ
+         V1pgLS9yOgdg3mnmyGjCdlEQpr2z7BO6RjrKmqBy0qHZdgpmlZmrXIe/z/yuYeWbH/
+         C8TAFdS0Vkp+RCays2LkNyBWu4cFnflJX4EwXb0Bbw5Rf23RXbkGilqVHNmVQ0IZPX
+         Obc6ZTCbuKEBg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 7FC9CE4D02C;
+        Thu,  8 Dec 2022 03:10:16 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y5CuCVe02W5Ni/Fc@alley>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 1/4] can: af_can: fix NULL pointer dereference in
+ can_rcv_filter
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <167046901651.21108.4760310811680515367.git-patchwork-notify@kernel.org>
+Date:   Thu, 08 Dec 2022 03:10:16 +0000
+References: <20221207105243.2483884-2-mkl@pengutronix.de>
+In-Reply-To: <20221207105243.2483884-2-mkl@pengutronix.de>
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        linux-can@vger.kernel.org, kernel@pengutronix.de,
+        socketcan@hartkopp.net,
+        syzbot+2d7f58292cb5b29eb5ad@syzkaller.appspotmail.com,
+        harperchen1110@gmail.com, stable@vger.kernel.org
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 07, 2022 at 04:15:21PM +0100, Petr Mladek wrote:
-> Reviewed-by: Petr Mladek <pmladek@suse.com>
+Hello:
 
-Queued onto modules-next.
+This series was applied to netdev/net.git (master)
+by Marc Kleine-Budde <mkl@pengutronix.de>:
 
-> Of course, the ideal solution would be to avoid the multiple
-> loads in the first place. AFAIK, everything starts in the kernel
-> that sends the same udev events for each CPU...
+On Wed,  7 Dec 2022 11:52:40 +0100 you wrote:
+> From: Oliver Hartkopp <socketcan@hartkopp.net>
+> 
+> Analogue to commit 8aa59e355949 ("can: af_can: fix NULL pointer
+> dereference in can_rx_register()") we need to check for a missing
+> initialization of ml_priv in the receive path of CAN frames.
+> 
+> Since commit 4e096a18867a ("net: introduce CAN specific pointer in the
+> struct net_device") the check for dev->type to be ARPHRD_CAN is not
+> sufficient anymore since bonding or tun netdevices claim to be CAN
+> devices but do not initialize ml_priv accordingly.
+> 
+> [...]
 
-Fixes go first, *then we can address enhancements. I have some old
-fixes I can send after htis is merged. I believe folks have others.
+Here is the summary with links:
+  - [net,1/4] can: af_can: fix NULL pointer dereference in can_rcv_filter
+    https://git.kernel.org/netdev/net/c/0acc442309a0
+  - [net,2/4] can: slcan: fix freed work crash
+    https://git.kernel.org/netdev/net/c/fb855e9f3b6b
+  - [net,3/4] can: can327: flush TX_work on ldisc .close()
+    https://git.kernel.org/netdev/net/c/f4a4d121ebec
+  - [net,4/4] can: esd_usb: Allow REC and TEC to return to zero
+    https://git.kernel.org/netdev/net/c/918ee4911f7a
 
-  Luis
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
