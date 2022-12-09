@@ -2,78 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09A0F648507
-	for <lists+stable@lfdr.de>; Fri,  9 Dec 2022 16:25:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67CFA64850B
+	for <lists+stable@lfdr.de>; Fri,  9 Dec 2022 16:26:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230033AbiLIPZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Dec 2022 10:25:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46470 "EHLO
+        id S229809AbiLIPZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Dec 2022 10:25:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229939AbiLIPZl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Dec 2022 10:25:41 -0500
+        with ESMTP id S230154AbiLIPZy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Dec 2022 10:25:54 -0500
 Received: from wout2-smtp.messagingengine.com (wout2-smtp.messagingengine.com [64.147.123.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A03F786A0;
-        Fri,  9 Dec 2022 07:25:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F4D178B92;
+        Fri,  9 Dec 2022 07:25:52 -0800 (PST)
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailout.west.internal (Postfix) with ESMTP id B5CEF320091F;
-        Fri,  9 Dec 2022 10:25:38 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id 0748932005CA;
+        Fri,  9 Dec 2022 10:25:50 -0500 (EST)
 Received: from imap51 ([10.202.2.101])
-  by compute6.internal (MEProxy); Fri, 09 Dec 2022 10:25:39 -0500
+  by compute6.internal (MEProxy); Fri, 09 Dec 2022 10:25:52 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:message-id
-        :mime-version:reply-to:sender:subject:subject:to:to; s=fm1; t=
-        1670599538; x=1670685938; bh=El72L61y206EseKUUon70geO5hnaNo4Skdb
-        zoWJup0s=; b=ZryyW61SmwUNUdXyXyeQ04j4PF/btO/bIFiVJ29PUhV6gC60luy
-        HCSHGECW3YPsUK9C479qv2dQrElPCHFklE0QsHvrS7phHWjGSoA1zJFzV/utK9iC
-        GuOmpFBjBs92WvkROGmKkgiQqTCYOUwVAymioMpWryLBAkOTCXFATk7Mxdi9vk5B
-        chiG82E0ZuGWHLNLI3UOgNB6k64FdxM1pM2w0ylg1govsSZKrLex0pzFuHEHaOWg
-        qy95Y+pkCfF7KGcrxYYwv97yRAqh8mSdj/Wt93HecRDI0FZ3w/Oi3SOaphFtPNEi
-        KIo40JnRIV7Hz0U7Ccw7eRUKfsCzHw4tXAw==
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1670599550; x=1670685950; bh=QcJkwn62sj
+        SUOtcXIxjSe2Ij1zsJVgf9eHa19mY4Xuw=; b=ZB0g3ByITNvp2JclQkUUMmnurx
+        Hw2WKBVfiaeUCZ0qkCu9CRcQgNAwifkRRYdK7ZU8BL1HNSEZql+6qI+ejbR/wtd4
+        UBNYooBMpsy3RNzOL1i6l3/TbJzC9LcQyXQur9VKfLIJ7g75jFon3BvKxiPSbhs6
+        upsDTYn3ACM3rzRkTofG4GygGDeolY0ZU7T5X5UoGGimvp8QdKSSIiKHysaxudPZ
+        Udv1FFwXV5FHRi8JBeuMIkYMSDjh7P7gBF+zkcxtpi83RoQKrXSP9vDyzLgR0HFi
+        ZF7vn8yx7AmqdiopZMryYsbbcvPSY2OTOeLLQ12h60moZ9ZBC8HE6/8F0qFw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:message-id:mime-version
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1670599538; x=
-        1670685938; bh=El72L61y206EseKUUon70geO5hnaNo4SkdbzoWJup0s=; b=M
-        WHAAOylbf+HAsSWpB1jAKZkX+NtsBIJkA9NWLcNLsq3njdBQ4q+Px7TCX/x2AMoC
-        PRLKczD/9UVuDpHXUrd4HFEEK1Tus8esKtHAwq+2WNvq1pAlTXuDwhgcOuOPAkDJ
-        I7xTrDaGz7BQ6Alk4dc4jWO84MVs/ICkmDEdZZME2/jWN196M1EiK2d8u52Zqr9O
-        foQ9ijN7MKjAO7J3dPfyXy/c6dKyaazn9BNwvxAJZ3AZt9KWZESM1b0tDRDpSgl6
-        YnFOgR2wuztmHZ1T9Q9EEMlkKXjh6XYjdTWm2HhVSpZev3xUw/I1tyS6PG3Xz66/
-        lzN45huAuLtd4RuALJKRg==
-X-ME-Sender: <xms:cVOTY6kIgkInYQhS_OQKlTGkmQnhJ6h3e0yL9A-U8nlAUCR3y4_cZA>
-    <xme:cVOTYx2i5_bB9EtX8PJV2OF3vR13VOEerSPii0kjEDmkT6inGDGtxt1PO0xsYKxVh
-    _EwpN_a_Jk9LDWIWv8>
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm2; t=1670599550; x=1670685950; bh=QcJkwn62sjSUOtcXIxjSe2Ij1zsJ
+        Vgf9eHa19mY4Xuw=; b=i7ItSB9QnsGmP0r+/l9chqlgI1OKe+6eE94cI8W6tBST
+        wseD/DOIwI/Dtku3VN0v9G8eW4AyMB/lNSoA4bQrzrr7SVM5LCj4ngB209QNH6Aa
+        KfD/ng6CJYxSQuUmF2uxO++u91vDF2DJW8fUaXPEqojMdM3WbhoLKTdT5v7635/j
+        hb22dGebTe4uqIRZulWLTov7xQBztX0KYc0WqzYRS/T97uePJo3a+b9UspTVviZj
+        RoM8j8mWKJmwG0MFQ0Xt/091QcHk35mfITgvzM6pJyAEPwRm9eVtCuSUcY7TYU2S
+        XlZLKPs7OdqanPE8g3/7t3+r13LrZZoHl08CrTlHbQ==
+X-ME-Sender: <xms:flOTY9DYlF9uHVO2E_p0tTIH8xukhAMSrSGtR5rOSR5sQ4LC6IPutQ>
+    <xme:flOTY7hM4fQNhf59GrRArIKcU6ljgLqjEswtVAMmoas8qxsRNCIviBOWsFRkDXQb-
+    RIVMyplMOkDJlp36vg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvddvgdejhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefofgggkfffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhnugcu
-    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
-    hnpeeffeeuhfekjeevtddvtdelledttddtjeegvdfhtdduvdfhueekudeihfejtefgieen
-    ucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenuc
-    frrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:cVOTY4psYswyKqlfJrDg2gF_Aci8hRilCeU-hNwLGFR7zMWGN4ByIA>
-    <xmx:cVOTY-meh3OlMcdPaOUbmWMP0VKJIPypP7j11aRaqePKU8p9ocrGwA>
-    <xmx:cVOTY43Dk9LFjhq-wf7sZl8-1uuRhpD0WgqBDTM3XUaszHf4eRzPXA>
-    <xmx:clOTY-xLVuNhsJ5PG_mck_njKRkFepB_7Ha6PMM-ECko88aQ_chGKw>
+    fjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhn
+    ugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtth
+    gvrhhnpeevhfffledtgeehfeffhfdtgedvheejtdfgkeeuvefgudffteettdekkeeufeeh
+    udenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptd
+    enucfrrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:flOTY4lS2-8bcwz2yQ0AM3mN5WRChiyoqOiuCVkiYATp1cRQ_SYh3w>
+    <xmx:flOTY3ymuFViJsl0X-CpNhDE_pCNwlBzFGhRJ9xkkbMmjQKWrICTOA>
+    <xmx:flOTYyQPxqPc3FX8fGIZbXFi9IvbrC6vkSMTSeld3_0chzIVqTX9iA>
+    <xmx:flOTY8BYXfPjSXzLHDTx5_aPnNHRuMmtpp2aiHwYWLgD98nPRDhICQ>
 Feedback-ID: i56a14606:Fastmail
 Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id D8385B60086; Fri,  9 Dec 2022 10:25:37 -0500 (EST)
+        id 21CA5B60086; Fri,  9 Dec 2022 10:25:50 -0500 (EST)
 X-Mailer: MessagingEngine.com Webmail Interface
 User-Agent: Cyrus-JMAP/3.7.0-alpha0-1115-g8b801eadce-fm-20221102.001-g8b801ead
 Mime-Version: 1.0
-Message-Id: <c2178eba-0c25-4310-8b87-1dc7708d2a34@app.fastmail.com>
-Date:   Fri, 09 Dec 2022 16:25:17 +0100
+Message-Id: <dbdb4417-a1cf-4613-8f7a-98b524bfdedc@app.fastmail.com>
+In-Reply-To: <bb4e185a-c4db-428b-a1ee-ee1ba767fffb@leemhuis.info>
+References: <20221205152327.26881-1-francesco@dolcini.it>
+ <0aa2d48b-35a0-1781-f265-0387d213bdd6@denx.de>
+ <20221208115124.6cc7a8bf@xps-13>
+ <Y5ITkZtKWHzWaLS4@francesco-nb.int.toradex.com>
+ <bb4e185a-c4db-428b-a1ee-ee1ba767fffb@leemhuis.info>
+Date:   Fri, 09 Dec 2022 16:25:28 +0100
 From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Linus Torvalds" <torvalds@linux-foundation.org>
-Cc:     "Francesco Dolcini" <francesco.dolcini@toradex.com>,
-        "Miquel Raynal" <miquel.raynal@bootlin.com>,
-        "Marek Vasut" <marex@denx.de>,
+To:     "Thorsten Leemhuis" <regressions@leemhuis.info>
+Cc:     "Marek Vasut" <marex@denx.de>, "Shawn Guo" <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        "Francesco Dolcini" <francesco.dolcini@toradex.com>,
+        "Rob Herring" <robh+dt@kernel.org>,
+        "Krzysztof Kozlowski" <krzysztof.kozlowski+dt@linaro.org>,
+        "Sascha Hauer" <s.hauer@pengutronix.de>,
+        "Pengutronix Kernel Team" <kernel@pengutronix.de>,
+        "Fabio Estevam" <festevam@gmail.com>,
         "NXP Linux Team" <linux-imx@nxp.com>, devicetree@vger.kernel.org,
         linux-mtd@lists.infradead.org, stable@vger.kernel.org,
-        "Thorsten Leemhuis" <regressions@leemhuis.info>, soc@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] ARM: SoC fixes for 6.1, part 6
+        "Francesco Dolcini" <francesco@dolcini.it>,
+        "Miquel Raynal" <miquel.raynal@bootlin.com>
+Subject: Re: [PATCH v1] Revert "ARM: dts: imx7: Fix NAND controller size-cells"
 Content-Type: text/plain
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
@@ -85,68 +96,22 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following changes since commit da0cbf9307a227f52a38a0a580a4642ad9d7325c:
+On Fri, Dec 9, 2022, at 14:30, Thorsten Leemhuis wrote:
+> On 08.12.22 17:40, Francesco Dolcini wrote:
+>> + Arnd
+>
+> Arnd, have you seen this? We haven't heard anything from Shawn afaics,
+> who normally would take care of a patch like this. Hence could you
+> consider picking up the patch at the start of this thread (e.g.
+> https://lore.kernel.org/all/20221205152327.26881-1-francesco@dolcini.it/
+> ) and send it to Linus in the next 48 hours? It seems low-risk and fixes
+> a regression introduced this cycle various people care about. That's why
+> I'll likely ask Linus to consider picking this up directly before
+> releasing 6.1, if I don't hear anything from you soon. But I'd prefer if
+> the patch would go through at least somewhat the proper channels;
+> alternatively a ACK from you to signal Linus "yeah, pick this up" would
+> help as well.
 
-  Merge tag 'at91-fixes-6.1-3' of https://git.kernel.org/pub/scm/linux/kernel/git/at91/linux into arm/fixes (2022-11-29 15:45:36 +0100)
+Done now.
 
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git tags/soc-fixes-6.1-6
-
-for you to fetch changes up to ef19964da8a668c683f1d38274f6fb756e047945:
-
-  Revert "ARM: dts: imx7: Fix NAND controller size-cells" (2022-12-08 17:47:57 +0100)
-
-----------------------------------------------------------------
-ARM: SoC fixes for 6.1, part 6
-
-One more last minute revert for a boot regression that was
-found on the popular colibri-imx7.
-
-----------------------------------------------------------------
-
-This came in just after I sent off the "final pull request for 6.1"
-yesterday, and it seems important enough for another even more
-final round.
-
-Author: Francesco Dolcini <francesco.dolcini@toradex.com>
-Date:   Mon Dec 5 16:23:27 2022 +0100
-
-    Revert "ARM: dts: imx7: Fix NAND controller size-cells"
-    
-    This reverts commit 753395ea1e45c724150070b5785900b6a44bd5fb.
-    
-    It introduced a boot regression on colibri-imx7, and potentially any
-    other i.MX7 boards with MTD partition list generated into the fdt by
-    U-Boot.
-    
-    While the commit we are reverting here is not obviously wrong, it fixes
-    only a dt binding checker warning that is non-functional, while it
-    introduces a boot regression and there is no obvious fix ready.
-    
-    Fixes: 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
-    Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-    Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-    Acked-by: Marek Vasut <marex@denx.de>
-    Cc: stable@vger.kernel.org
-    Link: https://lore.kernel.org/all/Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com/
-    Link: https://lore.kernel.org/all/20221205144917.6514168a@xps-13/
-    Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-
-diff --git a/arch/arm/boot/dts/imx7s.dtsi b/arch/arm/boot/dts/imx7s.dtsi
-index 03d2e8544a4e..0fc9e6b8b05d 100644
---- a/arch/arm/boot/dts/imx7s.dtsi
-+++ b/arch/arm/boot/dts/imx7s.dtsi
-@@ -1270,10 +1270,10 @@ dma_apbh: dma-apbh@33000000 {
-                        clocks = <&clks IMX7D_NAND_USDHC_BUS_RAWNAND_CLK>;
-                };
- 
--               gpmi: nand-controller@33002000 {
-+               gpmi: nand-controller@33002000{
-                        compatible = "fsl,imx7d-gpmi-nand";
-                        #address-cells = <1>;
--                       #size-cells = <0>;
-+                       #size-cells = <1>;
-                        reg = <0x33002000 0x2000>, <0x33004000 0x4000>;
-                        reg-names = "gpmi-nand", "bch";
-                        interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+   Arnd
