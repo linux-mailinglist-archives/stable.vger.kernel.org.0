@@ -2,99 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED55647FBB
-	for <lists+stable@lfdr.de>; Fri,  9 Dec 2022 10:01:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4972A647FF7
+	for <lists+stable@lfdr.de>; Fri,  9 Dec 2022 10:13:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229591AbiLIJBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Dec 2022 04:01:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60260 "EHLO
+        id S230016AbiLIJNn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Dec 2022 04:13:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229482AbiLIJA6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Dec 2022 04:00:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F9BB26AA8;
-        Fri,  9 Dec 2022 01:00:57 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EDA256218E;
-        Fri,  9 Dec 2022 09:00:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02459C433F0;
-        Fri,  9 Dec 2022 09:00:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670576456;
-        bh=QfujmW4LQPOQOF2nWxpkqTEe6JOMegFRVABmRFp6UHE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uB0Pl/OFcUuqJ8osD7+ZKr4TKIYGNoG3LvAbPHAEXcjlA6j941xh4wXOEQ7VzVZAv
-         GNcnzbcPP5J+l4Qr+tsRNnd2uN7pRAAMPTBhWn4rL7EXxyP2V82nnIj9g9aa27uoyh
-         nx3jlpvMq3OHErnMONgO1yDAAPASDOAPy5a4PLR8=
-Date:   Fri, 9 Dec 2022 10:00:53 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Guozihua (Scott)" <guozihua@huawei.com>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>, dmitry.kasatkin@gmail.com,
-        Paul Moore <paul@paul-moore.com>, sds@tycho.nsa.gov,
-        eparis@parisplace.org, sashal@kernel.org, selinux@vger.kernel.org,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
-Message-ID: <Y5L5RZlOOd9RMeWw@kroah.com>
-References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
- <Y5Lf8SRgyrqDJwiH@kroah.com>
- <93d137dc-e0d3-3741-7e01-dca1ba9c0903@huawei.com>
- <Y5L10fjvxmU3klRu@kroah.com>
- <58219c48-840d-b4f3-b195-82b2a1465b37@huawei.com>
+        with ESMTP id S230115AbiLIJNX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Dec 2022 04:13:23 -0500
+X-Greylist: delayed 431 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 09 Dec 2022 01:13:22 PST
+Received: from mail.alsdel.com (mail.alsdel.com [192.121.17.36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A18A8686BA
+        for <stable@vger.kernel.org>; Fri,  9 Dec 2022 01:13:22 -0800 (PST)
+Received: by mail.alsdel.com (Postfix, from userid 1001)
+        id 0028D22F43; Fri,  9 Dec 2022 09:06:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=alsdel.com; s=mail;
+        t=1670576770; bh=EaccI34atZDi3zI4z+dro7EdezTMN10KG2X0nSBpSo8=;
+        h=Date:From:To:Subject:From;
+        b=MNQdrULiJc7wm60/PzcVUxnp9laE9FU3RC/a0nwJH61HmH3DDIGOVuW3iRtCmiuq/
+         tfWVibOKvFsUmSRCKafqRtzosMODvVD6VzaHjkY5KFP1DNlnF3zBA7p1d5mBY3atbQ
+         1ie+x1vn2Wff4IKSYmtl2Au7WVQ+ZeAkOI+Z0z9cEOdd0SmnK68Z2GVtwyr2qaR+fT
+         cjdhgyiMDU16Twef7t6E1Pp7G9YpDElFJphufRShqBx1DInsxJg35fjj659ll3RIFy
+         smwpzLUGON9JPPKyGUvTYXf8nPphoAaaa6AEaDq/V0tsJ53HBpyHf7YtyF/8tZwAej
+         j4aI5hJVJ76VA==
+Received: by mail.alsdel.com for <stable@vger.kernel.org>; Fri,  9 Dec 2022 09:05:55 GMT
+Message-ID: <20221209074500-0.1.s.1yfk.0.9b9m1ef5hj@alsdel.com>
+Date:   Fri,  9 Dec 2022 09:05:55 GMT
+From:   =?UTF-8?Q? "Vil=C3=A9m_Du=C5=A1ek" ?= <vilem.dusek@alsdel.com>
+To:     <stable@vger.kernel.org>
+Subject: =?UTF-8?Q?Tepeln=C3=A9_obr=C3=A1b=C4=9Bn=C3=AD_=E2=80=93_objedn=C3=A1vka?=
+X-Mailer: mail.alsdel.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58219c48-840d-b4f3-b195-82b2a1465b37@huawei.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 09, 2022 at 04:59:17PM +0800, Guozihua (Scott) wrote:
-> On 2022/12/9 16:46, Greg KH wrote:
-> > On Fri, Dec 09, 2022 at 03:53:25PM +0800, Guozihua (Scott) wrote:
-> > > On 2022/12/9 15:12, Greg KH wrote:
-> > > > On Fri, Dec 09, 2022 at 03:00:35PM +0800, Guozihua (Scott) wrote:
-> > > > > Hi community.
-> > > > > 
-> > > > > Previously our team reported a race condition in IMA relates to LSM based
-> > > > > rules which would case IMA to match files that should be filtered out under
-> > > > > normal condition. The issue was originally analyzed and fixed on mainstream.
-> > > > > The patch and the discussion could be found here:
-> > > > > https://lore.kernel.org/all/20220921125804.59490-1-guozihua@huawei.com/
-> > > > > 
-> > > > > After that, we did a regression test on 4.19 LTS and the same issue arises.
-> > > > > Further analysis reveled that the issue is from a completely different
-> > > > > cause.
-> > > > 
-> > > > What commit in the tree fixed this in newer kernels?  Why can't we just
-> > > > backport that one to 4.19.y as well?
-> > > > 
-> > > > thanks,
-> > > > 
-> > > > greg k-h
-> > > 
-> > > Hi Greg,
-> > > 
-> > > The fix for mainline is now on linux-next, commit 	d57378d3aa4d ("ima:
-> > > Simplify ima_lsm_copy_rule") and 	c7423dbdbc9ece ("ima: Handle -ESTALE
-> > > returned by ima_filter_rule_match()"). However, these patches cannot be
-> > > picked directly into 4.19.y due to code difference.
-> > 
-> > Ok, so it's much more than just 4.19 that's an issue here.  And are
-> > those commits tagged for stable inclusion?
-> 
-> Not actually, not on the commit itself.
+Dobr=C3=BD den,
 
-That's not good.  When they hit Linus's tree, please submit backports to
-the stable mailing list so that they can be picked up.
+m=C3=A1te z=C3=A1jem o vyu=C5=BEit=C3=AD velmi kvalitn=C3=AD slu=C5=BEby =
+tepeln=C3=A9ho obr=C3=A1b=C4=9Bn=C3=AD kov=C5=AF?
 
-thanks,
+M=C5=AF=C5=BEeme v=C3=A1m nab=C3=ADdnout velmi v=C3=BDhodn=C3=A9 podm=C3=AD=
+nky spolupr=C3=A1ce, technick=C3=A9 poradenstv=C3=AD,
+s=C3=A9riovou v=C3=BDrobu a testov=C3=A1n=C3=AD prototyp=C5=AF.
 
-greg k-h
+Specializujeme se na tradi=C4=8Dn=C3=AD a vakuov=C3=A9 technologie: cemen=
+tov=C3=A1n=C3=AD,
+nitrocementov=C3=A1n=C3=AD, kalen=C3=AD v plynu, zu=C5=A1lecht=C4=9Bn=C3=AD=
+, =C5=BE=C3=ADh=C3=A1n=C3=AD, p=C3=A1jen=C3=AD, normaliza=C4=8Dn=C3=AD =C5=
+=BE=C3=ADh=C3=A1n=C3=AD (s p=C5=99ekrystalizac=C3=AD).
+
+M=C3=A1me k dispozici rozs=C3=A1hl=C3=A9 strojn=C3=AD vybaven=C3=AD, velk=
+=C3=BD t=C3=BDm odborn=C3=ADk=C5=AF, a proto jsme schopni se p=C5=99izp=C5=
+=AFsobit va=C5=A1im po=C5=BEadavk=C5=AFm.
+
+Pracujeme v souladu s na=C5=A1imi certifik=C3=A1ty v rozsahu norem platn=C3=
+=BDch v oblasti automobilov=C3=A9ho pr=C5=AFmyslu (IATF 16949; CQI 9) a t=
+ak=C3=A9 letectv=C3=AD (akreditace NADCAP).
+
+Pokud m=C3=A1te po=C5=BEadavky v t=C3=A9to oblasti, r=C3=A1d v=C3=A1m p=C5=
+=99edstav=C3=ADm na=C5=A1e mo=C5=BEnosti.
+
+Mohl bych v=C3=A1m zatelefonovat?
+
+
+S pozdravem,
+Vil=C3=A9m Du=C5=A1ek
