@@ -2,145 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88F906483B7
-	for <lists+stable@lfdr.de>; Fri,  9 Dec 2022 15:26:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75BE06483C2
+	for <lists+stable@lfdr.de>; Fri,  9 Dec 2022 15:28:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229568AbiLIO0k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Dec 2022 09:26:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52936 "EHLO
+        id S229828AbiLIO2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Dec 2022 09:28:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbiLIO0j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Dec 2022 09:26:39 -0500
-Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0112018E3B;
-        Fri,  9 Dec 2022 06:26:39 -0800 (PST)
-Received: by mail-qt1-x82b.google.com with SMTP id z12so684301qtv.5;
-        Fri, 09 Dec 2022 06:26:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Z26CJkV4bYBR7Igz8UtlKjC+5Be28A36hbOcGnHeAHA=;
-        b=lOXPlqVDsCU/iT7WgJtYT6+UXxMsr9qT3EOt0VEoisMXgRg2R6Cue68/yFc610oSNh
-         QnEoyGDMtbIXZ0bcGN7E9cL+XqHtaulIlfCJ0SrkEn1pk0KCvOb68uQDaVEEyvCs58xN
-         iP0YGW9B+VQG0wWOE4wnxp/GFMyOLOlHRRYGrOvkYDAvxI6ra/Ckgj1Po8LdgacBnJ/q
-         5/XMqgDXCxsb8uI9/IVSBogDGas/MITu53Pz8u8YEn0nyhweWfxfITv4XODmPn/pzoS7
-         ql5V6+gmKsRgqwaGRdIxKnH/74vE3hD8AEUEPiqyCMnv3Du3zlp6FVPDvVf7G09I8/0e
-         hK3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Z26CJkV4bYBR7Igz8UtlKjC+5Be28A36hbOcGnHeAHA=;
-        b=A5wludngEY7viUz7Jp2QoISKmlLsW8oVlhCnRmJCACmi1McKgFME6XxbKsonqLm2Gt
-         llvnjNHI9UTNPmZ0tvxFOWlKRqtpCMIlRrmyL+h70hD10iW9YKYXKbRvAFyoX+qBwgL6
-         GFxan6hSDMZkyfmzqI5EX1tFBR2kZ91QTdB5vVB9ITzIBd+uJznmKXKK0S5RSqNBw8Ml
-         IXnzIakmv6JsCJp5abQVpkeWY1+v/xXaQmuGBYI7RBvlh34xe8aYohV0vMBClND3a03F
-         yQrAHWqvUe9qiAAetMpp0yBh9AnkCs6ZKTRpkDQsXWofCPhhLyT4wQzXqYG3mFBustHK
-         Mslw==
-X-Gm-Message-State: ANoB5pk09SHftm0er3iUtSKpYW9N9BJ6jPeYJKKwQnptRGMZ7Vl7iK1F
-        VLupZvmIznLbvONYMDF3wJMdx7b2JrI=
-X-Google-Smtp-Source: AA0mqf7cBf3HtEfnMTHbn2B9g1hb6GZYhiARbmje9pr3rZIgEL0K9R+JMsEs+TSJ3w/N9SLufELTUQ==
-X-Received: by 2002:a05:622a:1e11:b0:3a5:fa33:917f with SMTP id br17-20020a05622a1e1100b003a5fa33917fmr8841541qtb.37.1670595997584;
-        Fri, 09 Dec 2022 06:26:37 -0800 (PST)
-Received: from pm2-ws13.praxislan02.com (207-172-141-204.s8906.c3-0.slvr-cbr1.lnh-slvr.md.cable.rcncustomer.com. [207.172.141.204])
-        by smtp.gmail.com with ESMTPSA id bb12-20020a05622a1b0c00b003a530a32f67sm944094qtb.65.2022.12.09.06.26.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Dec 2022 06:26:36 -0800 (PST)
-From:   Jason Andryuk <jandryuk@gmail.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     xen-devel@lists.xenproject.org, Jason Andryuk <jandryuk@gmail.com>,
-        Phillip Susi <phill@thesusis.net>, stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH v2] Input: xen-kbdfront - drop keys to shrink modalias
-Date:   Fri,  9 Dec 2022 09:26:14 -0500
-Message-Id: <20221209142615.33574-1-jandryuk@gmail.com>
-X-Mailer: git-send-email 2.38.1
+        with ESMTP id S229478AbiLIO2I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Dec 2022 09:28:08 -0500
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23B821DF1C;
+        Fri,  9 Dec 2022 06:28:02 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.227])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4NTCqM4hgPz9v7Gn;
+        Fri,  9 Dec 2022 22:20:47 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwD343DORZNjNjDSAA--.62266S2;
+        Fri, 09 Dec 2022 15:27:36 +0100 (CET)
+Message-ID: <8ec1fb8eddf209a4f6b10bb3575334510f100c41.camel@huaweicloud.com>
+Subject: Re: [PATCH] KEYS: asymmetric: Make a copy of sig and digest in
+ vmalloced stack
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     dhowells@redhat.com, herbert@gondor.apana.org.au,
+        davem@davemloft.net, zohar@linux.ibm.com,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
+        linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Date:   Fri, 09 Dec 2022 15:27:23 +0100
+In-Reply-To: <3f1c74f320a288b6581241fc3039103cbcee7b27.camel@huaweicloud.com>
+References: <20221208164610.867747-1-roberto.sassu@huaweicloud.com>
+         <Y5JwpdGF50oFKw0z@sol.localdomain>
+         <3f1c74f320a288b6581241fc3039103cbcee7b27.camel@huaweicloud.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: LxC2BwD343DORZNjNjDSAA--.62266S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxZr1xAr1UZF4UKFy5JF15twb_yoW5uF48pa
+        95WF4DtFWUKr1UCr12v3WxKw1jyw1jkF129w4rAw15Crn0vryxC3y0kr45WF93Jr4kXFyx
+        trW8WwsxZFn8XaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkYb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+        6I80ewAv7VC0I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+        Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28IcxkI
+        7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxV
+        Cjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY
+        6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6x
+        AIw20EY4v20xvaj40_Wr1j6rW3Jr1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280
+        aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IUbG2NtUUUUU==
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQABBF1jj4Z3zQAAsJ
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-xen kbdfront registers itself as being able to deliver *any* key since
-it doesn't know what keys the backend may produce.
+On Fri, 2022-12-09 at 15:15 +0100, Roberto Sassu wrote:
+> On Thu, 2022-12-08 at 15:17 -0800, Eric Biggers wrote:
+> > On Thu, Dec 08, 2022 at 05:46:10PM +0100, Roberto Sassu wrote:
+> > > diff --git a/crypto/asymmetric_keys/public_key.c b/crypto/asymmetric_keys/public_key.c
+> > > index 2f8352e88860..307799ffbc3e 100644
+> > > --- a/crypto/asymmetric_keys/public_key.c
+> > > +++ b/crypto/asymmetric_keys/public_key.c
+> > > @@ -363,7 +363,8 @@ int public_key_verify_signature(const struct public_key *pkey,
+> > >  	struct scatterlist src_sg[2];
+> > >  	char alg_name[CRYPTO_MAX_ALG_NAME];
+> > >  	char *key, *ptr;
+> > > -	int ret;
+> > > +	char *sig_s, *digest;
+> > > +	int ret, verif_bundle_len;
+> > >  
+> > >  	pr_devel("==>%s()\n", __func__);
+> > >  
+> > > @@ -400,8 +401,21 @@ int public_key_verify_signature(const struct public_key *pkey,
+> > >  	if (!req)
+> > >  		goto error_free_tfm;
+> > >  
+> > > -	key = kmalloc(pkey->keylen + sizeof(u32) * 2 + pkey->paramlen,
+> > > -		      GFP_KERNEL);
+> > > +	verif_bundle_len = pkey->keylen + sizeof(u32) * 2 + pkey->paramlen;
+> > > +
+> > > +	sig_s = sig->s;
+> > > +	digest = sig->digest;
+> > > +
+> > > +	if (IS_ENABLED(CONFIG_VMAP_STACK)) {
+> > > +		if (!virt_addr_valid(sig_s))
+> > > +			verif_bundle_len += sig->s_size;
+> > > +
+> > > +		if (!virt_addr_valid(digest))
+> > > +			verif_bundle_len += sig->digest_size;
+> > > +	}
+> > > +
+> > > +	/* key points to a buffer which could contain the sig and digest too. */
+> > > +	key = kmalloc(verif_bundle_len, GFP_KERNEL);
+> > >  	if (!key)
+> > >  		goto error_free_req;
+> > >  
+> > > @@ -424,9 +438,24 @@ int public_key_verify_signature(const struct public_key *pkey,
+> > >  			goto error_free_key;
+> > >  	}
+> > >  
+> > > +	if (IS_ENABLED(CONFIG_VMAP_STACK)) {
+> > > +		ptr += pkey->paramlen;
+> > > +
+> > > +		if (!virt_addr_valid(sig_s)) {
+> > > +			sig_s = ptr;
+> > > +			memcpy(sig_s, sig->s, sig->s_size);
+> > > +			ptr += sig->s_size;
+> > > +		}
+> > > +
+> > > +		if (!virt_addr_valid(digest)) {
+> > > +			digest = ptr;
+> > > +			memcpy(digest, sig->digest, sig->digest_size);
+> > > +		}
+> > > +	}
+> > > +
+> > >  	sg_init_table(src_sg, 2);
+> > > -	sg_set_buf(&src_sg[0], sig->s, sig->s_size);
+> > > -	sg_set_buf(&src_sg[1], sig->digest, sig->digest_size);
+> > > +	sg_set_buf(&src_sg[0], sig_s, sig->s_size);
+> > > +	sg_set_buf(&src_sg[1], digest, sig->digest_size);
+> > >  	akcipher_request_set_crypt(req, src_sg, NULL, sig->s_size,
+> > >  				   sig->digest_size);
+> > >  	crypto_init_wait(&cwait);
+> > 
+> > We should try to avoid adding error-prone special cases.  How about just doing
+> > the copy of the signature and digest unconditionally?  That would be much
+> > simpler.  It would even mean that the scatterlist would only need one element.
+> 
+> Took some time to figure out why Redzone was overwritten.
+> 
+> There must be two separate scatterlists. If you set the first only with
+> the sum of the key length and digest length, mpi_read_raw_from_sgl()
 
-Unfortunately, the generated modalias gets too large and uevent creation
-fails with -ENOMEM.
+Of signature length and digest length.
 
-This can lead to gdm not using the keyboard since there is no seat
-associated [1] and the debian installer crashing [2].
+Roberto
 
-Trim the ranges of key capabilities by removing some BTN_* ranges.
-While doing this, some neighboring undefined ranges are removed to trim
-it further.
-
-An upper limit of KEY_KBD_LCD_MENU5 is still too large.  Use an upper
-limit of KEY_BRIGHTNESS_MENU.
-
-This removes:
-BTN_DPAD_UP(0x220)..BTN_DPAD_RIGHT(0x223)
-Empty space 0x224..0x229
-
-Empty space 0x28a..0x28f
-KEY_MACRO1(0x290)..KEY_MACRO30(0x2ad)
-KEY_MACRO_RECORD_START          0x2b0
-KEY_MACRO_RECORD_STOP           0x2b1
-KEY_MACRO_PRESET_CYCLE          0x2b2
-KEY_MACRO_PRESET1(0x2b3)..KEY_MACRO_PRESET3(0xb5)
-Empty space 0x2b6..0x2b7
-KEY_KBD_LCD_MENU1(0x2b8)..KEY_KBD_LCD_MENU5(0x2bc)
-Empty space 0x2bd..0x2bf
-BTN_TRIGGER_HAPPY(0x2c0)..BTN_TRIGGER_HAPPY40(0x2e7)
-Empty space 0x2e8..0x2ff
-
-The modalias shrinks from 2082 to 1550 bytes.
-
-A chunk of keys need to be removed to allow the keyboard to be used.
-This may break some functionality, but the hope is these macro keys are
-uncommon and don't affect any users.
-
-[1] https://github.com/systemd/systemd/issues/22944
-[2] https://lore.kernel.org/xen-devel/87o8dw52jc.fsf@vps.thesusis.net/T/
-
-Cc: Phillip Susi <phill@thesusis.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
----
- drivers/input/misc/xen-kbdfront.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
-v2:
-Remove more keys: v1 didn't remove enough and modalias was still broken.
-
-diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-index 8d8ebdc2039b..4ecb579df748 100644
---- a/drivers/input/misc/xen-kbdfront.c
-+++ b/drivers/input/misc/xen-kbdfront.c
-@@ -256,7 +256,14 @@ static int xenkbd_probe(struct xenbus_device *dev,
- 		__set_bit(EV_KEY, kbd->evbit);
- 		for (i = KEY_ESC; i < KEY_UNKNOWN; i++)
- 			__set_bit(i, kbd->keybit);
--		for (i = KEY_OK; i < KEY_MAX; i++)
-+		/* In theory we want to go KEY_OK..KEY_MAX, but that grows the
-+		 * modalias line too long.  There is a gap of buttons from
-+		 * BTN_DPAD_UP..BTN_DPAD_RIGHT and KEY_ALS_TOGGLE is the next
-+		 * defined. Then continue up to KEY_BRIGHTNESS_MENU as an upper
-+		 * limit. */
-+		for (i = KEY_OK; i < BTN_DPAD_UP; i++)
-+			__set_bit(i, kbd->keybit);
-+		for (i = KEY_ALS_TOGGLE; i <= KEY_BRIGHTNESS_MENU; i++)
- 			__set_bit(i, kbd->keybit);
- 
- 		ret = input_register_device(kbd);
--- 
-2.38.1
+> called by rsa_enc() is going to write before the d pointer in MPI.
+> 
+> 		for (x = 0; x < len; x++) {
+> 			a <<= 8;
+> 			a |= *buff++;
+> 			if (((z + x + 1) % BYTES_PER_MPI_LIMB) == 0) {
+> 				val->d[j--] = a;
+> 				a = 0;
+> 			}
+> 		}
+> 
+> Roberto
+> 
+> > Also, the size of buffer needed is only
+> > 
+> > 	max(pkey->keylen + sizeof(u32) * 2 + pkey->paramlen,
+> > 	    sig->s_size + sig->digest_size)
+> > 
+> > ... since the signature and digest aren't needed until the key was already used.
+> > 
+> > - Eric
 
