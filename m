@@ -2,113 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3E836482CB
-	for <lists+stable@lfdr.de>; Fri,  9 Dec 2022 14:30:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB013648392
+	for <lists+stable@lfdr.de>; Fri,  9 Dec 2022 15:16:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229488AbiLINat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Dec 2022 08:30:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43676 "EHLO
+        id S229864AbiLIOQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Dec 2022 09:16:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229482AbiLINat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Dec 2022 08:30:49 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14F851789F;
-        Fri,  9 Dec 2022 05:30:47 -0800 (PST)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1p3dSY-0004xm-Q5; Fri, 09 Dec 2022 14:30:38 +0100
-Message-ID: <bb4e185a-c4db-428b-a1ee-ee1ba767fffb@leemhuis.info>
-Date:   Fri, 9 Dec 2022 14:30:38 +0100
+        with ESMTP id S230014AbiLIOQQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Dec 2022 09:16:16 -0500
+Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69916DF9;
+        Fri,  9 Dec 2022 06:15:45 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.227])
+        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4NTCYF4PwGz9v7Gd;
+        Fri,  9 Dec 2022 22:08:33 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwAHpXHuQpNjVynSAA--.22221S2;
+        Fri, 09 Dec 2022 15:15:20 +0100 (CET)
+Message-ID: <3f1c74f320a288b6581241fc3039103cbcee7b27.camel@huaweicloud.com>
+Subject: Re: [PATCH] KEYS: asymmetric: Make a copy of sig and digest in
+ vmalloced stack
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     dhowells@redhat.com, herbert@gondor.apana.org.au,
+        davem@davemloft.net, zohar@linux.ibm.com,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
+        linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Date:   Fri, 09 Dec 2022 15:15:06 +0100
+In-Reply-To: <Y5JwpdGF50oFKw0z@sol.localdomain>
+References: <20221208164610.867747-1-roberto.sassu@huaweicloud.com>
+         <Y5JwpdGF50oFKw0z@sol.localdomain>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [PATCH v1] Revert "ARM: dts: imx7: Fix NAND controller
- size-cells"
-Content-Language: en-US, de-DE
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Marek Vasut <marex@denx.de>, Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        devicetree@vger.kernel.org, linux-mtd@lists.infradead.org,
-        stable@vger.kernel.org, Francesco Dolcini <francesco@dolcini.it>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-References: <20221205152327.26881-1-francesco@dolcini.it>
- <0aa2d48b-35a0-1781-f265-0387d213bdd6@denx.de>
- <20221208115124.6cc7a8bf@xps-13>
- <Y5ITkZtKWHzWaLS4@francesco-nb.int.toradex.com>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <Y5ITkZtKWHzWaLS4@francesco-nb.int.toradex.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1670592648;8c9799b5;
-X-HE-SMSGID: 1p3dSY-0004xm-Q5
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-CM-TRANSID: LxC2BwAHpXHuQpNjVynSAA--.22221S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxWF43AFyDtr4rJrWfur1Dtrb_yoW5CFyfpa
+        95Wr4DtFWUGr1UCr17C3W8Kw47Aw10kF129w4Fyw15Crn8ZryxC3y0kr45WFyfJrWkXFyI
+        yrW8XwsxZFn8XaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgABBF1jj4J5TAABsA
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08.12.22 17:40, Francesco Dolcini wrote:
-> + Arnd
-
-Arnd, have you seen this? We haven't heard anything from Shawn afaics,
-who normally would take care of a patch like this. Hence could you
-consider picking up the patch at the start of this thread (e.g.
-https://lore.kernel.org/all/20221205152327.26881-1-francesco@dolcini.it/
-) and send it to Linus in the next 48 hours? It seems low-risk and fixes
-a regression introduced this cycle various people care about. That's why
-I'll likely ask Linus to consider picking this up directly before
-releasing 6.1, if I don't hear anything from you soon. But I'd prefer if
-the patch would go through at least somewhat the proper channels;
-alternatively a ACK from you to signal Linus "yeah, pick this up" would
-help as well.
-
-Ciao, Thorsten
-
-
-> On Thu, Dec 08, 2022 at 11:51:24AM +0100, Miquel Raynal wrote:
->> marex@denx.de wrote on Mon, 5 Dec 2022 17:26:53 +0100:
->>> On 12/5/22 16:23, Francesco Dolcini wrote:
->>>> From: Francesco Dolcini <francesco.dolcini@toradex.com>
->>>>
->>>> This reverts commit 753395ea1e45c724150070b5785900b6a44bd5fb.
->>>>
->>>> It introduced a boot regression on colibri-imx7, and potentially any
->>>> other i.MX7 boards with MTD partition list generated into the fdt by
->>>> U-Boot.
->>>>
->>>> While the commit we are reverting here is not obviously wrong, it fixes
->>>> only a dt binding checker warning that is non-functional, while it
->>>> introduces a boot regression and there is no obvious fix ready.
->>>>
->>>> Cc: stable@vger.kernel.org
->>>> Fixes: 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
->>>> Link: https://lore.kernel.org/all/Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com/
->>>> Link: https://lore.kernel.org/all/20221205144917.6514168a@xps-13/
->>>> Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
->> [...]
->>> Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
->> [...]
->>> Acked-by: Marek Vasut <marex@denx.de>
->> [...]
->>
->> As discussed in the above links, boot is broken on imx7 Colibri boards,
->> this revert was the most quick and straightforward fix we agreed upon
->> with the hope (~ duty?) it would make it in v6.1. Any chance you could
->> pick this up rapidly and forward it to Linus? Or should we involve
->> him directly (Thorsten?).
+On Thu, 2022-12-08 at 15:17 -0800, Eric Biggers wrote:
+> On Thu, Dec 08, 2022 at 05:46:10PM +0100, Roberto Sassu wrote:
+> > diff --git a/crypto/asymmetric_keys/public_key.c b/crypto/asymmetric_keys/public_key.c
+> > index 2f8352e88860..307799ffbc3e 100644
+> > --- a/crypto/asymmetric_keys/public_key.c
+> > +++ b/crypto/asymmetric_keys/public_key.c
+> > @@ -363,7 +363,8 @@ int public_key_verify_signature(const struct public_key *pkey,
+> >  	struct scatterlist src_sg[2];
+> >  	char alg_name[CRYPTO_MAX_ALG_NAME];
+> >  	char *key, *ptr;
+> > -	int ret;
+> > +	char *sig_s, *digest;
+> > +	int ret, verif_bundle_len;
+> >  
+> >  	pr_devel("==>%s()\n", __func__);
+> >  
+> > @@ -400,8 +401,21 @@ int public_key_verify_signature(const struct public_key *pkey,
+> >  	if (!req)
+> >  		goto error_free_tfm;
+> >  
+> > -	key = kmalloc(pkey->keylen + sizeof(u32) * 2 + pkey->paramlen,
+> > -		      GFP_KERNEL);
+> > +	verif_bundle_len = pkey->keylen + sizeof(u32) * 2 + pkey->paramlen;
+> > +
+> > +	sig_s = sig->s;
+> > +	digest = sig->digest;
+> > +
+> > +	if (IS_ENABLED(CONFIG_VMAP_STACK)) {
+> > +		if (!virt_addr_valid(sig_s))
+> > +			verif_bundle_len += sig->s_size;
+> > +
+> > +		if (!virt_addr_valid(digest))
+> > +			verif_bundle_len += sig->digest_size;
+> > +	}
+> > +
+> > +	/* key points to a buffer which could contain the sig and digest too. */
+> > +	key = kmalloc(verif_bundle_len, GFP_KERNEL);
+> >  	if (!key)
+> >  		goto error_free_req;
+> >  
+> > @@ -424,9 +438,24 @@ int public_key_verify_signature(const struct public_key *pkey,
+> >  			goto error_free_key;
+> >  	}
+> >  
+> > +	if (IS_ENABLED(CONFIG_VMAP_STACK)) {
+> > +		ptr += pkey->paramlen;
+> > +
+> > +		if (!virt_addr_valid(sig_s)) {
+> > +			sig_s = ptr;
+> > +			memcpy(sig_s, sig->s, sig->s_size);
+> > +			ptr += sig->s_size;
+> > +		}
+> > +
+> > +		if (!virt_addr_valid(digest)) {
+> > +			digest = ptr;
+> > +			memcpy(digest, sig->digest, sig->digest_size);
+> > +		}
+> > +	}
+> > +
+> >  	sg_init_table(src_sg, 2);
+> > -	sg_set_buf(&src_sg[0], sig->s, sig->s_size);
+> > -	sg_set_buf(&src_sg[1], sig->digest, sig->digest_size);
+> > +	sg_set_buf(&src_sg[0], sig_s, sig->s_size);
+> > +	sg_set_buf(&src_sg[1], digest, sig->digest_size);
+> >  	akcipher_request_set_crypt(req, src_sg, NULL, sig->s_size,
+> >  				   sig->digest_size);
+> >  	crypto_init_wait(&cwait);
 > 
-> Hello Arnd,
-> FYI - see Miquel explanation above.
+> We should try to avoid adding error-prone special cases.  How about just doing
+> the copy of the signature and digest unconditionally?  That would be much
+> simpler.  It would even mean that the scatterlist would only need one element.
+
+Took some time to figure out why Redzone was overwritten.
+
+There must be two separate scatterlists. If you set the first only with
+the sum of the key length and digest length, mpi_read_raw_from_sgl()
+called by rsa_enc() is going to write before the d pointer in MPI.
+
+		for (x = 0; x < len; x++) {
+			a <<= 8;
+			a |= *buff++;
+			if (((z + x + 1) % BYTES_PER_MPI_LIMB) == 0) {
+				val->d[j--] = a;
+				a = 0;
+			}
+		}
+
+Roberto
+
+> Also, the size of buffer needed is only
 > 
-> Francesco
+> 	max(pkey->keylen + sizeof(u32) * 2 + pkey->paramlen,
+> 	    sig->s_size + sig->digest_size)
 > 
+> ... since the signature and digest aren't needed until the key was already used.
+> 
+> - Eric
+
