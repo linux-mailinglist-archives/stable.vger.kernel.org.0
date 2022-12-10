@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2A59648C8F
-	for <lists+stable@lfdr.de>; Sat, 10 Dec 2022 03:42:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55847648C90
+	for <lists+stable@lfdr.de>; Sat, 10 Dec 2022 03:42:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229674AbiLJCmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Dec 2022 21:42:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48120 "EHLO
+        id S229703AbiLJCmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Dec 2022 21:42:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229634AbiLJCmC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Dec 2022 21:42:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D49C7A188;
-        Fri,  9 Dec 2022 18:42:01 -0800 (PST)
+        with ESMTP id S229746AbiLJCmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Dec 2022 21:42:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A897A7A1B1;
+        Fri,  9 Dec 2022 18:42:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE750623D6;
-        Sat, 10 Dec 2022 02:42:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FFD8C433D2;
-        Sat, 10 Dec 2022 02:42:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 461F9623D6;
+        Sat, 10 Dec 2022 02:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97BBFC433EF;
+        Sat, 10 Dec 2022 02:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1670640120;
-        bh=MwCNP1CzMSUDek37vxVpUGsHjfbKOYagLXt6MJUPkQg=;
+        s=korg; t=1670640122;
+        bh=iX4b5AcrvWVmxdvS76LgsOFACLWc4BieGVYqAzEtim0=;
         h=Date:To:From:Subject:From;
-        b=NGgbsTBf//oIGMeOx3cL/LVeLGRheXXDWD7VMooLHuGSyGSDw5ZPipkRYm936ypJl
-         wF7TPVr6CcqiaoT2DujcHuzOKvXIGoSKQ+QTGPBgmj9pNyPbuz43yvzzYI86CXHnMw
-         1VnMZ3IGh2ShQ3J09cFFdk7J0EzcO6cAO/lprLZE=
-Date:   Fri, 09 Dec 2022 18:41:59 -0800
-To:     mm-commits@vger.kernel.org, yuzhao@google.com,
-        stable@vger.kernel.org, ssengar@linux.microsoft.com,
-        jhubbard@nvidia.com, jgg@nvidia.com, jack@suse.cz,
-        david@redhat.com, dan.j.williams@intel.com, apopple@nvidia.com,
-        jostarks@microsoft.com, akpm@linux-foundation.org
+        b=JdGaoTKUKqeaDTNO1fX4SzjVcJaEp4pl2bpUHFMVVQrFDHbV8XJUOTnRMGDPJjn9b
+         8wKQ5jD7VifDXW3HvYJJmuEruMCJ7OQHHoe1oe1+S4RvAu/KlaGaGWoTlCOsjb5yAQ
+         fQ8/3luAWsEoz/KJ1w/QFc6w8BF22qw3NzGguXNQ=
+Date:   Fri, 09 Dec 2022 18:42:01 -0800
+To:     mm-commits@vger.kernel.org, torvalds@linux-foundation.org,
+        stable@vger.kernel.org, songmuchun@bytedance.com,
+        shakeelb@google.com, roman.gushchin@linux.dev, mhocko@kernel.org,
+        jannh@google.com, hannes@cmpxchg.org, tj@kernel.org,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-gup-fix-gup_pud_range-for-dax.patch removed from -mm tree
-Message-Id: <20221210024200.3FFD8C433D2@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] memcg-fix-possible-use-after-free-in-memcg_write_event_control.patch removed from -mm tree
+Message-Id: <20221210024202.97BBFC433EF@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -48,98 +48,123 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm/gup: fix gup_pud_range() for dax
+     Subject: memcg: fix possible use-after-free in memcg_write_event_control()
 has been removed from the -mm tree.  Its filename was
-     mm-gup-fix-gup_pud_range-for-dax.patch
+     memcg-fix-possible-use-after-free-in-memcg_write_event_control.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: John Starks <jostarks@microsoft.com>
-Subject: mm/gup: fix gup_pud_range() for dax
-Date: Tue, 6 Dec 2022 22:00:53 -0800
+From: Tejun Heo <tj@kernel.org>
+Subject: memcg: fix possible use-after-free in memcg_write_event_control()
+Date: Wed, 7 Dec 2022 16:53:15 -1000
 
-For dax pud, pud_huge() returns true on x86. So the function works as long
-as hugetlb is configured. However, dax doesn't depend on hugetlb.
-Commit 414fd080d125 ("mm/gup: fix gup_pmd_range() for dax") fixed
-devmap-backed huge PMDs, but missed devmap-backed huge PUDs. Fix this as
-well.
+memcg_write_event_control() accesses the dentry->d_name of the specified
+control fd to route the write call.  As a cgroup interface file can't be
+renamed, it's safe to access d_name as long as the specified file is a
+regular cgroup file.  Also, as these cgroup interface files can't be
+removed before the directory, it's safe to access the parent too.
 
-This fixes the below kernel panic:
+Prior to 347c4a874710 ("memcg: remove cgroup_event->cft"), there was a
+call to __file_cft() which verified that the specified file is a regular
+cgroupfs file before further accesses.  The cftype pointer returned from
+__file_cft() was no longer necessary and the commit inadvertently dropped
+the file type check with it allowing any file to slip through.  With the
+invarients broken, the d_name and parent accesses can now race against
+renames and removals of arbitrary files and cause use-after-free's.
 
-general protection fault, probably for non-canonical address 0x69e7c000cc478: 0000 [#1] SMP
-	< snip >
-Call Trace:
-<TASK>
-get_user_pages_fast+0x1f/0x40
-iov_iter_get_pages+0xc6/0x3b0
-? mempool_alloc+0x5d/0x170
-bio_iov_iter_get_pages+0x82/0x4e0
-? bvec_alloc+0x91/0xc0
-? bio_alloc_bioset+0x19a/0x2a0
-blkdev_direct_IO+0x282/0x480
-? __io_complete_rw_common+0xc0/0xc0
-? filemap_range_has_page+0x82/0xc0
-generic_file_direct_write+0x9d/0x1a0
-? inode_update_time+0x24/0x30
-__generic_file_write_iter+0xbd/0x1e0
-blkdev_write_iter+0xb4/0x150
-? io_import_iovec+0x8d/0x340
-io_write+0xf9/0x300
-io_issue_sqe+0x3c3/0x1d30
-? sysvec_reschedule_ipi+0x6c/0x80
-__io_queue_sqe+0x33/0x240
-? fget+0x76/0xa0
-io_submit_sqes+0xe6a/0x18d0
-? __fget_light+0xd1/0x100
-__x64_sys_io_uring_enter+0x199/0x880
-? __context_tracking_enter+0x1f/0x70
-? irqentry_exit_to_user_mode+0x24/0x30
-? irqentry_exit+0x1d/0x30
-? __context_tracking_exit+0xe/0x70
-do_syscall_64+0x3b/0x90
-entry_SYSCALL_64_after_hwframe+0x61/0xcb
-RIP: 0033:0x7fc97c11a7be
-	< snip >
-</TASK>
----[ end trace 48b2e0e67debcaeb ]---
-RIP: 0010:internal_get_user_pages_fast+0x340/0x990
-	< snip >
-Kernel panic - not syncing: Fatal exception
-Kernel Offset: disabled
+Fix the bug by resurrecting the file type check in __file_cft().  Now that
+cgroupfs is implemented through kernfs, checking the file operations needs
+to go through a layer of indirection.  Instead, let's check the superblock
+and dentry type.
 
-Link: https://lkml.kernel.org/r/1670392853-28252-1-git-send-email-ssengar@linux.microsoft.com
-Fixes: 414fd080d125 ("mm/gup: fix gup_pmd_range() for dax")
-Signed-off-by: John Starks <jostarks@microsoft.com>
-Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Yu Zhao <yuzhao@google.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/Y5FRm/cfcKPGzWwl@slm.duckdns.org
+Fixes: 347c4a874710 ("memcg: remove cgroup_event->cft")
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Jann Horn <jannh@google.com>
+Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>	[3.14+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/gup.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/cgroup.h          |    1 +
+ kernel/cgroup/cgroup-internal.h |    1 -
+ mm/memcontrol.c                 |   15 +++++++++++++--
+ 3 files changed, 14 insertions(+), 3 deletions(-)
 
---- a/mm/gup.c~mm-gup-fix-gup_pud_range-for-dax
-+++ a/mm/gup.c
-@@ -2852,7 +2852,7 @@ static int gup_pud_range(p4d_t *p4dp, p4
- 		next = pud_addr_end(addr, end);
- 		if (unlikely(!pud_present(pud)))
- 			return 0;
--		if (unlikely(pud_huge(pud))) {
-+		if (unlikely(pud_huge(pud) || pud_devmap(pud))) {
- 			if (!gup_huge_pud(pud, pudp, addr, next, flags,
- 					  pages, nr))
- 				return 0;
+--- a/include/linux/cgroup.h~memcg-fix-possible-use-after-free-in-memcg_write_event_control
++++ a/include/linux/cgroup.h
+@@ -68,6 +68,7 @@ struct css_task_iter {
+ 	struct list_head		iters_node;	/* css_set->task_iters */
+ };
+ 
++extern struct file_system_type cgroup_fs_type;
+ extern struct cgroup_root cgrp_dfl_root;
+ extern struct css_set init_css_set;
+ 
+--- a/kernel/cgroup/cgroup-internal.h~memcg-fix-possible-use-after-free-in-memcg_write_event_control
++++ a/kernel/cgroup/cgroup-internal.h
+@@ -167,7 +167,6 @@ struct cgroup_mgctx {
+ extern spinlock_t css_set_lock;
+ extern struct cgroup_subsys *cgroup_subsys[];
+ extern struct list_head cgroup_roots;
+-extern struct file_system_type cgroup_fs_type;
+ 
+ /* iterate across the hierarchies */
+ #define for_each_root(root)						\
+--- a/mm/memcontrol.c~memcg-fix-possible-use-after-free-in-memcg_write_event_control
++++ a/mm/memcontrol.c
+@@ -4832,6 +4832,7 @@ static ssize_t memcg_write_event_control
+ 	unsigned int efd, cfd;
+ 	struct fd efile;
+ 	struct fd cfile;
++	struct dentry *cdentry;
+ 	const char *name;
+ 	char *endp;
+ 	int ret;
+@@ -4886,6 +4887,16 @@ static ssize_t memcg_write_event_control
+ 		goto out_put_cfile;
+ 
+ 	/*
++	 * The control file must be a regular cgroup1 file. As a regular cgroup
++	 * file can't be renamed, it's safe to access its name afterwards.
++	 */
++	cdentry = cfile.file->f_path.dentry;
++	if (cdentry->d_sb->s_type != &cgroup_fs_type || !d_is_reg(cdentry)) {
++		ret = -EINVAL;
++		goto out_put_cfile;
++	}
++
++	/*
+ 	 * Determine the event callbacks and set them in @event.  This used
+ 	 * to be done via struct cftype but cgroup core no longer knows
+ 	 * about these events.  The following is crude but the whole thing
+@@ -4893,7 +4904,7 @@ static ssize_t memcg_write_event_control
+ 	 *
+ 	 * DO NOT ADD NEW FILES.
+ 	 */
+-	name = cfile.file->f_path.dentry->d_name.name;
++	name = cdentry->d_name.name;
+ 
+ 	if (!strcmp(name, "memory.usage_in_bytes")) {
+ 		event->register_event = mem_cgroup_usage_register_event;
+@@ -4917,7 +4928,7 @@ static ssize_t memcg_write_event_control
+ 	 * automatically removed on cgroup destruction but the removal is
+ 	 * asynchronous, so take an extra ref on @css.
+ 	 */
+-	cfile_css = css_tryget_online_from_dir(cfile.file->f_path.dentry->d_parent,
++	cfile_css = css_tryget_online_from_dir(cdentry->d_parent,
+ 					       &memory_cgrp_subsys);
+ 	ret = -EINVAL;
+ 	if (IS_ERR(cfile_css))
 _
 
-Patches currently in -mm which might be from jostarks@microsoft.com are
+Patches currently in -mm which might be from tj@kernel.org are
 
 
