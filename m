@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57412649373
-	for <lists+stable@lfdr.de>; Sun, 11 Dec 2022 10:53:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA1B9649372
+	for <lists+stable@lfdr.de>; Sun, 11 Dec 2022 10:53:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230085AbiLKJxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Dec 2022 04:53:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36540 "EHLO
+        id S230081AbiLKJxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Dec 2022 04:53:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230094AbiLKJxf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 04:53:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03AEA1180C
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 01:53:35 -0800 (PST)
+        with ESMTP id S230085AbiLKJxb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 04:53:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BDE51180D
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 01:53:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9874FB80915
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 09:53:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E94ECC433EF;
-        Sun, 11 Dec 2022 09:53:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B26160D34
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 09:53:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F6DAC433D2;
+        Sun, 11 Dec 2022 09:53:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670752412;
-        bh=KnYUJyPEVRqIrRTyo5/jP+P/qNe9YGT/Tl0l6oitg80=;
+        s=korg; t=1670752409;
+        bh=zrHPE6vhTc9JtJSMNBHMdg5/dI4SgddsWya8LZGOSLA=;
         h=Subject:To:Cc:From:Date:From;
-        b=xFS76ASbsuhHWh8e8Nez1CU9myVHTRkiiKH8hwBxPUFXTORSxRWCaLqdcxA6vsUDx
-         /uvncg/B/yiHeBvXRBCgPgQonoYIpQdFfSrV/d/pFJ7qIF48+aCDxT4iEllGUhMiEe
-         V1jj88Bg5WuIkSbqwWvackuJwscl42LROaznQiuo=
-Subject: FAILED: patch "[PATCH] can: af_can: fix NULL pointer dereference in can_rcv_filter" failed to apply to 6.0-stable tree
+        b=S8JrPwJMZ22sTS793Cj5x0Z6RqHdjN7PraqptWSda72gw5QhIW/L9kcT3+RaLVGdA
+         qVaCdKnM9bHxlPcZLusX0eneKk+yV8ZQKr0pScNDeuvRwSAy90bxCTBif62Mvz8//x
+         FGY3iIGMr3+DoWKt2c+U4ae0DqZEcgPB2bhL6mDI=
+Subject: FAILED: patch "[PATCH] can: af_can: fix NULL pointer dereference in can_rcv_filter" failed to apply to 5.15-stable tree
 To:     socketcan@hartkopp.net, harperchen1110@gmail.com,
         mkl@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 11 Dec 2022 10:53:16 +0100
-Message-ID: <1670752396189186@kroah.com>
+Message-ID: <1670752396133188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,6 +59,22 @@ Possible dependencies:
 fb08cba12b52 ("can: canxl: update CAN infrastructure for CAN XL frames")
 467ef4c7b9d1 ("can: skb: add skb CAN frame data length helpers")
 96a7457a14d9 ("can: skb: unify skb CAN frame identification helpers")
+a6d190f8c767 ("can: skb: drop tx skb if in listen only mode")
+ccd8a9351f7b ("can: skb: move can_dropped_invalid_skb() and can_skb_headroom_valid() to skb.c")
+6a5286442fb6 ("can: Kconfig: turn menu "CAN Device Drivers" into a menuconfig using CAN_DEV")
+df6ad5dd838e ("can: Kconfig: rename config symbol CAN_DEV into CAN_NETLINK")
+6c1e423a3c84 ("can: can-dev: remove obsolete CAN LED support")
+2dcb8e8782d8 ("can: ctucanfd: add support for CTU CAN FD open-source IP core - bus independent part.")
+136bed0bfd3b ("can: mcba_usb: properly check endpoint type")
+00f4a0afb7ea ("can: Use netif_rx().")
+c5048a7b2c23 ("can: rcar_canfd: rcar_canfd_channel_probe(): register the CAN device when fully ready")
+1c45f5778a3b ("can: flexcan: add ethtool support to change rx-rtr setting during runtime")
+c5c88591040e ("can: flexcan: add more quirks to describe RX path capabilities")
+34ea4e1c99f1 ("can: flexcan: rename RX modes")
+01bb4dccd92b ("can: flexcan: allow to change quirks at runtime")
+bfd00e021cf1 ("can: flexcan: move driver into separate sub directory")
+5fe1be81efd2 ("can: dev: reorder struct can_priv members for better packing")
+cc4b08c31b5c ("can: do not increase tx_bytes statistics for RTR frames")
 
 thanks,
 
