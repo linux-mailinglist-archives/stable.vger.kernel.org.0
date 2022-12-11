@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D39CF649370
-	for <lists+stable@lfdr.de>; Sun, 11 Dec 2022 10:53:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B75AB649371
+	for <lists+stable@lfdr.de>; Sun, 11 Dec 2022 10:53:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230084AbiLKJx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Dec 2022 04:53:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36454 "EHLO
+        id S230098AbiLKJxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Dec 2022 04:53:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230080AbiLKJxZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 04:53:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A1CE1145A
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 01:53:24 -0800 (PST)
+        with ESMTP id S230081AbiLKJxb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 04:53:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE911180A
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 01:53:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EBDD2B80975
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 09:53:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E081C433D2;
-        Sun, 11 Dec 2022 09:53:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9377CCE0B07
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 09:53:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A428C433D2;
+        Sun, 11 Dec 2022 09:53:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670752401;
-        bh=MudppD0mxZgcHfuNA9FOth8LnH2EeRiiV/fhRvA5dYw=;
+        s=korg; t=1670752406;
+        bh=HlKOTE6JA0QR1ZfAuxS1RuikRvaY8R8sPvZYSWjLsB4=;
         h=Subject:To:Cc:From:Date:From;
-        b=zEkkVfuQLPmIBAy1K3cZpxi34+wIu8yD80kQgHti787/FcmzkfLWe3UnHjMUD+Cub
-         /7LbtchVk5ezDgvVCBmeO5HqQ1sDHUQt/NyKDPaKnYFG7cQ4RvimhB9IMuYfWqPMYx
-         DIbXcqkeNDnsguTkvmlxAlKqGXI04viX/Km2Fhu0=
-Subject: FAILED: patch "[PATCH] can: esd_usb: Allow REC and TEC to return to zero" failed to apply to 4.14-stable tree
+        b=Wp/tfp2IbdJMU27ITEds9nz2oig0Kn8+v/DZUboo5hKko2Vq53f2QL7ayY6f9NPTA
+         Bk5iXwJi7uAvPg23i1Yn1+wAludGFT+StXYsy9imPxEhRDr1aGl+oo38mBypSgJeJ2
+         8McFH5WKKSTCOAdIhW93cCN7dzmZ1W0XEqynDWJM=
+Subject: FAILED: patch "[PATCH] can: esd_usb: Allow REC and TEC to return to zero" failed to apply to 4.9-stable tree
 To:     frank.jungclaus@esd.eu, mkl@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Dec 2022 10:53:10 +0100
-Message-ID: <1670752390150132@kroah.com>
+Date:   Sun, 11 Dec 2022 10:53:11 +0100
+Message-ID: <1670752391249166@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
