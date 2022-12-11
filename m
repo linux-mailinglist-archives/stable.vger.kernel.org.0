@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B51F649362
-	for <lists+stable@lfdr.de>; Sun, 11 Dec 2022 10:48:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C1FF64936A
+	for <lists+stable@lfdr.de>; Sun, 11 Dec 2022 10:51:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229475AbiLKJsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Dec 2022 04:48:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35382 "EHLO
+        id S229891AbiLKJvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Dec 2022 04:51:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229891AbiLKJsa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 04:48:30 -0500
+        with ESMTP id S229777AbiLKJvj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 04:51:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8011F3A
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 01:48:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8508C10FD9
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 01:51:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56910B8098E
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 09:48:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0099C433EF;
-        Sun, 11 Dec 2022 09:48:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 309D3B80975
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 09:51:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52E72C433D2;
+        Sun, 11 Dec 2022 09:51:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670752107;
-        bh=qkNsyAjApiKY3CpM6J4+83T7XL/oubVMTBPuhmvlLNk=;
+        s=korg; t=1670752295;
+        bh=+W1EZLj3Cg1NMctGRE95lhRfhpQekZ54iJhP7K+u/ZU=;
         h=Subject:To:Cc:From:Date:From;
-        b=AYBZbWAytNWNYhd909HBlQpvBYnpMBS/XECiWDdLXk6Ukbm4bzV07rgtWj3FUJGKb
-         y/QeaPE5zgMf9GmNHY6AyLipjVgQjXuqiyeoS2AW6RLbCLibfaNsGsHQPcVu3jMW4N
-         tj1ZoeKbCLESHXtXHQvx3sQnXp8LJ/4cpiidZzVI=
-Subject: FAILED: patch "[PATCH] mm/gup: fix gup_pud_range() for dax" failed to apply to 4.9-stable tree
-To:     jostarks@microsoft.com, akpm@linux-foundation.org,
-        apopple@nvidia.com, dan.j.williams@intel.com, david@redhat.com,
-        jack@suse.cz, jgg@nvidia.com, jhubbard@nvidia.com,
-        ssengar@linux.microsoft.com, stable@vger.kernel.org,
-        yuzhao@google.com
+        b=sRLR9jzZSJAmTWPWDq47Qd7Lnll0QuE2n4CIZPFYiXGRoN6+AQrMKu+rDyLEpmqd3
+         4aq8B96F98styV5sV/ehsXqNBWzEN+64sYt+ceLB6NbhvJgsDSjpTMg4wVKIQDB3v/
+         DyV1cLDxllG0sMQl22t1qdzL2xrh9u4CGZzePqo0=
+Subject: FAILED: patch "[PATCH] io_uring: Fix a null-ptr-deref in io_tctx_exit_cb()" failed to apply to 5.15-stable tree
+To:     harshit.m.mogalapalli@oracle.com, axboe@kernel.dk,
+        syzkaller@googlegroups.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Dec 2022 10:48:21 +0100
-Message-ID: <167075210141224@kroah.com>
+Date:   Sun, 11 Dec 2022 10:51:32 +0100
+Message-ID: <16707522923183@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,29 +48,16 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-fcd0ccd836ff ("mm/gup: fix gup_pud_range() for dax")
-b798bec4741b ("mm/gup: change write parameter to flags in fast walk")
-d4faa40259b8 ("mm: remove unnecessary local variable addr in __get_user_pages_fast()")
-2923117b7162 ("mm/gup.c: fix coding style issues.")
-5b65c4677a57 ("mm, x86/mm: Fix performance regression in get_user_pages_fast()")
-73e10a61817d ("mm/gup: Provide callback to check if __GUP_fast() is allowed for the range")
-e7884f8ead4a ("mm/gup: Move permission checks into helpers")
-ce70df089143 ("mm, gup: fix typo in gup_p4d_range()")
-c2febafc6773 ("mm: convert generic code to 5-level paging")
-505a60e22560 ("asm-generic: introduce 5level-fixup.h")
-166f61b9435a ("mm: codgin-style fixes")
-ace71a19cec5 ("mm: introduce page_vma_mapped_walk()")
-a00cc7d9dd93 ("mm, x86: add support for PUD-sized transparent hugepages")
-a2d581675d48 ("mm,fs,dax: change ->pmd_fault to ->huge_fault")
-11bac8000449 ("mm, fs: reduce fault, page_mkwrite, and pfn_mkwrite to take only vmf")
-ef96152e6a36 ("Merge tag 'drm-for-v4.11-less-shouty' of git://people.freedesktop.org/~airlied/linux")
+998b30c3948e ("io_uring: Fix a null-ptr-deref in io_tctx_exit_cb()")
+ed29b0b4fd83 ("io_uring: move to separate directory")
+4c928904ff77 ("block: move CONFIG_BLOCK guard to top Makefile")
 
 thanks,
 
@@ -81,85 +65,90 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fcd0ccd836ffad73d98a66f6fea7b16f735ea920 Mon Sep 17 00:00:00 2001
-From: John Starks <jostarks@microsoft.com>
-Date: Tue, 6 Dec 2022 22:00:53 -0800
-Subject: [PATCH] mm/gup: fix gup_pud_range() for dax
+From 998b30c3948e4d0b1097e639918c5cff332acac5 Mon Sep 17 00:00:00 2001
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Date: Tue, 6 Dec 2022 01:38:32 -0800
+Subject: [PATCH] io_uring: Fix a null-ptr-deref in io_tctx_exit_cb()
 
-For dax pud, pud_huge() returns true on x86. So the function works as long
-as hugetlb is configured. However, dax doesn't depend on hugetlb.
-Commit 414fd080d125 ("mm/gup: fix gup_pmd_range() for dax") fixed
-devmap-backed huge PMDs, but missed devmap-backed huge PUDs. Fix this as
-well.
+Syzkaller reports a NULL deref bug as follows:
 
-This fixes the below kernel panic:
+ BUG: KASAN: null-ptr-deref in io_tctx_exit_cb+0x53/0xd3
+ Read of size 4 at addr 0000000000000138 by task file1/1955
 
-general protection fault, probably for non-canonical address 0x69e7c000cc478: 0000 [#1] SMP
-	< snip >
-Call Trace:
-<TASK>
-get_user_pages_fast+0x1f/0x40
-iov_iter_get_pages+0xc6/0x3b0
-? mempool_alloc+0x5d/0x170
-bio_iov_iter_get_pages+0x82/0x4e0
-? bvec_alloc+0x91/0xc0
-? bio_alloc_bioset+0x19a/0x2a0
-blkdev_direct_IO+0x282/0x480
-? __io_complete_rw_common+0xc0/0xc0
-? filemap_range_has_page+0x82/0xc0
-generic_file_direct_write+0x9d/0x1a0
-? inode_update_time+0x24/0x30
-__generic_file_write_iter+0xbd/0x1e0
-blkdev_write_iter+0xb4/0x150
-? io_import_iovec+0x8d/0x340
-io_write+0xf9/0x300
-io_issue_sqe+0x3c3/0x1d30
-? sysvec_reschedule_ipi+0x6c/0x80
-__io_queue_sqe+0x33/0x240
-? fget+0x76/0xa0
-io_submit_sqes+0xe6a/0x18d0
-? __fget_light+0xd1/0x100
-__x64_sys_io_uring_enter+0x199/0x880
-? __context_tracking_enter+0x1f/0x70
-? irqentry_exit_to_user_mode+0x24/0x30
-? irqentry_exit+0x1d/0x30
-? __context_tracking_exit+0xe/0x70
-do_syscall_64+0x3b/0x90
-entry_SYSCALL_64_after_hwframe+0x61/0xcb
-RIP: 0033:0x7fc97c11a7be
-	< snip >
-</TASK>
----[ end trace 48b2e0e67debcaeb ]---
-RIP: 0010:internal_get_user_pages_fast+0x340/0x990
-	< snip >
-Kernel panic - not syncing: Fatal exception
-Kernel Offset: disabled
+ CPU: 1 PID: 1955 Comm: file1 Not tainted 6.1.0-rc7-00103-gef4d3ea40565 #75
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.el7 04/01/2014
+ Call Trace:
+  <TASK>
+  dump_stack_lvl+0xcd/0x134
+  ? io_tctx_exit_cb+0x53/0xd3
+  kasan_report+0xbb/0x1f0
+  ? io_tctx_exit_cb+0x53/0xd3
+  kasan_check_range+0x140/0x190
+  io_tctx_exit_cb+0x53/0xd3
+  task_work_run+0x164/0x250
+  ? task_work_cancel+0x30/0x30
+  get_signal+0x1c3/0x2440
+  ? lock_downgrade+0x6e0/0x6e0
+  ? lock_downgrade+0x6e0/0x6e0
+  ? exit_signals+0x8b0/0x8b0
+  ? do_raw_read_unlock+0x3b/0x70
+  ? do_raw_spin_unlock+0x50/0x230
+  arch_do_signal_or_restart+0x82/0x2470
+  ? kmem_cache_free+0x260/0x4b0
+  ? putname+0xfe/0x140
+  ? get_sigframe_size+0x10/0x10
+  ? do_execveat_common.isra.0+0x226/0x710
+  ? lockdep_hardirqs_on+0x79/0x100
+  ? putname+0xfe/0x140
+  ? do_execveat_common.isra.0+0x238/0x710
+  exit_to_user_mode_prepare+0x15f/0x250
+  syscall_exit_to_user_mode+0x19/0x50
+  do_syscall_64+0x42/0xb0
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ RIP: 0023:0x0
+ Code: Unable to access opcode bytes at 0xffffffffffffffd6.
+ RSP: 002b:00000000fffb7790 EFLAGS: 00000200 ORIG_RAX: 000000000000000b
+ RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+ RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+ RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+ R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+ R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+  </TASK>
+ Kernel panic - not syncing: panic_on_warn set ...
 
-Link: https://lkml.kernel.org/r/1670392853-28252-1-git-send-email-ssengar@linux.microsoft.com
-Fixes: 414fd080d125 ("mm/gup: fix gup_pmd_range() for dax")
-Signed-off-by: John Starks <jostarks@microsoft.com>
-Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Yu Zhao <yuzhao@google.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+This happens because the adding of task_work from io_ring_exit_work()
+isn't synchronized with canceling all work items from eg exec. The
+execution of the two are ordered in that they are both run by the task
+itself, but if io_tctx_exit_cb() is queued while we're canceling all
+work items off exec AND gets executed when the task exits to userspace
+rather than in the main loop in io_uring_cancel_generic(), then we can
+find current->io_uring == NULL and hit the above crash.
 
-diff --git a/mm/gup.c b/mm/gup.c
-index fe195d47de74..3b7bc2c1fd44 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2852,7 +2852,7 @@ static int gup_pud_range(p4d_t *p4dp, p4d_t p4d, unsigned long addr, unsigned lo
- 		next = pud_addr_end(addr, end);
- 		if (unlikely(!pud_present(pud)))
- 			return 0;
--		if (unlikely(pud_huge(pud))) {
-+		if (unlikely(pud_huge(pud) || pud_devmap(pud))) {
- 			if (!gup_huge_pud(pud, pudp, addr, next, flags,
- 					  pages, nr))
- 				return 0;
+It's safe to add this NULL check here, because the execution of the two
+paths are done by the task itself.
+
+Cc: stable@vger.kernel.org
+Fixes: d56d938b4bef ("io_uring: do ctx initiated file note removal")
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Link: https://lore.kernel.org/r/20221206093833.3812138-1-harshit.m.mogalapalli@oracle.com
+[axboe: add code comment and also put an explanation in the commit msg]
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 8840cf3e20f2..61cd7ffd0f6a 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -2707,8 +2707,10 @@ static __cold void io_tctx_exit_cb(struct callback_head *cb)
+ 	/*
+ 	 * When @in_idle, we're in cancellation and it's racy to remove the
+ 	 * node. It'll be removed by the end of cancellation, just ignore it.
++	 * tctx can be NULL if the queueing of this task_work raced with
++	 * work cancelation off the exec path.
+ 	 */
+-	if (!atomic_read(&tctx->in_idle))
++	if (tctx && !atomic_read(&tctx->in_idle))
+ 		io_uring_del_tctx_node((unsigned long)work->ctx);
+ 	complete(&work->completion);
+ }
 
