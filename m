@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6587E649361
-	for <lists+stable@lfdr.de>; Sun, 11 Dec 2022 10:48:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B51F649362
+	for <lists+stable@lfdr.de>; Sun, 11 Dec 2022 10:48:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230025AbiLKJs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Dec 2022 04:48:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35366 "EHLO
+        id S229475AbiLKJsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Dec 2022 04:48:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229475AbiLKJs2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 04:48:28 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2636F3A
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 01:48:27 -0800 (PST)
+        with ESMTP id S229891AbiLKJsa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 04:48:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8011F3A
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 01:48:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 20937CE0AF9
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 09:48:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8E4FC433EF;
-        Sun, 11 Dec 2022 09:48:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56910B8098E
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 09:48:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0099C433EF;
+        Sun, 11 Dec 2022 09:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670752104;
-        bh=RCSE5/96iVuSarxeTNfBh43ttHI1sY5VktYq21bupHc=;
+        s=korg; t=1670752107;
+        bh=qkNsyAjApiKY3CpM6J4+83T7XL/oubVMTBPuhmvlLNk=;
         h=Subject:To:Cc:From:Date:From;
-        b=y+rYISamTNoQiT0jrIsqhQS/RYUv/U+1avG9r6mcWiLR7ppyiiI2WdhBwGMHXhjQE
-         tov9Y5NBE/3X6IUfo/ikpHbI86q65tiLdBJFmzeLGMgZzepcQhAwlew88FXAkjEx7J
-         u1p87l9ri4MZGYtRqJ5GGzqKJr4onO5RvKDAziDg=
-Subject: FAILED: patch "[PATCH] mm/gup: fix gup_pud_range() for dax" failed to apply to 4.14-stable tree
+        b=AYBZbWAytNWNYhd909HBlQpvBYnpMBS/XECiWDdLXk6Ukbm4bzV07rgtWj3FUJGKb
+         y/QeaPE5zgMf9GmNHY6AyLipjVgQjXuqiyeoS2AW6RLbCLibfaNsGsHQPcVu3jMW4N
+         tj1ZoeKbCLESHXtXHQvx3sQnXp8LJ/4cpiidZzVI=
+Subject: FAILED: patch "[PATCH] mm/gup: fix gup_pud_range() for dax" failed to apply to 4.9-stable tree
 To:     jostarks@microsoft.com, akpm@linux-foundation.org,
         apopple@nvidia.com, dan.j.williams@intel.com, david@redhat.com,
         jack@suse.cz, jgg@nvidia.com, jhubbard@nvidia.com,
@@ -36,8 +36,8 @@ To:     jostarks@microsoft.com, akpm@linux-foundation.org,
         yuzhao@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Dec 2022 10:48:20 +0100
-Message-ID: <167075210023393@kroah.com>
+Date:   Sun, 11 Dec 2022 10:48:21 +0100
+Message-ID: <167075210141224@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -63,6 +63,17 @@ b798bec4741b ("mm/gup: change write parameter to flags in fast walk")
 d4faa40259b8 ("mm: remove unnecessary local variable addr in __get_user_pages_fast()")
 2923117b7162 ("mm/gup.c: fix coding style issues.")
 5b65c4677a57 ("mm, x86/mm: Fix performance regression in get_user_pages_fast()")
+73e10a61817d ("mm/gup: Provide callback to check if __GUP_fast() is allowed for the range")
+e7884f8ead4a ("mm/gup: Move permission checks into helpers")
+ce70df089143 ("mm, gup: fix typo in gup_p4d_range()")
+c2febafc6773 ("mm: convert generic code to 5-level paging")
+505a60e22560 ("asm-generic: introduce 5level-fixup.h")
+166f61b9435a ("mm: codgin-style fixes")
+ace71a19cec5 ("mm: introduce page_vma_mapped_walk()")
+a00cc7d9dd93 ("mm, x86: add support for PUD-sized transparent hugepages")
+a2d581675d48 ("mm,fs,dax: change ->pmd_fault to ->huge_fault")
+11bac8000449 ("mm, fs: reduce fault, page_mkwrite, and pfn_mkwrite to take only vmf")
+ef96152e6a36 ("Merge tag 'drm-for-v4.11-less-shouty' of git://people.freedesktop.org/~airlied/linux")
 
 thanks,
 
