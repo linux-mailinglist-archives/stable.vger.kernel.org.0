@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F74664936E
-	for <lists+stable@lfdr.de>; Sun, 11 Dec 2022 10:53:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BAD264936F
+	for <lists+stable@lfdr.de>; Sun, 11 Dec 2022 10:53:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229995AbiLKJxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Dec 2022 04:53:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36394 "EHLO
+        id S229977AbiLKJxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Dec 2022 04:53:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229977AbiLKJxR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 04:53:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 228401180C
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 01:53:17 -0800 (PST)
+        with ESMTP id S230080AbiLKJxU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 04:53:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21EE11809
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 01:53:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0F1C60C99
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 09:53:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5B74C433D2;
-        Sun, 11 Dec 2022 09:53:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F90660DC1
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 09:53:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BF9DC433EF;
+        Sun, 11 Dec 2022 09:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670752396;
-        bh=lUrj3LyKmPD7lJbBp3Ch7qnNU//qamHAVa9JIb6QjcU=;
+        s=korg; t=1670752398;
+        bh=+wHDWv2UVbrTJ1oKugRJPgrSsPcDFe3v/EYy8xc4gbg=;
         h=Subject:To:Cc:From:Date:From;
-        b=FqbHOhDSbmH7CBQxww4h8+CWqMjXujYjsQpyCa+vg9QLvk1cAbZ9CPQNUUYTcQo7J
-         yOOMISM9aO8qEZ80vNArgvdecCyJ0t1eO0qlzDT4e7fr2EPA6eizM3q9s8lo7gHq0v
-         9STNfmw6fnp+Clw+LaSCLbcg/f0LXSNR9P3dbMP4=
-Subject: FAILED: patch "[PATCH] can: esd_usb: Allow REC and TEC to return to zero" failed to apply to 4.19-stable tree
+        b=oLA6ZWV2quS95Xp6D7l7yQZDZBWAdZ3AWeTXYC9EY8xiAtPWBbUVfyGthiApjWIou
+         amWJzAy9ce4hYpx+RGAwxOGpYvdO+xzZZZtf0+3bH0qrB7vvZqbPZPXhsUAJUFxa23
+         yanoGPfXSGyGn3HbsAhQvQj5eOfruM05AY4xmMQ8=
+Subject: FAILED: patch "[PATCH] can: esd_usb: Allow REC and TEC to return to zero" failed to apply to 5.4-stable tree
 To:     frank.jungclaus@esd.eu, mkl@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 11 Dec 2022 10:53:09 +0100
-Message-ID: <167075238920216@kroah.com>
+Message-ID: <16707523896434@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
