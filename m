@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E5D2649374
-	for <lists+stable@lfdr.de>; Sun, 11 Dec 2022 10:53:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09492649375
+	for <lists+stable@lfdr.de>; Sun, 11 Dec 2022 10:53:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230094AbiLKJxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Dec 2022 04:53:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36564 "EHLO
+        id S230014AbiLKJxk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Dec 2022 04:53:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230014AbiLKJxg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 04:53:36 -0500
+        with ESMTP id S230096AbiLKJxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 04:53:39 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAD0311811
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 01:53:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8083311806
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 01:53:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 789E360C99
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 09:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 887BEC433D2;
-        Sun, 11 Dec 2022 09:53:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ED1E60DC1
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 09:53:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E286C433EF;
+        Sun, 11 Dec 2022 09:53:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670752414;
-        bh=BigckwyTMQJNRFp5011h2mI1cZmuk+u+PW/1CadYByY=;
+        s=korg; t=1670752417;
+        bh=ZfKJN09WozXXDi0U2cfkZivpTBnw8K+qDmGe/iXH0Bk=;
         h=Subject:To:Cc:From:Date:From;
-        b=GAYbstmV1NFuF04CVQdz8wqlOkDzSz9vnR+EF23hM8Ws7GQD6WY52TcH9Lh1NdZNQ
-         m1uhD8hHkgj/cN7viJVonCMsAOkXoTuqyUGpR6gs8oa9ZDw6/0tDEuNqM+W7S88Q5g
-         LOVH6tfg3jP4uMAtEfufEzi+ReNSpfaL15DI0o4c=
-Subject: FAILED: patch "[PATCH] can: af_can: fix NULL pointer dereference in can_rcv_filter" failed to apply to 5.10-stable tree
+        b=xnQJcMSXYf6EdsWVuxSHPDqDbdw7Au9HxLvYUWi6cTHZaHS1ATxXcanprQ9egyhgr
+         cw+U2VH4h3s4Q4ivU/5lS41ewTB6nt4v37MEACpCqP3BITyGkpbCm1F/0smMc0K9sL
+         yCgaZ3l6u7Oo0Cq7jkQtO8fw8NwYjE+h28n9koi0=
+Subject: FAILED: patch "[PATCH] can: af_can: fix NULL pointer dereference in can_rcv_filter" failed to apply to 5.4-stable tree
 To:     socketcan@hartkopp.net, harperchen1110@gmail.com,
         mkl@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 11 Dec 2022 10:53:17 +0100
-Message-ID: <16707523977227@kroah.com>
+Date:   Sun, 11 Dec 2022 10:53:18 +0100
+Message-ID: <167075239818181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
