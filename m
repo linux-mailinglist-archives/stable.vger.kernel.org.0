@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E3CC64A10F
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:34:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0043864A1D5
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:46:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232620AbiLLNeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:34:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34536 "EHLO
+        id S232643AbiLLNqU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:46:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232725AbiLLNeb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:34:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9648013EA8
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:34:30 -0800 (PST)
+        with ESMTP id S232959AbiLLNp6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:45:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C10CB11448
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:45:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52495B80D4D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:34:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E95AC433F0;
-        Mon, 12 Dec 2022 13:34:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D53A6105A
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:45:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42A83C433D2;
+        Mon, 12 Dec 2022 13:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852068;
-        bh=la/l2ByECrSfUBi7oeZsEB5vOX08PdTJSuNLsZB81gQ=;
+        s=korg; t=1670852719;
+        bh=7+Amo6AetWv4l/+1najv7082ykulzXDYpCMqMg365wI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDrMVeHM0pTc9lMVJqPOOl+nPtk56Il2Ip/MBAGQks/FzR+De850kw6Mz8Ccvb0vY
-         0b2MZYrSLTxS2lpSZdjXjKxnRctvK82Pgtp0ok3mpogtxU7MMoUT7Ts8/I2F0D+2hz
-         qKcT4mXENJbACG18CpA4Nknqt7Kt65bp4dIq1YcU=
+        b=qZ6GOIILwa5Q5Bq3VIVdUIGiR4vBnKQNSfvhtlPROcIGZmVo57cwl7wEipboTuOr/
+         FDTRRPLou31o299CWhCsxXG29QXyHOlXAaC1Vv8xzlQz9PGlUZTIXIV/xIrgaYXPj+
+         wcL0ILWZjvlFYjxjMnpTF5+63FlxqeLimjVh6ySs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frank Jungclaus <frank.jungclaus@esd.eu>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 120/123] can: esd_usb: Allow REC and TEC to return to zero
+Subject: [PATCH 6.0 138/157] net: mdio: fix unbalanced fwnode reference count in mdio_device_release()
 Date:   Mon, 12 Dec 2022 14:18:06 +0100
-Message-Id: <20221212130932.402569504@linuxfoundation.org>
+Message-Id: <20221212130940.623525296@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Jungclaus <frank.jungclaus@esd.eu>
+From: Zeng Heng <zengheng4@huawei.com>
 
-[ Upstream commit 918ee4911f7a41fb4505dff877c1d7f9f64eb43e ]
+[ Upstream commit cb37617687f2bfa5b675df7779f869147c9002bd ]
 
-We don't get any further EVENT from an esd CAN USB device for changes
-on REC or TEC while those counters converge to 0 (with ecc == 0). So
-when handling the "Back to Error Active"-event force txerr = rxerr =
-0, otherwise the berr-counters might stay on values like 95 forever.
+There is warning report about of_node refcount leak
+while probing mdio device:
 
-Also, to make life easier during the ongoing development a
-netdev_dbg() has been introduced to allow dumping error events send by
-an esd CAN USB device.
+OF: ERROR: memory leak, expected refcount 1 instead of 2,
+of_node_get()/of_node_put() unbalanced - destroy cset entry:
+attach overlay node /spi/soc@0/mdio@710700c0/ethernet@4
 
-Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
-Signed-off-by: Frank Jungclaus <frank.jungclaus@esd.eu>
-Link: https://lore.kernel.org/all/20221130202242.3998219-2-frank.jungclaus@esd.eu
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+In of_mdiobus_register_device(), we increase fwnode refcount
+by fwnode_handle_get() before associating the of_node with
+mdio device, but it has never been decreased in normal path.
+Since that, in mdio_device_release(), it needs to call
+fwnode_handle_put() in addition instead of calling kfree()
+directly.
+
+After above, just calling mdio_device_free() in the error handle
+path of of_mdiobus_register_device() is enough to keep the
+refcount balanced.
+
+Fixes: a9049e0c513c ("mdio: Add support for mdio drivers.")
+Signed-off-by: Zeng Heng <zengheng4@huawei.com>
+Reviewed-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20221203073441.3885317-1-zengheng4@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/esd_usb2.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/mdio/of_mdio.c    | 3 ++-
+ drivers/net/phy/mdio_device.c | 2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/usb/esd_usb2.c b/drivers/net/can/usb/esd_usb2.c
-index c6068a251fbe..9ed048cb07e6 100644
---- a/drivers/net/can/usb/esd_usb2.c
-+++ b/drivers/net/can/usb/esd_usb2.c
-@@ -227,6 +227,10 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
- 		u8 rxerr = msg->msg.rx.data[2];
- 		u8 txerr = msg->msg.rx.data[3];
+diff --git a/drivers/net/mdio/of_mdio.c b/drivers/net/mdio/of_mdio.c
+index 796e9c7857d0..510822d6d0d9 100644
+--- a/drivers/net/mdio/of_mdio.c
++++ b/drivers/net/mdio/of_mdio.c
+@@ -68,8 +68,9 @@ static int of_mdiobus_register_device(struct mii_bus *mdio,
+ 	/* All data is now stored in the mdiodev struct; register it. */
+ 	rc = mdio_device_register(mdiodev);
+ 	if (rc) {
++		device_set_node(&mdiodev->dev, NULL);
++		fwnode_handle_put(fwnode);
+ 		mdio_device_free(mdiodev);
+-		of_node_put(child);
+ 		return rc;
+ 	}
  
-+		netdev_dbg(priv->netdev,
-+			   "CAN_ERR_EV_EXT: dlc=%#02x state=%02x ecc=%02x rec=%02x tec=%02x\n",
-+			   msg->msg.rx.dlc, state, ecc, rxerr, txerr);
-+
- 		skb = alloc_can_err_skb(priv->netdev, &cf);
- 		if (skb == NULL) {
- 			stats->rx_dropped++;
-@@ -253,6 +257,8 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
- 				break;
- 			default:
- 				priv->can.state = CAN_STATE_ERROR_ACTIVE;
-+				txerr = 0;
-+				rxerr = 0;
- 				break;
- 			}
- 		} else {
+diff --git a/drivers/net/phy/mdio_device.c b/drivers/net/phy/mdio_device.c
+index 250742ffdfd9..044828d081d2 100644
+--- a/drivers/net/phy/mdio_device.c
++++ b/drivers/net/phy/mdio_device.c
+@@ -21,6 +21,7 @@
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ #include <linux/unistd.h>
++#include <linux/property.h>
+ 
+ void mdio_device_free(struct mdio_device *mdiodev)
+ {
+@@ -30,6 +31,7 @@ EXPORT_SYMBOL(mdio_device_free);
+ 
+ static void mdio_device_release(struct device *dev)
+ {
++	fwnode_handle_put(dev->fwnode);
+ 	kfree(to_mdio_device(dev));
+ }
+ 
 -- 
 2.35.1
 
