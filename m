@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 418AA64A045
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:23:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D7D64A1B8
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232656AbiLLNXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:23:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49964 "EHLO
+        id S232602AbiLLNoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:44:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232708AbiLLNWt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:22:49 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B29381104
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:22:46 -0800 (PST)
+        with ESMTP id S232712AbiLLNn4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8E9B13F92
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:43:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2BA91CE0F11
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:22:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95054C433EF;
-        Mon, 12 Dec 2022 13:22:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86D8A61035
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:43:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 214D2C433F2;
+        Mon, 12 Dec 2022 13:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851363;
-        bh=6t7OsnDmYf7Q3B+4yeknwoOuI3r7NFecIiR9N0x394A=;
+        s=korg; t=1670852625;
+        bh=oZePgDg1nOWEoqIu4i1oofNd1Fu1iTnOQS6vwbfsp2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sllI3PRL05ZgPUUNpqa9htS64RYnuTYpBB7dAUdtUaujeqKLNgbsPlViR8UM/f0xK
-         FdF/CutBPct0i/NaErlFchIbmcEFudh2qnb3Y+mYRoxOHy5G61M7xNzDgQmQTwR3CQ
-         SuDnh3devoMWpodF/lMCSbhkp85xxNGe2RMQEm5E=
+        b=wgHG9a38OgOKHMqdrGbULksVBMEiROa4VKZuHQU6CSPFNVG9Obk1dOWHQIOk88C2q
+         tIHvW/yEolAI4PZ25/N1XuxOvAkTdbyS3oSAHpBPd9s+/ccMBEIGP/msWpJnQki08W
+         fK/FTXoSJVTgRkJcqhtCrqgW7BMxwB6m7vCL3weE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Valentina Goncharenko <goncharenko.vp@ispras.ru>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 46/67] net: encx24j600: Add parentheses to fix precedence
+Subject: [PATCH 6.0 093/157] netfilter: conntrack: fix using __this_cpu_add in preemptible
 Date:   Mon, 12 Dec 2022 14:17:21 +0100
-Message-Id: <20221212130919.821186393@linuxfoundation.org>
+Message-Id: <20221212130938.551731347@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentina Goncharenko <goncharenko.vp@ispras.ru>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 167b3f2dcc62c271f3555b33df17e361bb1fa0ee ]
+[ Upstream commit 9464d0b68f11a9bc768370c3260ec02b3550447b ]
 
-In functions regmap_encx24j600_phy_reg_read() and
-regmap_encx24j600_phy_reg_write() in the conditions of the waiting
-cycles for filling the variable 'ret' it is necessary to add parentheses
-to prevent wrong assignment due to logical operations precedence.
+Currently in nf_conntrack_hash_check_insert(), when it fails in
+nf_ct_ext_valid_pre/post(), NF_CT_STAT_INC() will be called in the
+preemptible context, a call trace can be triggered:
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+   BUG: using __this_cpu_add() in preemptible [00000000] code: conntrack/1636
+   caller is nf_conntrack_hash_check_insert+0x45/0x430 [nf_conntrack]
+   Call Trace:
+    <TASK>
+    dump_stack_lvl+0x33/0x46
+    check_preemption_disabled+0xc3/0xf0
+    nf_conntrack_hash_check_insert+0x45/0x430 [nf_conntrack]
+    ctnetlink_create_conntrack+0x3cd/0x4e0 [nf_conntrack_netlink]
+    ctnetlink_new_conntrack+0x1c0/0x450 [nf_conntrack_netlink]
+    nfnetlink_rcv_msg+0x277/0x2f0 [nfnetlink]
+    netlink_rcv_skb+0x50/0x100
+    nfnetlink_rcv+0x65/0x144 [nfnetlink]
+    netlink_unicast+0x1ae/0x290
+    netlink_sendmsg+0x257/0x4f0
+    sock_sendmsg+0x5f/0x70
 
-Fixes: d70e53262f5c ("net: Microchip encx24j600 driver")
-Signed-off-by: Valentina Goncharenko <goncharenko.vp@ispras.ru>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch is to fix it by changing to use NF_CT_STAT_INC_ATOMIC() for
+nf_ct_ext_valid_pre/post() check in nf_conntrack_hash_check_insert(),
+as well as nf_ct_ext_valid_post() in __nf_conntrack_confirm().
+
+Note that nf_ct_ext_valid_pre() check in __nf_conntrack_confirm() is
+safe to use NF_CT_STAT_INC(), as it's under local_bh_disable().
+
+Fixes: c56716c69ce1 ("netfilter: extensions: introduce extension genid count")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/encx24j600-regmap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nf_conntrack_core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/encx24j600-regmap.c b/drivers/net/ethernet/microchip/encx24j600-regmap.c
-index e2528633c09a..8c07c3c3c00c 100644
---- a/drivers/net/ethernet/microchip/encx24j600-regmap.c
-+++ b/drivers/net/ethernet/microchip/encx24j600-regmap.c
-@@ -364,7 +364,7 @@ static int regmap_encx24j600_phy_reg_read(void *context, unsigned int reg,
- 		goto err_out;
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 60289c074eef..df46e9a35e47 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -891,7 +891,7 @@ nf_conntrack_hash_check_insert(struct nf_conn *ct)
+ 	zone = nf_ct_zone(ct);
  
- 	usleep_range(26, 100);
--	while ((ret = regmap_read(ctx->regmap, MISTAT, &mistat) != 0) &&
-+	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
- 	       (mistat & BUSY))
- 		cpu_relax();
+ 	if (!nf_ct_ext_valid_pre(ct->ext)) {
+-		NF_CT_STAT_INC(net, insert_failed);
++		NF_CT_STAT_INC_ATOMIC(net, insert_failed);
+ 		return -ETIMEDOUT;
+ 	}
  
-@@ -402,7 +402,7 @@ static int regmap_encx24j600_phy_reg_write(void *context, unsigned int reg,
- 		goto err_out;
+@@ -938,7 +938,7 @@ nf_conntrack_hash_check_insert(struct nf_conn *ct)
  
- 	usleep_range(26, 100);
--	while ((ret = regmap_read(ctx->regmap, MISTAT, &mistat) != 0) &&
-+	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
- 	       (mistat & BUSY))
- 		cpu_relax();
+ 	if (!nf_ct_ext_valid_post(ct->ext)) {
+ 		nf_ct_kill(ct);
+-		NF_CT_STAT_INC(net, drop);
++		NF_CT_STAT_INC_ATOMIC(net, drop);
+ 		return -ETIMEDOUT;
+ 	}
+ 
+@@ -1275,7 +1275,7 @@ __nf_conntrack_confirm(struct sk_buff *skb)
+ 	 */
+ 	if (!nf_ct_ext_valid_post(ct->ext)) {
+ 		nf_ct_kill(ct);
+-		NF_CT_STAT_INC(net, drop);
++		NF_CT_STAT_INC_ATOMIC(net, drop);
+ 		return NF_DROP;
+ 	}
  
 -- 
 2.35.1
