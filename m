@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FFC264A19A
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:43:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B93B64A025
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:21:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232763AbiLLNnN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:43:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41940 "EHLO
+        id S232684AbiLLNVR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:21:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232793AbiLLNmx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:42:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B22964F7
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:41:39 -0800 (PST)
+        with ESMTP id S232604AbiLLNU6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:20:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13C3BF65
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:20:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58DA1B8068B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:41:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81C24C433EF;
-        Mon, 12 Dec 2022 13:41:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD85CB80B9B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:20:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1405FC433D2;
+        Mon, 12 Dec 2022 13:20:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852497;
-        bh=P2NcJ3/LgoirCpBku+9bcoktAcZnBkl+pkjVjJyvkaY=;
+        s=korg; t=1670851254;
+        bh=RzbTZTsK13/UN4avQw0KFb9vkMz2TH4NpkGlBEwlGOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EpULnZmzVOjlkOn7mvUZZvs+zL1ZWv5g5XZei6x5ANqgm2XUzz5VF+2uptfRpSpvQ
-         fwLTYtA1LOo0NDZbLJwQDAAiVSpE+8/9OcJ2tGp35g7Fv+IEKxGVlQUBBDsUQveuJs
-         ptWbBkUFAt62YyIopeCHcu52ehFYzrsBj8iifl80=
+        b=aEu286Nk1RngTt7B2nXP6Jd5CM/pHyp2LbZdwNWjpzhIH9wKD/UWI4gLbrHBWKA8v
+         4C8kY1U+Es92xmzZ8IbkvRGv5M0sl7O17UYQPABax7dGKWImLOGTmDH2J0Vyj9jzL9
+         jVne76yHPl8uqP6ALpKMJ5sDH5P9E+0mILhhLqNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.0 066/157] io_uring: Fix a null-ptr-deref in io_tctx_exit_cb()
+        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
+        David Hildenbrand <david@redhat.com>,
+        Yang Shi <shy828301@gmail.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 19/67] mm/khugepaged: invoke MMU notifiers in shmem/file collapse paths
 Date:   Mon, 12 Dec 2022 14:16:54 +0100
-Message-Id: <20221212130937.232228492@linuxfoundation.org>
+Message-Id: <20221212130918.546610725@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,92 +57,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Jann Horn <jannh@google.com>
 
-commit 998b30c3948e4d0b1097e639918c5cff332acac5 upstream.
+commit f268f6cf875f3220afc77bdd0bf1bb136eb54db9 upstream.
 
-Syzkaller reports a NULL deref bug as follows:
+Any codepath that zaps page table entries must invoke MMU notifiers to
+ensure that secondary MMUs (like KVM) don't keep accessing pages which
+aren't mapped anymore.  Secondary MMUs don't hold their own references to
+pages that are mirrored over, so failing to notify them can lead to page
+use-after-free.
 
- BUG: KASAN: null-ptr-deref in io_tctx_exit_cb+0x53/0xd3
- Read of size 4 at addr 0000000000000138 by task file1/1955
+I'm marking this as addressing an issue introduced in commit f3f0e1d2150b
+("khugepaged: add support of collapse for tmpfs/shmem pages"), but most of
+the security impact of this only came in commit 27e1f8273113 ("khugepaged:
+enable collapse pmd for pte-mapped THP"), which actually omitted flushes
+for the removal of present PTEs, not just for the removal of empty page
+tables.
 
- CPU: 1 PID: 1955 Comm: file1 Not tainted 6.1.0-rc7-00103-gef4d3ea40565 #75
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2.el7 04/01/2014
- Call Trace:
-  <TASK>
-  dump_stack_lvl+0xcd/0x134
-  ? io_tctx_exit_cb+0x53/0xd3
-  kasan_report+0xbb/0x1f0
-  ? io_tctx_exit_cb+0x53/0xd3
-  kasan_check_range+0x140/0x190
-  io_tctx_exit_cb+0x53/0xd3
-  task_work_run+0x164/0x250
-  ? task_work_cancel+0x30/0x30
-  get_signal+0x1c3/0x2440
-  ? lock_downgrade+0x6e0/0x6e0
-  ? lock_downgrade+0x6e0/0x6e0
-  ? exit_signals+0x8b0/0x8b0
-  ? do_raw_read_unlock+0x3b/0x70
-  ? do_raw_spin_unlock+0x50/0x230
-  arch_do_signal_or_restart+0x82/0x2470
-  ? kmem_cache_free+0x260/0x4b0
-  ? putname+0xfe/0x140
-  ? get_sigframe_size+0x10/0x10
-  ? do_execveat_common.isra.0+0x226/0x710
-  ? lockdep_hardirqs_on+0x79/0x100
-  ? putname+0xfe/0x140
-  ? do_execveat_common.isra.0+0x238/0x710
-  exit_to_user_mode_prepare+0x15f/0x250
-  syscall_exit_to_user_mode+0x19/0x50
-  do_syscall_64+0x42/0xb0
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
- RIP: 0023:0x0
- Code: Unable to access opcode bytes at 0xffffffffffffffd6.
- RSP: 002b:00000000fffb7790 EFLAGS: 00000200 ORIG_RAX: 000000000000000b
- RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
- RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
- RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
- R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
- R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-  </TASK>
- Kernel panic - not syncing: panic_on_warn set ...
-
-This happens because the adding of task_work from io_ring_exit_work()
-isn't synchronized with canceling all work items from eg exec. The
-execution of the two are ordered in that they are both run by the task
-itself, but if io_tctx_exit_cb() is queued while we're canceling all
-work items off exec AND gets executed when the task exits to userspace
-rather than in the main loop in io_uring_cancel_generic(), then we can
-find current->io_uring == NULL and hit the above crash.
-
-It's safe to add this NULL check here, because the execution of the two
-paths are done by the task itself.
-
-Cc: stable@vger.kernel.org
-Fixes: d56d938b4bef ("io_uring: do ctx initiated file note removal")
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Link: https://lore.kernel.org/r/20221206093833.3812138-1-harshit.m.mogalapalli@oracle.com
-[axboe: add code comment and also put an explanation in the commit msg]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20221129154730.2274278-3-jannh@google.com
+Link: https://lkml.kernel.org/r/20221128180252.1684965-3-jannh@google.com
+Link: https://lkml.kernel.org/r/20221125213714.4115729-3-jannh@google.com
+Fixes: f3f0e1d2150b ("khugepaged: add support of collapse for tmpfs/shmem pages")
+Signed-off-by: Jann Horn <jannh@google.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+[manual backport: this code was refactored from two copies into a common
+helper between 5.15 and 6.0]
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/io_uring.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ mm/khugepaged.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -2560,8 +2560,10 @@ static __cold void io_tctx_exit_cb(struc
- 	/*
- 	 * When @in_idle, we're in cancellation and it's racy to remove the
- 	 * node. It'll be removed by the end of cancellation, just ignore it.
-+	 * tctx can be NULL if the queueing of this task_work raced with
-+	 * work cancelation off the exec path.
- 	 */
--	if (!atomic_read(&tctx->in_idle))
-+	if (tctx && !atomic_read(&tctx->in_idle))
- 		io_uring_del_tctx_node((unsigned long)work->ctx);
- 	complete(&work->completion);
- }
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index a8f2605cbd0d..8e67d2e5ff39 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1313,6 +1313,7 @@ void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr)
+ 	spinlock_t *ptl;
+ 	int count = 0;
+ 	int i;
++	struct mmu_notifier_range range;
+ 
+ 	if (!vma || !vma->vm_file ||
+ 	    vma->vm_start > haddr || vma->vm_end < haddr + HPAGE_PMD_SIZE)
+@@ -1406,9 +1407,13 @@ void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr)
+ 	}
+ 
+ 	/* step 4: collapse pmd */
++	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, NULL, mm, haddr,
++				haddr + HPAGE_PMD_SIZE);
++	mmu_notifier_invalidate_range_start(&range);
+ 	_pmd = pmdp_collapse_flush(vma, haddr, pmd);
+ 	mm_dec_nr_ptes(mm);
+ 	tlb_remove_table_sync_one();
++	mmu_notifier_invalidate_range_end(&range);
+ 	pte_free(mm, pmd_pgtable(_pmd));
+ 
+ 	i_mmap_unlock_write(vma->vm_file->f_mapping);
+@@ -1493,11 +1498,19 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ 		 */
+ 		if (down_write_trylock(&mm->mmap_sem)) {
+ 			if (!khugepaged_test_exit(mm)) {
++				struct mmu_notifier_range range;
++
++				mmu_notifier_range_init(&range,
++							MMU_NOTIFY_CLEAR, 0,
++							NULL, mm, addr,
++							addr + HPAGE_PMD_SIZE);
++				mmu_notifier_invalidate_range_start(&range);
+ 				/* assume page table is clear */
+ 				_pmd = pmdp_collapse_flush(vma, addr, pmd);
+ 				mm_dec_nr_ptes(mm);
+ 				tlb_remove_table_sync_one();
+ 				pte_free(mm, pmd_pgtable(_pmd));
++				mmu_notifier_invalidate_range_end(&range);
+ 			}
+ 			up_write(&mm->mmap_sem);
+ 		} else {
+-- 
+2.35.1
+
 
 
