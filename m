@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88ECE64A1E3
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:46:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E938164A0E7
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:32:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232871AbiLLNqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:46:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47294 "EHLO
+        id S232182AbiLLNcj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:32:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232592AbiLLNqc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:46:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888186253
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:46:18 -0800 (PST)
+        with ESMTP id S229923AbiLLNci (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:32:38 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FABA287
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:32:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EF2961089
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:46:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D60FFC433EF;
-        Mon, 12 Dec 2022 13:46:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DD854CE0F76
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:32:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2281C433EF;
+        Mon, 12 Dec 2022 13:32:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852777;
-        bh=x3Jmmz1njMUjZsp0Qb6EeANfec/hdP8cxH/1omFSBEk=;
+        s=korg; t=1670851953;
+        bh=Jh2piPD20CzMS/ThY6FZ6rKFY8ViEP27FHzCG0vLpF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Shwgfwyqbhz76XE1f+sl60Dlsjii/2X9iGV1bWZH45wZhAcsZNRE3C9Ge26oVweTx
-         oDtDM0awjvANpBSDWPF6WtRo0sEsN+jYmaN8iXu5ak2kv/TNzgHGB2WX3Lpq6yhOsa
-         qk8y/iHCh9f9ggRhDmv6QJb92xgjkG4KNwK52XsQ=
+        b=MXEdIcgUcrpZ4f+0lVIdAy0k6a5D31CRr3s+kjK048Ef1ZeDf52ufHupaqqGJ1Vo1
+         QgQM0YJsvb9FL/0YOIXScEK+09LXKy2NWCQ6gAituEZVdt0Rz4lW89N+GBq5+n844s
+         A4ONdu0EWeZnStt0RS0ysOzi1LTltKpnxoebpMM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Casper Andersson <casper.casan@gmail.com>,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 122/157] net: microchip: sparx5: correctly free skb in xmit
+Subject: [PATCH 5.15 104/123] tipc: Fix potential OOB in tipc_link_proto_rcv()
 Date:   Mon, 12 Dec 2022 14:17:50 +0100
-Message-Id: <20221212130939.760402682@linuxfoundation.org>
+Message-Id: <20221212130931.592672938@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Casper Andersson <casper.casan@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 121c6672b0191ffcebff4b88ec022c39e0a95789 ]
+[ Upstream commit 743117a997bbd4840e827295c07e59bcd7f7caa3 ]
 
-consume_skb on transmitted, kfree_skb on dropped, do not free on
-TX_BUSY.
+Fix the potential risk of OOB if skb_linearize() fails in
+tipc_link_proto_rcv().
 
-Previously the xmit function could return -EBUSY without freeing, which
-supposedly is interpreted as a drop. And was using kfree on successfully
-transmitted packets.
-
-sparx5_fdma_xmit and sparx5_inject returns error code, where -EBUSY
-indicates TX_BUSY and any other error code indicates dropped.
-
-Fixes: f3cad2611a77 ("net: sparx5: add hostmode with phylink support")
-Signed-off-by: Casper Andersson <casper.casan@gmail.com>
-Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5cbb28a4bf65 ("tipc: linearize arriving NAME_DISTR and LINK_PROTO buffers")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20221203094635.29024-1-yuehaibing@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/microchip/sparx5/sparx5_fdma.c   |  2 +-
- .../ethernet/microchip/sparx5/sparx5_packet.c | 41 +++++++++++--------
- 2 files changed, 25 insertions(+), 18 deletions(-)
+ net/tipc/link.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c b/drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c
-index 66360c8c5a38..141897dfe388 100644
---- a/drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c
-+++ b/drivers/net/ethernet/microchip/sparx5/sparx5_fdma.c
-@@ -317,7 +317,7 @@ int sparx5_fdma_xmit(struct sparx5 *sparx5, u32 *ifh, struct sk_buff *skb)
- 	next_dcb_hw = sparx5_fdma_next_dcb(tx, tx->curr_entry);
- 	db_hw = &next_dcb_hw->db[0];
- 	if (!(db_hw->status & FDMA_DCB_STATUS_DONE))
--		tx->dropped++;
-+		return -EINVAL;
- 	db = list_first_entry(&tx->db_list, struct sparx5_db, list);
- 	list_move_tail(&db->list, &tx->db_list);
- 	next_dcb_hw->nextptr = FDMA_DCB_INVALID_DATA;
-diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
-index 21844beba72d..0ce0fc985222 100644
---- a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
-+++ b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
-@@ -234,9 +234,8 @@ int sparx5_port_xmit_impl(struct sk_buff *skb, struct net_device *dev)
- 	sparx5_set_port_ifh(ifh, port->portno);
+diff --git a/net/tipc/link.c b/net/tipc/link.c
+index 115a4a7950f5..8fdd3b23bd12 100644
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -2223,7 +2223,9 @@ static int tipc_link_proto_rcv(struct tipc_link *l, struct sk_buff *skb,
+ 	if (tipc_own_addr(l->net) > msg_prevnode(hdr))
+ 		l->net_plane = msg_net_plane(hdr);
  
- 	if (sparx5->ptp && skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP) {
--		ret = sparx5_ptp_txtstamp_request(port, skb);
--		if (ret)
--			return ret;
-+		if (sparx5_ptp_txtstamp_request(port, skb) < 0)
-+			return NETDEV_TX_BUSY;
+-	skb_linearize(skb);
++	if (skb_linearize(skb))
++		goto exit;
++
+ 	hdr = buf_msg(skb);
+ 	data = msg_data(hdr);
  
- 		sparx5_set_port_ifh_rew_op(ifh, SPARX5_SKB_CB(skb)->rew_op);
- 		sparx5_set_port_ifh_pdu_type(ifh, SPARX5_SKB_CB(skb)->pdu_type);
-@@ -250,23 +249,31 @@ int sparx5_port_xmit_impl(struct sk_buff *skb, struct net_device *dev)
- 	else
- 		ret = sparx5_inject(sparx5, ifh, skb, dev);
- 
--	if (ret == NETDEV_TX_OK) {
--		stats->tx_bytes += skb->len;
--		stats->tx_packets++;
-+	if (ret == -EBUSY)
-+		goto busy;
-+	if (ret < 0)
-+		goto drop;
- 
--		if (skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP &&
--		    SPARX5_SKB_CB(skb)->rew_op == IFH_REW_OP_TWO_STEP_PTP)
--			return ret;
-+	stats->tx_bytes += skb->len;
-+	stats->tx_packets++;
-+	sparx5->tx.packets++;
- 
--		dev_kfree_skb_any(skb);
--	} else {
--		stats->tx_dropped++;
-+	if (skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP &&
-+	    SPARX5_SKB_CB(skb)->rew_op == IFH_REW_OP_TWO_STEP_PTP)
-+		return NETDEV_TX_OK;
- 
--		if (skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP &&
--		    SPARX5_SKB_CB(skb)->rew_op == IFH_REW_OP_TWO_STEP_PTP)
--			sparx5_ptp_txtstamp_release(port, skb);
--	}
--	return ret;
-+	dev_consume_skb_any(skb);
-+	return NETDEV_TX_OK;
-+drop:
-+	stats->tx_dropped++;
-+	sparx5->tx.dropped++;
-+	dev_kfree_skb_any(skb);
-+	return NETDEV_TX_OK;
-+busy:
-+	if (skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP &&
-+	    SPARX5_SKB_CB(skb)->rew_op == IFH_REW_OP_TWO_STEP_PTP)
-+		sparx5_ptp_txtstamp_release(port, skb);
-+	return NETDEV_TX_BUSY;
- }
- 
- static enum hrtimer_restart sparx5_injection_timeout(struct hrtimer *tmr)
 -- 
 2.35.1
 
