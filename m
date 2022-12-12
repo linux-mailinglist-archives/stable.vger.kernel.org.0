@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82C6664A1FB
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:47:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A94C264A1FC
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:48:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233024AbiLLNrw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:47:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48432 "EHLO
+        id S233062AbiLLNsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:48:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233030AbiLLNr1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:47:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B65E914028
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:47:26 -0800 (PST)
+        with ESMTP id S233075AbiLLNrb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:47:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D06414D0C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:47:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AAF46108E
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:47:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E74F9C433EF;
-        Mon, 12 Dec 2022 13:47:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E12B61035
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:47:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B33DC433EF;
+        Mon, 12 Dec 2022 13:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852845;
-        bh=stlH3YwswwWR77+RahrJDDTxC592/yWstWgAgdWcPyM=;
+        s=korg; t=1670852850;
+        bh=6GOpCJ0HJOcTskPOJE/2SNIGQYYu3hZSBh+fUebue6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=agt+4tieB5QxnyAXUiQKuaHkuOFMe0d7O5j39Nh2hk7EUS1cSjmX2Lwdn/bb0Dfma
-         9ibS/ztRW2Endkwj29DwuoAZzBzkWuiPG0GuwEAU3tqgY0omYjYE0XbO08KaX9ejiW
-         z0W6jTTsNqnenEPCipVhcAb/GAWztMFrG7LWiWmA=
+        b=iXMunz/pNVb+JXvJgIC2W6df26DV3Uj/c/c1Fz10g7NARD+jr8LkpNkswymXf0Bu3
+         WQwbUqF/YDXU1THEvnLZWHjjrGTitSjggvXp++LrWAIMnlKkoPYwl4qbJjOUqESa+P
+         KK7LYUqXeYzE6IijJWy8C2zJV/QImJBS1x95/InY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 153/157] net: thunderbolt: fix memory leak in tbnet_open()
-Date:   Mon, 12 Dec 2022 14:18:21 +0100
-Message-Id: <20221212130941.406350950@linuxfoundation.org>
+Subject: [PATCH 6.0 154/157] net: mvneta: Fix an out of bounds check
+Date:   Mon, 12 Dec 2022 14:18:22 +0100
+Message-Id: <20221212130941.458981220@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
 References: <20221212130934.337225088@linuxfoundation.org>
@@ -54,37 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit ed14e5903638f6eb868e3e2b4e610985e6a6c876 ]
+[ Upstream commit cdd97383e19d4afe29adc3376025a15ae3bab3a3 ]
 
-When tb_ring_alloc_rx() failed in tbnet_open(), ida that allocated in
-tb_xdomain_alloc_out_hopid() is not released. Add
-tb_xdomain_release_out_hopid() to the error path to release ida.
+In an earlier commit, I added a bounds check to prevent an out of bounds
+read and a WARN().  On further discussion and consideration that check
+was probably too aggressive.  Instead of returning -EINVAL, a better fix
+would be to just prevent the out of bounds read but continue the process.
 
-Fixes: 180b0689425c ("thunderbolt: Allow multiple DMA tunnels over a single XDomain connection")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Link: https://lore.kernel.org/r/20221207015001.1755826-1-shaozhengchao@huawei.com
+Background: The value of "pp->rxq_def" is a number between 0-7 by default,
+or even higher depending on the value of "rxq_number", which is a module
+parameter. If the value is more than the number of available CPUs then
+it will trigger the WARN() in cpu_max_bits_warn().
+
+Fixes: e8b4fc13900b ("net: mvneta: Prevent out of bounds read in mvneta_config_rss()")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/Y5A7d1E5ccwHTYPf@kadam
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/thunderbolt.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/marvell/mvneta.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/net/thunderbolt.c b/drivers/net/thunderbolt.c
-index 8391f8303499..1f4dcadc284c 100644
---- a/drivers/net/thunderbolt.c
-+++ b/drivers/net/thunderbolt.c
-@@ -902,6 +902,7 @@ static int tbnet_open(struct net_device *dev)
- 				tbnet_start_poll, net);
- 	if (!ring) {
- 		netdev_err(dev, "failed to allocate Rx ring\n");
-+		tb_xdomain_release_out_hopid(xd, hopid);
- 		tb_ring_free(net->tx_ring.ring);
- 		net->tx_ring.ring = NULL;
- 		return -ENOMEM;
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index 3805b61b9263..85c93ba6a82b 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -4271,7 +4271,7 @@ static void mvneta_percpu_elect(struct mvneta_port *pp)
+ 	/* Use the cpu associated to the rxq when it is online, in all
+ 	 * the other cases, use the cpu 0 which can't be offline.
+ 	 */
+-	if (cpu_online(pp->rxq_def))
++	if (pp->rxq_def < nr_cpu_ids && cpu_online(pp->rxq_def))
+ 		elected_cpu = pp->rxq_def;
+ 
+ 	max_cpu = num_present_cpus();
+@@ -4927,9 +4927,6 @@ static int  mvneta_config_rss(struct mvneta_port *pp)
+ 		napi_disable(&pp->napi);
+ 	}
+ 
+-	if (pp->indir[0] >= nr_cpu_ids)
+-		return -EINVAL;
+-
+ 	pp->rxq_def = pp->indir[0];
+ 
+ 	/* Update unicast mapping */
 -- 
 2.35.1
 
