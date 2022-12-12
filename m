@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 936E664A157
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:38:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDA4564A158
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:39:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232756AbiLLNiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:38:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35406 "EHLO
+        id S232322AbiLLNjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:39:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232693AbiLLNiS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:38:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65210614D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:37:44 -0800 (PST)
+        with ESMTP id S232919AbiLLNiU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:38:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E3A2F6A
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:37:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11C02B8068B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:37:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 812CEC433EF;
-        Mon, 12 Dec 2022 13:37:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EFF8F61089
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:37:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9CB9C433EF;
+        Mon, 12 Dec 2022 13:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852261;
-        bh=TQybE/fXDNsPC++k5vcAQ2SGEpCTDyeVoShqFMvk/JI=;
+        s=korg; t=1670852266;
+        bh=BzVXvvLFTAirspARP3QajJMatdjbDrUmJAIjdXCM9B4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TV/Pnc4UYQVdxMt7VQ2GqGzAHShjgJ5XPZpdTQZYy9ZjQxYuCTOb0gqm8cqERDA2R
-         R0k5qfdC6RDZpO4ca9go5lKcqhQgHB+fAxFT9OqC6kPU0rdh9dKr/i2P7fzwEl41VS
-         sq8pIK/dq9AGrzOsD/b3Z90k0KjEl4hYsq0qwHNw=
+        b=16giksZtcaOBek4SjTwRno7WuWgH00+jEDIKfXsuWcJP9gEASrM+Up4n9yr16qeNe
+         8mvrk8uNRIsRcK8MwN69C3Q/yll4yK+ACwudaGnRccIm5BVSQmXjJDEvEEkNcFc6cX
+         czva9ZLagNfPkSdJ08oqpi9xeKs4zjOl2QbP0fMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
+        patches@lists.linux.dev, Harald Hoyer <harald@profian.com>,
+        Jarkko Sakkinen <jarkko@profian.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 046/157] ALSA: hda/realtek: More robust component matching for CS35L41
-Date:   Mon, 12 Dec 2022 14:16:34 +0100
-Message-Id: <20221212130936.401048854@linuxfoundation.org>
+Subject: [PATCH 6.0 047/157] crypto: ccp - Add a quirk to firmware update
+Date:   Mon, 12 Dec 2022 14:16:35 +0100
+Message-Id: <20221212130936.441840667@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
 References: <20221212130934.337225088@linuxfoundation.org>
@@ -52,153 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jarkko Sakkinen <jarkko@profian.com>
 
-[ Upstream commit 35a1744423743247026668e2323d1b932583fc2a ]
+[ Upstream commit b3b9fdf1a9be4266b01a2063b1f37cdc20806e3b ]
 
-As the previous commit implies, a system may have a different SPI bus
-number that is embedded in the device string.  And, assuming the fixed
-bus number is rather fragile; it may be assigned differently depending
-on the configuration or on the boot environment.  Once when a bus
-number change happens, the binding fails, resulting in the silence.
+A quirk for fixing the committed TCB version, when upgrading from a
+firmware version earlier than 1.50. This is a known issue, and the
+documented workaround is to load the firmware twice.
 
-This patch tries to make the matching a bit more relaxed, allowing to
-bind with a different bus number (or without it).  So the previous
-fix, the introduction of ALC245_FIXUP_CS35L41_SPI1_2 fixup became
-superfluous, and this is unified to ALC245_FIXUP_CS35L41_SPI_2.
+Currently, this issue requires the  following workaround:
 
-Fixes: 225f6e1bc151 ("ALSA: hda/realtek: Add quirk for HP Zbook Firefly 14 G9 model")
-Link: https://lore.kernel.org/r/20220930084810.10435-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+sudo modprobe -r kvm_amd
+sudo modprobe -r ccp
+sudo modprobe ccp
+sudo modprobe kvm_amd
+
+Implement this workaround inside kernel by checking whether the API
+version is less than 1.50, and if so, download the firmware twice.
+This addresses the TCB version issue.
+
+Link: https://lore.kernel.org/all/de02389f-249d-f565-1136-4af3655fab2a@profian.com/
+Reported-by: Harald Hoyer <harald@profian.com>
+Signed-off-by: Jarkko Sakkinen <jarkko@profian.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 62 +++++++++++++++++++++--------------
- 1 file changed, 37 insertions(+), 25 deletions(-)
+ drivers/crypto/ccp/sev-dev.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index bf58e98c7a69..d8c6af9e43ad 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -18,6 +18,7 @@
- #include <linux/module.h>
- #include <linux/input.h>
- #include <linux/leds.h>
-+#include <linux/ctype.h>
- #include <sound/core.h>
- #include <sound/jack.h>
- #include <sound/hda_codec.h>
-@@ -6704,23 +6705,51 @@ static void comp_generic_playback_hook(struct hda_pcm_stream *hinfo, struct hda_
- 	}
- }
+diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
+index 6c49e6d06114..034a74196a82 100644
+--- a/drivers/crypto/ccp/sev-dev.c
++++ b/drivers/crypto/ccp/sev-dev.c
+@@ -748,6 +748,11 @@ static int sev_update_firmware(struct device *dev)
+ 	struct page *p;
+ 	u64 data_size;
  
-+struct cs35l41_dev_name {
-+	const char *bus;
-+	const char *hid;
-+	int index;
-+};
++	if (!sev_version_greater_or_equal(0, 15)) {
++		dev_dbg(dev, "DOWNLOAD_FIRMWARE not supported\n");
++		return -1;
++	}
 +
-+/* match the device name in a slightly relaxed manner */
-+static int comp_match_cs35l41_dev_name(struct device *dev, void *data)
-+{
-+	struct cs35l41_dev_name *p = data;
-+	const char *d = dev_name(dev);
-+	int n = strlen(p->bus);
-+	char tmp[32];
+ 	if (sev_get_firmware(dev, &firmware) == -ENOENT) {
+ 		dev_dbg(dev, "No SEV firmware file present\n");
+ 		return -1;
+@@ -780,6 +785,14 @@ static int sev_update_firmware(struct device *dev)
+ 	data->len = firmware->size;
+ 
+ 	ret = sev_do_cmd(SEV_CMD_DOWNLOAD_FIRMWARE, data, &error);
 +
-+	/* check the bus name */
-+	if (strncmp(d, p->bus, n))
-+		return 0;
-+	/* skip the bus number */
-+	if (isdigit(d[n]))
-+		n++;
-+	/* the rest must be exact matching */
-+	snprintf(tmp, sizeof(tmp), "-%s:00-cs35l41-hda.%d", p->hid, p->index);
-+	return !strcmp(d + n, tmp);
-+}
++	/*
++	 * A quirk for fixing the committed TCB version, when upgrading from
++	 * earlier firmware version than 1.50.
++	 */
++	if (!ret && !sev_version_greater_or_equal(1, 50))
++		ret = sev_do_cmd(SEV_CMD_DOWNLOAD_FIRMWARE, data, &error);
 +
- static void cs35l41_generic_fixup(struct hda_codec *cdc, int action, const char *bus,
- 				  const char *hid, int count)
- {
- 	struct device *dev = hda_codec_dev(cdc);
- 	struct alc_spec *spec = cdc->spec;
--	char *name;
-+	struct cs35l41_dev_name *rec;
- 	int ret, i;
+ 	if (ret)
+ 		dev_dbg(dev, "Failed to update SEV firmware: %#x\n", error);
+ 	else
+@@ -1289,8 +1302,7 @@ void sev_pci_init(void)
+ 	if (sev_get_api_version())
+ 		goto err;
  
- 	switch (action) {
- 	case HDA_FIXUP_ACT_PRE_PROBE:
- 		for (i = 0; i < count; i++) {
--			name = devm_kasprintf(dev, GFP_KERNEL,
--					      "%s-%s:00-cs35l41-hda.%d", bus, hid, i);
--			if (!name)
-+			rec = devm_kmalloc(dev, sizeof(*rec), GFP_KERNEL);
-+			if (!rec)
- 				return;
-+			rec->bus = bus;
-+			rec->hid = hid;
-+			rec->index = i;
- 			spec->comps[i].codec = cdc;
--			component_match_add(dev, &spec->match, component_compare_dev_name, name);
-+			component_match_add(dev, &spec->match,
-+					    comp_match_cs35l41_dev_name, rec);
- 		}
- 		ret = component_master_add_with_match(dev, &comp_master_ops, spec->match);
- 		if (ret)
-@@ -6738,17 +6767,12 @@ static void cs35l41_fixup_i2c_two(struct hda_codec *cdc, const struct hda_fixup
+-	if (sev_version_greater_or_equal(0, 15) &&
+-	    sev_update_firmware(sev->dev) == 0)
++	if (sev_update_firmware(sev->dev) == 0)
+ 		sev_get_api_version();
  
- static void cs35l41_fixup_spi_two(struct hda_codec *codec, const struct hda_fixup *fix, int action)
- {
--	cs35l41_generic_fixup(codec, action, "spi0", "CSC3551", 2);
--}
--
--static void cs35l41_fixup_spi1_two(struct hda_codec *codec, const struct hda_fixup *fix, int action)
--{
--	cs35l41_generic_fixup(codec, action, "spi1", "CSC3551", 2);
-+	cs35l41_generic_fixup(codec, action, "spi", "CSC3551", 2);
- }
- 
- static void cs35l41_fixup_spi_four(struct hda_codec *codec, const struct hda_fixup *fix, int action)
- {
--	cs35l41_generic_fixup(codec, action, "spi0", "CSC3551", 4);
-+	cs35l41_generic_fixup(codec, action, "spi", "CSC3551", 4);
- }
- 
- static void alc287_fixup_legion_16achg6_speakers(struct hda_codec *cdc, const struct hda_fixup *fix,
-@@ -7137,8 +7161,6 @@ enum {
- 	ALC287_FIXUP_CS35L41_I2C_2_HP_GPIO_LED,
- 	ALC245_FIXUP_CS35L41_SPI_2,
- 	ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED,
--	ALC245_FIXUP_CS35L41_SPI1_2,
--	ALC245_FIXUP_CS35L41_SPI1_2_HP_GPIO_LED,
- 	ALC245_FIXUP_CS35L41_SPI_4,
- 	ALC245_FIXUP_CS35L41_SPI_4_HP_GPIO_LED,
- 	ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED,
-@@ -8988,16 +9010,6 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC285_FIXUP_HP_GPIO_LED,
- 	},
--	[ALC245_FIXUP_CS35L41_SPI1_2] = {
--		.type = HDA_FIXUP_FUNC,
--		.v.func = cs35l41_fixup_spi1_two,
--	},
--	[ALC245_FIXUP_CS35L41_SPI1_2_HP_GPIO_LED] = {
--		.type = HDA_FIXUP_FUNC,
--		.v.func = cs35l41_fixup_spi1_two,
--		.chained = true,
--		.chain_id = ALC285_FIXUP_HP_GPIO_LED,
--	},
- 	[ALC245_FIXUP_CS35L41_SPI_4] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = cs35l41_fixup_spi_four,
-@@ -9361,7 +9373,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x8aa3, "HP ProBook 450 G9 (MB 8AA1)", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8aa8, "HP EliteBook 640 G9 (MB 8AA6)", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8aab, "HP EliteBook 650 G9 (MB 8AA9)", ALC236_FIXUP_HP_GPIO_LED),
--	 SND_PCI_QUIRK(0x103c, 0x8abb, "HP ZBook Firefly 14 G9", ALC245_FIXUP_CS35L41_SPI1_2_HP_GPIO_LED),
-+	 SND_PCI_QUIRK(0x103c, 0x8abb, "HP ZBook Firefly 14 G9", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8ad1, "HP EliteBook 840 14 inch G9 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8ad2, "HP EliteBook 860 16 inch G9 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+ 	/* If an init_ex_path is provided rely on INIT_EX for PSP initialization
 -- 
 2.35.1
 
