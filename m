@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AA9C64A24A
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B7F964A286
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:55:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233232AbiLLNw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:52:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48700 "EHLO
+        id S233271AbiLLNzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:55:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233097AbiLLNwZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:52:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC61E15A3A
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:51:27 -0800 (PST)
+        with ESMTP id S233120AbiLLNzS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:55:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E36FD2FC
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:55:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01765610A3
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:51:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9E0EC433D2;
-        Mon, 12 Dec 2022 13:51:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E0BB61068
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:55:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81332C433EF;
+        Mon, 12 Dec 2022 13:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853084;
-        bh=OBqqBj7blEIhXnqnGGCNSppkRf0fQbTEDUrvmApP7KA=;
+        s=korg; t=1670853308;
+        bh=/Wt+XuOJWJtoSaqCMHgZyEya4tx2G89R0f912R8I5hY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=onhr9AFM7o2T0qiI3NaYveKzFLnsRsOj4+yi6qVe/+Hn3SPDZ0HUmITFi1/79ot7H
-         tyTqUTmteEI0oX02MyyOgv431BaVVgBjnB9B3aCTZbH3zNw/gwtjZHlhj2CM16+bqb
-         kSXsZX8tL1kRk8P7Ln1Fi1hhKlEOCPb1UOyvFktc=
+        b=MeobWLK2HJ976BAUG+iW9njAMF+2svD7d2hBkKkT+fT+hFTNKIB5xORFm6sr1LiQT
+         2LJA2HZAS/NXv+fLWI5Xfv8fnvEqvxW1UDwN37HrdcrJy5HactxUX8iWoG9sS1qwyh
+         jknSRrTuhI1eSGj1tv0cxop7WA/ekmoS0cSedX/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 48/49] net: mvneta: Fix an out of bounds check
+Subject: [PATCH 4.9 08/31] xen/netback: dont call kfree_skb() with interrupts disabled
 Date:   Mon, 12 Dec 2022 14:19:26 +0100
-Message-Id: <20221212130916.063865878@linuxfoundation.org>
+Message-Id: <20221212130910.388827910@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
-References: <20221212130913.666185567@linuxfoundation.org>
+In-Reply-To: <20221212130909.943483205@linuxfoundation.org>
+References: <20221212130909.943483205@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit cdd97383e19d4afe29adc3376025a15ae3bab3a3 ]
+[ Upstream commit 74e7e1efdad45580cc3839f2a155174cf158f9b5 ]
 
-In an earlier commit, I added a bounds check to prevent an out of bounds
-read and a WARN().  On further discussion and consideration that check
-was probably too aggressive.  Instead of returning -EINVAL, a better fix
-would be to just prevent the out of bounds read but continue the process.
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So remove kfree_skb()
+from the spin_lock_irqsave() section and use the already existing
+"drop" label in xenvif_start_xmit() for dropping the SKB. At the
+same time replace the dev_kfree_skb() call there with a call of
+dev_kfree_skb_any(), as xenvif_start_xmit() can be called with
+disabled interrupts.
 
-Background: The value of "pp->rxq_def" is a number between 0-7 by default,
-or even higher depending on the value of "rxq_number", which is a module
-parameter. If the value is more than the number of available CPUs then
-it will trigger the WARN() in cpu_max_bits_warn().
+This is XSA-424 / CVE-2022-42328 / CVE-2022-42329.
 
-Fixes: e8b4fc13900b ("net: mvneta: Prevent out of bounds read in mvneta_config_rss()")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/Y5A7d1E5ccwHTYPf@kadam
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: be81992f9086 ("xen/netback: don't queue unlimited number of packages")
+Reported-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/net/xen-netback/common.h    | 2 +-
+ drivers/net/xen-netback/interface.c | 6 ++++--
+ drivers/net/xen-netback/rx.c        | 8 +++++---
+ 3 files changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-index 5107382cefb5..fd1311681200 100644
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -3620,7 +3620,7 @@ static void mvneta_percpu_elect(struct mvneta_port *pp)
- 	/* Use the cpu associated to the rxq when it is online, in all
- 	 * the other cases, use the cpu 0 which can't be offline.
- 	 */
--	if (cpu_online(pp->rxq_def))
-+	if (pp->rxq_def < nr_cpu_ids && cpu_online(pp->rxq_def))
- 		elected_cpu = pp->rxq_def;
+diff --git a/drivers/net/xen-netback/common.h b/drivers/net/xen-netback/common.h
+index 4ef648f79993..e5f254500c1c 100644
+--- a/drivers/net/xen-netback/common.h
++++ b/drivers/net/xen-netback/common.h
+@@ -364,7 +364,7 @@ int xenvif_dealloc_kthread(void *data);
+ irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data);
  
- 	max_cpu = num_present_cpus();
-@@ -4141,9 +4141,6 @@ static int  mvneta_config_rss(struct mvneta_port *pp)
- 		napi_disable(&pp->napi);
+ bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread);
+-void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
++bool xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
+ 
+ void xenvif_carrier_on(struct xenvif *vif);
+ 
+diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
+index 186694f6c260..b83777d4d35e 100644
+--- a/drivers/net/xen-netback/interface.c
++++ b/drivers/net/xen-netback/interface.c
+@@ -249,14 +249,16 @@ xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	if (vif->hash.alg == XEN_NETIF_CTRL_HASH_ALGORITHM_NONE)
+ 		skb_clear_hash(skb);
+ 
+-	xenvif_rx_queue_tail(queue, skb);
++	if (!xenvif_rx_queue_tail(queue, skb))
++		goto drop;
++
+ 	xenvif_kick_thread(queue);
+ 
+ 	return NETDEV_TX_OK;
+ 
+  drop:
+ 	vif->dev->stats.tx_dropped++;
+-	dev_kfree_skb(skb);
++	dev_kfree_skb_any(skb);
+ 	return NETDEV_TX_OK;
+ }
+ 
+diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
+index 6964f8b1a36b..5067fa0c751f 100644
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -82,9 +82,10 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
+ 	return false;
+ }
+ 
+-void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
++bool xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
+ {
+ 	unsigned long flags;
++	bool ret = true;
+ 
+ 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
+ 
+@@ -92,8 +93,7 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
+ 		struct net_device *dev = queue->vif->dev;
+ 
+ 		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
+-		kfree_skb(skb);
+-		queue->vif->dev->stats.rx_dropped++;
++		ret = false;
+ 	} else {
+ 		if (skb_queue_empty(&queue->rx_queue))
+ 			xenvif_update_needed_slots(queue, skb);
+@@ -104,6 +104,8 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
  	}
  
--	if (pp->indir[0] >= nr_cpu_ids)
--		return -EINVAL;
--
- 	pp->rxq_def = pp->indir[0];
+ 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
++
++	return ret;
+ }
  
- 	/* Update unicast mapping */
+ static struct sk_buff *xenvif_rx_dequeue(struct xenvif_queue *queue)
 -- 
 2.35.1
 
