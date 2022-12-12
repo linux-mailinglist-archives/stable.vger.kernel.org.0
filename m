@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A2F164A260
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 572CA64A22A
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:50:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233241AbiLLNyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:54:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52486 "EHLO
+        id S233094AbiLLNuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:50:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233135AbiLLNxm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8098460C8
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:52:54 -0800 (PST)
+        with ESMTP id S233097AbiLLNtq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:49:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D19A912617
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:49:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33377B80D54
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:52:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ADFBC433F0;
-        Mon, 12 Dec 2022 13:52:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EDD261068
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:49:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14E39C433F0;
+        Mon, 12 Dec 2022 13:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853171;
-        bh=UaURbPuHpQtA0YRB1oWG4r32xC1LDY9emPmigIFWxUI=;
+        s=korg; t=1670852964;
+        bh=yC9GFXn/MWfoAyTdcSdcdiuiQJoUBVaPqUb3tQmBfU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MbE8sRugML2IVvZlprHcxzsDGW/K92gSd6VCD+DLJNgWj5vRNTL/MeBwEsIlY8F0z
-         VUkjY0a+jg0a1Iaubn3tdW43v6ackLPBwyDwH7swlFIDwXTldQMKM0o/1Dkv3OqoWG
-         CtO5zOaqMecXftlV2mnmnExsN88dRchQL9cTzj38=
+        b=jLEN30Y3Y75tPapMzoWycVFhZ6FCUNaX/nXqwlBNb49ec0z56Rg89NDMfo2diQ65j
+         kYZb8Bnq40/3uge8UVg8+vF38wjiYTheDpYcU98ATSv47LFxY+GoMgppCF5ZpOo4Dl
+         GwJ31qpy7cF6Ar6AlSK2726YKuOXZrMYRubAS0O0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
-        Mark Brown <broonie@kernel.org>,
+        Valentina Goncharenko <goncharenko.vp@ispras.ru>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/38] ASoC: soc-pcm: Add NULL check in BE reparenting
-Date:   Mon, 12 Dec 2022 14:19:08 +0100
-Message-Id: <20221212130912.467433687@linuxfoundation.org>
+Subject: [PATCH 4.19 31/49] net: encx24j600: Add parentheses to fix precedence
+Date:   Mon, 12 Dec 2022 14:19:09 +0100
+Message-Id: <20221212130915.213100203@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
-References: <20221212130912.069170932@linuxfoundation.org>
+In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
+References: <20221212130913.666185567@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+From: Valentina Goncharenko <goncharenko.vp@ispras.ru>
 
-[ Upstream commit db8f91d424fe0ea6db337aca8bc05908bbce1498 ]
+[ Upstream commit 167b3f2dcc62c271f3555b33df17e361bb1fa0ee ]
 
-Add NULL check in dpcm_be_reparent API, to handle
-kernel NULL pointer dereference error.
-The issue occurred in fuzzing test.
+In functions regmap_encx24j600_phy_reg_read() and
+regmap_encx24j600_phy_reg_write() in the conditions of the waiting
+cycles for filling the variable 'ret' it is necessary to add parentheses
+to prevent wrong assignment due to logical operations precedence.
 
-Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
-Link: https://lore.kernel.org/r/1669098673-29703-1-git-send-email-quic_srivasam@quicinc.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: d70e53262f5c ("net: Microchip encx24j600 driver")
+Signed-off-by: Valentina Goncharenko <goncharenko.vp@ispras.ru>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/microchip/encx24j600-regmap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index e995e96ab903..3a9c875534c1 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1168,6 +1168,8 @@ static void dpcm_be_reparent(struct snd_soc_pcm_runtime *fe,
- 		return;
+diff --git a/drivers/net/ethernet/microchip/encx24j600-regmap.c b/drivers/net/ethernet/microchip/encx24j600-regmap.c
+index 46181559d1f1..4a3c0870c8e4 100644
+--- a/drivers/net/ethernet/microchip/encx24j600-regmap.c
++++ b/drivers/net/ethernet/microchip/encx24j600-regmap.c
+@@ -367,7 +367,7 @@ static int regmap_encx24j600_phy_reg_read(void *context, unsigned int reg,
+ 		goto err_out;
  
- 	be_substream = snd_soc_dpcm_get_substream(be, stream);
-+	if (!be_substream)
-+		return;
+ 	usleep_range(26, 100);
+-	while ((ret = regmap_read(ctx->regmap, MISTAT, &mistat) != 0) &&
++	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
+ 	       (mistat & BUSY))
+ 		cpu_relax();
  
- 	list_for_each_entry(dpcm, &be->dpcm[stream].fe_clients, list_fe) {
- 		if (dpcm->fe == fe)
+@@ -405,7 +405,7 @@ static int regmap_encx24j600_phy_reg_write(void *context, unsigned int reg,
+ 		goto err_out;
+ 
+ 	usleep_range(26, 100);
+-	while ((ret = regmap_read(ctx->regmap, MISTAT, &mistat) != 0) &&
++	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
+ 	       (mistat & BUSY))
+ 		cpu_relax();
+ 
 -- 
 2.35.1
 
