@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8E9B64A24B
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 927CB64A273
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233196AbiLLNw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:52:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52894 "EHLO
+        id S233060AbiLLNyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:54:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233204AbiLLNwd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:52:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B70515FE7
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:51:32 -0800 (PST)
+        with ESMTP id S233028AbiLLNyL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:11 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81481CC7
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:54:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94F9F610A6
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:51:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1A42C433D2;
-        Mon, 12 Dec 2022 13:51:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CE9BFCE0F42
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:54:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53667C433D2;
+        Mon, 12 Dec 2022 13:54:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853090;
-        bh=cDNZWKlTuyYCb8XyZI8wd0mMCTaPUMwCU7yluAAaa4c=;
+        s=korg; t=1670853245;
+        bh=yC9GFXn/MWfoAyTdcSdcdiuiQJoUBVaPqUb3tQmBfU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKR7evxiOS4V2knd1cQiKLWn+i9r/vKXyIqS5D63S+NF6q0ozT62FRuHoSGPzJTUs
-         6daIbXHeyUpkYYoAXxJqF4ov9GZ+U1Ku15VCe40kVCHe6MVYkwKsbhqnkN+8Z7X0kx
-         opjJAfv5ui0ZuDj4ITFau9YB47Wr/ffmAw4Gh3pw=
+        b=JYxv1L80iMsXhdMKmNNmYG5pP37/lawOnQOcPH6Gx3ojUWWYbypdKepIutT1ROgUN
+         AYtHtI8yeFbgox2KqugmUh3z2pN7HJujRASgW1+uvrawzwoElS+FaJC+SfbV9hANtj
+         4vihaqYP2B3VaYK5YdJJmwzbrC1PA0lU26cdSC/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frank Jungclaus <frank.jungclaus@esd.eu>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev,
+        Valentina Goncharenko <goncharenko.vp@ispras.ru>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 49/49] can: esd_usb: Allow REC and TEC to return to zero
+Subject: [PATCH 4.14 26/38] net: encx24j600: Add parentheses to fix precedence
 Date:   Mon, 12 Dec 2022 14:19:27 +0100
-Message-Id: <20221212130916.109154029@linuxfoundation.org>
+Message-Id: <20221212130913.406373115@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
-References: <20221212130913.666185567@linuxfoundation.org>
+In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
+References: <20221212130912.069170932@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Jungclaus <frank.jungclaus@esd.eu>
+From: Valentina Goncharenko <goncharenko.vp@ispras.ru>
 
-[ Upstream commit 918ee4911f7a41fb4505dff877c1d7f9f64eb43e ]
+[ Upstream commit 167b3f2dcc62c271f3555b33df17e361bb1fa0ee ]
 
-We don't get any further EVENT from an esd CAN USB device for changes
-on REC or TEC while those counters converge to 0 (with ecc == 0). So
-when handling the "Back to Error Active"-event force txerr = rxerr =
-0, otherwise the berr-counters might stay on values like 95 forever.
+In functions regmap_encx24j600_phy_reg_read() and
+regmap_encx24j600_phy_reg_write() in the conditions of the waiting
+cycles for filling the variable 'ret' it is necessary to add parentheses
+to prevent wrong assignment due to logical operations precedence.
 
-Also, to make life easier during the ongoing development a
-netdev_dbg() has been introduced to allow dumping error events send by
-an esd CAN USB device.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
-Signed-off-by: Frank Jungclaus <frank.jungclaus@esd.eu>
-Link: https://lore.kernel.org/all/20221130202242.3998219-2-frank.jungclaus@esd.eu
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: d70e53262f5c ("net: Microchip encx24j600 driver")
+Signed-off-by: Valentina Goncharenko <goncharenko.vp@ispras.ru>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/esd_usb2.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/microchip/encx24j600-regmap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/usb/esd_usb2.c b/drivers/net/can/usb/esd_usb2.c
-index d4e6b40f0ed4..ffdee5aeb8a9 100644
---- a/drivers/net/can/usb/esd_usb2.c
-+++ b/drivers/net/can/usb/esd_usb2.c
-@@ -239,6 +239,10 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
- 		u8 rxerr = msg->msg.rx.data[2];
- 		u8 txerr = msg->msg.rx.data[3];
+diff --git a/drivers/net/ethernet/microchip/encx24j600-regmap.c b/drivers/net/ethernet/microchip/encx24j600-regmap.c
+index 46181559d1f1..4a3c0870c8e4 100644
+--- a/drivers/net/ethernet/microchip/encx24j600-regmap.c
++++ b/drivers/net/ethernet/microchip/encx24j600-regmap.c
+@@ -367,7 +367,7 @@ static int regmap_encx24j600_phy_reg_read(void *context, unsigned int reg,
+ 		goto err_out;
  
-+		netdev_dbg(priv->netdev,
-+			   "CAN_ERR_EV_EXT: dlc=%#02x state=%02x ecc=%02x rec=%02x tec=%02x\n",
-+			   msg->msg.rx.dlc, state, ecc, rxerr, txerr);
-+
- 		skb = alloc_can_err_skb(priv->netdev, &cf);
- 		if (skb == NULL) {
- 			stats->rx_dropped++;
-@@ -265,6 +269,8 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
- 				break;
- 			default:
- 				priv->can.state = CAN_STATE_ERROR_ACTIVE;
-+				txerr = 0;
-+				rxerr = 0;
- 				break;
- 			}
- 		} else {
+ 	usleep_range(26, 100);
+-	while ((ret = regmap_read(ctx->regmap, MISTAT, &mistat) != 0) &&
++	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
+ 	       (mistat & BUSY))
+ 		cpu_relax();
+ 
+@@ -405,7 +405,7 @@ static int regmap_encx24j600_phy_reg_write(void *context, unsigned int reg,
+ 		goto err_out;
+ 
+ 	usleep_range(26, 100);
+-	while ((ret = regmap_read(ctx->regmap, MISTAT, &mistat) != 0) &&
++	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
+ 	       (mistat & BUSY))
+ 		cpu_relax();
+ 
 -- 
 2.35.1
 
