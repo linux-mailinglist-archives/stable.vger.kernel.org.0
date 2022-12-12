@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27D1764A105
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82E7864A1B1
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232192AbiLLNe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:34:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34298 "EHLO
+        id S232902AbiLLNoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:44:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232725AbiLLNeG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:34:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DE8E13F1B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:33:50 -0800 (PST)
+        with ESMTP id S232919AbiLLNnq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BBC64F7
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:43:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06468B8068B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:33:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF660C433D2;
-        Mon, 12 Dec 2022 13:33:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABE7DB8068B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:43:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC56AC433EF;
+        Mon, 12 Dec 2022 13:43:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852027;
-        bh=th3bfNKi2Qpx9squelShXCs4+bhPLrfYv58AgnvCWNo=;
+        s=korg; t=1670852596;
+        bh=XVSMrtTaqFbA/yO6OdWKo6Jh6ZBJN0hHGsgDWIUgntI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMu5Yf5froqvEY0tuXLNGJ8F2jREeTkV4xAAMms+abJ+YvurssBSDUZxVHA50nkyx
-         LZ0m37m54uaLBR6Gp/0UZn5kDYcClTf5jIW+2N8cjtrSrDYS/G20OPF7mEHmBTpXyy
-         iWbrmVkcaobLsiuxuMdURcAMIsBcPJuIdrBwn7mA=
+        b=Of2Ul9CNlkDGsFwqYKD4PoTzjSKteQkX0t2jehSm1WEcop9p7Ss2cGmvBv+lH5ans
+         kWO67Rk84PuAZwkgkQG/2+am1z1rT/EwZWSW7ntTUBaleEY56/nNjg5xqB95J2XkL3
+         wRnjO1VYoXU3setcWsXSDfI1Gs8/OK2ltvIxj7m8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Kamil Maziarz <kamil.maziarz@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 5.15 093/123] i40e: Disallow ip4 and ip6 l4_4_bytes
-Date:   Mon, 12 Dec 2022 14:17:39 +0100
-Message-Id: <20221212130930.975969126@linuxfoundation.org>
+        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 112/157] net: dsa: hellcreek: Check return value
+Date:   Mon, 12 Dec 2022 14:17:40 +0100
+Message-Id: <20221212130939.348982886@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,57 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+From: Artem Chernyshev <artem.chernyshev@red-soft.ru>
 
-[ Upstream commit d64aaf3f7869f915fd120763d75f11d6b116424d ]
+[ Upstream commit d4edb50688652eb10be270bc515da63815de428f ]
 
-Return -EOPNOTSUPP, when user requests l4_4_bytes for raw IP4 or
-IP6 flow director filters. Flow director does not support filtering
-on l4 bytes for PCTYPEs used by IP4 and IP6 filters.
-Without this patch, user could create filters with l4_4_bytes fields,
-which did not do any filtering on L4, but only on L3 fields.
+Return NULL if we got unexpected value from skb_trim_rcsum()
+in hellcreek_rcv()
 
-Fixes: 36777d9fa24c ("i40e: check current configured input set when adding ntuple filters")
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Signed-off-by: Kamil Maziarz  <kamil.maziarz@intel.com>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 01ef09caad66 ("net: dsa: Add tag handling for Hirschmann Hellcreek switches")
+Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Kurt Kanzenbach <kurt@linutronix.de>
+Link: https://lore.kernel.org/r/20221201140032.26746-2-artem.chernyshev@red-soft.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ net/dsa/tag_hellcreek.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index 4e3243287805..813889604ff8 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -4364,11 +4364,7 @@ static int i40e_check_fdir_input_set(struct i40e_vsi *vsi,
- 			return -EOPNOTSUPP;
+diff --git a/net/dsa/tag_hellcreek.c b/net/dsa/tag_hellcreek.c
+index 846588c0070a..53a206d11685 100644
+--- a/net/dsa/tag_hellcreek.c
++++ b/net/dsa/tag_hellcreek.c
+@@ -49,7 +49,8 @@ static struct sk_buff *hellcreek_rcv(struct sk_buff *skb,
+ 		return NULL;
+ 	}
  
- 		/* First 4 bytes of L4 header */
--		if (usr_ip4_spec->l4_4_bytes == htonl(0xFFFFFFFF))
--			new_mask |= I40E_L4_SRC_MASK | I40E_L4_DST_MASK;
--		else if (!usr_ip4_spec->l4_4_bytes)
--			new_mask &= ~(I40E_L4_SRC_MASK | I40E_L4_DST_MASK);
--		else
-+		if (usr_ip4_spec->l4_4_bytes)
- 			return -EOPNOTSUPP;
+-	pskb_trim_rcsum(skb, skb->len - HELLCREEK_TAG_LEN);
++	if (pskb_trim_rcsum(skb, skb->len - HELLCREEK_TAG_LEN))
++		return NULL;
  
- 		/* Filtering on Type of Service is not supported. */
-@@ -4407,11 +4403,7 @@ static int i40e_check_fdir_input_set(struct i40e_vsi *vsi,
- 		else
- 			return -EOPNOTSUPP;
+ 	dsa_default_offload_fwd_mark(skb);
  
--		if (usr_ip6_spec->l4_4_bytes == htonl(0xFFFFFFFF))
--			new_mask |= I40E_L4_SRC_MASK | I40E_L4_DST_MASK;
--		else if (!usr_ip6_spec->l4_4_bytes)
--			new_mask &= ~(I40E_L4_SRC_MASK | I40E_L4_DST_MASK);
--		else
-+		if (usr_ip6_spec->l4_4_bytes)
- 			return -EOPNOTSUPP;
- 
- 		/* Filtering on Traffic class is not supported. */
 -- 
 2.35.1
 
