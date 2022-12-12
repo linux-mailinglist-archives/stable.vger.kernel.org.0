@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D36D649C92
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 11:43:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7DA0649C8E
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 11:43:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232259AbiLLKnF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 05:43:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33678 "EHLO
+        id S231770AbiLLKm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 05:42:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232127AbiLLKlJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 05:41:09 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B100AF02A;
+        with ESMTP id S232123AbiLLKlI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 05:41:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5BDAF5BE;
         Mon, 12 Dec 2022 02:36:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 280FBCE0E73;
-        Mon, 12 Dec 2022 10:36:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97FC6C433EF;
-        Mon, 12 Dec 2022 10:36:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53F6D60F40;
+        Mon, 12 Dec 2022 10:36:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65552C433D2;
+        Mon, 12 Dec 2022 10:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670841367;
-        bh=4azPJhLbOGP5tw/EvE/a9yL2Exwrw18c4+SrycD8/TY=;
+        s=k20201202; t=1670841369;
+        bh=riyEXSCxEjeDrWaRHbbQWSjZro/Z222V/DZB1Lk0WYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ay0KfywH3mil5OetEXVWhYuReo4bhLr7Kl0uwQ4C8cW/Yr3LYA9uKbs1xchqTHCY2
-         FqL/g1SDC9Dg4J40IJ+vbIy1e2EpJKhXR+ZYufcILPKRRD/vQi3zObHXhfAi3TJwV/
-         uDPeDx5iBwRfkqzs2eDf/M4Jh+MX6mrj1T3ttiBVdxYUrOENPomYChu7xCa0mCZp/R
-         dhPhIAoz/Lfv7p/OYXz9Ir2Nj7opa4T4irYDbdVrgXMPLyCcwtH4AAaTo/JBAGXEJh
-         s4iPmKLa/OepIwCNK4ZkqM6FE8o9e8gLO+lGvGG40P/KqyUgnqEKsWNQZ3Hv1WGbx2
-         Ma6aaviVevK5A==
+        b=rRODENRbmkew05Wutd3qM3QiE5oNqGsI6SEQjAfszdwU2lmSN+VSyG629B+JnsvxL
+         mIOVPuAIect+Oimg2Z0YDs5Ed9yC87eijHkvY5bX9wAL6UFhUfNrrDolgV6eIYsxbI
+         hCtfgJ1JI+KL5pRVh0hA7l02sfmGF3Pr6bPVAJXz/LB8UGNqGN6q+f5qFa9YWdl93G
+         F3kKPV6j824cts/0Deh2uDE3+1PWrhJ8NXhgHdajhWjrOig4cihTrEm9RypQxn4ck4
+         30oPSLIDoKORS25UDaccjoA34Ycf9A7TilIgqX4drYPUPKtMWgRV5zFETJ0mw+GfIG
+         cMWosTzDp+UhA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ankit Patel <anpatel@nvidia.com>,
-        Haotien Hsu <haotienh@nvidia.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 3/6] HID: usbhid: Add ALWAYS_POLL quirk for some mice
-Date:   Mon, 12 Dec 2022 05:35:55 -0500
-Message-Id: <20221212103600.299810-3-sashal@kernel.org>
+Cc:     Sungwoo Kim <iam@sung-woo.kim>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>, marcel@holtmann.org,
+        johan.hedberg@gmail.com, luiz.dentz@gmail.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 4/6] Bluetooth: L2CAP: Fix u8 overflow
+Date:   Mon, 12 Dec 2022 05:35:56 -0500
+Message-Id: <20221212103600.299810-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221212103600.299810-1-sashal@kernel.org>
 References: <20221212103600.299810-1-sashal@kernel.org>
@@ -50,91 +51,70 @@ X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75 autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ankit Patel <anpatel@nvidia.com>
+From: Sungwoo Kim <iam@sung-woo.kim>
 
-[ Upstream commit f6d910a89a2391e5ce1f275d205023880a33d3f8 ]
+[ Upstream commit bcd70260ef56e0aee8a4fc6cd214a419900b0765 ]
 
-Some additional USB mouse devices are needing ALWAYS_POLL quirk without
-which they disconnect and reconnect every 60s.
+By keep sending L2CAP_CONF_REQ packets, chan->num_conf_rsp increases
+multiple times and eventually it will wrap around the maximum number
+(i.e., 255).
+This patch prevents this by adding a boundary check with
+L2CAP_MAX_CONF_RSP
 
-Add below devices to the known quirk list.
-CHERRY    VID 0x046a, PID 0x000c
-MICROSOFT VID 0x045e, PID 0x0783
-PRIMAX    VID 0x0461, PID 0x4e2a
+Btmon log:
+Bluetooth monitor ver 5.64
+= Note: Linux version 6.1.0-rc2 (x86_64)                               0.264594
+= Note: Bluetooth subsystem version 2.22                               0.264636
+@ MGMT Open: btmon (privileged) version 1.22                  {0x0001} 0.272191
+= New Index: 00:00:00:00:00:00 (Primary,Virtual,hci0)          [hci0] 13.877604
+@ RAW Open: 9496 (privileged) version 2.22                   {0x0002} 13.890741
+= Open Index: 00:00:00:00:00:00                                [hci0] 13.900426
+(...)
+> ACL Data RX: Handle 200 flags 0x00 dlen 1033             #32 [hci0] 14.273106
+        invalid packet size (12 != 1033)
+        08 00 01 00 02 01 04 00 01 10 ff ff              ............
+> ACL Data RX: Handle 200 flags 0x00 dlen 1547             #33 [hci0] 14.273561
+        invalid packet size (14 != 1547)
+        0a 00 01 00 04 01 06 00 40 00 00 00 00 00        ........@.....
+> ACL Data RX: Handle 200 flags 0x00 dlen 2061             #34 [hci0] 14.274390
+        invalid packet size (16 != 2061)
+        0c 00 01 00 04 01 08 00 40 00 00 00 00 00 00 04  ........@.......
+> ACL Data RX: Handle 200 flags 0x00 dlen 2061             #35 [hci0] 14.274932
+        invalid packet size (16 != 2061)
+        0c 00 01 00 04 01 08 00 40 00 00 00 07 00 03 00  ........@.......
+= bluetoothd: Bluetooth daemon 5.43                                   14.401828
+> ACL Data RX: Handle 200 flags 0x00 dlen 1033             #36 [hci0] 14.275753
+        invalid packet size (12 != 1033)
+        08 00 01 00 04 01 04 00 40 00 00 00              ........@...
 
-Signed-off-by: Ankit Patel <anpatel@nvidia.com>
-Signed-off-by: Haotien Hsu <haotienh@nvidia.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sungwoo Kim <iam@sung-woo.kim>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 3 +++
- drivers/hid/hid-quirks.c | 3 +++
- 2 files changed, 6 insertions(+)
+ net/bluetooth/l2cap_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 85ceb1761a8b..78b55f845d2d 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -261,6 +261,7 @@
- #define USB_DEVICE_ID_CH_AXIS_295	0x001c
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 761efd7da514..e15fcf72a342 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -4453,7 +4453,8 @@ static inline int l2cap_config_req(struct l2cap_conn *conn,
  
- #define USB_VENDOR_ID_CHERRY		0x046a
-+#define USB_DEVICE_ID_CHERRY_MOUSE_000C	0x000c
- #define USB_DEVICE_ID_CHERRY_CYMOTION	0x0023
- #define USB_DEVICE_ID_CHERRY_CYMOTION_SOLAR	0x0027
+ 	chan->ident = cmd->ident;
+ 	l2cap_send_cmd(conn, cmd->ident, L2CAP_CONF_RSP, len, rsp);
+-	chan->num_conf_rsp++;
++	if (chan->num_conf_rsp < L2CAP_CONF_MAX_CONF_RSP)
++		chan->num_conf_rsp++;
  
-@@ -892,6 +893,7 @@
- #define USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER	0x02fd
- #define USB_DEVICE_ID_MS_PIXART_MOUSE    0x00cb
- #define USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS      0x02e0
-+#define USB_DEVICE_ID_MS_MOUSE_0783      0x0783
- 
- #define USB_VENDOR_ID_MOJO		0x8282
- #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
-@@ -1339,6 +1341,7 @@
- 
- #define USB_VENDOR_ID_PRIMAX	0x0461
- #define USB_DEVICE_ID_PRIMAX_MOUSE_4D22	0x4d22
-+#define USB_DEVICE_ID_PRIMAX_MOUSE_4E2A	0x4e2a
- #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
- #define USB_DEVICE_ID_PRIMAX_REZEL	0x4e72
- #define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F	0x4d0f
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 8d36cb7551cf..fc1e061900bc 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -54,6 +54,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_THROTTLE), HID_QUIRK_NOGET },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_MOUSE_000C), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K65RGB), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K65RGB_RAPIDFIRE), HID_QUIRK_NO_INIT_REPORTS | HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K70RGB), HID_QUIRK_NO_INIT_REPORTS },
-@@ -122,6 +123,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C05A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C06A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MCS, USB_DEVICE_ID_MCS_GAMEPADBLOCK), HID_QUIRK_MULTI_INPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_MOUSE_0783), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PIXART_MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_SURFACE3_COVER), HID_QUIRK_NO_INIT_REPORTS },
-@@ -146,6 +148,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_MOUSE_4D22), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_MOUSE_4E2A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D65), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4E22), HID_QUIRK_ALWAYS_POLL },
+ 	/* Reset config buffer. */
+ 	chan->conf_len = 0;
 -- 
 2.35.1
 
