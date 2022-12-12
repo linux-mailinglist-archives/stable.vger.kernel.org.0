@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D20F264A271
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AA9C64A24A
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233097AbiLLNyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:54:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54510 "EHLO
+        id S233232AbiLLNw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:52:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233243AbiLLNyH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E774392
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:53:59 -0800 (PST)
+        with ESMTP id S233097AbiLLNwZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:52:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC61E15A3A
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:51:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1857FB80B78
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:53:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59DA8C433F0;
-        Mon, 12 Dec 2022 13:53:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01765610A3
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:51:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9E0EC433D2;
+        Mon, 12 Dec 2022 13:51:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853236;
-        bh=R0qKGljzn4Qgb7oMrILuRWSoS93ytflK04KcgXieFG0=;
+        s=korg; t=1670853084;
+        bh=OBqqBj7blEIhXnqnGGCNSppkRf0fQbTEDUrvmApP7KA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cpyJJXJ2ixNFYYuEJL9wdIdFxKAFNHf3x7afAEEbHk2LSryb1DJxCLncL0b2bBINw
-         P6tIMbo7+U18WJ1waV2yRYJrDRR0ZoVfrr7v7FCQS4++J6PToNBHhaOfJJ1+NyHNn2
-         U+uCaqJ1GGqKs0RIQlkIIu2HSrGk6BCnC0UzHGq8=
+        b=onhr9AFM7o2T0qiI3NaYveKzFLnsRsOj4+yi6qVe/+Hn3SPDZ0HUmITFi1/79ot7H
+         tyTqUTmteEI0oX02MyyOgv431BaVVgBjnB9B3aCTZbH3zNw/gwtjZHlhj2CM16+bqb
+         kSXsZX8tL1kRk8P7Ln1Fi1hhKlEOCPb1UOyvFktc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/38] Bluetooth: 6LoWPAN: add missing hci_dev_put() in get_l2cap_conn()
-Date:   Mon, 12 Dec 2022 14:19:25 +0100
-Message-Id: <20221212130913.316286334@linuxfoundation.org>
+Subject: [PATCH 4.19 48/49] net: mvneta: Fix an out of bounds check
+Date:   Mon, 12 Dec 2022 14:19:26 +0100
+Message-Id: <20221212130916.063865878@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
-References: <20221212130912.069170932@linuxfoundation.org>
+In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
+References: <20221212130913.666185567@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit 747da1308bdd5021409974f9180f0d8ece53d142 ]
+[ Upstream commit cdd97383e19d4afe29adc3376025a15ae3bab3a3 ]
 
-hci_get_route() takes reference, we should use hci_dev_put() to release
-it when not need anymore.
+In an earlier commit, I added a bounds check to prevent an out of bounds
+read and a WARN().  On further discussion and consideration that check
+was probably too aggressive.  Instead of returning -EINVAL, a better fix
+would be to just prevent the out of bounds read but continue the process.
 
-Fixes: 6b8d4a6a0314 ("Bluetooth: 6LoWPAN: Use connected oriented channel instead of fixed one")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Background: The value of "pp->rxq_def" is a number between 0-7 by default,
+or even higher depending on the value of "rxq_number", which is a module
+parameter. If the value is more than the number of available CPUs then
+it will trigger the WARN() in cpu_max_bits_warn().
+
+Fixes: e8b4fc13900b ("net: mvneta: Prevent out of bounds read in mvneta_config_rss()")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/Y5A7d1E5ccwHTYPf@kadam
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/6lowpan.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/marvell/mvneta.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
-index 9a75f9b00b51..4530ffb2481a 100644
---- a/net/bluetooth/6lowpan.c
-+++ b/net/bluetooth/6lowpan.c
-@@ -1014,6 +1014,7 @@ static int get_l2cap_conn(char *buf, bdaddr_t *addr, u8 *addr_type,
- 	hci_dev_lock(hdev);
- 	hcon = hci_conn_hash_lookup_le(hdev, addr, *addr_type);
- 	hci_dev_unlock(hdev);
-+	hci_dev_put(hdev);
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index 5107382cefb5..fd1311681200 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -3620,7 +3620,7 @@ static void mvneta_percpu_elect(struct mvneta_port *pp)
+ 	/* Use the cpu associated to the rxq when it is online, in all
+ 	 * the other cases, use the cpu 0 which can't be offline.
+ 	 */
+-	if (cpu_online(pp->rxq_def))
++	if (pp->rxq_def < nr_cpu_ids && cpu_online(pp->rxq_def))
+ 		elected_cpu = pp->rxq_def;
  
- 	if (!hcon)
- 		return -ENOENT;
+ 	max_cpu = num_present_cpus();
+@@ -4141,9 +4141,6 @@ static int  mvneta_config_rss(struct mvneta_port *pp)
+ 		napi_disable(&pp->napi);
+ 	}
+ 
+-	if (pp->indir[0] >= nr_cpu_ids)
+-		return -EINVAL;
+-
+ 	pp->rxq_def = pp->indir[0];
+ 
+ 	/* Update unicast mapping */
 -- 
 2.35.1
 
