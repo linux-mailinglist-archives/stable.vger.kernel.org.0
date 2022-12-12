@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68AA464A20C
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:49:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEF2464A249
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:52:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232691AbiLLNtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:49:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48466 "EHLO
+        id S233186AbiLLNw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:52:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232967AbiLLNsy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:48:54 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35DB11581F
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:48:19 -0800 (PST)
+        with ESMTP id S233175AbiLLNwV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:52:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C0315A29
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:51:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7F081CE0F77
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:48:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97697C433EF;
-        Mon, 12 Dec 2022 13:48:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25A05B80D2C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:51:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1450C433EF;
+        Mon, 12 Dec 2022 13:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852895;
-        bh=fszPbQ/AAMT0n+PimCMVqHsGk82FZnPiF28cdcKDfGY=;
+        s=korg; t=1670853075;
+        bh=uAbHIsE6Pxufpz6ZO3sKBhzosc3M/V+AVZVMASvABfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0leuh5g0OZ8qvCEwXbPP1tON/obSMpVAKOQ7gDXD3bgAHvMlrMDqkodEn71YH0dLw
-         sN4KXsNz91OAXghJodSX4eh7maLQ1cwkQ6gSvPy9J0zCN/JoCkMi+GxMLGaPTVBoiV
-         ulum43/hA14sg3mLdxBnhQL3vtX8TqHc7Nr0A/2I=
+        b=KkHS8h1xxz4ZFw8MTmgRq+9lBcwHtislGWhhKSx/mdVqSQXgNKMDO6y2aBYhzoCgE
+         cLp+DrSFDoRsx0hvdXfl93dIsHMVGtgLw0CxG1lCnmPM3c6hgwbaF8G0kHrdx1ICrX
+         WSrZzatMZt/pJWqf8eYr/R2/JNu9YB7/jSw2HqjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
-        Connor Shu <Connor.Shu@ibm.com>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/49] rcutorture: Automatically create initrd directory
-Date:   Mon, 12 Dec 2022 14:18:54 +0100
-Message-Id: <20221212130914.499574496@linuxfoundation.org>
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 4.19 17/49] media: v4l2-dv-timings.c: fix too strict blanking sanity checks
+Date:   Mon, 12 Dec 2022 14:18:55 +0100
+Message-Id: <20221212130914.553910441@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
 References: <20221212130913.666185567@linuxfoundation.org>
@@ -54,118 +52,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Connor Shu <Connor.Shu@ibm.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 8f15c682ac5a778feb8e343f9057b89beb40d85b ]
+commit 5eef2141776da02772c44ec406d6871a790761ee upstream.
 
-The rcutorture scripts currently expect the user to create the
-tools/testing/selftests/rcutorture/initrd directory.  Should the user
-fail to do this, the kernel build will fail with obscure and confusing
-error messages.  This commit therefore adds explicit checks for the
-tools/testing/selftests/rcutorture/initrd directory, and if not present,
-creates one on systems on which dracut is installed.  If this directory
-could not be created, a less obscure error message is emitted and the
-test is aborted.
+Sanity checks were added to verify the v4l2_bt_timings blanking fields
+in order to avoid integer overflows when userspace passes weird values.
 
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Connor Shu <Connor.Shu@ibm.com>
-[ paulmck: Adapt the script to fit into the rcutorture framework and
-  severely abbreviate the initrd/init script. ]
-Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But that assumed that userspace would correctly fill in the front porch,
+backporch and sync values, but sometimes all you know is the total
+blanking, which is then assigned to just one of these fields.
+
+And that can fail with these checks.
+
+So instead set a maximum for the total horizontal and vertical
+blanking and check that each field remains below that.
+
+That is still sufficient to avoid integer overflows, but it also
+allows for more flexibility in how userspace fills in these fields.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 4b6d66a45ed3 ("media: v4l2-dv-timings: add sanity checks for blanking values")
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rcutorture/bin/kvm.sh |  8 +++
- .../selftests/rcutorture/bin/mkinitrd.sh      | 60 +++++++++++++++++++
- 2 files changed, 68 insertions(+)
- create mode 100755 tools/testing/selftests/rcutorture/bin/mkinitrd.sh
+ drivers/media/v4l2-core/v4l2-dv-timings.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/tools/testing/selftests/rcutorture/bin/kvm.sh b/tools/testing/selftests/rcutorture/bin/kvm.sh
-index 5a7a62d76a50..19864f1cb27a 100755
---- a/tools/testing/selftests/rcutorture/bin/kvm.sh
-+++ b/tools/testing/selftests/rcutorture/bin/kvm.sh
-@@ -194,6 +194,14 @@ do
- 	shift
- done
+--- a/drivers/media/v4l2-core/v4l2-dv-timings.c
++++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
+@@ -145,6 +145,8 @@ bool v4l2_valid_dv_timings(const struct
+ 	const struct v4l2_bt_timings *bt = &t->bt;
+ 	const struct v4l2_bt_timings_cap *cap = &dvcap->bt;
+ 	u32 caps = cap->capabilities;
++	const u32 max_vert = 10240;
++	u32 max_hor = 3 * bt->width;
  
-+if test -z "$TORTURE_INITRD" || tools/testing/selftests/rcutorture/bin/mkinitrd.sh
-+then
-+	:
-+else
-+	echo No initrd and unable to create one, aborting test >&2
-+	exit 1
-+fi
-+
- CONFIGFRAG=${KVM}/configs/${TORTURE_SUITE}; export CONFIGFRAG
- 
- if test -z "$configs"
-diff --git a/tools/testing/selftests/rcutorture/bin/mkinitrd.sh b/tools/testing/selftests/rcutorture/bin/mkinitrd.sh
-new file mode 100755
-index 000000000000..ae773760f396
---- /dev/null
-+++ b/tools/testing/selftests/rcutorture/bin/mkinitrd.sh
-@@ -0,0 +1,60 @@
-+#!/bin/bash
-+#
-+# Create an initrd directory if one does not already exist.
-+#
-+# This program is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This program is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+#
-+# You should have received a copy of the GNU General Public License
-+# along with this program; if not, you can access it online at
-+# http://www.gnu.org/licenses/gpl-2.0.html.
-+#
-+# Copyright (C) IBM Corporation, 2013
-+#
-+# Author: Connor Shu <Connor.Shu@ibm.com>
-+
-+D=tools/testing/selftests/rcutorture
-+
-+# Prerequisite checks
-+[ -z "$D" ] && echo >&2 "No argument supplied" && exit 1
-+if [ ! -d "$D" ]; then
-+    echo >&2 "$D does not exist: Malformed kernel source tree?"
-+    exit 1
-+fi
-+if [ -d "$D/initrd" ]; then
-+    echo "$D/initrd already exists, no need to create it"
-+    exit 0
-+fi
-+
-+T=${TMPDIR-/tmp}/mkinitrd.sh.$$
-+trap 'rm -rf $T' 0 2
-+mkdir $T
-+
-+cat > $T/init << '__EOF___'
-+#!/bin/sh
-+while :
-+do
-+	sleep 1000000
-+done
-+__EOF___
-+
-+# Try using dracut to create initrd
-+command -v dracut >/dev/null 2>&1 || { echo >&2 "Dracut not installed"; exit 1; }
-+echo Creating $D/initrd using dracut.
-+
-+# Filesystem creation
-+dracut --force --no-hostonly --no-hostonly-cmdline --module "base" $T/initramfs.img
-+cd $D
-+mkdir initrd
-+cd initrd
-+zcat $T/initramfs.img | cpio -id
-+cp $T/init init
-+echo Done creating $D/initrd using dracut
-+exit 0
--- 
-2.35.1
-
+ 	if (t->type != V4L2_DV_BT_656_1120)
+ 		return false;
+@@ -166,14 +168,20 @@ bool v4l2_valid_dv_timings(const struct
+ 	if (!bt->interlaced &&
+ 	    (bt->il_vbackporch || bt->il_vsync || bt->il_vfrontporch))
+ 		return false;
+-	if (bt->hfrontporch > 2 * bt->width ||
+-	    bt->hsync > 1024 || bt->hbackporch > 1024)
++	/*
++	 * Some video receivers cannot properly separate the frontporch,
++	 * backporch and sync values, and instead they only have the total
++	 * blanking. That can be assigned to any of these three fields.
++	 * So just check that none of these are way out of range.
++	 */
++	if (bt->hfrontporch > max_hor ||
++	    bt->hsync > max_hor || bt->hbackporch > max_hor)
+ 		return false;
+-	if (bt->vfrontporch > 4096 ||
+-	    bt->vsync > 128 || bt->vbackporch > 4096)
++	if (bt->vfrontporch > max_vert ||
++	    bt->vsync > max_vert || bt->vbackporch > max_vert)
+ 		return false;
+-	if (bt->interlaced && (bt->il_vfrontporch > 4096 ||
+-	    bt->il_vsync > 128 || bt->il_vbackporch > 4096))
++	if (bt->interlaced && (bt->il_vfrontporch > max_vert ||
++	    bt->il_vsync > max_vert || bt->il_vbackporch > max_vert))
+ 		return false;
+ 	return fnc == NULL || fnc(t, fnc_handle);
+ }
 
 
