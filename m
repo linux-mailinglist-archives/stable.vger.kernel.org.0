@@ -2,185 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 437D964A0E8
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:32:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C7C64A1E5
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:47:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232328AbiLLNcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:32:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33092 "EHLO
+        id S233151AbiLLNrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:47:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229923AbiLLNco (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:32:44 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83EEDB67
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:32:41 -0800 (PST)
+        with ESMTP id S232642AbiLLNqe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:46:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BEAF1120
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:46:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A1406CE0F11
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:32:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43F45C433EF;
-        Mon, 12 Dec 2022 13:32:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15796B80D2C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:46:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C271FC433D2;
+        Mon, 12 Dec 2022 13:46:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851957;
-        bh=VDUJT7UsVE3Lv/5CimujWOKrnGVD+AlGkz6dJnGcc6g=;
+        s=korg; t=1670852782;
+        bh=015J1zxDoA+R/LacpO+Yc7Veihcp5q6yywM4qOgGnko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KBY/aIujCYAkoUIWLlVhbNinDE8DNWEjrhHmjAQOPqjMc5xhx4NkE/w8nsbD3Wwhx
-         H/wFe35RcbC74Jdl2KP+DRYO9iWO0ZmPbPaTzVi1dYBY4D7u88yQp702mZokd+g95U
-         Bb0//xAsJeQ1wim95eZZBfHeF7nX75jNMijcD0xM=
+        b=HepM+UeNOJNjxTQmUo/O++mjd/cM1M3iWNBLtexgV173sq/NgdCnkYNK3x4mN3p5p
+         dxtyR0X6/6LTiaiQvk77LkZN/MLBVJEoMj52EH1aurCS7Ru7MZEIHm6rQQvUaYbZsZ
+         YXkFDPbALf3/KrYv8EC2bzfTRmRiosG0tMAC2Qvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ido Schimmel <idosch@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Lin Liu <lin.liu@citrix.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 105/123] ipv4: Fix incorrect route flushing when source address is deleted
+Subject: [PATCH 6.0 123/157] xen-netfront: Fix NULL sring after live migration
 Date:   Mon, 12 Dec 2022 14:17:51 +0100
-Message-Id: <20221212130931.650203689@linuxfoundation.org>
+Message-Id: <20221212130939.801303986@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,LOTS_OF_MONEY,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Lin Liu <lin.liu@citrix.com>
 
-[ Upstream commit f96a3d74554df537b6db5c99c27c80e7afadc8d1 ]
+[ Upstream commit d50b7914fae04d840ce36491d22133070b18cca9 ]
 
-Cited commit added the table ID to the FIB info structure, but did not
-prevent structures with different table IDs from being consolidated.
-This can lead to routes being flushed from a VRF when an address is
-deleted from a different VRF.
+A NAPI is setup for each network sring to poll data to kernel
+The sring with source host is destroyed before live migration and
+new sring with target host is setup after live migration.
+The NAPI for the old sring is not deleted until setup new sring
+with target host after migration. With busy_poll/busy_read enabled,
+the NAPI can be polled before got deleted when resume VM.
 
-Fix by taking the table ID into account when looking for a matching FIB
-info. This is already done for FIB info structures backed by a nexthop
-object in fib_find_info_nh().
+BUG: unable to handle kernel NULL pointer dereference at
+0000000000000008
+IP: xennet_poll+0xae/0xd20
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP PTI
+Call Trace:
+ finish_task_switch+0x71/0x230
+ timerqueue_del+0x1d/0x40
+ hrtimer_try_to_cancel+0xb5/0x110
+ xennet_alloc_rx_buffers+0x2a0/0x2a0
+ napi_busy_loop+0xdb/0x270
+ sock_poll+0x87/0x90
+ do_sys_poll+0x26f/0x580
+ tracing_map_insert+0x1d4/0x2f0
+ event_hist_trigger+0x14a/0x260
 
-Add test cases that fail before the fix:
+ finish_task_switch+0x71/0x230
+ __schedule+0x256/0x890
+ recalc_sigpending+0x1b/0x50
+ xen_sched_clock+0x15/0x20
+ __rb_reserve_next+0x12d/0x140
+ ring_buffer_lock_reserve+0x123/0x3d0
+ event_triggers_call+0x87/0xb0
+ trace_event_buffer_commit+0x1c4/0x210
+ xen_clocksource_get_cycles+0x15/0x20
+ ktime_get_ts64+0x51/0xf0
+ SyS_ppoll+0x160/0x1a0
+ SyS_ppoll+0x160/0x1a0
+ do_syscall_64+0x73/0x130
+ entry_SYSCALL_64_after_hwframe+0x41/0xa6
+...
+RIP: xennet_poll+0xae/0xd20 RSP: ffffb4f041933900
+CR2: 0000000000000008
+---[ end trace f8601785b354351c ]---
 
- # ./fib_tests.sh -t ipv4_del_addr
+xen frontend should remove the NAPIs for the old srings before live
+migration as the bond srings are destroyed
 
- IPv4 delete address route tests
-     Regular FIB info
-     TEST: Route removed from VRF when source address deleted            [ OK ]
-     TEST: Route in default VRF not removed                              [ OK ]
-     TEST: Route removed in default VRF when source address deleted      [ OK ]
-     TEST: Route in VRF is not removed by address delete                 [ OK ]
-     Identical FIB info with different table ID
-     TEST: Route removed from VRF when source address deleted            [FAIL]
-     TEST: Route in default VRF not removed                              [ OK ]
- RTNETLINK answers: File exists
-     TEST: Route removed in default VRF when source address deleted      [ OK ]
-     TEST: Route in VRF is not removed by address delete                 [FAIL]
+There is a tiny window between the srings are set to NULL and
+the NAPIs are disabled, It is safe as the NAPI threads are still
+frozen at that time
 
- Tests passed:   6
- Tests failed:   2
-
-And pass after:
-
- # ./fib_tests.sh -t ipv4_del_addr
-
- IPv4 delete address route tests
-     Regular FIB info
-     TEST: Route removed from VRF when source address deleted            [ OK ]
-     TEST: Route in default VRF not removed                              [ OK ]
-     TEST: Route removed in default VRF when source address deleted      [ OK ]
-     TEST: Route in VRF is not removed by address delete                 [ OK ]
-     Identical FIB info with different table ID
-     TEST: Route removed from VRF when source address deleted            [ OK ]
-     TEST: Route in default VRF not removed                              [ OK ]
-     TEST: Route removed in default VRF when source address deleted      [ OK ]
-     TEST: Route in VRF is not removed by address delete                 [ OK ]
-
- Tests passed:   8
- Tests failed:   0
-
-Fixes: 5a56a0b3a45d ("net: Don't delete routes in different VRFs")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Lin Liu <lin.liu@citrix.com>
+Fixes: 4ec2411980d0 ([NET]: Do not check netif_running() and carrier state in ->poll())
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_semantics.c                 |  1 +
- tools/testing/selftests/net/fib_tests.sh | 27 ++++++++++++++++++++++++
- 2 files changed, 28 insertions(+)
+ drivers/net/xen-netfront.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-index af64ae689b13..250af6e5a892 100644
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -421,6 +421,7 @@ static struct fib_info *fib_find_info(struct fib_info *nfi)
- 		    nfi->fib_prefsrc == fi->fib_prefsrc &&
- 		    nfi->fib_priority == fi->fib_priority &&
- 		    nfi->fib_type == fi->fib_type &&
-+		    nfi->fib_tb_id == fi->fib_tb_id &&
- 		    memcmp(nfi->fib_metrics, fi->fib_metrics,
- 			   sizeof(u32) * RTAX_MAX) == 0 &&
- 		    !((nfi->fib_flags ^ fi->fib_flags) & ~RTNH_COMPARE_MASK) &&
-diff --git a/tools/testing/selftests/net/fib_tests.sh b/tools/testing/selftests/net/fib_tests.sh
-index 996af1ae3d3d..d238617b6ab5 100755
---- a/tools/testing/selftests/net/fib_tests.sh
-+++ b/tools/testing/selftests/net/fib_tests.sh
-@@ -1622,13 +1622,19 @@ ipv4_del_addr_test()
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index 27a11cc08c61..479e215159fc 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -1862,6 +1862,12 @@ static int netfront_resume(struct xenbus_device *dev)
+ 	netif_tx_unlock_bh(info->netdev);
  
- 	$IP addr add dev dummy1 172.16.104.1/24
- 	$IP addr add dev dummy1 172.16.104.11/24
-+	$IP addr add dev dummy1 172.16.104.12/24
- 	$IP addr add dev dummy2 172.16.104.1/24
- 	$IP addr add dev dummy2 172.16.104.11/24
-+	$IP addr add dev dummy2 172.16.104.12/24
- 	$IP route add 172.16.105.0/24 via 172.16.104.2 src 172.16.104.11
-+	$IP route add 172.16.106.0/24 dev lo src 172.16.104.12
- 	$IP route add vrf red 172.16.105.0/24 via 172.16.104.2 src 172.16.104.11
-+	$IP route add vrf red 172.16.106.0/24 dev lo src 172.16.104.12
- 	set +e
+ 	xennet_disconnect_backend(info);
++
++	rtnl_lock();
++	if (info->queues)
++		xennet_destroy_queues(info);
++	rtnl_unlock();
++
+ 	return 0;
+ }
  
- 	# removing address from device in vrf should only remove route from vrf table
-+	echo "    Regular FIB info"
-+
- 	$IP addr del dev dummy2 172.16.104.11/24
- 	$IP ro ls vrf red | grep -q 172.16.105.0/24
- 	log_test $? 1 "Route removed from VRF when source address deleted"
-@@ -1646,6 +1652,27 @@ ipv4_del_addr_test()
- 	$IP ro ls vrf red | grep -q 172.16.105.0/24
- 	log_test $? 0 "Route in VRF is not removed by address delete"
- 
-+	# removing address from device in vrf should only remove route from vrf
-+	# table even when the associated fib info only differs in table ID
-+	echo "    Identical FIB info with different table ID"
-+
-+	$IP addr del dev dummy2 172.16.104.12/24
-+	$IP ro ls vrf red | grep -q 172.16.106.0/24
-+	log_test $? 1 "Route removed from VRF when source address deleted"
-+
-+	$IP ro ls | grep -q 172.16.106.0/24
-+	log_test $? 0 "Route in default VRF not removed"
-+
-+	$IP addr add dev dummy2 172.16.104.12/24
-+	$IP route add vrf red 172.16.106.0/24 dev lo src 172.16.104.12
-+
-+	$IP addr del dev dummy1 172.16.104.12/24
-+	$IP ro ls | grep -q 172.16.106.0/24
-+	log_test $? 1 "Route removed in default VRF when source address deleted"
-+
-+	$IP ro ls vrf red | grep -q 172.16.106.0/24
-+	log_test $? 0 "Route in VRF is not removed by address delete"
-+
- 	$IP li del dummy1
- 	$IP li del dummy2
- 	cleanup
 -- 
 2.35.1
 
