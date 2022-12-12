@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EC0C64A230
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:50:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0081364A253
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233051AbiLLNun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:50:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48700 "EHLO
+        id S233041AbiLLNxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:53:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233044AbiLLNuI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:50:08 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6456D21BD
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:49:46 -0800 (PST)
+        with ESMTP id S233028AbiLLNxF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85EFA164B8
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:51:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CBECCCE0F7E
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:49:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3569DC433EF;
-        Mon, 12 Dec 2022 13:49:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 240ED61035
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:51:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9167C433D2;
+        Mon, 12 Dec 2022 13:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852983;
-        bh=KAspj0rb/Aq+4ijPvRjczG8M5en6kxMaEMgaGujafIk=;
+        s=korg; t=1670853116;
+        bh=x4JAFBBbta5u9iTeIOXd0Io/x1FuBHA32QWM9sNR7sA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2nXOP7C21XWhLN6FvOszPkrzg9obOxJZPEjfKW+LXtV+oZMnEcHW8PqdfLNRVx0sE
-         oc6s7rZb9c5I5Rhr4qvZNNuy8xgAviwhSHxWDTTqsVEvcVTTJ5aHhdW0O6te/NsJ+g
-         JYul/uVrKY4qE+ZcNzuKDJ2qYfabcSSgWVryDzcU=
+        b=PaAkAabkDyyWlINU07kXoGV6jyFVfLpQwkeNX7bNJMfPajk60EMv/Tl3OgUhGHCA/
+         rxaHx5UmZPiFAKHVfpWED4XbSjTAIaBKk1cdiltkvYCNhOel5e0m58MtBFmKVHzwkI
+         Vdl91TqRqeaMhTuGmJy4IV1vxMNLf5/abByDsZpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michal Jaron <michalx.jaron@intel.com>,
-        Kamil Maziarz <kamil.maziarz@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 4.19 35/49] i40e: Fix not setting default xps_cpus after reset
-Date:   Mon, 12 Dec 2022 14:19:13 +0100
-Message-Id: <20221212130915.406266132@linuxfoundation.org>
+        patches@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
+        Connor Shu <Connor.Shu@ibm.com>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 13/38] rcutorture: Automatically create initrd directory
+Date:   Mon, 12 Dec 2022 14:19:14 +0100
+Message-Id: <20221212130912.782133347@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
-References: <20221212130913.666185567@linuxfoundation.org>
+In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
+References: <20221212130912.069170932@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +54,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Jaron <michalx.jaron@intel.com>
+From: Connor Shu <Connor.Shu@ibm.com>
 
-[ Upstream commit 82e0572b23029b380464fa9fdc125db9c1506d0a ]
+[ Upstream commit 8f15c682ac5a778feb8e343f9057b89beb40d85b ]
 
-During tx rings configuration default XPS queue config is set and
-__I40E_TX_XPS_INIT_DONE is locked. __I40E_TX_XPS_INIT_DONE state is
-cleared and set again with default mapping only during queues build,
-it means after first setup or reset with queues rebuild. (i.e.
-ethtool -L <interface> combined <number>) After other resets (i.e.
-ethtool -t <interface>) XPS_INIT_DONE is not cleared and those default
-maps cannot be set again. It results in cleared xps_cpus mapping
-until queues are not rebuild or mapping is not set by user.
+The rcutorture scripts currently expect the user to create the
+tools/testing/selftests/rcutorture/initrd directory.  Should the user
+fail to do this, the kernel build will fail with obscure and confusing
+error messages.  This commit therefore adds explicit checks for the
+tools/testing/selftests/rcutorture/initrd directory, and if not present,
+creates one on systems on which dracut is installed.  If this directory
+could not be created, a less obscure error message is emitted and the
+test is aborted.
 
-Add clearing __I40E_TX_XPS_INIT_DONE state during reset to let
-the driver set xps_cpus to defaults again after it was cleared.
-
-Fixes: 6f853d4f8e93 ("i40e: allow XPS with QoS enabled")
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Kamil Maziarz <kamil.maziarz@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Connor Shu <Connor.Shu@ibm.com>
+[ paulmck: Adapt the script to fit into the rcutorture framework and
+  severely abbreviate the initrd/init script. ]
+Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ tools/testing/selftests/rcutorture/bin/kvm.sh |  8 +++
+ .../selftests/rcutorture/bin/mkinitrd.sh      | 60 +++++++++++++++++++
+ 2 files changed, 68 insertions(+)
+ create mode 100755 tools/testing/selftests/rcutorture/bin/mkinitrd.sh
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 9669d8c8b6c7..8a5baaf403ae 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -9367,6 +9367,21 @@ static int i40e_rebuild_channels(struct i40e_vsi *vsi)
- 	return 0;
- }
+diff --git a/tools/testing/selftests/rcutorture/bin/kvm.sh b/tools/testing/selftests/rcutorture/bin/kvm.sh
+index b55895fb10ed..2299347b8e37 100755
+--- a/tools/testing/selftests/rcutorture/bin/kvm.sh
++++ b/tools/testing/selftests/rcutorture/bin/kvm.sh
+@@ -182,6 +182,14 @@ do
+ 	shift
+ done
  
-+/**
-+ * i40e_clean_xps_state - clean xps state for every tx_ring
-+ * @vsi: ptr to the VSI
-+ **/
-+static void i40e_clean_xps_state(struct i40e_vsi *vsi)
-+{
-+	int i;
++if test -z "$TORTURE_INITRD" || tools/testing/selftests/rcutorture/bin/mkinitrd.sh
++then
++	:
++else
++	echo No initrd and unable to create one, aborting test >&2
++	exit 1
++fi
 +
-+	if (vsi->tx_rings)
-+		for (i = 0; i < vsi->num_queue_pairs; i++)
-+			if (vsi->tx_rings[i])
-+				clear_bit(__I40E_TX_XPS_INIT_DONE,
-+					  vsi->tx_rings[i]->state);
-+}
+ CONFIGFRAG=${KVM}/configs/${TORTURE_SUITE}; export CONFIGFRAG
+ 
+ if test -z "$configs"
+diff --git a/tools/testing/selftests/rcutorture/bin/mkinitrd.sh b/tools/testing/selftests/rcutorture/bin/mkinitrd.sh
+new file mode 100755
+index 000000000000..ae773760f396
+--- /dev/null
++++ b/tools/testing/selftests/rcutorture/bin/mkinitrd.sh
+@@ -0,0 +1,60 @@
++#!/bin/bash
++#
++# Create an initrd directory if one does not already exist.
++#
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, you can access it online at
++# http://www.gnu.org/licenses/gpl-2.0.html.
++#
++# Copyright (C) IBM Corporation, 2013
++#
++# Author: Connor Shu <Connor.Shu@ibm.com>
 +
- /**
-  * i40e_prep_for_reset - prep for the core to reset
-  * @pf: board private structure
-@@ -9398,8 +9413,10 @@ static void i40e_prep_for_reset(struct i40e_pf *pf, bool lock_acquired)
- 		rtnl_unlock();
- 
- 	for (v = 0; v < pf->num_alloc_vsi; v++) {
--		if (pf->vsi[v])
-+		if (pf->vsi[v]) {
-+			i40e_clean_xps_state(pf->vsi[v]);
- 			pf->vsi[v]->seid = 0;
-+		}
- 	}
- 
- 	i40e_shutdown_adminq(&pf->hw);
++D=tools/testing/selftests/rcutorture
++
++# Prerequisite checks
++[ -z "$D" ] && echo >&2 "No argument supplied" && exit 1
++if [ ! -d "$D" ]; then
++    echo >&2 "$D does not exist: Malformed kernel source tree?"
++    exit 1
++fi
++if [ -d "$D/initrd" ]; then
++    echo "$D/initrd already exists, no need to create it"
++    exit 0
++fi
++
++T=${TMPDIR-/tmp}/mkinitrd.sh.$$
++trap 'rm -rf $T' 0 2
++mkdir $T
++
++cat > $T/init << '__EOF___'
++#!/bin/sh
++while :
++do
++	sleep 1000000
++done
++__EOF___
++
++# Try using dracut to create initrd
++command -v dracut >/dev/null 2>&1 || { echo >&2 "Dracut not installed"; exit 1; }
++echo Creating $D/initrd using dracut.
++
++# Filesystem creation
++dracut --force --no-hostonly --no-hostonly-cmdline --module "base" $T/initramfs.img
++cd $D
++mkdir initrd
++cd initrd
++zcat $T/initramfs.img | cpio -id
++cp $T/init init
++echo Done creating $D/initrd using dracut
++exit 0
 -- 
 2.35.1
 
