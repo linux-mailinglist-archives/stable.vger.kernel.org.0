@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7DCE64A285
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:55:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3371D64A24D
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233237AbiLLNzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:55:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54196 "EHLO
+        id S233029AbiLLNxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:53:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233273AbiLLNzQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:55:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4B6021BA
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:55:06 -0800 (PST)
+        with ESMTP id S233028AbiLLNwj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:52:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E695D15A3D
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:51:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5132860FF4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:55:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18119C433EF;
-        Mon, 12 Dec 2022 13:55:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCDEEB80B78
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:51:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0BB5C433D2;
+        Mon, 12 Dec 2022 13:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853305;
-        bh=i/bRO8YxGj4a0j9TJYTezs5MzLShkasGmgQN6V71BHQ=;
+        s=korg; t=1670853080;
+        bh=52si/0W8hVUDNP3cqokxQ+UaQuSg76qjmupMUYDIq+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aAKdKijmgdkqG/nzttMPGhQqvNnkXrD6MbzblGplyLyqBbP1Hp7Iqi6mCi5dy1h5x
-         CGzYbBWLYKipvuk3AG7ccnzgm2QJjXNUiG7Yk/iujCgg49e4+aPno09PNNkUeV8ntP
-         xlHhzPRpEpsDq/fQK3MweSE7AskCpkNWmKHHxszE=
+        b=lkRYBSPR7vAIeOCD6m1HChqEwEtOvt3jfcD7eUIcQEIi99EWlDMsZRBhHYQSRa95i
+         vW78lPKbSCY5VTJ+zl8AgyrsqN7ho+U1ivMj8yw+DxEQQTvbhxgwXinxSHHqagEsy1
+         XaZ5OM8zPSOxdIa4bHf/11gQTT0248LR+C+q6MvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-        Wei Liu <wei.liu@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        syzbot+8c0ac31aa9681abb9e2d@syzkaller.appspotmail.com,
+        Eric Dumazet <edumazet@google.com>,
+        Wei Wang <weiwan@google.com>, Martin KaFai Lau <kafai@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 07/31] xen/netback: do some code cleanup
+Subject: [PATCH 4.19 47/49] ipv6: avoid use-after-free in ip6_fragment()
 Date:   Mon, 12 Dec 2022 14:19:25 +0100
-Message-Id: <20221212130910.336698775@linuxfoundation.org>
+Message-Id: <20221212130916.014598286@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130909.943483205@linuxfoundation.org>
-References: <20221212130909.943483205@linuxfoundation.org>
+In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
+References: <20221212130913.666185567@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,145 +56,287 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5834e72eda0b7e5767eb107259d98eef19ebd11f ]
+[ Upstream commit 803e84867de59a1e5d126666d25eb4860cfd2ebe ]
 
-Remove some unused macros and functions, make local functions static.
+Blamed commit claimed rcu_read_lock() was held by ip6_fragment() callers.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Wei Liu <wei.liu@kernel.org>
-Link: https://lore.kernel.org/r/20220608043726.9380-1-jgross@suse.com
+It seems to not be always true, at least for UDP stack.
+
+syzbot reported:
+
+BUG: KASAN: use-after-free in ip6_dst_idev include/net/ip6_fib.h:245 [inline]
+BUG: KASAN: use-after-free in ip6_fragment+0x2724/0x2770 net/ipv6/ip6_output.c:951
+Read of size 8 at addr ffff88801d403e80 by task syz-executor.3/7618
+
+CPU: 1 PID: 7618 Comm: syz-executor.3 Not tainted 6.1.0-rc6-syzkaller-00012-g4312098baf37 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:284 [inline]
+ print_report+0x15e/0x45d mm/kasan/report.c:395
+ kasan_report+0xbf/0x1f0 mm/kasan/report.c:495
+ ip6_dst_idev include/net/ip6_fib.h:245 [inline]
+ ip6_fragment+0x2724/0x2770 net/ipv6/ip6_output.c:951
+ __ip6_finish_output net/ipv6/ip6_output.c:193 [inline]
+ ip6_finish_output+0x9a3/0x1170 net/ipv6/ip6_output.c:206
+ NF_HOOK_COND include/linux/netfilter.h:291 [inline]
+ ip6_output+0x1f1/0x540 net/ipv6/ip6_output.c:227
+ dst_output include/net/dst.h:445 [inline]
+ ip6_local_out+0xb3/0x1a0 net/ipv6/output_core.c:161
+ ip6_send_skb+0xbb/0x340 net/ipv6/ip6_output.c:1966
+ udp_v6_send_skb+0x82a/0x18a0 net/ipv6/udp.c:1286
+ udp_v6_push_pending_frames+0x140/0x200 net/ipv6/udp.c:1313
+ udpv6_sendmsg+0x18da/0x2c80 net/ipv6/udp.c:1606
+ inet6_sendmsg+0x9d/0xe0 net/ipv6/af_inet6.c:665
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg+0xd3/0x120 net/socket.c:734
+ sock_write_iter+0x295/0x3d0 net/socket.c:1108
+ call_write_iter include/linux/fs.h:2191 [inline]
+ new_sync_write fs/read_write.c:491 [inline]
+ vfs_write+0x9ed/0xdd0 fs/read_write.c:584
+ ksys_write+0x1ec/0x250 fs/read_write.c:637
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7fde3588c0d9
+Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 f1 19 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007fde365b6168 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 00007fde359ac050 RCX: 00007fde3588c0d9
+RDX: 000000000000ffdc RSI: 00000000200000c0 RDI: 000000000000000a
+RBP: 00007fde358e7ae9 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007fde35acfb1f R14: 00007fde365b6300 R15: 0000000000022000
+ </TASK>
+
+Allocated by task 7618:
+ kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
+ kasan_set_track+0x25/0x30 mm/kasan/common.c:52
+ __kasan_slab_alloc+0x82/0x90 mm/kasan/common.c:325
+ kasan_slab_alloc include/linux/kasan.h:201 [inline]
+ slab_post_alloc_hook mm/slab.h:737 [inline]
+ slab_alloc_node mm/slub.c:3398 [inline]
+ slab_alloc mm/slub.c:3406 [inline]
+ __kmem_cache_alloc_lru mm/slub.c:3413 [inline]
+ kmem_cache_alloc+0x2b4/0x3d0 mm/slub.c:3422
+ dst_alloc+0x14a/0x1f0 net/core/dst.c:92
+ ip6_dst_alloc+0x32/0xa0 net/ipv6/route.c:344
+ ip6_rt_pcpu_alloc net/ipv6/route.c:1369 [inline]
+ rt6_make_pcpu_route net/ipv6/route.c:1417 [inline]
+ ip6_pol_route+0x901/0x1190 net/ipv6/route.c:2254
+ pol_lookup_func include/net/ip6_fib.h:582 [inline]
+ fib6_rule_lookup+0x52e/0x6f0 net/ipv6/fib6_rules.c:121
+ ip6_route_output_flags_noref+0x2e6/0x380 net/ipv6/route.c:2625
+ ip6_route_output_flags+0x76/0x320 net/ipv6/route.c:2638
+ ip6_route_output include/net/ip6_route.h:98 [inline]
+ ip6_dst_lookup_tail+0x5ab/0x1620 net/ipv6/ip6_output.c:1092
+ ip6_dst_lookup_flow+0x90/0x1d0 net/ipv6/ip6_output.c:1222
+ ip6_sk_dst_lookup_flow+0x553/0x980 net/ipv6/ip6_output.c:1260
+ udpv6_sendmsg+0x151d/0x2c80 net/ipv6/udp.c:1554
+ inet6_sendmsg+0x9d/0xe0 net/ipv6/af_inet6.c:665
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg+0xd3/0x120 net/socket.c:734
+ __sys_sendto+0x23a/0x340 net/socket.c:2117
+ __do_sys_sendto net/socket.c:2129 [inline]
+ __se_sys_sendto net/socket.c:2125 [inline]
+ __x64_sys_sendto+0xe1/0x1b0 net/socket.c:2125
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Freed by task 7599:
+ kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
+ kasan_set_track+0x25/0x30 mm/kasan/common.c:52
+ kasan_save_free_info+0x2e/0x40 mm/kasan/generic.c:511
+ ____kasan_slab_free mm/kasan/common.c:236 [inline]
+ ____kasan_slab_free+0x160/0x1c0 mm/kasan/common.c:200
+ kasan_slab_free include/linux/kasan.h:177 [inline]
+ slab_free_hook mm/slub.c:1724 [inline]
+ slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1750
+ slab_free mm/slub.c:3661 [inline]
+ kmem_cache_free+0xee/0x5c0 mm/slub.c:3683
+ dst_destroy+0x2ea/0x400 net/core/dst.c:127
+ rcu_do_batch kernel/rcu/tree.c:2250 [inline]
+ rcu_core+0x81f/0x1980 kernel/rcu/tree.c:2510
+ __do_softirq+0x1fb/0xadc kernel/softirq.c:571
+
+Last potentially related work creation:
+ kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
+ __kasan_record_aux_stack+0xbc/0xd0 mm/kasan/generic.c:481
+ call_rcu+0x9d/0x820 kernel/rcu/tree.c:2798
+ dst_release net/core/dst.c:177 [inline]
+ dst_release+0x7d/0xe0 net/core/dst.c:167
+ refdst_drop include/net/dst.h:256 [inline]
+ skb_dst_drop include/net/dst.h:268 [inline]
+ skb_release_head_state+0x250/0x2a0 net/core/skbuff.c:838
+ skb_release_all net/core/skbuff.c:852 [inline]
+ __kfree_skb net/core/skbuff.c:868 [inline]
+ kfree_skb_reason+0x151/0x4b0 net/core/skbuff.c:891
+ kfree_skb_list_reason+0x4b/0x70 net/core/skbuff.c:901
+ kfree_skb_list include/linux/skbuff.h:1227 [inline]
+ ip6_fragment+0x2026/0x2770 net/ipv6/ip6_output.c:949
+ __ip6_finish_output net/ipv6/ip6_output.c:193 [inline]
+ ip6_finish_output+0x9a3/0x1170 net/ipv6/ip6_output.c:206
+ NF_HOOK_COND include/linux/netfilter.h:291 [inline]
+ ip6_output+0x1f1/0x540 net/ipv6/ip6_output.c:227
+ dst_output include/net/dst.h:445 [inline]
+ ip6_local_out+0xb3/0x1a0 net/ipv6/output_core.c:161
+ ip6_send_skb+0xbb/0x340 net/ipv6/ip6_output.c:1966
+ udp_v6_send_skb+0x82a/0x18a0 net/ipv6/udp.c:1286
+ udp_v6_push_pending_frames+0x140/0x200 net/ipv6/udp.c:1313
+ udpv6_sendmsg+0x18da/0x2c80 net/ipv6/udp.c:1606
+ inet6_sendmsg+0x9d/0xe0 net/ipv6/af_inet6.c:665
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg+0xd3/0x120 net/socket.c:734
+ sock_write_iter+0x295/0x3d0 net/socket.c:1108
+ call_write_iter include/linux/fs.h:2191 [inline]
+ new_sync_write fs/read_write.c:491 [inline]
+ vfs_write+0x9ed/0xdd0 fs/read_write.c:584
+ ksys_write+0x1ec/0x250 fs/read_write.c:637
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Second to last potentially related work creation:
+ kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
+ __kasan_record_aux_stack+0xbc/0xd0 mm/kasan/generic.c:481
+ call_rcu+0x9d/0x820 kernel/rcu/tree.c:2798
+ dst_release net/core/dst.c:177 [inline]
+ dst_release+0x7d/0xe0 net/core/dst.c:167
+ refdst_drop include/net/dst.h:256 [inline]
+ skb_dst_drop include/net/dst.h:268 [inline]
+ __dev_queue_xmit+0x1b9d/0x3ba0 net/core/dev.c:4211
+ dev_queue_xmit include/linux/netdevice.h:3008 [inline]
+ neigh_resolve_output net/core/neighbour.c:1552 [inline]
+ neigh_resolve_output+0x51b/0x840 net/core/neighbour.c:1532
+ neigh_output include/net/neighbour.h:546 [inline]
+ ip6_finish_output2+0x56c/0x1530 net/ipv6/ip6_output.c:134
+ __ip6_finish_output net/ipv6/ip6_output.c:195 [inline]
+ ip6_finish_output+0x694/0x1170 net/ipv6/ip6_output.c:206
+ NF_HOOK_COND include/linux/netfilter.h:291 [inline]
+ ip6_output+0x1f1/0x540 net/ipv6/ip6_output.c:227
+ dst_output include/net/dst.h:445 [inline]
+ NF_HOOK include/linux/netfilter.h:302 [inline]
+ NF_HOOK include/linux/netfilter.h:296 [inline]
+ mld_sendpack+0xa09/0xe70 net/ipv6/mcast.c:1820
+ mld_send_cr net/ipv6/mcast.c:2121 [inline]
+ mld_ifc_work+0x720/0xdc0 net/ipv6/mcast.c:2653
+ process_one_work+0x9bf/0x1710 kernel/workqueue.c:2289
+ worker_thread+0x669/0x1090 kernel/workqueue.c:2436
+ kthread+0x2e8/0x3a0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+
+The buggy address belongs to the object at ffff88801d403dc0
+ which belongs to the cache ip6_dst_cache of size 240
+The buggy address is located 192 bytes inside of
+ 240-byte region [ffff88801d403dc0, ffff88801d403eb0)
+
+The buggy address belongs to the physical page:
+page:ffffea00007500c0 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1d403
+memcg:ffff888022f49c81
+flags: 0xfff00000000200(slab|node=0|zone=1|lastcpupid=0x7ff)
+raw: 00fff00000000200 ffffea0001ef6580 dead000000000002 ffff88814addf640
+raw: 0000000000000000 00000000800c000c 00000001ffffffff ffff888022f49c81
+page dumped because: kasan: bad access detected
+page_owner tracks the page as allocated
+page last allocated via order 0, migratetype Unmovable, gfp_mask 0x112a20(GFP_ATOMIC|__GFP_NOWARN|__GFP_NORETRY|__GFP_HARDWALL), pid 3719, tgid 3719 (kworker/0:6), ts 136223432244, free_ts 136222971441
+ prep_new_page mm/page_alloc.c:2539 [inline]
+ get_page_from_freelist+0x10b5/0x2d50 mm/page_alloc.c:4288
+ __alloc_pages+0x1cb/0x5b0 mm/page_alloc.c:5555
+ alloc_pages+0x1aa/0x270 mm/mempolicy.c:2285
+ alloc_slab_page mm/slub.c:1794 [inline]
+ allocate_slab+0x213/0x300 mm/slub.c:1939
+ new_slab mm/slub.c:1992 [inline]
+ ___slab_alloc+0xa91/0x1400 mm/slub.c:3180
+ __slab_alloc.constprop.0+0x56/0xa0 mm/slub.c:3279
+ slab_alloc_node mm/slub.c:3364 [inline]
+ slab_alloc mm/slub.c:3406 [inline]
+ __kmem_cache_alloc_lru mm/slub.c:3413 [inline]
+ kmem_cache_alloc+0x31a/0x3d0 mm/slub.c:3422
+ dst_alloc+0x14a/0x1f0 net/core/dst.c:92
+ ip6_dst_alloc+0x32/0xa0 net/ipv6/route.c:344
+ icmp6_dst_alloc+0x71/0x680 net/ipv6/route.c:3261
+ mld_sendpack+0x5de/0xe70 net/ipv6/mcast.c:1809
+ mld_send_cr net/ipv6/mcast.c:2121 [inline]
+ mld_ifc_work+0x720/0xdc0 net/ipv6/mcast.c:2653
+ process_one_work+0x9bf/0x1710 kernel/workqueue.c:2289
+ worker_thread+0x669/0x1090 kernel/workqueue.c:2436
+ kthread+0x2e8/0x3a0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+page last free stack trace:
+ reset_page_owner include/linux/page_owner.h:24 [inline]
+ free_pages_prepare mm/page_alloc.c:1459 [inline]
+ free_pcp_prepare+0x65c/0xd90 mm/page_alloc.c:1509
+ free_unref_page_prepare mm/page_alloc.c:3387 [inline]
+ free_unref_page+0x1d/0x4d0 mm/page_alloc.c:3483
+ __unfreeze_partials+0x17c/0x1a0 mm/slub.c:2586
+ qlink_free mm/kasan/quarantine.c:168 [inline]
+ qlist_free_all+0x6a/0x170 mm/kasan/quarantine.c:187
+ kasan_quarantine_reduce+0x184/0x210 mm/kasan/quarantine.c:294
+ __kasan_slab_alloc+0x66/0x90 mm/kasan/common.c:302
+ kasan_slab_alloc include/linux/kasan.h:201 [inline]
+ slab_post_alloc_hook mm/slab.h:737 [inline]
+ slab_alloc_node mm/slub.c:3398 [inline]
+ kmem_cache_alloc_node+0x304/0x410 mm/slub.c:3443
+ __alloc_skb+0x214/0x300 net/core/skbuff.c:497
+ alloc_skb include/linux/skbuff.h:1267 [inline]
+ netlink_alloc_large_skb net/netlink/af_netlink.c:1191 [inline]
+ netlink_sendmsg+0x9a6/0xe10 net/netlink/af_netlink.c:1896
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg+0xd3/0x120 net/socket.c:734
+ __sys_sendto+0x23a/0x340 net/socket.c:2117
+ __do_sys_sendto net/socket.c:2129 [inline]
+ __se_sys_sendto net/socket.c:2125 [inline]
+ __x64_sys_sendto+0xe1/0x1b0 net/socket.c:2125
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: 1758fd4688eb ("ipv6: remove unnecessary dst_hold() in ip6_fragment()")
+Reported-by: syzbot+8c0ac31aa9681abb9e2d@syzkaller.appspotmail.com
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Wei Wang <weiwan@google.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/r/20221206101351.2037285-1-edumazet@google.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Stable-dep-of: 74e7e1efdad4 ("xen/netback: don't call kfree_skb() with interrupts disabled")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/common.h    | 12 ------------
- drivers/net/xen-netback/interface.c | 16 +---------------
- drivers/net/xen-netback/netback.c   |  4 +++-
- drivers/net/xen-netback/rx.c        |  2 +-
- 4 files changed, 5 insertions(+), 29 deletions(-)
+ net/ipv6/ip6_output.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/xen-netback/common.h b/drivers/net/xen-netback/common.h
-index bfa3c6aaebe6..4ef648f79993 100644
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -48,7 +48,6 @@
- #include <linux/debugfs.h>
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 6fd1a4b61747..70820d049b92 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -734,6 +734,9 @@ int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+ 		ipv6_hdr(skb)->payload_len = htons(first_len -
+ 						   sizeof(struct ipv6hdr));
  
- typedef unsigned int pending_ring_idx_t;
--#define INVALID_PENDING_RING_IDX (~0U)
- 
- struct pending_tx_info {
- 	struct xen_netif_tx_request req; /* tx request */
-@@ -82,8 +81,6 @@ struct xenvif_rx_meta {
- /* Discriminate from any valid pending_idx value. */
- #define INVALID_PENDING_IDX 0xFFFF
- 
--#define MAX_BUFFER_OFFSET XEN_PAGE_SIZE
--
- #define MAX_PENDING_REQS XEN_NETIF_TX_RING_SIZE
- 
- /* The maximum number of frags is derived from the size of a grant (same
-@@ -345,11 +342,6 @@ void xenvif_free(struct xenvif *vif);
- int xenvif_xenbus_init(void);
- void xenvif_xenbus_fini(void);
- 
--int xenvif_schedulable(struct xenvif *vif);
--
--int xenvif_queue_stopped(struct xenvif_queue *queue);
--void xenvif_wake_queue(struct xenvif_queue *queue);
--
- /* (Un)Map communication rings. */
- void xenvif_unmap_frontend_data_rings(struct xenvif_queue *queue);
- int xenvif_map_frontend_data_rings(struct xenvif_queue *queue,
-@@ -372,7 +364,6 @@ int xenvif_dealloc_kthread(void *data);
- irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data);
- 
- bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread);
--void xenvif_rx_action(struct xenvif_queue *queue);
- void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
- 
- void xenvif_carrier_on(struct xenvif *vif);
-@@ -380,9 +371,6 @@ void xenvif_carrier_on(struct xenvif *vif);
- /* Callback from stack when TX packet can be released */
- void xenvif_zerocopy_callback(struct ubuf_info *ubuf, bool zerocopy_success);
- 
--/* Unmap a pending page and release it back to the guest */
--void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx);
--
- static inline pending_ring_idx_t nr_pending_reqs(struct xenvif_queue *queue)
- {
- 	return MAX_PENDING_REQS -
-diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
-index d9d06dc689ed..186694f6c260 100644
---- a/drivers/net/xen-netback/interface.c
-+++ b/drivers/net/xen-netback/interface.c
-@@ -69,7 +69,7 @@ void xenvif_skb_zerocopy_complete(struct xenvif_queue *queue)
- 	wake_up(&queue->dealloc_wq);
- }
- 
--int xenvif_schedulable(struct xenvif *vif)
-+static int xenvif_schedulable(struct xenvif *vif)
- {
- 	return netif_running(vif->dev) &&
- 		test_bit(VIF_STATUS_CONNECTED, &vif->status) &&
-@@ -177,20 +177,6 @@ irqreturn_t xenvif_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--int xenvif_queue_stopped(struct xenvif_queue *queue)
--{
--	struct net_device *dev = queue->vif->dev;
--	unsigned int id = queue->id;
--	return netif_tx_queue_stopped(netdev_get_tx_queue(dev, id));
--}
--
--void xenvif_wake_queue(struct xenvif_queue *queue)
--{
--	struct net_device *dev = queue->vif->dev;
--	unsigned int id = queue->id;
--	netif_tx_wake_queue(netdev_get_tx_queue(dev, id));
--}
--
- static u16 xenvif_select_queue(struct net_device *dev, struct sk_buff *skb,
- 			       void *accel_priv,
- 			       select_queue_fallback_t fallback)
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index 25c0bced351d..c7d480c1a066 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -105,6 +105,8 @@ static void make_tx_response(struct xenvif_queue *queue,
- 			     s8       st);
- static void push_tx_responses(struct xenvif_queue *queue);
- 
-+static void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx);
++		/* We prevent @rt from being freed. */
++		rcu_read_lock();
 +
- static inline int tx_work_todo(struct xenvif_queue *queue);
+ 		for (;;) {
+ 			/* Prepare header of the next frame,
+ 			 * before previous one went down. */
+@@ -776,6 +779,7 @@ int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+ 		if (err == 0) {
+ 			IP6_INC_STATS(net, ip6_dst_idev(&rt->dst),
+ 				      IPSTATS_MIB_FRAGOKS);
++			rcu_read_unlock();
+ 			return 0;
+ 		}
  
- static inline unsigned long idx_to_pfn(struct xenvif_queue *queue,
-@@ -1426,7 +1428,7 @@ static void push_tx_responses(struct xenvif_queue *queue)
- 		notify_remote_via_irq(queue->tx_irq);
- }
+@@ -783,6 +787,7 @@ int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
  
--void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx)
-+static void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx)
- {
- 	int ret;
- 	struct gnttab_unmap_grant_ref tx_unmap_op;
-diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
-index 2612810eadaf..6964f8b1a36b 100644
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -473,7 +473,7 @@ void xenvif_rx_skb(struct xenvif_queue *queue)
+ 		IP6_INC_STATS(net, ip6_dst_idev(&rt->dst),
+ 			      IPSTATS_MIB_FRAGFAILS);
++		rcu_read_unlock();
+ 		return err;
  
- #define RX_BATCH_SIZE 64
- 
--void xenvif_rx_action(struct xenvif_queue *queue)
-+static void xenvif_rx_action(struct xenvif_queue *queue)
- {
- 	struct sk_buff_head completed_skbs;
- 	unsigned int work_done = 0;
+ slow_path_clean:
 -- 
 2.35.1
 
