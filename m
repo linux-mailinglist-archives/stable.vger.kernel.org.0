@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 484AE64A1A7
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:43:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9622464A0EA
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:32:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232950AbiLLNnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:43:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42228 "EHLO
+        id S231629AbiLLNcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:32:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232959AbiLLNn2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42DA2B4F
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:42:39 -0800 (PST)
+        with ESMTP id S232336AbiLLNcq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:32:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83750F70
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:32:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E892BB80D54
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:42:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D50C7C433D2;
-        Mon, 12 Dec 2022 13:42:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F28BB80D2B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:32:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46FA2C433EF;
+        Mon, 12 Dec 2022 13:32:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852556;
-        bh=fxdGncPSS8b9gX0+dSdEQDo5IGcISDZYEcPCnTvxkq8=;
+        s=korg; t=1670851963;
+        bh=OPgLU4+SON2d6rv+3B934RSx4k0epT75RIOsRywKaz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EajIbkX7FphVsf+H6osTT8EasGlvmK3D+MzRh5s/CDS2+w4tY+qBB4ivpBj1/PR5Z
-         3jmOfLJD0qufGgjYB7v0OhJjg8zCbzyFjDhucdyuUG1+0gbOulLEPC5+qP2yHp+H95
-         to9jjS+MKjfsuJk7ynO1o3Xc5rBuMJW5dtcZP0NY=
+        b=KMtFOf6kjcDiSBdTECiC3BjI8ZfYD/pD8kyPuPI+DlExV1tkuBTeBO9DeWloRO40o
+         vF14MvA5BUd48kQI5MQQEuO5pkWoMXM1k/GuGOsvop3ALYiV/SASyvnCYaMcMcneFZ
+         PrODp5L5KtQA5z+ZYIwHCTbkn3jWyDMP33Xqb4qI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ronak Doshi <doshir@vmware.com>,
-        Guolin Yang <gyang@vmware.com>,
+        patches@lists.linux.dev,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 105/157] vmxnet3: use correct intrConf reference when using extended queues
-Date:   Mon, 12 Dec 2022 14:17:33 +0100
-Message-Id: <20221212130939.060027397@linuxfoundation.org>
+Subject: [PATCH 5.15 088/123] octeontx2-pf: Fix potential memory leak in otx2_init_tc()
+Date:   Mon, 12 Dec 2022 14:17:34 +0100
+Message-Id: <20221212130930.666249551@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronak Doshi <doshir@vmware.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 409e8ec8c5825591895937b8499b54aa2476fae7 ]
+[ Upstream commit fbf33f5ac76f2cdb47ad9763f620026d5cfa57ce ]
 
-Commit 39f9895a00f4 ("vmxnet3: add support for 32 Tx/Rx queues")
-added support for 32Tx/Rx queues. As a part of this patch, intrConf
-structure was extended to incorporate increased queues.
+In otx2_init_tc(), if rhashtable_init() failed, it does not free
+tc->tc_entries_bitmap which is allocated in otx2_tc_alloc_ent_bitmap().
 
-This patch fixes the issue where incorrect reference is being used.
-
-Fixes: 39f9895a00f4 ("vmxnet3: add support for 32 Tx/Rx queues")
-Signed-off-by: Ronak Doshi <doshir@vmware.com>
-Acked-by: Guolin Yang <gyang@vmware.com>
+Fixes: 2e2a8126ffac ("octeontx2-pf: Unify flow management variables")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vmxnet3/vmxnet3_drv.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
-index dd4fecbd1e2e..c28c4a654615 100644
---- a/drivers/net/vmxnet3/vmxnet3_drv.c
-+++ b/drivers/net/vmxnet3/vmxnet3_drv.c
-@@ -75,8 +75,14 @@ vmxnet3_enable_all_intrs(struct vmxnet3_adapter *adapter)
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c
+index 75388a65f349..a42373e6f259 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c
+@@ -1090,7 +1090,12 @@ int otx2_init_tc(struct otx2_nic *nic)
+ 		return err;
  
- 	for (i = 0; i < adapter->intr.num_intrs; i++)
- 		vmxnet3_enable_intr(adapter, i);
--	adapter->shared->devRead.intrConf.intrCtrl &=
-+	if (!VMXNET3_VERSION_GE_6(adapter) ||
-+	    !adapter->queuesExtEnabled) {
-+		adapter->shared->devRead.intrConf.intrCtrl &=
- 					cpu_to_le32(~VMXNET3_IC_DISABLE_ALL);
-+	} else {
-+		adapter->shared->devReadExt.intrConfExt.intrCtrl &=
-+					cpu_to_le32(~VMXNET3_IC_DISABLE_ALL);
+ 	tc->flow_ht_params = tc_flow_ht_params;
+-	return rhashtable_init(&tc->flow_table, &tc->flow_ht_params);
++	err = rhashtable_init(&tc->flow_table, &tc->flow_ht_params);
++	if (err) {
++		kfree(tc->tc_entries_bitmap);
++		tc->tc_entries_bitmap = NULL;
 +	}
++	return err;
  }
  
- 
-@@ -85,8 +91,14 @@ vmxnet3_disable_all_intrs(struct vmxnet3_adapter *adapter)
- {
- 	int i;
- 
--	adapter->shared->devRead.intrConf.intrCtrl |=
-+	if (!VMXNET3_VERSION_GE_6(adapter) ||
-+	    !adapter->queuesExtEnabled) {
-+		adapter->shared->devRead.intrConf.intrCtrl |=
- 					cpu_to_le32(VMXNET3_IC_DISABLE_ALL);
-+	} else {
-+		adapter->shared->devReadExt.intrConfExt.intrCtrl |=
-+					cpu_to_le32(VMXNET3_IC_DISABLE_ALL);
-+	}
- 	for (i = 0; i < adapter->intr.num_intrs; i++)
- 		vmxnet3_disable_intr(adapter, i);
- }
+ void otx2_shutdown_tc(struct otx2_nic *nic)
 -- 
 2.35.1
 
