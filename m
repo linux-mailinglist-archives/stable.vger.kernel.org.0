@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 391F964A287
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:55:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9CF064A27C
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:55:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233100AbiLLNzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:55:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54050 "EHLO
+        id S233235AbiLLNzH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:55:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233276AbiLLNzU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:55:20 -0500
+        with ESMTP id S233190AbiLLNyd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:33 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96125BC4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:55:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B62E13F92
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:54:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 330F561068
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:55:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 151EAC433EF;
-        Mon, 12 Dec 2022 13:55:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCB7361025
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:54:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A63A4C433D2;
+        Mon, 12 Dec 2022 13:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853312;
-        bh=9lBQqhw4jsKspqxveYCdw/ReJg3uPm4au0POIR9UWMc=;
+        s=korg; t=1670853271;
+        bh=8QM0V+sylQ9NgxPfN44XcTwySq/1QPCNsEkUz4w1/To=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X65dMEEDxHK+XFMxiSP7owytojMNP2+5Muhc8TyovF+OckpVOFBOMKpTGCOWUZNLP
-         LH18myZcKPBAsBEoyPvUP6Pd1CZCPFIG7r6whBpuhl9uY12seSKi4Xol7JLOBMoT9S
-         MbKrkttAPQEdAa1eeswizhvMOlEDXgxnxkRjao0I=
+        b=0xYLUMWsyYJS1J2hgKfOYVs6ghGd/SAA/la7iWKCfFpO2QizU9y0DYJ0exiEd6u6F
+         y9f5/COhA23mmHzDiUFX6LV37XvT+zpo3rqRn3Z7JsMPB/pTt7ZoHjpBe7AvcT97O1
+         L4BcA8DHI4uiecWxkQn+WkzT1dTBqtpFOTCVQNxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
-        Connor Shu <Connor.Shu@ibm.com>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/31] rcutorture: Automatically create initrd directory
-Date:   Mon, 12 Dec 2022 14:19:27 +0100
-Message-Id: <20221212130910.456183700@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.9 10/31] mmc: sdhci: use FIELD_GET for preset value bit masks
+Date:   Mon, 12 Dec 2022 14:19:28 +0100
+Message-Id: <20221212130910.510466202@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130909.943483205@linuxfoundation.org>
 References: <20221212130909.943483205@linuxfoundation.org>
@@ -54,110 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Connor Shu <Connor.Shu@ibm.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit 8f15c682ac5a778feb8e343f9057b89beb40d85b ]
+commit fa0910107a9fea170b817f31da2a65463e00e80e upstream.
 
-The rcutorture scripts currently expect the user to create the
-tools/testing/selftests/rcutorture/initrd directory.  Should the user
-fail to do this, the kernel build will fail with obscure and confusing
-error messages.  This commit therefore adds explicit checks for the
-tools/testing/selftests/rcutorture/initrd directory, and if not present,
-creates one on systems on which dracut is installed.  If this directory
-could not be created, a less obscure error message is emitted and the
-test is aborted.
+Use the FIELD_GET macro to get access to the register fields.
+Delete the shift macros.
 
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Connor Shu <Connor.Shu@ibm.com>
-[ paulmck: Adapt the script to fit into the rcutorture framework and
-  severely abbreviate the initrd/init script. ]
-Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Link: https://lore.kernel.org/r/20200312110050.21732-1-yamada.masahiro@socionext.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/rcutorture/bin/kvm.sh      |    8 ++
- tools/testing/selftests/rcutorture/bin/mkinitrd.sh |   60 +++++++++++++++++++++
- 2 files changed, 68 insertions(+)
- create mode 100755 tools/testing/selftests/rcutorture/bin/mkinitrd.sh
+ drivers/mmc/host/sdhci.c |   10 +++++-----
+ drivers/mmc/host/sdhci.h |   10 ++++------
+ 2 files changed, 9 insertions(+), 11 deletions(-)
 
---- a/tools/testing/selftests/rcutorture/bin/kvm.sh
-+++ b/tools/testing/selftests/rcutorture/bin/kvm.sh
-@@ -175,6 +175,14 @@ do
- 	shift
- done
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -13,6 +13,7 @@
+  *     - JMicron (hardware and technical support)
+  */
  
-+if test -z "$TORTURE_INITRD" || tools/testing/selftests/rcutorture/bin/mkinitrd.sh
-+then
-+	:
-+else
-+	echo No initrd and unable to create one, aborting test >&2
-+	exit 1
-+fi
-+
- CONFIGFRAG=${KVM}/configs/${TORTURE_SUITE}; export CONFIGFRAG
++#include <linux/bitfield.h>
+ #include <linux/delay.h>
+ #include <linux/highmem.h>
+ #include <linux/io.h>
+@@ -1266,10 +1267,9 @@ u16 sdhci_calc_clk(struct sdhci_host *ho
  
- if test -z "$configs"
---- /dev/null
-+++ b/tools/testing/selftests/rcutorture/bin/mkinitrd.sh
-@@ -0,0 +1,60 @@
-+#!/bin/bash
-+#
-+# Create an initrd directory if one does not already exist.
-+#
-+# This program is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This program is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+#
-+# You should have received a copy of the GNU General Public License
-+# along with this program; if not, you can access it online at
-+# http://www.gnu.org/licenses/gpl-2.0.html.
-+#
-+# Copyright (C) IBM Corporation, 2013
-+#
-+# Author: Connor Shu <Connor.Shu@ibm.com>
-+
-+D=tools/testing/selftests/rcutorture
-+
-+# Prerequisite checks
-+[ -z "$D" ] && echo >&2 "No argument supplied" && exit 1
-+if [ ! -d "$D" ]; then
-+    echo >&2 "$D does not exist: Malformed kernel source tree?"
-+    exit 1
-+fi
-+if [ -d "$D/initrd" ]; then
-+    echo "$D/initrd already exists, no need to create it"
-+    exit 0
-+fi
-+
-+T=${TMPDIR-/tmp}/mkinitrd.sh.$$
-+trap 'rm -rf $T' 0 2
-+mkdir $T
-+
-+cat > $T/init << '__EOF___'
-+#!/bin/sh
-+while :
-+do
-+	sleep 1000000
-+done
-+__EOF___
-+
-+# Try using dracut to create initrd
-+command -v dracut >/dev/null 2>&1 || { echo >&2 "Dracut not installed"; exit 1; }
-+echo Creating $D/initrd using dracut.
-+
-+# Filesystem creation
-+dracut --force --no-hostonly --no-hostonly-cmdline --module "base" $T/initramfs.img
-+cd $D
-+mkdir initrd
-+cd initrd
-+zcat $T/initramfs.img | cpio -id
-+cp $T/init init
-+echo Done creating $D/initrd using dracut
-+exit 0
+ 			clk = sdhci_readw(host, SDHCI_CLOCK_CONTROL);
+ 			pre_val = sdhci_get_preset_value(host);
+-			div = (pre_val & SDHCI_PRESET_SDCLK_FREQ_MASK)
+-				>> SDHCI_PRESET_SDCLK_FREQ_SHIFT;
++			div = FIELD_GET(SDHCI_PRESET_SDCLK_FREQ_MASK, pre_val);
+ 			if (host->clk_mul &&
+-				(pre_val & SDHCI_PRESET_CLKGEN_SEL_MASK)) {
++				(pre_val & SDHCI_PRESET_CLKGEN_SEL)) {
+ 				clk = SDHCI_PROG_CLOCK_MODE;
+ 				real_div = div + 1;
+ 				clk_mul = host->clk_mul;
+@@ -1720,8 +1720,8 @@ static void sdhci_set_ios(struct mmc_hos
+ 
+ 			sdhci_enable_preset_value(host, true);
+ 			preset = sdhci_get_preset_value(host);
+-			ios->drv_type = (preset & SDHCI_PRESET_DRV_MASK)
+-				>> SDHCI_PRESET_DRV_SHIFT;
++			ios->drv_type = FIELD_GET(SDHCI_PRESET_DRV_MASK,
++						  preset);
+ 		}
+ 
+ 		/* Re-enable SD Clock */
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -13,6 +13,7 @@
+ #ifndef __SDHCI_HW_H
+ #define __SDHCI_HW_H
+ 
++#include <linux/bits.h>
+ #include <linux/scatterlist.h>
+ #include <linux/compiler.h>
+ #include <linux/types.h>
+@@ -244,12 +245,9 @@
+ #define SDHCI_PRESET_FOR_SDR104        0x6C
+ #define SDHCI_PRESET_FOR_DDR50 0x6E
+ #define SDHCI_PRESET_FOR_HS400 0x74 /* Non-standard */
+-#define SDHCI_PRESET_DRV_MASK  0xC000
+-#define SDHCI_PRESET_DRV_SHIFT  14
+-#define SDHCI_PRESET_CLKGEN_SEL_MASK   0x400
+-#define SDHCI_PRESET_CLKGEN_SEL_SHIFT	10
+-#define SDHCI_PRESET_SDCLK_FREQ_MASK   0x3FF
+-#define SDHCI_PRESET_SDCLK_FREQ_SHIFT	0
++#define SDHCI_PRESET_DRV_MASK		GENMASK(15, 14)
++#define SDHCI_PRESET_CLKGEN_SEL		BIT(10)
++#define SDHCI_PRESET_SDCLK_FREQ_MASK	GENMASK(9, 0)
+ 
+ #define SDHCI_SLOT_INT_STATUS	0xFC
+ 
 
 
