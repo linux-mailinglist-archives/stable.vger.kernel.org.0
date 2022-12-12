@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0199D64A05D
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:24:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7F9464A1C0
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:45:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229718AbiLLNYX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:24:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51892 "EHLO
+        id S232611AbiLLNo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:44:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232381AbiLLNYO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:24:14 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE759D54
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:24:12 -0800 (PST)
+        with ESMTP id S232592AbiLLNoP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:44:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72D7A55B6
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:44:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4915ECE0F2B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:24:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB84FC433D2;
-        Mon, 12 Dec 2022 13:24:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 295E8B80D50
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:44:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5657AC433D2;
+        Mon, 12 Dec 2022 13:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851449;
-        bh=uDiZb776FLlpTGA4jXpLyjK3uiMhZAJ4EIlqKtdMF+s=;
+        s=korg; t=1670852644;
+        bh=C2canFqoMkY1D87FUHYDVUCmr1Z6HfxWpBysO4bcYp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tDVe+fVmdLzXx1wBA6GrMp1KZi7lWZr6kpeDUQ/1q4Mc83MceBlcgAA8x2AXUlBZk
-         ew1gz+0jw38Qx1Jf6GErobgHqTKHcjf1f39VyDdzMmEMjHwCRuHJedHIp5P9z2ktjO
-         qInR0YbPAh/lsar7fU7//DKFaeHHWn2zjl5Z1Suc=
+        b=G2OFysfN/0c7acRtw+VQdRp01jdQTQpMsRRKWIvcYu3Z6/vPA3+jl8vv0gsQLE8Vz
+         z1c8zfiFqTnbz2E23JKXgjj45gngb4hSBnjJ5Urh93jghNgp/3ggRbk3C0w2+JWyR9
+         W4UCt2mDuqSHICX+81jI6vkKTeCtasn29HnXHZOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Wei Chen <harperchen1110@gmail.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 40/67] af_unix: Get user_ns from in_skb in unix_diag_get_exact().
+Subject: [PATCH 6.0 087/157] gpiolib: fix memory leak in gpiochip_setup_dev()
 Date:   Mon, 12 Dec 2022 14:17:15 +0100
-Message-Id: <20221212130919.540091484@linuxfoundation.org>
+Message-Id: <20221212130938.291105250@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,164 +54,182 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Zeng Heng <zengheng4@huawei.com>
 
-[ Upstream commit b3abe42e94900bdd045c472f9c9be620ba5ce553 ]
+[ Upstream commit ec851b23084b3a0af8bf0f5e51d33a8d678bdc49 ]
 
-Wei Chen reported a NULL deref in sk_user_ns() [0][1], and Paolo diagnosed
-the root cause: in unix_diag_get_exact(), the newly allocated skb does not
-have sk. [2]
+Here is a backtrace report about memory leak detected in
+gpiochip_setup_dev():
 
-We must get the user_ns from the NETLINK_CB(in_skb).sk and pass it to
-sk_diag_fill().
+unreferenced object 0xffff88810b406400 (size 512):
+  comm "python3", pid 1682, jiffies 4295346908 (age 24.090s)
+  backtrace:
+    kmalloc_trace
+    device_add		device_private_init at drivers/base/core.c:3361
+			(inlined by) device_add at drivers/base/core.c:3411
+    cdev_device_add
+    gpiolib_cdev_register
+    gpiochip_setup_dev
+    gpiochip_add_data_with_key
 
-[0]:
-BUG: kernel NULL pointer dereference, address: 0000000000000270
-#PF: supervisor read access in kernel mode
-#PF: error_code(0x0000) - not-present page
-PGD 12bbce067 P4D 12bbce067 PUD 12bc40067 PMD 0
-Oops: 0000 [#1] PREEMPT SMP
-CPU: 0 PID: 27942 Comm: syz-executor.0 Not tainted 6.1.0-rc5-next-20221118 #2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.13.0-48-gd9c812dda519-prebuilt.qemu.org 04/01/2014
-RIP: 0010:sk_user_ns include/net/sock.h:920 [inline]
-RIP: 0010:sk_diag_dump_uid net/unix/diag.c:119 [inline]
-RIP: 0010:sk_diag_fill+0x77d/0x890 net/unix/diag.c:170
-Code: 89 ef e8 66 d4 2d fd c7 44 24 40 00 00 00 00 49 8d 7c 24 18 e8
-54 d7 2d fd 49 8b 5c 24 18 48 8d bb 70 02 00 00 e8 43 d7 2d fd <48> 8b
-9b 70 02 00 00 48 8d 7b 10 e8 33 d7 2d fd 48 8b 5b 10 48 8d
-RSP: 0018:ffffc90000d67968 EFLAGS: 00010246
-RAX: ffff88812badaa48 RBX: 0000000000000000 RCX: ffffffff840d481d
-RDX: 0000000000000465 RSI: 0000000000000000 RDI: 0000000000000270
-RBP: ffffc90000d679a8 R08: 0000000000000277 R09: 0000000000000000
-R10: 0001ffffffffffff R11: 0001c90000d679a8 R12: ffff88812ac03800
-R13: ffff88812c87c400 R14: ffff88812ae42210 R15: ffff888103026940
-FS:  00007f08b4e6f700(0000) GS:ffff88813bc00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000270 CR3: 000000012c58b000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- unix_diag_get_exact net/unix/diag.c:285 [inline]
- unix_diag_handler_dump+0x3f9/0x500 net/unix/diag.c:317
- __sock_diag_cmd net/core/sock_diag.c:235 [inline]
- sock_diag_rcv_msg+0x237/0x250 net/core/sock_diag.c:266
- netlink_rcv_skb+0x13e/0x250 net/netlink/af_netlink.c:2564
- sock_diag_rcv+0x24/0x40 net/core/sock_diag.c:277
- netlink_unicast_kernel net/netlink/af_netlink.c:1330 [inline]
- netlink_unicast+0x5e9/0x6b0 net/netlink/af_netlink.c:1356
- netlink_sendmsg+0x739/0x860 net/netlink/af_netlink.c:1932
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg net/socket.c:734 [inline]
- ____sys_sendmsg+0x38f/0x500 net/socket.c:2476
- ___sys_sendmsg net/socket.c:2530 [inline]
- __sys_sendmsg+0x197/0x230 net/socket.c:2559
- __do_sys_sendmsg net/socket.c:2568 [inline]
- __se_sys_sendmsg net/socket.c:2566 [inline]
- __x64_sys_sendmsg+0x42/0x50 net/socket.c:2566
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x4697f9
-Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48
-89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d
-01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f08b4e6ec48 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 000000000077bf80 RCX: 00000000004697f9
-RDX: 0000000000000000 RSI: 00000000200001c0 RDI: 0000000000000003
-RBP: 00000000004d29e9 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 000000000077bf80
-R13: 0000000000000000 R14: 000000000077bf80 R15: 00007ffdb36bc6c0
- </TASK>
-Modules linked in:
-CR2: 0000000000000270
+gcdev_register() & gcdev_unregister() would call device_add() &
+device_del() (no matter CONFIG_GPIO_CDEV is enabled or not) to
+register/unregister device.
 
-[1]: https://lore.kernel.org/netdev/CAO4mrfdvyjFpokhNsiwZiP-wpdSD0AStcJwfKcKQdAALQ9_2Qw@mail.gmail.com/
-[2]: https://lore.kernel.org/netdev/e04315e7c90d9a75613f3993c2baf2d344eef7eb.camel@redhat.com/
+However, if device_add() succeeds, some resource (like
+struct device_private allocated by device_private_init())
+is not released by device_del().
 
-Fixes: cae9910e7344 ("net: Add UNIX_DIAG_UID to Netlink UNIX socket diagnostics.")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reported-by: Wei Chen <harperchen1110@gmail.com>
-Diagnosed-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Therefore, after device_add() succeeds by gcdev_register(), it
+needs to call put_device() to release resource in the error handle
+path.
+
+Here we move forward the register of release function, and let it
+release every piece of resource by put_device() instead of kfree().
+
+While at it, fix another subtle issue, i.e. when gc->ngpio is equal
+to 0, we still call kcalloc() and, in case of further error, kfree()
+on the ZERO_PTR pointer, which is not NULL. It's not a bug per se,
+but rather waste of the resources and potentially wrong expectation
+about contents of the gdev->descs variable.
+
+Fixes: 159f3cd92f17 ("gpiolib: Defer gpio device setup until after gpiolib initialization")
+Signed-off-by: Zeng Heng <zengheng4@huawei.com>
+Co-developed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/unix/diag.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/gpio/gpiolib.c | 42 ++++++++++++++++++++++++++----------------
+ 1 file changed, 26 insertions(+), 16 deletions(-)
 
-diff --git a/net/unix/diag.c b/net/unix/diag.c
-index 9ff64f9df1f3..951b33fa8f5c 100644
---- a/net/unix/diag.c
-+++ b/net/unix/diag.c
-@@ -113,14 +113,16 @@ static int sk_diag_show_rqlen(struct sock *sk, struct sk_buff *nlskb)
- 	return nla_put(nlskb, UNIX_DIAG_RQLEN, sizeof(rql), &rql);
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index cc9c0a12259e..eb7d00608c7f 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -526,12 +526,13 @@ static int gpiochip_setup_dev(struct gpio_device *gdev)
+ 	if (ret)
+ 		return ret;
+ 
++	/* From this point, the .release() function cleans up gpio_device */
++	gdev->dev.release = gpiodevice_release;
++
+ 	ret = gpiochip_sysfs_register(gdev);
+ 	if (ret)
+ 		goto err_remove_device;
+ 
+-	/* From this point, the .release() function cleans up gpio_device */
+-	gdev->dev.release = gpiodevice_release;
+ 	dev_dbg(&gdev->dev, "registered GPIOs %d to %d on %s\n", gdev->base,
+ 		gdev->base + gdev->ngpio - 1, gdev->chip->label ? : "generic");
+ 
+@@ -597,10 +598,10 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
+ 	struct fwnode_handle *fwnode = NULL;
+ 	struct gpio_device *gdev;
+ 	unsigned long flags;
+-	int base = gc->base;
+ 	unsigned int i;
++	u32 ngpios = 0;
++	int base = 0;
+ 	int ret = 0;
+-	u32 ngpios;
+ 
+ 	if (gc->fwnode)
+ 		fwnode = gc->fwnode;
+@@ -647,17 +648,12 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
+ 	else
+ 		gdev->owner = THIS_MODULE;
+ 
+-	gdev->descs = kcalloc(gc->ngpio, sizeof(gdev->descs[0]), GFP_KERNEL);
+-	if (!gdev->descs) {
+-		ret = -ENOMEM;
+-		goto err_free_dev_name;
+-	}
+-
+ 	/*
+ 	 * Try the device properties if the driver didn't supply the number
+ 	 * of GPIO lines.
+ 	 */
+-	if (gc->ngpio == 0) {
++	ngpios = gc->ngpio;
++	if (ngpios == 0) {
+ 		ret = device_property_read_u32(&gdev->dev, "ngpios", &ngpios);
+ 		if (ret == -ENODATA)
+ 			/*
+@@ -668,7 +664,7 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
+ 			 */
+ 			ngpios = 0;
+ 		else if (ret)
+-			goto err_free_descs;
++			goto err_free_dev_name;
+ 
+ 		gc->ngpio = ngpios;
+ 	}
+@@ -676,13 +672,19 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
+ 	if (gc->ngpio == 0) {
+ 		chip_err(gc, "tried to insert a GPIO chip with zero lines\n");
+ 		ret = -EINVAL;
+-		goto err_free_descs;
++		goto err_free_dev_name;
+ 	}
+ 
+ 	if (gc->ngpio > FASTPATH_NGPIO)
+ 		chip_warn(gc, "line cnt %u is greater than fast path cnt %u\n",
+ 			  gc->ngpio, FASTPATH_NGPIO);
+ 
++	gdev->descs = kcalloc(gc->ngpio, sizeof(*gdev->descs), GFP_KERNEL);
++	if (!gdev->descs) {
++		ret = -ENOMEM;
++		goto err_free_dev_name;
++	}
++
+ 	gdev->label = kstrdup_const(gc->label ?: "unknown", GFP_KERNEL);
+ 	if (!gdev->label) {
+ 		ret = -ENOMEM;
+@@ -701,11 +703,13 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
+ 	 * it may be a pipe dream. It will not happen before we get rid
+ 	 * of the sysfs interface anyways.
+ 	 */
++	base = gc->base;
+ 	if (base < 0) {
+ 		base = gpiochip_find_base(gc->ngpio);
+ 		if (base < 0) {
+-			ret = base;
+ 			spin_unlock_irqrestore(&gpio_lock, flags);
++			ret = base;
++			base = 0;
+ 			goto err_free_label;
+ 		}
+ 		/*
+@@ -816,6 +820,11 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
+ err_free_gpiochip_mask:
+ 	gpiochip_remove_pin_ranges(gc);
+ 	gpiochip_free_valid_mask(gc);
++	if (gdev->dev.release) {
++		/* release() has been registered by gpiochip_setup_dev() */
++		put_device(&gdev->dev);
++		goto err_print_message;
++	}
+ err_remove_from_list:
+ 	spin_lock_irqsave(&gpio_lock, flags);
+ 	list_del(&gdev->list);
+@@ -829,13 +838,14 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
+ err_free_ida:
+ 	ida_free(&gpio_ida, gdev->id);
+ err_free_gdev:
++	kfree(gdev);
++err_print_message:
+ 	/* failures here can mean systems won't boot... */
+ 	if (ret != -EPROBE_DEFER) {
+ 		pr_err("%s: GPIOs %d..%d (%s) failed to register, %d\n", __func__,
+-		       gdev->base, gdev->base + gdev->ngpio - 1,
++		       base, base + (int)ngpios - 1,
+ 		       gc->label ? : "generic", ret);
+ 	}
+-	kfree(gdev);
+ 	return ret;
  }
- 
--static int sk_diag_dump_uid(struct sock *sk, struct sk_buff *nlskb)
-+static int sk_diag_dump_uid(struct sock *sk, struct sk_buff *nlskb,
-+			    struct user_namespace *user_ns)
- {
--	uid_t uid = from_kuid_munged(sk_user_ns(nlskb->sk), sock_i_uid(sk));
-+	uid_t uid = from_kuid_munged(user_ns, sock_i_uid(sk));
- 	return nla_put(nlskb, UNIX_DIAG_UID, sizeof(uid_t), &uid);
- }
- 
- static int sk_diag_fill(struct sock *sk, struct sk_buff *skb, struct unix_diag_req *req,
--		u32 portid, u32 seq, u32 flags, int sk_ino)
-+			struct user_namespace *user_ns,
-+			u32 portid, u32 seq, u32 flags, int sk_ino)
- {
- 	struct nlmsghdr *nlh;
- 	struct unix_diag_msg *rep;
-@@ -166,7 +168,7 @@ static int sk_diag_fill(struct sock *sk, struct sk_buff *skb, struct unix_diag_r
- 		goto out_nlmsg_trim;
- 
- 	if ((req->udiag_show & UDIAG_SHOW_UID) &&
--	    sk_diag_dump_uid(sk, skb))
-+	    sk_diag_dump_uid(sk, skb, user_ns))
- 		goto out_nlmsg_trim;
- 
- 	nlmsg_end(skb, nlh);
-@@ -178,7 +180,8 @@ static int sk_diag_fill(struct sock *sk, struct sk_buff *skb, struct unix_diag_r
- }
- 
- static int sk_diag_dump(struct sock *sk, struct sk_buff *skb, struct unix_diag_req *req,
--		u32 portid, u32 seq, u32 flags)
-+			struct user_namespace *user_ns,
-+			u32 portid, u32 seq, u32 flags)
- {
- 	int sk_ino;
- 
-@@ -189,7 +192,7 @@ static int sk_diag_dump(struct sock *sk, struct sk_buff *skb, struct unix_diag_r
- 	if (!sk_ino)
- 		return 0;
- 
--	return sk_diag_fill(sk, skb, req, portid, seq, flags, sk_ino);
-+	return sk_diag_fill(sk, skb, req, user_ns, portid, seq, flags, sk_ino);
- }
- 
- static int unix_diag_dump(struct sk_buff *skb, struct netlink_callback *cb)
-@@ -217,7 +220,7 @@ static int unix_diag_dump(struct sk_buff *skb, struct netlink_callback *cb)
- 				goto next;
- 			if (!(req->udiag_states & (1 << sk->sk_state)))
- 				goto next;
--			if (sk_diag_dump(sk, skb, req,
-+			if (sk_diag_dump(sk, skb, req, sk_user_ns(skb->sk),
- 					 NETLINK_CB(cb->skb).portid,
- 					 cb->nlh->nlmsg_seq,
- 					 NLM_F_MULTI) < 0)
-@@ -285,7 +288,8 @@ static int unix_diag_get_exact(struct sk_buff *in_skb,
- 	if (!rep)
- 		goto out;
- 
--	err = sk_diag_fill(sk, rep, req, NETLINK_CB(in_skb).portid,
-+	err = sk_diag_fill(sk, rep, req, sk_user_ns(NETLINK_CB(in_skb).sk),
-+			   NETLINK_CB(in_skb).portid,
- 			   nlh->nlmsg_seq, 0, req->udiag_ino);
- 	if (err < 0) {
- 		nlmsg_free(rep);
+ EXPORT_SYMBOL_GPL(gpiochip_add_data_with_key);
 -- 
 2.35.1
 
