@@ -2,235 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EFA6649D0E
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 12:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76D46649D31
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 12:09:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231993AbiLLLHj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 06:07:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52086 "EHLO
+        id S232026AbiLLLJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 06:09:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231737AbiLLLHF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 06:07:05 -0500
-Received: from JPN01-TYC-obe.outbound.protection.outlook.com (mail-tycjpn01on2094.outbound.protection.outlook.com [40.107.114.94])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34BAF11A07;
-        Mon, 12 Dec 2022 02:54:28 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BIAHfwDosB9joC/7Qx6yHZ0fse+MR09TWRFCBRdxGT/sXWaeoN2ezBRY9Ka1wvBuputYbTqTA84v9KKFGU99wwIZW8SMbgkyo+fmhhvQeEjTosX9V6b54cgpm0biH9XRx1j/EfJh9BhU730KjDlwnYKkmeetmZ8D2+OgeuZYj6Fa8bGkMSGP75x178NNqaqTYGBXwiLNvLxO8r63t/mSWFb3XpGSceNfH9LraB4OdaYBlg4Y943FBUwwMHPpLMlB8MSHW75z1K3Hx1269WD+DdAYgZV0gTViw3lhN6N3Gv9fIsFkzQF6nco9jQsC3bZ7UYzFh487GT57eoK3suA1xQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=1/8F4Q4gI0ADS94bjuD54/xOQMpq83X4dVhpcMZj9dY=;
- b=K7v40MvOeJD1hkDsKSXSb1+bGPWf63DuVTT8wRJSt/9EckCtPODffZo+nD+FUE6RdmMkK312Dc7jTL0mwSnPZjxD6yw8M/3L+KvpnVKrm/MFwseGNO53zx+OiC7XqUdloU969Mep3f2FFFg0viJjfACT7ExkmyDtAzAWPvYj5qwNV15UU4EH1jQBE2H07/Id4oWVRWvFXNT8b2REU0JV4xYrZgUAX/7EdmEKJvqR960Xj0NQO9Xbr1bkaHT4z074sq+vMBbQsVzO9f3bFRj9W4uE472nx9WwTPZSnXybvs3VA+tr6nYMVJmUZn/9IlAGtzOUXiCxxoP6njfVM4qQwg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=bp.renesas.com; dmarc=pass action=none
- header.from=bp.renesas.com; dkim=pass header.d=bp.renesas.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bp.renesas.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1/8F4Q4gI0ADS94bjuD54/xOQMpq83X4dVhpcMZj9dY=;
- b=GcKHNtvNIO5V4rAMFZCGSriC62eYjl/X7TTGXlYZ7DWMliXgg2I0ltkNWnliqNIECzofxoyJR1uG2FfcKNVjewQoOrb92ax+wocsFVK4hni43GoGZWIX4T7VBVWbn3jxjwTQnEST03RnOgtmrgRUD0j+MxTw11SazBVDq96ki0s=
-Received: from OS0PR01MB5922.jpnprd01.prod.outlook.com (2603:1096:604:bb::5)
- by TYWPR01MB10520.jpnprd01.prod.outlook.com (2603:1096:400:29f::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.19; Mon, 12 Dec
- 2022 10:54:26 +0000
-Received: from OS0PR01MB5922.jpnprd01.prod.outlook.com
- ([fe80::2cfb:38d2:d52e:c8a3]) by OS0PR01MB5922.jpnprd01.prod.outlook.com
- ([fe80::2cfb:38d2:d52e:c8a3%5]) with mapi id 15.20.5880.019; Mon, 12 Dec 2022
- 10:54:25 +0000
-From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     Heikki Krogerus <heikki.krogerus@linux.intel.com>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Biju Das <biju.das@bp.renesas.com>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-        "linux-renesas-soc@vger.kernel.org" 
-        <linux-renesas-soc@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2] usb: typec: hd3ss3220: Fix NULL pointer crash
-Thread-Topic: [PATCH v2] usb: typec: hd3ss3220: Fix NULL pointer crash
-Thread-Index: AQHZC/DC5zMigf6CwEe1ynb/crSS+K5qA3UAgAAKhHCAAAl9IA==
-Date:   Mon, 12 Dec 2022 10:54:25 +0000
-Message-ID: <OS0PR01MB5922FC3A7C5F0507292F99AF86E29@OS0PR01MB5922.jpnprd01.prod.outlook.com>
-References: <20221209170740.70539-1-biju.das.jz@bp.renesas.com>
- <Y5b24vdYTNW/aJ+0@kuha.fi.intel.com>
- <OS0PR01MB59225780B75FDC02C077ACE986E29@OS0PR01MB5922.jpnprd01.prod.outlook.com>
-In-Reply-To: <OS0PR01MB59225780B75FDC02C077ACE986E29@OS0PR01MB5922.jpnprd01.prod.outlook.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=bp.renesas.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: OS0PR01MB5922:EE_|TYWPR01MB10520:EE_
-x-ms-office365-filtering-correlation-id: f3ebc2d8-7cec-4d46-e249-08dadc2f3c48
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: JjOkZ2XAdR/QsWJMls1HH4zjZJp6LxZtRR1o+GPUx45wP+4EV6fnRH77+RVYJ3LSwvHRmAiPwjmyfEpUbgWzOMvhfbvS3Lb+Or4CjGd7MlLF0++7JIusX4kDqpFL82mly1g8phACDl9nRXRrXZ5b/oDPNeBmJbDxQ/nBbjhgKsipjyoHYbB63nobPhOtxxRQH63mXU8Iu+8ywMZIo5l2LfeFbgTRW1xts69yZHCCLVzoypbvg4wxFBNmpDy/KdKRtXobdAalzmbdveYMYCr3+CXimHLdmm2DHyMYluJt0X2PEyZW457FibSx4OTzOi+uwIxVYOBdzPRmPtpJ4iJ9VrKVfJg74TddJkyb6KGGyuQqIbkVahVPpRUxWP7caCtwztFo65qoqECxTCt92RRVDgvpyYpSY9c6MVyGjalU9bZLDB4heb4dyg1ecgRIMU2kxf39R4qh0/BYIQkaawgaEOFsE1kBxKsSO+/pk9oaE+cXBZ296VWZJb2VHDSpSQ93RD8HKl9DgNZEor/i6T9D2Z4VXFm8Jhj5SnJPMzJF/9xCtcrbaG4oQeVmLwok6VGKI4sAJ6IOf8CDuCkTRvBl3wK8DkAmeYKruMbEdqnpx02GARrNIRVjCqqWIPJ6mpiKIz1vn3JrYTQmrkCutZTVWgCETcEPtrP0Yi+hepZL9AJdVibRaaUe7hVrnPL2LburoS8FJ8tXzpYsj606zJGVAw==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:OS0PR01MB5922.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(376002)(136003)(366004)(39860400002)(346002)(396003)(451199015)(71200400001)(478600001)(33656002)(7696005)(2906002)(86362001)(52536014)(5660300002)(186003)(2940100002)(6506007)(38100700002)(38070700005)(55016003)(9686003)(26005)(8936002)(6916009)(64756008)(54906003)(122000001)(41300700001)(4326008)(83380400001)(66946007)(8676002)(66556008)(66476007)(66446008)(316002)(76116006);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?QQAdF+KmcKWnOkhg2a78xL+5h5Jt4/B4wii/anwckXDfaNhugQAsLzXrMBq2?=
- =?us-ascii?Q?PlX9zspC9ukA9ulYWydGQQY0shovibpDAn82raQjQTM7eDA4hTmfFPHS84PK?=
- =?us-ascii?Q?gSpBHE23dytQbzuKO6YATORRx28ETIBpMsK41ZfUmtlenmxKvB+W/jkhAD6u?=
- =?us-ascii?Q?5sCkXG44DwYnryaDjKbkuxRqlP5/fVbQt0KU9Lzs7Pcy033Tt4adjG5JLC+E?=
- =?us-ascii?Q?jxN7vdKL44PeB3SQDnjgngOu/Ge0sZ+pihHxNsg0rR6dgJ3iyfk4B9YOMM0M?=
- =?us-ascii?Q?mJbBLjosv/ilq/3jL6yFOMFSWfzM1haGsyQIfNgKlNbl590PHtXpJ8hKIGV6?=
- =?us-ascii?Q?Hw+26shu3sa049Feav+M0uqKczpAjLvHv+rR8ktKgNd9vnw2TNFtDHsDR1ZQ?=
- =?us-ascii?Q?+BVP51TaDw0ZuzUth7ZWW7n0aEiI02XvXRrv/+ZjEqH81Ur2JVgUqHHLHB7A?=
- =?us-ascii?Q?zNWzu7Jkbv3fC4E047f51V2eFwcpqY27igAUQCAAF5TnGFiO34/IF3SoY3h+?=
- =?us-ascii?Q?vRLW0oO0c/4ug35LNj9qDa74YZBoxhShvNYXYZqxTzJimr3CUDKWYhRVVeRU?=
- =?us-ascii?Q?xweaFsglYtYToGra0nAVG+rYJJ+xvvPZAFSovy5Sj0jgKm6dARTuZgd7B/ay?=
- =?us-ascii?Q?+DzVc5abA3JLBRknLe4SZHD2Rz+nfqsyL/9lPqMd0EJxGKRms1RoY3s8dLon?=
- =?us-ascii?Q?3XR48rxf03KybPgUS6ILiAf50d/o5ndhEAsKD8OptkFxCdTBKTDEYJvvwTwl?=
- =?us-ascii?Q?NFelkK/FJtwzUn9H47qNgWlWJhYzE5y5rPRFqAHg1dbyC5hM+ihNYD0qcpXT?=
- =?us-ascii?Q?cdXjN/mcQqQWzINX9+zs5Qd9uya0ioVg729S7v4aEdJxyy3Vo28GzdMl7DqH?=
- =?us-ascii?Q?9/QNLTMCdO2Yx40jjBtLMTRziyU9AHZVBLDLgOSVzOxoSm3BUj5QsZgzU61e?=
- =?us-ascii?Q?oF5EQ5yBSqcwWsJX3CbCPelXFgVfUF+ImRlc7cLvS1Ebj83ZqjtYC6F3H4sU?=
- =?us-ascii?Q?SGtNbDiMUY1n4I1M+W16uDdPB7+FfFudfmaV8bDXYlfYPb94qiqNAxW/XZ7Y?=
- =?us-ascii?Q?/H3PlIJsAc0QOLsNTkuuRhKaoeFxqp0c8+WNod9aAU5JK+MgsUGPgZWTUqkI?=
- =?us-ascii?Q?a/GSPs7g+h6dKq8KG4wcV5DU+BwwPTkA5kwMGtt4nZAUzzp3nKAxBrThta17?=
- =?us-ascii?Q?2sunQbdYSjSB+cJk1A71ZbV5Iw0O42+qxkp++RsoyN7vFiejM2wawPOigC/e?=
- =?us-ascii?Q?AWch6HrCB3BprubN0G1TYYb7/rPIUiMzP/z55SQ/GNnYMRtnycIU4nlWwH2j?=
- =?us-ascii?Q?UKIeraEh4BFfL/L708Zo4nWeWad1YVLmZk1lKUg5f2FWh2DP2XGGyzV9g+GW?=
- =?us-ascii?Q?ZIXNuqELJ0v6cERflnVBIkjjvvsoHlQHG6Xc8HbZPpxh2iixwRw3kTXk4SJV?=
- =?us-ascii?Q?tEeO9bltiykGlTSZpU6L7Qjq7Z/0egPWka6VB9CvBljse1sDKLfMR8yKg/nD?=
- =?us-ascii?Q?a5pXVQwOp78883weKmtSSjMx5mPSAGv7+am/IWX1DBLX1rQLN78Hri3LOgJf?=
- =?us-ascii?Q?61JfCJWTxxsSjjbZK+m06IsS80Z+V5eg7f4TT6D0FtKWv5JPPV3aEf7BxfDw?=
- =?us-ascii?Q?6w=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S232235AbiLLLIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 06:08:00 -0500
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 110DD120AE
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 02:58:19 -0800 (PST)
+Received: by mail-pl1-x62a.google.com with SMTP id 17so4232803pll.0
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 02:58:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=hpFQAxeIso3WXdZfyXFPxEY+neVU6DO//PAOiGcoWBM=;
+        b=A8Pv8ZazQxiW6N8KJKRACBK5w8lL2Dg25+7tdJYDaVNpmPPvnW23LeP7KHRu8wSKhR
+         zpzf1QNoyqwOxGTqhOKHbAXPtOFVhyY2Lpwgd9c69/ShKYj0/GbC5kCf/yov8/rNSFrU
+         DokjO3z/YC+EUHyIpdQLr1OG1izOlsYGOWiJ650B4N0do+KmGrlpsjBGVxvbp6cMsHnc
+         QyX+qs4he0sQpbKBsrHXBhEvbK5Z+Az/hY3A1vK2Gy1Gp7atJb4UMYl2kAV1vbHBkSyb
+         Jc+wG3cgQP6FnG1qG+KJcepSG/kJNsRpq05Uqx2Po2qcFUcfKwEQ1nMBnH8lur2Xvvjd
+         t4uQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=hpFQAxeIso3WXdZfyXFPxEY+neVU6DO//PAOiGcoWBM=;
+        b=Tp980vZk40lHPAv8J3aevoza7TbE+OfVxic3wjDZm+90I1sptrDOQIrBg9E5+ONlPJ
+         cCBhHWIn2maUcx1DU2hAIzN3xQzLDwbnRDBAHdJJaGVz4sz9uHeZAFLcpa/Je9pospg0
+         UFb9X67RNVdLCe9SW3pzRTi4/Xnn/YunEupoT4T5UfltocWrkOBdBMBEkq6rRCPg/280
+         eGqlzkP2tIdFigyHF/MPeiz9IFyy3z65Rzf3S3TgNBU2RrKQTiX4V7uTUFtasROrx146
+         s32VmRCr6rio6ZevTGhfCv0iCVtvkvqx6782xFmXhZd60Oimi+sG6xrrSvTUy5bc2d+o
+         pN2A==
+X-Gm-Message-State: ANoB5pnCqZDY7kkBh4y6aE3d70He1L7qWRR1Xx9LOgMRTZTqyDvrXwqU
+        9QnuTXLIEOgNohXtTHcHIpvQQMo0e3hc7utkHyE=
+X-Google-Smtp-Source: AA0mqf4Pqx112AxHQd7rtTsjQLa6FacNhONrg2etnfz+jtJzhYtFndnP4uBh5pT0lAoJamgA3A5RG2rK/KrsPriWNlM=
+X-Received: by 2002:a17:90a:6687:b0:219:73d1:eb39 with SMTP id
+ m7-20020a17090a668700b0021973d1eb39mr38960804pjj.45.1670842698144; Mon, 12
+ Dec 2022 02:58:18 -0800 (PST)
 MIME-Version: 1.0
-X-OriginatorOrg: bp.renesas.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: OS0PR01MB5922.jpnprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f3ebc2d8-7cec-4d46-e249-08dadc2f3c48
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Dec 2022 10:54:25.8860
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 9uIPxd6Cw1sGeJ7wAPO5ZKqmtJwMdCuMUaQP4Bzb5bBY2zpawx4s2mVJTWOzpcxjFvstW+WOodifGR2o4nEgfWr3uFCW+mJOIEkBM6BDZc0=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYWPR01MB10520
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_PASS,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Sender: chardevans62@gmail.com
+Received: by 2002:a05:7300:53c7:b0:7c:a6b8:6636 with HTTP; Mon, 12 Dec 2022
+ 02:58:17 -0800 (PST)
+From:   Mrs Kristalina Georgieva <mrskristalinag904@gmail.com>
+Date:   Mon, 12 Dec 2022 02:58:17 -0800
+X-Google-Sender-Auth: R6EfFwcmq2QBFc0lXVD7h3vULQA
+Message-ID: <CADQwMRo57coE_5+JM+B+Z7kUZN57zsKbchOBem-akNEj8mYQFw@mail.gmail.com>
+Subject: OFICIAL FMI
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLY,LOTS_OF_MONEY,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,T_HK_NAME_FM_MR_MRS,UNDISC_MONEY
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: **
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> Subject: RE: [PATCH v2] usb: typec: hd3ss3220: Fix NULL pointer crash
->=20
-> Hi Heikki,
->=20
-> > Subject: Re: [PATCH v2] usb: typec: hd3ss3220: Fix NULL pointer crash
-> >
-> > Hi Biju,
-> >
-> > On Fri, Dec 09, 2022 at 05:07:40PM +0000, Biju Das wrote:
-> > > The value returned by usb_role_switch_get() can be NULL and it leads
-> > > to NULL pointer crash. This patch fixes this issue by adding NULL
-> > > check for the role switch handle.
-> > >
-> > > [   25.336613] Hardware name: Silicon Linux RZ/G2E evaluation kit
-> EK874
-> > (CAT874 + CAT875) (DT)
-> > > [   25.344991] Workqueue: events_unbound deferred_probe_work_func
-> > > [   25.350869] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS
-> > BTYPE=3D--)
-> > > [   25.357854] pc : renesas_usb3_role_switch_get+0x40/0x80
-> > [renesas_usb3]
-> > > [   25.364428] lr : renesas_usb3_role_switch_get+0x24/0x80
-> > [renesas_usb3]
-> > > [   25.370986] sp : ffff80000a4b3a40
-> > > [   25.374311] x29: ffff80000a4b3a40 x28: 0000000000000000 x27:
-> > 0000000000000000
-> > > [   25.381476] x26: ffff80000a3ade78 x25: ffff00000a809005 x24:
-> > ffff80000117f178
-> > > [   25.388641] x23: ffff00000a8d7810 x22: ffff00000a8d8410 x21:
-> > 0000000000000000
-> > > [   25.395805] x20: ffff000011cd7080 x19: ffff000011cd7080 x18:
-> > 0000000000000020
-> > > [   25.402969] x17: ffff800076196000 x16: ffff800008004000 x15:
-> > 0000000000004000
-> > > [   25.410133] x14: 000000000000022b x13: 0000000000000001 x12:
-> > 0000000000000001
-> > > [   25.417291] x11: 0000000000000000 x10: 0000000000000a40 x9 :
-> > ffff80000a4b3770
-> > > [   25.424452] x8 : ffff00007fbc9000 x7 : 0040000000000008 x6 :
-> > ffff00000a8d8590
-> > > [   25.431615] x5 : ffff80000a4b3960 x4 : 0000000000000000 x3 :
-> > ffff00000a8d84f4
-> > > [   25.438776] x2 : 0000000000000218 x1 : ffff80000a715218 x0 :
-> > 0000000000000218
-> > > [   25.445942] Call trace:
-> > > [   25.448398]  renesas_usb3_role_switch_get+0x40/0x80 [renesas_usb3]
-> > > [   25.454613]  renesas_usb3_role_switch_set+0x4c/0x440 [renesas_usb3=
-]
-> > > [   25.460908]  usb_role_switch_set_role+0x44/0xa4
-> > > [   25.465468]  hd3ss3220_set_role+0xa0/0x100 [hd3ss3220]
-> > > [   25.470635]  hd3ss3220_probe+0x118/0x2fc [hd3ss3220]
-> > > [   25.475621]  i2c_device_probe+0x338/0x384
-> >
-> > Based on that backtrace, your role switch is not NULL.
-> >
-> > You can only end up calling renesas_usb3_role_switch_set() if your
-> > hd3ss3220->role_sw contains a handle to the renesas usb3 role switch.
->=20
-> Looks you are correct.
->=20
-> >
-> > > Fixes: 5a9a8a4c5058 ("usb: typec: hd3ss3220: hd3ss3220_probe() warn:
-> > > passing zero to 'PTR_ERR'")
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-> > > ---
-> > > This issue triggered on RZ/G2E board, where there is no USB3
-> > > firmware and it returned a null role switch handle.
-> > >
-> > > v1->v2:
-> > >  * Make it as individual patch
-> > >  * Added Cc tag
-> > > ---
-> > >  drivers/usb/typec/hd3ss3220.c | 5 ++++-
-> > >  1 file changed, 4 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/usb/typec/hd3ss3220.c
-> > > b/drivers/usb/typec/hd3ss3220.c index 2a58185fb14c..c24bbccd14f9
-> > > 100644
-> > > --- a/drivers/usb/typec/hd3ss3220.c
-> > > +++ b/drivers/usb/typec/hd3ss3220.c
-> > > @@ -186,7 +186,10 @@ static int hd3ss3220_probe(struct i2c_client
-> > *client,
-> > >  		hd3ss3220->role_sw =3D usb_role_switch_get(hd3ss3220->dev);
-> > >  	}
-> > >
-> > > -	if (IS_ERR(hd3ss3220->role_sw)) {
-> > > +	if (!hd3ss3220->role_sw) {
-> > > +		ret =3D -ENODEV;
-> > > +		goto err_put_fwnode;
-> > > +	} else if (IS_ERR(hd3ss3220->role_sw)) {
-> > >  		ret =3D PTR_ERR(hd3ss3220->role_sw);
-> > >  		goto err_put_fwnode;
-> > >  	}
-> >
-> > You should not do that.
-> >
-> > Either I'm missing something, or this patch is hiding some other issue.
->=20
-> Looks It is a bug in renesas_usb3.c rather than this driver.
->=20
-> But how we will prevent hd3ss3220_set_role being called after
-> usb_role_switch_unregister(usb3->role_sw) from renesas_usb3.c driver??
+FOND MONETAR INTERNA=C8=9AIONAL (HQ1)
+700 19th Street, N.W., Washington, D.C. 20431.
+Fondul nerevendicat al loteriei Mo 755.000,00 USD
+detectat de proprietarul de e-mail al fondului.
 
-Do we need to add additional check for "fwnode_usb_role_switch_get" and
-"usb_role_switch_get" to return error if there is no registered role_switch=
- device
-Like the scenario above??
+REF:-XVGN 82022.
+Num=C4=83rul c=C3=A2=C8=99tig=C4=83tor; 5-6-14-29-35
 
-Cheers,
-Biju
+Stimate proprietar de e-mail al fondului,
+=C8=9Ai-am trimis aceast=C4=83 scrisoare, acum o lun=C4=83, dar nu am auzit=
+ de la
+tine, nu sunt sigur dac=C4=83 ai primit-o =C8=99i de aceea o trimit din nou=
+.
+Acesta este pentru a te informa despre informa=C8=9Bii foarte importante
+care vor fi de mare ajutor pentru a v=C4=83 r=C4=83scump=C4=83ra de toate
+dificult=C4=83=C8=9Bile pe care le-a=C8=9Bi avut =C3=AEn ob=C8=9Binerea pl=
+=C4=83=C8=9Bii restante din
+cauza cererii excesive de bani de la dumneavoastr=C4=83 at=C3=A2t de c=C4=
+=83tre
+func=C8=9Bionari corup=C8=9Bi func=C8=9Bionari ai b=C4=83ncii, c=C3=A2t =C8=
+=99i de c=C4=83tre companiile
+de curierat dup=C4=83 care fondul dumneavoastr=C4=83 r=C4=83m=C3=A2ne neach=
+itat.
+
+Sunt doamna Kristalina Georgieva, un =C3=AEnalt func=C8=9Bionar la Fondul
+Monetar Interna=C8=9Bional (FMI). Te-ar putea interesa s=C4=83 =C8=99tii c=
+=C4=83 prin
+at=C3=A2tea coresponden=C8=9Be au ajuns la biroul nostru rapoarte despre fe=
+lul
+tulbur=C4=83tor =C3=AEn care oamenii ca tine sunt trata=C8=9Bi de c=C4=83tr=
+e Diverse
+B=C4=83nci. Dup=C4=83 investiga=C8=9Bia noastr=C4=83, am aflat c=C4=83 adre=
+sa dvs. de e-mail a
+fost unul dintre noroco=C8=99ii c=C3=A2=C8=99tig=C4=83tori ai selec=C8=9Bie=
+i de loterie Mo =C3=AEn
+anul 2020, dar din cauza unor bancheri corup=C8=9Bi, ace=C8=99tia =C3=AEnce=
+arc=C4=83 s=C4=83 v=C4=83
+redirec=C8=9Bioneze fondurile =C3=AEn contul lor privat.
+Toate prostatale guvernamentale =C8=99i neguvernamentale, ONG-urile,
+companiile financiare, b=C4=83ncile, companiile de securitate =C8=99i compa=
+niile
+de curierat care au fost =C3=AEn contact cu dvs. =C3=AEn ultimul timp au pr=
+imit
+instruc=C8=9Biuni s=C4=83 v=C4=83 retrag=C4=83 tranzac=C8=9Bia =C8=99i vi s=
+-a sf=C4=83tuit s=C4=83 NU
+r=C4=83spunde=C8=9Bi de atunci. Fondul Monetar Interna=C8=9Bional (FMI) est=
+e acum
+direct responsabil pentru plata dvs., pe care o pute=C8=9Bi primi =C3=AEn c=
+ontul
+dvs. bancar cu ajutorul B=C4=83ncii Europene de Investi=C8=9Bii.
+Numele dvs. a ap=C4=83rut pe lista noastr=C4=83 de program de pl=C4=83=C8=
+=9Bi a
+beneficiarilor care =C3=AE=C8=99i vor primi fondurile Loteriei Mo =C3=AEn a=
+ceast=C4=83
+plat=C4=83 din primul trimestru al anului 2022, deoarece transfer=C4=83m fo=
+nduri
+doar de dou=C4=83 ori pe an, conform reglement=C4=83rilor noastre bancare. =
+Ne
+cerem scuze pentru =C3=AEnt=C3=A2rzierea pl=C4=83=C8=9Bii =C8=99i v=C4=83 r=
+ug=C4=83m s=C4=83 nu mai comunica=C8=9Bi
+cu orice birou acum =C8=99i s=C4=83 acorda=C8=9Bi aten=C8=9Bie biroului nos=
+tru =C3=AEn
+consecin=C8=9B=C4=83.
+
+Acum noua dvs. plat=C4=83, Nr. de aprobare a Na=C8=9Biunilor Unite; UN 5685=
+ P,
+Nr. aprobat la Casa Alba: WH44CV, Nr. referinta 35460021, Nr. alocare:
+674632 Nr. parola: 339331, nr. Cod PIN: 55674 =C8=99i certificatul
+dumneavoastr=C4=83 de plat=C4=83 de merit: Nr.: 103, Nr. cod emis: 0763;
+Confirmare imediat=C4=83 (IMF) Telex Nr: -1114433; Cod secret nr: XXTN013.
+Fondul dvs. de mo=C8=99tenire pentru plat=C4=83 par=C8=9Bial=C4=83 este de =
+755.000 USD
+dup=C4=83 ce a=C8=9Bi primit aceste pl=C4=83=C8=9Bi vitale. numere c=C3=A2=
+=C8=99tig=C4=83toare;
+5-6-14-29-35, data c=C3=A2=C8=99tig=C4=83rii; 05 octombrie 2020, sunte=C8=
+=9Bi acum
+calificat s=C4=83 primi=C8=9Bi =C8=99i s=C4=83 confirma=C8=9Bi plata cu Reg=
+iunea African=C4=83 a
+Fondului Monetar Interna=C8=9Bional (FMI) imediat =C3=AEn urm=C4=83toarele =
+168 de
+ore. V=C4=83 asigur=C4=83m c=C4=83 plata v=C4=83 va ajunge at=C3=A2ta timp =
+c=C3=A2t urma=C8=9Bi
+directivele =C8=99i instruc=C8=9Biunile mele. Am decis s=C4=83 v=C4=83 ofer=
+im un COD,
+CODUL ESTE: 601. V=C4=83 rug=C4=83m, de fiecare dat=C4=83 c=C3=A2nd primi=
+=C8=9Bi un mail cu
+numele doamnei Kristalina Georgieva, verifica=C8=9Bi dac=C4=83 exist=C4=83 =
+COD (601)
+dac=C4=83 codul nu este scris, v=C4=83 rug=C4=83m s=C4=83 =C8=99terge=C8=9B=
+i mesaj din inbox-ul t=C4=83u!
+Sunte=C8=9Bi sf=C4=83tuit prin prezenta s=C4=83 NU mai trimite=C8=9Bi nicio=
+ plat=C4=83 c=C4=83tre
+nicio institu=C8=9Bie cu privire la tranzac=C8=9Bia dvs., deoarece fondul
+dumneavoastr=C4=83 v=C4=83 va fi transferat direct din sursa noastr=C4=83. =
+Singura
+plat=C4=83 necesar=C4=83 la banc=C4=83 este doar taxa pentru certificatul d=
+e
+lichidare FMI, astfel =C3=AEnc=C3=A2t banca va putea elibera =C3=AEntreaga =
+sum=C4=83 de
+bani =C3=AEn contul dvs. bancar.
+
+Sper c=C4=83 acest lucru este clar. Orice ac=C8=9Biune contrar=C4=83 aceste=
+i
+instruc=C8=9Biuni este pe propriul risc. RE=C8=9AINE=C8=9AI C=C4=82 TREBUIE=
+ PL=C4=82=C8=9AI=C8=9AI
+COMISIONAL=C4=82 DE LIMITARE A CERTIFICATULUI FMI C=C4=82TRE BANC=C4=82 =C8=
+=98I F=C4=82R=C4=82 TAX=C4=82
+SUPLIMENTAR=C4=82.
+Am depus deja fondul dvs. total la banca pl=C4=83titoare corespunz=C4=83toa=
+re
+Banca European=C4=83 de Investi=C8=9Bii, vreau s=C4=83 contacta=C8=9Bi Appr=
+oval pentru a
+primi fondul dvs. total =C3=AEn stare bun=C4=83, f=C4=83r=C4=83 alte =C3=AE=
+nt=C3=A2rzieri sau taxe
+suplimentare.
+R=C4=83spunde=C8=9Bi la acest e-mail bancar:
+(europeaninvestmentbankeib6@gmail.com)
+=C8=98i fondul t=C4=83u va fi eliberat =C3=AEn contul t=C4=83u bancar odat=
+=C4=83 ce vei contacta banca.
+
+Contacta=C8=9Bi numele managerului b=C4=83ncii; Dr. Wilson Taylor
+
+E-mail bancar:
+(europeaninvestmentbankeib6@gmail.com)
+Cu respect
+
+
+Salutari,
+
+Doamna Kristalina Georgieva, (I.M.F)(601)
