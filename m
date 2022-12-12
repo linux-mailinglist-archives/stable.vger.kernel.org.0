@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC81564A190
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:41:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A349964A05A
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232745AbiLLNlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:41:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43002 "EHLO
+        id S232640AbiLLNYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:24:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232763AbiLLNlY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:41:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0171408B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:40:53 -0800 (PST)
+        with ESMTP id S232636AbiLLNX5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:23:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23173BD7
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:23:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 947CA6105A
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:40:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 164EAC433EF;
-        Mon, 12 Dec 2022 13:40:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B387560EFC
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:23:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8006C433F0;
+        Mon, 12 Dec 2022 13:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852452;
-        bh=phyVVwqYGtrMlvC2QC2/H841CprUmcWBHMOGjywHE+0=;
+        s=korg; t=1670851436;
+        bh=hbbVUuBxZcLOvbp9snt49Cupjl06xJOf/9Jo4y4WzlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nu95tjgYxCk563YNKcVsjcKVgLtIrUxN/tcdP9BWZ7czUbisb9fssAJi4HOi7PEKl
-         +MvrI7CLs4ko+99Ca0TVESjBlLamDsh5p4T1+w5XQnygR6r+i39ln/dqinfU+XBHxG
-         u6cAlVD8kjVlqYie07Q5fO48+l3IY/KTCzBIacLA=
+        b=KMUb4uPt+1hliJ21CQnQL7nKYGeBcN7ztO+77j/jDBncauF6ZZYd4cRjt6nutBJXe
+         uWEFNKpleoowTg5MNrRfAIlzPg+3b14hQWGpYbd3VYO1V5tV0r6EOYEB1hXbAXQAOS
+         r8TP61nlck8gSB+VTuAo49ml8x5u4cG9U6fMIA9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rudolf Polzer <rpolzer@google.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 6.0 083/157] HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch V 10
-Date:   Mon, 12 Dec 2022 14:17:11 +0100
-Message-Id: <20221212130938.121804019@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 37/67] gpio: amd8111: Fix PCI device reference count leak
+Date:   Mon, 12 Dec 2022 14:17:12 +0100
+Message-Id: <20221212130919.385802688@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-commit 9ad6645a9dce4d0e42daca6ebf32a154401c59d3 upstream.
+[ Upstream commit 45fecdb9f658d9c82960c98240bc0770ade19aca ]
 
-The Acer Aspire Switch V 10 (SW5-017)'s keyboard-dock uses the same
-ITE controller setup as other Acer Switch 2-in-1's.
+for_each_pci_dev() is implemented by pci_get_device(). The comment of
+pci_get_device() says that it will increase the reference count for the
+returned pci_dev and also decrease the reference count for the input
+pci_dev @from if it is not NULL.
 
-This needs special handling for the wifi on/off toggle hotkey as well as
-to properly report touchpad on/off keypresses.
+If we break for_each_pci_dev() loop with pdev not NULL, we need to call
+pci_dev_put() to decrease the reference count. Add the missing
+pci_dev_put() after the 'out' label. Since pci_dev_put() can handle NULL
+input parameter, there is no problem for the 'Device not found' branch.
+For the normal path, add pci_dev_put() in amd_gpio_exit().
 
-Add the USB-ids for the SW5-017's keyboard-dock with a quirk setting of
-QUIRK_TOUCHPAD_ON_OFF_REPORT to fix both issues.
-
-Cc: Rudolf Polzer <rpolzer@google.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f942a7de047d ("gpio: add a driver for GPIO pins found on AMD-8111 south bridge chips")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h |    1 +
- drivers/hid/hid-ite.c |    5 +++++
- 2 files changed, 6 insertions(+)
+ drivers/gpio/gpio-amd8111.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1217,6 +1217,7 @@
- #define USB_DEVICE_ID_SYNAPTICS_DELL_K15A	0x6e21
- #define USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1002	0x73f4
- #define USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003	0x73f5
-+#define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_017	0x73f6
- #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5	0x81a7
+diff --git a/drivers/gpio/gpio-amd8111.c b/drivers/gpio/gpio-amd8111.c
+index fdcebe59510d..68d95051dd0e 100644
+--- a/drivers/gpio/gpio-amd8111.c
++++ b/drivers/gpio/gpio-amd8111.c
+@@ -231,7 +231,10 @@ static int __init amd_gpio_init(void)
+ 		ioport_unmap(gp.pm);
+ 		goto out;
+ 	}
++	return 0;
++
+ out:
++	pci_dev_put(pdev);
+ 	return err;
+ }
  
- #define USB_VENDOR_ID_TEXAS_INSTRUMENTS	0x2047
---- a/drivers/hid/hid-ite.c
-+++ b/drivers/hid/hid-ite.c
-@@ -121,6 +121,11 @@ static const struct hid_device_id ite_de
- 		     USB_VENDOR_ID_SYNAPTICS,
- 		     USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003),
- 	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
-+	/* ITE8910 USB kbd ctlr, with Synaptics touchpad connected to it. */
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+		     USB_VENDOR_ID_SYNAPTICS,
-+		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_017),
-+	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, ite_devices);
+@@ -239,6 +242,7 @@ static void __exit amd_gpio_exit(void)
+ {
+ 	gpiochip_remove(&gp.chip);
+ 	ioport_unmap(gp.pm);
++	pci_dev_put(gp.pdev);
+ }
+ 
+ module_init(amd_gpio_init);
+-- 
+2.35.1
+
 
 
