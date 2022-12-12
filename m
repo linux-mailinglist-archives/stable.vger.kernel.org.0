@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0159C64A19D
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:43:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CE7E64A1A9
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:43:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232528AbiLLNn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:43:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42212 "EHLO
+        id S232688AbiLLNn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:43:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231274AbiLLNnH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D09FFA
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:41:53 -0800 (PST)
+        with ESMTP id S232602AbiLLNne (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 897442DD8
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:42:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 50D87B80D2B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:41:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81AF7C433EF;
-        Mon, 12 Dec 2022 13:41:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37993B80D4F
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:42:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35D12C433D2;
+        Mon, 12 Dec 2022 13:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852511;
-        bh=orClSxaAWRvBpt6OAEE+/Eg/iRAfY3zecFzYjXOj2+Q=;
+        s=korg; t=1670852565;
+        bh=dvUMe7KsiRzwecvOlo+urXQTfBPcvebejCE/zS1lCxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZqBMC0v7PvhimUVW5y4TM6U39b3s+e9w0BYsFAmOpw+6ctybba7AroH4zwxxAE93g
-         YFlWic0S03Sl5CwpoiJnCTBgyKCDvPnpm27bDIjB9/M0fT2wthr8b5jNNU+q8TqrAV
-         E4c34ZuOgxELuAGvylNoNNT0v2qE8KenOXmH96+I=
+        b=D8YSo0kpBQOu6rcZwFG45b3ugP+HAnN1pjPg1iopzTRnM3H/rQwSkT1GC23IIU41E
+         VuKchK19El0DLgnKyZqoccjTZ4uRt22dO5IRWvkIBnFBCef6iY+oAurk+FEDeRjWJN
+         1SVlpnayhV3u+MNSYiva5Jq2yxudLFkx6fD/6kvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Stefano Brivio <sbrivio@redhat.com>,
+        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 088/157] netfilter: nft_set_pipapo: Actually validate intervals in fields after the first one
-Date:   Mon, 12 Dec 2022 14:17:16 +0100
-Message-Id: <20221212130938.346030655@linuxfoundation.org>
+Subject: [PATCH 6.0 089/157] netfilter: flowtable_offload: fix using __this_cpu_add in preemptible
+Date:   Mon, 12 Dec 2022 14:17:17 +0100
+Message-Id: <20221212130938.387639092@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
 References: <20221212130934.337225088@linuxfoundation.org>
@@ -53,50 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Brivio <sbrivio@redhat.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 97d4d394b58777f7056ebba8ffdb4002d0563259 ]
+[ Upstream commit a81047154e7ce4eb8769d5d21adcbc9693542a79 ]
 
-Embarrassingly, nft_pipapo_insert() checked for interval validity in
-the first field only.
+flow_offload_queue_work() can be called in workqueue without
+bh disabled, like the call trace showed in my act_ct testing,
+calling NF_FLOW_TABLE_STAT_INC() there would cause a call
+trace:
 
-The start_p and end_p pointers were reset to key data from the first
-field at every iteration of the loop which was supposed to go over
-the set fields.
+  BUG: using __this_cpu_add() in preemptible [00000000] code: kworker/u4:0/138560
+  caller is flow_offload_queue_work+0xec/0x1b0 [nf_flow_table]
+  Workqueue: act_ct_workqueue tcf_ct_flow_table_cleanup_work [act_ct]
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x33/0x46
+   check_preemption_disabled+0xc3/0xf0
+   flow_offload_queue_work+0xec/0x1b0 [nf_flow_table]
+   nf_flow_table_iterate+0x138/0x170 [nf_flow_table]
+   nf_flow_table_free+0x140/0x1a0 [nf_flow_table]
+   tcf_ct_flow_table_cleanup_work+0x2f/0x2b0 [act_ct]
+   process_one_work+0x6a3/0x1030
+   worker_thread+0x8a/0xdf0
 
-Fixes: 3c4287f62044 ("nf_tables: Add set type for arbitrary concatenation of ranges")
-Reported-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
+This patch fixes it by using NF_FLOW_TABLE_STAT_INC_ATOMIC()
+instead in flow_offload_queue_work().
+
+Note that for FLOW_CLS_REPLACE branch in flow_offload_queue_work(),
+it may not be called in preemptible path, but it's good to use
+NF_FLOW_TABLE_STAT_INC_ATOMIC() for all cases in
+flow_offload_queue_work().
+
+Fixes: b038177636f8 ("netfilter: nf_flow_table: count pending offload workqueue tasks")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_set_pipapo.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/netfilter/nf_flow_table_offload.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nft_set_pipapo.c b/net/netfilter/nft_set_pipapo.c
-index 4f9299b9dcdd..06d46d182634 100644
---- a/net/netfilter/nft_set_pipapo.c
-+++ b/net/netfilter/nft_set_pipapo.c
-@@ -1162,6 +1162,7 @@ static int nft_pipapo_insert(const struct net *net, const struct nft_set *set,
- 	struct nft_pipapo_match *m = priv->clone;
- 	u8 genmask = nft_genmask_next(net);
- 	struct nft_pipapo_field *f;
-+	const u8 *start_p, *end_p;
- 	int i, bsize_max, err = 0;
+diff --git a/net/netfilter/nf_flow_table_offload.c b/net/netfilter/nf_flow_table_offload.c
+index 00b522890d77..0fdcdb2c9ae4 100644
+--- a/net/netfilter/nf_flow_table_offload.c
++++ b/net/netfilter/nf_flow_table_offload.c
+@@ -997,13 +997,13 @@ static void flow_offload_queue_work(struct flow_offload_work *offload)
+ 	struct net *net = read_pnet(&offload->flowtable->net);
  
- 	if (nft_set_ext_exists(ext, NFT_SET_EXT_KEY_END))
-@@ -1202,9 +1203,9 @@ static int nft_pipapo_insert(const struct net *net, const struct nft_set *set,
+ 	if (offload->cmd == FLOW_CLS_REPLACE) {
+-		NF_FLOW_TABLE_STAT_INC(net, count_wq_add);
++		NF_FLOW_TABLE_STAT_INC_ATOMIC(net, count_wq_add);
+ 		queue_work(nf_flow_offload_add_wq, &offload->work);
+ 	} else if (offload->cmd == FLOW_CLS_DESTROY) {
+-		NF_FLOW_TABLE_STAT_INC(net, count_wq_del);
++		NF_FLOW_TABLE_STAT_INC_ATOMIC(net, count_wq_del);
+ 		queue_work(nf_flow_offload_del_wq, &offload->work);
+ 	} else {
+-		NF_FLOW_TABLE_STAT_INC(net, count_wq_stats);
++		NF_FLOW_TABLE_STAT_INC_ATOMIC(net, count_wq_stats);
+ 		queue_work(nf_flow_offload_stats_wq, &offload->work);
  	}
- 
- 	/* Validate */
-+	start_p = start;
-+	end_p = end;
- 	nft_pipapo_for_each_field(f, i, m) {
--		const u8 *start_p = start, *end_p = end;
--
- 		if (f->rules >= (unsigned long)NFT_PIPAPO_RULE0_MAX)
- 			return -ENOSPC;
- 
+ }
 -- 
 2.35.1
 
