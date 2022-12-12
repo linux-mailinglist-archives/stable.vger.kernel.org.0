@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C2464A1B5
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2536564A0C1
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:30:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232304AbiLLNoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:44:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42226 "EHLO
+        id S231960AbiLLNaA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:30:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231274AbiLLNnu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CC481146A
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:43:33 -0800 (PST)
+        with ESMTP id S232286AbiLLN36 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:29:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF7092A4
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:29:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA411B80D4F
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:43:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2A78C433EF;
-        Mon, 12 Dec 2022 13:43:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7235461053
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:29:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19E40C433EF;
+        Mon, 12 Dec 2022 13:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852610;
-        bh=yEA6rcNxNTAVkTyx9+68yURhJy0yQuRFWbb7JyLy7Zg=;
+        s=korg; t=1670851795;
+        bh=m7nX502XKe6TIgvNUE4bMQoKJT2EFM1Yfcyd2BDRLD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDR/0W7RxSoKM/oVJXHXlpGlYJ7DM0zwb6JLX/f4ESEyEN7TqwZY/8kcibTBjfnTE
-         +kUpVbPgZ/NPh4uuBk3hXduSIJInTrh87Mzs8pZpLYKvgXjQmD9e2KJJcdkoeBoH3H
-         eRQUWRw/tCMK+CZSMTbKRemCKBYuMMRVtr+GXT1Y=
+        b=b4FUCauprrU7zrxukwN6kiOKB9wtwl8NbIwdv078LAdNC2OQ5Ax6VD3ikDaIdlvAP
+         kDGtm+8FLxWgYih0GCQETRyuR6jzzLP5PVWHLeHF4t1gFH+8pgqKGYq7rcABKoNQtC
+         L4vC6uPFgsaQxbTY3BbBN+HVZB8vPiSTAt/VGF6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dawei Li <set_pte_at@outlook.com>,
-        Martin Krastev <krastevm@vmware.com>,
-        Zack Rusin <zackr@vmware.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 090/157] drm/vmwgfx: Fix race issue calling pin_user_pages
+        patches@lists.linux.dev,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 072/123] net: broadcom: Add PTP_1588_CLOCK_OPTIONAL dependency for BCMGENET under ARCH_BCM2835
 Date:   Mon, 12 Dec 2022 14:17:18 +0100
-Message-Id: <20221212130938.428356589@linuxfoundation.org>
+Message-Id: <20221212130929.989500793@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dawei Li <set_pte_at@outlook.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit ed14d225cc7c842f6d4d5a3009f71a44f5852d09 ]
+[ Upstream commit 421f8663b3a775c32f724f793264097c60028f2e ]
 
-pin_user_pages() is unsafe without protection of mmap_lock,
-fix it by calling pin_user_pages_fast().
+commit 8d820bc9d12b ("net: broadcom: Fix BCMGENET Kconfig") fixes the build
+that contain 99addbe31f55 ("net: broadcom: Select BROADCOM_PHY for BCMGENET")
+and enable BCMGENET=y but PTP_1588_CLOCK_OPTIONAL=m, which otherwise
+leads to a link failure. However this may trigger a runtime failure.
 
-Fixes: 7a7a933edd6c ("drm/vmwgfx: Introduce VMware mks-guest-stats")
-Signed-off-by: Dawei Li <set_pte_at@outlook.com>
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/TYWP286MB23193621CB443E1E1959A00BCA3E9@TYWP286MB2319.JPNP286.PROD.OUTLOOK.COM
+Fix the original issue by propagating the PTP_1588_CLOCK_OPTIONAL dependency
+of BROADCOM_PHY down to BCMGENET.
+
+Fixes: 8d820bc9d12b ("net: broadcom: Fix BCMGENET Kconfig")
+Fixes: 99addbe31f55 ("net: broadcom: Select BROADCOM_PHY for BCMGENET")
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20221125115003.30308-1-yuehaibing@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_msg.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/broadcom/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-index 089046fa21be..50fa3df0bc0c 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-@@ -1085,21 +1085,21 @@ int vmw_mksstat_add_ioctl(struct drm_device *dev, void *data,
- 	reset_ppn_array(pdesc->strsPPNs, ARRAY_SIZE(pdesc->strsPPNs));
- 
- 	/* Pin mksGuestStat user pages and store those in the instance descriptor */
--	nr_pinned_stat = pin_user_pages(arg->stat, num_pages_stat, FOLL_LONGTERM, pages_stat, NULL);
-+	nr_pinned_stat = pin_user_pages_fast(arg->stat, num_pages_stat, FOLL_LONGTERM, pages_stat);
- 	if (num_pages_stat != nr_pinned_stat)
- 		goto err_pin_stat;
- 
- 	for (i = 0; i < num_pages_stat; ++i)
- 		pdesc->statPPNs[i] = page_to_pfn(pages_stat[i]);
- 
--	nr_pinned_info = pin_user_pages(arg->info, num_pages_info, FOLL_LONGTERM, pages_info, NULL);
-+	nr_pinned_info = pin_user_pages_fast(arg->info, num_pages_info, FOLL_LONGTERM, pages_info);
- 	if (num_pages_info != nr_pinned_info)
- 		goto err_pin_info;
- 
- 	for (i = 0; i < num_pages_info; ++i)
- 		pdesc->infoPPNs[i] = page_to_pfn(pages_info[i]);
- 
--	nr_pinned_strs = pin_user_pages(arg->strs, num_pages_strs, FOLL_LONGTERM, pages_strs, NULL);
-+	nr_pinned_strs = pin_user_pages_fast(arg->strs, num_pages_strs, FOLL_LONGTERM, pages_strs);
- 	if (num_pages_strs != nr_pinned_strs)
- 		goto err_pin_strs;
- 
+diff --git a/drivers/net/ethernet/broadcom/Kconfig b/drivers/net/ethernet/broadcom/Kconfig
+index 1cd3c289f49b..cd1706909044 100644
+--- a/drivers/net/ethernet/broadcom/Kconfig
++++ b/drivers/net/ethernet/broadcom/Kconfig
+@@ -71,13 +71,14 @@ config BCM63XX_ENET
+ config BCMGENET
+ 	tristate "Broadcom GENET internal MAC support"
+ 	depends on HAS_IOMEM
++	depends on PTP_1588_CLOCK_OPTIONAL || !ARCH_BCM2835
+ 	select MII
+ 	select PHYLIB
+ 	select FIXED_PHY
+ 	select BCM7XXX_PHY
+ 	select MDIO_BCM_UNIMAC
+ 	select DIMLIB
+-	select BROADCOM_PHY if (ARCH_BCM2835 && PTP_1588_CLOCK_OPTIONAL)
++	select BROADCOM_PHY if ARCH_BCM2835
+ 	help
+ 	  This driver supports the built-in Ethernet MACs found in the
+ 	  Broadcom BCM7xxx Set Top Box family chipset.
 -- 
 2.35.1
 
