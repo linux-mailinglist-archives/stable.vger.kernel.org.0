@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8744649C96
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 11:43:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A82F4649C9A
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 11:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232265AbiLLKnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 05:43:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33680 "EHLO
+        id S231705AbiLLKnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 05:43:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231964AbiLLKlJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 05:41:09 -0500
+        with ESMTP id S232078AbiLLKlM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 05:41:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D9E7FAC5;
-        Mon, 12 Dec 2022 02:36:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D038B7C8;
+        Mon, 12 Dec 2022 02:36:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B54560F75;
-        Mon, 12 Dec 2022 10:36:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A901AC433F1;
-        Mon, 12 Dec 2022 10:36:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 168F160F91;
+        Mon, 12 Dec 2022 10:36:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC194C433D2;
+        Mon, 12 Dec 2022 10:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670841373;
-        bh=ge5RUukD9XT75lLSEX4INDIWUIQdr5aLW7fIKhgF9ss=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JVnRsCJ22IXWKEte+2YOWTV/87x1w/Ot58/1Fkp3aASmWpy58Cq3P204VkqrQONpC
-         MaQJK1akafbsQpWu6eEe2TdIUt7mHcw/oHpkZzBqKjIhOqXzzdA3hA7/vIzz5FreBC
-         vxH1CUP5rUybfCkRsr7vVYrX6XBBCSxWsyCv1aIO52qdhZ8XD1+a3G07MI+XdsnXHd
-         P9IlQfbc4Beo/NBKHobQ/dP5vymRmH6mmUvA05xO9rFT4msJpMX8oEpzoMZ45f9PlT
-         suS0+mcNdkDv7gPPsFvUprXhe0Eqyye3vTVWsILEERQtjBEFIgrq3iYIvueL7FFjAG
-         3s2sw5Uuv93MQ==
+        s=k20201202; t=1670841379;
+        bh=i5B8jfM7mYqUw8LJhrV4rt/J/for8B42sTXA4HqjeoA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=CGumjtmHkQQgO0LV5jUcOq9OmY2Jbyv/rvFIb/i4yM/tFKSu/WFHXVmIykznDG5KS
+         hJCPUWR8CFhB9JKXbRLnYrlc3TJgZGYaIwhEDau8O294dQNROjepo3rIxHinGRZJhS
+         CFMzIEK5i4V0pT1y1a5oyGS2w0rV/5CvPotoXw/hsSFzlFiboHyyl+n8/8qeuu9Jja
+         ZLeJ8/dFrlG0udiG3QEGWsazrLuQptaGCLf1rxK+qv84AVJ/UokyNX7FH6tsDjgiaU
+         vu5QkpR3MSxTjL6ict4abIT+NSOw8pkr9ypmumjRWiEdbRw/5HujZ/PPX+eBscZ/4Q
+         FhW7nv2ra5Cqw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 6/6] net: loopback: use NET_NAME_PREDICTABLE for name_assign_type
-Date:   Mon, 12 Dec 2022 05:35:58 -0500
-Message-Id: <20221212103600.299810-6-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 1/7] HID: ite: Add support for Acer S1002 keyboard-dock
+Date:   Mon, 12 Dec 2022 05:36:09 -0500
+Message-Id: <20221212103616.300049-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221212103600.299810-1-sashal@kernel.org>
-References: <20221212103600.299810-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,48 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 31d929de5a112ee1b977a89c57de74710894bbbf ]
+[ Upstream commit c961facb5b19634eee5bcdd91fc5bf3f1c545bc5 ]
 
-When the name_assign_type attribute was introduced (commit
-685343fc3ba6, "net: add name_assign_type netdev attribute"), the
-loopback device was explicitly mentioned as one which would make use
-of NET_NAME_PREDICTABLE:
+Make the hid-ite driver handle the Acer S1002 keyboard-dock, this
+leads to 2 improvements:
 
-    The name_assign_type attribute gives hints where the interface name of a
-    given net-device comes from. These values are currently defined:
-...
-      NET_NAME_PREDICTABLE:
-        The ifname has been assigned by the kernel in a predictable way
-        that is guaranteed to avoid reuse and always be the same for a
-        given device. Examples include statically created devices like
-        the loopback device [...]
+1. The non working wifi-toggle hotkey now works.
+2. Toggling the touchpad on of with the hotkey will no show OSD
+notifications in e.g. GNOME3. The actual toggling is handled inside
+the keyboard, this adds support for notifying evdev listeners about this.
 
-Switch to that so that reading /sys/class/net/lo/name_assign_type
-produces something sensible instead of returning -EINVAL.
-
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Stable-dep-of: 9ad6645a9dce ("HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch V 10")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/loopback.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-ids.h |  1 +
+ drivers/hid/hid-ite.c | 13 ++++++++++++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/loopback.c b/drivers/net/loopback.c
-index a1c77cc00416..498e5c8013ef 100644
---- a/drivers/net/loopback.c
-+++ b/drivers/net/loopback.c
-@@ -208,7 +208,7 @@ static __net_init int loopback_net_init(struct net *net)
- 	int err;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 3350a41d7dce..6ba318a49e44 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1148,6 +1148,7 @@
+ #define USB_DEVICE_ID_SYNAPTICS_DELL_K12A	0x2819
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012	0x2968
+ #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
++#define USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1002	0x73f4
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003	0x73f5
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5	0x81a7
  
- 	err = -ENOMEM;
--	dev = alloc_netdev(0, "lo", NET_NAME_UNKNOWN, loopback_setup);
-+	dev = alloc_netdev(0, "lo", NET_NAME_PREDICTABLE, loopback_setup);
- 	if (!dev)
- 		goto out;
+diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
+index 742c052b0110..22bfbebceaf4 100644
+--- a/drivers/hid/hid-ite.c
++++ b/drivers/hid/hid-ite.c
+@@ -18,10 +18,16 @@ static __u8 *ite_report_fixup(struct hid_device *hdev, __u8 *rdesc, unsigned int
+ 	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
  
+ 	if (quirks & QUIRK_TOUCHPAD_ON_OFF_REPORT) {
++		/* For Acer Aspire Switch 10 SW5-012 keyboard-dock */
+ 		if (*rsize == 188 && rdesc[162] == 0x81 && rdesc[163] == 0x02) {
+-			hid_info(hdev, "Fixing up ITE keyboard report descriptor\n");
++			hid_info(hdev, "Fixing up Acer Sw5-012 ITE keyboard report descriptor\n");
+ 			rdesc[163] = HID_MAIN_ITEM_RELATIVE;
+ 		}
++		/* For Acer One S1002 keyboard-dock */
++		if (*rsize == 188 && rdesc[185] == 0x81 && rdesc[186] == 0x02) {
++			hid_info(hdev, "Fixing up Acer S1002 ITE keyboard report descriptor\n");
++			rdesc[186] = HID_MAIN_ITEM_RELATIVE;
++		}
+ 	}
+ 
+ 	return rdesc;
+@@ -101,6 +107,11 @@ static const struct hid_device_id ite_devices[] = {
+ 		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012),
+ 	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
+ 	/* ITE8910 USB kbd ctlr, with Synaptics touchpad connected to it. */
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
++		     USB_VENDOR_ID_SYNAPTICS,
++		     USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1002),
++	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
++	/* ITE8910 USB kbd ctlr, with Synaptics touchpad connected to it. */
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+ 		     USB_VENDOR_ID_SYNAPTICS,
+ 		     USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003) },
 -- 
 2.35.1
 
