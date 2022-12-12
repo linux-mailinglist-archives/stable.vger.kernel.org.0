@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B62AF64A0F1
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:33:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 934E364A1C5
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:45:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229904AbiLLNdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:33:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33398 "EHLO
+        id S232988AbiLLNpc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:45:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232322AbiLLNdI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:33:08 -0500
+        with ESMTP id S232977AbiLLNpM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:45:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F10122BC0
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:33:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01D2E140E0
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:44:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8936F6105A
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:33:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46BB1C433D2;
-        Mon, 12 Dec 2022 13:33:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AB2D6106C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:44:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D989FC433EF;
+        Mon, 12 Dec 2022 13:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851987;
-        bh=28A9aXTqdeI0yQmARiaBRORW/ztIrUyXmih2nzNuaBQ=;
+        s=korg; t=1670852669;
+        bh=YvT3io4TCTaaxGmdKQd3ilFgmIUbj/2idFzlX3QDaq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hZI6s9NZutURbxJqMWf0eAhv776nHRHRK5ab/n1pmXxVtWRVUlNf7OvJM7zw19yR2
-         62Ysf7pz6+XcOMrZDTWnLx8tILjGeMjG464rkLMKGBr9skx20eNAjh8wfzB+tKxG7G
-         cspIBp2OR1S9jYE4Iw7RrArSbIouTW8ZDpffFSjE=
+        b=HtnkB05/R5gB6vW6nGqdoI6TJ9/mpVcxolzmssWN/9Y8oLXDON0pgxlOfUhDthBFW
+         Mr1U3/Zc+30yxKR3SAQt68vnSmviDvoB3yuOez7XAhczWZavNddk20RCpxCJQQg8w9
+         uGoICmUUMxpp8BRtPZY9l11ICLl9pSSzE1NTZYTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev,
+        syzbot+210e196cef4711b65139@syzkaller.appspotmail.com,
+        Kees Cook <keescook@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 110/123] dpaa2-switch: Fix memory leak in dpaa2_switch_acl_entry_add() and dpaa2_switch_acl_entry_remove()
+Subject: [PATCH 6.0 128/157] NFC: nci: Bounds check struct nfc_target arrays
 Date:   Mon, 12 Dec 2022 14:17:56 +0100
-Message-Id: <20221212130931.955628392@linuxfoundation.org>
+Message-Id: <20221212130940.022888727@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 4fad22a1281c500f15b172c9d261eff347ca634b ]
+[ Upstream commit e329e71013c9b5a4535b099208493c7826ee4a64 ]
 
-The cmd_buff needs to be freed when error happened in
-dpaa2_switch_acl_entry_add() and dpaa2_switch_acl_entry_remove().
+While running under CONFIG_FORTIFY_SOURCE=y, syzkaller reported:
 
-Fixes: 1110318d83e8 ("dpaa2-switch: add tc flower hardware offload on ingress traffic")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Link: https://lore.kernel.org/r/20221205061515.115012-1-yuancan@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+  memcpy: detected field-spanning write (size 129) of single field "target->sensf_res" at net/nfc/nci/ntf.c:260 (size 18)
+
+This appears to be a legitimate lack of bounds checking in
+nci_add_new_protocol(). Add the missing checks.
+
+Reported-by: syzbot+210e196cef4711b65139@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/lkml/0000000000001c590f05ee7b3ff4@google.com
+Fixes: 019c4fbaa790 ("NFC: Add NCI multiple targets support")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20221202214410.never.693-kees@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-switch-flower.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/nfc/nci/ntf.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch-flower.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch-flower.c
-index cacd454ac696..c39b866e2582 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch-flower.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch-flower.c
-@@ -132,6 +132,7 @@ int dpaa2_switch_acl_entry_add(struct dpaa2_switch_filter_block *filter_block,
- 						 DMA_TO_DEVICE);
- 	if (unlikely(dma_mapping_error(dev, acl_entry_cfg->key_iova))) {
- 		dev_err(dev, "DMA mapping failed\n");
-+		kfree(cmd_buff);
- 		return -EFAULT;
- 	}
+diff --git a/net/nfc/nci/ntf.c b/net/nfc/nci/ntf.c
+index 282c51051dcc..994a0a1efb58 100644
+--- a/net/nfc/nci/ntf.c
++++ b/net/nfc/nci/ntf.c
+@@ -240,6 +240,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
+ 		target->sens_res = nfca_poll->sens_res;
+ 		target->sel_res = nfca_poll->sel_res;
+ 		target->nfcid1_len = nfca_poll->nfcid1_len;
++		if (target->nfcid1_len > ARRAY_SIZE(target->nfcid1))
++			return -EPROTO;
+ 		if (target->nfcid1_len > 0) {
+ 			memcpy(target->nfcid1, nfca_poll->nfcid1,
+ 			       target->nfcid1_len);
+@@ -248,6 +250,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
+ 		nfcb_poll = (struct rf_tech_specific_params_nfcb_poll *)params;
  
-@@ -142,6 +143,7 @@ int dpaa2_switch_acl_entry_add(struct dpaa2_switch_filter_block *filter_block,
- 			 DMA_TO_DEVICE);
- 	if (err) {
- 		dev_err(dev, "dpsw_acl_add_entry() failed %d\n", err);
-+		kfree(cmd_buff);
- 		return err;
- 	}
+ 		target->sensb_res_len = nfcb_poll->sensb_res_len;
++		if (target->sensb_res_len > ARRAY_SIZE(target->sensb_res))
++			return -EPROTO;
+ 		if (target->sensb_res_len > 0) {
+ 			memcpy(target->sensb_res, nfcb_poll->sensb_res,
+ 			       target->sensb_res_len);
+@@ -256,6 +260,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
+ 		nfcf_poll = (struct rf_tech_specific_params_nfcf_poll *)params;
  
-@@ -172,6 +174,7 @@ dpaa2_switch_acl_entry_remove(struct dpaa2_switch_filter_block *block,
- 						 DMA_TO_DEVICE);
- 	if (unlikely(dma_mapping_error(dev, acl_entry_cfg->key_iova))) {
- 		dev_err(dev, "DMA mapping failed\n");
-+		kfree(cmd_buff);
- 		return -EFAULT;
- 	}
- 
-@@ -182,6 +185,7 @@ dpaa2_switch_acl_entry_remove(struct dpaa2_switch_filter_block *block,
- 			 DMA_TO_DEVICE);
- 	if (err) {
- 		dev_err(dev, "dpsw_acl_remove_entry() failed %d\n", err);
-+		kfree(cmd_buff);
- 		return err;
- 	}
- 
+ 		target->sensf_res_len = nfcf_poll->sensf_res_len;
++		if (target->sensf_res_len > ARRAY_SIZE(target->sensf_res))
++			return -EPROTO;
+ 		if (target->sensf_res_len > 0) {
+ 			memcpy(target->sensf_res, nfcf_poll->sensf_res,
+ 			       target->sensf_res_len);
 -- 
 2.35.1
 
