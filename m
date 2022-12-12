@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3046564A29A
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4604B64A26A
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232992AbiLLN4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:56:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57690 "EHLO
+        id S233109AbiLLNyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:54:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232956AbiLLN4T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:56:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E12915A19
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:56:06 -0800 (PST)
+        with ESMTP id S233102AbiLLNyA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB2D9E8F
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:53:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B264661072
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:56:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BFF5C433EF;
-        Mon, 12 Dec 2022 13:56:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8624561068
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:53:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6943FC433F0;
+        Mon, 12 Dec 2022 13:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853365;
-        bh=aPLxUTXdo/xecYuHkuSOuheoc+cRFJ2fpNAMlMypgHk=;
+        s=korg; t=1670853209;
+        bh=AuOUX6Q8A6O4fglwPRxv5J01FYk//ZB99Zo1bht5BD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x2c+AhEGfw9IFpgjp72ahQ5GZRE8aLzDcZunVcrZQpTFyKKgox8TgZlher/z/zu7+
-         HE5kWukYj3vCCKXPpBjua3P8DBsGQDqAd+PV887vJH4RK5cBhsWAsKtca7TKryXFWI
-         z7upCV+RDT+qnZIIXvY5P+pVsHr3HJ29C9Kz4xmk=
+        b=0cEMSZ8U9lTmh5+isyjNOqBuBfDzN2NIcLGz2fU8f//s3DBCIjnOoYbxy5rejb6k6
+         fmBGMI1oWRbVGsJAk0ANJapSjKCtM0V12qrMVYF8BuO9uuZEVth7WNk08SycpTUlZ0
+         a/NV2qocQptcQtkGuFM8/0iD7/p8EPM1VBnklKqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 16/31] gpio: amd8111: Fix PCI device reference count leak
-Date:   Mon, 12 Dec 2022 14:19:34 +0100
-Message-Id: <20221212130910.868473540@linuxfoundation.org>
+Subject: [PATCH 4.14 34/38] ethernet: aeroflex: fix potential skb leak in greth_init_rings()
+Date:   Mon, 12 Dec 2022 14:19:35 +0100
+Message-Id: <20221212130913.811434529@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130909.943483205@linuxfoundation.org>
-References: <20221212130909.943483205@linuxfoundation.org>
+In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
+References: <20221212130912.069170932@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 45fecdb9f658d9c82960c98240bc0770ade19aca ]
+[ Upstream commit 063a932b64db3317ec020c94466fe52923a15f60 ]
 
-for_each_pci_dev() is implemented by pci_get_device(). The comment of
-pci_get_device() says that it will increase the reference count for the
-returned pci_dev and also decrease the reference count for the input
-pci_dev @from if it is not NULL.
+The greth_init_rings() function won't free the newly allocated skb when
+dma_mapping_error() returns error, so add dev_kfree_skb() to fix it.
 
-If we break for_each_pci_dev() loop with pdev not NULL, we need to call
-pci_dev_put() to decrease the reference count. Add the missing
-pci_dev_put() after the 'out' label. Since pci_dev_put() can handle NULL
-input parameter, there is no problem for the 'Device not found' branch.
-For the normal path, add pci_dev_put() in amd_gpio_exit().
+Compile tested only.
 
-Fixes: f942a7de047d ("gpio: add a driver for GPIO pins found on AMD-8111 south bridge chips")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Fixes: d4c41139df6e ("net: Add Aeroflex Gaisler 10/100/1G Ethernet MAC driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/1670134149-29516-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-amd8111.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/aeroflex/greth.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpio/gpio-amd8111.c b/drivers/gpio/gpio-amd8111.c
-index 30ad7d7c1678..f8486bac12d0 100644
---- a/drivers/gpio/gpio-amd8111.c
-+++ b/drivers/gpio/gpio-amd8111.c
-@@ -231,7 +231,10 @@ static int __init amd_gpio_init(void)
- 		ioport_unmap(gp.pm);
- 		goto out;
- 	}
-+	return 0;
-+
- out:
-+	pci_dev_put(pdev);
- 	return err;
- }
- 
-@@ -239,6 +242,7 @@ static void __exit amd_gpio_exit(void)
- {
- 	gpiochip_remove(&gp.chip);
- 	ioport_unmap(gp.pm);
-+	pci_dev_put(gp.pdev);
- }
- 
- module_init(amd_gpio_init);
+diff --git a/drivers/net/ethernet/aeroflex/greth.c b/drivers/net/ethernet/aeroflex/greth.c
+index a20e95b39cf7..4df8da8f5e7e 100644
+--- a/drivers/net/ethernet/aeroflex/greth.c
++++ b/drivers/net/ethernet/aeroflex/greth.c
+@@ -262,6 +262,7 @@ static int greth_init_rings(struct greth_private *greth)
+ 			if (dma_mapping_error(greth->dev, dma_addr)) {
+ 				if (netif_msg_ifup(greth))
+ 					dev_err(greth->dev, "Could not create initial DMA mapping\n");
++				dev_kfree_skb(skb);
+ 				goto cleanup;
+ 			}
+ 			greth->rx_skbuff[i] = skb;
 -- 
 2.35.1
 
