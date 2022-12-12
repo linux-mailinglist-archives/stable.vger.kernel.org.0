@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B37064A0C0
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:29:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDBEC64A05F
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:24:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232417AbiLLN34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:29:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58890 "EHLO
+        id S232678AbiLLNYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:24:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231960AbiLLN3x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:29:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1944BED
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:29:52 -0800 (PST)
+        with ESMTP id S232633AbiLLNYT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:24:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD0D0245
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:24:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E55361053
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:29:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDBA2C433EF;
-        Mon, 12 Dec 2022 13:29:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 498C361059
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:24:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34399C433EF;
+        Mon, 12 Dec 2022 13:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851791;
-        bh=8IQjXuLu1B1D//lv/VVVi0e7TxHn0/WlRCQ6jgtE75g=;
+        s=korg; t=1670851457;
+        bh=HtijZ5tVO7MeIEPv1AouZAV5k8dZQbJGcI1Vb/AvAhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bhAv8i31s2VOVtnIqCLY6nDlsLVKn8zW3uyIDMmfjWbRfn16b2z2Mhx+3fvN1VL8w
-         bcVXkC/4TCoaXERJCSgLFZtGgNAo/t5h/D+sxW/i1Tn7UlOZ5wzUGQ9h+4JDpqMcvV
-         W6UXmN9f484SE6n1P25rNk8yvy8rrXS98qxjoAJI=
+        b=RfiypUV4pLSfhdXgUQSek1xxfsigLNP668qWNqJZRc6qcFCl3bRg9pI7vi5Di8bGM
+         GjmXnM9Rro5OrYCeq1ak3G/5YglIRozYXBU8ZefyP9KB5dDQv9GrIKPj5/P9mIiN6b
+         xBoP6gtmCKocV3iFKtRZfkIJP7PVUzmMBIdgkPLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akihiko Odaki <akihiko.odaki@daynix.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 5.15 071/123] igb: Allocate MSI-X vector when testing
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 42/67] Bluetooth: Fix not cleanup led when bt_init fails
 Date:   Mon, 12 Dec 2022 14:17:17 +0100
-Message-Id: <20221212130929.946535747@linuxfoundation.org>
+Message-Id: <20221212130919.637292390@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 28e96556baca7056d11d9fb3cdd0aba4483e00d8 ]
+[ Upstream commit 2f3957c7eb4e07df944169a3e50a4d6790e1c744 ]
 
-Without this change, the interrupt test fail with MSI-X environment:
+bt_init() calls bt_leds_init() to register led, but if it fails later,
+bt_leds_cleanup() is not called to unregister it.
 
-$ sudo ethtool -t enp0s2 offline
-[   43.921783] igb 0000:00:02.0: offline testing starting
-[   44.855824] igb 0000:00:02.0 enp0s2: igb: enp0s2 NIC Link is Down
-[   44.961249] igb 0000:00:02.0 enp0s2: igb: enp0s2 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: RX/TX
-[   51.272202] igb 0000:00:02.0: testing shared interrupt
-[   56.996975] igb 0000:00:02.0 enp0s2: igb: enp0s2 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: RX/TX
-The test result is FAIL
-The test extra info:
-Register test  (offline)	 0
-Eeprom test    (offline)	 0
-Interrupt test (offline)	 4
-Loopback test  (offline)	 0
-Link test   (on/offline)	 0
+This can cause panic if the argument "bluetooth-power" in text is freed
+and then another led_trigger_register() tries to access it:
 
-Here, "4" means an expected interrupt was not delivered.
+BUG: unable to handle page fault for address: ffffffffc06d3bc0
+RIP: 0010:strcmp+0xc/0x30
+  Call Trace:
+    <TASK>
+    led_trigger_register+0x10d/0x4f0
+    led_trigger_register_simple+0x7d/0x100
+    bt_init+0x39/0xf7 [bluetooth]
+    do_one_initcall+0xd0/0x4e0
 
-To fix this, route IRQs correctly to the first MSI-X vector by setting
-IVAR_MISC. Also, set bit 0 of EIMS so that the vector will not be
-masked. The interrupt test now runs properly with this change:
-
-$ sudo ethtool -t enp0s2 offline
-[   42.762985] igb 0000:00:02.0: offline testing starting
-[   50.141967] igb 0000:00:02.0: testing shared interrupt
-[   56.163957] igb 0000:00:02.0 enp0s2: igb: enp0s2 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: RX/TX
-The test result is PASS
-The test extra info:
-Register test  (offline)	 0
-Eeprom test    (offline)	 0
-Interrupt test (offline)	 0
-Loopback test  (offline)	 0
-Link test   (on/offline)	 0
-
-Fixes: 4eefa8f01314 ("igb: add single vector msi-x testing to interrupt test")
-Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: e64c97b53bc6 ("Bluetooth: Add combined LED trigger for controller power")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_ethtool.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/bluetooth/af_bluetooth.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_ethtool.c b/drivers/net/ethernet/intel/igb/igb_ethtool.c
-index 3cbb5a89b336..e99e6e44b525 100644
---- a/drivers/net/ethernet/intel/igb/igb_ethtool.c
-+++ b/drivers/net/ethernet/intel/igb/igb_ethtool.c
-@@ -1409,6 +1409,8 @@ static int igb_intr_test(struct igb_adapter *adapter, u64 *data)
- 			*data = 1;
- 			return -1;
- 		}
-+		wr32(E1000_IVAR_MISC, E1000_IVAR_VALID << 8);
-+		wr32(E1000_EIMS, BIT(0));
- 	} else if (adapter->flags & IGB_FLAG_HAS_MSI) {
- 		shared_int = false;
- 		if (request_irq(irq,
+diff --git a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
+index 5f508c50649d..8031526eeeee 100644
+--- a/net/bluetooth/af_bluetooth.c
++++ b/net/bluetooth/af_bluetooth.c
+@@ -735,7 +735,7 @@ static int __init bt_init(void)
+ 
+ 	err = bt_sysfs_init();
+ 	if (err < 0)
+-		return err;
++		goto cleanup_led;
+ 
+ 	err = sock_register(&bt_sock_family_ops);
+ 	if (err)
+@@ -771,6 +771,8 @@ static int __init bt_init(void)
+ 	sock_unregister(PF_BLUETOOTH);
+ cleanup_sysfs:
+ 	bt_sysfs_cleanup();
++cleanup_led:
++	bt_leds_cleanup();
+ 	return err;
+ }
+ 
 -- 
 2.35.1
 
