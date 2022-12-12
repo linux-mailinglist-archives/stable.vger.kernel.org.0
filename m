@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8D6564A0C8
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:30:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C78764A1BE
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231849AbiLLNae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:30:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59440 "EHLO
+        id S233003AbiLLNo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:44:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231607AbiLLNac (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:30:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C063D64D2
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:30:31 -0800 (PST)
+        with ESMTP id S232922AbiLLNoG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:44:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D2862BEB
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:44:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7700AB80D50
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:30:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60C2BC433D2;
-        Mon, 12 Dec 2022 13:30:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3630D61074
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:44:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D56CAC433EF;
+        Mon, 12 Dec 2022 13:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851829;
-        bh=vY2J64metN7Keh1VRhM7HCr4x3asCayUyXAaq+2DzfY=;
+        s=korg; t=1670852639;
+        bh=KMXaX480Rg55ZVKIIZw2olW1c2VZcr6JGuyc2jJSFfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CQulqHU6XBDByiQfEChFJw492WmeJ49bAG9oRVpZCrq2QGFDcNzoVPpd5HjPS8GCF
-         WVaKaszjSyxpOWcZ772fENDzNHZuFVrI2f/kdeS6x/gklxeQSo++JYwNTVZZ4SRzF4
-         s7qDNjty88Lr0hqiG4morCjG19YNOSOmwGpl1nOQ=
+        b=PZdGRsT/aLjvYuCk68VEAHc43iv5JkKGG7E2am3mpFhDjtCfd37OPSEgRdNtUbjTk
+         i/803Fjm+uClA2hKv88YgQmtA5T9Hx9O/EDOZbwPGVQfTuBDkPDWPmSb4Go60jpdT+
+         XV1W24T+RBUPX7LOYc9F7t4rFGtnIzrqnHVyUics=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 078/123] Bluetooth: Fix not cleanup led when bt_init fails
+Subject: [PATCH 6.0 096/157] gpio: amd8111: Fix PCI device reference count leak
 Date:   Mon, 12 Dec 2022 14:17:24 +0100
-Message-Id: <20221212130930.237303064@linuxfoundation.org>
+Message-Id: <20221212130938.676287213@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 2f3957c7eb4e07df944169a3e50a4d6790e1c744 ]
+[ Upstream commit 45fecdb9f658d9c82960c98240bc0770ade19aca ]
 
-bt_init() calls bt_leds_init() to register led, but if it fails later,
-bt_leds_cleanup() is not called to unregister it.
+for_each_pci_dev() is implemented by pci_get_device(). The comment of
+pci_get_device() says that it will increase the reference count for the
+returned pci_dev and also decrease the reference count for the input
+pci_dev @from if it is not NULL.
 
-This can cause panic if the argument "bluetooth-power" in text is freed
-and then another led_trigger_register() tries to access it:
+If we break for_each_pci_dev() loop with pdev not NULL, we need to call
+pci_dev_put() to decrease the reference count. Add the missing
+pci_dev_put() after the 'out' label. Since pci_dev_put() can handle NULL
+input parameter, there is no problem for the 'Device not found' branch.
+For the normal path, add pci_dev_put() in amd_gpio_exit().
 
-BUG: unable to handle page fault for address: ffffffffc06d3bc0
-RIP: 0010:strcmp+0xc/0x30
-  Call Trace:
-    <TASK>
-    led_trigger_register+0x10d/0x4f0
-    led_trigger_register_simple+0x7d/0x100
-    bt_init+0x39/0xf7 [bluetooth]
-    do_one_initcall+0xd0/0x4e0
-
-Fixes: e64c97b53bc6 ("Bluetooth: Add combined LED trigger for controller power")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: f942a7de047d ("gpio: add a driver for GPIO pins found on AMD-8111 south bridge chips")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/af_bluetooth.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-amd8111.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
-index 1661979b6a6e..ce744b14d1a9 100644
---- a/net/bluetooth/af_bluetooth.c
-+++ b/net/bluetooth/af_bluetooth.c
-@@ -736,7 +736,7 @@ static int __init bt_init(void)
- 
- 	err = bt_sysfs_init();
- 	if (err < 0)
--		return err;
-+		goto cleanup_led;
- 
- 	err = sock_register(&bt_sock_family_ops);
- 	if (err)
-@@ -772,6 +772,8 @@ static int __init bt_init(void)
- 	sock_unregister(PF_BLUETOOTH);
- cleanup_sysfs:
- 	bt_sysfs_cleanup();
-+cleanup_led:
-+	bt_leds_cleanup();
+diff --git a/drivers/gpio/gpio-amd8111.c b/drivers/gpio/gpio-amd8111.c
+index 14e6b3e64add..6f3ded619c8b 100644
+--- a/drivers/gpio/gpio-amd8111.c
++++ b/drivers/gpio/gpio-amd8111.c
+@@ -226,7 +226,10 @@ static int __init amd_gpio_init(void)
+ 		ioport_unmap(gp.pm);
+ 		goto out;
+ 	}
++	return 0;
++
+ out:
++	pci_dev_put(pdev);
  	return err;
  }
  
+@@ -234,6 +237,7 @@ static void __exit amd_gpio_exit(void)
+ {
+ 	gpiochip_remove(&gp.chip);
+ 	ioport_unmap(gp.pm);
++	pci_dev_put(gp.pdev);
+ }
+ 
+ module_init(amd_gpio_init);
 -- 
 2.35.1
 
