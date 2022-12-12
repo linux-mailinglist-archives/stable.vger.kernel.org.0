@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12D7D64A1B8
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70DF964A0C4
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:30:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232602AbiLLNoT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:44:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41970 "EHLO
+        id S232202AbiLLNaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:30:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232712AbiLLNn4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8E9B13F92
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:43:45 -0800 (PST)
+        with ESMTP id S232054AbiLLNaN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:30:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F70A244
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:30:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86D8A61035
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:43:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 214D2C433F2;
-        Mon, 12 Dec 2022 13:43:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA82AB80D50
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:30:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E3AAC433EF;
+        Mon, 12 Dec 2022 13:30:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852625;
-        bh=oZePgDg1nOWEoqIu4i1oofNd1Fu1iTnOQS6vwbfsp2E=;
+        s=korg; t=1670851809;
+        bh=mk1apioj3uj4qNNyNoWf7t0XvxZMVV7poWakHjwql44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wgHG9a38OgOKHMqdrGbULksVBMEiROa4VKZuHQU6CSPFNVG9Obk1dOWHQIOk88C2q
-         tIHvW/yEolAI4PZ25/N1XuxOvAkTdbyS3oSAHpBPd9s+/ccMBEIGP/msWpJnQki08W
-         fK/FTXoSJVTgRkJcqhtCrqgW7BMxwB6m7vCL3weE=
+        b=mWY+XP6iDZKZuzFUOdq+BoQs7kgUCDl8ZentkEkEr5mZQCx7NivAwsvnneOwooGSH
+         KgdVL2ym5t4yjGUNcbQwhgjPUmm6gnrdzbr/Aa5jGvxkkmrCfYIwUzS/sNTR4/Fua1
+         cizNENpCzH3LRAxZtNYAJUiyfX6Q+i6pdeCq6KSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Ronak Doshi <doshir@vmware.com>,
+        Guolin Yang <gyang@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 093/157] netfilter: conntrack: fix using __this_cpu_add in preemptible
+Subject: [PATCH 5.15 075/123] vmxnet3: correctly report encapsulated LRO packet
 Date:   Mon, 12 Dec 2022 14:17:21 +0100
-Message-Id: <20221212130938.551731347@linuxfoundation.org>
+Message-Id: <20221212130930.114566180@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Ronak Doshi <doshir@vmware.com>
 
-[ Upstream commit 9464d0b68f11a9bc768370c3260ec02b3550447b ]
+[ Upstream commit 40b8c2a1af03ba3e8da55a4490d646bfa845e71a ]
 
-Currently in nf_conntrack_hash_check_insert(), when it fails in
-nf_ct_ext_valid_pre/post(), NF_CT_STAT_INC() will be called in the
-preemptible context, a call trace can be triggered:
+Commit dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload
+support") added support for encapsulation offload. However, the
+pathc did not report correctly the encapsulated packet which is
+LRO'ed by the hypervisor.
 
-   BUG: using __this_cpu_add() in preemptible [00000000] code: conntrack/1636
-   caller is nf_conntrack_hash_check_insert+0x45/0x430 [nf_conntrack]
-   Call Trace:
-    <TASK>
-    dump_stack_lvl+0x33/0x46
-    check_preemption_disabled+0xc3/0xf0
-    nf_conntrack_hash_check_insert+0x45/0x430 [nf_conntrack]
-    ctnetlink_create_conntrack+0x3cd/0x4e0 [nf_conntrack_netlink]
-    ctnetlink_new_conntrack+0x1c0/0x450 [nf_conntrack_netlink]
-    nfnetlink_rcv_msg+0x277/0x2f0 [nfnetlink]
-    netlink_rcv_skb+0x50/0x100
-    nfnetlink_rcv+0x65/0x144 [nfnetlink]
-    netlink_unicast+0x1ae/0x290
-    netlink_sendmsg+0x257/0x4f0
-    sock_sendmsg+0x5f/0x70
+This patch fixes this issue by using correct callback for the LRO'ed
+encapsulated packet.
 
-This patch is to fix it by changing to use NF_CT_STAT_INC_ATOMIC() for
-nf_ct_ext_valid_pre/post() check in nf_conntrack_hash_check_insert(),
-as well as nf_ct_ext_valid_post() in __nf_conntrack_confirm().
-
-Note that nf_ct_ext_valid_pre() check in __nf_conntrack_confirm() is
-safe to use NF_CT_STAT_INC(), as it's under local_bh_disable().
-
-Fixes: c56716c69ce1 ("netfilter: extensions: introduce extension genid count")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload support")
+Signed-off-by: Ronak Doshi <doshir@vmware.com>
+Acked-by: Guolin Yang <gyang@vmware.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/vmxnet3/vmxnet3_drv.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index 60289c074eef..df46e9a35e47 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -891,7 +891,7 @@ nf_conntrack_hash_check_insert(struct nf_conn *ct)
- 	zone = nf_ct_zone(ct);
+diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
+index bc3192cf48e3..44a0d469f3cf 100644
+--- a/drivers/net/vmxnet3/vmxnet3_drv.c
++++ b/drivers/net/vmxnet3/vmxnet3_drv.c
+@@ -1350,6 +1350,7 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
+ 	};
+ 	u32 num_pkts = 0;
+ 	bool skip_page_frags = false;
++	bool encap_lro = false;
+ 	struct Vmxnet3_RxCompDesc *rcd;
+ 	struct vmxnet3_rx_ctx *ctx = &rq->rx_ctx;
+ 	u16 segCnt = 0, mss = 0;
+@@ -1508,13 +1509,18 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
+ 			if (VMXNET3_VERSION_GE_2(adapter) &&
+ 			    rcd->type == VMXNET3_CDTYPE_RXCOMP_LRO) {
+ 				struct Vmxnet3_RxCompDescExt *rcdlro;
++				union Vmxnet3_GenericDesc *gdesc;
++
+ 				rcdlro = (struct Vmxnet3_RxCompDescExt *)rcd;
++				gdesc = (union Vmxnet3_GenericDesc *)rcd;
  
- 	if (!nf_ct_ext_valid_pre(ct->ext)) {
--		NF_CT_STAT_INC(net, insert_failed);
-+		NF_CT_STAT_INC_ATOMIC(net, insert_failed);
- 		return -ETIMEDOUT;
- 	}
+ 				segCnt = rcdlro->segCnt;
+ 				WARN_ON_ONCE(segCnt == 0);
+ 				mss = rcdlro->mss;
+ 				if (unlikely(segCnt <= 1))
+ 					segCnt = 0;
++				encap_lro = (le32_to_cpu(gdesc->dword[0]) &
++					(1UL << VMXNET3_RCD_HDR_INNER_SHIFT));
+ 			} else {
+ 				segCnt = 0;
+ 			}
+@@ -1582,7 +1588,7 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
+ 			vmxnet3_rx_csum(adapter, skb,
+ 					(union Vmxnet3_GenericDesc *)rcd);
+ 			skb->protocol = eth_type_trans(skb, adapter->netdev);
+-			if (!rcd->tcp ||
++			if ((!rcd->tcp && !encap_lro) ||
+ 			    !(adapter->netdev->features & NETIF_F_LRO))
+ 				goto not_lro;
  
-@@ -938,7 +938,7 @@ nf_conntrack_hash_check_insert(struct nf_conn *ct)
+@@ -1591,7 +1597,7 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
+ 					SKB_GSO_TCPV4 : SKB_GSO_TCPV6;
+ 				skb_shinfo(skb)->gso_size = mss;
+ 				skb_shinfo(skb)->gso_segs = segCnt;
+-			} else if (segCnt != 0 || skb->len > mtu) {
++			} else if ((segCnt != 0 || skb->len > mtu) && !encap_lro) {
+ 				u32 hlen;
  
- 	if (!nf_ct_ext_valid_post(ct->ext)) {
- 		nf_ct_kill(ct);
--		NF_CT_STAT_INC(net, drop);
-+		NF_CT_STAT_INC_ATOMIC(net, drop);
- 		return -ETIMEDOUT;
- 	}
+ 				hlen = vmxnet3_get_hdr_len(adapter, skb,
+@@ -1620,6 +1626,7 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
+ 				napi_gro_receive(&rq->napi, skb);
  
-@@ -1275,7 +1275,7 @@ __nf_conntrack_confirm(struct sk_buff *skb)
- 	 */
- 	if (!nf_ct_ext_valid_post(ct->ext)) {
- 		nf_ct_kill(ct);
--		NF_CT_STAT_INC(net, drop);
-+		NF_CT_STAT_INC_ATOMIC(net, drop);
- 		return NF_DROP;
- 	}
+ 			ctx->skb = NULL;
++			encap_lro = false;
+ 			num_pkts++;
+ 		}
  
 -- 
 2.35.1
