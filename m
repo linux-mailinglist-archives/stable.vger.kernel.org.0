@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB09F64A0A3
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:28:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F68864A0A5
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:28:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232467AbiLLN2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:28:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57086 "EHLO
+        id S232546AbiLLN2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:28:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232700AbiLLN15 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:27:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62AA613E06
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:27:53 -0800 (PST)
+        with ESMTP id S232766AbiLLN17 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:27:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E68F13DFA
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:27:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1CDB9B80D4D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:27:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC7ACC433EF;
-        Mon, 12 Dec 2022 13:27:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D65B61053
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:27:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B29E7C433D2;
+        Mon, 12 Dec 2022 13:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851670;
-        bh=ACiR4qm1E19xMIk5BB0+BZSMefgIWKDrIKQaQdIWnFc=;
+        s=korg; t=1670851676;
+        bh=45i9J2FluU+irWJIHe0iIjsIUkaH+iYRyFTTpBT8kRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EIKvVQbesS6phsPDJ2vbBs+4nob4P/eyVmOKdGLHYtEMZLymzB2RLMsOljUJ2Pi/M
-         ZQa4b4G6tBghEhrQv17OCGwyQeuJFkM6Tz3ofOPOspP4ZEwZmfn5Nul35t7Dl2esY+
-         ZozhYAYD2DnkWpflpYhjygladfCdW9WZZ7VvP6To=
+        b=IRmMerINSiVdocTV/O15fycAE+w4oU9xxS9dm+CZ4xXKPRndWgbGQV993jMFmFsbY
+         d8GTB2IOVs8JwoLCtGTM7a+RJE8sSj0QAIzO/yd0dLsa/0dYDMYlOVq5727Qp3JJGL
+         MoCoUaOlXkTWAO2+W+X3D9eRRsJdTOUTRsMOVDu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Haiyang Zhang <haiyangz@microsoft.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.15 047/123] net: mana: Fix race on per-CQ variable napi work_done
-Date:   Mon, 12 Dec 2022 14:16:53 +0100
-Message-Id: <20221212130928.896230907@linuxfoundation.org>
+        patches@lists.linux.dev, Thomas Huth <thuth@redhat.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Subject: [PATCH 5.15 048/123] KVM: s390: vsie: Fix the initialization of the epoch extension (epdx) field
+Date:   Mon, 12 Dec 2022 14:16:54 +0100
+Message-Id: <20221212130928.939961257@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
 References: <20221212130926.811961601@linuxfoundation.org>
@@ -52,103 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Thomas Huth <thuth@redhat.com>
 
-commit 18010ff776fa42340efc428b3ea6d19b3e7c7b21 upstream.
+commit 0dd4cdccdab3d74bd86b868768a7dca216bcce7e upstream.
 
-After calling napi_complete_done(), the NAPIF_STATE_SCHED bit may be
-cleared, and another CPU can start napi thread and access per-CQ variable,
-cq->work_done. If the other thread (for example, from busy_poll) sets
-it to a value >= budget, this thread will continue to run when it should
-stop, and cause memory corruption and panic.
+We recently experienced some weird huge time jumps in nested guests when
+rebooting them in certain cases. After adding some debug code to the epoch
+handling in vsie.c (thanks to David Hildenbrand for the idea!), it was
+obvious that the "epdx" field (the multi-epoch extension) did not get set
+to 0xff in case the "epoch" field was negative.
+Seems like the code misses to copy the value from the epdx field from
+the guest to the shadow control block. By doing so, the weird time
+jumps are gone in our scenarios.
 
-To fix this issue, save the per-CQ work_done variable in a local variable
-before napi_complete_done(), so it won't be corrupted by a possible
-concurrent thread after napi_complete_done().
-
-Also, add a flag bit to advertise to the NIC firmware: the NAPI work_done
-variable race is fixed, so the driver is able to reliably support features
-like busy_poll.
-
-Cc: stable@vger.kernel.org
-Fixes: e1b5683ff62e ("net: mana: Move NAPI from EQ to CQ")
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Link: https://lore.kernel.org/r/1670010190-28595-1-git-send-email-haiyangz@microsoft.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2140899
+Fixes: 8fa1696ea781 ("KVM: s390: Multiple Epoch Facility support")
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Cc: stable@vger.kernel.org # 4.19+
+Link: https://lore.kernel.org/r/20221123090833.292938-1-thuth@redhat.com
+Message-Id: <20221123090833.292938-1-thuth@redhat.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/microsoft/mana/gdma.h    |    9 ++++++++-
- drivers/net/ethernet/microsoft/mana/mana_en.c |   16 +++++++++++-----
- 2 files changed, 19 insertions(+), 6 deletions(-)
+ arch/s390/kvm/vsie.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/microsoft/mana/gdma.h
-+++ b/drivers/net/ethernet/microsoft/mana/gdma.h
-@@ -488,7 +488,14 @@ enum {
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -538,8 +538,10 @@ static int shadow_scb(struct kvm_vcpu *v
+ 	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_CEI))
+ 		scb_s->eca |= scb_o->eca & ECA_CEI;
+ 	/* Epoch Extension */
+-	if (test_kvm_facility(vcpu->kvm, 139))
++	if (test_kvm_facility(vcpu->kvm, 139)) {
+ 		scb_s->ecd |= scb_o->ecd & ECD_MEF;
++		scb_s->epdx = scb_o->epdx;
++	}
  
- #define GDMA_DRV_CAP_FLAG_1_EQ_SHARING_MULTI_VPORT BIT(0)
- 
--#define GDMA_DRV_CAP_FLAGS1 GDMA_DRV_CAP_FLAG_1_EQ_SHARING_MULTI_VPORT
-+/* Advertise to the NIC firmware: the NAPI work_done variable race is fixed,
-+ * so the driver is able to reliably support features like busy_poll.
-+ */
-+#define GDMA_DRV_CAP_FLAG_1_NAPI_WKDONE_FIX BIT(2)
-+
-+#define GDMA_DRV_CAP_FLAGS1 \
-+	(GDMA_DRV_CAP_FLAG_1_EQ_SHARING_MULTI_VPORT | \
-+	 GDMA_DRV_CAP_FLAG_1_NAPI_WKDONE_FIX)
- 
- #define GDMA_DRV_CAP_FLAGS2 0
- 
---- a/drivers/net/ethernet/microsoft/mana/mana_en.c
-+++ b/drivers/net/ethernet/microsoft/mana/mana_en.c
-@@ -1071,10 +1071,11 @@ static void mana_poll_rx_cq(struct mana_
- 	}
- }
- 
--static void mana_cq_handler(void *context, struct gdma_queue *gdma_queue)
-+static int mana_cq_handler(void *context, struct gdma_queue *gdma_queue)
- {
- 	struct mana_cq *cq = context;
- 	u8 arm_bit;
-+	int w;
- 
- 	WARN_ON_ONCE(cq->gdma_cq != gdma_queue);
- 
-@@ -1083,26 +1084,31 @@ static void mana_cq_handler(void *contex
- 	else
- 		mana_poll_tx_cq(cq);
- 
--	if (cq->work_done < cq->budget &&
--	    napi_complete_done(&cq->napi, cq->work_done)) {
-+	w = cq->work_done;
-+
-+	if (w < cq->budget &&
-+	    napi_complete_done(&cq->napi, w)) {
- 		arm_bit = SET_ARM_BIT;
- 	} else {
- 		arm_bit = 0;
- 	}
- 
- 	mana_gd_ring_cq(gdma_queue, arm_bit);
-+
-+	return w;
- }
- 
- static int mana_poll(struct napi_struct *napi, int budget)
- {
- 	struct mana_cq *cq = container_of(napi, struct mana_cq, napi);
-+	int w;
- 
- 	cq->work_done = 0;
- 	cq->budget = budget;
- 
--	mana_cq_handler(cq, cq->gdma_cq);
-+	w = mana_cq_handler(cq, cq->gdma_cq);
- 
--	return min(cq->work_done, budget);
-+	return min(w, budget);
- }
- 
- static void mana_schedule_napi(void *context, struct gdma_queue *gdma_queue)
+ 	/* etoken */
+ 	if (test_kvm_facility(vcpu->kvm, 156))
 
 
