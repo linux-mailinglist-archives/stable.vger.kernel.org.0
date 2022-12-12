@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6968264A00F
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:19:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C48B264A010
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:19:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232406AbiLLNTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:19:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46192 "EHLO
+        id S232613AbiLLNTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:19:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232483AbiLLNTO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:19:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DC7813E05
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:18:18 -0800 (PST)
+        with ESMTP id S232650AbiLLNTQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:19:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1158A1032
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:18:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E0C361045
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:18:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC377C433D2;
-        Mon, 12 Dec 2022 13:18:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC882B80D3B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:18:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFC13C433EF;
+        Mon, 12 Dec 2022 13:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851097;
-        bh=HWK3CyfhSoOylPe4/69PfqIoZWQDdcB7WwS38HyR9bg=;
+        s=korg; t=1670851101;
+        bh=Szo7n1nLmpows1Fdp+kthLoNbZf2CKIUSo4ACSEWxvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cygGCd6M1DFfPcbDOKROkZbavBrRjogTE+H+8OnI47eB05Y7YKgt7RA90tb9AOhLO
-         PJt8sNCnK+lSHGxbOn18FZM69t0+6TcW3ErZ8LXBdx8Ah3ASnjjOuDV9cYuIVuvmF1
-         wTq8rhak4UQxCRdISYVNrB5CH5deCQMaV1pGXR7k=
+        b=X9wKEKDXX7Xm1mkTTXHQV369bzluVa7Zdmmm4+53482GESqe0h78TOOmV0DYIiZkT
+         sptEfioo6JYh0gSOTTnhaq5zvwe9OF8uTlpUdOttWxW+bpHYWtnx4z2coZHMKIWLo5
+         1tEvqkZ0MmFmqytz0jle5hmp+z3UKTHlilj6cl5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 084/106] net: mvneta: Prevent out of bounds read in mvneta_config_rss()
-Date:   Mon, 12 Dec 2022 14:10:27 +0100
-Message-Id: <20221212130928.540457878@linuxfoundation.org>
+        patches@lists.linux.dev, Michal Jaron <michalx.jaron@intel.com>,
+        Kamil Maziarz <kamil.maziarz@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.10 085/106] i40e: Fix not setting default xps_cpus after reset
+Date:   Mon, 12 Dec 2022 14:10:28 +0100
+Message-Id: <20221212130928.583013260@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -53,39 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Michal Jaron <michalx.jaron@intel.com>
 
-[ Upstream commit e8b4fc13900b8e8be48debffd0dfd391772501f7 ]
+[ Upstream commit 82e0572b23029b380464fa9fdc125db9c1506d0a ]
 
-The pp->indir[0] value comes from the user.  It is passed to:
+During tx rings configuration default XPS queue config is set and
+__I40E_TX_XPS_INIT_DONE is locked. __I40E_TX_XPS_INIT_DONE state is
+cleared and set again with default mapping only during queues build,
+it means after first setup or reset with queues rebuild. (i.e.
+ethtool -L <interface> combined <number>) After other resets (i.e.
+ethtool -t <interface>) XPS_INIT_DONE is not cleared and those default
+maps cannot be set again. It results in cleared xps_cpus mapping
+until queues are not rebuild or mapping is not set by user.
 
-	if (cpu_online(pp->rxq_def))
+Add clearing __I40E_TX_XPS_INIT_DONE state during reset to let
+the driver set xps_cpus to defaults again after it was cleared.
 
-inside the mvneta_percpu_elect() function.  It needs bounds checkeding
-to ensure that it is not beyond the end of the cpu bitmap.
-
-Fixes: cad5d847a093 ("net: mvneta: Fix the CPU choice in mvneta_percpu_elect")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 6f853d4f8e93 ("i40e: allow XPS with QoS enabled")
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Kamil Maziarz <kamil.maziarz@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-index 74e266c0b8e1..6bfa0ac27be3 100644
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -4767,6 +4767,9 @@ static int  mvneta_config_rss(struct mvneta_port *pp)
- 		napi_disable(&pp->napi);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index d7ddf9239e51..2c60d2a93330 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -10065,6 +10065,21 @@ static int i40e_rebuild_channels(struct i40e_vsi *vsi)
+ 	return 0;
+ }
+ 
++/**
++ * i40e_clean_xps_state - clean xps state for every tx_ring
++ * @vsi: ptr to the VSI
++ **/
++static void i40e_clean_xps_state(struct i40e_vsi *vsi)
++{
++	int i;
++
++	if (vsi->tx_rings)
++		for (i = 0; i < vsi->num_queue_pairs; i++)
++			if (vsi->tx_rings[i])
++				clear_bit(__I40E_TX_XPS_INIT_DONE,
++					  vsi->tx_rings[i]->state);
++}
++
+ /**
+  * i40e_prep_for_reset - prep for the core to reset
+  * @pf: board private structure
+@@ -10096,8 +10111,10 @@ static void i40e_prep_for_reset(struct i40e_pf *pf, bool lock_acquired)
+ 		rtnl_unlock();
+ 
+ 	for (v = 0; v < pf->num_alloc_vsi; v++) {
+-		if (pf->vsi[v])
++		if (pf->vsi[v]) {
++			i40e_clean_xps_state(pf->vsi[v]);
+ 			pf->vsi[v]->seid = 0;
++		}
  	}
  
-+	if (pp->indir[0] >= nr_cpu_ids)
-+		return -EINVAL;
-+
- 	pp->rxq_def = pp->indir[0];
- 
- 	/* Update unicast mapping */
+ 	i40e_shutdown_adminq(&pf->hw);
 -- 
 2.35.1
 
