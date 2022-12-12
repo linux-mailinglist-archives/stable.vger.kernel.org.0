@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C59264A277
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37C2664A265
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233102AbiLLNyt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:54:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54234 "EHLO
+        id S233055AbiLLNyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:54:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233122AbiLLNyZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:25 -0500
+        with ESMTP id S233053AbiLLNxz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66CAF2BD0
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:54:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85F61140F8
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:53:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2563EB80D2C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:54:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C49FC433D2;
-        Mon, 12 Dec 2022 13:54:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45C01B80D4F
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:53:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A42C8C433D2;
+        Mon, 12 Dec 2022 13:53:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853257;
-        bh=32GjUSZO50TOChG3Q65SYtHR5kPbYpCnzVf68che8L0=;
+        s=korg; t=1670853193;
+        bh=tuTZRKQvIVg0VPFRHHdRD2tcLBm5KfyTRfETN9cjyt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vm4VxVXeSoJp+fSFtd+zeTUW9tRopaKe7bfXmqEo92um3WnjEzYX8F6Z99aOaIb+f
-         Hp1JeLBV7KlbuU0KVMkxMTny/v+IAd5T8xY7PM3wMJqSd7TDIPWIkw2Rya94Yv+lY7
-         s8a+4KsejoPgNtp2ESQuNcXnK6vHQdOKRb1JHmKM=
+        b=nhVduBPJmIkaE0rD2kPCgwJbGVDBeWY5PZGTRWM+m6r98P5qNf+3kql5HOg83WAgV
+         UZpx24UQ62qdH3lONgYDMp3byvnJ3A/wD5dJ/EgCJhB1GBYg5snbrE4o2jFLTDAXbA
+         O7jsLcK7SkBFZE5XeF2bndCu43uLOiV1PQD1LMqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+210e196cef4711b65139@syzkaller.appspotmail.com,
-        Kees Cook <keescook@chromium.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 29/38] NFC: nci: Bounds check struct nfc_target arrays
-Date:   Mon, 12 Dec 2022 14:19:30 +0100
-Message-Id: <20221212130913.559997896@linuxfoundation.org>
+Subject: [PATCH 4.14 30/38] net: stmmac: fix "snps,axi-config" node property parsing
+Date:   Mon, 12 Dec 2022 14:19:31 +0100
+Message-Id: <20221212130913.610831333@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
 References: <20221212130912.069170932@linuxfoundation.org>
@@ -56,60 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jisheng Zhang <jszhang@kernel.org>
 
-[ Upstream commit e329e71013c9b5a4535b099208493c7826ee4a64 ]
+[ Upstream commit 61d4f140943c47c1386ed89f7260e00418dfad9d ]
 
-While running under CONFIG_FORTIFY_SOURCE=y, syzkaller reported:
+In dt-binding snps,dwmac.yaml, some properties under "snps,axi-config"
+node are named without "axi_" prefix, but the driver expects the
+prefix. Since the dt-binding has been there for a long time, we'd
+better make driver match the binding for compatibility.
 
-  memcpy: detected field-spanning write (size 129) of single field "target->sensf_res" at net/nfc/nci/ntf.c:260 (size 18)
-
-This appears to be a legitimate lack of bounds checking in
-nci_add_new_protocol(). Add the missing checks.
-
-Reported-by: syzbot+210e196cef4711b65139@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/lkml/0000000000001c590f05ee7b3ff4@google.com
-Fixes: 019c4fbaa790 ("NFC: Add NCI multiple targets support")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20221202214410.never.693-kees@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: afea03656add ("stmmac: rework DMA bus setting and introduce new platform AXI structure")
+Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+Link: https://lore.kernel.org/r/20221202161739.2203-1-jszhang@kernel.org
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/nci/ntf.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/nfc/nci/ntf.c b/net/nfc/nci/ntf.c
-index 1e8c1a12aaec..4f75453c07aa 100644
---- a/net/nfc/nci/ntf.c
-+++ b/net/nfc/nci/ntf.c
-@@ -230,6 +230,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
- 		target->sens_res = nfca_poll->sens_res;
- 		target->sel_res = nfca_poll->sel_res;
- 		target->nfcid1_len = nfca_poll->nfcid1_len;
-+		if (target->nfcid1_len > ARRAY_SIZE(target->nfcid1))
-+			return -EPROTO;
- 		if (target->nfcid1_len > 0) {
- 			memcpy(target->nfcid1, nfca_poll->nfcid1,
- 			       target->nfcid1_len);
-@@ -238,6 +240,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
- 		nfcb_poll = (struct rf_tech_specific_params_nfcb_poll *)params;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+index 14d11f9fcbe8..07951b43de21 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+@@ -115,10 +115,10 @@ static struct stmmac_axi *stmmac_axi_setup(struct platform_device *pdev)
  
- 		target->sensb_res_len = nfcb_poll->sensb_res_len;
-+		if (target->sensb_res_len > ARRAY_SIZE(target->sensb_res))
-+			return -EPROTO;
- 		if (target->sensb_res_len > 0) {
- 			memcpy(target->sensb_res, nfcb_poll->sensb_res,
- 			       target->sensb_res_len);
-@@ -246,6 +250,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
- 		nfcf_poll = (struct rf_tech_specific_params_nfcf_poll *)params;
+ 	axi->axi_lpi_en = of_property_read_bool(np, "snps,lpi_en");
+ 	axi->axi_xit_frm = of_property_read_bool(np, "snps,xit_frm");
+-	axi->axi_kbbe = of_property_read_bool(np, "snps,axi_kbbe");
+-	axi->axi_fb = of_property_read_bool(np, "snps,axi_fb");
+-	axi->axi_mb = of_property_read_bool(np, "snps,axi_mb");
+-	axi->axi_rb =  of_property_read_bool(np, "snps,axi_rb");
++	axi->axi_kbbe = of_property_read_bool(np, "snps,kbbe");
++	axi->axi_fb = of_property_read_bool(np, "snps,fb");
++	axi->axi_mb = of_property_read_bool(np, "snps,mb");
++	axi->axi_rb =  of_property_read_bool(np, "snps,rb");
  
- 		target->sensf_res_len = nfcf_poll->sensf_res_len;
-+		if (target->sensf_res_len > ARRAY_SIZE(target->sensf_res))
-+			return -EPROTO;
- 		if (target->sensf_res_len > 0) {
- 			memcpy(target->sensf_res, nfcf_poll->sensf_res,
- 			       target->sensf_res_len);
+ 	if (of_property_read_u32(np, "snps,wr_osr_lmt", &axi->axi_wr_osr_lmt))
+ 		axi->axi_wr_osr_lmt = 1;
 -- 
 2.35.1
 
