@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F3D64A21C
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:49:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E264164A220
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:50:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233134AbiLLNtw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:49:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48432 "EHLO
+        id S232985AbiLLNtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:49:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232992AbiLLNtO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:49:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F28DB26C9
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:48:49 -0800 (PST)
+        with ESMTP id S233144AbiLLNtQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:49:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B6513D74
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:48:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 890D96105C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:48:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52356C433D2;
-        Mon, 12 Dec 2022 13:48:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60050B80D2C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:48:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70FA0C433D2;
+        Mon, 12 Dec 2022 13:48:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852929;
-        bh=AuLd3sjbpowRys+MOonoJBhaxU3YsOhUU6SmRGUiprE=;
+        s=korg; t=1670852934;
+        bh=iQpQUVK5gX+soU2jK/6FjxFPztatRaqDKoWWz//s3zA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTVAN02KO6S79p8BpdwRE8pQXtOYKyZW2bbWGUGPGfj6aqc/5TgBd6L7QXWarKerW
-         qGKqAb+T4CElZGhiLrwf+7flCLIQ8SoiB44grnFPIjHKnkETMiB15e+29/OjcOyHQE
-         ADkpVGD6jThAQqrtIpzmbfDKGhvNwOx6UxpmmdLQ=
+        b=xHLHbHYSOj68j5JzLYlUDQ2qYOjl+3oF9pJoVa4AkkXkE5VNl4Kr0R4gufcTYYAlD
+         EgFyEhhBhb5F8Xrsi+QaD0N/gxFIkaH+x9o8Xb3QQjNSrUwJ/swhYZpmKQi4R0c4v3
+         XWjy/4+kyp3qv5Kqi0eecOzxXe+hRQMdvZVmGbpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
+        patches@lists.linux.dev, Andreas Kemnade <andreas@kemnade.info>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/49] ASoC: soc-pcm: Add NULL check in BE reparenting
-Date:   Mon, 12 Dec 2022 14:18:46 +0100
-Message-Id: <20221212130914.069511931@linuxfoundation.org>
+Subject: [PATCH 4.19 09/49] regulator: twl6030: fix get status of twl6032 regulators
+Date:   Mon, 12 Dec 2022 14:18:47 +0100
+Message-Id: <20221212130914.123371865@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
 References: <20221212130913.666185567@linuxfoundation.org>
@@ -54,35 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+From: Andreas Kemnade <andreas@kemnade.info>
 
-[ Upstream commit db8f91d424fe0ea6db337aca8bc05908bbce1498 ]
+[ Upstream commit 31a6297b89aabc81b274c093a308a7f5b55081a7 ]
 
-Add NULL check in dpcm_be_reparent API, to handle
-kernel NULL pointer dereference error.
-The issue occurred in fuzzing test.
+Status is reported as always off in the 6032 case. Status
+reporting now matches the logic in the setters. Once of
+the differences to the 6030 is that there are no groups,
+therefore the state needs to be read out in the lower bits.
 
-Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
-Link: https://lore.kernel.org/r/1669098673-29703-1-git-send-email-quic_srivasam@quicinc.com
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+Link: https://lore.kernel.org/r/20221120221208.3093727-3-andreas@kemnade.info
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/regulator/twl6030-regulator.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index c03b653bf6ff..1fabb285b016 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1266,6 +1266,8 @@ static void dpcm_be_reparent(struct snd_soc_pcm_runtime *fe,
- 		return;
+diff --git a/drivers/regulator/twl6030-regulator.c b/drivers/regulator/twl6030-regulator.c
+index 219cbd910dbf..485d25f683d8 100644
+--- a/drivers/regulator/twl6030-regulator.c
++++ b/drivers/regulator/twl6030-regulator.c
+@@ -71,6 +71,7 @@ struct twlreg_info {
+ #define TWL6030_CFG_STATE_SLEEP	0x03
+ #define TWL6030_CFG_STATE_GRP_SHIFT	5
+ #define TWL6030_CFG_STATE_APP_SHIFT	2
++#define TWL6030_CFG_STATE_MASK		0x03
+ #define TWL6030_CFG_STATE_APP_MASK	(0x03 << TWL6030_CFG_STATE_APP_SHIFT)
+ #define TWL6030_CFG_STATE_APP(v)	(((v) & TWL6030_CFG_STATE_APP_MASK) >>\
+ 						TWL6030_CFG_STATE_APP_SHIFT)
+@@ -131,13 +132,14 @@ static int twl6030reg_is_enabled(struct regulator_dev *rdev)
+ 		if (grp < 0)
+ 			return grp;
+ 		grp &= P1_GRP_6030;
++		val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
++		val = TWL6030_CFG_STATE_APP(val);
+ 	} else {
++		val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
++		val &= TWL6030_CFG_STATE_MASK;
+ 		grp = 1;
+ 	}
  
- 	be_substream = snd_soc_dpcm_get_substream(be, stream);
-+	if (!be_substream)
-+		return;
+-	val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
+-	val = TWL6030_CFG_STATE_APP(val);
+-
+ 	return grp && (val == TWL6030_CFG_STATE_ON);
+ }
  
- 	list_for_each_entry(dpcm, &be->dpcm[stream].fe_clients, list_fe) {
- 		if (dpcm->fe == fe)
+@@ -190,7 +192,12 @@ static int twl6030reg_get_status(struct regulator_dev *rdev)
+ 
+ 	val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
+ 
+-	switch (TWL6030_CFG_STATE_APP(val)) {
++	if (info->features & TWL6032_SUBCLASS)
++		val &= TWL6030_CFG_STATE_MASK;
++	else
++		val = TWL6030_CFG_STATE_APP(val);
++
++	switch (val) {
+ 	case TWL6030_CFG_STATE_ON:
+ 		return REGULATOR_STATUS_NORMAL;
+ 
 -- 
 2.35.1
 
