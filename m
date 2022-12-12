@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E90C64A10B
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:34:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41CCF64A1CF
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:46:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232748AbiLLNel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:34:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34386 "EHLO
+        id S233015AbiLLNqE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:46:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232607AbiLLNeT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:34:19 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E4513F45
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:34:11 -0800 (PST)
+        with ESMTP id S232678AbiLLNpg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:45:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93BF72BFC
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:44:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 77A4CCE0EFC
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:34:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 164B3C433F0;
-        Mon, 12 Dec 2022 13:34:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4921DB80D2C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:44:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67540C433EF;
+        Mon, 12 Dec 2022 13:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852047;
-        bh=wErixa2P52RfmvrOxj1U9AujNjW80lLKr6o3+QASSSQ=;
+        s=korg; t=1670852695;
+        bh=YhFrxtbSrPcfAgE8SOiTQf+xOOJPsZvrx38dliz87Wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fwmX2Xql7B+5IQGE+ktSgxt9TIW8ecx7XeNvUknhncmgABKyWAlA3YSV0De+tli/7
-         +yOI0DbvSzeG5f0P7WXpYUwZfT/GC2NSRATxeNxM1sD42JaBX7ORkju+OBovH2mb0C
-         6HxJs+yCdMDZvx/lCWBKcbG9A08mC4OEiRwnBquk=
+        b=LTfgFHwHdcGWN3z1y+gO72lauyFx6T3IySAXEy1xjK+6RbIqt3Wp5BkeGUEEFggNs
+         w3PdmeCut9uWu9rQ867tKuswwqJunEirt+aaY9x42/wwJ2kn/vEyEQn5dP3YC2tI+b
+         R0xTQKvhO6o96xdf7IIcESbfxQtNqPp4q6Qx3Kvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Qiheng Lin <linqiheng@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 116/123] net: mvneta: Fix an out of bounds check
+Subject: [PATCH 6.0 134/157] net: microchip: sparx5: Fix missing destroy_workqueue of mact_queue
 Date:   Mon, 12 Dec 2022 14:18:02 +0100
-Message-Id: <20221212130932.233487326@linuxfoundation.org>
+Message-Id: <20221212130940.355948738@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Qiheng Lin <linqiheng@huawei.com>
 
-[ Upstream commit cdd97383e19d4afe29adc3376025a15ae3bab3a3 ]
+[ Upstream commit 7b8232bdb1789a257de3129a9bb08c69b93a17db ]
 
-In an earlier commit, I added a bounds check to prevent an out of bounds
-read and a WARN().  On further discussion and consideration that check
-was probably too aggressive.  Instead of returning -EINVAL, a better fix
-would be to just prevent the out of bounds read but continue the process.
+The mchp_sparx5_probe() won't destroy workqueue created by
+create_singlethread_workqueue() in sparx5_start() when later
+inits failed. Add destroy_workqueue in the cleanup_ports case,
+also add it in mchp_sparx5_remove()
 
-Background: The value of "pp->rxq_def" is a number between 0-7 by default,
-or even higher depending on the value of "rxq_number", which is a module
-parameter. If the value is more than the number of available CPUs then
-it will trigger the WARN() in cpu_max_bits_warn().
-
-Fixes: e8b4fc13900b ("net: mvneta: Prevent out of bounds read in mvneta_config_rss()")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/Y5A7d1E5ccwHTYPf@kadam
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b37a1bae742f ("net: sparx5: add mactable support")
+Signed-off-by: Qiheng Lin <linqiheng@huawei.com>
+Link: https://lore.kernel.org/r/20221203070259.19560-1-linqiheng@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/net/ethernet/microchip/sparx5/sparx5_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-index a3a5aa8c9656..5c431a369762 100644
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -4162,7 +4162,7 @@ static void mvneta_percpu_elect(struct mvneta_port *pp)
- 	/* Use the cpu associated to the rxq when it is online, in all
- 	 * the other cases, use the cpu 0 which can't be offline.
- 	 */
--	if (cpu_online(pp->rxq_def))
-+	if (pp->rxq_def < nr_cpu_ids && cpu_online(pp->rxq_def))
- 		elected_cpu = pp->rxq_def;
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_main.c b/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
+index 30815c0e3f76..e58de119186a 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
+@@ -876,6 +876,8 @@ static int mchp_sparx5_probe(struct platform_device *pdev)
  
- 	max_cpu = num_present_cpus();
-@@ -4793,9 +4793,6 @@ static int  mvneta_config_rss(struct mvneta_port *pp)
- 		napi_disable(&pp->napi);
- 	}
+ cleanup_ports:
+ 	sparx5_cleanup_ports(sparx5);
++	if (sparx5->mact_queue)
++		destroy_workqueue(sparx5->mact_queue);
+ cleanup_config:
+ 	kfree(configs);
+ cleanup_pnode:
+@@ -900,6 +902,7 @@ static int mchp_sparx5_remove(struct platform_device *pdev)
+ 	sparx5_cleanup_ports(sparx5);
+ 	/* Unregister netdevs */
+ 	sparx5_unregister_notifier_blocks(sparx5);
++	destroy_workqueue(sparx5->mact_queue);
  
--	if (pp->indir[0] >= nr_cpu_ids)
--		return -EINVAL;
--
- 	pp->rxq_def = pp->indir[0];
- 
- 	/* Update unicast mapping */
+ 	return 0;
+ }
 -- 
 2.35.1
 
