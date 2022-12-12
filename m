@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF88C64A16D
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:40:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2DFA64A07F
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:25:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232574AbiLLNkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:40:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36338 "EHLO
+        id S232729AbiLLNZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:25:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232844AbiLLNjy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:39:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B051098
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:39:00 -0800 (PST)
+        with ESMTP id S232716AbiLLNZe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:34 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7496313D09
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A13CF61025
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:38:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 683B4C433EF;
-        Mon, 12 Dec 2022 13:38:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C3C8ACE0F7B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59C10C433D2;
+        Mon, 12 Dec 2022 13:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852339;
-        bh=Sbg4gnTeQtMEYh5BdDEKrNrqcS7U5MKEue2moFHjO7c=;
+        s=korg; t=1670851529;
+        bh=1dBqIMpoL7c60s8R/M/lYxjuNucSbI6Zhp0XOdOHS04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ckjlaCJaIs/YVLUsw/eA2pSaVnjPr37ui+EZwlL76thg9nigw07sLkkiz+RpOUjPE
-         YsRJ6lHT20ZuMySKgTHG+wMVz19D0ydyZ099SWjLwUZkMWx9RnpobmLYm9P4OQrv95
-         WKgg92WOngQs7koNmFeRmcTZRWTp60a0LP1aKf3o=
+        b=2ngXi8CzqufR2aPxH5lDEot7zIpiWqiWbXDCY6tvSgx0Si4IrudLgZ2Si0tWrJv1g
+         zqyS2Iljzs1MRqaKru4Q4V++kpCQaZXOWNO7H/qOpqAzXbp3E7iriZLX7a+65ejWws
+         5BCEXFUhJ4yiqWqF7xqHgpUCoIwMxJ+Z08k416wQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        patches@lists.linux.dev, GUO Zihua <guozihua@huawei.com>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 035/157] usb: dwc3: gadget: Disable GUSB2PHYCFG.SUSPHY for End Transfer
+Subject: [PATCH 5.15 017/123] 9p/fd: Use P9_HDRSZ for header size
 Date:   Mon, 12 Dec 2022 14:16:23 +0100
-Message-Id: <20221212130935.939101361@linuxfoundation.org>
+Message-Id: <20221212130927.599907277@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: GUO Zihua <guozihua@huawei.com>
 
-[ Upstream commit 3aa07f72894d209fcf922ad686cbb28cf005aaad ]
+[ Upstream commit 6854fadbeee10891ed74246bdc05031906b6c8cf ]
 
-If there's a disconnection while operating in eSS, there may be a delay
-in VBUS drop response from the connector. In that case, the internal
-link state may drop to operate in usb2 speed while the controller thinks
-the VBUS is still high. The driver must make sure to disable
-GUSB2PHYCFG.SUSPHY when sending endpoint command while in usb2 speed.
-The End Transfer command may be called, and only that command needs to
-go through at this point. Let's keep it simple and unconditionally
-disable GUSB2PHYCFG.SUSPHY whenever we issue the command.
+Cleanup hardcoded header sizes to use P9_HDRSZ instead of '7'
 
-This scenario is not seen in real hardware. In a rare case, our
-prototype type-c controller/interface may have a slow response
-triggerring this issue.
-
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/5651117207803c26e2f22ddf4e5ce9e865dcf7c7.1668045468.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20221117091159.31533-4-guozihua@huawei.com
+Signed-off-by: GUO Zihua <guozihua@huawei.com>
+Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+[Dominique: commit message adjusted to make sense after offset size
+adjustment got removed]
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/9p/trans_fd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 6f61a288073b..c2075b90f3df 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -291,7 +291,8 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned int cmd,
- 	 *
- 	 * DWC_usb3 3.30a and DWC_usb31 1.90a programming guide section 3.2.2
- 	 */
--	if (dwc->gadget->speed <= USB_SPEED_HIGH) {
-+	if (dwc->gadget->speed <= USB_SPEED_HIGH ||
-+	    DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_ENDTRANSFER) {
- 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
- 		if (unlikely(reg & DWC3_GUSB2PHYCFG_SUSPHY)) {
- 			saved_config |= DWC3_GUSB2PHYCFG_SUSPHY;
+diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
+index e1c2c9242ce2..f359cfdc1858 100644
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -122,7 +122,7 @@ struct p9_conn {
+ 	struct list_head unsent_req_list;
+ 	struct p9_req_t *rreq;
+ 	struct p9_req_t *wreq;
+-	char tmp_buf[7];
++	char tmp_buf[P9_HDRSZ];
+ 	struct p9_fcall rc;
+ 	int wpos;
+ 	int wsize;
+@@ -295,7 +295,7 @@ static void p9_read_work(struct work_struct *work)
+ 	if (!m->rc.sdata) {
+ 		m->rc.sdata = m->tmp_buf;
+ 		m->rc.offset = 0;
+-		m->rc.capacity = 7; /* start by reading header */
++		m->rc.capacity = P9_HDRSZ; /* start by reading header */
+ 	}
+ 
+ 	clear_bit(Rpending, &m->wsched);
+@@ -318,7 +318,7 @@ static void p9_read_work(struct work_struct *work)
+ 		p9_debug(P9_DEBUG_TRANS, "got new header\n");
+ 
+ 		/* Header size */
+-		m->rc.size = 7;
++		m->rc.size = P9_HDRSZ;
+ 		err = p9_parse_header(&m->rc, &m->rc.size, NULL, NULL, 0);
+ 		if (err) {
+ 			p9_debug(P9_DEBUG_ERROR,
 -- 
 2.35.1
 
