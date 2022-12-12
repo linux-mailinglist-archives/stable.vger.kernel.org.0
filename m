@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F27064A08C
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:26:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ADD964A131
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:36:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232056AbiLLN0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:26:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53726 "EHLO
+        id S232873AbiLLNgd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:36:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231651AbiLLN03 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:26:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 475711080
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:26:29 -0800 (PST)
+        with ESMTP id S232840AbiLLNfv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:35:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3C3313E38
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:35:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04C49B80B78
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:26:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 602E4C433F0;
-        Mon, 12 Dec 2022 13:26:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 910C761070
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:35:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59C74C433F2;
+        Mon, 12 Dec 2022 13:35:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851586;
-        bh=Qi7F2Hz6kwHyRCgxrnRrKVsbogZQ1IJ3XrIfJOd2h9U=;
+        s=korg; t=1670852150;
+        bh=PAxi6eeJkAJBPTiO6t6sK57HyXc9bdfpzD8eQdRXDQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DdwpmvjUI6aeZB+1z7glfoXPjHsz1HIvyA1lY4kgp9gsWxFvLAYBfwLhLdhvZ25yX
-         njUab6f/thcFSKmaw3W+7OLinNI3SdZdyB7E8ZiBciWLXHjqIqdx1lWuaSf5kNryeC
-         jjTt/T1tnHL8sehLqg7L2OZN6Hhly/7ceRgl5g6M=
+        b=NzPjuB+KO7F5SiNMGjFtJl835xtMXymSPew2m4v1TU3eOyFXu6raZinozCALwYcPb
+         283KK0G4vO/BnqjmC8gH0JYcx9O9UbSTo81iz9EZAtkOVQBE13fpEc96AUV9KJQUoc
+         juSm0MhmFNHTL1CdG9Z8plWYk15YeXmrKBd6unnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev, Shuming Fan <shumingf@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 003/123] mmc: mtk-sd: Fix missing clk_disable_unprepare in msdc_of_clock_parse()
+Subject: [PATCH 6.0 021/157] ASoC: rt711-sdca: fix the latency time of clock stop prepare state machine transitions
 Date:   Mon, 12 Dec 2022 14:16:09 +0100
-Message-Id: <20221212130926.962355206@linuxfoundation.org>
+Message-Id: <20221212130935.357515012@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Shuming Fan <shumingf@realtek.com>
 
-[ Upstream commit c61bfb1cb63ddab52b31cf5f1924688917e61fad ]
+[ Upstream commit c7d7d4e7bb1290cc473610b0bb96d9fa606d00e7 ]
 
-The clk_disable_unprepare() should be called in the error handling
-of devm_clk_bulk_get_optional, fix it by replacing devm_clk_get_optional
-and clk_prepare_enable by devm_clk_get_optional_enabled.
+Due to the hardware behavior, it takes some time for CBJ detection/impedance sensing/de-bounce.
+The ClockStop_NotFinished flag will be raised until these functions are completed.
+In ClockStopMode0 mode case, the SdW controller might check this flag from D3 to D0 when the
+jack detection interrupt happened.
 
-Fixes: f5eccd94b63f ("mmc: mediatek: Add subsys clock control for MT8192 msdc")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221125090141.3626747-1-cuigaosheng1@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Shuming Fan <shumingf@realtek.com>
+Link: https://lore.kernel.org/r/20221116090318.5017-1-shumingf@realtek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mtk-sd.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ sound/soc/codecs/rt711-sdca-sdw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
-index 99d8881a7d6c..9871c19d2b4e 100644
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -2455,13 +2455,11 @@ static int msdc_of_clock_parse(struct platform_device *pdev,
- 	if (IS_ERR(host->src_clk_cg))
- 		host->src_clk_cg = NULL;
+diff --git a/sound/soc/codecs/rt711-sdca-sdw.c b/sound/soc/codecs/rt711-sdca-sdw.c
+index a085b2f530aa..31e77d462ef3 100644
+--- a/sound/soc/codecs/rt711-sdca-sdw.c
++++ b/sound/soc/codecs/rt711-sdca-sdw.c
+@@ -230,7 +230,7 @@ static int rt711_sdca_read_prop(struct sdw_slave *slave)
+ 	}
  
--	host->sys_clk_cg = devm_clk_get_optional(&pdev->dev, "sys_cg");
-+	/* If present, always enable for this clock gate */
-+	host->sys_clk_cg = devm_clk_get_optional_enabled(&pdev->dev, "sys_cg");
- 	if (IS_ERR(host->sys_clk_cg))
- 		host->sys_clk_cg = NULL;
+ 	/* set the timeout values */
+-	prop->clk_stop_timeout = 20;
++	prop->clk_stop_timeout = 700;
  
--	/* If present, always enable for this clock gate */
--	clk_prepare_enable(host->sys_clk_cg);
--
- 	host->bulk_clks[0].id = "pclk_cg";
- 	host->bulk_clks[1].id = "axi_cg";
- 	host->bulk_clks[2].id = "ahb_cg";
+ 	/* wake-up event */
+ 	prop->wake_capable = 1;
 -- 
 2.35.1
 
