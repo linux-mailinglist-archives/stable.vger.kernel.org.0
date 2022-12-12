@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B0364A252
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EC0C64A230
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:50:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233195AbiLLNxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:53:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52538 "EHLO
+        id S233051AbiLLNun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:50:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233097AbiLLNw7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:52:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B06CC16483
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:51:54 -0800 (PST)
+        with ESMTP id S233044AbiLLNuI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:50:08 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6456D21BD
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:49:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62797B80B78
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:51:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 505C6C433EF;
-        Mon, 12 Dec 2022 13:51:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CBECCCE0F7E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:49:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3569DC433EF;
+        Mon, 12 Dec 2022 13:49:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853112;
-        bh=WJYqIz9zOhTIglzQzmd6mrRv4JGk3iOnZIc2NxQ3yPM=;
+        s=korg; t=1670852983;
+        bh=KAspj0rb/Aq+4ijPvRjczG8M5en6kxMaEMgaGujafIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kXHXPfA4wdsCycor1De478gpMM4EzEo2J72rGUXwVtI8qLBQ/a4qJxYS8gYbkdpo8
-         R1p2X2a6pp2/lMHtRgphOjhDT8vF29H6d29opbljgVQyxcZPzS86f6e35THthtoA/n
-         TSt6W9wjGT3j796coTnrjUQteV/x7AUcoAzUhZ+I=
+        b=2nXOP7C21XWhLN6FvOszPkrzg9obOxJZPEjfKW+LXtV+oZMnEcHW8PqdfLNRVx0sE
+         oc6s7rZb9c5I5Rhr4qvZNNuy8xgAviwhSHxWDTTqsVEvcVTTJ5aHhdW0O6te/NsJ+g
+         JYul/uVrKY4qE+ZcNzuKDJ2qYfabcSSgWVryDzcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 12/38] xen/netback: dont call kfree_skb() with interrupts disabled
+        patches@lists.linux.dev, Michal Jaron <michalx.jaron@intel.com>,
+        Kamil Maziarz <kamil.maziarz@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 4.19 35/49] i40e: Fix not setting default xps_cpus after reset
 Date:   Mon, 12 Dec 2022 14:19:13 +0100
-Message-Id: <20221212130912.732254174@linuxfoundation.org>
+Message-Id: <20221212130915.406266132@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
-References: <20221212130912.069170932@linuxfoundation.org>
+In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
+References: <20221212130913.666185567@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,103 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Michal Jaron <michalx.jaron@intel.com>
 
-[ Upstream commit 74e7e1efdad45580cc3839f2a155174cf158f9b5 ]
+[ Upstream commit 82e0572b23029b380464fa9fdc125db9c1506d0a ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. So remove kfree_skb()
-from the spin_lock_irqsave() section and use the already existing
-"drop" label in xenvif_start_xmit() for dropping the SKB. At the
-same time replace the dev_kfree_skb() call there with a call of
-dev_kfree_skb_any(), as xenvif_start_xmit() can be called with
-disabled interrupts.
+During tx rings configuration default XPS queue config is set and
+__I40E_TX_XPS_INIT_DONE is locked. __I40E_TX_XPS_INIT_DONE state is
+cleared and set again with default mapping only during queues build,
+it means after first setup or reset with queues rebuild. (i.e.
+ethtool -L <interface> combined <number>) After other resets (i.e.
+ethtool -t <interface>) XPS_INIT_DONE is not cleared and those default
+maps cannot be set again. It results in cleared xps_cpus mapping
+until queues are not rebuild or mapping is not set by user.
 
-This is XSA-424 / CVE-2022-42328 / CVE-2022-42329.
+Add clearing __I40E_TX_XPS_INIT_DONE state during reset to let
+the driver set xps_cpus to defaults again after it was cleared.
 
-Fixes: be81992f9086 ("xen/netback: don't queue unlimited number of packages")
-Reported-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: 6f853d4f8e93 ("i40e: allow XPS with QoS enabled")
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Kamil Maziarz <kamil.maziarz@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/common.h    | 2 +-
- drivers/net/xen-netback/interface.c | 6 ++++--
- drivers/net/xen-netback/rx.c        | 8 +++++---
- 3 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/xen-netback/common.h b/drivers/net/xen-netback/common.h
-index 4ef648f79993..e5f254500c1c 100644
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -364,7 +364,7 @@ int xenvif_dealloc_kthread(void *data);
- irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 9669d8c8b6c7..8a5baaf403ae 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -9367,6 +9367,21 @@ static int i40e_rebuild_channels(struct i40e_vsi *vsi)
+ 	return 0;
+ }
  
- bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread);
--void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
-+bool xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
- 
- void xenvif_carrier_on(struct xenvif *vif);
- 
-diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
-index c3f64ca0bb63..c8e551932666 100644
---- a/drivers/net/xen-netback/interface.c
-+++ b/drivers/net/xen-netback/interface.c
-@@ -254,14 +254,16 @@ xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	if (vif->hash.alg == XEN_NETIF_CTRL_HASH_ALGORITHM_NONE)
- 		skb_clear_hash(skb);
- 
--	xenvif_rx_queue_tail(queue, skb);
-+	if (!xenvif_rx_queue_tail(queue, skb))
-+		goto drop;
++/**
++ * i40e_clean_xps_state - clean xps state for every tx_ring
++ * @vsi: ptr to the VSI
++ **/
++static void i40e_clean_xps_state(struct i40e_vsi *vsi)
++{
++	int i;
 +
- 	xenvif_kick_thread(queue);
++	if (vsi->tx_rings)
++		for (i = 0; i < vsi->num_queue_pairs; i++)
++			if (vsi->tx_rings[i])
++				clear_bit(__I40E_TX_XPS_INIT_DONE,
++					  vsi->tx_rings[i]->state);
++}
++
+ /**
+  * i40e_prep_for_reset - prep for the core to reset
+  * @pf: board private structure
+@@ -9398,8 +9413,10 @@ static void i40e_prep_for_reset(struct i40e_pf *pf, bool lock_acquired)
+ 		rtnl_unlock();
  
- 	return NETDEV_TX_OK;
- 
-  drop:
- 	vif->dev->stats.tx_dropped++;
--	dev_kfree_skb(skb);
-+	dev_kfree_skb_any(skb);
- 	return NETDEV_TX_OK;
- }
- 
-diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
-index 6964f8b1a36b..5067fa0c751f 100644
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -82,9 +82,10 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
- 	return false;
- }
- 
--void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
-+bool xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
- {
- 	unsigned long flags;
-+	bool ret = true;
- 
- 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
- 
-@@ -92,8 +93,7 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
- 		struct net_device *dev = queue->vif->dev;
- 
- 		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
--		kfree_skb(skb);
--		queue->vif->dev->stats.rx_dropped++;
-+		ret = false;
- 	} else {
- 		if (skb_queue_empty(&queue->rx_queue))
- 			xenvif_update_needed_slots(queue, skb);
-@@ -104,6 +104,8 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
+ 	for (v = 0; v < pf->num_alloc_vsi; v++) {
+-		if (pf->vsi[v])
++		if (pf->vsi[v]) {
++			i40e_clean_xps_state(pf->vsi[v]);
+ 			pf->vsi[v]->seid = 0;
++		}
  	}
  
- 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
-+
-+	return ret;
- }
- 
- static struct sk_buff *xenvif_rx_dequeue(struct xenvif_queue *queue)
+ 	i40e_shutdown_adminq(&pf->hw);
 -- 
 2.35.1
 
