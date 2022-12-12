@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A349964A05A
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:24:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E703364A191
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:42:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232640AbiLLNYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:24:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52310 "EHLO
+        id S233106AbiLLNmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:42:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232636AbiLLNX5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:23:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23173BD7
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:23:57 -0800 (PST)
+        with ESMTP id S232853AbiLLNlb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:41:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28CF0140AF
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:41:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B387560EFC
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:23:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8006C433F0;
-        Mon, 12 Dec 2022 13:23:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6BF93CE0F7F
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:40:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4870FC433EF;
+        Mon, 12 Dec 2022 13:40:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851436;
-        bh=hbbVUuBxZcLOvbp9snt49Cupjl06xJOf/9Jo4y4WzlM=;
+        s=korg; t=1670852457;
+        bh=+dCOKp5HDu8gfuthbDRRHAO03zpfaGehV31YqYiRQ8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KMUb4uPt+1hliJ21CQnQL7nKYGeBcN7ztO+77j/jDBncauF6ZZYd4cRjt6nutBJXe
-         uWEFNKpleoowTg5MNrRfAIlzPg+3b14hQWGpYbd3VYO1V5tV0r6EOYEB1hXbAXQAOS
-         r8TP61nlck8gSB+VTuAo49ml8x5u4cG9U6fMIA9E=
+        b=yQLiMCChB1KvLjUcjJY1ZQDJcRvsNlG35Nvnleo73OdpooMRKP3evzGy0Uw7QAlmu
+         d4IGfYAA05JrFhZLEP05CWHjnXUWocwEtI66IcqHiED0wN54N+NrvUgwo3ezhccC+S
+         SVI7jbJrUsM0e+6DwMuFVCWQwiZOX8z6GOAtJHFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 37/67] gpio: amd8111: Fix PCI device reference count leak
+        patches@lists.linux.dev, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 6.0 084/157] ARM: 9278/1: kfence: only handle translation faults
 Date:   Mon, 12 Dec 2022 14:17:12 +0100
-Message-Id: <20221212130919.385802688@linuxfoundation.org>
+Message-Id: <20221212130938.164150310@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +52,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Wang Kefeng <wangkefeng.wang@huawei.com>
 
-[ Upstream commit 45fecdb9f658d9c82960c98240bc0770ade19aca ]
+commit 73a0b6ee5d6269f92df43e1d09b3278a2886bf8a upstream.
 
-for_each_pci_dev() is implemented by pci_get_device(). The comment of
-pci_get_device() says that it will increase the reference count for the
-returned pci_dev and also decrease the reference count for the input
-pci_dev @from if it is not NULL.
+This is a similar fixup like arm64 does, only handle translation faults
+in case of unexpected kfence report when alignment faults on ARM, see
+more from commit 0bb1fbffc631 ("arm64: mm: kfence: only handle translation
+faults").
 
-If we break for_each_pci_dev() loop with pdev not NULL, we need to call
-pci_dev_put() to decrease the reference count. Add the missing
-pci_dev_put() after the 'out' label. Since pci_dev_put() can handle NULL
-input parameter, there is no problem for the 'Device not found' branch.
-For the normal path, add pci_dev_put() in amd_gpio_exit().
-
-Fixes: f942a7de047d ("gpio: add a driver for GPIO pins found on AMD-8111 south bridge chips")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 75969686ec0d ("ARM: 9166/1: Support KFENCE for ARM")
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-amd8111.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/mm/fault.c |   18 ++++++++++++++++--
+ arch/arm/mm/fault.h |    9 ++++++---
+ 2 files changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpio/gpio-amd8111.c b/drivers/gpio/gpio-amd8111.c
-index fdcebe59510d..68d95051dd0e 100644
---- a/drivers/gpio/gpio-amd8111.c
-+++ b/drivers/gpio/gpio-amd8111.c
-@@ -231,7 +231,10 @@ static int __init amd_gpio_init(void)
- 		ioport_unmap(gp.pm);
- 		goto out;
- 	}
-+	return 0;
+--- a/arch/arm/mm/fault.c
++++ b/arch/arm/mm/fault.c
+@@ -105,6 +105,19 @@ static inline bool is_write_fault(unsign
+ 	return (fsr & FSR_WRITE) && !(fsr & FSR_CM);
+ }
+ 
++static inline bool is_translation_fault(unsigned int fsr)
++{
++	int fs = fsr_fs(fsr);
++#ifdef CONFIG_ARM_LPAE
++	if ((fs & FS_MMU_NOLL_MASK) == FS_TRANS_NOLL)
++		return true;
++#else
++	if (fs == FS_L1_TRANS || fs == FS_L2_TRANS)
++		return true;
++#endif
++	return false;
++}
 +
- out:
-+	pci_dev_put(pdev);
- 	return err;
- }
+ static void die_kernel_fault(const char *msg, struct mm_struct *mm,
+ 			     unsigned long addr, unsigned int fsr,
+ 			     struct pt_regs *regs)
+@@ -140,7 +153,8 @@ __do_kernel_fault(struct mm_struct *mm,
+ 	if (addr < PAGE_SIZE) {
+ 		msg = "NULL pointer dereference";
+ 	} else {
+-		if (kfence_handle_page_fault(addr, is_write_fault(fsr), regs))
++		if (is_translation_fault(fsr) &&
++		    kfence_handle_page_fault(addr, is_write_fault(fsr), regs))
+ 			return;
  
-@@ -239,6 +242,7 @@ static void __exit amd_gpio_exit(void)
+ 		msg = "paging request";
+@@ -208,7 +222,7 @@ static inline bool is_permission_fault(u
  {
- 	gpiochip_remove(&gp.chip);
- 	ioport_unmap(gp.pm);
-+	pci_dev_put(gp.pdev);
- }
+ 	int fs = fsr_fs(fsr);
+ #ifdef CONFIG_ARM_LPAE
+-	if ((fs & FS_PERM_NOLL_MASK) == FS_PERM_NOLL)
++	if ((fs & FS_MMU_NOLL_MASK) == FS_PERM_NOLL)
+ 		return true;
+ #else
+ 	if (fs == FS_L1_PERM || fs == FS_L2_PERM)
+--- a/arch/arm/mm/fault.h
++++ b/arch/arm/mm/fault.h
+@@ -14,8 +14,9 @@
  
- module_init(amd_gpio_init);
--- 
-2.35.1
-
+ #ifdef CONFIG_ARM_LPAE
+ #define FSR_FS_AEA		17
++#define FS_TRANS_NOLL		0x4
+ #define FS_PERM_NOLL		0xC
+-#define FS_PERM_NOLL_MASK	0x3C
++#define FS_MMU_NOLL_MASK	0x3C
+ 
+ static inline int fsr_fs(unsigned int fsr)
+ {
+@@ -23,8 +24,10 @@ static inline int fsr_fs(unsigned int fs
+ }
+ #else
+ #define FSR_FS_AEA		22
+-#define FS_L1_PERM             0xD
+-#define FS_L2_PERM             0xF
++#define FS_L1_TRANS		0x5
++#define FS_L2_TRANS		0x7
++#define FS_L1_PERM		0xD
++#define FS_L2_PERM		0xF
+ 
+ static inline int fsr_fs(unsigned int fsr)
+ {
 
 
