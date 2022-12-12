@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0083564A24C
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F2D64A270
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233215AbiLLNxC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:53:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54440 "EHLO
+        id S233231AbiLLNye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:54:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233217AbiLLNwf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:52:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BC2915FF6
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:51:35 -0800 (PST)
+        with ESMTP id S233193AbiLLNyH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A4731F4
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:53:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 011C061035
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:51:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B415BC433D2;
-        Mon, 12 Dec 2022 13:51:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D2EBB80B78
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:53:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6D59C433EF;
+        Mon, 12 Dec 2022 13:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853094;
-        bh=rNdJFn4v0+0Ed6asYw2mjQp47DOWmWg2s3ELyE9Ysgk=;
+        s=korg; t=1670853232;
+        bh=R0QeISsZrLfO2/35O4Rv3oYbDKW61jKNd0zQLhE/9xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mjwQSbULCMZB5F4tRrFJ6AVWfVrusS/4AHqlc4ySuJzZ15x2OMsdaa5LjetrPJdUC
-         t4vl5+1/xiJ3QvXCNR5aVOIk1UnAhbaiL7tShUqvsIWuIqP/rBFk8v45qvms0ndLCu
-         TuLTJ8MH7YPPIwg2NKjyALXrL0IK4m35rJYYXAKU=
+        b=zoaKYDBb5xzmOVbU6e1OVgkn91lWvrxhMpt01TASDqq1HDQ8agsj2kC9oWmHLdXMf
+         7Es7mvBHj3lclS61w9S4YW4sEUObt+YcvWOSYim9LOKcwL0gphO60D6qKMWjYahnjQ
+         FxPFX70yKkB2uL+Y0aUbn6lzdzWA3LXhf0Ag8S5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 46/49] net: plip: dont call kfree_skb/dev_kfree_skb() under spin_lock_irq()
+        patches@lists.linux.dev, Akihiko Odaki <akihiko.odaki@daynix.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 4.14 23/38] igb: Allocate MSI-X vector when testing
 Date:   Mon, 12 Dec 2022 14:19:24 +0100
-Message-Id: <20221212130915.968491483@linuxfoundation.org>
+Message-Id: <20221212130913.264546842@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
-References: <20221212130913.666185567@linuxfoundation.org>
+In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
+References: <20221212130912.069170932@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
 
-[ Upstream commit 7d8c19bfc8ff3f78e5337107ca9246327fcb6b45 ]
+[ Upstream commit 28e96556baca7056d11d9fb3cdd0aba4483e00d8 ]
 
-It is not allowed to call kfree_skb() or consume_skb() from
-hardware interrupt context or with interrupts being disabled.
-So replace kfree_skb/dev_kfree_skb() with dev_kfree_skb_irq()
-and dev_consume_skb_irq() under spin_lock_irq().
+Without this change, the interrupt test fail with MSI-X environment:
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Link: https://lore.kernel.org/r/20221207015310.2984909-1-yangyingliang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+$ sudo ethtool -t enp0s2 offline
+[   43.921783] igb 0000:00:02.0: offline testing starting
+[   44.855824] igb 0000:00:02.0 enp0s2: igb: enp0s2 NIC Link is Down
+[   44.961249] igb 0000:00:02.0 enp0s2: igb: enp0s2 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: RX/TX
+[   51.272202] igb 0000:00:02.0: testing shared interrupt
+[   56.996975] igb 0000:00:02.0 enp0s2: igb: enp0s2 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: RX/TX
+The test result is FAIL
+The test extra info:
+Register test  (offline)	 0
+Eeprom test    (offline)	 0
+Interrupt test (offline)	 4
+Loopback test  (offline)	 0
+Link test   (on/offline)	 0
+
+Here, "4" means an expected interrupt was not delivered.
+
+To fix this, route IRQs correctly to the first MSI-X vector by setting
+IVAR_MISC. Also, set bit 0 of EIMS so that the vector will not be
+masked. The interrupt test now runs properly with this change:
+
+$ sudo ethtool -t enp0s2 offline
+[   42.762985] igb 0000:00:02.0: offline testing starting
+[   50.141967] igb 0000:00:02.0: testing shared interrupt
+[   56.163957] igb 0000:00:02.0 enp0s2: igb: enp0s2 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: RX/TX
+The test result is PASS
+The test extra info:
+Register test  (offline)	 0
+Eeprom test    (offline)	 0
+Interrupt test (offline)	 0
+Loopback test  (offline)	 0
+Link test   (on/offline)	 0
+
+Fixes: 4eefa8f01314 ("igb: add single vector msi-x testing to interrupt test")
+Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/plip/plip.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_ethtool.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/plip/plip.c b/drivers/net/plip/plip.c
-index feb92ecd1880..06d59e3af664 100644
---- a/drivers/net/plip/plip.c
-+++ b/drivers/net/plip/plip.c
-@@ -448,12 +448,12 @@ plip_bh_timeout_error(struct net_device *dev, struct net_local *nl,
- 	}
- 	rcv->state = PLIP_PK_DONE;
- 	if (rcv->skb) {
--		kfree_skb(rcv->skb);
-+		dev_kfree_skb_irq(rcv->skb);
- 		rcv->skb = NULL;
- 	}
- 	snd->state = PLIP_PK_DONE;
- 	if (snd->skb) {
--		dev_kfree_skb(snd->skb);
-+		dev_consume_skb_irq(snd->skb);
- 		snd->skb = NULL;
- 	}
- 	spin_unlock_irq(&nl->lock);
+diff --git a/drivers/net/ethernet/intel/igb/igb_ethtool.c b/drivers/net/ethernet/intel/igb/igb_ethtool.c
+index ff2be34bff39..049a67c14780 100644
+--- a/drivers/net/ethernet/intel/igb/igb_ethtool.c
++++ b/drivers/net/ethernet/intel/igb/igb_ethtool.c
+@@ -1419,6 +1419,8 @@ static int igb_intr_test(struct igb_adapter *adapter, u64 *data)
+ 			*data = 1;
+ 			return -1;
+ 		}
++		wr32(E1000_IVAR_MISC, E1000_IVAR_VALID << 8);
++		wr32(E1000_EIMS, BIT(0));
+ 	} else if (adapter->flags & IGB_FLAG_HAS_MSI) {
+ 		shared_int = false;
+ 		if (request_irq(irq,
 -- 
 2.35.1
 
