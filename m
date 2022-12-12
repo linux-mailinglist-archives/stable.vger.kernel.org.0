@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5C1764A15B
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:39:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE28A64A0B2
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:29:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232744AbiLLNjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:39:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35980 "EHLO
+        id S232194AbiLLN3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:29:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232905AbiLLNiw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:38:52 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D4B91409E
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:38:05 -0800 (PST)
+        with ESMTP id S232784AbiLLN2x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:28:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 628DE13E0B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:28:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 82649CE0F7F
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:38:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16DC9C433EF;
-        Mon, 12 Dec 2022 13:38:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B784B80D52
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:28:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF438C433D2;
+        Mon, 12 Dec 2022 13:28:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852281;
-        bh=ot5abapp/2gERYLXTOKwY3Ew2RAkE/IYRjoQrHYDAK8=;
+        s=korg; t=1670851729;
+        bh=cb95x2E/PWeBwFYg+kgog4i3ZpoGV1BYXZPIpRMrf3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FUofMtZ7vONrj6ly0CmGUUbx0VGJ4nw/0UtyrHug2AE3N5ZRkiHc8MsnloGCZrWFk
-         Ei280y/NAiDmPzWpnIFcU5Ctz8oal9t9R55MsF4IftrmjIwK37Eil/OaNYh8JiAf2I
-         zacyWEaTEbdXN42Wen5J1kjLvQSWrLN7dIMznDG4=
+        b=M4BJyyHLJon0q0Wp1eH9GaO/VHqxpK8GOEr+aYlUvAIjLlKqSBPcfiM41lOZXlqr4
+         zOKL5AWWyZejnrQKbgupwWGJHm1TtzOUWuVGnddSpL0HFhTMAq2BhRsnwhZpuGgL9h
+         3MzGdw/cL/NxZEog9G3AsQPSW/iNhZpINLJ7o0lY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Luke D. Jones" <luke@ljones.dev>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 049/157] platform/x86: asus-wmi: Adjust tablet/lidflip handling to use enum
-Date:   Mon, 12 Dec 2022 14:16:37 +0100
-Message-Id: <20221212130936.523235179@linuxfoundation.org>
+Subject: [PATCH 5.15 032/123] rtc: cmos: avoid UIP when writing alarm time
+Date:   Mon, 12 Dec 2022 14:16:38 +0100
+Message-Id: <20221212130928.257274291@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,218 +55,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke D. Jones <luke@ljones.dev>
+From: Mateusz Jończyk <mat.jonczyk@o2.pl>
 
-[ Upstream commit 00aa846955fbfb04f7bc0c26c49febfe5395eca1 ]
+[ Upstream commit cd17420ebea580c22dd3a93f7237de3d2cfafc37 ]
 
-Due to multiple types of tablet/lidflip, the existing code for
-handling these events is refactored to use an enum for each type.
+Some Intel chipsets disconnect the time and date RTC registers when the
+clock update is in progress: during this time reads may return bogus
+values and writes fail silently. This includes the RTC alarm registers.
+[1]
 
-Signed-off-by: Luke D. Jones <luke@ljones.dev>
-Link: https://lore.kernel.org/r/20220813092753.6635-1-luke@ljones.dev
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Stable-dep-of: e397c3c460bf ("platform/x86: asus-wmi: Add support for ROG X13 tablet mode")
+cmos_set_alarm() did not take account for that, fix it.
+
+[1] 7th Generation Intel ® Processor Family I/O for U/Y Platforms [...]
+Datasheet, Volume 1 of 2 (Intel's Document Number: 334658-006)
+Page 208
+https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/7th-and-8th-gen-core-family-mobile-u-y-processor-lines-i-o-datasheet-vol-1.pdf
+        "If a RAM read from the ten time and date bytes is attempted
+        during an update cycle, the value read do not necessarily
+        represent the true contents of those locations. Any RAM writes
+        under the same conditions are ignored."
+
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20211210200131.153887-10-mat.jonczyk@o2.pl
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-nb-wmi.c | 13 +++-----
- drivers/platform/x86/asus-wmi.c    | 49 +++++++++++++++++++++---------
- drivers/platform/x86/asus-wmi.h    |  9 ++++--
- 3 files changed, 47 insertions(+), 24 deletions(-)
+ drivers/rtc/rtc-cmos.c | 107 +++++++++++++++++++++++++----------------
+ 1 file changed, 66 insertions(+), 41 deletions(-)
 
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index 478dd300b9c9..4672a2b8322e 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -115,12 +115,12 @@ static struct quirk_entry quirk_asus_forceals = {
- };
- 
- static struct quirk_entry quirk_asus_use_kbd_dock_devid = {
--	.use_kbd_dock_devid = true,
-+	.tablet_switch_mode = asus_wmi_kbd_dock_devid,
- };
- 
- static struct quirk_entry quirk_asus_use_lid_flip_devid = {
- 	.wmi_backlight_set_devstate = true,
--	.use_lid_flip_devid = true,
-+	.tablet_switch_mode = asus_wmi_lid_flip_devid,
- };
- 
- static int dmi_matched(const struct dmi_system_id *dmi)
-@@ -492,16 +492,13 @@ static void asus_nb_wmi_quirks(struct asus_wmi_driver *driver)
- 
- 	switch (tablet_mode_sw) {
- 	case 0:
--		quirks->use_kbd_dock_devid = false;
--		quirks->use_lid_flip_devid = false;
-+		quirks->tablet_switch_mode = asus_wmi_no_tablet_switch;
- 		break;
- 	case 1:
--		quirks->use_kbd_dock_devid = true;
--		quirks->use_lid_flip_devid = false;
-+		quirks->tablet_switch_mode = asus_wmi_kbd_dock_devid;
- 		break;
- 	case 2:
--		quirks->use_kbd_dock_devid = false;
--		quirks->use_lid_flip_devid = true;
-+		quirks->tablet_switch_mode = asus_wmi_lid_flip_devid;
- 		break;
- 	}
- 
-diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-index 8e1979b477a7..26f75c984448 100644
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -489,8 +489,11 @@ static bool asus_wmi_dev_is_present(struct asus_wmi *asus, u32 dev_id)
- 
- static int asus_wmi_input_init(struct asus_wmi *asus)
- {
-+	struct device *dev;
- 	int err, result;
- 
-+	dev = &asus->platform_device->dev;
-+
- 	asus->inputdev = input_allocate_device();
- 	if (!asus->inputdev)
- 		return -ENOMEM;
-@@ -498,35 +501,38 @@ static int asus_wmi_input_init(struct asus_wmi *asus)
- 	asus->inputdev->name = asus->driver->input_name;
- 	asus->inputdev->phys = asus->driver->input_phys;
- 	asus->inputdev->id.bustype = BUS_HOST;
--	asus->inputdev->dev.parent = &asus->platform_device->dev;
-+	asus->inputdev->dev.parent = dev;
- 	set_bit(EV_REP, asus->inputdev->evbit);
- 
- 	err = sparse_keymap_setup(asus->inputdev, asus->driver->keymap, NULL);
- 	if (err)
- 		goto err_free_dev;
- 
--	if (asus->driver->quirks->use_kbd_dock_devid) {
-+	switch (asus->driver->quirks->tablet_switch_mode) {
-+	case asus_wmi_no_tablet_switch:
-+		break;
-+	case asus_wmi_kbd_dock_devid:
- 		result = asus_wmi_get_devstate_simple(asus, ASUS_WMI_DEVID_KBD_DOCK);
- 		if (result >= 0) {
- 			input_set_capability(asus->inputdev, EV_SW, SW_TABLET_MODE);
- 			input_report_switch(asus->inputdev, SW_TABLET_MODE, !result);
- 		} else if (result != -ENODEV) {
--			pr_err("Error checking for keyboard-dock: %d\n", result);
-+			dev_err(dev, "Error checking for keyboard-dock: %d\n", result);
- 		}
--	}
--
--	if (asus->driver->quirks->use_lid_flip_devid) {
-+		break;
-+	case asus_wmi_lid_flip_devid:
- 		result = asus_wmi_get_devstate_simple(asus, ASUS_WMI_DEVID_LID_FLIP);
- 		if (result < 0)
--			asus->driver->quirks->use_lid_flip_devid = 0;
-+			asus->driver->quirks->tablet_switch_mode = asus_wmi_no_tablet_switch;
- 		if (result >= 0) {
- 			input_set_capability(asus->inputdev, EV_SW, SW_TABLET_MODE);
- 			input_report_switch(asus->inputdev, SW_TABLET_MODE, result);
- 		} else if (result == -ENODEV) {
--			pr_err("This device has lid_flip quirk but got ENODEV checking it. This is a bug.");
-+			dev_err(dev, "This device has lid_flip quirk but got ENODEV checking it. This is a bug.");
- 		} else {
--			pr_err("Error checking for lid-flip: %d\n", result);
-+			dev_err(dev, "Error checking for lid-flip: %d\n", result);
- 		}
-+		break;
- 	}
- 
- 	err = input_register_device(asus->inputdev);
-@@ -552,8 +558,9 @@ static void asus_wmi_input_exit(struct asus_wmi *asus)
- 
- static void lid_flip_tablet_mode_get_state(struct asus_wmi *asus)
- {
--	int result = asus_wmi_get_devstate_simple(asus, ASUS_WMI_DEVID_LID_FLIP);
-+	int result;
- 
-+	result = asus_wmi_get_devstate_simple(asus, ASUS_WMI_DEVID_LID_FLIP);
- 	if (result >= 0) {
- 		input_report_switch(asus->inputdev, SW_TABLET_MODE, result);
- 		input_sync(asus->inputdev);
-@@ -3109,7 +3116,8 @@ static void asus_wmi_handle_event_code(int code, struct asus_wmi *asus)
- 		return;
- 	}
- 
--	if (asus->driver->quirks->use_kbd_dock_devid && code == NOTIFY_KBD_DOCK_CHANGE) {
-+	if (asus->driver->quirks->tablet_switch_mode == asus_wmi_kbd_dock_devid &&
-+	    code == NOTIFY_KBD_DOCK_CHANGE) {
- 		result = asus_wmi_get_devstate_simple(asus,
- 						      ASUS_WMI_DEVID_KBD_DOCK);
- 		if (result >= 0) {
-@@ -3120,7 +3128,8 @@ static void asus_wmi_handle_event_code(int code, struct asus_wmi *asus)
- 		return;
- 	}
- 
--	if (asus->driver->quirks->use_lid_flip_devid && code == NOTIFY_LID_FLIP) {
-+	if (asus->driver->quirks->tablet_switch_mode == asus_wmi_lid_flip_devid &&
-+	    code == NOTIFY_LID_FLIP) {
- 		lid_flip_tablet_mode_get_state(asus);
- 		return;
- 	}
-@@ -3757,8 +3766,14 @@ static int asus_hotk_resume(struct device *device)
- 	if (asus_wmi_has_fnlock_key(asus))
- 		asus_wmi_fnlock_update(asus);
- 
--	if (asus->driver->quirks->use_lid_flip_devid)
-+	switch (asus->driver->quirks->tablet_switch_mode) {
-+	case asus_wmi_no_tablet_switch:
-+	case asus_wmi_kbd_dock_devid:
-+		break;
-+	case asus_wmi_lid_flip_devid:
- 		lid_flip_tablet_mode_get_state(asus);
-+		break;
-+	}
- 
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index b90a603d6b12..a3297a9cbc59 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -444,10 +444,57 @@ static int cmos_validate_alarm(struct device *dev, struct rtc_wkalrm *t)
  	return 0;
  }
-@@ -3799,8 +3814,14 @@ static int asus_hotk_restore(struct device *device)
- 	if (asus_wmi_has_fnlock_key(asus))
- 		asus_wmi_fnlock_update(asus);
  
--	if (asus->driver->quirks->use_lid_flip_devid)
-+	switch (asus->driver->quirks->tablet_switch_mode) {
-+	case asus_wmi_no_tablet_switch:
-+	case asus_wmi_kbd_dock_devid:
-+		break;
-+	case asus_wmi_lid_flip_devid:
- 		lid_flip_tablet_mode_get_state(asus);
-+		break;
-+	}
- 
- 	return 0;
- }
-diff --git a/drivers/platform/x86/asus-wmi.h b/drivers/platform/x86/asus-wmi.h
-index b302415bf1d9..413920bad0c6 100644
---- a/drivers/platform/x86/asus-wmi.h
-+++ b/drivers/platform/x86/asus-wmi.h
-@@ -25,6 +25,12 @@ struct module;
- struct key_entry;
- struct asus_wmi;
- 
-+enum asus_wmi_tablet_switch_mode {
-+	asus_wmi_no_tablet_switch,
-+	asus_wmi_kbd_dock_devid,
-+	asus_wmi_lid_flip_devid,
++struct cmos_set_alarm_callback_param {
++	struct cmos_rtc *cmos;
++	unsigned char mon, mday, hrs, min, sec;
++	struct rtc_wkalrm *t;
 +};
 +
- struct quirk_entry {
- 	bool hotplug_wireless;
- 	bool scalar_panel_brightness;
-@@ -33,8 +39,7 @@ struct quirk_entry {
- 	bool wmi_backlight_native;
- 	bool wmi_backlight_set_devstate;
- 	bool wmi_force_als_set;
--	bool use_kbd_dock_devid;
--	bool use_lid_flip_devid;
-+	enum asus_wmi_tablet_switch_mode tablet_switch_mode;
- 	int wapf;
- 	/*
- 	 * For machines with AMD graphic chips, it will send out WMI event
++/* Note: this function may be executed by mc146818_avoid_UIP() more then
++ *	 once
++ */
++static void cmos_set_alarm_callback(unsigned char __always_unused seconds,
++				    void *param_in)
++{
++	struct cmos_set_alarm_callback_param *p =
++		(struct cmos_set_alarm_callback_param *)param_in;
++
++	/* next rtc irq must not be from previous alarm setting */
++	cmos_irq_disable(p->cmos, RTC_AIE);
++
++	/* update alarm */
++	CMOS_WRITE(p->hrs, RTC_HOURS_ALARM);
++	CMOS_WRITE(p->min, RTC_MINUTES_ALARM);
++	CMOS_WRITE(p->sec, RTC_SECONDS_ALARM);
++
++	/* the system may support an "enhanced" alarm */
++	if (p->cmos->day_alrm) {
++		CMOS_WRITE(p->mday, p->cmos->day_alrm);
++		if (p->cmos->mon_alrm)
++			CMOS_WRITE(p->mon, p->cmos->mon_alrm);
++	}
++
++	if (use_hpet_alarm()) {
++		/*
++		 * FIXME the HPET alarm glue currently ignores day_alrm
++		 * and mon_alrm ...
++		 */
++		hpet_set_alarm_time(p->t->time.tm_hour, p->t->time.tm_min,
++				    p->t->time.tm_sec);
++	}
++
++	if (p->t->enabled)
++		cmos_irq_enable(p->cmos, RTC_AIE);
++}
++
+ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ {
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+-	unsigned char mon, mday, hrs, min, sec, rtc_control;
++	struct cmos_set_alarm_callback_param p = {
++		.cmos = cmos,
++		.t = t
++	};
++	unsigned char rtc_control;
+ 	int ret;
+ 
+ 	/* This not only a rtc_op, but also called directly */
+@@ -458,11 +505,11 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	mon = t->time.tm_mon + 1;
+-	mday = t->time.tm_mday;
+-	hrs = t->time.tm_hour;
+-	min = t->time.tm_min;
+-	sec = t->time.tm_sec;
++	p.mon = t->time.tm_mon + 1;
++	p.mday = t->time.tm_mday;
++	p.hrs = t->time.tm_hour;
++	p.min = t->time.tm_min;
++	p.sec = t->time.tm_sec;
+ 
+ 	spin_lock_irq(&rtc_lock);
+ 	rtc_control = CMOS_READ(RTC_CONTROL);
+@@ -470,43 +517,21 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 
+ 	if (!(rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
+ 		/* Writing 0xff means "don't care" or "match all".  */
+-		mon = (mon <= 12) ? bin2bcd(mon) : 0xff;
+-		mday = (mday >= 1 && mday <= 31) ? bin2bcd(mday) : 0xff;
+-		hrs = (hrs < 24) ? bin2bcd(hrs) : 0xff;
+-		min = (min < 60) ? bin2bcd(min) : 0xff;
+-		sec = (sec < 60) ? bin2bcd(sec) : 0xff;
++		p.mon = (p.mon <= 12) ? bin2bcd(p.mon) : 0xff;
++		p.mday = (p.mday >= 1 && p.mday <= 31) ? bin2bcd(p.mday) : 0xff;
++		p.hrs = (p.hrs < 24) ? bin2bcd(p.hrs) : 0xff;
++		p.min = (p.min < 60) ? bin2bcd(p.min) : 0xff;
++		p.sec = (p.sec < 60) ? bin2bcd(p.sec) : 0xff;
+ 	}
+ 
+-	spin_lock_irq(&rtc_lock);
+-
+-	/* next rtc irq must not be from previous alarm setting */
+-	cmos_irq_disable(cmos, RTC_AIE);
+-
+-	/* update alarm */
+-	CMOS_WRITE(hrs, RTC_HOURS_ALARM);
+-	CMOS_WRITE(min, RTC_MINUTES_ALARM);
+-	CMOS_WRITE(sec, RTC_SECONDS_ALARM);
+-
+-	/* the system may support an "enhanced" alarm */
+-	if (cmos->day_alrm) {
+-		CMOS_WRITE(mday, cmos->day_alrm);
+-		if (cmos->mon_alrm)
+-			CMOS_WRITE(mon, cmos->mon_alrm);
+-	}
+-
+-	if (use_hpet_alarm()) {
+-		/*
+-		 * FIXME the HPET alarm glue currently ignores day_alrm
+-		 * and mon_alrm ...
+-		 */
+-		hpet_set_alarm_time(t->time.tm_hour, t->time.tm_min,
+-				    t->time.tm_sec);
+-	}
+-
+-	if (t->enabled)
+-		cmos_irq_enable(cmos, RTC_AIE);
+-
+-	spin_unlock_irq(&rtc_lock);
++	/*
++	 * Some Intel chipsets disconnect the alarm registers when the clock
++	 * update is in progress - during this time writes fail silently.
++	 *
++	 * Use mc146818_avoid_UIP() to avoid this.
++	 */
++	if (!mc146818_avoid_UIP(cmos_set_alarm_callback, &p))
++		return -EIO;
+ 
+ 	cmos->alarm_expires = rtc_tm_to_time64(&t->time);
+ 
 -- 
 2.35.1
 
