@@ -2,154 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A2BA64A199
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:43:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C9864A023
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:21:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232671AbiLLNnK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:43:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42246 "EHLO
+        id S232571AbiLLNVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:21:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232708AbiLLNms (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:42:48 -0500
+        with ESMTP id S232576AbiLLNUy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:20:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B58614D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:41:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F08E55
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:20:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE148B80D4F
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:41:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A9A3C433D2;
-        Mon, 12 Dec 2022 13:41:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3A75B80D3B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:20:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15FF8C433EF;
+        Mon, 12 Dec 2022 13:20:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852492;
-        bh=UlQIcF4anpMd3SXMOJR9lMJ5nuI4m1Q6Q73lBoy8zfY=;
+        s=korg; t=1670851250;
+        bh=F5pqHj2RCGkmO6q1JXGe5rLFhVlr+Xmyz0NffCIsoME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Cfm8HJoDuznTsiyzr4hBNxlkxmlx0xLJ9BkxV2h9hV7kpPgE8+3FxHHhQI3DPy08
-         G7AUtucmNM2lW0oGHTMTGv7xaeoHUuSThL8qBdhquRwgZqISvW6Rj6JwFrfqJTTIma
-         xUQVgOVDeq6Hivm002M5QxfuK+C/cRTi4/Vh3KZk=
+        b=dUNjS6E42ze6ipcmFPHPOAjEqPW22J/XEPgS50fitlDChi6MKzmysnUbBw6tJpLL4
+         9aFINV3Ff2QQfwGIHaqunbidvSDLFN17pqRYVOTZ3EropJixFjtM7rj02ILkUoG7VV
+         FoY8OHX6luyLpFth9zAxm88iGhT60nSP/UPvBPYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Haiyang Zhang <haiyangz@microsoft.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 6.0 065/157] net: mana: Fix race on per-CQ variable napi work_done
+        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
+        Yang Shi <shy828301@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 18/67] mm/khugepaged: fix GUP-fast interaction by sending IPI
 Date:   Mon, 12 Dec 2022 14:16:53 +0100
-Message-Id: <20221212130937.188521672@linuxfoundation.org>
+Message-Id: <20221212130918.497186368@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Jann Horn <jannh@google.com>
 
-commit 18010ff776fa42340efc428b3ea6d19b3e7c7b21 upstream.
+commit 2ba99c5e08812494bc57f319fb562f527d9bacd8 upstream.
 
-After calling napi_complete_done(), the NAPIF_STATE_SCHED bit may be
-cleared, and another CPU can start napi thread and access per-CQ variable,
-cq->work_done. If the other thread (for example, from busy_poll) sets
-it to a value >= budget, this thread will continue to run when it should
-stop, and cause memory corruption and panic.
+Since commit 70cbc3cc78a99 ("mm: gup: fix the fast GUP race against THP
+collapse"), the lockless_pages_from_mm() fastpath rechecks the pmd_t to
+ensure that the page table was not removed by khugepaged in between.
 
-To fix this issue, save the per-CQ work_done variable in a local variable
-before napi_complete_done(), so it won't be corrupted by a possible
-concurrent thread after napi_complete_done().
+However, lockless_pages_from_mm() still requires that the page table is
+not concurrently freed.  Fix it by sending IPIs (if the architecture uses
+semi-RCU-style page table freeing) before freeing/reusing page tables.
 
-Also, add a flag bit to advertise to the NIC firmware: the NAPI work_done
-variable race is fixed, so the driver is able to reliably support features
-like busy_poll.
-
-Cc: stable@vger.kernel.org
-Fixes: e1b5683ff62e ("net: mana: Move NAPI from EQ to CQ")
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Link: https://lore.kernel.org/r/1670010190-28595-1-git-send-email-haiyangz@microsoft.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20221129154730.2274278-2-jannh@google.com
+Link: https://lkml.kernel.org/r/20221128180252.1684965-2-jannh@google.com
+Link: https://lkml.kernel.org/r/20221125213714.4115729-2-jannh@google.com
+Fixes: ba76149f47d8 ("thp: khugepaged")
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+[manual backport: two of the three places in khugepaged that can free
+ptes were refactored into a common helper between 5.15 and 6.0;
+TLB flushing was refactored between 5.4 and 5.10]
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microsoft/mana/gdma.h    |    9 ++++++++-
- drivers/net/ethernet/microsoft/mana/mana_en.c |   16 +++++++++++-----
- 2 files changed, 19 insertions(+), 6 deletions(-)
+ include/asm-generic/tlb.h | 4 ++++
+ mm/khugepaged.c           | 3 +++
+ mm/mmu_gather.c           | 5 +++++
+ 3 files changed, 12 insertions(+)
 
---- a/drivers/net/ethernet/microsoft/mana/gdma.h
-+++ b/drivers/net/ethernet/microsoft/mana/gdma.h
-@@ -498,7 +498,14 @@ enum {
+diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
+index 268674c1d568..b06240b67199 100644
+--- a/include/asm-generic/tlb.h
++++ b/include/asm-generic/tlb.h
+@@ -190,12 +190,16 @@ extern void tlb_remove_table(struct mmu_gather *tlb, void *table);
+ #define tlb_needs_table_invalidate() (true)
+ #endif
  
- #define GDMA_DRV_CAP_FLAG_1_EQ_SHARING_MULTI_VPORT BIT(0)
- 
--#define GDMA_DRV_CAP_FLAGS1 GDMA_DRV_CAP_FLAG_1_EQ_SHARING_MULTI_VPORT
-+/* Advertise to the NIC firmware: the NAPI work_done variable race is fixed,
-+ * so the driver is able to reliably support features like busy_poll.
-+ */
-+#define GDMA_DRV_CAP_FLAG_1_NAPI_WKDONE_FIX BIT(2)
++void tlb_remove_table_sync_one(void);
 +
-+#define GDMA_DRV_CAP_FLAGS1 \
-+	(GDMA_DRV_CAP_FLAG_1_EQ_SHARING_MULTI_VPORT | \
-+	 GDMA_DRV_CAP_FLAG_1_NAPI_WKDONE_FIX)
+ #else
  
- #define GDMA_DRV_CAP_FLAGS2 0
+ #ifdef tlb_needs_table_invalidate
+ #error tlb_needs_table_invalidate() requires HAVE_RCU_TABLE_FREE
+ #endif
  
---- a/drivers/net/ethernet/microsoft/mana/mana_en.c
-+++ b/drivers/net/ethernet/microsoft/mana/mana_en.c
-@@ -1303,10 +1303,11 @@ static void mana_poll_rx_cq(struct mana_
- 		xdp_do_flush();
++static inline void tlb_remove_table_sync_one(void) { }
++
+ #endif /* CONFIG_HAVE_RCU_TABLE_FREE */
+ 
+ 
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index 55631cd73939..a8f2605cbd0d 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1060,6 +1060,7 @@ static void collapse_huge_page(struct mm_struct *mm,
+ 	_pmd = pmdp_collapse_flush(vma, address, pmd);
+ 	spin_unlock(pmd_ptl);
+ 	mmu_notifier_invalidate_range_end(&range);
++	tlb_remove_table_sync_one();
+ 
+ 	spin_lock(pte_ptl);
+ 	isolated = __collapse_huge_page_isolate(vma, address, pte);
+@@ -1407,6 +1408,7 @@ void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr)
+ 	/* step 4: collapse pmd */
+ 	_pmd = pmdp_collapse_flush(vma, haddr, pmd);
+ 	mm_dec_nr_ptes(mm);
++	tlb_remove_table_sync_one();
+ 	pte_free(mm, pmd_pgtable(_pmd));
+ 
+ 	i_mmap_unlock_write(vma->vm_file->f_mapping);
+@@ -1494,6 +1496,7 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
+ 				/* assume page table is clear */
+ 				_pmd = pmdp_collapse_flush(vma, addr, pmd);
+ 				mm_dec_nr_ptes(mm);
++				tlb_remove_table_sync_one();
+ 				pte_free(mm, pmd_pgtable(_pmd));
+ 			}
+ 			up_write(&mm->mmap_sem);
+diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+index 7c1b8f67af7b..341aa036b03c 100644
+--- a/mm/mmu_gather.c
++++ b/mm/mmu_gather.c
+@@ -117,6 +117,11 @@ static void tlb_remove_table_smp_sync(void *arg)
+ 	/* Simply deliver the interrupt */
  }
  
--static void mana_cq_handler(void *context, struct gdma_queue *gdma_queue)
-+static int mana_cq_handler(void *context, struct gdma_queue *gdma_queue)
++void tlb_remove_table_sync_one(void)
++{
++	smp_call_function(tlb_remove_table_smp_sync, NULL, 1);
++}
++
+ static void tlb_remove_table_one(void *table)
  {
- 	struct mana_cq *cq = context;
- 	u8 arm_bit;
-+	int w;
- 
- 	WARN_ON_ONCE(cq->gdma_cq != gdma_queue);
- 
-@@ -1315,26 +1316,31 @@ static void mana_cq_handler(void *contex
- 	else
- 		mana_poll_tx_cq(cq);
- 
--	if (cq->work_done < cq->budget &&
--	    napi_complete_done(&cq->napi, cq->work_done)) {
-+	w = cq->work_done;
-+
-+	if (w < cq->budget &&
-+	    napi_complete_done(&cq->napi, w)) {
- 		arm_bit = SET_ARM_BIT;
- 	} else {
- 		arm_bit = 0;
- 	}
- 
- 	mana_gd_ring_cq(gdma_queue, arm_bit);
-+
-+	return w;
- }
- 
- static int mana_poll(struct napi_struct *napi, int budget)
- {
- 	struct mana_cq *cq = container_of(napi, struct mana_cq, napi);
-+	int w;
- 
- 	cq->work_done = 0;
- 	cq->budget = budget;
- 
--	mana_cq_handler(cq, cq->gdma_cq);
-+	w = mana_cq_handler(cq, cq->gdma_cq);
- 
--	return min(cq->work_done, budget);
-+	return min(w, budget);
- }
- 
- static void mana_schedule_napi(void *context, struct gdma_queue *gdma_queue)
+ 	/*
+-- 
+2.35.1
+
 
 
