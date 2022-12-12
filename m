@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15D2164A1BB
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5F2064A0C5
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:30:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232976AbiLLNoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:44:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42036 "EHLO
+        id S231892AbiLLNaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:30:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232993AbiLLNn7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82A66D6C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:43:50 -0800 (PST)
+        with ESMTP id S232054AbiLLNaP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:30:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C09E6DE
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:30:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E8DD6106C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:43:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3076C433D2;
-        Mon, 12 Dec 2022 13:43:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C83B61042
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:30:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5077FC433F0;
+        Mon, 12 Dec 2022 13:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852629;
-        bh=Ho6aLkLDumGSpP5eYGA2yhkvLgYVF/hmgZSgghT44Pk=;
+        s=korg; t=1670851813;
+        bh=VN7Lp/Eykc67dy9hNvpwrRqy2encAQEIsVaJRELYcKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VRLVK+GuGjWVvEHhnBvxMEKmH+1Fy/jsd2wohK47i6b2Icajsoch8tiCihFoY9DPQ
-         22L5l6pxaWs5UhH+9PaW9L7MMCzOCNNmSpYYvOOPSB1MiqWEPahLsxsl7uZ1v0mQQR
-         AdJAhXY5cEH8yAkI+1I2RoskDPr/HSTRptUunKm4=
+        b=Hp160OE5CNi+THs3gi/RyL//i+gnkp5As6sgTIcY/dUd86rHqYMVJV+929mHWK4qN
+         76eQFOW8HhTCwgBMBbHaCyjTyi8FEkDZi9cjbF495uF3C/2fEy8F1mftsBeqUXmfoX
+         a5BWrOIQkwjBlBvh++DtlAupHCz0qv7oa85X5rPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Ivan Babrou <ivan@ivan.computer>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Ronak Doshi <doshir@vmware.com>,
+        Guolin Yang <gyang@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 094/157] netfilter: ctnetlink: fix compilation warning after data race fixes in ct mark
+Subject: [PATCH 5.15 076/123] vmxnet3: use correct intrConf reference when using extended queues
 Date:   Mon, 12 Dec 2022 14:17:22 +0100
-Message-Id: <20221212130938.592859020@linuxfoundation.org>
+Message-Id: <20221212130930.155335224@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,92 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Ronak Doshi <doshir@vmware.com>
 
-[ Upstream commit 1feeae071507ad65cf9f462a1bdd543a4bf89e71 ]
+[ Upstream commit 409e8ec8c5825591895937b8499b54aa2476fae7 ]
 
-All warnings (new ones prefixed by >>):
+Commit 39f9895a00f4 ("vmxnet3: add support for 32 Tx/Rx queues")
+added support for 32Tx/Rx queues. As a part of this patch, intrConf
+structure was extended to incorporate increased queues.
 
-   net/netfilter/nf_conntrack_netlink.c: In function '__ctnetlink_glue_build':
->> net/netfilter/nf_conntrack_netlink.c:2674:13: warning: unused variable 'mark' [-Wunused-variable]
-    2674 |         u32 mark;
-         |             ^~~~
+This patch fixes the issue where incorrect reference is being used.
 
-Fixes: 52d1aa8b8249 ("netfilter: conntrack: Fix data-races around ct mark")
-Reported-by: kernel test robot <lkp@intel.com>
-Tested-by: Ivan Babrou <ivan@ivan.computer>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 39f9895a00f4 ("vmxnet3: add support for 32 Tx/Rx queues")
+Signed-off-by: Ronak Doshi <doshir@vmware.com>
+Acked-by: Guolin Yang <gyang@vmware.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/net/vmxnet3/vmxnet3_drv.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index d71150a40fb0..1286ae7d4609 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -328,8 +328,13 @@ ctnetlink_dump_timestamp(struct sk_buff *skb, const struct nf_conn *ct)
+diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
+index 44a0d469f3cf..21896e221300 100644
+--- a/drivers/net/vmxnet3/vmxnet3_drv.c
++++ b/drivers/net/vmxnet3/vmxnet3_drv.c
+@@ -75,8 +75,14 @@ vmxnet3_enable_all_intrs(struct vmxnet3_adapter *adapter)
+ 
+ 	for (i = 0; i < adapter->intr.num_intrs; i++)
+ 		vmxnet3_enable_intr(adapter, i);
+-	adapter->shared->devRead.intrConf.intrCtrl &=
++	if (!VMXNET3_VERSION_GE_6(adapter) ||
++	    !adapter->queuesExtEnabled) {
++		adapter->shared->devRead.intrConf.intrCtrl &=
+ 					cpu_to_le32(~VMXNET3_IC_DISABLE_ALL);
++	} else {
++		adapter->shared->devReadExt.intrConfExt.intrCtrl &=
++					cpu_to_le32(~VMXNET3_IC_DISABLE_ALL);
++	}
  }
  
- #ifdef CONFIG_NF_CONNTRACK_MARK
--static int ctnetlink_dump_mark(struct sk_buff *skb, u32 mark)
-+static int ctnetlink_dump_mark(struct sk_buff *skb, const struct nf_conn *ct)
+ 
+@@ -85,8 +91,14 @@ vmxnet3_disable_all_intrs(struct vmxnet3_adapter *adapter)
  {
-+	u32 mark = READ_ONCE(ct->mark);
-+
-+	if (!mark)
-+		return 0;
-+
- 	if (nla_put_be32(skb, CTA_MARK, htonl(mark)))
- 		goto nla_put_failure;
- 	return 0;
-@@ -543,7 +548,7 @@ static int ctnetlink_dump_extinfo(struct sk_buff *skb,
- static int ctnetlink_dump_info(struct sk_buff *skb, struct nf_conn *ct)
- {
- 	if (ctnetlink_dump_status(skb, ct) < 0 ||
--	    ctnetlink_dump_mark(skb, READ_ONCE(ct->mark)) < 0 ||
-+	    ctnetlink_dump_mark(skb, ct) < 0 ||
- 	    ctnetlink_dump_secctx(skb, ct) < 0 ||
- 	    ctnetlink_dump_id(skb, ct) < 0 ||
- 	    ctnetlink_dump_use(skb, ct) < 0 ||
-@@ -722,7 +727,6 @@ ctnetlink_conntrack_event(unsigned int events, const struct nf_ct_event *item)
- 	struct sk_buff *skb;
- 	unsigned int type;
- 	unsigned int flags = 0, group;
--	u32 mark;
- 	int err;
+ 	int i;
  
- 	if (events & (1 << IPCT_DESTROY)) {
-@@ -827,9 +831,8 @@ ctnetlink_conntrack_event(unsigned int events, const struct nf_ct_event *item)
- 	}
- 
- #ifdef CONFIG_NF_CONNTRACK_MARK
--	mark = READ_ONCE(ct->mark);
--	if ((events & (1 << IPCT_MARK) || mark) &&
--	    ctnetlink_dump_mark(skb, mark) < 0)
-+	if (events & (1 << IPCT_MARK) &&
-+	    ctnetlink_dump_mark(skb, ct) < 0)
- 		goto nla_put_failure;
- #endif
- 	nlmsg_end(skb, nlh);
-@@ -2671,7 +2674,6 @@ static int __ctnetlink_glue_build(struct sk_buff *skb, struct nf_conn *ct)
- {
- 	const struct nf_conntrack_zone *zone;
- 	struct nlattr *nest_parms;
--	u32 mark;
- 
- 	zone = nf_ct_zone(ct);
- 
-@@ -2733,8 +2735,7 @@ static int __ctnetlink_glue_build(struct sk_buff *skb, struct nf_conn *ct)
- 		goto nla_put_failure;
- 
- #ifdef CONFIG_NF_CONNTRACK_MARK
--	mark = READ_ONCE(ct->mark);
--	if (mark && ctnetlink_dump_mark(skb, mark) < 0)
-+	if (ctnetlink_dump_mark(skb, ct) < 0)
- 		goto nla_put_failure;
- #endif
- 	if (ctnetlink_dump_labels(skb, ct) < 0)
+-	adapter->shared->devRead.intrConf.intrCtrl |=
++	if (!VMXNET3_VERSION_GE_6(adapter) ||
++	    !adapter->queuesExtEnabled) {
++		adapter->shared->devRead.intrConf.intrCtrl |=
+ 					cpu_to_le32(VMXNET3_IC_DISABLE_ALL);
++	} else {
++		adapter->shared->devReadExt.intrConfExt.intrCtrl |=
++					cpu_to_le32(VMXNET3_IC_DISABLE_ALL);
++	}
+ 	for (i = 0; i < adapter->intr.num_intrs; i++)
+ 		vmxnet3_disable_intr(adapter, i);
+ }
 -- 
 2.35.1
 
