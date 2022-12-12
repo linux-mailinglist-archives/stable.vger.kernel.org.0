@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69CF064A15E
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:39:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D74164A0B4
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:29:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232891AbiLLNjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:39:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36826 "EHLO
+        id S232106AbiLLN3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:29:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232852AbiLLNjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:39:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B133B13F26
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:38:13 -0800 (PST)
+        with ESMTP id S232396AbiLLN3C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:29:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B5AC259
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:29:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49280B80D2C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:38:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A517C433EF;
-        Mon, 12 Dec 2022 13:38:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B51B61053
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:29:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E48B1C433EF;
+        Mon, 12 Dec 2022 13:28:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852291;
-        bh=9e/8M06uZJ7GJH15Xsi5lWSOGZOrrCctCU8ZxDh29zE=;
+        s=korg; t=1670851740;
+        bh=LRfe16lCtSJyGtjW8AgZg6bL1gxLZ0gvVfSkxgU0NuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yQq9iCadkHVpiHW4yXrWrGRW5yxmkBvB66ZDgqTQ6jxjw6xUbU9g3tX/8fDeVOaJB
-         uF9KAoEg8WUa8miQKbn+/8t4zYjoieRMUiSiL5E720QQYejLrJmE8hnShSB32v3eAj
-         7mYxvtxKNHpkTKHeffIoNOzrIN7hagAymg/dQxD8=
+        b=s3KBIr0qU8/jcc/4aCZayprsA/6Nvia6kfcKBOcNisJws/osfbRoxfnoyD8Vwt7Of
+         TeA3ZWIOCEo6b0NAOrNLy2ZufZ6OFu4jPCpSbrNXkkLc8Kfqp3ZU3jkxJ7atU/Yrjt
+         e9d9LtrwYbk+zD6yWjkIneue/v72VSNUpFJfLxVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ross Lagerwall <ross.lagerwall@citrix.com>,
-        Paul Durrant <paul@xen.org>, Juergen Gross <jgross@suse.com>,
+        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 051/157] xen/netback: Ensure protocol headers dont fall in the non-linear area
-Date:   Mon, 12 Dec 2022 14:16:39 +0100
-Message-Id: <20221212130936.605730647@linuxfoundation.org>
+Subject: [PATCH 5.15 034/123] cifs: fix use-after-free caused by invalid pointer `hostname`
+Date:   Mon, 12 Dec 2022 14:16:40 +0100
+Message-Id: <20221212130928.344469149@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,387 +54,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ross Lagerwall <ross.lagerwall@citrix.com>
+From: Zeng Heng <zengheng4@huawei.com>
 
-[ Upstream commit ad7f402ae4f466647c3a669b8a6f3e5d4271c84a ]
+[ Upstream commit 153695d36ead0ccc4d0256953c751cabf673e621 ]
 
-In some cases, the frontend may send a packet where the protocol headers
-are spread across multiple slots. This would result in netback creating
-an skb where the protocol headers spill over into the non-linear area.
-Some drivers and NICs don't handle this properly resulting in an
-interface reset or worse.
+`hostname` needs to be set as null-pointer after free in
+`cifs_put_tcp_session` function, or when `cifsd` thread attempts
+to resolve hostname and reconnect the host, the thread would deref
+the invalid pointer.
 
-This issue was introduced by the removal of an unconditional skb pull in
-the tx path to improve performance.  Fix this without reintroducing the
-pull by setting up grant copy ops for as many slots as needed to reach
-the XEN_NETBACK_TX_COPY_LEN size. Adjust the rest of the code to handle
-multiple copy operations per skb.
+Here is one of practical backtrace examples as reference:
 
-This is XSA-423 / CVE-2022-3643.
+Task 477
+---------------------------
+ do_mount
+  path_mount
+   do_new_mount
+    vfs_get_tree
+     smb3_get_tree
+      smb3_get_tree_common
+       cifs_smb3_do_mount
+        cifs_mount
+         mount_put_conns
+          cifs_put_tcp_session
+          --> kfree(server->hostname)
 
-Fixes: 7e5d7753956b ("xen-netback: remove unconditional __pskb_pull_tail() in guest Tx path")
-Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+cifsd
+---------------------------
+ kthread
+  cifs_demultiplex_thread
+   cifs_reconnect
+    reconn_set_ipaddr_from_hostname
+    --> if (!server->hostname)
+    --> if (server->hostname[0] == '\0')  // !! UAF fault here
+
+CIFS: VFS: cifs_mount failed w/return code = -112
+mount error(112): Host is down
+BUG: KASAN: use-after-free in reconn_set_ipaddr_from_hostname+0x2ba/0x310
+Read of size 1 at addr ffff888108f35380 by task cifsd/480
+CPU: 2 PID: 480 Comm: cifsd Not tainted 6.1.0-rc2-00106-gf705792f89dd-dirty #25
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x68/0x85
+ print_report+0x16c/0x4a3
+ kasan_report+0x95/0x190
+ reconn_set_ipaddr_from_hostname+0x2ba/0x310
+ __cifs_reconnect.part.0+0x241/0x800
+ cifs_reconnect+0x65f/0xb60
+ cifs_demultiplex_thread+0x1570/0x2570
+ kthread+0x2c5/0x380
+ ret_from_fork+0x22/0x30
+ </TASK>
+Allocated by task 477:
+ kasan_save_stack+0x1e/0x40
+ kasan_set_track+0x21/0x30
+ __kasan_kmalloc+0x7e/0x90
+ __kmalloc_node_track_caller+0x52/0x1b0
+ kstrdup+0x3b/0x70
+ cifs_get_tcp_session+0xbc/0x19b0
+ mount_get_conns+0xa9/0x10c0
+ cifs_mount+0xdf/0x1970
+ cifs_smb3_do_mount+0x295/0x1660
+ smb3_get_tree+0x352/0x5e0
+ vfs_get_tree+0x8e/0x2e0
+ path_mount+0xf8c/0x1990
+ do_mount+0xee/0x110
+ __x64_sys_mount+0x14b/0x1f0
+ do_syscall_64+0x3b/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+Freed by task 477:
+ kasan_save_stack+0x1e/0x40
+ kasan_set_track+0x21/0x30
+ kasan_save_free_info+0x2a/0x50
+ __kasan_slab_free+0x10a/0x190
+ __kmem_cache_free+0xca/0x3f0
+ cifs_put_tcp_session+0x30c/0x450
+ cifs_mount+0xf95/0x1970
+ cifs_smb3_do_mount+0x295/0x1660
+ smb3_get_tree+0x352/0x5e0
+ vfs_get_tree+0x8e/0x2e0
+ path_mount+0xf8c/0x1990
+ do_mount+0xee/0x110
+ __x64_sys_mount+0x14b/0x1f0
+ do_syscall_64+0x3b/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+The buggy address belongs to the object at ffff888108f35380
+ which belongs to the cache kmalloc-16 of size 16
+The buggy address is located 0 bytes inside of
+ 16-byte region [ffff888108f35380, ffff888108f35390)
+The buggy address belongs to the physical page:
+page:00000000333f8e58 refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff888108f350e0 pfn:0x108f35
+flags: 0x200000000000200(slab|node=0|zone=2)
+raw: 0200000000000200 0000000000000000 dead000000000122 ffff8881000423c0
+raw: ffff888108f350e0 000000008080007a 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+Memory state around the buggy address:
+ ffff888108f35280: fa fb fc fc fa fb fc fc fa fb fc fc fa fb fc fc
+ ffff888108f35300: fa fb fc fc fa fb fc fc fa fb fc fc fa fb fc fc
+>ffff888108f35380: fa fb fc fc fa fb fc fc fa fb fc fc fa fb fc fc
+                   ^
+ ffff888108f35400: fa fb fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff888108f35480: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+
+Fixes: 7be3248f3139 ("cifs: To match file servers, make sure the server hostname matches")
+Signed-off-by: Zeng Heng <zengheng4@huawei.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/netback.c | 223 ++++++++++++++++--------------
- 1 file changed, 123 insertions(+), 100 deletions(-)
+ fs/cifs/connect.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index a256695fc89e..4962ff8b1534 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -332,10 +332,13 @@ static int xenvif_count_requests(struct xenvif_queue *queue,
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index c6e2a0ff8f0c..a4284c4d7e03 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -1392,6 +1392,7 @@ cifs_put_tcp_session(struct TCP_Server_Info *server, int from_reconnect)
+ 	server->session_key.response = NULL;
+ 	server->session_key.len = 0;
+ 	kfree(server->hostname);
++	server->hostname = NULL;
  
- 
- struct xenvif_tx_cb {
--	u16 pending_idx;
-+	u16 copy_pending_idx[XEN_NETBK_LEGACY_SLOTS_MAX + 1];
-+	u8 copy_count;
- };
- 
- #define XENVIF_TX_CB(skb) ((struct xenvif_tx_cb *)(skb)->cb)
-+#define copy_pending_idx(skb, i) (XENVIF_TX_CB(skb)->copy_pending_idx[i])
-+#define copy_count(skb) (XENVIF_TX_CB(skb)->copy_count)
- 
- static inline void xenvif_tx_create_map_op(struct xenvif_queue *queue,
- 					   u16 pending_idx,
-@@ -370,31 +373,93 @@ static inline struct sk_buff *xenvif_alloc_skb(unsigned int size)
- 	return skb;
- }
- 
--static struct gnttab_map_grant_ref *xenvif_get_requests(struct xenvif_queue *queue,
--							struct sk_buff *skb,
--							struct xen_netif_tx_request *txp,
--							struct gnttab_map_grant_ref *gop,
--							unsigned int frag_overflow,
--							struct sk_buff *nskb)
-+static void xenvif_get_requests(struct xenvif_queue *queue,
-+				struct sk_buff *skb,
-+				struct xen_netif_tx_request *first,
-+				struct xen_netif_tx_request *txfrags,
-+			        unsigned *copy_ops,
-+			        unsigned *map_ops,
-+				unsigned int frag_overflow,
-+				struct sk_buff *nskb,
-+				unsigned int extra_count,
-+				unsigned int data_len)
- {
- 	struct skb_shared_info *shinfo = skb_shinfo(skb);
- 	skb_frag_t *frags = shinfo->frags;
--	u16 pending_idx = XENVIF_TX_CB(skb)->pending_idx;
--	int start;
-+	u16 pending_idx;
- 	pending_ring_idx_t index;
- 	unsigned int nr_slots;
-+	struct gnttab_copy *cop = queue->tx_copy_ops + *copy_ops;
-+	struct gnttab_map_grant_ref *gop = queue->tx_map_ops + *map_ops;
-+	struct xen_netif_tx_request *txp = first;
-+
-+	nr_slots = shinfo->nr_frags + 1;
-+
-+	copy_count(skb) = 0;
-+
-+	/* Create copy ops for exactly data_len bytes into the skb head. */
-+	__skb_put(skb, data_len);
-+	while (data_len > 0) {
-+		int amount = data_len > txp->size ? txp->size : data_len;
-+
-+		cop->source.u.ref = txp->gref;
-+		cop->source.domid = queue->vif->domid;
-+		cop->source.offset = txp->offset;
-+
-+		cop->dest.domid = DOMID_SELF;
-+		cop->dest.offset = (offset_in_page(skb->data +
-+						   skb_headlen(skb) -
-+						   data_len)) & ~XEN_PAGE_MASK;
-+		cop->dest.u.gmfn = virt_to_gfn(skb->data + skb_headlen(skb)
-+				               - data_len);
-+
-+		cop->len = amount;
-+		cop->flags = GNTCOPY_source_gref;
- 
--	nr_slots = shinfo->nr_frags;
-+		index = pending_index(queue->pending_cons);
-+		pending_idx = queue->pending_ring[index];
-+		callback_param(queue, pending_idx).ctx = NULL;
-+		copy_pending_idx(skb, copy_count(skb)) = pending_idx;
-+		copy_count(skb)++;
-+
-+		cop++;
-+		data_len -= amount;
- 
--	/* Skip first skb fragment if it is on same page as header fragment. */
--	start = (frag_get_pending_idx(&shinfo->frags[0]) == pending_idx);
-+		if (amount == txp->size) {
-+			/* The copy op covered the full tx_request */
-+
-+			memcpy(&queue->pending_tx_info[pending_idx].req,
-+			       txp, sizeof(*txp));
-+			queue->pending_tx_info[pending_idx].extra_count =
-+				(txp == first) ? extra_count : 0;
-+
-+			if (txp == first)
-+				txp = txfrags;
-+			else
-+				txp++;
-+			queue->pending_cons++;
-+			nr_slots--;
-+		} else {
-+			/* The copy op partially covered the tx_request.
-+			 * The remainder will be mapped.
-+			 */
-+			txp->offset += amount;
-+			txp->size -= amount;
-+		}
-+	}
- 
--	for (shinfo->nr_frags = start; shinfo->nr_frags < nr_slots;
--	     shinfo->nr_frags++, txp++, gop++) {
-+	for (shinfo->nr_frags = 0; shinfo->nr_frags < nr_slots;
-+	     shinfo->nr_frags++, gop++) {
- 		index = pending_index(queue->pending_cons++);
- 		pending_idx = queue->pending_ring[index];
--		xenvif_tx_create_map_op(queue, pending_idx, txp, 0, gop);
-+		xenvif_tx_create_map_op(queue, pending_idx, txp,
-+				        txp == first ? extra_count : 0, gop);
- 		frag_set_pending_idx(&frags[shinfo->nr_frags], pending_idx);
-+
-+		if (txp == first)
-+			txp = txfrags;
-+		else
-+			txp++;
- 	}
- 
- 	if (frag_overflow) {
-@@ -415,7 +480,8 @@ static struct gnttab_map_grant_ref *xenvif_get_requests(struct xenvif_queue *que
- 		skb_shinfo(skb)->frag_list = nskb;
- 	}
- 
--	return gop;
-+	(*copy_ops) = cop - queue->tx_copy_ops;
-+	(*map_ops) = gop - queue->tx_map_ops;
- }
- 
- static inline void xenvif_grant_handle_set(struct xenvif_queue *queue,
-@@ -451,7 +517,7 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
- 			       struct gnttab_copy **gopp_copy)
- {
- 	struct gnttab_map_grant_ref *gop_map = *gopp_map;
--	u16 pending_idx = XENVIF_TX_CB(skb)->pending_idx;
-+	u16 pending_idx;
- 	/* This always points to the shinfo of the skb being checked, which
- 	 * could be either the first or the one on the frag_list
- 	 */
-@@ -462,24 +528,37 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
- 	struct skb_shared_info *first_shinfo = NULL;
- 	int nr_frags = shinfo->nr_frags;
- 	const bool sharedslot = nr_frags &&
--				frag_get_pending_idx(&shinfo->frags[0]) == pending_idx;
-+				frag_get_pending_idx(&shinfo->frags[0]) ==
-+				    copy_pending_idx(skb, copy_count(skb) - 1);
- 	int i, err;
- 
--	/* Check status of header. */
--	err = (*gopp_copy)->status;
--	if (unlikely(err)) {
--		if (net_ratelimit())
--			netdev_dbg(queue->vif->dev,
--				   "Grant copy of header failed! status: %d pending_idx: %u ref: %u\n",
--				   (*gopp_copy)->status,
--				   pending_idx,
--				   (*gopp_copy)->source.u.ref);
--		/* The first frag might still have this slot mapped */
--		if (!sharedslot)
--			xenvif_idx_release(queue, pending_idx,
--					   XEN_NETIF_RSP_ERROR);
-+	for (i = 0; i < copy_count(skb); i++) {
-+		int newerr;
-+
-+		/* Check status of header. */
-+		pending_idx = copy_pending_idx(skb, i);
-+
-+		newerr = (*gopp_copy)->status;
-+		if (likely(!newerr)) {
-+			/* The first frag might still have this slot mapped */
-+			if (i < copy_count(skb) - 1 || !sharedslot)
-+				xenvif_idx_release(queue, pending_idx,
-+						   XEN_NETIF_RSP_OKAY);
-+		} else {
-+			err = newerr;
-+			if (net_ratelimit())
-+				netdev_dbg(queue->vif->dev,
-+					   "Grant copy of header failed! status: %d pending_idx: %u ref: %u\n",
-+					   (*gopp_copy)->status,
-+					   pending_idx,
-+					   (*gopp_copy)->source.u.ref);
-+			/* The first frag might still have this slot mapped */
-+			if (i < copy_count(skb) - 1 || !sharedslot)
-+				xenvif_idx_release(queue, pending_idx,
-+						   XEN_NETIF_RSP_ERROR);
-+		}
-+		(*gopp_copy)++;
- 	}
--	(*gopp_copy)++;
- 
- check_frags:
- 	for (i = 0; i < nr_frags; i++, gop_map++) {
-@@ -526,14 +605,6 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
- 		if (err)
- 			continue;
- 
--		/* First error: if the header haven't shared a slot with the
--		 * first frag, release it as well.
--		 */
--		if (!sharedslot)
--			xenvif_idx_release(queue,
--					   XENVIF_TX_CB(skb)->pending_idx,
--					   XEN_NETIF_RSP_OKAY);
--
- 		/* Invalidate preceding fragments of this skb. */
- 		for (j = 0; j < i; j++) {
- 			pending_idx = frag_get_pending_idx(&shinfo->frags[j]);
-@@ -803,7 +874,6 @@ static void xenvif_tx_build_gops(struct xenvif_queue *queue,
- 				     unsigned *copy_ops,
- 				     unsigned *map_ops)
- {
--	struct gnttab_map_grant_ref *gop = queue->tx_map_ops;
- 	struct sk_buff *skb, *nskb;
- 	int ret;
- 	unsigned int frag_overflow;
-@@ -885,8 +955,12 @@ static void xenvif_tx_build_gops(struct xenvif_queue *queue,
- 			continue;
- 		}
- 
-+		data_len = (txreq.size > XEN_NETBACK_TX_COPY_LEN) ?
-+			XEN_NETBACK_TX_COPY_LEN : txreq.size;
-+
- 		ret = xenvif_count_requests(queue, &txreq, extra_count,
- 					    txfrags, work_to_do);
-+
- 		if (unlikely(ret < 0))
- 			break;
- 
-@@ -912,9 +986,8 @@ static void xenvif_tx_build_gops(struct xenvif_queue *queue,
- 		index = pending_index(queue->pending_cons);
- 		pending_idx = queue->pending_ring[index];
- 
--		data_len = (txreq.size > XEN_NETBACK_TX_COPY_LEN &&
--			    ret < XEN_NETBK_LEGACY_SLOTS_MAX) ?
--			XEN_NETBACK_TX_COPY_LEN : txreq.size;
-+		if (ret >= XEN_NETBK_LEGACY_SLOTS_MAX - 1 && data_len < txreq.size)
-+			data_len = txreq.size;
- 
- 		skb = xenvif_alloc_skb(data_len);
- 		if (unlikely(skb == NULL)) {
-@@ -925,8 +998,6 @@ static void xenvif_tx_build_gops(struct xenvif_queue *queue,
- 		}
- 
- 		skb_shinfo(skb)->nr_frags = ret;
--		if (data_len < txreq.size)
--			skb_shinfo(skb)->nr_frags++;
- 		/* At this point shinfo->nr_frags is in fact the number of
- 		 * slots, which can be as large as XEN_NETBK_LEGACY_SLOTS_MAX.
- 		 */
-@@ -988,54 +1059,19 @@ static void xenvif_tx_build_gops(struct xenvif_queue *queue,
- 					     type);
- 		}
- 
--		XENVIF_TX_CB(skb)->pending_idx = pending_idx;
--
--		__skb_put(skb, data_len);
--		queue->tx_copy_ops[*copy_ops].source.u.ref = txreq.gref;
--		queue->tx_copy_ops[*copy_ops].source.domid = queue->vif->domid;
--		queue->tx_copy_ops[*copy_ops].source.offset = txreq.offset;
--
--		queue->tx_copy_ops[*copy_ops].dest.u.gmfn =
--			virt_to_gfn(skb->data);
--		queue->tx_copy_ops[*copy_ops].dest.domid = DOMID_SELF;
--		queue->tx_copy_ops[*copy_ops].dest.offset =
--			offset_in_page(skb->data) & ~XEN_PAGE_MASK;
--
--		queue->tx_copy_ops[*copy_ops].len = data_len;
--		queue->tx_copy_ops[*copy_ops].flags = GNTCOPY_source_gref;
--
--		(*copy_ops)++;
--
--		if (data_len < txreq.size) {
--			frag_set_pending_idx(&skb_shinfo(skb)->frags[0],
--					     pending_idx);
--			xenvif_tx_create_map_op(queue, pending_idx, &txreq,
--						extra_count, gop);
--			gop++;
--		} else {
--			frag_set_pending_idx(&skb_shinfo(skb)->frags[0],
--					     INVALID_PENDING_IDX);
--			memcpy(&queue->pending_tx_info[pending_idx].req,
--			       &txreq, sizeof(txreq));
--			queue->pending_tx_info[pending_idx].extra_count =
--				extra_count;
--		}
--
--		queue->pending_cons++;
--
--		gop = xenvif_get_requests(queue, skb, txfrags, gop,
--				          frag_overflow, nskb);
-+		xenvif_get_requests(queue, skb, &txreq, txfrags, copy_ops,
-+				    map_ops, frag_overflow, nskb, extra_count,
-+				    data_len);
- 
- 		__skb_queue_tail(&queue->tx_queue, skb);
- 
- 		queue->tx.req_cons = idx;
- 
--		if (((gop-queue->tx_map_ops) >= ARRAY_SIZE(queue->tx_map_ops)) ||
-+		if ((*map_ops >= ARRAY_SIZE(queue->tx_map_ops)) ||
- 		    (*copy_ops >= ARRAY_SIZE(queue->tx_copy_ops)))
- 			break;
- 	}
- 
--	(*map_ops) = gop - queue->tx_map_ops;
- 	return;
- }
- 
-@@ -1114,9 +1150,8 @@ static int xenvif_tx_submit(struct xenvif_queue *queue)
- 	while ((skb = __skb_dequeue(&queue->tx_queue)) != NULL) {
- 		struct xen_netif_tx_request *txp;
- 		u16 pending_idx;
--		unsigned data_len;
- 
--		pending_idx = XENVIF_TX_CB(skb)->pending_idx;
-+		pending_idx = copy_pending_idx(skb, 0);
- 		txp = &queue->pending_tx_info[pending_idx].req;
- 
- 		/* Check the remap error code. */
-@@ -1135,18 +1170,6 @@ static int xenvif_tx_submit(struct xenvif_queue *queue)
- 			continue;
- 		}
- 
--		data_len = skb->len;
--		callback_param(queue, pending_idx).ctx = NULL;
--		if (data_len < txp->size) {
--			/* Append the packet payload as a fragment. */
--			txp->offset += data_len;
--			txp->size -= data_len;
--		} else {
--			/* Schedule a response immediately. */
--			xenvif_idx_release(queue, pending_idx,
--					   XEN_NETIF_RSP_OKAY);
--		}
--
- 		if (txp->flags & XEN_NETTXF_csum_blank)
- 			skb->ip_summed = CHECKSUM_PARTIAL;
- 		else if (txp->flags & XEN_NETTXF_data_validated)
-@@ -1331,7 +1354,7 @@ static inline void xenvif_tx_dealloc_action(struct xenvif_queue *queue)
- /* Called after netfront has transmitted */
- int xenvif_tx_action(struct xenvif_queue *queue, int budget)
- {
--	unsigned nr_mops, nr_cops = 0;
-+	unsigned nr_mops = 0, nr_cops = 0;
- 	int work_done, ret;
- 
- 	if (unlikely(!tx_work_todo(queue)))
+ 	task = xchg(&server->tsk, NULL);
+ 	if (task)
 -- 
 2.35.1
 
