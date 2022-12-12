@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 594AF64A1CA
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:45:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91BF764A0FC
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:33:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233018AbiLLNpr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:45:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42216 "EHLO
+        id S232447AbiLLNdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:33:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233000AbiLLNpX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:45:23 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 934D714D2E
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:44:39 -0800 (PST)
+        with ESMTP id S232587AbiLLNdS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:33:18 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB07F13E2E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:33:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CB832CE0EFC
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:44:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 979B1C433EF;
-        Mon, 12 Dec 2022 13:44:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 64124CE0F19
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:33:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41386C433D2;
+        Mon, 12 Dec 2022 13:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852676;
-        bh=a16utpOjsrL6ez7rzp76cnUx7fL7wLkHcVMwLoxXqwA=;
+        s=korg; t=1670851994;
+        bh=BPj0+8BczAaSlB0zJpwKL8LTCDrnL6uHmIdeI/reLZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nzzuFqaA5iJuXBum5UzNoy4lixPFWhN86sgsNSJ4aQWAFpNsylWydfTSbCS98ZWZV
-         O5GkK52CdWyE+8D2d/hTNjeiA8/hD7nYJcxawj06M6IhxJh639wgPy/tPN8FY52mGF
-         /PIacIBxk8W3r+meJnSYX5HHlsdwad9QX0yjoGR0=
+        b=WoBXqgMr5B6IBSKd3L/JbuL7QbW47rYJ73VpAHOlw5hI9w1RzDJrhoz9h3M5Y4WGM
+         FgyrlsLRpfbuQ+LBUc6jIvIqIhh7h/ps6oNHjEJ4fh0+Z85eCYEVI0J6SMXO0vwvDB
+         4y4zkz8a2a1j+Q2vjiRfOAkUgLoNon/qWH/qBUAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        patches@lists.linux.dev, Michael Walle <michael@walle.cc>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 130/157] gpio/rockchip: fix refcount leak in rockchip_gpiolib_register()
+Subject: [PATCH 5.15 112/123] net: phy: mxl-gpy: fix version reporting
 Date:   Mon, 12 Dec 2022 14:17:58 +0100
-Message-Id: <20221212130940.129172628@linuxfoundation.org>
+Message-Id: <20221212130932.061436228@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 63ff545af73f759d1bd04198af8ed8577fb739fc ]
+[ Upstream commit fc3dd0367e610ae20ebbce6c38c7b86c3a2cc07f ]
 
-The node returned by of_get_parent() with refcount incremented,
-of_node_put() needs be called when finish using it. So add it in the
-end of of_pinctrl_get().
+The commit 09ce6b20103b ("net: phy: mxl-gpy: add temperature sensor")
+will overwrite the return value and the reported version will be wrong.
+Fix it.
 
-Fixes: 936ee2675eee ("gpio/rockchip: add driver for rockchip gpio")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Fixes: 09ce6b20103b ("net: phy: mxl-gpy: add temperature sensor")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: 5f4d487d01ff ("net: phy: mxl-gpy: add MDINT workaround")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-rockchip.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/mxl-gpy.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpio/gpio-rockchip.c b/drivers/gpio/gpio-rockchip.c
-index 9c976ad7208e..09cfb49ed998 100644
---- a/drivers/gpio/gpio-rockchip.c
-+++ b/drivers/gpio/gpio-rockchip.c
-@@ -621,6 +621,7 @@ static int rockchip_gpiolib_register(struct rockchip_pin_bank *bank)
- 			return -ENODATA;
+diff --git a/drivers/net/phy/mxl-gpy.c b/drivers/net/phy/mxl-gpy.c
+index 5ce1bf03bbd7..f9c70476d7e8 100644
+--- a/drivers/net/phy/mxl-gpy.c
++++ b/drivers/net/phy/mxl-gpy.c
+@@ -96,6 +96,7 @@ static int gpy_config_init(struct phy_device *phydev)
  
- 		pctldev = of_pinctrl_get(pctlnp);
-+		of_node_put(pctlnp);
- 		if (!pctldev)
- 			return -ENODEV;
+ static int gpy_probe(struct phy_device *phydev)
+ {
++	int fw_version;
+ 	int ret;
  
+ 	if (!phydev->is_c45) {
+@@ -105,12 +106,12 @@ static int gpy_probe(struct phy_device *phydev)
+ 	}
+ 
+ 	/* Show GPY PHY FW version in dmesg */
+-	ret = phy_read(phydev, PHY_FWV);
+-	if (ret < 0)
+-		return ret;
++	fw_version = phy_read(phydev, PHY_FWV);
++	if (fw_version < 0)
++		return fw_version;
+ 
+-	phydev_info(phydev, "Firmware Version: 0x%04X (%s)\n", ret,
+-		    (ret & PHY_FWV_REL_MASK) ? "release" : "test");
++	phydev_info(phydev, "Firmware Version: 0x%04X (%s)\n", fw_version,
++		    (fw_version & PHY_FWV_REL_MASK) ? "release" : "test");
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
