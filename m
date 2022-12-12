@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EBBB64A02C
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:21:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12E6B64A17D
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:41:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232580AbiLLNVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:21:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49772 "EHLO
+        id S232571AbiLLNlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:41:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232628AbiLLNVZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:21:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD961F60
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:21:24 -0800 (PST)
+        with ESMTP id S232881AbiLLNkh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:40:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6545213F3E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:39:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5991F60FF4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28093C433EF;
-        Mon, 12 Dec 2022 13:21:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23F0CB80D2B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:39:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 254C2C43396;
+        Mon, 12 Dec 2022 13:39:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851283;
-        bh=CtzuaoejSJjT+Dv4fSu+BWXOZp2LP2qdmZ/qfRlkh4I=;
+        s=korg; t=1670852396;
+        bh=GyJmL94tE6EAULppMVNFMUv9MmpZZWP+qA54Yt47XY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KfjmS7Xx7ab6QA+2uWzVlsFdUvfeI+j1eh3jQ693PgXPYBY4Etp5ENS48Vg+gXQlj
-         CuMXJEt56EwMaBlIbBphuwn+NUd7vFgvfNrVdwMqVSPLvvfrJhbU4ud+S8vKHlgJqc
-         aEL0BzU6TqgBgZTggFv9si5vEv9VejvDdB8x6c7s=
+        b=a0Fyihf3WjT8nErPX3XbISa3NNMpKAYUnafdM0DKkjSbmqDPFJpP+yn3wy1qRvNd0
+         OcJ9QeNoXJT8dyWtq2v5dSY9+K4gYKc7NVn8g+pzt8zNvr4KevLYdPxHSnK1E1Wo93
+         ZELlPw86nCsq2YrySWbevwfSs1VTTYeT6W1WrTPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
-        Jann Horn <jannh@google.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 25/67] memcg: fix possible use-after-free in memcg_write_event_control()
+        patches@lists.linux.dev, Frank Jungclaus <frank.jungclaus@esd.eu>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 6.0 072/157] can: esd_usb: Allow REC and TEC to return to zero
 Date:   Mon, 12 Dec 2022 14:17:00 +0100
-Message-Id: <20221212130918.824277618@linuxfoundation.org>
+Message-Id: <20221212130937.550371924@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,112 +52,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Frank Jungclaus <frank.jungclaus@esd.eu>
 
-commit 4a7ba45b1a435e7097ca0f79a847d0949d0eb088 upstream.
+commit 918ee4911f7a41fb4505dff877c1d7f9f64eb43e upstream.
 
-memcg_write_event_control() accesses the dentry->d_name of the specified
-control fd to route the write call.  As a cgroup interface file can't be
-renamed, it's safe to access d_name as long as the specified file is a
-regular cgroup file.  Also, as these cgroup interface files can't be
-removed before the directory, it's safe to access the parent too.
+We don't get any further EVENT from an esd CAN USB device for changes
+on REC or TEC while those counters converge to 0 (with ecc == 0). So
+when handling the "Back to Error Active"-event force txerr = rxerr =
+0, otherwise the berr-counters might stay on values like 95 forever.
 
-Prior to 347c4a874710 ("memcg: remove cgroup_event->cft"), there was a
-call to __file_cft() which verified that the specified file is a regular
-cgroupfs file before further accesses.  The cftype pointer returned from
-__file_cft() was no longer necessary and the commit inadvertently dropped
-the file type check with it allowing any file to slip through.  With the
-invarients broken, the d_name and parent accesses can now race against
-renames and removals of arbitrary files and cause use-after-free's.
+Also, to make life easier during the ongoing development a
+netdev_dbg() has been introduced to allow dumping error events send by
+an esd CAN USB device.
 
-Fix the bug by resurrecting the file type check in __file_cft().  Now that
-cgroupfs is implemented through kernfs, checking the file operations needs
-to go through a layer of indirection.  Instead, let's check the superblock
-and dentry type.
-
-Link: https://lkml.kernel.org/r/Y5FRm/cfcKPGzWwl@slm.duckdns.org
-Fixes: 347c4a874710 ("memcg: remove cgroup_event->cft")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Jann Horn <jannh@google.com>
-Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: <stable@vger.kernel.org>	[3.14+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
+Signed-off-by: Frank Jungclaus <frank.jungclaus@esd.eu>
+Link: https://lore.kernel.org/all/20221130202242.3998219-2-frank.jungclaus@esd.eu
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/cgroup.h          |    1 +
- kernel/cgroup/cgroup-internal.h |    1 -
- mm/memcontrol.c                 |   15 +++++++++++++--
- 3 files changed, 14 insertions(+), 3 deletions(-)
+ drivers/net/can/usb/esd_usb.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/include/linux/cgroup.h
-+++ b/include/linux/cgroup.h
-@@ -69,6 +69,7 @@ struct css_task_iter {
- 	struct list_head		iters_node;	/* css_set->task_iters */
- };
+--- a/drivers/net/can/usb/esd_usb.c
++++ b/drivers/net/can/usb/esd_usb.c
+@@ -234,6 +234,10 @@ static void esd_usb_rx_event(struct esd_
+ 		u8 rxerr = msg->msg.rx.data[2];
+ 		u8 txerr = msg->msg.rx.data[3];
  
-+extern struct file_system_type cgroup_fs_type;
- extern struct cgroup_root cgrp_dfl_root;
- extern struct css_set init_css_set;
- 
---- a/kernel/cgroup/cgroup-internal.h
-+++ b/kernel/cgroup/cgroup-internal.h
-@@ -169,7 +169,6 @@ extern struct mutex cgroup_mutex;
- extern spinlock_t css_set_lock;
- extern struct cgroup_subsys *cgroup_subsys[];
- extern struct list_head cgroup_roots;
--extern struct file_system_type cgroup_fs_type;
- 
- /* iterate across the hierarchies */
- #define for_each_root(root)						\
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -4709,6 +4709,7 @@ static ssize_t memcg_write_event_control
- 	unsigned int efd, cfd;
- 	struct fd efile;
- 	struct fd cfile;
-+	struct dentry *cdentry;
- 	const char *name;
- 	char *endp;
- 	int ret;
-@@ -4760,6 +4761,16 @@ static ssize_t memcg_write_event_control
- 		goto out_put_cfile;
- 
- 	/*
-+	 * The control file must be a regular cgroup1 file. As a regular cgroup
-+	 * file can't be renamed, it's safe to access its name afterwards.
-+	 */
-+	cdentry = cfile.file->f_path.dentry;
-+	if (cdentry->d_sb->s_type != &cgroup_fs_type || !d_is_reg(cdentry)) {
-+		ret = -EINVAL;
-+		goto out_put_cfile;
-+	}
++		netdev_dbg(priv->netdev,
++			   "CAN_ERR_EV_EXT: dlc=%#02x state=%02x ecc=%02x rec=%02x tec=%02x\n",
++			   msg->msg.rx.dlc, state, ecc, rxerr, txerr);
 +
-+	/*
- 	 * Determine the event callbacks and set them in @event.  This used
- 	 * to be done via struct cftype but cgroup core no longer knows
- 	 * about these events.  The following is crude but the whole thing
-@@ -4767,7 +4778,7 @@ static ssize_t memcg_write_event_control
- 	 *
- 	 * DO NOT ADD NEW FILES.
- 	 */
--	name = cfile.file->f_path.dentry->d_name.name;
-+	name = cdentry->d_name.name;
- 
- 	if (!strcmp(name, "memory.usage_in_bytes")) {
- 		event->register_event = mem_cgroup_usage_register_event;
-@@ -4791,7 +4802,7 @@ static ssize_t memcg_write_event_control
- 	 * automatically removed on cgroup destruction but the removal is
- 	 * asynchronous, so take an extra ref on @css.
- 	 */
--	cfile_css = css_tryget_online_from_dir(cfile.file->f_path.dentry->d_parent,
-+	cfile_css = css_tryget_online_from_dir(cdentry->d_parent,
- 					       &memory_cgrp_subsys);
- 	ret = -EINVAL;
- 	if (IS_ERR(cfile_css))
+ 		skb = alloc_can_err_skb(priv->netdev, &cf);
+ 		if (skb == NULL) {
+ 			stats->rx_dropped++;
+@@ -260,6 +264,8 @@ static void esd_usb_rx_event(struct esd_
+ 				break;
+ 			default:
+ 				priv->can.state = CAN_STATE_ERROR_ACTIVE;
++				txerr = 0;
++				rxerr = 0;
+ 				break;
+ 			}
+ 		} else {
 
 
