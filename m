@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8791264A039
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67C1864A0B7
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:29:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232253AbiLLNWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:22:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49518 "EHLO
+        id S231503AbiLLN33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:29:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229718AbiLLNWB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:22:01 -0500
+        with ESMTP id S232296AbiLLN3R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:29:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EB0410C5
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:22:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E12C4C4C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:29:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 150B4B80D3E
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16D70C433EF;
-        Mon, 12 Dec 2022 13:21:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 896C0B80D52
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:29:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCA38C433D2;
+        Mon, 12 Dec 2022 13:29:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851317;
-        bh=Bd2eFRNhkOGHlVzYZ5nYQqOe+1dRsye3Bs9JRq3TORg=;
+        s=korg; t=1670851753;
+        bh=mTNj4EVes8V39e22x7+jOtqJq1fS07WkKBgjaYWpLas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YtO8jk+7/fBdCryoneDLZTMmqVXAO/GfIKsUVlFsSomSovHUDLW4Jbi9v8EYJVCZV
-         Yx+jKvomEq1B1pzbGP+5igV/UoTZY1Qqii7nbCbXBcbIkhu6XcgM0wuYvqDUNz8TL7
-         kP4rrFTVbQ65nigQM9x3kEtuseGET2ZBwQbpOS+w=
+        b=Y8PGXNeIFZVbnosd76m5IU3EssK4SmJU3WDWBUHKz7sE+KtEhmi/lOgQI/TkgK1Jy
+         hON6OdCChgBMcg1DJfAVDjt0wmsMP3J3Twxr47iPZ3DA4gJBcIQkrnEbNToExzp8CD
+         pq1WTI/W5vpheEXt8/huDmbVj/8C+zn6iY9HJeUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, GUO Zihua <guozihua@huawei.com>,
-        Christian Schoenebeck <linux_oss@crudebyte.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
+        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
+        Wei Liu <wei.liu@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/67] 9p/fd: Use P9_HDRSZ for header size
+Subject: [PATCH 5.15 037/123] xen/netback: do some code cleanup
 Date:   Mon, 12 Dec 2022 14:16:43 +0100
-Message-Id: <20221212130918.029452334@linuxfoundation.org>
+Message-Id: <20221212130928.469580721@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +53,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GUO Zihua <guozihua@huawei.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 6854fadbeee10891ed74246bdc05031906b6c8cf ]
+[ Upstream commit 5834e72eda0b7e5767eb107259d98eef19ebd11f ]
 
-Cleanup hardcoded header sizes to use P9_HDRSZ instead of '7'
+Remove some unused macros and functions, make local functions static.
 
-Link: https://lkml.kernel.org/r/20221117091159.31533-4-guozihua@huawei.com
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-[Dominique: commit message adjusted to make sense after offset size
-adjustment got removed]
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Acked-by: Wei Liu <wei.liu@kernel.org>
+Link: https://lore.kernel.org/r/20220608043726.9380-1-jgross@suse.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Stable-dep-of: 74e7e1efdad4 ("xen/netback: don't call kfree_skb() with interrupts disabled")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_fd.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/xen-netback/common.h    | 12 ------------
+ drivers/net/xen-netback/interface.c | 16 +---------------
+ drivers/net/xen-netback/netback.c   |  4 +++-
+ drivers/net/xen-netback/rx.c        |  2 +-
+ 4 files changed, 5 insertions(+), 29 deletions(-)
 
-diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
-index 23c1d78ab1e4..872568cca926 100644
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -118,7 +118,7 @@ struct p9_conn {
- 	struct list_head unsent_req_list;
- 	struct p9_req_t *rreq;
- 	struct p9_req_t *wreq;
--	char tmp_buf[7];
-+	char tmp_buf[P9_HDRSZ];
- 	struct p9_fcall rc;
- 	int wpos;
- 	int wsize;
-@@ -291,7 +291,7 @@ static void p9_read_work(struct work_struct *work)
- 	if (!m->rc.sdata) {
- 		m->rc.sdata = m->tmp_buf;
- 		m->rc.offset = 0;
--		m->rc.capacity = 7; /* start by reading header */
-+		m->rc.capacity = P9_HDRSZ; /* start by reading header */
- 	}
+diff --git a/drivers/net/xen-netback/common.h b/drivers/net/xen-netback/common.h
+index d9dea4829c86..8174d7b2966c 100644
+--- a/drivers/net/xen-netback/common.h
++++ b/drivers/net/xen-netback/common.h
+@@ -48,7 +48,6 @@
+ #include <linux/debugfs.h>
  
- 	clear_bit(Rpending, &m->wsched);
-@@ -314,7 +314,7 @@ static void p9_read_work(struct work_struct *work)
- 		p9_debug(P9_DEBUG_TRANS, "got new header\n");
+ typedef unsigned int pending_ring_idx_t;
+-#define INVALID_PENDING_RING_IDX (~0U)
  
- 		/* Header size */
--		m->rc.size = 7;
-+		m->rc.size = P9_HDRSZ;
- 		err = p9_parse_header(&m->rc, &m->rc.size, NULL, NULL, 0);
- 		if (err) {
- 			p9_debug(P9_DEBUG_ERROR,
+ struct pending_tx_info {
+ 	struct xen_netif_tx_request req; /* tx request */
+@@ -82,8 +81,6 @@ struct xenvif_rx_meta {
+ /* Discriminate from any valid pending_idx value. */
+ #define INVALID_PENDING_IDX 0xFFFF
+ 
+-#define MAX_BUFFER_OFFSET XEN_PAGE_SIZE
+-
+ #define MAX_PENDING_REQS XEN_NETIF_TX_RING_SIZE
+ 
+ /* The maximum number of frags is derived from the size of a grant (same
+@@ -367,11 +364,6 @@ void xenvif_free(struct xenvif *vif);
+ int xenvif_xenbus_init(void);
+ void xenvif_xenbus_fini(void);
+ 
+-int xenvif_schedulable(struct xenvif *vif);
+-
+-int xenvif_queue_stopped(struct xenvif_queue *queue);
+-void xenvif_wake_queue(struct xenvif_queue *queue);
+-
+ /* (Un)Map communication rings. */
+ void xenvif_unmap_frontend_data_rings(struct xenvif_queue *queue);
+ int xenvif_map_frontend_data_rings(struct xenvif_queue *queue,
+@@ -394,7 +386,6 @@ int xenvif_dealloc_kthread(void *data);
+ irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data);
+ 
+ bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread);
+-void xenvif_rx_action(struct xenvif_queue *queue);
+ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
+ 
+ void xenvif_carrier_on(struct xenvif *vif);
+@@ -403,9 +394,6 @@ void xenvif_carrier_on(struct xenvif *vif);
+ void xenvif_zerocopy_callback(struct sk_buff *skb, struct ubuf_info *ubuf,
+ 			      bool zerocopy_success);
+ 
+-/* Unmap a pending page and release it back to the guest */
+-void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx);
+-
+ static inline pending_ring_idx_t nr_pending_reqs(struct xenvif_queue *queue)
+ {
+ 	return MAX_PENDING_REQS -
+diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
+index c58996c1e230..e31936876e1f 100644
+--- a/drivers/net/xen-netback/interface.c
++++ b/drivers/net/xen-netback/interface.c
+@@ -70,7 +70,7 @@ void xenvif_skb_zerocopy_complete(struct xenvif_queue *queue)
+ 	wake_up(&queue->dealloc_wq);
+ }
+ 
+-int xenvif_schedulable(struct xenvif *vif)
++static int xenvif_schedulable(struct xenvif *vif)
+ {
+ 	return netif_running(vif->dev) &&
+ 		test_bit(VIF_STATUS_CONNECTED, &vif->status) &&
+@@ -178,20 +178,6 @@ irqreturn_t xenvif_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-int xenvif_queue_stopped(struct xenvif_queue *queue)
+-{
+-	struct net_device *dev = queue->vif->dev;
+-	unsigned int id = queue->id;
+-	return netif_tx_queue_stopped(netdev_get_tx_queue(dev, id));
+-}
+-
+-void xenvif_wake_queue(struct xenvif_queue *queue)
+-{
+-	struct net_device *dev = queue->vif->dev;
+-	unsigned int id = queue->id;
+-	netif_tx_wake_queue(netdev_get_tx_queue(dev, id));
+-}
+-
+ static u16 xenvif_select_queue(struct net_device *dev, struct sk_buff *skb,
+ 			       struct net_device *sb_dev)
+ {
+diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
+index a5c26772ec1f..6bd7b62fb90c 100644
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -112,6 +112,8 @@ static void make_tx_response(struct xenvif_queue *queue,
+ 			     s8       st);
+ static void push_tx_responses(struct xenvif_queue *queue);
+ 
++static void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx);
++
+ static inline int tx_work_todo(struct xenvif_queue *queue);
+ 
+ static inline unsigned long idx_to_pfn(struct xenvif_queue *queue,
+@@ -1441,7 +1443,7 @@ static void push_tx_responses(struct xenvif_queue *queue)
+ 		notify_remote_via_irq(queue->tx_irq);
+ }
+ 
+-void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx)
++static void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx)
+ {
+ 	int ret;
+ 	struct gnttab_unmap_grant_ref tx_unmap_op;
+diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
+index a0335407be42..932762177110 100644
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -486,7 +486,7 @@ static void xenvif_rx_skb(struct xenvif_queue *queue)
+ 
+ #define RX_BATCH_SIZE 64
+ 
+-void xenvif_rx_action(struct xenvif_queue *queue)
++static void xenvif_rx_action(struct xenvif_queue *queue)
+ {
+ 	struct sk_buff_head completed_skbs;
+ 	unsigned int work_done = 0;
 -- 
 2.35.1
 
