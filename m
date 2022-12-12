@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 934E364A1C5
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:45:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C600364A0F4
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:33:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232988AbiLLNpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:45:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42984 "EHLO
+        id S232564AbiLLNdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:33:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232977AbiLLNpM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:45:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01D2E140E0
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:44:29 -0800 (PST)
+        with ESMTP id S232440AbiLLNdO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:33:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C67413E1C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:33:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AB2D6106C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:44:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D989FC433EF;
-        Mon, 12 Dec 2022 13:44:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE01961070
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:33:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94DEFC43392;
+        Mon, 12 Dec 2022 13:33:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852669;
-        bh=YvT3io4TCTaaxGmdKQd3ilFgmIUbj/2idFzlX3QDaq8=;
+        s=korg; t=1670851991;
+        bh=n49rOSjN6QSMqHzixuhRiwhZN7drgO8k9Cbv0o4YGu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HtnkB05/R5gB6vW6nGqdoI6TJ9/mpVcxolzmssWN/9Y8oLXDON0pgxlOfUhDthBFW
-         Mr1U3/Zc+30yxKR3SAQt68vnSmviDvoB3yuOez7XAhczWZavNddk20RCpxCJQQg8w9
-         uGoICmUUMxpp8BRtPZY9l11ICLl9pSSzE1NTZYTM=
+        b=W9iZLf7cRKYTewBNecwKGTKNfbplGakzym5Do8Y8WTC1Sz6zlFWrP4AKN02h25Bck
+         6ntp86J4rtuVRLfQLlD+b/LNGA1PUU7f7HybSQ7FZH+bloREZztKdTDfn848YQJoUj
+         X624OMqOPOtKF12omxDm1oxUheUPZzEe3Kk0Xqf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+210e196cef4711b65139@syzkaller.appspotmail.com,
-        Kees Cook <keescook@chromium.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        Ross Lagerwall <ross.lagerwall@citrix.com>,
+        Jason Andryuk <jandryuk@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 128/157] NFC: nci: Bounds check struct nfc_target arrays
-Date:   Mon, 12 Dec 2022 14:17:56 +0100
-Message-Id: <20221212130940.022888727@linuxfoundation.org>
+Subject: [PATCH 5.15 111/123] xen/netback: fix build warning
+Date:   Mon, 12 Dec 2022 14:17:57 +0100
+Message-Id: <20221212130932.009739363@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,60 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit e329e71013c9b5a4535b099208493c7826ee4a64 ]
+[ Upstream commit 7dfa764e0223a324366a2a1fc056d4d9d4e95491 ]
 
-While running under CONFIG_FORTIFY_SOURCE=y, syzkaller reported:
+Commit ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in
+the non-linear area") introduced a (valid) build warning. There have
+even been reports of this problem breaking networking of Xen guests.
 
-  memcpy: detected field-spanning write (size 129) of single field "target->sensf_res" at net/nfc/nci/ntf.c:260 (size 18)
-
-This appears to be a legitimate lack of bounds checking in
-nci_add_new_protocol(). Add the missing checks.
-
-Reported-by: syzbot+210e196cef4711b65139@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/lkml/0000000000001c590f05ee7b3ff4@google.com
-Fixes: 019c4fbaa790 ("NFC: Add NCI multiple targets support")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20221202214410.never.693-kees@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in the non-linear area")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+Tested-by: Jason Andryuk <jandryuk@gmail.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/nci/ntf.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/xen-netback/netback.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/nfc/nci/ntf.c b/net/nfc/nci/ntf.c
-index 282c51051dcc..994a0a1efb58 100644
---- a/net/nfc/nci/ntf.c
-+++ b/net/nfc/nci/ntf.c
-@@ -240,6 +240,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
- 		target->sens_res = nfca_poll->sens_res;
- 		target->sel_res = nfca_poll->sel_res;
- 		target->nfcid1_len = nfca_poll->nfcid1_len;
-+		if (target->nfcid1_len > ARRAY_SIZE(target->nfcid1))
-+			return -EPROTO;
- 		if (target->nfcid1_len > 0) {
- 			memcpy(target->nfcid1, nfca_poll->nfcid1,
- 			       target->nfcid1_len);
-@@ -248,6 +250,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
- 		nfcb_poll = (struct rf_tech_specific_params_nfcb_poll *)params;
+diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
+index 6bd7b62fb90c..26428db845be 100644
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -530,7 +530,7 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
+ 	const bool sharedslot = nr_frags &&
+ 				frag_get_pending_idx(&shinfo->frags[0]) ==
+ 				    copy_pending_idx(skb, copy_count(skb) - 1);
+-	int i, err;
++	int i, err = 0;
  
- 		target->sensb_res_len = nfcb_poll->sensb_res_len;
-+		if (target->sensb_res_len > ARRAY_SIZE(target->sensb_res))
-+			return -EPROTO;
- 		if (target->sensb_res_len > 0) {
- 			memcpy(target->sensb_res, nfcb_poll->sensb_res,
- 			       target->sensb_res_len);
-@@ -256,6 +260,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
- 		nfcf_poll = (struct rf_tech_specific_params_nfcf_poll *)params;
- 
- 		target->sensf_res_len = nfcf_poll->sensf_res_len;
-+		if (target->sensf_res_len > ARRAY_SIZE(target->sensf_res))
-+			return -EPROTO;
- 		if (target->sensf_res_len > 0) {
- 			memcpy(target->sensf_res, nfcf_poll->sensf_res,
- 			       target->sensf_res_len);
+ 	for (i = 0; i < copy_count(skb); i++) {
+ 		int newerr;
 -- 
 2.35.1
 
