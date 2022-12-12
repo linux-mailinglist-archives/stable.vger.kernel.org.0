@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7F9464A1C0
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:45:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A83E764A0BF
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:29:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232611AbiLLNo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:44:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42290 "EHLO
+        id S232279AbiLLN3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:29:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232592AbiLLNoP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:44:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72D7A55B6
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:44:06 -0800 (PST)
+        with ESMTP id S232273AbiLLN3u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:29:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D52DDE
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:29:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 295E8B80D50
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:44:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5657AC433D2;
-        Mon, 12 Dec 2022 13:44:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CEFC8B80D50
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:29:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2F99C433F1;
+        Mon, 12 Dec 2022 13:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852644;
-        bh=C2canFqoMkY1D87FUHYDVUCmr1Z6HfxWpBysO4bcYp8=;
+        s=korg; t=1670851786;
+        bh=K4h1LllvwlNc1f/xDUX88nq0rFIad23DyAbdzb2zCdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G2OFysfN/0c7acRtw+VQdRp01jdQTQpMsRRKWIvcYu3Z6/vPA3+jl8vv0gsQLE8Vz
-         z1c8zfiFqTnbz2E23JKXgjj45gngb4hSBnjJ5Urh93jghNgp/3ggRbk3C0w2+JWyR9
-         W4UCt2mDuqSHICX+81jI6vkKTeCtasn29HnXHZOk=
+        b=gBejRDVXHSSPHpkQp+k1uqgz9OFQcs4S4Mb2wqFv0tvM749wWgJOi5cEJ0D250cwj
+         Xw/4adK85cp8l1SOhiqf4Gg1uSI2BjK0YImit4OwrMkVPBIpc6UXD8KvEc62AsXTFG
+         05JAWaEtP01d93a2r+ZvzAPUhawBjCttPtdsN8M4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 087/157] gpiolib: fix memory leak in gpiochip_setup_dev()
-Date:   Mon, 12 Dec 2022 14:17:15 +0100
-Message-Id: <20221212130938.291105250@linuxfoundation.org>
+        patches@lists.linux.dev, Akihiko Odaki <akihiko.odaki@daynix.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 5.15 070/123] e1000e: Fix TX dispatch condition
+Date:   Mon, 12 Dec 2022 14:17:16 +0100
+Message-Id: <20221212130929.902664786@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,182 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Heng <zengheng4@huawei.com>
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
 
-[ Upstream commit ec851b23084b3a0af8bf0f5e51d33a8d678bdc49 ]
+[ Upstream commit eed913f6919e253f35d454b2f115f2a4db2b741a ]
 
-Here is a backtrace report about memory leak detected in
-gpiochip_setup_dev():
+e1000_xmit_frame is expected to stop the queue and dispatch frames to
+hardware if there is not sufficient space for the next frame in the
+buffer, but sometimes it failed to do so because the estimated maximum
+size of frame was wrong. As the consequence, the later invocation of
+e1000_xmit_frame failed with NETDEV_TX_BUSY, and the frame in the buffer
+remained forever, resulting in a watchdog failure.
 
-unreferenced object 0xffff88810b406400 (size 512):
-  comm "python3", pid 1682, jiffies 4295346908 (age 24.090s)
-  backtrace:
-    kmalloc_trace
-    device_add		device_private_init at drivers/base/core.c:3361
-			(inlined by) device_add at drivers/base/core.c:3411
-    cdev_device_add
-    gpiolib_cdev_register
-    gpiochip_setup_dev
-    gpiochip_add_data_with_key
+This change fixes the estimated size by making it match with the
+condition for NETDEV_TX_BUSY. Apparently, the old estimation failed to
+account for the following lines which determines the space requirement
+for not causing NETDEV_TX_BUSY:
+    ```
+    	/* reserve a descriptor for the offload context */
+    	if ((mss) || (skb->ip_summed == CHECKSUM_PARTIAL))
+    		count++;
+    	count++;
 
-gcdev_register() & gcdev_unregister() would call device_add() &
-device_del() (no matter CONFIG_GPIO_CDEV is enabled or not) to
-register/unregister device.
+    	count += DIV_ROUND_UP(len, adapter->tx_fifo_limit);
+    ```
 
-However, if device_add() succeeds, some resource (like
-struct device_private allocated by device_private_init())
-is not released by device_del().
+This issue was found when running http-stress02 test included in Linux
+Test Project 20220930 on QEMU with the following commandline:
+```
+qemu-system-x86_64 -M q35,accel=kvm -m 8G -smp 8
+	-drive if=virtio,format=raw,file=root.img,file.locking=on
+	-device e1000e,netdev=netdev
+	-netdev tap,script=ifup,downscript=no,id=netdev
+```
 
-Therefore, after device_add() succeeds by gcdev_register(), it
-needs to call put_device() to release resource in the error handle
-path.
-
-Here we move forward the register of release function, and let it
-release every piece of resource by put_device() instead of kfree().
-
-While at it, fix another subtle issue, i.e. when gc->ngpio is equal
-to 0, we still call kcalloc() and, in case of further error, kfree()
-on the ZERO_PTR pointer, which is not NULL. It's not a bug per se,
-but rather waste of the resources and potentially wrong expectation
-about contents of the gdev->descs variable.
-
-Fixes: 159f3cd92f17 ("gpiolib: Defer gpio device setup until after gpiolib initialization")
-Signed-off-by: Zeng Heng <zengheng4@huawei.com>
-Co-developed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver (currently for ICH9 devices only)")
+Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib.c | 42 ++++++++++++++++++++++++++----------------
- 1 file changed, 26 insertions(+), 16 deletions(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index cc9c0a12259e..eb7d00608c7f 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -526,12 +526,13 @@ static int gpiochip_setup_dev(struct gpio_device *gdev)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index 407bbb4cc236..7e41ce188cc6 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -5941,9 +5941,9 @@ static netdev_tx_t e1000_xmit_frame(struct sk_buff *skb,
+ 		e1000_tx_queue(tx_ring, tx_flags, count);
+ 		/* Make sure there is space in the ring for the next send. */
+ 		e1000_maybe_stop_tx(tx_ring,
+-				    (MAX_SKB_FRAGS *
++				    ((MAX_SKB_FRAGS + 1) *
+ 				     DIV_ROUND_UP(PAGE_SIZE,
+-						  adapter->tx_fifo_limit) + 2));
++						  adapter->tx_fifo_limit) + 4));
  
-+	/* From this point, the .release() function cleans up gpio_device */
-+	gdev->dev.release = gpiodevice_release;
-+
- 	ret = gpiochip_sysfs_register(gdev);
- 	if (ret)
- 		goto err_remove_device;
- 
--	/* From this point, the .release() function cleans up gpio_device */
--	gdev->dev.release = gpiodevice_release;
- 	dev_dbg(&gdev->dev, "registered GPIOs %d to %d on %s\n", gdev->base,
- 		gdev->base + gdev->ngpio - 1, gdev->chip->label ? : "generic");
- 
-@@ -597,10 +598,10 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
- 	struct fwnode_handle *fwnode = NULL;
- 	struct gpio_device *gdev;
- 	unsigned long flags;
--	int base = gc->base;
- 	unsigned int i;
-+	u32 ngpios = 0;
-+	int base = 0;
- 	int ret = 0;
--	u32 ngpios;
- 
- 	if (gc->fwnode)
- 		fwnode = gc->fwnode;
-@@ -647,17 +648,12 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
- 	else
- 		gdev->owner = THIS_MODULE;
- 
--	gdev->descs = kcalloc(gc->ngpio, sizeof(gdev->descs[0]), GFP_KERNEL);
--	if (!gdev->descs) {
--		ret = -ENOMEM;
--		goto err_free_dev_name;
--	}
--
- 	/*
- 	 * Try the device properties if the driver didn't supply the number
- 	 * of GPIO lines.
- 	 */
--	if (gc->ngpio == 0) {
-+	ngpios = gc->ngpio;
-+	if (ngpios == 0) {
- 		ret = device_property_read_u32(&gdev->dev, "ngpios", &ngpios);
- 		if (ret == -ENODATA)
- 			/*
-@@ -668,7 +664,7 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
- 			 */
- 			ngpios = 0;
- 		else if (ret)
--			goto err_free_descs;
-+			goto err_free_dev_name;
- 
- 		gc->ngpio = ngpios;
- 	}
-@@ -676,13 +672,19 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
- 	if (gc->ngpio == 0) {
- 		chip_err(gc, "tried to insert a GPIO chip with zero lines\n");
- 		ret = -EINVAL;
--		goto err_free_descs;
-+		goto err_free_dev_name;
- 	}
- 
- 	if (gc->ngpio > FASTPATH_NGPIO)
- 		chip_warn(gc, "line cnt %u is greater than fast path cnt %u\n",
- 			  gc->ngpio, FASTPATH_NGPIO);
- 
-+	gdev->descs = kcalloc(gc->ngpio, sizeof(*gdev->descs), GFP_KERNEL);
-+	if (!gdev->descs) {
-+		ret = -ENOMEM;
-+		goto err_free_dev_name;
-+	}
-+
- 	gdev->label = kstrdup_const(gc->label ?: "unknown", GFP_KERNEL);
- 	if (!gdev->label) {
- 		ret = -ENOMEM;
-@@ -701,11 +703,13 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
- 	 * it may be a pipe dream. It will not happen before we get rid
- 	 * of the sysfs interface anyways.
- 	 */
-+	base = gc->base;
- 	if (base < 0) {
- 		base = gpiochip_find_base(gc->ngpio);
- 		if (base < 0) {
--			ret = base;
- 			spin_unlock_irqrestore(&gpio_lock, flags);
-+			ret = base;
-+			base = 0;
- 			goto err_free_label;
- 		}
- 		/*
-@@ -816,6 +820,11 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
- err_free_gpiochip_mask:
- 	gpiochip_remove_pin_ranges(gc);
- 	gpiochip_free_valid_mask(gc);
-+	if (gdev->dev.release) {
-+		/* release() has been registered by gpiochip_setup_dev() */
-+		put_device(&gdev->dev);
-+		goto err_print_message;
-+	}
- err_remove_from_list:
- 	spin_lock_irqsave(&gpio_lock, flags);
- 	list_del(&gdev->list);
-@@ -829,13 +838,14 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
- err_free_ida:
- 	ida_free(&gpio_ida, gdev->id);
- err_free_gdev:
-+	kfree(gdev);
-+err_print_message:
- 	/* failures here can mean systems won't boot... */
- 	if (ret != -EPROBE_DEFER) {
- 		pr_err("%s: GPIOs %d..%d (%s) failed to register, %d\n", __func__,
--		       gdev->base, gdev->base + gdev->ngpio - 1,
-+		       base, base + (int)ngpios - 1,
- 		       gc->label ? : "generic", ret);
- 	}
--	kfree(gdev);
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(gpiochip_add_data_with_key);
+ 		if (!netdev_xmit_more() ||
+ 		    netif_xmit_stopped(netdev_get_tx_queue(netdev, 0))) {
 -- 
 2.35.1
 
