@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E64FA64A0CD
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:31:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A31F064A053
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:23:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232211AbiLLNa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:30:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59744 "EHLO
+        id S232708AbiLLNXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:23:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232273AbiLLNa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:30:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8129313E01
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:30:55 -0800 (PST)
+        with ESMTP id S232709AbiLLNXa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:23:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21FEAF24
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:23:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C9D961042
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:30:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2224C433EF;
-        Mon, 12 Dec 2022 13:30:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CDD3CB80D39
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:23:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5741C433D2;
+        Mon, 12 Dec 2022 13:23:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851854;
-        bh=jHB+KOHjMKVGofxDf2jGnOF2zyZ/wOdfW/eAjvPPSME=;
+        s=korg; t=1670851406;
+        bh=Bsp+gK2dKd9CfUFU0p60ha7X0yqHeu41RNEYkfiI3I8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jrwEIhq8PRkssDBiIjHWm0qWLN8wbLW4p+YRBuzvF5TWhlv+EOZlTJ4cXaxnIgOo6
-         vxZq+h/YHqsL8+ebKEmIh2ql4j0c3FNGvZAWgdk045hJOOLzjtBkUdDvfRYUFhNBp2
-         0rmobQzIJNS/DWdGNZWCIWgyXs/R1dBb2kroVaYw=
+        b=PoLzzAtosBTHLsu7vtDf4ozlIn4Q0v2ZasGqnyJLRlIu3qArhevJWqQLd4uPgZjSj
+         PA2PZrudAEq+odDaCr4ZSyMKQTTyuHaxg38uOLC9It+9KS5JlPt/G3+tYVu6ZSDoJJ
+         xA7MddEuJHTIqOuqlOz0CZpxmAY4jyTM3PxfQbGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 083/123] mac802154: fix missing INIT_LIST_HEAD in ieee802154_if_add()
-Date:   Mon, 12 Dec 2022 14:17:29 +0100
-Message-Id: <20221212130930.450163680@linuxfoundation.org>
+Subject: [PATCH 5.4 55/67] net: stmmac: fix "snps,axi-config" node property parsing
+Date:   Mon, 12 Dec 2022 14:17:30 +0100
+Message-Id: <20221212130920.253544045@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Jisheng Zhang <jszhang@kernel.org>
 
-[ Upstream commit b3d72d3135d2ef68296c1ee174436efd65386f04 ]
+[ Upstream commit 61d4f140943c47c1386ed89f7260e00418dfad9d ]
 
-Kernel fault injection test reports null-ptr-deref as follows:
+In dt-binding snps,dwmac.yaml, some properties under "snps,axi-config"
+node are named without "axi_" prefix, but the driver expects the
+prefix. Since the dt-binding has been there for a long time, we'd
+better make driver match the binding for compatibility.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000008
-RIP: 0010:cfg802154_netdev_notifier_call+0x120/0x310 include/linux/list.h:114
-Call Trace:
- <TASK>
- raw_notifier_call_chain+0x6d/0xa0 kernel/notifier.c:87
- call_netdevice_notifiers_info+0x6e/0xc0 net/core/dev.c:1944
- unregister_netdevice_many_notify+0x60d/0xcb0 net/core/dev.c:1982
- unregister_netdevice_queue+0x154/0x1a0 net/core/dev.c:10879
- register_netdevice+0x9a8/0xb90 net/core/dev.c:10083
- ieee802154_if_add+0x6ed/0x7e0 net/mac802154/iface.c:659
- ieee802154_register_hw+0x29c/0x330 net/mac802154/main.c:229
- mcr20a_probe+0xaaa/0xcb1 drivers/net/ieee802154/mcr20a.c:1316
-
-ieee802154_if_add() allocates wpan_dev as netdev's private data, but not
-init the list in struct wpan_dev. cfg802154_netdev_notifier_call() manage
-the list when device register/unregister, and may lead to null-ptr-deref.
-
-Use INIT_LIST_HEAD() on it to initialize it correctly.
-
-Fixes: fcf39e6e88e9 ("ieee802154: add wpan_dev_list")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-
-Link: https://lore.kernel.org/r/20221130091705.1831140-1-weiyongjun@huaweicloud.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Fixes: afea03656add ("stmmac: rework DMA bus setting and introduce new platform AXI structure")
+Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+Link: https://lore.kernel.org/r/20221202161739.2203-1-jszhang@kernel.org
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac802154/iface.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/mac802154/iface.c b/net/mac802154/iface.c
-index 323d3d2d986f..3e510664fc89 100644
---- a/net/mac802154/iface.c
-+++ b/net/mac802154/iface.c
-@@ -661,6 +661,7 @@ ieee802154_if_add(struct ieee802154_local *local, const char *name,
- 	sdata->dev = ndev;
- 	sdata->wpan_dev.wpan_phy = local->hw.phy;
- 	sdata->local = local;
-+	INIT_LIST_HEAD(&sdata->wpan_dev.list);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+index 70cbf48c2c03..a2ff9b4727ec 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+@@ -107,10 +107,10 @@ static struct stmmac_axi *stmmac_axi_setup(struct platform_device *pdev)
  
- 	/* setup type-dependent data */
- 	ret = ieee802154_setup_sdata(sdata, type);
+ 	axi->axi_lpi_en = of_property_read_bool(np, "snps,lpi_en");
+ 	axi->axi_xit_frm = of_property_read_bool(np, "snps,xit_frm");
+-	axi->axi_kbbe = of_property_read_bool(np, "snps,axi_kbbe");
+-	axi->axi_fb = of_property_read_bool(np, "snps,axi_fb");
+-	axi->axi_mb = of_property_read_bool(np, "snps,axi_mb");
+-	axi->axi_rb =  of_property_read_bool(np, "snps,axi_rb");
++	axi->axi_kbbe = of_property_read_bool(np, "snps,kbbe");
++	axi->axi_fb = of_property_read_bool(np, "snps,fb");
++	axi->axi_mb = of_property_read_bool(np, "snps,mb");
++	axi->axi_rb =  of_property_read_bool(np, "snps,rb");
+ 
+ 	if (of_property_read_u32(np, "snps,wr_osr_lmt", &axi->axi_wr_osr_lmt))
+ 		axi->axi_wr_osr_lmt = 1;
 -- 
 2.35.1
 
