@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DA5164A00B
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:19:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B35D64A00C
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:19:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232591AbiLLNTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:19:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45510 "EHLO
+        id S231827AbiLLNT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:19:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232589AbiLLNTB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:19:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16D5013D6C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:18:03 -0800 (PST)
+        with ESMTP id S232592AbiLLNTF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:19:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75BB5B30
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:18:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3C69B80D3C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:18:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D975DC433EF;
-        Mon, 12 Dec 2022 13:17:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BBDC61059
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:18:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9671C433EF;
+        Mon, 12 Dec 2022 13:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851080;
-        bh=8LYAV81/wBfJ17AaJz8wLLoRXhnwoBMpkT+3u1q2wto=;
+        s=korg; t=1670851084;
+        bh=aALPiJnZf/8jM6j0v3rQo1MBzMs664MSdjGsr0QTUSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPvBsBhzxX4KsbBL/Yo3YL0f7PfdCHd8BQ/cvsuRVDEfD/3qQJDrHJ2A5gvbtjT0N
-         FDSB/eNvsPEmwpBunWrF21YbyYE3z4CJi5wQMWbM0Uag1It4whnv/B8HT8OZNxiMfB
-         lFVdW7LGwK2G9k7V6wropbK5kDMis4RH98rVDmfo=
+        b=YSBrqQcx/7iACfBs/KQ4uEzs1FyWyA23dWS2xp2dAHf6Z1ldA9HdgyxIWpFuN1/XJ
+         WquoHMFBVw2/JU/73jbsfH7hED5Z3ZFxEX6xHcgb9iBt2hMRlG0H/Rfoqe3IgpzK99
+         FM9yiSLWa9tdAbIhiQxJu/lBiGJyPjph2nnsSXlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Emeel Hakim <ehakim@nvidia.com>,
-        Jiri Pirko <jiri@nvidia.com>,
-        Sabrina Dubroca <sd@queasysnail.net>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Frank Jungclaus <frank.jungclaus@esd.eu>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 105/106] macsec: add missing attribute validation for offload
-Date:   Mon, 12 Dec 2022 14:10:48 +0100
-Message-Id: <20221212130929.442254487@linuxfoundation.org>
+Subject: [PATCH 5.10 106/106] can: esd_usb: Allow REC and TEC to return to zero
+Date:   Mon, 12 Dec 2022 14:10:49 +0100
+Message-Id: <20221212130929.486210894@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -55,36 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emeel Hakim <ehakim@nvidia.com>
+From: Frank Jungclaus <frank.jungclaus@esd.eu>
 
-[ Upstream commit 38099024e51ee37dee5f0f577ca37175c932e3f7 ]
+[ Upstream commit 918ee4911f7a41fb4505dff877c1d7f9f64eb43e ]
 
-Add missing attribute validation for IFLA_MACSEC_OFFLOAD
-to the netlink policy.
+We don't get any further EVENT from an esd CAN USB device for changes
+on REC or TEC while those counters converge to 0 (with ecc == 0). So
+when handling the "Back to Error Active"-event force txerr = rxerr =
+0, otherwise the berr-counters might stay on values like 95 forever.
 
-Fixes: 791bb3fcafce ("net: macsec: add support for specifying offload upon link creation")
-Signed-off-by: Emeel Hakim <ehakim@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
-Link: https://lore.kernel.org/r/20221207101618.989-1-ehakim@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Also, to make life easier during the ongoing development a
+netdev_dbg() has been introduced to allow dumping error events send by
+an esd CAN USB device.
+
+Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
+Signed-off-by: Frank Jungclaus <frank.jungclaus@esd.eu>
+Link: https://lore.kernel.org/all/20221130202242.3998219-2-frank.jungclaus@esd.eu
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/can/usb/esd_usb2.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 3e564158c401..eb029456b594 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -3680,6 +3680,7 @@ static const struct nla_policy macsec_rtnl_policy[IFLA_MACSEC_MAX + 1] = {
- 	[IFLA_MACSEC_SCB] = { .type = NLA_U8 },
- 	[IFLA_MACSEC_REPLAY_PROTECT] = { .type = NLA_U8 },
- 	[IFLA_MACSEC_VALIDATION] = { .type = NLA_U8 },
-+	[IFLA_MACSEC_OFFLOAD] = { .type = NLA_U8 },
- };
+diff --git a/drivers/net/can/usb/esd_usb2.c b/drivers/net/can/usb/esd_usb2.c
+index 8847942a8d97..73c5343e609b 100644
+--- a/drivers/net/can/usb/esd_usb2.c
++++ b/drivers/net/can/usb/esd_usb2.c
+@@ -227,6 +227,10 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
+ 		u8 rxerr = msg->msg.rx.data[2];
+ 		u8 txerr = msg->msg.rx.data[3];
  
- static void macsec_free_netdev(struct net_device *dev)
++		netdev_dbg(priv->netdev,
++			   "CAN_ERR_EV_EXT: dlc=%#02x state=%02x ecc=%02x rec=%02x tec=%02x\n",
++			   msg->msg.rx.dlc, state, ecc, rxerr, txerr);
++
+ 		skb = alloc_can_err_skb(priv->netdev, &cf);
+ 		if (skb == NULL) {
+ 			stats->rx_dropped++;
+@@ -253,6 +257,8 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
+ 				break;
+ 			default:
+ 				priv->can.state = CAN_STATE_ERROR_ACTIVE;
++				txerr = 0;
++				rxerr = 0;
+ 				break;
+ 			}
+ 		} else {
 -- 
 2.35.1
 
