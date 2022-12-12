@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E69D3649813
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 03:51:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE07649814
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 03:52:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230105AbiLLCvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Dec 2022 21:51:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51130 "EHLO
+        id S230386AbiLLCwO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Dec 2022 21:52:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229986AbiLLCvC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 21:51:02 -0500
-Received: from smtp-fw-6001.amazon.com (smtp-fw-6001.amazon.com [52.95.48.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E731F1
-        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 18:51:01 -0800 (PST)
+        with ESMTP id S229986AbiLLCwO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 21:52:14 -0500
+Received: from smtp-fw-80006.amazon.com (smtp-fw-80006.amazon.com [99.78.197.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEE601F1
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 18:52:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1670813462; x=1702349462;
+  t=1670813533; x=1702349533;
   h=from:to:cc:subject:date:message-id:mime-version:
    content-transfer-encoding;
-  bh=sK43VgClSpzo7F7Sn/tZAaOpo31XxLoO5fRxHQVXtiQ=;
-  b=DNXZUz/PsOR6EHUvTt78QO9Y3eKoNYncnCddmZTRVLH7PjvWZrDxqHxv
-   /gHllD+ZXkWX+2KLekQ5ViUezQ0aKODWPF8IjOCN7S+OhJzIlcjJ6V/w+
-   O4F6vmlOl1ZrKHQgvfOjNBuxxjUqQiPhaaouTHbURNUgyK00oa5T0y6VZ
-   o=;
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-iad-1a-m6i4x-617e30c2.us-east-1.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-6001.iad6.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Dec 2022 02:51:01 +0000
-Received: from EX13MTAUWB002.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
-        by email-inbound-relay-iad-1a-m6i4x-617e30c2.us-east-1.amazon.com (Postfix) with ESMTPS id 67AC96169A;
-        Mon, 12 Dec 2022 02:50:59 +0000 (UTC)
+  bh=UMsb9hYmJRsJJOpw+cm/DZ+dxlKsc+nFP1GRxxj4MVs=;
+  b=sULtIWLVHLhftmU3AbIeG/ar1RDM1IJx2aXJuMBs6PQWEKLG8Ov4a8mk
+   ObinBwzsOip+yyvGSp+RvAKG1FNHZbW6xgx8+qKzNGPxhqioajSl5yyrK
+   j9qpt7b3rXnUVWGHI+jZKmOnIpQYdv1le7fgig8lF6Nav1YVScWTI5Zg6
+   Q=;
+X-IronPort-AV: E=Sophos;i="5.96,237,1665446400"; 
+   d="scan'208";a="160271726"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-iad-1d-m6i4x-d8e96288.us-east-1.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-80006.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Dec 2022 02:52:12 +0000
+Received: from EX13MTAUWB002.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-iad-1d-m6i4x-d8e96288.us-east-1.amazon.com (Postfix) with ESMTPS id 80BCC81C23;
+        Mon, 12 Dec 2022 02:52:09 +0000 (UTC)
 Received: from EX19D001UWA002.ant.amazon.com (10.13.138.236) by
  EX13MTAUWB002.ant.amazon.com (10.43.161.202) with Microsoft SMTP Server (TLS)
- id 15.0.1497.42; Mon, 12 Dec 2022 02:50:58 +0000
-Received: from u46989501580c5c.ant.amazon.com (10.43.162.134) by
+ id 15.0.1497.42; Mon, 12 Dec 2022 02:52:08 +0000
+Received: from u46989501580c5c.ant.amazon.com (10.43.160.83) by
  EX19D001UWA002.ant.amazon.com (10.13.138.236) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.20;
- Mon, 12 Dec 2022 02:50:56 +0000
+ Mon, 12 Dec 2022 02:52:06 +0000
 From:   Samuel Mendoza-Jonas <samjonas@amazon.com>
 To:     <stable@vger.kernel.org>
 CC:     <benh@amazon.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
@@ -45,20 +47,20 @@ CC:     <benh@amazon.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>,
         "Samuel Mendoza-Jonas" <samjonas@amazon.com>
-Subject: [PATCH 5.10] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
-Date:   Sun, 11 Dec 2022 18:50:24 -0800
-Message-ID: <20221212025024.365490-1-samjonas@amazon.com>
+Subject: [PATCH 5.4] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
+Date:   Sun, 11 Dec 2022 18:51:48 -0800
+Message-ID: <20221212025148.367737-1-samjonas@amazon.com>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Originating-IP: [10.43.162.134]
-X-ClientProxiedBy: EX13D32UWB002.ant.amazon.com (10.43.161.139) To
+X-Originating-IP: [10.43.160.83]
+X-ClientProxiedBy: EX13D42UWB002.ant.amazon.com (10.43.161.155) To
  EX19D001UWA002.ant.amazon.com (10.13.138.236)
 X-Spam-Status: No, score=-11.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -116,22 +118,19 @@ Cc: Muchun Song <songmuchun@bytedance.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
+[5.4: Fixup contextual diffs before pin_user_pages()]
 Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
 ---
-This is basically a resend of the patch for 5.15 which also applies
-cleanly to 5.10:
-https://lore.kernel.org/stable/20221108133345.678847820@linuxfoundation.org/
-
- include/linux/hugetlb.h |  8 ++++----
- mm/gup.c                | 14 +++++++++++++-
- mm/hugetlb.c            | 27 +++++++++++++--------------
- 3 files changed, 30 insertions(+), 19 deletions(-)
+ include/linux/hugetlb.h |  6 +++---
+ mm/gup.c                | 13 ++++++++++++-
+ mm/hugetlb.c            | 28 ++++++++++++++--------------
+ 3 files changed, 29 insertions(+), 18 deletions(-)
 
 diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index b9fbb6d4150e..955b19dc28a8 100644
+index cef70d6e1657..c7507135c2a0 100644
 --- a/include/linux/hugetlb.h
 +++ b/include/linux/hugetlb.h
-@@ -174,8 +174,8 @@ struct page *follow_huge_addr(struct mm_struct *mm, unsigned long address,
+@@ -127,8 +127,8 @@ struct page *follow_huge_addr(struct mm_struct *mm, unsigned long address,
  struct page *follow_huge_pd(struct vm_area_struct *vma,
  			    unsigned long address, hugepd_t hpd,
  			    int flags, int pdshift);
@@ -142,26 +141,23 @@ index b9fbb6d4150e..955b19dc28a8 100644
  struct page *follow_huge_pud(struct mm_struct *mm, unsigned long address,
  				pud_t *pud, int flags);
  struct page *follow_huge_pgd(struct mm_struct *mm, unsigned long address,
-@@ -261,8 +261,8 @@ static inline struct page *follow_huge_pd(struct vm_area_struct *vma,
- 	return NULL;
- }
- 
--static inline struct page *follow_huge_pmd(struct mm_struct *mm,
--				unsigned long address, pmd_t *pmd, int flags)
-+static inline struct page *follow_huge_pmd_pte(struct vm_area_struct *vma,
-+				unsigned long address, int flags)
+@@ -175,7 +175,7 @@ static inline void hugetlb_show_meminfo(void)
  {
- 	return NULL;
  }
+ #define follow_huge_pd(vma, addr, hpd, flags, pdshift) NULL
+-#define follow_huge_pmd(mm, addr, pmd, flags)	NULL
++#define follow_huge_pmd_pte(vma, addr, flags)	NULL
+ #define follow_huge_pud(mm, addr, pud, flags)	NULL
+ #define follow_huge_pgd(mm, addr, pgd, flags)	NULL
+ #define prepare_hugepage_range(file, addr, len)	(-EINVAL)
 diff --git a/mm/gup.c b/mm/gup.c
-index b47c751df069..277d7fa22f4c 100644
+index 3ef769529548..98bd5e0a51c8 100644
 --- a/mm/gup.c
 +++ b/mm/gup.c
-@@ -405,6 +405,18 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
- 			 (FOLL_PIN | FOLL_GET)))
- 		return ERR_PTR(-EINVAL);
-+
+@@ -188,6 +188,17 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
+ 	spinlock_t *ptl;
+ 	pte_t *ptep, pte;
+ 
 +	/*
 +	 * Considering PTE level hugetlb, like continuous-PTE hugetlb on
 +	 * ARM64 architecture.
@@ -176,20 +172,20 @@ index b47c751df069..277d7fa22f4c 100644
  retry:
  	if (unlikely(pmd_bad(*pmd)))
  		return no_page_table(vma, flags);
-@@ -560,7 +572,7 @@ static struct page *follow_pmd_mask(struct vm_area_struct *vma,
+@@ -333,7 +344,7 @@ static struct page *follow_pmd_mask(struct vm_area_struct *vma,
  	if (pmd_none(pmdval))
  		return no_page_table(vma, flags);
- 	if (pmd_huge(pmdval) && is_vm_hugetlb_page(vma)) {
+ 	if (pmd_huge(pmdval) && vma->vm_flags & VM_HUGETLB) {
 -		page = follow_huge_pmd(mm, address, pmd, flags);
 +		page = follow_huge_pmd_pte(vma, address, flags);
  		if (page)
  			return page;
  		return no_page_table(vma, flags);
 diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index d8c63d79af20..3499b3803384 100644
+index 2126d78f053d..177dfd03af4e 100644
 --- a/mm/hugetlb.c
 +++ b/mm/hugetlb.c
-@@ -5585,12 +5585,13 @@ follow_huge_pd(struct vm_area_struct *vma,
+@@ -5157,30 +5157,30 @@ follow_huge_pd(struct vm_area_struct *vma,
  }
  
  struct page * __weak
@@ -203,12 +199,7 @@ index d8c63d79af20..3499b3803384 100644
  	spinlock_t *ptl;
 -	pte_t pte;
 +	pte_t *ptep, pte;
- 
- 	/* FOLL_GET and FOLL_PIN are mutually exclusive. */
- 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
-@@ -5598,17 +5599,15 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
- 		return NULL;
- 
++
  retry:
 -	ptl = pmd_lockptr(mm, pmd);
 -	spin_lock(ptl);
@@ -229,10 +220,8 @@ index d8c63d79af20..3499b3803384 100644
 -		page = pmd_page(*pmd) + ((address & ~PMD_MASK) >> PAGE_SHIFT);
 +		page = pte_page(pte) +
 +			((address & ~huge_page_mask(h)) >> PAGE_SHIFT);
- 		/*
- 		 * try_grab_page() should always succeed here, because: a) we
- 		 * hold the pmd (ptl) lock, and b) we've just checked that the
-@@ -5624,7 +5623,7 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
+ 		if (flags & FOLL_GET)
+ 			get_page(page);
  	} else {
  		if (is_hugetlb_entry_migration(pte)) {
  			spin_unlock(ptl);
