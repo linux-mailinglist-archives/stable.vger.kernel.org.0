@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A31F064A053
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:23:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C38E864A0CE
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:31:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232708AbiLLNXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:23:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52484 "EHLO
+        id S232396AbiLLNbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:31:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232709AbiLLNXa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:23:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21FEAF24
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:23:29 -0800 (PST)
+        with ESMTP id S232459AbiLLNbD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:31:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8865313E1E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:31:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDD3CB80D39
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:23:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5741C433D2;
-        Mon, 12 Dec 2022 13:23:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37978B80D50
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:31:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBD57C433D2;
+        Mon, 12 Dec 2022 13:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851406;
-        bh=Bsp+gK2dKd9CfUFU0p60ha7X0yqHeu41RNEYkfiI3I8=;
+        s=korg; t=1670851859;
+        bh=Ifsob09A2HnLkQYwGfDz21JX4bOqjQMUir02pR9HhGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PoLzzAtosBTHLsu7vtDf4ozlIn4Q0v2ZasGqnyJLRlIu3qArhevJWqQLd4uPgZjSj
-         PA2PZrudAEq+odDaCr4ZSyMKQTTyuHaxg38uOLC9It+9KS5JlPt/G3+tYVu6ZSDoJJ
-         xA7MddEuJHTIqOuqlOz0CZpxmAY4jyTM3PxfQbGQ=
+        b=TnpOQICpIu3jVaMLnjdXF3F9t0s6hqWN47XqoumF08Wwlj34x/4TsEn8ydQgkFXoN
+         gQhePGXqT2jE06UzvRVrcVS0+nurUm/Ou7WQagwEY7bICrQ7bdfRheyDR9UzmVJZbu
+         JpKuuudzDwNKiJvuoPdKj7w8qBehE+lZ1QbpJGXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev,
+        Valentina Goncharenko <goncharenko.vp@ispras.ru>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 55/67] net: stmmac: fix "snps,axi-config" node property parsing
+Subject: [PATCH 5.15 084/123] net: encx24j600: Add parentheses to fix precedence
 Date:   Mon, 12 Dec 2022 14:17:30 +0100
-Message-Id: <20221212130920.253544045@linuxfoundation.org>
+Message-Id: <20221212130930.491711581@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Valentina Goncharenko <goncharenko.vp@ispras.ru>
 
-[ Upstream commit 61d4f140943c47c1386ed89f7260e00418dfad9d ]
+[ Upstream commit 167b3f2dcc62c271f3555b33df17e361bb1fa0ee ]
 
-In dt-binding snps,dwmac.yaml, some properties under "snps,axi-config"
-node are named without "axi_" prefix, but the driver expects the
-prefix. Since the dt-binding has been there for a long time, we'd
-better make driver match the binding for compatibility.
+In functions regmap_encx24j600_phy_reg_read() and
+regmap_encx24j600_phy_reg_write() in the conditions of the waiting
+cycles for filling the variable 'ret' it is necessary to add parentheses
+to prevent wrong assignment due to logical operations precedence.
 
-Fixes: afea03656add ("stmmac: rework DMA bus setting and introduce new platform AXI structure")
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Link: https://lore.kernel.org/r/20221202161739.2203-1-jszhang@kernel.org
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: d70e53262f5c ("net: Microchip encx24j600 driver")
+Signed-off-by: Valentina Goncharenko <goncharenko.vp@ispras.ru>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/microchip/encx24j600-regmap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-index 70cbf48c2c03..a2ff9b4727ec 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-@@ -107,10 +107,10 @@ static struct stmmac_axi *stmmac_axi_setup(struct platform_device *pdev)
+diff --git a/drivers/net/ethernet/microchip/encx24j600-regmap.c b/drivers/net/ethernet/microchip/encx24j600-regmap.c
+index 81a8ccca7e5e..2e337c7a5773 100644
+--- a/drivers/net/ethernet/microchip/encx24j600-regmap.c
++++ b/drivers/net/ethernet/microchip/encx24j600-regmap.c
+@@ -359,7 +359,7 @@ static int regmap_encx24j600_phy_reg_read(void *context, unsigned int reg,
+ 		goto err_out;
  
- 	axi->axi_lpi_en = of_property_read_bool(np, "snps,lpi_en");
- 	axi->axi_xit_frm = of_property_read_bool(np, "snps,xit_frm");
--	axi->axi_kbbe = of_property_read_bool(np, "snps,axi_kbbe");
--	axi->axi_fb = of_property_read_bool(np, "snps,axi_fb");
--	axi->axi_mb = of_property_read_bool(np, "snps,axi_mb");
--	axi->axi_rb =  of_property_read_bool(np, "snps,axi_rb");
-+	axi->axi_kbbe = of_property_read_bool(np, "snps,kbbe");
-+	axi->axi_fb = of_property_read_bool(np, "snps,fb");
-+	axi->axi_mb = of_property_read_bool(np, "snps,mb");
-+	axi->axi_rb =  of_property_read_bool(np, "snps,rb");
+ 	usleep_range(26, 100);
+-	while ((ret = regmap_read(ctx->regmap, MISTAT, &mistat) != 0) &&
++	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
+ 	       (mistat & BUSY))
+ 		cpu_relax();
  
- 	if (of_property_read_u32(np, "snps,wr_osr_lmt", &axi->axi_wr_osr_lmt))
- 		axi->axi_wr_osr_lmt = 1;
+@@ -397,7 +397,7 @@ static int regmap_encx24j600_phy_reg_write(void *context, unsigned int reg,
+ 		goto err_out;
+ 
+ 	usleep_range(26, 100);
+-	while ((ret = regmap_read(ctx->regmap, MISTAT, &mistat) != 0) &&
++	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
+ 	       (mistat & BUSY))
+ 		cpu_relax();
+ 
 -- 
 2.35.1
 
