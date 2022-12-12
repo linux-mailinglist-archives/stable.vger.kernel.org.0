@@ -2,726 +2,517 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6C4B649F5F
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:06:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15742649FA9
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:13:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231849AbiLLNGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:06:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36410 "EHLO
+        id S232210AbiLLNNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:13:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231629AbiLLNGd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:06:33 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D28CB57
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:06:32 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id o12so11960721pjo.4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:06:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=/YBmk6NkHcAbZ901r+gi00FN1ji/6SzGaoV2yGBP+Dg=;
-        b=NrFIb0l6EdFqjt0/d7kelQTZ+LNwZJpB1lAR2M6pmlydGpzHjOlQJ65MlpiED+H136
-         d4y1bagCE1mMrFTCZ9Gq/AZM7PA33IYOvD/BKGAFj4wcP9q5yRrwWNgqOudeXLIiUpiG
-         PlnBZ8bs5KrQI/JzeRjFFW9vVTrbi/9KI6zl/zWWeqx59APinrWvaUBFfpjtCbHx0+zw
-         vMKr+dkDnz+DVHZXVcOGUIXlcq6PqRTD2+UdNfzcWIE3LyvPw6n+ZPCWrol33aKr50nS
-         V19QIMcGDUr8wat4R/GTCTM7BjoM0RkapHh5VsazbCiOCqMfRghE9qIn+Ca+GMTu476a
-         5LaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=/YBmk6NkHcAbZ901r+gi00FN1ji/6SzGaoV2yGBP+Dg=;
-        b=7xDUNqrSFqpg3jtMUC7CPOYC0GndpJodeiilN/vYw0gtyCfCOs+MmUxJdYCPeUwmDe
-         X2RMQmCAUxU46ckyzDkaOVHJyWEOyVqDo8tzBDJu+8tAIAfFA/bOBPdpAPTme5tg/StS
-         4qhMcYZWoMIV3jtCeDj4wyrdj0S7gItEUIBr7EBWzesUjRrVteyU1U9/gSqUBdRQKsWJ
-         9YireVTe7Obk7raeOgCTJFHGWLBjea5FG5adEPf8WcCqXPz9BMxiiUth3zB3RU2H1gdY
-         2Mcwl7mhwJz3nSuNMgByoNR9eNuXSP0n3CyjeXV3qgYttax/RHq0oljQDiwcyHIimskQ
-         urCQ==
-X-Gm-Message-State: ANoB5pmmpRasuEQ240HItoIOGobIdRn14o3PnIDExw7g/FdgKsSLW88x
-        WNJ6X7n/5taqNNfBrH0G3bnQR9ZUxxhY2Cjb5Hy0+A==
-X-Google-Smtp-Source: AA0mqf57NzA1Q8JYeCwUedUVrRqCxvET0tssUPg/zLlzlKBmzeMokgohP+vMLpL19B6QbHcskzzmdQ==
-X-Received: by 2002:a17:902:ebc1:b0:185:441e:2314 with SMTP id p1-20020a170902ebc100b00185441e2314mr17517718plg.10.1670850391230;
-        Mon, 12 Dec 2022 05:06:31 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p2-20020a170902780200b00176ba091cd3sm6261220pll.196.2022.12.12.05.06.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Dec 2022 05:06:30 -0800 (PST)
-Message-ID: <63972756.170a0220.44e9b.a4a2@mx.google.com>
-Date:   Mon, 12 Dec 2022 05:06:30 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232568AbiLLNNY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:13:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E0D612AE6;
+        Mon, 12 Dec 2022 05:13:12 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B052F6104A;
+        Mon, 12 Dec 2022 13:13:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59058C433D2;
+        Mon, 12 Dec 2022 13:13:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1670850791;
+        bh=QeA1YWEExsPqGtx0JGY6ia8ltFVShfX0HsXLWXi1+Ss=;
+        h=From:To:Cc:Subject:Date:From;
+        b=goA9T6lwCIpRvuJZ+fWWYs2WrFXTc6zudj81V3wL0H0fqA3HTw6//xFn2Gh++kTNX
+         YiSZ1WsB20C8A3Jd6zRzLrHCBn3V56FAlizBlW3zvefn5LQtfSe+LM0+V327vgczWh
+         y8L1aPrHY8jy1tVSucq7ie/I3/Pwrg/AlehZuKjY=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: [PATCH 5.10 000/106] 5.10.159-rc1 review
+Date:   Mon, 12 Dec 2022 14:09:03 +0100
+Message-Id: <20221212130924.863767275@linuxfoundation.org>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Kernel: v4.9.335-31-gee6a87096e4f
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.9 baseline: 98 runs,
- 17 regressions (v4.9.335-31-gee6a87096e4f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.159-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.159-rc1
+X-KernelTest-Deadline: 2022-12-14T13:09+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 98 runs, 17 regressions (v4.9.335-31-gee6a870=
-96e4f)
+This is the start of the stable review cycle for the 5.10.159 release.
+There are 106 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Regressions Summary
--------------------
+Responses should be made by Wed, 14 Dec 2022 13:08:57 +0000.
+Anything received after that time might be too late.
 
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-meson-gxbb-p200            | arm64 | lab-baylibre | gcc-10   | defconfig   =
-               | 1          =
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.159-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig   =
-               | 1          =
+thanks,
 
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
+greg k-h
 
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig   =
-               | 1          =
+-------------
+Pseudo-Shortlog of commits:
 
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.159-rc1
 
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
-               | 1          =
+Frank Jungclaus <frank.jungclaus@esd.eu>
+    can: esd_usb: Allow REC and TEC to return to zero
 
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
+Emeel Hakim <ehakim@nvidia.com>
+    macsec: add missing attribute validation for offload
 
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
-               | 1          =
+Dan Carpenter <error27@gmail.com>
+    net: mvneta: Fix an out of bounds check
 
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
+Eric Dumazet <edumazet@google.com>
+    ipv6: avoid use-after-free in ip6_fragment()
 
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig   =
-               | 1          =
+Yang Yingliang <yangyingliang@huawei.com>
+    net: plip: don't call kfree_skb/dev_kfree_skb() under spin_lock_irq()
 
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
+Juergen Gross <jgross@suse.com>
+    xen/netback: fix build warning
 
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig   =
-               | 1          =
+Zhang Changzhong <zhangchangzhong@huawei.com>
+    ethernet: aeroflex: fix potential skb leak in greth_init_rings()
 
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
+Xin Long <lucien.xin@gmail.com>
+    tipc: call tipc_lxc_xmit without holding node_read_lock
 
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
-               | 1          =
+Zhengchao Shao <shaozhengchao@huawei.com>
+    net: dsa: sja1105: fix memory leak in sja1105_setup_devlink_regions()
 
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
+Ido Schimmel <idosch@nvidia.com>
+    ipv4: Fix incorrect route flushing when table ID 0 is used
 
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
-               | 1          =
+Ido Schimmel <idosch@nvidia.com>
+    ipv4: Fix incorrect route flushing when source address is deleted
 
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
+YueHaibing <yuehaibing@huawei.com>
+    tipc: Fix potential OOB in tipc_link_proto_rcv()
 
+Liu Jian <liujian56@huawei.com>
+    net: hisilicon: Fix potential use-after-free in hix5hd2_rx()
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.335-31-gee6a87096e4f/plan/baseline/
+Liu Jian <liujian56@huawei.com>
+    net: hisilicon: Fix potential use-after-free in hisi_femac_rx()
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.335-31-gee6a87096e4f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ee6a87096e4fe9f4e90bf2817b4cfd8776474a9c =
+Yongqiang Liu <liuyongqiang13@huawei.com>
+    net: thunderx: Fix missing destroy_workqueue of nicvf_rx_mode_wq
 
+Hangbin Liu <liuhangbin@gmail.com>
+    ip_gre: do not report erspan version on GRE interface
 
+Jisheng Zhang <jszhang@kernel.org>
+    net: stmmac: fix "snps,axi-config" node property parsing
 
-Test Regressions
----------------- =
+Pankaj Raghav <p.raghav@samsung.com>
+    nvme initialize core quirks before calling nvme_init_subsystem
 
+Kees Cook <keescook@chromium.org>
+    NFC: nci: Bounds check struct nfc_target arrays
 
+Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+    i40e: Disallow ip4 and ip6 l4_4_bytes
 
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-meson-gxbb-p200            | arm64 | lab-baylibre | gcc-10   | defconfig   =
-               | 1          =
+Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+    i40e: Fix for VF MAC address 0
 
+Michal Jaron <michalx.jaron@intel.com>
+    i40e: Fix not setting default xps_cpus after reset
 
-  Details:     https://kernelci.org/test/plan/id/6396f2346434d851022abd47
+Dan Carpenter <error27@gmail.com>
+    net: mvneta: Prevent out of bounds read in mvneta_config_rss()
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+Lin Liu <lin.liu@citrix.com>
+    xen-netfront: Fix NULL sring after live migration
 
+Valentina Goncharenko <goncharenko.vp@ispras.ru>
+    net: encx24j600: Fix invalid logic in reading of MISTAT register
 
+Valentina Goncharenko <goncharenko.vp@ispras.ru>
+    net: encx24j600: Add parentheses to fix precedence
 
-  * baseline.login: https://kernelci.org/test/case/id/6396f2346434d851022ab=
-d48
-        new failure (last pass: v4.9.335-31-g17dd2563312b) =
+Wei Yongjun <weiyongjun1@huawei.com>
+    mac802154: fix missing INIT_LIST_HEAD in ieee802154_if_add()
 
- =
+Zhengchao Shao <shaozhengchao@huawei.com>
+    selftests: rtnetlink: correct xfrm policy rule in kci_test_ipsec_offload
 
+Artem Chernyshev <artem.chernyshev@red-soft.ru>
+    net: dsa: ksz: Check return value
 
+Chen Zhongjin <chenzhongjin@huawei.com>
+    Bluetooth: Fix not cleanup led when bt_init fails
 
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig   =
-               | 1          =
+Wang ShaoBo <bobo.shaobowang@huawei.com>
+    Bluetooth: 6LoWPAN: add missing hci_dev_put() in get_l2cap_conn()
 
+Ronak Doshi <doshir@vmware.com>
+    vmxnet3: correctly report encapsulated LRO packet
 
-  Details:     https://kernelci.org/test/plan/id/6396f2a5f75f774c282abd0e
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    af_unix: Get user_ns from in_skb in unix_diag_get_exact().
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
-t-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
-t-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+Guillaume BRUN <the.cheaterman@gmail.com>
+    drm: bridge: dw_hdmi: fix preference of RGB modes over YUV420
 
+YueHaibing <yuehaibing@huawei.com>
+    net: broadcom: Add PTP_1588_CLOCK_OPTIONAL dependency for BCMGENET under ARCH_BCM2835
 
+Akihiko Odaki <akihiko.odaki@daynix.com>
+    igb: Allocate MSI-X vector when testing
 
-  * baseline.login: https://kernelci.org/test/case/id/6396f2a5f75f774c282ab=
-d0f
-        failing since 216 days (last pass: v4.9.312-43-g5b8113699dd5, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
+Akihiko Odaki <akihiko.odaki@daynix.com>
+    e1000e: Fix TX dispatch condition
 
- =
+Xiongfeng Wang <wangxiongfeng2@huawei.com>
+    gpio: amd8111: Fix PCI device reference count leak
 
+Qiqi Zhang <eddy.zhang@rock-chips.com>
+    drm/bridge: ti-sn65dsi86: Fix output polarity setting bug
 
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: ctnetlink: fix compilation warning after data race fixes in ct mark
 
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
+Hauke Mehrtens <hauke@hauke-m.de>
+    ca8210: Fix crash by zero initializing data
 
+Ziyang Xuan <william.xuanziyang@huawei.com>
+    ieee802154: cc2520: Fix error return code in cc2520_hw_init()
 
-  Details:     https://kernelci.org/test/plan/id/6396f77d05a6c4bc322abd06
+Stefano Brivio <sbrivio@redhat.com>
+    netfilter: nft_set_pipapo: Actually validate intervals in fields after the first one
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
-ne-qemu_arm64-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
-ne-qemu_arm64-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+Dan Carpenter <dan.carpenter@oracle.com>
+    rtc: mc146818-lib: fix signedness bug in mc146818_get_time()
 
+Mateusz Jończyk <mat.jonczyk@o2.pl>
+    rtc: mc146818-lib: fix locking in mc146818_set_time
 
+Chris Wilson <chris@chris-wilson.co.uk>
+    rtc: cmos: Disable irq around direct invocation of cmos_interrupt()
 
-  * baseline.login: https://kernelci.org/test/case/id/6396f77d05a6c4bc322ab=
-d07
-        failing since 216 days (last pass: v4.9.312-43-g8ccd2ae24f47, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
+Baolin Wang <baolin.wang@linux.alibaba.com>
+    mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
 
- =
+Oliver Hartkopp <socketcan@hartkopp.net>
+    can: af_can: fix NULL pointer dereference in can_rcv_filter
 
+ZhangPeng <zhangpeng362@huawei.com>
+    HID: core: fix shift-out-of-bounds in hid_report_raw_event
 
+Anastasia Belova <abelova@astralinux.ru>
+    HID: hid-lg4ff: Add check for empty lbuf
 
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig   =
-               | 1          =
+Ankit Patel <anpatel@nvidia.com>
+    HID: usbhid: Add ALWAYS_POLL quirk for some mice
 
+Rob Clark <robdclark@chromium.org>
+    drm/shmem-helper: Avoid vm_open error paths
 
-  Details:     https://kernelci.org/test/plan/id/6396f4c6b175540c3f2abd11
+Rob Clark <robdclark@chromium.org>
+    drm/shmem-helper: Remove errant put in error path
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
--gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
--gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+Zack Rusin <zackr@vmware.com>
+    drm/vmwgfx: Don't use screen objects when SEV is active
 
+Thomas Huth <thuth@redhat.com>
+    KVM: s390: vsie: Fix the initialization of the epoch extension (epdx) field
 
+Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+    Bluetooth: Fix crash when replugging CSR fake controllers
 
-  * baseline.login: https://kernelci.org/test/case/id/6396f4c6b175540c3f2ab=
-d12
-        failing since 216 days (last pass: v4.9.312-43-g5b8113699dd5, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
+Ismael Ferreras Morezuelas <swyterzone@gmail.com>
+    Bluetooth: btusb: Add debug message for CSR controllers
 
- =
+John Starks <jostarks@microsoft.com>
+    mm/gup: fix gup_pud_range() for dax
 
+Tejun Heo <tj@kernel.org>
+    memcg: fix possible use-after-free in memcg_write_event_control()
 
+Hans Verkuil <hverkuil-cisco@xs4all.nl>
+    media: v4l2-dv-timings.c: fix too strict blanking sanity checks
 
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
+Francesco Dolcini <francesco.dolcini@toradex.com>
+    Revert "ARM: dts: imx7: Fix NAND controller size-cells"
 
+Hans Verkuil <hverkuil-cisco@xs4all.nl>
+    media: videobuf2-core: take mmap_lock in vb2_get_unmapped_area()
 
-  Details:     https://kernelci.org/test/plan/id/6396fcc0b9a2fa55002abd1d
+Juergen Gross <jgross@suse.com>
+    xen/netback: don't call kfree_skb() with interrupts disabled
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
-e-qemu_arm64-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
-e-qemu_arm64-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+Juergen Gross <jgross@suse.com>
+    xen/netback: do some code cleanup
 
+Ross Lagerwall <ross.lagerwall@citrix.com>
+    xen/netback: Ensure protocol headers don't fall in the non-linear area
 
+Thomas Gleixner <tglx@linutronix.de>
+    rtc: mc146818: Reduce spinlock section in mc146818_set_time()
 
-  * baseline.login: https://kernelci.org/test/case/id/6396fcc0b9a2fa55002ab=
-d1e
-        failing since 216 days (last pass: v4.9.312-43-g8ccd2ae24f47, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
+Xiaofei Tan <tanxiaofei@huawei.com>
+    rtc: cmos: Replace spin_lock_irqsave with spin_lock in hard IRQ
 
- =
+Mateusz Jończyk <mat.jonczyk@o2.pl>
+    rtc: cmos: avoid UIP when reading alarm time
 
+Mateusz Jończyk <mat.jonczyk@o2.pl>
+    rtc: cmos: avoid UIP when writing alarm time
 
+Mateusz Jończyk <mat.jonczyk@o2.pl>
+    rtc: mc146818-lib: extract mc146818_avoid_UIP
 
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
-               | 1          =
+Mateusz Jończyk <mat.jonczyk@o2.pl>
+    rtc: mc146818-lib: fix RTC presence check
 
+Mateusz Jończyk <mat.jonczyk@o2.pl>
+    rtc: Check return value from mc146818_get_time()
 
-  Details:     https://kernelci.org/test/plan/id/6396f2a303c02cdd082abcfa
+Mateusz Jończyk <mat.jonczyk@o2.pl>
+    rtc: mc146818-lib: change return values of mc146818_get_time()
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
-t-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
-t-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+Mateusz Jończyk <mat.jonczyk@o2.pl>
+    rtc: cmos: remove stale REVISIT comments
 
+Thomas Gleixner <tglx@linutronix.de>
+    rtc: mc146818: Dont test for bit 0-5 in Register D
 
+Thomas Gleixner <tglx@linutronix.de>
+    rtc: mc146818: Detect and handle broken RTCs
 
-  * baseline.login: https://kernelci.org/test/case/id/6396f2a303c02cdd082ab=
-cfb
-        failing since 216 days (last pass: v4.9.312-43-g5b8113699dd5, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
+Thomas Gleixner <tglx@linutronix.de>
+    rtc: mc146818: Prevent reading garbage
 
- =
+Jann Horn <jannh@google.com>
+    mm/khugepaged: invoke MMU notifiers in shmem/file collapse paths
 
+Jann Horn <jannh@google.com>
+    mm/khugepaged: fix GUP-fast interaction by sending IPI
 
+Jann Horn <jannh@google.com>
+    mm/khugepaged: take the right locks for page table retraction
 
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
+Davide Tronchin <davide.tronchin.94@gmail.com>
+    net: usb: qmi_wwan: add u-blox 0x1342 composition
 
+Dominique Martinet <asmadeus@codewreck.org>
+    9p/xen: check logical size for buffer size
 
-  Details:     https://kernelci.org/test/plan/id/6396f77c65d06967b82abcff
+Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+    usb: dwc3: gadget: Disable GUSB2PHYCFG.SUSPHY for End Transfer
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
-ne-qemu_arm64-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
-ne-qemu_arm64-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    fbcon: Use kzalloc() in fbcon_prepare_logo()
 
+Andreas Kemnade <andreas@kemnade.info>
+    regulator: twl6030: fix get status of twl6032 regulators
 
+Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+    ASoC: soc-pcm: Add NULL check in BE reparenting
 
-  * baseline.login: https://kernelci.org/test/case/id/6396f77c65d06967b82ab=
-d00
-        failing since 216 days (last pass: v4.9.312-43-g8ccd2ae24f47, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
+Filipe Manana <fdmanana@suse.com>
+    btrfs: send: avoid unaligned encoded writes when attempting to clone range
 
- =
+Kees Cook <keescook@chromium.org>
+    ALSA: seq: Fix function prototype mismatch in snd_seq_expand_var_event
 
+Konrad Dybcio <konrad.dybcio@linaro.org>
+    regulator: slg51000: Wait after asserting CS pin
 
+GUO Zihua <guozihua@huawei.com>
+    9p/fd: Use P9_HDRSZ for header size
 
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
-               | 1          =
+Johan Jonker <jbx6244@gmail.com>
+    ARM: dts: rockchip: disable arm_global_timer on rk3066 and rk3188
 
+Chancel Liu <chancel.liu@nxp.com>
+    ASoC: wm8962: Wait for updated value of WM8962_CLOCKING1 register
 
-  Details:     https://kernelci.org/test/plan/id/6396f48a57df5270fd2abd01
+Giulio Benetti <giulio.benetti@benettiengineering.com>
+    ARM: 9266/1: mm: fix no-MMU ZERO_PAGE() implementation
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
--gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
--gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+Tomislav Novak <tnovak@fb.com>
+    ARM: 9251/1: perf: Fix stacktraces for tracepoint events in THUMB2 kernels
 
+Johan Jonker <jbx6244@gmail.com>
+    ARM: dts: rockchip: rk3188: fix lcdc1-rgb24 node name
 
+Johan Jonker <jbx6244@gmail.com>
+    arm64: dts: rockchip: fix ir-receiver node names
 
-  * baseline.login: https://kernelci.org/test/case/id/6396f48a57df5270fd2ab=
-d02
-        failing since 216 days (last pass: v4.9.312-43-g5b8113699dd5, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
+Johan Jonker <jbx6244@gmail.com>
+    ARM: dts: rockchip: fix ir-receiver node names
 
- =
+Sebastian Reichel <sebastian.reichel@collabora.com>
+    arm: dts: rockchip: fix node name for hym8563 rtc
 
+FUKAUMI Naoki <naoki@radxa.com>
+    arm64: dts: rockchip: keep I2S1 disabled for GPIO function on ROCK Pi 4 series
 
+Gavin Shan <gshan@redhat.com>
+    mm: migrate: fix THP's mapcount on isolation
 
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
+Hugh Dickins <hughd@google.com>
+    mm: __isolate_lru_page_prepare() in isolate_migratepages_block()
 
+Alex Shi <alex.shi@linux.alibaba.com>
+    mm/vmscan: __isolate_lru_page_prepare() cleanup
 
-  Details:     https://kernelci.org/test/plan/id/6396fcbfb9a2fa55002abd19
+Alex Shi <alex.shi@linux.alibaba.com>
+    mm/compaction: do page isolation first in compaction
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
-e-qemu_arm64-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
-e-qemu_arm64-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+Alex Shi <alex.shi@linux.alibaba.com>
+    mm/lru: introduce TestClearPageLRU()
 
+Alex Shi <alex.shi@linux.alibaba.com>
+    mm/mlock: remove __munlock_isolate_lru_page()
+
+Alex Shi <alex.shi@linux.alibaba.com>
+    mm/mlock: remove lru_lock on TestClearPageMlocked
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ arch/alpha/kernel/rtc.c                            |   7 +-
+ arch/arm/boot/dts/imx7s.dtsi                       |   4 +-
+ arch/arm/boot/dts/rk3036-evb.dts                   |   2 +-
+ arch/arm/boot/dts/rk3188-radxarock.dts             |   2 +-
+ arch/arm/boot/dts/rk3188.dtsi                      |   3 +-
+ arch/arm/boot/dts/rk3288-evb-act8846.dts           |   2 +-
+ arch/arm/boot/dts/rk3288-firefly.dtsi              |   2 +-
+ arch/arm/boot/dts/rk3288-miqi.dts                  |   2 +-
+ arch/arm/boot/dts/rk3288-rock2-square.dts          |   2 +-
+ arch/arm/boot/dts/rk3xxx.dtsi                      |   7 +
+ arch/arm/include/asm/perf_event.h                  |   2 +-
+ arch/arm/include/asm/pgtable-nommu.h               |   6 -
+ arch/arm/include/asm/pgtable.h                     |  16 +-
+ arch/arm/mm/nommu.c                                |  19 ++
+ arch/arm64/boot/dts/rockchip/rk3308-roc-cc.dts     |   2 +-
+ arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi |   1 -
+ arch/s390/kvm/vsie.c                               |   4 +-
+ arch/x86/kernel/hpet.c                             |   8 +-
+ drivers/base/power/trace.c                         |   6 +-
+ drivers/bluetooth/btusb.c                          |   5 +
+ drivers/gpio/gpio-amd8111.c                        |   4 +
+ drivers/gpu/drm/bridge/synopsys/dw-hdmi.c          |   6 +-
+ drivers/gpu/drm/bridge/ti-sn65dsi86.c              |   4 +-
+ drivers/gpu/drm/drm_gem_shmem_helper.c             |  18 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c               |   4 +
+ drivers/hid/hid-core.c                             |   3 +
+ drivers/hid/hid-ids.h                              |   3 +
+ drivers/hid/hid-lg4ff.c                            |   6 +
+ drivers/hid/hid-quirks.c                           |   3 +
+ drivers/media/common/videobuf2/videobuf2-core.c    | 102 ++++++---
+ drivers/media/v4l2-core/v4l2-dv-timings.c          |  20 +-
+ drivers/net/can/usb/esd_usb2.c                     |   6 +
+ drivers/net/dsa/sja1105/sja1105_devlink.c          |   2 +
+ drivers/net/ethernet/aeroflex/greth.c              |   1 +
+ drivers/net/ethernet/broadcom/Kconfig              |   1 +
+ drivers/net/ethernet/cavium/thunder/nicvf_main.c   |   4 +-
+ drivers/net/ethernet/hisilicon/hisi_femac.c        |   2 +-
+ drivers/net/ethernet/hisilicon/hix5hd2_gmac.c      |   2 +-
+ drivers/net/ethernet/intel/e1000e/netdev.c         |   4 +-
+ drivers/net/ethernet/intel/i40e/i40e_ethtool.c     |   6 +-
+ drivers/net/ethernet/intel/i40e/i40e_main.c        |  19 +-
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   2 +
+ drivers/net/ethernet/intel/igb/igb_ethtool.c       |   2 +
+ drivers/net/ethernet/marvell/mvneta.c              |   2 +-
+ drivers/net/ethernet/microchip/encx24j600-regmap.c |   4 +-
+ .../net/ethernet/stmicro/stmmac/stmmac_platform.c  |   8 +-
+ drivers/net/ieee802154/ca8210.c                    |   2 +-
+ drivers/net/ieee802154/cc2520.c                    |   2 +-
+ drivers/net/macsec.c                               |   1 +
+ drivers/net/plip/plip.c                            |   4 +-
+ drivers/net/usb/qmi_wwan.c                         |   1 +
+ drivers/net/vmxnet3/vmxnet3_drv.c                  |  11 +-
+ drivers/net/xen-netback/common.h                   |  14 +-
+ drivers/net/xen-netback/interface.c                |  22 +-
+ drivers/net/xen-netback/netback.c                  | 229 ++++++++++++---------
+ drivers/net/xen-netback/rx.c                       |  10 +-
+ drivers/net/xen-netfront.c                         |   6 +
+ drivers/nvme/host/core.c                           |   8 +-
+ drivers/regulator/slg51000-regulator.c             |   2 +
+ drivers/regulator/twl6030-regulator.c              |  15 +-
+ drivers/rtc/rtc-cmos.c                             | 209 ++++++++++++-------
+ drivers/rtc/rtc-mc146818-lib.c                     | 169 ++++++++++++---
+ drivers/usb/dwc3/gadget.c                          |   3 +-
+ drivers/video/fbdev/core/fbcon.c                   |   2 +-
+ fs/btrfs/send.c                                    |  24 ++-
+ include/asm-generic/tlb.h                          |   4 +
+ include/linux/cgroup.h                             |   1 +
+ include/linux/hugetlb.h                            |   8 +-
+ include/linux/mc146818rtc.h                        |   6 +-
+ include/linux/page-flags.h                         |   1 +
+ include/linux/swap.h                               |   1 -
+ kernel/cgroup/cgroup-internal.h                    |   1 -
+ mm/compaction.c                                    |  95 +++++++--
+ mm/gup.c                                           |  16 +-
+ mm/hugetlb.c                                       |  27 ++-
+ mm/khugepaged.c                                    |  47 ++++-
+ mm/memcontrol.c                                    |  15 +-
+ mm/mlock.c                                         |  56 ++---
+ mm/mmu_gather.c                                    |   4 +-
+ mm/vmscan.c                                        | 155 ++++----------
+ net/9p/trans_fd.c                                  |   6 +-
+ net/9p/trans_xen.c                                 |   9 +
+ net/bluetooth/6lowpan.c                            |   1 +
+ net/bluetooth/af_bluetooth.c                       |   4 +-
+ net/bluetooth/hci_core.c                           |   3 +-
+ net/can/af_can.c                                   |   4 +-
+ net/dsa/tag_ksz.c                                  |   3 +-
+ net/ipv4/fib_frontend.c                            |   3 +
+ net/ipv4/fib_semantics.c                           |   1 +
+ net/ipv4/ip_gre.c                                  |  48 +++--
+ net/ipv6/ip6_output.c                              |   5 +
+ net/mac802154/iface.c                              |   1 +
+ net/netfilter/nf_conntrack_netlink.c               |  19 +-
+ net/netfilter/nft_set_pipapo.c                     |   5 +-
+ net/nfc/nci/ntf.c                                  |   6 +
+ net/tipc/link.c                                    |   4 +-
+ net/tipc/node.c                                    |  12 +-
+ net/unix/diag.c                                    |  20 +-
+ sound/core/seq/seq_memory.c                        |  11 +-
+ sound/soc/codecs/wm8962.c                          |   8 +
+ sound/soc/soc-pcm.c                                |   2 +
+ tools/testing/selftests/net/fib_tests.sh           |  37 ++++
+ tools/testing/selftests/net/rtnetlink.sh           |   2 +-
+ 104 files changed, 1117 insertions(+), 612 deletions(-)
 
 
-  * baseline.login: https://kernelci.org/test/case/id/6396fcbfb9a2fa55002ab=
-d1a
-        failing since 216 days (last pass: v4.9.312-43-g8ccd2ae24f47, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig   =
-               | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6396f2a4f75f774c282abd08
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
-t-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
-t-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6396f2a4f75f774c282ab=
-d09
-        failing since 216 days (last pass: v4.9.312-43-g5b8113699dd5, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6396f77b05a6c4bc322abd00
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
-ne-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
-ne-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6396f77b05a6c4bc322ab=
-d01
-        failing since 216 days (last pass: v4.9.312-43-g8ccd2ae24f47, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig   =
-               | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6396f49e57df5270fd2abd12
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
--gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
--gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6396f49e57df5270fd2ab=
-d13
-        failing since 216 days (last pass: v4.9.312-43-g5b8113699dd5, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6396fcabf5533a82a22abd2e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
-e-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
-e-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6396fcabf5533a82a22ab=
-d2f
-        failing since 216 days (last pass: v4.9.312-43-g8ccd2ae24f47, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
-               | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6396f2a603c02cdd082abd08
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
-t-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
-t-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6396f2a603c02cdd082ab=
-d09
-        failing since 216 days (last pass: v4.9.312-43-g5b8113699dd5, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6396f77e05a6c4bc322abd0c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
-ne-qemu_arm64-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
-ne-qemu_arm64-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6396f77e05a6c4bc322ab=
-d0d
-        failing since 216 days (last pass: v4.9.312-43-g8ccd2ae24f47, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
-               | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6396f50284269e9d022abd10
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
--gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
--gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6396f50284269e9d022ab=
-d11
-        failing since 216 days (last pass: v4.9.312-43-g5b8113699dd5, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6396fcd3fd25c815332abd10
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
-e-qemu_arm64-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.335-3=
-1-gee6a87096e4f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
-e-qemu_arm64-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221125.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6396fcd3fd25c815332ab=
-d11
-        failing since 216 days (last pass: v4.9.312-43-g8ccd2ae24f47, first=
- fail: v4.9.312-64-g69b9f3e8fce2) =
-
- =20
