@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58644649FB9
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:14:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CBE4649FBB
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:14:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232112AbiLLNOX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:14:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42122 "EHLO
+        id S232273AbiLLNO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:14:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232167AbiLLNN5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:13:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B335101A
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:13:56 -0800 (PST)
+        with ESMTP id S232360AbiLLNOC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:14:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85ADAB56
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:14:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0AE9B80D39
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:13:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38374C433F0;
-        Mon, 12 Dec 2022 13:13:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 255F761049
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:14:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 125A2C433EF;
+        Mon, 12 Dec 2022 13:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670850833;
-        bh=ruZJlf7sf+XEman/fuukO4kreNRFT4FX07jOeVJbGzk=;
+        s=korg; t=1670850840;
+        bh=dgsijJgaHVGvAYNCfDVc6PBaCvK6D43P76YGC9hB6oQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qzHWKrYtK67vR+1TjyKQ2U3VliH9mQD9qIpZh3a18o3kP4LzBgeXQsUYPE6BFXmUa
-         jfhyDXMBdOT0rEgRXn1+vdJYc5WuW9pL7OoUd6xPMpK89pypW2gTNjgAwS85gng4yw
-         fk3ZHXyjcTAtYOxM8SZ7QyyFVNOFyQbxkXJEEvGc=
+        b=fSr99bvCehWHDyeP5bDry0K0i3wgNx5ac8ByZt8u+Te9kGR6FV4fk9eoe2mm7xcNM
+         OATP+S6QoEDUokV9gu4D5P/CD1wbH2wG+dXYXWAQZPmslXtbb2jngSAklpAlfVsWn9
+         ZlzrFCnZmrxvGvB4XnJgTlGsTA39VAFfyaw05fzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiaofei Tan <tanxiaofei@huawei.com>,
+        patches@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 040/106] rtc: cmos: Replace spin_lock_irqsave with spin_lock in hard IRQ
-Date:   Mon, 12 Dec 2022 14:09:43 +0100
-Message-Id: <20221212130926.611534365@linuxfoundation.org>
+Subject: [PATCH 5.10 041/106] rtc: mc146818: Reduce spinlock section in mc146818_set_time()
+Date:   Mon, 12 Dec 2022 14:09:44 +0100
+Message-Id: <20221212130926.653734354@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -53,47 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaofei Tan <tanxiaofei@huawei.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 6950d046eb6eabbc271fda416460c05f7a85698a ]
+[ Upstream commit dcf257e92622ba0e25fdc4b6699683e7ae67e2a1 ]
 
-It is redundant to do irqsave and irqrestore in hardIRQ context, where
-it has been in a irq-disabled context.
+No need to hold the lock and disable interrupts for doing math.
 
-Signed-off-by: Xiaofei Tan <tanxiaofei@huawei.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/1612355981-6764-2-git-send-email-tanxiaofei@huawei.com
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20201206220541.709243630@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cmos.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-mc146818-lib.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index d419eb988b22..21f2bdd025b6 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -704,11 +704,10 @@ static struct cmos_rtc	cmos_rtc;
- 
- static irqreturn_t cmos_interrupt(int irq, void *p)
- {
--	unsigned long	flags;
- 	u8		irqstat;
- 	u8		rtc_control;
+diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
+index 46527a5d3912..1ca866461d10 100644
+--- a/drivers/rtc/rtc-mc146818-lib.c
++++ b/drivers/rtc/rtc-mc146818-lib.c
+@@ -249,7 +249,6 @@ int mc146818_set_time(struct rtc_time *time)
+ 	if (yrs > 255)	/* They are unsigned */
+ 		return -EINVAL;
  
 -	spin_lock_irqsave(&rtc_lock, flags);
-+	spin_lock(&rtc_lock);
+ #ifdef CONFIG_MACH_DECSTATION
+ 	real_yrs = yrs;
+ 	leap_yr = ((!((yrs + 1900) % 4) && ((yrs + 1900) % 100)) ||
+@@ -278,10 +277,8 @@ int mc146818_set_time(struct rtc_time *time)
+ 	/* These limits and adjustments are independent of
+ 	 * whether the chip is in binary mode or not.
+ 	 */
+-	if (yrs > 169) {
+-		spin_unlock_irqrestore(&rtc_lock, flags);
++	if (yrs > 169)
+ 		return -EINVAL;
+-	}
  
- 	/* When the HPET interrupt handler calls us, the interrupt
- 	 * status is passed as arg1 instead of the irq number.  But
-@@ -742,7 +741,7 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
- 			hpet_mask_rtc_irq_bit(RTC_AIE);
- 		CMOS_READ(RTC_INTR_FLAGS);
+ 	if (yrs >= 100)
+ 		yrs -= 100;
+@@ -297,6 +294,7 @@ int mc146818_set_time(struct rtc_time *time)
+ 		century = bin2bcd(century);
  	}
--	spin_unlock_irqrestore(&rtc_lock, flags);
-+	spin_unlock(&rtc_lock);
  
- 	if (is_intr(irqstat)) {
- 		rtc_update_irq(p, 1, irqstat);
++	spin_lock_irqsave(&rtc_lock, flags);
+ 	save_control = CMOS_READ(RTC_CONTROL);
+ 	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
+ 	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
 -- 
 2.35.1
 
