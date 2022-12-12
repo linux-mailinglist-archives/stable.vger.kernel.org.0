@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B14864A168
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:40:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A5864A03B
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232896AbiLLNkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:40:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35438 "EHLO
+        id S232693AbiLLNWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:22:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232881AbiLLNjl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:39:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 171B513F7A
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:38:36 -0800 (PST)
+        with ESMTP id S232615AbiLLNWI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:22:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 115302DEA
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:22:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9121B80D2C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:38:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A04B9C433F0;
-        Mon, 12 Dec 2022 13:38:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5C6561042
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:22:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A363C433EF;
+        Mon, 12 Dec 2022 13:22:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852313;
-        bh=Unx1Gq5WLVSH2dmfiGXazEYUbGSDSt/5mSgv0atYw2k=;
+        s=korg; t=1670851326;
+        bh=2nnZXA8RaZrSVvCN6ByjHxeIL4WuKWU/gteG+urh8OQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gSppicrt7PuV34vlFoICY997ZG6K9ySZw3feKNWYgJDhc3wSa7npgBzz/0x1/MUSZ
-         XnPqTC7zNRHNO49SYVgueZdA8yr8T0VA9t8Aopq/3EKo7QQIz45f4I8oX+yHSA9MFb
-         ImF3ctsis0+prl7NOl0nPNQPw2uOc2pDZTs+JM/I=
+        b=MrNWAnaZcLx5Bz4YdmEFRdI9Ar8AqD+MhxE9lCfRUmWCx0VNY3Z3HoEZ8iB53BkzJ
+         DDcNrc+HoxDdsqr1Pn6Ev8EFvHDVs1G1k7ZYOKnKEZ/EnvVoyhLZcB/gSCe9WEHria
+         U9CX00B03Sg8neDZSZN/IdV45FXhQaAtxq/oc6+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Marek Vasut <marex@denx.de>, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 6.0 056/157] Revert "ARM: dts: imx7: Fix NAND controller size-cells"
-Date:   Mon, 12 Dec 2022 14:16:44 +0100
-Message-Id: <20221212130936.812742143@linuxfoundation.org>
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        alsa-devel@alsa-project.org, Kees Cook <keescook@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 10/67] ALSA: seq: Fix function prototype mismatch in snd_seq_expand_var_event
+Date:   Mon, 12 Dec 2022 14:16:45 +0100
+Message-Id: <20221212130918.121139101@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +56,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Dolcini <francesco.dolcini@toradex.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit ef19964da8a668c683f1d38274f6fb756e047945 upstream.
+[ Upstream commit 05530ef7cf7c7d700f6753f058999b1b5099a026 ]
 
-This reverts commit 753395ea1e45c724150070b5785900b6a44bd5fb.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed.
 
-It introduced a boot regression on colibri-imx7, and potentially any
-other i.MX7 boards with MTD partition list generated into the fdt by
-U-Boot.
+seq_copy_in_user() and seq_copy_in_kernel() did not have prototypes
+matching snd_seq_dump_func_t. Adjust this and remove the casts. There
+are not resulting binary output differences.
 
-While the commit we are reverting here is not obviously wrong, it fixes
-only a dt binding checker warning that is non-functional, while it
-introduces a boot regression and there is no obvious fix ready.
+This was found as a result of Clang's new -Wcast-function-type-strict
+flag, which is more sensitive than the simpler -Wcast-function-type,
+which only checks for type width mismatches.
 
-Fixes: 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Marek Vasut <marex@denx.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com/
-Link: https://lore.kernel.org/all/20221205144917.6514168a@xps-13/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202211041527.HD8TLSE1-lkp@intel.com
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: alsa-devel@alsa-project.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221118232346.never.380-kees@kernel.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx7s.dtsi |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/core/seq/seq_memory.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/arch/arm/boot/dts/imx7s.dtsi
-+++ b/arch/arm/boot/dts/imx7s.dtsi
-@@ -1270,10 +1270,10 @@
- 			clocks = <&clks IMX7D_NAND_USDHC_BUS_RAWNAND_CLK>;
- 		};
+diff --git a/sound/core/seq/seq_memory.c b/sound/core/seq/seq_memory.c
+index 65db1a7c77b7..bb76a2dd0a2f 100644
+--- a/sound/core/seq/seq_memory.c
++++ b/sound/core/seq/seq_memory.c
+@@ -112,15 +112,19 @@ EXPORT_SYMBOL(snd_seq_dump_var_event);
+  * expand the variable length event to linear buffer space.
+  */
  
--		gpmi: nand-controller@33002000 {
-+		gpmi: nand-controller@33002000{
- 			compatible = "fsl,imx7d-gpmi-nand";
- 			#address-cells = <1>;
--			#size-cells = <0>;
-+			#size-cells = <1>;
- 			reg = <0x33002000 0x2000>, <0x33004000 0x4000>;
- 			reg-names = "gpmi-nand", "bch";
- 			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+-static int seq_copy_in_kernel(char **bufptr, const void *src, int size)
++static int seq_copy_in_kernel(void *ptr, void *src, int size)
+ {
++	char **bufptr = ptr;
++
+ 	memcpy(*bufptr, src, size);
+ 	*bufptr += size;
+ 	return 0;
+ }
+ 
+-static int seq_copy_in_user(char __user **bufptr, const void *src, int size)
++static int seq_copy_in_user(void *ptr, void *src, int size)
+ {
++	char __user **bufptr = ptr;
++
+ 	if (copy_to_user(*bufptr, src, size))
+ 		return -EFAULT;
+ 	*bufptr += size;
+@@ -149,8 +153,7 @@ int snd_seq_expand_var_event(const struct snd_seq_event *event, int count, char
+ 		return newlen;
+ 	}
+ 	err = snd_seq_dump_var_event(event,
+-				     in_kernel ? (snd_seq_dump_func_t)seq_copy_in_kernel :
+-				     (snd_seq_dump_func_t)seq_copy_in_user,
++				     in_kernel ? seq_copy_in_kernel : seq_copy_in_user,
+ 				     &buf);
+ 	return err < 0 ? err : newlen;
+ }
+-- 
+2.35.1
+
 
 
