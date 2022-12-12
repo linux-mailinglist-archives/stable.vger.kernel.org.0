@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D726264A255
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF25864A238
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:51:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233085AbiLLNxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:53:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54878 "EHLO
+        id S233052AbiLLNvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:51:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233183AbiLLNxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12B20F6F
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:52:09 -0800 (PST)
+        with ESMTP id S233102AbiLLNvD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:51:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9343ED62
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:50:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B99D9B80B78
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:52:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7472C433EF;
-        Mon, 12 Dec 2022 13:52:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3068E610A3
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:50:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7D8BC433EF;
+        Mon, 12 Dec 2022 13:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853126;
-        bh=dvfeBtwxbK3P92ofpdcC0XE1p8Nvf2CYCqEjb90y0+4=;
+        s=korg; t=1670853013;
+        bh=H5GVWkcY2rBV4REn8D7N2fUm6w0aI+KxlA8c/vnrJyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkSZ5tzAOr3k8Y/KnUVtc4sBFMydMG/uQKi6dkzyXZeGrSABwUzPgYuw1lap+zyxj
-         xJVFcZx8rqfO/FaQQ89QfnAYAcprIu88JJafzSVjl9+NgzuxFKh5VxRlQWP6mFzeck
-         b1i7ViZZegpt13lAQyrYafiKULUsm0b7Elcu5HlM=
+        b=AoUay8o/jTCwUR1FIbixbtyRzwUyB+96c+WdqFA+76SYPFRnVvHEKAPmuGUJHnErn
+         0np0ij/V/Rvr7R5PWIFxO7ErLUniygy4RNiXOBmC1QW4mfYi9Og4SgwtkXKohRDl9r
+         oMhoPVqBH+TOwvy2ufoMSCOdZld4bc04BB5FdPWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
-        Jann Horn <jannh@google.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 15/38] memcg: fix possible use-after-free in memcg_write_event_control()
-Date:   Mon, 12 Dec 2022 14:19:16 +0100
-Message-Id: <20221212130912.879969541@linuxfoundation.org>
+        patches@lists.linux.dev, Pankaj Raghav <p.raghav@samsung.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 39/49] nvme initialize core quirks before calling nvme_init_subsystem
+Date:   Mon, 12 Dec 2022 14:19:17 +0100
+Message-Id: <20221212130915.608859234@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
-References: <20221212130912.069170932@linuxfoundation.org>
+In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
+References: <20221212130913.666185567@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,112 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Pankaj Raghav <p.raghav@samsung.com>
 
-commit 4a7ba45b1a435e7097ca0f79a847d0949d0eb088 upstream.
+[ Upstream commit 6f2d71524bcfdeb1fcbd22a4a92a5b7b161ab224 ]
 
-memcg_write_event_control() accesses the dentry->d_name of the specified
-control fd to route the write call.  As a cgroup interface file can't be
-renamed, it's safe to access d_name as long as the specified file is a
-regular cgroup file.  Also, as these cgroup interface files can't be
-removed before the directory, it's safe to access the parent too.
+A device might have a core quirk for NVME_QUIRK_IGNORE_DEV_SUBNQN
+(such as Samsung X5) but it would still give a:
 
-Prior to 347c4a874710 ("memcg: remove cgroup_event->cft"), there was a
-call to __file_cft() which verified that the specified file is a regular
-cgroupfs file before further accesses.  The cftype pointer returned from
-__file_cft() was no longer necessary and the commit inadvertently dropped
-the file type check with it allowing any file to slip through.  With the
-invarients broken, the d_name and parent accesses can now race against
-renames and removals of arbitrary files and cause use-after-free's.
+    "missing or invalid SUBNQN field"
 
-Fix the bug by resurrecting the file type check in __file_cft().  Now that
-cgroupfs is implemented through kernfs, checking the file operations needs
-to go through a layer of indirection.  Instead, let's check the superblock
-and dentry type.
+warning as core quirks are filled after calling nvme_init_subnqn.  Fill
+ctrl->quirks from struct core_quirks before calling nvme_init_subsystem
+to fix this.
 
-Link: https://lkml.kernel.org/r/Y5FRm/cfcKPGzWwl@slm.duckdns.org
-Fixes: 347c4a874710 ("memcg: remove cgroup_event->cft")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Jann Horn <jannh@google.com>
-Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: <stable@vger.kernel.org>	[3.14+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested on a Samsung X5.
+
+Fixes: ab9e00cc72fa ("nvme: track subsystems")
+Signed-off-by: Pankaj Raghav <p.raghav@samsung.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/cgroup.h          |    1 +
- kernel/cgroup/cgroup-internal.h |    1 -
- mm/memcontrol.c                 |   15 +++++++++++++--
- 3 files changed, 14 insertions(+), 3 deletions(-)
+ drivers/nvme/host/core.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/include/linux/cgroup.h
-+++ b/include/linux/cgroup.h
-@@ -68,6 +68,7 @@ struct css_task_iter {
- 	struct list_head		iters_node;	/* css_set->task_iters */
- };
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index f47f3b992161..6adff541282b 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2463,10 +2463,6 @@ int nvme_init_identify(struct nvme_ctrl *ctrl)
+ 	if (!ctrl->identified) {
+ 		int i;
  
-+extern struct file_system_type cgroup_fs_type;
- extern struct cgroup_root cgrp_dfl_root;
- extern struct css_set init_css_set;
- 
---- a/kernel/cgroup/cgroup-internal.h
-+++ b/kernel/cgroup/cgroup-internal.h
-@@ -122,7 +122,6 @@ extern struct mutex cgroup_mutex;
- extern spinlock_t css_set_lock;
- extern struct cgroup_subsys *cgroup_subsys[];
- extern struct list_head cgroup_roots;
--extern struct file_system_type cgroup_fs_type;
- 
- /* iterate across the hierarchies */
- #define for_each_root(root)						\
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -3878,6 +3878,7 @@ static ssize_t memcg_write_event_control
- 	unsigned int efd, cfd;
- 	struct fd efile;
- 	struct fd cfile;
-+	struct dentry *cdentry;
- 	const char *name;
- 	char *endp;
- 	int ret;
-@@ -3929,6 +3930,16 @@ static ssize_t memcg_write_event_control
- 		goto out_put_cfile;
- 
- 	/*
-+	 * The control file must be a regular cgroup1 file. As a regular cgroup
-+	 * file can't be renamed, it's safe to access its name afterwards.
-+	 */
-+	cdentry = cfile.file->f_path.dentry;
-+	if (cdentry->d_sb->s_type != &cgroup_fs_type || !d_is_reg(cdentry)) {
-+		ret = -EINVAL;
-+		goto out_put_cfile;
-+	}
+-		ret = nvme_init_subsystem(ctrl, id);
+-		if (ret)
+-			goto out_free;
+-
+ 		/*
+ 		 * Check for quirks.  Quirk can depend on firmware version,
+ 		 * so, in principle, the set of quirks present can change
+@@ -2479,6 +2475,10 @@ int nvme_init_identify(struct nvme_ctrl *ctrl)
+ 			if (quirk_matches(id, &core_quirks[i]))
+ 				ctrl->quirks |= core_quirks[i].quirks;
+ 		}
 +
-+	/*
- 	 * Determine the event callbacks and set them in @event.  This used
- 	 * to be done via struct cftype but cgroup core no longer knows
- 	 * about these events.  The following is crude but the whole thing
-@@ -3936,7 +3947,7 @@ static ssize_t memcg_write_event_control
- 	 *
- 	 * DO NOT ADD NEW FILES.
- 	 */
--	name = cfile.file->f_path.dentry->d_name.name;
-+	name = cdentry->d_name.name;
- 
- 	if (!strcmp(name, "memory.usage_in_bytes")) {
- 		event->register_event = mem_cgroup_usage_register_event;
-@@ -3960,7 +3971,7 @@ static ssize_t memcg_write_event_control
- 	 * automatically removed on cgroup destruction but the removal is
- 	 * asynchronous, so take an extra ref on @css.
- 	 */
--	cfile_css = css_tryget_online_from_dir(cfile.file->f_path.dentry->d_parent,
-+	cfile_css = css_tryget_online_from_dir(cdentry->d_parent,
- 					       &memory_cgrp_subsys);
- 	ret = -EINVAL;
- 	if (IS_ERR(cfile_css))
++		ret = nvme_init_subsystem(ctrl, id);
++		if (ret)
++			goto out_free;
+ 	}
+ 	memcpy(ctrl->subsys->firmware_rev, id->fr,
+ 	       sizeof(ctrl->subsys->firmware_rev));
+-- 
+2.35.1
+
 
 
