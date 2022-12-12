@@ -2,138 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F26DC64A49F
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 17:14:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 050A964A534
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 17:45:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232667AbiLLQOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 11:14:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60540 "EHLO
+        id S232579AbiLLQoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 11:44:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232628AbiLLQOa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 11:14:30 -0500
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C08C312AC1
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 08:14:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1670861668; x=1702397668;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=VrzWj9lWfykGiVQkbkT7RF/HzKw+iPf7nBZwnVXRAiw=;
-  b=f+D0wYTWZs0HeOhWffJHIS++XE00VVC2EHshpyBqYopqWs440ggvbHLs
-   TyhYYqS40SlwYbrg9kNfjHyJuUJfMQoes8GiGB5FzK5QEz5PzzdqiN5xI
-   1q8RHGjImxxoKKHCmtpyM51TpEL1+6KcMNkwqFlFNzDMgF2WBB7z610Xd
-   kvvCR9r6ETFiV+XndQ0EnfPxYmggxqZfLOjim/DmybQ3AA/k/Ks6SG48J
-   ib5EIaXUw3ufC4bPg+ZdrKAknb9W3+H9jMV3sAxalX0XYVsoEFM8njZb4
-   9ATkB5kqa+FPeNnCNOswg9q7IeFXoo2Y/V9VgcTX+u2uMgvA8Se4W0uu8
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10559"; a="297572294"
-X-IronPort-AV: E=Sophos;i="5.96,238,1665471600"; 
-   d="scan'208";a="297572294"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Dec 2022 08:14:12 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10559"; a="680728030"
-X-IronPort-AV: E=Sophos;i="5.96,238,1665471600"; 
-   d="scan'208";a="680728030"
-Received: from anicol1x-mobl.ger.corp.intel.com (HELO intel.com) ([10.252.59.70])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Dec 2022 08:14:09 -0800
-From:   Andi Shyti <andi.shyti@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        stable@vger.kernel.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Andi Shyti <andi@etezian.org>
-Subject: [PATCH] drm/i915/gt: Reset twice
-Date:   Mon, 12 Dec 2022 17:13:38 +0100
-Message-Id: <20221212161338.1007659-1-andi.shyti@linux.intel.com>
-X-Mailer: git-send-email 2.38.1
+        with ESMTP id S232858AbiLLQnz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 11:43:55 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E0F315FC8
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 08:41:01 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id w23so12618851ply.12
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 08:41:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=rs/EVv/c5APQUCDZwVj3xq0TnSHlQzxJ70i6r7LzEb8=;
+        b=4SX9Wr5U+Bz7o8fLDona34725FcKVrnTE7CnYWDYpGh+rBW8hrFHscELtQCO1Zc7r6
+         C6n2CB78+1PEo9EVXMpkpi1B4qlUf7tI1IVCshJYTnMmMHGicxEI/wA0BKGvO+tJfp73
+         1SuIfgsVfEsyei6MPdvwRuKnI23XXaKyMNW1vspiOxCBgl3fY/GP+PRUvHqeLjjo/7xi
+         gJ7ewHLfwbzzqMeeDvOav+U9KSs3TFTVjvDwgeEYzhxGqV0JeVVvH/L7BiVrj0SfrToK
+         9UCf0F3pg7E5XezYzB4a5qXgO20CjjY2Hde7CoqzAMipcVDimkniqaXrxFuXQfybLln/
+         Z/zQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rs/EVv/c5APQUCDZwVj3xq0TnSHlQzxJ70i6r7LzEb8=;
+        b=rXRZig7VbiF3dgoR0CdjG1/O2A5UbR4j11vpMreu7u4T2Vbr9hO4OIvxu2KOKkY5JG
+         eTcXLSKYrlh0UQyPIv9HutjzDfQJEXMp1rxRTn3lh9wvqKIXZ6F/WLTLUX/j0ZyfMqak
+         g/nDAvLtFhwI9fHhfI0OdP4e/LXfk8cx/vhfF4ppUsuJoo6H8U/H1gklgJ9W/l/De9yY
+         XlnDNjKzJbpB2qNlt/uddJgJ94v0iMp+DcYi+VSDPvVz2n0WL018H+h/7QTL8zJ6ROhP
+         YRH9ct1FFBnEumbvZG02ZJHKTrgFE0nVWrYqEdbsjzUuMAYEm3ZOy3bmT0yY9YlZrVni
+         WI+g==
+X-Gm-Message-State: ANoB5pmPflgCx1FWavqk/lUfAZwvON6ab7xMUabz5gidFbXtLGgBQvS8
+        lD6OXD50+N6I8AVEYF0OlsrbdthSMImypoaCxU/icA==
+X-Google-Smtp-Source: AA0mqf6mz76yOX4souD2cNnpLJTYU5kbmeNuo98YXRzp/KbdIDud6CD7IV6Mn+hL+NUyCc65XaOnVA==
+X-Received: by 2002:a17:90a:de86:b0:219:ffc6:4040 with SMTP id n6-20020a17090ade8600b00219ffc64040mr19210709pjv.38.1670863260650;
+        Mon, 12 Dec 2022 08:41:00 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w15-20020a17090a4f4f00b00218fb3bec27sm5569362pjl.56.2022.12.12.08.40.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Dec 2022 08:41:00 -0800 (PST)
+Message-ID: <6397599c.170a0220.c9a9f.9bb4@mx.google.com>
+Date:   Mon, 12 Dec 2022 08:41:00 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Kernel: v5.10.158-107-g6b6a42c25ed4
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.10.y baseline: 165 runs,
+ 1 regressions (v5.10.158-107-g6b6a42c25ed4)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+stable-rc/linux-5.10.y baseline: 165 runs, 1 regressions (v5.10.158-107-g6b=
+6a42c25ed4)
 
-After applying an engine reset, on some platforms like Jasperlake, we
-occasionally detect that the engine state is not cleared until shortly
-after the resume. As we try to resume the engine with volatile internal
-state, the first request fails with a spurious CS event (it looks like
-it reports a lite-restore to the hung context, instead of the expected
-idle->active context switch).
+Regressions Summary
+-------------------
 
-Signed-off-by: Chris Wilson <hris@chris-wilson.co.uk>
-Cc: stable@vger.kernel.org
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
----
- drivers/gpu/drm/i915/gt/intel_reset.c | 34 ++++++++++++++++++++++-----
- 1 file changed, 28 insertions(+), 6 deletions(-)
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_reset.c b/drivers/gpu/drm/i915/gt/intel_reset.c
-index ffde89c5835a4..88dfc0c5316ff 100644
---- a/drivers/gpu/drm/i915/gt/intel_reset.c
-+++ b/drivers/gpu/drm/i915/gt/intel_reset.c
-@@ -268,6 +268,7 @@ static int ilk_do_reset(struct intel_gt *gt, intel_engine_mask_t engine_mask,
- static int gen6_hw_domain_reset(struct intel_gt *gt, u32 hw_domain_mask)
- {
- 	struct intel_uncore *uncore = gt->uncore;
-+	int loops = 2;
- 	int err;
- 
- 	/*
-@@ -275,18 +276,39 @@ static int gen6_hw_domain_reset(struct intel_gt *gt, u32 hw_domain_mask)
- 	 * for fifo space for the write or forcewake the chip for
- 	 * the read
- 	 */
--	intel_uncore_write_fw(uncore, GEN6_GDRST, hw_domain_mask);
-+	do {
-+		intel_uncore_write_fw(uncore, GEN6_GDRST, hw_domain_mask);
- 
--	/* Wait for the device to ack the reset requests */
--	err = __intel_wait_for_register_fw(uncore,
--					   GEN6_GDRST, hw_domain_mask, 0,
--					   500, 0,
--					   NULL);
-+		/*
-+		 * Wait for the device to ack the reset requests.
-+		 *
-+		 * On some platforms, e.g. Jasperlake, we see see that the
-+		 * engine register state is not cleared until shortly after
-+		 * GDRST reports completion, causing a failure as we try
-+		 * to immediately resume while the internal state is still
-+		 * in flux. If we immediately repeat the reset, the second
-+		 * reset appears to serialise with the first, and since
-+		 * it is a no-op, the registers should retain their reset
-+		 * value. However, there is still a concern that upon
-+		 * leaving the second reset, the internal engine state
-+		 * is still in flux and not ready for resuming.
-+		 */
-+		err = __intel_wait_for_register_fw(uncore, GEN6_GDRST,
-+						   hw_domain_mask, 0,
-+						   2000, 0,
-+						   NULL);
-+	} while (err == 0 && --loops);
- 	if (err)
- 		GT_TRACE(gt,
- 			 "Wait for 0x%08x engines reset failed\n",
- 			 hw_domain_mask);
- 
-+	/*
-+	 * As we have observed that the engine state is still volatile
-+	 * after GDRST is acked, impose a small delay to let everything settle.
-+	 */
-+	udelay(50);
-+
- 	return err;
- }
- 
--- 
-2.38.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.158-107-g6b6a42c25ed4/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.158-107-g6b6a42c25ed4
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6b6a42c25ed47c8b5d0c1662b5b933180edb6201 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/639727df777fe33b0a2abd03
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+58-107-g6b6a42c25ed4/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-=
+bananapi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+58-107-g6b6a42c25ed4/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-=
+bananapi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/639727df777fe33b0a2ab=
+d04
+        new failure (last pass: v5.10.158) =
+
+ =20
