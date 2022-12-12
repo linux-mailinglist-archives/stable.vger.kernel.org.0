@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1AFD64A03E
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60A7664A186
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:41:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232629AbiLLNWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:22:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49870 "EHLO
+        id S232909AbiLLNle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:41:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232636AbiLLNWW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:22:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C99332AA
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:22:21 -0800 (PST)
+        with ESMTP id S232629AbiLLNlA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:41:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 385451098
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:40:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7297CB80D3B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:22:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22EAEC433EF;
-        Mon, 12 Dec 2022 13:22:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA6D660FF4
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:40:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E359C433EF;
+        Mon, 12 Dec 2022 13:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851339;
-        bh=Grb5b/yLbVhk3ogMycUJaou5mdJP0TVl6hKg8V6Z+ac=;
+        s=korg; t=1670852426;
+        bh=hAN3QgonAQdQkf9/bwXblsDa9Q3yKZmBX/v1qOu6cpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmu5dnN9O4jB1dvaKgNCtA0X+eAqwe9DvX+vX/+bLdwB6n7AQM6mBPJkd2TmwMPln
-         YYzttYFdNgLrl+HpBpF4LZ+g3aVT8m6V7P0H6AjAoi3B+It6jxESjLxW8pcWWA9fxA
-         YOqEvxcthYG4y7jbRFyQ4lEikCJ6SPAshb7Q8Bh4=
+        b=CDrZvEb+ap8/A8BSTk63AcPuWSe0aK62PMrcidIi6IBULSbKnQDyo90mDCiBJ76pv
+         18Us8ucrEvbpi73ZXp2Uwx63snB4qF3gHhRASMKd2tQQvl9hC6N0sNB5MJSqp/VNUX
+         95CdsDeGRHOmU5iijRu1lsnnm8RiqIRbwOjFsbs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andreas Kemnade <andreas@kemnade.info>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 13/67] regulator: twl6030: fix get status of twl6032 regulators
+        patches@lists.linux.dev, Hugh Dickins <hughd@google.com>,
+        Guoqi Chen <chenguoqic@163.com>, Rui Wang <kernel@hev.cc>,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        Matthew Wilcox <willy@infradead.org>,
+        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.0 060/157] tmpfs: fix data loss from failed fallocate
 Date:   Mon, 12 Dec 2022 14:16:48 +0100
-Message-Id: <20221212130918.256736123@linuxfoundation.org>
+Message-Id: <20221212130936.979413327@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: Hugh Dickins <hughd@google.com>
 
-[ Upstream commit 31a6297b89aabc81b274c093a308a7f5b55081a7 ]
+commit 44bcabd70cf1425b4243e02251c02b01638a8287 upstream.
 
-Status is reported as always off in the 6032 case. Status
-reporting now matches the logic in the setters. Once of
-the differences to the 6030 is that there are no groups,
-therefore the state needs to be read out in the lower bits.
+Fix tmpfs data loss when the fallocate system call is interrupted by a
+signal, or fails for some other reason.  The partial folio handling in
+shmem_undo_range() forgot to consider this unfalloc case, and was liable
+to erase or truncate out data which had already been committed earlier.
 
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Link: https://lore.kernel.org/r/20221120221208.3093727-3-andreas@kemnade.info
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It turns out that none of the partial folio handling there is appropriate
+for the unfalloc case, which just wants to proceed to removal of whole
+folios: which find_get_entries() provides, even when partially covered.
+
+Original patch by Rui Wang.
+
+Link: https://lore.kernel.org/linux-mm/33b85d82.7764.1842e9ab207.Coremail.chenguoqic@163.com/
+Link: https://lkml.kernel.org/r/a5dac112-cf4b-7af-a33-f386e347fd38@google.com
+Fixes: b9a8a4195c7d ("truncate,shmem: Handle truncates that split large folios")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Reported-by: Guoqi Chen <chenguoqic@163.com>
+  Link: https://lore.kernel.org/all/20221101032248.819360-1-kernel@hev.cc/
+Cc: Rui Wang <kernel@hev.cc>
+Cc: Huacai Chen <chenhuacai@loongson.cn>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+Cc: <stable@vger.kernel.org>	[5.17+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/twl6030-regulator.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ mm/shmem.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/regulator/twl6030-regulator.c b/drivers/regulator/twl6030-regulator.c
-index 4ffb32ffec35..71625db3a6f1 100644
---- a/drivers/regulator/twl6030-regulator.c
-+++ b/drivers/regulator/twl6030-regulator.c
-@@ -67,6 +67,7 @@ struct twlreg_info {
- #define TWL6030_CFG_STATE_SLEEP	0x03
- #define TWL6030_CFG_STATE_GRP_SHIFT	5
- #define TWL6030_CFG_STATE_APP_SHIFT	2
-+#define TWL6030_CFG_STATE_MASK		0x03
- #define TWL6030_CFG_STATE_APP_MASK	(0x03 << TWL6030_CFG_STATE_APP_SHIFT)
- #define TWL6030_CFG_STATE_APP(v)	(((v) & TWL6030_CFG_STATE_APP_MASK) >>\
- 						TWL6030_CFG_STATE_APP_SHIFT)
-@@ -128,13 +129,14 @@ static int twl6030reg_is_enabled(struct regulator_dev *rdev)
- 		if (grp < 0)
- 			return grp;
- 		grp &= P1_GRP_6030;
-+		val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
-+		val = TWL6030_CFG_STATE_APP(val);
- 	} else {
-+		val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
-+		val &= TWL6030_CFG_STATE_MASK;
- 		grp = 1;
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -958,6 +958,15 @@ static void shmem_undo_range(struct inod
+ 		index++;
  	}
  
--	val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
--	val = TWL6030_CFG_STATE_APP(val);
--
- 	return grp && (val == TWL6030_CFG_STATE_ON);
- }
- 
-@@ -187,7 +189,12 @@ static int twl6030reg_get_status(struct regulator_dev *rdev)
- 
- 	val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
- 
--	switch (TWL6030_CFG_STATE_APP(val)) {
-+	if (info->features & TWL6032_SUBCLASS)
-+		val &= TWL6030_CFG_STATE_MASK;
-+	else
-+		val = TWL6030_CFG_STATE_APP(val);
++	/*
++	 * When undoing a failed fallocate, we want none of the partial folio
++	 * zeroing and splitting below, but shall want to truncate the whole
++	 * folio when !uptodate indicates that it was added by this fallocate,
++	 * even when [lstart, lend] covers only a part of the folio.
++	 */
++	if (unfalloc)
++		goto whole_folios;
 +
-+	switch (val) {
- 	case TWL6030_CFG_STATE_ON:
- 		return REGULATOR_STATUS_NORMAL;
+ 	same_folio = (lstart >> PAGE_SHIFT) == (lend >> PAGE_SHIFT);
+ 	folio = shmem_get_partial_folio(inode, lstart >> PAGE_SHIFT);
+ 	if (folio) {
+@@ -983,6 +992,8 @@ static void shmem_undo_range(struct inod
+ 		folio_put(folio);
+ 	}
  
--- 
-2.35.1
-
++whole_folios:
++
+ 	index = start;
+ 	while (index < end) {
+ 		cond_resched();
 
 
