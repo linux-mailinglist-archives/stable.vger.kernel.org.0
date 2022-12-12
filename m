@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66D6B64A0B5
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:29:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F45964A02B
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:21:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229600AbiLLN3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:29:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58048 "EHLO
+        id S232458AbiLLNVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:21:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231892AbiLLN3I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:29:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F35B1001
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:29:07 -0800 (PST)
+        with ESMTP id S232615AbiLLNVW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:21:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A87F315
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:21:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CEEB8B80D4D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:29:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B245CC433D2;
-        Mon, 12 Dec 2022 13:29:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BD4361025
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D912C433EF;
+        Mon, 12 Dec 2022 13:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851744;
-        bh=5RT5BuAUATRq46ujAMRHxk0cooShMeXn03rDRZ4l+z4=;
+        s=korg; t=1670851280;
+        bh=P2+nVTZk03IyAt6aGTu7xU2AEqlJns0RVLTfyvBITAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PElXdKyOX/uqIe044Dwx6gHhNktnH0BfNWhEaXSGufMQYnPMuFPowJ8BQa7CNrvbv
-         dpgA9/pr8lIn7apVqaoSnP4BpgbQekXUkuTnmC93D442idOQLwA8IyLvs+gJso05sD
-         4MDiuxrY4u/AcA2Lbsq/iD9tfR2rvMHG7can8ugA=
+        b=cBeUUMeHpuiCvhx48leBur95wa9Q8NF8HBwEKDCYyJoijjnCS2jdB27d2I6tYNZl1
+         NH8Ku5NqvTgR86ccpk5/eDdckumUfOD+yRvN4ejxilolZbMib67Ljl10OmA75d3hhy
+         V37VIkiuxOH7EWnPgi+JLkzKHsTG2sEMnlyhJNp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Robert Foss <robert.foss@linaro.org>,
-        Xin Ji <xji@analogixsemi.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 035/123] drm/bridge: anx7625: Fix edid_read break case in sp_tx_edid_read()
-Date:   Mon, 12 Dec 2022 14:16:41 +0100
-Message-Id: <20221212130928.385932820@linuxfoundation.org>
+        patches@lists.linux.dev, Johan Jonker <jbx6244@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 07/67] ARM: dts: rockchip: disable arm_global_timer on rk3066 and rk3188
+Date:   Mon, 12 Dec 2022 14:16:42 +0100
+Message-Id: <20221212130917.979005131@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Yi Wang <hsinyi@chromium.org>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit 0bae5687bc689b64343fd8b52db2ad9e448f3f16 ]
+[ Upstream commit da74858a475782a3f16470907814c8cc5950ad68 ]
 
-edid_read() was assumed to return 0 on success. After commit
-7f16d0f3b8e2("drm/bridge: anx7625: Propagate errors from sp_tx_rst_aux()"),
-the function will return > 0 for successful case, representing the i2c
-read bytes. Otherwise -EIO on failure cases. Update the g_edid_break
-break condition accordingly.
+The clock source and the sched_clock provided by the arm_global_timer
+on Rockchip rk3066a/rk3188 are quite unstable because their rates
+depend on the CPU frequency.
 
-Fixes: 7f16d0f3b8e2("drm/bridge: anx7625: Propagate errors from sp_tx_rst_aux()")
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Reviewed-by: Xin Ji <xji@analogixsemi.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211118193002.407168-1-hsinyi@chromium.org
+Recent changes to the arm_global_timer driver makes it impossible to use.
+
+On the other side, the arm_global_timer has a higher rating than the
+ROCKCHIP_TIMER, it will be selected by default by the time framework
+while we want to use the stable Rockchip clock source.
+
+Keep the arm_global_timer disabled in order to have the
+DW_APB_TIMER (rk3066a) or ROCKCHIP_TIMER (rk3188) selected by default.
+
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/f275ca8d-fd0a-26e5-b978-b7f3df815e0a@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/analogix/anx7625.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/rk3188.dtsi | 1 -
+ arch/arm/boot/dts/rk3xxx.dtsi | 7 +++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix/anx7625.c b/drivers/gpu/drm/bridge/analogix/anx7625.c
-index 392a9c56e9a0..f895ef1939fa 100644
---- a/drivers/gpu/drm/bridge/analogix/anx7625.c
-+++ b/drivers/gpu/drm/bridge/analogix/anx7625.c
-@@ -796,7 +796,7 @@ static int sp_tx_edid_read(struct anx7625_data *ctx,
- 	int count, blocks_num;
- 	u8 pblock_buf[MAX_DPCD_BUFFER_SIZE];
- 	u8 i, j;
--	u8 g_edid_break = 0;
-+	int g_edid_break = 0;
- 	int ret;
- 	struct device *dev = &ctx->client->dev;
+diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
+index 95d558dc163c..5e8ba80d7b4f 100644
+--- a/arch/arm/boot/dts/rk3188.dtsi
++++ b/arch/arm/boot/dts/rk3188.dtsi
+@@ -632,7 +632,6 @@
  
-@@ -827,7 +827,7 @@ static int sp_tx_edid_read(struct anx7625_data *ctx,
- 				g_edid_break = edid_read(ctx, offset,
- 							 pblock_buf);
+ &global_timer {
+ 	interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
+-	status = "disabled";
+ };
  
--				if (g_edid_break)
-+				if (g_edid_break < 0)
- 					break;
+ &local_timer {
+diff --git a/arch/arm/boot/dts/rk3xxx.dtsi b/arch/arm/boot/dts/rk3xxx.dtsi
+index bce0b05ef7bf..0580eea90fbc 100644
+--- a/arch/arm/boot/dts/rk3xxx.dtsi
++++ b/arch/arm/boot/dts/rk3xxx.dtsi
+@@ -108,6 +108,13 @@
+ 		reg = <0x1013c200 0x20>;
+ 		interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_EDGE_RISING)>;
+ 		clocks = <&cru CORE_PERI>;
++		status = "disabled";
++		/* The clock source and the sched_clock provided by the arm_global_timer
++		 * on Rockchip rk3066a/rk3188 are quite unstable because their rates
++		 * depend on the CPU frequency.
++		 * Keep the arm_global_timer disabled in order to have the
++		 * DW_APB_TIMER (rk3066a) or ROCKCHIP_TIMER (rk3188) selected by default.
++		 */
+ 	};
  
- 				memcpy(&pedid_blocks_buf[offset],
+ 	local_timer: local-timer@1013c600 {
 -- 
 2.35.1
 
