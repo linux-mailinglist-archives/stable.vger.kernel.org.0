@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CA49649FDD
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:16:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C21F649FDE
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:16:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232570AbiLLNQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232399AbiLLNQV (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Dec 2022 08:16:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43624 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232414AbiLLNP5 (ORCPT
+        with ESMTP id S232433AbiLLNP5 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:15:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFCEAF30
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:15:36 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CCCAF65
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:15:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E212B80D0C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:15:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5831C433EF;
-        Mon, 12 Dec 2022 13:15:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD9F761041
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:15:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA4CC433F0;
+        Mon, 12 Dec 2022 13:15:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670850934;
-        bh=vEPvDKrkASEh3Lpr0wJltEAz2Wx2L3wei8SMyfF3M7s=;
+        s=korg; t=1670850938;
+        bh=hbbVUuBxZcLOvbp9snt49Cupjl06xJOf/9Jo4y4WzlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vxOtdR1UBriWvo4VfCkyDsca2ZuBAbnePASq3meoEOI+3/fdP0wjBIfD1VyZ5ruoE
-         cDCyJXbuiVnqMwFtmy2TKoj5nekazCNd0c5zQm0DzvRQ9kIeNe03RNm9kkBE79Ys2L
-         rriVw/iJZX91Ttyxqr5BBmSnWpw7wmY3tQNXZZXA=
+        b=sy07MFjlYjfpbqvEs2YHZeNmqC00c1v1lDG/kQm2fyNnt1/ZSzyDBIA/6PBjViP8C
+         /7E/GuQmzg6nwBSiE72wrJ55QTBKJtcp46fjrgOFeVFY1h3R/BXMpPFVxSEm57s0ro
+         SfIXzAYsoQ1DLaFt4cow9c7iKO6FzBvht+2c4oyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qiqi Zhang <eddy.zhang@rock-chips.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/106] drm/bridge: ti-sn65dsi86: Fix output polarity setting bug
-Date:   Mon, 12 Dec 2022 14:10:11 +0100
-Message-Id: <20221212130927.850759159@linuxfoundation.org>
+Subject: [PATCH 5.10 069/106] gpio: amd8111: Fix PCI device reference count leak
+Date:   Mon, 12 Dec 2022 14:10:12 +0100
+Message-Id: <20221212130927.895866343@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -54,54 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiqi Zhang <eddy.zhang@rock-chips.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 8c115864501fc09932cdfec53d9ec1cde82b4a28 ]
+[ Upstream commit 45fecdb9f658d9c82960c98240bc0770ade19aca ]
 
-According to the description in ti-sn65dsi86's datasheet:
+for_each_pci_dev() is implemented by pci_get_device(). The comment of
+pci_get_device() says that it will increase the reference count for the
+returned pci_dev and also decrease the reference count for the input
+pci_dev @from if it is not NULL.
 
-CHA_HSYNC_POLARITY:
-0 = Active High Pulse. Synchronization signal is high for the sync
-pulse width. (default)
-1 = Active Low Pulse. Synchronization signal is low for the sync
-pulse width.
+If we break for_each_pci_dev() loop with pdev not NULL, we need to call
+pci_dev_put() to decrease the reference count. Add the missing
+pci_dev_put() after the 'out' label. Since pci_dev_put() can handle NULL
+input parameter, there is no problem for the 'Device not found' branch.
+For the normal path, add pci_dev_put() in amd_gpio_exit().
 
-CHA_VSYNC_POLARITY:
-0 = Active High Pulse. Synchronization signal is high for the sync
-pulse width. (Default)
-1 = Active Low Pulse. Synchronization signal is low for the sync
-pulse width.
-
-We should only set these bits when the polarity is negative.
-
-Fixes: a095f15c00e2 ("drm/bridge: add support for sn65dsi86 bridge driver")
-Signed-off-by: Qiqi Zhang <eddy.zhang@rock-chips.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221125104558.84616-1-eddy.zhang@rock-chips.com
+Fixes: f942a7de047d ("gpio: add a driver for GPIO pins found on AMD-8111 south bridge chips")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/ti-sn65dsi86.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpio/gpio-amd8111.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi86.c b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-index 1a58481037b3..77a447a3fb1d 100644
---- a/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-+++ b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-@@ -621,9 +621,9 @@ static void ti_sn_bridge_set_video_timings(struct ti_sn_bridge *pdata)
- 		&pdata->bridge.encoder->crtc->state->adjusted_mode;
- 	u8 hsync_polarity = 0, vsync_polarity = 0;
+diff --git a/drivers/gpio/gpio-amd8111.c b/drivers/gpio/gpio-amd8111.c
+index fdcebe59510d..68d95051dd0e 100644
+--- a/drivers/gpio/gpio-amd8111.c
++++ b/drivers/gpio/gpio-amd8111.c
+@@ -231,7 +231,10 @@ static int __init amd_gpio_init(void)
+ 		ioport_unmap(gp.pm);
+ 		goto out;
+ 	}
++	return 0;
++
+ out:
++	pci_dev_put(pdev);
+ 	return err;
+ }
  
--	if (mode->flags & DRM_MODE_FLAG_PHSYNC)
-+	if (mode->flags & DRM_MODE_FLAG_NHSYNC)
- 		hsync_polarity = CHA_HSYNC_POLARITY;
--	if (mode->flags & DRM_MODE_FLAG_PVSYNC)
-+	if (mode->flags & DRM_MODE_FLAG_NVSYNC)
- 		vsync_polarity = CHA_VSYNC_POLARITY;
+@@ -239,6 +242,7 @@ static void __exit amd_gpio_exit(void)
+ {
+ 	gpiochip_remove(&gp.chip);
+ 	ioport_unmap(gp.pm);
++	pci_dev_put(gp.pdev);
+ }
  
- 	ti_sn_bridge_write_u16(pdata, SN_CHA_ACTIVE_LINE_LENGTH_LOW_REG,
+ module_init(amd_gpio_init);
 -- 
 2.35.1
 
