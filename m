@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26DB764A1E0
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:46:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E23264A0E3
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:32:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232972AbiLLNqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:46:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46782 "EHLO
+        id S229607AbiLLNc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:32:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233014AbiLLNqY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:46:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CC0014D2D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:46:09 -0800 (PST)
+        with ESMTP id S232131AbiLLNc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:32:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2141631E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:32:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD93C61090
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:46:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 894DAC433EF;
-        Mon, 12 Dec 2022 13:46:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1CAEB80D55
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:32:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9963C433EF;
+        Mon, 12 Dec 2022 13:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852768;
-        bh=Cl1GeB9WtY5pbsG0CurJhuAQ0LRtuVzB86m37uuEl7Q=;
+        s=korg; t=1670851944;
+        bh=7+Amo6AetWv4l/+1najv7082ykulzXDYpCMqMg365wI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BRkaf140C/zr3NQaX3jDY2BR7jUwSMcnOGB5a77L+FT3U6/2KhV+/vPcSXwskSfx5
-         yxran6vlQMHgE4hNYIjs2SVtUE9r8wkl+wG4toE5mCA4QTs8NY6K4KySaw7EN8uDbN
-         pAjmx3ZB7a807hGddNPpIhw6IoZjTb99Fob6YT3U=
+        b=nFYI6Mfe7jdztyxRv/VS8vqGyMcqJxSB+5bB1wMYco3noE3APHxprqQIxVqeGK0I6
+         +Oj9ZE4doG/j/nDgzSzGK3OaUAmvy4KV6JzdlPye1jmwgbIh48V87rREVEZkX3Qg+C
+         vudrSVkUaYhypNvtFp5uXRWhIq/9wZpG8Res/cK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
         Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 120/157] net: mdiobus: fix double put fwnode in the error path
+Subject: [PATCH 5.15 102/123] net: mdio: fix unbalanced fwnode reference count in mdio_device_release()
 Date:   Mon, 12 Dec 2022 14:17:48 +0100
-Message-Id: <20221212130939.677649720@linuxfoundation.org>
+Message-Id: <20221212130931.485791372@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zeng Heng <zengheng4@huawei.com>
 
-[ Upstream commit 165df24186ecea95705505627df3dacf5e7ff6bf ]
+[ Upstream commit cb37617687f2bfa5b675df7779f869147c9002bd ]
 
-If phy_device_register() or fwnode_mdiobus_phy_device_register()
-fail, phy_device_free() is called, the device refcount is decreased
-to 0, then fwnode_handle_put() will be called in phy_device_release(),
-but in the error path, fwnode_handle_put() has already been called,
-so set fwnode to NULL after fwnode_handle_put() in the error path to
-avoid double put.
+There is warning report about of_node refcount leak
+while probing mdio device:
 
-Fixes: cdde1560118f ("net: mdiobus: fix unbalanced node reference count")
-Reported-by: Zeng Heng <zengheng4@huawei.com>
-Tested-by: Zeng Heng <zengheng4@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Zeng Heng <zengheng4@huawei.com>
-Tested-by: Zeng Heng <zengheng4@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+OF: ERROR: memory leak, expected refcount 1 instead of 2,
+of_node_get()/of_node_put() unbalanced - destroy cset entry:
+attach overlay node /spi/soc@0/mdio@710700c0/ethernet@4
+
+In of_mdiobus_register_device(), we increase fwnode refcount
+by fwnode_handle_get() before associating the of_node with
+mdio device, but it has never been decreased in normal path.
+Since that, in mdio_device_release(), it needs to call
+fwnode_handle_put() in addition instead of calling kfree()
+directly.
+
+After above, just calling mdio_device_free() in the error handle
+path of of_mdiobus_register_device() is enough to keep the
+refcount balanced.
+
+Fixes: a9049e0c513c ("mdio: Add support for mdio drivers.")
+Signed-off-by: Zeng Heng <zengheng4@huawei.com>
+Reviewed-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20221203073441.3885317-1-zengheng4@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/mdio/fwnode_mdio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/mdio/of_mdio.c    | 3 ++-
+ drivers/net/phy/mdio_device.c | 2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/mdio/fwnode_mdio.c b/drivers/net/mdio/fwnode_mdio.c
-index 403b07f8ec2c..2c47efdae73b 100644
---- a/drivers/net/mdio/fwnode_mdio.c
-+++ b/drivers/net/mdio/fwnode_mdio.c
-@@ -77,6 +77,7 @@ int fwnode_mdiobus_phy_device_register(struct mii_bus *mdio,
- 	 */
- 	rc = phy_device_register(phy);
+diff --git a/drivers/net/mdio/of_mdio.c b/drivers/net/mdio/of_mdio.c
+index 796e9c7857d0..510822d6d0d9 100644
+--- a/drivers/net/mdio/of_mdio.c
++++ b/drivers/net/mdio/of_mdio.c
+@@ -68,8 +68,9 @@ static int of_mdiobus_register_device(struct mii_bus *mdio,
+ 	/* All data is now stored in the mdiodev struct; register it. */
+ 	rc = mdio_device_register(mdiodev);
  	if (rc) {
-+		device_set_node(&phy->mdio.dev, NULL);
- 		fwnode_handle_put(child);
++		device_set_node(&mdiodev->dev, NULL);
++		fwnode_handle_put(fwnode);
+ 		mdio_device_free(mdiodev);
+-		of_node_put(child);
  		return rc;
  	}
-@@ -125,7 +126,8 @@ int fwnode_mdiobus_register_phy(struct mii_bus *bus,
- 		/* All data is now stored in the phy struct, so register it */
- 		rc = phy_device_register(phy);
- 		if (rc) {
--			fwnode_handle_put(phy->mdio.dev.fwnode);
-+			phy->mdio.dev.fwnode = NULL;
-+			fwnode_handle_put(child);
- 			goto clean_phy;
- 		}
- 	} else if (is_of_node(child)) {
+ 
+diff --git a/drivers/net/phy/mdio_device.c b/drivers/net/phy/mdio_device.c
+index 250742ffdfd9..044828d081d2 100644
+--- a/drivers/net/phy/mdio_device.c
++++ b/drivers/net/phy/mdio_device.c
+@@ -21,6 +21,7 @@
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ #include <linux/unistd.h>
++#include <linux/property.h>
+ 
+ void mdio_device_free(struct mdio_device *mdiodev)
+ {
+@@ -30,6 +31,7 @@ EXPORT_SYMBOL(mdio_device_free);
+ 
+ static void mdio_device_release(struct device *dev)
+ {
++	fwnode_handle_put(dev->fwnode);
+ 	kfree(to_mdio_device(dev));
+ }
+ 
 -- 
 2.35.1
 
