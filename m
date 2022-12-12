@@ -2,135 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94C7C64A1E5
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:47:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 761C464A0ED
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:33:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233151AbiLLNrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:47:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
+        id S232131AbiLLNc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:32:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232642AbiLLNqe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:46:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BEAF1120
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:46:25 -0800 (PST)
+        with ESMTP id S232409AbiLLNcy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:32:54 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9AE7F70
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:32:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15796B80D2C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:46:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C271FC433D2;
-        Mon, 12 Dec 2022 13:46:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 30644CE0F7E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:32:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40996C433F0;
+        Mon, 12 Dec 2022 13:32:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852782;
-        bh=015J1zxDoA+R/LacpO+Yc7Veihcp5q6yywM4qOgGnko=;
+        s=korg; t=1670851968;
+        bh=UJ3qu28hPkxD0Q934QI6nT7dUCvZIQR+JjeGenqkpJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HepM+UeNOJNjxTQmUo/O++mjd/cM1M3iWNBLtexgV173sq/NgdCnkYNK3x4mN3p5p
-         dxtyR0X6/6LTiaiQvk77LkZN/MLBVJEoMj52EH1aurCS7Ru7MZEIHm6rQQvUaYbZsZ
-         YXkFDPbALf3/KrYv8EC2bzfTRmRiosG0tMAC2Qvs=
+        b=T7okTuhBCViOFYKjKuQ0H1rCYB7OCQ+UHShpQeGdtYcWpsTwL3EysafFP0P3i7Oo/
+         MI3wh+t6Lo+U5t761L6YaeuKsej9C5BF3Xk/gsHsOewODBKP659wAEKcfuLZAIy1j8
+         jAoPRMw5L1fefGYIu9UCGFrZcnAf0GQc5VMyISoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lin Liu <lin.liu@citrix.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Donald Sharp <sharpd@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 123/157] xen-netfront: Fix NULL sring after live migration
-Date:   Mon, 12 Dec 2022 14:17:51 +0100
-Message-Id: <20221212130939.801303986@linuxfoundation.org>
+Subject: [PATCH 5.15 106/123] ipv4: Fix incorrect route flushing when table ID 0 is used
+Date:   Mon, 12 Dec 2022 14:17:52 +0100
+Message-Id: <20221212130931.703756449@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,LOTS_OF_MONEY,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Liu <lin.liu@citrix.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit d50b7914fae04d840ce36491d22133070b18cca9 ]
+[ Upstream commit c0d999348e01df03e0a7f550351f3907fabbf611 ]
 
-A NAPI is setup for each network sring to poll data to kernel
-The sring with source host is destroyed before live migration and
-new sring with target host is setup after live migration.
-The NAPI for the old sring is not deleted until setup new sring
-with target host after migration. With busy_poll/busy_read enabled,
-the NAPI can be polled before got deleted when resume VM.
+Cited commit added the table ID to the FIB info structure, but did not
+properly initialize it when table ID 0 is used. This can lead to a route
+in the default VRF with a preferred source address not being flushed
+when the address is deleted.
 
-BUG: unable to handle kernel NULL pointer dereference at
-0000000000000008
-IP: xennet_poll+0xae/0xd20
-PGD 0 P4D 0
-Oops: 0000 [#1] SMP PTI
-Call Trace:
- finish_task_switch+0x71/0x230
- timerqueue_del+0x1d/0x40
- hrtimer_try_to_cancel+0xb5/0x110
- xennet_alloc_rx_buffers+0x2a0/0x2a0
- napi_busy_loop+0xdb/0x270
- sock_poll+0x87/0x90
- do_sys_poll+0x26f/0x580
- tracing_map_insert+0x1d4/0x2f0
- event_hist_trigger+0x14a/0x260
+Consider the following example:
 
- finish_task_switch+0x71/0x230
- __schedule+0x256/0x890
- recalc_sigpending+0x1b/0x50
- xen_sched_clock+0x15/0x20
- __rb_reserve_next+0x12d/0x140
- ring_buffer_lock_reserve+0x123/0x3d0
- event_triggers_call+0x87/0xb0
- trace_event_buffer_commit+0x1c4/0x210
- xen_clocksource_get_cycles+0x15/0x20
- ktime_get_ts64+0x51/0xf0
- SyS_ppoll+0x160/0x1a0
- SyS_ppoll+0x160/0x1a0
- do_syscall_64+0x73/0x130
- entry_SYSCALL_64_after_hwframe+0x41/0xa6
-...
-RIP: xennet_poll+0xae/0xd20 RSP: ffffb4f041933900
-CR2: 0000000000000008
----[ end trace f8601785b354351c ]---
+ # ip address add dev dummy1 192.0.2.1/28
+ # ip address add dev dummy1 192.0.2.17/28
+ # ip route add 198.51.100.0/24 via 192.0.2.2 src 192.0.2.17 metric 100
+ # ip route add table 0 198.51.100.0/24 via 192.0.2.2 src 192.0.2.17 metric 200
+ # ip route show 198.51.100.0/24
+ 198.51.100.0/24 via 192.0.2.2 dev dummy1 src 192.0.2.17 metric 100
+ 198.51.100.0/24 via 192.0.2.2 dev dummy1 src 192.0.2.17 metric 200
 
-xen frontend should remove the NAPIs for the old srings before live
-migration as the bond srings are destroyed
+Both routes are installed in the default VRF, but they are using two
+different FIB info structures. One with a metric of 100 and table ID of
+254 (main) and one with a metric of 200 and table ID of 0. Therefore,
+when the preferred source address is deleted from the default VRF,
+the second route is not flushed:
 
-There is a tiny window between the srings are set to NULL and
-the NAPIs are disabled, It is safe as the NAPI threads are still
-frozen at that time
+ # ip address del dev dummy1 192.0.2.17/28
+ # ip route show 198.51.100.0/24
+ 198.51.100.0/24 via 192.0.2.2 dev dummy1 src 192.0.2.17 metric 200
 
-Signed-off-by: Lin Liu <lin.liu@citrix.com>
-Fixes: 4ec2411980d0 ([NET]: Do not check netif_running() and carrier state in ->poll())
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix by storing a table ID of 254 instead of 0 in the route configuration
+structure.
+
+Add a test case that fails before the fix:
+
+ # ./fib_tests.sh -t ipv4_del_addr
+
+ IPv4 delete address route tests
+     Regular FIB info
+     TEST: Route removed from VRF when source address deleted            [ OK ]
+     TEST: Route in default VRF not removed                              [ OK ]
+     TEST: Route removed in default VRF when source address deleted      [ OK ]
+     TEST: Route in VRF is not removed by address delete                 [ OK ]
+     Identical FIB info with different table ID
+     TEST: Route removed from VRF when source address deleted            [ OK ]
+     TEST: Route in default VRF not removed                              [ OK ]
+     TEST: Route removed in default VRF when source address deleted      [ OK ]
+     TEST: Route in VRF is not removed by address delete                 [ OK ]
+     Table ID 0
+     TEST: Route removed in default VRF when source address deleted      [FAIL]
+
+ Tests passed:   8
+ Tests failed:   1
+
+And passes after:
+
+ # ./fib_tests.sh -t ipv4_del_addr
+
+ IPv4 delete address route tests
+     Regular FIB info
+     TEST: Route removed from VRF when source address deleted            [ OK ]
+     TEST: Route in default VRF not removed                              [ OK ]
+     TEST: Route removed in default VRF when source address deleted      [ OK ]
+     TEST: Route in VRF is not removed by address delete                 [ OK ]
+     Identical FIB info with different table ID
+     TEST: Route removed from VRF when source address deleted            [ OK ]
+     TEST: Route in default VRF not removed                              [ OK ]
+     TEST: Route removed in default VRF when source address deleted      [ OK ]
+     TEST: Route in VRF is not removed by address delete                 [ OK ]
+     Table ID 0
+     TEST: Route removed in default VRF when source address deleted      [ OK ]
+
+ Tests passed:   9
+ Tests failed:   0
+
+Fixes: 5a56a0b3a45d ("net: Don't delete routes in different VRFs")
+Reported-by: Donald Sharp <sharpd@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netfront.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/ipv4/fib_frontend.c                  |  3 +++
+ tools/testing/selftests/net/fib_tests.sh | 10 ++++++++++
+ 2 files changed, 13 insertions(+)
 
-diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
-index 27a11cc08c61..479e215159fc 100644
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -1862,6 +1862,12 @@ static int netfront_resume(struct xenbus_device *dev)
- 	netif_tx_unlock_bh(info->netdev);
+diff --git a/net/ipv4/fib_frontend.c b/net/ipv4/fib_frontend.c
+index 1452bb72b7d9..75c88d486327 100644
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -830,6 +830,9 @@ static int rtm_to_fib_config(struct net *net, struct sk_buff *skb,
+ 		return -EINVAL;
+ 	}
  
- 	xennet_disconnect_backend(info);
-+
-+	rtnl_lock();
-+	if (info->queues)
-+		xennet_destroy_queues(info);
-+	rtnl_unlock();
++	if (!cfg->fc_table)
++		cfg->fc_table = RT_TABLE_MAIN;
 +
  	return 0;
- }
+ errout:
+ 	return err;
+diff --git a/tools/testing/selftests/net/fib_tests.sh b/tools/testing/selftests/net/fib_tests.sh
+index d238617b6ab5..7df066bf74b8 100755
+--- a/tools/testing/selftests/net/fib_tests.sh
++++ b/tools/testing/selftests/net/fib_tests.sh
+@@ -1623,11 +1623,13 @@ ipv4_del_addr_test()
+ 	$IP addr add dev dummy1 172.16.104.1/24
+ 	$IP addr add dev dummy1 172.16.104.11/24
+ 	$IP addr add dev dummy1 172.16.104.12/24
++	$IP addr add dev dummy1 172.16.104.13/24
+ 	$IP addr add dev dummy2 172.16.104.1/24
+ 	$IP addr add dev dummy2 172.16.104.11/24
+ 	$IP addr add dev dummy2 172.16.104.12/24
+ 	$IP route add 172.16.105.0/24 via 172.16.104.2 src 172.16.104.11
+ 	$IP route add 172.16.106.0/24 dev lo src 172.16.104.12
++	$IP route add table 0 172.16.107.0/24 via 172.16.104.2 src 172.16.104.13
+ 	$IP route add vrf red 172.16.105.0/24 via 172.16.104.2 src 172.16.104.11
+ 	$IP route add vrf red 172.16.106.0/24 dev lo src 172.16.104.12
+ 	set +e
+@@ -1673,6 +1675,14 @@ ipv4_del_addr_test()
+ 	$IP ro ls vrf red | grep -q 172.16.106.0/24
+ 	log_test $? 0 "Route in VRF is not removed by address delete"
  
++	# removing address from device in default vrf should remove route from
++	# the default vrf even when route was inserted with a table ID of 0.
++	echo "    Table ID 0"
++
++	$IP addr del dev dummy1 172.16.104.13/24
++	$IP ro ls | grep -q 172.16.107.0/24
++	log_test $? 1 "Route removed in default VRF when source address deleted"
++
+ 	$IP li del dummy1
+ 	$IP li del dummy2
+ 	cleanup
 -- 
 2.35.1
 
