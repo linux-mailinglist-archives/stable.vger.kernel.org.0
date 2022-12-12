@@ -2,124 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1ECD64A034
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD9E464A187
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:41:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232664AbiLLNWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:22:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48468 "EHLO
+        id S232915AbiLLNle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:41:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232726AbiLLNVz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:21:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F3713D68
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:21:49 -0800 (PST)
+        with ESMTP id S232946AbiLLNlC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:41:02 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F825F4A
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:40:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B469B80D3C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79B6FC433F1;
-        Mon, 12 Dec 2022 13:21:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 912F2CE0F7D
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:40:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45A5CC433D2;
+        Mon, 12 Dec 2022 13:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851307;
-        bh=xVmP8wySUyyrdCWKv5vx/yoqYC5UZdLvNdIem9tmkjc=;
+        s=korg; t=1670852430;
+        bh=H5grS12utAQ9fmXh0vZHxLIzSa29iEFLbEKBhLderhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GrTjX1/JzpiWcRCBNKiw31qd2BbGdkbbkLKbUdtsHxteeu56agr/eEQdMPr4ejyY6
-         RBDN8Nf8JWwKI/odRpgk0LNL11R3abpRfF5DrnXJB5ghaYPFJ7ZJlsO4IFEEJTCmdw
-         K6KpNvCiRVVsP3FwHYl1N3VSmK04IW28j5BvOFK4=
+        b=Wq3Uw1u+kEyRRSVUGknoPbEdvIzPcJJ1YZPgfLlPuNoTYd6FmxkJsjX+L0Dc8bXjd
+         honw1sgbt6+n3zDLGk3I9GHAJJP4TPFnHHTaRRnXxprJ5oEweffhOOF0Ea8fQrdNzG
+         ZirP/6AFBVoE4BuBybq7ExywtSZ9s6tabLlz0pXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+8b1641d2f14732407e23@syzkaller.appspotmail.com,
-        ZhangPeng <zhangpeng362@huawei.com>,
+        patches@lists.linux.dev, Ankit Patel <anpatel@nvidia.com>,
+        Haotien Hsu <haotienh@nvidia.com>,
         Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 31/67] HID: core: fix shift-out-of-bounds in hid_report_raw_event
+Subject: [PATCH 6.0 078/157] HID: usbhid: Add ALWAYS_POLL quirk for some mice
 Date:   Mon, 12 Dec 2022 14:17:06 +0100
-Message-Id: <20221212130919.117845536@linuxfoundation.org>
+Message-Id: <20221212130937.878295934@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75 autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Ankit Patel <anpatel@nvidia.com>
 
-commit ec61b41918587be530398b0d1c9a0d16619397e5 upstream.
+commit f6d910a89a2391e5ce1f275d205023880a33d3f8 upstream.
 
-Syzbot reported shift-out-of-bounds in hid_report_raw_event.
+Some additional USB mouse devices are needing ALWAYS_POLL quirk without
+which they disconnect and reconnect every 60s.
 
-microsoft 0003:045E:07DA.0001: hid_field_extract() called with n (128) >
-32! (swapper/0)
-======================================================================
-UBSAN: shift-out-of-bounds in drivers/hid/hid-core.c:1323:20
-shift exponent 127 is too large for 32-bit type 'int'
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted
-6.1.0-rc4-syzkaller-00159-g4bbf3422df78 #0
-Hardware name: Google Compute Engine/Google Compute Engine, BIOS
-Google 10/26/2022
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x1e3/0x2cb lib/dump_stack.c:106
- ubsan_epilogue lib/ubsan.c:151 [inline]
- __ubsan_handle_shift_out_of_bounds+0x3a6/0x420 lib/ubsan.c:322
- snto32 drivers/hid/hid-core.c:1323 [inline]
- hid_input_fetch_field drivers/hid/hid-core.c:1572 [inline]
- hid_process_report drivers/hid/hid-core.c:1665 [inline]
- hid_report_raw_event+0xd56/0x18b0 drivers/hid/hid-core.c:1998
- hid_input_report+0x408/0x4f0 drivers/hid/hid-core.c:2066
- hid_irq_in+0x459/0x690 drivers/hid/usbhid/hid-core.c:284
- __usb_hcd_giveback_urb+0x369/0x530 drivers/usb/core/hcd.c:1671
- dummy_timer+0x86b/0x3110 drivers/usb/gadget/udc/dummy_hcd.c:1988
- call_timer_fn+0xf5/0x210 kernel/time/timer.c:1474
- expire_timers kernel/time/timer.c:1519 [inline]
- __run_timers+0x76a/0x980 kernel/time/timer.c:1790
- run_timer_softirq+0x63/0xf0 kernel/time/timer.c:1803
- __do_softirq+0x277/0x75b kernel/softirq.c:571
- __irq_exit_rcu+0xec/0x170 kernel/softirq.c:650
- irq_exit_rcu+0x5/0x20 kernel/softirq.c:662
- sysvec_apic_timer_interrupt+0x91/0xb0 arch/x86/kernel/apic/apic.c:1107
-======================================================================
+Add below devices to the known quirk list.
+CHERRY    VID 0x046a, PID 0x000c
+MICROSOFT VID 0x045e, PID 0x0783
+PRIMAX    VID 0x0461, PID 0x4e2a
 
-If the size of the integer (unsigned n) is bigger than 32 in snto32(),
-shift exponent will be too large for 32-bit type 'int', resulting in a
-shift-out-of-bounds bug.
-Fix this by adding a check on the size of the integer (unsigned n) in
-snto32(). To add support for n greater than 32 bits, set n to 32, if n
-is greater than 32.
-
-Reported-by: syzbot+8b1641d2f14732407e23@syzkaller.appspotmail.com
-Fixes: dde5845a529f ("[PATCH] Generic HID layer - code split")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
+Signed-off-by: Ankit Patel <anpatel@nvidia.com>
+Signed-off-by: Haotien Hsu <haotienh@nvidia.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-core.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-ids.h    |    3 +++
+ drivers/hid/hid-quirks.c |    3 +++
+ 2 files changed, 6 insertions(+)
 
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1303,6 +1303,9 @@ static s32 snto32(__u32 value, unsigned
- 	if (!value || !n)
- 		return 0;
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -274,6 +274,7 @@
+ #define USB_DEVICE_ID_CH_AXIS_295	0x001c
  
-+	if (n > 32)
-+		n = 32;
-+
- 	switch (n) {
- 	case 8:  return ((__s8)value);
- 	case 16: return ((__s16)value);
+ #define USB_VENDOR_ID_CHERRY		0x046a
++#define USB_DEVICE_ID_CHERRY_MOUSE_000C	0x000c
+ #define USB_DEVICE_ID_CHERRY_CYMOTION	0x0023
+ #define USB_DEVICE_ID_CHERRY_CYMOTION_SOLAR	0x0027
+ 
+@@ -917,6 +918,7 @@
+ #define USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER	0x02fd
+ #define USB_DEVICE_ID_MS_PIXART_MOUSE    0x00cb
+ #define USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS      0x02e0
++#define USB_DEVICE_ID_MS_MOUSE_0783      0x0783
+ 
+ #define USB_VENDOR_ID_MOJO		0x8282
+ #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
+@@ -1379,6 +1381,7 @@
+ 
+ #define USB_VENDOR_ID_PRIMAX	0x0461
+ #define USB_DEVICE_ID_PRIMAX_MOUSE_4D22	0x4d22
++#define USB_DEVICE_ID_PRIMAX_MOUSE_4E2A	0x4e2a
+ #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
+ #define USB_DEVICE_ID_PRIMAX_REZEL	0x4e72
+ #define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F	0x4d0f
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -54,6 +54,7 @@ static const struct hid_device_id hid_qu
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_THROTTLE), HID_QUIRK_NOGET },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_MOUSE_000C), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K65RGB), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K65RGB_RAPIDFIRE), HID_QUIRK_NO_INIT_REPORTS | HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K70RGB), HID_QUIRK_NO_INIT_REPORTS },
+@@ -122,6 +123,7 @@ static const struct hid_device_id hid_qu
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C05A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C06A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MCS, USB_DEVICE_ID_MCS_GAMEPADBLOCK), HID_QUIRK_MULTI_INPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_MOUSE_0783), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PIXART_MOUSE), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_SURFACE3_COVER), HID_QUIRK_NO_INIT_REPORTS },
+@@ -146,6 +148,7 @@ static const struct hid_device_id hid_qu
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_MOUSE_4D22), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_MOUSE_4E2A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D65), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4E22), HID_QUIRK_ALWAYS_POLL },
 
 
