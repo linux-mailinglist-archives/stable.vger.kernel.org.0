@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB76664A25A
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB13864A247
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:52:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233185AbiLLNxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:53:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52536 "EHLO
+        id S233173AbiLLNwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:52:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233192AbiLLNxV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:21 -0500
+        with ESMTP id S233222AbiLLNv6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:51:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF8B15820
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:52:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F2A715831
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:51:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24764610A5
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:52:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 188BFC433EF;
-        Mon, 12 Dec 2022 13:52:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B032D610A3
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:51:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79E81C433EF;
+        Mon, 12 Dec 2022 13:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853149;
-        bh=kbzTyhSoZp/GccktlOywktGyAgxkIoJvdQjGDSupIeI=;
+        s=korg; t=1670853066;
+        bh=6URURCwaU8rXLihHsQGmknzeF5qsl32nxkZsS0cG8wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0vRc9dfrYq/bkDilXt3jub5zbpbjULHc+1kaVGylO9yCgYVmxtHr/ncYI7BJNf65F
-         tPBlj3pjUZ4i9ADRJGd/CS1gnEpBF3k3OptM3uOQ3336M+2TXo6T5BCgD4O91ROzOK
-         2GyPkmd37llv8VDGOzjwIri1/9/TR0DBbM8NEPVk=
+        b=q3auDEWDknrb01/G3LbwGguVFZS7qys1QVvb45vjnMwg+j2z21mbJD+nPi2/r/9nX
+         6wdnkxRu4xaBBWPkqczSUJqomaby13UlldmiITKNQuWN9e2PPExbiGI1tHoFF4B1bj
+         kLrF8sCKsV+OevFJk6yzUtYiW+pE5XalIkF2jX8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Jonker <jbx6244@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 02/38] ARM: dts: rockchip: fix ir-receiver node names
+        patches@lists.linux.dev, Akihiko Odaki <akihiko.odaki@daynix.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 4.19 25/49] e1000e: Fix TX dispatch condition
 Date:   Mon, 12 Dec 2022 14:19:03 +0100
-Message-Id: <20221212130912.196105275@linuxfoundation.org>
+Message-Id: <20221212130914.924471193@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
-References: <20221212130912.069170932@linuxfoundation.org>
+In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
+References: <20221212130913.666185567@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
 
-[ Upstream commit dd847fe34cdf1e89afed1af24986359f13082bfb ]
+[ Upstream commit eed913f6919e253f35d454b2f115f2a4db2b741a ]
 
-Fix ir-receiver node names on Rockchip boards,
-so that they match with regex: '^ir(-receiver)?(@[a-f0-9]+)?$'
+e1000_xmit_frame is expected to stop the queue and dispatch frames to
+hardware if there is not sufficient space for the next frame in the
+buffer, but sometimes it failed to do so because the estimated maximum
+size of frame was wrong. As the consequence, the later invocation of
+e1000_xmit_frame failed with NETDEV_TX_BUSY, and the frame in the buffer
+remained forever, resulting in a watchdog failure.
 
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/ea5af279-f44c-afea-023d-bb37f5a0d58d@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+This change fixes the estimated size by making it match with the
+condition for NETDEV_TX_BUSY. Apparently, the old estimation failed to
+account for the following lines which determines the space requirement
+for not causing NETDEV_TX_BUSY:
+    ```
+    	/* reserve a descriptor for the offload context */
+    	if ((mss) || (skb->ip_summed == CHECKSUM_PARTIAL))
+    		count++;
+    	count++;
+
+    	count += DIV_ROUND_UP(len, adapter->tx_fifo_limit);
+    ```
+
+This issue was found when running http-stress02 test included in Linux
+Test Project 20220930 on QEMU with the following commandline:
+```
+qemu-system-x86_64 -M q35,accel=kvm -m 8G -smp 8
+	-drive if=virtio,format=raw,file=root.img,file.locking=on
+	-device e1000e,netdev=netdev
+	-netdev tap,script=ifup,downscript=no,id=netdev
+```
+
+Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver (currently for ICH9 devices only)")
+Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3188-radxarock.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3188-radxarock.dts b/arch/arm/boot/dts/rk3188-radxarock.dts
-index 541a798d3d20..3844fbd84ba7 100644
---- a/arch/arm/boot/dts/rk3188-radxarock.dts
-+++ b/arch/arm/boot/dts/rk3188-radxarock.dts
-@@ -104,7 +104,7 @@
- 		#sound-dai-cells = <0>;
- 	};
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index 398f5951d11c..0629f87a20be 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -5877,9 +5877,9 @@ static netdev_tx_t e1000_xmit_frame(struct sk_buff *skb,
+ 		e1000_tx_queue(tx_ring, tx_flags, count);
+ 		/* Make sure there is space in the ring for the next send. */
+ 		e1000_maybe_stop_tx(tx_ring,
+-				    (MAX_SKB_FRAGS *
++				    ((MAX_SKB_FRAGS + 1) *
+ 				     DIV_ROUND_UP(PAGE_SIZE,
+-						  adapter->tx_fifo_limit) + 2));
++						  adapter->tx_fifo_limit) + 4));
  
--	ir_recv: gpio-ir-receiver {
-+	ir_recv: ir-receiver {
- 		compatible = "gpio-ir-receiver";
- 		gpios = <&gpio0 RK_PB2 GPIO_ACTIVE_LOW>;
- 		pinctrl-names = "default";
+ 		if (!skb->xmit_more ||
+ 		    netif_xmit_stopped(netdev_get_tx_queue(netdev, 0))) {
 -- 
 2.35.1
 
