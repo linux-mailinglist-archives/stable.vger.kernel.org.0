@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C364364A028
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:21:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0416064A0AB
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:28:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232691AbiLLNV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:21:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49780 "EHLO
+        id S232501AbiLLN2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:28:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232636AbiLLNVI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:21:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E2AD2AF0
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:21:08 -0800 (PST)
+        with ESMTP id S232459AbiLLN2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:28:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 811102DDF
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:28:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1DC861035
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AA07C433EF;
-        Mon, 12 Dec 2022 13:21:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E4BF61042
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:28:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7FE8C433D2;
+        Mon, 12 Dec 2022 13:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851267;
-        bh=rBdhM4QwI8iff0JkPLAKNli+llzHmdU7iuCTkfL8oPI=;
+        s=korg; t=1670851697;
+        bh=nupnXtc7ncuGc3Jm2eDVIPdn+8jfOEpmwmplLQm+k9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KtJop4d8dcfAwMr+Kkus+QDitZ+HvTnclw990oKR/kKGpTf4Y6OSxVBFXSgQkqG3y
-         My/XUnZ7fkRAM3RiyLpPFoXm8y/05XKsAWUBjU+X2/53oq+x/wnKujOmoZY92z474h
-         WuPRT4cH4U4GtAyn0wo6de41H98d00b7uADsRkb0=
+        b=IsJ/q0M9bGdzAytKJQ4a0GY1zPaIiZvdvEbjx5iBR7lN+JEoMjE1jUy6mjrMMyUsp
+         WrOflh+qv1t+F+auUlXRaLxE7uqcE5JxeLiFambOTo1a6cxveBJneJGuZasPX56p+1
+         svhorKHSt0uMngQGyk8mtdzVtmy3NFzYd4WdNUXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/67] xen/netback: dont call kfree_skb() with interrupts disabled
+        patches@lists.linux.dev,
+        syzbot+c8ae65286134dd1b800d@syzkaller.appspotmail.com,
+        Rob Clark <robdclark@chromium.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Javier Martinez Canillas <javierm@redhat.com>
+Subject: [PATCH 5.15 051/123] drm/shmem-helper: Remove errant put in error path
 Date:   Mon, 12 Dec 2022 14:16:57 +0100
-Message-Id: <20221212130918.683276002@linuxfoundation.org>
+Message-Id: <20221212130929.070256109@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 74e7e1efdad45580cc3839f2a155174cf158f9b5 ]
+commit 24013314be6ee4ee456114a671e9fa3461323de8 upstream.
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. So remove kfree_skb()
-from the spin_lock_irqsave() section and use the already existing
-"drop" label in xenvif_start_xmit() for dropping the SKB. At the
-same time replace the dev_kfree_skb() call there with a call of
-dev_kfree_skb_any(), as xenvif_start_xmit() can be called with
-disabled interrupts.
+drm_gem_shmem_mmap() doesn't own this reference, resulting in the GEM
+object getting prematurely freed leading to a later use-after-free.
 
-This is XSA-424 / CVE-2022-42328 / CVE-2022-42329.
-
-Fixes: be81992f9086 ("xen/netback: don't queue unlimited number of packages")
-Reported-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://syzkaller.appspot.com/bug?extid=c8ae65286134dd1b800d
+Reported-by: syzbot+c8ae65286134dd1b800d@syzkaller.appspotmail.com
+Fixes: 2194a63a818d ("drm: Add library for shmem backed GEM objects")
+Cc: stable@vger.kernel.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221130185748.357410-2-robdclark@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/common.h    | 2 +-
- drivers/net/xen-netback/interface.c | 6 ++++--
- drivers/net/xen-netback/rx.c        | 8 +++++---
- 3 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/drm_gem_shmem_helper.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/xen-netback/common.h b/drivers/net/xen-netback/common.h
-index fa52d5ffca72..ced413d394cd 100644
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -383,7 +383,7 @@ int xenvif_dealloc_kthread(void *data);
- irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data);
- 
- bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread);
--void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
-+bool xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
- 
- void xenvif_carrier_on(struct xenvif *vif);
- 
-diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
-index 5efe86b3ba06..6432f6e7fd54 100644
---- a/drivers/net/xen-netback/interface.c
-+++ b/drivers/net/xen-netback/interface.c
-@@ -255,14 +255,16 @@ xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	if (vif->hash.alg == XEN_NETIF_CTRL_HASH_ALGORITHM_NONE)
- 		skb_clear_hash(skb);
- 
--	xenvif_rx_queue_tail(queue, skb);
-+	if (!xenvif_rx_queue_tail(queue, skb))
-+		goto drop;
-+
- 	xenvif_kick_thread(queue);
- 
- 	return NETDEV_TX_OK;
- 
-  drop:
- 	vif->dev->stats.tx_dropped++;
--	dev_kfree_skb(skb);
-+	dev_kfree_skb_any(skb);
- 	return NETDEV_TX_OK;
- }
- 
-diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
-index 6f940a32dcb8..ab216970137c 100644
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -82,9 +82,10 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
- 	return false;
- }
- 
--void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
-+bool xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
- {
- 	unsigned long flags;
-+	bool ret = true;
- 
- 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
- 
-@@ -92,8 +93,7 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
- 		struct net_device *dev = queue->vif->dev;
- 
- 		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
--		kfree_skb(skb);
--		queue->vif->dev->stats.rx_dropped++;
-+		ret = false;
- 	} else {
- 		if (skb_queue_empty(&queue->rx_queue))
- 			xenvif_update_needed_slots(queue, skb);
-@@ -104,6 +104,8 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
+--- a/drivers/gpu/drm/drm_gem_shmem_helper.c
++++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+@@ -591,10 +591,8 @@ int drm_gem_shmem_mmap(struct drm_gem_sh
  	}
  
- 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
-+
-+	return ret;
- }
+ 	ret = drm_gem_shmem_get_pages(shmem);
+-	if (ret) {
+-		drm_gem_vm_close(vma);
++	if (ret)
+ 		return ret;
+-	}
  
- static struct sk_buff *xenvif_rx_dequeue(struct xenvif_queue *queue)
--- 
-2.35.1
-
+ 	vma->vm_flags |= VM_MIXEDMAP | VM_DONTEXPAND;
+ 	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
 
 
