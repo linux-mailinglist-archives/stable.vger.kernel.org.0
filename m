@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4886864A1A0
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:43:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3E6F64A04F
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232822AbiLLNno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:43:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42050 "EHLO
+        id S232720AbiLLNXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:23:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232902AbiLLNnW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88B0814028
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:42:14 -0800 (PST)
+        with ESMTP id S232555AbiLLNXR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:23:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1A1A285
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:23:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C819B80D2C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:42:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D5F9C433EF;
-        Mon, 12 Dec 2022 13:42:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63938B80B9B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:23:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DC86C433EF;
+        Mon, 12 Dec 2022 13:23:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852532;
-        bh=s0LUIJvPpkur9LY6RxVIboEMBRomuSPgB+BetF6F2XE=;
+        s=korg; t=1670851394;
+        bh=N8POFW2MfJZsSOQkr4FFUIKZ5S9Hyl3b7BHaaalpkG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHzGtm6OiS+iuo6ABX3o2awi3O7EKrYfKBGnEcY7GbEnjBxPzrYC+76tSAeEhKQnK
-         tXm6r3MusCLJPfSlUSgi0Cd2DPge2dSYgpU8hNw5bzy4MIbTIbEuDjvGk+boaYoDn7
-         zVAIw9YhYlMynv5IvjTy9ur+0W7YT9YK5nIkOLZk=
+        b=ckRtghA5NsWGZww1qMKtPtlGkY15xb49WwOKxXFVtND3Rc+aSBue0hyhySfQFP+6j
+         VpO6FWPuOFBWz2ria1ZpPzLC59IdMiMHEGduAgJL30j7gP+cD3jCRnfo3t3zwZLXK/
+         NW+AkWXpxrSalnciiLGUDTkcx/5OkFbqytnmmQ7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Schuyler Patton <spatton@ti.com>,
-        Siddharth Vadapalli <s-vadapalli@ti.com>,
+        patches@lists.linux.dev,
+        syzbot+210e196cef4711b65139@syzkaller.appspotmail.com,
+        Kees Cook <keescook@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 100/157] net: ethernet: ti: am65-cpsw: Fix RGMII configuration at SPEED_10
+Subject: [PATCH 5.4 53/67] NFC: nci: Bounds check struct nfc_target arrays
 Date:   Mon, 12 Dec 2022 14:17:28 +0100
-Message-Id: <20221212130938.850463482@linuxfoundation.org>
+Message-Id: <20221212130920.149787680@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddharth Vadapalli <s-vadapalli@ti.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 6c681f899e0360803b924ac8c96ee21965118649 ]
+[ Upstream commit e329e71013c9b5a4535b099208493c7826ee4a64 ]
 
-The am65-cpsw driver supports configuring all RGMII variants at interface
-speed of 10 Mbps. However, in the process of shifting to the PHYLINK
-framework, the support for all variants of RGMII except the
-PHY_INTERFACE_MODE_RGMII variant was accidentally removed.
+While running under CONFIG_FORTIFY_SOURCE=y, syzkaller reported:
 
-Fix this by using phy_interface_mode_is_rgmii() to check for all variants
-of RGMII mode.
+  memcpy: detected field-spanning write (size 129) of single field "target->sensf_res" at net/nfc/nci/ntf.c:260 (size 18)
 
-Fixes: e8609e69470f ("net: ethernet: ti: am65-cpsw: Convert to PHYLINK")
-Reported-by: Schuyler Patton <spatton@ti.com>
-Signed-off-by: Siddharth Vadapalli <s-vadapalli@ti.com>
-Link: https://lore.kernel.org/r/20221129050639.111142-1-s-vadapalli@ti.com
+This appears to be a legitimate lack of bounds checking in
+nci_add_new_protocol(). Add the missing checks.
+
+Reported-by: syzbot+210e196cef4711b65139@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/lkml/0000000000001c590f05ee7b3ff4@google.com
+Fixes: 019c4fbaa790 ("NFC: Add NCI multiple targets support")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20221202214410.never.693-kees@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/am65-cpsw-nuss.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/nfc/nci/ntf.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-index 95baacd6c761..47da11b9ac28 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -1450,7 +1450,7 @@ static void am65_cpsw_nuss_mac_link_up(struct phylink_config *config, struct phy
+diff --git a/net/nfc/nci/ntf.c b/net/nfc/nci/ntf.c
+index 33e1170817f0..f8b20cddd5c9 100644
+--- a/net/nfc/nci/ntf.c
++++ b/net/nfc/nci/ntf.c
+@@ -218,6 +218,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
+ 		target->sens_res = nfca_poll->sens_res;
+ 		target->sel_res = nfca_poll->sel_res;
+ 		target->nfcid1_len = nfca_poll->nfcid1_len;
++		if (target->nfcid1_len > ARRAY_SIZE(target->nfcid1))
++			return -EPROTO;
+ 		if (target->nfcid1_len > 0) {
+ 			memcpy(target->nfcid1, nfca_poll->nfcid1,
+ 			       target->nfcid1_len);
+@@ -226,6 +228,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
+ 		nfcb_poll = (struct rf_tech_specific_params_nfcb_poll *)params;
  
- 	if (speed == SPEED_1000)
- 		mac_control |= CPSW_SL_CTL_GIG;
--	if (speed == SPEED_10 && interface == PHY_INTERFACE_MODE_RGMII)
-+	if (speed == SPEED_10 && phy_interface_mode_is_rgmii(interface))
- 		/* Can be used with in band mode only */
- 		mac_control |= CPSW_SL_CTL_EXT_EN;
- 	if (speed == SPEED_100 && interface == PHY_INTERFACE_MODE_RMII)
+ 		target->sensb_res_len = nfcb_poll->sensb_res_len;
++		if (target->sensb_res_len > ARRAY_SIZE(target->sensb_res))
++			return -EPROTO;
+ 		if (target->sensb_res_len > 0) {
+ 			memcpy(target->sensb_res, nfcb_poll->sensb_res,
+ 			       target->sensb_res_len);
+@@ -234,6 +238,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
+ 		nfcf_poll = (struct rf_tech_specific_params_nfcf_poll *)params;
+ 
+ 		target->sensf_res_len = nfcf_poll->sensf_res_len;
++		if (target->sensf_res_len > ARRAY_SIZE(target->sensf_res))
++			return -EPROTO;
+ 		if (target->sensf_res_len > 0) {
+ 			memcpy(target->sensf_res, nfcf_poll->sensf_res,
+ 			       target->sensf_res_len);
 -- 
 2.35.1
 
