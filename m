@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C267649FE8
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:16:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F596649FEA
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:17:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232228AbiLLNQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:16:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44102 "EHLO
+        id S231362AbiLLNQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:16:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232317AbiLLNQM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:16:12 -0500
+        with ESMTP id S231441AbiLLNQQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:16:16 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EBA013D36
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:16:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2BCB101F
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:16:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BF13B80D3A
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:16:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45635C433D2;
-        Mon, 12 Dec 2022 13:16:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A593B80B9B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:16:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AD1CC433EF;
+        Mon, 12 Dec 2022 13:16:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670850968;
-        bh=05PRlpHuOfQAe+m3aa7yqXaR56nLtGTfnRop62iblt0=;
+        s=korg; t=1670850973;
+        bh=aT0DBjzcxm6xNHcBR3LHvhPE0EG5pqSatLjkhNpCgLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5G7fNxXaJecyOMZqYqU7qKyRR/ZxrcRrlvlxQ7t9GQV5CZ1e2ciraV0UK57MQ1XB
-         zo2Sepo6Ca3YGM4s423isdcr9vhT3LKZxyV8Q7+EesdqMcoTBtTbYwzI1cyQoiTDm/
-         drjX8l1+dQ8olxdHJztwAI7afE71JJHp30rlmvyY=
+        b=JPbWAqtAPKeu42S+QolnlzEW32qilkVVywasntbb9cMgv6R4shUhNB2OXPDBXzZin
+         F8xEwTRCTw262RM9d54dfcnXgldEvscWZ/e7luoEZVlLd7XtF1/lw0Qdvb5h5HSaYt
+         +5KIZFAWpb1p4Z94vN96x0LOSWM59xSRSrLPwkFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 076/106] Bluetooth: 6LoWPAN: add missing hci_dev_put() in get_l2cap_conn()
-Date:   Mon, 12 Dec 2022 14:10:19 +0100
-Message-Id: <20221212130928.192755979@linuxfoundation.org>
+Subject: [PATCH 5.10 077/106] Bluetooth: Fix not cleanup led when bt_init fails
+Date:   Mon, 12 Dec 2022 14:10:20 +0100
+Message-Id: <20221212130928.235332180@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -53,33 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 747da1308bdd5021409974f9180f0d8ece53d142 ]
+[ Upstream commit 2f3957c7eb4e07df944169a3e50a4d6790e1c744 ]
 
-hci_get_route() takes reference, we should use hci_dev_put() to release
-it when not need anymore.
+bt_init() calls bt_leds_init() to register led, but if it fails later,
+bt_leds_cleanup() is not called to unregister it.
 
-Fixes: 6b8d4a6a0314 ("Bluetooth: 6LoWPAN: Use connected oriented channel instead of fixed one")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+This can cause panic if the argument "bluetooth-power" in text is freed
+and then another led_trigger_register() tries to access it:
+
+BUG: unable to handle page fault for address: ffffffffc06d3bc0
+RIP: 0010:strcmp+0xc/0x30
+  Call Trace:
+    <TASK>
+    led_trigger_register+0x10d/0x4f0
+    led_trigger_register_simple+0x7d/0x100
+    bt_init+0x39/0xf7 [bluetooth]
+    do_one_initcall+0xd0/0x4e0
+
+Fixes: e64c97b53bc6 ("Bluetooth: Add combined LED trigger for controller power")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/6lowpan.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/bluetooth/af_bluetooth.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
-index cff4944d5b66..7601ce9143c1 100644
---- a/net/bluetooth/6lowpan.c
-+++ b/net/bluetooth/6lowpan.c
-@@ -1010,6 +1010,7 @@ static int get_l2cap_conn(char *buf, bdaddr_t *addr, u8 *addr_type,
- 	hci_dev_lock(hdev);
- 	hcon = hci_conn_hash_lookup_le(hdev, addr, *addr_type);
- 	hci_dev_unlock(hdev);
-+	hci_dev_put(hdev);
+diff --git a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
+index 4ef6a54403aa..2f87f57e7a4f 100644
+--- a/net/bluetooth/af_bluetooth.c
++++ b/net/bluetooth/af_bluetooth.c
+@@ -736,7 +736,7 @@ static int __init bt_init(void)
  
- 	if (!hcon)
- 		return -ENOENT;
+ 	err = bt_sysfs_init();
+ 	if (err < 0)
+-		return err;
++		goto cleanup_led;
+ 
+ 	err = sock_register(&bt_sock_family_ops);
+ 	if (err)
+@@ -772,6 +772,8 @@ static int __init bt_init(void)
+ 	sock_unregister(PF_BLUETOOTH);
+ cleanup_sysfs:
+ 	bt_sysfs_cleanup();
++cleanup_led:
++	bt_leds_cleanup();
+ 	return err;
+ }
+ 
 -- 
 2.35.1
 
