@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 862EA64A174
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:40:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DD364A09C
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:27:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232859AbiLLNk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:40:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36458 "EHLO
+        id S232762AbiLLN1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:27:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232918AbiLLNkb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:40:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95BBB13F13
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:39:34 -0800 (PST)
+        with ESMTP id S232470AbiLLN1e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:27:34 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC22E13E05
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:27:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F1B5B80D4D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:39:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A455BC433D2;
-        Mon, 12 Dec 2022 13:39:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 64BD1CE0F7B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:27:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EBF4C433EF;
+        Mon, 12 Dec 2022 13:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852372;
-        bh=4J0wGzJHK2ZUwVDi/3cnl5pEt1ZD/J0kKiPZV9kjMIE=;
+        s=korg; t=1670851642;
+        bh=YQ/0GsNfBgxYaNPE7beSyGgE2iIyKK5zr2JLwJQ8tx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IIVqLCOauipoI/p/8JIFjCyr6QhLkjhxnQjKS1sji6wnBwXsV+zwwCS4V1LgbA3Jg
-         cOEoDBb/nug0Gpx0CrJCQsbJoStrrgAGbVSx2jLGaQBDCR2jkMdXSK/31TioJiSSPg
-         xeLPaTDO30W+V5rWfntTFsVkUHjYD2JT1U2a6ViA=
+        b=eeGMQo0bREhIQE8/rj3eCbh9KnJUQAkzJ5wDIRNclF0MX50cM9kMQLe1OY+/OVCXu
+         hXY3S7fbW0jVTnECupdSA1mjGD0b9lQHTJ0zqXIYk3rPBjQNOB1f11XDUfaYz9hXei
+         rldnRCvgPkclddcbbf6uMku8J12RdAIW+ZncRIwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Starks <jostarks@microsoft.com>,
-        Saurabh Sengar <ssengar@linux.microsoft.com>,
-        Jan Kara <jack@suse.cz>, Yu Zhao <yuzhao@google.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        David Hildenbrand <david@redhat.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.0 059/157] mm/gup: fix gup_pud_range() for dax
+        patches@lists.linux.dev,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Marek Vasut <marex@denx.de>, Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.15 041/123] Revert "ARM: dts: imx7: Fix NAND controller size-cells"
 Date:   Mon, 12 Dec 2022 14:16:47 +0100
-Message-Id: <20221212130936.937638366@linuxfoundation.org>
+Message-Id: <20221212130928.639530525@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,87 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Starks <jostarks@microsoft.com>
+From: Francesco Dolcini <francesco.dolcini@toradex.com>
 
-commit fcd0ccd836ffad73d98a66f6fea7b16f735ea920 upstream.
+commit ef19964da8a668c683f1d38274f6fb756e047945 upstream.
 
-For dax pud, pud_huge() returns true on x86. So the function works as long
-as hugetlb is configured. However, dax doesn't depend on hugetlb.
-Commit 414fd080d125 ("mm/gup: fix gup_pmd_range() for dax") fixed
-devmap-backed huge PMDs, but missed devmap-backed huge PUDs. Fix this as
-well.
+This reverts commit 753395ea1e45c724150070b5785900b6a44bd5fb.
 
-This fixes the below kernel panic:
+It introduced a boot regression on colibri-imx7, and potentially any
+other i.MX7 boards with MTD partition list generated into the fdt by
+U-Boot.
 
-general protection fault, probably for non-canonical address 0x69e7c000cc478: 0000 [#1] SMP
-	< snip >
-Call Trace:
-<TASK>
-get_user_pages_fast+0x1f/0x40
-iov_iter_get_pages+0xc6/0x3b0
-? mempool_alloc+0x5d/0x170
-bio_iov_iter_get_pages+0x82/0x4e0
-? bvec_alloc+0x91/0xc0
-? bio_alloc_bioset+0x19a/0x2a0
-blkdev_direct_IO+0x282/0x480
-? __io_complete_rw_common+0xc0/0xc0
-? filemap_range_has_page+0x82/0xc0
-generic_file_direct_write+0x9d/0x1a0
-? inode_update_time+0x24/0x30
-__generic_file_write_iter+0xbd/0x1e0
-blkdev_write_iter+0xb4/0x150
-? io_import_iovec+0x8d/0x340
-io_write+0xf9/0x300
-io_issue_sqe+0x3c3/0x1d30
-? sysvec_reschedule_ipi+0x6c/0x80
-__io_queue_sqe+0x33/0x240
-? fget+0x76/0xa0
-io_submit_sqes+0xe6a/0x18d0
-? __fget_light+0xd1/0x100
-__x64_sys_io_uring_enter+0x199/0x880
-? __context_tracking_enter+0x1f/0x70
-? irqentry_exit_to_user_mode+0x24/0x30
-? irqentry_exit+0x1d/0x30
-? __context_tracking_exit+0xe/0x70
-do_syscall_64+0x3b/0x90
-entry_SYSCALL_64_after_hwframe+0x61/0xcb
-RIP: 0033:0x7fc97c11a7be
-	< snip >
-</TASK>
----[ end trace 48b2e0e67debcaeb ]---
-RIP: 0010:internal_get_user_pages_fast+0x340/0x990
-	< snip >
-Kernel panic - not syncing: Fatal exception
-Kernel Offset: disabled
+While the commit we are reverting here is not obviously wrong, it fixes
+only a dt binding checker warning that is non-functional, while it
+introduces a boot regression and there is no obvious fix ready.
 
-Link: https://lkml.kernel.org/r/1670392853-28252-1-git-send-email-ssengar@linux.microsoft.com
-Fixes: 414fd080d125 ("mm/gup: fix gup_pmd_range() for dax")
-Signed-off-by: John Starks <jostarks@microsoft.com>
-Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Yu Zhao <yuzhao@google.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Marek Vasut <marex@denx.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/all/Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com/
+Link: https://lore.kernel.org/all/20221205144917.6514168a@xps-13/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/gup.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx7s.dtsi |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2818,7 +2818,7 @@ static int gup_pud_range(p4d_t *p4dp, p4
- 		next = pud_addr_end(addr, end);
- 		if (unlikely(!pud_present(pud)))
- 			return 0;
--		if (unlikely(pud_huge(pud))) {
-+		if (unlikely(pud_huge(pud) || pud_devmap(pud))) {
- 			if (!gup_huge_pud(pud, pudp, addr, next, flags,
- 					  pages, nr))
- 				return 0;
+--- a/arch/arm/boot/dts/imx7s.dtsi
++++ b/arch/arm/boot/dts/imx7s.dtsi
+@@ -1252,10 +1252,10 @@
+ 			clocks = <&clks IMX7D_NAND_USDHC_BUS_RAWNAND_CLK>;
+ 		};
+ 
+-		gpmi: nand-controller@33002000 {
++		gpmi: nand-controller@33002000{
+ 			compatible = "fsl,imx7d-gpmi-nand";
+ 			#address-cells = <1>;
+-			#size-cells = <0>;
++			#size-cells = <1>;
+ 			reg = <0x33002000 0x2000>, <0x33004000 0x4000>;
+ 			reg-names = "gpmi-nand", "bch";
+ 			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
 
 
