@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3CE864A181
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:41:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 521D164A02D
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232203AbiLLNlL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:41:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36590 "EHLO
+        id S232592AbiLLNWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:22:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232611AbiLLNkk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:40:40 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AE5D13F59
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:40:05 -0800 (PST)
+        with ESMTP id S232658AbiLLNVd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:21:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFA4710545
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:21:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5AADDCE0F19
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:40:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E51C433D2;
-        Mon, 12 Dec 2022 13:40:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D0CD60FF4
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49CEBC433D2;
+        Mon, 12 Dec 2022 13:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852401;
-        bh=CxZRlOpPWk/FuOIos9ofLQSbKk3f/xsxSiATelOfaV4=;
+        s=korg; t=1670851286;
+        bh=nk4+SLGDvWQ1NgDWXmKiSFthrw7paLMldJBrTj29Kv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jcdmuWyrCwu63xbTn7fQJ3GDTCrgt+VY/bGiTpGLSEYxoobA6HMXSGjjJgURZrDcp
-         gzMdrzxIABMpYgDSueYfNkhFsaRGf6wnYTSckts+wCwlNtnPxSphay9VPdkOdWqiXL
-         +3u2noJc+h6DCZHcltl/yh9ovElCklmekvvjZVZw=
+        b=yTug5XJH9MG/TCbvsO23ULZblqUo1gtGobdcDJr5knUaMqBhl0Ovm7Jbuyw7u9fWz
+         6DoSg79/QqkMgWB37XxGKDRhvWVAoGjw95PdBmupnQF10qeUQfDHFNUBbVraeq+eId
+         U7icz48nvUowl/f+JbvekN8KTKmMZSupGxKjxk6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Prike Liang <Prike.Liang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 6.0 073/157] drm/amdgpu/sdma_v4_0: turn off SDMA ring buffer in the s2idle suspend
+        patches@lists.linux.dev, John Starks <jostarks@microsoft.com>,
+        Saurabh Sengar <ssengar@linux.microsoft.com>,
+        Jan Kara <jack@suse.cz>, Yu Zhao <yuzhao@google.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        David Hildenbrand <david@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 26/67] mm/gup: fix gup_pud_range() for dax
 Date:   Mon, 12 Dec 2022 14:17:01 +0100
-Message-Id: <20221212130937.602739717@linuxfoundation.org>
+Message-Id: <20221212130918.871893386@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,94 +59,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prike Liang <Prike.Liang@amd.com>
+From: John Starks <jostarks@microsoft.com>
 
-commit bc21fe9a5844c5bc8f7ec319b11d2671a94eb867 upstream.
+commit fcd0ccd836ffad73d98a66f6fea7b16f735ea920 upstream.
 
-In the SDMA s0ix save process requires to turn off SDMA ring buffer for
-avoiding the SDMA in-flight request, otherwise will suffer from SDMA page
-fault which causes by page request from in-flight SDMA ring accessing at
-SDMA restore phase.
+For dax pud, pud_huge() returns true on x86. So the function works as long
+as hugetlb is configured. However, dax doesn't depend on hugetlb.
+Commit 414fd080d125 ("mm/gup: fix gup_pmd_range() for dax") fixed
+devmap-backed huge PMDs, but missed devmap-backed huge PUDs. Fix this as
+well.
 
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2248
-Cc: stable@vger.kernel.org # 6.0,5.15+
-Fixes: f8f4e2a51834 ("drm/amdgpu: skipping SDMA hw_init and hw_fini for S0ix.")
-Signed-off-by: Prike Liang <Prike.Liang@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Tested-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This fixes the below kernel panic:
+
+general protection fault, probably for non-canonical address 0x69e7c000cc478: 0000 [#1] SMP
+	< snip >
+Call Trace:
+<TASK>
+get_user_pages_fast+0x1f/0x40
+iov_iter_get_pages+0xc6/0x3b0
+? mempool_alloc+0x5d/0x170
+bio_iov_iter_get_pages+0x82/0x4e0
+? bvec_alloc+0x91/0xc0
+? bio_alloc_bioset+0x19a/0x2a0
+blkdev_direct_IO+0x282/0x480
+? __io_complete_rw_common+0xc0/0xc0
+? filemap_range_has_page+0x82/0xc0
+generic_file_direct_write+0x9d/0x1a0
+? inode_update_time+0x24/0x30
+__generic_file_write_iter+0xbd/0x1e0
+blkdev_write_iter+0xb4/0x150
+? io_import_iovec+0x8d/0x340
+io_write+0xf9/0x300
+io_issue_sqe+0x3c3/0x1d30
+? sysvec_reschedule_ipi+0x6c/0x80
+__io_queue_sqe+0x33/0x240
+? fget+0x76/0xa0
+io_submit_sqes+0xe6a/0x18d0
+? __fget_light+0xd1/0x100
+__x64_sys_io_uring_enter+0x199/0x880
+? __context_tracking_enter+0x1f/0x70
+? irqentry_exit_to_user_mode+0x24/0x30
+? irqentry_exit+0x1d/0x30
+? __context_tracking_exit+0xe/0x70
+do_syscall_64+0x3b/0x90
+entry_SYSCALL_64_after_hwframe+0x61/0xcb
+RIP: 0033:0x7fc97c11a7be
+	< snip >
+</TASK>
+---[ end trace 48b2e0e67debcaeb ]---
+RIP: 0010:internal_get_user_pages_fast+0x340/0x990
+	< snip >
+Kernel panic - not syncing: Fatal exception
+Kernel Offset: disabled
+
+Link: https://lkml.kernel.org/r/1670392853-28252-1-git-send-email-ssengar@linux.microsoft.com
+Fixes: 414fd080d125 ("mm/gup: fix gup_pmd_range() for dax")
+Signed-off-by: John Starks <jostarks@microsoft.com>
+Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Yu Zhao <yuzhao@google.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c |   24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ mm/gup.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-@@ -980,13 +980,13 @@ static void sdma_v4_0_ring_emit_fence(st
- 
- 
- /**
-- * sdma_v4_0_gfx_stop - stop the gfx async dma engines
-+ * sdma_v4_0_gfx_enable - enable the gfx async dma engines
-  *
-  * @adev: amdgpu_device pointer
-- *
-- * Stop the gfx async dma ring buffers (VEGA10).
-+ * @enable: enable SDMA RB/IB
-+ * control the gfx async dma ring buffers (VEGA10).
-  */
--static void sdma_v4_0_gfx_stop(struct amdgpu_device *adev)
-+static void sdma_v4_0_gfx_enable(struct amdgpu_device *adev, bool enable)
- {
- 	struct amdgpu_ring *sdma[AMDGPU_MAX_SDMA_INSTANCES];
- 	u32 rb_cntl, ib_cntl;
-@@ -1001,10 +1001,10 @@ static void sdma_v4_0_gfx_stop(struct am
- 		}
- 
- 		rb_cntl = RREG32_SDMA(i, mmSDMA0_GFX_RB_CNTL);
--		rb_cntl = REG_SET_FIELD(rb_cntl, SDMA0_GFX_RB_CNTL, RB_ENABLE, 0);
-+		rb_cntl = REG_SET_FIELD(rb_cntl, SDMA0_GFX_RB_CNTL, RB_ENABLE, enable ? 1 : 0);
- 		WREG32_SDMA(i, mmSDMA0_GFX_RB_CNTL, rb_cntl);
- 		ib_cntl = RREG32_SDMA(i, mmSDMA0_GFX_IB_CNTL);
--		ib_cntl = REG_SET_FIELD(ib_cntl, SDMA0_GFX_IB_CNTL, IB_ENABLE, 0);
-+		ib_cntl = REG_SET_FIELD(ib_cntl, SDMA0_GFX_IB_CNTL, IB_ENABLE, enable ? 1 : 0);
- 		WREG32_SDMA(i, mmSDMA0_GFX_IB_CNTL, ib_cntl);
- 	}
- }
-@@ -1131,7 +1131,7 @@ static void sdma_v4_0_enable(struct amdg
- 	int i;
- 
- 	if (!enable) {
--		sdma_v4_0_gfx_stop(adev);
-+		sdma_v4_0_gfx_enable(adev, enable);
- 		sdma_v4_0_rlc_stop(adev);
- 		if (adev->sdma.has_page_queue)
- 			sdma_v4_0_page_stop(adev);
-@@ -2043,8 +2043,10 @@ static int sdma_v4_0_suspend(void *handl
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 
- 	/* SMU saves SDMA state for us */
--	if (adev->in_s0ix)
-+	if (adev->in_s0ix) {
-+		sdma_v4_0_gfx_enable(adev, false);
- 		return 0;
-+	}
- 
- 	return sdma_v4_0_hw_fini(adev);
- }
-@@ -2054,8 +2056,12 @@ static int sdma_v4_0_resume(void *handle
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 
- 	/* SMU restores SDMA state for us */
--	if (adev->in_s0ix)
-+	if (adev->in_s0ix) {
-+		sdma_v4_0_enable(adev, true);
-+		sdma_v4_0_gfx_enable(adev, true);
-+		amdgpu_ttm_set_buffer_funcs_status(adev, true);
- 		return 0;
-+	}
- 
- 	return sdma_v4_0_hw_init(adev);
- }
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -2240,7 +2240,7 @@ static int gup_pud_range(p4d_t *p4dp, p4
+ 		next = pud_addr_end(addr, end);
+ 		if (pud_none(pud))
+ 			return 0;
+-		if (unlikely(pud_huge(pud))) {
++		if (unlikely(pud_huge(pud) || pud_devmap(pud))) {
+ 			if (!gup_huge_pud(pud, pudp, addr, next, flags,
+ 					  pages, nr))
+ 				return 0;
 
 
