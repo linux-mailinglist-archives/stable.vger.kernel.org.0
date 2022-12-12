@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8AFD64A282
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:55:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C3F064A26F
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233295AbiLLNzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:55:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52536 "EHLO
+        id S233189AbiLLNyd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:54:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233283AbiLLNzD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:55:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA2514D37
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:54:53 -0800 (PST)
+        with ESMTP id S233190AbiLLNyF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49632231
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:53:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD5B9610A5
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:54:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D58EC433D2;
-        Mon, 12 Dec 2022 13:54:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B577B8068B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:53:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64436C433EF;
+        Mon, 12 Dec 2022 13:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853292;
-        bh=erx4mekDg9iblF1wO5yq7GtbKAKHxTvYsT67M7AkDa8=;
+        s=korg; t=1670853228;
+        bh=o4QAZZMM1oCEcITTuEZsAylNNPl4P3Olzx9cZPwRLlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m8TT0nFufF20H9xlTndK7Fz/MIHmTjUiohkTvwmNrlZyVm1B97pzBNWiiUnSHDfUG
-         SeOsrBm3bipHrN1N4SfG8GUdEn3olwGVBIZoZoqsqAPQqZR3UPB8dhQuQDePZN+IpU
-         XiSmkR83aTiV+WekPgBy7tUoE2nNDvHEEMXRzhiM=
+        b=ErXjSlBZLY1imv4HL2lKIPMfaiSvN/KOOCvq0jq3Vy1u639TIzCs97vdXrdg5FtBT
+         4YP+0nv+cerDTtF1uqVLLuDuAsTFUGRBcuoLNVe23T60zk0AUvz7KDxbCz6RTlNcYL
+         uj4p8TA2NXEaFlJTQ1kEt3NhdiEC5DUWPI4T5Jlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        alsa-devel@alsa-project.org, Kees Cook <keescook@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 04/31] ALSA: seq: Fix function prototype mismatch in snd_seq_expand_var_event
-Date:   Mon, 12 Dec 2022 14:19:22 +0100
-Message-Id: <20221212130910.180549087@linuxfoundation.org>
+        patches@lists.linux.dev, Akihiko Odaki <akihiko.odaki@daynix.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 4.14 22/38] e1000e: Fix TX dispatch condition
+Date:   Mon, 12 Dec 2022 14:19:23 +0100
+Message-Id: <20221212130913.220923475@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130909.943483205@linuxfoundation.org>
-References: <20221212130909.943483205@linuxfoundation.org>
+In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
+References: <20221212130912.069170932@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
 
-[ Upstream commit 05530ef7cf7c7d700f6753f058999b1b5099a026 ]
+[ Upstream commit eed913f6919e253f35d454b2f115f2a4db2b741a ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed.
+e1000_xmit_frame is expected to stop the queue and dispatch frames to
+hardware if there is not sufficient space for the next frame in the
+buffer, but sometimes it failed to do so because the estimated maximum
+size of frame was wrong. As the consequence, the later invocation of
+e1000_xmit_frame failed with NETDEV_TX_BUSY, and the frame in the buffer
+remained forever, resulting in a watchdog failure.
 
-seq_copy_in_user() and seq_copy_in_kernel() did not have prototypes
-matching snd_seq_dump_func_t. Adjust this and remove the casts. There
-are not resulting binary output differences.
+This change fixes the estimated size by making it match with the
+condition for NETDEV_TX_BUSY. Apparently, the old estimation failed to
+account for the following lines which determines the space requirement
+for not causing NETDEV_TX_BUSY:
+    ```
+    	/* reserve a descriptor for the offload context */
+    	if ((mss) || (skb->ip_summed == CHECKSUM_PARTIAL))
+    		count++;
+    	count++;
 
-This was found as a result of Clang's new -Wcast-function-type-strict
-flag, which is more sensitive than the simpler -Wcast-function-type,
-which only checks for type width mismatches.
+    	count += DIV_ROUND_UP(len, adapter->tx_fifo_limit);
+    ```
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202211041527.HD8TLSE1-lkp@intel.com
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc: alsa-devel@alsa-project.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221118232346.never.380-kees@kernel.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This issue was found when running http-stress02 test included in Linux
+Test Project 20220930 on QEMU with the following commandline:
+```
+qemu-system-x86_64 -M q35,accel=kvm -m 8G -smp 8
+	-drive if=virtio,format=raw,file=root.img,file.locking=on
+	-device e1000e,netdev=netdev
+	-netdev tap,script=ifup,downscript=no,id=netdev
+```
+
+Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver (currently for ICH9 devices only)")
+Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_memory.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/core/seq/seq_memory.c b/sound/core/seq/seq_memory.c
-index 4c8cbcd89887..42f4aa841051 100644
---- a/sound/core/seq/seq_memory.c
-+++ b/sound/core/seq/seq_memory.c
-@@ -126,15 +126,19 @@ EXPORT_SYMBOL(snd_seq_dump_var_event);
-  * expand the variable length event to linear buffer space.
-  */
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index 116914de603e..cb3ff3c2fb03 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -5897,9 +5897,9 @@ static netdev_tx_t e1000_xmit_frame(struct sk_buff *skb,
+ 		e1000_tx_queue(tx_ring, tx_flags, count);
+ 		/* Make sure there is space in the ring for the next send. */
+ 		e1000_maybe_stop_tx(tx_ring,
+-				    (MAX_SKB_FRAGS *
++				    ((MAX_SKB_FRAGS + 1) *
+ 				     DIV_ROUND_UP(PAGE_SIZE,
+-						  adapter->tx_fifo_limit) + 2));
++						  adapter->tx_fifo_limit) + 4));
  
--static int seq_copy_in_kernel(char **bufptr, const void *src, int size)
-+static int seq_copy_in_kernel(void *ptr, void *src, int size)
- {
-+	char **bufptr = ptr;
-+
- 	memcpy(*bufptr, src, size);
- 	*bufptr += size;
- 	return 0;
- }
- 
--static int seq_copy_in_user(char __user **bufptr, const void *src, int size)
-+static int seq_copy_in_user(void *ptr, void *src, int size)
- {
-+	char __user **bufptr = ptr;
-+
- 	if (copy_to_user(*bufptr, src, size))
- 		return -EFAULT;
- 	*bufptr += size;
-@@ -163,8 +167,7 @@ int snd_seq_expand_var_event(const struct snd_seq_event *event, int count, char
- 		return newlen;
- 	}
- 	err = snd_seq_dump_var_event(event,
--				     in_kernel ? (snd_seq_dump_func_t)seq_copy_in_kernel :
--				     (snd_seq_dump_func_t)seq_copy_in_user,
-+				     in_kernel ? seq_copy_in_kernel : seq_copy_in_user,
- 				     &buf);
- 	return err < 0 ? err : newlen;
- }
+ 		if (!skb->xmit_more ||
+ 		    netif_xmit_stopped(netdev_get_tx_queue(netdev, 0))) {
 -- 
 2.35.1
 
