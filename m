@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5238E649FD9
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:16:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8175A649FDA
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:16:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232187AbiLLNQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:16:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43534 "EHLO
+        id S231757AbiLLNQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:16:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232334AbiLLNPv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:15:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20299FD15
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:15:24 -0800 (PST)
+        with ESMTP id S231362AbiLLNPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:15:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D258B4F
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:15:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B13A761043
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:15:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF923C433D2;
-        Mon, 12 Dec 2022 13:15:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1618B80D3A
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:15:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB4B3C433D2;
+        Mon, 12 Dec 2022 13:15:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670850923;
-        bh=JyOTMRAmrE+f96t65BPIbWC0zznlH+h9ePtkimWBYnE=;
+        s=korg; t=1670850926;
+        bh=Hj3umj8ZIuExf7FCbdLTLLRJwdXJ/JItVPpu0btli+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QAjQudZbeFQg1Ai6eO3FPrc67y5Q6GeGg9MZZ4XU0/rNYYnuk7n7tIvjG55GtXDdc
-         EIQPFMtMby+HQcYptunam0v5NYe7JQJ3WuaAx/DFpxaXDbs/sK/YFKoQGdqdnmavYU
-         Wq7q0VCwgUBkZlXo4IsHVwUXoHSn/GaABqEpyx0s=
+        b=R7P3rsChKfW1Gk+xhTn3OXbEzHynjEScnMEKy3hlg3Y4Bzn/oCzcHmylVk+YhRFi0
+         ytkIjm6IOAZhHaESzWM9rESa91ax8mo8DTJdXMy3M+j3G32NPcIu8zcIvqDjQiob5i
+         6HpRKEjMWwaFH6bvi6eyRDxf2rVwLPcKFvq0onoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        patches@lists.linux.dev, Hauke Mehrtens <hauke@hauke-m.de>,
         Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 065/106] ieee802154: cc2520: Fix error return code in cc2520_hw_init()
-Date:   Mon, 12 Dec 2022 14:10:08 +0100
-Message-Id: <20221212130927.721291055@linuxfoundation.org>
+Subject: [PATCH 5.10 066/106] ca8210: Fix crash by zero initializing data
+Date:   Mon, 12 Dec 2022 14:10:09 +0100
+Message-Id: <20221212130927.763935307@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -54,35 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Hauke Mehrtens <hauke@hauke-m.de>
 
-[ Upstream commit 4d002d6a2a00ac1c433899bd7625c6400a74cfba ]
+[ Upstream commit 1e24c54da257ab93cff5826be8a793b014a5dc9c ]
 
-In cc2520_hw_init(), if oscillator start failed, the error code
-should be returned.
+The struct cas_control embeds multiple generic SPI structures and we
+have to make sure these structures are initialized to default values.
+This driver does not set all attributes. When using kmalloc before some
+attributes were not initialized and contained random data which caused
+random crashes at bootup.
 
-Fixes: 0da6bc8cc341 ("ieee802154: cc2520: adds driver for TI CC2520 radio")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Link: https://lore.kernel.org/r/20221120075046.2213633-1-william.xuanziyang@huawei.com
+Fixes: ded845a781a5 ("ieee802154: Add CA8210 IEEE 802.15.4 device driver")
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Link: https://lore.kernel.org/r/20221121002201.1339636-1-hauke@hauke-m.de
 Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/cc2520.c | 2 +-
+ drivers/net/ieee802154/ca8210.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ieee802154/cc2520.c b/drivers/net/ieee802154/cc2520.c
-index 4517517215f2..a8369bfa4050 100644
---- a/drivers/net/ieee802154/cc2520.c
-+++ b/drivers/net/ieee802154/cc2520.c
-@@ -970,7 +970,7 @@ static int cc2520_hw_init(struct cc2520_private *priv)
+diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
+index fd9f33c833fa..95ef3b6f98dd 100644
+--- a/drivers/net/ieee802154/ca8210.c
++++ b/drivers/net/ieee802154/ca8210.c
+@@ -926,7 +926,7 @@ static int ca8210_spi_transfer(
  
- 		if (timeout-- <= 0) {
- 			dev_err(&priv->spi->dev, "oscillator start failed!\n");
--			return ret;
-+			return -ETIMEDOUT;
- 		}
- 		udelay(1);
- 	} while (!(status & CC2520_STATUS_XOSC32M_STABLE));
+ 	dev_dbg(&spi->dev, "%s called\n", __func__);
+ 
+-	cas_ctl = kmalloc(sizeof(*cas_ctl), GFP_ATOMIC);
++	cas_ctl = kzalloc(sizeof(*cas_ctl), GFP_ATOMIC);
+ 	if (!cas_ctl)
+ 		return -ENOMEM;
+ 
 -- 
 2.35.1
 
