@@ -2,84 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D23B649D54
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 12:17:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9680649D72
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 12:22:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231819AbiLLLRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 06:17:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59958 "EHLO
+        id S231274AbiLLLWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 06:22:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232437AbiLLLRM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 06:17:12 -0500
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CD442AE6
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 03:15:36 -0800 (PST)
-Received: from kwepemi500014.china.huawei.com (unknown [172.30.72.55])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4NVzTM0zbhznTTv;
-        Mon, 12 Dec 2022 19:11:19 +0800 (CST)
-Received: from [10.174.187.90] (10.174.187.90) by
- kwepemi500014.china.huawei.com (7.221.188.232) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.34; Mon, 12 Dec 2022 19:15:33 +0800
-Subject: KVM: a issue which maybe a vulnerability
-From:   Yilu Lin <linyilu@huawei.com>
-To:     <pbonzini@redhat.com>, <stable@vger.kernel.org>
-CC:     "security@kernel.org" <security@kernel.org>,
-        caihe <caihe@huawei.com>,
-        "Zhangzebin (Zebin, PSIRT)" <zhangzebin@huawei.com>,
-        Xiexiangyou <xiexiangyou@huawei.com>,
-        xingchaochao <xingchaochao@huawei.com>,
-        "lishan (E)" <lishan24@huawei.com>, <subo7@huawei.com>,
-        <wanghaibin.wang@huawei.com>, <yuzenghui@huawei.com>,
-        <xiewenbo@huawei.com>
-References: <1afb632c3c59499bb586d1c5287c92ec@huawei.com>
- <57d8b88a87754e9ab74be19139ea64a7@huawei.com> <Y5BOA69lp1LQ6F1m@kroah.com>
- <0167aa46-89da-9b91-f1bf-8023ab4b35c7@huawei.com>
- <Y5btJNMv1nXKLrPE@kroah.com>
- <743b09f8-3377-7556-2968-0607711b82cb@huawei.com>
-Message-ID: <c77c791d-85b0-b799-8f1e-ec00645e976b@huawei.com>
-Date:   Mon, 12 Dec 2022 19:15:32 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
-MIME-Version: 1.0
-In-Reply-To: <743b09f8-3377-7556-2968-0607711b82cb@huawei.com>
+        with ESMTP id S232047AbiLLLVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 06:21:39 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8406423
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 03:19:52 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id jl24so11725555plb.8
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 03:19:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=u+Co1bYcpWm5Xt9KjWssEz/qm6WUyfERvbcoBMaaTOs=;
+        b=K1xmStyLdV0445JQQCv2NOW7pWSXfgYJeS5yY+JFCka7WWmGT7QLonG5QgtJgsIqe5
+         MQWoRWLAa+eq1/YwROEAA01M5VCjp/rsBRO1lWXmGAg6Z3jH8bQRwpmGprueT3N9VrXu
+         lldMBbOZVJniPrS3lH71J3jxnY+P5PJi+EpSxhnZVl6wAdy/MbOzqVd31Z8OBpLfT5FY
+         wMMwcp1lvRsHfC3sAiPVadLydt8A3kl5C5MVUMjasd31cg4q6bLIDBzvIwUj0jHWg5SL
+         T1sbsPjGAI5stzrv5bnNd95isV4V540uh+VluOhximqlDMVTJMSWSwLSMQ5u2FlB4Huj
+         rliA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=u+Co1bYcpWm5Xt9KjWssEz/qm6WUyfERvbcoBMaaTOs=;
+        b=E3pjNXIrz7+jEjxP7V1vzNuvu2L9Bx5WCz0XVEkcvN7ZpTs3ZDjCj1ddsGr2LDQhRi
+         RxkwsHiw6EBdnj0d0WK0V6PRxEcrVr9XfAIxi1E+pOoS5h3Gh2ORD9+ufsInLoGVGQeE
+         A1NoJ7cWVHObBLnfRb7qCfWuB2xxtC/o9yXyONz7Zl/aGX4qiE42beTiryk6Q1RKf5l2
+         gBxzalOGXtMhDOraMF3KCPKT/JoQOOYUH4BTs60gj7034f0FRNhC+HndWtPVZlncUmN1
+         k62FAdhbXDU0MbXfRVbk4s0JLkbKaUgnG9Qxo/x5xrT7SiDbY1eOl3qJIVl0sX8iFP40
+         hgBA==
+X-Gm-Message-State: ANoB5pmYm4sHM5akVEgpiI2ED03eiVTRYJYhXZdNjfecuMJRygiENhxl
+        Mf4+g/Lyln389MNNFuEzsHUk/rTThMn4c/HpGuTqqQ==
+X-Google-Smtp-Source: AA0mqf6nlQ+i4o7/BlDeQ6LMsk85Uazeb6jQntAKbrUGzkoOXpP0jX+uNDZxltm5VJbW9O7AoJf4fA==
+X-Received: by 2002:a17:902:8b81:b0:185:441e:2d78 with SMTP id ay1-20020a1709028b8100b00185441e2d78mr14743438plb.15.1670843991508;
+        Mon, 12 Dec 2022 03:19:51 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i13-20020a170902c94d00b00186c54188b4sm6106729pla.240.2022.12.12.03.19.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Dec 2022 03:19:51 -0800 (PST)
+Message-ID: <63970e57.170a0220.2df88.a3b4@mx.google.com>
+Date:   Mon, 12 Dec 2022 03:19:51 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.187.90]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- kwepemi500014.china.huawei.com (7.221.188.232)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Kernel: v5.15.82-123-ga18620558296
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.15 baseline: 164 runs,
+ 1 regressions (v5.15.82-123-ga18620558296)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello. There is a issue about the kvm module in kernel, which may be a vulnerability. And I need your adivce.
+stable-rc/queue/5.15 baseline: 164 runs, 1 regressions (v5.15.82-123-ga1862=
+0558296)
 
-Here is affect version:
-    Linux kernel version 3.10.The virtualization platform uses the general Linux version before 4.15, which may also involve.
-    The issue is fixed in v4.15-rc1.Commit ID is dedf9c5e216902c6d34b5a0d0c40f4acbb3706d8. Link is https://github.com/torvalds/linux/commit/dedf9c5e216902c6d34b5a0d0c40f4acbb3706d8.
+Regressions Summary
+-------------------
 
-Here is prerequisites for issue exploitation:
-    1. The attacker has root privileges on the virtual machine (GuestOS).
-    2. The Linux kernel version of the host HostOS is less than 3.10 (theoretical analysis shows that versions less than 4.15 are affected).
-    3. The CPU APIC timer type when GuestOS starts is deadline.
-    4. The attacker resets the CPU APIC timer type to period within GuestOS.
+platform      | arch | lab         | compiler | defconfig         | regress=
+ions
+--------------+------+-------------+----------+-------------------+--------=
+----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | at91_dt_defconfig | 1      =
+    =
 
-Here is steps for loophole recurrence:
-    1. Create and start GuestOS（The CPU APIC timer type is deadline when GuestOS starts）.
-    2. Reset the CPU APIC timer type to period within GuestOS. HostOS panic will be triggered probability.
 
-Here is description of the cause of the issue:
-    This vulnerability is a vulnerability in the kvm module in the open-source linux kernel. There is a logic error in the processing interrupt of the kvm module lpaic. When the corresponding timing problem occurs, HardLock will reset the HostOS. Specific problem logic:
-    1. After the virtual machine (GuestOS) is started, initialize the CPU ACPI timer type as deadline, and start the timer timer; The CPU APIC timer type of the GuestOS will be recorded in the HostOS KVM module.
-    2. Modify CPU APIC timer to period type in GuestOS;
-    3. The process of changing CPU APIC timer type will be executed in module of kvm in HostOS;
-    4. When changing the CPU APIC timer type, it is possible to be interrupted by an interrupt whose timer has expired;
-    5. If the interrupt processing function of the timer thinks that the CPU APIC timer type is period, the CPU APIC timer will be added to the timer task list again; However, in this process, the CPU APIC timer period type value is not initialized, which causes the timer timeout to remain unchanged. Therefore, the timer task will be added back to the task list repeatedly, causing an endless loop, which eventually causes HardLock to reset the host.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.82-123-ga18620558296/plan/baseline/
 
-Here is the issue impact:
-    The HostOS is panic. All virtual machines on the host are abnormal and cannot be used.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.82-123-ga18620558296
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a186205582966304683bacf8f2d4ea086361d071 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform      | arch | lab         | compiler | defconfig         | regress=
+ions
+--------------+------+-------------+----------+-------------------+--------=
+----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | at91_dt_defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/6396d7ce8086519e282abd41
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: at91_dt_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.82-=
+123-ga18620558296/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sam=
+9g20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.82-=
+123-ga18620558296/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sam=
+9g20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221125.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6396d7ce8086519e282ab=
+d42
+        new failure (last pass: v5.15.82-59-g9be27e947448) =
+
+ =20
