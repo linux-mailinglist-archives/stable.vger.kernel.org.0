@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 395AD64A170
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:40:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86CD764A083
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:26:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232901AbiLLNkq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:40:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36678 "EHLO
+        id S232768AbiLLN0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:26:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232763AbiLLNkR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:40:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 476141400E
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:39:16 -0800 (PST)
+        with ESMTP id S232742AbiLLNZt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9700D13D2E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D94C461072
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:39:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8403C433F1;
-        Mon, 12 Dec 2022 13:39:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53138B80D50
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6195FC433D2;
+        Mon, 12 Dec 2022 13:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852355;
-        bh=5S2OCFbOH1kpuFKuQAuzcLbEVQQXvfQrf51C22+Kig4=;
+        s=korg; t=1670851546;
+        bh=1q6LV/XCGJkICRHPhOXZv9+sukcew2TPlUBl0//TvHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BrpR6UfZRGYNkLzTpgsO45pmk5CxkvEMqbKpPCIvlWHI8OYGPpkxgFUVLyW2pAzLr
-         njOMVEB9UaDI8/0GDJHcrJOZYmOowRIX4UiDgZbemD5A09abWf5BI35eCDEmYcejVu
-         unXMwW4wQzpUSkp+vszVOAeVSQRPyW02u/gCih84=
+        b=EtYKn2c8REVrvIboiyyaYwFu4mn/z3qeEkC9jFKkY/nXqL/8Tw6yoK07rn/Jq4r5S
+         JnqPS35YgbOEKjCb6LPDT3eOCu6k0Ef8HcNRRJQ3pCicUgBZiWL7QCL9BaTCqkVBMc
+         mvYJkh+2qo2YCJ/xrjBlBaQ8mlFWb3Ud9cQD3uXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alvin Lee <Alvin.Lee2@amd.com>,
-        Martin Leung <Martin.Leung@amd.com>,
-        Brian Chang <Brian.Chang@amd.com>,
-        Dillon Varone <Dillon.Varone@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 038/157] drm/amd/display: Use viewport height for subvp mall allocation size
+Subject: [PATCH 5.15 020/123] selftests/net: Find nettest in current directory
 Date:   Mon, 12 Dec 2022 14:16:26 +0100
-Message-Id: <20221212130936.064279714@linuxfoundation.org>
+Message-Id: <20221212130927.737612718@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,41 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Varone <Dillon.Varone@amd.com>
+From: Daniel Díaz <daniel.diaz@linaro.org>
 
-[ Upstream commit dd2c028c1395d622df7ddd6837f8ab2dc94008ee ]
+[ Upstream commit bd5e1e42826f18147afb0ba07e6a815f52cf8bcb ]
 
-[WHY?]
-MALL allocation size depends on the viewport height, not the addressable
-vertical lines, which will not match when scaling.
+The `nettest` binary, built from `selftests/net/nettest.c`,
+was expected to be found in the path during test execution of
+`fcnal-test.sh` and `pmtu.sh`, leading to tests getting
+skipped when the binary is not installed in the system, as can
+be seen in these logs found in the wild [1]:
 
-[HOW?]
-Base MALL allocation size calculations off viewport height.
+  # TEST: vti4: PMTU exceptions                                         [SKIP]
+  [  350.600250] IPv6: ADDRCONF(NETDEV_CHANGE): veth_b: link becomes ready
+  [  350.607421] IPv6: ADDRCONF(NETDEV_CHANGE): veth_a: link becomes ready
+  # 'nettest' command not found; skipping tests
+  #   xfrm6udp not supported
+  # TEST: vti6: PMTU exceptions (ESP-in-UDP)                            [SKIP]
+  [  351.605102] IPv6: ADDRCONF(NETDEV_CHANGE): veth_b: link becomes ready
+  [  351.612243] IPv6: ADDRCONF(NETDEV_CHANGE): veth_a: link becomes ready
+  # 'nettest' command not found; skipping tests
+  #   xfrm4udp not supported
 
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
-Reviewed-by: Martin Leung <Martin.Leung@amd.com>
-Acked-by: Brian Chang <Brian.Chang@amd.com>
-Signed-off-by: Dillon Varone <Dillon.Varone@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The `unicast_extensions.sh` tests also rely on `nettest`, but
+it runs fine there because it looks for the binary in the
+current working directory [2]:
+
+The same mechanism that works for the Unicast extensions tests
+is here copied over to the PMTU and functional tests.
+
+[1] https://lkft.validation.linaro.org/scheduler/job/5839508#L6221
+[2] https://lkft.validation.linaro.org/scheduler/job/5839508#L7958
+
+Signed-off-by: Daniel Díaz <daniel.diaz@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/net/fcnal-test.sh | 11 +++++++----
+ tools/testing/selftests/net/pmtu.sh       | 10 ++++++----
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c
-index 7c37575d69c7..0ef11fb338e9 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c
-@@ -103,7 +103,7 @@ uint32_t dcn32_helper_calculate_num_ways_for_subvp(struct dc *dc, struct dc_stat
- 			mall_alloc_width_blk_aligned = full_vp_width_blk_aligned;
+diff --git a/tools/testing/selftests/net/fcnal-test.sh b/tools/testing/selftests/net/fcnal-test.sh
+index 91f54112167f..364c82b797c1 100755
+--- a/tools/testing/selftests/net/fcnal-test.sh
++++ b/tools/testing/selftests/net/fcnal-test.sh
+@@ -4072,10 +4072,13 @@ elif [ "$TESTS" = "ipv6" ]; then
+ 	TESTS="$TESTS_IPV6"
+ fi
  
- 			/* mall_alloc_height_blk_aligned_l/c = CEILING(sub_vp_height_l/c - 1, blk_height_l/c) + blk_height_l/c */
--			mall_alloc_height_blk_aligned = (pipe->stream->timing.v_addressable - 1 + mblk_height - 1) /
-+			mall_alloc_height_blk_aligned = (pipe->plane_res.scl_data.viewport.height - 1 + mblk_height - 1) /
- 					mblk_height * mblk_height + mblk_height;
+-which nettest >/dev/null
+-if [ $? -ne 0 ]; then
+-	echo "'nettest' command not found; skipping tests"
+-	exit $ksft_skip
++# nettest can be run from PATH or from same directory as this selftest
++if ! which nettest >/dev/null; then
++	PATH=$PWD:$PATH
++	if ! which nettest >/dev/null; then
++		echo "'nettest' command not found; skipping tests"
++		exit $ksft_skip
++	fi
+ fi
  
- 			/* full_mblk_width_ub_l/c = mall_alloc_width_blk_aligned_l/c;
+ declare -i nfail=0
+diff --git a/tools/testing/selftests/net/pmtu.sh b/tools/testing/selftests/net/pmtu.sh
+index 694732e4b344..da6ab300207c 100755
+--- a/tools/testing/selftests/net/pmtu.sh
++++ b/tools/testing/selftests/net/pmtu.sh
+@@ -671,10 +671,12 @@ setup_xfrm() {
+ }
+ 
+ setup_nettest_xfrm() {
+-	which nettest >/dev/null
+-	if [ $? -ne 0 ]; then
+-		echo "'nettest' command not found; skipping tests"
+-	        return 1
++	if ! which nettest >/dev/null; then
++		PATH=$PWD:$PATH
++		if ! which nettest >/dev/null; then
++			echo "'nettest' command not found; skipping tests"
++			return 1
++		fi
+ 	fi
+ 
+ 	[ ${1} -eq 6 ] && proto="-6" || proto=""
 -- 
 2.35.1
 
