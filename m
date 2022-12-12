@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60DD364A09C
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:27:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80C6464A03D
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232762AbiLLN1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:27:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56302 "EHLO
+        id S232628AbiLLNWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:22:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232470AbiLLN1e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:27:34 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC22E13E05
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:27:25 -0800 (PST)
+        with ESMTP id S232629AbiLLNWR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:22:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83081315
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:22:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 64BD1CE0F7B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:27:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EBF4C433EF;
-        Mon, 12 Dec 2022 13:27:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E89461042
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:22:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F3BFC433EF;
+        Mon, 12 Dec 2022 13:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851642;
-        bh=YQ/0GsNfBgxYaNPE7beSyGgE2iIyKK5zr2JLwJQ8tx8=;
+        s=korg; t=1670851334;
+        bh=kodpPhPiGEHVncs7lHlgeyBV0cizVTBtEmqJi9UoSh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eeGMQo0bREhIQE8/rj3eCbh9KnJUQAkzJ5wDIRNclF0MX50cM9kMQLe1OY+/OVCXu
-         hXY3S7fbW0jVTnECupdSA1mjGD0b9lQHTJ0zqXIYk3rPBjQNOB1f11XDUfaYz9hXei
-         rldnRCvgPkclddcbbf6uMku8J12RdAIW+ZncRIwE=
+        b=FGGXyAc/ptz5ur42rUEwkO0QD93j6e6h/cclRdpbwy9YA2jhswK7mjR3Vji23AaLF
+         fza3KzUcqpKa4H/o3/uN/lfiJ++LSukhvI7TEKxvU3fKzKfYl0C1X6g4qBiM4cSg7r
+         v811FbIz2aIBjKVqPCk6JTIqcrCeAcAjALd8sVE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Marek Vasut <marex@denx.de>, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.15 041/123] Revert "ARM: dts: imx7: Fix NAND controller size-cells"
+        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 12/67] ASoC: soc-pcm: Add NULL check in BE reparenting
 Date:   Mon, 12 Dec 2022 14:16:47 +0100
-Message-Id: <20221212130928.639530525@linuxfoundation.org>
+Message-Id: <20221212130918.207563059@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Dolcini <francesco.dolcini@toradex.com>
+From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
 
-commit ef19964da8a668c683f1d38274f6fb756e047945 upstream.
+[ Upstream commit db8f91d424fe0ea6db337aca8bc05908bbce1498 ]
 
-This reverts commit 753395ea1e45c724150070b5785900b6a44bd5fb.
+Add NULL check in dpcm_be_reparent API, to handle
+kernel NULL pointer dereference error.
+The issue occurred in fuzzing test.
 
-It introduced a boot regression on colibri-imx7, and potentially any
-other i.MX7 boards with MTD partition list generated into the fdt by
-U-Boot.
-
-While the commit we are reverting here is not obviously wrong, it fixes
-only a dt binding checker warning that is non-functional, while it
-introduces a boot regression and there is no obvious fix ready.
-
-Fixes: 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Marek Vasut <marex@denx.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com/
-Link: https://lore.kernel.org/all/20221205144917.6514168a@xps-13/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+Link: https://lore.kernel.org/r/1669098673-29703-1-git-send-email-quic_srivasam@quicinc.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx7s.dtsi |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/soc-pcm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/arm/boot/dts/imx7s.dtsi
-+++ b/arch/arm/boot/dts/imx7s.dtsi
-@@ -1252,10 +1252,10 @@
- 			clocks = <&clks IMX7D_NAND_USDHC_BUS_RAWNAND_CLK>;
- 		};
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 1196167364d4..2f1ab70a68fc 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -1201,6 +1201,8 @@ static void dpcm_be_reparent(struct snd_soc_pcm_runtime *fe,
+ 		return;
  
--		gpmi: nand-controller@33002000 {
-+		gpmi: nand-controller@33002000{
- 			compatible = "fsl,imx7d-gpmi-nand";
- 			#address-cells = <1>;
--			#size-cells = <0>;
-+			#size-cells = <1>;
- 			reg = <0x33002000 0x2000>, <0x33004000 0x4000>;
- 			reg-names = "gpmi-nand", "bch";
- 			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+ 	be_substream = snd_soc_dpcm_get_substream(be, stream);
++	if (!be_substream)
++		return;
+ 
+ 	for_each_dpcm_fe(be, stream, dpcm) {
+ 		if (dpcm->fe == fe)
+-- 
+2.35.1
+
 
 
