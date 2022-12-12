@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82E7864A1B1
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7FC164A106
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:34:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232902AbiLLNoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:44:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41758 "EHLO
+        id S232716AbiLLNe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:34:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232919AbiLLNnq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BBC64F7
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:43:19 -0800 (PST)
+        with ESMTP id S232736AbiLLNeH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:34:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25CBF13F1F
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:33:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABE7DB8068B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:43:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC56AC433EF;
-        Mon, 12 Dec 2022 13:43:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B559961050
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:33:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B206DC433D2;
+        Mon, 12 Dec 2022 13:33:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852596;
-        bh=XVSMrtTaqFbA/yO6OdWKo6Jh6ZBJN0hHGsgDWIUgntI=;
+        s=korg; t=1670852032;
+        bh=QMPCEwvtnD6H7yHPGtzMWvY4603SubY5iaH15NdXFF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Of2Ul9CNlkDGsFwqYKD4PoTzjSKteQkX0t2jehSm1WEcop9p7Ss2cGmvBv+lH5ans
-         kWO67Rk84PuAZwkgkQG/2+am1z1rT/EwZWSW7ntTUBaleEY56/nNjg5xqB95J2XkL3
-         wRnjO1VYoXU3setcWsXSDfI1Gs8/OK2ltvIxj7m8=
+        b=BDLaMwBnuZ0br9Y6iLzaEFEQ9beOP3PcA98nACgQyl94dlgvbikvz5wdIdEP26P8r
+         ZruFSjm8xy7XBop4rxqtr3YC6JlmpUV4ZMKssRAoIeP5ghckSvW2f6GdXSgj994loF
+         KD5HrbKPviyqSkCrJvWj41SaSFoj/UxS0zFvWnhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Kurt Kanzenbach <kurt@linutronix.de>,
+        syzbot+210e196cef4711b65139@syzkaller.appspotmail.com,
+        Kees Cook <keescook@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 112/157] net: dsa: hellcreek: Check return value
+Subject: [PATCH 5.15 094/123] NFC: nci: Bounds check struct nfc_target arrays
 Date:   Mon, 12 Dec 2022 14:17:40 +0100
-Message-Id: <20221212130939.348982886@linuxfoundation.org>
+Message-Id: <20221212130931.038080581@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit d4edb50688652eb10be270bc515da63815de428f ]
+[ Upstream commit e329e71013c9b5a4535b099208493c7826ee4a64 ]
 
-Return NULL if we got unexpected value from skb_trim_rcsum()
-in hellcreek_rcv()
+While running under CONFIG_FORTIFY_SOURCE=y, syzkaller reported:
 
-Fixes: 01ef09caad66 ("net: dsa: Add tag handling for Hirschmann Hellcreek switches")
-Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Kurt Kanzenbach <kurt@linutronix.de>
-Link: https://lore.kernel.org/r/20221201140032.26746-2-artem.chernyshev@red-soft.ru
+  memcpy: detected field-spanning write (size 129) of single field "target->sensf_res" at net/nfc/nci/ntf.c:260 (size 18)
+
+This appears to be a legitimate lack of bounds checking in
+nci_add_new_protocol(). Add the missing checks.
+
+Reported-by: syzbot+210e196cef4711b65139@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/lkml/0000000000001c590f05ee7b3ff4@google.com
+Fixes: 019c4fbaa790 ("NFC: Add NCI multiple targets support")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20221202214410.never.693-kees@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/tag_hellcreek.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/nfc/nci/ntf.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/dsa/tag_hellcreek.c b/net/dsa/tag_hellcreek.c
-index 846588c0070a..53a206d11685 100644
---- a/net/dsa/tag_hellcreek.c
-+++ b/net/dsa/tag_hellcreek.c
-@@ -49,7 +49,8 @@ static struct sk_buff *hellcreek_rcv(struct sk_buff *skb,
- 		return NULL;
- 	}
+diff --git a/net/nfc/nci/ntf.c b/net/nfc/nci/ntf.c
+index c5eacaac41ae..8f48b1061944 100644
+--- a/net/nfc/nci/ntf.c
++++ b/net/nfc/nci/ntf.c
+@@ -240,6 +240,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
+ 		target->sens_res = nfca_poll->sens_res;
+ 		target->sel_res = nfca_poll->sel_res;
+ 		target->nfcid1_len = nfca_poll->nfcid1_len;
++		if (target->nfcid1_len > ARRAY_SIZE(target->nfcid1))
++			return -EPROTO;
+ 		if (target->nfcid1_len > 0) {
+ 			memcpy(target->nfcid1, nfca_poll->nfcid1,
+ 			       target->nfcid1_len);
+@@ -248,6 +250,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
+ 		nfcb_poll = (struct rf_tech_specific_params_nfcb_poll *)params;
  
--	pskb_trim_rcsum(skb, skb->len - HELLCREEK_TAG_LEN);
-+	if (pskb_trim_rcsum(skb, skb->len - HELLCREEK_TAG_LEN))
-+		return NULL;
+ 		target->sensb_res_len = nfcb_poll->sensb_res_len;
++		if (target->sensb_res_len > ARRAY_SIZE(target->sensb_res))
++			return -EPROTO;
+ 		if (target->sensb_res_len > 0) {
+ 			memcpy(target->sensb_res, nfcb_poll->sensb_res,
+ 			       target->sensb_res_len);
+@@ -256,6 +260,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
+ 		nfcf_poll = (struct rf_tech_specific_params_nfcf_poll *)params;
  
- 	dsa_default_offload_fwd_mark(skb);
- 
+ 		target->sensf_res_len = nfcf_poll->sensf_res_len;
++		if (target->sensf_res_len > ARRAY_SIZE(target->sensf_res))
++			return -EPROTO;
+ 		if (target->sensf_res_len > 0) {
+ 			memcpy(target->sensf_res, nfcf_poll->sensf_res,
+ 			       target->sensf_res_len);
 -- 
 2.35.1
 
