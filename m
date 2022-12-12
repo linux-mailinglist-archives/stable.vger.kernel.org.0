@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1094564A0CF
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:31:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 922A964A1A6
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:43:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232624AbiLLNbO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:31:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60024 "EHLO
+        id S232947AbiLLNnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:43:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232447AbiLLNbJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:31:09 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE80625C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:31:08 -0800 (PST)
+        with ESMTP id S232304AbiLLNn1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79066D6C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:42:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6DABDCE0F42
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:31:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F9FBC433D2;
-        Mon, 12 Dec 2022 13:31:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CBB9B80B78
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:42:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61D76C433EF;
+        Mon, 12 Dec 2022 13:42:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851864;
-        bh=OyJhl0urYqLEGAXiMaD8NlhT5R4R3ciDN/M8xEd2JY4=;
+        s=korg; t=1670852550;
+        bh=bqeffSMUhDZYJLTZsspfEnsaxGnWB5F7RARi16EC1YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uVD4P2yh8YtIc7aoKshy75JpZrYiFs97HvWZVY6EYd7fMC+EoXZyeRgGyREU/t7Um
-         7cdPX04emm1I5VrsF0dDf0TSMVUvQGBqqiQ0Z2Z4vrBlGWuYuwcngQySbgheGO+mti
-         hoFEBhUWjBN2GgmLumJV1dMzbcIl39DdObfez14g=
+        b=HQI8ZL9QLCDfvjru0+Decng2hFLOs0JxyHwVFUda6BGK9FL9oiq53Kc22xegYBbmu
+         +bSHyyxkf6HU3EzA0hnMc2GdHun4iWsgIkvYrJ7+BsuypPAcgU/xbVJsKzUMdpPFog
+         rjmh8v4XA4jkxFZsGCR5oC+ueFga8LDCRNiRvwCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Valentina Goncharenko <goncharenko.vp@ispras.ru>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        patches@lists.linux.dev, Ronak Doshi <doshir@vmware.com>,
+        Guolin Yang <gyang@vmware.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 085/123] net: encx24j600: Fix invalid logic in reading of MISTAT register
-Date:   Mon, 12 Dec 2022 14:17:31 +0100
-Message-Id: <20221212130930.532094616@linuxfoundation.org>
+Subject: [PATCH 6.0 104/157] vmxnet3: correctly report encapsulated LRO packet
+Date:   Mon, 12 Dec 2022 14:17:32 +0100
+Message-Id: <20221212130939.018698045@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentina Goncharenko <goncharenko.vp@ispras.ru>
+From: Ronak Doshi <doshir@vmware.com>
 
-[ Upstream commit 25f427ac7b8d89b0259f86c0c6407b329df742b2 ]
+[ Upstream commit 40b8c2a1af03ba3e8da55a4490d646bfa845e71a ]
 
-A loop for reading MISTAT register continues while regmap_read() fails
-and (mistat & BUSY), but if regmap_read() fails a value of mistat is
-undefined.
+Commit dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload
+support") added support for encapsulation offload. However, the
+pathc did not report correctly the encapsulated packet which is
+LRO'ed by the hypervisor.
 
-The patch proposes to check for BUSY flag only when regmap_read()
-succeed. Compile test only.
+This patch fixes this issue by using correct callback for the LRO'ed
+encapsulated packet.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Fixes: d70e53262f5c ("net: Microchip encx24j600 driver")
-Signed-off-by: Valentina Goncharenko <goncharenko.vp@ispras.ru>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Fixes: dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload support")
+Signed-off-by: Ronak Doshi <doshir@vmware.com>
+Acked-by: Guolin Yang <gyang@vmware.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/encx24j600-regmap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/vmxnet3/vmxnet3_drv.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/encx24j600-regmap.c b/drivers/net/ethernet/microchip/encx24j600-regmap.c
-index 2e337c7a5773..5693784eec5b 100644
---- a/drivers/net/ethernet/microchip/encx24j600-regmap.c
-+++ b/drivers/net/ethernet/microchip/encx24j600-regmap.c
-@@ -359,7 +359,7 @@ static int regmap_encx24j600_phy_reg_read(void *context, unsigned int reg,
- 		goto err_out;
+diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
+index 53b3b241e027..dd4fecbd1e2e 100644
+--- a/drivers/net/vmxnet3/vmxnet3_drv.c
++++ b/drivers/net/vmxnet3/vmxnet3_drv.c
+@@ -1396,6 +1396,7 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
+ 	};
+ 	u32 num_pkts = 0;
+ 	bool skip_page_frags = false;
++	bool encap_lro = false;
+ 	struct Vmxnet3_RxCompDesc *rcd;
+ 	struct vmxnet3_rx_ctx *ctx = &rq->rx_ctx;
+ 	u16 segCnt = 0, mss = 0;
+@@ -1556,13 +1557,18 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
+ 			if (VMXNET3_VERSION_GE_2(adapter) &&
+ 			    rcd->type == VMXNET3_CDTYPE_RXCOMP_LRO) {
+ 				struct Vmxnet3_RxCompDescExt *rcdlro;
++				union Vmxnet3_GenericDesc *gdesc;
++
+ 				rcdlro = (struct Vmxnet3_RxCompDescExt *)rcd;
++				gdesc = (union Vmxnet3_GenericDesc *)rcd;
  
- 	usleep_range(26, 100);
--	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
-+	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) == 0) &&
- 	       (mistat & BUSY))
- 		cpu_relax();
+ 				segCnt = rcdlro->segCnt;
+ 				WARN_ON_ONCE(segCnt == 0);
+ 				mss = rcdlro->mss;
+ 				if (unlikely(segCnt <= 1))
+ 					segCnt = 0;
++				encap_lro = (le32_to_cpu(gdesc->dword[0]) &
++					(1UL << VMXNET3_RCD_HDR_INNER_SHIFT));
+ 			} else {
+ 				segCnt = 0;
+ 			}
+@@ -1630,7 +1636,7 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
+ 			vmxnet3_rx_csum(adapter, skb,
+ 					(union Vmxnet3_GenericDesc *)rcd);
+ 			skb->protocol = eth_type_trans(skb, adapter->netdev);
+-			if (!rcd->tcp ||
++			if ((!rcd->tcp && !encap_lro) ||
+ 			    !(adapter->netdev->features & NETIF_F_LRO))
+ 				goto not_lro;
  
-@@ -397,7 +397,7 @@ static int regmap_encx24j600_phy_reg_write(void *context, unsigned int reg,
- 		goto err_out;
+@@ -1639,7 +1645,7 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
+ 					SKB_GSO_TCPV4 : SKB_GSO_TCPV6;
+ 				skb_shinfo(skb)->gso_size = mss;
+ 				skb_shinfo(skb)->gso_segs = segCnt;
+-			} else if (segCnt != 0 || skb->len > mtu) {
++			} else if ((segCnt != 0 || skb->len > mtu) && !encap_lro) {
+ 				u32 hlen;
  
- 	usleep_range(26, 100);
--	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
-+	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) == 0) &&
- 	       (mistat & BUSY))
- 		cpu_relax();
+ 				hlen = vmxnet3_get_hdr_len(adapter, skb,
+@@ -1668,6 +1674,7 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
+ 				napi_gro_receive(&rq->napi, skb);
+ 
+ 			ctx->skb = NULL;
++			encap_lro = false;
+ 			num_pkts++;
+ 		}
  
 -- 
 2.35.1
