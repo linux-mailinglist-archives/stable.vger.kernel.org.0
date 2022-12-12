@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F1F864A1AC
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1704964A103
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:34:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232983AbiLLNn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:43:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43002 "EHLO
+        id S232583AbiLLNeL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:34:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232984AbiLLNnl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:41 -0500
+        with ESMTP id S232798AbiLLNdt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:33:49 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 951592BEB
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:42:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9D1D13E31
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:33:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 346CE61072
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:42:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2135C433EF;
-        Mon, 12 Dec 2022 13:42:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B3A561070
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:33:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE024C433EF;
+        Mon, 12 Dec 2022 13:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852576;
-        bh=FL0FOTJJ/qrVP1nyrQUDU0ioCJE7D//1YdPTBN3xRAU=;
+        s=korg; t=1670852017;
+        bh=9X9RDF9eE81gyO87jnWvyoATxa7q007k1vyV6vPKySg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OpBVnqavfzf6jUhpRyuIzFBdZo6sSyAzwYK7/vBZJzxHfbXBELDfUfBvuUE4R2Bcn
-         gu2v3OVonKQEBRT80lXK7xoAvMTAljzo/ejG3zWshpEOskVkfXXKgV5b/K+5wEyzVu
-         sdNyALJiF6Hpu3qEij0aKwuCQmlRJ9UTEka5xu7o=
+        b=10KINb16AzIx/Pib0MT7qp50nK4LNoCJgMEgk4ySFZ7uokfkkLtOtMZKrvRu693il
+         DhO25rvp2Ym2wwT2MN1wcFHPi0yV8BOU7MZcGy5M8Hv0e46p0k7N/ig1KAzFqTm8qM
+         jbKQ4ASv3Rwo26YAIr1VLQqeMjknu2Um8SMBeejM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Chethan T N <chethan.tumkur.narayan@intel.com>,
-        Kiran K <kiran.k@intel.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 108/157] Bluetooth: Remove codec id field in vendor codec definition
-Date:   Mon, 12 Dec 2022 14:17:36 +0100
-Message-Id: <20221212130939.183507671@linuxfoundation.org>
+        patches@lists.linux.dev, Michal Jaron <michalx.jaron@intel.com>,
+        Kamil Maziarz <kamil.maziarz@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.15 091/123] i40e: Fix not setting default xps_cpus after reset
+Date:   Mon, 12 Dec 2022 14:17:37 +0100
+Message-Id: <20221212130930.850182771@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chethan T N <chethan.tumkur.narayan@intel.com>
+From: Michal Jaron <michalx.jaron@intel.com>
 
-[ Upstream commit 93df7d56f15e217009323c0fbb5213ab7a14520b ]
+[ Upstream commit 82e0572b23029b380464fa9fdc125db9c1506d0a ]
 
-As per the specfication vendor codec id is defined.
-BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 4, Part E page 2127
+During tx rings configuration default XPS queue config is set and
+__I40E_TX_XPS_INIT_DONE is locked. __I40E_TX_XPS_INIT_DONE state is
+cleared and set again with default mapping only during queues build,
+it means after first setup or reset with queues rebuild. (i.e.
+ethtool -L <interface> combined <number>) After other resets (i.e.
+ethtool -t <interface>) XPS_INIT_DONE is not cleared and those default
+maps cannot be set again. It results in cleared xps_cpus mapping
+until queues are not rebuild or mapping is not set by user.
 
-Fixes: 9ae664028a9e ("Bluetooth: Add support for Read Local Supported Codecs V2")
-Signed-off-by: Chethan T N <chethan.tumkur.narayan@intel.com>
-Signed-off-by: Kiran K <kiran.k@intel.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Add clearing __I40E_TX_XPS_INIT_DONE state during reset to let
+the driver set xps_cpus to defaults again after it was cleared.
+
+Fixes: 6f853d4f8e93 ("i40e: allow XPS with QoS enabled")
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Kamil Maziarz <kamil.maziarz@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/bluetooth/hci.h | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
-index a3c7dcfa0a05..4518c63e9d17 100644
---- a/include/net/bluetooth/hci.h
-+++ b/include/net/bluetooth/hci.h
-@@ -1431,7 +1431,6 @@ struct hci_std_codecs_v2 {
- } __packed;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 19b5c5677584..ed2c961902b6 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -10519,6 +10519,21 @@ static int i40e_rebuild_channels(struct i40e_vsi *vsi)
+ 	return 0;
+ }
  
- struct hci_vnd_codec_v2 {
--	__u8	id;
- 	__le16	cid;
- 	__le16	vid;
- 	__u8	transport;
++/**
++ * i40e_clean_xps_state - clean xps state for every tx_ring
++ * @vsi: ptr to the VSI
++ **/
++static void i40e_clean_xps_state(struct i40e_vsi *vsi)
++{
++	int i;
++
++	if (vsi->tx_rings)
++		for (i = 0; i < vsi->num_queue_pairs; i++)
++			if (vsi->tx_rings[i])
++				clear_bit(__I40E_TX_XPS_INIT_DONE,
++					  vsi->tx_rings[i]->state);
++}
++
+ /**
+  * i40e_prep_for_reset - prep for the core to reset
+  * @pf: board private structure
+@@ -10543,8 +10558,10 @@ static void i40e_prep_for_reset(struct i40e_pf *pf)
+ 	i40e_pf_quiesce_all_vsi(pf);
+ 
+ 	for (v = 0; v < pf->num_alloc_vsi; v++) {
+-		if (pf->vsi[v])
++		if (pf->vsi[v]) {
++			i40e_clean_xps_state(pf->vsi[v]);
+ 			pf->vsi[v]->seid = 0;
++		}
+ 	}
+ 
+ 	i40e_shutdown_adminq(&pf->hw);
 -- 
 2.35.1
 
