@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05B4D64A1C4
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:45:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85C1964A0EF
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:33:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233033AbiLLNp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:45:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42316 "EHLO
+        id S232276AbiLLNdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:33:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232696AbiLLNo6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:44:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBA0FCCC
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:44:26 -0800 (PST)
+        with ESMTP id S232350AbiLLNdE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:33:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF01214
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:33:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2D48B80D2C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:44:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9034EC433F0;
-        Mon, 12 Dec 2022 13:44:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB84561042
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:33:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7732BC433D2;
+        Mon, 12 Dec 2022 13:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852664;
-        bh=lL6YemiGUiftkkkTYrulfsEj13wC2NwS2HMH4LhlvTA=;
+        s=korg; t=1670851982;
+        bh=s9lSFExjWFJ8VpXkdd/7GHh9sv6KjZeZQ27F/rhDDIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xHjyIE1JPlp/AbjpZdwS5gaaoXD1vQ3Yd97eDskMeiI+J+Q2Pki5EeyRzRY2qqSoj
-         /1LIahP/geFkHbx4bdI9SdJ3gX0O7ko7jUN5tGrBnkprUedDe/qOWRyiWdPmuU+PD3
-         KYjSnrXCHPEgxi9YrKHOu7qzonXcs1dQky+gUrqs=
+        b=FwfveC1jJJ9mVC5/1IlmBSPoBfs6l0UAIWILK5dFuoM97Vaqw9qWhVHBM4ji/GaWk
+         Oa/9CMvi9ya73yMTLKqTMc1Z9RHWKI6umB05kZbBkS2AF3Nr1QP0gmIHXZtdLtMct5
+         8W1R39eyauEXPLh8fFKw4wW2trCIzkJMLExmZu98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Kamil Maziarz <kamil.maziarz@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 6.0 127/157] i40e: Disallow ip4 and ip6 l4_4_bytes
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 109/123] ethernet: aeroflex: fix potential skb leak in greth_init_rings()
 Date:   Mon, 12 Dec 2022 14:17:55 +0100
-Message-Id: <20221212130939.967662929@linuxfoundation.org>
+Message-Id: <20221212130931.893388252@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,57 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit d64aaf3f7869f915fd120763d75f11d6b116424d ]
+[ Upstream commit 063a932b64db3317ec020c94466fe52923a15f60 ]
 
-Return -EOPNOTSUPP, when user requests l4_4_bytes for raw IP4 or
-IP6 flow director filters. Flow director does not support filtering
-on l4 bytes for PCTYPEs used by IP4 and IP6 filters.
-Without this patch, user could create filters with l4_4_bytes fields,
-which did not do any filtering on L4, but only on L3 fields.
+The greth_init_rings() function won't free the newly allocated skb when
+dma_mapping_error() returns error, so add dev_kfree_skb() to fix it.
 
-Fixes: 36777d9fa24c ("i40e: check current configured input set when adding ntuple filters")
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Signed-off-by: Kamil Maziarz  <kamil.maziarz@intel.com>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Compile tested only.
+
+Fixes: d4c41139df6e ("net: Add Aeroflex Gaisler 10/100/1G Ethernet MAC driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/1670134149-29516-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/aeroflex/greth.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index 6f0d4160ff82..d9368f7669aa 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -4464,11 +4464,7 @@ static int i40e_check_fdir_input_set(struct i40e_vsi *vsi,
- 			return -EOPNOTSUPP;
- 
- 		/* First 4 bytes of L4 header */
--		if (usr_ip4_spec->l4_4_bytes == htonl(0xFFFFFFFF))
--			new_mask |= I40E_L4_SRC_MASK | I40E_L4_DST_MASK;
--		else if (!usr_ip4_spec->l4_4_bytes)
--			new_mask &= ~(I40E_L4_SRC_MASK | I40E_L4_DST_MASK);
--		else
-+		if (usr_ip4_spec->l4_4_bytes)
- 			return -EOPNOTSUPP;
- 
- 		/* Filtering on Type of Service is not supported. */
-@@ -4507,11 +4503,7 @@ static int i40e_check_fdir_input_set(struct i40e_vsi *vsi,
- 		else
- 			return -EOPNOTSUPP;
- 
--		if (usr_ip6_spec->l4_4_bytes == htonl(0xFFFFFFFF))
--			new_mask |= I40E_L4_SRC_MASK | I40E_L4_DST_MASK;
--		else if (!usr_ip6_spec->l4_4_bytes)
--			new_mask &= ~(I40E_L4_SRC_MASK | I40E_L4_DST_MASK);
--		else
-+		if (usr_ip6_spec->l4_4_bytes)
- 			return -EOPNOTSUPP;
- 
- 		/* Filtering on Traffic class is not supported. */
+diff --git a/drivers/net/ethernet/aeroflex/greth.c b/drivers/net/ethernet/aeroflex/greth.c
+index c560ad06f0be..a95bac4e14f6 100644
+--- a/drivers/net/ethernet/aeroflex/greth.c
++++ b/drivers/net/ethernet/aeroflex/greth.c
+@@ -258,6 +258,7 @@ static int greth_init_rings(struct greth_private *greth)
+ 			if (dma_mapping_error(greth->dev, dma_addr)) {
+ 				if (netif_msg_ifup(greth))
+ 					dev_err(greth->dev, "Could not create initial DMA mapping\n");
++				dev_kfree_skb(skb);
+ 				goto cleanup;
+ 			}
+ 			greth->rx_skbuff[i] = skb;
 -- 
 2.35.1
 
