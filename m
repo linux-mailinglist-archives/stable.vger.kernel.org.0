@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67C1864A0B7
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:29:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC67864A166
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:40:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231503AbiLLN33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:29:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57954 "EHLO
+        id S232810AbiLLNj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:39:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232296AbiLLN3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:29:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E12C4C4C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:29:15 -0800 (PST)
+        with ESMTP id S232871AbiLLNjh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:39:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCCB614D38
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:38:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 896C0B80D52
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:29:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCA38C433D2;
-        Mon, 12 Dec 2022 13:29:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B22061072
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:38:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06A03C433F1;
+        Mon, 12 Dec 2022 13:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851753;
-        bh=mTNj4EVes8V39e22x7+jOtqJq1fS07WkKBgjaYWpLas=;
+        s=korg; t=1670852308;
+        bh=P7A2QBzDkilDUUi7RCnLBhrn9bEaUQ/D3QSuZQ64mlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8PGXNeIFZVbnosd76m5IU3EssK4SmJU3WDWBUHKz7sE+KtEhmi/lOgQI/TkgK1Jy
-         hON6OdCChgBMcg1DJfAVDjt0wmsMP3J3Twxr47iPZ3DA4gJBcIQkrnEbNToExzp8CD
-         pq1WTI/W5vpheEXt8/huDmbVj/8C+zn6iY9HJeUo=
+        b=rZfNuN9wJFaw7/stoIerG5PVAQbEBUxh/rDhuab4u0z/MOCy1trnOsuqFPq1B9gOu
+         y8RK2MdPH0TGI0O4AHCJxy1GtZ6Rxt7aQPLJNcuoXF7YQrCVVShfBL9R7Qh574mufi
+         9a2oE3TpGt3u19W2FJO6wWW8A/JwLGaYEBREVIA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-        Wei Liu <wei.liu@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 037/123] xen/netback: do some code cleanup
+        patches@lists.linux.dev, Sjoerd Simons <sjoerd@collabora.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Chao Song <chao.song@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 6.0 055/157] soundwire: intel: Initialize clock stop timeout
 Date:   Mon, 12 Dec 2022 14:16:43 +0100
-Message-Id: <20221212130928.469580721@linuxfoundation.org>
+Message-Id: <20221212130936.771461078@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,147 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Sjoerd Simons <sjoerd@collabora.com>
 
-[ Upstream commit 5834e72eda0b7e5767eb107259d98eef19ebd11f ]
+commit 13c30a755847c7e804e1bf755e66e3ff7b7f9367 upstream.
 
-Remove some unused macros and functions, make local functions static.
+The bus->clk_stop_timeout member is only initialized to a non-zero value
+during the codec driver probe. This can lead to corner cases where this
+value remains pegged at zero when the bus suspends, which results in an
+endless loop in sdw_bus_wait_for_clk_prep_deprep().
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Wei Liu <wei.liu@kernel.org>
-Link: https://lore.kernel.org/r/20220608043726.9380-1-jgross@suse.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Stable-dep-of: 74e7e1efdad4 ("xen/netback: don't call kfree_skb() with interrupts disabled")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Corner cases include configurations with no codecs described in the
+firmware, or delays in probing codec drivers.
+
+Initializing the default timeout to the smallest non-zero value avoid this
+problem and allows for the existing logic to be preserved: the
+bus->clk_stop_timeout is set as the maximum required by all codecs
+connected on the bus.
+
+Fixes: 1f2dcf3a154ac ("soundwire: intel: set dev_num_ida_min")
+Signed-off-by: Sjoerd Simons <sjoerd@collabora.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Chao Song <chao.song@intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20221020015624.1703950-1-yung-chuan.liao@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/common.h    | 12 ------------
- drivers/net/xen-netback/interface.c | 16 +---------------
- drivers/net/xen-netback/netback.c   |  4 +++-
- drivers/net/xen-netback/rx.c        |  2 +-
- 4 files changed, 5 insertions(+), 29 deletions(-)
+ drivers/soundwire/intel.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/xen-netback/common.h b/drivers/net/xen-netback/common.h
-index d9dea4829c86..8174d7b2966c 100644
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -48,7 +48,6 @@
- #include <linux/debugfs.h>
+--- a/drivers/soundwire/intel.c
++++ b/drivers/soundwire/intel.c
+@@ -1307,6 +1307,7 @@ static int intel_link_probe(struct auxil
+ 	cdns->msg_count = 0;
  
- typedef unsigned int pending_ring_idx_t;
--#define INVALID_PENDING_RING_IDX (~0U)
+ 	bus->link_id = auxdev->id;
++	bus->clk_stop_timeout = 1;
  
- struct pending_tx_info {
- 	struct xen_netif_tx_request req; /* tx request */
-@@ -82,8 +81,6 @@ struct xenvif_rx_meta {
- /* Discriminate from any valid pending_idx value. */
- #define INVALID_PENDING_IDX 0xFFFF
+ 	sdw_cdns_probe(cdns);
  
--#define MAX_BUFFER_OFFSET XEN_PAGE_SIZE
--
- #define MAX_PENDING_REQS XEN_NETIF_TX_RING_SIZE
- 
- /* The maximum number of frags is derived from the size of a grant (same
-@@ -367,11 +364,6 @@ void xenvif_free(struct xenvif *vif);
- int xenvif_xenbus_init(void);
- void xenvif_xenbus_fini(void);
- 
--int xenvif_schedulable(struct xenvif *vif);
--
--int xenvif_queue_stopped(struct xenvif_queue *queue);
--void xenvif_wake_queue(struct xenvif_queue *queue);
--
- /* (Un)Map communication rings. */
- void xenvif_unmap_frontend_data_rings(struct xenvif_queue *queue);
- int xenvif_map_frontend_data_rings(struct xenvif_queue *queue,
-@@ -394,7 +386,6 @@ int xenvif_dealloc_kthread(void *data);
- irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data);
- 
- bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread);
--void xenvif_rx_action(struct xenvif_queue *queue);
- void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
- 
- void xenvif_carrier_on(struct xenvif *vif);
-@@ -403,9 +394,6 @@ void xenvif_carrier_on(struct xenvif *vif);
- void xenvif_zerocopy_callback(struct sk_buff *skb, struct ubuf_info *ubuf,
- 			      bool zerocopy_success);
- 
--/* Unmap a pending page and release it back to the guest */
--void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx);
--
- static inline pending_ring_idx_t nr_pending_reqs(struct xenvif_queue *queue)
- {
- 	return MAX_PENDING_REQS -
-diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
-index c58996c1e230..e31936876e1f 100644
---- a/drivers/net/xen-netback/interface.c
-+++ b/drivers/net/xen-netback/interface.c
-@@ -70,7 +70,7 @@ void xenvif_skb_zerocopy_complete(struct xenvif_queue *queue)
- 	wake_up(&queue->dealloc_wq);
- }
- 
--int xenvif_schedulable(struct xenvif *vif)
-+static int xenvif_schedulable(struct xenvif *vif)
- {
- 	return netif_running(vif->dev) &&
- 		test_bit(VIF_STATUS_CONNECTED, &vif->status) &&
-@@ -178,20 +178,6 @@ irqreturn_t xenvif_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--int xenvif_queue_stopped(struct xenvif_queue *queue)
--{
--	struct net_device *dev = queue->vif->dev;
--	unsigned int id = queue->id;
--	return netif_tx_queue_stopped(netdev_get_tx_queue(dev, id));
--}
--
--void xenvif_wake_queue(struct xenvif_queue *queue)
--{
--	struct net_device *dev = queue->vif->dev;
--	unsigned int id = queue->id;
--	netif_tx_wake_queue(netdev_get_tx_queue(dev, id));
--}
--
- static u16 xenvif_select_queue(struct net_device *dev, struct sk_buff *skb,
- 			       struct net_device *sb_dev)
- {
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index a5c26772ec1f..6bd7b62fb90c 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -112,6 +112,8 @@ static void make_tx_response(struct xenvif_queue *queue,
- 			     s8       st);
- static void push_tx_responses(struct xenvif_queue *queue);
- 
-+static void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx);
-+
- static inline int tx_work_todo(struct xenvif_queue *queue);
- 
- static inline unsigned long idx_to_pfn(struct xenvif_queue *queue,
-@@ -1441,7 +1443,7 @@ static void push_tx_responses(struct xenvif_queue *queue)
- 		notify_remote_via_irq(queue->tx_irq);
- }
- 
--void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx)
-+static void xenvif_idx_unmap(struct xenvif_queue *queue, u16 pending_idx)
- {
- 	int ret;
- 	struct gnttab_unmap_grant_ref tx_unmap_op;
-diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
-index a0335407be42..932762177110 100644
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -486,7 +486,7 @@ static void xenvif_rx_skb(struct xenvif_queue *queue)
- 
- #define RX_BATCH_SIZE 64
- 
--void xenvif_rx_action(struct xenvif_queue *queue)
-+static void xenvif_rx_action(struct xenvif_queue *queue)
- {
- 	struct sk_buff_head completed_skbs;
- 	unsigned int work_done = 0;
--- 
-2.35.1
-
 
 
