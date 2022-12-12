@@ -2,56 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DC1864A118
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:35:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 232D164A12A
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:36:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232330AbiLLNe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:34:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34130 "EHLO
+        id S232818AbiLLNgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:36:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232650AbiLLNez (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:34:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4692B13E12
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:34:54 -0800 (PST)
+        with ESMTP id S232821AbiLLNfr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:35:47 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACE3D13E32
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:35:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06CFFB80D50
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:34:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02AACC433D2;
-        Mon, 12 Dec 2022 13:34:50 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4CB07CE0F7E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:35:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 955B9C433EF;
+        Mon, 12 Dec 2022 13:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852091;
-        bh=8NqRGz+tlm88FZK6iH96S4jTC2qkc9CFlCu4rv/riSo=;
+        s=korg; t=1670852141;
+        bh=r6ABrTExSj7XORA8ugle5D+yV4etWitLOUNUwkKrs/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPrEUjOJ270NLg7j8i2KmhePUeJAbcwasIH2rfcYTUwwqWc2qz38QpMU68fBU7bj2
-         BUAD/wI1dHMJ5Hs8Mi5Aw8S866hvbjWL/Ek9VBYMXc4UPajiv4qDLlxnvNqPJ5ZdsH
-         OQ74g1MeIr2eEvs2+fliAZtF2YBUBiCbQlPf4awc=
+        b=B0uMzXF2tj+sQP2if05ptY0palRA+b4NgWF25OHWQk7wIrzSurqYLha4OReS/zgb8
+         PhREwYzflazSgPpnDWfa1HFKnFoBIGlj/IWQ/1tZ83NC1OI4TwZJIwYEsBjAFr2jkf
+         eGm+g2vdweFdo12N4WfsY8zBhB0alvJl9na51qnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Kravetz <mike.kravetz@oracle.com>,
-        Wei Chen <harperchen1110@gmail.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        David Hildenbrand <david@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Mina Almasry <almasrymina@google.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Naoya Horiguchi <naoya.horiguchi@linux.dev>,
-        Peter Xu <peterx@redhat.com>, Rik van Riel <riel@surriel.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Arun R Murthy <arun.r.murthy@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 001/157] madvise: use zap_page_range_single for madvise dontneed
-Date:   Mon, 12 Dec 2022 14:15:49 +0100
-Message-Id: <20221212130934.416697866@linuxfoundation.org>
+Subject: [PATCH 6.0 002/157] drm/i915: Remove non-existent pipes from bigjoiner pipe mask
+Date:   Mon, 12 Dec 2022 14:15:50 +0100
+Message-Id: <20221212130934.474226763@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
 References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -64,183 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 21b85b09527c28e242db55c1b751f7f7549b830c ]
+[ Upstream commit 3c1ea6a5f4f55d4e376675dda16945eb5d9bb4de ]
 
-This series addresses the issue first reported in [1], and fully described
-in patch 2.  Patches 1 and 2 address the user visible issue and are tagged
-for stable backports.
+bigjoiner_pipes() doesn't consider that:
+- RKL only has three pipes
+- some pipes may be fused off
 
-While exploring solutions to this issue, related problems with mmu
-notification calls were discovered.  This is addressed in the patch
-"hugetlb: remove duplicate mmu notifications:".  Since there are no user
-visible effects, this third is not tagged for stable backports.
+This means that intel_atomic_check_bigjoiner() won't reject
+all configurations that would need a non-existent pipe.
+Instead we just keep on rolling witout actually having
+reserved the slave pipe we need.
 
-Previous discussions suggested further cleanup by removing the
-routine zap_page_range.  This is possible because zap_page_range_single
-is now exported, and all callers of zap_page_range pass ranges entirely
-within a single vma.  This work will be done in a later patch so as not
-to distract from this bug fix.
+It's possible that we don't outright explode anywhere due to
+this since eg. for_each_intel_crtc_in_pipe_mask() will only
+walk the crtcs we've registered even though the passed in
+pipe_mask asks for more of them. But clearly the thing won't
+do what is expected of it when the required pipes are not
+present.
 
-[1] https://lore.kernel.org/lkml/CAO4mrfdLMXsao9RF4fUE8-Wfde8xmjsKrTNMNC9wjUb6JudD0g@mail.gmail.com/
+Fix the problem by consulting the device info pipe_mask already
+in bigjoiner_pipes().
 
-This patch (of 2):
-
-Expose the routine zap_page_range_single to zap a range within a single
-vma.  The madvise routine madvise_dontneed_single_vma can use this routine
-as it explicitly operates on a single vma.  Also, update the mmu
-notification range in zap_page_range_single to take hugetlb pmd sharing
-into account.  This is required as MADV_DONTNEED supports hugetlb vmas.
-
-Link: https://lkml.kernel.org/r/20221114235507.294320-1-mike.kravetz@oracle.com
-Link: https://lkml.kernel.org/r/20221114235507.294320-2-mike.kravetz@oracle.com
-Fixes: 90e7e7f5ef3f ("mm: enable MADV_DONTNEED for hugetlb mappings")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: Wei Chen <harperchen1110@gmail.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@linux.dev>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221118185201.10469-1-ville.syrjala@linux.intel.com
+Reviewed-by: Arun R Murthy <arun.r.murthy@intel.com>
+(cherry picked from commit f1c87a94a1087a26f41007ee83264033007421b5)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mm.h | 27 +++++++++++++++++++--------
- mm/madvise.c       |  6 +++---
- mm/memory.c        | 23 +++++++++++------------
- 3 files changed, 33 insertions(+), 23 deletions(-)
+ drivers/gpu/drm/i915/display/intel_display.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 21f8b27bd9fd..df804bf5f4a5 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1778,6 +1778,23 @@ extern void pagefault_out_of_memory(void);
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index fc5d94862ef3..d0f20bd0e51a 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -3717,12 +3717,16 @@ static bool ilk_get_pipe_config(struct intel_crtc *crtc,
  
- extern void show_free_areas(unsigned int flags, nodemask_t *nodemask);
- 
-+/*
-+ * Parameter block passed down to zap_pte_range in exceptional cases.
-+ */
-+struct zap_details {
-+	struct folio *single_folio;	/* Locked folio to be unmapped */
-+	bool even_cows;			/* Zap COWed private pages too? */
-+	zap_flags_t zap_flags;		/* Extra flags for zapping */
-+};
+ static u8 bigjoiner_pipes(struct drm_i915_private *i915)
+ {
++	u8 pipes;
 +
-+/*
-+ * Whether to drop the pte markers, for example, the uffd-wp information for
-+ * file-backed memory.  This should only be specified when we will completely
-+ * drop the page in the mm, either by truncation or unmapping of the vma.  By
-+ * default, the flag is not set.
-+ */
-+#define  ZAP_FLAG_DROP_MARKER        ((__force zap_flags_t) BIT(0))
+ 	if (DISPLAY_VER(i915) >= 12)
+-		return BIT(PIPE_A) | BIT(PIPE_B) | BIT(PIPE_C) | BIT(PIPE_D);
++		pipes = BIT(PIPE_A) | BIT(PIPE_B) | BIT(PIPE_C) | BIT(PIPE_D);
+ 	else if (DISPLAY_VER(i915) >= 11)
+-		return BIT(PIPE_B) | BIT(PIPE_C);
++		pipes = BIT(PIPE_B) | BIT(PIPE_C);
+ 	else
+-		return 0;
++		pipes = 0;
 +
- #ifdef CONFIG_MMU
- extern bool can_do_mlock(void);
- #else
-@@ -1797,6 +1814,8 @@ void zap_page_range(struct vm_area_struct *vma, unsigned long address,
- 		    unsigned long size);
- void unmap_vmas(struct mmu_gather *tlb, struct vm_area_struct *start_vma,
- 		unsigned long start, unsigned long end);
-+void zap_page_range_single(struct vm_area_struct *vma, unsigned long address,
-+			   unsigned long size, struct zap_details *details);
- 
- struct mmu_notifier_range;
- 
-@@ -3386,12 +3405,4 @@ madvise_set_anon_name(struct mm_struct *mm, unsigned long start,
- }
- #endif
- 
--/*
-- * Whether to drop the pte markers, for example, the uffd-wp information for
-- * file-backed memory.  This should only be specified when we will completely
-- * drop the page in the mm, either by truncation or unmapping of the vma.  By
-- * default, the flag is not set.
-- */
--#define  ZAP_FLAG_DROP_MARKER        ((__force zap_flags_t) BIT(0))
--
- #endif /* _LINUX_MM_H */
-diff --git a/mm/madvise.c b/mm/madvise.c
-index 98ed17a4471a..b2831b57aef8 100644
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -770,8 +770,8 @@ static int madvise_free_single_vma(struct vm_area_struct *vma,
-  * Application no longer needs these pages.  If the pages are dirty,
-  * it's OK to just throw them away.  The app will be more careful about
-  * data it wants to keep.  Be sure to free swap resources too.  The
-- * zap_page_range call sets things up for shrink_active_list to actually free
-- * these pages later if no one else has touched them in the meantime,
-+ * zap_page_range_single call sets things up for shrink_active_list to actually
-+ * free these pages later if no one else has touched them in the meantime,
-  * although we could add these pages to a global reuse list for
-  * shrink_active_list to pick up before reclaiming other pages.
-  *
-@@ -788,7 +788,7 @@ static int madvise_free_single_vma(struct vm_area_struct *vma,
- static long madvise_dontneed_single_vma(struct vm_area_struct *vma,
- 					unsigned long start, unsigned long end)
- {
--	zap_page_range(vma, start, end - start);
-+	zap_page_range_single(vma, start, end - start, NULL);
- 	return 0;
++	return pipes & INTEL_INFO(i915)->display.pipe_mask;
  }
  
-diff --git a/mm/memory.c b/mm/memory.c
-index de0dbe09b013..68d5b3dcec2e 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1341,15 +1341,6 @@ copy_page_range(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma)
- 	return ret;
- }
- 
--/*
-- * Parameter block passed down to zap_pte_range in exceptional cases.
-- */
--struct zap_details {
--	struct folio *single_folio;	/* Locked folio to be unmapped */
--	bool even_cows;			/* Zap COWed private pages too? */
--	zap_flags_t zap_flags;		/* Extra flags for zapping */
--};
--
- /* Whether we should zap all COWed (private) pages too */
- static inline bool should_zap_cows(struct zap_details *details)
- {
-@@ -1769,19 +1760,27 @@ void zap_page_range(struct vm_area_struct *vma, unsigned long start,
-  *
-  * The range must fit into one VMA.
-  */
--static void zap_page_range_single(struct vm_area_struct *vma, unsigned long address,
-+void zap_page_range_single(struct vm_area_struct *vma, unsigned long address,
- 		unsigned long size, struct zap_details *details)
- {
-+	const unsigned long end = address + size;
- 	struct mmu_notifier_range range;
- 	struct mmu_gather tlb;
- 
- 	lru_add_drain();
- 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
--				address, address + size);
-+				address, end);
-+	if (is_vm_hugetlb_page(vma))
-+		adjust_range_if_pmd_sharing_possible(vma, &range.start,
-+						     &range.end);
- 	tlb_gather_mmu(&tlb, vma->vm_mm);
- 	update_hiwater_rss(vma->vm_mm);
- 	mmu_notifier_invalidate_range_start(&range);
--	unmap_single_vma(&tlb, vma, address, range.end, details);
-+	/*
-+	 * unmap 'address-end' not 'range.start-range.end' as range
-+	 * could have been expanded for hugetlb pmd sharing.
-+	 */
-+	unmap_single_vma(&tlb, vma, address, end, details);
- 	mmu_notifier_invalidate_range_end(&range);
- 	tlb_finish_mmu(&tlb);
- }
+ static bool transcoder_ddi_func_is_enabled(struct drm_i915_private *dev_priv,
 -- 
 2.35.1
 
