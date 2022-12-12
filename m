@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C140364A177
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:41:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F26A264A029
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:21:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232953AbiLLNlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:41:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36506 "EHLO
+        id S232671AbiLLNVe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:21:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232688AbiLLNkd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:40:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96C9613F15;
-        Mon, 12 Dec 2022 05:39:48 -0800 (PST)
+        with ESMTP id S232672AbiLLNVN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:21:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4424563AB
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:21:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3381D61072;
-        Mon, 12 Dec 2022 13:39:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBE80C433D2;
-        Mon, 12 Dec 2022 13:39:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECF4CB80D3B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40AEEC433EF;
+        Mon, 12 Dec 2022 13:21:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852387;
-        bh=h7In0NnjjbjZjxsJxGv5gfNAMW3C+AdRTJoqS9JIxNk=;
+        s=korg; t=1670851270;
+        bh=aflPuhEq+wGJU4Y8zH6f3NYshneZO7s8jdqN3Qa68Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xfQFscjwMaEnnPqf+NaismneBhThGyIY7Qyac5d1Py4sJpwkK8HoVbgNDKWZLb/Kq
-         HMamvIOHA0WQqsEfWRJxIoChaDG8CsJR04L3X96EJc/oWIuh+fiXtal/5q46iyfTkB
-         Ex9upYYAegNecPTy2HEGKgDy1ZZyqwny85Oy0hUw=
+        b=1T3LHYwjP1rvIWYfqDrrWRo+pdh7GpW9maGGWPkViPyfKIXfAOxxN6PKkDlL0vqfC
+         fAAsLGITRxcNqctXkc7b9GgUsEyrAkP6RCigI4DPHFXrYDw75d23Dopsu6spOT3VtV
+         6kyIxoCc3cVINr49yvsWvob2FCv0JaHkKqo6rCxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
-        Max Staudt <max@enpas.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH 6.0 070/157] can: can327: flush TX_work on ldisc .close()
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 5.4 23/67] Revert "net: dsa: b53: Fix valid setting for MDB entries"
 Date:   Mon, 12 Dec 2022 14:16:58 +0100
-Message-Id: <20221212130937.442350836@linuxfoundation.org>
+Message-Id: <20221212130918.733424167@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,85 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Staudt <max@enpas.org>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-commit f4a4d121ebecaa6f396f21745ce97de014281ccc upstream.
+This reverts commit 1fae6eb0fc91d3ecb539e03f9e4dcd1c53ada553.
 
-Additionally, remove it from .ndo_stop().
+Upstream commit was a fix for an overlook of setting "ent.is_valid"
+twice after 5d65b64a3d97 ("net: dsa: b53: Add support for MDB").
 
-This ensures that the worker is not called after being freed, and that
-the UART TX queue remains active to send final commands when the
-netdev is stopped.
+Since MDB support was not backported to stable kernels (it's not a bug
+fix) there is nothing to fix there. Backporting this commit resulted in
+"env.is_valid" not being set at all.
 
-Thanks to Jiri Slaby for finding this in slcan:
-
-  https://lore.kernel.org/linux-can/20221201073426.17328-1-jirislaby@kernel.org/
-
-A variant of this patch for slcan, with the flush in .ndo_stop() still
-present, has been tested successfully on physical hardware:
-
-  https://bugzilla.suse.com/show_bug.cgi?id=1205597
-
-Fixes: 43da2f07622f ("can: can327: CAN/ldisc driver for ELM327 based OBD-II adapters")
-Cc: "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
-Cc: Max Staudt <max@enpas.org>
-Cc: Wolfgang Grandegger <wg@grandegger.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: linux-can@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Max Staudt <max@enpas.org>
-Link: https://lore.kernel.org/all/20221202160148.282564-1-max@enpas.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/can327.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/net/dsa/b53/b53_common.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/can327.c b/drivers/net/can/can327.c
-index ed3d0b8989a0..dc7192ecb001 100644
---- a/drivers/net/can/can327.c
-+++ b/drivers/net/can/can327.c
-@@ -796,9 +796,9 @@ static int can327_netdev_close(struct net_device *dev)
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -1551,6 +1551,7 @@ static int b53_arl_op(struct b53_device
  
- 	netif_stop_queue(dev);
- 
--	/* Give UART one final chance to flush. */
--	clear_bit(TTY_DO_WRITE_WAKEUP, &elm->tty->flags);
--	flush_work(&elm->tx_work);
-+	/* We don't flush the UART TX queue here, as we want final stop
-+	 * commands (like the above dummy char) to be flushed out.
-+	 */
- 
- 	can_rx_offload_disable(&elm->offload);
- 	elm->can.state = CAN_STATE_STOPPED;
-@@ -1069,12 +1069,15 @@ static void can327_ldisc_close(struct tty_struct *tty)
- {
- 	struct can327 *elm = (struct can327 *)tty->disc_data;
- 
--	/* unregister_netdev() calls .ndo_stop() so we don't have to.
--	 * Our .ndo_stop() also flushes the TTY write wakeup handler,
--	 * so we can safely set elm->tty = NULL after this.
--	 */
-+	/* unregister_netdev() calls .ndo_stop() so we don't have to. */
- 	unregister_candev(elm->dev);
- 
-+	/* Give UART one final chance to flush.
-+	 * No need to clear TTY_DO_WRITE_WAKEUP since .write_wakeup() is
-+	 * serialised against .close() and will not be called once we return.
-+	 */
-+	flush_work(&elm->tx_work);
-+
- 	/* Mark channel as dead */
- 	spin_lock_bh(&elm->lock);
- 	tty->disc_data = NULL;
--- 
-2.38.1
-
+ 	memset(&ent, 0, sizeof(ent));
+ 	ent.port = port;
++	ent.is_valid = is_valid;
+ 	ent.vid = vid;
+ 	ent.is_static = true;
+ 	memcpy(ent.mac, addr, ETH_ALEN);
 
 
