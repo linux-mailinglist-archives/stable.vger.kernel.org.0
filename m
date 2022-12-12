@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0441264A262
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64E1264A22E
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:50:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232995AbiLLNyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:54:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54642 "EHLO
+        id S233199AbiLLNuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:50:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233207AbiLLNxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4BDF140A1
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:53:03 -0800 (PST)
+        with ESMTP id S232959AbiLLNty (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:49:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBD69E6E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:49:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59DA7B8068B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:53:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86709C433D2;
-        Mon, 12 Dec 2022 13:53:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 868B861068
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:49:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F862C433EF;
+        Mon, 12 Dec 2022 13:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853181;
-        bh=3KpPXlxUsBEQlA9z9UHvKf0Eih6wqWCUF7J/YyT/vGI=;
+        s=korg; t=1670852974;
+        bh=YEQOMl0RV3O7rE8PsJ7NAtvFIOplxQmCrBpcvPs64P0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cWQai/anm5hGvM4hJ5pi4c+fN2huhcevmClvfhgvw68pMcDKkuezMD4c1qX283aOd
-         LYNMbq31sEp5Ja4RboWf80Ni7U3V6A62O1EH7uS+p/eRlre+FzBwbT24ZaBNuh3kSM
-         uvfKnwR9+Qo+SU7yvEQ+3mqV0ZL5KC66YLOY4BU8=
+        b=akwFZQ365hv8UNfQvYbn4gVsUX+/JHY7j4Rn8MJ0Zp007IMCBljWk98bLcPA/hirQ
+         AIOPtOqE3DpZepywxXytx+/XAVwasyUZpfBc2ihU8EbeM4zTdABh3P+RFZHm9MNQMQ
+         doPqibf3KR/G7zJy0tLQiBNUa61ygN/l26f65fAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Davide Tronchin <davide.tronchin.94@gmail.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        patches@lists.linux.dev, Lin Liu <lin.liu@citrix.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/38] net: usb: qmi_wwan: add u-blox 0x1342 composition
-Date:   Mon, 12 Dec 2022 14:19:10 +0100
-Message-Id: <20221212130912.575382305@linuxfoundation.org>
+Subject: [PATCH 4.19 33/49] xen-netfront: Fix NULL sring after live migration
+Date:   Mon, 12 Dec 2022 14:19:11 +0100
+Message-Id: <20221212130915.299970401@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
-References: <20221212130912.069170932@linuxfoundation.org>
+In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
+References: <20221212130913.666185567@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Tronchin <davide.tronchin.94@gmail.com>
+From: Lin Liu <lin.liu@citrix.com>
 
-[ Upstream commit a487069e11b6527373f7c6f435d8998051d0b5d9 ]
+[ Upstream commit d50b7914fae04d840ce36491d22133070b18cca9 ]
 
-Add RmNet support for LARA-L6.
+A NAPI is setup for each network sring to poll data to kernel
+The sring with source host is destroyed before live migration and
+new sring with target host is setup after live migration.
+The NAPI for the old sring is not deleted until setup new sring
+with target host after migration. With busy_poll/busy_read enabled,
+the NAPI can be polled before got deleted when resume VM.
 
-LARA-L6 module can be configured (by AT interface) in three different
-USB modes:
-* Default mode (Vendor ID: 0x1546 Product ID: 0x1341) with 4 serial
-interfaces
-* RmNet mode (Vendor ID: 0x1546 Product ID: 0x1342) with 4 serial
-interfaces and 1 RmNet virtual network interface
-* CDC-ECM mode (Vendor ID: 0x1546 Product ID: 0x1343) with 4 serial
-interface and 1 CDC-ECM virtual network interface
+BUG: unable to handle kernel NULL pointer dereference at
+0000000000000008
+IP: xennet_poll+0xae/0xd20
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP PTI
+Call Trace:
+ finish_task_switch+0x71/0x230
+ timerqueue_del+0x1d/0x40
+ hrtimer_try_to_cancel+0xb5/0x110
+ xennet_alloc_rx_buffers+0x2a0/0x2a0
+ napi_busy_loop+0xdb/0x270
+ sock_poll+0x87/0x90
+ do_sys_poll+0x26f/0x580
+ tracing_map_insert+0x1d4/0x2f0
+ event_hist_trigger+0x14a/0x260
 
-In RmNet mode LARA-L6 exposes the following interfaces:
-If 0: Diagnostic
-If 1: AT parser
-If 2: AT parser
-If 3: AT parset/alternative functions
-If 4: RMNET interface
+ finish_task_switch+0x71/0x230
+ __schedule+0x256/0x890
+ recalc_sigpending+0x1b/0x50
+ xen_sched_clock+0x15/0x20
+ __rb_reserve_next+0x12d/0x140
+ ring_buffer_lock_reserve+0x123/0x3d0
+ event_triggers_call+0x87/0xb0
+ trace_event_buffer_commit+0x1c4/0x210
+ xen_clocksource_get_cycles+0x15/0x20
+ ktime_get_ts64+0x51/0xf0
+ SyS_ppoll+0x160/0x1a0
+ SyS_ppoll+0x160/0x1a0
+ do_syscall_64+0x73/0x130
+ entry_SYSCALL_64_after_hwframe+0x41/0xa6
+...
+RIP: xennet_poll+0xae/0xd20 RSP: ffffb4f041933900
+CR2: 0000000000000008
+---[ end trace f8601785b354351c ]---
 
-Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
-Acked-by: Bjørn Mork <bjorn@mork.no>
+xen frontend should remove the NAPIs for the old srings before live
+migration as the bond srings are destroyed
+
+There is a tiny window between the srings are set to NULL and
+the NAPIs are disabled, It is safe as the NAPI threads are still
+frozen at that time
+
+Signed-off-by: Lin Liu <lin.liu@citrix.com>
+Fixes: 4ec2411980d0 ([NET]: Do not check netif_running() and carrier state in ->poll())
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/xen-netfront.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index 74040db959d8..a2c3f5ee1780 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1366,6 +1366,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_FIXED_INTF(0x0489, 0xe0b4, 0)},	/* Foxconn T77W968 LTE */
- 	{QMI_FIXED_INTF(0x0489, 0xe0b5, 0)},	/* Foxconn T77W968 LTE with eSIM support*/
- 	{QMI_FIXED_INTF(0x2692, 0x9025, 4)},    /* Cellient MPL200 (rebranded Qualcomm 05c6:9025) */
-+	{QMI_QUIRK_SET_DTR(0x1546, 0x1342, 4)},	/* u-blox LARA-L6 */
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index 4b75ecb19d89..8c3f9f041594 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -1624,6 +1624,12 @@ static int netfront_resume(struct xenbus_device *dev)
+ 	netif_tx_unlock_bh(info->netdev);
  
- 	/* 4. Gobi 1000 devices */
- 	{QMI_GOBI1K_DEVICE(0x05c6, 0x9212)},	/* Acer Gobi Modem Device */
+ 	xennet_disconnect_backend(info);
++
++	rtnl_lock();
++	if (info->queues)
++		xennet_destroy_queues(info);
++	rtnl_unlock();
++
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
