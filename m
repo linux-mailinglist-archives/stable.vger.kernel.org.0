@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF7CA64A0C7
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:30:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3400F64A048
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:23:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232296AbiLLNa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:30:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59344 "EHLO
+        id S232558AbiLLNXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:23:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232088AbiLLNaY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:30:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78B0CBED
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:30:24 -0800 (PST)
+        with ESMTP id S232685AbiLLNW4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:22:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 142E6F65
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:22:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 156F361025
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:30:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07736C433D2;
-        Mon, 12 Dec 2022 13:30:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3A08B80B9B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:22:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEB9BC433D2;
+        Mon, 12 Dec 2022 13:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851823;
-        bh=oMKZoF0QGGRgUKXyRrWa7djj0g7gcnc7Yhk2dCZ8E9w=;
+        s=korg; t=1670851372;
+        bh=kCqYmlZH6f9KDmvrPoAY80VQHZhJXA12tQZ7dRRuWMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wJ+4hqmnGNK6n6ExLH/NjchoLd/BeA/UeMd8RgXH18pfgb+ava/y6ybMAoiGIOiiG
-         qP+K9GBaju8tQ5+nOEg550XcDKz8vW7AEFeA3hBURdcW92k7JHTOVt5M8A+6+RlYdj
-         mxFzFR3456Rt8zPAIKasOV9KusYPSEYdwVpHDkko=
+        b=2JBSDZVIsQ+VsLqzRaOZzN3gbmO5O5Tj19FzQu35aS0s5FuiBctIxyJ61QXYd8ZCE
+         o2eK6Emte8/Mm4hB0Lc7/kulmD4a8geg7CA8PZiRsnVlTdnIotBuRiYLfI2ci7+UBX
+         BEdELOhcciUzKTXgy8JGebJtku0vP/wczJehNeyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Lin Liu <lin.liu@citrix.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 077/123] Bluetooth: 6LoWPAN: add missing hci_dev_put() in get_l2cap_conn()
+Subject: [PATCH 5.4 48/67] xen-netfront: Fix NULL sring after live migration
 Date:   Mon, 12 Dec 2022 14:17:23 +0100
-Message-Id: <20221212130930.196235619@linuxfoundation.org>
+Message-Id: <20221212130919.917821136@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Lin Liu <lin.liu@citrix.com>
 
-[ Upstream commit 747da1308bdd5021409974f9180f0d8ece53d142 ]
+[ Upstream commit d50b7914fae04d840ce36491d22133070b18cca9 ]
 
-hci_get_route() takes reference, we should use hci_dev_put() to release
-it when not need anymore.
+A NAPI is setup for each network sring to poll data to kernel
+The sring with source host is destroyed before live migration and
+new sring with target host is setup after live migration.
+The NAPI for the old sring is not deleted until setup new sring
+with target host after migration. With busy_poll/busy_read enabled,
+the NAPI can be polled before got deleted when resume VM.
 
-Fixes: 6b8d4a6a0314 ("Bluetooth: 6LoWPAN: Use connected oriented channel instead of fixed one")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+BUG: unable to handle kernel NULL pointer dereference at
+0000000000000008
+IP: xennet_poll+0xae/0xd20
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP PTI
+Call Trace:
+ finish_task_switch+0x71/0x230
+ timerqueue_del+0x1d/0x40
+ hrtimer_try_to_cancel+0xb5/0x110
+ xennet_alloc_rx_buffers+0x2a0/0x2a0
+ napi_busy_loop+0xdb/0x270
+ sock_poll+0x87/0x90
+ do_sys_poll+0x26f/0x580
+ tracing_map_insert+0x1d4/0x2f0
+ event_hist_trigger+0x14a/0x260
+
+ finish_task_switch+0x71/0x230
+ __schedule+0x256/0x890
+ recalc_sigpending+0x1b/0x50
+ xen_sched_clock+0x15/0x20
+ __rb_reserve_next+0x12d/0x140
+ ring_buffer_lock_reserve+0x123/0x3d0
+ event_triggers_call+0x87/0xb0
+ trace_event_buffer_commit+0x1c4/0x210
+ xen_clocksource_get_cycles+0x15/0x20
+ ktime_get_ts64+0x51/0xf0
+ SyS_ppoll+0x160/0x1a0
+ SyS_ppoll+0x160/0x1a0
+ do_syscall_64+0x73/0x130
+ entry_SYSCALL_64_after_hwframe+0x41/0xa6
+...
+RIP: xennet_poll+0xae/0xd20 RSP: ffffb4f041933900
+CR2: 0000000000000008
+---[ end trace f8601785b354351c ]---
+
+xen frontend should remove the NAPIs for the old srings before live
+migration as the bond srings are destroyed
+
+There is a tiny window between the srings are set to NULL and
+the NAPIs are disabled, It is safe as the NAPI threads are still
+frozen at that time
+
+Signed-off-by: Lin Liu <lin.liu@citrix.com>
+Fixes: 4ec2411980d0 ([NET]: Do not check netif_running() and carrier state in ->poll())
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/6lowpan.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/xen-netfront.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
-index fd164a248569..580b0940f067 100644
---- a/net/bluetooth/6lowpan.c
-+++ b/net/bluetooth/6lowpan.c
-@@ -971,6 +971,7 @@ static int get_l2cap_conn(char *buf, bdaddr_t *addr, u8 *addr_type,
- 	hci_dev_lock(hdev);
- 	hcon = hci_conn_hash_lookup_le(hdev, addr, *addr_type);
- 	hci_dev_unlock(hdev);
-+	hci_dev_put(hdev);
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index 810fa9968be7..9ae0903bc225 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -1621,6 +1621,12 @@ static int netfront_resume(struct xenbus_device *dev)
+ 	netif_tx_unlock_bh(info->netdev);
  
- 	if (!hcon)
- 		return -ENOENT;
+ 	xennet_disconnect_backend(info);
++
++	rtnl_lock();
++	if (info->queues)
++		xennet_destroy_queues(info);
++	rtnl_unlock();
++
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
