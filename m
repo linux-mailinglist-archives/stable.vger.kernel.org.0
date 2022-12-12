@@ -2,55 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15742649FA9
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:13:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84420649F92
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232210AbiLLNNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:13:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40064 "EHLO
+        id S231556AbiLLNMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:12:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232568AbiLLNNY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:13:24 -0500
+        with ESMTP id S232210AbiLLNLq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:11:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E0D612AE6;
-        Mon, 12 Dec 2022 05:13:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 602EB1276A
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:11:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B052F6104A;
-        Mon, 12 Dec 2022 13:13:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59058C433D2;
-        Mon, 12 Dec 2022 13:13:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE0DD61041
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:11:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 757F4C433D2;
+        Mon, 12 Dec 2022 13:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670850791;
-        bh=QeA1YWEExsPqGtx0JGY6ia8ltFVShfX0HsXLWXi1+Ss=;
-        h=From:To:Cc:Subject:Date:From;
-        b=goA9T6lwCIpRvuJZ+fWWYs2WrFXTc6zudj81V3wL0H0fqA3HTw6//xFn2Gh++kTNX
-         YiSZ1WsB20C8A3Jd6zRzLrHCBn3V56FAlizBlW3zvefn5LQtfSe+LM0+V327vgczWh
-         y8L1aPrHY8jy1tVSucq7ie/I3/Pwrg/AlehZuKjY=
+        s=korg; t=1670850704;
+        bh=6VSp0i79I5T83XdeetNKWeOU8b1RQGCgX3uT5uO8XM4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=WutAnU+IoaPKVVxYrGpcu0QYPUGbbYarW0zLYV1WR8G34nqpbZo75X267ZBcLvTwh
+         SV+EA/wOcbJzfCpNwEIrKOn2dfuAGfVsTDjWRbbCk2g+UqIKuV0CLnUhKeHPVlW/bH
+         lyl6H2XwZec21FdMui30VkyeZKK+8Hd76oQRmR6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: [PATCH 5.10 000/106] 5.10.159-rc1 review
-Date:   Mon, 12 Dec 2022 14:09:03 +0100
-Message-Id: <20221212130924.863767275@linuxfoundation.org>
+        patches@lists.linux.dev, Alex Shi <alex.shi@linux.alibaba.com>,
+        Hugh Dickins <hughd@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        "Chen, Rong A" <rong.a.chen@intel.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        "Huang, Ying" <ying.huang@intel.com>, Jann Horn <jannh@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Michal Hocko <mhocko@kernel.org>,
+        Michal Hocko <mhocko@suse.com>,
+        =?UTF-8?q?Mika=20Penttil=C3=A4?= <mika.penttila@nextfour.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Shakeel Butt <shakeelb@google.com>, Tejun Heo <tj@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Wei Yang <richard.weiyang@gmail.com>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 001/106] mm/mlock: remove lru_lock on TestClearPageMlocked
+Date:   Mon, 12 Dec 2022 14:09:04 +0100
+Message-Id: <20221212130924.929782499@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-MIME-Version: 1.0
+In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
+References: <20221212130924.863767275@linuxfoundation.org>
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.159-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.10.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.10.159-rc1
-X-KernelTest-Deadline: 2022-12-14T13:09+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -62,457 +80,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.10.159 release.
-There are 106 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Alex Shi <alex.shi@linux.alibaba.com>
+
+[ Upstream commit 3db19aa39bac33f2e850fa1ddd67be29b192e51f ]
+
+In the func munlock_vma_page, comments mentained lru_lock needed for
+serialization with split_huge_pages.  But the page must be PageLocked as
+well as pages in split_huge_page series funcs.  Thus the PageLocked is
+enough to serialize both funcs.
+
+Further more, Hugh Dickins pointed: before splitting in
+split_huge_page_to_list, the page was unmap_page() to remove pmd/ptes
+which protect the page from munlock.  Thus, no needs to guard
+__split_huge_page_tail for mlock clean, just keep the lru_lock there for
+isolation purpose.
+
+LKP found a preempt issue on __mod_zone_page_state which need change to
+mod_zone_page_state.  Thanks!
+
+Link: https://lkml.kernel.org/r/1604566549-62481-13-git-send-email-alex.shi@linux.alibaba.com
+Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Alexander Duyck <alexander.duyck@gmail.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: "Chen, Rong A" <rong.a.chen@intel.com>
+Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: "Huang, Ying" <ying.huang@intel.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Kirill A. Shutemov <kirill@shutemov.name>
+Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mika Penttilä <mika.penttila@nextfour.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Yang Shi <yang.shi@linux.alibaba.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Stable-dep-of: 829ae0f81ce0 ("mm: migrate: fix THP's mapcount on isolation")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ mm/mlock.c | 26 +++++---------------------
+ 1 file changed, 5 insertions(+), 21 deletions(-)
+
+diff --git a/mm/mlock.c b/mm/mlock.c
+index 884b1216da6a..796c726a0407 100644
+--- a/mm/mlock.c
++++ b/mm/mlock.c
+@@ -187,40 +187,24 @@ static void __munlock_isolation_failed(struct page *page)
+ unsigned int munlock_vma_page(struct page *page)
+ {
+ 	int nr_pages;
+-	pg_data_t *pgdat = page_pgdat(page);
+ 
+ 	/* For try_to_munlock() and to serialize with page migration */
+ 	BUG_ON(!PageLocked(page));
+-
+ 	VM_BUG_ON_PAGE(PageTail(page), page);
+ 
+-	/*
+-	 * Serialize with any parallel __split_huge_page_refcount() which
+-	 * might otherwise copy PageMlocked to part of the tail pages before
+-	 * we clear it in the head page. It also stabilizes thp_nr_pages().
+-	 */
+-	spin_lock_irq(&pgdat->lru_lock);
+-
+ 	if (!TestClearPageMlocked(page)) {
+ 		/* Potentially, PTE-mapped THP: do not skip the rest PTEs */
+-		nr_pages = 1;
+-		goto unlock_out;
++		return 0;
+ 	}
+ 
+ 	nr_pages = thp_nr_pages(page);
+-	__mod_zone_page_state(page_zone(page), NR_MLOCK, -nr_pages);
++	mod_zone_page_state(page_zone(page), NR_MLOCK, -nr_pages);
+ 
+-	if (__munlock_isolate_lru_page(page, true)) {
+-		spin_unlock_irq(&pgdat->lru_lock);
++	if (!isolate_lru_page(page))
+ 		__munlock_isolated_page(page);
+-		goto out;
+-	}
+-	__munlock_isolation_failed(page);
+-
+-unlock_out:
+-	spin_unlock_irq(&pgdat->lru_lock);
++	else
++		__munlock_isolation_failed(page);
+ 
+-out:
+ 	return nr_pages - 1;
+ }
+ 
+-- 
+2.35.1
 
-Responses should be made by Wed, 14 Dec 2022 13:08:57 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.159-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.10.159-rc1
-
-Frank Jungclaus <frank.jungclaus@esd.eu>
-    can: esd_usb: Allow REC and TEC to return to zero
-
-Emeel Hakim <ehakim@nvidia.com>
-    macsec: add missing attribute validation for offload
-
-Dan Carpenter <error27@gmail.com>
-    net: mvneta: Fix an out of bounds check
-
-Eric Dumazet <edumazet@google.com>
-    ipv6: avoid use-after-free in ip6_fragment()
-
-Yang Yingliang <yangyingliang@huawei.com>
-    net: plip: don't call kfree_skb/dev_kfree_skb() under spin_lock_irq()
-
-Juergen Gross <jgross@suse.com>
-    xen/netback: fix build warning
-
-Zhang Changzhong <zhangchangzhong@huawei.com>
-    ethernet: aeroflex: fix potential skb leak in greth_init_rings()
-
-Xin Long <lucien.xin@gmail.com>
-    tipc: call tipc_lxc_xmit without holding node_read_lock
-
-Zhengchao Shao <shaozhengchao@huawei.com>
-    net: dsa: sja1105: fix memory leak in sja1105_setup_devlink_regions()
-
-Ido Schimmel <idosch@nvidia.com>
-    ipv4: Fix incorrect route flushing when table ID 0 is used
-
-Ido Schimmel <idosch@nvidia.com>
-    ipv4: Fix incorrect route flushing when source address is deleted
-
-YueHaibing <yuehaibing@huawei.com>
-    tipc: Fix potential OOB in tipc_link_proto_rcv()
-
-Liu Jian <liujian56@huawei.com>
-    net: hisilicon: Fix potential use-after-free in hix5hd2_rx()
-
-Liu Jian <liujian56@huawei.com>
-    net: hisilicon: Fix potential use-after-free in hisi_femac_rx()
-
-Yongqiang Liu <liuyongqiang13@huawei.com>
-    net: thunderx: Fix missing destroy_workqueue of nicvf_rx_mode_wq
-
-Hangbin Liu <liuhangbin@gmail.com>
-    ip_gre: do not report erspan version on GRE interface
-
-Jisheng Zhang <jszhang@kernel.org>
-    net: stmmac: fix "snps,axi-config" node property parsing
-
-Pankaj Raghav <p.raghav@samsung.com>
-    nvme initialize core quirks before calling nvme_init_subsystem
-
-Kees Cook <keescook@chromium.org>
-    NFC: nci: Bounds check struct nfc_target arrays
-
-Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-    i40e: Disallow ip4 and ip6 l4_4_bytes
-
-Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-    i40e: Fix for VF MAC address 0
-
-Michal Jaron <michalx.jaron@intel.com>
-    i40e: Fix not setting default xps_cpus after reset
-
-Dan Carpenter <error27@gmail.com>
-    net: mvneta: Prevent out of bounds read in mvneta_config_rss()
-
-Lin Liu <lin.liu@citrix.com>
-    xen-netfront: Fix NULL sring after live migration
-
-Valentina Goncharenko <goncharenko.vp@ispras.ru>
-    net: encx24j600: Fix invalid logic in reading of MISTAT register
-
-Valentina Goncharenko <goncharenko.vp@ispras.ru>
-    net: encx24j600: Add parentheses to fix precedence
-
-Wei Yongjun <weiyongjun1@huawei.com>
-    mac802154: fix missing INIT_LIST_HEAD in ieee802154_if_add()
-
-Zhengchao Shao <shaozhengchao@huawei.com>
-    selftests: rtnetlink: correct xfrm policy rule in kci_test_ipsec_offload
-
-Artem Chernyshev <artem.chernyshev@red-soft.ru>
-    net: dsa: ksz: Check return value
-
-Chen Zhongjin <chenzhongjin@huawei.com>
-    Bluetooth: Fix not cleanup led when bt_init fails
-
-Wang ShaoBo <bobo.shaobowang@huawei.com>
-    Bluetooth: 6LoWPAN: add missing hci_dev_put() in get_l2cap_conn()
-
-Ronak Doshi <doshir@vmware.com>
-    vmxnet3: correctly report encapsulated LRO packet
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    af_unix: Get user_ns from in_skb in unix_diag_get_exact().
-
-Guillaume BRUN <the.cheaterman@gmail.com>
-    drm: bridge: dw_hdmi: fix preference of RGB modes over YUV420
-
-YueHaibing <yuehaibing@huawei.com>
-    net: broadcom: Add PTP_1588_CLOCK_OPTIONAL dependency for BCMGENET under ARCH_BCM2835
-
-Akihiko Odaki <akihiko.odaki@daynix.com>
-    igb: Allocate MSI-X vector when testing
-
-Akihiko Odaki <akihiko.odaki@daynix.com>
-    e1000e: Fix TX dispatch condition
-
-Xiongfeng Wang <wangxiongfeng2@huawei.com>
-    gpio: amd8111: Fix PCI device reference count leak
-
-Qiqi Zhang <eddy.zhang@rock-chips.com>
-    drm/bridge: ti-sn65dsi86: Fix output polarity setting bug
-
-Pablo Neira Ayuso <pablo@netfilter.org>
-    netfilter: ctnetlink: fix compilation warning after data race fixes in ct mark
-
-Hauke Mehrtens <hauke@hauke-m.de>
-    ca8210: Fix crash by zero initializing data
-
-Ziyang Xuan <william.xuanziyang@huawei.com>
-    ieee802154: cc2520: Fix error return code in cc2520_hw_init()
-
-Stefano Brivio <sbrivio@redhat.com>
-    netfilter: nft_set_pipapo: Actually validate intervals in fields after the first one
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    rtc: mc146818-lib: fix signedness bug in mc146818_get_time()
-
-Mateusz Jończyk <mat.jonczyk@o2.pl>
-    rtc: mc146818-lib: fix locking in mc146818_set_time
-
-Chris Wilson <chris@chris-wilson.co.uk>
-    rtc: cmos: Disable irq around direct invocation of cmos_interrupt()
-
-Baolin Wang <baolin.wang@linux.alibaba.com>
-    mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
-
-Oliver Hartkopp <socketcan@hartkopp.net>
-    can: af_can: fix NULL pointer dereference in can_rcv_filter
-
-ZhangPeng <zhangpeng362@huawei.com>
-    HID: core: fix shift-out-of-bounds in hid_report_raw_event
-
-Anastasia Belova <abelova@astralinux.ru>
-    HID: hid-lg4ff: Add check for empty lbuf
-
-Ankit Patel <anpatel@nvidia.com>
-    HID: usbhid: Add ALWAYS_POLL quirk for some mice
-
-Rob Clark <robdclark@chromium.org>
-    drm/shmem-helper: Avoid vm_open error paths
-
-Rob Clark <robdclark@chromium.org>
-    drm/shmem-helper: Remove errant put in error path
-
-Zack Rusin <zackr@vmware.com>
-    drm/vmwgfx: Don't use screen objects when SEV is active
-
-Thomas Huth <thuth@redhat.com>
-    KVM: s390: vsie: Fix the initialization of the epoch extension (epdx) field
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: Fix crash when replugging CSR fake controllers
-
-Ismael Ferreras Morezuelas <swyterzone@gmail.com>
-    Bluetooth: btusb: Add debug message for CSR controllers
-
-John Starks <jostarks@microsoft.com>
-    mm/gup: fix gup_pud_range() for dax
-
-Tejun Heo <tj@kernel.org>
-    memcg: fix possible use-after-free in memcg_write_event_control()
-
-Hans Verkuil <hverkuil-cisco@xs4all.nl>
-    media: v4l2-dv-timings.c: fix too strict blanking sanity checks
-
-Francesco Dolcini <francesco.dolcini@toradex.com>
-    Revert "ARM: dts: imx7: Fix NAND controller size-cells"
-
-Hans Verkuil <hverkuil-cisco@xs4all.nl>
-    media: videobuf2-core: take mmap_lock in vb2_get_unmapped_area()
-
-Juergen Gross <jgross@suse.com>
-    xen/netback: don't call kfree_skb() with interrupts disabled
-
-Juergen Gross <jgross@suse.com>
-    xen/netback: do some code cleanup
-
-Ross Lagerwall <ross.lagerwall@citrix.com>
-    xen/netback: Ensure protocol headers don't fall in the non-linear area
-
-Thomas Gleixner <tglx@linutronix.de>
-    rtc: mc146818: Reduce spinlock section in mc146818_set_time()
-
-Xiaofei Tan <tanxiaofei@huawei.com>
-    rtc: cmos: Replace spin_lock_irqsave with spin_lock in hard IRQ
-
-Mateusz Jończyk <mat.jonczyk@o2.pl>
-    rtc: cmos: avoid UIP when reading alarm time
-
-Mateusz Jończyk <mat.jonczyk@o2.pl>
-    rtc: cmos: avoid UIP when writing alarm time
-
-Mateusz Jończyk <mat.jonczyk@o2.pl>
-    rtc: mc146818-lib: extract mc146818_avoid_UIP
-
-Mateusz Jończyk <mat.jonczyk@o2.pl>
-    rtc: mc146818-lib: fix RTC presence check
-
-Mateusz Jończyk <mat.jonczyk@o2.pl>
-    rtc: Check return value from mc146818_get_time()
-
-Mateusz Jończyk <mat.jonczyk@o2.pl>
-    rtc: mc146818-lib: change return values of mc146818_get_time()
-
-Mateusz Jończyk <mat.jonczyk@o2.pl>
-    rtc: cmos: remove stale REVISIT comments
-
-Thomas Gleixner <tglx@linutronix.de>
-    rtc: mc146818: Dont test for bit 0-5 in Register D
-
-Thomas Gleixner <tglx@linutronix.de>
-    rtc: mc146818: Detect and handle broken RTCs
-
-Thomas Gleixner <tglx@linutronix.de>
-    rtc: mc146818: Prevent reading garbage
-
-Jann Horn <jannh@google.com>
-    mm/khugepaged: invoke MMU notifiers in shmem/file collapse paths
-
-Jann Horn <jannh@google.com>
-    mm/khugepaged: fix GUP-fast interaction by sending IPI
-
-Jann Horn <jannh@google.com>
-    mm/khugepaged: take the right locks for page table retraction
-
-Davide Tronchin <davide.tronchin.94@gmail.com>
-    net: usb: qmi_wwan: add u-blox 0x1342 composition
-
-Dominique Martinet <asmadeus@codewreck.org>
-    9p/xen: check logical size for buffer size
-
-Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-    usb: dwc3: gadget: Disable GUSB2PHYCFG.SUSPHY for End Transfer
-
-Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-    fbcon: Use kzalloc() in fbcon_prepare_logo()
-
-Andreas Kemnade <andreas@kemnade.info>
-    regulator: twl6030: fix get status of twl6032 regulators
-
-Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
-    ASoC: soc-pcm: Add NULL check in BE reparenting
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: send: avoid unaligned encoded writes when attempting to clone range
-
-Kees Cook <keescook@chromium.org>
-    ALSA: seq: Fix function prototype mismatch in snd_seq_expand_var_event
-
-Konrad Dybcio <konrad.dybcio@linaro.org>
-    regulator: slg51000: Wait after asserting CS pin
-
-GUO Zihua <guozihua@huawei.com>
-    9p/fd: Use P9_HDRSZ for header size
-
-Johan Jonker <jbx6244@gmail.com>
-    ARM: dts: rockchip: disable arm_global_timer on rk3066 and rk3188
-
-Chancel Liu <chancel.liu@nxp.com>
-    ASoC: wm8962: Wait for updated value of WM8962_CLOCKING1 register
-
-Giulio Benetti <giulio.benetti@benettiengineering.com>
-    ARM: 9266/1: mm: fix no-MMU ZERO_PAGE() implementation
-
-Tomislav Novak <tnovak@fb.com>
-    ARM: 9251/1: perf: Fix stacktraces for tracepoint events in THUMB2 kernels
-
-Johan Jonker <jbx6244@gmail.com>
-    ARM: dts: rockchip: rk3188: fix lcdc1-rgb24 node name
-
-Johan Jonker <jbx6244@gmail.com>
-    arm64: dts: rockchip: fix ir-receiver node names
-
-Johan Jonker <jbx6244@gmail.com>
-    ARM: dts: rockchip: fix ir-receiver node names
-
-Sebastian Reichel <sebastian.reichel@collabora.com>
-    arm: dts: rockchip: fix node name for hym8563 rtc
-
-FUKAUMI Naoki <naoki@radxa.com>
-    arm64: dts: rockchip: keep I2S1 disabled for GPIO function on ROCK Pi 4 series
-
-Gavin Shan <gshan@redhat.com>
-    mm: migrate: fix THP's mapcount on isolation
-
-Hugh Dickins <hughd@google.com>
-    mm: __isolate_lru_page_prepare() in isolate_migratepages_block()
-
-Alex Shi <alex.shi@linux.alibaba.com>
-    mm/vmscan: __isolate_lru_page_prepare() cleanup
-
-Alex Shi <alex.shi@linux.alibaba.com>
-    mm/compaction: do page isolation first in compaction
-
-Alex Shi <alex.shi@linux.alibaba.com>
-    mm/lru: introduce TestClearPageLRU()
-
-Alex Shi <alex.shi@linux.alibaba.com>
-    mm/mlock: remove __munlock_isolate_lru_page()
-
-Alex Shi <alex.shi@linux.alibaba.com>
-    mm/mlock: remove lru_lock on TestClearPageMlocked
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/alpha/kernel/rtc.c                            |   7 +-
- arch/arm/boot/dts/imx7s.dtsi                       |   4 +-
- arch/arm/boot/dts/rk3036-evb.dts                   |   2 +-
- arch/arm/boot/dts/rk3188-radxarock.dts             |   2 +-
- arch/arm/boot/dts/rk3188.dtsi                      |   3 +-
- arch/arm/boot/dts/rk3288-evb-act8846.dts           |   2 +-
- arch/arm/boot/dts/rk3288-firefly.dtsi              |   2 +-
- arch/arm/boot/dts/rk3288-miqi.dts                  |   2 +-
- arch/arm/boot/dts/rk3288-rock2-square.dts          |   2 +-
- arch/arm/boot/dts/rk3xxx.dtsi                      |   7 +
- arch/arm/include/asm/perf_event.h                  |   2 +-
- arch/arm/include/asm/pgtable-nommu.h               |   6 -
- arch/arm/include/asm/pgtable.h                     |  16 +-
- arch/arm/mm/nommu.c                                |  19 ++
- arch/arm64/boot/dts/rockchip/rk3308-roc-cc.dts     |   2 +-
- arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi |   1 -
- arch/s390/kvm/vsie.c                               |   4 +-
- arch/x86/kernel/hpet.c                             |   8 +-
- drivers/base/power/trace.c                         |   6 +-
- drivers/bluetooth/btusb.c                          |   5 +
- drivers/gpio/gpio-amd8111.c                        |   4 +
- drivers/gpu/drm/bridge/synopsys/dw-hdmi.c          |   6 +-
- drivers/gpu/drm/bridge/ti-sn65dsi86.c              |   4 +-
- drivers/gpu/drm/drm_gem_shmem_helper.c             |  18 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c               |   4 +
- drivers/hid/hid-core.c                             |   3 +
- drivers/hid/hid-ids.h                              |   3 +
- drivers/hid/hid-lg4ff.c                            |   6 +
- drivers/hid/hid-quirks.c                           |   3 +
- drivers/media/common/videobuf2/videobuf2-core.c    | 102 ++++++---
- drivers/media/v4l2-core/v4l2-dv-timings.c          |  20 +-
- drivers/net/can/usb/esd_usb2.c                     |   6 +
- drivers/net/dsa/sja1105/sja1105_devlink.c          |   2 +
- drivers/net/ethernet/aeroflex/greth.c              |   1 +
- drivers/net/ethernet/broadcom/Kconfig              |   1 +
- drivers/net/ethernet/cavium/thunder/nicvf_main.c   |   4 +-
- drivers/net/ethernet/hisilicon/hisi_femac.c        |   2 +-
- drivers/net/ethernet/hisilicon/hix5hd2_gmac.c      |   2 +-
- drivers/net/ethernet/intel/e1000e/netdev.c         |   4 +-
- drivers/net/ethernet/intel/i40e/i40e_ethtool.c     |   6 +-
- drivers/net/ethernet/intel/i40e/i40e_main.c        |  19 +-
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   2 +
- drivers/net/ethernet/intel/igb/igb_ethtool.c       |   2 +
- drivers/net/ethernet/marvell/mvneta.c              |   2 +-
- drivers/net/ethernet/microchip/encx24j600-regmap.c |   4 +-
- .../net/ethernet/stmicro/stmmac/stmmac_platform.c  |   8 +-
- drivers/net/ieee802154/ca8210.c                    |   2 +-
- drivers/net/ieee802154/cc2520.c                    |   2 +-
- drivers/net/macsec.c                               |   1 +
- drivers/net/plip/plip.c                            |   4 +-
- drivers/net/usb/qmi_wwan.c                         |   1 +
- drivers/net/vmxnet3/vmxnet3_drv.c                  |  11 +-
- drivers/net/xen-netback/common.h                   |  14 +-
- drivers/net/xen-netback/interface.c                |  22 +-
- drivers/net/xen-netback/netback.c                  | 229 ++++++++++++---------
- drivers/net/xen-netback/rx.c                       |  10 +-
- drivers/net/xen-netfront.c                         |   6 +
- drivers/nvme/host/core.c                           |   8 +-
- drivers/regulator/slg51000-regulator.c             |   2 +
- drivers/regulator/twl6030-regulator.c              |  15 +-
- drivers/rtc/rtc-cmos.c                             | 209 ++++++++++++-------
- drivers/rtc/rtc-mc146818-lib.c                     | 169 ++++++++++++---
- drivers/usb/dwc3/gadget.c                          |   3 +-
- drivers/video/fbdev/core/fbcon.c                   |   2 +-
- fs/btrfs/send.c                                    |  24 ++-
- include/asm-generic/tlb.h                          |   4 +
- include/linux/cgroup.h                             |   1 +
- include/linux/hugetlb.h                            |   8 +-
- include/linux/mc146818rtc.h                        |   6 +-
- include/linux/page-flags.h                         |   1 +
- include/linux/swap.h                               |   1 -
- kernel/cgroup/cgroup-internal.h                    |   1 -
- mm/compaction.c                                    |  95 +++++++--
- mm/gup.c                                           |  16 +-
- mm/hugetlb.c                                       |  27 ++-
- mm/khugepaged.c                                    |  47 ++++-
- mm/memcontrol.c                                    |  15 +-
- mm/mlock.c                                         |  56 ++---
- mm/mmu_gather.c                                    |   4 +-
- mm/vmscan.c                                        | 155 ++++----------
- net/9p/trans_fd.c                                  |   6 +-
- net/9p/trans_xen.c                                 |   9 +
- net/bluetooth/6lowpan.c                            |   1 +
- net/bluetooth/af_bluetooth.c                       |   4 +-
- net/bluetooth/hci_core.c                           |   3 +-
- net/can/af_can.c                                   |   4 +-
- net/dsa/tag_ksz.c                                  |   3 +-
- net/ipv4/fib_frontend.c                            |   3 +
- net/ipv4/fib_semantics.c                           |   1 +
- net/ipv4/ip_gre.c                                  |  48 +++--
- net/ipv6/ip6_output.c                              |   5 +
- net/mac802154/iface.c                              |   1 +
- net/netfilter/nf_conntrack_netlink.c               |  19 +-
- net/netfilter/nft_set_pipapo.c                     |   5 +-
- net/nfc/nci/ntf.c                                  |   6 +
- net/tipc/link.c                                    |   4 +-
- net/tipc/node.c                                    |  12 +-
- net/unix/diag.c                                    |  20 +-
- sound/core/seq/seq_memory.c                        |  11 +-
- sound/soc/codecs/wm8962.c                          |   8 +
- sound/soc/soc-pcm.c                                |   2 +
- tools/testing/selftests/net/fib_tests.sh           |  37 ++++
- tools/testing/selftests/net/rtnetlink.sh           |   2 +-
- 104 files changed, 1117 insertions(+), 612 deletions(-)
 
 
