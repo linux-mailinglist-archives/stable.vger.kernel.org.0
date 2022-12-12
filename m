@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D51364A0A2
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:28:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 365A564A197
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:43:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232300AbiLLN2O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:28:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56302 "EHLO
+        id S232938AbiLLNnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:43:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232569AbiLLN1w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:27:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C31AE6551
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:27:47 -0800 (PST)
+        with ESMTP id S232948AbiLLNmh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:42:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E22CD1409D
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:41:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7FAFAB80D4D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:27:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE305C433EF;
-        Mon, 12 Dec 2022 13:27:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99CBCB80D2B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:41:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2B80C433F0;
+        Mon, 12 Dec 2022 13:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851665;
-        bh=xEdluQM7U/DjEOPfSvn3WQ5HD/2ZyDmuemJR2LlgDWU=;
+        s=korg; t=1670852488;
+        bh=c4VZ35ZCVt702xcPRU2p4u3zoSnCAYStqWB1ED/qZbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RhcB5dmou8KFjpeSt4T67uB7qEY0PIteZa11DCZA4XXBLC99hLGta5YLZhQsGOB41
-         CWD0IyFioImu+XqPfHKaeCPvgjMULuffgdbM7T/OzLEOwTYIoPYVj70z1yiGyBe0eG
-         M5M+gZuiaVXLiZINsvMM7dSlXDWvqdqqSaIcLHWA=
+        b=JM0Eb3SxvB95SGM1/8uBprKk7PphhbIu0veP1T0rBmookOG4LaIu5zeRbBNtSRA31
+         ksQfCkDWcDTHWBg6ol1RuHiDHEDIZAU9uRtbeMLExnd3/ROzk+KeBU25Z3iAut32JG
+         NT3jjXHBA1mHvfiYy8e59sKqFS9uoDg3x98TOD7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        =?UTF-8?q?Leonardo=20Eug=C3=AAnio?= <lelgenio@disroot.org>
-Subject: [PATCH 5.15 046/123] Bluetooth: Fix crash when replugging CSR fake controllers
+        patches@lists.linux.dev, Hangbin Liu <liuhangbin@gmail.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.0 064/157] selftests/tls: Fix tls selftests dependency to correct algorithm
 Date:   Mon, 12 Dec 2022 14:16:52 +0100
-Message-Id: <20221212130928.854985597@linuxfoundation.org>
+Message-Id: <20221212130937.146472438@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-commit b5ca338751ad4783ec8d37b5d99c3e37b7813e59 upstream.
+commit 6648eadba8d6b37c8e6cb1b906f68509b3b39385 upstream.
 
-It seems fake CSR 5.0 clones can cause the suspend notifier to be
-registered twice causing the following kernel panic:
+Commit d2825fa9365d ("crypto: sm3,sm4 - move into crypto directory") moves
+SM3 and SM4 algorithm implementations from stand-alone library to crypto
+API. The corresponding configuration options for the API version (generic)
+are CONFIG_CRYPTO_SM3_GENERIC and CONFIG_CRYPTO_SM4_GENERIC, respectively.
 
-[   71.986122] Call Trace:
-[   71.986124]  <TASK>
-[   71.986125]  blocking_notifier_chain_register+0x33/0x60
-[   71.986130]  hci_register_dev+0x316/0x3d0 [bluetooth 99b5497ea3d09708fa1366c1dc03288bf3cca8da]
-[   71.986154]  btusb_probe+0x979/0xd85 [btusb e1e0605a4f4c01984a4b9c8ac58c3666ae287477]
-[   71.986159]  ? __pm_runtime_set_status+0x1a9/0x300
-[   71.986162]  ? ktime_get_mono_fast_ns+0x3e/0x90
-[   71.986167]  usb_probe_interface+0xe3/0x2b0
-[   71.986171]  really_probe+0xdb/0x380
-[   71.986174]  ? pm_runtime_barrier+0x54/0x90
-[   71.986177]  __driver_probe_device+0x78/0x170
-[   71.986180]  driver_probe_device+0x1f/0x90
-[   71.986183]  __device_attach_driver+0x89/0x110
-[   71.986186]  ? driver_allows_async_probing+0x70/0x70
-[   71.986189]  bus_for_each_drv+0x8c/0xe0
-[   71.986192]  __device_attach+0xb2/0x1e0
-[   71.986195]  bus_probe_device+0x92/0xb0
-[   71.986198]  device_add+0x422/0x9a0
-[   71.986201]  ? sysfs_merge_group+0xd4/0x110
-[   71.986205]  usb_set_configuration+0x57a/0x820
-[   71.986208]  usb_generic_driver_probe+0x4f/0x70
-[   71.986211]  usb_probe_device+0x3a/0x110
-[   71.986213]  really_probe+0xdb/0x380
-[   71.986216]  ? pm_runtime_barrier+0x54/0x90
-[   71.986219]  __driver_probe_device+0x78/0x170
-[   71.986221]  driver_probe_device+0x1f/0x90
-[   71.986224]  __device_attach_driver+0x89/0x110
-[   71.986227]  ? driver_allows_async_probing+0x70/0x70
-[   71.986230]  bus_for_each_drv+0x8c/0xe0
-[   71.986232]  __device_attach+0xb2/0x1e0
-[   71.986235]  bus_probe_device+0x92/0xb0
-[   71.986237]  device_add+0x422/0x9a0
-[   71.986239]  ? _dev_info+0x7d/0x98
-[   71.986242]  ? blake2s_update+0x4c/0xc0
-[   71.986246]  usb_new_device.cold+0x148/0x36d
-[   71.986250]  hub_event+0xa8a/0x1910
-[   71.986255]  process_one_work+0x1c4/0x380
-[   71.986259]  worker_thread+0x51/0x390
-[   71.986262]  ? rescuer_thread+0x3b0/0x3b0
-[   71.986264]  kthread+0xdb/0x110
-[   71.986266]  ? kthread_complete_and_exit+0x20/0x20
-[   71.986268]  ret_from_fork+0x1f/0x30
-[   71.986273]  </TASK>
-[   71.986274] ---[ end trace 0000000000000000 ]---
-[   71.986284] btusb: probe of 2-1.6:1.0 failed with error -17
+Replace option selected in selftests configuration from the library version
+to the API version.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216683
-Cc: stable@vger.kernel.org
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Tested-by: Leonardo Eugênio <lelgenio@disroot.org>
+Fixes: d2825fa9365d ("crypto: sm3,sm4 - move into crypto directory")
+Reported-by: Hangbin Liu <liuhangbin@gmail.com>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Cc: stable@vger.kernel.org # v5.19+
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20221201131852.38501-1-tianjia.zhang@linux.alibaba.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/net/config | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -3985,7 +3985,8 @@ int hci_register_dev(struct hci_dev *hde
- 	hci_sock_dev_event(hdev, HCI_DEV_REG);
- 	hci_dev_hold(hdev);
- 
--	if (!test_bit(HCI_QUIRK_NO_SUSPEND_NOTIFIER, &hdev->quirks)) {
-+	if (!hdev->suspend_notifier.notifier_call &&
-+	    !test_bit(HCI_QUIRK_NO_SUSPEND_NOTIFIER, &hdev->quirks)) {
- 		hdev->suspend_notifier.notifier_call = hci_suspend_notifier;
- 		error = register_pm_notifier(&hdev->suspend_notifier);
- 		if (error)
+diff --git a/tools/testing/selftests/net/config b/tools/testing/selftests/net/config
+index ead7963b9bf0..bd89198cd817 100644
+--- a/tools/testing/selftests/net/config
++++ b/tools/testing/selftests/net/config
+@@ -43,5 +43,5 @@ CONFIG_NET_ACT_TUNNEL_KEY=m
+ CONFIG_NET_ACT_MIRRED=m
+ CONFIG_BAREUDP=m
+ CONFIG_IPV6_IOAM6_LWTUNNEL=y
+-CONFIG_CRYPTO_SM4=y
++CONFIG_CRYPTO_SM4_GENERIC=y
+ CONFIG_AMT=m
+-- 
+2.38.1
+
 
 
