@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 479AB649FCD
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:15:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86E7D649FCC
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:15:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232054AbiLLNPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:15:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43500 "EHLO
+        id S231651AbiLLNPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:15:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231902AbiLLNOq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:14:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB88ADD
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:14:37 -0800 (PST)
+        with ESMTP id S231779AbiLLNOr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:14:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B8512D3C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:14:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52600B80D38
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:14:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0A2AC433EF;
-        Mon, 12 Dec 2022 13:14:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16C5861043
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:14:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17555C433EF;
+        Mon, 12 Dec 2022 13:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670850875;
-        bh=uOCUYdXoD0VJBu4LImfvEZCjl2bDaUvrFCK0aez+zKs=;
+        s=korg; t=1670850878;
+        bh=Ph1UPeaek+ozl1Octva9TCAYmAUBi7iaRP5P5Qn5WzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qloAFmC20vkGREpW4zGDzbd+6jP28ITRFmh0ezPIvnu047YzuN1kXecTcrisZaRwP
-         ZphV3ik8FwvTnkehZsOO9LqvgrhrcWZzHsW1Tw9kquMYkeAqZp6VJaCR6ITxurADH4
-         rNAM3DTw76zXjpzkuiHYUYjtaYF15v2aRMKKhoe4=
+        b=ImUMVPbT7T0ZngvB9HwqchzsWzpGOG8XUBZZ1BQ+qCNTaDMShBfXu529FukrTGP+o
+         XhckvBrmfdD/5SAiaelTBlhX0W30l6xAxHFCTRQGakHjO3pvxH6W8L6XHZ+PlDMZ99
+         gH2u5zF75MjhH5/do5ZWckga3eUbDxUdFbDgdRLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Christian Schoenebeck <linux_oss@crudebyte.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
+        Davide Tronchin <davide.tronchin.94@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 025/106] 9p/xen: check logical size for buffer size
-Date:   Mon, 12 Dec 2022 14:09:28 +0100
-Message-Id: <20221212130925.955141887@linuxfoundation.org>
+Subject: [PATCH 5.10 026/106] net: usb: qmi_wwan: add u-blox 0x1342 composition
+Date:   Mon, 12 Dec 2022 14:09:29 +0100
+Message-Id: <20221212130925.998267497@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -55,51 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominique Martinet <asmadeus@codewreck.org>
+From: Davide Tronchin <davide.tronchin.94@gmail.com>
 
-[ Upstream commit 391c18cf776eb4569ecda1f7794f360fe0a45a26 ]
+[ Upstream commit a487069e11b6527373f7c6f435d8998051d0b5d9 ]
 
-trans_xen did not check the data fits into the buffer before copying
-from the xen ring, but we probably should.
-Add a check that just skips the request and return an error to
-userspace if it did not fit
+Add RmNet support for LARA-L6.
 
-Tested-by: Stefano Stabellini <sstabellini@kernel.org>
-Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-Link: https://lkml.kernel.org/r/20221118135542.63400-1-asmadeus@codewreck.org
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+LARA-L6 module can be configured (by AT interface) in three different
+USB modes:
+* Default mode (Vendor ID: 0x1546 Product ID: 0x1341) with 4 serial
+interfaces
+* RmNet mode (Vendor ID: 0x1546 Product ID: 0x1342) with 4 serial
+interfaces and 1 RmNet virtual network interface
+* CDC-ECM mode (Vendor ID: 0x1546 Product ID: 0x1343) with 4 serial
+interface and 1 CDC-ECM virtual network interface
+
+In RmNet mode LARA-L6 exposes the following interfaces:
+If 0: Diagnostic
+If 1: AT parser
+If 2: AT parser
+If 3: AT parset/alternative functions
+If 4: RMNET interface
+
+Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_xen.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
-index 432ac5a16f2e..6c8a33f98f09 100644
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -231,6 +231,14 @@ static void p9_xen_response(struct work_struct *work)
- 			continue;
- 		}
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 7313e6e03c12..bce151e3706a 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1352,6 +1352,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_FIXED_INTF(0x0489, 0xe0b4, 0)},	/* Foxconn T77W968 LTE */
+ 	{QMI_FIXED_INTF(0x0489, 0xe0b5, 0)},	/* Foxconn T77W968 LTE with eSIM support*/
+ 	{QMI_FIXED_INTF(0x2692, 0x9025, 4)},    /* Cellient MPL200 (rebranded Qualcomm 05c6:9025) */
++	{QMI_QUIRK_SET_DTR(0x1546, 0x1342, 4)},	/* u-blox LARA-L6 */
  
-+		if (h.size > req->rc.capacity) {
-+			dev_warn(&priv->dev->dev,
-+				 "requested packet size too big: %d for tag %d with capacity %zd\n",
-+				 h.size, h.tag, req->rc.capacity);
-+			req->status = REQ_STATUS_ERROR;
-+			goto recv_error;
-+		}
-+
- 		memcpy(&req->rc, &h, sizeof(h));
- 		req->rc.offset = 0;
- 
-@@ -240,6 +248,7 @@ static void p9_xen_response(struct work_struct *work)
- 				     masked_prod, &masked_cons,
- 				     XEN_9PFS_RING_SIZE(ring));
- 
-+recv_error:
- 		virt_mb();
- 		cons += h.size;
- 		ring->intf->in_cons = cons;
+ 	/* 4. Gobi 1000 devices */
+ 	{QMI_GOBI1K_DEVICE(0x05c6, 0x9212)},	/* Acer Gobi Modem Device */
 -- 
 2.35.1
 
