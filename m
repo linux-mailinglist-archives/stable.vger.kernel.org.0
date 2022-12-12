@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 244C064A23F
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:51:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5FA64A279
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233208AbiLLNvx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:51:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52958 "EHLO
+        id S233281AbiLLNyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:54:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233212AbiLLNvX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:51:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD149164B1
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:50:33 -0800 (PST)
+        with ESMTP id S232992AbiLLNy1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB87355A9
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:54:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 818BFB80D2C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:50:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B813DC433D2;
-        Mon, 12 Dec 2022 13:50:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3558ACE0F7D
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:54:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCCA4C433EF;
+        Mon, 12 Dec 2022 13:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853031;
-        bh=kuovvVt6c/Qo9Xo2YPTjD7mnvOC5FDdBwHlk9fvJrfI=;
+        s=korg; t=1670853262;
+        bh=RiAiArMmj9yqv3NLqy2z9VWExsJKLBO/7CgL/7lD42s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfqPhDx6R8dwQiwa4YvJrZlZO8dfzIP+UGcXc10iAp1UAiuFyusJNUKuG6+FL2OVA
-         IEA6scsSpDvRGkK+MJEdHlR5OvSzlhbrIERNopfuaCe+OGzXdu96AGSZXr0gGg4f5/
-         w1jx9El/4kJFANzQFA63GSqUV3XzDR5zZ2Kh9y8A=
+        b=lVzJPlBDMWxzODNvRqbW4+ClcToL0B2lW1ok/I2k1kILmJGpXojlphnZl34ecHhSD
+         Ssyi/PibEFw3rtaPZUoXAL/nENYLszDUNOYPl3en100fc5hIigzLgb5oLgevYoIFtH
+         Tu5ClsfoFgKwdliho/pDueWK1vHPxQsDJzR0QazU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Hauke Mehrtens <hauke@hauke-m.de>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 43/49] tipc: Fix potential OOB in tipc_link_proto_rcv()
+Subject: [PATCH 4.14 20/38] ca8210: Fix crash by zero initializing data
 Date:   Mon, 12 Dec 2022 14:19:21 +0100
-Message-Id: <20221212130915.817494785@linuxfoundation.org>
+Message-Id: <20221212130913.125654642@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
-References: <20221212130913.666185567@linuxfoundation.org>
+In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
+References: <20221212130912.069170932@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Hauke Mehrtens <hauke@hauke-m.de>
 
-[ Upstream commit 743117a997bbd4840e827295c07e59bcd7f7caa3 ]
+[ Upstream commit 1e24c54da257ab93cff5826be8a793b014a5dc9c ]
 
-Fix the potential risk of OOB if skb_linearize() fails in
-tipc_link_proto_rcv().
+The struct cas_control embeds multiple generic SPI structures and we
+have to make sure these structures are initialized to default values.
+This driver does not set all attributes. When using kmalloc before some
+attributes were not initialized and contained random data which caused
+random crashes at bootup.
 
-Fixes: 5cbb28a4bf65 ("tipc: linearize arriving NAME_DISTR and LINK_PROTO buffers")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20221203094635.29024-1-yuehaibing@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: ded845a781a5 ("ieee802154: Add CA8210 IEEE 802.15.4 device driver")
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Link: https://lore.kernel.org/r/20221121002201.1339636-1-hauke@hauke-m.de
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/link.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ieee802154/ca8210.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/tipc/link.c b/net/tipc/link.c
-index 0d2ee4eb131f..ee4aca974622 100644
---- a/net/tipc/link.c
-+++ b/net/tipc/link.c
-@@ -1595,7 +1595,9 @@ static int tipc_link_proto_rcv(struct tipc_link *l, struct sk_buff *skb,
- 	if (tipc_own_addr(l->net) > msg_prevnode(hdr))
- 		l->net_plane = msg_net_plane(hdr);
+diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
+index 9a1352f3fa4c..eff7571dbea2 100644
+--- a/drivers/net/ieee802154/ca8210.c
++++ b/drivers/net/ieee802154/ca8210.c
+@@ -926,7 +926,7 @@ static int ca8210_spi_transfer(
  
--	skb_linearize(skb);
-+	if (skb_linearize(skb))
-+		goto exit;
-+
- 	hdr = buf_msg(skb);
- 	data = msg_data(hdr);
+ 	dev_dbg(&spi->dev, "ca8210_spi_transfer called\n");
+ 
+-	cas_ctl = kmalloc(sizeof(*cas_ctl), GFP_ATOMIC);
++	cas_ctl = kzalloc(sizeof(*cas_ctl), GFP_ATOMIC);
+ 	if (!cas_ctl)
+ 		return -ENOMEM;
  
 -- 
 2.35.1
