@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F21A64A003
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:18:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEAFE64A00D
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:19:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232350AbiLLNSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:18:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46926 "EHLO
+        id S232622AbiLLNT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:19:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232349AbiLLNRf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:17:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E23E10C5
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:17:34 -0800 (PST)
+        with ESMTP id S232625AbiLLNTJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:19:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF792E38
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:18:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51DF7B80D40
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:17:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D04CC433D2;
-        Mon, 12 Dec 2022 13:17:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CB4F61042
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:18:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E39AC433F0;
+        Mon, 12 Dec 2022 13:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851052;
-        bh=Ifsob09A2HnLkQYwGfDz21JX4bOqjQMUir02pR9HhGc=;
+        s=korg; t=1670851089;
+        bh=OyJhl0urYqLEGAXiMaD8NlhT5R4R3ciDN/M8xEd2JY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vZOGMGsgoE2/sFUyc/Zw/SBZnwzrwAbRajf+jWr1K3GvFqNqAZdjdCSGJsWW7IdAY
-         ygUmgwTuipwVYSgie0AW47EPUlj2O05VMpg7x4OYhSaRyUsY5aI+x9HlbJaW9mgPyI
-         y3XcWMRWyS6IHnVAgB9oYzTCrJucouBauyA3bKOM=
+        b=qG0SvjPT6OJtdqLyYCObXTwi4rthwB8ds9GiwpKXQkWpIcRjqCTW4HPRKZccRYcNm
+         JGIopZ4ImfLeqMHgj+PdfV2q45ujd2KkRbFQQU+oCMdvTH1nyQ0/LQiTezOr7jJJSs
+         Dy76PhaxfAgdAz/+ZAGmcJTjEFN/X04XBuEf/MSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Pavan Chebbi <pavan.chebbi@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 081/106] net: encx24j600: Add parentheses to fix precedence
-Date:   Mon, 12 Dec 2022 14:10:24 +0100
-Message-Id: <20221212130928.411650255@linuxfoundation.org>
+Subject: [PATCH 5.10 082/106] net: encx24j600: Fix invalid logic in reading of MISTAT register
+Date:   Mon, 12 Dec 2022 14:10:25 +0100
+Message-Id: <20221212130928.454596427@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -57,12 +57,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Valentina Goncharenko <goncharenko.vp@ispras.ru>
 
-[ Upstream commit 167b3f2dcc62c271f3555b33df17e361bb1fa0ee ]
+[ Upstream commit 25f427ac7b8d89b0259f86c0c6407b329df742b2 ]
 
-In functions regmap_encx24j600_phy_reg_read() and
-regmap_encx24j600_phy_reg_write() in the conditions of the waiting
-cycles for filling the variable 'ret' it is necessary to add parentheses
-to prevent wrong assignment due to logical operations precedence.
+A loop for reading MISTAT register continues while regmap_read() fails
+and (mistat & BUSY), but if regmap_read() fails a value of mistat is
+undefined.
+
+The patch proposes to check for BUSY flag only when regmap_read()
+succeed. Compile test only.
 
 Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
@@ -76,15 +78,15 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/ethernet/microchip/encx24j600-regmap.c b/drivers/net/ethernet/microchip/encx24j600-regmap.c
-index 81a8ccca7e5e..2e337c7a5773 100644
+index 2e337c7a5773..5693784eec5b 100644
 --- a/drivers/net/ethernet/microchip/encx24j600-regmap.c
 +++ b/drivers/net/ethernet/microchip/encx24j600-regmap.c
 @@ -359,7 +359,7 @@ static int regmap_encx24j600_phy_reg_read(void *context, unsigned int reg,
  		goto err_out;
  
  	usleep_range(26, 100);
--	while ((ret = regmap_read(ctx->regmap, MISTAT, &mistat) != 0) &&
-+	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
+-	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
++	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) == 0) &&
  	       (mistat & BUSY))
  		cpu_relax();
  
@@ -92,8 +94,8 @@ index 81a8ccca7e5e..2e337c7a5773 100644
  		goto err_out;
  
  	usleep_range(26, 100);
--	while ((ret = regmap_read(ctx->regmap, MISTAT, &mistat) != 0) &&
-+	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
+-	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
++	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) == 0) &&
  	       (mistat & BUSY))
  		cpu_relax();
  
