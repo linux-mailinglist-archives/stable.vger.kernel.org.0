@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C7464A043
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44C3A64A0C2
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:30:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232486AbiLLNWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:22:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51352 "EHLO
+        id S231467AbiLLNaE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:30:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229718AbiLLNWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:22:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDD7C13D6F
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:22:35 -0800 (PST)
+        with ESMTP id S232286AbiLLNaD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:30:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA5AB1015
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:30:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59DE361072
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:22:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38C33C433D2;
-        Mon, 12 Dec 2022 13:22:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0E02B80D4D
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:30:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4734C433EF;
+        Mon, 12 Dec 2022 13:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851354;
-        bh=qqMzyz08br6xa2DiUvZw3vP8xpLJ4sRq7hjgywIWtNw=;
+        s=korg; t=1670851800;
+        bh=wttYWBHie58whFtdwQZQcEEMBFN/wZ18dea0Du44YR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZO9kuZlIw9NbApzfpKV5nSegZy+E7E4wGaP+MA/q7h7rAvblRUBidZEAwIq4hJHn8
-         cCD4vHaz/lYKvKwLTUmcSTK3p4ofDiAl4PP+Rz8y/woBPLEbniju5nYPY1IOMYr1/X
-         HVUPbzXlqIvIpqdy6RXM+YfMpxxtTEZaEZ+cCAQ8=
+        b=jJAe5YK5xrA11VanUvpoeWDHBsHlWuhDvzsGyBDVgrpPVnf02tqzPht+qkdoJeLcI
+         T7Gs3qMORPwIAjswB2JHrdBcrFPtfwGQbINUxF12iQ8SjksL6a4fDGduOYVmwQ6oPU
+         8n8Dt0cOOCZjBZjMKyb4Vsl4ppi3if2RQAW+T7xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Guillaume BRUN <the.cheaterman@gmail.com>,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 44/67] selftests: rtnetlink: correct xfrm policy rule in kci_test_ipsec_offload
+Subject: [PATCH 5.15 073/123] drm: bridge: dw_hdmi: fix preference of RGB modes over YUV420
 Date:   Mon, 12 Dec 2022 14:17:19 +0100
-Message-Id: <20221212130919.729119357@linuxfoundation.org>
+Message-Id: <20221212130930.031468782@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Guillaume BRUN <the.cheaterman@gmail.com>
 
-[ Upstream commit 85a0506c073332a3057f5a9635fa0d4db5a8e03b ]
+[ Upstream commit d3d6b1bf85aefe0ebc0624574b3bb62f0693914c ]
 
-When testing in kci_test_ipsec_offload, srcip is configured as $dstip,
-it should add xfrm policy rule in instead of out.
-The test result of this patch is as follows:
-PASS: ipsec_offload
+Cheap monitors sometimes advertise YUV modes they don't really have
+(HDMI specification mandates YUV support so even monitors without actual
+support will often wrongfully advertise it) which results in YUV matches
+and user forum complaints of a red tint to light colour display areas in
+common desktop environments.
 
-Fixes: 2766a11161cc ("selftests: rtnetlink: add ipsec offload API test")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Acked-by: Hangbin Liu <liuhangbin@gmail.com>
-Link: https://lore.kernel.org/r/20221201082246.14131-1-shaozhengchao@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Moving the default RGB fall-back before YUV selection results in RGB
+mode matching in most cases, reducing complaints.
+
+Fixes: 6c3c719936da ("drm/bridge: synopsys: dw-hdmi: add bus format negociation")
+Signed-off-by: Guillaume BRUN <the.cheaterman@gmail.com>
+Tested-by: Christian Hewitt <christianshewitt@gmail.com>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221116143523.2126-1-the.cheaterman@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/rtnetlink.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/synopsys/dw-hdmi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/net/rtnetlink.sh b/tools/testing/selftests/net/rtnetlink.sh
-index 28ea3753da20..911c549f186f 100755
---- a/tools/testing/selftests/net/rtnetlink.sh
-+++ b/tools/testing/selftests/net/rtnetlink.sh
-@@ -780,7 +780,7 @@ kci_test_ipsec_offload()
- 	    tmpl proto esp src $srcip dst $dstip spi 9 \
- 	    mode transport reqid 42
- 	check_err $?
--	ip x p add dir out src $dstip/24 dst $srcip/24 \
-+	ip x p add dir in src $dstip/24 dst $srcip/24 \
- 	    tmpl proto esp src $dstip dst $srcip spi 9 \
- 	    mode transport reqid 42
- 	check_err $?
+diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
+index d3129a3e6ab7..8bb403bc712a 100644
+--- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
++++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
+@@ -2594,6 +2594,9 @@ static u32 *dw_hdmi_bridge_atomic_get_output_bus_fmts(struct drm_bridge *bridge,
+ 	 * if supported. In any case the default RGB888 format is added
+ 	 */
+ 
++	/* Default 8bit RGB fallback */
++	output_fmts[i++] = MEDIA_BUS_FMT_RGB888_1X24;
++
+ 	if (max_bpc >= 16 && info->bpc == 16) {
+ 		if (info->color_formats & DRM_COLOR_FORMAT_YCRCB444)
+ 			output_fmts[i++] = MEDIA_BUS_FMT_YUV16_1X48;
+@@ -2627,9 +2630,6 @@ static u32 *dw_hdmi_bridge_atomic_get_output_bus_fmts(struct drm_bridge *bridge,
+ 	if (info->color_formats & DRM_COLOR_FORMAT_YCRCB444)
+ 		output_fmts[i++] = MEDIA_BUS_FMT_YUV8_1X24;
+ 
+-	/* Default 8bit RGB fallback */
+-	output_fmts[i++] = MEDIA_BUS_FMT_RGB888_1X24;
+-
+ 	*num_output_fmts = i;
+ 
+ 	return output_fmts;
 -- 
 2.35.1
 
