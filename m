@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D68C664A0E2
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:32:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADFD164A1DD
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:46:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232096AbiLLNcX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:32:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32770 "EHLO
+        id S233027AbiLLNqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:46:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229923AbiLLNcV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:32:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D06EBED
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:32:20 -0800 (PST)
+        with ESMTP id S233028AbiLLNqQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:46:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7E1814D08
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:46:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29C6061042
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:32:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CECCDC433D2;
-        Mon, 12 Dec 2022 13:32:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8413961089
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:46:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38029C433D2;
+        Mon, 12 Dec 2022 13:45:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851939;
-        bh=nvqLlKmWfu69M03Q5g6PzFcX+TIxfSX0DqqDS/5aDsc=;
+        s=korg; t=1670852761;
+        bh=s4GHnFx5q/GyBdsSbyTfDFOP6VaS6/pjAv27D9wTgFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wkxhP2o1UlYwQVJrQB2wBTX3APIyE4Mmnyd9b3X71SxR1K49dIHtiKgqRvppDVWVD
-         dXfWB4rLszpfn2GsXFbPRbpiAULLAQWMjul5vZfzeJTdoUzYZYpdqdKbsH7Ss4YtDw
-         cxiGP7b/+6KaXRHpcQ/uTQTCVaB+dYsNno4xSrfg=
+        b=BacojAAAjn84xnxjSyjibISVoW4sMMdaCCmmPYzPr+hNbudQzziQw4CDVzt5lJjdl
+         3SSsNcm4j1/8RDyoXjPyTPcBkZFbcyUC1pHjuWLr9jH+fgY23qlsQ+cHnxQbirXsTF
+         k1aPvFoy0Pc8yitT3hB6nkg3tv17J7zeLy5unsoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Jian <liujian56@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 101/123] net: hisilicon: Fix potential use-after-free in hisi_femac_rx()
+Subject: [PATCH 6.0 119/157] net: mdiobus: fwnode_mdiobus_register_phy() rework error handling
 Date:   Mon, 12 Dec 2022 14:17:47 +0100
-Message-Id: <20221212130931.421830299@linuxfoundation.org>
+Message-Id: <20221212130939.636766094@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 4640177049549de1a43e9bc49265f0cdfce08cfd ]
+[ Upstream commit cfaa202a73eafaf91a3d0a86b5e5df006562f5c0 ]
 
-The skb is delivered to napi_gro_receive() which may free it, after
-calling this, dereferencing skb may trigger use-after-free.
+Rework error handling as preparation for PSE patch. This patch should
+make it easier to extend this function.
 
-Fixes: 542ae60af24f ("net: hisilicon: Add Fast Ethernet MAC driver")
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Link: https://lore.kernel.org/r/20221203094240.1240211-1-liujian56@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Stable-dep-of: 165df24186ec ("net: mdiobus: fix double put fwnode in the error path")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hisi_femac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/mdio/fwnode_mdio.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hisi_femac.c b/drivers/net/ethernet/hisilicon/hisi_femac.c
-index 22bf914f2dbd..ea3e67cf5ffa 100644
---- a/drivers/net/ethernet/hisilicon/hisi_femac.c
-+++ b/drivers/net/ethernet/hisilicon/hisi_femac.c
-@@ -283,7 +283,7 @@ static int hisi_femac_rx(struct net_device *dev, int limit)
- 		skb->protocol = eth_type_trans(skb, dev);
- 		napi_gro_receive(&priv->napi, skb);
- 		dev->stats.rx_packets++;
--		dev->stats.rx_bytes += skb->len;
-+		dev->stats.rx_bytes += len;
- next:
- 		pos = (pos + 1) % rxq->num;
- 		if (rx_pkts_num >= limit)
+diff --git a/drivers/net/mdio/fwnode_mdio.c b/drivers/net/mdio/fwnode_mdio.c
+index 40e745a1d185..403b07f8ec2c 100644
+--- a/drivers/net/mdio/fwnode_mdio.c
++++ b/drivers/net/mdio/fwnode_mdio.c
+@@ -110,8 +110,8 @@ int fwnode_mdiobus_register_phy(struct mii_bus *bus,
+ 	else
+ 		phy = phy_device_create(bus, addr, phy_id, 0, NULL);
+ 	if (IS_ERR(phy)) {
+-		unregister_mii_timestamper(mii_ts);
+-		return PTR_ERR(phy);
++		rc = PTR_ERR(phy);
++		goto clean_mii_ts;
+ 	}
+ 
+ 	if (is_acpi_node(child)) {
+@@ -125,17 +125,13 @@ int fwnode_mdiobus_register_phy(struct mii_bus *bus,
+ 		/* All data is now stored in the phy struct, so register it */
+ 		rc = phy_device_register(phy);
+ 		if (rc) {
+-			phy_device_free(phy);
+ 			fwnode_handle_put(phy->mdio.dev.fwnode);
+-			return rc;
++			goto clean_phy;
+ 		}
+ 	} else if (is_of_node(child)) {
+ 		rc = fwnode_mdiobus_phy_device_register(bus, phy, child, addr);
+-		if (rc) {
+-			unregister_mii_timestamper(mii_ts);
+-			phy_device_free(phy);
+-			return rc;
+-		}
++		if (rc)
++			goto clean_phy;
+ 	}
+ 
+ 	/* phy->mii_ts may already be defined by the PHY driver. A
+@@ -145,5 +141,12 @@ int fwnode_mdiobus_register_phy(struct mii_bus *bus,
+ 	if (mii_ts)
+ 		phy->mii_ts = mii_ts;
+ 	return 0;
++
++clean_phy:
++	phy_device_free(phy);
++clean_mii_ts:
++	unregister_mii_timestamper(mii_ts);
++
++	return rc;
+ }
+ EXPORT_SYMBOL(fwnode_mdiobus_register_phy);
 -- 
 2.35.1
 
