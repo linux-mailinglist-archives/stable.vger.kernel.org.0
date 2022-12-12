@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E938164A0E7
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:32:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 437D964A0E8
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:32:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232182AbiLLNcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:32:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33022 "EHLO
+        id S232328AbiLLNcp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:32:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229923AbiLLNci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:32:38 -0500
+        with ESMTP id S229923AbiLLNco (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:32:44 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FABA287
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:32:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83EEDB67
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:32:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DD854CE0F76
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:32:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2281C433EF;
-        Mon, 12 Dec 2022 13:32:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A1406CE0F11
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:32:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43F45C433EF;
+        Mon, 12 Dec 2022 13:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851953;
-        bh=Jh2piPD20CzMS/ThY6FZ6rKFY8ViEP27FHzCG0vLpF4=;
+        s=korg; t=1670851957;
+        bh=VDUJT7UsVE3Lv/5CimujWOKrnGVD+AlGkz6dJnGcc6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MXEdIcgUcrpZ4f+0lVIdAy0k6a5D31CRr3s+kjK048Ef1ZeDf52ufHupaqqGJ1Vo1
-         QgQM0YJsvb9FL/0YOIXScEK+09LXKy2NWCQ6gAituEZVdt0Rz4lW89N+GBq5+n844s
-         A4ONdu0EWeZnStt0RS0ysOzi1LTltKpnxoebpMM8=
+        b=KBY/aIujCYAkoUIWLlVhbNinDE8DNWEjrhHmjAQOPqjMc5xhx4NkE/w8nsbD3Wwhx
+         H/wFe35RcbC74Jdl2KP+DRYO9iWO0ZmPbPaTzVi1dYBY4D7u88yQp702mZokd+g95U
+         Bb0//xAsJeQ1wim95eZZBfHeF7nX75jNMijcD0xM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Ido Schimmel <idosch@nvidia.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 104/123] tipc: Fix potential OOB in tipc_link_proto_rcv()
-Date:   Mon, 12 Dec 2022 14:17:50 +0100
-Message-Id: <20221212130931.592672938@linuxfoundation.org>
+Subject: [PATCH 5.15 105/123] ipv4: Fix incorrect route flushing when source address is deleted
+Date:   Mon, 12 Dec 2022 14:17:51 +0100
+Message-Id: <20221212130931.650203689@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
 References: <20221212130926.811961601@linuxfoundation.org>
@@ -45,45 +46,141 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,LOTS_OF_MONEY,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 743117a997bbd4840e827295c07e59bcd7f7caa3 ]
+[ Upstream commit f96a3d74554df537b6db5c99c27c80e7afadc8d1 ]
 
-Fix the potential risk of OOB if skb_linearize() fails in
-tipc_link_proto_rcv().
+Cited commit added the table ID to the FIB info structure, but did not
+prevent structures with different table IDs from being consolidated.
+This can lead to routes being flushed from a VRF when an address is
+deleted from a different VRF.
 
-Fixes: 5cbb28a4bf65 ("tipc: linearize arriving NAME_DISTR and LINK_PROTO buffers")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20221203094635.29024-1-yuehaibing@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fix by taking the table ID into account when looking for a matching FIB
+info. This is already done for FIB info structures backed by a nexthop
+object in fib_find_info_nh().
+
+Add test cases that fail before the fix:
+
+ # ./fib_tests.sh -t ipv4_del_addr
+
+ IPv4 delete address route tests
+     Regular FIB info
+     TEST: Route removed from VRF when source address deleted            [ OK ]
+     TEST: Route in default VRF not removed                              [ OK ]
+     TEST: Route removed in default VRF when source address deleted      [ OK ]
+     TEST: Route in VRF is not removed by address delete                 [ OK ]
+     Identical FIB info with different table ID
+     TEST: Route removed from VRF when source address deleted            [FAIL]
+     TEST: Route in default VRF not removed                              [ OK ]
+ RTNETLINK answers: File exists
+     TEST: Route removed in default VRF when source address deleted      [ OK ]
+     TEST: Route in VRF is not removed by address delete                 [FAIL]
+
+ Tests passed:   6
+ Tests failed:   2
+
+And pass after:
+
+ # ./fib_tests.sh -t ipv4_del_addr
+
+ IPv4 delete address route tests
+     Regular FIB info
+     TEST: Route removed from VRF when source address deleted            [ OK ]
+     TEST: Route in default VRF not removed                              [ OK ]
+     TEST: Route removed in default VRF when source address deleted      [ OK ]
+     TEST: Route in VRF is not removed by address delete                 [ OK ]
+     Identical FIB info with different table ID
+     TEST: Route removed from VRF when source address deleted            [ OK ]
+     TEST: Route in default VRF not removed                              [ OK ]
+     TEST: Route removed in default VRF when source address deleted      [ OK ]
+     TEST: Route in VRF is not removed by address delete                 [ OK ]
+
+ Tests passed:   8
+ Tests failed:   0
+
+Fixes: 5a56a0b3a45d ("net: Don't delete routes in different VRFs")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/link.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/ipv4/fib_semantics.c                 |  1 +
+ tools/testing/selftests/net/fib_tests.sh | 27 ++++++++++++++++++++++++
+ 2 files changed, 28 insertions(+)
 
-diff --git a/net/tipc/link.c b/net/tipc/link.c
-index 115a4a7950f5..8fdd3b23bd12 100644
---- a/net/tipc/link.c
-+++ b/net/tipc/link.c
-@@ -2223,7 +2223,9 @@ static int tipc_link_proto_rcv(struct tipc_link *l, struct sk_buff *skb,
- 	if (tipc_own_addr(l->net) > msg_prevnode(hdr))
- 		l->net_plane = msg_net_plane(hdr);
+diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
+index af64ae689b13..250af6e5a892 100644
+--- a/net/ipv4/fib_semantics.c
++++ b/net/ipv4/fib_semantics.c
+@@ -421,6 +421,7 @@ static struct fib_info *fib_find_info(struct fib_info *nfi)
+ 		    nfi->fib_prefsrc == fi->fib_prefsrc &&
+ 		    nfi->fib_priority == fi->fib_priority &&
+ 		    nfi->fib_type == fi->fib_type &&
++		    nfi->fib_tb_id == fi->fib_tb_id &&
+ 		    memcmp(nfi->fib_metrics, fi->fib_metrics,
+ 			   sizeof(u32) * RTAX_MAX) == 0 &&
+ 		    !((nfi->fib_flags ^ fi->fib_flags) & ~RTNH_COMPARE_MASK) &&
+diff --git a/tools/testing/selftests/net/fib_tests.sh b/tools/testing/selftests/net/fib_tests.sh
+index 996af1ae3d3d..d238617b6ab5 100755
+--- a/tools/testing/selftests/net/fib_tests.sh
++++ b/tools/testing/selftests/net/fib_tests.sh
+@@ -1622,13 +1622,19 @@ ipv4_del_addr_test()
  
--	skb_linearize(skb);
-+	if (skb_linearize(skb))
-+		goto exit;
+ 	$IP addr add dev dummy1 172.16.104.1/24
+ 	$IP addr add dev dummy1 172.16.104.11/24
++	$IP addr add dev dummy1 172.16.104.12/24
+ 	$IP addr add dev dummy2 172.16.104.1/24
+ 	$IP addr add dev dummy2 172.16.104.11/24
++	$IP addr add dev dummy2 172.16.104.12/24
+ 	$IP route add 172.16.105.0/24 via 172.16.104.2 src 172.16.104.11
++	$IP route add 172.16.106.0/24 dev lo src 172.16.104.12
+ 	$IP route add vrf red 172.16.105.0/24 via 172.16.104.2 src 172.16.104.11
++	$IP route add vrf red 172.16.106.0/24 dev lo src 172.16.104.12
+ 	set +e
+ 
+ 	# removing address from device in vrf should only remove route from vrf table
++	echo "    Regular FIB info"
 +
- 	hdr = buf_msg(skb);
- 	data = msg_data(hdr);
+ 	$IP addr del dev dummy2 172.16.104.11/24
+ 	$IP ro ls vrf red | grep -q 172.16.105.0/24
+ 	log_test $? 1 "Route removed from VRF when source address deleted"
+@@ -1646,6 +1652,27 @@ ipv4_del_addr_test()
+ 	$IP ro ls vrf red | grep -q 172.16.105.0/24
+ 	log_test $? 0 "Route in VRF is not removed by address delete"
  
++	# removing address from device in vrf should only remove route from vrf
++	# table even when the associated fib info only differs in table ID
++	echo "    Identical FIB info with different table ID"
++
++	$IP addr del dev dummy2 172.16.104.12/24
++	$IP ro ls vrf red | grep -q 172.16.106.0/24
++	log_test $? 1 "Route removed from VRF when source address deleted"
++
++	$IP ro ls | grep -q 172.16.106.0/24
++	log_test $? 0 "Route in default VRF not removed"
++
++	$IP addr add dev dummy2 172.16.104.12/24
++	$IP route add vrf red 172.16.106.0/24 dev lo src 172.16.104.12
++
++	$IP addr del dev dummy1 172.16.104.12/24
++	$IP ro ls | grep -q 172.16.106.0/24
++	log_test $? 1 "Route removed in default VRF when source address deleted"
++
++	$IP ro ls vrf red | grep -q 172.16.106.0/24
++	log_test $? 0 "Route in VRF is not removed by address delete"
++
+ 	$IP li del dummy1
+ 	$IP li del dummy2
+ 	cleanup
 -- 
 2.35.1
 
