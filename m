@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3152164A239
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:51:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1608A64A27B
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:55:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233046AbiLLNva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:51:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52430 "EHLO
+        id S233180AbiLLNzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:55:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233136AbiLLNvL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:51:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0CF9140E9
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:50:18 -0800 (PST)
+        with ESMTP id S233268AbiLLNyc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECCCB11150
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:54:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 60BB061068
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:50:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FDA6C433EF;
-        Mon, 12 Dec 2022 13:50:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3A80B8068B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:54:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9338C433D2;
+        Mon, 12 Dec 2022 13:54:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853017;
-        bh=bl3qD9WEy/2JrTV9dkMx9ZUTzm+oZEHVzW3ig8T9N9c=;
+        s=korg; t=1670853266;
+        bh=ZNby5NHtZlgBTUb39XrLZ5JJvBq7trP8z2fxRcDJV5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBQENUyLhLR45+gJYlRXX3cdkMPc2KYz3+vjgTq1vzi6bWSeNfocqDfP7arWZxTPb
-         t8n3ibMeJlGzRYGvsmxz9KMrt34euaUhz7UCCZDhnW0Lvv7NlKW9oH+7vj8MIJ6CR+
-         w8vG1SPJcMySQJQQg9gCeVuwMnyxqjVhK7drUCEQ=
+        b=n991u1vM02t63Q6PvWuCcE8dAEXH4Sj/4s8YZlAs1DGr/d0kIICzAdXeV88h6+nuf
+         t30B9VmsrQ7RuMdW66ZplwVfR3ypbu+dX6TXTLmmX8Wax/14miK4bK3b5LQiQ81LK8
+         FCyXR7CO/m6w9ZObVr3sIz9+3A4ccJxSBxrF6c4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/49] net: stmmac: fix "snps,axi-config" node property parsing
-Date:   Mon, 12 Dec 2022 14:19:18 +0100
-Message-Id: <20221212130915.662036674@linuxfoundation.org>
+Subject: [PATCH 4.9 01/31] arm: dts: rockchip: fix node name for hym8563 rtc
+Date:   Mon, 12 Dec 2022 14:19:19 +0100
+Message-Id: <20221212130910.032946112@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
-References: <20221212130913.666185567@linuxfoundation.org>
+In-Reply-To: <20221212130909.943483205@linuxfoundation.org>
+References: <20221212130909.943483205@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,43 +56,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-[ Upstream commit 61d4f140943c47c1386ed89f7260e00418dfad9d ]
+[ Upstream commit 17b57beafccb4569accbfc8c11390744cf59c021 ]
 
-In dt-binding snps,dwmac.yaml, some properties under "snps,axi-config"
-node are named without "axi_" prefix, but the driver expects the
-prefix. Since the dt-binding has been there for a long time, we'd
-better make driver match the binding for compatibility.
+Fix the node name for hym8563 in all arm rockchip devicetrees.
 
-Fixes: afea03656add ("stmmac: rework DMA bus setting and introduce new platform AXI structure")
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Link: https://lore.kernel.org/r/20221202161739.2203-1-jszhang@kernel.org
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Link: https://lore.kernel.org/r/20221024165549.74574-4-sebastian.reichel@collabora.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/rk3036-evb.dts          | 2 +-
+ arch/arm/boot/dts/rk3288-evb-act8846.dts  | 2 +-
+ arch/arm/boot/dts/rk3288-firefly.dtsi     | 2 +-
+ arch/arm/boot/dts/rk3288-miqi.dts         | 2 +-
+ arch/arm/boot/dts/rk3288-rock2-square.dts | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-index 9762e687fc73..9e040eb629ed 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-@@ -114,10 +114,10 @@ static struct stmmac_axi *stmmac_axi_setup(struct platform_device *pdev)
+diff --git a/arch/arm/boot/dts/rk3036-evb.dts b/arch/arm/boot/dts/rk3036-evb.dts
+index 8db9e9b197a2..9f9e055a47dc 100644
+--- a/arch/arm/boot/dts/rk3036-evb.dts
++++ b/arch/arm/boot/dts/rk3036-evb.dts
+@@ -69,7 +69,7 @@
+ &i2c1 {
+ 	status = "okay";
  
- 	axi->axi_lpi_en = of_property_read_bool(np, "snps,lpi_en");
- 	axi->axi_xit_frm = of_property_read_bool(np, "snps,xit_frm");
--	axi->axi_kbbe = of_property_read_bool(np, "snps,axi_kbbe");
--	axi->axi_fb = of_property_read_bool(np, "snps,axi_fb");
--	axi->axi_mb = of_property_read_bool(np, "snps,axi_mb");
--	axi->axi_rb =  of_property_read_bool(np, "snps,axi_rb");
-+	axi->axi_kbbe = of_property_read_bool(np, "snps,kbbe");
-+	axi->axi_fb = of_property_read_bool(np, "snps,fb");
-+	axi->axi_mb = of_property_read_bool(np, "snps,mb");
-+	axi->axi_rb =  of_property_read_bool(np, "snps,rb");
+-	hym8563: hym8563@51 {
++	hym8563: rtc@51 {
+ 		compatible = "haoyu,hym8563";
+ 		reg = <0x51>;
+ 		#clock-cells = <0>;
+diff --git a/arch/arm/boot/dts/rk3288-evb-act8846.dts b/arch/arm/boot/dts/rk3288-evb-act8846.dts
+index 041dd5d2d18c..0fb6843cb26c 100644
+--- a/arch/arm/boot/dts/rk3288-evb-act8846.dts
++++ b/arch/arm/boot/dts/rk3288-evb-act8846.dts
+@@ -91,7 +91,7 @@
+ 		vin-supply = <&vcc_sys>;
+ 	};
  
- 	if (of_property_read_u32(np, "snps,wr_osr_lmt", &axi->axi_wr_osr_lmt))
- 		axi->axi_wr_osr_lmt = 1;
+-	hym8563@51 {
++	rtc@51 {
+ 		compatible = "haoyu,hym8563";
+ 		reg = <0x51>;
+ 
+diff --git a/arch/arm/boot/dts/rk3288-firefly.dtsi b/arch/arm/boot/dts/rk3288-firefly.dtsi
+index 114c90fb65e2..f1bceeea8124 100644
+--- a/arch/arm/boot/dts/rk3288-firefly.dtsi
++++ b/arch/arm/boot/dts/rk3288-firefly.dtsi
+@@ -253,7 +253,7 @@
+ 		vin-supply = <&vcc_sys>;
+ 	};
+ 
+-	hym8563: hym8563@51 {
++	hym8563: rtc@51 {
+ 		compatible = "haoyu,hym8563";
+ 		reg = <0x51>;
+ 		#clock-cells = <0>;
+diff --git a/arch/arm/boot/dts/rk3288-miqi.dts b/arch/arm/boot/dts/rk3288-miqi.dts
+index 24488421f0f0..05ad29271aa5 100644
+--- a/arch/arm/boot/dts/rk3288-miqi.dts
++++ b/arch/arm/boot/dts/rk3288-miqi.dts
+@@ -186,7 +186,7 @@
+ 		vin-supply = <&vcc_sys>;
+ 	};
+ 
+-	hym8563: hym8563@51 {
++	hym8563: rtc@51 {
+ 		compatible = "haoyu,hym8563";
+ 		reg = <0x51>;
+ 		#clock-cells = <0>;
+diff --git a/arch/arm/boot/dts/rk3288-rock2-square.dts b/arch/arm/boot/dts/rk3288-rock2-square.dts
+index dd3ad2e93a6d..61490f03918c 100644
+--- a/arch/arm/boot/dts/rk3288-rock2-square.dts
++++ b/arch/arm/boot/dts/rk3288-rock2-square.dts
+@@ -159,7 +159,7 @@
+ };
+ 
+ &i2c0 {
+-	hym8563: hym8563@51 {
++	hym8563: rtc@51 {
+ 		compatible = "haoyu,hym8563";
+ 		reg = <0x51>;
+ 		#clock-cells = <0>;
 -- 
 2.35.1
 
