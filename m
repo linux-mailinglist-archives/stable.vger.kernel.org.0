@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CD4D64A07A
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 859FF64A07C
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:25:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232803AbiLLNZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:25:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54122 "EHLO
+        id S232774AbiLLNZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:25:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232810AbiLLNZT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:19 -0500
+        with ESMTP id S232814AbiLLNZY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D301F13E96
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A53513E9F
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E837B6106C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1B50C433F1;
-        Mon, 12 Dec 2022 13:25:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE32E6106D
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2808C433D2;
+        Mon, 12 Dec 2022 13:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851511;
-        bh=yPuuE2yFfuu9aNXxBzF1mCdVxBx8P9ULw0taPUNbgcU=;
+        s=korg; t=1670851516;
+        bh=XYArURAkXAvAkbmm+Cm1Z/1xfusRTaI91j3+d8JHuUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vlVYLwKBungQhgC5qRMBV1cNIuHeBhKvcOzIGRELOuwIhAWbYbcuZX+MPqAs9XcNm
-         NeDU3GSoXMQQ0+LEeTCxcdb17tj2FOtDXjm2nI3K1LO0yYTJN8AeBdBKuSdZkSzsUK
-         ZSKfxD6b0aRB9HXzqt2DRuPQ+qMvpqpcWcnn/f+g=
+        b=EWC/XYcb4B+mapIOBmgziFlkdOvoERmLkvKIaM/4UbYfKRalLJJNYpk6E0TinEpi0
+         4vIMq66WYov8TliFmBKKYwpRo1cAHxH3fV5iahfl/PgecJGfKNi4lkK2R6I5Yeow8s
+         89q3C19qZlWQGRQBCa5OFHXbPIQtH2mfzwkB8DXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chancel Liu <chancel.liu@nxp.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        patches@lists.linux.dev, Zhichao Liu <zhichao.liu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 013/123] ASoC: wm8962: Wait for updated value of WM8962_CLOCKING1 register
-Date:   Mon, 12 Dec 2022 14:16:19 +0100
-Message-Id: <20221212130927.418621228@linuxfoundation.org>
+Subject: [PATCH 5.15 014/123] spi: mediatek: Fix DEVAPC Violation at KO Remove
+Date:   Mon, 12 Dec 2022 14:16:20 +0100
+Message-Id: <20221212130927.465484798@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
 References: <20221212130926.811961601@linuxfoundation.org>
@@ -54,45 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chancel Liu <chancel.liu@nxp.com>
+From: Zhichao Liu <zhichao.liu@mediatek.com>
 
-[ Upstream commit 3ca507bf99611c82dafced73e921c1b10ee12869 ]
+[ Upstream commit 0d10e90cee9eb57882b0f7e19fd699033722e226 ]
 
-DSPCLK_DIV field in WM8962_CLOCKING1 register is used to generate
-correct frequency of LRCLK and BCLK. Sometimes the read-only value
-can't be updated timely after enabling SYSCLK. This results in wrong
-calculation values. Delay is introduced here to wait for newest value
-from register. The time of the delay should be at least 500~1000us
-according to test.
+A DEVAPC violation occurs when removing the module
+due to accessing HW registers without base clock.
+To fix this bug, the correct method is:
+1. Call the runtime resume function to enable the
+   clock;
+2. Operate the registers to reset the HW;
+3. Turn off the clocks and disable the device
+   RPM mechanism.
 
-Signed-off-by: Chancel Liu <chancel.liu@nxp.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20221109121354.123958-1-chancel.liu@nxp.com
+Signed-off-by: Zhichao Liu <zhichao.liu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221110072839.30961-1-zhichao.liu@mediatek.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8962.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/spi/spi-mt65xx.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wm8962.c b/sound/soc/codecs/wm8962.c
-index 09a73b854964..779f7097d336 100644
---- a/sound/soc/codecs/wm8962.c
-+++ b/sound/soc/codecs/wm8962.c
-@@ -2490,6 +2490,14 @@ static void wm8962_configure_bclk(struct snd_soc_component *component)
- 		snd_soc_component_update_bits(component, WM8962_CLOCKING2,
- 				WM8962_SYSCLK_ENA_MASK, WM8962_SYSCLK_ENA);
+diff --git a/drivers/spi/spi-mt65xx.c b/drivers/spi/spi-mt65xx.c
+index 2ca19b01948a..49acba1dea1e 100644
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -912,14 +912,20 @@ static int mtk_spi_remove(struct platform_device *pdev)
+ {
+ 	struct spi_master *master = platform_get_drvdata(pdev);
+ 	struct mtk_spi *mdata = spi_master_get_devdata(master);
++	int ret;
  
-+	/* DSPCLK_DIV field in WM8962_CLOCKING1 register is used to generate
-+	 * correct frequency of LRCLK and BCLK. Sometimes the read-only value
-+	 * can't be updated timely after enabling SYSCLK. This results in wrong
-+	 * calculation values. Delay is introduced here to wait for newest
-+	 * value from register. The time of the delay should be at least
-+	 * 500~1000us according to test.
-+	 */
-+	usleep_range(500, 1000);
- 	dspclk = snd_soc_component_read(component, WM8962_CLOCKING1);
+-	pm_runtime_disable(&pdev->dev);
++	ret = pm_runtime_resume_and_get(&pdev->dev);
++	if (ret < 0)
++		return ret;
  
- 	if (snd_soc_component_get_bias_level(component) != SND_SOC_BIAS_ON)
+ 	mtk_spi_reset(mdata);
+ 
+ 	if (mdata->dev_comp->no_need_unprepare)
+ 		clk_unprepare(mdata->spi_clk);
+ 
++	pm_runtime_put_noidle(&pdev->dev);
++	pm_runtime_disable(&pdev->dev);
++
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
