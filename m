@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AB5B64A1D2
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:46:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB0C164A10C
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:34:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232910AbiLLNqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:46:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42224 "EHLO
+        id S232360AbiLLNel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:34:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233017AbiLLNpq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:45:46 -0500
+        with ESMTP id S232459AbiLLNeU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:34:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28C8915800
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:45:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D9A513F3E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:34:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A41C161073
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:45:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77C6DC433EF;
-        Mon, 12 Dec 2022 13:45:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F5AA61050
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:34:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F77C433D2;
+        Mon, 12 Dec 2022 13:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852705;
-        bh=FxE5szdoYANSUgtPcX1ir9q6H+5H7pfzSJ+xkYsxJ94=;
+        s=korg; t=1670852052;
+        bh=JfyfKeZkC1XETAdG5a7jkYDTvJPEIOKhKF45RnozWgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aF2M/rz/jHLJEE+Ng0Rbn3Sz025CTB88L7+LYMllMOxdwiaLm7RoQGlTMcuXb9N3/
-         LZofXXXOb23eL6ctV0kyJ+K1ui5Zh9AFWMKXi54BdeNfkA/lzbkRc+4BfzjCpWsLCz
-         s1VmdcpUbTEc+NM6R5kiaSDwLs7es/pbG1Gbb4vY=
+        b=09UG+AM85ZlBkeNp+mGmuUT085Vi34LKCzVqbxjMHO40jai2Enmzbcm/FgN2naxNG
+         VW3HeC/wAsNbscrFVcP1d9yfJ+VgECE8mcO6HdWTw5izJqVJDfRGd6J08beswSlpwU
+         68+X9kxHnqSjcZlOnQFgMWxe7882ugiNkjWnttvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Emeel Hakim <ehakim@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>,
+        Sabrina Dubroca <sd@queasysnail.net>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 135/157] ravb: Fix potential use-after-free in ravb_rx_gbeth()
+Subject: [PATCH 5.15 117/123] macsec: add missing attribute validation for offload
 Date:   Mon, 12 Dec 2022 14:18:03 +0100
-Message-Id: <20221212130940.462893107@linuxfoundation.org>
+Message-Id: <20221212130932.275227607@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Emeel Hakim <ehakim@nvidia.com>
 
-[ Upstream commit 5a5a3e564de6a8db987410c5c2f4748d50ea82b8 ]
+[ Upstream commit 38099024e51ee37dee5f0f577ca37175c932e3f7 ]
 
-The skb is delivered to napi_gro_receive() which may free it, after calling this,
-dereferencing skb may trigger use-after-free.
+Add missing attribute validation for IFLA_MACSEC_OFFLOAD
+to the netlink policy.
 
-Fixes: 1c59eb678cbd ("ravb: Fillup ravb_rx_gbeth() stub")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20221203092941.10880-1-yuehaibing@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 791bb3fcafce ("net: macsec: add support for specifying offload upon link creation")
+Signed-off-by: Emeel Hakim <ehakim@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
+Link: https://lore.kernel.org/r/20221207101618.989-1-ehakim@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/renesas/ravb_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/macsec.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index 44f9b31f8b99..77d4f3eab971 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -835,7 +835,7 @@ static bool ravb_rx_gbeth(struct net_device *ndev, int *quota, int q)
- 				napi_gro_receive(&priv->napi[q],
- 						 priv->rx_1st_skb);
- 				stats->rx_packets++;
--				stats->rx_bytes += priv->rx_1st_skb->len;
-+				stats->rx_bytes += pkt_len;
- 				break;
- 			}
- 		}
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index aa9d0dfeda5a..88e44eb39285 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -3675,6 +3675,7 @@ static const struct nla_policy macsec_rtnl_policy[IFLA_MACSEC_MAX + 1] = {
+ 	[IFLA_MACSEC_SCB] = { .type = NLA_U8 },
+ 	[IFLA_MACSEC_REPLAY_PROTECT] = { .type = NLA_U8 },
+ 	[IFLA_MACSEC_VALIDATION] = { .type = NLA_U8 },
++	[IFLA_MACSEC_OFFLOAD] = { .type = NLA_U8 },
+ };
+ 
+ static void macsec_free_netdev(struct net_device *dev)
 -- 
 2.35.1
 
