@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72B1C64A14C
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:38:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D14164A077
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:25:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232740AbiLLNiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:38:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35974 "EHLO
+        id S232715AbiLLNZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:25:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232745AbiLLNhb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:37:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5640213F12
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:37:09 -0800 (PST)
+        with ESMTP id S232730AbiLLNZN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC3E13E32
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06DF5B80D50
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:37:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C7EC433D2;
-        Mon, 12 Dec 2022 13:37:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED58B6106D
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47376C433D2;
+        Mon, 12 Dec 2022 13:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852226;
-        bh=JxZMR149k32CPh/jIPLId3L95+vHwgeJKoiJTP6aPNA=;
+        s=korg; t=1670851507;
+        bh=xkk9CMldJ2Rr+jcHTqhhkf7A79GzVLnHNwoM04Ri3/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CeyaXKYsyIkdvwkJVLFWXuKwJVdFX5UDwmVqhhJ+kdMoum1RsYsNgR+PRbIdegHPX
-         6UMyDw3+c+5tCvQcMTfY+qWV2OXPse9Nx/V22azGh2X0NRqtkaA0Vp7P6UUg14tlHY
-         3eCohK8okXyMVVCwTrKQQNZiRQKK6W7gDoDxTKNg=
+        b=mji815GLybcB7o/ngUcHzR+8c48NxnYZYTa4xrSEUIOekGpBO4X+oMMynf9Svyz04
+         m4rlupdwkIlnaspUJiFKzMaKirSutsJWACkyeZgCpwSy7K9ln9YEukVyZjVt9cl3m8
+         Oxh6o6QFjXIG6xncazV1VYAOHJYNF/8hicK9yUkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Boris Burkov <boris@bur.io>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev,
+        Giulio Benetti <giulio.benetti@benettiengineering.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 030/157] btrfs: send: avoid unaligned encoded writes when attempting to clone range
+Subject: [PATCH 5.15 012/123] ARM: 9266/1: mm: fix no-MMU ZERO_PAGE() implementation
 Date:   Mon, 12 Dec 2022 14:16:18 +0100
-Message-Id: <20221212130935.732641802@linuxfoundation.org>
+Message-Id: <20221212130927.375558982@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,158 +55,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Giulio Benetti <giulio.benetti@benettiengineering.com>
 
-[ Upstream commit a11452a3709e217492798cf3686ac2cc8eb3fb51 ]
+[ Upstream commit 340a982825f76f1cff0daa605970fe47321b5ee7 ]
 
-When trying to see if we can clone a file range, there are cases where we
-end up sending two write operations in case the inode from the source root
-has an i_size that is not sector size aligned and the length from the
-current offset to its i_size is less than the remaining length we are
-trying to clone.
+Actually in no-MMU SoCs(i.e. i.MXRT) ZERO_PAGE(vaddr) expands to
+```
+virt_to_page(0)
+```
+that in order expands to:
+```
+pfn_to_page(virt_to_pfn(0))
+```
+and then virt_to_pfn(0) to:
+```
+        ((((unsigned long)(0) - PAGE_OFFSET) >> PAGE_SHIFT) +
+         PHYS_PFN_OFFSET)
+```
+where PAGE_OFFSET and PHYS_PFN_OFFSET are the DRAM offset(0x80000000) and
+PAGE_SHIFT is 12. This way we obtain 16MB(0x01000000) summed to the base of
+DRAM(0x80000000).
+When ZERO_PAGE(0) is then used, for example in bio_add_page(), the page
+gets an address that is out of DRAM bounds.
+So instead of using fake virtual page 0 let's allocate a dedicated
+zero_page during paging_init() and assign it to a global 'struct page *
+empty_zero_page' the same way mmu.c does and it's the same approach used
+in m68k with commit dc068f462179 as discussed here[0]. Then let's move
+ZERO_PAGE() definition to the top of pgtable.h to be in common between
+mmu.c and nommu.c.
 
-Issuing two write operations when we could instead issue a single write
-operation is not incorrect. However it is not optimal, specially if the
-extents are compressed and the flag BTRFS_SEND_FLAG_COMPRESSED was passed
-to the send ioctl. In that case we can end up sending an encoded write
-with an offset that is not sector size aligned, which makes the receiver
-fallback to decompressing the data and writing it using regular buffered
-IO (so re-compressing the data in case the fs is mounted with compression
-enabled), because encoded writes fail with -EINVAL when an offset is not
-sector size aligned.
+[0]: https://lore.kernel.org/linux-m68k/2a462b23-5b8e-bbf4-ec7d-778434a3b9d7@google.com/T/#m1266ceb63
+ad140743174d6b3070364d3c9a5179b
 
-The following example, which triggered a bug in the receiver code for the
-fallback logic of decompressing + regular buffer IO and is fixed by the
-patchset referred in a Link at the bottom of this changelog, is an example
-where we have the non-optimal behaviour due to an unaligned encoded write:
-
-   $ cat test.sh
-   #!/bin/bash
-
-   DEV=/dev/sdj
-   MNT=/mnt/sdj
-
-   mkfs.btrfs -f $DEV > /dev/null
-   mount -o compress $DEV $MNT
-
-   # File foo has a size of 33K, not aligned to the sector size.
-   xfs_io -f -c "pwrite -S 0xab 0 33K" $MNT/foo
-
-   xfs_io -f -c "pwrite -S 0xcd 0 64K" $MNT/bar
-
-   # Now clone the first 32K of file bar into foo at offset 0.
-   xfs_io -c "reflink $MNT/bar 0 0 32K" $MNT/foo
-
-   # Snapshot the default subvolume and create a full send stream (v2).
-   btrfs subvolume snapshot -r $MNT $MNT/snap
-
-   btrfs send --compressed-data -f /tmp/test.send $MNT/snap
-
-   echo -e "\nFile bar in the original filesystem:"
-   od -A d -t x1 $MNT/snap/bar
-
-   umount $MNT
-   mkfs.btrfs -f $DEV > /dev/null
-   mount $DEV $MNT
-
-   echo -e "\nReceiving stream in a new filesystem..."
-   btrfs receive -f /tmp/test.send $MNT
-
-   echo -e "\nFile bar in the new filesystem:"
-   od -A d -t x1 $MNT/snap/bar
-
-   umount $MNT
-
-Before this patch, the send stream included one regular write and one
-encoded write for file 'bar', with the later being not sector size aligned
-and causing the receiver to fallback to decompression + buffered writes.
-The output of the btrfs receive command in verbose mode (-vvv):
-
-   (...)
-   mkfile o258-7-0
-   rename o258-7-0 -> bar
-   utimes
-   clone bar - source=foo source offset=0 offset=0 length=32768
-   write bar - offset=32768 length=1024
-   encoded_write bar - offset=33792, len=4096, unencoded_offset=33792, unencoded_file_len=31744, unencoded_len=65536, compression=1, encryption=0
-   encoded_write bar - falling back to decompress and write due to errno 22 ("Invalid argument")
-   (...)
-
-This patch avoids the regular write followed by an unaligned encoded write
-so that we end up sending a single encoded write that is aligned. So after
-this patch the stream content is (output of btrfs receive -vvv):
-
-   (...)
-   mkfile o258-7-0
-   rename o258-7-0 -> bar
-   utimes
-   clone bar - source=foo source offset=0 offset=0 length=32768
-   encoded_write bar - offset=32768, len=4096, unencoded_offset=32768, unencoded_file_len=32768, unencoded_len=65536, compression=1, encryption=0
-   (...)
-
-So we get more optimal behaviour and avoid the silent data loss bug in
-versions of btrfs-progs affected by the bug referred by the Link tag
-below (btrfs-progs v5.19, v5.19.1, v6.0 and v6.0.1).
-
-Link: https://lore.kernel.org/linux-btrfs/cover.1668529099.git.fdmanana@suse.com/
-Reviewed-by: Boris Burkov <boris@bur.io>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Giulio Benetti <giulio.benetti@benettiengineering.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/send.c | 24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ arch/arm/include/asm/pgtable-nommu.h |  6 ------
+ arch/arm/include/asm/pgtable.h       | 16 +++++++++-------
+ arch/arm/mm/nommu.c                  | 19 +++++++++++++++++++
+ 3 files changed, 28 insertions(+), 13 deletions(-)
 
-diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
-index e7671afcee4f..8cc038460bed 100644
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -5615,6 +5615,7 @@ static int clone_range(struct send_ctx *sctx, struct btrfs_path *dst_path,
- 		u64 ext_len;
- 		u64 clone_len;
- 		u64 clone_data_offset;
-+		bool crossed_src_i_size = false;
+diff --git a/arch/arm/include/asm/pgtable-nommu.h b/arch/arm/include/asm/pgtable-nommu.h
+index d16aba48fa0a..090011394477 100644
+--- a/arch/arm/include/asm/pgtable-nommu.h
++++ b/arch/arm/include/asm/pgtable-nommu.h
+@@ -44,12 +44,6 @@
  
- 		if (slot >= btrfs_header_nritems(leaf)) {
- 			ret = btrfs_next_leaf(clone_root->root, path);
-@@ -5672,8 +5673,10 @@ static int clone_range(struct send_ctx *sctx, struct btrfs_path *dst_path,
- 		if (key.offset >= clone_src_i_size)
- 			break;
+ typedef pte_t *pte_addr_t;
  
--		if (key.offset + ext_len > clone_src_i_size)
-+		if (key.offset + ext_len > clone_src_i_size) {
- 			ext_len = clone_src_i_size - key.offset;
-+			crossed_src_i_size = true;
-+		}
+-/*
+- * ZERO_PAGE is a global shared page that is always zero: used
+- * for zero-mapped memory areas etc..
+- */
+-#define ZERO_PAGE(vaddr)	(virt_to_page(0))
+-
+ /*
+  * Mark the prot value as uncacheable and unbufferable.
+  */
+diff --git a/arch/arm/include/asm/pgtable.h b/arch/arm/include/asm/pgtable.h
+index cd1f84bb40ae..a25c4303fc0e 100644
+--- a/arch/arm/include/asm/pgtable.h
++++ b/arch/arm/include/asm/pgtable.h
+@@ -10,6 +10,15 @@
+ #include <linux/const.h>
+ #include <asm/proc-fns.h>
  
- 		clone_data_offset = btrfs_file_extent_offset(leaf, ei);
- 		if (btrfs_file_extent_disk_bytenr(leaf, ei) == disk_byte) {
-@@ -5734,6 +5737,25 @@ static int clone_range(struct send_ctx *sctx, struct btrfs_path *dst_path,
- 				ret = send_clone(sctx, offset, clone_len,
- 						 clone_root);
- 			}
-+		} else if (crossed_src_i_size && clone_len < len) {
-+			/*
-+			 * If we are at i_size of the clone source inode and we
-+			 * can not clone from it, terminate the loop. This is
-+			 * to avoid sending two write operations, one with a
-+			 * length matching clone_len and the final one after
-+			 * this loop with a length of len - clone_len.
-+			 *
-+			 * When using encoded writes (BTRFS_SEND_FLAG_COMPRESSED
-+			 * was passed to the send ioctl), this helps avoid
-+			 * sending an encoded write for an offset that is not
-+			 * sector size aligned, in case the i_size of the source
-+			 * inode is not sector size aligned. That will make the
-+			 * receiver fallback to decompression of the data and
-+			 * writing it using regular buffered IO, therefore while
-+			 * not incorrect, it's not optimal due decompression and
-+			 * possible re-compression at the receiver.
-+			 */
-+			break;
- 		} else {
- 			ret = send_extent_data(sctx, dst_path, offset,
- 					       clone_len);
++#ifndef __ASSEMBLY__
++/*
++ * ZERO_PAGE is a global shared page that is always zero: used
++ * for zero-mapped memory areas etc..
++ */
++extern struct page *empty_zero_page;
++#define ZERO_PAGE(vaddr)	(empty_zero_page)
++#endif
++
+ #ifndef CONFIG_MMU
+ 
+ #include <asm-generic/pgtable-nopud.h>
+@@ -156,13 +165,6 @@ extern pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
+ #define __S111  __PAGE_SHARED_EXEC
+ 
+ #ifndef __ASSEMBLY__
+-/*
+- * ZERO_PAGE is a global shared page that is always zero: used
+- * for zero-mapped memory areas etc..
+- */
+-extern struct page *empty_zero_page;
+-#define ZERO_PAGE(vaddr)	(empty_zero_page)
+-
+ 
+ extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
+ 
+diff --git a/arch/arm/mm/nommu.c b/arch/arm/mm/nommu.c
+index 2658f52903da..88feffebae21 100644
+--- a/arch/arm/mm/nommu.c
++++ b/arch/arm/mm/nommu.c
+@@ -26,6 +26,13 @@
+ 
+ unsigned long vectors_base;
+ 
++/*
++ * empty_zero_page is a special page that is used for
++ * zero-initialized data and COW.
++ */
++struct page *empty_zero_page;
++EXPORT_SYMBOL(empty_zero_page);
++
+ #ifdef CONFIG_ARM_MPU
+ struct mpu_rgn_info mpu_rgn_info;
+ #endif
+@@ -148,9 +155,21 @@ void __init adjust_lowmem_bounds(void)
+  */
+ void __init paging_init(const struct machine_desc *mdesc)
+ {
++	void *zero_page;
++
+ 	early_trap_init((void *)vectors_base);
+ 	mpu_setup();
++
++	/* allocate the zero page. */
++	zero_page = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
++	if (!zero_page)
++		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
++		      __func__, PAGE_SIZE, PAGE_SIZE);
++
+ 	bootmem_init();
++
++	empty_zero_page = virt_to_page(zero_page);
++	flush_dcache_page(empty_zero_page);
+ }
+ 
+ /*
 -- 
 2.35.1
 
