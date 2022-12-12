@@ -2,122 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7612B64A225
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:50:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1555D64A2B1
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:58:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233181AbiLLNuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:50:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48150 "EHLO
+        id S233120AbiLLN6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:58:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233072AbiLLNta (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:49:30 -0500
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9011812620;
-        Mon, 12 Dec 2022 05:49:21 -0800 (PST)
-Received: by mail-wm1-x335.google.com with SMTP id v124-20020a1cac82000000b003cf7a4ea2caso5190276wme.5;
-        Mon, 12 Dec 2022 05:49:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=OMzRkMMjSU4aJEZO827x0ihXjxjaMrKMObfU28boQDs=;
-        b=jCu5h2zKA4iyuE40Ez5NWetZAH7PIzKMupyd2HvVqZe6FMX0rVFTes6g2VFr/yvawq
-         HbWRXogz11Y+I47mhmUD4aznRTFoZEOZN6al56/nNlXeqktf+AjCGjpE4el9DtYKKmnQ
-         sklm7vfhpGVN/ONsgrmQhCiHp+i8oOJpHXRMMeYjHEPEvZ39ZPq0giw0MTfNFvDfaK2Q
-         BZi5Xz788a7eOxhKKu6mmoK2VLv5h9EiPGgKloJXzUiR+VSZrcK44VQdN4tuZ2o23jio
-         MS1myL3FeeuSHWqv7ejq1dzEG+jds2q7wsi27EOOrIYUGwBjG/0AGjmkwZg+fx9dO9R/
-         VJhg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OMzRkMMjSU4aJEZO827x0ihXjxjaMrKMObfU28boQDs=;
-        b=AhkBudamjPj2rKBketMLLw8b6JheRIpc6ULdSvyBLpnNGiHXB3zhZTZA5CgFHEF9oN
-         X9RzxGyvkL0zofeui919vTEqRdVlyr65RkQtVjjZIx5KP7VLXhsQTzcToz9slNpqU1Ba
-         Rj5to8VDawOs9lV6te+2uG8otwZz/NNDl5yIDiR6PSLNM6KQ0qFpaKX2YzchIHV3EQv2
-         lWJ2njltcauG18TXXLBP+QQNhOEZaRb/LyB/HFVlS/eH51n6wJWSpdxhYWWpymZ9xryE
-         QS0bKpB3yTdNmJXWVj+4YizI0bH/jGzmGi2udzl6nPAKFBwGKwrogY4Qy9SPRm1gTVox
-         0Rew==
-X-Gm-Message-State: ANoB5pnVoc6VhijGJODsWNaKzWJsyTbWUemX/yZYBXloEk45l0U+FZPB
-        uT2HvkXw8S/X8IYRcSKPaDs=
-X-Google-Smtp-Source: AA0mqf6maMa4WcXRcvhdMnv1l/9rgQcRIvpUePdM3Ur1GffCsn7GrZ98YsRPG5i6culYFniArIa9dg==
-X-Received: by 2002:a05:600c:1d02:b0:3cf:d365:1ea3 with SMTP id l2-20020a05600c1d0200b003cfd3651ea3mr12833700wms.12.1670852960150;
-        Mon, 12 Dec 2022 05:49:20 -0800 (PST)
-Received: from localhost ([102.36.222.112])
-        by smtp.gmail.com with ESMTPSA id j27-20020a05600c1c1b00b003cfaae07f68sm10137258wms.17.2022.12.12.05.49.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Dec 2022 05:49:19 -0800 (PST)
-Date:   Mon, 12 Dec 2022 16:49:15 +0300
-From:   Dan Carpenter <error27@gmail.com>
-To:     Prashanth K <quic_prashk@quicinc.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        John Keeping <john@metanate.com>,
-        Linyu Yuan <quic_linyyuan@quicinc.com>,
-        Pratham Pratap <quic_ppratap@quicinc.com>,
-        Vincent Pelletier <plr.vincent@gmail.com>,
-        Udipto Goswami <quic_ugoswami@quicinc.com>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "# 5 . 15" <stable@vger.kernel.org>
-Subject: Re: usb: f_fs: Fix CFI failure in ki_complete
-Message-ID: <Y5cxW7xc+pegcbNv@kadam>
-References: <1670851464-8106-1-git-send-email-quic_prashk@quicinc.com>
+        with ESMTP id S233319AbiLLN6Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:58:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A8551583C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:58:02 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DC8C60FF4
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:58:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1B45C433EF;
+        Mon, 12 Dec 2022 13:58:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1670853481;
+        bh=94O6Wvu8COpy34NL6o58r1KGacvX/62TIF1XKbaHzIA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Dkau/FApDY799xZPSE4qcu2e6NZrMesQqmO8e5iqd07yPOZN0sNlyXGT11RcOP1Nv
+         DwkiMbyNupoAnwr0EhHwIimLoZIByaSXTFKZxS0jKQCLX8LpscXqGpTpLB3z9/F6dG
+         cHHhVB29V+1haeOPRasxfOJRiPhObLpzSusYWWqM=
+Date:   Mon, 12 Dec 2022 14:57:57 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Darren Kenny <darren.kenny@oracle.com>
+Subject: Re: [PATCH 5.15 122/123] io_uring: move to separate directory
+Message-ID: <Y5czZTxUh7/FIay+@kroah.com>
+References: <20221212130926.811961601@linuxfoundation.org>
+ <20221212130932.488197218@linuxfoundation.org>
+ <e2565faa-4853-2d90-4fa2-e97fe26a96f6@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1670851464-8106-1-git-send-email-quic_prashk@quicinc.com>
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <e2565faa-4853-2d90-4fa2-e97fe26a96f6@oracle.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 12, 2022 at 06:54:24PM +0530, Prashanth K wrote:
-> Function pointer ki_complete() expects 'long' as its second
-> argument, but we pass integer from ffs_user_copy_worker. This
-> might cause a CFI failure, as ki_complete is an indirect call
-> with mismatched prototype. Fix this by typecasting the second
-> argument to long.
+On Mon, Dec 12, 2022 at 07:16:11PM +0530, Harshit Mogalapalli wrote:
 > 
-> Cc: <stable@vger.kernel.org> # 5.15
-> Signed-off-by: Prashanth K <quic_prashk@quicinc.com>
 > 
-> ---
->  drivers/usb/gadget/function/f_fs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> On 12/12/22 6:48 pm, Greg Kroah-Hartman wrote:
+> > From: Jens Axboe <axboe@kernel.dk>
+> > 
+> > [ Upstream commit ed29b0b4fd835b058ddd151c49d021e28d631ee6 ]
+> > 
+> > In preparation for splitting io_uring up a bit, move it into its own
+> > top level directory. It didn't really belong in fs/ anyway, as it's
+> > not a file system only API.
+> > 
+> > This adds io_uring/ and moves the core files in there, and updates the
+> > MAINTAINERS file for the new location.
+> > 
+> > Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> > Stable-dep-of: 998b30c3948e ("io_uring: Fix a null-ptr-deref in io_tctx_exit_cb()")
 > 
-> diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-> index 73dc10a7..9c26561 100644
-> --- a/drivers/usb/gadget/function/f_fs.c
-> +++ b/drivers/usb/gadget/function/f_fs.c
-> @@ -835,7 +835,7 @@ static void ffs_user_copy_worker(struct work_struct *work)
->  		kthread_unuse_mm(io_data->mm);
->  	}
->  
-> -	io_data->kiocb->ki_complete(io_data->kiocb, ret);
-> +	io_data->kiocb->ki_complete(io_data->kiocb, (long)ret);
+> Hi,
+> 
+> Just wanted to add a note: This change moved io_uring code to a different
+> folder, this change is brought in to backport 998b30c3948e ("io_uring: Fix a
+> null-ptr-deref in io_tctx_exit_cb()") for which we have a backport provided
+> by Jens here:
+> https://lore.kernel.org/all/24918edb-e6eb-a093-51cf-519c7ece88a3@kernel.dk/
+> 
+> I am not sure which is the preferred way, but just want to inform about
+> this.
 
-I don't understand this commit at all.  CFI is Control Flow Integrity
-or Common Flash Interface depending on which subsystem we're talking
-about.
+Moving the file is fine, it will make it easier over time to backport
+changes.
 
-I really think that Clang needs to be fixed if this really causes an
-issue for Clang.  How on earth are we going to know where to add all
-the casts?
+thanks,
 
-The commit message says "this might cause a CFI" failure.  Either it
-does or it doesn't.  Please someone test this so we can know what's
-going on.
-
-Why is it backported to 5.15?  I thought CFI was not going to backported
-that far and I has seen people complaining about CFI backports.
-
-regards,
-dan carpenter
-
+greg k-h
