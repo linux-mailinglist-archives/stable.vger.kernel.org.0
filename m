@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8FA1649FF8
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:17:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F21A64A003
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:18:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232568AbiLLNRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:17:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46188 "EHLO
+        id S232350AbiLLNSa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:18:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232692AbiLLNRL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:17:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CF4513D72
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:16:53 -0800 (PST)
+        with ESMTP id S232349AbiLLNRf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:17:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E23E10C5
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:17:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8864461055
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:16:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 483BEC433EF;
-        Mon, 12 Dec 2022 13:16:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51DF7B80D40
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:17:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D04CC433D2;
+        Mon, 12 Dec 2022 13:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851012;
-        bh=UgzsOoNph1AH3U5B23SYHXS42owLXmvP5aJ6/1ebZvM=;
+        s=korg; t=1670851052;
+        bh=Ifsob09A2HnLkQYwGfDz21JX4bOqjQMUir02pR9HhGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hCz9F9Nm7N8iWOO81cwT2BA2ojzSZ9+CDAppbV5+1wb1OEfCGvoTbeX0//m7OFx8J
-         +yx+YTg2HkCrvs4ZEHMgeu28kemHNECKL2i7uddzN8n/L3BafbTaO0T9IKnbNLa2D1
-         m2SLsEbj7BVAK29NIoFWVxuNyFK7er0EzUbLfE/o=
+        b=vZOGMGsgoE2/sFUyc/Zw/SBZnwzrwAbRajf+jWr1K3GvFqNqAZdjdCSGJsWW7IdAY
+         ygUmgwTuipwVYSgie0AW47EPUlj2O05VMpg7x4OYhSaRyUsY5aI+x9HlbJaW9mgPyI
+         y3XcWMRWyS6IHnVAgB9oYzTCrJucouBauyA3bKOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+        patches@lists.linux.dev,
+        Valentina Goncharenko <goncharenko.vp@ispras.ru>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 080/106] mac802154: fix missing INIT_LIST_HEAD in ieee802154_if_add()
-Date:   Mon, 12 Dec 2022 14:10:23 +0100
-Message-Id: <20221212130928.369196747@linuxfoundation.org>
+Subject: [PATCH 5.10 081/106] net: encx24j600: Add parentheses to fix precedence
+Date:   Mon, 12 Dec 2022 14:10:24 +0100
+Message-Id: <20221212130928.411650255@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -54,54 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Valentina Goncharenko <goncharenko.vp@ispras.ru>
 
-[ Upstream commit b3d72d3135d2ef68296c1ee174436efd65386f04 ]
+[ Upstream commit 167b3f2dcc62c271f3555b33df17e361bb1fa0ee ]
 
-Kernel fault injection test reports null-ptr-deref as follows:
+In functions regmap_encx24j600_phy_reg_read() and
+regmap_encx24j600_phy_reg_write() in the conditions of the waiting
+cycles for filling the variable 'ret' it is necessary to add parentheses
+to prevent wrong assignment due to logical operations precedence.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000008
-RIP: 0010:cfg802154_netdev_notifier_call+0x120/0x310 include/linux/list.h:114
-Call Trace:
- <TASK>
- raw_notifier_call_chain+0x6d/0xa0 kernel/notifier.c:87
- call_netdevice_notifiers_info+0x6e/0xc0 net/core/dev.c:1944
- unregister_netdevice_many_notify+0x60d/0xcb0 net/core/dev.c:1982
- unregister_netdevice_queue+0x154/0x1a0 net/core/dev.c:10879
- register_netdevice+0x9a8/0xb90 net/core/dev.c:10083
- ieee802154_if_add+0x6ed/0x7e0 net/mac802154/iface.c:659
- ieee802154_register_hw+0x29c/0x330 net/mac802154/main.c:229
- mcr20a_probe+0xaaa/0xcb1 drivers/net/ieee802154/mcr20a.c:1316
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-ieee802154_if_add() allocates wpan_dev as netdev's private data, but not
-init the list in struct wpan_dev. cfg802154_netdev_notifier_call() manage
-the list when device register/unregister, and may lead to null-ptr-deref.
-
-Use INIT_LIST_HEAD() on it to initialize it correctly.
-
-Fixes: fcf39e6e88e9 ("ieee802154: add wpan_dev_list")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-
-Link: https://lore.kernel.org/r/20221130091705.1831140-1-weiyongjun@huaweicloud.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Fixes: d70e53262f5c ("net: Microchip encx24j600 driver")
+Signed-off-by: Valentina Goncharenko <goncharenko.vp@ispras.ru>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac802154/iface.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/microchip/encx24j600-regmap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac802154/iface.c b/net/mac802154/iface.c
-index 1cf5ac09edcb..a08240fe68a7 100644
---- a/net/mac802154/iface.c
-+++ b/net/mac802154/iface.c
-@@ -661,6 +661,7 @@ ieee802154_if_add(struct ieee802154_local *local, const char *name,
- 	sdata->dev = ndev;
- 	sdata->wpan_dev.wpan_phy = local->hw.phy;
- 	sdata->local = local;
-+	INIT_LIST_HEAD(&sdata->wpan_dev.list);
+diff --git a/drivers/net/ethernet/microchip/encx24j600-regmap.c b/drivers/net/ethernet/microchip/encx24j600-regmap.c
+index 81a8ccca7e5e..2e337c7a5773 100644
+--- a/drivers/net/ethernet/microchip/encx24j600-regmap.c
++++ b/drivers/net/ethernet/microchip/encx24j600-regmap.c
+@@ -359,7 +359,7 @@ static int regmap_encx24j600_phy_reg_read(void *context, unsigned int reg,
+ 		goto err_out;
  
- 	/* setup type-dependent data */
- 	ret = ieee802154_setup_sdata(sdata, type);
+ 	usleep_range(26, 100);
+-	while ((ret = regmap_read(ctx->regmap, MISTAT, &mistat) != 0) &&
++	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
+ 	       (mistat & BUSY))
+ 		cpu_relax();
+ 
+@@ -397,7 +397,7 @@ static int regmap_encx24j600_phy_reg_write(void *context, unsigned int reg,
+ 		goto err_out;
+ 
+ 	usleep_range(26, 100);
+-	while ((ret = regmap_read(ctx->regmap, MISTAT, &mistat) != 0) &&
++	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
+ 	       (mistat & BUSY))
+ 		cpu_relax();
+ 
 -- 
 2.35.1
 
