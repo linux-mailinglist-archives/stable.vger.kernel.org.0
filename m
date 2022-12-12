@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC67864A166
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:40:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E9C64A03A
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232810AbiLLNj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:39:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35696 "EHLO
+        id S232688AbiLLNWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:22:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232871AbiLLNjh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:39:37 -0500
+        with ESMTP id S232603AbiLLNWE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:22:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCCB614D38
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:38:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D39F1BF4
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:22:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B22061072
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:38:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06A03C433F1;
-        Mon, 12 Dec 2022 13:38:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70DA461042
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:22:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15BB0C433F0;
+        Mon, 12 Dec 2022 13:22:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852308;
-        bh=P7A2QBzDkilDUUi7RCnLBhrn9bEaUQ/D3QSuZQ64mlc=;
+        s=korg; t=1670851321;
+        bh=MTVEl/eVAJqBrcHA5eO5rmojqkMRaNsSTr5K5+E3JWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZfNuN9wJFaw7/stoIerG5PVAQbEBUxh/rDhuab4u0z/MOCy1trnOsuqFPq1B9gOu
-         y8RK2MdPH0TGI0O4AHCJxy1GtZ6Rxt7aQPLJNcuoXF7YQrCVVShfBL9R7Qh574mufi
-         9a2oE3TpGt3u19W2FJO6wWW8A/JwLGaYEBREVIA8=
+        b=J9pcU5hET+mm8+tcmsMe7a1cmHAL4zkRK3/cwSVaMZzlGlnSyLnASMfg0a2TpW9TN
+         2mIMJxoGKKjwaKWwFTSqzOM1u6AGow+lWffKpUVBZ6+yHRChp3xXpu5oYQbUJGkVus
+         M7SC0nkvVr7MCTgctW+qcLK5ONYh1RsL3y4g/kEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sjoerd Simons <sjoerd@collabora.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Chao Song <chao.song@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 6.0 055/157] soundwire: intel: Initialize clock stop timeout
-Date:   Mon, 12 Dec 2022 14:16:43 +0100
-Message-Id: <20221212130936.771461078@linuxfoundation.org>
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 09/67] regulator: slg51000: Wait after asserting CS pin
+Date:   Mon, 12 Dec 2022 14:16:44 +0100
+Message-Id: <20221212130918.077792727@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sjoerd Simons <sjoerd@collabora.com>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-commit 13c30a755847c7e804e1bf755e66e3ff7b7f9367 upstream.
+[ Upstream commit 0b24dfa587c6cc7484cfb170da5c7dd73451f670 ]
 
-The bus->clk_stop_timeout member is only initialized to a non-zero value
-during the codec driver probe. This can lead to corner cases where this
-value remains pegged at zero when the bus suspends, which results in an
-endless loop in sdw_bus_wait_for_clk_prep_deprep().
+Sony's downstream driver [1], among some other changes, adds a
+seemingly random 10ms usleep_range, which turned out to be necessary
+for the hardware to function properly on at least Sony Xperia 1 IV.
+Without this, I2C transactions with the SLG51000 straight up fail.
 
-Corner cases include configurations with no codecs described in the
-firmware, or delays in probing codec drivers.
+Relax (10-10ms -> 10-11ms) and add the aforementioned sleep to make
+sure the hardware has some time to wake up.
 
-Initializing the default timeout to the smallest non-zero value avoid this
-problem and allows for the existing logic to be preserved: the
-bus->clk_stop_timeout is set as the maximum required by all codecs
-connected on the bus.
+(nagara-2.0.0-mlc/vendor/semc/hardware/camera-kernel-module/)
+[1] https://developer.sony.com/file/download/open-source-archive-for-64-0-m-4-29/
 
-Fixes: 1f2dcf3a154ac ("soundwire: intel: set dev_num_ida_min")
-Signed-off-by: Sjoerd Simons <sjoerd@collabora.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Chao Song <chao.song@intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20221020015624.1703950-1-yung-chuan.liao@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Link: https://lore.kernel.org/r/20221118131035.54874-1-konrad.dybcio@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/intel.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/regulator/slg51000-regulator.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/soundwire/intel.c
-+++ b/drivers/soundwire/intel.c
-@@ -1307,6 +1307,7 @@ static int intel_link_probe(struct auxil
- 	cdns->msg_count = 0;
+diff --git a/drivers/regulator/slg51000-regulator.c b/drivers/regulator/slg51000-regulator.c
+index a0565daecace..5a18d7e620a5 100644
+--- a/drivers/regulator/slg51000-regulator.c
++++ b/drivers/regulator/slg51000-regulator.c
+@@ -465,6 +465,8 @@ static int slg51000_i2c_probe(struct i2c_client *client,
+ 		chip->cs_gpiod = cs_gpiod;
+ 	}
  
- 	bus->link_id = auxdev->id;
-+	bus->clk_stop_timeout = 1;
- 
- 	sdw_cdns_probe(cdns);
- 
++	usleep_range(10000, 11000);
++
+ 	i2c_set_clientdata(client, chip);
+ 	chip->chip_irq = client->irq;
+ 	chip->dev = dev;
+-- 
+2.35.1
+
 
 
