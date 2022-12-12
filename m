@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BC1C64A1C9
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:45:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 594AF64A1CA
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:45:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232800AbiLLNpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:45:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42102 "EHLO
+        id S233018AbiLLNpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:45:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232994AbiLLNpT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:45:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43CB414D31
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:44:35 -0800 (PST)
+        with ESMTP id S233000AbiLLNpX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:45:23 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 934D714D2E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:44:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1617B80D50
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:44:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 392E2C433D2;
-        Mon, 12 Dec 2022 13:44:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CB832CE0EFC
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:44:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 979B1C433EF;
+        Mon, 12 Dec 2022 13:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852672;
-        bh=RvlksiBBdM4Tro5ri6e9YVuwe6BKL4MlWoZk8OXhsqI=;
+        s=korg; t=1670852676;
+        bh=a16utpOjsrL6ez7rzp76cnUx7fL7wLkHcVMwLoxXqwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZsJJanPZ5P+Oltd2PAelDSEY9M880CUzWejxxt2FemR5KQ6Xiiiweva8vdDq8kBv
-         GizVxHWkLdzdgOzv8Ld+X0rNQ5ziUXtX/iBCxTXo2lOOpwLCRjBli3RjVKVMj1bPO1
-         t1vBl6c4lF21K4i9W6l905UffgYonzRjXRKyFB98=
+        b=nzzuFqaA5iJuXBum5UzNoy4lixPFWhN86sgsNSJ4aQWAFpNsylWydfTSbCS98ZWZV
+         O5GkK52CdWyE+8D2d/hTNjeiA8/hD7nYJcxawj06M6IhxJh639wgPy/tPN8FY52mGF
+         /PIacIBxk8W3r+meJnSYX5HHlsdwad9QX0yjoGR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pankaj Raghav <p.raghav@samsung.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 129/157] nvme initialize core quirks before calling nvme_init_subsystem
-Date:   Mon, 12 Dec 2022 14:17:57 +0100
-Message-Id: <20221212130940.076170193@linuxfoundation.org>
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 130/157] gpio/rockchip: fix refcount leak in rockchip_gpiolib_register()
+Date:   Mon, 12 Dec 2022 14:17:58 +0100
+Message-Id: <20221212130940.129172628@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
 References: <20221212130934.337225088@linuxfoundation.org>
@@ -52,55 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pankaj Raghav <p.raghav@samsung.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 6f2d71524bcfdeb1fcbd22a4a92a5b7b161ab224 ]
+[ Upstream commit 63ff545af73f759d1bd04198af8ed8577fb739fc ]
 
-A device might have a core quirk for NVME_QUIRK_IGNORE_DEV_SUBNQN
-(such as Samsung X5) but it would still give a:
+The node returned by of_get_parent() with refcount incremented,
+of_node_put() needs be called when finish using it. So add it in the
+end of of_pinctrl_get().
 
-    "missing or invalid SUBNQN field"
-
-warning as core quirks are filled after calling nvme_init_subnqn.  Fill
-ctrl->quirks from struct core_quirks before calling nvme_init_subsystem
-to fix this.
-
-Tested on a Samsung X5.
-
-Fixes: ab9e00cc72fa ("nvme: track subsystems")
-Signed-off-by: Pankaj Raghav <p.raghav@samsung.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 936ee2675eee ("gpio/rockchip: add driver for rockchip gpio")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpio/gpio-rockchip.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index f612a0ba64d0..aca50bb93750 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3089,10 +3089,6 @@ static int nvme_init_identify(struct nvme_ctrl *ctrl)
- 	if (!ctrl->identified) {
- 		unsigned int i;
+diff --git a/drivers/gpio/gpio-rockchip.c b/drivers/gpio/gpio-rockchip.c
+index 9c976ad7208e..09cfb49ed998 100644
+--- a/drivers/gpio/gpio-rockchip.c
++++ b/drivers/gpio/gpio-rockchip.c
+@@ -621,6 +621,7 @@ static int rockchip_gpiolib_register(struct rockchip_pin_bank *bank)
+ 			return -ENODATA;
  
--		ret = nvme_init_subsystem(ctrl, id);
--		if (ret)
--			goto out_free;
--
- 		/*
- 		 * Check for quirks.  Quirk can depend on firmware version,
- 		 * so, in principle, the set of quirks present can change
-@@ -3105,6 +3101,10 @@ static int nvme_init_identify(struct nvme_ctrl *ctrl)
- 			if (quirk_matches(id, &core_quirks[i]))
- 				ctrl->quirks |= core_quirks[i].quirks;
- 		}
-+
-+		ret = nvme_init_subsystem(ctrl, id);
-+		if (ret)
-+			goto out_free;
- 	}
- 	memcpy(ctrl->subsys->firmware_rev, id->fr,
- 	       sizeof(ctrl->subsys->firmware_rev));
+ 		pctldev = of_pinctrl_get(pctlnp);
++		of_node_put(pctlnp);
+ 		if (!pctldev)
+ 			return -ENODEV;
+ 
 -- 
 2.35.1
 
