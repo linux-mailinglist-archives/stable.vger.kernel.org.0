@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC0264A227
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:50:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A2F164A260
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233187AbiLLNuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:50:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47344 "EHLO
+        id S233241AbiLLNyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:54:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233077AbiLLNtc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:49:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B30A91262E
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:49:22 -0800 (PST)
+        with ESMTP id S233135AbiLLNxm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8098460C8
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:52:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 748E0B80B78
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:49:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA633C433EF;
-        Mon, 12 Dec 2022 13:49:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33377B80D54
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:52:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ADFBC433F0;
+        Mon, 12 Dec 2022 13:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852960;
-        bh=L6UDHzbsvVJHY5wZsFFRchZRbTkTrtMeaMD7SSe4IhI=;
+        s=korg; t=1670853171;
+        bh=UaURbPuHpQtA0YRB1oWG4r32xC1LDY9emPmigIFWxUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MeYuN37DuvcdM8IUEJCLmJW0AfzoRpS/6l0tj+wtgNapsEI5hAMAz1SmNzRCOUcy5
-         SuAFFPRuYzetwxUygshVYgvEcgMk5558m6m/JtIvfc7BQM0ruwEMqnaa976GQ5GCxj
-         gWHWO4zZlAOnhWvkQqtPqXklgk9C8yd4eprPozwE=
+        b=MbE8sRugML2IVvZlprHcxzsDGW/K92gSd6VCD+DLJNgWj5vRNTL/MeBwEsIlY8F0z
+         VUkjY0a+jg0a1Iaubn3tdW43v6ackLPBwyDwH7swlFIDwXTldQMKM0o/1Dkv3OqoWG
+         CtO5zOaqMecXftlV2mnmnExsN88dRchQL9cTzj38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+        patches@lists.linux.dev,
+        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 30/49] mac802154: fix missing INIT_LIST_HEAD in ieee802154_if_add()
+Subject: [PATCH 4.14 07/38] ASoC: soc-pcm: Add NULL check in BE reparenting
 Date:   Mon, 12 Dec 2022 14:19:08 +0100
-Message-Id: <20221212130915.165120477@linuxfoundation.org>
+Message-Id: <20221212130912.467433687@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
-References: <20221212130913.666185567@linuxfoundation.org>
+In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
+References: <20221212130912.069170932@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
 
-[ Upstream commit b3d72d3135d2ef68296c1ee174436efd65386f04 ]
+[ Upstream commit db8f91d424fe0ea6db337aca8bc05908bbce1498 ]
 
-Kernel fault injection test reports null-ptr-deref as follows:
+Add NULL check in dpcm_be_reparent API, to handle
+kernel NULL pointer dereference error.
+The issue occurred in fuzzing test.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000008
-RIP: 0010:cfg802154_netdev_notifier_call+0x120/0x310 include/linux/list.h:114
-Call Trace:
- <TASK>
- raw_notifier_call_chain+0x6d/0xa0 kernel/notifier.c:87
- call_netdevice_notifiers_info+0x6e/0xc0 net/core/dev.c:1944
- unregister_netdevice_many_notify+0x60d/0xcb0 net/core/dev.c:1982
- unregister_netdevice_queue+0x154/0x1a0 net/core/dev.c:10879
- register_netdevice+0x9a8/0xb90 net/core/dev.c:10083
- ieee802154_if_add+0x6ed/0x7e0 net/mac802154/iface.c:659
- ieee802154_register_hw+0x29c/0x330 net/mac802154/main.c:229
- mcr20a_probe+0xaaa/0xcb1 drivers/net/ieee802154/mcr20a.c:1316
-
-ieee802154_if_add() allocates wpan_dev as netdev's private data, but not
-init the list in struct wpan_dev. cfg802154_netdev_notifier_call() manage
-the list when device register/unregister, and may lead to null-ptr-deref.
-
-Use INIT_LIST_HEAD() on it to initialize it correctly.
-
-Fixes: fcf39e6e88e9 ("ieee802154: add wpan_dev_list")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-
-Link: https://lore.kernel.org/r/20221130091705.1831140-1-weiyongjun@huaweicloud.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+Link: https://lore.kernel.org/r/1669098673-29703-1-git-send-email-quic_srivasam@quicinc.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac802154/iface.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/soc-pcm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/mac802154/iface.c b/net/mac802154/iface.c
-index bd88a9b80773..8c2aedf3fa74 100644
---- a/net/mac802154/iface.c
-+++ b/net/mac802154/iface.c
-@@ -669,6 +669,7 @@ ieee802154_if_add(struct ieee802154_local *local, const char *name,
- 	sdata->dev = ndev;
- 	sdata->wpan_dev.wpan_phy = local->hw.phy;
- 	sdata->local = local;
-+	INIT_LIST_HEAD(&sdata->wpan_dev.list);
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index e995e96ab903..3a9c875534c1 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -1168,6 +1168,8 @@ static void dpcm_be_reparent(struct snd_soc_pcm_runtime *fe,
+ 		return;
  
- 	/* setup type-dependent data */
- 	ret = ieee802154_setup_sdata(sdata, type);
+ 	be_substream = snd_soc_dpcm_get_substream(be, stream);
++	if (!be_substream)
++		return;
+ 
+ 	list_for_each_entry(dpcm, &be->dpcm[stream].fe_clients, list_fe) {
+ 		if (dpcm->fe == fe)
 -- 
 2.35.1
 
