@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CB2B64A0CB
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:30:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4886864A1A0
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:43:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232290AbiLLNar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:30:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59606 "EHLO
+        id S232822AbiLLNno (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:43:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232112AbiLLNaq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:30:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31987625C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:30:46 -0800 (PST)
+        with ESMTP id S232902AbiLLNnW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88B0814028
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:42:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC8DB61025
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:30:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69B3AC433F0;
-        Mon, 12 Dec 2022 13:30:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C819B80D2C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:42:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D5F9C433EF;
+        Mon, 12 Dec 2022 13:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851845;
-        bh=RypHvQnHFMYlxIri4+HOQxg+dMRzwH7QxiDptTM4hJA=;
+        s=korg; t=1670852532;
+        bh=s0LUIJvPpkur9LY6RxVIboEMBRomuSPgB+BetF6F2XE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GfkNMILKxszoRKhmkcmxYHvs+AiN57DjFULyclHjSZo4pbj5bdoR5XVlYoTUJUDWt
-         vSt4aNJn1KFipYmJn1jFROAbhcekEIRDPygZQsKc0hYPjXEw23ecXDBGQUL1gdXLC/
-         j0eWMYyOPI9oA4CIawKqjEushjARuDy25zqu1enE=
+        b=BHzGtm6OiS+iuo6ABX3o2awi3O7EKrYfKBGnEcY7GbEnjBxPzrYC+76tSAeEhKQnK
+         tXm6r3MusCLJPfSlUSgi0Cd2DPge2dSYgpU8hNw5bzy4MIbTIbEuDjvGk+boaYoDn7
+         zVAIw9YhYlMynv5IvjTy9ur+0W7YT9YK5nIkOLZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        patches@lists.linux.dev, Schuyler Patton <spatton@ti.com>,
+        Siddharth Vadapalli <s-vadapalli@ti.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 081/123] net: dsa: sja1105: Check return value
-Date:   Mon, 12 Dec 2022 14:17:27 +0100
-Message-Id: <20221212130930.365769995@linuxfoundation.org>
+Subject: [PATCH 6.0 100/157] net: ethernet: ti: am65-cpsw: Fix RGMII configuration at SPEED_10
+Date:   Mon, 12 Dec 2022 14:17:28 +0100
+Message-Id: <20221212130938.850463482@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+From: Siddharth Vadapalli <s-vadapalli@ti.com>
 
-[ Upstream commit 8948876335b1752176afdff8e704099a3ea0f6e6 ]
+[ Upstream commit 6c681f899e0360803b924ac8c96ee21965118649 ]
 
-Return NULL if we got unexpected value from skb_trim_rcsum() in
-sja1110_rcv_inband_control_extension()
+The am65-cpsw driver supports configuring all RGMII variants at interface
+speed of 10 Mbps. However, in the process of shifting to the PHYLINK
+framework, the support for all variants of RGMII except the
+PHY_INTERFACE_MODE_RGMII variant was accidentally removed.
 
-Fixes: 4913b8ebf8a9 ("net: dsa: add support for the SJA1110 native tagging protocol")
-Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20221201140032.26746-3-artem.chernyshev@red-soft.ru
+Fix this by using phy_interface_mode_is_rgmii() to check for all variants
+of RGMII mode.
+
+Fixes: e8609e69470f ("net: ethernet: ti: am65-cpsw: Convert to PHYLINK")
+Reported-by: Schuyler Patton <spatton@ti.com>
+Signed-off-by: Siddharth Vadapalli <s-vadapalli@ti.com>
+Link: https://lore.kernel.org/r/20221129050639.111142-1-s-vadapalli@ti.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/tag_sja1105.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/dsa/tag_sja1105.c b/net/dsa/tag_sja1105.c
-index 2edede9ddac9..d43feadd5fa6 100644
---- a/net/dsa/tag_sja1105.c
-+++ b/net/dsa/tag_sja1105.c
-@@ -644,7 +644,8 @@ static struct sk_buff *sja1110_rcv_inband_control_extension(struct sk_buff *skb,
- 		 * padding and trailer we need to account for the fact that
- 		 * skb->data points to skb_mac_header(skb) + ETH_HLEN.
- 		 */
--		pskb_trim_rcsum(skb, start_of_padding - ETH_HLEN);
-+		if (pskb_trim_rcsum(skb, start_of_padding - ETH_HLEN))
-+			return NULL;
- 	/* Trap-to-host frame, no timestamp trailer */
- 	} else {
- 		*source_port = SJA1110_RX_HEADER_SRC_PORT(rx_header);
+diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+index 95baacd6c761..47da11b9ac28 100644
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -1450,7 +1450,7 @@ static void am65_cpsw_nuss_mac_link_up(struct phylink_config *config, struct phy
+ 
+ 	if (speed == SPEED_1000)
+ 		mac_control |= CPSW_SL_CTL_GIG;
+-	if (speed == SPEED_10 && interface == PHY_INTERFACE_MODE_RGMII)
++	if (speed == SPEED_10 && phy_interface_mode_is_rgmii(interface))
+ 		/* Can be used with in band mode only */
+ 		mac_control |= CPSW_SL_CTL_EXT_EN;
+ 	if (speed == SPEED_100 && interface == PHY_INTERFACE_MODE_RMII)
 -- 
 2.35.1
 
