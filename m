@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDE2764A0D9
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:31:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC81564A190
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231827AbiLLNbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:31:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60494 "EHLO
+        id S232745AbiLLNlo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:41:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232187AbiLLNbl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:31:41 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13991625C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:31:40 -0800 (PST)
+        with ESMTP id S232763AbiLLNlY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:41:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0171408B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:40:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8222BCE0F11
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:31:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8EFAC433F0;
-        Mon, 12 Dec 2022 13:31:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 947CA6105A
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:40:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 164EAC433EF;
+        Mon, 12 Dec 2022 13:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851896;
-        bh=JyOTMRAmrE+f96t65BPIbWC0zznlH+h9ePtkimWBYnE=;
+        s=korg; t=1670852452;
+        bh=phyVVwqYGtrMlvC2QC2/H841CprUmcWBHMOGjywHE+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQceuN2My/xlI1j2LCdPdYkwQVhHaHdoWatjv3ll7mOtBKTypFmTl0uwVqT069eJ5
-         dbTXlW7yl+7I06LmVMdE3EOYx9JrA03/nDHIWKP+jM5f8+iYhYUNNPdBGw3cQ6oVBn
-         MW60KmS4cN3nY8AkBWBP3c91sVU8+LuH7XA3H00w=
+        b=nu95tjgYxCk563YNKcVsjcKVgLtIrUxN/tcdP9BWZ7czUbisb9fssAJi4HOi7PEKl
+         +MvrI7CLs4ko+99Ca0TVESjBlLamDsh5p4T1+w5XQnygR6r+i39ln/dqinfU+XBHxG
+         u6cAlVD8kjVlqYie07Q5fO48+l3IY/KTCzBIacLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 065/123] ieee802154: cc2520: Fix error return code in cc2520_hw_init()
+        patches@lists.linux.dev, Rudolf Polzer <rpolzer@google.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 6.0 083/157] HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch V 10
 Date:   Mon, 12 Dec 2022 14:17:11 +0100
-Message-Id: <20221212130929.679062170@linuxfoundation.org>
+Message-Id: <20221212130938.121804019@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 4d002d6a2a00ac1c433899bd7625c6400a74cfba ]
+commit 9ad6645a9dce4d0e42daca6ebf32a154401c59d3 upstream.
 
-In cc2520_hw_init(), if oscillator start failed, the error code
-should be returned.
+The Acer Aspire Switch V 10 (SW5-017)'s keyboard-dock uses the same
+ITE controller setup as other Acer Switch 2-in-1's.
 
-Fixes: 0da6bc8cc341 ("ieee802154: cc2520: adds driver for TI CC2520 radio")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Link: https://lore.kernel.org/r/20221120075046.2213633-1-william.xuanziyang@huawei.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This needs special handling for the wifi on/off toggle hotkey as well as
+to properly report touchpad on/off keypresses.
+
+Add the USB-ids for the SW5-017's keyboard-dock with a quirk setting of
+QUIRK_TOUCHPAD_ON_OFF_REPORT to fix both issues.
+
+Cc: Rudolf Polzer <rpolzer@google.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ieee802154/cc2520.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-ids.h |    1 +
+ drivers/hid/hid-ite.c |    5 +++++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/net/ieee802154/cc2520.c b/drivers/net/ieee802154/cc2520.c
-index 4517517215f2..a8369bfa4050 100644
---- a/drivers/net/ieee802154/cc2520.c
-+++ b/drivers/net/ieee802154/cc2520.c
-@@ -970,7 +970,7 @@ static int cc2520_hw_init(struct cc2520_private *priv)
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1217,6 +1217,7 @@
+ #define USB_DEVICE_ID_SYNAPTICS_DELL_K15A	0x6e21
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1002	0x73f4
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003	0x73f5
++#define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_017	0x73f6
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5	0x81a7
  
- 		if (timeout-- <= 0) {
- 			dev_err(&priv->spi->dev, "oscillator start failed!\n");
--			return ret;
-+			return -ETIMEDOUT;
- 		}
- 		udelay(1);
- 	} while (!(status & CC2520_STATUS_XOSC32M_STABLE));
--- 
-2.35.1
-
+ #define USB_VENDOR_ID_TEXAS_INSTRUMENTS	0x2047
+--- a/drivers/hid/hid-ite.c
++++ b/drivers/hid/hid-ite.c
+@@ -121,6 +121,11 @@ static const struct hid_device_id ite_de
+ 		     USB_VENDOR_ID_SYNAPTICS,
+ 		     USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003),
+ 	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
++	/* ITE8910 USB kbd ctlr, with Synaptics touchpad connected to it. */
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
++		     USB_VENDOR_ID_SYNAPTICS,
++		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_017),
++	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, ite_devices);
 
 
