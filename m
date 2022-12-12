@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F4DE649FA8
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:13:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CAD4649F93
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:12:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231725AbiLLNNv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:13:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40870 "EHLO
+        id S232493AbiLLNMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:12:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232560AbiLLNNX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:13:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 653FA12AE2
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:13:10 -0800 (PST)
+        with ESMTP id S232552AbiLLNLu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:11:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A46C12AF3
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:11:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24FCDB80D37
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:13:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29631C433EF;
-        Mon, 12 Dec 2022 13:13:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACFC961041
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:11:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65509C433EF;
+        Mon, 12 Dec 2022 13:11:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670850787;
-        bh=LC1DgRDLC91o1SXBFPmPI8KdWutSkSzBEOZ+GGOuLFE=;
+        s=korg; t=1670850709;
+        bh=DA9rvsf4wScVcGrCxKN0+ON+UhDhaGACbSktxxT4ftg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=02ZJ2oxtn6g7clRVVHp0okDn7rfN3tANBsHno/Z8ApZC2lzOhUxn2m5G4yka0DMlJ
-         znfxg9YRlVp0Mwe1S6jf1whc114txvktW2Yh/qZxlgE9HNlk4DVSh5yhfjenvVESPo
-         ThLx5lsegDYNbBzLZWjUAO8HD6z1JJluwb+T63NA=
+        b=mLg2HzORdfEx7EBsBOrgbL9nwXJqgSEjtB7+45LJD1KjAoUF+X88bjeWoKAEkbqGn
+         DA/p2vtDJ3YHIUmH3JGlndEry0vE/FbBDXv3ycI2HQbYA2z/LzZf6r10RxfpjtLAX5
+         8h3Z9YfefMSumEOkZAKa25DZKhJKcPHZxg82oSyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        patches@lists.linux.dev, Johan Jonker <jbx6244@gmail.com>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 009/106] arm: dts: rockchip: fix node name for hym8563 rtc
-Date:   Mon, 12 Dec 2022 14:09:12 +0100
-Message-Id: <20221212130925.284702158@linuxfoundation.org>
+Subject: [PATCH 5.10 010/106] ARM: dts: rockchip: fix ir-receiver node names
+Date:   Mon, 12 Dec 2022 14:09:13 +0100
+Message-Id: <20221212130925.327103987@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -54,89 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit 17b57beafccb4569accbfc8c11390744cf59c021 ]
+[ Upstream commit dd847fe34cdf1e89afed1af24986359f13082bfb ]
 
-Fix the node name for hym8563 in all arm rockchip devicetrees.
+Fix ir-receiver node names on Rockchip boards,
+so that they match with regex: '^ir(-receiver)?(@[a-f0-9]+)?$'
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Link: https://lore.kernel.org/r/20221024165549.74574-4-sebastian.reichel@collabora.com
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/ea5af279-f44c-afea-023d-bb37f5a0d58d@gmail.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3036-evb.dts          | 2 +-
- arch/arm/boot/dts/rk3288-evb-act8846.dts  | 2 +-
- arch/arm/boot/dts/rk3288-firefly.dtsi     | 2 +-
- arch/arm/boot/dts/rk3288-miqi.dts         | 2 +-
- arch/arm/boot/dts/rk3288-rock2-square.dts | 2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/rk3188-radxarock.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/rk3036-evb.dts b/arch/arm/boot/dts/rk3036-evb.dts
-index 2a7e6624efb9..ea23ba98625e 100644
---- a/arch/arm/boot/dts/rk3036-evb.dts
-+++ b/arch/arm/boot/dts/rk3036-evb.dts
-@@ -31,7 +31,7 @@
- &i2c1 {
- 	status = "okay";
- 
--	hym8563: hym8563@51 {
-+	hym8563: rtc@51 {
- 		compatible = "haoyu,hym8563";
- 		reg = <0x51>;
- 		#clock-cells = <0>;
-diff --git a/arch/arm/boot/dts/rk3288-evb-act8846.dts b/arch/arm/boot/dts/rk3288-evb-act8846.dts
-index be695b8c1f67..8a635c243127 100644
---- a/arch/arm/boot/dts/rk3288-evb-act8846.dts
-+++ b/arch/arm/boot/dts/rk3288-evb-act8846.dts
-@@ -54,7 +54,7 @@
- 		vin-supply = <&vcc_sys>;
+diff --git a/arch/arm/boot/dts/rk3188-radxarock.dts b/arch/arm/boot/dts/rk3188-radxarock.dts
+index b0fef82c0a71..39b913f8d701 100644
+--- a/arch/arm/boot/dts/rk3188-radxarock.dts
++++ b/arch/arm/boot/dts/rk3188-radxarock.dts
+@@ -67,7 +67,7 @@
+ 		#sound-dai-cells = <0>;
  	};
  
--	hym8563@51 {
-+	rtc@51 {
- 		compatible = "haoyu,hym8563";
- 		reg = <0x51>;
- 
-diff --git a/arch/arm/boot/dts/rk3288-firefly.dtsi b/arch/arm/boot/dts/rk3288-firefly.dtsi
-index 7fb582302b32..c560afe3af78 100644
---- a/arch/arm/boot/dts/rk3288-firefly.dtsi
-+++ b/arch/arm/boot/dts/rk3288-firefly.dtsi
-@@ -233,7 +233,7 @@
- 		vin-supply = <&vcc_sys>;
- 	};
- 
--	hym8563: hym8563@51 {
-+	hym8563: rtc@51 {
- 		compatible = "haoyu,hym8563";
- 		reg = <0x51>;
- 		#clock-cells = <0>;
-diff --git a/arch/arm/boot/dts/rk3288-miqi.dts b/arch/arm/boot/dts/rk3288-miqi.dts
-index cf54d5ffff2f..fe265a834e8e 100644
---- a/arch/arm/boot/dts/rk3288-miqi.dts
-+++ b/arch/arm/boot/dts/rk3288-miqi.dts
-@@ -157,7 +157,7 @@
- 		vin-supply = <&vcc_sys>;
- 	};
- 
--	hym8563: hym8563@51 {
-+	hym8563: rtc@51 {
- 		compatible = "haoyu,hym8563";
- 		reg = <0x51>;
- 		#clock-cells = <0>;
-diff --git a/arch/arm/boot/dts/rk3288-rock2-square.dts b/arch/arm/boot/dts/rk3288-rock2-square.dts
-index c4d1d142d8c6..d5ef99ebbddc 100644
---- a/arch/arm/boot/dts/rk3288-rock2-square.dts
-+++ b/arch/arm/boot/dts/rk3288-rock2-square.dts
-@@ -165,7 +165,7 @@
- };
- 
- &i2c0 {
--	hym8563: hym8563@51 {
-+	hym8563: rtc@51 {
- 		compatible = "haoyu,hym8563";
- 		reg = <0x51>;
- 		#clock-cells = <0>;
+-	ir_recv: gpio-ir-receiver {
++	ir_recv: ir-receiver {
+ 		compatible = "gpio-ir-receiver";
+ 		gpios = <&gpio0 RK_PB2 GPIO_ACTIVE_LOW>;
+ 		pinctrl-names = "default";
 -- 
 2.35.1
 
