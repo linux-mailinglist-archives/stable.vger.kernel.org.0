@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3B58649FD3
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:16:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB8DB649FDF
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:16:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232448AbiLLNP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:15:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44196 "EHLO
+        id S232336AbiLLNQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:16:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232381AbiLLNP2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:15:28 -0500
+        with ESMTP id S232483AbiLLNP7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:15:59 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F9E7617D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:15:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A39612AE0
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:15:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 184C9B80D0C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:15:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CDD4C433D2;
-        Mon, 12 Dec 2022 13:15:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51436B80B78
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:15:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AE00C433D2;
+        Mon, 12 Dec 2022 13:15:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670850901;
-        bh=ujVtRHiIASjKF+CRaYrXnontv2r32pzpDAfdShhl4xA=;
+        s=korg; t=1670850942;
+        bh=iw2ldqscaMLXfFMEhRPM4JPxQu23Y7mf3xeJEtbbt8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cz6Tky2ndnYu31yAWqTbP3lrTzjhdlHyr+0cw0zkR/b06+O9Sn/fUmHnHxfIdpq3Q
-         igjYr3D0ysIE7Dtad2d6Eyt9DYmqJ2o1/kNFfssdaCvOtxtIviJxmBptv3r/tzSZOJ
-         aUD4s0FcI6uEMvlzS685QVthBUUH8Y1kXblNkiE0=
+        b=h38oqPu47qp7io/aJG//QTY6v4My+V3t3j2do6ApEISozwUY1pDmjH5ZwDVnEm5FE
+         diNKT8HPN9ZQRBEmn8Vj5WmIlzV1jbs+MOwC4niK7+ZZZdNHvS0F7IloHKwrWBu6ma
+         Rvz0shKRSXBev/em7aZJLgs61+Cio/W685pELRoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        =?UTF-8?q?Leonardo=20Eug=C3=AAnio?= <lelgenio@disroot.org>
-Subject: [PATCH 5.10 051/106] Bluetooth: Fix crash when replugging CSR fake controllers
-Date:   Mon, 12 Dec 2022 14:09:54 +0100
-Message-Id: <20221212130927.087149187@linuxfoundation.org>
+        patches@lists.linux.dev, Thomas Huth <thuth@redhat.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Subject: [PATCH 5.10 052/106] KVM: s390: vsie: Fix the initialization of the epoch extension (epdx) field
+Date:   Mon, 12 Dec 2022 14:09:55 +0100
+Message-Id: <20221212130927.129308647@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -53,79 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Thomas Huth <thuth@redhat.com>
 
-commit b5ca338751ad4783ec8d37b5d99c3e37b7813e59 upstream.
+commit 0dd4cdccdab3d74bd86b868768a7dca216bcce7e upstream.
 
-It seems fake CSR 5.0 clones can cause the suspend notifier to be
-registered twice causing the following kernel panic:
+We recently experienced some weird huge time jumps in nested guests when
+rebooting them in certain cases. After adding some debug code to the epoch
+handling in vsie.c (thanks to David Hildenbrand for the idea!), it was
+obvious that the "epdx" field (the multi-epoch extension) did not get set
+to 0xff in case the "epoch" field was negative.
+Seems like the code misses to copy the value from the epdx field from
+the guest to the shadow control block. By doing so, the weird time
+jumps are gone in our scenarios.
 
-[   71.986122] Call Trace:
-[   71.986124]  <TASK>
-[   71.986125]  blocking_notifier_chain_register+0x33/0x60
-[   71.986130]  hci_register_dev+0x316/0x3d0 [bluetooth 99b5497ea3d09708fa1366c1dc03288bf3cca8da]
-[   71.986154]  btusb_probe+0x979/0xd85 [btusb e1e0605a4f4c01984a4b9c8ac58c3666ae287477]
-[   71.986159]  ? __pm_runtime_set_status+0x1a9/0x300
-[   71.986162]  ? ktime_get_mono_fast_ns+0x3e/0x90
-[   71.986167]  usb_probe_interface+0xe3/0x2b0
-[   71.986171]  really_probe+0xdb/0x380
-[   71.986174]  ? pm_runtime_barrier+0x54/0x90
-[   71.986177]  __driver_probe_device+0x78/0x170
-[   71.986180]  driver_probe_device+0x1f/0x90
-[   71.986183]  __device_attach_driver+0x89/0x110
-[   71.986186]  ? driver_allows_async_probing+0x70/0x70
-[   71.986189]  bus_for_each_drv+0x8c/0xe0
-[   71.986192]  __device_attach+0xb2/0x1e0
-[   71.986195]  bus_probe_device+0x92/0xb0
-[   71.986198]  device_add+0x422/0x9a0
-[   71.986201]  ? sysfs_merge_group+0xd4/0x110
-[   71.986205]  usb_set_configuration+0x57a/0x820
-[   71.986208]  usb_generic_driver_probe+0x4f/0x70
-[   71.986211]  usb_probe_device+0x3a/0x110
-[   71.986213]  really_probe+0xdb/0x380
-[   71.986216]  ? pm_runtime_barrier+0x54/0x90
-[   71.986219]  __driver_probe_device+0x78/0x170
-[   71.986221]  driver_probe_device+0x1f/0x90
-[   71.986224]  __device_attach_driver+0x89/0x110
-[   71.986227]  ? driver_allows_async_probing+0x70/0x70
-[   71.986230]  bus_for_each_drv+0x8c/0xe0
-[   71.986232]  __device_attach+0xb2/0x1e0
-[   71.986235]  bus_probe_device+0x92/0xb0
-[   71.986237]  device_add+0x422/0x9a0
-[   71.986239]  ? _dev_info+0x7d/0x98
-[   71.986242]  ? blake2s_update+0x4c/0xc0
-[   71.986246]  usb_new_device.cold+0x148/0x36d
-[   71.986250]  hub_event+0xa8a/0x1910
-[   71.986255]  process_one_work+0x1c4/0x380
-[   71.986259]  worker_thread+0x51/0x390
-[   71.986262]  ? rescuer_thread+0x3b0/0x3b0
-[   71.986264]  kthread+0xdb/0x110
-[   71.986266]  ? kthread_complete_and_exit+0x20/0x20
-[   71.986268]  ret_from_fork+0x1f/0x30
-[   71.986273]  </TASK>
-[   71.986274] ---[ end trace 0000000000000000 ]---
-[   71.986284] btusb: probe of 2-1.6:1.0 failed with error -17
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216683
-Cc: stable@vger.kernel.org
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Tested-by: Leonardo Eugênio <lelgenio@disroot.org>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2140899
+Fixes: 8fa1696ea781 ("KVM: s390: Multiple Epoch Facility support")
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Cc: stable@vger.kernel.org # 4.19+
+Link: https://lore.kernel.org/r/20221123090833.292938-1-thuth@redhat.com
+Message-Id: <20221123090833.292938-1-thuth@redhat.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/kvm/vsie.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -3799,7 +3799,8 @@ int hci_register_dev(struct hci_dev *hde
- 	hci_sock_dev_event(hdev, HCI_DEV_REG);
- 	hci_dev_hold(hdev);
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -535,8 +535,10 @@ static int shadow_scb(struct kvm_vcpu *v
+ 	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_CEI))
+ 		scb_s->eca |= scb_o->eca & ECA_CEI;
+ 	/* Epoch Extension */
+-	if (test_kvm_facility(vcpu->kvm, 139))
++	if (test_kvm_facility(vcpu->kvm, 139)) {
+ 		scb_s->ecd |= scb_o->ecd & ECD_MEF;
++		scb_s->epdx = scb_o->epdx;
++	}
  
--	if (!test_bit(HCI_QUIRK_NO_SUSPEND_NOTIFIER, &hdev->quirks)) {
-+	if (!hdev->suspend_notifier.notifier_call &&
-+	    !test_bit(HCI_QUIRK_NO_SUSPEND_NOTIFIER, &hdev->quirks)) {
- 		hdev->suspend_notifier.notifier_call = hci_suspend_notifier;
- 		error = register_pm_notifier(&hdev->suspend_notifier);
- 		if (error)
+ 	/* etoken */
+ 	if (test_kvm_facility(vcpu->kvm, 156))
 
 
