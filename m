@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C48B264A010
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:19:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFC3664A011
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:19:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232613AbiLLNTf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:19:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46244 "EHLO
+        id S232632AbiLLNTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:19:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232650AbiLLNTQ (ORCPT
+        with ESMTP id S232513AbiLLNTQ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:19:16 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1158A1032
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:18:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B753F78
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:18:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC882B80D3B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:18:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFC13C433EF;
-        Mon, 12 Dec 2022 13:18:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3CFDB80D3B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:18:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E317BC433D2;
+        Mon, 12 Dec 2022 13:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851101;
-        bh=Szo7n1nLmpows1Fdp+kthLoNbZf2CKIUSo4ACSEWxvk=;
+        s=korg; t=1670851105;
+        bh=4yWfRhNy53E6Q33BNnxnukJlUirlBhwKmHPUvHZ1csU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9wKEKDXX7Xm1mkTTXHQV369bzluVa7Zdmmm4+53482GESqe0h78TOOmV0DYIiZkT
-         sptEfioo6JYh0gSOTTnhaq5zvwe9OF8uTlpUdOttWxW+bpHYWtnx4z2coZHMKIWLo5
-         1tEvqkZ0MmFmqytz0jle5hmp+z3UKTHlilj6cl5A=
+        b=BWcWDHbJg/s07n9ACfLUVxjSmxpRNnYJaHCDxGcjQyCQ8kSjpVm2q9SKCBf9HctlV
+         yjtOZax00+ukTyoZ2jRi5fnMWsXkhXWdv+yNOd6oRInyl8Xh2CtExN3q9br/3RZTTk
+         EMw2SJQMNj+rVEJuI1FmrmOZbyJBsnMKpJm++zM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michal Jaron <michalx.jaron@intel.com>,
-        Kamil Maziarz <kamil.maziarz@intel.com>,
+        patches@lists.linux.dev,
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Jan Sokolowski <jan.sokolowski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.10 085/106] i40e: Fix not setting default xps_cpus after reset
-Date:   Mon, 12 Dec 2022 14:10:28 +0100
-Message-Id: <20221212130928.583013260@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 086/106] i40e: Fix for VF MAC address 0
+Date:   Mon, 12 Dec 2022 14:10:29 +0100
+Message-Id: <20221212130928.625918080@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -55,70 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Jaron <michalx.jaron@intel.com>
+From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
 
-[ Upstream commit 82e0572b23029b380464fa9fdc125db9c1506d0a ]
+[ Upstream commit 08501970472077ed5de346ad89943a37d1692e9b ]
 
-During tx rings configuration default XPS queue config is set and
-__I40E_TX_XPS_INIT_DONE is locked. __I40E_TX_XPS_INIT_DONE state is
-cleared and set again with default mapping only during queues build,
-it means after first setup or reset with queues rebuild. (i.e.
-ethtool -L <interface> combined <number>) After other resets (i.e.
-ethtool -t <interface>) XPS_INIT_DONE is not cleared and those default
-maps cannot be set again. It results in cleared xps_cpus mapping
-until queues are not rebuild or mapping is not set by user.
+After spawning max VFs on a PF, some VFs were not getting resources and
+their MAC addresses were 0. This was caused by PF sleeping before flushing
+HW registers which caused VIRTCHNL_VFR_VFACTIVE to not be set in time for
+VF.
 
-Add clearing __I40E_TX_XPS_INIT_DONE state during reset to let
-the driver set xps_cpus to defaults again after it was cleared.
+Fix by adding a sleep after hw flush.
 
-Fixes: 6f853d4f8e93 ("i40e: allow XPS with QoS enabled")
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Kamil Maziarz <kamil.maziarz@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Fixes: e4b433f4a741 ("i40e: reset all VFs in parallel when rebuilding PF")
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index d7ddf9239e51..2c60d2a93330 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -10065,6 +10065,21 @@ static int i40e_rebuild_channels(struct i40e_vsi *vsi)
- 	return 0;
- }
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 381b28a08746..bb2a79b70c3a 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -1525,6 +1525,7 @@ bool i40e_reset_vf(struct i40e_vf *vf, bool flr)
+ 	i40e_cleanup_reset_vf(vf);
  
-+/**
-+ * i40e_clean_xps_state - clean xps state for every tx_ring
-+ * @vsi: ptr to the VSI
-+ **/
-+static void i40e_clean_xps_state(struct i40e_vsi *vsi)
-+{
-+	int i;
-+
-+	if (vsi->tx_rings)
-+		for (i = 0; i < vsi->num_queue_pairs; i++)
-+			if (vsi->tx_rings[i])
-+				clear_bit(__I40E_TX_XPS_INIT_DONE,
-+					  vsi->tx_rings[i]->state);
-+}
-+
- /**
-  * i40e_prep_for_reset - prep for the core to reset
-  * @pf: board private structure
-@@ -10096,8 +10111,10 @@ static void i40e_prep_for_reset(struct i40e_pf *pf, bool lock_acquired)
- 		rtnl_unlock();
+ 	i40e_flush(hw);
++	usleep_range(20000, 40000);
+ 	clear_bit(I40E_VF_STATE_RESETTING, &vf->vf_states);
  
- 	for (v = 0; v < pf->num_alloc_vsi; v++) {
--		if (pf->vsi[v])
-+		if (pf->vsi[v]) {
-+			i40e_clean_xps_state(pf->vsi[v]);
- 			pf->vsi[v]->seid = 0;
-+		}
+ 	return true;
+@@ -1648,6 +1649,7 @@ bool i40e_reset_all_vfs(struct i40e_pf *pf, bool flr)
  	}
  
- 	i40e_shutdown_adminq(&pf->hw);
+ 	i40e_flush(hw);
++	usleep_range(20000, 40000);
+ 	clear_bit(__I40E_VF_DISABLE, pf->state);
+ 
+ 	return true;
 -- 
 2.35.1
 
