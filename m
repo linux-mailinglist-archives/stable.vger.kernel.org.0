@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2756564A085
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:26:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0056964A14E
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:38:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232369AbiLLN0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:26:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54392 "EHLO
+        id S232764AbiLLNiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:38:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232730AbiLLNZ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:57 -0500
+        with ESMTP id S232763AbiLLNhf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:37:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1AE762D4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4022D13EBE
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:37:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B83261025
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 237B9C433F0;
-        Mon, 12 Dec 2022 13:25:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D349861073
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:37:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACC33C433EF;
+        Mon, 12 Dec 2022 13:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851555;
-        bh=O7zDITUcGhTFRClUzBYfLgBIZigynA2jGdpwL7I4TVw=;
+        s=korg; t=1670852235;
+        bh=w0P/WVl0b7eL8iOW0F2fFg8Qj+MW34631fhio195zGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1d1tBxUxXA8in3K9Wq5aIWjzSE3D5TTCn6PGC/h5UZMHsRhVKBqEFWZpNudShdjAJ
-         jj+C7N+buNKMqCbTQQoJRFNoiYJqP/fnquIZQRW//eywvhT6zennZT8pxtOGqAo3KM
-         ycnp0Th77RW3lYft75amECZLx781sLJ2JKtzsgT8=
+        b=o2o5YSKe8UNp5wAqW3vsxMmDAp8WWNehd4Ox7M2Gs17+aZEmpszYoePA606MxJVWO
+         Jwp1v35eFCpVmBo4gX7lpyrY7egp5Y1KXMKcTHoKX4y6UMUqGFvKN2XrvnKF9M1UPH
+         d+NZ5SPBPsTV7MFcA0tZFxiiXb3P9OBUSEtbEwzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Jun Lei <Jun.Lei@amd.com>,
+        Brian Chang <Brian.Chang@amd.com>,
+        Dillon Varone <Dillon.Varone@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 022/123] ASoC: soc-pcm: Add NULL check in BE reparenting
+Subject: [PATCH 6.0 040/157] drm/amd/display: Use new num clk levels struct for max mclk index
 Date:   Mon, 12 Dec 2022 14:16:28 +0100
-Message-Id: <20221212130927.829707652@linuxfoundation.org>
+Message-Id: <20221212130936.147863101@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+From: Dillon Varone <Dillon.Varone@amd.com>
 
-[ Upstream commit db8f91d424fe0ea6db337aca8bc05908bbce1498 ]
+[ Upstream commit e667ee3b0c049bf0c69426879586a2572bb28d26 ]
 
-Add NULL check in dpcm_be_reparent API, to handle
-kernel NULL pointer dereference error.
-The issue occurred in fuzzing test.
+[WHY?]
+When calculating watermark and dlg values, the max mclk level index and
+associated speed are needed to find the correlated dummy latency value.
+Currently the incorrect index is given due to a clock manager refactor.
 
-Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
-Link: https://lore.kernel.org/r/1669098673-29703-1-git-send-email-quic_srivasam@quicinc.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[HOW?]
+Use num_memclk_level from num_entries_per_clk struct for getting the correct max
+mem speed.
+
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Brian Chang <Brian.Chang@amd.com>
+Signed-off-by: Dillon Varone <Dillon.Varone@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index f6dc71e8ea87..3b673477f621 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1166,6 +1166,8 @@ static void dpcm_be_reparent(struct snd_soc_pcm_runtime *fe,
- 		return;
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
+index 2f996fdaa70d..07c56e231b04 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
+@@ -1803,7 +1803,7 @@ void dcn32_calculate_wm_and_dlg_fpu(struct dc *dc, struct dc_state *context,
  
- 	be_substream = snd_soc_dpcm_get_substream(be, stream);
-+	if (!be_substream)
-+		return;
+ 		if (context->bw_ctx.dml.vba.DRAMClockChangeSupport[vlevel][maxMpcComb] ==
+ 			dm_dram_clock_change_unsupported) {
+-			int min_dram_speed_mts_offset = dc->clk_mgr->bw_params->clk_table.num_entries - 1;
++			int min_dram_speed_mts_offset = dc->clk_mgr->bw_params->clk_table.num_entries_per_clk.num_memclk_levels - 1;
  
- 	for_each_dpcm_fe(be, stream, dpcm) {
- 		if (dpcm->fe == fe)
+ 			min_dram_speed_mts =
+ 				dc->clk_mgr->bw_params->clk_table.entries[min_dram_speed_mts_offset].memclk_mhz * 16;
 -- 
 2.35.1
 
