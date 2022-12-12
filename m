@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10A9C64A084
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:26:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AEDC64A14F
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:38:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232742AbiLLN0I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:26:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53886 "EHLO
+        id S232916AbiLLNiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:38:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232700AbiLLNZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 032102AEE
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:54 -0800 (PST)
+        with ESMTP id S232764AbiLLNhd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:37:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CF5613F1E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:37:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B086EB80D53
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBACAC433EF;
-        Mon, 12 Dec 2022 13:25:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4441EB80D2B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:37:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CB01C433D2;
+        Mon, 12 Dec 2022 13:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851551;
-        bh=BRSr+uIkNQG6IfFNGQENyPHkDfuECgTqJg24CfpCxf4=;
+        s=korg; t=1670852231;
+        bh=+jeoKhMCkpT4hn7N4p82uMxd1KjE2kJWwyTuu2+7Vlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zZruqSLrDlkhWoYWSlFR6pbJLCyN0CsRfavH4HVeIo9nsa06sv/VBBhCCadzs/uKH
-         AwbbGNfsXOt/n417bDZJa2WgLIFjh4+kmA4f4zVmx3Fd+bA8qhRrHdMmVrUo6g0rWH
-         tUAmljSQwaolGHAuPKQSvDV72JV3jZUVQm3rdwcA=
+        b=lJ7NdQYJEMgabI0/KgfS/YQVSTumkxq0npLN/wq5ti3gA2Eqf0k7JmPNsntwV2i9d
+         HVZrjUFWyzBoMXv3n9PwfYz/n8CSMF1CfvSLHwHQMdLN288KM5JRXry4KYR9ZdxXas
+         wa5XFee2V07atI7Mz8ELv0z7uUZawzZY0wrQ1zGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Boris Burkov <boris@bur.io>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Brian Chang <Brian.Chang@amd.com>,
+        Taimur Hassan <Syed.Hassan@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 021/123] btrfs: send: avoid unaligned encoded writes when attempting to clone range
+Subject: [PATCH 6.0 039/157] drm/amd/display: Avoid setting pixel rate divider to N/A
 Date:   Mon, 12 Dec 2022 14:16:27 +0100
-Message-Id: <20221212130927.782377623@linuxfoundation.org>
+Message-Id: <20221212130936.105799251@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,158 +57,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Taimur Hassan <Syed.Hassan@amd.com>
 
-[ Upstream commit a11452a3709e217492798cf3686ac2cc8eb3fb51 ]
+[ Upstream commit 2a5dd86a69ea5435f1a837bdb7fafcda609a7c91 ]
 
-When trying to see if we can clone a file range, there are cases where we
-end up sending two write operations in case the inode from the source root
-has an i_size that is not sector size aligned and the length from the
-current offset to its i_size is less than the remaining length we are
-trying to clone.
+[Why]
+Pixel rate divider values should never be set to N/A (0xF) as the K1/K2
+field is only 1/2 bits wide.
 
-Issuing two write operations when we could instead issue a single write
-operation is not incorrect. However it is not optimal, specially if the
-extents are compressed and the flag BTRFS_SEND_FLAG_COMPRESSED was passed
-to the send ioctl. In that case we can end up sending an encoded write
-with an offset that is not sector size aligned, which makes the receiver
-fallback to decompressing the data and writing it using regular buffered
-IO (so re-compressing the data in case the fs is mounted with compression
-enabled), because encoded writes fail with -EINVAL when an offset is not
-sector size aligned.
+[How]
+Set valid divider values for virtual and FRL/DP2 cases.
 
-The following example, which triggered a bug in the receiver code for the
-fallback logic of decompressing + regular buffer IO and is fixed by the
-patchset referred in a Link at the bottom of this changelog, is an example
-where we have the non-optimal behaviour due to an unaligned encoded write:
-
-   $ cat test.sh
-   #!/bin/bash
-
-   DEV=/dev/sdj
-   MNT=/mnt/sdj
-
-   mkfs.btrfs -f $DEV > /dev/null
-   mount -o compress $DEV $MNT
-
-   # File foo has a size of 33K, not aligned to the sector size.
-   xfs_io -f -c "pwrite -S 0xab 0 33K" $MNT/foo
-
-   xfs_io -f -c "pwrite -S 0xcd 0 64K" $MNT/bar
-
-   # Now clone the first 32K of file bar into foo at offset 0.
-   xfs_io -c "reflink $MNT/bar 0 0 32K" $MNT/foo
-
-   # Snapshot the default subvolume and create a full send stream (v2).
-   btrfs subvolume snapshot -r $MNT $MNT/snap
-
-   btrfs send --compressed-data -f /tmp/test.send $MNT/snap
-
-   echo -e "\nFile bar in the original filesystem:"
-   od -A d -t x1 $MNT/snap/bar
-
-   umount $MNT
-   mkfs.btrfs -f $DEV > /dev/null
-   mount $DEV $MNT
-
-   echo -e "\nReceiving stream in a new filesystem..."
-   btrfs receive -f /tmp/test.send $MNT
-
-   echo -e "\nFile bar in the new filesystem:"
-   od -A d -t x1 $MNT/snap/bar
-
-   umount $MNT
-
-Before this patch, the send stream included one regular write and one
-encoded write for file 'bar', with the later being not sector size aligned
-and causing the receiver to fallback to decompression + buffered writes.
-The output of the btrfs receive command in verbose mode (-vvv):
-
-   (...)
-   mkfile o258-7-0
-   rename o258-7-0 -> bar
-   utimes
-   clone bar - source=foo source offset=0 offset=0 length=32768
-   write bar - offset=32768 length=1024
-   encoded_write bar - offset=33792, len=4096, unencoded_offset=33792, unencoded_file_len=31744, unencoded_len=65536, compression=1, encryption=0
-   encoded_write bar - falling back to decompress and write due to errno 22 ("Invalid argument")
-   (...)
-
-This patch avoids the regular write followed by an unaligned encoded write
-so that we end up sending a single encoded write that is aligned. So after
-this patch the stream content is (output of btrfs receive -vvv):
-
-   (...)
-   mkfile o258-7-0
-   rename o258-7-0 -> bar
-   utimes
-   clone bar - source=foo source offset=0 offset=0 length=32768
-   encoded_write bar - offset=32768, len=4096, unencoded_offset=32768, unencoded_file_len=32768, unencoded_len=65536, compression=1, encryption=0
-   (...)
-
-So we get more optimal behaviour and avoid the silent data loss bug in
-versions of btrfs-progs affected by the bug referred by the Link tag
-below (btrfs-progs v5.19, v5.19.1, v6.0 and v6.0.1).
-
-Link: https://lore.kernel.org/linux-btrfs/cover.1668529099.git.fdmanana@suse.com/
-Reviewed-by: Boris Burkov <boris@bur.io>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Brian Chang <Brian.Chang@amd.com>
+Signed-off-by: Taimur Hassan <Syed.Hassan@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/send.c | 24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c  | 7 +++++++
+ drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c | 3 ++-
+ drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c    | 4 +++-
+ drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c   | 1 +
+ 4 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
-index 4d2c6ce29fe5..9250a17731bd 100644
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -5398,6 +5398,7 @@ static int clone_range(struct send_ctx *sctx,
- 		u64 ext_len;
- 		u64 clone_len;
- 		u64 clone_data_offset;
-+		bool crossed_src_i_size = false;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c
+index fb729674953b..de9fa534b77a 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c
+@@ -96,6 +96,13 @@ static void dccg314_set_pixel_rate_div(
+ 	struct dcn_dccg *dccg_dcn = TO_DCN_DCCG(dccg);
+ 	enum pixel_rate_div cur_k1 = PIXEL_RATE_DIV_NA, cur_k2 = PIXEL_RATE_DIV_NA;
  
- 		if (slot >= btrfs_header_nritems(leaf)) {
- 			ret = btrfs_next_leaf(clone_root->root, path);
-@@ -5454,8 +5455,10 @@ static int clone_range(struct send_ctx *sctx,
- 		if (key.offset >= clone_src_i_size)
- 			break;
++	// Don't program 0xF into the register field. Not valid since
++	// K1 / K2 field is only 1 / 2 bits wide
++	if (k1 == PIXEL_RATE_DIV_NA || k2 == PIXEL_RATE_DIV_NA) {
++		BREAK_TO_DEBUGGER();
++		return;
++	}
++
+ 	dccg314_get_pixel_rate_div(dccg, otg_inst, &cur_k1, &cur_k2);
+ 	if (k1 == PIXEL_RATE_DIV_NA || k2 == PIXEL_RATE_DIV_NA || (k1 == cur_k1 && k2 == cur_k2))
+ 		return;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c
+index f4d1b83979fe..a0741794db62 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c
+@@ -349,6 +349,7 @@ unsigned int dcn314_calculate_dccg_k1_k2_values(struct pipe_ctx *pipe_ctx, unsig
+ 	odm_combine_factor = get_odm_config(pipe_ctx, NULL);
  
--		if (key.offset + ext_len > clone_src_i_size)
-+		if (key.offset + ext_len > clone_src_i_size) {
- 			ext_len = clone_src_i_size - key.offset;
-+			crossed_src_i_size = true;
-+		}
+ 	if (is_dp_128b_132b_signal(pipe_ctx)) {
++		*k1_div = PIXEL_RATE_DIV_BY_1;
+ 		*k2_div = PIXEL_RATE_DIV_BY_1;
+ 	} else if (dc_is_hdmi_tmds_signal(pipe_ctx->stream->signal) || dc_is_dvi_signal(pipe_ctx->stream->signal)) {
+ 		*k1_div = PIXEL_RATE_DIV_BY_1;
+@@ -356,7 +357,7 @@ unsigned int dcn314_calculate_dccg_k1_k2_values(struct pipe_ctx *pipe_ctx, unsig
+ 			*k2_div = PIXEL_RATE_DIV_BY_2;
+ 		else
+ 			*k2_div = PIXEL_RATE_DIV_BY_4;
+-	} else if (dc_is_dp_signal(pipe_ctx->stream->signal)) {
++	} else if (dc_is_dp_signal(pipe_ctx->stream->signal) || dc_is_virtual_signal(pipe_ctx->stream->signal)) {
+ 		if (two_pix_per_container) {
+ 			*k1_div = PIXEL_RATE_DIV_BY_1;
+ 			*k2_div = PIXEL_RATE_DIV_BY_2;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
+index 6640d0ac4304..6dd8dadd68a5 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
+@@ -96,8 +96,10 @@ static void dccg32_set_pixel_rate_div(
  
- 		clone_data_offset = btrfs_file_extent_offset(leaf, ei);
- 		if (btrfs_file_extent_disk_bytenr(leaf, ei) == disk_byte) {
-@@ -5515,6 +5518,25 @@ static int clone_range(struct send_ctx *sctx,
- 				ret = send_clone(sctx, offset, clone_len,
- 						 clone_root);
- 			}
-+		} else if (crossed_src_i_size && clone_len < len) {
-+			/*
-+			 * If we are at i_size of the clone source inode and we
-+			 * can not clone from it, terminate the loop. This is
-+			 * to avoid sending two write operations, one with a
-+			 * length matching clone_len and the final one after
-+			 * this loop with a length of len - clone_len.
-+			 *
-+			 * When using encoded writes (BTRFS_SEND_FLAG_COMPRESSED
-+			 * was passed to the send ioctl), this helps avoid
-+			 * sending an encoded write for an offset that is not
-+			 * sector size aligned, in case the i_size of the source
-+			 * inode is not sector size aligned. That will make the
-+			 * receiver fallback to decompression of the data and
-+			 * writing it using regular buffered IO, therefore while
-+			 * not incorrect, it's not optimal due decompression and
-+			 * possible re-compression at the receiver.
-+			 */
-+			break;
- 		} else {
- 			ret = send_extent_data(sctx, offset, clone_len);
- 		}
+ 	// Don't program 0xF into the register field. Not valid since
+ 	// K1 / K2 field is only 1 / 2 bits wide
+-	if (k1 == PIXEL_RATE_DIV_NA || k2 == PIXEL_RATE_DIV_NA)
++	if (k1 == PIXEL_RATE_DIV_NA || k2 == PIXEL_RATE_DIV_NA) {
++		BREAK_TO_DEBUGGER();
+ 		return;
++	}
+ 
+ 	dccg32_get_pixel_rate_div(dccg, otg_inst, &cur_k1, &cur_k2);
+ 	if (k1 == cur_k1 && k2 == cur_k2)
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
+index bbc0bfbec6c4..3128c111c619 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
+@@ -1171,6 +1171,7 @@ unsigned int dcn32_calculate_dccg_k1_k2_values(struct pipe_ctx *pipe_ctx, unsign
+ 	odm_combine_factor = get_odm_config(pipe_ctx, NULL);
+ 
+ 	if (is_dp_128b_132b_signal(pipe_ctx)) {
++		*k1_div = PIXEL_RATE_DIV_BY_1;
+ 		*k2_div = PIXEL_RATE_DIV_BY_1;
+ 	} else if (dc_is_hdmi_tmds_signal(pipe_ctx->stream->signal) || dc_is_dvi_signal(pipe_ctx->stream->signal)) {
+ 		*k1_div = PIXEL_RATE_DIV_BY_1;
 -- 
 2.35.1
 
