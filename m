@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A22FE64A1B4
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A38364A0DD
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:32:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232483AbiLLNoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:44:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42212 "EHLO
+        id S232085AbiLLNcC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:32:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232937AbiLLNnr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 980646563
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:43:26 -0800 (PST)
+        with ESMTP id S232587AbiLLNb5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:31:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C11C8631E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:31:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3447260FF4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:43:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46966C433D2;
-        Mon, 12 Dec 2022 13:43:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C01B61050
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:31:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D437AC433F0;
+        Mon, 12 Dec 2022 13:31:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852605;
-        bh=47MdCbnNyTWsRRKRgeLfoJxE6lQCtha12xlbpYXm9sY=;
+        s=korg; t=1670851915;
+        bh=GU+fmO2L0eSKgX6T1oL1n0PHBGMmq/9J/JmprwUAF7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2JiS7gnjgZGzCunD+LLeGXgvTRHQaJQ4zqhSy4O8eT0hE6PyL9UZ8/F6Odux4f2hC
-         mXC05+tLY6GkYfMxmEiKEq//irS+s98+cfG3dd6mFgFlbKX3U7Y6DwIA5dAo0Sfu2H
-         imW8vlOwtaj+8MscDonWFPqRev0sBtHm4wkU2VRk=
+        b=R4/dWZBlnH384yTOZ9Q2k4grTr8RSMhjnlff6bXQlfJEzvrlCjWs55YBybGCZlZT0
+         UfphLQdB9WwrmWrjKAWZ5u+X+bQ8UrUUm9SlmpXWbHDZ4BOULJFu9CaAxk+yxobm8c
+         dq8r8j6dA9TGJEzHAdLbwHQmwSvpkGqJ9/9uT/Yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 114/157] selftests: rtnetlink: correct xfrm policy rule in kci_test_ipsec_offload
+Subject: [PATCH 5.15 096/123] gpio/rockchip: fix refcount leak in rockchip_gpiolib_register()
 Date:   Mon, 12 Dec 2022 14:17:42 +0100
-Message-Id: <20221212130939.430915768@linuxfoundation.org>
+Message-Id: <20221212130931.143260757@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 85a0506c073332a3057f5a9635fa0d4db5a8e03b ]
+[ Upstream commit 63ff545af73f759d1bd04198af8ed8577fb739fc ]
 
-When testing in kci_test_ipsec_offload, srcip is configured as $dstip,
-it should add xfrm policy rule in instead of out.
-The test result of this patch is as follows:
-PASS: ipsec_offload
+The node returned by of_get_parent() with refcount incremented,
+of_node_put() needs be called when finish using it. So add it in the
+end of of_pinctrl_get().
 
-Fixes: 2766a11161cc ("selftests: rtnetlink: add ipsec offload API test")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Acked-by: Hangbin Liu <liuhangbin@gmail.com>
-Link: https://lore.kernel.org/r/20221201082246.14131-1-shaozhengchao@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 936ee2675eee ("gpio/rockchip: add driver for rockchip gpio")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/rtnetlink.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpio-rockchip.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/net/rtnetlink.sh b/tools/testing/selftests/net/rtnetlink.sh
-index 0900c5438fbb..275491be3da2 100755
---- a/tools/testing/selftests/net/rtnetlink.sh
-+++ b/tools/testing/selftests/net/rtnetlink.sh
-@@ -782,7 +782,7 @@ kci_test_ipsec_offload()
- 	    tmpl proto esp src $srcip dst $dstip spi 9 \
- 	    mode transport reqid 42
- 	check_err $?
--	ip x p add dir out src $dstip/24 dst $srcip/24 \
-+	ip x p add dir in src $dstip/24 dst $srcip/24 \
- 	    tmpl proto esp src $dstip dst $srcip spi 9 \
- 	    mode transport reqid 42
- 	check_err $?
+diff --git a/drivers/gpio/gpio-rockchip.c b/drivers/gpio/gpio-rockchip.c
+index d32928c1efe0..a197f698efeb 100644
+--- a/drivers/gpio/gpio-rockchip.c
++++ b/drivers/gpio/gpio-rockchip.c
+@@ -605,6 +605,7 @@ static int rockchip_gpiolib_register(struct rockchip_pin_bank *bank)
+ 			return -ENODATA;
+ 
+ 		pctldev = of_pinctrl_get(pctlnp);
++		of_node_put(pctlnp);
+ 		if (!pctldev)
+ 			return -ENODEV;
+ 
 -- 
 2.35.1
 
