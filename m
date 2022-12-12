@@ -2,60 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B7A36497F8
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 03:39:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E69D3649813
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 03:51:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230462AbiLLCj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Dec 2022 21:39:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47544 "EHLO
+        id S230105AbiLLCvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Dec 2022 21:51:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230364AbiLLCj2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 21:39:28 -0500
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28DCEBC97;
-        Sun, 11 Dec 2022 18:39:27 -0800 (PST)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.54])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4NVm2Y4bt3zJpHK;
-        Mon, 12 Dec 2022 10:35:49 +0800 (CST)
-Received: from [10.67.110.173] (10.67.110.173) by
- dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.34; Mon, 12 Dec 2022 10:39:25 +0800
-Message-ID: <300eab0e-271f-7dac-615c-e8594e1cd4a4@huawei.com>
-Date:   Mon, 12 Dec 2022 10:39:25 +0800
+        with ESMTP id S229986AbiLLCvC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Dec 2022 21:51:02 -0500
+Received: from smtp-fw-6001.amazon.com (smtp-fw-6001.amazon.com [52.95.48.154])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E731F1
+        for <stable@vger.kernel.org>; Sun, 11 Dec 2022 18:51:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1670813462; x=1702349462;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=sK43VgClSpzo7F7Sn/tZAaOpo31XxLoO5fRxHQVXtiQ=;
+  b=DNXZUz/PsOR6EHUvTt78QO9Y3eKoNYncnCddmZTRVLH7PjvWZrDxqHxv
+   /gHllD+ZXkWX+2KLekQ5ViUezQ0aKODWPF8IjOCN7S+OhJzIlcjJ6V/w+
+   O4F6vmlOl1ZrKHQgvfOjNBuxxjUqQiPhaaouTHbURNUgyK00oa5T0y6VZ
+   o=;
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-iad-1a-m6i4x-617e30c2.us-east-1.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-6001.iad6.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Dec 2022 02:51:01 +0000
+Received: from EX13MTAUWB002.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-iad-1a-m6i4x-617e30c2.us-east-1.amazon.com (Postfix) with ESMTPS id 67AC96169A;
+        Mon, 12 Dec 2022 02:50:59 +0000 (UTC)
+Received: from EX19D001UWA002.ant.amazon.com (10.13.138.236) by
+ EX13MTAUWB002.ant.amazon.com (10.43.161.202) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.42; Mon, 12 Dec 2022 02:50:58 +0000
+Received: from u46989501580c5c.ant.amazon.com (10.43.162.134) by
+ EX19D001UWA002.ant.amazon.com (10.13.138.236) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.20;
+ Mon, 12 Dec 2022 02:50:56 +0000
+From:   Samuel Mendoza-Jonas <samjonas@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     <benh@amazon.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
+        "Mike Kravetz" <mike.kravetz@oracle.com>,
+        David Hildenbrand <david@redhat.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        "Samuel Mendoza-Jonas" <samjonas@amazon.com>
+Subject: [PATCH 5.10] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
+Date:   Sun, 11 Dec 2022 18:50:24 -0800
+Message-ID: <20221212025024.365490-1-samjonas@amazon.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.2
-Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     Mimi Zohar <zohar@linux.ibm.com>, <dmitry.kasatkin@gmail.com>,
-        Paul Moore <paul@paul-moore.com>, <sds@tycho.nsa.gov>,
-        <eparis@parisplace.org>, <sashal@kernel.org>,
-        <selinux@vger.kernel.org>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        <stable@vger.kernel.org>
-References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
- <Y5Lf8SRgyrqDJwiH@kroah.com>
- <93d137dc-e0d3-3741-7e01-dca1ba9c0903@huawei.com>
- <Y5L10fjvxmU3klRu@kroah.com>
- <58219c48-840d-b4f3-b195-82b2a1465b37@huawei.com>
- <Y5L5RZlOOd9RMeWw@kroah.com>
- <d69f9bd3-de1f-aa32-7c6b-30d909f724d0@huawei.com>
- <Y5L+Tpym6XRrZSLB@kroah.com>
- <8e409a81-dc00-f022-08fe-c1c26e9cf5e8@huawei.com>
- <415d44a2-33a1-c100-1ffc-ad6f1409afd8@huawei.com>
- <Y5MNi85uzgXIMxX2@kroah.com>
-From:   "Guozihua (Scott)" <guozihua@huawei.com>
-In-Reply-To: <Y5MNi85uzgXIMxX2@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.110.173]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpemm500024.china.huawei.com (7.185.36.203)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.43.162.134]
+X-ClientProxiedBy: EX13D32UWB002.ant.amazon.com (10.43.161.139) To
+ EX19D001UWA002.ant.amazon.com (10.13.138.236)
+X-Spam-Status: No, score=-11.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -63,84 +65,182 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022/12/9 18:27, Greg KH wrote:
-> On Fri, Dec 09, 2022 at 05:38:00PM +0800, Guozihua (Scott) wrote:
->> On 2022/12/9 17:32, Guozihua (Scott) wrote:
->>> On 2022/12/9 17:22, Greg KH wrote:
->>>> On Fri, Dec 09, 2022 at 05:11:40PM +0800, Guozihua (Scott) wrote:
->>>>> On 2022/12/9 17:00, Greg KH wrote:
->>>>>> On Fri, Dec 09, 2022 at 04:59:17PM +0800, Guozihua (Scott) wrote:
->>>>>>> On 2022/12/9 16:46, Greg KH wrote:
->>>>>>>> On Fri, Dec 09, 2022 at 03:53:25PM +0800, Guozihua (Scott) wrote:
->>>>>>>>> On 2022/12/9 15:12, Greg KH wrote:
->>>>>>>>>> On Fri, Dec 09, 2022 at 03:00:35PM +0800, Guozihua (Scott) wrote:
->>>>>>>>>>> Hi community.
->>>>>>>>>>>
->>>>>>>>>>> Previously our team reported a race condition in IMA relates to LSM based
->>>>>>>>>>> rules which would case IMA to match files that should be filtered out under
->>>>>>>>>>> normal condition. The issue was originally analyzed and fixed on mainstream.
->>>>>>>>>>> The patch and the discussion could be found here:
->>>>>>>>>>> https://lore.kernel.org/all/20220921125804.59490-1-guozihua@huawei.com/
->>>>>>>>>>>
->>>>>>>>>>> After that, we did a regression test on 4.19 LTS and the same issue arises.
->>>>>>>>>>> Further analysis reveled that the issue is from a completely different
->>>>>>>>>>> cause.
->>>>>>>>>>
->>>>>>>>>> What commit in the tree fixed this in newer kernels?  Why can't we just
->>>>>>>>>> backport that one to 4.19.y as well?
->>>>>>>>>>
->>>>>>>>>> thanks,
->>>>>>>>>>
->>>>>>>>>> greg k-h
->>>>>>>>>
->>>>>>>>> Hi Greg,
->>>>>>>>>
->>>>>>>>> The fix for mainline is now on linux-next, commit 	d57378d3aa4d ("ima:
->>>>>>>>> Simplify ima_lsm_copy_rule") and 	c7423dbdbc9ece ("ima: Handle -ESTALE
->>>>>>>>> returned by ima_filter_rule_match()"). However, these patches cannot be
->>>>>>>>> picked directly into 4.19.y due to code difference.
->>>>>>>>
->>>>>>>> Ok, so it's much more than just 4.19 that's an issue here.  And are
->>>>>>>> those commits tagged for stable inclusion?
->>>>>>>
->>>>>>> Not actually, not on the commit itself.
->>>>>>
->>>>>> That's not good.  When they hit Linus's tree, please submit backports to
->>>>>> the stable mailing list so that they can be picked up.
->>>>> Thing is these commits cannot be simply backported to 4.19.y. Preceding
->>>>> patches are missing. How do we do backporting in this situation? Do we
->>>>> first backport the preceding patches? Or maybe we develop another
->>>>> solution for 4.19.y?
->>>>
->>>> First they need to go to newer kernel trees, and then worry about 4.19.
->>>> We never want anyone to upgrade to a newer kernel and have a regression.
->>>>
->>>> Also, we can't do anything until they hit Linus's tree, as per the
->>>> stable kernel rules.
->>> Alright. We'll wait for these patches to be in Linus' tree. But should
->>> we stick to a backport from mainstream or we form a different solution
->>> for LTS?
-> 
-> We always want to have a normal backport of what is in Linus's tree if
-> at all possible.  Whenever we diverge from that, we almost always get it
-> wrong and have to fix it up again later.
-> 
->> BTW, I have a look into it and if we are backporting mainstream's
->> solution, we would also needs to backport b16942455193 ("ima: use the
->> lsm policy update notifier")
-> 
-> That's fine, please just send a patch series to the stable list when
-> needed.
-> 
-> thanks,
-> 
-> greg k-h
+From: Baolin Wang <baolin.wang@linux.alibaba.com>
 
-Thanks Greg.
+[ Upstream commit fac35ba763ed07ba93154c95ffc0c4a55023707f ]
 
-Any thought from Mimi?
+On some architectures (like ARM64), it can support CONT-PTE/PMD size
+hugetlb, which means it can support not only PMD/PUD size hugetlb (2M and
+1G), but also CONT-PTE/PMD size(64K and 32M) if a 4K page size specified.
 
+So when looking up a CONT-PTE size hugetlb page by follow_page(), it will
+use pte_offset_map_lock() to get the pte entry lock for the CONT-PTE size
+hugetlb in follow_page_pte().  However this pte entry lock is incorrect
+for the CONT-PTE size hugetlb, since we should use huge_pte_lock() to get
+the correct lock, which is mm->page_table_lock.
+
+That means the pte entry of the CONT-PTE size hugetlb under current pte
+lock is unstable in follow_page_pte(), we can continue to migrate or
+poison the pte entry of the CONT-PTE size hugetlb, which can cause some
+potential race issues, even though they are under the 'pte lock'.
+
+For example, suppose thread A is trying to look up a CONT-PTE size hugetlb
+page by move_pages() syscall under the lock, however antoher thread B can
+migrate the CONT-PTE hugetlb page at the same time, which will cause
+thread A to get an incorrect page, if thread A also wants to do page
+migration, then data inconsistency error occurs.
+
+Moreover we have the same issue for CONT-PMD size hugetlb in
+follow_huge_pmd().
+
+To fix above issues, rename the follow_huge_pmd() as follow_huge_pmd_pte()
+to handle PMD and PTE level size hugetlb, which uses huge_pte_lock() to
+get the correct pte entry lock to make the pte entry stable.
+
+Mike said:
+
+Support for CONT_PMD/_PTE was added with bb9dd3df8ee9 ("arm64: hugetlb:
+refactor find_num_contig()").  Patch series "Support for contiguous pte
+hugepages", v4.  However, I do not believe these code paths were
+executed until migration support was added with 5480280d3f2d ("arm64/mm:
+enable HugeTLB migration for contiguous bit HugeTLB pages") I would go
+with 5480280d3f2d for the Fixes: targe.
+
+Link: https://lkml.kernel.org/r/635f43bdd85ac2615a58405da82b4d33c6e5eb05.1662017562.git.baolin.wang@linux.alibaba.com
+Fixes: 5480280d3f2d ("arm64/mm: enable HugeTLB migration for contiguous bit HugeTLB pages")
+Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
+---
+This is basically a resend of the patch for 5.15 which also applies
+cleanly to 5.10:
+https://lore.kernel.org/stable/20221108133345.678847820@linuxfoundation.org/
+
+ include/linux/hugetlb.h |  8 ++++----
+ mm/gup.c                | 14 +++++++++++++-
+ mm/hugetlb.c            | 27 +++++++++++++--------------
+ 3 files changed, 30 insertions(+), 19 deletions(-)
+
+diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
+index b9fbb6d4150e..955b19dc28a8 100644
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -174,8 +174,8 @@ struct page *follow_huge_addr(struct mm_struct *mm, unsigned long address,
+ struct page *follow_huge_pd(struct vm_area_struct *vma,
+ 			    unsigned long address, hugepd_t hpd,
+ 			    int flags, int pdshift);
+-struct page *follow_huge_pmd(struct mm_struct *mm, unsigned long address,
+-				pmd_t *pmd, int flags);
++struct page *follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address,
++				 int flags);
+ struct page *follow_huge_pud(struct mm_struct *mm, unsigned long address,
+ 				pud_t *pud, int flags);
+ struct page *follow_huge_pgd(struct mm_struct *mm, unsigned long address,
+@@ -261,8 +261,8 @@ static inline struct page *follow_huge_pd(struct vm_area_struct *vma,
+ 	return NULL;
+ }
+ 
+-static inline struct page *follow_huge_pmd(struct mm_struct *mm,
+-				unsigned long address, pmd_t *pmd, int flags)
++static inline struct page *follow_huge_pmd_pte(struct vm_area_struct *vma,
++				unsigned long address, int flags)
+ {
+ 	return NULL;
+ }
+diff --git a/mm/gup.c b/mm/gup.c
+index b47c751df069..277d7fa22f4c 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -405,6 +405,18 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
+ 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
+ 			 (FOLL_PIN | FOLL_GET)))
+ 		return ERR_PTR(-EINVAL);
++
++	/*
++	 * Considering PTE level hugetlb, like continuous-PTE hugetlb on
++	 * ARM64 architecture.
++	 */
++	if (is_vm_hugetlb_page(vma)) {
++		page = follow_huge_pmd_pte(vma, address, flags);
++		if (page)
++			return page;
++		return no_page_table(vma, flags);
++	}
++
+ retry:
+ 	if (unlikely(pmd_bad(*pmd)))
+ 		return no_page_table(vma, flags);
+@@ -560,7 +572,7 @@ static struct page *follow_pmd_mask(struct vm_area_struct *vma,
+ 	if (pmd_none(pmdval))
+ 		return no_page_table(vma, flags);
+ 	if (pmd_huge(pmdval) && is_vm_hugetlb_page(vma)) {
+-		page = follow_huge_pmd(mm, address, pmd, flags);
++		page = follow_huge_pmd_pte(vma, address, flags);
+ 		if (page)
+ 			return page;
+ 		return no_page_table(vma, flags);
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index d8c63d79af20..3499b3803384 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5585,12 +5585,13 @@ follow_huge_pd(struct vm_area_struct *vma,
+ }
+ 
+ struct page * __weak
+-follow_huge_pmd(struct mm_struct *mm, unsigned long address,
+-		pmd_t *pmd, int flags)
++follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address, int flags)
+ {
++	struct hstate *h = hstate_vma(vma);
++	struct mm_struct *mm = vma->vm_mm;
+ 	struct page *page = NULL;
+ 	spinlock_t *ptl;
+-	pte_t pte;
++	pte_t *ptep, pte;
+ 
+ 	/* FOLL_GET and FOLL_PIN are mutually exclusive. */
+ 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
+@@ -5598,17 +5599,15 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
+ 		return NULL;
+ 
+ retry:
+-	ptl = pmd_lockptr(mm, pmd);
+-	spin_lock(ptl);
+-	/*
+-	 * make sure that the address range covered by this pmd is not
+-	 * unmapped from other threads.
+-	 */
+-	if (!pmd_huge(*pmd))
+-		goto out;
+-	pte = huge_ptep_get((pte_t *)pmd);
++	ptep = huge_pte_offset(mm, address, huge_page_size(h));
++	if (!ptep)
++		return NULL;
++
++	ptl = huge_pte_lock(h, mm, ptep);
++	pte = huge_ptep_get(ptep);
+ 	if (pte_present(pte)) {
+-		page = pmd_page(*pmd) + ((address & ~PMD_MASK) >> PAGE_SHIFT);
++		page = pte_page(pte) +
++			((address & ~huge_page_mask(h)) >> PAGE_SHIFT);
+ 		/*
+ 		 * try_grab_page() should always succeed here, because: a) we
+ 		 * hold the pmd (ptl) lock, and b) we've just checked that the
+@@ -5624,7 +5623,7 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
+ 	} else {
+ 		if (is_hugetlb_entry_migration(pte)) {
+ 			spin_unlock(ptl);
+-			__migration_entry_wait(mm, (pte_t *)pmd, ptl);
++			__migration_entry_wait(mm, ptep, ptl);
+ 			goto retry;
+ 		}
+ 		/*
 -- 
-Best
-GUO Zihua
+2.25.1
 
