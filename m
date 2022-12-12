@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE57664A044
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C976764A1B7
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232680AbiLLNWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:22:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49722 "EHLO
+        id S233007AbiLLNoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:44:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232604AbiLLNWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:22:41 -0500
+        with ESMTP id S232680AbiLLNny (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18403BE6
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:22:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30D9614008
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:43:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 46D3E61042
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:22:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B5A3C433F0;
-        Mon, 12 Dec 2022 13:22:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0D526108D
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:43:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91C37C433F0;
+        Mon, 12 Dec 2022 13:43:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851358;
-        bh=UgzsOoNph1AH3U5B23SYHXS42owLXmvP5aJ6/1ebZvM=;
+        s=korg; t=1670852620;
+        bh=SN12iZXKm/wrYxGWY0P1OYCW/zFNEBd+BH6g0jz/7KA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1rZaqHMhxf5q9ZqHsy8xamjb96AVCDOSS32XWl/p+BPzwcOoIjYCIBxPFvodrIJaW
-         WnJ/mwkcZ0bhcZxU1qtTLAc89a7QOOt5ElFQxrZHvkG529Fv4eI6yJDUIHWnbqT0aR
-         xPClD5WzzrWy6wFttb83X1w5ncyABvxScYor3/o4=
+        b=xCJiwLJWuU2TCcFjFMPHDVbHA/K+RxYM+MrcVpYL6l8tHt93K6fkxMuaO+uPdkfkn
+         IXUZXSkyYvmDYHo6gQzvC/pc/B6O0pJF+/dr3B9/FpFutg+5oKa8aqJ21kudMKqEB0
+         8oovakiBEP+f8M5FeJeZDqPAfKtQnjTOckIWZSk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Alexander Aring <aahringo@redhat.com>,
+        patches@lists.linux.dev, Hauke Mehrtens <hauke@hauke-m.de>,
         Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 45/67] mac802154: fix missing INIT_LIST_HEAD in ieee802154_if_add()
+Subject: [PATCH 6.0 092/157] ca8210: Fix crash by zero initializing data
 Date:   Mon, 12 Dec 2022 14:17:20 +0100
-Message-Id: <20221212130919.775833126@linuxfoundation.org>
+Message-Id: <20221212130938.510324597@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Hauke Mehrtens <hauke@hauke-m.de>
 
-[ Upstream commit b3d72d3135d2ef68296c1ee174436efd65386f04 ]
+[ Upstream commit 1e24c54da257ab93cff5826be8a793b014a5dc9c ]
 
-Kernel fault injection test reports null-ptr-deref as follows:
+The struct cas_control embeds multiple generic SPI structures and we
+have to make sure these structures are initialized to default values.
+This driver does not set all attributes. When using kmalloc before some
+attributes were not initialized and contained random data which caused
+random crashes at bootup.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000008
-RIP: 0010:cfg802154_netdev_notifier_call+0x120/0x310 include/linux/list.h:114
-Call Trace:
- <TASK>
- raw_notifier_call_chain+0x6d/0xa0 kernel/notifier.c:87
- call_netdevice_notifiers_info+0x6e/0xc0 net/core/dev.c:1944
- unregister_netdevice_many_notify+0x60d/0xcb0 net/core/dev.c:1982
- unregister_netdevice_queue+0x154/0x1a0 net/core/dev.c:10879
- register_netdevice+0x9a8/0xb90 net/core/dev.c:10083
- ieee802154_if_add+0x6ed/0x7e0 net/mac802154/iface.c:659
- ieee802154_register_hw+0x29c/0x330 net/mac802154/main.c:229
- mcr20a_probe+0xaaa/0xcb1 drivers/net/ieee802154/mcr20a.c:1316
-
-ieee802154_if_add() allocates wpan_dev as netdev's private data, but not
-init the list in struct wpan_dev. cfg802154_netdev_notifier_call() manage
-the list when device register/unregister, and may lead to null-ptr-deref.
-
-Use INIT_LIST_HEAD() on it to initialize it correctly.
-
-Fixes: fcf39e6e88e9 ("ieee802154: add wpan_dev_list")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-
-Link: https://lore.kernel.org/r/20221130091705.1831140-1-weiyongjun@huaweicloud.com
+Fixes: ded845a781a5 ("ieee802154: Add CA8210 IEEE 802.15.4 device driver")
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Link: https://lore.kernel.org/r/20221121002201.1339636-1-hauke@hauke-m.de
 Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac802154/iface.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ieee802154/ca8210.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac802154/iface.c b/net/mac802154/iface.c
-index 1cf5ac09edcb..a08240fe68a7 100644
---- a/net/mac802154/iface.c
-+++ b/net/mac802154/iface.c
-@@ -661,6 +661,7 @@ ieee802154_if_add(struct ieee802154_local *local, const char *name,
- 	sdata->dev = ndev;
- 	sdata->wpan_dev.wpan_phy = local->hw.phy;
- 	sdata->local = local;
-+	INIT_LIST_HEAD(&sdata->wpan_dev.list);
+diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
+index 450b16ad40a4..e1a569b99e4a 100644
+--- a/drivers/net/ieee802154/ca8210.c
++++ b/drivers/net/ieee802154/ca8210.c
+@@ -885,7 +885,7 @@ static int ca8210_spi_transfer(
  
- 	/* setup type-dependent data */
- 	ret = ieee802154_setup_sdata(sdata, type);
+ 	dev_dbg(&spi->dev, "%s called\n", __func__);
+ 
+-	cas_ctl = kmalloc(sizeof(*cas_ctl), GFP_ATOMIC);
++	cas_ctl = kzalloc(sizeof(*cas_ctl), GFP_ATOMIC);
+ 	if (!cas_ctl)
+ 		return -ENOMEM;
+ 
 -- 
 2.35.1
 
