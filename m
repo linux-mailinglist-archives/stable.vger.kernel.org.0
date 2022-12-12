@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF9264A031
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0378664A0C6
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:30:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232576AbiLLNWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:22:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49854 "EHLO
+        id S232054AbiLLNaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:30:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232645AbiLLNVs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:21:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18895C13
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:21:44 -0800 (PST)
+        with ESMTP id S231849AbiLLNaW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:30:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89003BED
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:30:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA2B460FF4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96601C433F0;
-        Mon, 12 Dec 2022 13:21:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 386A1B80D52
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:30:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 231D0C433D2;
+        Mon, 12 Dec 2022 13:30:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851303;
-        bh=sO1ed7ZnBP7kTwzCaWyFndvh/VR+YDPGV8JfbbOd36I=;
+        s=korg; t=1670851818;
+        bh=h43qkf0rKfY5QTvcqTT+0K5WneF+XEtifReMEzQkUTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ValIr+i0srxO13YMUVQNDLxGDLE3GIh4B+L5A/wzr9VR5oczjs8YBu1LuDGkdDtIi
-         ETQfmYrh/QsUGxQHb2TZPiBRXWbzBZJdfNbxKpnH+4j21oHjtbVPn//3+1QSlINNMu
-         S/Tii44/ik1HKw3NA4v7zM3l0lv+hUM/mQV6lY+w=
+        b=RSJYZ5569FT0YcVjUS+LlAOelelNcrx+FK7h2s8K9IiPu8mlXgZn8xZcF1ZUVzRRv
+         OF77X7+KUiqxVQaHJ5RfjiIJTAhgoPqo0S94bAusVwC0mWPCqmTEHH2u+Mf9GTNsIs
+         WYiX5UrBsgNFMrrj7Rrf+fVBqxrhWF3MA05gtBP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anastasia Belova <abelova@astralinux.ru>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 30/67] HID: hid-lg4ff: Add check for empty lbuf
+        patches@lists.linux.dev,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 059/123] clk: Fix pointer casting to prevent oops in devm_clk_release()
 Date:   Mon, 12 Dec 2022 14:17:05 +0100
-Message-Id: <20221212130919.068308994@linuxfoundation.org>
+Message-Id: <20221212130929.409587991@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anastasia Belova <abelova@astralinux.ru>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-commit d180b6496143cd360c5d5f58ae4b9a8229c1f344 upstream.
+[ Upstream commit 8b3d743fc9e2542822826890b482afabf0e7522a ]
 
-If an empty buf is received, lbuf is also empty. So lbuf is
-accessed by index -1.
+The release function is called with a pointer to the memory returned by
+devres_alloc(). I was confused about that by the code before the
+generalization that used a struct clk **ptr.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Fixes: f31a2de3fe36 ("HID: hid-lg4ff: Allow switching of Logitech gaming wheels between compatibility modes")
-Signed-off-by: Anastasia Belova <abelova@astralinux.ru>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Fixes: abae8e57e49a ("clk: generalize devm_clk_get() a bit")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20220620171815.114212-1-u.kleine-koenig@pengutronix.de
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-lg4ff.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/clk/clk-devres.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -872,6 +872,12 @@ static ssize_t lg4ff_alternate_modes_sto
- 		return -ENOMEM;
+diff --git a/drivers/clk/clk-devres.c b/drivers/clk/clk-devres.c
+index 43ccd20e0298..4fb4fd4b06bd 100644
+--- a/drivers/clk/clk-devres.c
++++ b/drivers/clk/clk-devres.c
+@@ -11,7 +11,7 @@ struct devm_clk_state {
  
- 	i = strlen(lbuf);
-+
-+	if (i == 0) {
-+		kfree(lbuf);
-+		return -EINVAL;
-+	}
-+
- 	if (lbuf[i-1] == '\n') {
- 		if (i == 1) {
- 			kfree(lbuf);
+ static void devm_clk_release(struct device *dev, void *res)
+ {
+-	struct devm_clk_state *state = *(struct devm_clk_state **)res;
++	struct devm_clk_state *state = res;
+ 
+ 	if (state->exit)
+ 		state->exit(state->clk);
+-- 
+2.35.1
+
 
 
