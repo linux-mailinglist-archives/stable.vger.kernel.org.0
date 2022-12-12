@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E57964A057
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:24:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3A9D64A1A8
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:43:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232686AbiLLNYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:24:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52492 "EHLO
+        id S232686AbiLLNnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:43:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232758AbiLLNXs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:23:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C73E13D00
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:23:46 -0800 (PST)
+        with ESMTP id S232682AbiLLNnc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08BB72AED
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:42:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9996B80D38
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:23:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF490C433D2;
-        Mon, 12 Dec 2022 13:23:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B56E5B8068B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:42:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBC66C433EF;
+        Mon, 12 Dec 2022 13:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851423;
-        bh=Jf782QR4+Fyh9k7vCzSN4DMD6kszyEWdoq+8HpG58NU=;
+        s=korg; t=1670852561;
+        bh=FOlDMt06XoIG6hzyKpVdV5/jUUhDcH1485pUK6O1QZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QLMq6mQVl+kITPlQckmLUofMCjZHSwNWwfCFfCIGH83FMjiJVmjLp0V9QXKt+If80
-         j7AzYciCZBxei5KRn9VO0dkilJHFK6AnvUERM+8iOQl9ClPnCBkzeEsM3FqCRfBku8
-         LvxugOUjkrv3D58XU7wX4PX1JiaPXEN47LKGwcs0=
+        b=HWrIl1Bm6s2qhsW3+UezbC31RnGQTYwDgQmRjsRbMtjvir5uxIxm1Qt+F06jpBiUu
+         DPX8RBx8qbfqyolX72PXbc3Mdw+OFeyDTzw2240wfHxNJwHEUwA3YmKo9XTS9hD8Q+
+         aZV+DrZZyL4Yab0QJPzZzaWwik8id2iPA1/rluTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 59/67] tipc: Fix potential OOB in tipc_link_proto_rcv()
+Subject: [PATCH 6.0 106/157] Bluetooth: 6LoWPAN: add missing hci_dev_put() in get_l2cap_conn()
 Date:   Mon, 12 Dec 2022 14:17:34 +0100
-Message-Id: <20221212130920.434661828@linuxfoundation.org>
+Message-Id: <20221212130939.101226237@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-[ Upstream commit 743117a997bbd4840e827295c07e59bcd7f7caa3 ]
+[ Upstream commit 747da1308bdd5021409974f9180f0d8ece53d142 ]
 
-Fix the potential risk of OOB if skb_linearize() fails in
-tipc_link_proto_rcv().
+hci_get_route() takes reference, we should use hci_dev_put() to release
+it when not need anymore.
 
-Fixes: 5cbb28a4bf65 ("tipc: linearize arriving NAME_DISTR and LINK_PROTO buffers")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20221203094635.29024-1-yuehaibing@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 6b8d4a6a0314 ("Bluetooth: 6LoWPAN: Use connected oriented channel instead of fixed one")
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/link.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/bluetooth/6lowpan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/tipc/link.c b/net/tipc/link.c
-index 8f2ee71c63c6..b653d16ab21f 100644
---- a/net/tipc/link.c
-+++ b/net/tipc/link.c
-@@ -1971,7 +1971,9 @@ static int tipc_link_proto_rcv(struct tipc_link *l, struct sk_buff *skb,
- 	if (tipc_own_addr(l->net) > msg_prevnode(hdr))
- 		l->net_plane = msg_net_plane(hdr);
+diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
+index 215af9b3b589..c57d643afb10 100644
+--- a/net/bluetooth/6lowpan.c
++++ b/net/bluetooth/6lowpan.c
+@@ -972,6 +972,7 @@ static int get_l2cap_conn(char *buf, bdaddr_t *addr, u8 *addr_type,
+ 	hci_dev_lock(hdev);
+ 	hcon = hci_conn_hash_lookup_le(hdev, addr, *addr_type);
+ 	hci_dev_unlock(hdev);
++	hci_dev_put(hdev);
  
--	skb_linearize(skb);
-+	if (skb_linearize(skb))
-+		goto exit;
-+
- 	hdr = buf_msg(skb);
- 	data = msg_data(hdr);
- 
+ 	if (!hcon)
+ 		return -ENOENT;
 -- 
 2.35.1
 
