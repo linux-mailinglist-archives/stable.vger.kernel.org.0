@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4D78649FD4
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:16:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 849D8649FD5
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:16:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231892AbiLLNP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:15:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40870 "EHLO
+        id S232095AbiLLNQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:16:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232535AbiLLNPa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:15:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B003812D2B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:15:06 -0800 (PST)
+        with ESMTP id S232160AbiLLNPn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:15:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCF90101C4
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:15:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 440C260FF4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:15:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 338F9C433EF;
-        Mon, 12 Dec 2022 13:15:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 945B8B80D39
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:15:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81B53C433D2;
+        Mon, 12 Dec 2022 13:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670850905;
-        bh=Vwp/oLq31Y5vgsBBsBLxRqVmxG2uRJU/ABT54o/FevE=;
+        s=korg; t=1670850909;
+        bh=GDyWdWueCO8Xt9ZsLM/FKGY3RA6Joz0fbZJpSS/iCPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MkmI/qeHaQUDbwqUZYLniw6oHwiZB66sm+6KlDhWrlA40UM7h9Ddw5q1M1HkteSrt
-         dygoBMuIUuikOnjIpjpFTGqE2j83IENNK9PISBbid/zKgCHWNqMFfyuixHHtiPgcm4
-         dcadNQT5zJ0znv+0AwKxVHrBdP/UTfg9PjksBeoE=
+        b=1vpC690FNLSEeFcO1vOjleP4kngcbneb1XheZgtyfDNLNUArjfYI43xCGGeIlcOh0
+         T8+fksjwTEm9eRJzLGv0B4W+gs73y6sgKfyDGbPDvCY81dGQk78dwY254vfxETYxvr
+         eiOOZZj9ywb6icvKbMkoO9p0DonU5Qcsy+3ulhVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        David Hildenbrand <david@redhat.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Samuel Mendoza-Jonas <samjonas@amazon.com>
-Subject: [PATCH 5.10 060/106] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
-Date:   Mon, 12 Dec 2022 14:10:03 +0100
-Message-Id: <20221212130927.502830541@linuxfoundation.org>
+        patches@lists.linux.dev, Chris Wilson <chris@chris-wilson.co.uk>,
+        Xiaofei Tan <tanxiaofei@huawei.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 061/106] rtc: cmos: Disable irq around direct invocation of cmos_interrupt()
+Date:   Mon, 12 Dec 2022 14:10:04 +0100
+Message-Id: <20221212130927.545168761@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -58,172 +56,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit fac35ba763ed07ba93154c95ffc0c4a55023707f upstream.
+[ Upstream commit 13be2efc390acd2a46a69a359f6efc00ca434599 ]
 
-On some architectures (like ARM64), it can support CONT-PTE/PMD size
-hugetlb, which means it can support not only PMD/PUD size hugetlb (2M and
-1G), but also CONT-PTE/PMD size(64K and 32M) if a 4K page size specified.
+As previously noted in commit 66e4f4a9cc38 ("rtc: cmos: Use
+spin_lock_irqsave() in cmos_interrupt()"):
 
-So when looking up a CONT-PTE size hugetlb page by follow_page(), it will
-use pte_offset_map_lock() to get the pte entry lock for the CONT-PTE size
-hugetlb in follow_page_pte().  However this pte entry lock is incorrect
-for the CONT-PTE size hugetlb, since we should use huge_pte_lock() to get
-the correct lock, which is mm->page_table_lock.
+<4>[  254.192378] WARNING: inconsistent lock state
+<4>[  254.192384] 5.12.0-rc1-CI-CI_DRM_9834+ #1 Not tainted
+<4>[  254.192396] --------------------------------
+<4>[  254.192400] inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
+<4>[  254.192409] rtcwake/5309 [HC0[0]:SC0[0]:HE1:SE1] takes:
+<4>[  254.192429] ffffffff8263c5f8 (rtc_lock){?...}-{2:2}, at: cmos_interrupt+0x18/0x100
+<4>[  254.192481] {IN-HARDIRQ-W} state was registered at:
+<4>[  254.192488]   lock_acquire+0xd1/0x3d0
+<4>[  254.192504]   _raw_spin_lock+0x2a/0x40
+<4>[  254.192519]   cmos_interrupt+0x18/0x100
+<4>[  254.192536]   rtc_handler+0x1f/0xc0
+<4>[  254.192553]   acpi_ev_fixed_event_detect+0x109/0x13c
+<4>[  254.192574]   acpi_ev_sci_xrupt_handler+0xb/0x28
+<4>[  254.192596]   acpi_irq+0x13/0x30
+<4>[  254.192620]   __handle_irq_event_percpu+0x43/0x2c0
+<4>[  254.192641]   handle_irq_event_percpu+0x2b/0x70
+<4>[  254.192661]   handle_irq_event+0x2f/0x50
+<4>[  254.192680]   handle_fasteoi_irq+0x9e/0x150
+<4>[  254.192693]   __common_interrupt+0x76/0x140
+<4>[  254.192715]   common_interrupt+0x96/0xc0
+<4>[  254.192732]   asm_common_interrupt+0x1e/0x40
+<4>[  254.192750]   _raw_spin_unlock_irqrestore+0x38/0x60
+<4>[  254.192767]   resume_irqs+0xba/0xf0
+<4>[  254.192786]   dpm_resume_noirq+0x245/0x3d0
+<4>[  254.192811]   suspend_devices_and_enter+0x230/0xaa0
+<4>[  254.192835]   pm_suspend.cold.8+0x301/0x34a
+<4>[  254.192859]   state_store+0x7b/0xe0
+<4>[  254.192879]   kernfs_fop_write_iter+0x11d/0x1c0
+<4>[  254.192899]   new_sync_write+0x11d/0x1b0
+<4>[  254.192916]   vfs_write+0x265/0x390
+<4>[  254.192933]   ksys_write+0x5a/0xd0
+<4>[  254.192949]   do_syscall_64+0x33/0x80
+<4>[  254.192965]   entry_SYSCALL_64_after_hwframe+0x44/0xae
+<4>[  254.192986] irq event stamp: 43775
+<4>[  254.192994] hardirqs last  enabled at (43775): [<ffffffff81c00c42>] asm_sysvec_apic_timer_interrupt+0x12/0x20
+<4>[  254.193023] hardirqs last disabled at (43774): [<ffffffff81aa691a>] sysvec_apic_timer_interrupt+0xa/0xb0
+<4>[  254.193049] softirqs last  enabled at (42548): [<ffffffff81e00342>] __do_softirq+0x342/0x48e
+<4>[  254.193074] softirqs last disabled at (42543): [<ffffffff810b45fd>] irq_exit_rcu+0xad/0xd0
+<4>[  254.193101]
+                  other info that might help us debug this:
+<4>[  254.193107]  Possible unsafe locking scenario:
 
-That means the pte entry of the CONT-PTE size hugetlb under current pte
-lock is unstable in follow_page_pte(), we can continue to migrate or
-poison the pte entry of the CONT-PTE size hugetlb, which can cause some
-potential race issues, even though they are under the 'pte lock'.
+<4>[  254.193112]        CPU0
+<4>[  254.193117]        ----
+<4>[  254.193121]   lock(rtc_lock);
+<4>[  254.193137]   <Interrupt>
+<4>[  254.193142]     lock(rtc_lock);
+<4>[  254.193156]
+                   *** DEADLOCK ***
 
-For example, suppose thread A is trying to look up a CONT-PTE size hugetlb
-page by move_pages() syscall under the lock, however antoher thread B can
-migrate the CONT-PTE hugetlb page at the same time, which will cause
-thread A to get an incorrect page, if thread A also wants to do page
-migration, then data inconsistency error occurs.
+<4>[  254.193161] 6 locks held by rtcwake/5309:
+<4>[  254.193174]  #0: ffff888104861430 (sb_writers#5){.+.+}-{0:0}, at: ksys_write+0x5a/0xd0
+<4>[  254.193232]  #1: ffff88810f823288 (&of->mutex){+.+.}-{3:3}, at: kernfs_fop_write_iter+0xe7/0x1c0
+<4>[  254.193282]  #2: ffff888100cef3c0 (kn->active#285
+<7>[  254.192706] i915 0000:00:02.0: [drm:intel_modeset_setup_hw_state [i915]] [CRTC:51:pipe A] hw state readout: disabled
+<4>[  254.193307] ){.+.+}-{0:0}, at: kernfs_fop_write_iter+0xf0/0x1c0
+<4>[  254.193333]  #3: ffffffff82649fa8 (system_transition_mutex){+.+.}-{3:3}, at: pm_suspend.cold.8+0xce/0x34a
+<4>[  254.193387]  #4: ffffffff827a2108 (acpi_scan_lock){+.+.}-{3:3}, at: acpi_suspend_begin+0x47/0x70
+<4>[  254.193433]  #5: ffff8881019ea178 (&dev->mutex){....}-{3:3}, at: device_resume+0x68/0x1e0
+<4>[  254.193485]
+                  stack backtrace:
+<4>[  254.193492] CPU: 1 PID: 5309 Comm: rtcwake Not tainted 5.12.0-rc1-CI-CI_DRM_9834+ #1
+<4>[  254.193514] Hardware name: Google Soraka/Soraka, BIOS MrChromebox-4.10 08/25/2019
+<4>[  254.193524] Call Trace:
+<4>[  254.193536]  dump_stack+0x7f/0xad
+<4>[  254.193567]  mark_lock.part.47+0x8ca/0xce0
+<4>[  254.193604]  __lock_acquire+0x39b/0x2590
+<4>[  254.193626]  ? asm_sysvec_apic_timer_interrupt+0x12/0x20
+<4>[  254.193660]  lock_acquire+0xd1/0x3d0
+<4>[  254.193677]  ? cmos_interrupt+0x18/0x100
+<4>[  254.193716]  _raw_spin_lock+0x2a/0x40
+<4>[  254.193735]  ? cmos_interrupt+0x18/0x100
+<4>[  254.193758]  cmos_interrupt+0x18/0x100
+<4>[  254.193785]  cmos_resume+0x2ac/0x2d0
+<4>[  254.193813]  ? acpi_pm_set_device_wakeup+0x1f/0x110
+<4>[  254.193842]  ? pnp_bus_suspend+0x10/0x10
+<4>[  254.193864]  pnp_bus_resume+0x5e/0x90
+<4>[  254.193885]  dpm_run_callback+0x5f/0x240
+<4>[  254.193914]  device_resume+0xb2/0x1e0
+<4>[  254.193942]  ? pm_dev_err+0x25/0x25
+<4>[  254.193974]  dpm_resume+0xea/0x3f0
+<4>[  254.194005]  dpm_resume_end+0x8/0x10
+<4>[  254.194030]  suspend_devices_and_enter+0x29b/0xaa0
+<4>[  254.194066]  pm_suspend.cold.8+0x301/0x34a
+<4>[  254.194094]  state_store+0x7b/0xe0
+<4>[  254.194124]  kernfs_fop_write_iter+0x11d/0x1c0
+<4>[  254.194151]  new_sync_write+0x11d/0x1b0
+<4>[  254.194183]  vfs_write+0x265/0x390
+<4>[  254.194207]  ksys_write+0x5a/0xd0
+<4>[  254.194232]  do_syscall_64+0x33/0x80
+<4>[  254.194251]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+<4>[  254.194274] RIP: 0033:0x7f07d79691e7
+<4>[  254.194293] Code: 64 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
+<4>[  254.194312] RSP: 002b:00007ffd9cc2c768 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+<4>[  254.194337] RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 00007f07d79691e7
+<4>[  254.194352] RDX: 0000000000000004 RSI: 0000556ebfc63590 RDI: 000000000000000b
+<4>[  254.194366] RBP: 0000556ebfc63590 R08: 0000000000000000 R09: 0000000000000004
+<4>[  254.194379] R10: 0000556ebf0ec2a6 R11: 0000000000000246 R12: 0000000000000004
 
-Moreover we have the same issue for CONT-PMD size hugetlb in
-follow_huge_pmd().
+which breaks S3-resume on fi-kbl-soraka presumably as that's slow enough
+to trigger the alarm during the suspend.
 
-To fix above issues, rename the follow_huge_pmd() as follow_huge_pmd_pte()
-to handle PMD and PTE level size hugetlb, which uses huge_pte_lock() to
-get the correct pte entry lock to make the pte entry stable.
-
-Mike said:
-
-Support for CONT_PMD/_PTE was added with bb9dd3df8ee9 ("arm64: hugetlb:
-refactor find_num_contig()").  Patch series "Support for contiguous pte
-hugepages", v4.  However, I do not believe these code paths were
-executed until migration support was added with 5480280d3f2d ("arm64/mm:
-enable HugeTLB migration for contiguous bit HugeTLB pages") I would go
-with 5480280d3f2d for the Fixes: targe.
-
-Link: https://lkml.kernel.org/r/635f43bdd85ac2615a58405da82b4d33c6e5eb05.1662017562.git.baolin.wang@linux.alibaba.com
-Fixes: 5480280d3f2d ("arm64/mm: enable HugeTLB migration for contiguous bit HugeTLB pages")
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 6950d046eb6e ("rtc: cmos: Replace spin_lock_irqsave with spin_lock in hard IRQ")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Xiaofei Tan <tanxiaofei@huawei.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210305122140.28774-1-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/hugetlb.h |    8 ++++----
- mm/gup.c                |   14 +++++++++++++-
- mm/hugetlb.c            |   27 +++++++++++++--------------
- 3 files changed, 30 insertions(+), 19 deletions(-)
+ drivers/rtc/rtc-cmos.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -174,8 +174,8 @@ struct page *follow_huge_addr(struct mm_
- struct page *follow_huge_pd(struct vm_area_struct *vma,
- 			    unsigned long address, hugepd_t hpd,
- 			    int flags, int pdshift);
--struct page *follow_huge_pmd(struct mm_struct *mm, unsigned long address,
--				pmd_t *pmd, int flags);
-+struct page *follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address,
-+				 int flags);
- struct page *follow_huge_pud(struct mm_struct *mm, unsigned long address,
- 				pud_t *pud, int flags);
- struct page *follow_huge_pgd(struct mm_struct *mm, unsigned long address,
-@@ -261,8 +261,8 @@ static inline struct page *follow_huge_p
- 	return NULL;
- }
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 21f2bdd025b6..d4f6c4dd42c4 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1111,7 +1111,9 @@ static void cmos_check_wkalrm(struct device *dev)
+ 	 * ACK the rtc irq here
+ 	 */
+ 	if (t_now >= cmos->alarm_expires && cmos_use_acpi_alarm()) {
++		local_irq_disable();
+ 		cmos_interrupt(0, (void *)cmos->rtc);
++		local_irq_enable();
+ 		return;
+ 	}
  
--static inline struct page *follow_huge_pmd(struct mm_struct *mm,
--				unsigned long address, pmd_t *pmd, int flags)
-+static inline struct page *follow_huge_pmd_pte(struct vm_area_struct *vma,
-+				unsigned long address, int flags)
- {
- 	return NULL;
- }
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -405,6 +405,18 @@ static struct page *follow_page_pte(stru
- 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
- 			 (FOLL_PIN | FOLL_GET)))
- 		return ERR_PTR(-EINVAL);
-+
-+	/*
-+	 * Considering PTE level hugetlb, like continuous-PTE hugetlb on
-+	 * ARM64 architecture.
-+	 */
-+	if (is_vm_hugetlb_page(vma)) {
-+		page = follow_huge_pmd_pte(vma, address, flags);
-+		if (page)
-+			return page;
-+		return no_page_table(vma, flags);
-+	}
-+
- retry:
- 	if (unlikely(pmd_bad(*pmd)))
- 		return no_page_table(vma, flags);
-@@ -560,7 +572,7 @@ static struct page *follow_pmd_mask(stru
- 	if (pmd_none(pmdval))
- 		return no_page_table(vma, flags);
- 	if (pmd_huge(pmdval) && is_vm_hugetlb_page(vma)) {
--		page = follow_huge_pmd(mm, address, pmd, flags);
-+		page = follow_huge_pmd_pte(vma, address, flags);
- 		if (page)
- 			return page;
- 		return no_page_table(vma, flags);
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5585,12 +5585,13 @@ follow_huge_pd(struct vm_area_struct *vm
- }
- 
- struct page * __weak
--follow_huge_pmd(struct mm_struct *mm, unsigned long address,
--		pmd_t *pmd, int flags)
-+follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address, int flags)
- {
-+	struct hstate *h = hstate_vma(vma);
-+	struct mm_struct *mm = vma->vm_mm;
- 	struct page *page = NULL;
- 	spinlock_t *ptl;
--	pte_t pte;
-+	pte_t *ptep, pte;
- 
- 	/* FOLL_GET and FOLL_PIN are mutually exclusive. */
- 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
-@@ -5598,17 +5599,15 @@ follow_huge_pmd(struct mm_struct *mm, un
- 		return NULL;
- 
- retry:
--	ptl = pmd_lockptr(mm, pmd);
--	spin_lock(ptl);
--	/*
--	 * make sure that the address range covered by this pmd is not
--	 * unmapped from other threads.
--	 */
--	if (!pmd_huge(*pmd))
--		goto out;
--	pte = huge_ptep_get((pte_t *)pmd);
-+	ptep = huge_pte_offset(mm, address, huge_page_size(h));
-+	if (!ptep)
-+		return NULL;
-+
-+	ptl = huge_pte_lock(h, mm, ptep);
-+	pte = huge_ptep_get(ptep);
- 	if (pte_present(pte)) {
--		page = pmd_page(*pmd) + ((address & ~PMD_MASK) >> PAGE_SHIFT);
-+		page = pte_page(pte) +
-+			((address & ~huge_page_mask(h)) >> PAGE_SHIFT);
- 		/*
- 		 * try_grab_page() should always succeed here, because: a) we
- 		 * hold the pmd (ptl) lock, and b) we've just checked that the
-@@ -5624,7 +5623,7 @@ retry:
- 	} else {
- 		if (is_hugetlb_entry_migration(pte)) {
- 			spin_unlock(ptl);
--			__migration_entry_wait(mm, (pte_t *)pmd, ptl);
-+			__migration_entry_wait(mm, ptep, ptl);
- 			goto retry;
- 		}
- 		/*
+-- 
+2.35.1
+
 
 
