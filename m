@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 481C164A0AE
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1019864A0AF
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:29:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232790AbiLLN2y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:28:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56814 "EHLO
+        id S232739AbiLLN27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:28:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232663AbiLLN2b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:28:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 669FBB0C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:28:30 -0800 (PST)
+        with ESMTP id S232753AbiLLN2g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:28:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D34DB21
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:28:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1ACECB80D50
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:28:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E02B6C433EF;
-        Mon, 12 Dec 2022 13:28:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D10E460FF4
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:28:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48C6DC433D2;
+        Mon, 12 Dec 2022 13:28:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851707;
-        bh=Q+CG1lm+uTXz204pwl1mt6bYP7/jIYL8mmCRhTsRit0=;
+        s=korg; t=1670851713;
+        bh=+zW7k6DhSVAqnJgXXMPSvgSjli2BcBbecpJ0YBpYa3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTGTmScj8Nhu7lPZk96vG4hgHUXuL+UGVaZshl7m+5CdllwV0Ngp0fQv7L5D2m0mq
-         v7/rB6SG608f8YymMmvM177P6H980rcGkni+DIJjvlFFpv+zPAja7+rx7ZSrrGLY2z
-         3hDG6TFwIZPdFv4i+DoFE6CC3Q7AqUZtOHPke1xw=
+        b=OlS+yxsC/1Sy8UV2FT5+PfmdGkPXUwwC/zzkROOecGadltbA+9ywy0iApa0W3pQh1
+         tqmDiw877jLFeaqoGNvAwRagbSYZDrjvLol4KGx8lgGM/IxVBFcCanrz/iOKzGmXwm
+         Ews4xtpkljmH/xUPuK6XVag4anU12b2OjMe3xe7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Radu Nicolae Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 053/123] net: dsa: sja1105: avoid out of bounds access in sja1105_init_l2_policing()
-Date:   Mon, 12 Dec 2022 14:16:59 +0100
-Message-Id: <20221212130929.154304549@linuxfoundation.org>
+        patches@lists.linux.dev, Ankit Patel <anpatel@nvidia.com>,
+        Haotien Hsu <haotienh@nvidia.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.15 054/123] HID: usbhid: Add ALWAYS_POLL quirk for some mice
+Date:   Mon, 12 Dec 2022 14:17:00 +0100
+Message-Id: <20221212130929.196310051@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
 References: <20221212130926.811961601@linuxfoundation.org>
@@ -47,89 +46,86 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75 autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radu Nicolae Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
+From: Ankit Patel <anpatel@nvidia.com>
 
-commit f8bac7f9fdb0017b32157957ffffd490f95faa07 upstream.
+commit f6d910a89a2391e5ce1f275d205023880a33d3f8 upstream.
 
-The SJA1105 family has 45 L2 policing table entries
-(SJA1105_MAX_L2_POLICING_COUNT) and SJA1110 has 110
-(SJA1110_MAX_L2_POLICING_COUNT). Keeping the table structure but
-accounting for the difference in port count (5 in SJA1105 vs 10 in
-SJA1110) does not fully explain the difference. Rather, the SJA1110 also
-has L2 ingress policers for multicast traffic. If a packet is classified
-as multicast, it will be processed by the policer index 99 + SRCPORT.
+Some additional USB mouse devices are needing ALWAYS_POLL quirk without
+which they disconnect and reconnect every 60s.
 
-The sja1105_init_l2_policing() function initializes all L2 policers such
-that they don't interfere with normal packet reception by default. To have
-a common code between SJA1105 and SJA1110, the index of the multicast
-policer for the port is calculated because it's an index that is out of
-bounds for SJA1105 but in bounds for SJA1110, and a bounds check is
-performed.
+Add below devices to the known quirk list.
+CHERRY    VID 0x046a, PID 0x000c
+MICROSOFT VID 0x045e, PID 0x0783
+PRIMAX    VID 0x0461, PID 0x4e2a
 
-The code fails to do the proper thing when determining what to do with the
-multicast policer of port 0 on SJA1105 (ds->num_ports = 5). The "mcast"
-index will be equal to 45, which is also equal to
-table->ops->max_entry_count (SJA1105_MAX_L2_POLICING_COUNT). So it passes
-through the check. But at the same time, SJA1105 doesn't have multicast
-policers. So the code programs the SHARINDX field of an out-of-bounds
-element in the L2 Policing table of the static config.
-
-The comparison between index 45 and 45 entries should have determined the
-code to not access this policer index on SJA1105, since its memory wasn't
-even allocated.
-
-With enough bad luck, the out-of-bounds write could even overwrite other
-valid kernel data, but in this case, the issue was detected using KASAN.
-
-Kernel log:
-
-sja1105 spi5.0: Probed switch chip: SJA1105Q
-==================================================================
-BUG: KASAN: slab-out-of-bounds in sja1105_setup+0x1cbc/0x2340
-Write of size 8 at addr ffffff880bd57708 by task kworker/u8:0/8
-...
-Workqueue: events_unbound deferred_probe_work_func
-Call trace:
-...
-sja1105_setup+0x1cbc/0x2340
-dsa_register_switch+0x1284/0x18d0
-sja1105_probe+0x748/0x840
-...
-Allocated by task 8:
-...
-sja1105_setup+0x1bcc/0x2340
-dsa_register_switch+0x1284/0x18d0
-sja1105_probe+0x748/0x840
-...
-
-Fixes: 38fbe91f2287 ("net: dsa: sja1105: configure the multicast policers, if present")
-CC: stable@vger.kernel.org # 5.15+
-Signed-off-by: Radu Nicolae Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20221207132347.38698-1-radu-nicolae.pirea@oss.nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Ankit Patel <anpatel@nvidia.com>
+Signed-off-by: Haotien Hsu <haotienh@nvidia.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/sja1105/sja1105_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-ids.h    |    3 +++
+ drivers/hid/hid-quirks.c |    3 +++
+ 2 files changed, 6 insertions(+)
 
---- a/drivers/net/dsa/sja1105/sja1105_main.c
-+++ b/drivers/net/dsa/sja1105/sja1105_main.c
-@@ -1025,7 +1025,7 @@ static int sja1105_init_l2_policing(stru
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -261,6 +261,7 @@
+ #define USB_DEVICE_ID_CH_AXIS_295	0x001c
  
- 		policing[bcast].sharindx = port;
- 		/* Only SJA1110 has multicast policers */
--		if (mcast <= table->ops->max_entry_count)
-+		if (mcast < table->ops->max_entry_count)
- 			policing[mcast].sharindx = port;
- 	}
+ #define USB_VENDOR_ID_CHERRY		0x046a
++#define USB_DEVICE_ID_CHERRY_MOUSE_000C	0x000c
+ #define USB_DEVICE_ID_CHERRY_CYMOTION	0x0023
+ #define USB_DEVICE_ID_CHERRY_CYMOTION_SOLAR	0x0027
  
+@@ -892,6 +893,7 @@
+ #define USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER	0x02fd
+ #define USB_DEVICE_ID_MS_PIXART_MOUSE    0x00cb
+ #define USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS      0x02e0
++#define USB_DEVICE_ID_MS_MOUSE_0783      0x0783
+ 
+ #define USB_VENDOR_ID_MOJO		0x8282
+ #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
+@@ -1338,6 +1340,7 @@
+ 
+ #define USB_VENDOR_ID_PRIMAX	0x0461
+ #define USB_DEVICE_ID_PRIMAX_MOUSE_4D22	0x4d22
++#define USB_DEVICE_ID_PRIMAX_MOUSE_4E2A	0x4e2a
+ #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
+ #define USB_DEVICE_ID_PRIMAX_REZEL	0x4e72
+ #define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F	0x4d0f
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -54,6 +54,7 @@ static const struct hid_device_id hid_qu
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_THROTTLE), HID_QUIRK_NOGET },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_MOUSE_000C), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K65RGB), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K65RGB_RAPIDFIRE), HID_QUIRK_NO_INIT_REPORTS | HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K70RGB), HID_QUIRK_NO_INIT_REPORTS },
+@@ -122,6 +123,7 @@ static const struct hid_device_id hid_qu
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C05A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C06A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MCS, USB_DEVICE_ID_MCS_GAMEPADBLOCK), HID_QUIRK_MULTI_INPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_MOUSE_0783), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PIXART_MOUSE), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_SURFACE3_COVER), HID_QUIRK_NO_INIT_REPORTS },
+@@ -146,6 +148,7 @@ static const struct hid_device_id hid_qu
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_MOUSE_4D22), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_MOUSE_4E2A), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D65), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4E22), HID_QUIRK_ALWAYS_POLL },
 
 
