@@ -2,47 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF7C964A235
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:51:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D726264A255
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233064AbiLLNvW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:51:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48466 "EHLO
+        id S233085AbiLLNxg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:53:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233101AbiLLNu7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:50:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 677FA15FC9
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:50:12 -0800 (PST)
+        with ESMTP id S233183AbiLLNxM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12B20F6F
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:52:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D1B4B80D50
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:50:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1935AC433F0;
-        Mon, 12 Dec 2022 13:50:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B99D9B80B78
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:52:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7472C433EF;
+        Mon, 12 Dec 2022 13:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853009;
-        bh=32GjUSZO50TOChG3Q65SYtHR5kPbYpCnzVf68che8L0=;
+        s=korg; t=1670853126;
+        bh=dvfeBtwxbK3P92ofpdcC0XE1p8Nvf2CYCqEjb90y0+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8AeolKtI7m1Gx0q/FV5RJ0QuAjE7rpTvlwOvEBBIMxUbLZLc0iU1SRYhnjIu07ka
-         N60Myg4gs1+VDxXWXCEAoq6V4sqOiPHfc7TBrJOYKrsx0H/0hk8wkrc/OG12VBLtGj
-         mdgVNGxqL5FozGeTw71S8wmWa2q1KvI99wd53FZo=
+        b=fkSZ5tzAOr3k8Y/KnUVtc4sBFMydMG/uQKi6dkzyXZeGrSABwUzPgYuw1lap+zyxj
+         xJVFcZx8rqfO/FaQQ89QfnAYAcprIu88JJafzSVjl9+NgzuxFKh5VxRlQWP6mFzeck
+         b1i7ViZZegpt13lAQyrYafiKULUsm0b7Elcu5HlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+210e196cef4711b65139@syzkaller.appspotmail.com,
-        Kees Cook <keescook@chromium.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/49] NFC: nci: Bounds check struct nfc_target arrays
+        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
+        Jann Horn <jannh@google.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.14 15/38] memcg: fix possible use-after-free in memcg_write_event_control()
 Date:   Mon, 12 Dec 2022 14:19:16 +0100
-Message-Id: <20221212130915.555054531@linuxfoundation.org>
+Message-Id: <20221212130912.879969541@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
-References: <20221212130913.666185567@linuxfoundation.org>
+In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
+References: <20221212130912.069170932@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,62 +59,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit e329e71013c9b5a4535b099208493c7826ee4a64 ]
+commit 4a7ba45b1a435e7097ca0f79a847d0949d0eb088 upstream.
 
-While running under CONFIG_FORTIFY_SOURCE=y, syzkaller reported:
+memcg_write_event_control() accesses the dentry->d_name of the specified
+control fd to route the write call.  As a cgroup interface file can't be
+renamed, it's safe to access d_name as long as the specified file is a
+regular cgroup file.  Also, as these cgroup interface files can't be
+removed before the directory, it's safe to access the parent too.
 
-  memcpy: detected field-spanning write (size 129) of single field "target->sensf_res" at net/nfc/nci/ntf.c:260 (size 18)
+Prior to 347c4a874710 ("memcg: remove cgroup_event->cft"), there was a
+call to __file_cft() which verified that the specified file is a regular
+cgroupfs file before further accesses.  The cftype pointer returned from
+__file_cft() was no longer necessary and the commit inadvertently dropped
+the file type check with it allowing any file to slip through.  With the
+invarients broken, the d_name and parent accesses can now race against
+renames and removals of arbitrary files and cause use-after-free's.
 
-This appears to be a legitimate lack of bounds checking in
-nci_add_new_protocol(). Add the missing checks.
+Fix the bug by resurrecting the file type check in __file_cft().  Now that
+cgroupfs is implemented through kernfs, checking the file operations needs
+to go through a layer of indirection.  Instead, let's check the superblock
+and dentry type.
 
-Reported-by: syzbot+210e196cef4711b65139@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/lkml/0000000000001c590f05ee7b3ff4@google.com
-Fixes: 019c4fbaa790 ("NFC: Add NCI multiple targets support")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20221202214410.never.693-kees@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/Y5FRm/cfcKPGzWwl@slm.duckdns.org
+Fixes: 347c4a874710 ("memcg: remove cgroup_event->cft")
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Jann Horn <jannh@google.com>
+Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>	[3.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/nci/ntf.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/linux/cgroup.h          |    1 +
+ kernel/cgroup/cgroup-internal.h |    1 -
+ mm/memcontrol.c                 |   15 +++++++++++++--
+ 3 files changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/net/nfc/nci/ntf.c b/net/nfc/nci/ntf.c
-index 1e8c1a12aaec..4f75453c07aa 100644
---- a/net/nfc/nci/ntf.c
-+++ b/net/nfc/nci/ntf.c
-@@ -230,6 +230,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
- 		target->sens_res = nfca_poll->sens_res;
- 		target->sel_res = nfca_poll->sel_res;
- 		target->nfcid1_len = nfca_poll->nfcid1_len;
-+		if (target->nfcid1_len > ARRAY_SIZE(target->nfcid1))
-+			return -EPROTO;
- 		if (target->nfcid1_len > 0) {
- 			memcpy(target->nfcid1, nfca_poll->nfcid1,
- 			       target->nfcid1_len);
-@@ -238,6 +240,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
- 		nfcb_poll = (struct rf_tech_specific_params_nfcb_poll *)params;
+--- a/include/linux/cgroup.h
++++ b/include/linux/cgroup.h
+@@ -68,6 +68,7 @@ struct css_task_iter {
+ 	struct list_head		iters_node;	/* css_set->task_iters */
+ };
  
- 		target->sensb_res_len = nfcb_poll->sensb_res_len;
-+		if (target->sensb_res_len > ARRAY_SIZE(target->sensb_res))
-+			return -EPROTO;
- 		if (target->sensb_res_len > 0) {
- 			memcpy(target->sensb_res, nfcb_poll->sensb_res,
- 			       target->sensb_res_len);
-@@ -246,6 +250,8 @@ static int nci_add_new_protocol(struct nci_dev *ndev,
- 		nfcf_poll = (struct rf_tech_specific_params_nfcf_poll *)params;
++extern struct file_system_type cgroup_fs_type;
+ extern struct cgroup_root cgrp_dfl_root;
+ extern struct css_set init_css_set;
  
- 		target->sensf_res_len = nfcf_poll->sensf_res_len;
-+		if (target->sensf_res_len > ARRAY_SIZE(target->sensf_res))
-+			return -EPROTO;
- 		if (target->sensf_res_len > 0) {
- 			memcpy(target->sensf_res, nfcf_poll->sensf_res,
- 			       target->sensf_res_len);
--- 
-2.35.1
-
+--- a/kernel/cgroup/cgroup-internal.h
++++ b/kernel/cgroup/cgroup-internal.h
+@@ -122,7 +122,6 @@ extern struct mutex cgroup_mutex;
+ extern spinlock_t css_set_lock;
+ extern struct cgroup_subsys *cgroup_subsys[];
+ extern struct list_head cgroup_roots;
+-extern struct file_system_type cgroup_fs_type;
+ 
+ /* iterate across the hierarchies */
+ #define for_each_root(root)						\
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -3878,6 +3878,7 @@ static ssize_t memcg_write_event_control
+ 	unsigned int efd, cfd;
+ 	struct fd efile;
+ 	struct fd cfile;
++	struct dentry *cdentry;
+ 	const char *name;
+ 	char *endp;
+ 	int ret;
+@@ -3929,6 +3930,16 @@ static ssize_t memcg_write_event_control
+ 		goto out_put_cfile;
+ 
+ 	/*
++	 * The control file must be a regular cgroup1 file. As a regular cgroup
++	 * file can't be renamed, it's safe to access its name afterwards.
++	 */
++	cdentry = cfile.file->f_path.dentry;
++	if (cdentry->d_sb->s_type != &cgroup_fs_type || !d_is_reg(cdentry)) {
++		ret = -EINVAL;
++		goto out_put_cfile;
++	}
++
++	/*
+ 	 * Determine the event callbacks and set them in @event.  This used
+ 	 * to be done via struct cftype but cgroup core no longer knows
+ 	 * about these events.  The following is crude but the whole thing
+@@ -3936,7 +3947,7 @@ static ssize_t memcg_write_event_control
+ 	 *
+ 	 * DO NOT ADD NEW FILES.
+ 	 */
+-	name = cfile.file->f_path.dentry->d_name.name;
++	name = cdentry->d_name.name;
+ 
+ 	if (!strcmp(name, "memory.usage_in_bytes")) {
+ 		event->register_event = mem_cgroup_usage_register_event;
+@@ -3960,7 +3971,7 @@ static ssize_t memcg_write_event_control
+ 	 * automatically removed on cgroup destruction but the removal is
+ 	 * asynchronous, so take an extra ref on @css.
+ 	 */
+-	cfile_css = css_tryget_online_from_dir(cfile.file->f_path.dentry->d_parent,
++	cfile_css = css_tryget_online_from_dir(cdentry->d_parent,
+ 					       &memory_cgrp_subsys);
+ 	ret = -EINVAL;
+ 	if (IS_ERR(cfile_css))
 
 
