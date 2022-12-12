@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86BF164A05E
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:24:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0159C64A19D
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:43:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232381AbiLLNYY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:24:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51584 "EHLO
+        id S232528AbiLLNn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:43:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232692AbiLLNYP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:24:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA7A4CC9
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:24:14 -0800 (PST)
+        with ESMTP id S231274AbiLLNnH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D09FFA
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:41:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8503361035
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:24:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E42F6C433EF;
-        Mon, 12 Dec 2022 13:24:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50D87B80D2B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:41:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81AF7C433EF;
+        Mon, 12 Dec 2022 13:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851453;
-        bh=tdmS3D2qUKTxyIo3yWSSBIPsRF2CqrdtLS252R/Ra3c=;
+        s=korg; t=1670852511;
+        bh=orClSxaAWRvBpt6OAEE+/Eg/iRAfY3zecFzYjXOj2+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JGb+F8NxBJY4Ki0OfA/Z9TVifVfFzdPIbAWhpevfDXGDnlJgMCo8z2E4uyNCiBPr7
-         lOuT59fiM1f/Co+M3XQG+6XviNCBwHJQSadH97WzxnOZmvtf8dQbNk8xbMEd8xHZXK
-         Bmhi1jkBsRkrm8aBNpcjdG2EcpHTmMaKnthssIRI=
+        b=ZqBMC0v7PvhimUVW5y4TM6U39b3s+e9w0BYsFAmOpw+6ctybba7AroH4zwxxAE93g
+         YFlWic0S03Sl5CwpoiJnCTBgyKCDvPnpm27bDIjB9/M0fT2wthr8b5jNNU+q8TqrAV
+         E4c34ZuOgxELuAGvylNoNNT0v2qE8KenOXmH96+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Stefano Brivio <sbrivio@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 41/67] Bluetooth: 6LoWPAN: add missing hci_dev_put() in get_l2cap_conn()
+Subject: [PATCH 6.0 088/157] netfilter: nft_set_pipapo: Actually validate intervals in fields after the first one
 Date:   Mon, 12 Dec 2022 14:17:16 +0100
-Message-Id: <20221212130919.587773864@linuxfoundation.org>
+Message-Id: <20221212130938.346030655@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Stefano Brivio <sbrivio@redhat.com>
 
-[ Upstream commit 747da1308bdd5021409974f9180f0d8ece53d142 ]
+[ Upstream commit 97d4d394b58777f7056ebba8ffdb4002d0563259 ]
 
-hci_get_route() takes reference, we should use hci_dev_put() to release
-it when not need anymore.
+Embarrassingly, nft_pipapo_insert() checked for interval validity in
+the first field only.
 
-Fixes: 6b8d4a6a0314 ("Bluetooth: 6LoWPAN: Use connected oriented channel instead of fixed one")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+The start_p and end_p pointers were reset to key data from the first
+field at every iteration of the loop which was supposed to go over
+the set fields.
+
+Fixes: 3c4287f62044 ("nf_tables: Add set type for arbitrary concatenation of ranges")
+Reported-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/6lowpan.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/netfilter/nft_set_pipapo.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
-index 52fb6d6d6d58..bccad8c048da 100644
---- a/net/bluetooth/6lowpan.c
-+++ b/net/bluetooth/6lowpan.c
-@@ -1002,6 +1002,7 @@ static int get_l2cap_conn(char *buf, bdaddr_t *addr, u8 *addr_type,
- 	hci_dev_lock(hdev);
- 	hcon = hci_conn_hash_lookup_le(hdev, addr, *addr_type);
- 	hci_dev_unlock(hdev);
-+	hci_dev_put(hdev);
+diff --git a/net/netfilter/nft_set_pipapo.c b/net/netfilter/nft_set_pipapo.c
+index 4f9299b9dcdd..06d46d182634 100644
+--- a/net/netfilter/nft_set_pipapo.c
++++ b/net/netfilter/nft_set_pipapo.c
+@@ -1162,6 +1162,7 @@ static int nft_pipapo_insert(const struct net *net, const struct nft_set *set,
+ 	struct nft_pipapo_match *m = priv->clone;
+ 	u8 genmask = nft_genmask_next(net);
+ 	struct nft_pipapo_field *f;
++	const u8 *start_p, *end_p;
+ 	int i, bsize_max, err = 0;
  
- 	if (!hcon)
- 		return -ENOENT;
+ 	if (nft_set_ext_exists(ext, NFT_SET_EXT_KEY_END))
+@@ -1202,9 +1203,9 @@ static int nft_pipapo_insert(const struct net *net, const struct nft_set *set,
+ 	}
+ 
+ 	/* Validate */
++	start_p = start;
++	end_p = end;
+ 	nft_pipapo_for_each_field(f, i, m) {
+-		const u8 *start_p = start, *end_p = end;
+-
+ 		if (f->rules >= (unsigned long)NFT_PIPAPO_RULE0_MAX)
+ 			return -ENOSPC;
+ 
 -- 
 2.35.1
 
