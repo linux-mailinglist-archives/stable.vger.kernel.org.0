@@ -2,130 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1019864A0AF
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:29:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EBBB64A02C
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:21:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232739AbiLLN27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:28:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57866 "EHLO
+        id S232580AbiLLNVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:21:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232753AbiLLN2g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:28:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D34DB21
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:28:34 -0800 (PST)
+        with ESMTP id S232628AbiLLNVZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:21:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD961F60
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:21:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D10E460FF4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:28:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48C6DC433D2;
-        Mon, 12 Dec 2022 13:28:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5991F60FF4
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28093C433EF;
+        Mon, 12 Dec 2022 13:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851713;
-        bh=+zW7k6DhSVAqnJgXXMPSvgSjli2BcBbecpJ0YBpYa3E=;
+        s=korg; t=1670851283;
+        bh=CtzuaoejSJjT+Dv4fSu+BWXOZp2LP2qdmZ/qfRlkh4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OlS+yxsC/1Sy8UV2FT5+PfmdGkPXUwwC/zzkROOecGadltbA+9ywy0iApa0W3pQh1
-         tqmDiw877jLFeaqoGNvAwRagbSYZDrjvLol4KGx8lgGM/IxVBFcCanrz/iOKzGmXwm
-         Ews4xtpkljmH/xUPuK6XVag4anU12b2OjMe3xe7A=
+        b=KfjmS7Xx7ab6QA+2uWzVlsFdUvfeI+j1eh3jQ693PgXPYBY4Etp5ENS48Vg+gXQlj
+         CuMXJEt56EwMaBlIbBphuwn+NUd7vFgvfNrVdwMqVSPLvvfrJhbU4ud+S8vKHlgJqc
+         aEL0BzU6TqgBgZTggFv9si5vEv9VejvDdB8x6c7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ankit Patel <anpatel@nvidia.com>,
-        Haotien Hsu <haotienh@nvidia.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.15 054/123] HID: usbhid: Add ALWAYS_POLL quirk for some mice
+        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
+        Jann Horn <jannh@google.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 25/67] memcg: fix possible use-after-free in memcg_write_event_control()
 Date:   Mon, 12 Dec 2022 14:17:00 +0100
-Message-Id: <20221212130929.196310051@linuxfoundation.org>
+Message-Id: <20221212130918.824277618@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75 autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ankit Patel <anpatel@nvidia.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit f6d910a89a2391e5ce1f275d205023880a33d3f8 upstream.
+commit 4a7ba45b1a435e7097ca0f79a847d0949d0eb088 upstream.
 
-Some additional USB mouse devices are needing ALWAYS_POLL quirk without
-which they disconnect and reconnect every 60s.
+memcg_write_event_control() accesses the dentry->d_name of the specified
+control fd to route the write call.  As a cgroup interface file can't be
+renamed, it's safe to access d_name as long as the specified file is a
+regular cgroup file.  Also, as these cgroup interface files can't be
+removed before the directory, it's safe to access the parent too.
 
-Add below devices to the known quirk list.
-CHERRY    VID 0x046a, PID 0x000c
-MICROSOFT VID 0x045e, PID 0x0783
-PRIMAX    VID 0x0461, PID 0x4e2a
+Prior to 347c4a874710 ("memcg: remove cgroup_event->cft"), there was a
+call to __file_cft() which verified that the specified file is a regular
+cgroupfs file before further accesses.  The cftype pointer returned from
+__file_cft() was no longer necessary and the commit inadvertently dropped
+the file type check with it allowing any file to slip through.  With the
+invarients broken, the d_name and parent accesses can now race against
+renames and removals of arbitrary files and cause use-after-free's.
 
-Signed-off-by: Ankit Patel <anpatel@nvidia.com>
-Signed-off-by: Haotien Hsu <haotienh@nvidia.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fix the bug by resurrecting the file type check in __file_cft().  Now that
+cgroupfs is implemented through kernfs, checking the file operations needs
+to go through a layer of indirection.  Instead, let's check the superblock
+and dentry type.
+
+Link: https://lkml.kernel.org/r/Y5FRm/cfcKPGzWwl@slm.duckdns.org
+Fixes: 347c4a874710 ("memcg: remove cgroup_event->cft")
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Jann Horn <jannh@google.com>
+Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>	[3.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-ids.h    |    3 +++
- drivers/hid/hid-quirks.c |    3 +++
- 2 files changed, 6 insertions(+)
+ include/linux/cgroup.h          |    1 +
+ kernel/cgroup/cgroup-internal.h |    1 -
+ mm/memcontrol.c                 |   15 +++++++++++++--
+ 3 files changed, 14 insertions(+), 3 deletions(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -261,6 +261,7 @@
- #define USB_DEVICE_ID_CH_AXIS_295	0x001c
+--- a/include/linux/cgroup.h
++++ b/include/linux/cgroup.h
+@@ -69,6 +69,7 @@ struct css_task_iter {
+ 	struct list_head		iters_node;	/* css_set->task_iters */
+ };
  
- #define USB_VENDOR_ID_CHERRY		0x046a
-+#define USB_DEVICE_ID_CHERRY_MOUSE_000C	0x000c
- #define USB_DEVICE_ID_CHERRY_CYMOTION	0x0023
- #define USB_DEVICE_ID_CHERRY_CYMOTION_SOLAR	0x0027
++extern struct file_system_type cgroup_fs_type;
+ extern struct cgroup_root cgrp_dfl_root;
+ extern struct css_set init_css_set;
  
-@@ -892,6 +893,7 @@
- #define USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER	0x02fd
- #define USB_DEVICE_ID_MS_PIXART_MOUSE    0x00cb
- #define USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS      0x02e0
-+#define USB_DEVICE_ID_MS_MOUSE_0783      0x0783
+--- a/kernel/cgroup/cgroup-internal.h
++++ b/kernel/cgroup/cgroup-internal.h
+@@ -169,7 +169,6 @@ extern struct mutex cgroup_mutex;
+ extern spinlock_t css_set_lock;
+ extern struct cgroup_subsys *cgroup_subsys[];
+ extern struct list_head cgroup_roots;
+-extern struct file_system_type cgroup_fs_type;
  
- #define USB_VENDOR_ID_MOJO		0x8282
- #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
-@@ -1338,6 +1340,7 @@
+ /* iterate across the hierarchies */
+ #define for_each_root(root)						\
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -4709,6 +4709,7 @@ static ssize_t memcg_write_event_control
+ 	unsigned int efd, cfd;
+ 	struct fd efile;
+ 	struct fd cfile;
++	struct dentry *cdentry;
+ 	const char *name;
+ 	char *endp;
+ 	int ret;
+@@ -4760,6 +4761,16 @@ static ssize_t memcg_write_event_control
+ 		goto out_put_cfile;
  
- #define USB_VENDOR_ID_PRIMAX	0x0461
- #define USB_DEVICE_ID_PRIMAX_MOUSE_4D22	0x4d22
-+#define USB_DEVICE_ID_PRIMAX_MOUSE_4E2A	0x4e2a
- #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
- #define USB_DEVICE_ID_PRIMAX_REZEL	0x4e72
- #define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F	0x4d0f
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -54,6 +54,7 @@ static const struct hid_device_id hid_qu
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_THROTTLE), HID_QUIRK_NOGET },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_MOUSE_000C), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K65RGB), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K65RGB_RAPIDFIRE), HID_QUIRK_NO_INIT_REPORTS | HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K70RGB), HID_QUIRK_NO_INIT_REPORTS },
-@@ -122,6 +123,7 @@ static const struct hid_device_id hid_qu
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C05A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C06A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MCS, USB_DEVICE_ID_MCS_GAMEPADBLOCK), HID_QUIRK_MULTI_INPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_MOUSE_0783), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PIXART_MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_SURFACE3_COVER), HID_QUIRK_NO_INIT_REPORTS },
-@@ -146,6 +148,7 @@ static const struct hid_device_id hid_qu
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_MOUSE_4D22), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_MOUSE_4E2A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D65), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4E22), HID_QUIRK_ALWAYS_POLL },
+ 	/*
++	 * The control file must be a regular cgroup1 file. As a regular cgroup
++	 * file can't be renamed, it's safe to access its name afterwards.
++	 */
++	cdentry = cfile.file->f_path.dentry;
++	if (cdentry->d_sb->s_type != &cgroup_fs_type || !d_is_reg(cdentry)) {
++		ret = -EINVAL;
++		goto out_put_cfile;
++	}
++
++	/*
+ 	 * Determine the event callbacks and set them in @event.  This used
+ 	 * to be done via struct cftype but cgroup core no longer knows
+ 	 * about these events.  The following is crude but the whole thing
+@@ -4767,7 +4778,7 @@ static ssize_t memcg_write_event_control
+ 	 *
+ 	 * DO NOT ADD NEW FILES.
+ 	 */
+-	name = cfile.file->f_path.dentry->d_name.name;
++	name = cdentry->d_name.name;
+ 
+ 	if (!strcmp(name, "memory.usage_in_bytes")) {
+ 		event->register_event = mem_cgroup_usage_register_event;
+@@ -4791,7 +4802,7 @@ static ssize_t memcg_write_event_control
+ 	 * automatically removed on cgroup destruction but the removal is
+ 	 * asynchronous, so take an extra ref on @css.
+ 	 */
+-	cfile_css = css_tryget_online_from_dir(cfile.file->f_path.dentry->d_parent,
++	cfile_css = css_tryget_online_from_dir(cdentry->d_parent,
+ 					       &memory_cgrp_subsys);
+ 	ret = -EINVAL;
+ 	if (IS_ERR(cfile_css))
 
 
