@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E2E64A08B
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:26:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 936E664A157
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:38:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231612AbiLLN01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:26:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53800 "EHLO
+        id S232756AbiLLNiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:38:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231971AbiLLN00 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:26:26 -0500
+        with ESMTP id S232693AbiLLNiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:38:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BDF41092
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:26:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65210614D
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:37:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F875B80D4F
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:26:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5A91C433D2;
-        Mon, 12 Dec 2022 13:26:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11C02B8068B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:37:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 812CEC433EF;
+        Mon, 12 Dec 2022 13:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851583;
-        bh=jzIkP72qq6Ncjl0NMkv0IC0e7yeRBpqeSSQVxHiHlGg=;
+        s=korg; t=1670852261;
+        bh=TQybE/fXDNsPC++k5vcAQ2SGEpCTDyeVoShqFMvk/JI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cJoF6kxWjaIH1qu3uE6XB96niaANCEqGy7pwiY/VC+2LKlTjkDVMC21lST5VAzk3O
-         egSC7ONgLsdtEHz0f6a96jnc7wEppj78fy40OwgFb1+id2R1wFjnfgMZDFZ5yvZSbH
-         Ec4nAKF/WciNMuULw4bOI9JU+QqvQj7QIuscft6g=
+        b=TV/Pnc4UYQVdxMt7VQ2GqGzAHShjgJ5XPZpdTQZYy9ZjQxYuCTOb0gqm8cqERDA2R
+         R0k5qfdC6RDZpO4ca9go5lKcqhQgHB+fAxFT9OqC6kPU0rdh9dKr/i2P7fzwEl41VS
+         sq8pIK/dq9AGrzOsD/b3Z90k0KjEl4hYsq0qwHNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
-        Yang Shi <shy828301@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 028/123] mm/khugepaged: take the right locks for page table retraction
+Subject: [PATCH 6.0 046/157] ALSA: hda/realtek: More robust component matching for CS35L41
 Date:   Mon, 12 Dec 2022 14:16:34 +0100
-Message-Id: <20221212130928.088104367@linuxfoundation.org>
+Message-Id: <20221212130936.401048854@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,139 +52,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 8d3c106e19e8d251da31ff4cc7462e4565d65084 upstream.
+[ Upstream commit 35a1744423743247026668e2323d1b932583fc2a ]
 
-pagetable walks on address ranges mapped by VMAs can be done under the
-mmap lock, the lock of an anon_vma attached to the VMA, or the lock of the
-VMA's address_space.  Only one of these needs to be held, and it does not
-need to be held in exclusive mode.
+As the previous commit implies, a system may have a different SPI bus
+number that is embedded in the device string.  And, assuming the fixed
+bus number is rather fragile; it may be assigned differently depending
+on the configuration or on the boot environment.  Once when a bus
+number change happens, the binding fails, resulting in the silence.
 
-Under those circumstances, the rules for concurrent access to page table
-entries are:
+This patch tries to make the matching a bit more relaxed, allowing to
+bind with a different bus number (or without it).  So the previous
+fix, the introduction of ALC245_FIXUP_CS35L41_SPI1_2 fixup became
+superfluous, and this is unified to ALC245_FIXUP_CS35L41_SPI_2.
 
- - Terminal page table entries (entries that don't point to another page
-   table) can be arbitrarily changed under the page table lock, with the
-   exception that they always need to be consistent for
-   hardware page table walks and lockless_pages_from_mm().
-   This includes that they can be changed into non-terminal entries.
- - Non-terminal page table entries (which point to another page table)
-   can not be modified; readers are allowed to READ_ONCE() an entry, verify
-   that it is non-terminal, and then assume that its value will stay as-is.
-
-Retracting a page table involves modifying a non-terminal entry, so
-page-table-level locks are insufficient to protect against concurrent page
-table traversal; it requires taking all the higher-level locks under which
-it is possible to start a page walk in the relevant range in exclusive
-mode.
-
-The collapse_huge_page() path for anonymous THP already follows this rule,
-but the shmem/file THP path was getting it wrong, making it possible for
-concurrent rmap-based operations to cause corruption.
-
-Link: https://lkml.kernel.org/r/20221129154730.2274278-1-jannh@google.com
-Link: https://lkml.kernel.org/r/20221128180252.1684965-1-jannh@google.com
-Link: https://lkml.kernel.org/r/20221125213714.4115729-1-jannh@google.com
-Fixes: 27e1f8273113 ("khugepaged: enable collapse pmd for pte-mapped THP")
-Signed-off-by: Jann Horn <jannh@google.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-[manual backport: this code was refactored from two copies into a common
-helper between 5.15 and 6.0]
-Signed-off-by: Jann Horn <jannh@google.com>
+Fixes: 225f6e1bc151 ("ALSA: hda/realtek: Add quirk for HP Zbook Firefly 14 G9 model")
+Link: https://lore.kernel.org/r/20220930084810.10435-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/khugepaged.c | 31 ++++++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
+ sound/pci/hda/patch_realtek.c | 62 +++++++++++++++++++++--------------
+ 1 file changed, 37 insertions(+), 25 deletions(-)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index dd069afd9cb9..fc02de08e912 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1456,6 +1456,14 @@ void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr)
- 	if (!hugepage_vma_check(vma, vma->vm_flags | VM_HUGEPAGE))
- 		return;
- 
-+	/*
-+	 * Symmetry with retract_page_tables(): Exclude MAP_PRIVATE mappings
-+	 * that got written to. Without this, we'd have to also lock the
-+	 * anon_vma if one exists.
-+	 */
-+	if (vma->anon_vma)
-+		return;
-+
- 	hpage = find_lock_page(vma->vm_file->f_mapping,
- 			       linear_page_index(vma, haddr));
- 	if (!hpage)
-@@ -1468,6 +1476,19 @@ void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr)
- 	if (!pmd)
- 		goto drop_hpage;
- 
-+	/*
-+	 * We need to lock the mapping so that from here on, only GUP-fast and
-+	 * hardware page walks can access the parts of the page tables that
-+	 * we're operating on.
-+	 */
-+	i_mmap_lock_write(vma->vm_file->f_mapping);
-+
-+	/*
-+	 * This spinlock should be unnecessary: Nobody else should be accessing
-+	 * the page tables under spinlock protection here, only
-+	 * lockless_pages_from_mm() and the hardware page walker can access page
-+	 * tables while all the high-level locks are held in write mode.
-+	 */
- 	start_pte = pte_offset_map_lock(mm, pmd, haddr, &ptl);
- 
- 	/* step 1: check all mapped PTEs are to the right huge page */
-@@ -1514,12 +1535,12 @@ void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr)
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index bf58e98c7a69..d8c6af9e43ad 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -18,6 +18,7 @@
+ #include <linux/module.h>
+ #include <linux/input.h>
+ #include <linux/leds.h>
++#include <linux/ctype.h>
+ #include <sound/core.h>
+ #include <sound/jack.h>
+ #include <sound/hda_codec.h>
+@@ -6704,23 +6705,51 @@ static void comp_generic_playback_hook(struct hda_pcm_stream *hinfo, struct hda_
  	}
- 
- 	/* step 4: collapse pmd */
--	ptl = pmd_lock(vma->vm_mm, pmd);
- 	_pmd = pmdp_collapse_flush(vma, haddr, pmd);
--	spin_unlock(ptl);
- 	mm_dec_nr_ptes(mm);
- 	pte_free(mm, pmd_pgtable(_pmd));
- 
-+	i_mmap_unlock_write(vma->vm_file->f_mapping);
-+
- drop_hpage:
- 	unlock_page(hpage);
- 	put_page(hpage);
-@@ -1527,6 +1548,7 @@ void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr)
- 
- abort:
- 	pte_unmap_unlock(start_pte, ptl);
-+	i_mmap_unlock_write(vma->vm_file->f_mapping);
- 	goto drop_hpage;
  }
  
-@@ -1575,7 +1597,8 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
- 		 * An alternative would be drop the check, but check that page
- 		 * table is clear before calling pmdp_collapse_flush() under
- 		 * ptl. It has higher chance to recover THP for the VMA, but
--		 * has higher cost too.
-+		 * has higher cost too. It would also probably require locking
-+		 * the anon_vma.
- 		 */
- 		if (vma->anon_vma)
- 			continue;
-@@ -1597,10 +1620,8 @@ static void retract_page_tables(struct address_space *mapping, pgoff_t pgoff)
- 		 */
- 		if (mmap_write_trylock(mm)) {
- 			if (!khugepaged_test_exit(mm)) {
--				spinlock_t *ptl = pmd_lock(mm, pmd);
- 				/* assume page table is clear */
- 				_pmd = pmdp_collapse_flush(vma, addr, pmd);
--				spin_unlock(ptl);
- 				mm_dec_nr_ptes(mm);
- 				pte_free(mm, pmd_pgtable(_pmd));
- 			}
++struct cs35l41_dev_name {
++	const char *bus;
++	const char *hid;
++	int index;
++};
++
++/* match the device name in a slightly relaxed manner */
++static int comp_match_cs35l41_dev_name(struct device *dev, void *data)
++{
++	struct cs35l41_dev_name *p = data;
++	const char *d = dev_name(dev);
++	int n = strlen(p->bus);
++	char tmp[32];
++
++	/* check the bus name */
++	if (strncmp(d, p->bus, n))
++		return 0;
++	/* skip the bus number */
++	if (isdigit(d[n]))
++		n++;
++	/* the rest must be exact matching */
++	snprintf(tmp, sizeof(tmp), "-%s:00-cs35l41-hda.%d", p->hid, p->index);
++	return !strcmp(d + n, tmp);
++}
++
+ static void cs35l41_generic_fixup(struct hda_codec *cdc, int action, const char *bus,
+ 				  const char *hid, int count)
+ {
+ 	struct device *dev = hda_codec_dev(cdc);
+ 	struct alc_spec *spec = cdc->spec;
+-	char *name;
++	struct cs35l41_dev_name *rec;
+ 	int ret, i;
+ 
+ 	switch (action) {
+ 	case HDA_FIXUP_ACT_PRE_PROBE:
+ 		for (i = 0; i < count; i++) {
+-			name = devm_kasprintf(dev, GFP_KERNEL,
+-					      "%s-%s:00-cs35l41-hda.%d", bus, hid, i);
+-			if (!name)
++			rec = devm_kmalloc(dev, sizeof(*rec), GFP_KERNEL);
++			if (!rec)
+ 				return;
++			rec->bus = bus;
++			rec->hid = hid;
++			rec->index = i;
+ 			spec->comps[i].codec = cdc;
+-			component_match_add(dev, &spec->match, component_compare_dev_name, name);
++			component_match_add(dev, &spec->match,
++					    comp_match_cs35l41_dev_name, rec);
+ 		}
+ 		ret = component_master_add_with_match(dev, &comp_master_ops, spec->match);
+ 		if (ret)
+@@ -6738,17 +6767,12 @@ static void cs35l41_fixup_i2c_two(struct hda_codec *cdc, const struct hda_fixup
+ 
+ static void cs35l41_fixup_spi_two(struct hda_codec *codec, const struct hda_fixup *fix, int action)
+ {
+-	cs35l41_generic_fixup(codec, action, "spi0", "CSC3551", 2);
+-}
+-
+-static void cs35l41_fixup_spi1_two(struct hda_codec *codec, const struct hda_fixup *fix, int action)
+-{
+-	cs35l41_generic_fixup(codec, action, "spi1", "CSC3551", 2);
++	cs35l41_generic_fixup(codec, action, "spi", "CSC3551", 2);
+ }
+ 
+ static void cs35l41_fixup_spi_four(struct hda_codec *codec, const struct hda_fixup *fix, int action)
+ {
+-	cs35l41_generic_fixup(codec, action, "spi0", "CSC3551", 4);
++	cs35l41_generic_fixup(codec, action, "spi", "CSC3551", 4);
+ }
+ 
+ static void alc287_fixup_legion_16achg6_speakers(struct hda_codec *cdc, const struct hda_fixup *fix,
+@@ -7137,8 +7161,6 @@ enum {
+ 	ALC287_FIXUP_CS35L41_I2C_2_HP_GPIO_LED,
+ 	ALC245_FIXUP_CS35L41_SPI_2,
+ 	ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED,
+-	ALC245_FIXUP_CS35L41_SPI1_2,
+-	ALC245_FIXUP_CS35L41_SPI1_2_HP_GPIO_LED,
+ 	ALC245_FIXUP_CS35L41_SPI_4,
+ 	ALC245_FIXUP_CS35L41_SPI_4_HP_GPIO_LED,
+ 	ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED,
+@@ -8988,16 +9010,6 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC285_FIXUP_HP_GPIO_LED,
+ 	},
+-	[ALC245_FIXUP_CS35L41_SPI1_2] = {
+-		.type = HDA_FIXUP_FUNC,
+-		.v.func = cs35l41_fixup_spi1_two,
+-	},
+-	[ALC245_FIXUP_CS35L41_SPI1_2_HP_GPIO_LED] = {
+-		.type = HDA_FIXUP_FUNC,
+-		.v.func = cs35l41_fixup_spi1_two,
+-		.chained = true,
+-		.chain_id = ALC285_FIXUP_HP_GPIO_LED,
+-	},
+ 	[ALC245_FIXUP_CS35L41_SPI_4] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = cs35l41_fixup_spi_four,
+@@ -9361,7 +9373,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x8aa3, "HP ProBook 450 G9 (MB 8AA1)", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8aa8, "HP EliteBook 640 G9 (MB 8AA6)", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8aab, "HP EliteBook 650 G9 (MB 8AA9)", ALC236_FIXUP_HP_GPIO_LED),
+-	 SND_PCI_QUIRK(0x103c, 0x8abb, "HP ZBook Firefly 14 G9", ALC245_FIXUP_CS35L41_SPI1_2_HP_GPIO_LED),
++	 SND_PCI_QUIRK(0x103c, 0x8abb, "HP ZBook Firefly 14 G9", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8ad1, "HP EliteBook 840 14 inch G9 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8ad2, "HP EliteBook 860 16 inch G9 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
 -- 
 2.35.1
 
