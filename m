@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E703364A191
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:42:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0140964A0DA
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:31:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233106AbiLLNmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:42:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41758 "EHLO
+        id S231766AbiLLNbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:31:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232853AbiLLNlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:41:31 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28CF0140AF
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:41:01 -0800 (PST)
+        with ESMTP id S232359AbiLLNbo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:31:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B80F13E06
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:31:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6BF93CE0F7F
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:40:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4870FC433EF;
-        Mon, 12 Dec 2022 13:40:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3761E6105A
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:31:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECD56C433EF;
+        Mon, 12 Dec 2022 13:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852457;
-        bh=+dCOKp5HDu8gfuthbDRRHAO03zpfaGehV31YqYiRQ8w=;
+        s=korg; t=1670851902;
+        bh=bXhs/QhFvTKfcQWAO4+SVEV/Y18+U60jNnpFr6U46Bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yQLiMCChB1KvLjUcjJY1ZQDJcRvsNlG35Nvnleo73OdpooMRKP3evzGy0Uw7QAlmu
-         d4IGfYAA05JrFhZLEP05CWHjnXUWocwEtI66IcqHiED0wN54N+NrvUgwo3ezhccC+S
-         SVI7jbJrUsM0e+6DwMuFVCWQwiZOX8z6GOAtJHFE=
+        b=WLlhIQOqocEynKBXnSLNCyBtieeuFFiBovko0Jx16m0boJWlZ5c4GpTgejHrDh5UO
+         DD/48M1X0eOUCcRQs2XnnIgBYK+sThXnt4ZKQodoO2HOPCVQyAcx+4qQxbn7B0Lbd8
+         qw96j51GhOV6u3xwCT0ka2jRgpe3OLAdaR9M6ODc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 6.0 084/157] ARM: 9278/1: kfence: only handle translation faults
+        patches@lists.linux.dev, Hauke Mehrtens <hauke@hauke-m.de>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 066/123] ca8210: Fix crash by zero initializing data
 Date:   Mon, 12 Dec 2022 14:17:12 +0100
-Message-Id: <20221212130938.164150310@linuxfoundation.org>
+Message-Id: <20221212130929.721844425@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,90 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Kefeng <wangkefeng.wang@huawei.com>
+From: Hauke Mehrtens <hauke@hauke-m.de>
 
-commit 73a0b6ee5d6269f92df43e1d09b3278a2886bf8a upstream.
+[ Upstream commit 1e24c54da257ab93cff5826be8a793b014a5dc9c ]
 
-This is a similar fixup like arm64 does, only handle translation faults
-in case of unexpected kfence report when alignment faults on ARM, see
-more from commit 0bb1fbffc631 ("arm64: mm: kfence: only handle translation
-faults").
+The struct cas_control embeds multiple generic SPI structures and we
+have to make sure these structures are initialized to default values.
+This driver does not set all attributes. When using kmalloc before some
+attributes were not initialized and contained random data which caused
+random crashes at bootup.
 
-Fixes: 75969686ec0d ("ARM: 9166/1: Support KFENCE for ARM")
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ded845a781a5 ("ieee802154: Add CA8210 IEEE 802.15.4 device driver")
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Link: https://lore.kernel.org/r/20221121002201.1339636-1-hauke@hauke-m.de
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/fault.c |   18 ++++++++++++++++--
- arch/arm/mm/fault.h |    9 ++++++---
- 2 files changed, 22 insertions(+), 5 deletions(-)
+ drivers/net/ieee802154/ca8210.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/mm/fault.c
-+++ b/arch/arm/mm/fault.c
-@@ -105,6 +105,19 @@ static inline bool is_write_fault(unsign
- 	return (fsr & FSR_WRITE) && !(fsr & FSR_CM);
- }
+diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
+index 96592a20c61f..0362917fce7a 100644
+--- a/drivers/net/ieee802154/ca8210.c
++++ b/drivers/net/ieee802154/ca8210.c
+@@ -927,7 +927,7 @@ static int ca8210_spi_transfer(
  
-+static inline bool is_translation_fault(unsigned int fsr)
-+{
-+	int fs = fsr_fs(fsr);
-+#ifdef CONFIG_ARM_LPAE
-+	if ((fs & FS_MMU_NOLL_MASK) == FS_TRANS_NOLL)
-+		return true;
-+#else
-+	if (fs == FS_L1_TRANS || fs == FS_L2_TRANS)
-+		return true;
-+#endif
-+	return false;
-+}
-+
- static void die_kernel_fault(const char *msg, struct mm_struct *mm,
- 			     unsigned long addr, unsigned int fsr,
- 			     struct pt_regs *regs)
-@@ -140,7 +153,8 @@ __do_kernel_fault(struct mm_struct *mm,
- 	if (addr < PAGE_SIZE) {
- 		msg = "NULL pointer dereference";
- 	} else {
--		if (kfence_handle_page_fault(addr, is_write_fault(fsr), regs))
-+		if (is_translation_fault(fsr) &&
-+		    kfence_handle_page_fault(addr, is_write_fault(fsr), regs))
- 			return;
+ 	dev_dbg(&spi->dev, "%s called\n", __func__);
  
- 		msg = "paging request";
-@@ -208,7 +222,7 @@ static inline bool is_permission_fault(u
- {
- 	int fs = fsr_fs(fsr);
- #ifdef CONFIG_ARM_LPAE
--	if ((fs & FS_PERM_NOLL_MASK) == FS_PERM_NOLL)
-+	if ((fs & FS_MMU_NOLL_MASK) == FS_PERM_NOLL)
- 		return true;
- #else
- 	if (fs == FS_L1_PERM || fs == FS_L2_PERM)
---- a/arch/arm/mm/fault.h
-+++ b/arch/arm/mm/fault.h
-@@ -14,8 +14,9 @@
+-	cas_ctl = kmalloc(sizeof(*cas_ctl), GFP_ATOMIC);
++	cas_ctl = kzalloc(sizeof(*cas_ctl), GFP_ATOMIC);
+ 	if (!cas_ctl)
+ 		return -ENOMEM;
  
- #ifdef CONFIG_ARM_LPAE
- #define FSR_FS_AEA		17
-+#define FS_TRANS_NOLL		0x4
- #define FS_PERM_NOLL		0xC
--#define FS_PERM_NOLL_MASK	0x3C
-+#define FS_MMU_NOLL_MASK	0x3C
- 
- static inline int fsr_fs(unsigned int fsr)
- {
-@@ -23,8 +24,10 @@ static inline int fsr_fs(unsigned int fs
- }
- #else
- #define FSR_FS_AEA		22
--#define FS_L1_PERM             0xD
--#define FS_L2_PERM             0xF
-+#define FS_L1_TRANS		0x5
-+#define FS_L2_TRANS		0x7
-+#define FS_L1_PERM		0xD
-+#define FS_L2_PERM		0xF
- 
- static inline int fsr_fs(unsigned int fsr)
- {
+-- 
+2.35.1
+
 
 
