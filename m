@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C50D64A104
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:34:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA2964A1B0
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232673AbiLLNeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:34:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34402 "EHLO
+        id S233001AbiLLNoD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:44:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232700AbiLLNd4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:33:56 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCF8513F05
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:33:45 -0800 (PST)
+        with ESMTP id S232871AbiLLNno (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABA6110A0
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:43:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 464CECE0EFC
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:33:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02585C433F0;
-        Mon, 12 Dec 2022 13:33:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46C516106F
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:43:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E549BC433EF;
+        Mon, 12 Dec 2022 13:43:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852022;
-        bh=1HQ9ZLnMqnp4xTD6CGj73RRp6K5dENcRFanIan9uKAk=;
+        s=korg; t=1670852591;
+        bh=AzJSGGLEjQ20cC65AI47DBuf7qOlNwQK1SBMY8LXiS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qerbVBJyKK8s/PdAgPBCIC28KpM1ObZzHPSzEfwXWqD+p7wV6oOXjIWdpq9B8jowP
-         xYY10pD4AgfD/v63gu3ekV0JN2rla78brszYGgvZ07nC8d9UjuHkda3ioT5mtzmPZt
-         QvrrTNsY3ll2hJnse/j8vX0mRRPc33onWIav02c8=
+        b=nQZwbzH1a55ZYrOzddFqlWu6TqQjgKRUkBDqaUc1zsSKUsToZ0uIavIlTLIRAukyg
+         7TLcJFyc5C4x43uBfkGaqQz0NGNO5HNAOslE7m6JMVQ/T6nqe2fJPefhdaQ3CrW8p0
+         7OJpaqB6zqJTdkacJp26J84hofyvSPB44luUqMoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
-        Jan Sokolowski <jan.sokolowski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 092/123] i40e: Fix for VF MAC address 0
-Date:   Mon, 12 Dec 2022 14:17:38 +0100
-Message-Id: <20221212130930.914877662@linuxfoundation.org>
+Subject: [PATCH 6.0 111/157] net: dsa: ksz: Check return value
+Date:   Mon, 12 Dec 2022 14:17:39 +0100
+Message-Id: <20221212130939.307149855@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+From: Artem Chernyshev <artem.chernyshev@red-soft.ru>
 
-[ Upstream commit 08501970472077ed5de346ad89943a37d1692e9b ]
+[ Upstream commit 3d8fdcbf1f42e2bb9ae8b8c0b6f202278c788a22 ]
 
-After spawning max VFs on a PF, some VFs were not getting resources and
-their MAC addresses were 0. This was caused by PF sleeping before flushing
-HW registers which caused VIRTCHNL_VFR_VFACTIVE to not be set in time for
-VF.
+Return NULL if we got unexpected value from skb_trim_rcsum()
+in ksz_common_rcv()
 
-Fix by adding a sleep after hw flush.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-Fixes: e4b433f4a741 ("i40e: reset all VFs in parallel when rebuilding PF")
-Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: bafe9ba7d908 ("net: dsa: ksz: Factor out common tag code")
+Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20221201140032.26746-1-artem.chernyshev@red-soft.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/dsa/tag_ksz.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 8f350792e823..7aedf20a1021 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -1578,6 +1578,7 @@ bool i40e_reset_vf(struct i40e_vf *vf, bool flr)
- 	i40e_cleanup_reset_vf(vf);
+diff --git a/net/dsa/tag_ksz.c b/net/dsa/tag_ksz.c
+index 38fa19c1e2d5..429250298ac4 100644
+--- a/net/dsa/tag_ksz.c
++++ b/net/dsa/tag_ksz.c
+@@ -21,7 +21,8 @@ static struct sk_buff *ksz_common_rcv(struct sk_buff *skb,
+ 	if (!skb->dev)
+ 		return NULL;
  
- 	i40e_flush(hw);
-+	usleep_range(20000, 40000);
- 	clear_bit(I40E_VF_STATE_RESETTING, &vf->vf_states);
+-	pskb_trim_rcsum(skb, skb->len - len);
++	if (pskb_trim_rcsum(skb, skb->len - len))
++		return NULL;
  
- 	return true;
-@@ -1701,6 +1702,7 @@ bool i40e_reset_all_vfs(struct i40e_pf *pf, bool flr)
- 	}
+ 	dsa_default_offload_fwd_mark(skb);
  
- 	i40e_flush(hw);
-+	usleep_range(20000, 40000);
- 	clear_bit(__I40E_VF_DISABLE, pf->state);
- 
- 	return true;
 -- 
 2.35.1
 
