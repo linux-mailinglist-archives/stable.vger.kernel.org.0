@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18A0364A1AD
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F3E864A073
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:25:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232997AbiLLNoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:44:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42044 "EHLO
+        id S232714AbiLLNZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:25:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232800AbiLLNnn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 620DCF36
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:43:04 -0800 (PST)
+        with ESMTP id S232713AbiLLNYz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:24:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BCA05587
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:24:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 185D4B8068B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:43:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E28F2C43392;
-        Mon, 12 Dec 2022 13:43:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B70C61035
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:24:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BA04C433F1;
+        Mon, 12 Dec 2022 13:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852581;
-        bh=xfJWD5IjMo4LJ2Bh7ac6RqUh6wxQdfK+zB4Yd9HzDag=;
+        s=korg; t=1670851490;
+        bh=FI8x2r+CHWfKaiErtbvHQGTXKXp9op82+7edVzkuB74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GD3ezgq6EGu7ys3ktdqOOh1tcS9cPJdvh9ll0iR61V7Fi4yNNgek3vz6gvfoM0dj9
-         5vtm14RbjmKyarc+nMXSUNOykSr+uFabqa8lVl3e38gulEWnXepGYaOa5bSs4AtWuI
-         Dzp1Q8Lgm4YOIIxmQ1gRyrYRsltAHt20ltrHjcBE=
+        b=eQNOqjDtn3XZR3dnJ6aWY0VJ9JGjAH7FE/BxKRxv07M5G5Ad3SD7nInwCSGKsMbRM
+         tIYhcKBBORQyOiYhoQi6IdkSGOuWvVWW+O60Wu8b9qW8fauoMBbjQH0HTEAxgovrKF
+         uBC7RELUnvHFMrPxL1aN8hzfi18ths9U1PDVJva4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Chethan T N <chethan.tumkur.narayan@intel.com>,
-        Kiran K <kiran.k@intel.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 109/157] Bluetooth: Fix support for Read Local Supported Codecs V2
+Subject: [PATCH 5.4 62/67] ethernet: aeroflex: fix potential skb leak in greth_init_rings()
 Date:   Mon, 12 Dec 2022 14:17:37 +0100
-Message-Id: <20221212130939.225039021@linuxfoundation.org>
+Message-Id: <20221212130920.572534680@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,110 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chethan T N <chethan.tumkur.narayan@intel.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 828cea2b71de501827f62d3c92d149f6052ad01e ]
+[ Upstream commit 063a932b64db3317ec020c94466fe52923a15f60 ]
 
-Handling of Read Local Supported Codecs was broken during the
-HCI serialization design change patches.
+The greth_init_rings() function won't free the newly allocated skb when
+dma_mapping_error() returns error, so add dev_kfree_skb() to fix it.
 
-Fixes: d0b137062b2d ("Bluetooth: hci_sync: Rework init stages")
-Signed-off-by: Chethan T N <chethan.tumkur.narayan@intel.com>
-Signed-off-by: Kiran K <kiran.k@intel.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Compile tested only.
+
+Fixes: d4c41139df6e ("net: Add Aeroflex Gaisler 10/100/1G Ethernet MAC driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/1670134149-29516-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_codec.c | 19 ++++++++++---------
- net/bluetooth/hci_sync.c  | 10 ++++++----
- 2 files changed, 16 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/aeroflex/greth.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/bluetooth/hci_codec.c b/net/bluetooth/hci_codec.c
-index 38201532f58e..3cc135bb1d30 100644
---- a/net/bluetooth/hci_codec.c
-+++ b/net/bluetooth/hci_codec.c
-@@ -72,9 +72,8 @@ static void hci_read_codec_capabilities(struct hci_dev *hdev, __u8 transport,
- 				continue;
+diff --git a/drivers/net/ethernet/aeroflex/greth.c b/drivers/net/ethernet/aeroflex/greth.c
+index 907904c0a288..19e2b838750c 100644
+--- a/drivers/net/ethernet/aeroflex/greth.c
++++ b/drivers/net/ethernet/aeroflex/greth.c
+@@ -258,6 +258,7 @@ static int greth_init_rings(struct greth_private *greth)
+ 			if (dma_mapping_error(greth->dev, dma_addr)) {
+ 				if (netif_msg_ifup(greth))
+ 					dev_err(greth->dev, "Could not create initial DMA mapping\n");
++				dev_kfree_skb(skb);
+ 				goto cleanup;
  			}
- 
--			skb = __hci_cmd_sync(hdev, HCI_OP_READ_LOCAL_CODEC_CAPS,
--					     sizeof(*cmd), cmd,
--					     HCI_CMD_TIMEOUT);
-+			skb = __hci_cmd_sync_sk(hdev, HCI_OP_READ_LOCAL_CODEC_CAPS,
-+						sizeof(*cmd), cmd, 0, HCI_CMD_TIMEOUT, NULL);
- 			if (IS_ERR(skb)) {
- 				bt_dev_err(hdev, "Failed to read codec capabilities (%ld)",
- 					   PTR_ERR(skb));
-@@ -127,8 +126,8 @@ void hci_read_supported_codecs(struct hci_dev *hdev)
- 	struct hci_op_read_local_codec_caps caps;
- 	__u8 i;
- 
--	skb = __hci_cmd_sync(hdev, HCI_OP_READ_LOCAL_CODECS, 0, NULL,
--			     HCI_CMD_TIMEOUT);
-+	skb = __hci_cmd_sync_sk(hdev, HCI_OP_READ_LOCAL_CODECS, 0, NULL,
-+				0, HCI_CMD_TIMEOUT, NULL);
- 
- 	if (IS_ERR(skb)) {
- 		bt_dev_err(hdev, "Failed to read local supported codecs (%ld)",
-@@ -158,7 +157,8 @@ void hci_read_supported_codecs(struct hci_dev *hdev)
- 	for (i = 0; i < std_codecs->num; i++) {
- 		caps.id = std_codecs->codec[i];
- 		caps.direction = 0x00;
--		hci_read_codec_capabilities(hdev, LOCAL_CODEC_ACL_MASK, &caps);
-+		hci_read_codec_capabilities(hdev,
-+					    LOCAL_CODEC_ACL_MASK | LOCAL_CODEC_SCO_MASK, &caps);
- 	}
- 
- 	skb_pull(skb, flex_array_size(std_codecs, codec, std_codecs->num)
-@@ -178,7 +178,8 @@ void hci_read_supported_codecs(struct hci_dev *hdev)
- 		caps.cid = vnd_codecs->codec[i].cid;
- 		caps.vid = vnd_codecs->codec[i].vid;
- 		caps.direction = 0x00;
--		hci_read_codec_capabilities(hdev, LOCAL_CODEC_ACL_MASK, &caps);
-+		hci_read_codec_capabilities(hdev,
-+					    LOCAL_CODEC_ACL_MASK | LOCAL_CODEC_SCO_MASK, &caps);
- 	}
- 
- error:
-@@ -194,8 +195,8 @@ void hci_read_supported_codecs_v2(struct hci_dev *hdev)
- 	struct hci_op_read_local_codec_caps caps;
- 	__u8 i;
- 
--	skb = __hci_cmd_sync(hdev, HCI_OP_READ_LOCAL_CODECS_V2, 0, NULL,
--			     HCI_CMD_TIMEOUT);
-+	skb = __hci_cmd_sync_sk(hdev, HCI_OP_READ_LOCAL_CODECS_V2, 0, NULL,
-+				0, HCI_CMD_TIMEOUT, NULL);
- 
- 	if (IS_ERR(skb)) {
- 		bt_dev_err(hdev, "Failed to read local supported codecs (%ld)",
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index 831e816e1d20..a5e89e1b5452 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -12,6 +12,7 @@
- #include <net/bluetooth/mgmt.h>
- 
- #include "hci_request.h"
-+#include "hci_codec.h"
- #include "hci_debugfs.h"
- #include "smp.h"
- #include "eir.h"
-@@ -3918,11 +3919,12 @@ static int hci_set_event_mask_page_2_sync(struct hci_dev *hdev)
- /* Read local codec list if the HCI command is supported */
- static int hci_read_local_codecs_sync(struct hci_dev *hdev)
- {
--	if (!(hdev->commands[29] & 0x20))
--		return 0;
-+	if (hdev->commands[45] & 0x04)
-+		hci_read_supported_codecs_v2(hdev);
-+	else if (hdev->commands[29] & 0x20)
-+		hci_read_supported_codecs(hdev);
- 
--	return __hci_cmd_sync_status(hdev, HCI_OP_READ_LOCAL_CODECS, 0, NULL,
--				     HCI_CMD_TIMEOUT);
-+	return 0;
- }
- 
- /* Read local pairing options if the HCI command is supported */
+ 			greth->rx_skbuff[i] = skb;
 -- 
 2.35.1
 
