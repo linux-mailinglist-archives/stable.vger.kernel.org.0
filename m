@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4E7064A222
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:50:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 786AB64A25E
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233042AbiLLNuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:50:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48696 "EHLO
+        id S233074AbiLLNx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:53:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233045AbiLLNtY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:49:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76851E03B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:49:08 -0800 (PST)
+        with ESMTP id S233072AbiLLNxf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 749EDEB9
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:52:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14E7C61035
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:49:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ED3BC433EF;
-        Mon, 12 Dec 2022 13:49:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1070661025
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:52:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2E50C433D2;
+        Mon, 12 Dec 2022 13:52:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852947;
-        bh=R0qKGljzn4Qgb7oMrILuRWSoS93ytflK04KcgXieFG0=;
+        s=korg; t=1670853162;
+        bh=Rc+LxFHimKZdZg+29bvCdwoJZQdLxZfZ4pNsmTsJ708=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zZDDTYpfx63Tb1jBHDbAI7yLD8P4qPsa3citJgP6adh8VcfEPQYGadUC5BhbNEcYo
-         RRVPteH7dbp386x3kA0P9DMV/FnfGjr/HzmxPDvsiFSzV22bRppmo+TNHw2ugyjjSs
-         Sg6RM5NcdrLy0/Ah+Q0rYiSvhUF2vmNftvFqvx7A=
+        b=a+YeuNDB1sxqSX/pRGc0qgK96VOiYjd0DC10iD5SuLJOb/nmCVh+xTMP0IK1Jx42X
+         WAbryI3xT45pUqGeLD4CBmZxcXCTWUqKZH96klishb8cXYup/Fu1V3FNIZkFcNxEPT
+         eSRra4SlS1MrpxNsdWrym8CWQjVaS7940xCew5wA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Johan Jonker <jbx6244@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/49] Bluetooth: 6LoWPAN: add missing hci_dev_put() in get_l2cap_conn()
-Date:   Mon, 12 Dec 2022 14:19:05 +0100
-Message-Id: <20221212130915.017328531@linuxfoundation.org>
+Subject: [PATCH 4.14 05/38] ARM: dts: rockchip: disable arm_global_timer on rk3066 and rk3188
+Date:   Mon, 12 Dec 2022 14:19:06 +0100
+Message-Id: <20221212130912.362052394@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
-References: <20221212130913.666185567@linuxfoundation.org>
+In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
+References: <20221212130912.069170932@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit 747da1308bdd5021409974f9180f0d8ece53d142 ]
+[ Upstream commit da74858a475782a3f16470907814c8cc5950ad68 ]
 
-hci_get_route() takes reference, we should use hci_dev_put() to release
-it when not need anymore.
+The clock source and the sched_clock provided by the arm_global_timer
+on Rockchip rk3066a/rk3188 are quite unstable because their rates
+depend on the CPU frequency.
 
-Fixes: 6b8d4a6a0314 ("Bluetooth: 6LoWPAN: Use connected oriented channel instead of fixed one")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Recent changes to the arm_global_timer driver makes it impossible to use.
+
+On the other side, the arm_global_timer has a higher rating than the
+ROCKCHIP_TIMER, it will be selected by default by the time framework
+while we want to use the stable Rockchip clock source.
+
+Keep the arm_global_timer disabled in order to have the
+DW_APB_TIMER (rk3066a) or ROCKCHIP_TIMER (rk3188) selected by default.
+
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/f275ca8d-fd0a-26e5-b978-b7f3df815e0a@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/6lowpan.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/rk3188.dtsi | 1 -
+ arch/arm/boot/dts/rk3xxx.dtsi | 7 +++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
-index 9a75f9b00b51..4530ffb2481a 100644
---- a/net/bluetooth/6lowpan.c
-+++ b/net/bluetooth/6lowpan.c
-@@ -1014,6 +1014,7 @@ static int get_l2cap_conn(char *buf, bdaddr_t *addr, u8 *addr_type,
- 	hci_dev_lock(hdev);
- 	hcon = hci_conn_hash_lookup_le(hdev, addr, *addr_type);
- 	hci_dev_unlock(hdev);
-+	hci_dev_put(hdev);
+diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
+index 74eb1dfa2f6c..3689a23a1bca 100644
+--- a/arch/arm/boot/dts/rk3188.dtsi
++++ b/arch/arm/boot/dts/rk3188.dtsi
+@@ -546,7 +546,6 @@
  
- 	if (!hcon)
- 		return -ENOENT;
+ &global_timer {
+ 	interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
+-	status = "disabled";
+ };
+ 
+ &local_timer {
+diff --git a/arch/arm/boot/dts/rk3xxx.dtsi b/arch/arm/boot/dts/rk3xxx.dtsi
+index 4aa6f60d6a22..5f9950704f13 100644
+--- a/arch/arm/boot/dts/rk3xxx.dtsi
++++ b/arch/arm/boot/dts/rk3xxx.dtsi
+@@ -134,6 +134,13 @@
+ 		reg = <0x1013c200 0x20>;
+ 		interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_EDGE_RISING)>;
+ 		clocks = <&cru CORE_PERI>;
++		status = "disabled";
++		/* The clock source and the sched_clock provided by the arm_global_timer
++		 * on Rockchip rk3066a/rk3188 are quite unstable because their rates
++		 * depend on the CPU frequency.
++		 * Keep the arm_global_timer disabled in order to have the
++		 * DW_APB_TIMER (rk3066a) or ROCKCHIP_TIMER (rk3188) selected by default.
++		 */
+ 	};
+ 
+ 	local_timer: local-timer@1013c600 {
 -- 
 2.35.1
 
