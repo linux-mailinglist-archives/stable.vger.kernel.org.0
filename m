@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E34ED64A16F
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:40:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B594564A081
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:26:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232599AbiLLNkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:40:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36534 "EHLO
+        id S232735AbiLLN0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:26:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232656AbiLLNkL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:40:11 -0500
+        with ESMTP id S232800AbiLLNZk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:40 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22CC0101C4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:39:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C5313E05
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B38E261025
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:39:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B34ECC433EF;
-        Mon, 12 Dec 2022 13:39:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC2F06106C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BE2EC433D2;
+        Mon, 12 Dec 2022 13:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852349;
-        bh=TdvIlc8C5wD6BDXGPq7WoKuCwJryUESjDM+nGK8ooS8=;
+        s=korg; t=1670851538;
+        bh=GRR9jBZFyWAtOBROCtryACD0FFkQK7yiBk7+JNb9llA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTyyJ4yVMB19m+q442pDsW3alPe3lwdlIxOLBTkbMN8EI9s1oKFoYvtGnms53IC1O
-         9YVxqfgeTkZPk/p1VXVc7q1Hu+3ImehmiDXz63O56OOJIRk+qGNTCHwH1PhXsvXR+g
-         hOw92Zasd3u91Di58IEMbOoktGDQS4zASyT4FDPE=
+        b=PZuKmV9vWTITeMaAU+Bgzdic2zm5R4+ip/iqEwZs5Od9vHkIbonHZXz0qE5/uLova
+         mUW6mktCPsfA+v+79hHkPlg9o4XrlL04uaTAmMWCedTfeo5iUUJs8pYnSm9vPH9g+e
+         UqZKHEie45q/J5mbWBjeWx7iAoHxhAuriF35PWIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Davide Tronchin <davide.tronchin.94@gmail.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 037/157] net: usb: qmi_wwan: add u-blox 0x1342 composition
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        alsa-devel@alsa-project.org, Kees Cook <keescook@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 019/123] ALSA: seq: Fix function prototype mismatch in snd_seq_expand_var_event
 Date:   Mon, 12 Dec 2022 14:16:25 +0100
-Message-Id: <20221212130936.021774740@linuxfoundation.org>
+Message-Id: <20221212130927.693899738@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Tronchin <davide.tronchin.94@gmail.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit a487069e11b6527373f7c6f435d8998051d0b5d9 ]
+[ Upstream commit 05530ef7cf7c7d700f6753f058999b1b5099a026 ]
 
-Add RmNet support for LARA-L6.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed.
 
-LARA-L6 module can be configured (by AT interface) in three different
-USB modes:
-* Default mode (Vendor ID: 0x1546 Product ID: 0x1341) with 4 serial
-interfaces
-* RmNet mode (Vendor ID: 0x1546 Product ID: 0x1342) with 4 serial
-interfaces and 1 RmNet virtual network interface
-* CDC-ECM mode (Vendor ID: 0x1546 Product ID: 0x1343) with 4 serial
-interface and 1 CDC-ECM virtual network interface
+seq_copy_in_user() and seq_copy_in_kernel() did not have prototypes
+matching snd_seq_dump_func_t. Adjust this and remove the casts. There
+are not resulting binary output differences.
 
-In RmNet mode LARA-L6 exposes the following interfaces:
-If 0: Diagnostic
-If 1: AT parser
-If 2: AT parser
-If 3: AT parset/alternative functions
-If 4: RMNET interface
+This was found as a result of Clang's new -Wcast-function-type-strict
+flag, which is more sensitive than the simpler -Wcast-function-type,
+which only checks for type width mismatches.
 
-Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202211041527.HD8TLSE1-lkp@intel.com
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: alsa-devel@alsa-project.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221118232346.never.380-kees@kernel.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/core/seq/seq_memory.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index afd6faa4c2ec..554d4e2a84a4 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1423,6 +1423,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_FIXED_INTF(0x0489, 0xe0b4, 0)},	/* Foxconn T77W968 LTE */
- 	{QMI_FIXED_INTF(0x0489, 0xe0b5, 0)},	/* Foxconn T77W968 LTE with eSIM support*/
- 	{QMI_FIXED_INTF(0x2692, 0x9025, 4)},    /* Cellient MPL200 (rebranded Qualcomm 05c6:9025) */
-+	{QMI_QUIRK_SET_DTR(0x1546, 0x1342, 4)},	/* u-blox LARA-L6 */
+diff --git a/sound/core/seq/seq_memory.c b/sound/core/seq/seq_memory.c
+index b7aee23fc387..47ef6bc30c0e 100644
+--- a/sound/core/seq/seq_memory.c
++++ b/sound/core/seq/seq_memory.c
+@@ -113,15 +113,19 @@ EXPORT_SYMBOL(snd_seq_dump_var_event);
+  * expand the variable length event to linear buffer space.
+  */
  
- 	/* 4. Gobi 1000 devices */
- 	{QMI_GOBI1K_DEVICE(0x05c6, 0x9212)},	/* Acer Gobi Modem Device */
+-static int seq_copy_in_kernel(char **bufptr, const void *src, int size)
++static int seq_copy_in_kernel(void *ptr, void *src, int size)
+ {
++	char **bufptr = ptr;
++
+ 	memcpy(*bufptr, src, size);
+ 	*bufptr += size;
+ 	return 0;
+ }
+ 
+-static int seq_copy_in_user(char __user **bufptr, const void *src, int size)
++static int seq_copy_in_user(void *ptr, void *src, int size)
+ {
++	char __user **bufptr = ptr;
++
+ 	if (copy_to_user(*bufptr, src, size))
+ 		return -EFAULT;
+ 	*bufptr += size;
+@@ -151,8 +155,7 @@ int snd_seq_expand_var_event(const struct snd_seq_event *event, int count, char
+ 		return newlen;
+ 	}
+ 	err = snd_seq_dump_var_event(event,
+-				     in_kernel ? (snd_seq_dump_func_t)seq_copy_in_kernel :
+-				     (snd_seq_dump_func_t)seq_copy_in_user,
++				     in_kernel ? seq_copy_in_kernel : seq_copy_in_user,
+ 				     &buf);
+ 	return err < 0 ? err : newlen;
+ }
 -- 
 2.35.1
 
