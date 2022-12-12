@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BC4164A005
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:19:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED19764A006
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:19:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231607AbiLLNTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:19:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43586 "EHLO
+        id S232422AbiLLNTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:19:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232619AbiLLNSF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:18:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C1FE1038
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:17:40 -0800 (PST)
+        with ESMTP id S232670AbiLLNSR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:18:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C22B96156
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:17:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50CFB61045
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:17:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D12EC433EF;
-        Mon, 12 Dec 2022 13:17:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F169B80D3C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:17:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F0E7C433EF;
+        Mon, 12 Dec 2022 13:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851059;
-        bh=2xTj+0tcNnhijVA1AA51x6sX8lcq7GmodvgnfoWEeAA=;
+        s=korg; t=1670851064;
+        bh=XMpCXEKB7o81bETFotcCbAehwXd8Ga6zvwYkP//BeNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fwcdx7GNqNiCfkrMoiB/huImkXffKRQoCB7FahfYndo/iD5o22UPUBm80Xgyqg4yV
-         KSBMmLTGTaM8vutvsw04jJsq0PKAANcR1KNhqypnuc2C8hOlPCnp9D/ZAVMsoFZJcc
-         xxaz6FkkkKYpkXTsUqCb2//ZcBPjSTiNTBkR4tH8=
+        b=uQQQ3Mx8VqP9vchURfAAEHBwWm8sfvE7ysd2a2FK3NsCEwf7B93Py+2nVPK6nYLZ6
+         /5twNLy5Dseq5/SRML4z9RgzduR99IrRZ0bgiocBtTCMVSvmtnrk7kkA17kNIkpXHs
+         CYfMCJiF4ZOGOJAQPyp3ZlJ/OPxvobk/5uA2zvvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        Ross Lagerwall <ross.lagerwall@citrix.com>,
+        Jason Andryuk <jandryuk@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 100/106] ethernet: aeroflex: fix potential skb leak in greth_init_rings()
-Date:   Mon, 12 Dec 2022 14:10:43 +0100
-Message-Id: <20221212130929.217277928@linuxfoundation.org>
+Subject: [PATCH 5.10 101/106] xen/netback: fix build warning
+Date:   Mon, 12 Dec 2022 14:10:44 +0100
+Message-Id: <20221212130929.265423368@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -55,37 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 063a932b64db3317ec020c94466fe52923a15f60 ]
+[ Upstream commit 7dfa764e0223a324366a2a1fc056d4d9d4e95491 ]
 
-The greth_init_rings() function won't free the newly allocated skb when
-dma_mapping_error() returns error, so add dev_kfree_skb() to fix it.
+Commit ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in
+the non-linear area") introduced a (valid) build warning. There have
+even been reports of this problem breaking networking of Xen guests.
 
-Compile tested only.
-
-Fixes: d4c41139df6e ("net: Add Aeroflex Gaisler 10/100/1G Ethernet MAC driver")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/1670134149-29516-1-git-send-email-zhangchangzhong@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in the non-linear area")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+Tested-by: Jason Andryuk <jandryuk@gmail.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aeroflex/greth.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/xen-netback/netback.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aeroflex/greth.c b/drivers/net/ethernet/aeroflex/greth.c
-index f4f50b3a472e..0d56cb4f5dd9 100644
---- a/drivers/net/ethernet/aeroflex/greth.c
-+++ b/drivers/net/ethernet/aeroflex/greth.c
-@@ -258,6 +258,7 @@ static int greth_init_rings(struct greth_private *greth)
- 			if (dma_mapping_error(greth->dev, dma_addr)) {
- 				if (netif_msg_ifup(greth))
- 					dev_err(greth->dev, "Could not create initial DMA mapping\n");
-+				dev_kfree_skb(skb);
- 				goto cleanup;
- 			}
- 			greth->rx_skbuff[i] = skb;
+diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
+index fed0f7458e18..f9373a88cf37 100644
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -530,7 +530,7 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
+ 	const bool sharedslot = nr_frags &&
+ 				frag_get_pending_idx(&shinfo->frags[0]) ==
+ 				    copy_pending_idx(skb, copy_count(skb) - 1);
+-	int i, err;
++	int i, err = 0;
+ 
+ 	for (i = 0; i < copy_count(skb); i++) {
+ 		int newerr;
 -- 
 2.35.1
 
