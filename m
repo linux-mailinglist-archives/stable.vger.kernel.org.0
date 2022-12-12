@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2674864A00E
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:19:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6968264A00F
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:19:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232349AbiLLNTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:19:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46168 "EHLO
+        id S232406AbiLLNTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:19:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232381AbiLLNTN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:19:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E86113DEA
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:18:15 -0800 (PST)
+        with ESMTP id S232483AbiLLNTO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:19:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DC7813E05
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:18:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A3E4B80D3B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:18:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4698FC43396;
-        Mon, 12 Dec 2022 13:18:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E0C361045
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:18:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC377C433D2;
+        Mon, 12 Dec 2022 13:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851093;
-        bh=c8sSGmDDcvTN2xMqNFTYlSDfD3XeucYpq/3DzkkWCHA=;
+        s=korg; t=1670851097;
+        bh=HWK3CyfhSoOylPe4/69PfqIoZWQDdcB7WwS38HyR9bg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VxAPab5ihev6DXqiulRuQepCsCda49UimDSeVjVPpZb1cKAwCW9+lPjgAkv8uw16N
-         QD9eCcennxPriffcOzVeG+SS4c9jgkxsMCeYHWwIplhJZEd3JZ6kCaVLHFsd5h5dEc
-         m9su3mqqXSWN+XTd8AVjQzhS9pioD3jWIWjyoXYk=
+        b=cygGCd6M1DFfPcbDOKROkZbavBrRjogTE+H+8OnI47eB05Y7YKgt7RA90tb9AOhLO
+         PJt8sNCnK+lSHGxbOn18FZM69t0+6TcW3ErZ8LXBdx8Ah3ASnjjOuDV9cYuIVuvmF1
+         wTq8rhak4UQxCRdISYVNrB5CH5deCQMaV1pGXR7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lin Liu <lin.liu@citrix.com>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 083/106] xen-netfront: Fix NULL sring after live migration
-Date:   Mon, 12 Dec 2022 14:10:26 +0100
-Message-Id: <20221212130928.498255952@linuxfoundation.org>
+Subject: [PATCH 5.10 084/106] net: mvneta: Prevent out of bounds read in mvneta_config_rss()
+Date:   Mon, 12 Dec 2022 14:10:27 +0100
+Message-Id: <20221212130928.540457878@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -53,84 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Liu <lin.liu@citrix.com>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit d50b7914fae04d840ce36491d22133070b18cca9 ]
+[ Upstream commit e8b4fc13900b8e8be48debffd0dfd391772501f7 ]
 
-A NAPI is setup for each network sring to poll data to kernel
-The sring with source host is destroyed before live migration and
-new sring with target host is setup after live migration.
-The NAPI for the old sring is not deleted until setup new sring
-with target host after migration. With busy_poll/busy_read enabled,
-the NAPI can be polled before got deleted when resume VM.
+The pp->indir[0] value comes from the user.  It is passed to:
 
-BUG: unable to handle kernel NULL pointer dereference at
-0000000000000008
-IP: xennet_poll+0xae/0xd20
-PGD 0 P4D 0
-Oops: 0000 [#1] SMP PTI
-Call Trace:
- finish_task_switch+0x71/0x230
- timerqueue_del+0x1d/0x40
- hrtimer_try_to_cancel+0xb5/0x110
- xennet_alloc_rx_buffers+0x2a0/0x2a0
- napi_busy_loop+0xdb/0x270
- sock_poll+0x87/0x90
- do_sys_poll+0x26f/0x580
- tracing_map_insert+0x1d4/0x2f0
- event_hist_trigger+0x14a/0x260
+	if (cpu_online(pp->rxq_def))
 
- finish_task_switch+0x71/0x230
- __schedule+0x256/0x890
- recalc_sigpending+0x1b/0x50
- xen_sched_clock+0x15/0x20
- __rb_reserve_next+0x12d/0x140
- ring_buffer_lock_reserve+0x123/0x3d0
- event_triggers_call+0x87/0xb0
- trace_event_buffer_commit+0x1c4/0x210
- xen_clocksource_get_cycles+0x15/0x20
- ktime_get_ts64+0x51/0xf0
- SyS_ppoll+0x160/0x1a0
- SyS_ppoll+0x160/0x1a0
- do_syscall_64+0x73/0x130
- entry_SYSCALL_64_after_hwframe+0x41/0xa6
-...
-RIP: xennet_poll+0xae/0xd20 RSP: ffffb4f041933900
-CR2: 0000000000000008
----[ end trace f8601785b354351c ]---
+inside the mvneta_percpu_elect() function.  It needs bounds checkeding
+to ensure that it is not beyond the end of the cpu bitmap.
 
-xen frontend should remove the NAPIs for the old srings before live
-migration as the bond srings are destroyed
-
-There is a tiny window between the srings are set to NULL and
-the NAPIs are disabled, It is safe as the NAPI threads are still
-frozen at that time
-
-Signed-off-by: Lin Liu <lin.liu@citrix.com>
-Fixes: 4ec2411980d0 ([NET]: Do not check netif_running() and carrier state in ->poll())
+Fixes: cad5d847a093 ("net: mvneta: Fix the CPU choice in mvneta_percpu_elect")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netfront.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/marvell/mvneta.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
-index 569f3c8e7b75..3d149890fa36 100644
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -1868,6 +1868,12 @@ static int netfront_resume(struct xenbus_device *dev)
- 	netif_tx_unlock_bh(info->netdev);
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index 74e266c0b8e1..6bfa0ac27be3 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -4767,6 +4767,9 @@ static int  mvneta_config_rss(struct mvneta_port *pp)
+ 		napi_disable(&pp->napi);
+ 	}
  
- 	xennet_disconnect_backend(info);
++	if (pp->indir[0] >= nr_cpu_ids)
++		return -EINVAL;
 +
-+	rtnl_lock();
-+	if (info->queues)
-+		xennet_destroy_queues(info);
-+	rtnl_unlock();
-+
- 	return 0;
- }
+ 	pp->rxq_def = pp->indir[0];
  
+ 	/* Update unicast mapping */
 -- 
 2.35.1
 
