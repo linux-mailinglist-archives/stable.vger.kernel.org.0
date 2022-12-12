@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2DFA64A07F
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:25:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B583F64A16E
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:40:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232729AbiLLNZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:25:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54392 "EHLO
+        id S232940AbiLLNkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:40:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232716AbiLLNZe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:34 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7496313D09
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:32 -0800 (PST)
+        with ESMTP id S232941AbiLLNj5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:39:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0008B10A0
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:39:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C3C8ACE0F7B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59C10C433D2;
-        Mon, 12 Dec 2022 13:25:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F4C361025
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:39:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2703C433EF;
+        Mon, 12 Dec 2022 13:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851529;
-        bh=1dBqIMpoL7c60s8R/M/lYxjuNucSbI6Zhp0XOdOHS04=;
+        s=korg; t=1670852345;
+        bh=y0onyTytyGueODo0bQ1AhuLo99a7hvNCbNOB8XaCVK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ngXi8CzqufR2aPxH5lDEot7zIpiWqiWbXDCY6tvSgx0Si4IrudLgZ2Si0tWrJv1g
-         zqyS2Iljzs1MRqaKru4Q4V++kpCQaZXOWNO7H/qOpqAzXbp3E7iriZLX7a+65ejWws
-         5BCEXFUhJ4yiqWqF7xqHgpUCoIwMxJ+Z08k416wQ=
+        b=oXHlm2qP1ylBmHti7PXCG+xHPkjnRDKwTc4aROmA7MkWheZq2Le5OjtGPUXGOAN3t
+         hQPyyaiQg9IK168jQNANcqZjHdXo4k4LW4zPjHy9l4mviyFqLsq83jr+40+KLbURHj
+         /VPOqITy3T2RzvaYhedDa92x2kzkM/8yMRUqDPz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, GUO Zihua <guozihua@huawei.com>,
+        patches@lists.linux.dev,
+        Stefano Stabellini <sstabellini@kernel.org>,
         Christian Schoenebeck <linux_oss@crudebyte.com>,
         Dominique Martinet <asmadeus@codewreck.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 017/123] 9p/fd: Use P9_HDRSZ for header size
-Date:   Mon, 12 Dec 2022 14:16:23 +0100
-Message-Id: <20221212130927.599907277@linuxfoundation.org>
+Subject: [PATCH 6.0 036/157] 9p/xen: check logical size for buffer size
+Date:   Mon, 12 Dec 2022 14:16:24 +0100
+Message-Id: <20221212130935.980026490@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: GUO Zihua <guozihua@huawei.com>
+From: Dominique Martinet <asmadeus@codewreck.org>
 
-[ Upstream commit 6854fadbeee10891ed74246bdc05031906b6c8cf ]
+[ Upstream commit 391c18cf776eb4569ecda1f7794f360fe0a45a26 ]
 
-Cleanup hardcoded header sizes to use P9_HDRSZ instead of '7'
+trans_xen did not check the data fits into the buffer before copying
+from the xen ring, but we probably should.
+Add a check that just skips the request and return an error to
+userspace if it did not fit
 
-Link: https://lkml.kernel.org/r/20221117091159.31533-4-guozihua@huawei.com
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
+Tested-by: Stefano Stabellini <sstabellini@kernel.org>
 Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-[Dominique: commit message adjusted to make sense after offset size
-adjustment got removed]
+Link: https://lkml.kernel.org/r/20221118135542.63400-1-asmadeus@codewreck.org
 Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_fd.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/9p/trans_xen.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
-index e1c2c9242ce2..f359cfdc1858 100644
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -122,7 +122,7 @@ struct p9_conn {
- 	struct list_head unsent_req_list;
- 	struct p9_req_t *rreq;
- 	struct p9_req_t *wreq;
--	char tmp_buf[7];
-+	char tmp_buf[P9_HDRSZ];
- 	struct p9_fcall rc;
- 	int wpos;
- 	int wsize;
-@@ -295,7 +295,7 @@ static void p9_read_work(struct work_struct *work)
- 	if (!m->rc.sdata) {
- 		m->rc.sdata = m->tmp_buf;
- 		m->rc.offset = 0;
--		m->rc.capacity = 7; /* start by reading header */
-+		m->rc.capacity = P9_HDRSZ; /* start by reading header */
- 	}
+diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
+index 227f89cc7237..0f862d5a5960 100644
+--- a/net/9p/trans_xen.c
++++ b/net/9p/trans_xen.c
+@@ -208,6 +208,14 @@ static void p9_xen_response(struct work_struct *work)
+ 			continue;
+ 		}
  
- 	clear_bit(Rpending, &m->wsched);
-@@ -318,7 +318,7 @@ static void p9_read_work(struct work_struct *work)
- 		p9_debug(P9_DEBUG_TRANS, "got new header\n");
++		if (h.size > req->rc.capacity) {
++			dev_warn(&priv->dev->dev,
++				 "requested packet size too big: %d for tag %d with capacity %zd\n",
++				 h.size, h.tag, req->rc.capacity);
++			req->status = REQ_STATUS_ERROR;
++			goto recv_error;
++		}
++
+ 		memcpy(&req->rc, &h, sizeof(h));
+ 		req->rc.offset = 0;
  
- 		/* Header size */
--		m->rc.size = 7;
-+		m->rc.size = P9_HDRSZ;
- 		err = p9_parse_header(&m->rc, &m->rc.size, NULL, NULL, 0);
- 		if (err) {
- 			p9_debug(P9_DEBUG_ERROR,
+@@ -217,6 +225,7 @@ static void p9_xen_response(struct work_struct *work)
+ 				     masked_prod, &masked_cons,
+ 				     XEN_9PFS_RING_SIZE(ring));
+ 
++recv_error:
+ 		virt_mb();
+ 		cons += h.size;
+ 		ring->intf->in_cons = cons;
 -- 
 2.35.1
 
