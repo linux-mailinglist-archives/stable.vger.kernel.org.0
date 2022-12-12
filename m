@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5752564A278
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31BB864A27F
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:55:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233256AbiLLNym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:54:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54944 "EHLO
+        id S233254AbiLLNzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:55:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233237AbiLLNyW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B4310AE
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:54:14 -0800 (PST)
+        with ESMTP id S233260AbiLLNyn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AEAC26E8
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:54:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 905FB610A5
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:54:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8731FC433F0;
-        Mon, 12 Dec 2022 13:54:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8C68B8068B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:54:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97007C433EF;
+        Mon, 12 Dec 2022 13:54:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853254;
-        bh=s+Z/7/Ikdn+WalkSiXiuzeJg4PAMRv+98m9Z4Wobk94=;
+        s=korg; t=1670853279;
+        bh=3qeGPIic+tXkC9ZVgcHHgkL/JEKzUHw+7msJA/t5gRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B7MBVfstFwZOv7SE72LlA0+z5HWZD25ryRsShko2cqi0BHgiCY9R7MZAXwahN0HDr
-         lvbTRkfns5KZnPAVST17rREaDIIZiBNq6fvRA3O23qJZlP0i1YYYayPUuFQLkQscvv
-         BtRLgAn5e9viQICdexZVuPi8Xa0RUQYSj307cBYo=
+        b=YPXp8yowrKq7u2Z9pY0OtRnNSl4Xu2/n5o6DL373ebfgGgDlpOWrDqN7RA/2cpXDt
+         2vIYw7ffKAL4Zyyrmy+ycW7eRZPD2mABUXrJSslOlC0fu39TSf0RA/PS3E7H7uPyXR
+         wRVDzPwcYYXy6wXQxdwUNVk2SVVQUhwuGgr1Ez34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/38] net: mvneta: Prevent out of bounds read in mvneta_config_rss()
-Date:   Mon, 12 Dec 2022 14:19:29 +0100
-Message-Id: <20221212130913.506801067@linuxfoundation.org>
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 4.9 12/31] media: v4l2-dv-timings.c: fix too strict blanking sanity checks
+Date:   Mon, 12 Dec 2022 14:19:30 +0100
+Message-Id: <20221212130910.637578211@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
-References: <20221212130912.069170932@linuxfoundation.org>
+In-Reply-To: <20221212130909.943483205@linuxfoundation.org>
+References: <20221212130909.943483205@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +52,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit e8b4fc13900b8e8be48debffd0dfd391772501f7 ]
+commit 5eef2141776da02772c44ec406d6871a790761ee upstream.
 
-The pp->indir[0] value comes from the user.  It is passed to:
+Sanity checks were added to verify the v4l2_bt_timings blanking fields
+in order to avoid integer overflows when userspace passes weird values.
 
-	if (cpu_online(pp->rxq_def))
+But that assumed that userspace would correctly fill in the front porch,
+backporch and sync values, but sometimes all you know is the total
+blanking, which is then assigned to just one of these fields.
 
-inside the mvneta_percpu_elect() function.  It needs bounds checkeding
-to ensure that it is not beyond the end of the cpu bitmap.
+And that can fail with these checks.
 
-Fixes: cad5d847a093 ("net: mvneta: Fix the CPU choice in mvneta_percpu_elect")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So instead set a maximum for the total horizontal and vertical
+blanking and check that each field remains below that.
+
+That is still sufficient to avoid integer overflows, but it also
+allows for more flexibility in how userspace fills in these fields.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 4b6d66a45ed3 ("media: v4l2-dv-timings: add sanity checks for blanking values")
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/v4l2-core/v4l2-dv-timings.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-index 8fde1515aec7..526705c21550 100644
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -3871,6 +3871,9 @@ static int  mvneta_config_rss(struct mvneta_port *pp)
- 		napi_disable(&pcpu_port->napi);
- 	}
+--- a/drivers/media/v4l2-core/v4l2-dv-timings.c
++++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
+@@ -155,6 +155,8 @@ bool v4l2_valid_dv_timings(const struct
+ 	const struct v4l2_bt_timings *bt = &t->bt;
+ 	const struct v4l2_bt_timings_cap *cap = &dvcap->bt;
+ 	u32 caps = cap->capabilities;
++	const u32 max_vert = 10240;
++	u32 max_hor = 3 * bt->width;
  
-+	if (pp->indir[0] >= nr_cpu_ids)
-+		return -EINVAL;
-+
- 	pp->rxq_def = pp->indir[0];
- 
- 	/* Update unicast mapping */
--- 
-2.35.1
-
+ 	if (t->type != V4L2_DV_BT_656_1120)
+ 		return false;
+@@ -176,14 +178,20 @@ bool v4l2_valid_dv_timings(const struct
+ 	if (!bt->interlaced &&
+ 	    (bt->il_vbackporch || bt->il_vsync || bt->il_vfrontporch))
+ 		return false;
+-	if (bt->hfrontporch > 2 * bt->width ||
+-	    bt->hsync > 1024 || bt->hbackporch > 1024)
++	/*
++	 * Some video receivers cannot properly separate the frontporch,
++	 * backporch and sync values, and instead they only have the total
++	 * blanking. That can be assigned to any of these three fields.
++	 * So just check that none of these are way out of range.
++	 */
++	if (bt->hfrontporch > max_hor ||
++	    bt->hsync > max_hor || bt->hbackporch > max_hor)
+ 		return false;
+-	if (bt->vfrontporch > 4096 ||
+-	    bt->vsync > 128 || bt->vbackporch > 4096)
++	if (bt->vfrontporch > max_vert ||
++	    bt->vsync > max_vert || bt->vbackporch > max_vert)
+ 		return false;
+-	if (bt->interlaced && (bt->il_vfrontporch > 4096 ||
+-	    bt->il_vsync > 128 || bt->il_vbackporch > 4096))
++	if (bt->interlaced && (bt->il_vfrontporch > max_vert ||
++	    bt->il_vsync > max_vert || bt->il_vbackporch > max_vert))
+ 		return false;
+ 	return fnc == NULL || fnc(t, fnc_handle);
+ }
 
 
