@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55EDD64A221
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:50:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F11B364A232
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:51:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233032AbiLLNuG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:50:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48686 "EHLO
+        id S233160AbiLLNvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:51:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233034AbiLLNtX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:49:23 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05DB85F6A
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:49:07 -0800 (PST)
+        with ESMTP id S233171AbiLLNuj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:50:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3CFF1583E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:50:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 73CA6CE0EFC
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:49:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6305C433EF;
-        Mon, 12 Dec 2022 13:49:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D44B610A3
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:50:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05057C433EF;
+        Mon, 12 Dec 2022 13:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852943;
-        bh=sgVuWlSyPbHnUJVhWMrJ4A2T8ixxxVgvWH1SFbleF98=;
+        s=korg; t=1670853001;
+        bh=ZGp5/e8Ohphb28winLlqyxkptSStA1iqI9P+Eb47xQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BTIOEQV7WqYuO1T5O8mRBmKEXIipe9VfgRLDDBWI1tZ2tzuSonG3yEIZykBfyaBeF
-         6/r2iqxj6z3qQqgxtS+YadM2hX8DJBcBAOIgqA3x8WfodHM8PLjYVWxHmEgbdY2uVL
-         TQVq+8aiaLqEojcOadIqXnphjPsuwtx/Xlgs6OM8=
+        b=wZ+QnNJk1n5Jg+piQuazwCy7n7odoCznze2DMNVOwRw2mRdGnHkR6Icx0PJuccKjH
+         Ljh5hGdgF2EA9yRvPqsGyrmW+VRhQu8qqKgRWzY+bLa95txXwt6IogzZ6lapqj+2Cp
+         UVjUpu9tk587Oq0Kr5Fv4lHcBUyvFPlQCQow/oTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
-        Jann Horn <jannh@google.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 18/49] memcg: fix possible use-after-free in memcg_write_event_control()
-Date:   Mon, 12 Dec 2022 14:18:56 +0100
-Message-Id: <20221212130914.598442196@linuxfoundation.org>
+        patches@lists.linux.dev, Thomas Huth <thuth@redhat.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Subject: [PATCH 4.19 19/49] KVM: s390: vsie: Fix the initialization of the epoch extension (epdx) field
+Date:   Mon, 12 Dec 2022 14:18:57 +0100
+Message-Id: <20221212130914.651576365@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
 References: <20221212130913.666185567@linuxfoundation.org>
@@ -59,112 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Thomas Huth <thuth@redhat.com>
 
-commit 4a7ba45b1a435e7097ca0f79a847d0949d0eb088 upstream.
+commit 0dd4cdccdab3d74bd86b868768a7dca216bcce7e upstream.
 
-memcg_write_event_control() accesses the dentry->d_name of the specified
-control fd to route the write call.  As a cgroup interface file can't be
-renamed, it's safe to access d_name as long as the specified file is a
-regular cgroup file.  Also, as these cgroup interface files can't be
-removed before the directory, it's safe to access the parent too.
+We recently experienced some weird huge time jumps in nested guests when
+rebooting them in certain cases. After adding some debug code to the epoch
+handling in vsie.c (thanks to David Hildenbrand for the idea!), it was
+obvious that the "epdx" field (the multi-epoch extension) did not get set
+to 0xff in case the "epoch" field was negative.
+Seems like the code misses to copy the value from the epdx field from
+the guest to the shadow control block. By doing so, the weird time
+jumps are gone in our scenarios.
 
-Prior to 347c4a874710 ("memcg: remove cgroup_event->cft"), there was a
-call to __file_cft() which verified that the specified file is a regular
-cgroupfs file before further accesses.  The cftype pointer returned from
-__file_cft() was no longer necessary and the commit inadvertently dropped
-the file type check with it allowing any file to slip through.  With the
-invarients broken, the d_name and parent accesses can now race against
-renames and removals of arbitrary files and cause use-after-free's.
-
-Fix the bug by resurrecting the file type check in __file_cft().  Now that
-cgroupfs is implemented through kernfs, checking the file operations needs
-to go through a layer of indirection.  Instead, let's check the superblock
-and dentry type.
-
-Link: https://lkml.kernel.org/r/Y5FRm/cfcKPGzWwl@slm.duckdns.org
-Fixes: 347c4a874710 ("memcg: remove cgroup_event->cft")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Jann Horn <jannh@google.com>
-Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: <stable@vger.kernel.org>	[3.14+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2140899
+Fixes: 8fa1696ea781 ("KVM: s390: Multiple Epoch Facility support")
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Cc: stable@vger.kernel.org # 4.19+
+Link: https://lore.kernel.org/r/20221123090833.292938-1-thuth@redhat.com
+Message-Id: <20221123090833.292938-1-thuth@redhat.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/cgroup.h          |    1 +
- kernel/cgroup/cgroup-internal.h |    1 -
- mm/memcontrol.c                 |   15 +++++++++++++--
- 3 files changed, 14 insertions(+), 3 deletions(-)
+ arch/s390/kvm/vsie.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/linux/cgroup.h
-+++ b/include/linux/cgroup.h
-@@ -69,6 +69,7 @@ struct css_task_iter {
- 	struct list_head		iters_node;	/* css_set->task_iters */
- };
- 
-+extern struct file_system_type cgroup_fs_type;
- extern struct cgroup_root cgrp_dfl_root;
- extern struct css_set init_css_set;
- 
---- a/kernel/cgroup/cgroup-internal.h
-+++ b/kernel/cgroup/cgroup-internal.h
-@@ -148,7 +148,6 @@ extern struct mutex cgroup_mutex;
- extern spinlock_t css_set_lock;
- extern struct cgroup_subsys *cgroup_subsys[];
- extern struct list_head cgroup_roots;
--extern struct file_system_type cgroup_fs_type;
- 
- /* iterate across the hierarchies */
- #define for_each_root(root)						\
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -4120,6 +4120,7 @@ static ssize_t memcg_write_event_control
- 	unsigned int efd, cfd;
- 	struct fd efile;
- 	struct fd cfile;
-+	struct dentry *cdentry;
- 	const char *name;
- 	char *endp;
- 	int ret;
-@@ -4171,6 +4172,16 @@ static ssize_t memcg_write_event_control
- 		goto out_put_cfile;
- 
- 	/*
-+	 * The control file must be a regular cgroup1 file. As a regular cgroup
-+	 * file can't be renamed, it's safe to access its name afterwards.
-+	 */
-+	cdentry = cfile.file->f_path.dentry;
-+	if (cdentry->d_sb->s_type != &cgroup_fs_type || !d_is_reg(cdentry)) {
-+		ret = -EINVAL;
-+		goto out_put_cfile;
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -376,8 +376,10 @@ static int shadow_scb(struct kvm_vcpu *v
+ 	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_CEI))
+ 		scb_s->eca |= scb_o->eca & ECA_CEI;
+ 	/* Epoch Extension */
+-	if (test_kvm_facility(vcpu->kvm, 139))
++	if (test_kvm_facility(vcpu->kvm, 139)) {
+ 		scb_s->ecd |= scb_o->ecd & ECD_MEF;
++		scb_s->epdx = scb_o->epdx;
 +	}
-+
-+	/*
- 	 * Determine the event callbacks and set them in @event.  This used
- 	 * to be done via struct cftype but cgroup core no longer knows
- 	 * about these events.  The following is crude but the whole thing
-@@ -4178,7 +4189,7 @@ static ssize_t memcg_write_event_control
- 	 *
- 	 * DO NOT ADD NEW FILES.
- 	 */
--	name = cfile.file->f_path.dentry->d_name.name;
-+	name = cdentry->d_name.name;
  
- 	if (!strcmp(name, "memory.usage_in_bytes")) {
- 		event->register_event = mem_cgroup_usage_register_event;
-@@ -4202,7 +4213,7 @@ static ssize_t memcg_write_event_control
- 	 * automatically removed on cgroup destruction but the removal is
- 	 * asynchronous, so take an extra ref on @css.
- 	 */
--	cfile_css = css_tryget_online_from_dir(cfile.file->f_path.dentry->d_parent,
-+	cfile_css = css_tryget_online_from_dir(cdentry->d_parent,
- 					       &memory_cgrp_subsys);
- 	ret = -EINVAL;
- 	if (IS_ERR(cfile_css))
+ 	/* etoken */
+ 	if (test_kvm_facility(vcpu->kvm, 156))
 
 
