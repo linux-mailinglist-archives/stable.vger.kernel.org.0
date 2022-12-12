@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0401264A264
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8AFD64A282
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:55:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233050AbiLLNyM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:54:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52960 "EHLO
+        id S233295AbiLLNzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:55:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233009AbiLLNxy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ADCB140EE
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:53:11 -0800 (PST)
+        with ESMTP id S233283AbiLLNzD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:55:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA2514D37
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:54:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5B35B8068B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:53:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED5FC433D2;
-        Mon, 12 Dec 2022 13:53:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD5B9610A5
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:54:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D58EC433D2;
+        Mon, 12 Dec 2022 13:54:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853188;
-        bh=aPLxUTXdo/xecYuHkuSOuheoc+cRFJ2fpNAMlMypgHk=;
+        s=korg; t=1670853292;
+        bh=erx4mekDg9iblF1wO5yq7GtbKAKHxTvYsT67M7AkDa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Os9kyBHgA3JOtBTpgoLMmzYD4Trk/dilIwQgzbsMAqAr0Yma+7Sx90Zn9fhP1MAiQ
-         KeDql/MCnodMqVzkF+AtzEo0JsSOzgnrrq/Rt2j+VICGIcn9ohD+uBnGvhPseDnj5s
-         0y7RpG9lEAGaZqNhtE9U6diCHeFKRsfUSw0Pn7ss=
+        b=m8TT0nFufF20H9xlTndK7Fz/MIHmTjUiohkTvwmNrlZyVm1B97pzBNWiiUnSHDfUG
+         SeOsrBm3bipHrN1N4SfG8GUdEn3olwGVBIZoZoqsqAPQqZR3UPB8dhQuQDePZN+IpU
+         XiSmkR83aTiV+WekPgBy7tUoE2nNDvHEEMXRzhiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/38] gpio: amd8111: Fix PCI device reference count leak
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        alsa-devel@alsa-project.org, Kees Cook <keescook@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 04/31] ALSA: seq: Fix function prototype mismatch in snd_seq_expand_var_event
 Date:   Mon, 12 Dec 2022 14:19:22 +0100
-Message-Id: <20221212130913.175895577@linuxfoundation.org>
+Message-Id: <20221212130910.180549087@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
-References: <20221212130912.069170932@linuxfoundation.org>
+In-Reply-To: <20221212130909.943483205@linuxfoundation.org>
+References: <20221212130909.943483205@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 45fecdb9f658d9c82960c98240bc0770ade19aca ]
+[ Upstream commit 05530ef7cf7c7d700f6753f058999b1b5099a026 ]
 
-for_each_pci_dev() is implemented by pci_get_device(). The comment of
-pci_get_device() says that it will increase the reference count for the
-returned pci_dev and also decrease the reference count for the input
-pci_dev @from if it is not NULL.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed.
 
-If we break for_each_pci_dev() loop with pdev not NULL, we need to call
-pci_dev_put() to decrease the reference count. Add the missing
-pci_dev_put() after the 'out' label. Since pci_dev_put() can handle NULL
-input parameter, there is no problem for the 'Device not found' branch.
-For the normal path, add pci_dev_put() in amd_gpio_exit().
+seq_copy_in_user() and seq_copy_in_kernel() did not have prototypes
+matching snd_seq_dump_func_t. Adjust this and remove the casts. There
+are not resulting binary output differences.
 
-Fixes: f942a7de047d ("gpio: add a driver for GPIO pins found on AMD-8111 south bridge chips")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+This was found as a result of Clang's new -Wcast-function-type-strict
+flag, which is more sensitive than the simpler -Wcast-function-type,
+which only checks for type width mismatches.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202211041527.HD8TLSE1-lkp@intel.com
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: alsa-devel@alsa-project.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221118232346.never.380-kees@kernel.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-amd8111.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/core/seq/seq_memory.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpio/gpio-amd8111.c b/drivers/gpio/gpio-amd8111.c
-index 30ad7d7c1678..f8486bac12d0 100644
---- a/drivers/gpio/gpio-amd8111.c
-+++ b/drivers/gpio/gpio-amd8111.c
-@@ -231,7 +231,10 @@ static int __init amd_gpio_init(void)
- 		ioport_unmap(gp.pm);
- 		goto out;
- 	}
-+	return 0;
-+
- out:
-+	pci_dev_put(pdev);
- 	return err;
- }
+diff --git a/sound/core/seq/seq_memory.c b/sound/core/seq/seq_memory.c
+index 4c8cbcd89887..42f4aa841051 100644
+--- a/sound/core/seq/seq_memory.c
++++ b/sound/core/seq/seq_memory.c
+@@ -126,15 +126,19 @@ EXPORT_SYMBOL(snd_seq_dump_var_event);
+  * expand the variable length event to linear buffer space.
+  */
  
-@@ -239,6 +242,7 @@ static void __exit amd_gpio_exit(void)
+-static int seq_copy_in_kernel(char **bufptr, const void *src, int size)
++static int seq_copy_in_kernel(void *ptr, void *src, int size)
  {
- 	gpiochip_remove(&gp.chip);
- 	ioport_unmap(gp.pm);
-+	pci_dev_put(gp.pdev);
++	char **bufptr = ptr;
++
+ 	memcpy(*bufptr, src, size);
+ 	*bufptr += size;
+ 	return 0;
  }
  
- module_init(amd_gpio_init);
+-static int seq_copy_in_user(char __user **bufptr, const void *src, int size)
++static int seq_copy_in_user(void *ptr, void *src, int size)
+ {
++	char __user **bufptr = ptr;
++
+ 	if (copy_to_user(*bufptr, src, size))
+ 		return -EFAULT;
+ 	*bufptr += size;
+@@ -163,8 +167,7 @@ int snd_seq_expand_var_event(const struct snd_seq_event *event, int count, char
+ 		return newlen;
+ 	}
+ 	err = snd_seq_dump_var_event(event,
+-				     in_kernel ? (snd_seq_dump_func_t)seq_copy_in_kernel :
+-				     (snd_seq_dump_func_t)seq_copy_in_user,
++				     in_kernel ? seq_copy_in_kernel : seq_copy_in_user,
+ 				     &buf);
+ 	return err < 0 ? err : newlen;
+ }
 -- 
 2.35.1
 
