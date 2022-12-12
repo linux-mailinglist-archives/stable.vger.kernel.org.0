@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E775F64A1DC
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:46:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7A164A0E1
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:32:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233059AbiLLNqf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:46:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47016 "EHLO
+        id S232112AbiLLNcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:32:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233005AbiLLNqQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:46:16 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73E16140ED
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:45:55 -0800 (PST)
+        with ESMTP id S232096AbiLLNcR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:32:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C9B6BED
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:32:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E02D7CE0F7E
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:45:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60585C433D2;
-        Mon, 12 Dec 2022 13:45:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 011ABB80D55
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:32:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6A8EC433EF;
+        Mon, 12 Dec 2022 13:32:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852752;
-        bh=OyJhl0urYqLEGAXiMaD8NlhT5R4R3ciDN/M8xEd2JY4=;
+        s=korg; t=1670851934;
+        bh=8VnjgRBhaM2Et1c02AY5ECrC5bDgkZVGbjm9eKwy2kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YAoNLZoq6uBshnRHZ2vd07Xursz++46WGZeZtRVpJvIVCfNFCI9V4w2gSbEkfY9b0
-         Ti+PF/in6QeG4QOM9xcmkyU8uGpazNirnHfX+zea4P1nR3CvoUHcTgXV9m+xIHdHsZ
-         p5J3549FiaVHciwyt6qGcNCbQa55nzbmb0UmBhqo=
+        b=GbN2+Vw1vCmZZgii5gi2YzXGkzG2HtdQJk3JC8YRmZqIs7JpdvVIlGwVDhTbkDWqB
+         kfXUtrNph+IvpjC01lEXHyL8EDDcxFSWap9ehas4E4FHtqlr54wzBkbmFJ5OlkD6nq
+         jRLtuG8gBNVWyhUwg7ReyODzyN9gDlYD8ZvzJpx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Valentina Goncharenko <goncharenko.vp@ispras.ru>,
+        patches@lists.linux.dev, Yongqiang Liu <liuyongqiang13@huawei.com>,
         Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 118/157] net: encx24j600: Fix invalid logic in reading of MISTAT register
+Subject: [PATCH 5.15 100/123] net: thunderx: Fix missing destroy_workqueue of nicvf_rx_mode_wq
 Date:   Mon, 12 Dec 2022 14:17:46 +0100
-Message-Id: <20221212130939.595269401@linuxfoundation.org>
+Message-Id: <20221212130931.359196192@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentina Goncharenko <goncharenko.vp@ispras.ru>
+From: Yongqiang Liu <liuyongqiang13@huawei.com>
 
-[ Upstream commit 25f427ac7b8d89b0259f86c0c6407b329df742b2 ]
+[ Upstream commit 42330a32933fb42180c52022804dcf09f47a2f99 ]
 
-A loop for reading MISTAT register continues while regmap_read() fails
-and (mistat & BUSY), but if regmap_read() fails a value of mistat is
-undefined.
+The nicvf_probe() won't destroy workqueue when register_netdev()
+failed. Add destroy_workqueue err handle case to fix this issue.
 
-The patch proposes to check for BUSY flag only when regmap_read()
-succeed. Compile test only.
-
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Fixes: d70e53262f5c ("net: Microchip encx24j600 driver")
-Signed-off-by: Valentina Goncharenko <goncharenko.vp@ispras.ru>
+Fixes: 2ecbe4f4a027 ("net: thunderx: replace global nicvf_rx_mode_wq work queue for all VFs to private for each of them.")
+Signed-off-by: Yongqiang Liu <liuyongqiang13@huawei.com>
 Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20221203094125.602812-1-liuyongqiang13@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/encx24j600-regmap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/cavium/thunder/nicvf_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/microchip/encx24j600-regmap.c b/drivers/net/ethernet/microchip/encx24j600-regmap.c
-index 2e337c7a5773..5693784eec5b 100644
---- a/drivers/net/ethernet/microchip/encx24j600-regmap.c
-+++ b/drivers/net/ethernet/microchip/encx24j600-regmap.c
-@@ -359,7 +359,7 @@ static int regmap_encx24j600_phy_reg_read(void *context, unsigned int reg,
- 		goto err_out;
+diff --git a/drivers/net/ethernet/cavium/thunder/nicvf_main.c b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
+index a27227aeae88..b43b97e15a6f 100644
+--- a/drivers/net/ethernet/cavium/thunder/nicvf_main.c
++++ b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
+@@ -2250,7 +2250,7 @@ static int nicvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	err = register_netdev(netdev);
+ 	if (err) {
+ 		dev_err(dev, "Failed to register netdevice\n");
+-		goto err_unregister_interrupts;
++		goto err_destroy_workqueue;
+ 	}
  
- 	usleep_range(26, 100);
--	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
-+	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) == 0) &&
- 	       (mistat & BUSY))
- 		cpu_relax();
+ 	nic->msg_enable = debug;
+@@ -2259,6 +2259,8 @@ static int nicvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
  
-@@ -397,7 +397,7 @@ static int regmap_encx24j600_phy_reg_write(void *context, unsigned int reg,
- 		goto err_out;
+ 	return 0;
  
- 	usleep_range(26, 100);
--	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) != 0) &&
-+	while (((ret = regmap_read(ctx->regmap, MISTAT, &mistat)) == 0) &&
- 	       (mistat & BUSY))
- 		cpu_relax();
- 
++err_destroy_workqueue:
++	destroy_workqueue(nic->nicvf_rx_mode_wq);
+ err_unregister_interrupts:
+ 	nicvf_unregister_interrupts(nic);
+ err_free_netdev:
 -- 
 2.35.1
 
