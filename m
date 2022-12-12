@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8DBF64A0D0
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1ECD64A034
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232570AbiLLNbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:31:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59878 "EHLO
+        id S232664AbiLLNWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:22:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232273AbiLLNbL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:31:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC48F13E85
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:31:10 -0800 (PST)
+        with ESMTP id S232726AbiLLNVz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:21:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F3713D68
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:21:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58B7F61059
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:31:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2F70C433D2;
-        Mon, 12 Dec 2022 13:31:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B469B80D3C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79B6FC433F1;
+        Mon, 12 Dec 2022 13:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851869;
-        bh=r8geQ20ZWjbuqKJcqHE+QM6C4z6oSoGzVMQPIt6ShJU=;
+        s=korg; t=1670851307;
+        bh=xVmP8wySUyyrdCWKv5vx/yoqYC5UZdLvNdIem9tmkjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MP5HY6e7ZGm61mJqNKpoCQESyt7I016aRoOo/roZ9InkJGy/xgnU/fMCN4OkSXrdd
-         1cG9cSIaKKaGBherEM6m9S1/6n806RTVs5i+l7k8/D/kx6pmmAkYF+x1BfFwboWAGb
-         zAss52SOFXgN767sfeKwsjYCdNppeB6U9k7hklw4=
+        b=GrTjX1/JzpiWcRCBNKiw31qd2BbGdkbbkLKbUdtsHxteeu56agr/eEQdMPr4ejyY6
+         RBDN8Nf8JWwKI/odRpgk0LNL11R3abpRfF5DrnXJB5ghaYPFJ7ZJlsO4IFEEJTCmdw
+         K6KpNvCiRVVsP3FwHYl1N3VSmK04IW28j5BvOFK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bartosz Golaszewski <brgl@bgdev.pl>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/123] gpiolib: improve coding style for local variables
+        patches@lists.linux.dev,
+        syzbot+8b1641d2f14732407e23@syzkaller.appspotmail.com,
+        ZhangPeng <zhangpeng362@huawei.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.4 31/67] HID: core: fix shift-out-of-bounds in hid_report_raw_event
 Date:   Mon, 12 Dec 2022 14:17:06 +0100
-Message-Id: <20221212130929.453689464@linuxfoundation.org>
+Message-Id: <20221212130919.117845536@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <brgl@bgdev.pl>
+From: ZhangPeng <zhangpeng362@huawei.com>
 
-[ Upstream commit e5ab49cd3d6937b1818b80cb5eb09dc018ae0718 ]
+commit ec61b41918587be530398b0d1c9a0d16619397e5 upstream.
 
-Drop unneeded whitespaces and put the variables of the same type
-together for consistency with the rest of the code.
+Syzbot reported shift-out-of-bounds in hid_report_raw_event.
 
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Stable-dep-of: ec851b23084b ("gpiolib: fix memory leak in gpiochip_setup_dev()")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+microsoft 0003:045E:07DA.0001: hid_field_extract() called with n (128) >
+32! (swapper/0)
+======================================================================
+UBSAN: shift-out-of-bounds in drivers/hid/hid-core.c:1323:20
+shift exponent 127 is too large for 32-bit type 'int'
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted
+6.1.0-rc4-syzkaller-00159-g4bbf3422df78 #0
+Hardware name: Google Compute Engine/Google Compute Engine, BIOS
+Google 10/26/2022
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x1e3/0x2cb lib/dump_stack.c:106
+ ubsan_epilogue lib/ubsan.c:151 [inline]
+ __ubsan_handle_shift_out_of_bounds+0x3a6/0x420 lib/ubsan.c:322
+ snto32 drivers/hid/hid-core.c:1323 [inline]
+ hid_input_fetch_field drivers/hid/hid-core.c:1572 [inline]
+ hid_process_report drivers/hid/hid-core.c:1665 [inline]
+ hid_report_raw_event+0xd56/0x18b0 drivers/hid/hid-core.c:1998
+ hid_input_report+0x408/0x4f0 drivers/hid/hid-core.c:2066
+ hid_irq_in+0x459/0x690 drivers/hid/usbhid/hid-core.c:284
+ __usb_hcd_giveback_urb+0x369/0x530 drivers/usb/core/hcd.c:1671
+ dummy_timer+0x86b/0x3110 drivers/usb/gadget/udc/dummy_hcd.c:1988
+ call_timer_fn+0xf5/0x210 kernel/time/timer.c:1474
+ expire_timers kernel/time/timer.c:1519 [inline]
+ __run_timers+0x76a/0x980 kernel/time/timer.c:1790
+ run_timer_softirq+0x63/0xf0 kernel/time/timer.c:1803
+ __do_softirq+0x277/0x75b kernel/softirq.c:571
+ __irq_exit_rcu+0xec/0x170 kernel/softirq.c:650
+ irq_exit_rcu+0x5/0x20 kernel/softirq.c:662
+ sysvec_apic_timer_interrupt+0x91/0xb0 arch/x86/kernel/apic/apic.c:1107
+======================================================================
+
+If the size of the integer (unsigned n) is bigger than 32 in snto32(),
+shift exponent will be too large for 32-bit type 'int', resulting in a
+shift-out-of-bounds bug.
+Fix this by adding a check on the size of the integer (unsigned n) in
+snto32(). To add support for n greater than 32 bits, set n to 32, if n
+is greater than 32.
+
+Reported-by: syzbot+8b1641d2f14732407e23@syzkaller.appspotmail.com
+Fixes: dde5845a529f ("[PATCH] Generic HID layer - code split")
+Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpiolib.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/hid/hid-core.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 320baed949ee..a87c4cd94f7a 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -594,11 +594,11 @@ int gpiochip_add_data_with_key(struct gpio_chip *gc, void *data,
- 			       struct lock_class_key *request_key)
- {
- 	struct fwnode_handle *fwnode = gc->parent ? dev_fwnode(gc->parent) : NULL;
--	unsigned long	flags;
--	int		ret = 0;
--	unsigned	i;
--	int		base = gc->base;
- 	struct gpio_device *gdev;
-+	unsigned long flags;
-+	int base = gc->base;
-+	unsigned int i;
-+	int ret = 0;
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1303,6 +1303,9 @@ static s32 snto32(__u32 value, unsigned
+ 	if (!value || !n)
+ 		return 0;
  
- 	/*
- 	 * First: allocate and populate the internal stat container, and
--- 
-2.35.1
-
++	if (n > 32)
++		n = 32;
++
+ 	switch (n) {
+ 	case 8:  return ((__s8)value);
+ 	case 16: return ((__s16)value);
 
 
