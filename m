@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FCF264A02A
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:21:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 481C164A0AE
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:28:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231795AbiLLNVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:21:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49246 "EHLO
+        id S232790AbiLLN2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:28:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232608AbiLLNVU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:21:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2EE3FEE
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:21:18 -0800 (PST)
+        with ESMTP id S232663AbiLLN2b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:28:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 669FBB0C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:28:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CAA69CE0F11
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7132BC433EF;
-        Mon, 12 Dec 2022 13:21:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1ACECB80D50
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:28:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E02B6C433EF;
+        Mon, 12 Dec 2022 13:28:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851275;
-        bh=uAbHIsE6Pxufpz6ZO3sKBhzosc3M/V+AVZVMASvABfc=;
+        s=korg; t=1670851707;
+        bh=Q+CG1lm+uTXz204pwl1mt6bYP7/jIYL8mmCRhTsRit0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZGSyFaaGeWPHGNkqQXmlTrsx0kCHwpsjMyFSlTt9BiU2GUn8j+cAkAYJbN4AVAOy
-         AUMRvgKIfHVqLsRJEUJ2d4FkeX0FTlUJAkZb8T1iRL7QfrReSaIGVauIwfwmR8xEGA
-         ehoyNDJebgHnVzQ8F6Vpu686SoJvS4yAK5xMaXFw=
+        b=DTGTmScj8Nhu7lPZk96vG4hgHUXuL+UGVaZshl7m+5CdllwV0Ngp0fQv7L5D2m0mq
+         v7/rB6SG608f8YymMmvM177P6H980rcGkni+DIJjvlFFpv+zPAja7+rx7ZSrrGLY2z
+         3hDG6TFwIZPdFv4i+DoFE6CC3Q7AqUZtOHPke1xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.4 24/67] media: v4l2-dv-timings.c: fix too strict blanking sanity checks
+        patches@lists.linux.dev,
+        "Radu Nicolae Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 053/123] net: dsa: sja1105: avoid out of bounds access in sja1105_init_l2_policing()
 Date:   Mon, 12 Dec 2022 14:16:59 +0100
-Message-Id: <20221212130918.778494429@linuxfoundation.org>
+Message-Id: <20221212130929.154304549@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,70 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Radu Nicolae Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
 
-commit 5eef2141776da02772c44ec406d6871a790761ee upstream.
+commit f8bac7f9fdb0017b32157957ffffd490f95faa07 upstream.
 
-Sanity checks were added to verify the v4l2_bt_timings blanking fields
-in order to avoid integer overflows when userspace passes weird values.
+The SJA1105 family has 45 L2 policing table entries
+(SJA1105_MAX_L2_POLICING_COUNT) and SJA1110 has 110
+(SJA1110_MAX_L2_POLICING_COUNT). Keeping the table structure but
+accounting for the difference in port count (5 in SJA1105 vs 10 in
+SJA1110) does not fully explain the difference. Rather, the SJA1110 also
+has L2 ingress policers for multicast traffic. If a packet is classified
+as multicast, it will be processed by the policer index 99 + SRCPORT.
 
-But that assumed that userspace would correctly fill in the front porch,
-backporch and sync values, but sometimes all you know is the total
-blanking, which is then assigned to just one of these fields.
+The sja1105_init_l2_policing() function initializes all L2 policers such
+that they don't interfere with normal packet reception by default. To have
+a common code between SJA1105 and SJA1110, the index of the multicast
+policer for the port is calculated because it's an index that is out of
+bounds for SJA1105 but in bounds for SJA1110, and a bounds check is
+performed.
 
-And that can fail with these checks.
+The code fails to do the proper thing when determining what to do with the
+multicast policer of port 0 on SJA1105 (ds->num_ports = 5). The "mcast"
+index will be equal to 45, which is also equal to
+table->ops->max_entry_count (SJA1105_MAX_L2_POLICING_COUNT). So it passes
+through the check. But at the same time, SJA1105 doesn't have multicast
+policers. So the code programs the SHARINDX field of an out-of-bounds
+element in the L2 Policing table of the static config.
 
-So instead set a maximum for the total horizontal and vertical
-blanking and check that each field remains below that.
+The comparison between index 45 and 45 entries should have determined the
+code to not access this policer index on SJA1105, since its memory wasn't
+even allocated.
 
-That is still sufficient to avoid integer overflows, but it also
-allows for more flexibility in how userspace fills in these fields.
+With enough bad luck, the out-of-bounds write could even overwrite other
+valid kernel data, but in this case, the issue was detected using KASAN.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 4b6d66a45ed3 ("media: v4l2-dv-timings: add sanity checks for blanking values")
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Kernel log:
+
+sja1105 spi5.0: Probed switch chip: SJA1105Q
+==================================================================
+BUG: KASAN: slab-out-of-bounds in sja1105_setup+0x1cbc/0x2340
+Write of size 8 at addr ffffff880bd57708 by task kworker/u8:0/8
+...
+Workqueue: events_unbound deferred_probe_work_func
+Call trace:
+...
+sja1105_setup+0x1cbc/0x2340
+dsa_register_switch+0x1284/0x18d0
+sja1105_probe+0x748/0x840
+...
+Allocated by task 8:
+...
+sja1105_setup+0x1bcc/0x2340
+dsa_register_switch+0x1284/0x18d0
+sja1105_probe+0x748/0x840
+...
+
+Fixes: 38fbe91f2287 ("net: dsa: sja1105: configure the multicast policers, if present")
+CC: stable@vger.kernel.org # 5.15+
+Signed-off-by: Radu Nicolae Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20221207132347.38698-1-radu-nicolae.pirea@oss.nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/v4l2-core/v4l2-dv-timings.c |   20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/net/dsa/sja1105/sja1105_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/v4l2-core/v4l2-dv-timings.c
-+++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
-@@ -145,6 +145,8 @@ bool v4l2_valid_dv_timings(const struct
- 	const struct v4l2_bt_timings *bt = &t->bt;
- 	const struct v4l2_bt_timings_cap *cap = &dvcap->bt;
- 	u32 caps = cap->capabilities;
-+	const u32 max_vert = 10240;
-+	u32 max_hor = 3 * bt->width;
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -1025,7 +1025,7 @@ static int sja1105_init_l2_policing(stru
  
- 	if (t->type != V4L2_DV_BT_656_1120)
- 		return false;
-@@ -166,14 +168,20 @@ bool v4l2_valid_dv_timings(const struct
- 	if (!bt->interlaced &&
- 	    (bt->il_vbackporch || bt->il_vsync || bt->il_vfrontporch))
- 		return false;
--	if (bt->hfrontporch > 2 * bt->width ||
--	    bt->hsync > 1024 || bt->hbackporch > 1024)
-+	/*
-+	 * Some video receivers cannot properly separate the frontporch,
-+	 * backporch and sync values, and instead they only have the total
-+	 * blanking. That can be assigned to any of these three fields.
-+	 * So just check that none of these are way out of range.
-+	 */
-+	if (bt->hfrontporch > max_hor ||
-+	    bt->hsync > max_hor || bt->hbackporch > max_hor)
- 		return false;
--	if (bt->vfrontporch > 4096 ||
--	    bt->vsync > 128 || bt->vbackporch > 4096)
-+	if (bt->vfrontporch > max_vert ||
-+	    bt->vsync > max_vert || bt->vbackporch > max_vert)
- 		return false;
--	if (bt->interlaced && (bt->il_vfrontporch > 4096 ||
--	    bt->il_vsync > 128 || bt->il_vbackporch > 4096))
-+	if (bt->interlaced && (bt->il_vfrontporch > max_vert ||
-+	    bt->il_vsync > max_vert || bt->il_vbackporch > max_vert))
- 		return false;
- 	return fnc == NULL || fnc(t, fnc_handle);
- }
+ 		policing[bcast].sharindx = port;
+ 		/* Only SJA1110 has multicast policers */
+-		if (mcast <= table->ops->max_entry_count)
++		if (mcast < table->ops->max_entry_count)
+ 			policing[mcast].sharindx = port;
+ 	}
+ 
 
 
