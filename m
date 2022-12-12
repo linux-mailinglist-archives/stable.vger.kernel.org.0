@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AEDC64A14F
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:38:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2756564A085
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:26:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232916AbiLLNiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:38:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33740 "EHLO
+        id S232369AbiLLN0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:26:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232764AbiLLNhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:37:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CF5613F1E
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:37:13 -0800 (PST)
+        with ESMTP id S232730AbiLLNZ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1AE762D4
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4441EB80D2B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:37:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CB01C433D2;
-        Mon, 12 Dec 2022 13:37:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B83261025
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 237B9C433F0;
+        Mon, 12 Dec 2022 13:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852231;
-        bh=+jeoKhMCkpT4hn7N4p82uMxd1KjE2kJWwyTuu2+7Vlc=;
+        s=korg; t=1670851555;
+        bh=O7zDITUcGhTFRClUzBYfLgBIZigynA2jGdpwL7I4TVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJ7NdQYJEMgabI0/KgfS/YQVSTumkxq0npLN/wq5ti3gA2Eqf0k7JmPNsntwV2i9d
-         HVZrjUFWyzBoMXv3n9PwfYz/n8CSMF1CfvSLHwHQMdLN288KM5JRXry4KYR9ZdxXas
-         wa5XFee2V07atI7Mz8ELv0z7uUZawzZY0wrQ1zGE=
+        b=1d1tBxUxXA8in3K9Wq5aIWjzSE3D5TTCn6PGC/h5UZMHsRhVKBqEFWZpNudShdjAJ
+         jj+C7N+buNKMqCbTQQoJRFNoiYJqP/fnquIZQRW//eywvhT6zennZT8pxtOGqAo3KM
+         ycnp0Th77RW3lYft75amECZLx781sLJ2JKtzsgT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Brian Chang <Brian.Chang@amd.com>,
-        Taimur Hassan <Syed.Hassan@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 039/157] drm/amd/display: Avoid setting pixel rate divider to N/A
-Date:   Mon, 12 Dec 2022 14:16:27 +0100
-Message-Id: <20221212130936.105799251@linuxfoundation.org>
+Subject: [PATCH 5.15 022/123] ASoC: soc-pcm: Add NULL check in BE reparenting
+Date:   Mon, 12 Dec 2022 14:16:28 +0100
+Message-Id: <20221212130927.829707652@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,97 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taimur Hassan <Syed.Hassan@amd.com>
+From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
 
-[ Upstream commit 2a5dd86a69ea5435f1a837bdb7fafcda609a7c91 ]
+[ Upstream commit db8f91d424fe0ea6db337aca8bc05908bbce1498 ]
 
-[Why]
-Pixel rate divider values should never be set to N/A (0xF) as the K1/K2
-field is only 1/2 bits wide.
+Add NULL check in dpcm_be_reparent API, to handle
+kernel NULL pointer dereference error.
+The issue occurred in fuzzing test.
 
-[How]
-Set valid divider values for virtual and FRL/DP2 cases.
-
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Brian Chang <Brian.Chang@amd.com>
-Signed-off-by: Taimur Hassan <Syed.Hassan@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+Link: https://lore.kernel.org/r/1669098673-29703-1-git-send-email-quic_srivasam@quicinc.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c  | 7 +++++++
- drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c | 3 ++-
- drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c    | 4 +++-
- drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c   | 1 +
- 4 files changed, 13 insertions(+), 2 deletions(-)
+ sound/soc/soc-pcm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c
-index fb729674953b..de9fa534b77a 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dccg.c
-@@ -96,6 +96,13 @@ static void dccg314_set_pixel_rate_div(
- 	struct dcn_dccg *dccg_dcn = TO_DCN_DCCG(dccg);
- 	enum pixel_rate_div cur_k1 = PIXEL_RATE_DIV_NA, cur_k2 = PIXEL_RATE_DIV_NA;
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index f6dc71e8ea87..3b673477f621 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -1166,6 +1166,8 @@ static void dpcm_be_reparent(struct snd_soc_pcm_runtime *fe,
+ 		return;
  
-+	// Don't program 0xF into the register field. Not valid since
-+	// K1 / K2 field is only 1 / 2 bits wide
-+	if (k1 == PIXEL_RATE_DIV_NA || k2 == PIXEL_RATE_DIV_NA) {
-+		BREAK_TO_DEBUGGER();
+ 	be_substream = snd_soc_dpcm_get_substream(be, stream);
++	if (!be_substream)
 +		return;
-+	}
-+
- 	dccg314_get_pixel_rate_div(dccg, otg_inst, &cur_k1, &cur_k2);
- 	if (k1 == PIXEL_RATE_DIV_NA || k2 == PIXEL_RATE_DIV_NA || (k1 == cur_k1 && k2 == cur_k2))
- 		return;
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c
-index f4d1b83979fe..a0741794db62 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c
-@@ -349,6 +349,7 @@ unsigned int dcn314_calculate_dccg_k1_k2_values(struct pipe_ctx *pipe_ctx, unsig
- 	odm_combine_factor = get_odm_config(pipe_ctx, NULL);
  
- 	if (is_dp_128b_132b_signal(pipe_ctx)) {
-+		*k1_div = PIXEL_RATE_DIV_BY_1;
- 		*k2_div = PIXEL_RATE_DIV_BY_1;
- 	} else if (dc_is_hdmi_tmds_signal(pipe_ctx->stream->signal) || dc_is_dvi_signal(pipe_ctx->stream->signal)) {
- 		*k1_div = PIXEL_RATE_DIV_BY_1;
-@@ -356,7 +357,7 @@ unsigned int dcn314_calculate_dccg_k1_k2_values(struct pipe_ctx *pipe_ctx, unsig
- 			*k2_div = PIXEL_RATE_DIV_BY_2;
- 		else
- 			*k2_div = PIXEL_RATE_DIV_BY_4;
--	} else if (dc_is_dp_signal(pipe_ctx->stream->signal)) {
-+	} else if (dc_is_dp_signal(pipe_ctx->stream->signal) || dc_is_virtual_signal(pipe_ctx->stream->signal)) {
- 		if (two_pix_per_container) {
- 			*k1_div = PIXEL_RATE_DIV_BY_1;
- 			*k2_div = PIXEL_RATE_DIV_BY_2;
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
-index 6640d0ac4304..6dd8dadd68a5 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_dccg.c
-@@ -96,8 +96,10 @@ static void dccg32_set_pixel_rate_div(
- 
- 	// Don't program 0xF into the register field. Not valid since
- 	// K1 / K2 field is only 1 / 2 bits wide
--	if (k1 == PIXEL_RATE_DIV_NA || k2 == PIXEL_RATE_DIV_NA)
-+	if (k1 == PIXEL_RATE_DIV_NA || k2 == PIXEL_RATE_DIV_NA) {
-+		BREAK_TO_DEBUGGER();
- 		return;
-+	}
- 
- 	dccg32_get_pixel_rate_div(dccg, otg_inst, &cur_k1, &cur_k2);
- 	if (k1 == cur_k1 && k2 == cur_k2)
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
-index bbc0bfbec6c4..3128c111c619 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_hwseq.c
-@@ -1171,6 +1171,7 @@ unsigned int dcn32_calculate_dccg_k1_k2_values(struct pipe_ctx *pipe_ctx, unsign
- 	odm_combine_factor = get_odm_config(pipe_ctx, NULL);
- 
- 	if (is_dp_128b_132b_signal(pipe_ctx)) {
-+		*k1_div = PIXEL_RATE_DIV_BY_1;
- 		*k2_div = PIXEL_RATE_DIV_BY_1;
- 	} else if (dc_is_hdmi_tmds_signal(pipe_ctx->stream->signal) || dc_is_dvi_signal(pipe_ctx->stream->signal)) {
- 		*k1_div = PIXEL_RATE_DIV_BY_1;
+ 	for_each_dpcm_fe(be, stream, dpcm) {
+ 		if (dpcm->fe == fe)
 -- 
 2.35.1
 
