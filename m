@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1C2564A19C
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:43:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34AB564A09B
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:27:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232868AbiLLNnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:43:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41996 "EHLO
+        id S232733AbiLLN1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:27:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232887AbiLLNm6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:42:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 397F313FB4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:41:47 -0800 (PST)
+        with ESMTP id S232359AbiLLN10 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:27:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1970613D2E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:27:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA91261072
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:41:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E8AFC433EF;
-        Mon, 12 Dec 2022 13:41:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C07E9B80B78
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:27:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B42CC433EF;
+        Mon, 12 Dec 2022 13:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852506;
-        bh=sFJnaQP5+40rUXblXmRmMc8mvGNWHODzp5PXz5cghiI=;
+        s=korg; t=1670851635;
+        bh=e7RZMR8jkpPuqmVbMV0PGR1OVbAhBbvQrRXJ2OnHq/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qPWL6iKCwEzSDL2+BVcyp1qEdwnU44yEF1z0oeucJ87g5Xu0a3s1sdkL3HseV1WHQ
-         FoRV4s8ufD+azzSbgFSt/ljMhnqoIUhzquVS20oSyuDhlRhRp/gIoB9N41L5wmuFd2
-         KvZCyU9b551i8AYp0m2K0VTCOU+96jXd6wrySAxI=
+        b=MQ4TEw9xqhXB9tphkGl64qXGoIL1j4F8xAAMnBT4VgErvwNwTPiPCRTpl6gAQI/z2
+         CGY7Gei/KtBZ/thF7KKDavAhRLLE9JOP4yR47WRDtI8T1bxt4cqJRwBMgXX3Izqmdg
+         mKnMRsHszTwzQaOKMWlqlYCb7xmg1feC5yN2SvIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
-        Jann Horn <jannh@google.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.0 058/157] memcg: fix possible use-after-free in memcg_write_event_control()
+        patches@lists.linux.dev, Sjoerd Simons <sjoerd@collabora.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Chao Song <chao.song@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.15 040/123] soundwire: intel: Initialize clock stop timeout
 Date:   Mon, 12 Dec 2022 14:16:46 +0100
-Message-Id: <20221212130936.895085036@linuxfoundation.org>
+Message-Id: <20221212130928.597470166@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,112 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Sjoerd Simons <sjoerd@collabora.com>
 
-commit 4a7ba45b1a435e7097ca0f79a847d0949d0eb088 upstream.
+commit 13c30a755847c7e804e1bf755e66e3ff7b7f9367 upstream.
 
-memcg_write_event_control() accesses the dentry->d_name of the specified
-control fd to route the write call.  As a cgroup interface file can't be
-renamed, it's safe to access d_name as long as the specified file is a
-regular cgroup file.  Also, as these cgroup interface files can't be
-removed before the directory, it's safe to access the parent too.
+The bus->clk_stop_timeout member is only initialized to a non-zero value
+during the codec driver probe. This can lead to corner cases where this
+value remains pegged at zero when the bus suspends, which results in an
+endless loop in sdw_bus_wait_for_clk_prep_deprep().
 
-Prior to 347c4a874710 ("memcg: remove cgroup_event->cft"), there was a
-call to __file_cft() which verified that the specified file is a regular
-cgroupfs file before further accesses.  The cftype pointer returned from
-__file_cft() was no longer necessary and the commit inadvertently dropped
-the file type check with it allowing any file to slip through.  With the
-invarients broken, the d_name and parent accesses can now race against
-renames and removals of arbitrary files and cause use-after-free's.
+Corner cases include configurations with no codecs described in the
+firmware, or delays in probing codec drivers.
 
-Fix the bug by resurrecting the file type check in __file_cft().  Now that
-cgroupfs is implemented through kernfs, checking the file operations needs
-to go through a layer of indirection.  Instead, let's check the superblock
-and dentry type.
+Initializing the default timeout to the smallest non-zero value avoid this
+problem and allows for the existing logic to be preserved: the
+bus->clk_stop_timeout is set as the maximum required by all codecs
+connected on the bus.
 
-Link: https://lkml.kernel.org/r/Y5FRm/cfcKPGzWwl@slm.duckdns.org
-Fixes: 347c4a874710 ("memcg: remove cgroup_event->cft")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Jann Horn <jannh@google.com>
-Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: <stable@vger.kernel.org>	[3.14+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 1f2dcf3a154ac ("soundwire: intel: set dev_num_ida_min")
+Signed-off-by: Sjoerd Simons <sjoerd@collabora.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Chao Song <chao.song@intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20221020015624.1703950-1-yung-chuan.liao@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/cgroup.h          |    1 +
- kernel/cgroup/cgroup-internal.h |    1 -
- mm/memcontrol.c                 |   15 +++++++++++++--
- 3 files changed, 14 insertions(+), 3 deletions(-)
+ drivers/soundwire/intel.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/cgroup.h
-+++ b/include/linux/cgroup.h
-@@ -68,6 +68,7 @@ struct css_task_iter {
- 	struct list_head		iters_node;	/* css_set->task_iters */
- };
+--- a/drivers/soundwire/intel.c
++++ b/drivers/soundwire/intel.c
+@@ -1285,6 +1285,7 @@ static int intel_link_probe(struct auxil
+ 	cdns->msg_count = 0;
  
-+extern struct file_system_type cgroup_fs_type;
- extern struct cgroup_root cgrp_dfl_root;
- extern struct css_set init_css_set;
+ 	bus->link_id = auxdev->id;
++	bus->clk_stop_timeout = 1;
  
---- a/kernel/cgroup/cgroup-internal.h
-+++ b/kernel/cgroup/cgroup-internal.h
-@@ -168,7 +168,6 @@ extern struct mutex cgroup_mutex;
- extern spinlock_t css_set_lock;
- extern struct cgroup_subsys *cgroup_subsys[];
- extern struct list_head cgroup_roots;
--extern struct file_system_type cgroup_fs_type;
+ 	sdw_cdns_probe(cdns);
  
- /* iterate across the hierarchies */
- #define for_each_root(root)						\
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -4772,6 +4772,7 @@ static ssize_t memcg_write_event_control
- 	unsigned int efd, cfd;
- 	struct fd efile;
- 	struct fd cfile;
-+	struct dentry *cdentry;
- 	const char *name;
- 	char *endp;
- 	int ret;
-@@ -4826,6 +4827,16 @@ static ssize_t memcg_write_event_control
- 		goto out_put_cfile;
- 
- 	/*
-+	 * The control file must be a regular cgroup1 file. As a regular cgroup
-+	 * file can't be renamed, it's safe to access its name afterwards.
-+	 */
-+	cdentry = cfile.file->f_path.dentry;
-+	if (cdentry->d_sb->s_type != &cgroup_fs_type || !d_is_reg(cdentry)) {
-+		ret = -EINVAL;
-+		goto out_put_cfile;
-+	}
-+
-+	/*
- 	 * Determine the event callbacks and set them in @event.  This used
- 	 * to be done via struct cftype but cgroup core no longer knows
- 	 * about these events.  The following is crude but the whole thing
-@@ -4833,7 +4844,7 @@ static ssize_t memcg_write_event_control
- 	 *
- 	 * DO NOT ADD NEW FILES.
- 	 */
--	name = cfile.file->f_path.dentry->d_name.name;
-+	name = cdentry->d_name.name;
- 
- 	if (!strcmp(name, "memory.usage_in_bytes")) {
- 		event->register_event = mem_cgroup_usage_register_event;
-@@ -4857,7 +4868,7 @@ static ssize_t memcg_write_event_control
- 	 * automatically removed on cgroup destruction but the removal is
- 	 * asynchronous, so take an extra ref on @css.
- 	 */
--	cfile_css = css_tryget_online_from_dir(cfile.file->f_path.dentry->d_parent,
-+	cfile_css = css_tryget_online_from_dir(cdentry->d_parent,
- 					       &memory_cgrp_subsys);
- 	ret = -EINVAL;
- 	if (IS_ERR(cfile_css))
 
 
