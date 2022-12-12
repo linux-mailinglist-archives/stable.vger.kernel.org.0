@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0DD364A110
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:34:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63C7964A1D7
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:46:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232638AbiLLNeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:34:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33556 "EHLO
+        id S233038AbiLLNqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:46:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232736AbiLLNee (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:34:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB53C13E21
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:34:33 -0800 (PST)
+        with ESMTP id S232971AbiLLNp7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:45:59 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4776BF4C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:45:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 498E76105A
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:34:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFFB9C433D2;
-        Mon, 12 Dec 2022 13:34:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 97B83CE0F77
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:45:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26755C433D2;
+        Mon, 12 Dec 2022 13:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852072;
-        bh=R4x7psRlPUMF5lwLakU0Rk7V+V8YrqjfCKSwZ6+ROjQ=;
+        s=korg; t=1670852728;
+        bh=cibZjzljmHUtpClqo5iF829xd76P28sKC99BDt2WSfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=neV1XvJmd5OMoGvhCja4R03w2dvRXTXEU5TT9rSEPmVOJhaTn6Wjv82dX3aLS0xy8
-         SVHzH+BCQvRihFxbNJ1oWOnpQ3tsDp4vjIL1c9U8C4TFcJyTIgvn85oJklHtPWVNdy
-         WOmTHNm+Yr2MFsLyyaJVagrwX02HuxdzJFMji70M=
+        b=WhidiK6i5ZA0ZDp+T0Exux2UDi2pac1OVLD5cSKBFbTZRK7vNmh22+3FxG6I9OSIg
+         c7xhE1xiLNEludGhxTtbCqaBAv5Lr+TRHe7dahkhE0bKvIe5f7WopKtLCSUi8R36Ei
+         l9zorSpkMcEzhuUQ7wNH3kmr9IynzdYbg8YlBvwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masahiro Yamada <masahiroy@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 121/123] block: move CONFIG_BLOCK guard to top Makefile
-Date:   Mon, 12 Dec 2022 14:18:07 +0100
-Message-Id: <20221212130932.445448138@linuxfoundation.org>
+Subject: [PATCH 6.0 140/157] tipc: Fix potential OOB in tipc_link_proto_rcv()
+Date:   Mon, 12 Dec 2022 14:18:08 +0100
+Message-Id: <20221212130940.729059568@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 4c928904ff771a8e830773b71a080047365324a5 ]
+[ Upstream commit 743117a997bbd4840e827295c07e59bcd7f7caa3 ]
 
-Every object under block/ depends on CONFIG_BLOCK.
+Fix the potential risk of OOB if skb_linearize() fails in
+tipc_link_proto_rcv().
 
-Move the guard to the top Makefile since there is no point to
-descend into block/ if CONFIG_BLOCK=n.
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20210927140000.866249-5-masahiroy@kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: 998b30c3948e ("io_uring: Fix a null-ptr-deref in io_tctx_exit_cb()")
+Fixes: 5cbb28a4bf65 ("tipc: linearize arriving NAME_DISTR and LINK_PROTO buffers")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20221203094635.29024-1-yuehaibing@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile       | 3 ++-
- block/Makefile | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ net/tipc/link.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/Makefile b/Makefile
-index bc1cf1200b62..0acea54c2ffd 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1150,7 +1150,8 @@ export MODORDER := $(extmod_prefix)modules.order
- export MODULES_NSDEPS := $(extmod_prefix)modules.nsdeps
+diff --git a/net/tipc/link.c b/net/tipc/link.c
+index e260c0d557f5..b3ce24823f50 100644
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -2224,7 +2224,9 @@ static int tipc_link_proto_rcv(struct tipc_link *l, struct sk_buff *skb,
+ 	if (tipc_own_addr(l->net) > msg_prevnode(hdr))
+ 		l->net_plane = msg_net_plane(hdr);
  
- ifeq ($(KBUILD_EXTMOD),)
--core-y		+= kernel/ certs/ mm/ fs/ ipc/ security/ crypto/ block/
-+core-y			+= kernel/ certs/ mm/ fs/ ipc/ security/ crypto/
-+core-$(CONFIG_BLOCK)	+= block/
+-	skb_linearize(skb);
++	if (skb_linearize(skb))
++		goto exit;
++
+ 	hdr = buf_msg(skb);
+ 	data = msg_data(hdr);
  
- vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, \
- 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
-diff --git a/block/Makefile b/block/Makefile
-index 41aa1ba69c90..74df168729ec 100644
---- a/block/Makefile
-+++ b/block/Makefile
-@@ -3,7 +3,7 @@
- # Makefile for the kernel block layer
- #
- 
--obj-$(CONFIG_BLOCK) := bdev.o fops.o bio.o elevator.o blk-core.o blk-sysfs.o \
-+obj-y		:= bdev.o fops.o bio.o elevator.o blk-core.o blk-sysfs.o \
- 			blk-flush.o blk-settings.o blk-ioc.o blk-map.o \
- 			blk-exec.o blk-merge.o blk-timeout.o \
- 			blk-lib.o blk-mq.o blk-mq-tag.o blk-stat.o \
 -- 
 2.35.1
 
