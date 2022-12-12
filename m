@@ -2,53 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 177A064A178
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:41:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FCF264A02A
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:21:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232963AbiLLNlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:41:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36508 "EHLO
+        id S231795AbiLLNVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:21:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232868AbiLLNkf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:40:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1931C13F3F;
-        Mon, 12 Dec 2022 05:39:55 -0800 (PST)
+        with ESMTP id S232608AbiLLNVU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:21:20 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2EE3FEE
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:21:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4146B80D2C;
-        Mon, 12 Dec 2022 13:39:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F892C433EF;
-        Mon, 12 Dec 2022 13:39:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CAA69CE0F11
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7132BC433EF;
+        Mon, 12 Dec 2022 13:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852392;
-        bh=konRBNNYPtOJaSdXIkQ/kv3vlWlFzWcyTe5XK1CiGbo=;
+        s=korg; t=1670851275;
+        bh=uAbHIsE6Pxufpz6ZO3sKBhzosc3M/V+AVZVMASvABfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rcgPMLBwpaFlRWxKHaqF+gc2tqgvVyup3FeFv7/MWM41vX6CJiRoUTJXe/tMD8p0p
-         r41p5ds/F4THI6HPjmoI/uMjbeQ5qrBr6kYJHh6DMym1LGBiejtPq4kpBYIAkgbWLd
-         dsBJIWgQ6qsZ7V4VZm0CNfZl4vvo8DYiMFZ+b5ag=
+        b=BZGSyFaaGeWPHGNkqQXmlTrsx0kCHwpsjMyFSlTt9BiU2GUn8j+cAkAYJbN4AVAOy
+         AUMRvgKIfHVqLsRJEUJ2d4FkeX0FTlUJAkZb8T1iRL7QfrReSaIGVauIwfwmR8xEGA
+         ehoyNDJebgHnVzQ8F6Vpu686SoJvS4yAK5xMaXFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Richard Palethorpe <richard.palethorpe@suse.com>,
-        Petr Vorel <petr.vorel@suse.com>,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, Max Staudt <max@enpas.org>,
-        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
-Subject: [PATCH 6.0 071/157] can: slcan: fix freed work crash
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.4 24/67] media: v4l2-dv-timings.c: fix too strict blanking sanity checks
 Date:   Mon, 12 Dec 2022 14:16:59 +0100
-Message-Id: <20221212130937.495723089@linuxfoundation.org>
+Message-Id: <20221212130918.778494429@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,100 +52,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit fb855e9f3b6b42c72af3f1eb0b288998fe0d5ebb upstream.
+commit 5eef2141776da02772c44ec406d6871a790761ee upstream.
 
-The LTP test pty03 is causing a crash in slcan:
-  BUG: kernel NULL pointer dereference, address: 0000000000000008
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] PREEMPT SMP NOPTI
-  CPU: 0 PID: 348 Comm: kworker/0:3 Not tainted 6.0.8-1-default #1 openSUSE Tumbleweed 9d20364b934f5aab0a9bdf84e8f45cfdfae39dab
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b9b-rebuilt.opensuse.org 04/01/2014
-  Workqueue:  0x0 (events)
-  RIP: 0010:process_one_work (/home/rich/kernel/linux/kernel/workqueue.c:706 /home/rich/kernel/linux/kernel/workqueue.c:2185)
-  Code: 49 89 ff 41 56 41 55 41 54 55 53 48 89 f3 48 83 ec 10 48 8b 06 48 8b 6f 48 49 89 c4 45 30 e4 a8 04 b8 00 00 00 00 4c 0f 44 e0 <49> 8b 44 24 08 44 8b a8 00 01 00 00 41 83 e5 20 f6 45 10 04 75 0e
-  RSP: 0018:ffffaf7b40f47e98 EFLAGS: 00010046
-  RAX: 0000000000000000 RBX: ffff9d644e1b8b48 RCX: ffff9d649e439968
-  RDX: 00000000ffff8455 RSI: ffff9d644e1b8b48 RDI: ffff9d64764aa6c0
-  RBP: ffff9d649e4335c0 R08: 0000000000000c00 R09: ffff9d64764aa734
-  R10: 0000000000000007 R11: 0000000000000001 R12: 0000000000000000
-  R13: ffff9d649e4335e8 R14: ffff9d64490da780 R15: ffff9d64764aa6c0
-  FS:  0000000000000000(0000) GS:ffff9d649e400000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000008 CR3: 0000000036424000 CR4: 00000000000006f0
-  Call Trace:
-   <TASK>
-  worker_thread (/home/rich/kernel/linux/kernel/workqueue.c:2436)
-  kthread (/home/rich/kernel/linux/kernel/kthread.c:376)
-  ret_from_fork (/home/rich/kernel/linux/arch/x86/entry/entry_64.S:312)
+Sanity checks were added to verify the v4l2_bt_timings blanking fields
+in order to avoid integer overflows when userspace passes weird values.
 
-Apparently, the slcan's tx_work is freed while being scheduled. While
-slcan_netdev_close() (netdev side) calls flush_work(&sl->tx_work),
-slcan_close() (tty side) does not. So when the netdev is never set UP,
-but the tty is stuffed with bytes and forced to wakeup write, the work
-is scheduled, but never flushed.
+But that assumed that userspace would correctly fill in the front porch,
+backporch and sync values, but sometimes all you know is the total
+blanking, which is then assigned to just one of these fields.
 
-So add an additional flush_work() to slcan_close() to be sure the work
-is flushed under all circumstances.
+And that can fail with these checks.
 
-The Fixes commit below moved flush_work() from slcan_close() to
-slcan_netdev_close(). What was the rationale behind it? Maybe we can
-drop the one in slcan_netdev_close()?
+So instead set a maximum for the total horizontal and vertical
+blanking and check that each field remains below that.
 
-I see the same pattern in can327. So it perhaps needs the very same fix.
+That is still sufficient to avoid integer overflows, but it also
+allows for more flexibility in how userspace fills in these fields.
 
-Fixes: cfcb4465e992 ("can: slcan: remove legacy infrastructure")
-Link: https://bugzilla.suse.com/show_bug.cgi?id=1205597
-Reported-by: Richard Palethorpe <richard.palethorpe@suse.com>
-Tested-by: Petr Vorel <petr.vorel@suse.com>
-Cc: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Cc: Wolfgang Grandegger <wg@grandegger.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: linux-can@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: stable@vger.kernel.org
-Cc: Max Staudt <max@enpas.org>
-Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
-Reviewed-by: Max Staudt <max@enpas.org>
-Link: https://lore.kernel.org/all/20221201073426.17328-1-jirislaby@kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 4b6d66a45ed3 ("media: v4l2-dv-timings: add sanity checks for blanking values")
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/slcan/slcan-core.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/media/v4l2-core/v4l2-dv-timings.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/can/slcan/slcan-core.c b/drivers/net/can/slcan/slcan-core.c
-index fbb34139daa1..f4db77007c13 100644
---- a/drivers/net/can/slcan/slcan-core.c
-+++ b/drivers/net/can/slcan/slcan-core.c
-@@ -864,12 +864,14 @@ static void slcan_close(struct tty_struct *tty)
- {
- 	struct slcan *sl = (struct slcan *)tty->disc_data;
+--- a/drivers/media/v4l2-core/v4l2-dv-timings.c
++++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
+@@ -145,6 +145,8 @@ bool v4l2_valid_dv_timings(const struct
+ 	const struct v4l2_bt_timings *bt = &t->bt;
+ 	const struct v4l2_bt_timings_cap *cap = &dvcap->bt;
+ 	u32 caps = cap->capabilities;
++	const u32 max_vert = 10240;
++	u32 max_hor = 3 * bt->width;
  
--	/* unregister_netdev() calls .ndo_stop() so we don't have to.
--	 * Our .ndo_stop() also flushes the TTY write wakeup handler,
--	 * so we can safely set sl->tty = NULL after this.
--	 */
- 	unregister_candev(sl->dev);
- 
+ 	if (t->type != V4L2_DV_BT_656_1120)
+ 		return false;
+@@ -166,14 +168,20 @@ bool v4l2_valid_dv_timings(const struct
+ 	if (!bt->interlaced &&
+ 	    (bt->il_vbackporch || bt->il_vsync || bt->il_vfrontporch))
+ 		return false;
+-	if (bt->hfrontporch > 2 * bt->width ||
+-	    bt->hsync > 1024 || bt->hbackporch > 1024)
 +	/*
-+	 * The netdev needn't be UP (so .ndo_stop() is not called). Hence make
-+	 * sure this is not running before freeing it up.
++	 * Some video receivers cannot properly separate the frontporch,
++	 * backporch and sync values, and instead they only have the total
++	 * blanking. That can be assigned to any of these three fields.
++	 * So just check that none of these are way out of range.
 +	 */
-+	flush_work(&sl->tx_work);
-+
- 	/* Mark channel as dead */
- 	spin_lock_bh(&sl->lock);
- 	tty->disc_data = NULL;
--- 
-2.38.1
-
++	if (bt->hfrontporch > max_hor ||
++	    bt->hsync > max_hor || bt->hbackporch > max_hor)
+ 		return false;
+-	if (bt->vfrontporch > 4096 ||
+-	    bt->vsync > 128 || bt->vbackporch > 4096)
++	if (bt->vfrontporch > max_vert ||
++	    bt->vsync > max_vert || bt->vbackporch > max_vert)
+ 		return false;
+-	if (bt->interlaced && (bt->il_vfrontporch > 4096 ||
+-	    bt->il_vsync > 128 || bt->il_vbackporch > 4096))
++	if (bt->interlaced && (bt->il_vfrontporch > max_vert ||
++	    bt->il_vsync > max_vert || bt->il_vbackporch > max_vert))
+ 		return false;
+ 	return fnc == NULL || fnc(t, fnc_handle);
+ }
 
 
