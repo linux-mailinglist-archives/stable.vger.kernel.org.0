@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6513C64A094
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:27:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2D8664A075
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:25:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232136AbiLLN07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:26:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55778 "EHLO
+        id S232776AbiLLNZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:25:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232758AbiLLN06 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:26:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 641931031
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:26:57 -0800 (PST)
+        with ESMTP id S232781AbiLLNZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:07 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2564B13E04
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21E40B80B78
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:26:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A826C433EF;
-        Mon, 12 Dec 2022 13:26:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 12B97CE0F77
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63CBC433EF;
+        Mon, 12 Dec 2022 13:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851614;
-        bh=egiN1mWGfYP0QOxb6zPKogEfK4ZTmTPzqNPsVvsq6tU=;
+        s=korg; t=1670851498;
+        bh=sRmXIU9LXGrBYUAP7upYR+hqxJxpmyF8dsccJeW+ZIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w6NjaYbe9psP58P0EdzCVG4KCGG1loMsFcCYHoK43zA2e3zEojwMADtWw6Qfa8uV4
-         Y93MDel6YLFSu5zjc/HYPj7PEBpaES8KjPFCU5hG97hrNlOn4pvmP5yUwuD76DGAOF
-         QWkzm6zzTSKE8CpZ7lwY8/2/mB33NBny2KPZRNcI=
+        b=jalhIjFv9SJTBndMZnAxtorJ7xxF7Zl3BPaJE0gv36G2pFE9ySfhR5KW6ml5HrbbW
+         Qm1TTA8uU7JzX9r4TcGrat8RNnXB6jVCwOVxeBA4mBln+I0xIRjEraU5/qx1sj8ZC6
+         8YjoLl4nUzThU5YXIYP59gnDsxcADQxvhCdtH1gM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Jonker <jbx6244@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 009/123] ARM: dts: rockchip: rk3188: fix lcdc1-rgb24 node name
-Date:   Mon, 12 Dec 2022 14:16:15 +0100
-Message-Id: <20221212130927.225791604@linuxfoundation.org>
+Subject: [PATCH 5.15 010/123] fs: use acquire ordering in __fget_light()
+Date:   Mon, 12 Dec 2022 14:16:16 +0100
+Message-Id: <20221212130927.273149761@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
 References: <20221212130926.811961601@linuxfoundation.org>
@@ -53,34 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 11871e20bcb23c00966e785a124fb72bc8340af4 ]
+[ Upstream commit 7ee47dcfff1835ff75a794d1075b6b5f5462cfed ]
 
-The lcdc1-rgb24 node name is out of line with the rest
-of the rk3188 lcdc1 node, so fix it.
+We must prevent the CPU from reordering the files->count read with the
+FD table access like this, on architectures where read-read reordering is
+possible:
 
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/7b9c0a6f-626b-07e8-ae74-7e0f08b8d241@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+    files_lookup_fd_raw()
+                                  close_fd()
+                                  put_files_struct()
+    atomic_read(&files->count)
+
+I would like to mark this for stable, but the stable rules explicitly say
+"no theoretical races", and given that the FD table pointer and
+files->count are explicitly stored in the same cacheline, this sort of
+reordering seems quite unlikely in practice...
+
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3188.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/file.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
-index 2c606494b78c..7c8c5c28dc2e 100644
---- a/arch/arm/boot/dts/rk3188.dtsi
-+++ b/arch/arm/boot/dts/rk3188.dtsi
-@@ -378,7 +378,7 @@
- 				rockchip,pins = <2 RK_PD3 1 &pcfg_pull_none>;
- 			};
+diff --git a/fs/file.c b/fs/file.c
+index ee9317346702..214364e19d76 100644
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -1029,7 +1029,16 @@ static unsigned long __fget_light(unsigned int fd, fmode_t mask)
+ 	struct files_struct *files = current->files;
+ 	struct file *file;
  
--			lcdc1_rgb24: ldcd1-rgb24 {
-+			lcdc1_rgb24: lcdc1-rgb24 {
- 				rockchip,pins = <2 RK_PA0 1 &pcfg_pull_none>,
- 						<2 RK_PA1 1 &pcfg_pull_none>,
- 						<2 RK_PA2 1 &pcfg_pull_none>,
+-	if (atomic_read(&files->count) == 1) {
++	/*
++	 * If another thread is concurrently calling close_fd() followed
++	 * by put_files_struct(), we must not observe the old table
++	 * entry combined with the new refcount - otherwise we could
++	 * return a file that is concurrently being freed.
++	 *
++	 * atomic_read_acquire() pairs with atomic_dec_and_test() in
++	 * put_files_struct().
++	 */
++	if (atomic_read_acquire(&files->count) == 1) {
+ 		file = files_lookup_fd_raw(files, fd);
+ 		if (!file || unlikely(file->f_mode & mask))
+ 			return 0;
 -- 
 2.35.1
 
