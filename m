@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF722649FC2
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:14:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B546E649FC3
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:14:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232550AbiLLNOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:14:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43322 "EHLO
+        id S232125AbiLLNOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:14:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232291AbiLLNOV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:14:21 -0500
+        with ESMTP id S232356AbiLLNOY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:14:24 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DD032DA
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:14:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7CCAB4F
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:14:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FCFEB80D36
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:14:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F88FC433D2;
-        Mon, 12 Dec 2022 13:14:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A981CB80D36
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:14:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C2B2C433EF;
+        Mon, 12 Dec 2022 13:14:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670850858;
-        bh=VtH8VJ61uSnvgAe5z1cros6jyaW4NSe3Lgq/hHLQtBU=;
+        s=korg; t=1670850861;
+        bh=uAbHIsE6Pxufpz6ZO3sKBhzosc3M/V+AVZVMASvABfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PaALQ677iAK31gacN55eOywLjAt6dQG6JMURFVVSmI91ljKc0vrfCUNQn5RIC23Z+
-         ckwYUhWf/FVfMG0ga5ILNnLcmt2HHQSBLhjis3G/qOqAwQCvr0s84T3W79LCPrTsg/
-         wQe4qt+IBkNiKS1sRn9AnTg0W9VHjmWk98c3B0Qg=
+        b=kKb2imtURk34GR45TEX7hzrzQX5/fH/mvmEMBu56Kb777s9fWg+EyfSznXhpWwtOi
+         QGL5OibaOQ2GyBwwoLC6mVAZriZdluKkfeeX5aXR1d/psxhyN1inaM8PE6iQ7CeoMs
+         nqNpJfzMq+1SH0JNFd2S9Zhkbgd+SwgwK54Bn6ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Marek Vasut <marex@denx.de>, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.10 046/106] Revert "ARM: dts: imx7: Fix NAND controller size-cells"
-Date:   Mon, 12 Dec 2022 14:09:49 +0100
-Message-Id: <20221212130926.866020798@linuxfoundation.org>
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.10 047/106] media: v4l2-dv-timings.c: fix too strict blanking sanity checks
+Date:   Mon, 12 Dec 2022 14:09:50 +0100
+Message-Id: <20221212130926.908129353@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -54,47 +52,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Dolcini <francesco.dolcini@toradex.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit ef19964da8a668c683f1d38274f6fb756e047945 upstream.
+commit 5eef2141776da02772c44ec406d6871a790761ee upstream.
 
-This reverts commit 753395ea1e45c724150070b5785900b6a44bd5fb.
+Sanity checks were added to verify the v4l2_bt_timings blanking fields
+in order to avoid integer overflows when userspace passes weird values.
 
-It introduced a boot regression on colibri-imx7, and potentially any
-other i.MX7 boards with MTD partition list generated into the fdt by
-U-Boot.
+But that assumed that userspace would correctly fill in the front porch,
+backporch and sync values, but sometimes all you know is the total
+blanking, which is then assigned to just one of these fields.
 
-While the commit we are reverting here is not obviously wrong, it fixes
-only a dt binding checker warning that is non-functional, while it
-introduces a boot regression and there is no obvious fix ready.
+And that can fail with these checks.
 
-Fixes: 753395ea1e45 ("ARM: dts: imx7: Fix NAND controller size-cells")
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Marek Vasut <marex@denx.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/Y4dgBTGNWpM6SQXI@francesco-nb.int.toradex.com/
-Link: https://lore.kernel.org/all/20221205144917.6514168a@xps-13/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+So instead set a maximum for the total horizontal and vertical
+blanking and check that each field remains below that.
+
+That is still sufficient to avoid integer overflows, but it also
+allows for more flexibility in how userspace fills in these fields.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 4b6d66a45ed3 ("media: v4l2-dv-timings: add sanity checks for blanking values")
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx7s.dtsi |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/v4l2-core/v4l2-dv-timings.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
---- a/arch/arm/boot/dts/imx7s.dtsi
-+++ b/arch/arm/boot/dts/imx7s.dtsi
-@@ -1221,10 +1221,10 @@
- 			clocks = <&clks IMX7D_NAND_USDHC_BUS_RAWNAND_CLK>;
- 		};
+--- a/drivers/media/v4l2-core/v4l2-dv-timings.c
++++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
+@@ -145,6 +145,8 @@ bool v4l2_valid_dv_timings(const struct
+ 	const struct v4l2_bt_timings *bt = &t->bt;
+ 	const struct v4l2_bt_timings_cap *cap = &dvcap->bt;
+ 	u32 caps = cap->capabilities;
++	const u32 max_vert = 10240;
++	u32 max_hor = 3 * bt->width;
  
--		gpmi: nand-controller@33002000 {
-+		gpmi: nand-controller@33002000{
- 			compatible = "fsl,imx7d-gpmi-nand";
- 			#address-cells = <1>;
--			#size-cells = <0>;
-+			#size-cells = <1>;
- 			reg = <0x33002000 0x2000>, <0x33004000 0x4000>;
- 			reg-names = "gpmi-nand", "bch";
- 			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+ 	if (t->type != V4L2_DV_BT_656_1120)
+ 		return false;
+@@ -166,14 +168,20 @@ bool v4l2_valid_dv_timings(const struct
+ 	if (!bt->interlaced &&
+ 	    (bt->il_vbackporch || bt->il_vsync || bt->il_vfrontporch))
+ 		return false;
+-	if (bt->hfrontporch > 2 * bt->width ||
+-	    bt->hsync > 1024 || bt->hbackporch > 1024)
++	/*
++	 * Some video receivers cannot properly separate the frontporch,
++	 * backporch and sync values, and instead they only have the total
++	 * blanking. That can be assigned to any of these three fields.
++	 * So just check that none of these are way out of range.
++	 */
++	if (bt->hfrontporch > max_hor ||
++	    bt->hsync > max_hor || bt->hbackporch > max_hor)
+ 		return false;
+-	if (bt->vfrontporch > 4096 ||
+-	    bt->vsync > 128 || bt->vbackporch > 4096)
++	if (bt->vfrontporch > max_vert ||
++	    bt->vsync > max_vert || bt->vbackporch > max_vert)
+ 		return false;
+-	if (bt->interlaced && (bt->il_vfrontporch > 4096 ||
+-	    bt->il_vsync > 128 || bt->il_vbackporch > 4096))
++	if (bt->interlaced && (bt->il_vfrontporch > max_vert ||
++	    bt->il_vsync > max_vert || bt->il_vbackporch > max_vert))
+ 		return false;
+ 	return fnc == NULL || fnc(t, fnc_handle);
+ }
 
 
