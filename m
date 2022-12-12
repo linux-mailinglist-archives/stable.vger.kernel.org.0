@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F5164A175
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:41:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C364364A028
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:21:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232934AbiLLNlA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:41:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40550 "EHLO
+        id S232691AbiLLNV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:21:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231795AbiLLNkc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:40:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6200913EBB
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:39:45 -0800 (PST)
+        with ESMTP id S232636AbiLLNVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:21:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E2AD2AF0
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:21:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1451EB80D2B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:39:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3391C433EF;
-        Mon, 12 Dec 2022 13:39:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1DC861035
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:21:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AA07C433EF;
+        Mon, 12 Dec 2022 13:21:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852382;
-        bh=VsCVWcMEA6ib6koqt6jhTnfBBbcFlqvLnGyS/hpHQlw=;
+        s=korg; t=1670851267;
+        bh=rBdhM4QwI8iff0JkPLAKNli+llzHmdU7iuCTkfL8oPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=roFr5iXC58CUnCeLlBckHxIMOqDF/XySUn5R5LcL0JXRnDXOs2CVvMH9rCFlAzZrU
-         LnRsDghumhcZsiqUY7aFeJlM71WM5VHHG4R0E3K3NENFZuTU/R0AsX7UJqH9czrcjU
-         DaJvC1yEzTfCF4C/5OxYmjxayZT2ml7eLX/MkY/M=
+        b=KtJop4d8dcfAwMr+Kkus+QDitZ+HvTnclw990oKR/kKGpTf4Y6OSxVBFXSgQkqG3y
+         My/XUnZ7fkRAM3RiyLpPFoXm8y/05XKsAWUBjU+X2/53oq+x/wnKujOmoZY92z474h
+         WuPRT4cH4U4GtAyn0wo6de41H98d00b7uADsRkb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zack Rusin <zackr@vmware.com>,
-        Nicholas Hunt <nhunt@vmware.com>,
-        Martin Krastev <krastevm@vmware.com>
-Subject: [PATCH 6.0 069/157] drm/vmwgfx: Dont use screen objects when SEV is active
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 22/67] xen/netback: dont call kfree_skb() with interrupts disabled
 Date:   Mon, 12 Dec 2022 14:16:57 +0100
-Message-Id: <20221212130937.388201295@linuxfoundation.org>
+Message-Id: <20221212130918.683276002@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zack Rusin <zackr@vmware.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 6e90293618ed476d6b11f82ce724efbb9e9a071b upstream.
+[ Upstream commit 74e7e1efdad45580cc3839f2a155174cf158f9b5 ]
 
-When SEV is enabled gmr's and mob's are explicitly disabled because
-the encrypted system memory can not be used by the hypervisor.
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So remove kfree_skb()
+from the spin_lock_irqsave() section and use the already existing
+"drop" label in xenvif_start_xmit() for dropping the SKB. At the
+same time replace the dev_kfree_skb() call there with a call of
+dev_kfree_skb_any(), as xenvif_start_xmit() can be called with
+disabled interrupts.
 
-The driver was disabling GMR's but the presentation code, which depends
-on GMR's, wasn't honoring it which lead to black screen on hosts
-with SEV enabled.
+This is XSA-424 / CVE-2022-42328 / CVE-2022-42329.
 
-Make sure screen objects presentation is not used when guest memory
-regions have been disabled to fix presentation on SEV enabled hosts.
-
-Fixes: 3b0d6458c705 ("drm/vmwgfx: Refuse DMA operation when SEV encryption is active")
-Cc: <stable@vger.kernel.org> # v5.7+
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Reported-by: Nicholas Hunt <nhunt@vmware.com>
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221201175341.491884-1-zack@kde.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: be81992f9086 ("xen/netback: don't queue unlimited number of packages")
+Reported-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/xen-netback/common.h    | 2 +-
+ drivers/net/xen-netback/interface.c | 6 ++++--
+ drivers/net/xen-netback/rx.c        | 8 +++++---
+ 3 files changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c
-@@ -950,6 +950,10 @@ int vmw_kms_sou_init_display(struct vmw_
- 	struct drm_device *dev = &dev_priv->drm;
- 	int i, ret;
+diff --git a/drivers/net/xen-netback/common.h b/drivers/net/xen-netback/common.h
+index fa52d5ffca72..ced413d394cd 100644
+--- a/drivers/net/xen-netback/common.h
++++ b/drivers/net/xen-netback/common.h
+@@ -383,7 +383,7 @@ int xenvif_dealloc_kthread(void *data);
+ irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data);
  
-+	/* Screen objects won't work if GMR's aren't available */
-+	if (!dev_priv->has_gmr)
-+		return -ENOSYS;
+ bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread);
+-void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
++bool xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
+ 
+ void xenvif_carrier_on(struct xenvif *vif);
+ 
+diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
+index 5efe86b3ba06..6432f6e7fd54 100644
+--- a/drivers/net/xen-netback/interface.c
++++ b/drivers/net/xen-netback/interface.c
+@@ -255,14 +255,16 @@ xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	if (vif->hash.alg == XEN_NETIF_CTRL_HASH_ALGORITHM_NONE)
+ 		skb_clear_hash(skb);
+ 
+-	xenvif_rx_queue_tail(queue, skb);
++	if (!xenvif_rx_queue_tail(queue, skb))
++		goto drop;
 +
- 	if (!(dev_priv->capabilities & SVGA_CAP_SCREEN_OBJECT_2)) {
- 		return -ENOSYS;
+ 	xenvif_kick_thread(queue);
+ 
+ 	return NETDEV_TX_OK;
+ 
+  drop:
+ 	vif->dev->stats.tx_dropped++;
+-	dev_kfree_skb(skb);
++	dev_kfree_skb_any(skb);
+ 	return NETDEV_TX_OK;
+ }
+ 
+diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
+index 6f940a32dcb8..ab216970137c 100644
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -82,9 +82,10 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
+ 	return false;
+ }
+ 
+-void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
++bool xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
+ {
+ 	unsigned long flags;
++	bool ret = true;
+ 
+ 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
+ 
+@@ -92,8 +93,7 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
+ 		struct net_device *dev = queue->vif->dev;
+ 
+ 		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
+-		kfree_skb(skb);
+-		queue->vif->dev->stats.rx_dropped++;
++		ret = false;
+ 	} else {
+ 		if (skb_queue_empty(&queue->rx_queue))
+ 			xenvif_update_needed_slots(queue, skb);
+@@ -104,6 +104,8 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
  	}
+ 
+ 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
++
++	return ret;
+ }
+ 
+ static struct sk_buff *xenvif_rx_dequeue(struct xenvif_queue *queue)
+-- 
+2.35.1
+
 
 
