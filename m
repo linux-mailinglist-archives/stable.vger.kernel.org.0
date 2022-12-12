@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1608264A269
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3046564A29A
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:56:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233090AbiLLNyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:54:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54996 "EHLO
+        id S232992AbiLLN4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:56:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233099AbiLLNyA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18110D87
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:53:28 -0800 (PST)
+        with ESMTP id S232956AbiLLN4T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:56:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E12915A19
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:56:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2D1FB80B78
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:53:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 205B5C433EF;
-        Mon, 12 Dec 2022 13:53:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B264661072
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:56:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BFF5C433EF;
+        Mon, 12 Dec 2022 13:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853205;
-        bh=7hzXNrPwFnVAXirEXP0fEzOIsehZfGmeyHlyBiDsPdg=;
+        s=korg; t=1670853365;
+        bh=aPLxUTXdo/xecYuHkuSOuheoc+cRFJ2fpNAMlMypgHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mbGXcZog8GSmNo6cHBitNh97w6AtLdcAVVzGMKMq8RcAYpmjrh1SMfOgdlfGEWyxa
-         svNliOMgZ1D8YMqwb28wpSvGYUT4QnAiqEqwsFccqB1B1y7UV/yEKQCxlc7/SfoPYU
-         gGysyWL3mb4c2LiBm6qEMFVeBhJ99ETVE25MP3aU=
+        b=x2c+AhEGfw9IFpgjp72ahQ5GZRE8aLzDcZunVcrZQpTFyKKgox8TgZlher/z/zu7+
+         HE5kWukYj3vCCKXPpBjua3P8DBsGQDqAd+PV887vJH4RK5cBhsWAsKtca7TKryXFWI
+         z7upCV+RDT+qnZIIXvY5P+pVsHr3HJ29C9Kz4xmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 33/38] tipc: Fix potential OOB in tipc_link_proto_rcv()
+Subject: [PATCH 4.9 16/31] gpio: amd8111: Fix PCI device reference count leak
 Date:   Mon, 12 Dec 2022 14:19:34 +0100
-Message-Id: <20221212130913.760595573@linuxfoundation.org>
+Message-Id: <20221212130910.868473540@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
-References: <20221212130912.069170932@linuxfoundation.org>
+In-Reply-To: <20221212130909.943483205@linuxfoundation.org>
+References: <20221212130909.943483205@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 743117a997bbd4840e827295c07e59bcd7f7caa3 ]
+[ Upstream commit 45fecdb9f658d9c82960c98240bc0770ade19aca ]
 
-Fix the potential risk of OOB if skb_linearize() fails in
-tipc_link_proto_rcv().
+for_each_pci_dev() is implemented by pci_get_device(). The comment of
+pci_get_device() says that it will increase the reference count for the
+returned pci_dev and also decrease the reference count for the input
+pci_dev @from if it is not NULL.
 
-Fixes: 5cbb28a4bf65 ("tipc: linearize arriving NAME_DISTR and LINK_PROTO buffers")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20221203094635.29024-1-yuehaibing@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+If we break for_each_pci_dev() loop with pdev not NULL, we need to call
+pci_dev_put() to decrease the reference count. Add the missing
+pci_dev_put() after the 'out' label. Since pci_dev_put() can handle NULL
+input parameter, there is no problem for the 'Device not found' branch.
+For the normal path, add pci_dev_put() in amd_gpio_exit().
+
+Fixes: f942a7de047d ("gpio: add a driver for GPIO pins found on AMD-8111 south bridge chips")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/link.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-amd8111.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/tipc/link.c b/net/tipc/link.c
-index d3017811b67a..edcc768a17ce 100644
---- a/net/tipc/link.c
-+++ b/net/tipc/link.c
-@@ -1477,7 +1477,9 @@ static int tipc_link_proto_rcv(struct tipc_link *l, struct sk_buff *skb,
- 	if (tipc_own_addr(l->net) > msg_prevnode(hdr))
- 		l->net_plane = msg_net_plane(hdr);
- 
--	skb_linearize(skb);
-+	if (skb_linearize(skb))
-+		goto exit;
+diff --git a/drivers/gpio/gpio-amd8111.c b/drivers/gpio/gpio-amd8111.c
+index 30ad7d7c1678..f8486bac12d0 100644
+--- a/drivers/gpio/gpio-amd8111.c
++++ b/drivers/gpio/gpio-amd8111.c
+@@ -231,7 +231,10 @@ static int __init amd_gpio_init(void)
+ 		ioport_unmap(gp.pm);
+ 		goto out;
+ 	}
++	return 0;
 +
- 	hdr = buf_msg(skb);
- 	data = msg_data(hdr);
+ out:
++	pci_dev_put(pdev);
+ 	return err;
+ }
  
+@@ -239,6 +242,7 @@ static void __exit amd_gpio_exit(void)
+ {
+ 	gpiochip_remove(&gp.chip);
+ 	ioport_unmap(gp.pm);
++	pci_dev_put(gp.pdev);
+ }
+ 
+ module_init(amd_gpio_init);
 -- 
 2.35.1
 
