@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C3F064A26F
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:54:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCEF764A283
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:55:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233189AbiLLNyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:54:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52934 "EHLO
+        id S233266AbiLLNz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:55:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233190AbiLLNyF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:54:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49632231
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:53:51 -0800 (PST)
+        with ESMTP id S233175AbiLLNzF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:55:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E87A055BE
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:54:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B577B8068B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:53:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64436C433EF;
-        Mon, 12 Dec 2022 13:53:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8015261074
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:54:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87454C433EF;
+        Mon, 12 Dec 2022 13:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853228;
-        bh=o4QAZZMM1oCEcITTuEZsAylNNPl4P3Olzx9cZPwRLlQ=;
+        s=korg; t=1670853295;
+        bh=mYDS8NhRtn6iHirANvokxO19PldCMN2N89AlLM3kj5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErXjSlBZLY1imv4HL2lKIPMfaiSvN/KOOCvq0jq3Vy1u639TIzCs97vdXrdg5FtBT
-         4YP+0nv+cerDTtF1uqVLLuDuAsTFUGRBcuoLNVe23T60zk0AUvz7KDxbCz6RTlNcYL
-         uj4p8TA2NXEaFlJTQ1kEt3NhdiEC5DUWPI4T5Jlc=
+        b=gwuaTj6qv5yTBN+wO35Ae29G/qJUF5zSrLHRLR94VziC+iQBl/53MsibaSq2pl+bf
+         H2v0+eOaWzE4WEJykdtE5HFChgJjNbd+BYeJse45CtwJfMcn2A4yfop9uSKDJNNvwY
+         oiYRKf4geyXXYmgTktX0WPIhfAkETf1T8KXJNF9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akihiko Odaki <akihiko.odaki@daynix.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 4.14 22/38] e1000e: Fix TX dispatch condition
+        patches@lists.linux.dev,
+        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 05/31] ASoC: soc-pcm: Add NULL check in BE reparenting
 Date:   Mon, 12 Dec 2022 14:19:23 +0100
-Message-Id: <20221212130913.220923475@linuxfoundation.org>
+Message-Id: <20221212130910.228103113@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
-References: <20221212130912.069170932@linuxfoundation.org>
+In-Reply-To: <20221212130909.943483205@linuxfoundation.org>
+References: <20221212130909.943483205@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
+From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
 
-[ Upstream commit eed913f6919e253f35d454b2f115f2a4db2b741a ]
+[ Upstream commit db8f91d424fe0ea6db337aca8bc05908bbce1498 ]
 
-e1000_xmit_frame is expected to stop the queue and dispatch frames to
-hardware if there is not sufficient space for the next frame in the
-buffer, but sometimes it failed to do so because the estimated maximum
-size of frame was wrong. As the consequence, the later invocation of
-e1000_xmit_frame failed with NETDEV_TX_BUSY, and the frame in the buffer
-remained forever, resulting in a watchdog failure.
+Add NULL check in dpcm_be_reparent API, to handle
+kernel NULL pointer dereference error.
+The issue occurred in fuzzing test.
 
-This change fixes the estimated size by making it match with the
-condition for NETDEV_TX_BUSY. Apparently, the old estimation failed to
-account for the following lines which determines the space requirement
-for not causing NETDEV_TX_BUSY:
-    ```
-    	/* reserve a descriptor for the offload context */
-    	if ((mss) || (skb->ip_summed == CHECKSUM_PARTIAL))
-    		count++;
-    	count++;
-
-    	count += DIV_ROUND_UP(len, adapter->tx_fifo_limit);
-    ```
-
-This issue was found when running http-stress02 test included in Linux
-Test Project 20220930 on QEMU with the following commandline:
-```
-qemu-system-x86_64 -M q35,accel=kvm -m 8G -smp 8
-	-drive if=virtio,format=raw,file=root.img,file.locking=on
-	-device e1000e,netdev=netdev
-	-netdev tap,script=ifup,downscript=no,id=netdev
-```
-
-Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver (currently for ICH9 devices only)")
-Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+Link: https://lore.kernel.org/r/1669098673-29703-1-git-send-email-quic_srivasam@quicinc.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/soc-pcm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
-index 116914de603e..cb3ff3c2fb03 100644
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -5897,9 +5897,9 @@ static netdev_tx_t e1000_xmit_frame(struct sk_buff *skb,
- 		e1000_tx_queue(tx_ring, tx_flags, count);
- 		/* Make sure there is space in the ring for the next send. */
- 		e1000_maybe_stop_tx(tx_ring,
--				    (MAX_SKB_FRAGS *
-+				    ((MAX_SKB_FRAGS + 1) *
- 				     DIV_ROUND_UP(PAGE_SIZE,
--						  adapter->tx_fifo_limit) + 2));
-+						  adapter->tx_fifo_limit) + 4));
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 6c31a909845c..f6cebe2b3cbb 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -1182,6 +1182,8 @@ static void dpcm_be_reparent(struct snd_soc_pcm_runtime *fe,
+ 		return;
  
- 		if (!skb->xmit_more ||
- 		    netif_xmit_stopped(netdev_get_tx_queue(netdev, 0))) {
+ 	be_substream = snd_soc_dpcm_get_substream(be, stream);
++	if (!be_substream)
++		return;
+ 
+ 	list_for_each_entry(dpcm, &be->dpcm[stream].fe_clients, list_fe) {
+ 		if (dpcm->fe == fe)
 -- 
 2.35.1
 
