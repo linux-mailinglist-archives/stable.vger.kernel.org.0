@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03F7564A0EC
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:33:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E0A264A1C3
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:45:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232130AbiLLNc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:32:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33210 "EHLO
+        id S232882AbiLLNpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:45:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232276AbiLLNc5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:32:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEE6CF70
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:32:55 -0800 (PST)
+        with ESMTP id S232890AbiLLNo2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:44:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFE0E14002
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:44:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0C0DB80D4D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:32:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8052AC433EF;
-        Mon, 12 Dec 2022 13:32:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C5B861089
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:44:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDCF4C433F0;
+        Mon, 12 Dec 2022 13:44:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851973;
-        bh=c8vW/LaiFzuQy1zTI6gQj9YCHIVWvo7b+WOwtQ5EtRY=;
+        s=korg; t=1670852658;
+        bh=wUWlBHfNfQEqCP0a/nhiFE9eRfkDjSmnBdbXZR/gtlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XyWd8F7OyBjxXypK0WQPT6gjE79Lv3WH5WLwXBIxZwSxvDCKf2Di1B5/CejFc3MxG
-         Q2nZj3xoD3oySGhsz6I8kls4FIGYyw2zz9gYTqQXD/kYjB4CdbHZQJ0yEmT6yI2Iai
-         Dtn/I700I8yFToQJDxXLATp2U2cZaJdp2XL5hzOs=
+        b=AsIAPgLU076safZ3xXQwYYL4W00LwqfaDlQ6ujT7W6lTrLc5qPxSmQbh8ASkKbiZ3
+         Nhsu55GYwO2Tso5CeJGG55ls9/kT00zQltkkESJS9t4T2rN+TIW3R/oEZKoU90RB4l
+         5uNozBH8crgGMRt34qH50fQOlcKiStj8fYpFVP0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Jan Sokolowski <jan.sokolowski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 107/123] net: dsa: sja1105: fix memory leak in sja1105_setup_devlink_regions()
-Date:   Mon, 12 Dec 2022 14:17:53 +0100
-Message-Id: <20221212130931.766738608@linuxfoundation.org>
+Subject: [PATCH 6.0 126/157] i40e: Fix for VF MAC address 0
+Date:   Mon, 12 Dec 2022 14:17:54 +0100
+Message-Id: <20221212130939.925842424@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
 
-[ Upstream commit 78a9ea43fc1a7c06a420b132d2d47cbf4344a5df ]
+[ Upstream commit 08501970472077ed5de346ad89943a37d1692e9b ]
 
-When dsa_devlink_region_create failed in sja1105_setup_devlink_regions(),
-priv->regions is not released.
+After spawning max VFs on a PF, some VFs were not getting resources and
+their MAC addresses were 0. This was caused by PF sleeping before flushing
+HW registers which caused VIRTCHNL_VFR_VFACTIVE to not be set in time for
+VF.
 
-Fixes: bf425b82059e ("net: dsa: sja1105: expose static config as devlink region")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20221205012132.2110979-1-shaozhengchao@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix by adding a sleep after hw flush.
+
+Fixes: e4b433f4a741 ("i40e: reset all VFs in parallel when rebuilding PF")
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/sja1105/sja1105_devlink.c | 2 ++
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/dsa/sja1105/sja1105_devlink.c b/drivers/net/dsa/sja1105/sja1105_devlink.c
-index 10c6fea1227f..bdbbff2a7909 100644
---- a/drivers/net/dsa/sja1105/sja1105_devlink.c
-+++ b/drivers/net/dsa/sja1105/sja1105_devlink.c
-@@ -95,6 +95,8 @@ static int sja1105_setup_devlink_regions(struct dsa_switch *ds)
- 		if (IS_ERR(region)) {
- 			while (--i >= 0)
- 				dsa_devlink_region_destroy(priv->regions[i]);
-+
-+			kfree(priv->regions);
- 			return PTR_ERR(region);
- 		}
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 72ddcefc45b1..635f93d60318 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -1578,6 +1578,7 @@ bool i40e_reset_vf(struct i40e_vf *vf, bool flr)
+ 	i40e_cleanup_reset_vf(vf);
  
+ 	i40e_flush(hw);
++	usleep_range(20000, 40000);
+ 	clear_bit(I40E_VF_STATE_RESETTING, &vf->vf_states);
+ 
+ 	return true;
+@@ -1701,6 +1702,7 @@ bool i40e_reset_all_vfs(struct i40e_pf *pf, bool flr)
+ 	}
+ 
+ 	i40e_flush(hw);
++	usleep_range(20000, 40000);
+ 	clear_bit(__I40E_VF_DISABLE, pf->state);
+ 
+ 	return true;
 -- 
 2.35.1
 
