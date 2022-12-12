@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5951664A210
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:49:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A7BA64A215
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:49:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233146AbiLLNtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:49:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46692 "EHLO
+        id S233081AbiLLNtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:49:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233085AbiLLNtJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:49:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D2BAE6E
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:48:33 -0800 (PST)
+        with ESMTP id S233082AbiLLNtK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:49:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29FB1F05
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:48:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EEEFEB80D2C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:48:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E77CC433EF;
-        Mon, 12 Dec 2022 13:48:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B88A36105C
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:48:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B67F7C433F0;
+        Mon, 12 Dec 2022 13:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852910;
-        bh=0md2/4sAZzfuKOdzfIRWS4BQR9w9wkpuvQ0oCut7UuM=;
+        s=korg; t=1670852915;
+        bh=JfRHaN4ylaJBQTGtaRQS+Acy4D/jma42HO2mRQzKpz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxMi450PBGfQJrd8HsZvFZ+sx4ssrftyOSjeGXFJAfAQ3YQ5j94RrBHCKjz/78Etb
-         FMX/ZQRlaYQGxcpUvXJmR7v9vXDabjCc+x8Kogj6rDMiP81t0YSqiqZaJSi+A9ZXkr
-         17sY1SDOCUFx5yMxlpFW5MtJ3aiiFOHvqrneYJKY=
+        b=zqaotgzaycnYZMPGd8PKJl8J8ACdwCwiw5E15nHyy5CzOIsVW0HY2x87gZvW2HoeF
+         n05zFXNITOQ+jub/Yz0Bb6+fRdpIB/e0i0VSFv+90rZ8XGTHVtThiQfN7nZUo6EcBd
+         4eG8E3J2DdYOortI/i3CCpmXrMpkQnars5Wa8qJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Giulio Benetti <giulio.benetti@benettiengineering.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        patches@lists.linux.dev, Johan Jonker <jbx6244@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/49] ARM: 9266/1: mm: fix no-MMU ZERO_PAGE() implementation
-Date:   Mon, 12 Dec 2022 14:18:42 +0100
-Message-Id: <20221212130913.875406485@linuxfoundation.org>
+Subject: [PATCH 4.19 05/49] ARM: dts: rockchip: disable arm_global_timer on rk3066 and rk3188
+Date:   Mon, 12 Dec 2022 14:18:43 +0100
+Message-Id: <20221212130913.918342501@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
 References: <20221212130913.666185567@linuxfoundation.org>
@@ -55,139 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giulio Benetti <giulio.benetti@benettiengineering.com>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit 340a982825f76f1cff0daa605970fe47321b5ee7 ]
+[ Upstream commit da74858a475782a3f16470907814c8cc5950ad68 ]
 
-Actually in no-MMU SoCs(i.e. i.MXRT) ZERO_PAGE(vaddr) expands to
-```
-virt_to_page(0)
-```
-that in order expands to:
-```
-pfn_to_page(virt_to_pfn(0))
-```
-and then virt_to_pfn(0) to:
-```
-        ((((unsigned long)(0) - PAGE_OFFSET) >> PAGE_SHIFT) +
-         PHYS_PFN_OFFSET)
-```
-where PAGE_OFFSET and PHYS_PFN_OFFSET are the DRAM offset(0x80000000) and
-PAGE_SHIFT is 12. This way we obtain 16MB(0x01000000) summed to the base of
-DRAM(0x80000000).
-When ZERO_PAGE(0) is then used, for example in bio_add_page(), the page
-gets an address that is out of DRAM bounds.
-So instead of using fake virtual page 0 let's allocate a dedicated
-zero_page during paging_init() and assign it to a global 'struct page *
-empty_zero_page' the same way mmu.c does and it's the same approach used
-in m68k with commit dc068f462179 as discussed here[0]. Then let's move
-ZERO_PAGE() definition to the top of pgtable.h to be in common between
-mmu.c and nommu.c.
+The clock source and the sched_clock provided by the arm_global_timer
+on Rockchip rk3066a/rk3188 are quite unstable because their rates
+depend on the CPU frequency.
 
-[0]: https://lore.kernel.org/linux-m68k/2a462b23-5b8e-bbf4-ec7d-778434a3b9d7@google.com/T/#m1266ceb63
-ad140743174d6b3070364d3c9a5179b
+Recent changes to the arm_global_timer driver makes it impossible to use.
 
-Signed-off-by: Giulio Benetti <giulio.benetti@benettiengineering.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+On the other side, the arm_global_timer has a higher rating than the
+ROCKCHIP_TIMER, it will be selected by default by the time framework
+while we want to use the stable Rockchip clock source.
+
+Keep the arm_global_timer disabled in order to have the
+DW_APB_TIMER (rk3066a) or ROCKCHIP_TIMER (rk3188) selected by default.
+
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/f275ca8d-fd0a-26e5-b978-b7f3df815e0a@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/pgtable-nommu.h |  6 ------
- arch/arm/include/asm/pgtable.h       | 16 +++++++++-------
- arch/arm/mm/nommu.c                  | 19 +++++++++++++++++++
- 3 files changed, 28 insertions(+), 13 deletions(-)
+ arch/arm/boot/dts/rk3188.dtsi | 1 -
+ arch/arm/boot/dts/rk3xxx.dtsi | 7 +++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/include/asm/pgtable-nommu.h b/arch/arm/include/asm/pgtable-nommu.h
-index a0d726a47c8a..e7ca798513c1 100644
---- a/arch/arm/include/asm/pgtable-nommu.h
-+++ b/arch/arm/include/asm/pgtable-nommu.h
-@@ -54,12 +54,6 @@
+diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
+index 3b7cae6f4127..24efc9b31d89 100644
+--- a/arch/arm/boot/dts/rk3188.dtsi
++++ b/arch/arm/boot/dts/rk3188.dtsi
+@@ -509,7 +509,6 @@
  
- typedef pte_t *pte_addr_t;
+ &global_timer {
+ 	interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
+-	status = "disabled";
+ };
  
--/*
-- * ZERO_PAGE is a global shared page that is always zero: used
-- * for zero-mapped memory areas etc..
-- */
--#define ZERO_PAGE(vaddr)	(virt_to_page(0))
--
- /*
-  * Mark the prot value as uncacheable and unbufferable.
-  */
-diff --git a/arch/arm/include/asm/pgtable.h b/arch/arm/include/asm/pgtable.h
-index a757401129f9..fdc3bc07061f 100644
---- a/arch/arm/include/asm/pgtable.h
-+++ b/arch/arm/include/asm/pgtable.h
-@@ -13,6 +13,15 @@
- #include <linux/const.h>
- #include <asm/proc-fns.h>
+ &local_timer {
+diff --git a/arch/arm/boot/dts/rk3xxx.dtsi b/arch/arm/boot/dts/rk3xxx.dtsi
+index 86a0d98d28ff..1b6429843bd4 100644
+--- a/arch/arm/boot/dts/rk3xxx.dtsi
++++ b/arch/arm/boot/dts/rk3xxx.dtsi
+@@ -108,6 +108,13 @@
+ 		reg = <0x1013c200 0x20>;
+ 		interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_EDGE_RISING)>;
+ 		clocks = <&cru CORE_PERI>;
++		status = "disabled";
++		/* The clock source and the sched_clock provided by the arm_global_timer
++		 * on Rockchip rk3066a/rk3188 are quite unstable because their rates
++		 * depend on the CPU frequency.
++		 * Keep the arm_global_timer disabled in order to have the
++		 * DW_APB_TIMER (rk3066a) or ROCKCHIP_TIMER (rk3188) selected by default.
++		 */
+ 	};
  
-+#ifndef __ASSEMBLY__
-+/*
-+ * ZERO_PAGE is a global shared page that is always zero: used
-+ * for zero-mapped memory areas etc..
-+ */
-+extern struct page *empty_zero_page;
-+#define ZERO_PAGE(vaddr)	(empty_zero_page)
-+#endif
-+
- #ifndef CONFIG_MMU
- 
- #include <asm-generic/4level-fixup.h>
-@@ -166,13 +175,6 @@ extern pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
- #define __S111  __PAGE_SHARED_EXEC
- 
- #ifndef __ASSEMBLY__
--/*
-- * ZERO_PAGE is a global shared page that is always zero: used
-- * for zero-mapped memory areas etc..
-- */
--extern struct page *empty_zero_page;
--#define ZERO_PAGE(vaddr)	(empty_zero_page)
--
- 
- extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
- 
-diff --git a/arch/arm/mm/nommu.c b/arch/arm/mm/nommu.c
-index 7d67c70bbded..e803fd16248b 100644
---- a/arch/arm/mm/nommu.c
-+++ b/arch/arm/mm/nommu.c
-@@ -25,6 +25,13 @@
- 
- unsigned long vectors_base;
- 
-+/*
-+ * empty_zero_page is a special page that is used for
-+ * zero-initialized data and COW.
-+ */
-+struct page *empty_zero_page;
-+EXPORT_SYMBOL(empty_zero_page);
-+
- #ifdef CONFIG_ARM_MPU
- struct mpu_rgn_info mpu_rgn_info;
- #endif
-@@ -147,9 +154,21 @@ void __init adjust_lowmem_bounds(void)
-  */
- void __init paging_init(const struct machine_desc *mdesc)
- {
-+	void *zero_page;
-+
- 	early_trap_init((void *)vectors_base);
- 	mpu_setup();
-+
-+	/* allocate the zero page. */
-+	zero_page = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
-+	if (!zero_page)
-+		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
-+		      __func__, PAGE_SIZE, PAGE_SIZE);
-+
- 	bootmem_init();
-+
-+	empty_zero_page = virt_to_page(zero_page);
-+	flush_dcache_page(empty_zero_page);
- }
- 
- /*
+ 	local_timer: local-timer@1013c600 {
 -- 
 2.35.1
 
