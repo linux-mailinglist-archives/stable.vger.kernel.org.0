@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB5E064A0B1
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:29:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BC8D64A0DB
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:32:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232681AbiLLN3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:29:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57172 "EHLO
+        id S231952AbiLLNbt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:31:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232782AbiLLN2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:28:45 -0500
+        with ESMTP id S232085AbiLLNbs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:31:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2736310B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:28:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDC77631E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:31:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B493C60FF4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:28:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02A04C433D2;
-        Mon, 12 Dec 2022 13:28:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 582ED6105A
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:31:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 301DEC433D2;
+        Mon, 12 Dec 2022 13:31:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851724;
-        bh=Kt2XjoS8AtJa9Rb71rqz+die/tom3ykCn2N9L5Z/J0U=;
+        s=korg; t=1670851906;
+        bh=VpuaNJiPjNJoZyUtH8tqiFmg74q2vgkizvuWLYgcD6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=juKoXtVu10Dqdw/AoiOmLC7d6MJJrtetCiyngGU9FBNwEumO/YkRaVeV0U0hALOwo
-         e2/SS0O1SPC8tZ/vMr9wbrQZpP6H71Jdz/zP8nv36riBjcIg5TusFIswneNcgCNtX+
-         kChoQmg7KyYO6KgDCDXS+PulEZvKOlkeQj+xQlB8=
+        b=uWVUxtnaBWTkDNzaKmEo6w+UaL0nQUPIx4hOZH95VoCPahpp7Ni8QsHAtwNFaSu3n
+         ir67NKTHGcOPrbMsNiC7jMsXncMCYGrfUxShF4NVIscUPKEZsvW4D3xCFsevK127Tv
+         kTtOEdmSNNrZLR+UOX/Qaacn3Ch2KFV7eI+TX5PM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+8b1641d2f14732407e23@syzkaller.appspotmail.com,
-        ZhangPeng <zhangpeng362@huawei.com>,
+        patches@lists.linux.dev, Rudolf Polzer <rpolzer@google.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.15 056/123] HID: core: fix shift-out-of-bounds in hid_report_raw_event
-Date:   Mon, 12 Dec 2022 14:17:02 +0100
-Message-Id: <20221212130929.279386139@linuxfoundation.org>
+Subject: [PATCH 5.15 057/123] HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch V 10
+Date:   Mon, 12 Dec 2022 14:17:03 +0100
+Message-Id: <20221212130929.322255622@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
 References: <20221212130926.811961601@linuxfoundation.org>
@@ -54,72 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit ec61b41918587be530398b0d1c9a0d16619397e5 upstream.
+commit 9ad6645a9dce4d0e42daca6ebf32a154401c59d3 upstream.
 
-Syzbot reported shift-out-of-bounds in hid_report_raw_event.
+The Acer Aspire Switch V 10 (SW5-017)'s keyboard-dock uses the same
+ITE controller setup as other Acer Switch 2-in-1's.
 
-microsoft 0003:045E:07DA.0001: hid_field_extract() called with n (128) >
-32! (swapper/0)
-======================================================================
-UBSAN: shift-out-of-bounds in drivers/hid/hid-core.c:1323:20
-shift exponent 127 is too large for 32-bit type 'int'
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted
-6.1.0-rc4-syzkaller-00159-g4bbf3422df78 #0
-Hardware name: Google Compute Engine/Google Compute Engine, BIOS
-Google 10/26/2022
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x1e3/0x2cb lib/dump_stack.c:106
- ubsan_epilogue lib/ubsan.c:151 [inline]
- __ubsan_handle_shift_out_of_bounds+0x3a6/0x420 lib/ubsan.c:322
- snto32 drivers/hid/hid-core.c:1323 [inline]
- hid_input_fetch_field drivers/hid/hid-core.c:1572 [inline]
- hid_process_report drivers/hid/hid-core.c:1665 [inline]
- hid_report_raw_event+0xd56/0x18b0 drivers/hid/hid-core.c:1998
- hid_input_report+0x408/0x4f0 drivers/hid/hid-core.c:2066
- hid_irq_in+0x459/0x690 drivers/hid/usbhid/hid-core.c:284
- __usb_hcd_giveback_urb+0x369/0x530 drivers/usb/core/hcd.c:1671
- dummy_timer+0x86b/0x3110 drivers/usb/gadget/udc/dummy_hcd.c:1988
- call_timer_fn+0xf5/0x210 kernel/time/timer.c:1474
- expire_timers kernel/time/timer.c:1519 [inline]
- __run_timers+0x76a/0x980 kernel/time/timer.c:1790
- run_timer_softirq+0x63/0xf0 kernel/time/timer.c:1803
- __do_softirq+0x277/0x75b kernel/softirq.c:571
- __irq_exit_rcu+0xec/0x170 kernel/softirq.c:650
- irq_exit_rcu+0x5/0x20 kernel/softirq.c:662
- sysvec_apic_timer_interrupt+0x91/0xb0 arch/x86/kernel/apic/apic.c:1107
-======================================================================
+This needs special handling for the wifi on/off toggle hotkey as well as
+to properly report touchpad on/off keypresses.
 
-If the size of the integer (unsigned n) is bigger than 32 in snto32(),
-shift exponent will be too large for 32-bit type 'int', resulting in a
-shift-out-of-bounds bug.
-Fix this by adding a check on the size of the integer (unsigned n) in
-snto32(). To add support for n greater than 32 bits, set n to 32, if n
-is greater than 32.
+Add the USB-ids for the SW5-017's keyboard-dock with a quirk setting of
+QUIRK_TOUCHPAD_ON_OFF_REPORT to fix both issues.
 
-Reported-by: syzbot+8b1641d2f14732407e23@syzkaller.appspotmail.com
-Fixes: dde5845a529f ("[PATCH] Generic HID layer - code split")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
+Cc: Rudolf Polzer <rpolzer@google.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-core.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-ids.h |    1 +
+ drivers/hid/hid-ite.c |    5 +++++
+ 2 files changed, 6 insertions(+)
 
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1310,6 +1310,9 @@ static s32 snto32(__u32 value, unsigned
- 	if (!value || !n)
- 		return 0;
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1184,6 +1184,7 @@
+ #define USB_DEVICE_ID_SYNAPTICS_DELL_K15A	0x6e21
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1002	0x73f4
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003	0x73f5
++#define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_017	0x73f6
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5	0x81a7
  
-+	if (n > 32)
-+		n = 32;
-+
- 	switch (n) {
- 	case 8:  return ((__s8)value);
- 	case 16: return ((__s16)value);
+ #define USB_VENDOR_ID_TEXAS_INSTRUMENTS	0x2047
+--- a/drivers/hid/hid-ite.c
++++ b/drivers/hid/hid-ite.c
+@@ -121,6 +121,11 @@ static const struct hid_device_id ite_de
+ 		     USB_VENDOR_ID_SYNAPTICS,
+ 		     USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003),
+ 	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
++	/* ITE8910 USB kbd ctlr, with Synaptics touchpad connected to it. */
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
++		     USB_VENDOR_ID_SYNAPTICS,
++		     USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_017),
++	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, ite_devices);
 
 
