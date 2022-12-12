@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E37664A076
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:25:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72B1C64A14C
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:38:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232788AbiLLNZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:25:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54314 "EHLO
+        id S232740AbiLLNiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:38:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232790AbiLLNZL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 800965FA3
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:05 -0800 (PST)
+        with ESMTP id S232745AbiLLNhb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:37:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5640213F12
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:37:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 412E2B80D4D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84827C433F2;
-        Mon, 12 Dec 2022 13:25:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 06DF5B80D50
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:37:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C7EC433D2;
+        Mon, 12 Dec 2022 13:37:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851503;
-        bh=3dvlsZ0crK7vigTaS1T23MKHxpBSClQQPfxLSsv+Jmc=;
+        s=korg; t=1670852226;
+        bh=JxZMR149k32CPh/jIPLId3L95+vHwgeJKoiJTP6aPNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r/djl8Tiemqiiy21LjxbnoH6e+b222l0m4XUnBRsSebeQ4N6B9FqWeb2uvQjdiAFk
-         LtBK5MNx1AdP0tRiqWIlVfD8FbrPKmR/mKEK7B8WfkMEryBqHrNbQTWWuZyDwUyn3y
-         CxraZiQjTEr/VMLkZEWEKgCJVhFw4VT15Gl6+s+k=
+        b=CeyaXKYsyIkdvwkJVLFWXuKwJVdFX5UDwmVqhhJ+kdMoum1RsYsNgR+PRbIdegHPX
+         6UMyDw3+c+5tCvQcMTfY+qWV2OXPse9Nx/V22azGh2X0NRqtkaA0Vp7P6UUg14tlHY
+         3eCohK8okXyMVVCwTrKQQNZiRQKK6W7gDoDxTKNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
-        Tomislav Novak <tnovak@fb.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        patches@lists.linux.dev, Boris Burkov <boris@bur.io>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 011/123] ARM: 9251/1: perf: Fix stacktraces for tracepoint events in THUMB2 kernels
-Date:   Mon, 12 Dec 2022 14:16:17 +0100
-Message-Id: <20221212130927.323824604@linuxfoundation.org>
+Subject: [PATCH 6.0 030/157] btrfs: send: avoid unaligned encoded writes when attempting to clone range
+Date:   Mon, 12 Dec 2022 14:16:18 +0100
+Message-Id: <20221212130935.732641802@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +54,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomislav Novak <tnovak@fb.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 612695bccfdbd52004551308a55bae410e7cd22f ]
+[ Upstream commit a11452a3709e217492798cf3686ac2cc8eb3fb51 ]
 
-Store the frame address where arm_get_current_stackframe() looks for it
-(ARM_r7 instead of ARM_fp if CONFIG_THUMB2_KERNEL=y). Otherwise frame->fp
-gets set to 0, causing unwind_frame() to fail.
+When trying to see if we can clone a file range, there are cases where we
+end up sending two write operations in case the inode from the source root
+has an i_size that is not sector size aligned and the length from the
+current offset to its i_size is less than the remaining length we are
+trying to clone.
 
-  # bpftrace -e 't:sched:sched_switch { @[kstack] = count(); exit(); }'
-  Attaching 1 probe...
-  @[
-      __schedule+1059
-  ]: 1
+Issuing two write operations when we could instead issue a single write
+operation is not incorrect. However it is not optimal, specially if the
+extents are compressed and the flag BTRFS_SEND_FLAG_COMPRESSED was passed
+to the send ioctl. In that case we can end up sending an encoded write
+with an offset that is not sector size aligned, which makes the receiver
+fallback to decompressing the data and writing it using regular buffered
+IO (so re-compressing the data in case the fs is mounted with compression
+enabled), because encoded writes fail with -EINVAL when an offset is not
+sector size aligned.
 
-A typical first unwind instruction is 0x97 (SP = R7), so after executing
-it SP ends up being 0 and -URC_FAILURE is returned.
+The following example, which triggered a bug in the receiver code for the
+fallback logic of decompressing + regular buffer IO and is fixed by the
+patchset referred in a Link at the bottom of this changelog, is an example
+where we have the non-optimal behaviour due to an unaligned encoded write:
 
-  unwind_frame(pc = ac9da7d7 lr = 00000000 sp = c69bdda0 fp = 00000000)
-  unwind_find_idx(ac9da7d7)
-  unwind_exec_insn: insn = 00000097
-  unwind_exec_insn: fp = 00000000 sp = 00000000 lr = 00000000 pc = 00000000
+   $ cat test.sh
+   #!/bin/bash
 
-With this patch:
+   DEV=/dev/sdj
+   MNT=/mnt/sdj
 
-  # bpftrace -e 't:sched:sched_switch { @[kstack] = count(); exit(); }'
-  Attaching 1 probe...
-  @[
-      __schedule+1059
-      __schedule+1059
-      schedule+79
-      schedule_hrtimeout_range_clock+163
-      schedule_hrtimeout_range+17
-      ep_poll+471
-      SyS_epoll_wait+111
-      sys_epoll_pwait+231
-      __ret_fast_syscall+1
-  ]: 1
+   mkfs.btrfs -f $DEV > /dev/null
+   mount -o compress $DEV $MNT
 
-Link: https://lore.kernel.org/r/20220920230728.2617421-1-tnovak@fb.com/
+   # File foo has a size of 33K, not aligned to the sector size.
+   xfs_io -f -c "pwrite -S 0xab 0 33K" $MNT/foo
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Tomislav Novak <tnovak@fb.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+   xfs_io -f -c "pwrite -S 0xcd 0 64K" $MNT/bar
+
+   # Now clone the first 32K of file bar into foo at offset 0.
+   xfs_io -c "reflink $MNT/bar 0 0 32K" $MNT/foo
+
+   # Snapshot the default subvolume and create a full send stream (v2).
+   btrfs subvolume snapshot -r $MNT $MNT/snap
+
+   btrfs send --compressed-data -f /tmp/test.send $MNT/snap
+
+   echo -e "\nFile bar in the original filesystem:"
+   od -A d -t x1 $MNT/snap/bar
+
+   umount $MNT
+   mkfs.btrfs -f $DEV > /dev/null
+   mount $DEV $MNT
+
+   echo -e "\nReceiving stream in a new filesystem..."
+   btrfs receive -f /tmp/test.send $MNT
+
+   echo -e "\nFile bar in the new filesystem:"
+   od -A d -t x1 $MNT/snap/bar
+
+   umount $MNT
+
+Before this patch, the send stream included one regular write and one
+encoded write for file 'bar', with the later being not sector size aligned
+and causing the receiver to fallback to decompression + buffered writes.
+The output of the btrfs receive command in verbose mode (-vvv):
+
+   (...)
+   mkfile o258-7-0
+   rename o258-7-0 -> bar
+   utimes
+   clone bar - source=foo source offset=0 offset=0 length=32768
+   write bar - offset=32768 length=1024
+   encoded_write bar - offset=33792, len=4096, unencoded_offset=33792, unencoded_file_len=31744, unencoded_len=65536, compression=1, encryption=0
+   encoded_write bar - falling back to decompress and write due to errno 22 ("Invalid argument")
+   (...)
+
+This patch avoids the regular write followed by an unaligned encoded write
+so that we end up sending a single encoded write that is aligned. So after
+this patch the stream content is (output of btrfs receive -vvv):
+
+   (...)
+   mkfile o258-7-0
+   rename o258-7-0 -> bar
+   utimes
+   clone bar - source=foo source offset=0 offset=0 length=32768
+   encoded_write bar - offset=32768, len=4096, unencoded_offset=32768, unencoded_file_len=32768, unencoded_len=65536, compression=1, encryption=0
+   (...)
+
+So we get more optimal behaviour and avoid the silent data loss bug in
+versions of btrfs-progs affected by the bug referred by the Link tag
+below (btrfs-progs v5.19, v5.19.1, v6.0 and v6.0.1).
+
+Link: https://lore.kernel.org/linux-btrfs/cover.1668529099.git.fdmanana@suse.com/
+Reviewed-by: Boris Burkov <boris@bur.io>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/perf_event.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/send.c | 24 +++++++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/include/asm/perf_event.h b/arch/arm/include/asm/perf_event.h
-index fe87397c3d8c..bdbc1e590891 100644
---- a/arch/arm/include/asm/perf_event.h
-+++ b/arch/arm/include/asm/perf_event.h
-@@ -17,7 +17,7 @@ extern unsigned long perf_misc_flags(struct pt_regs *regs);
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index e7671afcee4f..8cc038460bed 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -5615,6 +5615,7 @@ static int clone_range(struct send_ctx *sctx, struct btrfs_path *dst_path,
+ 		u64 ext_len;
+ 		u64 clone_len;
+ 		u64 clone_data_offset;
++		bool crossed_src_i_size = false;
  
- #define perf_arch_fetch_caller_regs(regs, __ip) { \
- 	(regs)->ARM_pc = (__ip); \
--	(regs)->ARM_fp = (unsigned long) __builtin_frame_address(0); \
-+	frame_pointer((regs)) = (unsigned long) __builtin_frame_address(0); \
- 	(regs)->ARM_sp = current_stack_pointer; \
- 	(regs)->ARM_cpsr = SVC_MODE; \
- }
+ 		if (slot >= btrfs_header_nritems(leaf)) {
+ 			ret = btrfs_next_leaf(clone_root->root, path);
+@@ -5672,8 +5673,10 @@ static int clone_range(struct send_ctx *sctx, struct btrfs_path *dst_path,
+ 		if (key.offset >= clone_src_i_size)
+ 			break;
+ 
+-		if (key.offset + ext_len > clone_src_i_size)
++		if (key.offset + ext_len > clone_src_i_size) {
+ 			ext_len = clone_src_i_size - key.offset;
++			crossed_src_i_size = true;
++		}
+ 
+ 		clone_data_offset = btrfs_file_extent_offset(leaf, ei);
+ 		if (btrfs_file_extent_disk_bytenr(leaf, ei) == disk_byte) {
+@@ -5734,6 +5737,25 @@ static int clone_range(struct send_ctx *sctx, struct btrfs_path *dst_path,
+ 				ret = send_clone(sctx, offset, clone_len,
+ 						 clone_root);
+ 			}
++		} else if (crossed_src_i_size && clone_len < len) {
++			/*
++			 * If we are at i_size of the clone source inode and we
++			 * can not clone from it, terminate the loop. This is
++			 * to avoid sending two write operations, one with a
++			 * length matching clone_len and the final one after
++			 * this loop with a length of len - clone_len.
++			 *
++			 * When using encoded writes (BTRFS_SEND_FLAG_COMPRESSED
++			 * was passed to the send ioctl), this helps avoid
++			 * sending an encoded write for an offset that is not
++			 * sector size aligned, in case the i_size of the source
++			 * inode is not sector size aligned. That will make the
++			 * receiver fallback to decompression of the data and
++			 * writing it using regular buffered IO, therefore while
++			 * not incorrect, it's not optimal due decompression and
++			 * possible re-compression at the receiver.
++			 */
++			break;
+ 		} else {
+ 			ret = send_extent_data(sctx, dst_path, offset,
+ 					       clone_len);
 -- 
 2.35.1
 
