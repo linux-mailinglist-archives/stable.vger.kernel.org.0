@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B594564A081
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:26:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 395AD64A170
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:40:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232735AbiLLN0B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:26:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53802 "EHLO
+        id S232901AbiLLNkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:40:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232800AbiLLNZk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:25:40 -0500
+        with ESMTP id S232763AbiLLNkR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:40:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C5313E05
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:25:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 476141400E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:39:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC2F06106C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:25:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BE2EC433D2;
-        Mon, 12 Dec 2022 13:25:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D94C461072
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:39:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8403C433F1;
+        Mon, 12 Dec 2022 13:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851538;
-        bh=GRR9jBZFyWAtOBROCtryACD0FFkQK7yiBk7+JNb9llA=;
+        s=korg; t=1670852355;
+        bh=5S2OCFbOH1kpuFKuQAuzcLbEVQQXvfQrf51C22+Kig4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZuKmV9vWTITeMaAU+Bgzdic2zm5R4+ip/iqEwZs5Od9vHkIbonHZXz0qE5/uLova
-         mUW6mktCPsfA+v+79hHkPlg9o4XrlL04uaTAmMWCedTfeo5iUUJs8pYnSm9vPH9g+e
-         UqZKHEie45q/J5mbWBjeWx7iAoHxhAuriF35PWIQ=
+        b=BrpR6UfZRGYNkLzTpgsO45pmk5CxkvEMqbKpPCIvlWHI8OYGPpkxgFUVLyW2pAzLr
+         njOMVEB9UaDI8/0GDJHcrJOZYmOowRIX4UiDgZbemD5A09abWf5BI35eCDEmYcejVu
+         unXMwW4wQzpUSkp+vszVOAeVSQRPyW02u/gCih84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        alsa-devel@alsa-project.org, Kees Cook <keescook@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 019/123] ALSA: seq: Fix function prototype mismatch in snd_seq_expand_var_event
-Date:   Mon, 12 Dec 2022 14:16:25 +0100
-Message-Id: <20221212130927.693899738@linuxfoundation.org>
+        patches@lists.linux.dev, Alvin Lee <Alvin.Lee2@amd.com>,
+        Martin Leung <Martin.Leung@amd.com>,
+        Brian Chang <Brian.Chang@amd.com>,
+        Dillon Varone <Dillon.Varone@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 038/157] drm/amd/display: Use viewport height for subvp mall allocation size
+Date:   Mon, 12 Dec 2022 14:16:26 +0100
+Message-Id: <20221212130936.064279714@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Dillon Varone <Dillon.Varone@amd.com>
 
-[ Upstream commit 05530ef7cf7c7d700f6753f058999b1b5099a026 ]
+[ Upstream commit dd2c028c1395d622df7ddd6837f8ab2dc94008ee ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed.
+[WHY?]
+MALL allocation size depends on the viewport height, not the addressable
+vertical lines, which will not match when scaling.
 
-seq_copy_in_user() and seq_copy_in_kernel() did not have prototypes
-matching snd_seq_dump_func_t. Adjust this and remove the casts. There
-are not resulting binary output differences.
+[HOW?]
+Base MALL allocation size calculations off viewport height.
 
-This was found as a result of Clang's new -Wcast-function-type-strict
-flag, which is more sensitive than the simpler -Wcast-function-type,
-which only checks for type width mismatches.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202211041527.HD8TLSE1-lkp@intel.com
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc: alsa-devel@alsa-project.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221118232346.never.380-kees@kernel.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+Reviewed-by: Martin Leung <Martin.Leung@amd.com>
+Acked-by: Brian Chang <Brian.Chang@amd.com>
+Signed-off-by: Dillon Varone <Dillon.Varone@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_memory.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/core/seq/seq_memory.c b/sound/core/seq/seq_memory.c
-index b7aee23fc387..47ef6bc30c0e 100644
---- a/sound/core/seq/seq_memory.c
-+++ b/sound/core/seq/seq_memory.c
-@@ -113,15 +113,19 @@ EXPORT_SYMBOL(snd_seq_dump_var_event);
-  * expand the variable length event to linear buffer space.
-  */
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c
+index 7c37575d69c7..0ef11fb338e9 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource_helpers.c
+@@ -103,7 +103,7 @@ uint32_t dcn32_helper_calculate_num_ways_for_subvp(struct dc *dc, struct dc_stat
+ 			mall_alloc_width_blk_aligned = full_vp_width_blk_aligned;
  
--static int seq_copy_in_kernel(char **bufptr, const void *src, int size)
-+static int seq_copy_in_kernel(void *ptr, void *src, int size)
- {
-+	char **bufptr = ptr;
-+
- 	memcpy(*bufptr, src, size);
- 	*bufptr += size;
- 	return 0;
- }
+ 			/* mall_alloc_height_blk_aligned_l/c = CEILING(sub_vp_height_l/c - 1, blk_height_l/c) + blk_height_l/c */
+-			mall_alloc_height_blk_aligned = (pipe->stream->timing.v_addressable - 1 + mblk_height - 1) /
++			mall_alloc_height_blk_aligned = (pipe->plane_res.scl_data.viewport.height - 1 + mblk_height - 1) /
+ 					mblk_height * mblk_height + mblk_height;
  
--static int seq_copy_in_user(char __user **bufptr, const void *src, int size)
-+static int seq_copy_in_user(void *ptr, void *src, int size)
- {
-+	char __user **bufptr = ptr;
-+
- 	if (copy_to_user(*bufptr, src, size))
- 		return -EFAULT;
- 	*bufptr += size;
-@@ -151,8 +155,7 @@ int snd_seq_expand_var_event(const struct snd_seq_event *event, int count, char
- 		return newlen;
- 	}
- 	err = snd_seq_dump_var_event(event,
--				     in_kernel ? (snd_seq_dump_func_t)seq_copy_in_kernel :
--				     (snd_seq_dump_func_t)seq_copy_in_user,
-+				     in_kernel ? seq_copy_in_kernel : seq_copy_in_user,
- 				     &buf);
- 	return err < 0 ? err : newlen;
- }
+ 			/* full_mblk_width_ub_l/c = mall_alloc_width_blk_aligned_l/c;
 -- 
 2.35.1
 
