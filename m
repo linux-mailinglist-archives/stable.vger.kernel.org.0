@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 849D8649FD5
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:16:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C34649FD6
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:16:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232095AbiLLNQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:16:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42118 "EHLO
+        id S231929AbiLLNQH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:16:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232160AbiLLNPn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:15:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCF90101C4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:15:11 -0800 (PST)
+        with ESMTP id S232586AbiLLNPo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:15:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2E6313D56
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:15:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 945B8B80D39
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:15:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81B53C433D2;
-        Mon, 12 Dec 2022 13:15:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87CBD60FF4
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:15:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 336D6C433D2;
+        Mon, 12 Dec 2022 13:15:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670850909;
-        bh=GDyWdWueCO8Xt9ZsLM/FKGY3RA6Joz0fbZJpSS/iCPg=;
+        s=korg; t=1670850912;
+        bh=fhs5fA57J/p4a3PHpy7bxrxXOmg/jUtb2bVxw7E3S1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vpC690FNLSEeFcO1vOjleP4kngcbneb1XheZgtyfDNLNUArjfYI43xCGGeIlcOh0
-         T8+fksjwTEm9eRJzLGv0B4W+gs73y6sgKfyDGbPDvCY81dGQk78dwY254vfxETYxvr
-         eiOOZZj9ywb6icvKbMkoO9p0DonU5Qcsy+3ulhVg=
+        b=LK+FjtXMk0gkp+jbqKTD6I0NzL2KTvurmWNcVWJ5kX0D5VKeZHsHfD41EfJ1bjeTz
+         w5J2girHUtuZTKhyeefs85wFIK5/4+QjjIK1ND0UWqsm1hwpGp2WBymvQOK0glnHIy
+         Siy29aEPiErDwzotZC8YaSuJd7SWVNEjXg5DecUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Wilson <chris@chris-wilson.co.uk>,
-        Xiaofei Tan <tanxiaofei@huawei.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 061/106] rtc: cmos: Disable irq around direct invocation of cmos_interrupt()
-Date:   Mon, 12 Dec 2022 14:10:04 +0100
-Message-Id: <20221212130927.545168761@linuxfoundation.org>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 062/106] rtc: mc146818-lib: fix locking in mc146818_set_time
+Date:   Mon, 12 Dec 2022 14:10:05 +0100
+Message-Id: <20221212130927.589482356@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -56,143 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Mateusz Jończyk <mat.jonczyk@o2.pl>
 
-[ Upstream commit 13be2efc390acd2a46a69a359f6efc00ca434599 ]
+[ Upstream commit 811f5559270f25c34c338d6eaa2ece2544c3d3bd ]
 
-As previously noted in commit 66e4f4a9cc38 ("rtc: cmos: Use
-spin_lock_irqsave() in cmos_interrupt()"):
+In mc146818_set_time(), CMOS_READ(RTC_CONTROL) was performed without the
+rtc_lock taken, which is required for CMOS accesses. Fix this.
 
-<4>[  254.192378] WARNING: inconsistent lock state
-<4>[  254.192384] 5.12.0-rc1-CI-CI_DRM_9834+ #1 Not tainted
-<4>[  254.192396] --------------------------------
-<4>[  254.192400] inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
-<4>[  254.192409] rtcwake/5309 [HC0[0]:SC0[0]:HE1:SE1] takes:
-<4>[  254.192429] ffffffff8263c5f8 (rtc_lock){?...}-{2:2}, at: cmos_interrupt+0x18/0x100
-<4>[  254.192481] {IN-HARDIRQ-W} state was registered at:
-<4>[  254.192488]   lock_acquire+0xd1/0x3d0
-<4>[  254.192504]   _raw_spin_lock+0x2a/0x40
-<4>[  254.192519]   cmos_interrupt+0x18/0x100
-<4>[  254.192536]   rtc_handler+0x1f/0xc0
-<4>[  254.192553]   acpi_ev_fixed_event_detect+0x109/0x13c
-<4>[  254.192574]   acpi_ev_sci_xrupt_handler+0xb/0x28
-<4>[  254.192596]   acpi_irq+0x13/0x30
-<4>[  254.192620]   __handle_irq_event_percpu+0x43/0x2c0
-<4>[  254.192641]   handle_irq_event_percpu+0x2b/0x70
-<4>[  254.192661]   handle_irq_event+0x2f/0x50
-<4>[  254.192680]   handle_fasteoi_irq+0x9e/0x150
-<4>[  254.192693]   __common_interrupt+0x76/0x140
-<4>[  254.192715]   common_interrupt+0x96/0xc0
-<4>[  254.192732]   asm_common_interrupt+0x1e/0x40
-<4>[  254.192750]   _raw_spin_unlock_irqrestore+0x38/0x60
-<4>[  254.192767]   resume_irqs+0xba/0xf0
-<4>[  254.192786]   dpm_resume_noirq+0x245/0x3d0
-<4>[  254.192811]   suspend_devices_and_enter+0x230/0xaa0
-<4>[  254.192835]   pm_suspend.cold.8+0x301/0x34a
-<4>[  254.192859]   state_store+0x7b/0xe0
-<4>[  254.192879]   kernfs_fop_write_iter+0x11d/0x1c0
-<4>[  254.192899]   new_sync_write+0x11d/0x1b0
-<4>[  254.192916]   vfs_write+0x265/0x390
-<4>[  254.192933]   ksys_write+0x5a/0xd0
-<4>[  254.192949]   do_syscall_64+0x33/0x80
-<4>[  254.192965]   entry_SYSCALL_64_after_hwframe+0x44/0xae
-<4>[  254.192986] irq event stamp: 43775
-<4>[  254.192994] hardirqs last  enabled at (43775): [<ffffffff81c00c42>] asm_sysvec_apic_timer_interrupt+0x12/0x20
-<4>[  254.193023] hardirqs last disabled at (43774): [<ffffffff81aa691a>] sysvec_apic_timer_interrupt+0xa/0xb0
-<4>[  254.193049] softirqs last  enabled at (42548): [<ffffffff81e00342>] __do_softirq+0x342/0x48e
-<4>[  254.193074] softirqs last disabled at (42543): [<ffffffff810b45fd>] irq_exit_rcu+0xad/0xd0
-<4>[  254.193101]
-                  other info that might help us debug this:
-<4>[  254.193107]  Possible unsafe locking scenario:
+Nothing in kernel modifies RTC_DM_BINARY, so a separate critical section
+is allowed here.
 
-<4>[  254.193112]        CPU0
-<4>[  254.193117]        ----
-<4>[  254.193121]   lock(rtc_lock);
-<4>[  254.193137]   <Interrupt>
-<4>[  254.193142]     lock(rtc_lock);
-<4>[  254.193156]
-                   *** DEADLOCK ***
-
-<4>[  254.193161] 6 locks held by rtcwake/5309:
-<4>[  254.193174]  #0: ffff888104861430 (sb_writers#5){.+.+}-{0:0}, at: ksys_write+0x5a/0xd0
-<4>[  254.193232]  #1: ffff88810f823288 (&of->mutex){+.+.}-{3:3}, at: kernfs_fop_write_iter+0xe7/0x1c0
-<4>[  254.193282]  #2: ffff888100cef3c0 (kn->active#285
-<7>[  254.192706] i915 0000:00:02.0: [drm:intel_modeset_setup_hw_state [i915]] [CRTC:51:pipe A] hw state readout: disabled
-<4>[  254.193307] ){.+.+}-{0:0}, at: kernfs_fop_write_iter+0xf0/0x1c0
-<4>[  254.193333]  #3: ffffffff82649fa8 (system_transition_mutex){+.+.}-{3:3}, at: pm_suspend.cold.8+0xce/0x34a
-<4>[  254.193387]  #4: ffffffff827a2108 (acpi_scan_lock){+.+.}-{3:3}, at: acpi_suspend_begin+0x47/0x70
-<4>[  254.193433]  #5: ffff8881019ea178 (&dev->mutex){....}-{3:3}, at: device_resume+0x68/0x1e0
-<4>[  254.193485]
-                  stack backtrace:
-<4>[  254.193492] CPU: 1 PID: 5309 Comm: rtcwake Not tainted 5.12.0-rc1-CI-CI_DRM_9834+ #1
-<4>[  254.193514] Hardware name: Google Soraka/Soraka, BIOS MrChromebox-4.10 08/25/2019
-<4>[  254.193524] Call Trace:
-<4>[  254.193536]  dump_stack+0x7f/0xad
-<4>[  254.193567]  mark_lock.part.47+0x8ca/0xce0
-<4>[  254.193604]  __lock_acquire+0x39b/0x2590
-<4>[  254.193626]  ? asm_sysvec_apic_timer_interrupt+0x12/0x20
-<4>[  254.193660]  lock_acquire+0xd1/0x3d0
-<4>[  254.193677]  ? cmos_interrupt+0x18/0x100
-<4>[  254.193716]  _raw_spin_lock+0x2a/0x40
-<4>[  254.193735]  ? cmos_interrupt+0x18/0x100
-<4>[  254.193758]  cmos_interrupt+0x18/0x100
-<4>[  254.193785]  cmos_resume+0x2ac/0x2d0
-<4>[  254.193813]  ? acpi_pm_set_device_wakeup+0x1f/0x110
-<4>[  254.193842]  ? pnp_bus_suspend+0x10/0x10
-<4>[  254.193864]  pnp_bus_resume+0x5e/0x90
-<4>[  254.193885]  dpm_run_callback+0x5f/0x240
-<4>[  254.193914]  device_resume+0xb2/0x1e0
-<4>[  254.193942]  ? pm_dev_err+0x25/0x25
-<4>[  254.193974]  dpm_resume+0xea/0x3f0
-<4>[  254.194005]  dpm_resume_end+0x8/0x10
-<4>[  254.194030]  suspend_devices_and_enter+0x29b/0xaa0
-<4>[  254.194066]  pm_suspend.cold.8+0x301/0x34a
-<4>[  254.194094]  state_store+0x7b/0xe0
-<4>[  254.194124]  kernfs_fop_write_iter+0x11d/0x1c0
-<4>[  254.194151]  new_sync_write+0x11d/0x1b0
-<4>[  254.194183]  vfs_write+0x265/0x390
-<4>[  254.194207]  ksys_write+0x5a/0xd0
-<4>[  254.194232]  do_syscall_64+0x33/0x80
-<4>[  254.194251]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-<4>[  254.194274] RIP: 0033:0x7f07d79691e7
-<4>[  254.194293] Code: 64 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
-<4>[  254.194312] RSP: 002b:00007ffd9cc2c768 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-<4>[  254.194337] RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 00007f07d79691e7
-<4>[  254.194352] RDX: 0000000000000004 RSI: 0000556ebfc63590 RDI: 000000000000000b
-<4>[  254.194366] RBP: 0000556ebfc63590 R08: 0000000000000000 R09: 0000000000000004
-<4>[  254.194379] R10: 0000556ebf0ec2a6 R11: 0000000000000246 R12: 0000000000000004
-
-which breaks S3-resume on fi-kbl-soraka presumably as that's slow enough
-to trigger the alarm during the suspend.
-
-Fixes: 6950d046eb6e ("rtc: cmos: Replace spin_lock_irqsave with spin_lock in hard IRQ")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Xiaofei Tan <tanxiaofei@huawei.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: dcf257e92622 ("rtc: mc146818: Reduce spinlock section in mc146818_set_time()")
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
 Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210305122140.28774-1-chris@chris-wilson.co.uk
+Link: https://lore.kernel.org/r/20220220090403.153928-1-mat.jonczyk@o2.pl
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cmos.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rtc/rtc-mc146818-lib.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 21f2bdd025b6..d4f6c4dd42c4 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -1111,7 +1111,9 @@ static void cmos_check_wkalrm(struct device *dev)
- 	 * ACK the rtc irq here
- 	 */
- 	if (t_now >= cmos->alarm_expires && cmos_use_acpi_alarm()) {
-+		local_irq_disable();
- 		cmos_interrupt(0, (void *)cmos->rtc);
-+		local_irq_enable();
- 		return;
- 	}
+diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
+index 1ca866461d10..3783aaf9dd5a 100644
+--- a/drivers/rtc/rtc-mc146818-lib.c
++++ b/drivers/rtc/rtc-mc146818-lib.c
+@@ -283,8 +283,10 @@ int mc146818_set_time(struct rtc_time *time)
+ 	if (yrs >= 100)
+ 		yrs -= 100;
  
+-	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY)
+-	    || RTC_ALWAYS_BCD) {
++	spin_lock_irqsave(&rtc_lock, flags);
++	save_control = CMOS_READ(RTC_CONTROL);
++	spin_unlock_irqrestore(&rtc_lock, flags);
++	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
+ 		sec = bin2bcd(sec);
+ 		min = bin2bcd(min);
+ 		hrs = bin2bcd(hrs);
 -- 
 2.35.1
 
