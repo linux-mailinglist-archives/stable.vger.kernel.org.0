@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C600364A0F4
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:33:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BC1C64A1C9
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:45:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232564AbiLLNdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:33:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33546 "EHLO
+        id S232800AbiLLNpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:45:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232440AbiLLNdO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:33:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C67413E1C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:33:12 -0800 (PST)
+        with ESMTP id S232994AbiLLNpT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:45:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43CB414D31
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:44:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE01961070
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:33:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94DEFC43392;
-        Mon, 12 Dec 2022 13:33:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1617B80D50
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:44:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 392E2C433D2;
+        Mon, 12 Dec 2022 13:44:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851991;
-        bh=n49rOSjN6QSMqHzixuhRiwhZN7drgO8k9Cbv0o4YGu4=;
+        s=korg; t=1670852672;
+        bh=RvlksiBBdM4Tro5ri6e9YVuwe6BKL4MlWoZk8OXhsqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W9iZLf7cRKYTewBNecwKGTKNfbplGakzym5Do8Y8WTC1Sz6zlFWrP4AKN02h25Bck
-         6ntp86J4rtuVRLfQLlD+b/LNGA1PUU7f7HybSQ7FZH+bloREZztKdTDfn848YQJoUj
-         X624OMqOPOtKF12omxDm1oxUheUPZzEe3Kk0Xqf4=
+        b=fZsJJanPZ5P+Oltd2PAelDSEY9M880CUzWejxxt2FemR5KQ6Xiiiweva8vdDq8kBv
+         GizVxHWkLdzdgOzv8Ld+X0rNQ5ziUXtX/iBCxTXo2lOOpwLCRjBli3RjVKVMj1bPO1
+         t1vBl6c4lF21K4i9W6l905UffgYonzRjXRKyFB98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Ross Lagerwall <ross.lagerwall@citrix.com>,
-        Jason Andryuk <jandryuk@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 111/123] xen/netback: fix build warning
+        patches@lists.linux.dev, Pankaj Raghav <p.raghav@samsung.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 129/157] nvme initialize core quirks before calling nvme_init_subsystem
 Date:   Mon, 12 Dec 2022 14:17:57 +0100
-Message-Id: <20221212130932.009739363@linuxfoundation.org>
+Message-Id: <20221212130940.076170193@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Pankaj Raghav <p.raghav@samsung.com>
 
-[ Upstream commit 7dfa764e0223a324366a2a1fc056d4d9d4e95491 ]
+[ Upstream commit 6f2d71524bcfdeb1fcbd22a4a92a5b7b161ab224 ]
 
-Commit ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in
-the non-linear area") introduced a (valid) build warning. There have
-even been reports of this problem breaking networking of Xen guests.
+A device might have a core quirk for NVME_QUIRK_IGNORE_DEV_SUBNQN
+(such as Samsung X5) but it would still give a:
 
-Fixes: ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in the non-linear area")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Ross Lagerwall <ross.lagerwall@citrix.com>
-Tested-by: Jason Andryuk <jandryuk@gmail.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+    "missing or invalid SUBNQN field"
+
+warning as core quirks are filled after calling nvme_init_subnqn.  Fill
+ctrl->quirks from struct core_quirks before calling nvme_init_subsystem
+to fix this.
+
+Tested on a Samsung X5.
+
+Fixes: ab9e00cc72fa ("nvme: track subsystems")
+Signed-off-by: Pankaj Raghav <p.raghav@samsung.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/netback.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index 6bd7b62fb90c..26428db845be 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -530,7 +530,7 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
- 	const bool sharedslot = nr_frags &&
- 				frag_get_pending_idx(&shinfo->frags[0]) ==
- 				    copy_pending_idx(skb, copy_count(skb) - 1);
--	int i, err;
-+	int i, err = 0;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index f612a0ba64d0..aca50bb93750 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3089,10 +3089,6 @@ static int nvme_init_identify(struct nvme_ctrl *ctrl)
+ 	if (!ctrl->identified) {
+ 		unsigned int i;
  
- 	for (i = 0; i < copy_count(skb); i++) {
- 		int newerr;
+-		ret = nvme_init_subsystem(ctrl, id);
+-		if (ret)
+-			goto out_free;
+-
+ 		/*
+ 		 * Check for quirks.  Quirk can depend on firmware version,
+ 		 * so, in principle, the set of quirks present can change
+@@ -3105,6 +3101,10 @@ static int nvme_init_identify(struct nvme_ctrl *ctrl)
+ 			if (quirk_matches(id, &core_quirks[i]))
+ 				ctrl->quirks |= core_quirks[i].quirks;
+ 		}
++
++		ret = nvme_init_subsystem(ctrl, id);
++		if (ret)
++			goto out_free;
+ 	}
+ 	memcpy(ctrl->subsys->firmware_rev, id->fr,
+ 	       sizeof(ctrl->subsys->firmware_rev));
 -- 
 2.35.1
 
