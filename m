@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CAE9649FFC
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:18:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F8B649FFB
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:18:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232637AbiLLNSI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:18:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43548 "EHLO
+        id S232631AbiLLNSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:18:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232731AbiLLNRS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:17:18 -0500
+        with ESMTP id S232736AbiLLNRT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:17:19 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 403C9BF4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:17:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB3E0F30
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:17:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 038E6B80B9B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:17:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B540C433D2;
-        Mon, 12 Dec 2022 13:17:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BC7DB80B9B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:17:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AB93C433EF;
+        Mon, 12 Dec 2022 13:17:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851021;
-        bh=3S1SjdXRCtzLAGwx0p4YIfPj/dgmUBts5k05ZNPZ7Fs=;
+        s=korg; t=1670851026;
+        bh=J77nhBYCu6vRMmNWHX0QqTkw+EvYDCHDrAGLj10JYKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5iaLl+VLHciaj8TycA1InuFmP1H3mnLyQv2ECSH1BVCrs6+NxsD3LKniifhlIgge
-         A8EDNbiGadPmWqiaTjWgM1mJr9mqvcD9Bh9sZpCj8Qpmz5vz/Psmalri7SHAtcJVYs
-         a6/ZOmxWLhBoZEFth93pQ0lhCZkDkj7KlFviK7tI=
+        b=YNjXk+NH+d4GibiATuMotfZSa8MKx7pbtg9BdYi9xtHQyzO6zGyXv8AiIzP0vJ7Hn
+         KefMDELtO4Suh6uttKVCs4G0XvMKqVmKBp6fsakvLHlc4AGXE3BXuDyfp6Q+w+fWWv
+         ZP92S5JdmDsiYNMif5rthdsIxl+9EA5XbcPjpR4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jianlin Shi <jishi@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        William Tu <u9012063@gmail.com>,
+        patches@lists.linux.dev, Yongqiang Liu <liuyongqiang13@huawei.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 091/106] ip_gre: do not report erspan version on GRE interface
-Date:   Mon, 12 Dec 2022 14:10:34 +0100
-Message-Id: <20221212130928.840389083@linuxfoundation.org>
+Subject: [PATCH 5.10 092/106] net: thunderx: Fix missing destroy_workqueue of nicvf_rx_mode_wq
+Date:   Mon, 12 Dec 2022 14:10:35 +0100
+Message-Id: <20221212130928.882636218@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221212130924.863767275@linuxfoundation.org>
 References: <20221212130924.863767275@linuxfoundation.org>
@@ -55,102 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Yongqiang Liu <liuyongqiang13@huawei.com>
 
-[ Upstream commit ee496694b9eea651ae1aa4c4667d886cdf74aa3b ]
+[ Upstream commit 42330a32933fb42180c52022804dcf09f47a2f99 ]
 
-Although the type I ERSPAN is based on the barebones IP + GRE
-encapsulation and no extra ERSPAN header. Report erspan version on GRE
-interface looks unreasonable. Fix this by separating the erspan and gre
-fill info.
+The nicvf_probe() won't destroy workqueue when register_netdev()
+failed. Add destroy_workqueue err handle case to fix this issue.
 
-IPv6 GRE does not have this info as IPv6 only supports erspan version
-1 and 2.
-
-Reported-by: Jianlin Shi <jishi@redhat.com>
-Fixes: f989d546a2d5 ("erspan: Add type I version 0 support.")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Acked-by: William Tu <u9012063@gmail.com>
-Link: https://lore.kernel.org/r/20221203032858.3130339-1-liuhangbin@gmail.com
+Fixes: 2ecbe4f4a027 ("net: thunderx: replace global nicvf_rx_mode_wq work queue for all VFs to private for each of them.")
+Signed-off-by: Yongqiang Liu <liuyongqiang13@huawei.com>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Link: https://lore.kernel.org/r/20221203094125.602812-1-liuyongqiang13@huawei.com
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_gre.c | 48 ++++++++++++++++++++++++++++-------------------
- 1 file changed, 29 insertions(+), 19 deletions(-)
+ drivers/net/ethernet/cavium/thunder/nicvf_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index 6ab5c50aa7a8..65ead8a74933 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -1493,24 +1493,6 @@ static int ipgre_fill_info(struct sk_buff *skb, const struct net_device *dev)
- 	struct ip_tunnel_parm *p = &t->parms;
- 	__be16 o_flags = p->o_flags;
+diff --git a/drivers/net/ethernet/cavium/thunder/nicvf_main.c b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
+index c00f1a7ffc15..488da767cfdf 100644
+--- a/drivers/net/ethernet/cavium/thunder/nicvf_main.c
++++ b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
+@@ -2258,7 +2258,7 @@ static int nicvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	err = register_netdev(netdev);
+ 	if (err) {
+ 		dev_err(dev, "Failed to register netdevice\n");
+-		goto err_unregister_interrupts;
++		goto err_destroy_workqueue;
+ 	}
  
--	if (t->erspan_ver <= 2) {
--		if (t->erspan_ver != 0 && !t->collect_md)
--			o_flags |= TUNNEL_KEY;
--
--		if (nla_put_u8(skb, IFLA_GRE_ERSPAN_VER, t->erspan_ver))
--			goto nla_put_failure;
--
--		if (t->erspan_ver == 1) {
--			if (nla_put_u32(skb, IFLA_GRE_ERSPAN_INDEX, t->index))
--				goto nla_put_failure;
--		} else if (t->erspan_ver == 2) {
--			if (nla_put_u8(skb, IFLA_GRE_ERSPAN_DIR, t->dir))
--				goto nla_put_failure;
--			if (nla_put_u16(skb, IFLA_GRE_ERSPAN_HWID, t->hwid))
--				goto nla_put_failure;
--		}
--	}
--
- 	if (nla_put_u32(skb, IFLA_GRE_LINK, p->link) ||
- 	    nla_put_be16(skb, IFLA_GRE_IFLAGS,
- 			 gre_tnl_flags_to_gre_flags(p->i_flags)) ||
-@@ -1551,6 +1533,34 @@ static int ipgre_fill_info(struct sk_buff *skb, const struct net_device *dev)
- 	return -EMSGSIZE;
- }
+ 	nic->msg_enable = debug;
+@@ -2267,6 +2267,8 @@ static int nicvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
  
-+static int erspan_fill_info(struct sk_buff *skb, const struct net_device *dev)
-+{
-+	struct ip_tunnel *t = netdev_priv(dev);
-+
-+	if (t->erspan_ver <= 2) {
-+		if (t->erspan_ver != 0 && !t->collect_md)
-+			t->parms.o_flags |= TUNNEL_KEY;
-+
-+		if (nla_put_u8(skb, IFLA_GRE_ERSPAN_VER, t->erspan_ver))
-+			goto nla_put_failure;
-+
-+		if (t->erspan_ver == 1) {
-+			if (nla_put_u32(skb, IFLA_GRE_ERSPAN_INDEX, t->index))
-+				goto nla_put_failure;
-+		} else if (t->erspan_ver == 2) {
-+			if (nla_put_u8(skb, IFLA_GRE_ERSPAN_DIR, t->dir))
-+				goto nla_put_failure;
-+			if (nla_put_u16(skb, IFLA_GRE_ERSPAN_HWID, t->hwid))
-+				goto nla_put_failure;
-+		}
-+	}
-+
-+	return ipgre_fill_info(skb, dev);
-+
-+nla_put_failure:
-+	return -EMSGSIZE;
-+}
-+
- static void erspan_setup(struct net_device *dev)
- {
- 	struct ip_tunnel *t = netdev_priv(dev);
-@@ -1629,7 +1639,7 @@ static struct rtnl_link_ops erspan_link_ops __read_mostly = {
- 	.changelink	= erspan_changelink,
- 	.dellink	= ip_tunnel_dellink,
- 	.get_size	= ipgre_get_size,
--	.fill_info	= ipgre_fill_info,
-+	.fill_info	= erspan_fill_info,
- 	.get_link_net	= ip_tunnel_get_link_net,
- };
+ 	return 0;
  
++err_destroy_workqueue:
++	destroy_workqueue(nic->nicvf_rx_mode_wq);
+ err_unregister_interrupts:
+ 	nicvf_unregister_interrupts(nic);
+ err_free_netdev:
 -- 
 2.35.1
 
