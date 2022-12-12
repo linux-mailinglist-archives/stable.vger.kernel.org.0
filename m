@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2536564A0C1
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:30:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1265D64A060
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:24:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231960AbiLLNaA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:30:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58940 "EHLO
+        id S232685AbiLLNY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:24:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232286AbiLLN36 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:29:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF7092A4
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:29:56 -0800 (PST)
+        with ESMTP id S232641AbiLLNYZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:24:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5690C13
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:24:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7235461053
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:29:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19E40C433EF;
-        Mon, 12 Dec 2022 13:29:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A5E4B80D39
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:24:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4F5EC433F1;
+        Mon, 12 Dec 2022 13:24:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851795;
-        bh=m7nX502XKe6TIgvNUE4bMQoKJT2EFM1Yfcyd2BDRLD4=;
+        s=korg; t=1670851462;
+        bh=QW3JLtWtebeWyR+qmY4YSJWk8Xz3aEdIbYmshlfscwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4FUCauprrU7zrxukwN6kiOKB9wtwl8NbIwdv078LAdNC2OQ5Ax6VD3ikDaIdlvAP
-         kDGtm+8FLxWgYih0GCQETRyuR6jzzLP5PVWHLeHF4t1gFH+8pgqKGYq7rcABKoNQtC
-         L4vC6uPFgsaQxbTY3BbBN+HVZB8vPiSTAt/VGF6c=
+        b=r4vDGFDEC5nAK8S/8zpRaa6SIlM+RR11SqFYA2PRUIgO1S+75RAarDnubLXU7OzhW
+         OSkpbDHgk/05omkWyLb/KtckVfP9igNfgONrm031jSBFgHzZWFj3O25D2uSYYY4wZ4
+         Fhu6SHevMmgEcF8cQIYytyVB1wDF2TlXuuUiOloE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        YueHaibing <yuehaibing@huawei.com>,
+        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 072/123] net: broadcom: Add PTP_1588_CLOCK_OPTIONAL dependency for BCMGENET under ARCH_BCM2835
+Subject: [PATCH 5.4 43/67] net: dsa: ksz: Check return value
 Date:   Mon, 12 Dec 2022 14:17:18 +0100
-Message-Id: <20221212130929.989500793@linuxfoundation.org>
+Message-Id: <20221212130919.682816667@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Artem Chernyshev <artem.chernyshev@red-soft.ru>
 
-[ Upstream commit 421f8663b3a775c32f724f793264097c60028f2e ]
+[ Upstream commit 3d8fdcbf1f42e2bb9ae8b8c0b6f202278c788a22 ]
 
-commit 8d820bc9d12b ("net: broadcom: Fix BCMGENET Kconfig") fixes the build
-that contain 99addbe31f55 ("net: broadcom: Select BROADCOM_PHY for BCMGENET")
-and enable BCMGENET=y but PTP_1588_CLOCK_OPTIONAL=m, which otherwise
-leads to a link failure. However this may trigger a runtime failure.
+Return NULL if we got unexpected value from skb_trim_rcsum()
+in ksz_common_rcv()
 
-Fix the original issue by propagating the PTP_1588_CLOCK_OPTIONAL dependency
-of BROADCOM_PHY down to BCMGENET.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-Fixes: 8d820bc9d12b ("net: broadcom: Fix BCMGENET Kconfig")
-Fixes: 99addbe31f55 ("net: broadcom: Select BROADCOM_PHY for BCMGENET")
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20221125115003.30308-1-yuehaibing@huawei.com
+Fixes: bafe9ba7d908 ("net: dsa: ksz: Factor out common tag code")
+Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20221201140032.26746-1-artem.chernyshev@red-soft.ru
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/Kconfig | 3 ++-
+ net/dsa/tag_ksz.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/Kconfig b/drivers/net/ethernet/broadcom/Kconfig
-index 1cd3c289f49b..cd1706909044 100644
---- a/drivers/net/ethernet/broadcom/Kconfig
-+++ b/drivers/net/ethernet/broadcom/Kconfig
-@@ -71,13 +71,14 @@ config BCM63XX_ENET
- config BCMGENET
- 	tristate "Broadcom GENET internal MAC support"
- 	depends on HAS_IOMEM
-+	depends on PTP_1588_CLOCK_OPTIONAL || !ARCH_BCM2835
- 	select MII
- 	select PHYLIB
- 	select FIXED_PHY
- 	select BCM7XXX_PHY
- 	select MDIO_BCM_UNIMAC
- 	select DIMLIB
--	select BROADCOM_PHY if (ARCH_BCM2835 && PTP_1588_CLOCK_OPTIONAL)
-+	select BROADCOM_PHY if ARCH_BCM2835
- 	help
- 	  This driver supports the built-in Ethernet MACs found in the
- 	  Broadcom BCM7xxx Set Top Box family chipset.
+diff --git a/net/dsa/tag_ksz.c b/net/dsa/tag_ksz.c
+index 73605bcbb385..7354c5db3a14 100644
+--- a/net/dsa/tag_ksz.c
++++ b/net/dsa/tag_ksz.c
+@@ -62,7 +62,8 @@ static struct sk_buff *ksz_common_rcv(struct sk_buff *skb,
+ 	if (!skb->dev)
+ 		return NULL;
+ 
+-	pskb_trim_rcsum(skb, skb->len - len);
++	if (pskb_trim_rcsum(skb, skb->len - len))
++		return NULL;
+ 
+ 	skb->offload_fwd_mark = true;
+ 
 -- 
 2.35.1
 
