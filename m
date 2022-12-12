@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8142C64A10D
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:34:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 075B964A1D3
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:46:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232552AbiLLNep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:34:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34432 "EHLO
+        id S232996AbiLLNqN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:46:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232766AbiLLNeX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:34:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C04DB13EAA
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:34:19 -0800 (PST)
+        with ESMTP id S233023AbiLLNps (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:45:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 959C22BE3
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:45:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DED3B80D2C
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:34:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 368A8C433EF;
-        Mon, 12 Dec 2022 13:34:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3066B61035
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:45:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56A07C433EF;
+        Mon, 12 Dec 2022 13:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852057;
-        bh=jnA/pjxNnmu5e2OhvOQLP5yyl66x3suQ6xdgemsaMrM=;
+        s=korg; t=1670852710;
+        bh=42NiLQMKNAiPRmwZXw/fXqpeCCLXX4aJ496r3Sga2/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/BQXNd1esmduXPwtPNa+xONOqhU+x/FJsPIF/uEhI2scsJnfHxcLNBjx64IGld5M
-         vwmD6D1yK+MSNxPEQCEAuvdXZjEONYtHReReUqEyWbWUfc1uo5Qt4uhyQhwKUnkW6S
-         SA3ktG2HuNaJNBNpn//4BH6yqsJGtrbrFKMmfxg8=
+        b=tS7UIEC51jk3qphf8X9C+KXKNNiU11kVxXGIYZooiJwpcwH6XWOLsyR7noHBmxTjb
+         pbsc2GbkbI/nYJ/5Dpi7sFHbHDY/htXqeZUqZr1wIbu/SVQSfzr+/tndnVHEKKljX8
+         w7yP76MtKujT8bUg4qBoD+6dDaLPmeIdJUuD+m0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Julian Wiedmann <jwi@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Yongqiang Liu <liuyongqiang13@huawei.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 118/123] s390/qeth: fix various format strings
+Subject: [PATCH 6.0 136/157] net: thunderx: Fix missing destroy_workqueue of nicvf_rx_mode_wq
 Date:   Mon, 12 Dec 2022 14:18:04 +0100
-Message-Id: <20221212130932.318053285@linuxfoundation.org>
+Message-Id: <20221212130940.517296668@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Yongqiang Liu <liuyongqiang13@huawei.com>
 
-[ Upstream commit 22e2b5cdb0b9b59d4df6da5ca9bc5773a4f8e3ea ]
+[ Upstream commit 42330a32933fb42180c52022804dcf09f47a2f99 ]
 
-Various format strings don't match with types of parameters.
-Fix all of them.
+The nicvf_probe() won't destroy workqueue when register_netdev()
+failed. Add destroy_workqueue err handle case to fix this issue.
 
-Acked-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: ebaaadc332cd ("s390/qeth: fix use-after-free in hsci")
+Fixes: 2ecbe4f4a027 ("net: thunderx: replace global nicvf_rx_mode_wq work queue for all VFs to private for each of them.")
+Signed-off-by: Yongqiang Liu <liuyongqiang13@huawei.com>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Link: https://lore.kernel.org/r/20221203094125.602812-1-liuyongqiang13@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_l2_main.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/cavium/thunder/nicvf_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index dc6c00768d91..dbe0ef11028b 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -661,13 +661,13 @@ static void qeth_l2_dev2br_fdb_notify(struct qeth_card *card, u8 code,
- 					 card->dev, &info.info, NULL);
- 		QETH_CARD_TEXT(card, 4, "andelmac");
- 		QETH_CARD_TEXT_(card, 4,
--				"mc%012lx", ether_addr_to_u64(ntfy_mac));
-+				"mc%012llx", ether_addr_to_u64(ntfy_mac));
- 	} else {
- 		call_switchdev_notifiers(SWITCHDEV_FDB_ADD_TO_BRIDGE,
- 					 card->dev, &info.info, NULL);
- 		QETH_CARD_TEXT(card, 4, "anaddmac");
- 		QETH_CARD_TEXT_(card, 4,
--				"mc%012lx", ether_addr_to_u64(ntfy_mac));
-+				"mc%012llx", ether_addr_to_u64(ntfy_mac));
- 	}
- }
- 
-@@ -765,8 +765,8 @@ static void qeth_l2_br2dev_worker(struct work_struct *work)
- 	int err = 0;
- 
- 	kfree(br2dev_event_work);
--	QETH_CARD_TEXT_(card, 4, "b2dw%04x", event);
--	QETH_CARD_TEXT_(card, 4, "ma%012lx", ether_addr_to_u64(addr));
-+	QETH_CARD_TEXT_(card, 4, "b2dw%04lx", event);
-+	QETH_CARD_TEXT_(card, 4, "ma%012llx", ether_addr_to_u64(addr));
- 
- 	rcu_read_lock();
- 	/* Verify preconditions are still valid: */
-@@ -795,7 +795,7 @@ static void qeth_l2_br2dev_worker(struct work_struct *work)
- 				if (err) {
- 					QETH_CARD_TEXT(card, 2, "b2derris");
- 					QETH_CARD_TEXT_(card, 2,
--							"err%02x%03d", event,
-+							"err%02lx%03d", event,
- 							lowerdev->ifindex);
- 				}
- 			}
-@@ -813,7 +813,7 @@ static void qeth_l2_br2dev_worker(struct work_struct *work)
- 			break;
- 		}
- 		if (err)
--			QETH_CARD_TEXT_(card, 2, "b2derr%02x", event);
-+			QETH_CARD_TEXT_(card, 2, "b2derr%02lx", event);
+diff --git a/drivers/net/ethernet/cavium/thunder/nicvf_main.c b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
+index 768ea426d49f..745bd2dfb742 100644
+--- a/drivers/net/ethernet/cavium/thunder/nicvf_main.c
++++ b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
+@@ -2240,7 +2240,7 @@ static int nicvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	err = register_netdev(netdev);
+ 	if (err) {
+ 		dev_err(dev, "Failed to register netdevice\n");
+-		goto err_unregister_interrupts;
++		goto err_destroy_workqueue;
  	}
  
- unlock:
-@@ -878,7 +878,7 @@ static int qeth_l2_switchdev_event(struct notifier_block *unused,
- 	while (lowerdev) {
- 		if (qeth_l2_must_learn(lowerdev, dstdev)) {
- 			card = lowerdev->ml_priv;
--			QETH_CARD_TEXT_(card, 4, "b2dqw%03x", event);
-+			QETH_CARD_TEXT_(card, 4, "b2dqw%03lx", event);
- 			rc = qeth_l2_br2dev_queue_work(brdev, lowerdev,
- 						       dstdev, event,
- 						       fdb_info->addr);
+ 	nic->msg_enable = debug;
+@@ -2249,6 +2249,8 @@ static int nicvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 
+ 	return 0;
+ 
++err_destroy_workqueue:
++	destroy_workqueue(nic->nicvf_rx_mode_wq);
+ err_unregister_interrupts:
+ 	nicvf_unregister_interrupts(nic);
+ err_free_netdev:
 -- 
 2.35.1
 
