@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92C2C64A087
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:26:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F39ED64A154
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:38:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232208AbiLLN0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:26:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53588 "EHLO
+        id S232815AbiLLNii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:38:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232766AbiLLN0G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:26:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DD838BE
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:26:05 -0800 (PST)
+        with ESMTP id S232827AbiLLNhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:37:51 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1484513F25
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:37:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4197C61025
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:26:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26CB2C433EF;
-        Mon, 12 Dec 2022 13:26:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 64983CE0F7E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:37:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32142C433EF;
+        Mon, 12 Dec 2022 13:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851564;
-        bh=5S7Z5K0ymQBvmif+hmW/nos25uNTlzbP+ySOmHt7C4M=;
+        s=korg; t=1670852247;
+        bh=ebBjRuCjkG8VKsteYvp5syNs1Pd16Jch+udZidqdh/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zOKaRqwnESwYEqCH89agZDeWAWDgSInkIrc8feGR+IqMJQl90wxQwddKul32Ii7rA
-         ULlB/bcF8zQEh066SZbOWI9rL2HLPg/P0frLbfXkX5EsCxxBPDm9t7UQ9OdUQ3Tup9
-         M6657EZphM6LLHEMM8+6c/0kaxCepDzpjnfimfGI=
+        b=lMhZEVoQypAALDY0F1FswpYwPoakwWy5FjQPop46GqnavocXDa0oMDK7zWrPt+iKu
+         MJUaTDcRaQvieZQS6Ct+Ja13bhECUWANNtWAaRDMNUdwf4ZkCVzlmLCYtCRbm1EB5G
+         OEs4BfAJm+s/O3wGRH+8XCCN3jqHZjPZ6e2JN/Ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
+        Yang Shi <shy828301@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 024/123] fbcon: Use kzalloc() in fbcon_prepare_logo()
-Date:   Mon, 12 Dec 2022 14:16:30 +0100
-Message-Id: <20221212130927.921332832@linuxfoundation.org>
+Subject: [PATCH 6.0 043/157] mm/khugepaged: fix GUP-fast interaction by sending IPI
+Date:   Mon, 12 Dec 2022 14:16:31 +0100
+Message-Id: <20221212130936.272916620@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +57,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit a6a00d7e8ffd78d1cdb7a43f1278f081038c638f ]
+commit 2ba99c5e08812494bc57f319fb562f527d9bacd8 upstream.
 
-A kernel built with syzbot's config file reported that
+Since commit 70cbc3cc78a99 ("mm: gup: fix the fast GUP race against THP
+collapse"), the lockless_pages_from_mm() fastpath rechecks the pmd_t to
+ensure that the page table was not removed by khugepaged in between.
 
-  scr_memcpyw(q, save, array3_size(logo_lines, new_cols, 2))
+However, lockless_pages_from_mm() still requires that the page table is
+not concurrently freed.  Fix it by sending IPIs (if the architecture uses
+semi-RCU-style page table freeing) before freeing/reusing page tables.
 
-causes uninitialized "save" to be copied.
-
-  ----------
-  [drm] Initialized vgem 1.0.0 20120112 for vgem on minor 0
-  [drm] Initialized vkms 1.0.0 20180514 for vkms on minor 1
-  Console: switching to colour frame buffer device 128x48
-  =====================================================
-  BUG: KMSAN: uninit-value in do_update_region+0x4b8/0xba0
-   do_update_region+0x4b8/0xba0
-   update_region+0x40d/0x840
-   fbcon_switch+0x3364/0x35e0
-   redraw_screen+0xae3/0x18a0
-   do_bind_con_driver+0x1cb3/0x1df0
-   do_take_over_console+0x11cb/0x13f0
-   fbcon_fb_registered+0xacc/0xfd0
-   register_framebuffer+0x1179/0x1320
-   __drm_fb_helper_initial_config_and_unlock+0x23ad/0x2b40
-   drm_fbdev_client_hotplug+0xbea/0xda0
-   drm_fbdev_generic_setup+0x65e/0x9d0
-   vkms_init+0x9f3/0xc76
-   (...snipped...)
-
-  Uninit was stored to memory at:
-   fbcon_prepare_logo+0x143b/0x1940
-   fbcon_init+0x2c1b/0x31c0
-   visual_init+0x3e7/0x820
-   do_bind_con_driver+0x14a4/0x1df0
-   do_take_over_console+0x11cb/0x13f0
-   fbcon_fb_registered+0xacc/0xfd0
-   register_framebuffer+0x1179/0x1320
-   __drm_fb_helper_initial_config_and_unlock+0x23ad/0x2b40
-   drm_fbdev_client_hotplug+0xbea/0xda0
-   drm_fbdev_generic_setup+0x65e/0x9d0
-   vkms_init+0x9f3/0xc76
-   (...snipped...)
-
-  Uninit was created at:
-   __kmem_cache_alloc_node+0xb69/0x1020
-   __kmalloc+0x379/0x680
-   fbcon_prepare_logo+0x704/0x1940
-   fbcon_init+0x2c1b/0x31c0
-   visual_init+0x3e7/0x820
-   do_bind_con_driver+0x14a4/0x1df0
-   do_take_over_console+0x11cb/0x13f0
-   fbcon_fb_registered+0xacc/0xfd0
-   register_framebuffer+0x1179/0x1320
-   __drm_fb_helper_initial_config_and_unlock+0x23ad/0x2b40
-   drm_fbdev_client_hotplug+0xbea/0xda0
-   drm_fbdev_generic_setup+0x65e/0x9d0
-   vkms_init+0x9f3/0xc76
-   (...snipped...)
-
-  CPU: 2 PID: 1 Comm: swapper/0 Not tainted 6.1.0-rc4-00356-g8f2975c2bb4c #924
-  Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-  ----------
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/cad03d25-0ea0-32c4-8173-fd1895314bce@I-love.SAKURA.ne.jp
+Link: https://lkml.kernel.org/r/20221129154730.2274278-2-jannh@google.com
+Link: https://lkml.kernel.org/r/20221128180252.1684965-2-jannh@google.com
+Link: https://lkml.kernel.org/r/20221125213714.4115729-2-jannh@google.com
+Fixes: ba76149f47d8 ("thp: khugepaged")
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+[backported, no changes necessary]
+Signed-off-by: Jann Horn <jannh@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/asm-generic/tlb.h | 4 ++++
+ mm/khugepaged.c           | 2 ++
+ mm/mmu_gather.c           | 4 +---
+ 3 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index e035a63bbe5b..1f37904b0405 100644
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -601,7 +601,7 @@ static void fbcon_prepare_logo(struct vc_data *vc, struct fb_info *info,
- 		if (scr_readw(r) != vc->vc_video_erase_char)
- 			break;
- 	if (r != q && new_rows >= rows + logo_lines) {
--		save = kmalloc(array3_size(logo_lines, new_cols, 2),
-+		save = kzalloc(array3_size(logo_lines, new_cols, 2),
- 			       GFP_KERNEL);
- 		if (save) {
- 			int i = cols < new_cols ? cols : new_cols;
+diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
+index 492dce43236e..cab7cfebf40b 100644
+--- a/include/asm-generic/tlb.h
++++ b/include/asm-generic/tlb.h
+@@ -222,12 +222,16 @@ extern void tlb_remove_table(struct mmu_gather *tlb, void *table);
+ #define tlb_needs_table_invalidate() (true)
+ #endif
+ 
++void tlb_remove_table_sync_one(void);
++
+ #else
+ 
+ #ifdef tlb_needs_table_invalidate
+ #error tlb_needs_table_invalidate() requires MMU_GATHER_RCU_TABLE_FREE
+ #endif
+ 
++static inline void tlb_remove_table_sync_one(void) { }
++
+ #endif /* CONFIG_MMU_GATHER_RCU_TABLE_FREE */
+ 
+ 
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index 28d8459d7aae..1155d356d3ac 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1093,6 +1093,7 @@ static void collapse_huge_page(struct mm_struct *mm,
+ 	_pmd = pmdp_collapse_flush(vma, address, pmd);
+ 	spin_unlock(pmd_ptl);
+ 	mmu_notifier_invalidate_range_end(&range);
++	tlb_remove_table_sync_one();
+ 
+ 	spin_lock(pte_ptl);
+ 	isolated = __collapse_huge_page_isolate(vma, address, pte,
+@@ -1391,6 +1392,7 @@ static void collapse_and_free_pmd(struct mm_struct *mm, struct vm_area_struct *v
+ 		lockdep_assert_held_write(&vma->anon_vma->root->rwsem);
+ 
+ 	pmd = pmdp_collapse_flush(vma, addr, pmdp);
++	tlb_remove_table_sync_one();
+ 	mm_dec_nr_ptes(mm);
+ 	page_table_check_pte_clear_range(mm, addr, pmd);
+ 	pte_free(mm, pmd_pgtable(pmd));
+diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+index a71924bd38c0..ba7d26a291dd 100644
+--- a/mm/mmu_gather.c
++++ b/mm/mmu_gather.c
+@@ -152,7 +152,7 @@ static void tlb_remove_table_smp_sync(void *arg)
+ 	/* Simply deliver the interrupt */
+ }
+ 
+-static void tlb_remove_table_sync_one(void)
++void tlb_remove_table_sync_one(void)
+ {
+ 	/*
+ 	 * This isn't an RCU grace period and hence the page-tables cannot be
+@@ -176,8 +176,6 @@ static void tlb_remove_table_free(struct mmu_table_batch *batch)
+ 
+ #else /* !CONFIG_MMU_GATHER_RCU_TABLE_FREE */
+ 
+-static void tlb_remove_table_sync_one(void) { }
+-
+ static void tlb_remove_table_free(struct mmu_table_batch *batch)
+ {
+ 	__tlb_remove_table_free(batch);
 -- 
 2.35.1
 
