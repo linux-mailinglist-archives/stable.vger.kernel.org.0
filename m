@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AE7864A23E
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:51:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69DAA64A259
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233197AbiLLNvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:51:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48432 "EHLO
+        id S233179AbiLLNxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:53:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233202AbiLLNvV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:51:21 -0500
+        with ESMTP id S233227AbiLLNxS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19D0F16493
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:50:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43CDC5FD1
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:52:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB375B80D54
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:50:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB4B1C433EF;
-        Mon, 12 Dec 2022 13:50:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0404DB80B78
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:52:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 422D5C433EF;
+        Mon, 12 Dec 2022 13:52:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853027;
-        bh=l34RYzRJlOQ3PfBKRt0eXnlIKAa4J6IZI+7/gcDgYzY=;
+        s=korg; t=1670853145;
+        bh=BbWl/gWdbeEM4bKbfp2plZpqI/1nVudHB2Y7ONZt5Lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rmNwYIsCzOAkNKVJmZq9q9yYZOHBn2hM235QU2jgok9Ypp66R0n9KrYxOT0/VZpaA
-         epE3FW8+G0SZKzmXlUAREnA2zt3IuKsZUyM9JP3cWGW6DPbegPT2RZD9TtKaIWHtVy
-         LBnyIF2Fu28YaRgFR6LNH9nzAafithK8v0IA5YDk=
+        b=p8TlWz3nJVJGMOiXPlGLVWH/0D7SCwxreWfR5q9SKxfrsjaKEDMCwOAIlQOiLs9IG
+         B6l/MlJVfFuQuZgwv7jWml1TEO8ElyVZ0OdQtlx9TnXaUSNJRY2MwYGlODFc6MYPQR
+         mlf52oAUdHHmPeOd+dnwFrO4nXxPF7wmomieBl5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Jian <liujian56@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 42/49] net: hisilicon: Fix potential use-after-free in hix5hd2_rx()
+Subject: [PATCH 4.14 19/38] ieee802154: cc2520: Fix error return code in cc2520_hw_init()
 Date:   Mon, 12 Dec 2022 14:19:20 +0100
-Message-Id: <20221212130915.764188892@linuxfoundation.org>
+Message-Id: <20221212130913.078107928@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
-References: <20221212130913.666185567@linuxfoundation.org>
+In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
+References: <20221212130912.069170932@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 433c07a13f59856e4585e89e86b7d4cc59348fab ]
+[ Upstream commit 4d002d6a2a00ac1c433899bd7625c6400a74cfba ]
 
-The skb is delivered to napi_gro_receive() which may free it, after
-calling this, dereferencing skb may trigger use-after-free.
+In cc2520_hw_init(), if oscillator start failed, the error code
+should be returned.
 
-Fixes: 57c5bc9ad7d7 ("net: hisilicon: add hix5hd2 mac driver")
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Link: https://lore.kernel.org/r/20221203094240.1240211-2-liujian56@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 0da6bc8cc341 ("ieee802154: cc2520: adds driver for TI CC2520 radio")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Link: https://lore.kernel.org/r/20221120075046.2213633-1-william.xuanziyang@huawei.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hix5hd2_gmac.c | 2 +-
+ drivers/net/ieee802154/cc2520.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hix5hd2_gmac.c b/drivers/net/ethernet/hisilicon/hix5hd2_gmac.c
-index b63871ef8a40..e69a64a50127 100644
---- a/drivers/net/ethernet/hisilicon/hix5hd2_gmac.c
-+++ b/drivers/net/ethernet/hisilicon/hix5hd2_gmac.c
-@@ -554,7 +554,7 @@ static int hix5hd2_rx(struct net_device *dev, int limit)
- 		skb->protocol = eth_type_trans(skb, dev);
- 		napi_gro_receive(&priv->napi, skb);
- 		dev->stats.rx_packets++;
--		dev->stats.rx_bytes += skb->len;
-+		dev->stats.rx_bytes += len;
- next:
- 		pos = dma_ring_incr(pos, RX_DESC_NUM);
- 	}
+diff --git a/drivers/net/ieee802154/cc2520.c b/drivers/net/ieee802154/cc2520.c
+index 436cf2007138..92aefaf8ea19 100644
+--- a/drivers/net/ieee802154/cc2520.c
++++ b/drivers/net/ieee802154/cc2520.c
+@@ -979,7 +979,7 @@ static int cc2520_hw_init(struct cc2520_private *priv)
+ 
+ 		if (timeout-- <= 0) {
+ 			dev_err(&priv->spi->dev, "oscillator start failed!\n");
+-			return ret;
++			return -ETIMEDOUT;
+ 		}
+ 		udelay(1);
+ 	} while (!(status & CC2520_STATUS_XOSC32M_STABLE));
 -- 
 2.35.1
 
