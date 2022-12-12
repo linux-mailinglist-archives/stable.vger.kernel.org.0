@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0249364A15F
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:39:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E17264A040
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232875AbiLLNjk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:39:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36454 "EHLO
+        id S232721AbiLLNWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:22:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232926AbiLLNjS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:39:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0E14140FB
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:38:16 -0800 (PST)
+        with ESMTP id S232648AbiLLNW3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:22:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F2063C3
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:22:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A2C661072
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:38:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD6FEC433EF;
-        Mon, 12 Dec 2022 13:38:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65C5A60EFB
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:22:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F570C433D2;
+        Mon, 12 Dec 2022 13:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852295;
-        bh=RRJu36tl5H72T74vxiLT9Z0MVBli8yFeKfarqB1X0bY=;
+        s=korg; t=1670851346;
+        bh=3dvlsZ0crK7vigTaS1T23MKHxpBSClQQPfxLSsv+Jmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=on6FT1wSSgWSzcanVPAvYEN0dAo+jPuyT+JFvwR5OXEsG8czbcf/+O5ODZjd/bjQN
-         8EreeAHfUvYnGdLYPFSDsiNqGmxBBwmUxFHm+njiVPZUhp3w9T0qORpOLg2Px5pHdY
-         IkzgpZUWeEZGqy+0JFtPU15R6yjuImgFEP/OwrMA=
+        b=KgRvHCUWdsm4VCcr91zdFeGn53Qn0J4buxFzQWVzJAylE5bSz4tYeVUZposIsGxK9
+         PAKx4FPpPr+C9J9Xug9hNOxG+cQ/PK3IOOgas9vk8WKECI2iAGnEuLhU7E50hPaFr2
+         /EkCeNEmoK9ZQDKPBiHN44cF3iWtUPktAOKxVlyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
+        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
+        Tomislav Novak <tnovak@fb.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 052/157] xen/netback: dont call kfree_skb() with interrupts disabled
+Subject: [PATCH 5.4 05/67] ARM: 9251/1: perf: Fix stacktraces for tracepoint events in THUMB2 kernels
 Date:   Mon, 12 Dec 2022 14:16:40 +0100
-Message-Id: <20221212130936.647447088@linuxfoundation.org>
+Message-Id: <20221212130917.878148025@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,103 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Tomislav Novak <tnovak@fb.com>
 
-[ Upstream commit 74e7e1efdad45580cc3839f2a155174cf158f9b5 ]
+[ Upstream commit 612695bccfdbd52004551308a55bae410e7cd22f ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. So remove kfree_skb()
-from the spin_lock_irqsave() section and use the already existing
-"drop" label in xenvif_start_xmit() for dropping the SKB. At the
-same time replace the dev_kfree_skb() call there with a call of
-dev_kfree_skb_any(), as xenvif_start_xmit() can be called with
-disabled interrupts.
+Store the frame address where arm_get_current_stackframe() looks for it
+(ARM_r7 instead of ARM_fp if CONFIG_THUMB2_KERNEL=y). Otherwise frame->fp
+gets set to 0, causing unwind_frame() to fail.
 
-This is XSA-424 / CVE-2022-42328 / CVE-2022-42329.
+  # bpftrace -e 't:sched:sched_switch { @[kstack] = count(); exit(); }'
+  Attaching 1 probe...
+  @[
+      __schedule+1059
+  ]: 1
 
-Fixes: be81992f9086 ("xen/netback: don't queue unlimited number of packages")
-Reported-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+A typical first unwind instruction is 0x97 (SP = R7), so after executing
+it SP ends up being 0 and -URC_FAILURE is returned.
+
+  unwind_frame(pc = ac9da7d7 lr = 00000000 sp = c69bdda0 fp = 00000000)
+  unwind_find_idx(ac9da7d7)
+  unwind_exec_insn: insn = 00000097
+  unwind_exec_insn: fp = 00000000 sp = 00000000 lr = 00000000 pc = 00000000
+
+With this patch:
+
+  # bpftrace -e 't:sched:sched_switch { @[kstack] = count(); exit(); }'
+  Attaching 1 probe...
+  @[
+      __schedule+1059
+      __schedule+1059
+      schedule+79
+      schedule_hrtimeout_range_clock+163
+      schedule_hrtimeout_range+17
+      ep_poll+471
+      SyS_epoll_wait+111
+      sys_epoll_pwait+231
+      __ret_fast_syscall+1
+  ]: 1
+
+Link: https://lore.kernel.org/r/20220920230728.2617421-1-tnovak@fb.com/
+
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Tomislav Novak <tnovak@fb.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/common.h    | 2 +-
- drivers/net/xen-netback/interface.c | 6 ++++--
- drivers/net/xen-netback/rx.c        | 8 +++++---
- 3 files changed, 10 insertions(+), 6 deletions(-)
+ arch/arm/include/asm/perf_event.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/xen-netback/common.h b/drivers/net/xen-netback/common.h
-index 8174d7b2966c..adfd21aa5b6a 100644
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -386,7 +386,7 @@ int xenvif_dealloc_kthread(void *data);
- irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data);
+diff --git a/arch/arm/include/asm/perf_event.h b/arch/arm/include/asm/perf_event.h
+index fe87397c3d8c..bdbc1e590891 100644
+--- a/arch/arm/include/asm/perf_event.h
++++ b/arch/arm/include/asm/perf_event.h
+@@ -17,7 +17,7 @@ extern unsigned long perf_misc_flags(struct pt_regs *regs);
  
- bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread);
--void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
-+bool xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
- 
- void xenvif_carrier_on(struct xenvif *vif);
- 
-diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
-index fb32ae82d9b0..d048a5cc918b 100644
---- a/drivers/net/xen-netback/interface.c
-+++ b/drivers/net/xen-netback/interface.c
-@@ -254,14 +254,16 @@ xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	if (vif->hash.alg == XEN_NETIF_CTRL_HASH_ALGORITHM_NONE)
- 		skb_clear_hash(skb);
- 
--	xenvif_rx_queue_tail(queue, skb);
-+	if (!xenvif_rx_queue_tail(queue, skb))
-+		goto drop;
-+
- 	xenvif_kick_thread(queue);
- 
- 	return NETDEV_TX_OK;
- 
-  drop:
- 	vif->dev->stats.tx_dropped++;
--	dev_kfree_skb(skb);
-+	dev_kfree_skb_any(skb);
- 	return NETDEV_TX_OK;
+ #define perf_arch_fetch_caller_regs(regs, __ip) { \
+ 	(regs)->ARM_pc = (__ip); \
+-	(regs)->ARM_fp = (unsigned long) __builtin_frame_address(0); \
++	frame_pointer((regs)) = (unsigned long) __builtin_frame_address(0); \
+ 	(regs)->ARM_sp = current_stack_pointer; \
+ 	(regs)->ARM_cpsr = SVC_MODE; \
  }
- 
-diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
-index 932762177110..0ba754ebc5ba 100644
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -82,9 +82,10 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
- 	return false;
- }
- 
--void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
-+bool xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
- {
- 	unsigned long flags;
-+	bool ret = true;
- 
- 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
- 
-@@ -92,8 +93,7 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
- 		struct net_device *dev = queue->vif->dev;
- 
- 		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
--		kfree_skb(skb);
--		queue->vif->dev->stats.rx_dropped++;
-+		ret = false;
- 	} else {
- 		if (skb_queue_empty(&queue->rx_queue))
- 			xenvif_update_needed_slots(queue, skb);
-@@ -104,6 +104,8 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
- 	}
- 
- 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
-+
-+	return ret;
- }
- 
- static struct sk_buff *xenvif_rx_dequeue(struct xenvif_queue *queue)
 -- 
 2.35.1
 
