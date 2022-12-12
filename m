@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0EF764A062
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:24:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ED0564A1AE
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232483AbiLLNYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:24:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52712 "EHLO
+        id S232860AbiLLNoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:44:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232650AbiLLNYc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:24:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60A22D56
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:24:32 -0800 (PST)
+        with ESMTP id S229718AbiLLNnn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6050DF6F
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:43:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E44BB80D4D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:24:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A21BC433EF;
-        Mon, 12 Dec 2022 13:24:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBFE961090
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:43:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB86AC433EF;
+        Mon, 12 Dec 2022 13:43:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851469;
-        bh=P9gD8F6K7Qd9SFGHwEQIYmN8W4xchkkI6TM8rX8ZJz4=;
+        s=korg; t=1670852587;
+        bh=0NK6JX/mzWLTvouOclsBzZ7p0GzKAyuATglVsxsh2S0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dv/gQ0VAiNmwobINbPo8KTnMY5W96slZx5KC4FLSWDPa8FEegzE5+2H8N2qCOQgLE
-         yNg7xNTjFzXq7GdNcfT9Rl/ca6f1w21Zh3UxEda+c1YB4IVDofMTC5v84ebxXMc2i4
-         2oabMwRRSttYgQ+MvReVe0oxvlgvJVx356huaig4=
+        b=UlMfZlUkLBmWehCUWR+bCp6omLC3qMdq+w5EUMivG7g86UP4lgFsjU69rwiUw0xPQ
+         uZNEMtIci4VrO8W9CP5D9dG74nNKq3Sg0qWFdWPGuE89GGMfs9d/D52++LDn0ChtiC
+         VXAYyw/4JCjlOlP5IGiVUBKOUlyPxTZzSbN/m1AE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Ross Lagerwall <ross.lagerwall@citrix.com>,
-        Jason Andryuk <jandryuk@gmail.com>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 63/67] xen/netback: fix build warning
+Subject: [PATCH 6.0 110/157] Bluetooth: Fix not cleanup led when bt_init fails
 Date:   Mon, 12 Dec 2022 14:17:38 +0100
-Message-Id: <20221212130920.618822187@linuxfoundation.org>
+Message-Id: <20221212130939.265830019@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 7dfa764e0223a324366a2a1fc056d4d9d4e95491 ]
+[ Upstream commit 2f3957c7eb4e07df944169a3e50a4d6790e1c744 ]
 
-Commit ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in
-the non-linear area") introduced a (valid) build warning. There have
-even been reports of this problem breaking networking of Xen guests.
+bt_init() calls bt_leds_init() to register led, but if it fails later,
+bt_leds_cleanup() is not called to unregister it.
 
-Fixes: ad7f402ae4f4 ("xen/netback: Ensure protocol headers don't fall in the non-linear area")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Ross Lagerwall <ross.lagerwall@citrix.com>
-Tested-by: Jason Andryuk <jandryuk@gmail.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+This can cause panic if the argument "bluetooth-power" in text is freed
+and then another led_trigger_register() tries to access it:
+
+BUG: unable to handle page fault for address: ffffffffc06d3bc0
+RIP: 0010:strcmp+0xc/0x30
+  Call Trace:
+    <TASK>
+    led_trigger_register+0x10d/0x4f0
+    led_trigger_register_simple+0x7d/0x100
+    bt_init+0x39/0xf7 [bluetooth]
+    do_one_initcall+0xd0/0x4e0
+
+Fixes: e64c97b53bc6 ("Bluetooth: Add combined LED trigger for controller power")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/netback.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/af_bluetooth.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index 982e501173f1..036459670fc3 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -523,7 +523,7 @@ static int xenvif_tx_check_gop(struct xenvif_queue *queue,
- 	const bool sharedslot = nr_frags &&
- 				frag_get_pending_idx(&shinfo->frags[0]) ==
- 				    copy_pending_idx(skb, copy_count(skb) - 1);
--	int i, err;
-+	int i, err = 0;
+diff --git a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
+index dc65974f5adb..1c3c7ff5c3c6 100644
+--- a/net/bluetooth/af_bluetooth.c
++++ b/net/bluetooth/af_bluetooth.c
+@@ -737,7 +737,7 @@ static int __init bt_init(void)
  
- 	for (i = 0; i < copy_count(skb); i++) {
- 		int newerr;
+ 	err = bt_sysfs_init();
+ 	if (err < 0)
+-		return err;
++		goto cleanup_led;
+ 
+ 	err = sock_register(&bt_sock_family_ops);
+ 	if (err)
+@@ -773,6 +773,8 @@ static int __init bt_init(void)
+ 	sock_unregister(PF_BLUETOOTH);
+ cleanup_sysfs:
+ 	bt_sysfs_cleanup();
++cleanup_led:
++	bt_leds_cleanup();
+ 	return err;
+ }
+ 
 -- 
 2.35.1
 
