@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0081364A253
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AC8B64A231
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:50:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233041AbiLLNxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:53:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53350 "EHLO
+        id S233054AbiLLNuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:50:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233028AbiLLNxF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:05 -0500
+        with ESMTP id S233056AbiLLNuL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:50:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85EFA164B8
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:51:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2321B1573E
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:49:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 240ED61035
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:51:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9167C433D2;
-        Mon, 12 Dec 2022 13:51:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B738161025
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:49:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 977DEC433F0;
+        Mon, 12 Dec 2022 13:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853116;
-        bh=x4JAFBBbta5u9iTeIOXd0Io/x1FuBHA32QWM9sNR7sA=;
+        s=korg; t=1670852987;
+        bh=HCUbj1iJgtNULoET1xCQXi/7gDT60mj2a5n7+7wDSow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PaAkAabkDyyWlINU07kXoGV6jyFVfLpQwkeNX7bNJMfPajk60EMv/Tl3OgUhGHCA/
-         rxaHx5UmZPiFAKHVfpWED4XbSjTAIaBKk1cdiltkvYCNhOel5e0m58MtBFmKVHzwkI
-         Vdl91TqRqeaMhTuGmJy4IV1vxMNLf5/abByDsZpY=
+        b=tvRLJmCJuZY+pLuW6xeltlZP3Bg8v1XSZ2/U8ssGEjldRZe9Qf0ndiy0T/Auhxea8
+         l4vPgHld4b7dQ0cHLQQtHmMzyQLeOPZ6L+YqhI7ZHBct01BprXczR7ulspI+FpLz6J
+         3QaST9Q+cVekbdEBcwxW4gQpF7QPEzkNS+JL6F/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
-        Connor Shu <Connor.Shu@ibm.com>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        patches@lists.linux.dev,
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Jan Sokolowski <jan.sokolowski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/38] rcutorture: Automatically create initrd directory
+Subject: [PATCH 4.19 36/49] i40e: Fix for VF MAC address 0
 Date:   Mon, 12 Dec 2022 14:19:14 +0100
-Message-Id: <20221212130912.782133347@linuxfoundation.org>
+Message-Id: <20221212130915.458546033@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
-References: <20221212130912.069170932@linuxfoundation.org>
+In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
+References: <20221212130913.666185567@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,116 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Connor Shu <Connor.Shu@ibm.com>
+From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
 
-[ Upstream commit 8f15c682ac5a778feb8e343f9057b89beb40d85b ]
+[ Upstream commit 08501970472077ed5de346ad89943a37d1692e9b ]
 
-The rcutorture scripts currently expect the user to create the
-tools/testing/selftests/rcutorture/initrd directory.  Should the user
-fail to do this, the kernel build will fail with obscure and confusing
-error messages.  This commit therefore adds explicit checks for the
-tools/testing/selftests/rcutorture/initrd directory, and if not present,
-creates one on systems on which dracut is installed.  If this directory
-could not be created, a less obscure error message is emitted and the
-test is aborted.
+After spawning max VFs on a PF, some VFs were not getting resources and
+their MAC addresses were 0. This was caused by PF sleeping before flushing
+HW registers which caused VIRTCHNL_VFR_VFACTIVE to not be set in time for
+VF.
 
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Connor Shu <Connor.Shu@ibm.com>
-[ paulmck: Adapt the script to fit into the rcutorture framework and
-  severely abbreviate the initrd/init script. ]
-Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+Fix by adding a sleep after hw flush.
+
+Fixes: e4b433f4a741 ("i40e: reset all VFs in parallel when rebuilding PF")
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/rcutorture/bin/kvm.sh |  8 +++
- .../selftests/rcutorture/bin/mkinitrd.sh      | 60 +++++++++++++++++++
- 2 files changed, 68 insertions(+)
- create mode 100755 tools/testing/selftests/rcutorture/bin/mkinitrd.sh
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/rcutorture/bin/kvm.sh b/tools/testing/selftests/rcutorture/bin/kvm.sh
-index b55895fb10ed..2299347b8e37 100755
---- a/tools/testing/selftests/rcutorture/bin/kvm.sh
-+++ b/tools/testing/selftests/rcutorture/bin/kvm.sh
-@@ -182,6 +182,14 @@ do
- 	shift
- done
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index e98e3af06cf8..240083201dbf 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -1269,6 +1269,7 @@ bool i40e_reset_vf(struct i40e_vf *vf, bool flr)
+ 	i40e_cleanup_reset_vf(vf);
  
-+if test -z "$TORTURE_INITRD" || tools/testing/selftests/rcutorture/bin/mkinitrd.sh
-+then
-+	:
-+else
-+	echo No initrd and unable to create one, aborting test >&2
-+	exit 1
-+fi
-+
- CONFIGFRAG=${KVM}/configs/${TORTURE_SUITE}; export CONFIGFRAG
+ 	i40e_flush(hw);
++	usleep_range(20000, 40000);
+ 	clear_bit(I40E_VF_STATE_RESETTING, &vf->vf_states);
  
- if test -z "$configs"
-diff --git a/tools/testing/selftests/rcutorture/bin/mkinitrd.sh b/tools/testing/selftests/rcutorture/bin/mkinitrd.sh
-new file mode 100755
-index 000000000000..ae773760f396
---- /dev/null
-+++ b/tools/testing/selftests/rcutorture/bin/mkinitrd.sh
-@@ -0,0 +1,60 @@
-+#!/bin/bash
-+#
-+# Create an initrd directory if one does not already exist.
-+#
-+# This program is free software; you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation; either version 2 of the License, or
-+# (at your option) any later version.
-+#
-+# This program is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+#
-+# You should have received a copy of the GNU General Public License
-+# along with this program; if not, you can access it online at
-+# http://www.gnu.org/licenses/gpl-2.0.html.
-+#
-+# Copyright (C) IBM Corporation, 2013
-+#
-+# Author: Connor Shu <Connor.Shu@ibm.com>
-+
-+D=tools/testing/selftests/rcutorture
-+
-+# Prerequisite checks
-+[ -z "$D" ] && echo >&2 "No argument supplied" && exit 1
-+if [ ! -d "$D" ]; then
-+    echo >&2 "$D does not exist: Malformed kernel source tree?"
-+    exit 1
-+fi
-+if [ -d "$D/initrd" ]; then
-+    echo "$D/initrd already exists, no need to create it"
-+    exit 0
-+fi
-+
-+T=${TMPDIR-/tmp}/mkinitrd.sh.$$
-+trap 'rm -rf $T' 0 2
-+mkdir $T
-+
-+cat > $T/init << '__EOF___'
-+#!/bin/sh
-+while :
-+do
-+	sleep 1000000
-+done
-+__EOF___
-+
-+# Try using dracut to create initrd
-+command -v dracut >/dev/null 2>&1 || { echo >&2 "Dracut not installed"; exit 1; }
-+echo Creating $D/initrd using dracut.
-+
-+# Filesystem creation
-+dracut --force --no-hostonly --no-hostonly-cmdline --module "base" $T/initramfs.img
-+cd $D
-+mkdir initrd
-+cd initrd
-+zcat $T/initramfs.img | cpio -id
-+cp $T/init init
-+echo Done creating $D/initrd using dracut
-+exit 0
+ 	return true;
+@@ -1392,6 +1393,7 @@ bool i40e_reset_all_vfs(struct i40e_pf *pf, bool flr)
+ 	}
+ 
+ 	i40e_flush(hw);
++	usleep_range(20000, 40000);
+ 	clear_bit(__I40E_VF_DISABLE, pf->state);
+ 
+ 	return true;
 -- 
 2.35.1
 
