@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C739464A06F
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:25:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A22FE64A1B4
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:44:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232706AbiLLNYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:24:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53478 "EHLO
+        id S232483AbiLLNoH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:44:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232705AbiLLNYr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:24:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4EFF2AEE
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:24:46 -0800 (PST)
+        with ESMTP id S232937AbiLLNnr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:43:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 980646563
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:43:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71D7A6106D
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:24:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D243C433EF;
-        Mon, 12 Dec 2022 13:24:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3447260FF4
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:43:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46966C433D2;
+        Mon, 12 Dec 2022 13:43:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851485;
-        bh=aALPiJnZf/8jM6j0v3rQo1MBzMs664MSdjGsr0QTUSQ=;
+        s=korg; t=1670852605;
+        bh=47MdCbnNyTWsRRKRgeLfoJxE6lQCtha12xlbpYXm9sY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ttuYcrrDk8bba8UCaL4rzY7oQDxeA1JWc0r+PDaH7UqS2UTBVeycPrHK5Ha/5t50J
-         kHSS8b/u9t7rkRDFVPK3pbZ6+yKa2LPdEMYgEw5kovIcgyvSEcsGw1Cy0ZsEnFJYGJ
-         SMM282JJg6jfvMd8XCJWPlh9N7wQzcpKL4x7kXkk=
+        b=2JiS7gnjgZGzCunD+LLeGXgvTRHQaJQ4zqhSy4O8eT0hE6PyL9UZ8/F6Odux4f2hC
+         mXC05+tLY6GkYfMxmEiKEq//irS+s98+cfG3dd6mFgFlbKX3U7Y6DwIA5dAo0Sfu2H
+         imW8vlOwtaj+8MscDonWFPqRev0sBtHm4wkU2VRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frank Jungclaus <frank.jungclaus@esd.eu>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 67/67] can: esd_usb: Allow REC and TEC to return to zero
+Subject: [PATCH 6.0 114/157] selftests: rtnetlink: correct xfrm policy rule in kci_test_ipsec_offload
 Date:   Mon, 12 Dec 2022 14:17:42 +0100
-Message-Id: <20221212130920.807276351@linuxfoundation.org>
+Message-Id: <20221212130939.430915768@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-References: <20221212130917.599345531@linuxfoundation.org>
+In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130934.337225088@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Jungclaus <frank.jungclaus@esd.eu>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 918ee4911f7a41fb4505dff877c1d7f9f64eb43e ]
+[ Upstream commit 85a0506c073332a3057f5a9635fa0d4db5a8e03b ]
 
-We don't get any further EVENT from an esd CAN USB device for changes
-on REC or TEC while those counters converge to 0 (with ecc == 0). So
-when handling the "Back to Error Active"-event force txerr = rxerr =
-0, otherwise the berr-counters might stay on values like 95 forever.
+When testing in kci_test_ipsec_offload, srcip is configured as $dstip,
+it should add xfrm policy rule in instead of out.
+The test result of this patch is as follows:
+PASS: ipsec_offload
 
-Also, to make life easier during the ongoing development a
-netdev_dbg() has been introduced to allow dumping error events send by
-an esd CAN USB device.
-
-Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
-Signed-off-by: Frank Jungclaus <frank.jungclaus@esd.eu>
-Link: https://lore.kernel.org/all/20221130202242.3998219-2-frank.jungclaus@esd.eu
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 2766a11161cc ("selftests: rtnetlink: add ipsec offload API test")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Acked-by: Hangbin Liu <liuhangbin@gmail.com>
+Link: https://lore.kernel.org/r/20221201082246.14131-1-shaozhengchao@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/esd_usb2.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/testing/selftests/net/rtnetlink.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/usb/esd_usb2.c b/drivers/net/can/usb/esd_usb2.c
-index 8847942a8d97..73c5343e609b 100644
---- a/drivers/net/can/usb/esd_usb2.c
-+++ b/drivers/net/can/usb/esd_usb2.c
-@@ -227,6 +227,10 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
- 		u8 rxerr = msg->msg.rx.data[2];
- 		u8 txerr = msg->msg.rx.data[3];
- 
-+		netdev_dbg(priv->netdev,
-+			   "CAN_ERR_EV_EXT: dlc=%#02x state=%02x ecc=%02x rec=%02x tec=%02x\n",
-+			   msg->msg.rx.dlc, state, ecc, rxerr, txerr);
-+
- 		skb = alloc_can_err_skb(priv->netdev, &cf);
- 		if (skb == NULL) {
- 			stats->rx_dropped++;
-@@ -253,6 +257,8 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
- 				break;
- 			default:
- 				priv->can.state = CAN_STATE_ERROR_ACTIVE;
-+				txerr = 0;
-+				rxerr = 0;
- 				break;
- 			}
- 		} else {
+diff --git a/tools/testing/selftests/net/rtnetlink.sh b/tools/testing/selftests/net/rtnetlink.sh
+index 0900c5438fbb..275491be3da2 100755
+--- a/tools/testing/selftests/net/rtnetlink.sh
++++ b/tools/testing/selftests/net/rtnetlink.sh
+@@ -782,7 +782,7 @@ kci_test_ipsec_offload()
+ 	    tmpl proto esp src $srcip dst $dstip spi 9 \
+ 	    mode transport reqid 42
+ 	check_err $?
+-	ip x p add dir out src $dstip/24 dst $srcip/24 \
++	ip x p add dir in src $dstip/24 dst $srcip/24 \
+ 	    tmpl proto esp src $dstip dst $srcip spi 9 \
+ 	    mode transport reqid 42
+ 	check_err $?
 -- 
 2.35.1
 
