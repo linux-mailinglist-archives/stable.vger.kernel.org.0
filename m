@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 550AC64A09E
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:27:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1AFD64A03E
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:22:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232713AbiLLN1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:27:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56602 "EHLO
+        id S232629AbiLLNWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:22:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231453AbiLLN1f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:27:35 -0500
+        with ESMTP id S232636AbiLLNWW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:22:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2587A13E2A
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:27:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C99332AA
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:22:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6E05B80D52
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:27:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98CE6C433EF;
-        Mon, 12 Dec 2022 13:27:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7297CB80D3B
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:22:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22EAEC433EF;
+        Mon, 12 Dec 2022 13:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670851647;
-        bh=uAbHIsE6Pxufpz6ZO3sKBhzosc3M/V+AVZVMASvABfc=;
+        s=korg; t=1670851339;
+        bh=Grb5b/yLbVhk3ogMycUJaou5mdJP0TVl6hKg8V6Z+ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=if4z4GU/Ti3IioZlkG9hF4V+WbYTQ+iALGqm1KebzQsK6clpy1LTs4okUn4WK61vY
-         nv4okopkSxk8Xg4F3pfnHWw0CwqN9cs8NqQB39r5uUqCWWU4K0aALKZuW/miTTqbSq
-         oznUu77nln0Y2+0DtPBQ4M6qTaExdX7QGPk0rATs=
+        b=wmu5dnN9O4jB1dvaKgNCtA0X+eAqwe9DvX+vX/+bLdwB6n7AQM6mBPJkd2TmwMPln
+         YYzttYFdNgLrl+HpBpF4LZ+g3aVT8m6V7P0H6AjAoi3B+It6jxESjLxW8pcWWA9fxA
+         YOqEvxcthYG4y7jbRFyQ4lEikCJ6SPAshb7Q8Bh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.15 042/123] media: v4l2-dv-timings.c: fix too strict blanking sanity checks
+        patches@lists.linux.dev, Andreas Kemnade <andreas@kemnade.info>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 13/67] regulator: twl6030: fix get status of twl6032 regulators
 Date:   Mon, 12 Dec 2022 14:16:48 +0100
-Message-Id: <20221212130928.681801558@linuxfoundation.org>
+Message-Id: <20221212130918.256736123@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
+References: <20221212130917.599345531@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,70 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Andreas Kemnade <andreas@kemnade.info>
 
-commit 5eef2141776da02772c44ec406d6871a790761ee upstream.
+[ Upstream commit 31a6297b89aabc81b274c093a308a7f5b55081a7 ]
 
-Sanity checks were added to verify the v4l2_bt_timings blanking fields
-in order to avoid integer overflows when userspace passes weird values.
+Status is reported as always off in the 6032 case. Status
+reporting now matches the logic in the setters. Once of
+the differences to the 6030 is that there are no groups,
+therefore the state needs to be read out in the lower bits.
 
-But that assumed that userspace would correctly fill in the front porch,
-backporch and sync values, but sometimes all you know is the total
-blanking, which is then assigned to just one of these fields.
-
-And that can fail with these checks.
-
-So instead set a maximum for the total horizontal and vertical
-blanking and check that each field remains below that.
-
-That is still sufficient to avoid integer overflows, but it also
-allows for more flexibility in how userspace fills in these fields.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 4b6d66a45ed3 ("media: v4l2-dv-timings: add sanity checks for blanking values")
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+Link: https://lore.kernel.org/r/20221120221208.3093727-3-andreas@kemnade.info
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-dv-timings.c |   20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/regulator/twl6030-regulator.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/drivers/media/v4l2-core/v4l2-dv-timings.c
-+++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
-@@ -145,6 +145,8 @@ bool v4l2_valid_dv_timings(const struct
- 	const struct v4l2_bt_timings *bt = &t->bt;
- 	const struct v4l2_bt_timings_cap *cap = &dvcap->bt;
- 	u32 caps = cap->capabilities;
-+	const u32 max_vert = 10240;
-+	u32 max_hor = 3 * bt->width;
+diff --git a/drivers/regulator/twl6030-regulator.c b/drivers/regulator/twl6030-regulator.c
+index 4ffb32ffec35..71625db3a6f1 100644
+--- a/drivers/regulator/twl6030-regulator.c
++++ b/drivers/regulator/twl6030-regulator.c
+@@ -67,6 +67,7 @@ struct twlreg_info {
+ #define TWL6030_CFG_STATE_SLEEP	0x03
+ #define TWL6030_CFG_STATE_GRP_SHIFT	5
+ #define TWL6030_CFG_STATE_APP_SHIFT	2
++#define TWL6030_CFG_STATE_MASK		0x03
+ #define TWL6030_CFG_STATE_APP_MASK	(0x03 << TWL6030_CFG_STATE_APP_SHIFT)
+ #define TWL6030_CFG_STATE_APP(v)	(((v) & TWL6030_CFG_STATE_APP_MASK) >>\
+ 						TWL6030_CFG_STATE_APP_SHIFT)
+@@ -128,13 +129,14 @@ static int twl6030reg_is_enabled(struct regulator_dev *rdev)
+ 		if (grp < 0)
+ 			return grp;
+ 		grp &= P1_GRP_6030;
++		val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
++		val = TWL6030_CFG_STATE_APP(val);
+ 	} else {
++		val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
++		val &= TWL6030_CFG_STATE_MASK;
+ 		grp = 1;
+ 	}
  
- 	if (t->type != V4L2_DV_BT_656_1120)
- 		return false;
-@@ -166,14 +168,20 @@ bool v4l2_valid_dv_timings(const struct
- 	if (!bt->interlaced &&
- 	    (bt->il_vbackporch || bt->il_vsync || bt->il_vfrontporch))
- 		return false;
--	if (bt->hfrontporch > 2 * bt->width ||
--	    bt->hsync > 1024 || bt->hbackporch > 1024)
-+	/*
-+	 * Some video receivers cannot properly separate the frontporch,
-+	 * backporch and sync values, and instead they only have the total
-+	 * blanking. That can be assigned to any of these three fields.
-+	 * So just check that none of these are way out of range.
-+	 */
-+	if (bt->hfrontporch > max_hor ||
-+	    bt->hsync > max_hor || bt->hbackporch > max_hor)
- 		return false;
--	if (bt->vfrontporch > 4096 ||
--	    bt->vsync > 128 || bt->vbackporch > 4096)
-+	if (bt->vfrontporch > max_vert ||
-+	    bt->vsync > max_vert || bt->vbackporch > max_vert)
- 		return false;
--	if (bt->interlaced && (bt->il_vfrontporch > 4096 ||
--	    bt->il_vsync > 128 || bt->il_vbackporch > 4096))
-+	if (bt->interlaced && (bt->il_vfrontporch > max_vert ||
-+	    bt->il_vsync > max_vert || bt->il_vbackporch > max_vert))
- 		return false;
- 	return fnc == NULL || fnc(t, fnc_handle);
+-	val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
+-	val = TWL6030_CFG_STATE_APP(val);
+-
+ 	return grp && (val == TWL6030_CFG_STATE_ON);
  }
+ 
+@@ -187,7 +189,12 @@ static int twl6030reg_get_status(struct regulator_dev *rdev)
+ 
+ 	val = twlreg_read(info, TWL_MODULE_PM_RECEIVER, VREG_STATE);
+ 
+-	switch (TWL6030_CFG_STATE_APP(val)) {
++	if (info->features & TWL6032_SUBCLASS)
++		val &= TWL6030_CFG_STATE_MASK;
++	else
++		val = TWL6030_CFG_STATE_APP(val);
++
++	switch (val) {
+ 	case TWL6030_CFG_STATE_ON:
+ 		return REGULATOR_STATUS_NORMAL;
+ 
+-- 
+2.35.1
+
 
 
