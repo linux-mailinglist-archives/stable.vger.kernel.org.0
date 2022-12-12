@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 377BD64A194
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:42:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6EC564A09F
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:27:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232952AbiLLNmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:42:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42054 "EHLO
+        id S231725AbiLLN1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:27:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233085AbiLLNmM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:42:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF3001573E
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:41:16 -0800 (PST)
+        with ESMTP id S232748AbiLLN1i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:27:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70B5E13E28
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:27:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41F60B80D4F
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:41:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02B28C433D2;
-        Mon, 12 Dec 2022 13:41:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0909E61035
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:27:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6C41C433D2;
+        Mon, 12 Dec 2022 13:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670852474;
-        bh=34ZkLhg6ZyTG2pee4LvAyBHfMmdbqqGvQJNEEJxlOkg=;
+        s=korg; t=1670851651;
+        bh=x+VMinI0WlGSPqyriXz1zC4cwc0mJcc5t5XmOfOqtgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Phlq3k9bElEDmNgBgE+M1hM66rw6StKGMJ5Tj55zWexj9HAKY4WkGtwApa11EY9Xm
-         k4IlzTwLfsEs6w10kti6LHIwe6ygKXTTV8Ku1XGYegLLJj5dLuYcGdaz81E0W1+uYM
-         EEWOA9kkRhZax1bWE1d22rdp93aIKqG98lDQ7GCA=
+        b=dADdNyLZZ877XI3pLVhKpQd+WKsO/5kNqrBSchmIpQm9CvwNo2DrGe6QssDKnY50S
+         1/I7yVIjouCKAaZ6hF+5mHP/SLCeBrXyNqNEFLx8Xcxl34/ffdeThaFJqQLMSxFdUR
+         tMWb1zM37J4woCirvtTrgPgKRKe+vFaEQsv+zVVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zijun Hu <quic_zijuhu@quicinc.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Ismael Ferreras Morezuelas <swyterzone@gmail.com>
-Subject: [PATCH 6.0 061/157] Bluetooth: btusb: Fix CSR clones again by re-adding ERR_DATA_REPORTING quirk
+        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
+        Jann Horn <jannh@google.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 043/123] memcg: fix possible use-after-free in memcg_write_event_control()
 Date:   Mon, 12 Dec 2022 14:16:49 +0100
-Message-Id: <20221212130937.022580812@linuxfoundation.org>
+Message-Id: <20221212130928.723309088@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-References: <20221212130934.337225088@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,127 +59,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ismael Ferreras Morezuelas <swyterzone@gmail.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit 42d7731e3e7409f9444ff44e30c025958f1b14f0 upstream.
+commit 4a7ba45b1a435e7097ca0f79a847d0949d0eb088 upstream.
 
-A patch series by a Qualcomm engineer essentially removed my
-quirk/workaround because they thought it was unnecessary.
+memcg_write_event_control() accesses the dentry->d_name of the specified
+control fd to route the write call.  As a cgroup interface file can't be
+renamed, it's safe to access d_name as long as the specified file is a
+regular cgroup file.  Also, as these cgroup interface files can't be
+removed before the directory, it's safe to access the parent too.
 
-It wasn't, and it broke everything again:
+Prior to 347c4a874710 ("memcg: remove cgroup_event->cft"), there was a
+call to __file_cft() which verified that the specified file is a regular
+cgroupfs file before further accesses.  The cftype pointer returned from
+__file_cft() was no longer necessary and the commit inadvertently dropped
+the file type check with it allowing any file to slip through.  With the
+invarients broken, the d_name and parent accesses can now race against
+renames and removals of arbitrary files and cause use-after-free's.
 
-https://patchwork.kernel.org/project/netdevbpf/list/?series=661703&archive=both&state=*
+Fix the bug by resurrecting the file type check in __file_cft().  Now that
+cgroupfs is implemented through kernfs, checking the file operations needs
+to go through a layer of indirection.  Instead, let's check the superblock
+and dentry type.
 
-He argues that the quirk is not necessary because the code should check
-if the dongle says if it's supported or not. The problem is that for
-these Chinese CSR clones they say that it would work:
-
-= New Index: 00:00:00:00:00:00 (Primary,USB,hci0)
-= Open Index: 00:00:00:00:00:00
-< HCI Command: Read Local Version Information (0x04|0x0001) plen 0
-> HCI Event: Command Complete (0x0e) plen 12
-> [hci0] 11.276039
-      Read Local Version Information (0x04|0x0001) ncmd 1
-        Status: Success (0x00)
-        HCI version: Bluetooth 5.0 (0x09) - Revision 2064 (0x0810)
-        LMP version: Bluetooth 5.0 (0x09) - Subversion 8978 (0x2312)
-        Manufacturer: Cambridge Silicon Radio (10)
-...
-< HCI Command: Read Local Supported Features (0x04|0x0003) plen 0
-> HCI Event: Command Complete (0x0e) plen 68
-> [hci0] 11.668030
-      Read Local Supported Commands (0x04|0x0002) ncmd 1
-        Status: Success (0x00)
-        Commands: 163 entries
-          ...
-          Read Default Erroneous Data Reporting (Octet 18 - Bit 2)
-          Write Default Erroneous Data Reporting (Octet 18 - Bit 3)
-          ...
-...
-< HCI Command: Read Default Erroneous Data Reporting (0x03|0x005a) plen 0
-= Close Index: 00:1A:7D:DA:71:XX
-
-So bring it back wholesale.
-
-Fixes: 63b1a7dd38bf ("Bluetooth: hci_sync: Remove HCI_QUIRK_BROKEN_ERR_DATA_REPORTING")
-Fixes: e168f6900877 ("Bluetooth: btusb: Remove HCI_QUIRK_BROKEN_ERR_DATA_REPORTING for fake CSR")
-Fixes: 766ae2422b43 ("Bluetooth: hci_sync: Check LMP feature bit instead of quirk")
-Cc: stable@vger.kernel.org
-Cc: Zijun Hu <quic_zijuhu@quicinc.com>
-Cc: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Ismael Ferreras Morezuelas <swyterzone@gmail.com>
-Signed-off-by: Ismael Ferreras Morezuelas <swyterzone@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Link: https://lkml.kernel.org/r/Y5FRm/cfcKPGzWwl@slm.duckdns.org
+Fixes: 347c4a874710 ("memcg: remove cgroup_event->cft")
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Jann Horn <jannh@google.com>
+Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>	[3.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btusb.c   |    1 +
- include/net/bluetooth/hci.h |   11 +++++++++++
- net/bluetooth/hci_sync.c    |    9 +++++++--
- 3 files changed, 19 insertions(+), 2 deletions(-)
+ include/linux/cgroup.h          |    1 +
+ kernel/cgroup/cgroup-internal.h |    1 -
+ mm/memcontrol.c                 |   15 +++++++++++++--
+ 3 files changed, 14 insertions(+), 3 deletions(-)
 
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -2104,6 +2104,7 @@ static int btusb_setup_csr(struct hci_de
- 		 * without these the controller will lock up.
- 		 */
- 		set_bit(HCI_QUIRK_BROKEN_STORED_LINK_KEY, &hdev->quirks);
-+		set_bit(HCI_QUIRK_BROKEN_ERR_DATA_REPORTING, &hdev->quirks);
- 		set_bit(HCI_QUIRK_BROKEN_FILTER_CLEAR_ALL, &hdev->quirks);
- 		set_bit(HCI_QUIRK_NO_SUSPEND_NOTIFIER, &hdev->quirks);
+--- a/include/linux/cgroup.h
++++ b/include/linux/cgroup.h
+@@ -68,6 +68,7 @@ struct css_task_iter {
+ 	struct list_head		iters_node;	/* css_set->task_iters */
+ };
  
---- a/include/net/bluetooth/hci.h
-+++ b/include/net/bluetooth/hci.h
-@@ -228,6 +228,17 @@ enum {
- 	 */
- 	HCI_QUIRK_VALID_LE_STATES,
++extern struct file_system_type cgroup_fs_type;
+ extern struct cgroup_root cgrp_dfl_root;
+ extern struct css_set init_css_set;
  
-+	/* When this quirk is set, then erroneous data reporting
-+	 * is ignored. This is mainly due to the fact that the HCI
-+	 * Read Default Erroneous Data Reporting command is advertised,
-+	 * but not supported; these controllers often reply with unknown
-+	 * command and tend to lock up randomly. Needing a hard reset.
-+	 *
-+	 * This quirk can be set before hci_register_dev is called or
-+	 * during the hdev->setup vendor callback.
-+	 */
-+	HCI_QUIRK_BROKEN_ERR_DATA_REPORTING,
-+
+--- a/kernel/cgroup/cgroup-internal.h
++++ b/kernel/cgroup/cgroup-internal.h
+@@ -169,7 +169,6 @@ extern struct mutex cgroup_mutex;
+ extern spinlock_t css_set_lock;
+ extern struct cgroup_subsys *cgroup_subsys[];
+ extern struct list_head cgroup_roots;
+-extern struct file_system_type cgroup_fs_type;
+ 
+ /* iterate across the hierarchies */
+ #define for_each_root(root)						\
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -4789,6 +4789,7 @@ static ssize_t memcg_write_event_control
+ 	unsigned int efd, cfd;
+ 	struct fd efile;
+ 	struct fd cfile;
++	struct dentry *cdentry;
+ 	const char *name;
+ 	char *endp;
+ 	int ret;
+@@ -4840,6 +4841,16 @@ static ssize_t memcg_write_event_control
+ 		goto out_put_cfile;
+ 
  	/*
- 	 * When this quirk is set, then the hci_suspend_notifier is not
- 	 * registered. This is intended for devices which drop completely
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -3459,7 +3459,8 @@ static int hci_read_page_scan_activity_s
- static int hci_read_def_err_data_reporting_sync(struct hci_dev *hdev)
- {
- 	if (!(hdev->commands[18] & 0x04) ||
--	    !(hdev->features[0][6] & LMP_ERR_DATA_REPORTING))
-+	    !(hdev->features[0][6] & LMP_ERR_DATA_REPORTING) ||
-+	    test_bit(HCI_QUIRK_BROKEN_ERR_DATA_REPORTING, &hdev->quirks))
- 		return 0;
++	 * The control file must be a regular cgroup1 file. As a regular cgroup
++	 * file can't be renamed, it's safe to access its name afterwards.
++	 */
++	cdentry = cfile.file->f_path.dentry;
++	if (cdentry->d_sb->s_type != &cgroup_fs_type || !d_is_reg(cdentry)) {
++		ret = -EINVAL;
++		goto out_put_cfile;
++	}
++
++	/*
+ 	 * Determine the event callbacks and set them in @event.  This used
+ 	 * to be done via struct cftype but cgroup core no longer knows
+ 	 * about these events.  The following is crude but the whole thing
+@@ -4847,7 +4858,7 @@ static ssize_t memcg_write_event_control
+ 	 *
+ 	 * DO NOT ADD NEW FILES.
+ 	 */
+-	name = cfile.file->f_path.dentry->d_name.name;
++	name = cdentry->d_name.name;
  
- 	return __hci_cmd_sync_status(hdev, HCI_OP_READ_DEF_ERR_DATA_REPORTING,
-@@ -3977,7 +3978,8 @@ static int hci_set_err_data_report_sync(
- 	bool enabled = hci_dev_test_flag(hdev, HCI_WIDEBAND_SPEECH_ENABLED);
- 
- 	if (!(hdev->commands[18] & 0x08) ||
--	    !(hdev->features[0][6] & LMP_ERR_DATA_REPORTING))
-+	    !(hdev->features[0][6] & LMP_ERR_DATA_REPORTING) ||
-+	    test_bit(HCI_QUIRK_BROKEN_ERR_DATA_REPORTING, &hdev->quirks))
- 		return 0;
- 
- 	if (enabled == hdev->err_data_reporting)
-@@ -4136,6 +4138,9 @@ static const struct {
- 	HCI_QUIRK_BROKEN(STORED_LINK_KEY,
- 			 "HCI Delete Stored Link Key command is advertised, "
- 			 "but not supported."),
-+	HCI_QUIRK_BROKEN(ERR_DATA_REPORTING,
-+			 "HCI Read Default Erroneous Data Reporting command is "
-+			 "advertised, but not supported."),
- 	HCI_QUIRK_BROKEN(READ_TRANSMIT_POWER,
- 			 "HCI Read Transmit Power Level command is advertised, "
- 			 "but not supported."),
+ 	if (!strcmp(name, "memory.usage_in_bytes")) {
+ 		event->register_event = mem_cgroup_usage_register_event;
+@@ -4871,7 +4882,7 @@ static ssize_t memcg_write_event_control
+ 	 * automatically removed on cgroup destruction but the removal is
+ 	 * asynchronous, so take an extra ref on @css.
+ 	 */
+-	cfile_css = css_tryget_online_from_dir(cfile.file->f_path.dentry->d_parent,
++	cfile_css = css_tryget_online_from_dir(cdentry->d_parent,
+ 					       &memory_cgrp_subsys);
+ 	ret = -EINVAL;
+ 	if (IS_ERR(cfile_css))
 
 
