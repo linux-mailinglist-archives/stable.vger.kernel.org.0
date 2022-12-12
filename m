@@ -2,91 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 548E164A973
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 22:20:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C543164A9E4
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 23:03:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232318AbiLLVUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 16:20:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58358 "EHLO
+        id S232995AbiLLWDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 17:03:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229600AbiLLVUU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 16:20:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A2B027A;
-        Mon, 12 Dec 2022 13:20:19 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D647B80E73;
-        Mon, 12 Dec 2022 21:20:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id BF734C433F0;
-        Mon, 12 Dec 2022 21:20:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670880016;
-        bh=RqXJOZTJub+qHAL89cqOUXtFtAkLk5O8aQo3/SPJtbA=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=FTXRSr/NBT3xotK3bCOA5iS5ElQc7AFYkbhcBRPY/3IZAOtyzLt7VVYY2KqtkQVhz
-         BYngorZ3nVAZRNh4HgnahIwSFxDWdVT6rY7eTx9zFVIvLIWCsVJ0oV5drqB2nS45nN
-         oecyCAVmlBvbVIekdt/uxZmkDpuou4R73MqFnY/upANNxRH756kYpfEj/Gf8vdcQSR
-         d5YQ7pb7Zc6xfeVNQL6LU+8xPVQA0udK/vwIAgLzrcXe+6njW4oh6e8a9TXUeeDVXR
-         NFJq7yDumutQJpp3PcnSDJHTXykxL3pd/ncukJ/bwFDnW0BXZYLGpLsm1QsrscX3bZ
-         rYtD60/n7cQ8A==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A702BC41606;
-        Mon, 12 Dec 2022 21:20:16 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229497AbiLLWDF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 17:03:05 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9839F03F;
+        Mon, 12 Dec 2022 14:03:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1670882584; x=1702418584;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=aFPYcOucgIFUlz+4+w4V1tHgUceYUOkHyxLBqX/JX8Q=;
+  b=A0IsyqR0oGkXe3usUL+ZMPHY401VVdNMogMiLESvSu6CGygSGysOxQ1F
+   4EzU2XRkgshpCUoZZrVYoWJakWZ3NZOCCu71FwpG9xiteF2zOLMh0awbt
+   WbJF4SfnVICCJhhz+HxJf/YvLJcPuUAVjnhKYJimYHMhKor7sG1yUo4kO
+   ohiXAPeYY0EH1WYkQMGSEp1PTotVpMekrRSNUAfoOWREVm6xrw7VRIeO1
+   9eJB/LvYET2vQLJw3ayNeRx5KCGNjInss4RKvOzzZ839/kOWndJOG+INx
+   Kvj1jFwQl48taOtHlA2uRvR0wt+u9XQ0v04XbgxKfkE7Rrgn8GUgHfIR9
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10559"; a="297653647"
+X-IronPort-AV: E=Sophos;i="5.96,239,1665471600"; 
+   d="scan'208";a="297653647"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Dec 2022 14:03:02 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10559"; a="772749655"
+X-IronPort-AV: E=Sophos;i="5.96,239,1665471600"; 
+   d="scan'208";a="772749655"
+Received: from twinkler-lnx.jer.intel.com ([10.12.87.42])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Dec 2022 14:02:59 -0800
+From:   Tomas Winkler <tomas.winkler@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
+        Vitaly Lubart <vitaly.lubart@intel.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [char-misc 1/2] mei: bus: fix unlink on bus in error path
+Date:   Tue, 13 Dec 2022 00:02:46 +0200
+Message-Id: <20221212220247.286019-1-tomas.winkler@intel.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 0/4] mptcp: Fix IPv6 reqsk ops and some netlink error
- codes
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <167088001668.6199.4449323416184280216.git-patchwork-notify@kernel.org>
-Date:   Mon, 12 Dec 2022 21:20:16 +0000
-References: <20221210002810.289674-1-mathew.j.martineau@linux.intel.com>
-In-Reply-To: <20221210002810.289674-1-mathew.j.martineau@linux.intel.com>
-To:     Mat Martineau <mathew.j.martineau@linux.intel.com>
-Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        pabeni@redhat.com, edumazet@google.com, fw@strlen.de,
-        kishen.maloor@intel.com, dcaratti@redhat.com,
-        matthieu.baerts@tessares.net, mptcp@lists.linux.dev,
-        stable@vger.kernel.org
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-This series was applied to netdev/net.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
+Unconditional call to mei_cl_unlink in mei_cl_bus_dev_release leads
+to call of the mei_cl_unlink without corresponding mei_cl_link.
+This leads to miscalculation of open_handle_count (decrease without
+increase).
 
-On Fri,  9 Dec 2022 16:28:06 -0800 you wrote:
-> Patch 1 adds some missing error status values for MPTCP path management
-> netlink commands with invalid attributes.
-> 
-> Patches 2-4 make IPv6 subflows use the correct request_sock_ops
-> structure and IPv6-specific destructor. The first patch in this group is
-> a prerequisite change that simplifies the last two patches.
-> 
-> [...]
+Call unlink in mei_cldev_enable fail path and remove blanket unlink
+from mei_cl_bus_dev_release.
 
-Here is the summary with links:
-  - [net,1/4] mptcp: netlink: fix some error return code
-    https://git.kernel.org/netdev/net/c/e0fe1123ab2b
-  - [net,2/4] mptcp: remove MPTCP 'ifdef' in TCP SYN cookies
-    https://git.kernel.org/netdev/net/c/3fff88186f04
-  - [net,3/4] mptcp: dedicated request sock for subflow in v6
-    https://git.kernel.org/netdev/net/c/34b21d1ddc8a
-  - [net,4/4] mptcp: use proper req destructor for IPv6
-    https://git.kernel.org/netdev/net/c/d3295fee3c75
+Fixes: 34f1166afd67 ("mei: bus: need to unlink client before freeing")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Reviewed-by: Tomas Winkler <tomas.winkler@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+---
+ drivers/misc/mei/bus.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-You are awesome, thank you!
+diff --git a/drivers/misc/mei/bus.c b/drivers/misc/mei/bus.c
+index fdb5f7331695..3d24bdb02f0f 100644
+--- a/drivers/misc/mei/bus.c
++++ b/drivers/misc/mei/bus.c
+@@ -685,13 +685,15 @@ void *mei_cldev_dma_map(struct mei_cl_device *cldev, u8 buffer_id, size_t size)
+ 	if (cl->state == MEI_FILE_UNINITIALIZED) {
+ 		ret = mei_cl_link(cl);
+ 		if (ret)
+-			goto out;
++			goto notlinked;
+ 		/* update pointers */
+ 		cl->cldev = cldev;
+ 	}
+ 
+ 	ret = mei_cl_dma_alloc_and_map(cl, NULL, buffer_id, size);
+-out:
++	if (ret)
++		mei_cl_unlink(cl);
++notlinked:
+ 	mutex_unlock(&bus->device_lock);
+ 	if (ret)
+ 		return ERR_PTR(ret);
+@@ -741,7 +743,7 @@ int mei_cldev_enable(struct mei_cl_device *cldev)
+ 	if (cl->state == MEI_FILE_UNINITIALIZED) {
+ 		ret = mei_cl_link(cl);
+ 		if (ret)
+-			goto out;
++			goto notlinked;
+ 		/* update pointers */
+ 		cl->cldev = cldev;
+ 	}
+@@ -768,6 +770,9 @@ int mei_cldev_enable(struct mei_cl_device *cldev)
+ 	}
+ 
+ out:
++	if (ret)
++		mei_cl_unlink(cl);
++notlinked:
+ 	mutex_unlock(&bus->device_lock);
+ 
+ 	return ret;
+@@ -1135,7 +1140,6 @@ static void mei_cl_bus_dev_release(struct device *dev)
+ 	mei_cl_flush_queues(cldev->cl, NULL);
+ 	mei_me_cl_put(cldev->me_cl);
+ 	mei_dev_bus_put(cldev->bus);
+-	mei_cl_unlink(cldev->cl);
+ 	kfree(cldev->cl);
+ 	kfree(cldev);
+ }
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.38.1
 
