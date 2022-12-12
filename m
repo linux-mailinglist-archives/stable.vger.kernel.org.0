@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 786AB64A25E
-	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:53:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C9564A223
+	for <lists+stable@lfdr.de>; Mon, 12 Dec 2022 14:50:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233074AbiLLNx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 08:53:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52708 "EHLO
+        id S233048AbiLLNuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 08:50:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233072AbiLLNxf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:53:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 749EDEB9
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:52:43 -0800 (PST)
+        with ESMTP id S233050AbiLLNtY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 08:49:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D85A231
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 05:49:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1070661025
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:52:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2E50C433D2;
-        Mon, 12 Dec 2022 13:52:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD76061090
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 13:49:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1073C433EF;
+        Mon, 12 Dec 2022 13:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670853162;
-        bh=Rc+LxFHimKZdZg+29bvCdwoJZQdLxZfZ4pNsmTsJ708=;
+        s=korg; t=1670852952;
+        bh=NH2DpwhekoQkusuqQjIL1tLQwfVlzVQXzp7Nj5TpWkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a+YeuNDB1sxqSX/pRGc0qgK96VOiYjd0DC10iD5SuLJOb/nmCVh+xTMP0IK1Jx42X
-         WAbryI3xT45pUqGeLD4CBmZxcXCTWUqKZH96klishb8cXYup/Fu1V3FNIZkFcNxEPT
-         eSRra4SlS1MrpxNsdWrym8CWQjVaS7940xCew5wA=
+        b=eSwANxUY8vWbyW+kS3su+rvJNqZkQLccVn2Azs3GiZqWipko1dIVlB0EormIsSE69
+         U7h1br9ySge1XMB7FP02d5W/OarC8HFexXDHRO2FFCASO/ZQv9lf8zprk9wyyQYJak
+         K3acPZThPVB2e7wQj8uYrP1TcuV1ILLkdk0bmqM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Jonker <jbx6244@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/38] ARM: dts: rockchip: disable arm_global_timer on rk3066 and rk3188
+Subject: [PATCH 4.19 28/49] Bluetooth: Fix not cleanup led when bt_init fails
 Date:   Mon, 12 Dec 2022 14:19:06 +0100
-Message-Id: <20221212130912.362052394@linuxfoundation.org>
+Message-Id: <20221212130915.069368517@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221212130912.069170932@linuxfoundation.org>
-References: <20221212130912.069170932@linuxfoundation.org>
+In-Reply-To: <20221212130913.666185567@linuxfoundation.org>
+References: <20221212130913.666185567@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit da74858a475782a3f16470907814c8cc5950ad68 ]
+[ Upstream commit 2f3957c7eb4e07df944169a3e50a4d6790e1c744 ]
 
-The clock source and the sched_clock provided by the arm_global_timer
-on Rockchip rk3066a/rk3188 are quite unstable because their rates
-depend on the CPU frequency.
+bt_init() calls bt_leds_init() to register led, but if it fails later,
+bt_leds_cleanup() is not called to unregister it.
 
-Recent changes to the arm_global_timer driver makes it impossible to use.
+This can cause panic if the argument "bluetooth-power" in text is freed
+and then another led_trigger_register() tries to access it:
 
-On the other side, the arm_global_timer has a higher rating than the
-ROCKCHIP_TIMER, it will be selected by default by the time framework
-while we want to use the stable Rockchip clock source.
+BUG: unable to handle page fault for address: ffffffffc06d3bc0
+RIP: 0010:strcmp+0xc/0x30
+  Call Trace:
+    <TASK>
+    led_trigger_register+0x10d/0x4f0
+    led_trigger_register_simple+0x7d/0x100
+    bt_init+0x39/0xf7 [bluetooth]
+    do_one_initcall+0xd0/0x4e0
 
-Keep the arm_global_timer disabled in order to have the
-DW_APB_TIMER (rk3066a) or ROCKCHIP_TIMER (rk3188) selected by default.
-
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/f275ca8d-fd0a-26e5-b978-b7f3df815e0a@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes: e64c97b53bc6 ("Bluetooth: Add combined LED trigger for controller power")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3188.dtsi | 1 -
- arch/arm/boot/dts/rk3xxx.dtsi | 7 +++++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ net/bluetooth/af_bluetooth.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
-index 74eb1dfa2f6c..3689a23a1bca 100644
---- a/arch/arm/boot/dts/rk3188.dtsi
-+++ b/arch/arm/boot/dts/rk3188.dtsi
-@@ -546,7 +546,6 @@
+diff --git a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
+index ee60c30f3be2..798f8f485e5a 100644
+--- a/net/bluetooth/af_bluetooth.c
++++ b/net/bluetooth/af_bluetooth.c
+@@ -743,7 +743,7 @@ static int __init bt_init(void)
  
- &global_timer {
- 	interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
--	status = "disabled";
- };
+ 	err = bt_sysfs_init();
+ 	if (err < 0)
+-		return err;
++		goto cleanup_led;
  
- &local_timer {
-diff --git a/arch/arm/boot/dts/rk3xxx.dtsi b/arch/arm/boot/dts/rk3xxx.dtsi
-index 4aa6f60d6a22..5f9950704f13 100644
---- a/arch/arm/boot/dts/rk3xxx.dtsi
-+++ b/arch/arm/boot/dts/rk3xxx.dtsi
-@@ -134,6 +134,13 @@
- 		reg = <0x1013c200 0x20>;
- 		interrupts = <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_EDGE_RISING)>;
- 		clocks = <&cru CORE_PERI>;
-+		status = "disabled";
-+		/* The clock source and the sched_clock provided by the arm_global_timer
-+		 * on Rockchip rk3066a/rk3188 are quite unstable because their rates
-+		 * depend on the CPU frequency.
-+		 * Keep the arm_global_timer disabled in order to have the
-+		 * DW_APB_TIMER (rk3066a) or ROCKCHIP_TIMER (rk3188) selected by default.
-+		 */
- 	};
+ 	err = sock_register(&bt_sock_family_ops);
+ 	if (err)
+@@ -779,6 +779,8 @@ static int __init bt_init(void)
+ 	sock_unregister(PF_BLUETOOTH);
+ cleanup_sysfs:
+ 	bt_sysfs_cleanup();
++cleanup_led:
++	bt_leds_cleanup();
+ 	return err;
+ }
  
- 	local_timer: local-timer@1013c600 {
 -- 
 2.35.1
 
