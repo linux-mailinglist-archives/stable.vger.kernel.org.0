@@ -2,121 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05ECD64B57B
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 13:54:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79B5564B585
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 13:56:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231888AbiLMMyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 07:54:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53868 "EHLO
+        id S234864AbiLMM4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 07:56:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234798AbiLMMyQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 07:54:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 120DBCE04;
-        Tue, 13 Dec 2022 04:54:15 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2155B8118D;
-        Tue, 13 Dec 2022 12:54:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF39AC433D2;
-        Tue, 13 Dec 2022 12:54:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670936052;
-        bh=a9N4mnDaTBWCBW0Yxm5TccjiatRz/8qHS67WBG5oYaQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eockNV7+fQ+JdLOO5+69dcrpzLiBOahjCuIVYVggbXUsqs4LrLxOeWgozJmb7WRJ1
-         9/U5WvcXZlYrx5UDpr/XPC6eHvnIyHRCPXpF0Nppmn8lqrhMNdxf6yxB32/zi1rso6
-         rMZWlH7mAa68z4LmTcH17yMGY/o0kIo2jJ8zx4JubQKm+1RsoUmCAeb3flGVR+LlWC
-         JNPYUQcT2e//ae0OhFyBjSe2ozKo77l/IXf/wYgN4xe63wqwzmMfuBGDdFN1BCLOwK
-         mDOjalerc7wfJJoMIu1p/RziAM8PEjMKzGhTlc5MxcNLfd+yKT0EvTx2ehfksOq5iW
-         Lku09e7jhsAbQ==
-Date:   Tue, 13 Dec 2022 12:54:05 +0000
-From:   Will Deacon <will@kernel.org>
-To:     Waiman Long <longman@redhat.com>
-Cc:     Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Phil Auld <pauld@redhat.com>,
-        Wenjie Li <wenjieli@qti.qualcomm.com>,
-        David Wang =?utf-8?B?546L5qCH?= <wangbiao3@xiaomi.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH-tip] sched: Fix use-after-free bug in dup_user_cpus_ptr()
-Message-ID: <20221213125404.GD5719@willie-the-truck>
-References: <20221128014441.1264867-1-longman@redhat.com>
- <20221201134445.GC28489@willie-the-truck>
- <330989bf-0015-6d4c-9317-bfc9dba30b65@redhat.com>
- <20221202101835.GA29522@willie-the-truck>
- <e9c7a920-4801-59fd-2429-361c54523d8e@redhat.com>
+        with ESMTP id S235216AbiLMM4S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 07:56:18 -0500
+Received: from gproxy3-pub.mail.unifiedlayer.com (gproxy3-pub.mail.unifiedlayer.com [69.89.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E8131CFDF
+        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 04:56:15 -0800 (PST)
+Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
+        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id 8E47210049995
+        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 12:56:04 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id 54pIpnCjo8FgT54pIpuIa3; Tue, 13 Dec 2022 12:56:04 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=AYt0o1bG c=1 sm=1 tr=0 ts=63987664
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=sHyYjHe8cH0A:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=KmriVnZ8IRPqExdPVufgPv3XR6BEgHzR3Vs3WpvJgHM=; b=GEMPopC8YDb88If9BTlT6BIRi1
+        /5PyRZDpZAInjE+BiRsr2AJmbYNH4m+ncX9c6bhKjGLqKPwm6c5xSCVpOvnd1Gm4wXy2PmleF0UJj
+        pSgnK1pYbRw6dJJx52cAMxCKxOPp66BGFs0Px4BpEOTn8NQW1LW/rUurhnHT5dUgdeCntf2XbsKVs
+        O9iSaDfTHj0nAOZvlbiqz41UctxVaqp/6kXtbnJ9aEt36PYOgWvhwk7UhyIvxuBPahce7lqGuhd+R
+        MtrgoE77ydIxnUi8A7T9b7i85QSYEs3v9kxpnVFQuIkKBYTTkxYU89FqYM56bqatATt4h3MAxsBH/
+        iek+tjCA==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:32852 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1p54pH-002MoZ-89;
+        Tue, 13 Dec 2022 05:56:03 -0700
+Subject: Re: [PATCH 5.15 000/123] 5.15.83-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <33b7e250-8abe-fdd6-de91-1b211dfae48d@w6rz.net>
+Date:   Tue, 13 Dec 2022 04:55:58 -0800
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <e9c7a920-4801-59fd-2429-361c54523d8e@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1p54pH-002MoZ-89
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:32852
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 2
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 02, 2022 at 09:30:56AM -0500, Waiman Long wrote:
-> On 12/2/22 05:18, Will Deacon wrote:
-> > On Thu, Dec 01, 2022 at 12:03:39PM -0500, Waiman Long wrote:
-> > > On 12/1/22 08:44, Will Deacon wrote:
-> > > > On Sun, Nov 27, 2022 at 08:44:41PM -0500, Waiman Long wrote:
-> > > > > Since commit 07ec77a1d4e8 ("sched: Allow task CPU affinity to be
-> > > > > restricted on asymmetric systems"), the setting and clearing of
-> > > > > user_cpus_ptr are done under pi_lock for arm64 architecture. However,
-> > > > > dup_user_cpus_ptr() accesses user_cpus_ptr without any lock
-> > > > > protection. When racing with the clearing of user_cpus_ptr in
-> > > > > __set_cpus_allowed_ptr_locked(), it can lead to user-after-free and
-> > > > > double-free in arm64 kernel.
-> > > > > 
-> > > > > Commit 8f9ea86fdf99 ("sched: Always preserve the user requested
-> > > > > cpumask") fixes this problem as user_cpus_ptr, once set, will never
-> > > > > be cleared in a task's lifetime. However, this bug was re-introduced
-> > > > > in commit 851a723e45d1 ("sched: Always clear user_cpus_ptr in
-> > > > > do_set_cpus_allowed()") which allows the clearing of user_cpus_ptr in
-> > > > > do_set_cpus_allowed(). This time, it will affect all arches.
-> > > > > 
-> > > > > Fix this bug by always clearing the user_cpus_ptr of the newly
-> > > > > cloned/forked task before the copying process starts and check the
-> > > > > user_cpus_ptr state of the source task under pi_lock.
-> > > > > 
-> > > > > Note to stable, this patch won't be applicable to stable releases.
-> > > > > Just copy the new dup_user_cpus_ptr() function over.
-> > > > > 
-> > > > > Fixes: 07ec77a1d4e8 ("sched: Allow task CPU affinity to be restricted on asymmetric systems")
-> > > > > Fixes: 851a723e45d1 ("sched: Always clear user_cpus_ptr in do_set_cpus_allowed()")
-> > > > > CC: stable@vger.kernel.org
-> > > > > Reported-by: David Wang 王标 <wangbiao3@xiaomi.com>
-> > > > > Signed-off-by: Waiman Long <longman@redhat.com>
-> > > > > ---
-> > > > >    kernel/sched/core.c | 32 ++++++++++++++++++++++++++++----
-> > > > >    1 file changed, 28 insertions(+), 4 deletions(-)
-> > > > As per my comments on the previous version of this patch:
-> > > > 
-> > > > https://lore.kernel.org/lkml/20221201133602.GB28489@willie-the-truck/T/#t
-> > > > 
-> > > > I think there are other issues to fix when racing affinity changes with
-> > > > fork() too.
-> > > It is certainly possible that there are other bugs hiding somewhere:-)
-> > Right, but I actually took the time to hit the same race for the other
-> > affinity mask field so it seems a bit narrow-minded for us just to fix the
-> > one issue.
-> 
-> I focused on this particular one because of a double-free bug report from
-> David. What other fields have you found to be subjected to data race?
+On 12/12/22 5:16 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.83 release.
+> There are 123 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 14 Dec 2022 13:08:57 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.83-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-See my other report linked above where we race on 'task_struct::cpus_mask'.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Will
+Tested-by: Ron Economos <re@w6rz.net>
+
