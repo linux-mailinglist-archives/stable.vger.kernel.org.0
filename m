@@ -2,262 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E27DA64B22E
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 10:21:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B702764B231
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 10:21:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234491AbiLMJVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 04:21:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52052 "EHLO
+        id S234719AbiLMJVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 04:21:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234744AbiLMJUf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 04:20:35 -0500
-Received: from mail-vs1-xe2d.google.com (mail-vs1-xe2d.google.com [IPv6:2607:f8b0:4864:20::e2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9A29FCE
-        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 01:20:33 -0800 (PST)
-Received: by mail-vs1-xe2d.google.com with SMTP id 124so14015693vsv.4
-        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 01:20:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=99UAZJTrfKiJofFWBM4NXTM8EodixIF3J6Az3rrCy4A=;
-        b=FlVsUZujxyAO6a2fFPG8cg5ZrM7kqbzA4NeT1MAaJ7gyIpdUf8S5IMC0Rjc0rpBNr/
-         xDRJy3ZBT7J8Utk2cJqRjjHu+/DrjqD8DqV6C68cqEQsbUEUif5rcbLVtRv1Z8+B2rRm
-         Fdif/Vd812iGnHF+QaWHPtJMlQhgQm47cLB7r0N06OTC4D6B81Mc2AFOh4tzuJAd9Ax1
-         rTRaAi7WqDnEN4l+ZsElDwV2bkJejq3C9MYCobvCxfxqNGipvrbS2+JRzkiRD+Eeh22F
-         6dUe9CDqDAEmYMjmhIPQNWp9fSVvbTb4M04kgg8dDx4qqqRDluY+C2G9CgwWk4YuqIJ9
-         lPiw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=99UAZJTrfKiJofFWBM4NXTM8EodixIF3J6Az3rrCy4A=;
-        b=lVrTjy2/AXqFnoxsSNNdY6muHuRoc7lix3Zyr71NPO/59kvK470SqBnG8RKkiJ6BUr
-         oU+eSM/B65btRhEvf14NVPUy0PjFwuljmgf/qd2F3Gl19+ke+csIKGqgIaKDer7/+ZN0
-         MU3afmo9mhqeIwkaE+0adF2jdrd5a5bFXV3HDZ0pRqljdtxkzdqi0TYMwdFXcKXE/wxT
-         BuE5RnSkNdoRlD+WQQEkxRrjgmsUEFEomsM5p2wfwSFSBn8THrd14lPI8qtLCEIECbXb
-         NmhlKYEGZk4YXNTXvENTsqWLcYQJ78j8NNa7dwoGTYLMbyd8sLVX3ZZ5rMeV5qPCe/fI
-         M6Fw==
-X-Gm-Message-State: ANoB5plLFl1iILhkD7dVnf5HB6AxQHS7JwrIO66lb97NeTRe++piYIsr
-        yoQ0M9WxuAGORQWGebNexJhUd8PrcdbhiuL6Jj6JcQ==
-X-Google-Smtp-Source: AA0mqf6uFnKRk2QSUJ0KAvYnKeLU2GkehLzganp6e8uKVPnodOU7S355ViySWjngXw2uINdpr0CuVM9+oq7tgqW6sAM=
-X-Received: by 2002:a05:6102:3ca1:b0:3b5:d38:9d4 with SMTP id
- c33-20020a0561023ca100b003b50d3809d4mr607213vsv.9.1670923232845; Tue, 13 Dec
- 2022 01:20:32 -0800 (PST)
-MIME-Version: 1.0
-References: <20221212130917.599345531@linuxfoundation.org>
-In-Reply-To: <20221212130917.599345531@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 13 Dec 2022 14:50:21 +0530
-Message-ID: <CA+G9fYtdgLx0hrtGk7G8Jvt2GhY-FoCTp0KtF8ngGix289G2QQ@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/67] 5.4.227-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        with ESMTP id S234927AbiLMJUz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 04:20:55 -0500
+Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5644D48;
+        Tue, 13 Dec 2022 01:20:53 -0800 (PST)
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+        by mailout.nyi.internal (Postfix) with ESMTP id C4B8D5C007F;
+        Tue, 13 Dec 2022 04:20:52 -0500 (EST)
+Received: from imap51 ([10.202.2.101])
+  by compute6.internal (MEProxy); Tue, 13 Dec 2022 04:20:52 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1670923252; x=1671009652; bh=B/U5i3u883
+        FE3HYgve/aglh3sfvqVqAT4dapVTpH9Bs=; b=AAcfMHZ/V8XdPQWn804Q/+YCAl
+        8JtOVvgEW+WgXdLj7p80oOqfCyEwRAWGJKaCdkoorWNPLtLLahVUgIlZsTkCOzNU
+        UGlNEa9ZN8bTjoLi4jP9h4LDvZzAgSIvwyVVLnCnNAVtVF3mojSTZpr/ndXbY6Jv
+        aDRYI4476ppEDk7ryW7cTtFAKJ/WNeKJcrC5DunoTSOEWitqkjx7O7GiwWPciroq
+        rMeju2bINwErdfe3Ds4HT9uxWWV2TIYBxr4Gk7Y04yHhU6QLqQAl8nQmjUGaaHhA
+        8Zs7PMORgPV75C9TMXPRl45Tz1wVVLjZyBTxjZIuW4BmQkSv6LkfFpBfBRmA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm2; t=1670923252; x=1671009652; bh=B/U5i3u883FE3HYgve/aglh3sfvq
+        VqAT4dapVTpH9Bs=; b=J1DvYW0YJKnUMrML7EIqbMoMU8YeF7WTd/r90aNZ5Z2/
+        djU574dBj8CE1X3i9wqjXZKLhHD2eHkXHNX4RQplSDUw8j5ba2bXj4bmetAorW7G
+        +ssG2rpkhDTzMKETndGQQn+N367uXGisZ/Mxqd8tqaAf/FBm3rFa3kq6ypw1lPib
+        VIrrQOA/rPOTGy3a9fJOz/LNQKHLBGoIassIvZWspHidBvkaO99tnCQ0W2tB7I1D
+        sT+hGSMZSkU4yHY7rlMO8YzAuq/wBXmj/l1IPdVrXrajaqJImd1LKQyoYsrqUnhq
+        bzgXGXRAFKn7hBL+gyOC7wbnCCW8Z3lDyS0NB6SNfQ==
+X-ME-Sender: <xms:80OYY8eNmt8ORTVetcJjF-BkyY7pIxU019LdGNLey9vn3aEIHKMqAA>
+    <xme:80OYY-NDmZ2tsWF_sOFbYFR89hjc5Rbpln_dL5jI12h5IsI5XxtcfHp7w-vBtC0qC
+    YN8eClPwH51ub0cPKE>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfedtgddtfecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhn
+    ugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtth
+    gvrhhnpefhtdelhfettdetvdetvdeuueegvdeuleeuudevhfeuhfeugfdvtdevvedvfffh
+    udenucffohhmrghinheplhhinhgrrhhordhorhhgnecuvehluhhsthgvrhfuihiivgeptd
+    enucfrrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:9EOYY9gx5DMlG-qag2FX-uA6qt3Ej0Cu2nhsk0_giwyyIWAcLmsJKA>
+    <xmx:9EOYYx-19KTw6Jv9F1CnFRVxj1GxV2l5a11dFg9gCyBlJZKqXWy3QQ>
+    <xmx:9EOYY4u8wi1d6AGKMvAYlLcUDxfwDRVzIxuGlc2akDSJv8N4dP4X_w>
+    <xmx:9EOYYzlzGNWaq4kwDu4vrh1HmsKZd67fRqPTS2D7hZTsaWManVXaiQ>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id EBD28B60089; Tue, 13 Dec 2022 04:20:51 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.7.0-alpha0-1115-g8b801eadce-fm-20221102.001-g8b801ead
+Mime-Version: 1.0
+Message-Id: <86c7e7a5-6457-49c5-a9e3-b28b8b8c1134@app.fastmail.com>
+In-Reply-To: <CA+G9fYv7tm9zQwVWnPMQMjFXtNDoRpdGkxZ4ehMjY9qAFF0QLQ@mail.gmail.com>
+References: <20221212130924.863767275@linuxfoundation.org>
+ <CA+G9fYv7tm9zQwVWnPMQMjFXtNDoRpdGkxZ4ehMjY9qAFF0QLQ@mail.gmail.com>
+Date:   Tue, 13 Dec 2022 10:20:30 +0100
+From:   "Arnd Bergmann" <arnd@arndb.de>
+To:     "Naresh Kamboju" <naresh.kamboju@linaro.org>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Netdev <netdev@vger.kernel.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        linux-kernel@vger.kernel.org,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Andrew Morton" <akpm@linux-foundation.org>,
+        "Guenter Roeck" <linux@roeck-us.net>, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        "Pavel Machek" <pavel@denx.de>,
+        "Jon Hunter" <jonathanh@nvidia.com>,
+        "Florian Fainelli" <f.fainelli@gmail.com>,
+        "Sudip Mukherjee" <sudipm.mukherjee@gmail.com>,
+        srw@sladewatkins.net, rwarsow@gmx.de,
+        "Jakub Kicinski" <kuba@kernel.org>,
+        "Anders Roxell" <anders.roxell@linaro.org>
+Subject: Re: [PATCH 5.10 000/106] 5.10.159-rc1 review
+Content-Type: text/plain
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 12 Dec 2022 at 18:50, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Tue, Dec 13, 2022, at 08:48, Naresh Kamboju wrote:
+> On Mon, 12 Dec 2022 at 18:43, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.4.227 release.
-> There are 67 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> Regression detected on arm64 Raspberry Pi 4 Model B the NFS mount failed.
 >
-> Responses should be made by Wed, 14 Dec 2022 13:08:57 +0000.
-> Anything received after that time might be too late.
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.227-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
+> Following changes have been noticed in the Kconfig file between good and bad.
+> The config files attached to this email.
 >
-> thanks,
->
-> greg k-h
+> -CONFIG_BCMGENET=y
+> -CONFIG_BROADCOM_PHY=y
+> +# CONFIG_BROADCOM_PHY is not set
+> -CONFIG_BCM7XXX_PHY=y
+> +# CONFIG_BCM7XXX_PHY is not set
+> -CONFIG_BCM_NET_PHYLIB=y
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+> Full test log details,
+>  - https://lkft.validation.linaro.org/scheduler/job/5946533#L392
+>  - 
+> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.158-107-gd2432186ff47/testrun/13594402/suite/log-parser-test/tests/
+>  - 
+> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.158-107-gd2432186ff47/testrun/13594402/suite/log-parser-test/test/check-kernel-panic/history/
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Where does the kernel configuration come from? Is this
+a plain defconfig that used to work, or do you have
+a board specific config file?
 
-NOTE:
-Following build warning found,
+This is most likely caused by the added dependency on
+CONFIG_PTP_1588_CLOCK that would lead to the BCMGENET
+driver not being built-in if PTP support is in a module.
 
-mm/hugetlb.c: In function 'follow_huge_pmd_pte':
-mm/hugetlb.c:5191:1: warning: label 'out' defined but not used [-Wunused-la=
-bel]
- 5191 | out:
-      | ^~~
-
-details of commit causing this build warning.
-   mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
-   commit fac35ba763ed07ba93154c95ffc0c4a55023707f upstream.
-
-## Build
-* kernel: 5.4.227-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.4.y
-* git commit: 8c05f5e0777d154e70c3ab34e0fb0e1778b7e23c
-* git describe: v5.4.226-68-g8c05f5e0777d
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.2=
-26-68-g8c05f5e0777d
-
-## Test Regressions (compared to v5.4.226)
-
-## Metric Regressions (compared to v5.4.226)
-
-## Test Fixes (compared to v5.4.226)
-
-## Metric Fixes (compared to v5.4.226)
-
-## Test result summary
-total: 114898, pass: 99995, fail: 1941, skip: 12727, xfail: 235
-
-## Build Summary
-* arc: 5 total, 5 passed, 0 failed
-* arm: 146 total, 145 passed, 1 failed
-* arm64: 44 total, 40 passed, 4 failed
-* i386: 26 total, 20 passed, 6 failed
-* mips: 27 total, 27 passed, 0 failed
-* parisc: 6 total, 6 passed, 0 failed
-* powerpc: 30 total, 30 passed, 0 failed
-* riscv: 12 total, 12 passed, 0 failed
-* s390: 6 total, 6 passed, 0 failed
-* sh: 12 total, 12 passed, 0 failed
-* sparc: 6 total, 6 passed, 0 failed
-* x86_64: 37 total, 35 passed, 2 failed
-
-## Test suites summary
-* boot
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* perf
-* perf/Zstd-perf.data-compression
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+     Arnd
