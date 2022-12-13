@@ -2,90 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A768764AD9B
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 03:27:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A042964ADFD
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 03:58:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230062AbiLMC15 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 21:27:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43936 "EHLO
+        id S233694AbiLMC6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Dec 2022 21:58:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233867AbiLMC14 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 21:27:56 -0500
-Received: from outbound-ss-761.bluehost.com (outbound-ss-761.bluehost.com [74.220.211.250])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88AE81400B
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 18:27:54 -0800 (PST)
-Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
-        by progateway8.mail.pro1.eigbox.com (Postfix) with ESMTP id 947B4100659CB
-        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 02:27:44 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id 4v1Eph4u08FgT4v1EpoCAp; Tue, 13 Dec 2022 02:27:44 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=AYt0o1bG c=1 sm=1 tr=0 ts=6397e320
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=sHyYjHe8cH0A:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=N+7fP/bRQQgVoPJvAKgSsxxh7fQbFWp0IBG6nzw7i3Y=; b=F/P6gbS1Bsz4nLUUFgZ3qHNoj6
-        q9esYckOKdXSVz5fOxt+tJ2U5gskUT2DMQrWDq+WXblJo0sdjY4VUmB1ykHKnaBa+4kLT4ZyptuSk
-        28dA2gAD4P2gIU4/xdlXUQsIghBKbh/v4RefJzam12KWO13FK/Zw47SzFEqtaB9MSqobG7rOIwTVO
-        FLVNIRSRxc5J25XKdjUG9mHLb4fw2PKBjYxx8oXp0VWxZ6ipUTVXvNZeO0NVZHmbu+ZLoLj0w39on
-        3X1Pm8l6pziBoqRwPGCitnSirC/pwcbIhbBm8Lfp8MlBEZq2RfD6iIMNUxN4Q6SqD1CJB7j/VuR1i
-        Np0ajE+A==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:32828 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1p4v1D-002qgr-65;
-        Mon, 12 Dec 2022 19:27:43 -0700
-Subject: Re: [PATCH 6.0 000/157] 6.0.13-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20221212130934.337225088@linuxfoundation.org>
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <170a1794-ff53-b620-af4a-1e856a6c8fb3@w6rz.net>
-Date:   Mon, 12 Dec 2022 18:27:37 -0800
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S233100AbiLMC6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 21:58:39 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18256140B8;
+        Mon, 12 Dec 2022 18:58:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=HpZ9jX3u4847/+62/XiO19y9qAcrk3g+ILqUmJpDZtY=; b=veZwu5/Eb8m4aS4Crkb0P1/wsj
+        YwFyUxJIwfc2OqEiXDFLmJA8cFBdMJqRuNev+HB8RKnzra5xMT6eJLcEZ6eePLlqpzWZ2xsld4jal
+        5fqZn1xhl9wrhVl231xMS0ycXCdwNfpPVOC93J/d9cQBUix9ODwvoOkpo4az+hEolyTZtToMVojY6
+        pq0mJHfJAAfaaHdcnwMkuptqDPF3k0YGBnPBwGoK/+i6GP5BORIkaTZjCAyaidOU7IWUE6UvEz+Q/
+        c81Lk0bOtzmThZITeObp4DSLwpdT+A69GP1S4aNYrv9MP+pEtDwCzEpLagcIbveKniTxAKwALLzSl
+        9Spt2ozw==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1p4vV5-00A3qb-71; Tue, 13 Dec 2022 02:58:35 +0000
+Date:   Mon, 12 Dec 2022 18:58:35 -0800
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Petr Pavlu <petr.pavlu@suse.com>
+Cc:     david@redhat.com, Petr Mladek <pmladek@suse.com>,
+        prarit@redhat.com, mwilck@suse.com, linux-modules@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] module: Don't wait for GOING modules
+Message-ID: <Y5fqW7hQy+WbTh3R@bombadil.infradead.org>
+References: <20221205103557.18363-1-petr.pavlu@suse.com>
+ <Y45MXVrGNkY/bGSl@alley>
+ <d528111b-4caa-e292-59f4-4ce1eab1f27c@suse.com>
+ <Y5CuCVe02W5Ni/Fc@alley>
+ <Y5FPkEgEbDlVXkRK@bombadil.infradead.org>
+ <0017c9ce-7e92-6010-7bc9-716131a25ec5@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1p4v1D-002qgr-65
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:32828
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0017c9ce-7e92-6010-7bc9-716131a25ec5@suse.com>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -93,26 +55,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/12/22 5:15 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.13 release.
-> There are 157 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 14 Dec 2022 13:08:57 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.13-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Mon, Dec 12, 2022 at 12:29:02PM +0100, Petr Pavlu wrote:
+> On 12/8/22 03:44, Luis Chamberlain wrote:
+> > On Wed, Dec 07, 2022 at 04:15:21PM +0100, Petr Mladek wrote:
+> >> Reviewed-by: Petr Mladek <pmladek@suse.com>
+> > 
+> > Queued onto modules-next.
+> 
+> Thanks both.
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+I'm **terribly sorry** for dropping this to Linus' pull request late
+but I kept trying to justify a few things and I couldn't do it, and
+so I'll reply to this patch with my last minute observations soon.
 
-Tested-by: Ron Economos <re@w6rz.net>
+I figured it was better to be safe than sorry and the potential for
+yet *more* regressions was *real* and I really wanted to avoid us
+having to crunch / race for a fix over the holidays.
 
+I will leave the fix as-is now in modules-next though, so it can get
+more testing, but indeed, I don't feel quite ready for the masses
+specially before the holidays.
+
+  Luis
