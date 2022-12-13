@@ -2,64 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAE5264BB8C
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 19:06:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AFC764BB94
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 19:07:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236444AbiLMSGP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 13:06:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41668 "EHLO
+        id S236361AbiLMSHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 13:07:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236427AbiLMSGG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 13:06:06 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BAB0248EE;
-        Tue, 13 Dec 2022 10:06:01 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id s5so18889138edc.12;
-        Tue, 13 Dec 2022 10:06:00 -0800 (PST)
+        with ESMTP id S236423AbiLMSHq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 13:07:46 -0500
+Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13159E4D;
+        Tue, 13 Dec 2022 10:07:37 -0800 (PST)
+Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-3bfd998fa53so203612257b3.5;
+        Tue, 13 Dec 2022 10:07:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=qiovmh5Z7knoae7e8jOski8fcgmYieRzZZhaPyBaFp0=;
-        b=fmSfnPu865PWYkJWv9TPusPr7Eh40Mk3iSfmFyoYew3hiWb4y/JFQ4dbu2aM+kiiUJ
-         oB6EWtcrhC+Q5hryNqs1wvTh7ziBAKZQV86+2xAUSzy2NpPicjpIZzbV5u6XA9AB11q3
-         y5V6j4zxwGduSLgkDeuXVDiYsihP/e8XFbtr9HJafMSvc3gZdhNBfSQBzylMr5DNk/m0
-         MoBibAQQqQKqUklRwzkojjmexaqO2aYwbvBT4mV7AXtOcPqAI69COWx7ZsFkcpBz+Fmu
-         NPEtwmzT6YjoX8qNMFCY+/PyHQKDJ7gqwp6eLMv2J4CTW+GyWWwfHDYZniP9fGJB92o+
-         BBBA==
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=C89klaJYnYqVPt72HuSAj6C0KHKkDw4EdmizFmt/dYY=;
+        b=QZNinhaUVjRgKa73IrmjBKG7NReEZV4m1uchhSGuGYFpetecMcx2J9lCjlWLDAwvQ1
+         INXFmcEVYPOKVf8frp0GI1qjR/ASnDRpo8UOHOH9oNXMocDdLrJTy823WkqwC20ZEmcP
+         KYN85fSzWc0odgZKO+Q/GfjFozhdK4nAHZmEu1TUAfmF3Ee86372btH/So7Eozz6ZXRu
+         X7XWaLv6BrJhOj0HbznsJMBTkLQaKbil8j9Lizoqtzl7yzLHFOzvpTDAP16bODKTuC3r
+         jJQgmfEzzpVEx68JVA5aqKKnPOwN7DTmuAAU1of8eWa3cZCOx3aBiAFn9+TZRmDZjn9B
+         Xa6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=qiovmh5Z7knoae7e8jOski8fcgmYieRzZZhaPyBaFp0=;
-        b=oPkiPtSE6fzscTjLgGVGnynDW9C8GDPo2J/11HbO9PafKLfmbCfcOzZXBDy9oDMvS5
-         dJlvsaA+fwpfeUdUfgdZUc8pavXC9J6/bqPoKKAESrzZ8bzW5SoOI+/hIP6zxQlBjs6F
-         ODjPPS5d10Pp4Q8ucrmStDynI8GGtfJvq2R19bHSN4tQDsrxrZgewjn6yVa/r2Pjz287
-         74fQQlLlhFC5Pb5zBIWp0Ghs0WKnkXA0xGXbbjeFdAR9D+RtLOrWEOwD1UU1w4gIwnIP
-         11bvmJTmMGnLiYdguo9FCOPj01ShDcBFE8RF7a4nMAtHMMwJYQn0C/AXhIoKa6CAAGTj
-         8/Zw==
-X-Gm-Message-State: ANoB5plydTnuPk+D/+soDud+ByX6mmkGRjUL2/BdSeLOZCIJjuKeVWso
-        21+65ZT8CnB4nl2Wj8bilQhEPrwB74jqGztvHAjj7/E0l4c=
-X-Google-Smtp-Source: AA0mqf62zVyCFbaQs9SItdtohq3S4E9cHiKPMYVlKw6yjUwrnqSMMz0l/T885Yux03sgFLbK0S9Y9jE5AyfsVxb1B4s=
-X-Received: by 2002:a05:6402:25c5:b0:46c:211:f9b8 with SMTP id
- x5-20020a05640225c500b0046c0211f9b8mr21741118edb.199.1670954759483; Tue, 13
- Dec 2022 10:05:59 -0800 (PST)
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=C89klaJYnYqVPt72HuSAj6C0KHKkDw4EdmizFmt/dYY=;
+        b=cBOXpEM2I3LzpUxIPwblRwvWOSOTXOH5mGNWzP1tMRNCUh51/P87bbZm6S5FODid0r
+         m5c6V0frzl8kMQS2TX94384LG7Zhp5HfoQMDhFHIMXxxmVqGI8crhvr7XIe2F4vGSb3a
+         WRFX3G0e0BtPraE2ayQ1SkB3zzG5anaUyKkv9A/3/PxN83EQs3N5dHbI401R1xsRbKU0
+         uLvsqrYRaU9rDNSlfTFxQWV3hzvZV9udxFIyPVj0Gxbsj6kJyMv1Ac6Oa+YsMKin/1T/
+         G+vuFKx9PGu5b0Lg9Wu/LmGEDTKj8FbaxeFdTp61vmhCgUH42GUYmqFSWgFq7V/CqF8l
+         g5lA==
+X-Gm-Message-State: ANoB5pn/eueHw0rcnLiOUX/AGoEVfewKynb+mYlUTRHUJZzRYJVoCruh
+        qzeZHIgY9wdwd3Srk9JgqeY=
+X-Google-Smtp-Source: AA0mqf6ZOKTYxzndQpxZP3egcIfH1WZvDNMa8114teS8rzLykaNhY1IS/MMVtWXYhlkxmUih4iBQEQ==
+X-Received: by 2002:a05:7500:2c0d:b0:ea:3678:ead5 with SMTP id ep13-20020a0575002c0d00b000ea3678ead5mr2180795gab.0.1670954856032;
+        Tue, 13 Dec 2022 10:07:36 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id i8-20020a05620a404800b006feea093006sm8382944qko.124.2022.12.13.10.07.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 13 Dec 2022 10:07:35 -0800 (PST)
+Message-ID: <87f7c713-3dae-daa2-d72a-3df8f77a614d@gmail.com>
+Date:   Tue, 13 Dec 2022 10:07:31 -0800
 MIME-Version: 1.0
-References: <20221213121103.213631-1-xiubli@redhat.com> <20221213121103.213631-3-xiubli@redhat.com>
-In-Reply-To: <20221213121103.213631-3-xiubli@redhat.com>
-From:   Ilya Dryomov <idryomov@gmail.com>
-Date:   Tue, 13 Dec 2022 19:05:47 +0100
-Message-ID: <CAOi1vP-jTA38riQ+E239vz2omTmX7fQvnzf9BcmkLVU_0PyngA@mail.gmail.com>
-Subject: Re: [PATCH v4 2/2] ceph: add ceph specific member support for file_lock
-To:     xiubli@redhat.com
-Cc:     jlayton@kernel.org, ceph-devel@vger.kernel.org,
-        mchangir@redhat.com, lhenriques@suse.de, viro@zeniv.linux.org.uk,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH 5.10 00/98] 5.10.159-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221213150409.357752716@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20221213150409.357752716@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -68,88 +78,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 13, 2022 at 1:11 PM <xiubli@redhat.com> wrote:
->
-> From: Xiubo Li <xiubli@redhat.com>
->
-> When ceph releasing the file_lock it will try to get the inode pointer
-> from the fl->fl_file, which the memory could already be released by
-> another thread in filp_close(). Because in VFS layer the fl->fl_file
-> doesn't increase the file's reference counter.
->
-> Will switch to use ceph dedicate lock info to track the inode.
->
-> And in ceph_fl_release_lock() we should skip all the operations if
-> the fl->fl_u.ceph_fl.fl_inode is not set, which should come from
-> the request file_lock. And we will set fl->fl_u.ceph_fl.fl_inode when
-> inserting it to the inode lock list, which is when copying the lock.
->
-> Cc: stable@vger.kernel.org
-> Cc: Jeff Layton <jlayton@kernel.org>
-> URL: https://tracker.ceph.com/issues/57986
-> Signed-off-by: Xiubo Li <xiubli@redhat.com>
-> ---
->  fs/ceph/locks.c    | 20 ++++++++++++++++++--
->  include/linux/fs.h |  3 +++
->  2 files changed, 21 insertions(+), 2 deletions(-)
->
-> diff --git a/fs/ceph/locks.c b/fs/ceph/locks.c
-> index b191426bf880..cf78608a3f9a 100644
-> --- a/fs/ceph/locks.c
-> +++ b/fs/ceph/locks.c
-> @@ -34,18 +34,34 @@ static void ceph_fl_copy_lock(struct file_lock *dst, struct file_lock *src)
->  {
->         struct inode *inode = file_inode(dst->fl_file);
->         atomic_inc(&ceph_inode(inode)->i_filelock_ref);
-> +       dst->fl_u.ceph.fl_inode = igrab(inode);
->  }
->
-> +/*
-> + * Do not use the 'fl->fl_file' in release function, which
-> + * is possibly already released by another thread.
-> + */
->  static void ceph_fl_release_lock(struct file_lock *fl)
->  {
-> -       struct inode *inode = file_inode(fl->fl_file);
-> -       struct ceph_inode_info *ci = ceph_inode(inode);
-> +       struct inode *inode = fl->fl_u.ceph.fl_inode;
-> +       struct ceph_inode_info *ci;
-> +
-> +       /*
-> +        * If inode is NULL it should be a request file_lock,
-> +        * nothing we can do.
-> +        */
-> +       if (!inode)
-> +               return;
-> +
-> +       ci = ceph_inode(inode);
->         if (atomic_dec_and_test(&ci->i_filelock_ref)) {
->                 /* clear error when all locks are released */
->                 spin_lock(&ci->i_ceph_lock);
->                 ci->i_ceph_flags &= ~CEPH_I_ERROR_FILELOCK;
->                 spin_unlock(&ci->i_ceph_lock);
->         }
-> +       fl->fl_u.ceph.fl_inode = NULL;
-> +       iput(inode);
->  }
->
->  static const struct file_lock_operations ceph_fl_lock_ops = {
-> diff --git a/include/linux/fs.h b/include/linux/fs.h
-> index 7b52fdfb6da0..6106374f5257 100644
-> --- a/include/linux/fs.h
-> +++ b/include/linux/fs.h
-> @@ -1119,6 +1119,9 @@ struct file_lock {
->                         int state;              /* state of grant or error if -ve */
->                         unsigned int    debug_id;
->                 } afs;
-> +               struct {
-> +                       struct inode *fl_inode;
+On 12/13/22 07:05, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.159 release.
+> There are 98 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 15 Dec 2022 15:03:44 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.159-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Hi Xiubo,
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-Nit: I think it could be just "inode", without the prefix which is
-already present in the union field name.
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
 
-Thanks,
-
-                Ilya
