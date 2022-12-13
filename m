@@ -2,59 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F198264B744
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 15:23:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB87D64B752
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 15:28:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234940AbiLMOXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 09:23:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49130 "EHLO
+        id S230061AbiLMO21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 09:28:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235447AbiLMOXg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 09:23:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB462019A;
-        Tue, 13 Dec 2022 06:23:35 -0800 (PST)
+        with ESMTP id S235278AbiLMO20 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 09:28:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7A451EAEF;
+        Tue, 13 Dec 2022 06:28:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED16CB8120C;
-        Tue, 13 Dec 2022 14:23:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 162ECC433EF;
-        Tue, 13 Dec 2022 14:23:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFB7661557;
+        Tue, 13 Dec 2022 14:28:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B8F5C433EF;
+        Tue, 13 Dec 2022 14:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670941412;
-        bh=s313XL+1OkI/sYPxToUUD8jO9asGoh5OQpwiWOtWwgY=;
+        s=korg; t=1670941703;
+        bh=rrzaJDPWmltpz/V6l3a6Gkl9FuLfJ97cFLrnX00SHfg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QV/Xvn+/Cqc3JUsQDfDrm8kOK3XOcG17SjuCeTVAdwc1iOaC98aNoPSuxkH3tlPSL
-         Vq7/zdjr7rY61MFa3GqXexef3OVABJvnRFU8IA+0/ulbg7T0Fj/G0CbOkMkMbSupl6
-         Uuq+N/gzZXe1AUYa+XnfGIIL+qWn9j7Ti5ZOiD7U=
-Date:   Tue, 13 Dec 2022 15:23:30 +0100
+        b=LNENHUPhAT8Ebw6l5tkFIzGYdcaEZijTDBiQnLEAvwbdxNmGGQPxzp25kl2SH3ZHK
+         F3FtyStongOr3rgWMLRImm2NUtrsQEY3O8jmFFJTRZ3dqO3dhN0vB0xE1TkETSt9gg
+         Gaxp5+NPXEBhXMmg1zbpLP4S2KL3qykFVNP/3q9U=
+Date:   Tue, 13 Dec 2022 15:28:19 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Netdev <netdev@vger.kernel.org>, stable@vger.kernel.org,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+To:     Hugh Dickins <hughd@google.com>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        Alex Shi <alex.shi@linux.alibaba.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        "Chen, Rong A" <rong.a.chen@intel.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        "Huang, Ying" <ying.huang@intel.com>, Jann Horn <jannh@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Michal Hocko <mhocko@kernel.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@nextfour.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Shakeel Butt <shakeelb@google.com>, Tejun Heo <tj@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Wei Yang <richard.weiyang@gmail.com>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        srw@sladewatkins.net, rwarsow@gmx.de,
-        Jakub Kicinski <kuba@kernel.org>,
-        Anders Roxell <anders.roxell@linaro.org>
-Subject: Re: [PATCH 5.10 000/106] 5.10.159-rc1 review
-Message-ID: <Y5iK4kii6oPYi6g8@kroah.com>
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, Gavin Shan <gshan@redhat.com>,
+        Zhenyu Zhang <zhenyzha@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 5.10 001/106] mm/mlock: remove lru_lock on
+ TestClearPageMlocked
+Message-ID: <Y5iMA7ErVU3QGGC5@kroah.com>
 References: <20221212130924.863767275@linuxfoundation.org>
- <CA+G9fYv7tm9zQwVWnPMQMjFXtNDoRpdGkxZ4ehMjY9qAFF0QLQ@mail.gmail.com>
- <86c7e7a5-6457-49c5-a9e3-b28b8b8c1134@app.fastmail.com>
+ <20221212130924.929782499@linuxfoundation.org>
+ <8ad6ed6-5f7c-f1cd-8693-caf88bfca73a@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <86c7e7a5-6457-49c5-a9e3-b28b8b8c1134@app.fastmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <8ad6ed6-5f7c-f1cd-8693-caf88bfca73a@google.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -64,43 +81,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 13, 2022 at 10:20:30AM +0100, Arnd Bergmann wrote:
-> On Tue, Dec 13, 2022, at 08:48, Naresh Kamboju wrote:
-> > On Mon, 12 Dec 2022 at 18:43, Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> >
-> > Regression detected on arm64 Raspberry Pi 4 Model B the NFS mount failed.
-> >
-> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> >
-> > Following changes have been noticed in the Kconfig file between good and bad.
-> > The config files attached to this email.
-> >
-> > -CONFIG_BCMGENET=y
-> > -CONFIG_BROADCOM_PHY=y
-> > +# CONFIG_BROADCOM_PHY is not set
-> > -CONFIG_BCM7XXX_PHY=y
-> > +# CONFIG_BCM7XXX_PHY is not set
-> > -CONFIG_BCM_NET_PHYLIB=y
+On Mon, Dec 12, 2022 at 12:35:57PM -0800, Hugh Dickins wrote:
+> On Mon, 12 Dec 2022, Greg Kroah-Hartman wrote:
 > 
-> > Full test log details,
-> >  - https://lkft.validation.linaro.org/scheduler/job/5946533#L392
-> >  - 
-> > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.158-107-gd2432186ff47/testrun/13594402/suite/log-parser-test/tests/
-> >  - 
-> > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.158-107-gd2432186ff47/testrun/13594402/suite/log-parser-test/test/check-kernel-panic/history/
+> > From: Alex Shi <alex.shi@linux.alibaba.com>
+> > 
+> > [ Upstream commit 3db19aa39bac33f2e850fa1ddd67be29b192e51f ]
+> > 
+> > In the func munlock_vma_page, comments mentained lru_lock needed for
+> > serialization with split_huge_pages.  But the page must be PageLocked as
+> > well as pages in split_huge_page series funcs.  Thus the PageLocked is
+> > enough to serialize both funcs.
+> > 
+> > Further more, Hugh Dickins pointed: before splitting in
+> > split_huge_page_to_list, the page was unmap_page() to remove pmd/ptes
+> > which protect the page from munlock.  Thus, no needs to guard
+> > __split_huge_page_tail for mlock clean, just keep the lru_lock there for
+> > isolation purpose.
+> > 
+> > LKP found a preempt issue on __mod_zone_page_state which need change to
+> > mod_zone_page_state.  Thanks!
+> > 
+> > Link: https://lkml.kernel.org/r/1604566549-62481-13-git-send-email-alex.shi@linux.alibaba.com
+> > Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
+> > Acked-by: Hugh Dickins <hughd@google.com>
+> > Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+> > Acked-by: Vlastimil Babka <vbabka@suse.cz>
+> > Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> > Cc: Alexander Duyck <alexander.duyck@gmail.com>
+> > Cc: Andrea Arcangeli <aarcange@redhat.com>
+> > Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+> > Cc: "Chen, Rong A" <rong.a.chen@intel.com>
+> > Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+> > Cc: "Huang, Ying" <ying.huang@intel.com>
+> > Cc: Jann Horn <jannh@google.com>
+> > Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+> > Cc: Kirill A. Shutemov <kirill@shutemov.name>
+> > Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+> > Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+> > Cc: Mel Gorman <mgorman@techsingularity.net>
+> > Cc: Michal Hocko <mhocko@kernel.org>
+> > Cc: Michal Hocko <mhocko@suse.com>
+> > Cc: Mika Penttilä <mika.penttila@nextfour.com>
+> > Cc: Minchan Kim <minchan@kernel.org>
+> > Cc: Shakeel Butt <shakeelb@google.com>
+> > Cc: Tejun Heo <tj@kernel.org>
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+> > Cc: Wei Yang <richard.weiyang@gmail.com>
+> > Cc: Yang Shi <yang.shi@linux.alibaba.com>
+> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > Stable-dep-of: 829ae0f81ce0 ("mm: migrate: fix THP's mapcount on isolation")
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > 
-> Where does the kernel configuration come from? Is this
-> a plain defconfig that used to work, or do you have
-> a board specific config file?
+> NAK from me to patches 001 through 007 here: 001 through 006 are a
+> risky subset of patches and followups to a per-memcg per-node lru_lock
+> series from Alex Shi, which made subtle changes to locking, memcg
+> charging, lru management, page migration etc.
 > 
-> This is most likely caused by the added dependency on
-> CONFIG_PTP_1588_CLOCK that would lead to the BCMGENET
-> driver not being built-in if PTP support is in a module.
+> The whole series could be backported to 5.10 (I did so myself for
+> internal usage), but cherry-picking parts of it into 5.10-stable is
+> misguided and contrary to stable principles.
+> 
+> Maybe there is in fact nothing wrong with the selection made:
+> but then give linux-mm guys two or three weeks to review and
+> test and give the thumbs up to that selection.
+> 
+> Much easier, quicker and safer would be to adjust 007 (I presume
+> the reason behind 001 through 006) to fit the 5.10-stable tree:
+> I can do that myself if you ask, but not until later this week.
 
-I've dropped the patch that caused this and will push out a -rc2 in a
-bit.
-
-thanks all!
+All now dropped, thanks.
 
 greg k-h
