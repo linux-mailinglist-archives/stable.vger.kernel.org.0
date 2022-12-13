@@ -2,111 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3170764AE22
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 04:20:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F3B064AF07
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 06:07:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233820AbiLMDUw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Dec 2022 22:20:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37412 "EHLO
+        id S234425AbiLMFH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 00:07:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbiLMDUv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Dec 2022 22:20:51 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A1201B9D2;
-        Mon, 12 Dec 2022 19:20:51 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id 130so1299199pfu.8;
-        Mon, 12 Dec 2022 19:20:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=MKJurbxyohFsssUhoc+Q8kL3WN/Z5/vkHCwhZ/5bbzU=;
-        b=Dc7PjCZfYeOabX3l0PiGWRItYbl1HI2ws6OBXdFdwSHtTLK1W4g8Mu9dSnmbT3QRjt
-         H+tALhrD14MxgJfnocZLmi3mlDLSZpFwqXjSS+k0wlwF+hEPpjUPsSuWGy11k834ae+W
-         vPlKndhUAKq00TqVIzrrYzHr4HV1/qIEOOOMKLE/tsR0CHfl37sfBdo6EKd7zct2fKEU
-         TRFnFF7liKOGNPdEGc+Tc336YvKk8IZOCt7l8gyIo/rQatXBZ+YC8H5IvkQUxY322YQd
-         CH/BqkFrfz5WHjUh/p4UyBjzgGVTqliJ6bNE7gt28d/2HiSSgcMzzB1yYteLvXdWQiAD
-         uMDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MKJurbxyohFsssUhoc+Q8kL3WN/Z5/vkHCwhZ/5bbzU=;
-        b=CEmXh84Rm2Kxvn+7blsk+1wKXXu6wFwxHQMxAkNJ1nDkZLQnTnWtBktbbzV1T5Io+m
-         87+WscZA8ObttIN5X3KBk2fm6SgHZgiAw8qu8CAyDfJ/zfHQxvQbuRcq2ui3bn36XYCx
-         XHZzbAX3xfd7Hkkwb//7N9rf/ylutfJLgIuaFL1L2Q7vyqel9UTrALi4rJCEAo52E7Pb
-         4AkffQaX2syinR28rKz0IFIwi97QvjbYNbTgWkNCKk2E3Q4+Z07HeLkUSDvUxIUD7R7n
-         qZ3pmDjw0RUB6MnlbHf2xp8yIPsFHL/C1KlTvLpHTycp2WbXqSu6Fg6bJutvrUoPex7r
-         lCYA==
-X-Gm-Message-State: ANoB5plQ1p028k7TWvkHslxjUV9ptOmKYdnwj4gJBvUyQswov7cNrJRT
-        +xnHGZ0ypYuMn/unp67ba1A=
-X-Google-Smtp-Source: AA0mqf4eAtkxGK4giED+IubXv3phvplhizX/bcyYERqDdNP95dh5cqiE1juG+PvoNCabPwElyjzpSw==
-X-Received: by 2002:aa7:8589:0:b0:56d:74bf:3265 with SMTP id w9-20020aa78589000000b0056d74bf3265mr16220608pfn.19.1670901650568;
-        Mon, 12 Dec 2022 19:20:50 -0800 (PST)
-Received: from debian.me (subs03-180-214-233-6.three.co.id. [180.214.233.6])
-        by smtp.gmail.com with ESMTPSA id 69-20020a621548000000b005741cb643bdsm6460662pfv.215.2022.12.12.19.20.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Dec 2022 19:20:49 -0800 (PST)
-Received: by debian.me (Postfix, from userid 1000)
-        id 4172A103A81; Tue, 13 Dec 2022 10:20:47 +0700 (WIB)
-Date:   Tue, 13 Dec 2022 10:20:47 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.0 000/157] 6.0.13-rc1 review
-Message-ID: <Y5fvjw1lO/8y6SII@debian.me>
-References: <20221212130934.337225088@linuxfoundation.org>
+        with ESMTP id S234635AbiLMFHH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 00:07:07 -0500
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F0C61F9FE;
+        Mon, 12 Dec 2022 21:04:47 -0800 (PST)
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BD4JFmg009470;
+        Tue, 13 Dec 2022 05:04:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=qcppdkim1;
+ bh=S4QDHcpyU6wAfcipYSlUVNecmt6uJ+wlK9Fqca+I30A=;
+ b=RPNmJECjldvSZw5xDNK6BZ2rEfaROceec6O3qktn8v5Vy00aD3b25MxdTK6PM5QfkElJ
+ 7ZfpiOJo4jjDWkCcu3MbOeDm+YwQxMDxGQrHw/4ngN9mQV8RCr1BNGuVr0JH/v8uEHte
+ FrFqBTCQRTJ0baL+2DPmuFejYI4F/jJedjCtcHpFD8ZmWxNI/7soKtyAGb7ok8vFcWpR
+ ZlTedAA6/NmUuDEIQ/I0pZ4YDsD+t5Oaffjz8W+3mNzv4eladdPAC/Fw3FvpP1rPskVs
+ 30xZ3syKcnj7UtzgzwVGxdu7hCa2hxEiN9S1YYjadb/5K+aTx2nROokZmyb96oXjuh8m YQ== 
+Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3megc5rfbg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 13 Dec 2022 05:04:35 +0000
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+        by NALASPPMTA04.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 2BD54YO0013064
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 13 Dec 2022 05:04:34 GMT
+Received: from [10.50.38.23] (10.80.80.8) by nalasex01a.na.qualcomm.com
+ (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.36; Mon, 12 Dec
+ 2022 21:04:29 -0800
+Message-ID: <7e844687-019d-79e8-cda2-7bdee7da27ec@quicinc.com>
+Date:   Tue, 13 Dec 2022 10:34:25 +0530
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="cIS6zQjnKhbOgl8k"
-Content-Disposition: inline
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.2
+Subject: Re: [PATCH v2 03/13] arm64: dts: qcom: sdm845: Fix the base addresses
+ of LLCC banks
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        <andersson@kernel.org>, <robh+dt@kernel.org>,
+        <krzysztof.kozlowski+dt@linaro.org>, <bp@alien8.de>,
+        <tony.luck@intel.com>
+CC:     <konrad.dybcio@linaro.org>, <linux-arm-msm@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <james.morse@arm.com>,
+        <mchehab@kernel.org>, <rric@kernel.org>,
+        <linux-edac@vger.kernel.org>, <quic_ppareek@quicinc.com>,
+        <luca.weiss@fairphone.com>, <stable@vger.kernel.org>
+References: <20221212123311.146261-1-manivannan.sadhasivam@linaro.org>
+ <20221212123311.146261-4-manivannan.sadhasivam@linaro.org>
+From:   Sai Prakash Ranjan <quic_saipraka@quicinc.com>
+In-Reply-To: <20221212123311.146261-4-manivannan.sadhasivam@linaro.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: 2RuYrJtLppooMZZWwsfEyHmDs3g-Am6A
+X-Proofpoint-GUID: 2RuYrJtLppooMZZWwsfEyHmDs3g-Am6A
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-13_01,2022-12-12_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
+ mlxlogscore=971 suspectscore=0 spamscore=0 priorityscore=1501
+ impostorscore=0 clxscore=1011 bulkscore=0 lowpriorityscore=0 mlxscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2212130045
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 12/12/2022 6:03 PM, Manivannan Sadhasivam wrote:
+> The LLCC block has several banks each with a different base address
+> and holes in between. So it is not a correct approach to cover these
+> banks with a single offset/size. Instead, the individual bank's base
+> address needs to be specified in devicetree with the exact size.
+> 
+> Also, let's get rid of reg-names property as it is not needed anymore.
+> The driver is expected to parse the reg field based on index to get the
+> addresses of each LLCC banks.
+> 
+> Cc: <stable@vger.kernel.org> # 5.4
+> Fixes: ba0411ddd133 ("arm64: dts: sdm845: Add device node for Last level cache controller")
+> Reported-by: Parikshit Pareek <quic_ppareek@quicinc.com>
+> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> ---
+>   arch/arm64/boot/dts/qcom/sdm845.dtsi | 5 +++--
+>   1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/arm64/boot/dts/qcom/sdm845.dtsi b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+> index 65032b94b46d..683b861e060d 100644
+> --- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
+> +++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+> @@ -2132,8 +2132,9 @@ uart15: serial@a9c000 {
+>   
+>   		llcc: system-cache-controller@1100000 {
+>   			compatible = "qcom,sdm845-llcc";
+> -			reg = <0 0x01100000 0 0x31000>, <0 0x01300000 0 0x50000>;
+> -			reg-names = "llcc_base", "llcc_broadcast_base";
+> +			reg = <0 0x01100000 0 0x50000>, <0 0x01180000 0 0x50000>,
+> +			      <0 0x01200000 0 0x50000>, <0 0x01280000 0 0x50000>,
+> +			      <0 0x01300000 0 0x50000>;
+>   			interrupts = <GIC_SPI 582 IRQ_TYPE_LEVEL_HIGH>;
+>   		};
+>   
 
---cIS6zQjnKhbOgl8k
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Dec 12, 2022 at 02:15:48PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.13 release.
-> There are 157 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
-
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
-
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
---=20
-An old man doll... just what I always wanted! - Clara
-
---cIS6zQjnKhbOgl8k
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY5fvjgAKCRD2uYlJVVFO
-o3TeAP998nNaf5M9PsuGbu3+SqZ5Eeo/rWvlICb0fMj87o2qdgEAvPtdNOHcNsdf
-NaT2RlmgPBQR9921z75N3WfZA+Hzrgw=
-=kP/L
------END PGP SIGNATURE-----
-
---cIS6zQjnKhbOgl8k--
+Reviewed-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
