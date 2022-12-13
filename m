@@ -2,123 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAD3764B660
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 14:36:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E6DE64B6A1
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 14:54:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230054AbiLMNgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 08:36:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47104 "EHLO
+        id S234639AbiLMNyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 08:54:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229787AbiLMNgS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 08:36:18 -0500
-Received: from EUR02-VI1-obe.outbound.protection.outlook.com (mail-vi1eur02on2073.outbound.protection.outlook.com [40.107.241.73])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A181B18E29;
-        Tue, 13 Dec 2022 05:36:16 -0800 (PST)
+        with ESMTP id S234027AbiLMNyx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 08:54:53 -0500
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2078.outbound.protection.outlook.com [40.107.237.78])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 728A3644A
+        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 05:54:52 -0800 (PST)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LJNa5yLD8JtlXIsSkXPoNm8JJSa1d0k5WTw9lbfR9fqJ2E+aXHZye+yADLW6rjqviLmH1czR94AHszU4KyBBbuvuxFwd+qE7kJAe7Si2EnXjOqM76/7QPl4KYH0uXFfM2cZySRduWLnh3kx5ppyK3J1jyRbrqz5qBU9SmIyPi/wLusfR4yNTYfjmfJjuHYWifXfe9ZzvJXU765uVtWX1+7fdHMyRJYvDjHlNGP9MCYcipGxD+PLWZ97d80dGowNl1FGmxiYu+1TLf5gUujuRRKHiJfx7ndAbq/9g8OoCb4HEFg8SttmQRWXkvpUFhkaO5CMZgaD2NWl+0fwLznsggQ==
+ b=I4Kjp5/rJjsmc1m6U8yKI6ZF0hhpT8Csf23Q3Ij+wh1DSPp11sM73EBn+7VhYXBUL4Sa561gnZKF4tTkhEiWu2YLUJbo16UuuNmYWuEVgKUiZhV88EcfEk8Nhhw7QD6jft/EGr/0AT3EaNHx8YrOmX/am5lIcuV1U6LbHSefuAfBL8OU1/6lUthtaS9WlbjlHtP1msz0rG7z7BqwsJ7kf+j/EQgLJmmp/B9yH7J6Dzqe6be3cC7WleuRuUY8p2fg4m2PFs5ONjhMHmVsv5T0+RKvup+dcP7xAmCJGBJ5vyuHBZe83S+kQCtO4M4wpSSUcdn0DMqHmi1KmDdIcvgLLQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=S6PAdXM0jMa1B6kNQRap1uI/o4J6sPdYGibggRqH73E=;
- b=MvslIHt2HQO6SpgovAx/Fw2aEcmqEGOhwLgMerbNJvr2X1eHwYfsKj6WeB4kr0YtlhbrDBKXcVNgcxUeCOCrF1rvZfRxYovBcefTiuG41Gd5GLSmI1uewrVcl3XG5E2kP7k6ayxEOBputNVcavlNxu7dtiwGoeND2yTrkT/84eXPudlSidFmVBWEuWtQ004n9GduQbqtW1tZuhQ59pFvw6fid17JzA8Z6VQDBkmRiUJdqJO0Hi9Hp8VfAdpUGsIWv9oaPpEjU1/TpLahuZKCYX2pv+1sLrpXpd8CoZ33O92hU3Ls8AuioubLzShm536NJwDOZV0oykoBextQ6GsMeg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=suse.com; dmarc=pass action=none header.from=suse.com;
- dkim=pass header.d=suse.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=selector1;
+ bh=Cg3FFdOzz3IvDWEckFR1dAMBtq/UvkOhHQrMVUQtP6s=;
+ b=bLZTzFn0WPJmhosOjdNzqUX3X8SjzYz8kSrOxXiTdnc3JZ4pugy7e8dYJFqOfl1BlHM/TN7SkL/xkSsvl0iimB7aqJi+AVgQQle1gZVMVRvaFFdkOd8YhS2xJb2wSkTZ7R4GQqFUYSpx97jopeF+E8x6KW2yijgjpn8OTUXdGqtKclIu3LZUb9Gh/MY+wBL+y3VRVHdJ7oWxp36DpFSyI/Ea7O4HbDekl8IolTQVUk3wEpJXWUGob/E5eDyVHsn5PaYkbcuUkMUv4UtfUlAzBPo2OMjz/2cVjjNj40FT0e+yXPO22AJsrARU+SA9ikeP/n2o68PO/qZ5cZIqTxoBrw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=S6PAdXM0jMa1B6kNQRap1uI/o4J6sPdYGibggRqH73E=;
- b=stE5Sb/u7N61Ictw3F4KXVSMXU29rfKK5250YzenORkOrUxRfO8zmuBDfegcp3pkEwcM5A69bMkpa5zWewSI5eEE3izpsgKG5S8o0lLESg/SuH62zZN/W5Z5RO+zYtNyTd3t/nZokzS29yAIifdS6Wyb5zo42dKXYbGgoBMmTgC6RcxXcVJGzxm6Ip5hVmhFmr7hbmOJmm7vGqIhPBaj4I0DjPi4ajBUBafD9DjvbTeRsx80WZ8SBVHpOgVF7du0mP8yMujbs+QBinK9Gw8Uh7iFTPqH86dJMogEBSzBROmHReps5DhI793k4DaGBCgkzp9BlRTLL+Tlgdv6oYTI4g==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=suse.com;
-Received: from VI1PR0402MB3406.eurprd04.prod.outlook.com (2603:10a6:803:c::27)
- by PAXPR04MB8781.eurprd04.prod.outlook.com (2603:10a6:102:20c::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.8; Tue, 13 Dec
- 2022 13:36:13 +0000
-Received: from VI1PR0402MB3406.eurprd04.prod.outlook.com
- ([fe80::a207:31a9:1bfc:1d11]) by VI1PR0402MB3406.eurprd04.prod.outlook.com
- ([fe80::a207:31a9:1bfc:1d11%4]) with mapi id 15.20.5880.019; Tue, 13 Dec 2022
- 13:36:12 +0000
-Message-ID: <c4408a3b-5862-3245-e596-613eadc76ed4@suse.com>
-Date:   Tue, 13 Dec 2022 14:36:11 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Subject: Re: [PATCH v2] module: Don't wait for GOING modules
-Content-Language: en-US
-To:     Petr Mladek <pmladek@suse.com>,
-        Luis Chamberlain <mcgrof@kernel.org>
-Cc:     prarit@redhat.com, david@redhat.com, mwilck@suse.com,
-        linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20221205103557.18363-1-petr.pavlu@suse.com>
- <Y5gI/3crANzRv22J@bombadil.infradead.org> <Y5hRRnBGYaPby/RS@alley>
-From:   Petr Pavlu <petr.pavlu@suse.com>
-In-Reply-To: <Y5hRRnBGYaPby/RS@alley>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR3P281CA0060.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:4b::10) To VI1PR0402MB3406.eurprd04.prod.outlook.com
- (2603:10a6:803:c::27)
+ bh=Cg3FFdOzz3IvDWEckFR1dAMBtq/UvkOhHQrMVUQtP6s=;
+ b=H1y7tyQ3RDGjjqu2fn5XvcT+rzdAMkcbQZR3qUFwLNIrKxDPQKAOkKuAlE3ozzpGAYE7LH9i+D3TOVFDHiot/UnrlGi4iOKtWGzzEnFQWpfFZQma7HY5NxD83mdT5zAiPS5o3dr1fNNmYpLdtPz/PUx/9V6uKG+LNgkPOreGv04=
+Received: from MW2PR16CA0017.namprd16.prod.outlook.com (2603:10b6:907::30) by
+ DM4PR12MB6616.namprd12.prod.outlook.com (2603:10b6:8:8e::22) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5880.19; Tue, 13 Dec 2022 13:54:50 +0000
+Received: from CO1NAM11FT089.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:907:0:cafe::45) by MW2PR16CA0017.outlook.office365.com
+ (2603:10b6:907::30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.11 via Frontend
+ Transport; Tue, 13 Dec 2022 13:54:50 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ CO1NAM11FT089.mail.protection.outlook.com (10.13.175.179) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.5901.21 via Frontend Transport; Tue, 13 Dec 2022 13:54:49 +0000
+Received: from SATLEXMB03.amd.com (10.181.40.144) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Tue, 13 Dec
+ 2022 07:54:44 -0600
+Received: from alan-new-dev.amd.com (10.180.168.240) by SATLEXMB03.amd.com
+ (10.181.40.144) with Microsoft SMTP Server id 15.1.2375.34 via Frontend
+ Transport; Tue, 13 Dec 2022 07:54:42 -0600
+From:   Alan Liu <HaoPing.Liu@amd.com>
+To:     <brahma_sw_dev@amd.com>
+CC:     <ray.huang@amd.com>, <wayne.lin@amd.com>, <haoping.liu@amd.com>,
+        "Yunxiang Li" <Yunxiang.Li@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        "Rodrigo Siqueira" <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH 4/9] drm/amd/display: Fix vblank refcount in vrr transition
+Date:   Tue, 13 Dec 2022 21:54:02 +0800
+Message-ID: <20221213135407.1595953-4-HaoPing.Liu@amd.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221213135407.1595953-1-HaoPing.Liu@amd.com>
+References: <20221213135407.1595953-1-HaoPing.Liu@amd.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: VI1PR0402MB3406:EE_|PAXPR04MB8781:EE_
-X-MS-Office365-Filtering-Correlation-Id: c9d771df-a6f7-476a-7a30-08dadd0f0051
-X-LD-Processed: f7a17af6-1c5c-4a36-aa8b-f5be247aa4ba,ExtFwd
+X-MS-TrafficTypeDiagnostic: CO1NAM11FT089:EE_|DM4PR12MB6616:EE_
+X-MS-Office365-Filtering-Correlation-Id: db055737-3c76-487a-37ca-08dadd119a1f
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: K2YfoDaXMGnrXrdINSa3ThK8TQbfRSPwrFT9oaqQ7eHBezbUQ3KJLAzX7OaMbV+WiuoZIrPJ1vzOXAKZoyBNjbUPic8rBiXYBjMKTKYouSwYYwn9DxkxF0vHZdsQ+Y8E80f+yhm2/l2E2E/YP9LZfrHOQUWi9dbJvsT5I5Zp5/d/TRlCMymQApI6d4jm2VRWetlu4GDRHHBVm1xsA73qV4nfGOdLqkcVgTMViEKjO1I4U7lVGNxJFVc55DnXybW4QomQAbDTQbtuRLQLP8QzXHF0hP4zPg0y9gkWDXKP3YCPfVngX9fEv84yBraA5x8Cn31KwCsxM8q7JQCzfCcuGo/uLHC2yRxTr9BLQgVqzrpGXP507O4FD/Wwbce9GzvyR2Gl7uEuA0jtmGAhY+h7Z1F4j5qcs2w8bxq8NVSHwhQxt39IOjTfa9+W2MS/cHR6idtvcI7JhjXYkwxruWe1qUlZKOQO5DE/whvidJLFpSUTRMSoIW+57JsC+Pg9jFw1bFZIuM6KZKKv30lR7muSMy1G0LLcZuoCCMK0qKTm+H8MD4fPcrBAkE04CISUeV4C4bh8jkCSsyXVm27TvTdwpChVCzyfbG5f6v0WywqrD6OKYd/iS3jcvjUXYly6Lu/nSjUxLtmeC+AoFPOJIMAATNO+8lrx+jrRAf5fEbcHd1w+mzVoY//+o1uxQLcD5IMfFgk3fnj1Jmygl2xr3a5pXeXH0qVVha9+cSmIqCKS1Ss=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR0402MB3406.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(346002)(376002)(366004)(136003)(39860400002)(396003)(451199015)(36756003)(86362001)(8936002)(6486002)(66899015)(38100700002)(31696002)(478600001)(5660300002)(8676002)(44832011)(2616005)(31686004)(66556008)(110136005)(4326008)(55236004)(66476007)(66946007)(41300700001)(26005)(186003)(4001150100001)(6512007)(2906002)(6506007)(53546011)(316002)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?ZHpNZ20ySWRmYnRmaGs2L0Y0Vnd5ZkZ2TEIwdW9hRUdqeHg5V044VVdpYmdr?=
- =?utf-8?B?QnBoYUJWaGtZbW4vdzJlVDRiK1M3M1NYWUs2VEpjZW5mRy9zK1BBazl5ZXJq?=
- =?utf-8?B?RmtPR1JwRDEzYURmU1lxc3dQK0R2M2pRMzV2cXF0dDN1WTV2YlZzNUVYSGVT?=
- =?utf-8?B?QUFyWGhQMElCWFRRUkFNVktvYVI0WHphVjNUbFNha3FkanNxOVYwRE5zVmRW?=
- =?utf-8?B?aFZnSjU2TTZRblJLUVVqRzJXMExpQzZaaTBWWC9JYjFCSkYzVzd2WURYeFVX?=
- =?utf-8?B?dVdNRXZodlJXOWdmbU9BWTNaNW05cUxFWkFGV3QzbDdhbnBGaXVQbmFFVW9v?=
- =?utf-8?B?anJDRzQ4aDhqdi9zV0VMZmJkSm0yNy9LSzd5aGNpNkFSN1h3UlhiSHdCL01W?=
- =?utf-8?B?aTJiblY0U0FBUjY1NDEvRDRLSFhsK0pZdkxZckYrRldHRm9TSWpYMTZlbFZ5?=
- =?utf-8?B?Y3k2N3l2SU1JYm1zWkpKQk9yY0NVbFg1Q0JRMloxYXZNUEZ4eW9MVUpJOGtS?=
- =?utf-8?B?anJGRS9oWFB2QlNqMklTUVJxcThaTzByTXV4V2xlT0JJZk5BRVpVckxzN3RB?=
- =?utf-8?B?dyt0UHE4SjBJN2MzMytmeGticGk5QUNaR09xbGpEbkRmM2t2QjV3eHQ0Ni96?=
- =?utf-8?B?N0Q1aHFRczZwK1N3amh5OUVYQVBsQUxCSTg4Y1RNc1EwczNFckNiem5mYVNu?=
- =?utf-8?B?bTJ0dTRiSDRETXlaSGRZSjdRVkoxelJteU1vYm1Zb084bGFKVnFMZ2pXN3p2?=
- =?utf-8?B?OW9ON3hQOXg0UE5pMjNOZUlGVDJXTWw0Qjl2bDNabEl6SngyaThhbUFJT3JT?=
- =?utf-8?B?ci9ENVAwWTBGN3d2R3Y2YlU2Q2JSTGZIYTVPd0NpZmZxdG9UbUgycjlsVXdK?=
- =?utf-8?B?VzdQeWhCSDYvZml0ZkcyREp4U0Z3Y3ExTnpSSExhWG1lY2JsYTd3UjR3RllG?=
- =?utf-8?B?MUs4dElZQXIycjRyaHVLeHRRRFJ0WUp5MUpjRVdaVEtmMStjODNZSHA1R3I3?=
- =?utf-8?B?SW1rNTMrTWJZZUZWQllHZzlsbDEvcmgwVWpJSEJSMzhwUmZxeXZ1d1pIVGVi?=
- =?utf-8?B?Vm9jK1l4NzgzVWtITFlTZ0owcTgzSUhZOUV6R0h2N2pVMXFSRW9GUVprdjd3?=
- =?utf-8?B?Z1NIOHVRWUg0QkZtV3JNS1hMQjROa0pHTEk4a3VRZFZaSm13aWJWeW5ZM3RZ?=
- =?utf-8?B?T3FNNk1mZjBuTE14ZGNXZDZYbEhCaFllOE1jQlNlUmxnOHRpYWg0Mk1IZDZH?=
- =?utf-8?B?bGJxMlhSeFJXOE9ZRndNTUpRNmxLeEdjc0JnMDg5R2dGWXlBRE8vT1hJRmU4?=
- =?utf-8?B?cllGYWVMTTU0RVhOYkRwaTNiS0lPZHUvRlhFRVlPTHNuMnFzaHAxR2FONWdS?=
- =?utf-8?B?Q3ZDdnozam1SYmt2UDJIaysvTFl5bWs1NWtVRENLSi9mOFUxUzkySE9ielBo?=
- =?utf-8?B?OWYzSkZ5c3A5SlRBdzNSbU5ZL0I2VFpGdlJMRU5MTlBTeTRzYUMwcEM4cjNt?=
- =?utf-8?B?eG93MWt1T2FSek5kb282TWdhSzhIbC9MRGxYUUJ2MERHQloyMXgzNkh5Rks1?=
- =?utf-8?B?eFF5aTRqRXFYNUZ6Z3RqUjUxUWhTYVJTaEZveEJYdzRDQzU4Zk9xdW9IOXp2?=
- =?utf-8?B?NTBFS1djZVZyK3pYR2dtNC9YK1IwSUlrTFRSNG44b1QwQTM3SFA5aDdMdUNy?=
- =?utf-8?B?QnF3d0E5ZDlPeGg3NnFGMVQ0c1JjUmV2OE9XQWwwbHQxM2x3aWZlcUZ5Y0g2?=
- =?utf-8?B?MWUvMkkyMGJKR2dobUVRVHBHQ0thUGtiR0FrZFJtMGVtMGpjdW5OS3pDU2ZD?=
- =?utf-8?B?ZGJzSytKZVl4UjFqWVF6WmZUOEswLzlscGtyamlzTVBNTVVDVjRaQWZ2M2FX?=
- =?utf-8?B?aEJ2ekVTeVp1VUYraVpSNm5uMFRoMVU5d3BtWE5pcVdua3QrKzFJMVhWbmZv?=
- =?utf-8?B?cGhQaGNpNExnUzVuYmxIbExUWGtkL2QyR2hyNWZ6RGxUN2lwdFA5akRhV1JW?=
- =?utf-8?B?dlJ6d2wrMDU3eTBYeHk5WVoydlBwZUNmYzYwK2xOQkdiczFLSlBKcEN1Tm1r?=
- =?utf-8?B?VjRBdjdqcjd6dUY2VWNBdTJjMTkyZTAreDFXdVdOV2grQWRJeUtOQk5DeFVl?=
- =?utf-8?Q?RGA1mDDXmMnsjrTA1qNgNTzYX?=
-X-OriginatorOrg: suse.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c9d771df-a6f7-476a-7a30-08dadd0f0051
-X-MS-Exchange-CrossTenant-AuthSource: VI1PR0402MB3406.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Dec 2022 13:36:12.7965
+X-Microsoft-Antispam-Message-Info: 7+xA74r0l3VBQ57SgmadjmFSdxVJGI1X2fwdbG85bi56wwirrqAImqUSWiX+7ChSNMUAnTjCVxJOKcg/5CfVrG5iCEZs01rCWtrYn2Z7z7UA5ZuDK9Ta9jCSFm4CTtMG7FT2HKHCnMRyrs89AWduMNB74diQ9DN7wiTmfSrjEmqLEfZ7hUYFf9Cv4ubRx9RYfPx+p/fyPPR3fEi8N8eC3/+aQEK47YXTbWDcIr7YjKUxDIzmWXCOZSMSSHOVtrSdbQdFkw+IP00PdjzrGuIXeySoe8LKrCag0mpE+xHjvNQeZO1plHOPIAq+6wGF3MA8Yq6DPHS6lEs0dAXpY2R0Gql4lNu/s4arsMBY6Tx++A646fxKzKdstXeIlUoEsW5FXKVpmwl77wSxA7AGtCr/ousGQJFrYJ5tldW2HVVOjlcGRQNZE5pYylUcEin2RW705IxOeUkv6gGGdTc/8yn1ZABY2BPV/A8y0ZjENdMXIVAV5Ez9Q/Klag4/YLoIfMSmVM0ITSbyMshmjgh/El9U6ztXHkjd+tLPYviggwZzG+BkFZHxbj3wbDdGmafWymxRRUDcMgZHBIy08dwsFUzPuBRsRbHiZUnA5QiD70QV8HhaspL/gwVGrRLp7UimP/LaGS6mdSSTTFARfLdZUdshC76ALcCALsZO370Cc2zo7fZYLxGoCBMk2KzeKO3PUA4Y
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:CA;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(376002)(39860400002)(346002)(136003)(396003)(451199015)(46966006)(40470700004)(36840700001)(82740400003)(478600001)(2906002)(966005)(83380400001)(356005)(81166007)(336012)(36860700001)(2616005)(40460700003)(82310400005)(7696005)(36756003)(6666004)(186003)(1076003)(426003)(26005)(47076005)(70586007)(6862004)(8936002)(4326008)(40480700001)(41300700001)(70206006)(8676002)(6636002)(5660300002)(54906003)(37006003)(86362001)(316002)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Dec 2022 13:54:49.4703
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: f7a17af6-1c5c-4a36-aa8b-f5be247aa4ba
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: HDTjRAgO3WaMq13msh4ct8r89KUNpY47MzVVXTD3Qorpjehz76fJWJS/Z+xg3n43AyYRKxtBgyo5lZWP+ZUYsw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXPR04MB8781
+X-MS-Exchange-CrossTenant-Network-Message-Id: db055737-3c76-487a-37ca-08dadd119a1f
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT089.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6616
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -127,30 +101,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/13/22 11:17, Petr Mladek wrote:
-> On Mon 2022-12-12 21:09:19, Luis Chamberlain wrote:
->> 3) *Fixing* a kernel regression by adding new expected API for testing
->> against -EBUSY seems not ideal.
-> 
-> IMHO, the right solution is to fix the subsystems so that they send
-> only one uevent.
-> 
-> The question is how the module loader would deal with "broken"
-> subsystems. Petr Pavlu, please, fixme. I think that there are
-> more subsystems doing this ugly thing.
+From: Yunxiang Li <Yunxiang.Li@amd.com>
 
-The issue has been seen with cpufreq and edac modules. It is a combination of
-them being loaded per CPU and use of a cooperative pattern to allow only one
-module of each such type on the system.
+manage_dm_interrupts disable/enable vblank using drm_crtc_vblank_off/on
+which causes drm_crtc_vblank_get in vrr_transition to fail, and later
+when drm_crtc_vblank_put is called the refcount on vblank will be messed
+up. Therefore move the call to after manage_dm_interrupts.
 
-Fixing the module loader addresses the immediate regression, but should be
-useful in general to cope better if some module which is tried to be loaded
-multiple times per N devices is failing its initialization.
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1247
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1380
 
-I'm not sure if these subsystems can be called "broken". However, I agree it
-makes sense to have a look at some of the mentioned drivers separately if they
-can be improved to try to load them only once on each system, because they can
-be viewed more as whole-platform drivers than per-CPU ones.
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Yunxiang Li <Yunxiang.Li@amd.com>
+Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+---
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 55 +++++++++----------
+ 1 file changed, 26 insertions(+), 29 deletions(-)
 
-Thanks,
-Petr
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 7183e39a2bc9..354a99ff6a1f 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -9176,15 +9176,15 @@ static void amdgpu_dm_handle_vrr_transition(struct dm_crtc_state *old_state,
+ 		 * We also need vupdate irq for the actual core vblank handling
+ 		 * at end of vblank.
+ 		 */
+-		dm_set_vupdate_irq(new_state->base.crtc, true);
+-		drm_crtc_vblank_get(new_state->base.crtc);
++		WARN_ON(dm_set_vupdate_irq(new_state->base.crtc, true) != 0);
++		WARN_ON(drm_crtc_vblank_get(new_state->base.crtc) != 0);
+ 		DRM_DEBUG_DRIVER("%s: crtc=%u VRR off->on: Get vblank ref\n",
+ 				 __func__, new_state->base.crtc->base.id);
+ 	} else if (old_vrr_active && !new_vrr_active) {
+ 		/* Transition VRR active -> inactive:
+ 		 * Allow vblank irq disable again for fixed refresh rate.
+ 		 */
+-		dm_set_vupdate_irq(new_state->base.crtc, false);
++		WARN_ON(dm_set_vupdate_irq(new_state->base.crtc, false) != 0);
+ 		drm_crtc_vblank_put(new_state->base.crtc);
+ 		DRM_DEBUG_DRIVER("%s: crtc=%u VRR on->off: Drop vblank ref\n",
+ 				 __func__, new_state->base.crtc->base.id);
+@@ -9917,23 +9917,6 @@ static void amdgpu_dm_atomic_commit_tail(struct drm_atomic_state *state)
+ 		mutex_unlock(&dm->dc_lock);
+ 	}
+ 
+-	/* Count number of newly disabled CRTCs for dropping PM refs later. */
+-	for_each_oldnew_crtc_in_state(state, crtc, old_crtc_state,
+-				      new_crtc_state, i) {
+-		if (old_crtc_state->active && !new_crtc_state->active)
+-			crtc_disable_count++;
+-
+-		dm_new_crtc_state = to_dm_crtc_state(new_crtc_state);
+-		dm_old_crtc_state = to_dm_crtc_state(old_crtc_state);
+-
+-		/* For freesync config update on crtc state and params for irq */
+-		update_stream_irq_parameters(dm, dm_new_crtc_state);
+-
+-		/* Handle vrr on->off / off->on transitions */
+-		amdgpu_dm_handle_vrr_transition(dm_old_crtc_state,
+-						dm_new_crtc_state);
+-	}
+-
+ 	/**
+ 	 * Enable interrupts for CRTCs that are newly enabled or went through
+ 	 * a modeset. It was intentionally deferred until after the front end
+@@ -9943,16 +9926,29 @@ static void amdgpu_dm_atomic_commit_tail(struct drm_atomic_state *state)
+ 	for_each_oldnew_crtc_in_state(state, crtc, old_crtc_state, new_crtc_state, i) {
+ 		struct amdgpu_crtc *acrtc = to_amdgpu_crtc(crtc);
+ #ifdef CONFIG_DEBUG_FS
+-		bool configure_crc = false;
+ 		enum amdgpu_dm_pipe_crc_source cur_crc_src;
+ #if defined(CONFIG_DRM_AMD_SECURE_DISPLAY)
+-		struct crc_rd_work *crc_rd_wrk = dm->crc_rd_wrk;
++		struct crc_rd_work *crc_rd_wrk;
++#endif
++#endif
++		/* Count number of newly disabled CRTCs for dropping PM refs later. */
++		if (old_crtc_state->active && !new_crtc_state->active)
++			crtc_disable_count++;
++
++		dm_new_crtc_state = to_dm_crtc_state(new_crtc_state);
++		dm_old_crtc_state = to_dm_crtc_state(old_crtc_state);
++
++		/* For freesync config update on crtc state and params for irq */
++		update_stream_irq_parameters(dm, dm_new_crtc_state);
++
++#ifdef CONFIG_DEBUG_FS
++#if defined(CONFIG_DRM_AMD_SECURE_DISPLAY)
++		crc_rd_wrk = dm->crc_rd_wrk;
+ #endif
+ 		spin_lock_irqsave(&adev_to_drm(adev)->event_lock, flags);
+ 		cur_crc_src = acrtc->dm_irq_params.crc_src;
+ 		spin_unlock_irqrestore(&adev_to_drm(adev)->event_lock, flags);
+ #endif
+-		dm_new_crtc_state = to_dm_crtc_state(new_crtc_state);
+ 
+ 		if (new_crtc_state->active &&
+ 		    (!old_crtc_state->active ||
+@@ -9960,16 +9956,19 @@ static void amdgpu_dm_atomic_commit_tail(struct drm_atomic_state *state)
+ 			dc_stream_retain(dm_new_crtc_state->stream);
+ 			acrtc->dm_irq_params.stream = dm_new_crtc_state->stream;
+ 			manage_dm_interrupts(adev, acrtc, true);
++		}
++		/* Handle vrr on->off / off->on transitions */
++		amdgpu_dm_handle_vrr_transition(dm_old_crtc_state, dm_new_crtc_state);
+ 
+ #ifdef CONFIG_DEBUG_FS
++		if (new_crtc_state->active &&
++		    (!old_crtc_state->active ||
++		     drm_atomic_crtc_needs_modeset(new_crtc_state))) {
+ 			/**
+ 			 * Frontend may have changed so reapply the CRC capture
+ 			 * settings for the stream.
+ 			 */
+-			dm_new_crtc_state = to_dm_crtc_state(new_crtc_state);
+-
+ 			if (amdgpu_dm_is_valid_crc_source(cur_crc_src)) {
+-				configure_crc = true;
+ #if defined(CONFIG_DRM_AMD_SECURE_DISPLAY)
+ 				if (amdgpu_dm_crc_window_is_activated(crtc)) {
+ 					spin_lock_irqsave(&adev_to_drm(adev)->event_lock, flags);
+@@ -9981,12 +9980,10 @@ static void amdgpu_dm_atomic_commit_tail(struct drm_atomic_state *state)
+ 					spin_unlock_irqrestore(&adev_to_drm(adev)->event_lock, flags);
+ 				}
+ #endif
+-			}
+-
+-			if (configure_crc)
+ 				if (amdgpu_dm_crtc_configure_crc_source(
+ 					crtc, dm_new_crtc_state, cur_crc_src))
+ 					DRM_DEBUG_DRIVER("Failed to configure crc source");
++			}
+ #endif
+ 		}
+ 	}
+-- 
+2.25.1
+
