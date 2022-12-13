@@ -2,222 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C10964B30D
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 11:17:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C01E764B353
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 11:39:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235111AbiLMKRv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 05:17:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52470 "EHLO
+        id S234855AbiLMKjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 05:39:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234753AbiLMKRs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 05:17:48 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C96EB485;
-        Tue, 13 Dec 2022 02:17:47 -0800 (PST)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 358511FE90;
-        Tue, 13 Dec 2022 10:17:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1670926665; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=tWdApeddYiMYXB8pmHjPXlFof6sqZG2lI5ncWpQKXcI=;
-        b=hoRrXygslHjny+uwKR2kFMu+k1f8vpCZftGqeMF8I/Y5/lQepUhIumx8Zo3XeYbxkb0CR9
-        PLLaYj1pa1Hpp11YQ9NfXtE7a4PqlFMmNH7Up8pnhAmPZWzY/wYzVfwIpupSS9cbkv1F/L
-        nMYA7NXBuyQCN9BmViL0dx1Vjypg3rY=
-Received: from suse.cz (unknown [10.100.208.146])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 140322C141;
-        Tue, 13 Dec 2022 10:17:45 +0000 (UTC)
-Date:   Tue, 13 Dec 2022 11:17:42 +0100
-From:   Petr Mladek <pmladek@suse.com>
-To:     Luis Chamberlain <mcgrof@kernel.org>
-Cc:     Petr Pavlu <petr.pavlu@suse.com>, prarit@redhat.com,
-        david@redhat.com, mwilck@suse.com, linux-modules@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] module: Don't wait for GOING modules
-Message-ID: <Y5hRRnBGYaPby/RS@alley>
-References: <20221205103557.18363-1-petr.pavlu@suse.com>
- <Y5gI/3crANzRv22J@bombadil.infradead.org>
+        with ESMTP id S234844AbiLMKjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 05:39:13 -0500
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C46371B9F9;
+        Tue, 13 Dec 2022 02:39:10 -0800 (PST)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id E26091C09F4; Tue, 13 Dec 2022 11:39:08 +0100 (CET)
+Date:   Tue, 13 Dec 2022 11:39:08 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Netdev <netdev@vger.kernel.org>, stable@vger.kernel.org,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        srw@sladewatkins.net, rwarsow@gmx.de,
+        Jakub Kicinski <kuba@kernel.org>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: Re: [PATCH 5.10 000/106] 5.10.159-rc1 review
+Message-ID: <Y5hWTI0UF5f9I0a9@duo.ucw.cz>
+References: <20221212130924.863767275@linuxfoundation.org>
+ <CA+G9fYv7tm9zQwVWnPMQMjFXtNDoRpdGkxZ4ehMjY9qAFF0QLQ@mail.gmail.com>
+ <86c7e7a5-6457-49c5-a9e3-b28b8b8c1134@app.fastmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="17sVYUeo7bE3z69j"
 Content-Disposition: inline
-In-Reply-To: <Y5gI/3crANzRv22J@bombadil.infradead.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <86c7e7a5-6457-49c5-a9e3-b28b8b8c1134@app.fastmail.com>
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon 2022-12-12 21:09:19, Luis Chamberlain wrote:
-> On Mon, Dec 05, 2022 at 11:35:57AM +0100, Petr Pavlu wrote:
-> > During a system boot, it can happen that the kernel receives a burst of
-> > requests to insert the same module but loading it eventually fails
-> > during its init call. For instance, udev can make a request to insert
-> > a frequency module for each individual CPU when another frequency module
-> > is already loaded which causes the init function of the new module to
-> > return an error.
-> > 
-> > This patch attempts a different solution for the problem 6e6de3dee51a
-> > was trying to solve. Rather than waiting for the unloading to complete,
-> > it returns a different error code (-EBUSY) for modules in the GOING
-> > state. This should avoid the error situation that was described in
-> > 6e6de3dee51a (user space attempting to load a dependent module because
-> > the -EEXIST error code would suggest to user space that the first module
-> > had been loaded successfully), while avoiding the delay situation too.
-> > 
-> 
-> So sorry for the late review but these ideas only came to me as I
-> drafted my pull request to Linus.
-> 
-> Let's recap the issue from the start as this is why I ended having
-> to pause for a second and couldn't believe myself as I wrote that
-> we had merged this.
 
-IMHO, it is perfectly fine to delay this. The problem is not trivial.
-It always made my head spin. There is a risk of regression. The change
-spent in linux next only one week. And this particular merge window is
-not good for risking because of the holiday season.
+--17sVYUeo7bE3z69j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Tue 2022-12-13 10:20:30, Arnd Bergmann wrote:
+> On Tue, Dec 13, 2022, at 08:48, Naresh Kamboju wrote:
+> > On Mon, 12 Dec 2022 at 18:43, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> >
+> > Regression detected on arm64 Raspberry Pi 4 Model B the NFS mount faile=
+d.
+> >
+> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> >
+> > Following changes have been noticed in the Kconfig file between good an=
+d bad.
+> > The config files attached to this email.
+> >
+> > -CONFIG_BCMGENET=3Dy
+> > -CONFIG_BROADCOM_PHY=3Dy
+> > +# CONFIG_BROADCOM_PHY is not set
+> > -CONFIG_BCM7XXX_PHY=3Dy
+> > +# CONFIG_BCM7XXX_PHY is not set
+> > -CONFIG_BCM_NET_PHYLIB=3Dy
+>=20
+> > Full test log details,
+> >  - https://lkft.validation.linaro.org/scheduler/job/5946533#L392
+> >  -=20
+> > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v=
+5.10.158-107-gd2432186ff47/testrun/13594402/suite/log-parser-test/tests/
+> >  -=20
+> > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v=
+5.10.158-107-gd2432186ff47/testrun/13594402/suite/log-parser-test/test/chec=
+k-kernel-panic/history/
+>=20
+> Where does the kernel configuration come from? Is this
+> a plain defconfig that used to work, or do you have
+> a board specific config file?
+>=20
+> This is most likely caused by the added dependency on
+> CONFIG_PTP_1588_CLOCK that would lead to the BCMGENET
+> driver not being built-in if PTP support is in a module.
 
-> > diff --git a/kernel/module/main.c b/kernel/module/main.c
-> > index d02d39c7174e..7a627345d4fd 100644
-> > --- a/kernel/module/main.c
-> > +++ b/kernel/module/main.c
-> > @@ -2386,7 +2386,8 @@ static bool finished_loading(const char *name)
-> >  	sched_annotate_sleep();
-> >  	mutex_lock(&module_mutex);
-> >  	mod = find_module_all(name, strlen(name), true);
-> > -	ret = !mod || mod->state == MODULE_STATE_LIVE;
-> > +	ret = !mod || mod->state == MODULE_STATE_LIVE
-> > +		|| mod->state == MODULE_STATE_GOING;
-> >  	mutex_unlock(&module_mutex);
-> >  
-> >  	return ret;
-> > @@ -2562,20 +2563,35 @@ static int add_unformed_module(struct module *mod)
-> >  
-> >  	mod->state = MODULE_STATE_UNFORMED;
-> >  
-> > -again:
-> 
-> So this is part of my biggest concern for regression, the removal of
-> this tag and its use.
-> 
-> Before this we always looped back to trying again and again.
+There's no PTP_1588_CLOCK_OPTIONAL in 5.10. This needs to be dropped:
 
-Just to be sure that we are on the same page.
+|2a4912705 421f86 o: 5.10| net: broadcom: Add PTP_1588_CLOCK_OPTIONAL depen=
+dency for BCMGENET under ARCH_BCM2835
 
-The loop was _not_ infinite. It serialized all attempts to load
-the same module. In our case, it serialized all failures and
-prolonged the pain.
+Best regards,
+								Pavel
 
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-> >  	mutex_lock(&module_mutex);
-> >  	old = find_module_all(mod->name, strlen(mod->name), true);
-> >  	if (old != NULL) {
-> > -		if (old->state != MODULE_STATE_LIVE) {
-> > +		if (old->state == MODULE_STATE_COMING
-> > +		    || old->state == MODULE_STATE_UNFORMED) {
-> >  			/* Wait in case it fails to load. */
-> >  			mutex_unlock(&module_mutex);
-> >  			err = wait_event_interruptible(module_wq,
-> >  					       finished_loading(mod->name));
-> >  			if (err)
-> >  				goto out_unlocked;
-> > -			goto again;
-> 
-> We essentially bound this now, and before we didn't.
-> 
-> Yes we we wait for finished_loading() of the module -- but if udev is
-> hammering tons of same requests, well, we *will* surely hit this, as
-> many requests managed to get in before userspace saw the module present.
-> 
-> While this typically can be useful, it means *quite a bit* of conditions which
-> definitely *did* happen before will now *bail out* fast, to the extent
-> that I'm not even sure why we just re-try once now.
+--17sVYUeo7bE3z69j
+Content-Type: application/pgp-signature; name="signature.asc"
 
-I do not understand this. We do _not_ re-try the load in the new
-version. We just wait for the result of the parallel attempt to
-load the module.
+-----BEGIN PGP SIGNATURE-----
 
-Maybe, you are confused that we repeat find_module_all(). But it is
-the way how to find the result of the parallel load.
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY5hWTAAKCRAw5/Bqldv6
+8rDhAJ9a7yt02CI4FJMdok20phpAyMLt9wCfZ7K+tGfohkp+A/QHR76DTu7Vf5s=
+=tCRA
+-----END PGP SIGNATURE-----
 
-
-> If we're going to 
-> just re-check *once* why not do something graceful like *at least*
-> cond_resched() to let the system breathe for a *tiny bit*.
-
-We must check the result under module_mutex. We have to take this
-sleeping lock. There is actually a rescheduling. I do not think that
-cond_resched() would do any difference.
-
-
-> > +
-> > +			/* The module might have gone in the meantime. */
-> > +			mutex_lock(&module_mutex);
-> > +			old = find_module_all(mod->name, strlen(mod->name),
-> > +					      true);
-> >  		}
-> > -		err = -EEXIST;
-> > +
-> > +		/*
-> > +		 * We are here only when the same module was being loaded. Do
-> > +		 * not try to load it again right now. It prevents long delays
-> > +		 * caused by serialized module load failures. It might happen
-> > +		 * when more devices of the same type trigger load of
-> > +		 * a particular module.
-> > +		 */
-> > +		if (old && old->state == MODULE_STATE_LIVE)
-> > +			err = -EEXIST;
-> > +		else
-> > +			err = -EBUSY;
-> 
-> And for all those use cases we end up here now, with -EBUSY. So udev
-> before was not bounded, and kept busy-looping on the retry in-kernel,
-> and we now immediately bound its condition to just 2 tries to see if the
-> old module existed and now *return* a new value to userspace.
-> 
-> My main concerns are:
-> 
-> 0) Why not use cond_resched() if we're just going to check twice?
-
-We take module_mutex. It should cause even bigger delay than cond_resched().
-
-
-> 1) How are we sure we are not regressing userspace by removing the boundless
-> loop there? (even if the endless loop was stupid)
-
-We could not be sure. On the other hand, if more attempts help to load
-the module then it is racy and not reliable. The new approach would
-make it better reproducible and fix the race.
-
-
-> 2) How is it we expect that we won't resgress userspace now by bounding
-> that check and pretty much returning -EBUSY right away? This last part
-> seems dangerous, in that if userspace did not expect -EBUSY and if an
-> error before caused a module to fail and fail boot, why wouldn't we fail
-> boot now by bailing out faster??
-
-Same answer as for 1)
-
-
-> 3) *Fixing* a kernel regression by adding new expected API for testing
-> against -EBUSY seems not ideal.
-
-IMHO, the right solution is to fix the subsystems so that they send
-only one uevent.
-
-The question is how the module loader would deal with "broken"
-subsystems. Petr Pavlu, please, fixme. I think that there are
-more subsystems doing this ugly thing.
-
-I personally thing that returning -EBUSY is better than serializing
-all the loads. It makes eventual problem easier to reproduce and fix.
-
-Best Regards,
-Petr
+--17sVYUeo7bE3z69j--
