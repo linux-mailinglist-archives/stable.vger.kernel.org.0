@@ -2,122 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C01E764B353
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 11:39:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 358FB64B3AD
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 12:02:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234855AbiLMKjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 05:39:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34560 "EHLO
+        id S235219AbiLMLCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 06:02:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234844AbiLMKjN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 05:39:13 -0500
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C46371B9F9;
-        Tue, 13 Dec 2022 02:39:10 -0800 (PST)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id E26091C09F4; Tue, 13 Dec 2022 11:39:08 +0100 (CET)
-Date:   Tue, 13 Dec 2022 11:39:08 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Netdev <netdev@vger.kernel.org>, stable@vger.kernel.org,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        srw@sladewatkins.net, rwarsow@gmx.de,
-        Jakub Kicinski <kuba@kernel.org>,
-        Anders Roxell <anders.roxell@linaro.org>
-Subject: Re: [PATCH 5.10 000/106] 5.10.159-rc1 review
-Message-ID: <Y5hWTI0UF5f9I0a9@duo.ucw.cz>
-References: <20221212130924.863767275@linuxfoundation.org>
- <CA+G9fYv7tm9zQwVWnPMQMjFXtNDoRpdGkxZ4ehMjY9qAFF0QLQ@mail.gmail.com>
- <86c7e7a5-6457-49c5-a9e3-b28b8b8c1134@app.fastmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="17sVYUeo7bE3z69j"
-Content-Disposition: inline
-In-Reply-To: <86c7e7a5-6457-49c5-a9e3-b28b8b8c1134@app.fastmail.com>
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
+        with ESMTP id S235217AbiLMLCi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 06:02:38 -0500
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 551AAE7
+        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 03:02:36 -0800 (PST)
+Received: by mail-yb1-xb4a.google.com with SMTP id 203-20020a2502d4000000b006f94ab02400so16142370ybc.2
+        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 03:02:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=4JMvBjbL8ghtbIkTF27GYLcaRjqPRshuRydk2R7O6LM=;
+        b=BBpecZ+hl6A31P+Glt7N5JCChpXRVKhc0Rj3aR1kDPxQ/7mdNIfdb2qf6DyPXzRuLv
+         OVzy9b/YlGRSVvVtD8jhFlSmZqqMRcrKJE29Wk1Oa6tP+U6jFug/bx9V3KbZprIvLqgV
+         1Xt66zASQpZGLEN3xIxOGqtezDjlNxNeQEWUAqfwhy27PqxXi1FmmdgEcu7/yLnc1/pD
+         9GAj4L/zYLHyBDfgsdu9hNe9BPESLOC0zkIwrEW6jMH7DpA7xzVuPQlLsZ1d6l1Ythgs
+         dWjZQ4c/sKQq1yeBiJyuavhHqX3YSdsZSRAkWsgGgatLgELChwRtm2ij+JTaBQ7o4gAS
+         s34A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=4JMvBjbL8ghtbIkTF27GYLcaRjqPRshuRydk2R7O6LM=;
+        b=TE87k50qn6OT7b610Df21OaPXtS002mrff17iyT7ldj9mQ/ligSRLn+Zfe7hr5swY+
+         dqwaHBJxoY/w2758CZ1pBmK4mcUk75XB91ywRz7lr2yJdJZ9u2uEdHRnSM94aJvc8zgD
+         Pe03P41iR6hhQee8P7yQ3jbFUO94MeSPCKpllZJ4K4eC7XiXmulerrHTJ4SOv1Oj+2ea
+         RjcnfxilVnMFr99mYzHHulq5wCYV2NT2Xuc+escqg0lIPpsJJJ/tq7CKYOvUWnJ8/YJQ
+         YSN5vFuW7jkUPD7ztB/23T7pIVGYSRFJkbTYmYs5nMkIrzm94ryJCcvO7agROLeNAHhw
+         XpjA==
+X-Gm-Message-State: ANoB5plMSajNozdK8HInAlOSwwYjHzwHzcV3Gi7KRd9EnW8eJBr0IBzG
+        sQNmc1Nr9JKlqL/RT1LQ7y3MQHodyTFr
+X-Google-Smtp-Source: AA0mqf53Mpz9RgPooN6uE2NxcqbDKHcmkOgPxhuo3yY6e0bzc01QjtHXRb//lhvqf40SZzr23gw3Gy79cHqF
+X-Received: from localhost ([2a00:79e0:9d:6:a3d1:f0b2:7818:34be])
+ (user=wiktorg job=sendgmr) by 2002:a05:6902:703:b0:727:1318:3c5 with SMTP id
+ k3-20020a056902070300b00727131803c5mr945525ybt.496.1670929355637; Tue, 13 Dec
+ 2022 03:02:35 -0800 (PST)
+Date:   Tue, 13 Dec 2022 12:02:12 +0100
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.39.0.rc1.256.g54fd8350bd-goog
+Message-ID: <20221213110212.649796-1-wiktorg@google.com>
+Subject: [PATCH] pipe: avoid creating empty pipe buffers
+From:   Wiktor Garbacz <wiktorg@google.com>
+To:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        David Howells <dhowells@redhat.com>
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Wiktor Garbacz <wiktorg@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+pipe_write cannot be called on notification pipes so
+post_one_notification cannot race it.
+Locking and second pipe_full check are thus redundant.
 
---17sVYUeo7bE3z69j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This fixes an issue where pipe write could unexpectedly block:
+  // Assume there is no reader or reader polls and uses FIONREAD ioctl
+  // to read all the available bytes.
+  for (int i = 0; i < PIPE_DEF_BUFFERS+1; ++i) {
+    write(pipe_fd, buf_that_efaults, PAGE_SIZE);
+  }
+  // Never reached
 
-On Tue 2022-12-13 10:20:30, Arnd Bergmann wrote:
-> On Tue, Dec 13, 2022, at 08:48, Naresh Kamboju wrote:
-> > On Mon, 12 Dec 2022 at 18:43, Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> >
-> > Regression detected on arm64 Raspberry Pi 4 Model B the NFS mount faile=
-d.
-> >
-> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> >
-> > Following changes have been noticed in the Kconfig file between good an=
-d bad.
-> > The config files attached to this email.
-> >
-> > -CONFIG_BCMGENET=3Dy
-> > -CONFIG_BROADCOM_PHY=3Dy
-> > +# CONFIG_BROADCOM_PHY is not set
-> > -CONFIG_BCM7XXX_PHY=3Dy
-> > +# CONFIG_BCM7XXX_PHY is not set
-> > -CONFIG_BCM_NET_PHYLIB=3Dy
->=20
-> > Full test log details,
-> >  - https://lkft.validation.linaro.org/scheduler/job/5946533#L392
-> >  -=20
-> > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v=
-5.10.158-107-gd2432186ff47/testrun/13594402/suite/log-parser-test/tests/
-> >  -=20
-> > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v=
-5.10.158-107-gd2432186ff47/testrun/13594402/suite/log-parser-test/test/chec=
-k-kernel-panic/history/
->=20
-> Where does the kernel configuration come from? Is this
-> a plain defconfig that used to work, or do you have
-> a board specific config file?
->=20
-> This is most likely caused by the added dependency on
-> CONFIG_PTP_1588_CLOCK that would lead to the BCMGENET
-> driver not being built-in if PTP support is in a module.
+Fixes: a194dfe6e6f6 ("pipe: Rearrange sequence in pipe_write() to preallocate slot")
+Cc: stable@vger.kernel.org
+Signed-off-by: Wiktor Garbacz <wiktorg@google.com>
+---
+ fs/pipe.c | 35 +++++++++--------------------------
+ 1 file changed, 9 insertions(+), 26 deletions(-)
 
-There's no PTP_1588_CLOCK_OPTIONAL in 5.10. This needs to be dropped:
+diff --git a/fs/pipe.c b/fs/pipe.c
+index 42c7ff41c2db..87356a2823cf 100644
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -501,43 +501,26 @@ pipe_write(struct kiocb *iocb, struct iov_iter *from)
+ 				pipe->tmp_page = page;
+ 			}
+ 
+-			/* Allocate a slot in the ring in advance and attach an
+-			 * empty buffer.  If we fault or otherwise fail to use
+-			 * it, either the reader will consume it or it'll still
+-			 * be there for the next write.
+-			 */
+-			spin_lock_irq(&pipe->rd_wait.lock);
+-
+-			head = pipe->head;
+-			if (pipe_full(head, pipe->tail, pipe->max_usage)) {
+-				spin_unlock_irq(&pipe->rd_wait.lock);
+-				continue;
++			copied = copy_page_from_iter(page, 0, PAGE_SIZE, from);
++			if (unlikely(copied < PAGE_SIZE && iov_iter_count(from))) {
++				if (!ret)
++					ret = -EFAULT;
++				break;
+ 			}
+-
+-			pipe->head = head + 1;
+-			spin_unlock_irq(&pipe->rd_wait.lock);
++			ret += copied;
+ 
+ 			/* Insert it into the buffer array */
+-			buf = &pipe->bufs[head & mask];
+ 			buf->page = page;
+ 			buf->ops = &anon_pipe_buf_ops;
+ 			buf->offset = 0;
+-			buf->len = 0;
++			buf->len = copied;
+ 			if (is_packetized(filp))
+ 				buf->flags = PIPE_BUF_FLAG_PACKET;
+ 			else
+ 				buf->flags = PIPE_BUF_FLAG_CAN_MERGE;
+ 			pipe->tmp_page = NULL;
+-
+-			copied = copy_page_from_iter(page, 0, PAGE_SIZE, from);
+-			if (unlikely(copied < PAGE_SIZE && iov_iter_count(from))) {
+-				if (!ret)
+-					ret = -EFAULT;
+-				break;
+-			}
+-			ret += copied;
+-			buf->offset = 0;
+-			buf->len = copied;
++			head++;
++			pipe->head = head;
+ 
+ 			if (!iov_iter_count(from))
+ 				break;
+-- 
+2.39.0.rc1.256.g54fd8350bd-goog
 
-|2a4912705 421f86 o: 5.10| net: broadcom: Add PTP_1588_CLOCK_OPTIONAL depen=
-dency for BCMGENET under ARCH_BCM2835
-
-Best regards,
-								Pavel
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---17sVYUeo7bE3z69j
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY5hWTAAKCRAw5/Bqldv6
-8rDhAJ9a7yt02CI4FJMdok20phpAyMLt9wCfZ7K+tGfohkp+A/QHR76DTu7Vf5s=
-=tCRA
------END PGP SIGNATURE-----
-
---17sVYUeo7bE3z69j--
