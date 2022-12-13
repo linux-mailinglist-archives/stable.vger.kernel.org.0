@@ -2,220 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA1B864AF2F
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 06:12:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9613364AF33
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 06:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229789AbiLMFMX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 00:12:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52936 "EHLO
+        id S234035AbiLMFMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 00:12:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230188AbiLMFLk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 00:11:40 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0AF6633B;
-        Mon, 12 Dec 2022 21:09:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=fiH/76g6bPuIC/PYVPpzSDB5yM8E61dsrJYLzWgn72c=; b=gnLo09ph42polR8Yt/15IevQoC
-        KuDWpS8VfzOZ7NfXt8ym/UmhIoCAkOYZtlzZAJHRQEXIr3EKIhz6xBtu6GBFSbVzNDJ/R4J0+KPHt
-        2cclqZz5Sykq9IDmyQ0drCkkyNMJfgc5D5q2f4r14utLw9qFuUT8R9d3JTYexPRKEaWnFiNgwsfrM
-        RSWr5Mh/W6pNVkBEkARWjd9pF5DTw2kKvEX1Sy3T0RpWe1Rc4/Y7sNQ5hMEewmxyLpLQVZd3v/yYX
-        Nm59DtJIVZCZpdQ4952RBc2uCxCnW5BS8T5XTAs/c29C7XRdq+GaSUwKEKJ51SGFyRZugM58BhoOO
-        Z8bZmQBA==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1p4xXb-00B8v7-ID; Tue, 13 Dec 2022 05:09:19 +0000
-Date:   Mon, 12 Dec 2022 21:09:19 -0800
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Petr Pavlu <petr.pavlu@suse.com>
-Cc:     pmladek@suse.com, prarit@redhat.com, david@redhat.com,
-        mwilck@suse.com, linux-modules@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] module: Don't wait for GOING modules
-Message-ID: <Y5gI/3crANzRv22J@bombadil.infradead.org>
-References: <20221205103557.18363-1-petr.pavlu@suse.com>
+        with ESMTP id S229975AbiLMFLm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 00:11:42 -0500
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6321E10CA;
+        Mon, 12 Dec 2022 21:09:37 -0800 (PST)
+Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
+        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BD4Kk03019955;
+        Tue, 13 Dec 2022 05:09:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=qcppdkim1;
+ bh=apGM6zRavgSi8EWf7Ous2+JPhJi6p2bV2Dg4VVps0OQ=;
+ b=ojpMG1RWdDZy1qw7kzXzAV9uxWs/dWggRCJtt6Xq4NTOsFVnioUFl+40r1zxcRzxnZun
+ bG29Z90tvj6i8GAAF2FoTk6PZSNzNBDAF14XAfCs6le7QuOVwETKCp8u4Vq8SpeY1JuI
+ mlQRBVePR7CHVy7POyflt2Dy249LZ0YVXft8a6ZDhIcFzgegJIBf/r6V2zM/u/L7l0mU
+ R/oThS4GGBCBW9CaA6LlVrHc2ox3GjpQYJg81Z9BmgjSDmQjkzzHDqB6Hwp8ux5vHKja
+ IxVTV9Hl3KjamzEO4yKWTjKXLRcL2ASyPKGbugfJDBSJsPlg7iUV941gOZvPUPjMG8c1 Tw== 
+Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3me09gb2rv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 13 Dec 2022 05:09:28 +0000
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+        by NALASPPMTA02.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 2BD59RK2030530
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 13 Dec 2022 05:09:27 GMT
+Received: from [10.50.38.23] (10.80.80.8) by nalasex01a.na.qualcomm.com
+ (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.36; Mon, 12 Dec
+ 2022 21:09:22 -0800
+Message-ID: <f9d5f681-5e4d-870b-ef51-4ba7f70a5b1f@quicinc.com>
+Date:   Tue, 13 Dec 2022 10:39:19 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221205103557.18363-1-petr.pavlu@suse.com>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.2
+Subject: Re: [PATCH v2 11/13] arm64: dts: qcom: sm6350: Remove reg-names
+ property from LLCC node
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        <andersson@kernel.org>, <robh+dt@kernel.org>,
+        <krzysztof.kozlowski+dt@linaro.org>, <bp@alien8.de>,
+        <tony.luck@intel.com>
+CC:     <konrad.dybcio@linaro.org>, <linux-arm-msm@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <james.morse@arm.com>,
+        <mchehab@kernel.org>, <rric@kernel.org>,
+        <linux-edac@vger.kernel.org>, <quic_ppareek@quicinc.com>,
+        <luca.weiss@fairphone.com>, <stable@vger.kernel.org>
+References: <20221212123311.146261-1-manivannan.sadhasivam@linaro.org>
+ <20221212123311.146261-12-manivannan.sadhasivam@linaro.org>
+From:   Sai Prakash Ranjan <quic_saipraka@quicinc.com>
+In-Reply-To: <20221212123311.146261-12-manivannan.sadhasivam@linaro.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: uoTAYHwThRzyL4GhNV8zniarNTsKbvPM
+X-Proofpoint-GUID: uoTAYHwThRzyL4GhNV8zniarNTsKbvPM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-13_02,2022-12-12_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
+ bulkscore=0 phishscore=0 adultscore=0 impostorscore=0 spamscore=0
+ lowpriorityscore=0 mlxscore=0 malwarescore=0 priorityscore=1501
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2212130047
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 05, 2022 at 11:35:57AM +0100, Petr Pavlu wrote:
-> During a system boot, it can happen that the kernel receives a burst of
-> requests to insert the same module but loading it eventually fails
-> during its init call. For instance, udev can make a request to insert
-> a frequency module for each individual CPU when another frequency module
-> is already loaded which causes the init function of the new module to
-> return an error.
+On 12/12/2022 6:03 PM, Manivannan Sadhasivam wrote:
+> The LLCC block has several banks each with a different base address
+> and holes in between. So it is not a correct approach to cover these
+> banks with a single offset/size. Instead, the individual bank's base
+> address needs to be specified in devicetree with the exact size.
 > 
-> Since commit 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for
-> modules that have finished loading"), the kernel waits for modules in
-> MODULE_STATE_GOING state to finish unloading before making another
-> attempt to load the same module.
+> On SM6350, there is only one LLCC bank available. So only change needed is
+> to remove the reg-names property from LLCC node to conform to the binding.
 > 
-> This creates unnecessary work in the described scenario and delays the
-> boot. In the worst case, it can prevent udev from loading drivers for
-> other devices and might cause timeouts of services waiting on them and
-> subsequently a failed boot.
+> The driver is expected to parse the reg field based on index to get the
+> addresses of each LLCC banks.
 > 
-> This patch attempts a different solution for the problem 6e6de3dee51a
-> was trying to solve. Rather than waiting for the unloading to complete,
-> it returns a different error code (-EBUSY) for modules in the GOING
-> state. This should avoid the error situation that was described in
-> 6e6de3dee51a (user space attempting to load a dependent module because
-> the -EEXIST error code would suggest to user space that the first module
-> had been loaded successfully), while avoiding the delay situation too.
-> 
-> Fixes: 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for modules that have finished loading")
-> Co-developed-by: Martin Wilck <mwilck@suse.com>
-> Signed-off-by: Martin Wilck <mwilck@suse.com>
-> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
-> Cc: stable@vger.kernel.org
+> Cc: <stable@vger.kernel.org> # 5.16
+> Fixes: ced2f0d75e13 ("arm64: dts: qcom: sm6350: Add LLCC node")
+> Reported-by: Parikshit Pareek <quic_ppareek@quicinc.com>
+> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 > ---
+>   arch/arm64/boot/dts/qcom/sm6350.dtsi | 1 -
+>   1 file changed, 1 deletion(-)
 > 
-> Changes since v1 [1]:
-> - Don't attempt a new module initialization when a same-name module
->   completely disappeared while waiting on it, which means it went
->   through the GOING state implicitly already.
-> 
-> [1] https://lore.kernel.org/linux-modules/20221123131226.24359-1-petr.pavlu@suse.com/
-> 
->  kernel/module/main.c | 26 +++++++++++++++++++++-----
->  1 file changed, 21 insertions(+), 5 deletions(-)
+> diff --git a/arch/arm64/boot/dts/qcom/sm6350.dtsi b/arch/arm64/boot/dts/qcom/sm6350.dtsi
+> index 43324bf291c3..1f39627cd7c6 100644
+> --- a/arch/arm64/boot/dts/qcom/sm6350.dtsi
+> +++ b/arch/arm64/boot/dts/qcom/sm6350.dtsi
+> @@ -1174,7 +1174,6 @@ dc_noc: interconnect@9160000 {
+>   		system-cache-controller@9200000 {
+>   			compatible = "qcom,sm6350-llcc";
+>   			reg = <0 0x09200000 0 0x50000>, <0 0x09600000 0 0x50000>;
+> -			reg-names = "llcc_base", "llcc_broadcast_base";
+>   		};
+>   
+>   		gem_noc: interconnect@9680000 {
 
-So sorry for the late review but these ideas only came to me as I
-drafted my pull request to Linus.
-
-Let's recap the issue from the start as this is why I ended having
-to pause for a second and couldn't believe myself as I wrote that
-we had merged this.
-
-The old commit which broke things is old, that has been in the kerne
-since since v5.3-rc1, May 2019, over 2 years ago!
-
-The original issue was seeing "Unknown symbols" on the kernel logs for
-Linux guests on Microsoft HyperV as it disables the X86_FEATURE_SMCA bit on
-AMD systems. That's nothing to scream about as the error message in this
-case was bogus and could be ignored. The *fix* to this not-big-deal-issue,
-however, it was applied on v5.3-rc1 (May 2019), and in the end though
-created a modern real tux-pain-screaming-worthy regression which in some
-cases creates failed boots on systems with many CPUs.
-
-The issue is that the fix triggered multiple same module requests to
-eventually return a failure even though the same module may be creeping
-up, and boot is also delayed by hammering on this check over and over again,
-instead of informing userspace that the kernel is busy. So this new fix
-limits these checks, it bounds it, and we pretty much return -EBUSY if
-we see the same module for which we sent a request for twice in a row.
-
-The issue is fatal for large systems given that for each CPU udev stupidly
-requests the same stupid frequency module, and eventually it runs into
-the unformed case the fix boobie trapped us into and fails. The series
-of failures will eventually trigger a full boot failure.
-
-> diff --git a/kernel/module/main.c b/kernel/module/main.c
-> index d02d39c7174e..7a627345d4fd 100644
-> --- a/kernel/module/main.c
-> +++ b/kernel/module/main.c
-> @@ -2386,7 +2386,8 @@ static bool finished_loading(const char *name)
->  	sched_annotate_sleep();
->  	mutex_lock(&module_mutex);
->  	mod = find_module_all(name, strlen(name), true);
-> -	ret = !mod || mod->state == MODULE_STATE_LIVE;
-> +	ret = !mod || mod->state == MODULE_STATE_LIVE
-> +		|| mod->state == MODULE_STATE_GOING;
->  	mutex_unlock(&module_mutex);
->  
->  	return ret;
-> @@ -2562,20 +2563,35 @@ static int add_unformed_module(struct module *mod)
->  
->  	mod->state = MODULE_STATE_UNFORMED;
->  
-> -again:
-
-So this is part of my biggest concern for regression, the removal of
-this tag and its use.
-
-Before this we always looped back to trying again and again.
-
->  	mutex_lock(&module_mutex);
->  	old = find_module_all(mod->name, strlen(mod->name), true);
->  	if (old != NULL) {
-> -		if (old->state != MODULE_STATE_LIVE) {
-> +		if (old->state == MODULE_STATE_COMING
-> +		    || old->state == MODULE_STATE_UNFORMED) {
->  			/* Wait in case it fails to load. */
->  			mutex_unlock(&module_mutex);
->  			err = wait_event_interruptible(module_wq,
->  					       finished_loading(mod->name));
->  			if (err)
->  				goto out_unlocked;
-> -			goto again;
-
-We essentially bound this now, and before we didn't.
-
-Yes we we wait for finished_loading() of the module -- but if udev is
-hammering tons of same requests, well, we *will* surely hit this, as
-many requests managed to get in before userspace saw the module present.
-
-While this typically can be useful, it means *quite a bit* of conditions which
-definitely *did* happen before will now *bail out* fast, to the extent
-that I'm not even sure why we just re-try once now. If we're going to
-just re-check *once* why not do something graceful like *at least*
-cond_resched() to let the system breathe for a *tiny bit*. Because
-otherwise we it would seem we can end up in similar situations as before
-except we now deal with that condition differently. And let's see what
-that looks like now.
-
-> +
-> +			/* The module might have gone in the meantime. */
-> +			mutex_lock(&module_mutex);
-> +			old = find_module_all(mod->name, strlen(mod->name),
-> +					      true);
->  		}
-> -		err = -EEXIST;
-> +
-> +		/*
-> +		 * We are here only when the same module was being loaded. Do
-> +		 * not try to load it again right now. It prevents long delays
-> +		 * caused by serialized module load failures. It might happen
-> +		 * when more devices of the same type trigger load of
-> +		 * a particular module.
-> +		 */
-> +		if (old && old->state == MODULE_STATE_LIVE)
-> +			err = -EEXIST;
-> +		else
-> +			err = -EBUSY;
-
-And for all those use cases we end up here now, with -EBUSY. So udev
-before was not bounded, and kept busy-looping on the retry in-kernel,
-and we now immediately bound its condition to just 2 tries to see if the
-old module existed and now *return* a new value to userspace.
-
-My main concerns are:
-
-0) Why not use cond_resched() if we're just going to check twice?
-
-1) How are we sure we are not regressing userspace by removing the boundless
-loop there? (even if the endless loop was stupid)
-
-2) How is it we expect that we won't resgress userspace now by bounding
-that check and pretty much returning -EBUSY right away? This last part
-seems dangerous, in that if userspace did not expect -EBUSY and if an
-error before caused a module to fail and fail boot, why wouldn't we fail
-boot now by bailing out faster??
-
-3) *Fixing* a kernel regression by adding new expected API for testing
-against -EBUSY seems not ideal.
-
-  Luis
+Reviewed-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
