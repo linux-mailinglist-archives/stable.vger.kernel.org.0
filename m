@@ -2,172 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 429AA64BEE1
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 22:56:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0361C64BF7A
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 23:42:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237034AbiLMV4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 16:56:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44806 "EHLO
+        id S229532AbiLMWm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 17:42:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237645AbiLMVzd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 16:55:33 -0500
-Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE2EC22B24
-        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 13:53:48 -0800 (PST)
-Received: by mail-pl1-x64a.google.com with SMTP id z10-20020a170902ccca00b001898329db72so834458ple.21
-        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 13:53:48 -0800 (PST)
+        with ESMTP id S235536AbiLMWmZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 17:42:25 -0500
+Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E38A22B3D
+        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 14:42:24 -0800 (PST)
+Received: by mail-lj1-x231.google.com with SMTP id a19so4978355ljk.0
+        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 14:42:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=0GXi/g+ggbU0FYuYKX9BfADcafhhz71xEbH0E1NjCIY=;
-        b=SDXqbhIZCEimdIkMXJko5ySehFx0TiwdhvrlDbU115o5iPNZpSvjpV5nvH4QD8RdTe
-         Yv6BgZPvPK52gnzRj485u/dBDW9iTo5mWB0av94qZtNaRKw4l4bOcgENa/uv7gwV7CQV
-         G8ZXCX97AuyItKhu6n5BoY3YUkRNW099ri8IxTzCbu8+aaI3RiUV2keFZwiqu2NCYI0E
-         J1ePgKbhx6S00XWJbQY+2tv3WLgckg6ZN3lmVVeasxLE57Ao37OvSh1ZfSL5gQJo6UNC
-         ebVlr4DYSz0cC1ck2iIl/BLT82nIdQibbeUFxr8BQBQH5m3rhZD2RIGAwukwQVUcTo3e
-         c8MQ==
+        d=joelfernandes.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=AznxZF09soYNwF7TYNQbtrA+Sn0DxeW/307peBBhTWg=;
+        b=bn4qssgDsO3/vsqbMB5878YKOGxpG+bxkNjs44p53yF+FcZ03K+aML+iHweLoR2Cai
+         e+OcGqmKPGdqJwSwCEDxioWB3T8cRqbJvZ8WhRFI4WKPuM+H0V4bokjNhJZ1E2WSFGfC
+         SliBNttLMyNVa2aQBikTtJxb7cSHeI9A5a89s=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=0GXi/g+ggbU0FYuYKX9BfADcafhhz71xEbH0E1NjCIY=;
-        b=hghEgg0faqWspXmNgP4RHbv0dqlSXa8ENV8CtOWAA7T0F5fD6/yQ+R0qiMstdyi2W4
-         44g1Oo7lZsTRqhfv9nIglU2S4OZY5QNlA4aZoqulftnA9UldgG5AdJq0c+c1WINOvILL
-         d+mhGRDnhlMyCrJsdKh8RNL0fSbMHgs2TKR1Em+L+Q2E3U6P+KEPho2pBW6G0qXvcLNO
-         DAUlpp9iuUIvcayVVERVh7zfbrf3rvohiUYSnG5PQIO++iHanJ9TuFtRY+PbcmDME5+i
-         MCgL8fC3JmoY5n6uZlUV5MpeMPIfltAzlhcw5x2/lYdKiyXTJKnzBsKBHM/id9zOHqdv
-         PEQA==
-X-Gm-Message-State: AFqh2kpu+sRj6msJqSOoZoeB26ArJiGLXv3z4WL0NFhj8aUbMpka0OQC
-        yr5L/g2Z5OmyRIpfcklexyH07XPhDpLlJVG+t37svPrB3833KU8kwQddYBztwjDbIoQvNAbVPjf
-        1fVetR3CqTxLDFed6BfCzoS7iuJtjfw1rdYt1UsmcXmN1q5gQUnp9Uho7/o9AYKP2BK4hb6D56a
-        E4bdvik6I=
-X-Google-Smtp-Source: AMrXdXtSzruc5C29qHczfjS5HHvqFIGvZwFCSawZD2+Iaop/Pn3F9lc2kumdG9+xYyAKlS9JpghodyB+2IhqMF2NWpilIw==
-X-Received: from meenashanmugamspl.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:2707])
- (user=meenashanmugam job=sendgmr) by 2002:a17:90a:b30e:b0:219:e3de:53e3 with
- SMTP id d14-20020a17090ab30e00b00219e3de53e3mr26077pjr.87.1670968428231; Tue,
- 13 Dec 2022 13:53:48 -0800 (PST)
-Date:   Tue, 13 Dec 2022 21:53:39 +0000
-In-Reply-To: <20221213215339.3697182-1-meenashanmugam@google.com>
-Mime-Version: 1.0
-References: <20221213215339.3697182-1-meenashanmugam@google.com>
-X-Mailer: git-send-email 2.39.0.rc1.256.g54fd8350bd-goog
-Message-ID: <20221213215339.3697182-2-meenashanmugam@google.com>
-Subject: [PATCH 5.15 1/1] xen/netback: don't call kfree_skb() with interrupts disabled
-From:   Meena Shanmugam <meenashanmugam@google.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, jgross@suse.com,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Meena Shanmugam <meenashanmugam@google.com>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=AznxZF09soYNwF7TYNQbtrA+Sn0DxeW/307peBBhTWg=;
+        b=C2J3PHcAr44vFtQoA9hmwmlsvFW/B3jT+CBdA6xF1LntBks109l1aIqR3hyFFucFr1
+         hmfp4mbXyKdae5YVs7FbBx/+7rpg6fCeDAle/cBufTolWIU8jaJvCkzI09p7Tp0l2PnC
+         75yoFZJEhj90MBzpWQXaHnP54BPPxjC7X8RshDnyLEdtgKevx5s3gHDLjLSDc6/GFunr
+         JftO33KoGjDo9LtK5sudYvMzMiOJw5kFzOwacgy7P16/Px+iRZ+f4ejMP2vzf+Vm788a
+         aoWLHQC68n4bV3FnRvnmjFYK6s8qZg30AMNiJfwXIOm3JAPnjT3qpx9Oq2FH1HkJ6KxJ
+         kA2w==
+X-Gm-Message-State: ANoB5pmnW0JfiYJQVLbn3AVH7CyJ9Q06/6qYQmzKRtyN0m0yl1xfV/sG
+        /c3IXEgCEz6f/Wd8V8QmAShA7DCr/cj4Vq4RK86MQ5Jjvmh74Q==
+X-Google-Smtp-Source: AA0mqf5AvI/J5O2+oBVG/mfQ/7d2xH/XNJlLcAUjdY5DIae+HXI7a+4jf44TBNSyqLcuF1mRu/64FUiQLvyc620xybQ=
+X-Received: by 2002:a05:651c:4d0:b0:27a:b1d:5662 with SMTP id
+ e16-20020a05651c04d000b0027a0b1d5662mr5716064lji.356.1670971342053; Tue, 13
+ Dec 2022 14:42:22 -0800 (PST)
+MIME-Version: 1.0
+References: <CAEXW_YR=DvPhk5JWUe7gYHeVsn5d4Wba83x2UB9uqP0EURgk1g@mail.gmail.com>
+In-Reply-To: <CAEXW_YR=DvPhk5JWUe7gYHeVsn5d4Wba83x2UB9uqP0EURgk1g@mail.gmail.com>
+From:   Joel Fernandes <joel@joelfernandes.org>
+Date:   Tue, 13 Dec 2022 17:42:10 -0500
+Message-ID: <CAEXW_YSWkmE_5AUxRbVZdAQwM8dJah7F-f1apsUGi75Tn6WsJg@mail.gmail.com>
+Subject: Re: Please apply to v5.10 stable: 29368e093921 ("x86/smpboot: Move
+ rcu_cpu_starting() earlier")
+To:     stable <stable@vger.kernel.org>
+Cc:     "Paul E. McKenney" <paulmck@kernel.org>, rcu <rcu@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+On Tue, Dec 13, 2022 at 12:17 PM Joel Fernandes <joel@joelfernandes.org> wrote:
+>
+> Hello,
+>
+> Please apply to the stable v5.10 kernel, the commit: 29368e093921
+> ("x86/smpboot:  Move rcu_cpu_starting() earlier").
 
-commit 74e7e1efdad45580cc3839f2a155174cf158f9b5 upstream.
+While I am confident this fixes it, I started an overnight test of all
+rcutorture scenarios. It cherry-picks cleanly.
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. So remove kfree_skb()
-from the spin_lock_irqsave() section and use the already existing
-"drop" label in xenvif_start_xmit() for dropping the SKB. At the
-same time replace the dev_kfree_skb() call there with a call of
-dev_kfree_skb_any(), as xenvif_start_xmit() can be called with
-disabled interrupts.
+I will test 5.4 as well as it applies there.
 
-This is XSA-424 / CVE-2022-42328 / CVE-2022-42329.
+ - Joel
 
-Fixes: be81992f9086 ("xen/netback: don't queue unlimited number of packages")
-Reported-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
----
- drivers/net/xen-netback/common.h    | 2 +-
- drivers/net/xen-netback/interface.c | 6 ++++--
- drivers/net/xen-netback/rx.c        | 8 +++++---
- 3 files changed, 10 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/net/xen-netback/common.h b/drivers/net/xen-netback/common.h
-index d9dea4829c86..bdb3139c7162 100644
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -395,7 +395,7 @@ irqreturn_t xenvif_ctrl_irq_fn(int irq, void *data);
- 
- bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread);
- void xenvif_rx_action(struct xenvif_queue *queue);
--void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
-+bool xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb);
- 
- void xenvif_carrier_on(struct xenvif *vif);
- 
-diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
-index c58996c1e230..6a35772fde7a 100644
---- a/drivers/net/xen-netback/interface.c
-+++ b/drivers/net/xen-netback/interface.c
-@@ -269,14 +269,16 @@ xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	if (vif->hash.alg == XEN_NETIF_CTRL_HASH_ALGORITHM_NONE)
- 		skb_clear_hash(skb);
- 
--	xenvif_rx_queue_tail(queue, skb);
-+	if (!xenvif_rx_queue_tail(queue, skb))
-+		goto drop;
-+
- 	xenvif_kick_thread(queue);
- 
- 	return NETDEV_TX_OK;
- 
-  drop:
- 	vif->dev->stats.tx_dropped++;
--	dev_kfree_skb(skb);
-+	dev_kfree_skb_any(skb);
- 	return NETDEV_TX_OK;
- }
- 
-diff --git a/drivers/net/xen-netback/rx.c b/drivers/net/xen-netback/rx.c
-index a0335407be42..c2671eb6ad93 100644
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -82,9 +82,10 @@ static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
- 	return false;
- }
- 
--void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
-+bool xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
- {
- 	unsigned long flags;
-+	bool ret = true;
- 
- 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
- 
-@@ -92,8 +93,7 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
- 		struct net_device *dev = queue->vif->dev;
- 
- 		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
--		kfree_skb(skb);
--		queue->vif->dev->stats.rx_dropped++;
-+		ret = false;
- 	} else {
- 		if (skb_queue_empty(&queue->rx_queue))
- 			xenvif_update_needed_slots(queue, skb);
-@@ -104,6 +104,8 @@ void xenvif_rx_queue_tail(struct xenvif_queue *queue, struct sk_buff *skb)
- 	}
- 
- 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
-+
-+	return ret;
- }
- 
- static struct sk_buff *xenvif_rx_dequeue(struct xenvif_queue *queue)
--- 
-2.39.0.rc1.256.g54fd8350bd-goog
-
+>
+> It made it into the mainline in 5.11.  I am able to reproduce the
+> following splat without it on v5.10 stable, which is identical to the
+> one that the commit fixed:
+>
+> [   42.628511] =============================
+> [   42.628512] WARNING: suspicious RCU usage
+> [   42.628513] 5.10.156+ #7 Not tainted
+> [   42.628514] -----------------------------
+> [   42.628516] kernel/locking/lockdep.c:3621 RCU-list traversed in
+> non-reader section!!
+> [   42.628516]
+> [   42.628517] other info that might help us debug this:
+> [   42.628518]
+> [   42.628519]
+> [   42.628519] RCU used illegally from offline CPU!
+> [   42.628520] rcu_scheduler_active = 1, debug_locks = 1
+> [   42.628521] no locks held by swapper/1/0.
+> [   42.628522]
+> [   42.628522] stack backtrace:
+> [   42.628523] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.10.156+ #7
+> [   42.628540] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
+> BIOS 1.16.0-debian-1.16.0-4 04/01/2014
+> [   42.628541] Call Trace:
+> [   42.628541]
+> [   42.628542] =============================
+> [   42.628543] WARNING: suspicious RCU usage
+> [   42.628544] 5.10.156+ #7 Not tainted
+> [   42.628561] -----------------------------
+> [   42.628563] kernel/kprobes.c:300 RCU-list traversed in non-reader section!!
+> [   42.628563]
+> [   42.628564] other info that might help us debug this:
+> [   42.628565]
+> [   42.628566]
+> [   42.628567] RCU used illegally from offline CPU!
+> [   42.628568] rcu_scheduler_active = 1, debug_locks = 1
+> [   42.628569] no locks held by swapper/1/0.
+> [   42.628570]
+> [   42.628570] stack backtrace:
+> [   42.628571] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.10.156+ #7
+> [   42.628573] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
+> BIOS 1.16.0-debian-1.16.0-4 04/01/2014
+> [   42.628573] Call Trace:
+> [   42.628574]  dump_stack+0x77/0x9b
+> [   42.628575]  __is_insn_slot_addr+0x156/0x170
+> [   42.628576]  kernel_text_address+0xb1/0xe0
+> [   42.628577]  ? get_stack_info+0x2b/0x80
+> [   42.628578]  __kernel_text_address+0x9/0x40
+> [   42.628578]  show_trace_log_lvl+0x223/0x2f0
+> [   42.628579]  ? dump_stack+0x77/0x9b
+> [   42.628580]  dump_stack+0x77/0x9b
+> [   42.628581]  __lock_acquire.cold+0x326/0x330
+> [   42.628581]  lock_acquire+0xbd/0x2a0
+> [   42.628582]  ? vprintk_emit+0x6c/0x310
+> [   42.628583]  _raw_spin_lock+0x27/0x40
+> [   42.628584]  ? vprintk_emit+0x6c/0x310
+> [   42.628584]  vprintk_emit+0x6c/0x310
+> [   42.628585]  printk+0x63/0x7e
+> [   42.628586]  start_secondary+0x1c/0xf0
+> [   42.628587]  secondary_startup_64_no_verify+0xc2/0xcb
+> [   42.628588]  dump_stack+0x77/0x9b
+> [   42.628588]  __lock_acquire.cold+0x326/0x330
+> [   42.628589]  lock_acquire+0xbd/0x2a0
+> [   42.628590]  ? vprintk_emit+0x6c/0x310
+> [   42.628591]  _raw_spin_lock+0x27/0x40
+> [   42.628591]  ? vprintk_emit+0x6c/0x310
+> [   42.628592]  vprintk_emit+0x6c/0x310
+>
+> Thanks,
+>
+>  - Joel
