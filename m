@@ -2,142 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AD8964B4EC
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 13:12:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D031164B512
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 13:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235608AbiLMMMz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 07:12:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60508 "EHLO
+        id S235633AbiLMMXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 07:23:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235590AbiLMMMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 07:12:43 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B52DA15FF8
-        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 04:11:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1670933485;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=RAI9mgdskd1ADV22NmxESjpEH55uCsxgWZtJxV8d/1E=;
-        b=C+4n1njfXhhyWXj+ZXZNg66AzkI274UHuN7xhFCY2jHXb3o1jUBlEKAwijOu2nX2Bk1oYI
-        xXEgxLG2ZQeEJTGiKnwle3uFvYsozDa7zIYULTP3G/BVv0O7/tHFgWzsChpdrqymXZAlXN
-        s/t3VpYtzRtVPOnF45xLqLIjP4czrt8=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-267-dvOezT1eOcaie-ZF4hHeYw-1; Tue, 13 Dec 2022 07:11:22 -0500
-X-MC-Unique: dvOezT1eOcaie-ZF4hHeYw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6CBB23C0F425;
-        Tue, 13 Dec 2022 12:11:21 +0000 (UTC)
-Received: from lxbceph1.gsslab.pek2.redhat.com (unknown [10.72.47.117])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9CC3640AE1F4;
-        Tue, 13 Dec 2022 12:11:17 +0000 (UTC)
-From:   xiubli@redhat.com
-To:     jlayton@kernel.org, idryomov@gmail.com, ceph-devel@vger.kernel.org
-Cc:     mchangir@redhat.com, lhenriques@suse.de, viro@zeniv.linux.org.uk,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Xiubo Li <xiubli@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH v4 2/2] ceph: add ceph specific member support for file_lock
-Date:   Tue, 13 Dec 2022 20:11:03 +0800
-Message-Id: <20221213121103.213631-3-xiubli@redhat.com>
-In-Reply-To: <20221213121103.213631-1-xiubli@redhat.com>
-References: <20221213121103.213631-1-xiubli@redhat.com>
+        with ESMTP id S235565AbiLMMXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 07:23:07 -0500
+Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15884FFB;
+        Tue, 13 Dec 2022 04:23:06 -0800 (PST)
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+        by localhost (Postfix) with ESMTP id 4NWd1g1B4Dz9smY;
+        Tue, 13 Dec 2022 13:23:03 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id wQpv-BK6o0IO; Tue, 13 Dec 2022 13:23:03 +0100 (CET)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4NWd1g0GVNz9sm8;
+        Tue, 13 Dec 2022 13:23:03 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id EDEC78B773;
+        Tue, 13 Dec 2022 13:23:02 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id a2dakGG70529; Tue, 13 Dec 2022 13:23:02 +0100 (CET)
+Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.7.67])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id B11108B766;
+        Tue, 13 Dec 2022 13:23:02 +0100 (CET)
+Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.16.1) with ESMTPS id 2BDCMosN630599
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Tue, 13 Dec 2022 13:22:50 +0100
+Received: (from chleroy@localhost)
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.17.1/Submit) id 2BDCMnIC630590;
+        Tue, 13 Dec 2022 13:22:49 +0100
+X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH] [REBASED for 4.14] once: add DO_ONCE_SLOW() for sleepable contexts
+Date:   Tue, 13 Dec 2022 13:22:40 +0100
+Message-Id: <df44c3cd06ae0155f04f9d87fff35db67761beea.1670934155.git.christophe.leroy@csgroup.eu>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1670934159; l=5194; i=christophe.leroy@csgroup.eu; s=20211009; h=from:subject:message-id; bh=l/gW9uV8JB+UhiaHzRrRgcxXXLZq3Tnd8dyGrCC7WSQ=; b=3X9VI7eJm5NqUCwR9bw3dR0g6EqtdvEC+5pulqUc5uMYk1TxKqxmRogKnpF5UF/QPd1Ps57wnCmV 8KMtUWLzBbSTHeNxuUHDDtReljWOh85skZtePeE4r5iff+reV2fa
+X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-When ceph releasing the file_lock it will try to get the inode pointer
-from the fl->fl_file, which the memory could already be released by
-another thread in filp_close(). Because in VFS layer the fl->fl_file
-doesn't increase the file's reference counter.
+[ Upstream commit 62c07983bef9d3e78e71189441e1a470f0d1e653 ]
 
-Will switch to use ceph dedicate lock info to track the inode.
+Christophe Leroy reported a ~80ms latency spike
+happening at first TCP connect() time.
 
-And in ceph_fl_release_lock() we should skip all the operations if
-the fl->fl_u.ceph_fl.fl_inode is not set, which should come from
-the request file_lock. And we will set fl->fl_u.ceph_fl.fl_inode when
-inserting it to the inode lock list, which is when copying the lock.
+This is because __inet_hash_connect() uses get_random_once()
+to populate a perturbation table which became quite big
+after commit 4c2c8f03a5ab ("tcp: increase source port perturb table to 2^16")
 
-Cc: stable@vger.kernel.org
-Cc: Jeff Layton <jlayton@kernel.org>
-URL: https://tracker.ceph.com/issues/57986
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
+get_random_once() uses DO_ONCE(), which block hard irqs for the duration
+of the operation.
+
+This patch adds DO_ONCE_SLOW() which uses a mutex instead of a spinlock
+for operations where we prefer to stay in process context.
+
+Then __inet_hash_connect() can use get_random_slow_once()
+to populate its perturbation table.
+
+Fixes: 4c2c8f03a5ab ("tcp: increase source port perturb table to 2^16")
+Fixes: 190cc82489f4 ("tcp: change source port randomizarion at connect() time")
+Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Link: https://lore.kernel.org/netdev/CANn89iLAEYBaoYajy0Y9UmGFff5GPxDUoG-ErVB2jDdRNQ5Tug@mail.gmail.com/T/#t
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Willy Tarreau <w@1wt.eu>
+Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 ---
- fs/ceph/locks.c    | 20 ++++++++++++++++++--
- include/linux/fs.h |  3 +++
- 2 files changed, 21 insertions(+), 2 deletions(-)
+ include/linux/once.h       | 28 ++++++++++++++++++++++++++++
+ lib/once.c                 | 30 ++++++++++++++++++++++++++++++
+ net/ipv4/inet_hashtables.c |  4 ++--
+ 3 files changed, 60 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ceph/locks.c b/fs/ceph/locks.c
-index b191426bf880..cf78608a3f9a 100644
---- a/fs/ceph/locks.c
-+++ b/fs/ceph/locks.c
-@@ -34,18 +34,34 @@ static void ceph_fl_copy_lock(struct file_lock *dst, struct file_lock *src)
- {
- 	struct inode *inode = file_inode(dst->fl_file);
- 	atomic_inc(&ceph_inode(inode)->i_filelock_ref);
-+	dst->fl_u.ceph.fl_inode = igrab(inode);
- }
+diff --git a/include/linux/once.h b/include/linux/once.h
+index 6790884d3c57..bb091119b754 100644
+--- a/include/linux/once.h
++++ b/include/linux/once.h
+@@ -5,10 +5,18 @@
+ #include <linux/types.h>
+ #include <linux/jump_label.h>
  
-+/*
-+ * Do not use the 'fl->fl_file' in release function, which
-+ * is possibly already released by another thread.
++/* Helpers used from arbitrary contexts.
++ * Hard irqs are blocked, be cautious.
 + */
- static void ceph_fl_release_lock(struct file_lock *fl)
- {
--	struct inode *inode = file_inode(fl->fl_file);
--	struct ceph_inode_info *ci = ceph_inode(inode);
-+	struct inode *inode = fl->fl_u.ceph.fl_inode;
-+	struct ceph_inode_info *ci;
+ bool __do_once_start(bool *done, unsigned long *flags);
+ void __do_once_done(bool *done, struct static_key *once_key,
+ 		    unsigned long *flags);
+ 
++/* Variant for process contexts only. */
++bool __do_once_slow_start(bool *done);
++void __do_once_slow_done(bool *done, struct static_key *once_key,
++			 struct module *mod);
 +
-+	/*
-+	 * If inode is NULL it should be a request file_lock,
-+	 * nothing we can do.
-+	 */
-+	if (!inode)
-+		return;
+ /* Call a function exactly once. The idea of DO_ONCE() is to perform
+  * a function call such as initialization of random seeds, etc, only
+  * once, where DO_ONCE() can live in the fast-path. After @func has
+@@ -52,9 +60,29 @@ void __do_once_done(bool *done, struct static_key *once_key,
+ 		___ret;							     \
+ 	})
+ 
++/* Variant of DO_ONCE() for process/sleepable contexts. */
++#define DO_ONCE_SLOW(func, ...)						     \
++	({								     \
++		bool ___ret = false;					     \
++		static bool ___done = false;				     \
++		static struct static_key ___once_key = STATIC_KEY_INIT_TRUE; \
++		if (static_key_true(&___once_key)) {		     \
++			___ret = __do_once_slow_start(&___done);	     \
++			if (unlikely(___ret)) {				     \
++				func(__VA_ARGS__);			     \
++				__do_once_slow_done(&___done, &___once_key,  \
++						    THIS_MODULE);	     \
++			}						     \
++		}							     \
++		___ret;							     \
++	})
 +
-+	ci = ceph_inode(inode);
- 	if (atomic_dec_and_test(&ci->i_filelock_ref)) {
- 		/* clear error when all locks are released */
- 		spin_lock(&ci->i_ceph_lock);
- 		ci->i_ceph_flags &= ~CEPH_I_ERROR_FILELOCK;
- 		spin_unlock(&ci->i_ceph_lock);
- 	}
-+	fl->fl_u.ceph.fl_inode = NULL;
-+	iput(inode);
+ #define get_random_once(buf, nbytes)					     \
+ 	DO_ONCE(get_random_bytes, (buf), (nbytes))
+ #define get_random_once_wait(buf, nbytes)                                    \
+ 	DO_ONCE(get_random_bytes_wait, (buf), (nbytes))                      \
+ 
++#define get_random_slow_once(buf, nbytes)				     \
++	DO_ONCE_SLOW(get_random_bytes, (buf), (nbytes))
++
+ #endif /* _LINUX_ONCE_H */
+diff --git a/lib/once.c b/lib/once.c
+index bfb7420d0de3..76c7bbc0aa40 100644
+--- a/lib/once.c
++++ b/lib/once.c
+@@ -61,3 +61,33 @@ void __do_once_done(bool *done, struct static_key *once_key,
+ 	once_disable_jump(once_key);
  }
+ EXPORT_SYMBOL(__do_once_done);
++
++static DEFINE_MUTEX(once_mutex);
++
++bool __do_once_slow_start(bool *done)
++	__acquires(once_mutex)
++{
++	mutex_lock(&once_mutex);
++	if (*done) {
++		mutex_unlock(&once_mutex);
++		/* Keep sparse happy by restoring an even lock count on
++		 * this mutex. In case we return here, we don't call into
++		 * __do_once_done but return early in the DO_ONCE_SLOW() macro.
++		 */
++		__acquire(once_mutex);
++		return false;
++	}
++
++	return true;
++}
++EXPORT_SYMBOL(__do_once_slow_start);
++
++void __do_once_slow_done(bool *done, struct static_key *once_key,
++			 struct module *mod)
++	__releases(once_mutex)
++{
++	*done = true;
++	mutex_unlock(&once_mutex);
++	once_disable_jump(once_key);
++}
++EXPORT_SYMBOL(__do_once_slow_done);
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index 48c7a3a51fc1..590801a7487f 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -638,8 +638,8 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 	if (likely(remaining > 1))
+ 		remaining &= ~1U;
  
- static const struct file_lock_operations ceph_fl_lock_ops = {
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 7b52fdfb6da0..6106374f5257 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -1119,6 +1119,9 @@ struct file_lock {
- 			int state;		/* state of grant or error if -ve */
- 			unsigned int	debug_id;
- 		} afs;
-+		struct {
-+			struct inode *fl_inode;
-+		} ceph;
- 	} fl_u;
- } __randomize_layout;
+-	net_get_random_once(table_perturb,
+-			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
++	get_random_slow_once(table_perturb,
++			     INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
+ 	index = port_offset & (INET_TABLE_PERTURB_SIZE - 1);
  
+ 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
 -- 
-2.31.1
+2.38.1
 
