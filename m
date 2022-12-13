@@ -2,64 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84E4164AFF4
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 07:36:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 763EA64B01E
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 08:00:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234027AbiLMGga (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 01:36:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33606 "EHLO
+        id S234613AbiLMHAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 02:00:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230052AbiLMGg2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 01:36:28 -0500
-Received: from mail-vs1-xe2e.google.com (mail-vs1-xe2e.google.com [IPv6:2607:f8b0:4864:20::e2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC75E6394
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 22:36:26 -0800 (PST)
-Received: by mail-vs1-xe2e.google.com with SMTP id c184so13703544vsc.3
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 22:36:26 -0800 (PST)
+        with ESMTP id S234555AbiLMHAo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 02:00:44 -0500
+Received: from mail-vs1-xe2a.google.com (mail-vs1-xe2a.google.com [IPv6:2607:f8b0:4864:20::e2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9440714D17
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 23:00:43 -0800 (PST)
+Received: by mail-vs1-xe2a.google.com with SMTP id f189so13730611vsc.11
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 23:00:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KeterifymSwCmPpSLqh76Xayy2B+h/5saR4r3E1LaD0=;
-        b=IY3jpVCGNtivPkaSoPq4jWZ3Yx4eDdNOFZJ2mfhPMP1yuo532UG3Uex0fb3uBUr00o
-         81VkCpxNKywwMtJ0Rm5DG+2rQDXApkGDT1IKQ+VWMLHByR73N5TlVF0MehOFYl4UeSU4
-         x3nAtGRLM3IV/7pN1U5PRqgnJM/M0brGexsExqksRVkFXtzOGww7Vcg7FAXjfs1zVAZu
-         uC6L6cVRrd581Xm/KOw1M2bNuQuO+fQynWc/NBNmYLPzVrrMP/ViHpBvyvG1uDNSyBtz
-         E7Yo30Xizr87k0fKIW6OFlshWckwyUaShMsLInpE7PP1o62ZdnaWsdwaRuC15yasLPhu
-         S9pA==
+        bh=jD0TEPiT0O5ndbPBWe7291iaK3/qwh0ScrkryadniPM=;
+        b=nxp+eWseW0Ql1PhtfIWRkDtCHsw07bIZBK5iUUEzPwRpUu9FXlaexlKvmNdE9cJWr4
+         mkRRqvjBWF0d7+TRsmp8o2sjehrAwa5DZduIUtKXJKA5+ofJwTwSz1eoAj/1d70r7o6a
+         HdbQaqwgXEQv4nMyoS2EH2Wkmgt3E3KFGP/1hQW09rQQodifueomyaFKRaAYa+hS+loi
+         QQY98XTmjjyn9TN/hvcmrQi/qjftcZp7i79xzfn/qF4Ua9wIugO6co/zF7tIu5G/iXQY
+         0utmUgkRxb6rsFO61vTdcKp236X7wJsVv9ic7/TZTKQgH6pWNEZNz+jz00VZ8RbAiYZA
+         6kwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=KeterifymSwCmPpSLqh76Xayy2B+h/5saR4r3E1LaD0=;
-        b=sO2+g9fiI4Su9UaOyNtCbD2cq1f0VEg0xY4t2848zL5Eje0J2EwtGTQgFhghLWlZed
-         i5ZGs43w39J5mX0yynCqscajiByZvFatFogBbs+4nBr0Of/WRLnHdRmOa4PtCDqWpLzp
-         dt1yeQQCLspaMQdmcJpidsdZIS3SfUmDuUC+5c3o37807cilezZwCCaDrd36KNvW01rl
-         rNjsl7FN/WciGawL1/LE9Vc8fB5+3NzB974iObQjm6SpPYGPUThZWTOtT6TW/rlcHTPa
-         PqzKLsvlZn9S863W0wzp/AYCObLpCXKlVzxOrgJ47LwqN+PJVjhFXtnZTATJ/bzmVvlg
-         ilDw==
-X-Gm-Message-State: ANoB5pnOwYiTWLeCUipWC5DTcmt80JIDA6mOcdL1IiCwqyslwQTMVRQi
-        BIFb2oSj06UvW7feNZU9zUy/Kgjo06DEjSHTQTw88A==
-X-Google-Smtp-Source: AA0mqf4suyhv32e0Uc+wUZX+kegi/XX5qz8tXQcqUKrvvxwt5yuMHdw4xPK9xU5fx3r0rZlhbFCBUq2fYjEWI2uN79A=
+        bh=jD0TEPiT0O5ndbPBWe7291iaK3/qwh0ScrkryadniPM=;
+        b=PGLQbqXZ40iikxHur8daUuiYQqkloAKtfw1tss75iGYmiX77dUD2OCdubJVFGbfk07
+         a+o8qIQIdEJKUONijRRMvubB1h4+X5It2MWskujU0J+843v7NZqf+nvmHDJmH+yr2EG8
+         zieHtudUSlF/ADdIh0g/Kh5yL4HP59L5Xmqg/UgJbO4+sV91Erxnolk9JDWBv/xzDHnr
+         67cX4x3lLAmfCxPYrp/hm5By5AiVmncH0s/aH0ZUZDB2LdHq4Bvpgok5o91wwduN9RAn
+         FVq61Wi6/rLzhbEgQzPi60tOa4h0oOCTi28ALAqjRZt7+eFECgH3I9q4uJhDOV31LnIE
+         Sb5A==
+X-Gm-Message-State: ANoB5pkUoh0+pb3lEYPD9YW6Kbo7Xi5oaFcVFRGQ9o86IV2Bd48VTfw0
+        CbhkrvIR7JaqXVFmeiHHkz3no/mranllHIN/sHnEVg==
+X-Google-Smtp-Source: AA0mqf5Y4PJM+7m4exb7HnMZWnwJZSAKEvc/ILw64rfqmzdup4nKQR10T/XHIXSlhkcfef0UGSW2fmeeA2AoGLt0C20=
 X-Received: by 2002:a05:6102:3590:b0:3aa:eee:5bc9 with SMTP id
- h16-20020a056102359000b003aa0eee5bc9mr43965928vsu.24.1670913385591; Mon, 12
- Dec 2022 22:36:25 -0800 (PST)
+ h16-20020a056102359000b003aa0eee5bc9mr43972880vsu.24.1670914842510; Mon, 12
+ Dec 2022 23:00:42 -0800 (PST)
 MIME-Version: 1.0
-References: <20221212130934.337225088@linuxfoundation.org>
-In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
+References: <20221212130926.811961601@linuxfoundation.org>
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 13 Dec 2022 12:06:14 +0530
-Message-ID: <CA+G9fYvoR-T=4tEFFGOB8wL2H5ioexa90LA6+-Nk+quhXbnq2g@mail.gmail.com>
-Subject: Re: [PATCH 6.0 000/157] 6.0.13-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date:   Tue, 13 Dec 2022 12:30:31 +0530
+Message-ID: <CA+G9fYuCQBpAz8z0orqesA=n9nfuB6HgBHDz_VNLEL22iaatSw@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/123] 5.15.83-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        llvm@lists.linux.dev
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
+        Nathan Chancellor <nathan@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -71,11 +73,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 12 Dec 2022 at 19:07, Greg Kroah-Hartman
+On Mon, 12 Dec 2022 at 18:57, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 6.0.13 release.
-> There are 157 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.15.83 release.
+> There are 123 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -83,11 +85,11 @@ On Mon, 12 Dec 2022 at 19:07, Greg Kroah-Hartman
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-=
-6.0.13-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.83-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-6.0.y
+-rc.git linux-5.15.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -99,40 +101,48 @@ No regressions on arm64, arm, x86_64, and i386.
 
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
+NOTE:
+Same build failures noticed on stable-rc linux-6.0.y
+* x86_64, build failures.
+  - clang-nightly-allnoconfig
+  - clang-nightly-lkftconfig
+  - clang-nightly-tinyconfig
+  - clang-nightly-x86_64_defconfig
+
 ## Build
-* kernel: 6.0.13-rc1
+* kernel: 5.15.83-rc1
 * git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-6.0.y
-* git commit: 57dda3cf2efcfd145b35bbf58892b706b08c1d2a
-* git describe: v6.0.12-158-g57dda3cf2efc
+* git branch: linux-5.15.y
+* git commit: d731c63c25d167aac504bec579352a3f0c3e14ce
+* git describe: v5.15.82-124-gd731c63c25d1
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.0.y/build/v6.0.1=
-2-158-g57dda3cf2efc
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.82-124-gd731c63c25d1
 
-## Test Regressions (compared to v6.0.12)
+## Test Regressions (compared to v5.15.82)
 
-## Metric Regressions (compared to v6.0.12)
+## Metric Regressions (compared to v5.15.82)
 
-## Test Fixes (compared to v6.0.12)
+## Test Fixes (compared to v5.15.82)
 
-## Metric Fixes (compared to v6.0.12)
+## Metric Fixes (compared to v5.15.82)
 
 ## Test result summary
-total: 144720, pass: 126272, fail: 3392, skip: 14627, xfail: 429
+total: 144331, pass: 124830, fail: 3201, skip: 15737, xfail: 563
 
 ## Build Summary
 * arc: 5 total, 5 passed, 0 failed
-* arm: 151 total, 146 passed, 5 failed
-* arm64: 49 total, 48 passed, 1 failed
-* i386: 39 total, 36 passed, 3 failed
-* mips: 30 total, 28 passed, 2 failed
+* arm: 151 total, 148 passed, 3 failed
+* arm64: 49 total, 47 passed, 2 failed
+* i386: 39 total, 35 passed, 4 failed
+* mips: 31 total, 29 passed, 2 failed
 * parisc: 8 total, 8 passed, 0 failed
-* powerpc: 38 total, 32 passed, 6 failed
-* riscv: 16 total, 16 passed, 0 failed
-* s390: 16 total, 16 passed, 0 failed
+* powerpc: 34 total, 32 passed, 2 failed
+* riscv: 14 total, 14 passed, 0 failed
+* s390: 16 total, 14 passed, 2 failed
 * sh: 14 total, 12 passed, 2 failed
 * sparc: 8 total, 8 passed, 0 failed
-* x86_64: 42 total, 36 passed, 6 failed
+* x86_64: 42 total, 35 passed, 7 failed
 
 ## Test suites summary
 * boot
@@ -181,6 +191,7 @@ total: 144720, pass: 126272, fail: 3392, skip: 14627, xfail: 429
 * kselftest-mincore
 * kselftest-mount
 * kselftest-mqueue
+* kselftest-net
 * kselftest-net-forwarding
 * kselftest-net-mptcp
 * kselftest-netfilter
