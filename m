@@ -2,66 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C63DD64AFEB
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 07:31:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E4164AFF4
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 07:36:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234578AbiLMGbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 01:31:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59928 "EHLO
+        id S234027AbiLMGga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 01:36:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234258AbiLMGbj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 01:31:39 -0500
-Received: from mail-vk1-xa32.google.com (mail-vk1-xa32.google.com [IPv6:2607:f8b0:4864:20::a32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3081B1F610
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 22:31:38 -0800 (PST)
-Received: by mail-vk1-xa32.google.com with SMTP id o136so1112235vka.2
-        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 22:31:38 -0800 (PST)
+        with ESMTP id S230052AbiLMGg2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 01:36:28 -0500
+Received: from mail-vs1-xe2e.google.com (mail-vs1-xe2e.google.com [IPv6:2607:f8b0:4864:20::e2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC75E6394
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 22:36:26 -0800 (PST)
+Received: by mail-vs1-xe2e.google.com with SMTP id c184so13703544vsc.3
+        for <stable@vger.kernel.org>; Mon, 12 Dec 2022 22:36:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=VKyiy6rqr1s8RJTj8dqYYvulLQtys2Tc8voFn45GrzU=;
-        b=NnBfkXq/VChaqULajdA2qKhgoUKMVhfTWXDRqpnMJhcaCulwkj2CeMqrn3/Ay8AhRW
-         QUzdNE2kHqWMU33rDF5ccUEetiaPQr1oorsvAOAs8aiV377T546SzLQ70fDXdqzqQGVe
-         Fo4GryWPAmQHtqg/K/SWpXqvd0llTX1VG1YxarbtBjH17GbaOQXe+nnQqvYzPJ2JGCU9
-         tm3s2YqwOXRAC0IbnyuUO2ulXHs1eZCSX2T+EulxW0Y57VjaSTVlBAGxSsYgsDQS63Iu
-         enNs86Tt9+2YTs/8XLRHGtZ1CRjsQGENbDiQgZlfonUyN9kOV1X9eeV5JJFhBzexD2iD
-         dvoQ==
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KeterifymSwCmPpSLqh76Xayy2B+h/5saR4r3E1LaD0=;
+        b=IY3jpVCGNtivPkaSoPq4jWZ3Yx4eDdNOFZJ2mfhPMP1yuo532UG3Uex0fb3uBUr00o
+         81VkCpxNKywwMtJ0Rm5DG+2rQDXApkGDT1IKQ+VWMLHByR73N5TlVF0MehOFYl4UeSU4
+         x3nAtGRLM3IV/7pN1U5PRqgnJM/M0brGexsExqksRVkFXtzOGww7Vcg7FAXjfs1zVAZu
+         uC6L6cVRrd581Xm/KOw1M2bNuQuO+fQynWc/NBNmYLPzVrrMP/ViHpBvyvG1uDNSyBtz
+         E7Yo30Xizr87k0fKIW6OFlshWckwyUaShMsLInpE7PP1o62ZdnaWsdwaRuC15yasLPhu
+         S9pA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=VKyiy6rqr1s8RJTj8dqYYvulLQtys2Tc8voFn45GrzU=;
-        b=yaX8gS8T/wYBART1h9ZYHedjBAJ8aH/z29fhYmKAtGpqm5ppUA3qtesUR8aCMJBv3Y
-         lItRlk49t5vdlY9VCfbQkOJgEfDGv6G+Tzek9eeCM+4DLlx1/5qor/YDtrNy5wHnysMs
-         ANj5SzioQ5zm5w9dhyEA+p9CYspCSugP6w8m891GJi7mX3Sy/tph/x2HxvEQn2m8yqB6
-         tzQg80HdaHJIRf/vA255dDlWwznPYfyCKNLG3zOZJyMxhtApfVCGD0RgZdbA2EuxtVlB
-         3tuz1a4fjHjipGiLdNH8D4f3h+VeBzzvQhYOu/4PiHITaKCYlVnZX/d1c8QKyfLniFb7
-         dVaw==
-X-Gm-Message-State: ANoB5plmfAby0EBrwty4sSEfTVKP38oU40dslzh6FzkTe0JePRoXUOwx
-        lVaCq+WfOwssCzFJOzHKU2W3zUYL8fWQR2iLtMlFJjDuzGyrHTKJ
-X-Google-Smtp-Source: AA0mqf6jhubMdHwDvWT6AMebwaCz1mRJs22GLf8fj9JPa0C0R/H+CjLzed+EqoKIH7jkDZGht5kh9bXEwwhYOruAooI=
-X-Received: by 2002:a05:6122:1437:b0:3bd:dc4d:fb7d with SMTP id
- o23-20020a056122143700b003bddc4dfb7dmr6550693vkp.7.1670913097036; Mon, 12 Dec
- 2022 22:31:37 -0800 (PST)
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=KeterifymSwCmPpSLqh76Xayy2B+h/5saR4r3E1LaD0=;
+        b=sO2+g9fiI4Su9UaOyNtCbD2cq1f0VEg0xY4t2848zL5Eje0J2EwtGTQgFhghLWlZed
+         i5ZGs43w39J5mX0yynCqscajiByZvFatFogBbs+4nBr0Of/WRLnHdRmOa4PtCDqWpLzp
+         dt1yeQQCLspaMQdmcJpidsdZIS3SfUmDuUC+5c3o37807cilezZwCCaDrd36KNvW01rl
+         rNjsl7FN/WciGawL1/LE9Vc8fB5+3NzB974iObQjm6SpPYGPUThZWTOtT6TW/rlcHTPa
+         PqzKLsvlZn9S863W0wzp/AYCObLpCXKlVzxOrgJ47LwqN+PJVjhFXtnZTATJ/bzmVvlg
+         ilDw==
+X-Gm-Message-State: ANoB5pnOwYiTWLeCUipWC5DTcmt80JIDA6mOcdL1IiCwqyslwQTMVRQi
+        BIFb2oSj06UvW7feNZU9zUy/Kgjo06DEjSHTQTw88A==
+X-Google-Smtp-Source: AA0mqf4suyhv32e0Uc+wUZX+kegi/XX5qz8tXQcqUKrvvxwt5yuMHdw4xPK9xU5fx3r0rZlhbFCBUq2fYjEWI2uN79A=
+X-Received: by 2002:a05:6102:3590:b0:3aa:eee:5bc9 with SMTP id
+ h16-20020a056102359000b003aa0eee5bc9mr43965928vsu.24.1670913385591; Mon, 12
+ Dec 2022 22:36:25 -0800 (PST)
 MIME-Version: 1.0
 References: <20221212130934.337225088@linuxfoundation.org>
 In-Reply-To: <20221212130934.337225088@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 13 Dec 2022 12:01:25 +0530
-Message-ID: <CA+G9fYt7QTkGWPhj0NX8bcDOvEvf9jOW5Oaj8T2zmzasHjo1yA@mail.gmail.com>
+Date:   Tue, 13 Dec 2022 12:06:14 +0530
+Message-ID: <CA+G9fYvoR-T=4tEFFGOB8wL2H5ioexa90LA6+-Nk+quhXbnq2g@mail.gmail.com>
 Subject: Re: [PATCH 6.0 000/157] 6.0.13-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        llvm@lists.linux.dev
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-        Nathan Chancellor <nathan@kernel.org>
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -83,62 +83,172 @@ On Mon, 12 Dec 2022 at 19:07, Greg Kroah-Hartman
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.13-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-=
+6.0.13-rc1.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-6.0.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
 
-This is an additional report.
-Following issue is specific to clang nightly,
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-x86 clang-nightly builds failed with defconfig and tinyconfig due to
-below errors / warnings.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+## Build
+* kernel: 6.0.13-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-6.0.y
+* git commit: 57dda3cf2efcfd145b35bbf58892b706b08c1d2a
+* git describe: v6.0.12-158-g57dda3cf2efc
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.0.y/build/v6.0.1=
+2-158-g57dda3cf2efc
 
-Regressions found on x86_64:
+## Test Regressions (compared to v6.0.12)
 
-    - build/clang-nightly-tinyconfig
-    - build/clang-nightly-x86_64_defconfig
-    - build/clang-nightly-allnoconfig
-    - build/clang-nightly-lkftconfig
+## Metric Regressions (compared to v6.0.12)
 
-make --silent --keep-going --jobs=8
-O=/home/tuxbuild/.cache/tuxmake/builds/1/build LLVM=1 LLVM_IAS=1
-ARCH=x86_64 SRCARCH=x86 CROSS_COMPILE=x86_64-linux-gnu- HOSTCC=clang
-CC=clang
+## Test Fixes (compared to v6.0.12)
 
-ld.lld: error: version script assignment of 'LINUX_2.6' to symbol
-'__vdso_sgx_enter_enclave' failed: symbol not defined
-llvm-objdump: error: 'arch/x86/entry/vdso/vdso64.so.dbg': No such file
-or directory
-llvm-objcopy: error: 'arch/x86/entry/vdso/vdso64.so.dbg': No such file
-or directory
-make[4]: *** [/builds/linux/arch/x86/entry/vdso/Makefile:136:
-arch/x86/entry/vdso/vdso64.so] Error 1
+## Metric Fixes (compared to v6.0.12)
 
-Steps to reproduce:
---------------------
-# To install tuxmake on your system globally:
-# sudo pip3 install -U tuxmake
-#
-# See https://docs.tuxmake.org/ for complete documentation.
-# Original tuxmake command with fragments listed below.
-# tuxmake --runtime podman --target-arch x86_64 --toolchain
-clang-nightly --kconfig x86_64_defconfig LLVM=1 LLVM_IAS=1
+## Test result summary
+total: 144720, pass: 126272, fail: 3392, skip: 14627, xfail: 429
 
-tuxmake --runtime podman --target-arch x86_64 --toolchain
-clang-nightly --kconfig
-https://builds.tuxbuild.com/2IocvUIXEK9MUve4Uut67U0xskC/config LLVM=1
-LLVM_IAS=1
+## Build Summary
+* arc: 5 total, 5 passed, 0 failed
+* arm: 151 total, 146 passed, 5 failed
+* arm64: 49 total, 48 passed, 1 failed
+* i386: 39 total, 36 passed, 3 failed
+* mips: 30 total, 28 passed, 2 failed
+* parisc: 8 total, 8 passed, 0 failed
+* powerpc: 38 total, 32 passed, 6 failed
+* riscv: 16 total, 16 passed, 0 failed
+* s390: 16 total, 16 passed, 0 failed
+* sh: 14 total, 12 passed, 2 failed
+* sparc: 8 total, 8 passed, 0 failed
+* x86_64: 42 total, 36 passed, 6 failed
 
-Details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.0.y/build/v6.0.12-158-g57dda3cf2efc/testrun/13588489/suite/build/test/clang-nightly-x86_64_defconfig/details/
-
+## Test suites summary
+* boot
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* perf
+* perf/Zstd-perf.data-compression
+* rcutorture
+* v4l2-compliance
+* vdso
 
 --
 Linaro LKFT
