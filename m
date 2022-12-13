@@ -2,211 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D031164B512
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 13:23:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05ECD64B57B
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 13:54:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235633AbiLMMXP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 07:23:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39418 "EHLO
+        id S231888AbiLMMyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 07:54:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235565AbiLMMXH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 07:23:07 -0500
-Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15884FFB;
-        Tue, 13 Dec 2022 04:23:06 -0800 (PST)
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-        by localhost (Postfix) with ESMTP id 4NWd1g1B4Dz9smY;
-        Tue, 13 Dec 2022 13:23:03 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id wQpv-BK6o0IO; Tue, 13 Dec 2022 13:23:03 +0100 (CET)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase2.c-s.fr (Postfix) with ESMTP id 4NWd1g0GVNz9sm8;
-        Tue, 13 Dec 2022 13:23:03 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id EDEC78B773;
-        Tue, 13 Dec 2022 13:23:02 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id a2dakGG70529; Tue, 13 Dec 2022 13:23:02 +0100 (CET)
-Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.7.67])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id B11108B766;
-        Tue, 13 Dec 2022 13:23:02 +0100 (CET)
-Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
-        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.16.1) with ESMTPS id 2BDCMosN630599
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-        Tue, 13 Dec 2022 13:22:50 +0100
-Received: (from chleroy@localhost)
-        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.17.1/Submit) id 2BDCMnIC630590;
-        Tue, 13 Dec 2022 13:22:49 +0100
-X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH] [REBASED for 4.14] once: add DO_ONCE_SLOW() for sleepable contexts
-Date:   Tue, 13 Dec 2022 13:22:40 +0100
-Message-Id: <df44c3cd06ae0155f04f9d87fff35db67761beea.1670934155.git.christophe.leroy@csgroup.eu>
-X-Mailer: git-send-email 2.38.1
+        with ESMTP id S234798AbiLMMyQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 07:54:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 120DBCE04;
+        Tue, 13 Dec 2022 04:54:15 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2155B8118D;
+        Tue, 13 Dec 2022 12:54:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF39AC433D2;
+        Tue, 13 Dec 2022 12:54:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1670936052;
+        bh=a9N4mnDaTBWCBW0Yxm5TccjiatRz/8qHS67WBG5oYaQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=eockNV7+fQ+JdLOO5+69dcrpzLiBOahjCuIVYVggbXUsqs4LrLxOeWgozJmb7WRJ1
+         9/U5WvcXZlYrx5UDpr/XPC6eHvnIyHRCPXpF0Nppmn8lqrhMNdxf6yxB32/zi1rso6
+         rMZWlH7mAa68z4LmTcH17yMGY/o0kIo2jJ8zx4JubQKm+1RsoUmCAeb3flGVR+LlWC
+         JNPYUQcT2e//ae0OhFyBjSe2ozKo77l/IXf/wYgN4xe63wqwzmMfuBGDdFN1BCLOwK
+         mDOjalerc7wfJJoMIu1p/RziAM8PEjMKzGhTlc5MxcNLfd+yKT0EvTx2ehfksOq5iW
+         Lku09e7jhsAbQ==
+Date:   Tue, 13 Dec 2022 12:54:05 +0000
+From:   Will Deacon <will@kernel.org>
+To:     Waiman Long <longman@redhat.com>
+Cc:     Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Phil Auld <pauld@redhat.com>,
+        Wenjie Li <wenjieli@qti.qualcomm.com>,
+        David Wang =?utf-8?B?546L5qCH?= <wangbiao3@xiaomi.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH-tip] sched: Fix use-after-free bug in dup_user_cpus_ptr()
+Message-ID: <20221213125404.GD5719@willie-the-truck>
+References: <20221128014441.1264867-1-longman@redhat.com>
+ <20221201134445.GC28489@willie-the-truck>
+ <330989bf-0015-6d4c-9317-bfc9dba30b65@redhat.com>
+ <20221202101835.GA29522@willie-the-truck>
+ <e9c7a920-4801-59fd-2429-361c54523d8e@redhat.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1670934159; l=5194; i=christophe.leroy@csgroup.eu; s=20211009; h=from:subject:message-id; bh=l/gW9uV8JB+UhiaHzRrRgcxXXLZq3Tnd8dyGrCC7WSQ=; b=3X9VI7eJm5NqUCwR9bw3dR0g6EqtdvEC+5pulqUc5uMYk1TxKqxmRogKnpF5UF/QPd1Ps57wnCmV 8KMtUWLzBbSTHeNxuUHDDtReljWOh85skZtePeE4r5iff+reV2fa
-X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <e9c7a920-4801-59fd-2429-361c54523d8e@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+On Fri, Dec 02, 2022 at 09:30:56AM -0500, Waiman Long wrote:
+> On 12/2/22 05:18, Will Deacon wrote:
+> > On Thu, Dec 01, 2022 at 12:03:39PM -0500, Waiman Long wrote:
+> > > On 12/1/22 08:44, Will Deacon wrote:
+> > > > On Sun, Nov 27, 2022 at 08:44:41PM -0500, Waiman Long wrote:
+> > > > > Since commit 07ec77a1d4e8 ("sched: Allow task CPU affinity to be
+> > > > > restricted on asymmetric systems"), the setting and clearing of
+> > > > > user_cpus_ptr are done under pi_lock for arm64 architecture. However,
+> > > > > dup_user_cpus_ptr() accesses user_cpus_ptr without any lock
+> > > > > protection. When racing with the clearing of user_cpus_ptr in
+> > > > > __set_cpus_allowed_ptr_locked(), it can lead to user-after-free and
+> > > > > double-free in arm64 kernel.
+> > > > > 
+> > > > > Commit 8f9ea86fdf99 ("sched: Always preserve the user requested
+> > > > > cpumask") fixes this problem as user_cpus_ptr, once set, will never
+> > > > > be cleared in a task's lifetime. However, this bug was re-introduced
+> > > > > in commit 851a723e45d1 ("sched: Always clear user_cpus_ptr in
+> > > > > do_set_cpus_allowed()") which allows the clearing of user_cpus_ptr in
+> > > > > do_set_cpus_allowed(). This time, it will affect all arches.
+> > > > > 
+> > > > > Fix this bug by always clearing the user_cpus_ptr of the newly
+> > > > > cloned/forked task before the copying process starts and check the
+> > > > > user_cpus_ptr state of the source task under pi_lock.
+> > > > > 
+> > > > > Note to stable, this patch won't be applicable to stable releases.
+> > > > > Just copy the new dup_user_cpus_ptr() function over.
+> > > > > 
+> > > > > Fixes: 07ec77a1d4e8 ("sched: Allow task CPU affinity to be restricted on asymmetric systems")
+> > > > > Fixes: 851a723e45d1 ("sched: Always clear user_cpus_ptr in do_set_cpus_allowed()")
+> > > > > CC: stable@vger.kernel.org
+> > > > > Reported-by: David Wang 王标 <wangbiao3@xiaomi.com>
+> > > > > Signed-off-by: Waiman Long <longman@redhat.com>
+> > > > > ---
+> > > > >    kernel/sched/core.c | 32 ++++++++++++++++++++++++++++----
+> > > > >    1 file changed, 28 insertions(+), 4 deletions(-)
+> > > > As per my comments on the previous version of this patch:
+> > > > 
+> > > > https://lore.kernel.org/lkml/20221201133602.GB28489@willie-the-truck/T/#t
+> > > > 
+> > > > I think there are other issues to fix when racing affinity changes with
+> > > > fork() too.
+> > > It is certainly possible that there are other bugs hiding somewhere:-)
+> > Right, but I actually took the time to hit the same race for the other
+> > affinity mask field so it seems a bit narrow-minded for us just to fix the
+> > one issue.
+> 
+> I focused on this particular one because of a double-free bug report from
+> David. What other fields have you found to be subjected to data race?
 
-[ Upstream commit 62c07983bef9d3e78e71189441e1a470f0d1e653 ]
+See my other report linked above where we race on 'task_struct::cpus_mask'.
 
-Christophe Leroy reported a ~80ms latency spike
-happening at first TCP connect() time.
-
-This is because __inet_hash_connect() uses get_random_once()
-to populate a perturbation table which became quite big
-after commit 4c2c8f03a5ab ("tcp: increase source port perturb table to 2^16")
-
-get_random_once() uses DO_ONCE(), which block hard irqs for the duration
-of the operation.
-
-This patch adds DO_ONCE_SLOW() which uses a mutex instead of a spinlock
-for operations where we prefer to stay in process context.
-
-Then __inet_hash_connect() can use get_random_slow_once()
-to populate its perturbation table.
-
-Fixes: 4c2c8f03a5ab ("tcp: increase source port perturb table to 2^16")
-Fixes: 190cc82489f4 ("tcp: change source port randomizarion at connect() time")
-Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Link: https://lore.kernel.org/netdev/CANn89iLAEYBaoYajy0Y9UmGFff5GPxDUoG-ErVB2jDdRNQ5Tug@mail.gmail.com/T/#t
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
----
- include/linux/once.h       | 28 ++++++++++++++++++++++++++++
- lib/once.c                 | 30 ++++++++++++++++++++++++++++++
- net/ipv4/inet_hashtables.c |  4 ++--
- 3 files changed, 60 insertions(+), 2 deletions(-)
-
-diff --git a/include/linux/once.h b/include/linux/once.h
-index 6790884d3c57..bb091119b754 100644
---- a/include/linux/once.h
-+++ b/include/linux/once.h
-@@ -5,10 +5,18 @@
- #include <linux/types.h>
- #include <linux/jump_label.h>
- 
-+/* Helpers used from arbitrary contexts.
-+ * Hard irqs are blocked, be cautious.
-+ */
- bool __do_once_start(bool *done, unsigned long *flags);
- void __do_once_done(bool *done, struct static_key *once_key,
- 		    unsigned long *flags);
- 
-+/* Variant for process contexts only. */
-+bool __do_once_slow_start(bool *done);
-+void __do_once_slow_done(bool *done, struct static_key *once_key,
-+			 struct module *mod);
-+
- /* Call a function exactly once. The idea of DO_ONCE() is to perform
-  * a function call such as initialization of random seeds, etc, only
-  * once, where DO_ONCE() can live in the fast-path. After @func has
-@@ -52,9 +60,29 @@ void __do_once_done(bool *done, struct static_key *once_key,
- 		___ret;							     \
- 	})
- 
-+/* Variant of DO_ONCE() for process/sleepable contexts. */
-+#define DO_ONCE_SLOW(func, ...)						     \
-+	({								     \
-+		bool ___ret = false;					     \
-+		static bool ___done = false;				     \
-+		static struct static_key ___once_key = STATIC_KEY_INIT_TRUE; \
-+		if (static_key_true(&___once_key)) {		     \
-+			___ret = __do_once_slow_start(&___done);	     \
-+			if (unlikely(___ret)) {				     \
-+				func(__VA_ARGS__);			     \
-+				__do_once_slow_done(&___done, &___once_key,  \
-+						    THIS_MODULE);	     \
-+			}						     \
-+		}							     \
-+		___ret;							     \
-+	})
-+
- #define get_random_once(buf, nbytes)					     \
- 	DO_ONCE(get_random_bytes, (buf), (nbytes))
- #define get_random_once_wait(buf, nbytes)                                    \
- 	DO_ONCE(get_random_bytes_wait, (buf), (nbytes))                      \
- 
-+#define get_random_slow_once(buf, nbytes)				     \
-+	DO_ONCE_SLOW(get_random_bytes, (buf), (nbytes))
-+
- #endif /* _LINUX_ONCE_H */
-diff --git a/lib/once.c b/lib/once.c
-index bfb7420d0de3..76c7bbc0aa40 100644
---- a/lib/once.c
-+++ b/lib/once.c
-@@ -61,3 +61,33 @@ void __do_once_done(bool *done, struct static_key *once_key,
- 	once_disable_jump(once_key);
- }
- EXPORT_SYMBOL(__do_once_done);
-+
-+static DEFINE_MUTEX(once_mutex);
-+
-+bool __do_once_slow_start(bool *done)
-+	__acquires(once_mutex)
-+{
-+	mutex_lock(&once_mutex);
-+	if (*done) {
-+		mutex_unlock(&once_mutex);
-+		/* Keep sparse happy by restoring an even lock count on
-+		 * this mutex. In case we return here, we don't call into
-+		 * __do_once_done but return early in the DO_ONCE_SLOW() macro.
-+		 */
-+		__acquire(once_mutex);
-+		return false;
-+	}
-+
-+	return true;
-+}
-+EXPORT_SYMBOL(__do_once_slow_start);
-+
-+void __do_once_slow_done(bool *done, struct static_key *once_key,
-+			 struct module *mod)
-+	__releases(once_mutex)
-+{
-+	*done = true;
-+	mutex_unlock(&once_mutex);
-+	once_disable_jump(once_key);
-+}
-+EXPORT_SYMBOL(__do_once_slow_done);
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 48c7a3a51fc1..590801a7487f 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -638,8 +638,8 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- 	if (likely(remaining > 1))
- 		remaining &= ~1U;
- 
--	net_get_random_once(table_perturb,
--			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
-+	get_random_slow_once(table_perturb,
-+			     INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
- 	index = port_offset & (INET_TABLE_PERTURB_SIZE - 1);
- 
- 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
--- 
-2.38.1
-
+Will
