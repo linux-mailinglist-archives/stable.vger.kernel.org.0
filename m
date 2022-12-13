@@ -2,154 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 104D764B80C
-	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 16:07:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D19C64B80F
+	for <lists+stable@lfdr.de>; Tue, 13 Dec 2022 16:08:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235929AbiLMPHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 10:07:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47088 "EHLO
+        id S235842AbiLMPHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 10:07:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230200AbiLMPHW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 10:07:22 -0500
-Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B428B862
-        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 07:07:21 -0800 (PST)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 0CCB33200909;
-        Tue, 13 Dec 2022 10:07:16 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 13 Dec 2022 10:07:18 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1670944036; x=1671030436; bh=4JAhvF3Ldp
-        A2dYzPBZMQWX6KTE8u69c0QSa5DnFrKu4=; b=s+W/0IO5E0OhH1HwkT1YDdr33X
-        00Q+eRlsqCThn4Gnhh3lIhGHgoGxPRRpo7yrhLE9m4kDa8Kw0PxOFb03d3bsfXJB
-        U9imXjecSspiwU5oXW5Vdh58+jKdkdhLOpwQZmDMIDbQJAnxrmpFsYiQKccWy6Ly
-        LixUeX1OOLpHU8KwVuLIWZqFxnz1QlY+Hkfsh1un61KFufNDh01hv2JHTLFvRpzU
-        j3xLNzWFbKUnEmdHqLKpLX5EO+ZmY9eserL2zFAAHlERkr9ccvaDxjDcSqCR0fOi
-        ic80an/8GAsfv1IPr7Ea7OA5e+GIigyBTMdIyiHxtGMnmUb6LN1349HKu3CA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm2; t=1670944036; x=1671030436; bh=4JAhvF3LdpA2dYzPBZMQWX6KTE8u
-        69c0QSa5DnFrKu4=; b=nBYWQu9Qo79boPZ0zBZO292iLTzcFXX2Lv1fpeNtqYBQ
-        ODO/6wuKr6ByaEugzG+Wy0RNnvLvPbQ6D+XLiNJvnC0aehoPcAzKlzGZe1v5LY9p
-        9Xdz6ExvKdzx4bwKN52pPxQbzlbugQiz9+3aNvdLDV2UdTLHjSK3r29y4VyPjdwf
-        MLAuS7KOd71OkpzAtxcsQxmFZMLLeM+AirYuck4I7Zon9tz2zcpm8nqrLpDGgh2h
-        L6c0V0NSJeUUL7gtxpD/eKqhb1XR/8Q1INBfpQzekbOZhOvPOS5t8WDXdoLm4gWE
-        cK4DlSaOQ2NIIY5eW0dVLH07ryPViVC4AkyC7s5Nww==
-X-ME-Sender: <xms:I5WYYwu8n9vIQWnmUx9frzwjiKzIlqx_w0y0TsKsEKUo0NghK-1T5A>
-    <xme:I5WYY9cODzIfO-OfnPd01Y1yM3rwCbYofSvGXgeikVKEJL6DEaffDwLhqU6CaDco-
-    GVgitIqBHu3gg>
-X-ME-Received: <xmr:I5WYY7zTUu_YOw6EHjN9i2l7G64pYe809iTHsvmh7UV8lSKYB2jozHkXoPBVFzFR2M4OkTDZucehg5p72B7ldS7aZ7rHxpNG>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfedtgdejtdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeegheeuhe
-    fgtdeluddtleekfeegjeetgeeikeehfeduieffvddufeefleevtddtvdenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:I5WYYzN7ss4Du1qR9_qyEmShBA3026NQW4k23JVb4jz4pBxWl9tbQA>
-    <xmx:I5WYYw8L9mW3yF7mBdLOIUtLHP05wkk0F3gmJZvFS5k1YlQCT_RkRg>
-    <xmx:I5WYY7XLbCzHqCHSLXfUGzBWos2UOmUmyHPXowRktZKFFOM8NaErpA>
-    <xmx:JJWYYwMytGJAs-5ikguJit6Xw8MYRL7q7jHcIjxqDbyZuXaJuNfFlg>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 13 Dec 2022 10:07:14 -0500 (EST)
-Date:   Tue, 13 Dec 2022 16:07:11 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Samuel Mendoza-Jonas <samjonas@amazon.com>
-Cc:     stable@vger.kernel.org, benh@amazon.com,
+        with ESMTP id S236066AbiLMPHa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 10:07:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CAAB218A7;
+        Tue, 13 Dec 2022 07:07:27 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 993476158D;
+        Tue, 13 Dec 2022 15:07:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D26FC433D2;
+        Tue, 13 Dec 2022 15:07:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1670944045;
+        bh=X59SuqTKmCW8FjdihUzqEkUaQKUu+lUWXER55/hIJOo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=1N9DAe5AAJVetVEYK/fLMePCiS7CBFq0YlQmK/A4xIM2Oe21BhGx8bfgsmhJi4cBa
+         BtEPPqOKuVTiuWBgUW5LxSJfEKUEXV7L29WPI7DLwkfHbc/vOuSh9/YWFcph6s2I7n
+         52MRoV7ux2FsjItBf5SJVwT7BDbPwqUUyPom8+uE=
+Date:   Tue, 13 Dec 2022 16:07:23 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
         Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        David Hildenbrand <david@redhat.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.4] mm/hugetlb: fix races when looking up a CONT-PTE/PMD
- size hugetlb page
-Message-ID: <Y5iVH1WwvP5K2UPf@kroah.com>
-References: <20221212025148.367737-1-samjonas@amazon.com>
- <Y5baz/idF8HizSgs@kroah.com>
+        Mike Kravetz <mike.kravetz@oracle.com>
+Subject: Re: [PATCH 5.4 00/67] 5.4.227-rc1 review
+Message-ID: <Y5iVK4Yjre7cKhWH@kroah.com>
+References: <20221212130917.599345531@linuxfoundation.org>
+ <CA+G9fYtdgLx0hrtGk7G8Jvt2GhY-FoCTp0KtF8ngGix289G2QQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <Y5baz/idF8HizSgs@kroah.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYtdgLx0hrtGk7G8Jvt2GhY-FoCTp0KtF8ngGix289G2QQ@mail.gmail.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 12, 2022 at 08:39:59AM +0100, Greg KH wrote:
-> On Sun, Dec 11, 2022 at 06:51:48PM -0800, Samuel Mendoza-Jonas wrote:
-> > From: Baolin Wang <baolin.wang@linux.alibaba.com>
-> > 
-> > [ Upstream commit fac35ba763ed07ba93154c95ffc0c4a55023707f ]
-> > 
-> > On some architectures (like ARM64), it can support CONT-PTE/PMD size
-> > hugetlb, which means it can support not only PMD/PUD size hugetlb (2M and
-> > 1G), but also CONT-PTE/PMD size(64K and 32M) if a 4K page size specified.
-> > 
-> > So when looking up a CONT-PTE size hugetlb page by follow_page(), it will
-> > use pte_offset_map_lock() to get the pte entry lock for the CONT-PTE size
-> > hugetlb in follow_page_pte().  However this pte entry lock is incorrect
-> > for the CONT-PTE size hugetlb, since we should use huge_pte_lock() to get
-> > the correct lock, which is mm->page_table_lock.
-> > 
-> > That means the pte entry of the CONT-PTE size hugetlb under current pte
-> > lock is unstable in follow_page_pte(), we can continue to migrate or
-> > poison the pte entry of the CONT-PTE size hugetlb, which can cause some
-> > potential race issues, even though they are under the 'pte lock'.
-> > 
-> > For example, suppose thread A is trying to look up a CONT-PTE size hugetlb
-> > page by move_pages() syscall under the lock, however antoher thread B can
-> > migrate the CONT-PTE hugetlb page at the same time, which will cause
-> > thread A to get an incorrect page, if thread A also wants to do page
-> > migration, then data inconsistency error occurs.
-> > 
-> > Moreover we have the same issue for CONT-PMD size hugetlb in
-> > follow_huge_pmd().
-> > 
-> > To fix above issues, rename the follow_huge_pmd() as follow_huge_pmd_pte()
-> > to handle PMD and PTE level size hugetlb, which uses huge_pte_lock() to
-> > get the correct pte entry lock to make the pte entry stable.
-> > 
-> > Mike said:
-> > 
-> > Support for CONT_PMD/_PTE was added with bb9dd3df8ee9 ("arm64: hugetlb:
-> > refactor find_num_contig()").  Patch series "Support for contiguous pte
-> > hugepages", v4.  However, I do not believe these code paths were
-> > executed until migration support was added with 5480280d3f2d ("arm64/mm:
-> > enable HugeTLB migration for contiguous bit HugeTLB pages") I would go
-> > with 5480280d3f2d for the Fixes: targe.
-> > 
-> > Link: https://lkml.kernel.org/r/635f43bdd85ac2615a58405da82b4d33c6e5eb05.1662017562.git.baolin.wang@linux.alibaba.com
-> > Fixes: 5480280d3f2d ("arm64/mm: enable HugeTLB migration for contiguous bit HugeTLB pages")
-> > Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-> > Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
-> > Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-> > Cc: David Hildenbrand <david@redhat.com>
-> > Cc: Muchun Song <songmuchun@bytedance.com>
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > [5.4: Fixup contextual diffs before pin_user_pages()]
+On Tue, Dec 13, 2022 at 02:50:21PM +0530, Naresh Kamboju wrote:
+> On Mon, 12 Dec 2022 at 18:50, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.4.227 release.
+> > There are 67 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Wed, 14 Dec 2022 13:08:57 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.227-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
-> Thanks, both now queued up.
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
+> 
+> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> 
+> NOTE:
+> Following build warning found,
+> 
+> mm/hugetlb.c: In function 'follow_huge_pmd_pte':
+> mm/hugetlb.c:5191:1: warning: label 'out' defined but not used [-Wunused-label]
+>  5191 | out:
+>       | ^~~
+> 
+> details of commit causing this build warning.
+>    mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
+>    commit fac35ba763ed07ba93154c95ffc0c4a55023707f upstream.
 
-I'm dropping this one now as it adds a build warning as reported here:
-	https://lore.kernel.org/r/CA+G9fYtdgLx0hrtGk7G8Jvt2GhY-FoCTp0KtF8ngGix289G2QQ@mail.gmail.com
-
-Please fix up and resend.
-
-thanks,
+Thanks, I'll go drop that commit now.
 
 greg k-h
