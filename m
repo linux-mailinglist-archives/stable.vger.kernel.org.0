@@ -2,91 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B80FF64C170
-	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 01:42:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3EDB64C197
+	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 02:02:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237258AbiLNAlu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 19:41:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58438 "EHLO
+        id S236910AbiLNBCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 20:02:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237212AbiLNAl1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 19:41:27 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4DF526AB9
-        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 16:40:04 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id u5so5182224pjy.5
-        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 16:40:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=nMXSUhRQOxy7tEuvDry5hNPWkTeD3FTVDObnfkaZoqo=;
-        b=BH7DsjF/MqmaFEQUpJolgTrbi5A6L62CZdhE1oKhBHXLTPvRwujfy44Po3BKotOOtC
-         m/lc9V7LvPlO9oA27wvnJECyKmNVMhwkDkhRN8zaqNeFKRxXQasvUHU7Hpifj4SkNsFB
-         T0zfj6yx9b7+7tQuqogJAof91yqJxBGMRoCLE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nMXSUhRQOxy7tEuvDry5hNPWkTeD3FTVDObnfkaZoqo=;
-        b=XIBJR92ptfQEE7Krwt/6fBtWh/VQShdU26Ln61DDb53KAUY/wQ5XXOjplfzd4DDX5w
-         bBYKDc7LlJ8Pe6KI1IkU7ADgNsF2HeBs6naD2dqIwlHSWkKAAcupck3SCWLW//BC/IaB
-         XzMgEriufYWSamQ/UwUtfIeBRJbvEhfjGGpTkEYw/2Ljd0PhSoI9XObaogzGW17ejNTH
-         sr3dLmjjot6+L+e4DqcjsnJwHhtD4iEvxDxVYjkGgcsekteHSxsLSc7ADkzPbSb28Lgn
-         AiOSR6T/VwCy4RWnb/uBfheMQiMsu6ilvhCxV8SeSIWwUAVUBPkd4Kby+D9jUbJnl0Xg
-         KXbg==
-X-Gm-Message-State: ANoB5pnAM3+ODnMW5QADF1wm8B1vhv3y8u2yXLRIHJvMFTa09uImDN0o
-        kbqQmoNqFM0uRFqc3Q1Qdv4otA==
-X-Google-Smtp-Source: AA0mqf4kSqVg4gnsl8RkfCPeORprvNaEXNUCBQeC70AsH6pnDWedTQ4tO9+n5cA43Z/m7cZ/ZT23ug==
-X-Received: by 2002:a17:902:d483:b0:189:ced9:a5ea with SMTP id c3-20020a170902d48300b00189ced9a5eamr29138799plg.27.1670978404367;
-        Tue, 13 Dec 2022 16:40:04 -0800 (PST)
-Received: from google.com (KD124209188001.ppp-bb.dion.ne.jp. [124.209.188.1])
-        by smtp.gmail.com with ESMTPSA id w1-20020a170902e88100b00186a2444a43sm510077plg.27.2022.12.13.16.40.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Dec 2022 16:40:03 -0800 (PST)
-Date:   Wed, 14 Dec 2022 09:39:58 +0900
-From:   Sergey Senozhatsky <senozhatsky@chromium.org>
-To:     Ricardo Ribalda <ribalda@chromium.org>
-Cc:     Max Staudt <mstaudt@google.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Yunke Cao <yunkec@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] media: uvcvideo: Do not alloc dev->status
-Message-ID: <Y5kbXt5lUqUiCmCi@google.com>
-References: <20221212-uvc-race-v2-0-54496cc3b8ab@chromium.org>
- <20221212-uvc-race-v2-2-54496cc3b8ab@chromium.org>
+        with ESMTP id S237587AbiLNBCk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 20:02:40 -0500
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9B4A0FE6;
+        Tue, 13 Dec 2022 17:02:39 -0800 (PST)
+Received: by linux.microsoft.com (Postfix, from userid 1131)
+        id 048EA20B83FB; Tue, 13 Dec 2022 17:02:39 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 048EA20B83FB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1670979759;
+        bh=maRg8G3Tdq9v9MViU7vfDaJQHCt4cZ60ApGNvy1tfP4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jlWXnu+Z252HouDKjPRxDiV6a9Cuvk7tSCTHQDGm9B8F4Ejs7Sj72bhT1WdWvN+iv
+         CqdbVI5NYaX/DFmG3LjrKzs8zpCax/keNOm/0TZq/2lUdXaj+34AX699nq9H90b22+
+         kE66aVnRv7MdHsmiUEZ/yEF1LdHAgsXidGMQBFmM=
+Date:   Tue, 13 Dec 2022 17:02:38 -0800
+From:   Kelsey Steele <kelseysteele@linux.microsoft.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.15 000/123] 5.15.83-rc1 review
+Message-ID: <20221214010238.GA4793@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+References: <20221212130926.811961601@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221212-uvc-race-v2-2-54496cc3b8ab@chromium.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On (22/12/13 15:35), Ricardo Ribalda wrote:
-[..]
-> +++ b/drivers/media/usb/uvc/uvcvideo.h
-> @@ -559,7 +559,7 @@ struct uvc_device {
->  	/* Status Interrupt Endpoint */
->  	struct usb_host_endpoint *int_ep;
->  	struct urb *int_urb;
-> -	u8 *status;
-> +	u8 status[UVC_MAX_STATUS_SIZE];
+On Mon, Dec 12, 2022 at 02:16:06PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.83 release.
+> There are 123 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 14 Dec 2022 13:08:57 +0000.
+> Anything received after that time might be too late.
 
-Can we use `struct uvc_control_status status;` instead of open-coding it?
-Seems that this is what the code wants anyway:
+No regressions found on WSL x86_64 or WSL arm64
 
-	struct uvc_control_status *status =
-				(struct uvc_control_status *)dev->status;
+Built, booted, and compared dmesg against 5.15.82.
 
-And then we can drop casts in uvc_status_complete().
+Thank you.
+
+Tested-by: Kelsey Steele <kelseysteele@linux.microsoft.com> 
