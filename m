@@ -2,208 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BC4D64C7CA
-	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 12:19:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ABAF64C7F5
+	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 12:29:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237781AbiLNLTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Dec 2022 06:19:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40828 "EHLO
+        id S229993AbiLNL3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Dec 2022 06:29:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229564AbiLNLTf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 06:19:35 -0500
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45A71DEAC
-        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 03:19:34 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id r26so21997389edc.10
-        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 03:19:34 -0800 (PST)
+        with ESMTP id S238113AbiLNL3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 06:29:43 -0500
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52B1AFAE9;
+        Wed, 14 Dec 2022 03:29:42 -0800 (PST)
+Received: by mail-wm1-x32e.google.com with SMTP id ja4-20020a05600c556400b003cf6e77f89cso2745495wmb.0;
+        Wed, 14 Dec 2022 03:29:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=lqYgjYCLtE2L72f2b146yyEU5fSX4l3ikwaqnULXRG0=;
-        b=f0EYB+ywMq2SM6zO7j7oZ3uOvWkhNO4jlumBwyFoHjwuVUSsiJiXoa2TpbC17+nkYK
-         uxzBotuSY+bHUWkswz6FAWFxsSXjyX8sh+taY7Uml8nFUQ55m9mDmgVVIYz1WMiIKxJL
-         jPbtAId/bcj7ajzqmOGP3vyenyn7bwLudb84A=
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=mcLQq4wc+ePTHz3KFhqZubKSfpBbFf5K0CB+YZPtKSM=;
+        b=Zam1SMBfYxcb3eWkKkAgO1GAYvO4X0jSeqgPj4q3NqwLkNqK96FNV+lv0IIxIXkG6s
+         105qRPJi5Z4MPvXWUz7JGsoq5Vlh6kqL8z0XBwMSVf4FGLrrJQg2X7tBtD0AwLZMRqLi
+         dGTcwwvpO20on6IqRdqTK68AohPuVg7kTTZuAvIjT8vSnvkul/czMpqr3ssfDbxrb4i6
+         VsqyfxnMoPsrM6sROKcuO+ZaftJoD5zmMksj3zGlpsV/MeNOLXiHVhEI+a0VFqk6F4Oj
+         /T0Bw3/K44w5DKkFlno6xrCTymBYo2xa0Ypp1Xn7kEUEz+oIBtwAI1dOc9JsYcr8nUU+
+         MvNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=lqYgjYCLtE2L72f2b146yyEU5fSX4l3ikwaqnULXRG0=;
-        b=3wm451AVAikGCdZGMGni/475DjP/73GKYuRBeBHSkbAP/P3OazaWoBRCAI2qKMwznD
-         gM/MqvNKhqIIavSZen+Hl/RHn0uDAY7bwkmyBYr2C+A/xmrNlF9CZ+RbHdWCH7pxJJLR
-         XDvPSyy7HeOm75zla0s0RzOkFr8bok6ujlMD3F5sEmTx0mIz/D/Fx5AaHxG6PdYlGjDR
-         FwvpRq7lmu1k8+FUgh//XM/kbebtCL/cVTTrBbZUL13s771Pg7cpIzIetYKZfZ+w8kU2
-         i1XEXfrp7lOtdLmVHvZlO2PasMQvlHcBJGXgXfX03FoI31TMcoXWmu26mb0EcNUtyvgm
-         CcCQ==
-X-Gm-Message-State: ANoB5pnBko6PSWbJ6ojMizFBhzc9sw6gzU8Vg33VbCCgEblMnOGQGMB+
-        6kPya7aDPD0Wnvq9TLCY+D69bA==
-X-Google-Smtp-Source: AA0mqf5ZsE4ye8IFy5V1nxAjAHZzcR5UfBV/Jg6PsG+u4ZnFKrdEodZe44omLfRObw6S9EdXIk/IlQ==
-X-Received: by 2002:a05:6402:294f:b0:46c:e226:7717 with SMTP id ed15-20020a056402294f00b0046ce2267717mr22592544edb.31.1671016772906;
-        Wed, 14 Dec 2022 03:19:32 -0800 (PST)
-Received: from alco.roam.corp.google.com ([100.104.168.209])
-        by smtp.gmail.com with ESMTPSA id s9-20020a508d09000000b00462e1d8e914sm6147842eds.68.2022.12.14.03.19.31
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mcLQq4wc+ePTHz3KFhqZubKSfpBbFf5K0CB+YZPtKSM=;
+        b=NF7hK3ztvve6uqIijJSNAhQpBQQo34IfChxEIf4+MqodPSCTLGlVvHHTOGa1tFpcUQ
+         XpKYgdav0BjmgZnrO23mlKFv0p0sl1xsl6b/gW4cK21DsWB0PBRRbKhUn1OM9IdtCost
+         BwVrlzj8QKZ/Y5H4OamjUB0hGqJCe/rYTtMnpWq6u62V3JfE4VRrGC5bU9taVsE9vHHO
+         DyJWgWEfQre74KKeULF1MPyMoYtLURyCvY5d2ZegoiOjWMXELuPDrMTIB33SH/iNIrMW
+         Z5ICK4CvaLLf4OzTQ9ChAiV60PAHmneimOmjjTWGW0xxGkHCz4oof4e9S7mmkeagaIiy
+         nZWg==
+X-Gm-Message-State: ANoB5pmBBR+SCW6i2NRUsuMd9lrtY90KNgpGS0Gy0HbDyW/pyg6Mi8rR
+        sv2rf+1caZ40/4X/6w1Bhu3mZP1KhpnxYA==
+X-Google-Smtp-Source: AA0mqf7lDYYUkK7sP38Nz0FEvE9H0oB0J6UD9QcQDsyawLTj2Drdb/ngTXV5z4/F6MWDtrYnupBGtQ==
+X-Received: by 2002:a7b:c00a:0:b0:3cf:cfcd:1f5 with SMTP id c10-20020a7bc00a000000b003cfcfcd01f5mr18075728wmb.38.1671017380706;
+        Wed, 14 Dec 2022 03:29:40 -0800 (PST)
+Received: from debian ([167.98.27.226])
+        by smtp.gmail.com with ESMTPSA id t1-20020a5d6a41000000b00241dd5de644sm2518985wrw.97.2022.12.14.03.29.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Dec 2022 03:19:32 -0800 (PST)
-From:   Ricardo Ribalda <ribalda@chromium.org>
-Date:   Wed, 14 Dec 2022 12:18:52 +0100
-Subject: [PATCH v3] media: uvcvideo: Fix race condition with usb_kill_urb
+        Wed, 14 Dec 2022 03:29:39 -0800 (PST)
+Date:   Wed, 14 Dec 2022 11:29:37 +0000
+From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
+        rwarsow@gmx.de
+Subject: Re: [PATCH 5.10 00/98] 5.10.159-rc2 review
+Message-ID: <Y5mzofTHKUW0tRME@debian>
+References: <20221213150409.357752716@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20221212-uvc-race-v3-0-954efc752c9a@chromium.org>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Max Staudt <mstaudt@google.com>
-Cc:     Ricardo Ribalda <ribalda@chromium.org>,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Yunke Cao <yunkec@chromium.org>, stable@vger.kernel.org
-X-Mailer: b4 0.11.0-dev-696ae
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4125; i=ribalda@chromium.org;
- h=from:subject:message-id; bh=fAcZ3Rb/oLvmz2WVeJpX5Jp809XzJo8lwMwPsv9AhLw=;
- b=owEBbQKS/ZANAwAKAdE30T7POsSIAcsmYgBjmbE38/EjSW7pYSQWBBTtxFS+gGqtW8i6Pd+83n94
- 5dsMscmJAjMEAAEKAB0WIQREDzjr+/4oCDLSsx7RN9E+zzrEiAUCY5mxNwAKCRDRN9E+zzrEiBzgD/
- 91H1p8xDaegLuUzI3YejSZMVxB9xUPubBopI2ndm40hTN4UF3Z6F5uHCW0BokHZO59L6TcM8yOzGP9
- xnPSd6ufmc48vZ78quyJuyKsSwMHOKaALfD8N88pJ16zP+Tcy/AD8Vo82zUxsjGiDzL6aVbNflfhG0
- uGRd9k3w9qizGwKIvwcCtk6DgoO1oygIJGsRs4Mfg6QxeJ65kfsCA9mgpSl+2+sr3wnuUL1QnPbrNn
- BMSi81wxFc2sNoPX8xgbzpHbMR87R5/ydLqet+mFYEccvPIB67ubOHFrZPDnOUGngw4NCHKI+fVr9Y
- MNSjDt3ZHtuiWo8JWpSrYj4uBz5j+Jf5ChjJGdietXSTjGgXmI1G5Pi82C3EM4Y1U0QafnNvQsKi+Z
- L7iqDZmk2IfVwibvNEk7Lb8z8BDZoyiAzxBOaie1xpZ2+S3lUREoXL4DJMz+foGYrqk8R5H9rPOUZx
- py0u/3SEJOYdfxj/+fK6rvQPqtOgJMiApiOPDtODmi39hpokdJJdoDrS+DYQdF1du7HEl6bpbddPOs
- 981YY8r3d9TIxjqhs97sLeyt9xw3J9HmiufcFhP6AnWVeEy5c7NhAIP0eduO41p2EtP26fjKp2KxzY
- QyzkJkEru0PaSHQAZ8/dYdp24ijeEyzngqVzyaewnzRjOymGgsi7Ru3JLDPA==
-X-Developer-Key: i=ribalda@chromium.org; a=openpgp;
- fpr=9EC3BB66E2FC129A6F90B39556A0D81F9F782DA9
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221213150409.357752716@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-usb_kill_urb warranties that all the handlers are finished when it
-returns, but does not protect against threads that might be handling
-asynchronously the urb.
+Hi Greg,
 
-For UVC, the function uvc_ctrl_status_event_async() takes care of
-control changes asynchronously.
+On Tue, Dec 13, 2022 at 04:05:08PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.159 release.
+> There are 98 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 15 Dec 2022 15:03:44 +0000.
+> Anything received after that time might be too late.
 
- If the code is executed in the following order:
+Build test (gcc version 11.3.1 20221127):
+mips: 63 configs -> no failure
+arm: 104 configs -> no failure
+arm64: 3 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
 
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-uvc_ctrl_status_event_work()
-					uvc_status_start() -> FAIL
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
 
-Then uvc_status_start will keep failing and this error will be shown:
+[1]. https://openqa.qa.codethink.co.uk/tests/2350
+[2]. https://openqa.qa.codethink.co.uk/tests/2352
 
-<4>[    5.540139] URB 0000000000000000 submitted while active
-drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
 
-Let's improve the current situation, by not re-submiting the urb if
-we are stopping the status event. Also process the queued work
-(if any) during stop.
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-					uvc_status_start()
-uvc_ctrl_status_event_work() -> FAIL
-
-Hopefully, with the usb layer protection this should be enough to cover
-all the cases.
-
-Cc: stable@vger.kernel.org
-Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
-Reviewed-by: Yunke Cao <yunkec@chromium.org>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
----
-uvc: Fix race condition on uvc
-
-Make sure that all the async work is finished when we stop the status urb.
-
-To: Yunke Cao <yunkec@chromium.org>
-To: Sergey Senozhatsky <senozhatsky@chromium.org>
-To: Max Staudt <mstaudt@google.com>
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-media@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
-Changes in v3:
-- Remove the patch for dev->status, makes more sense in another series, and makes
-  the zero day less nervous.
-- Update reviewed-by (thanks Yunke!).
-- Link to v2: https://lore.kernel.org/r/20221212-uvc-race-v2-0-54496cc3b8ab@chromium.org
-
-Changes in v2:
-- Add a patch for not kalloc dev->status
-- Redo the logic mechanism, so it also works with suspend (Thanks Yunke!)
-- Link to v1: https://lore.kernel.org/r/20221212-uvc-race-v1-0-c52e1783c31d@chromium.org
----
- drivers/media/usb/uvc/uvc_ctrl.c   | 3 +++
- drivers/media/usb/uvc/uvc_status.c | 6 ++++++
- drivers/media/usb/uvc/uvcvideo.h   | 1 +
- 3 files changed, 10 insertions(+)
-
-diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
-index c95a2229f4fa..5160facc8e20 100644
---- a/drivers/media/usb/uvc/uvc_ctrl.c
-+++ b/drivers/media/usb/uvc/uvc_ctrl.c
-@@ -1442,6 +1442,9 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
- 
- 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
- 
-+	if (dev->flush_status)
-+		return;
-+
- 	/* Resubmit the URB. */
- 	w->urb->interval = dev->int_ep->desc.bInterval;
- 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
-diff --git a/drivers/media/usb/uvc/uvc_status.c b/drivers/media/usb/uvc/uvc_status.c
-index 7518ffce22ed..09a5802dc974 100644
---- a/drivers/media/usb/uvc/uvc_status.c
-+++ b/drivers/media/usb/uvc/uvc_status.c
-@@ -304,10 +304,16 @@ int uvc_status_start(struct uvc_device *dev, gfp_t flags)
- 	if (dev->int_urb == NULL)
- 		return 0;
- 
-+	dev->flush_status = false;
- 	return usb_submit_urb(dev->int_urb, flags);
- }
- 
- void uvc_status_stop(struct uvc_device *dev)
- {
-+	struct uvc_ctrl_work *w = &dev->async_ctrl;
-+
-+	dev->flush_status = true;
- 	usb_kill_urb(dev->int_urb);
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
- }
-diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index df93db259312..6a9b72d6789e 100644
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -560,6 +560,7 @@ struct uvc_device {
- 	struct usb_host_endpoint *int_ep;
- 	struct urb *int_urb;
- 	u8 *status;
-+	bool flush_status;
- 	struct input_dev *input;
- 	char input_phys[64];
- 
-
----
-base-commit: 0ec5a38bf8499f403f81cb81a0e3a60887d1993c
-change-id: 20221212-uvc-race-09276ea68bf8
-
-Best regards,
 -- 
-Ricardo Ribalda <ribalda@chromium.org>
+Regards
+Sudip
