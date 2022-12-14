@@ -2,68 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AFA564D025
-	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 20:39:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AD0964D0E5
+	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 21:15:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238281AbiLNTj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Dec 2022 14:39:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50040 "EHLO
+        id S230124AbiLNUPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Dec 2022 15:15:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237451AbiLNTjY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 14:39:24 -0500
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B27C2A416
-        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 11:39:23 -0800 (PST)
-Received: by mail-pj1-x1030.google.com with SMTP id b13-20020a17090a5a0d00b0021906102d05so276110pjd.5
-        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 11:39:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=qXouOJJYfhefJD1Cqv6Z9GRFOb6XM5M+uaNw9i5rZbc=;
-        b=Ydi0N3Z4sczyxCpw2tTP8Nsa+FXo5UI9UfEQgA/Z/KYeqHjJ2HV8OlyQ69R/Dvpsrw
-         YVEDOzCsYzPUzsnhxknZMl5hmXpMx/demRBxVoHw6BfNhSZ9wqksNXRB/4S/yKeZEtMz
-         Yp/GxxC1igO7ep4NEou8ivFi3fpdRIX3rwjKESHUMETnGCZmDF1y6BzddPinPOSGAKQn
-         CHUE/rrloGvYvIUDIlhifLoPDsj8dbzKmrEoIItGrLSs/RG/bb6CI+u/jTQl/7GB1RVT
-         yclMMKbV+3t5OP465WmflEhQYDAd3CBwb5wkTyB24he6CCkM+5wJ1ixgp4rd8yLeKE4f
-         LRJw==
+        with ESMTP id S229852AbiLNUOh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 15:14:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 381372DABA
+        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 12:05:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1671048300;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=OjnVrIvGwtoddEojvu7v3r8jpkJLbQV8Ta0gkZnxU7g=;
+        b=evzzPs/WKBueagFhMrOu8+U594VoiwTwypnbb8GDIT/N71YFMYUTEdiVI9LgVu2zLfbsWu
+        RxSIRLfuRoRM79PSaIKGiOQQRPSQxp0oQbj6CugdMKSDnmmdOq142PEjXN9sHRJEuQIoe2
+        on2kBsoz8eri41nLFxeYkAl1u260cUU=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-1-3o_2ktuzMEalhPzYEPgpOg-1; Wed, 14 Dec 2022 15:04:59 -0500
+X-MC-Unique: 3o_2ktuzMEalhPzYEPgpOg-1
+Received: by mail-qt1-f197.google.com with SMTP id o9-20020ac841c9000000b003a820e4c248so3086223qtm.2
+        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 12:04:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=qXouOJJYfhefJD1Cqv6Z9GRFOb6XM5M+uaNw9i5rZbc=;
-        b=wYE7BAMw07SPPaMI3zOnAWD0DJC6ykB9SasRu8ZVc2nqW/EprDnewNO9wXOG+K6G8K
-         PF+5m019mftue49MF0ETUaz/zodWZ8i5jTV906C0+UW6vZWTfRCnIGIHOmk4PgKoiP/7
-         dmSvmW1LeEahbHqv5yQfQS2XiOCu1pUQn2H+0WVnGehANpQwGTUAHkxzb5ucWjfymkvV
-         FGnBWQRd8f4bUV4jw/pUdVKmAxE5v1a3yXabisWZbjc+BVwSl8URkTRRVJi7VUVzQgHB
-         29+ZtgKytHJZi4gfOd9mmL3UbvDyqKx7DpnzXteVoh7WynB+m0CSpuxZ+syjbS0QtP54
-         MWXw==
-X-Gm-Message-State: ANoB5pnCEFK1OXg5+rFS5CRdH24a4UDeerVdY+9/tdSol3UY8jcseC20
-        EB5BK84YFjiKzN1xUkvh0CcbRZuPiV6JARp9Y+ZicQ==
-X-Google-Smtp-Source: AA0mqf705MsGPo9iDjFSnVBTurH1RCsoNrciApy53DSzp1ZCYtOJxhjEj+K9J5uOtXfj3rjERBO3Sw==
-X-Received: by 2002:a17:902:e411:b0:189:8790:73b1 with SMTP id m17-20020a170902e41100b00189879073b1mr22308676ple.65.1671046762420;
-        Wed, 14 Dec 2022 11:39:22 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 12-20020a170902c10c00b001895d87225csm2225997pli.182.2022.12.14.11.39.21
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=OjnVrIvGwtoddEojvu7v3r8jpkJLbQV8Ta0gkZnxU7g=;
+        b=svcdv6fuIXaFdRmwtfJ412fYMo6IwTChcO6z2eKxpYdzzrJXwieNf9iVc/Itpw66lO
+         lfiENl9lVfuzSwTBuzcxJplmgKi5SUkF4g2gbqeo4ePblLq8iECqRsEOt18p772NWNnM
+         0591MK1U6IQ+hrA/Hb2TkFh9f2A1nbKeRr0iS45b0d5vgQXubNOghLr2gfHHTg+0p9Gl
+         75oiE6w9b9FOge8sZXHAmogrimoaBES1BXGhVYWqrDWIDne7V5V403zTdo3EFaO2guB/
+         k+o2+3dht4+eY81PpcyOQU8XV0yyTnII516YIZpNEM3omMK0zOKNyKav2pOzP9HY+ULW
+         Ex0g==
+X-Gm-Message-State: ANoB5pmswiAzkjACuUekYaUxN9+QA83PvcJ8kHSOIgbZ8tb6Ub+8eC1h
+        N7JtsVP8c75uBIxhRxFoVUv4QTKbyxt7KCZfKMh2jhErKfiDCqp73mO7J4igWMilRYDKFTuXEX3
+        8fagUx1Nifg+KmBwW
+X-Received: by 2002:ac8:7a92:0:b0:3a8:234a:3204 with SMTP id x18-20020ac87a92000000b003a8234a3204mr11410967qtr.23.1671048298359;
+        Wed, 14 Dec 2022 12:04:58 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf6Nke0YvpERN8PSGIEPS7iAy63OPrfTbIIMSElRjL9bJJczmgiRGIt2KezRj+ugUt12mbA1aQ==
+X-Received: by 2002:ac8:7a92:0:b0:3a8:234a:3204 with SMTP id x18-20020ac87a92000000b003a8234a3204mr11410949qtr.23.1671048298123;
+        Wed, 14 Dec 2022 12:04:58 -0800 (PST)
+Received: from x1n.redhat.com (bras-base-aurron9127w-grc-45-70-31-26-132.dsl.bell.ca. [70.31.26.132])
+        by smtp.gmail.com with ESMTPSA id l11-20020ac848cb000000b003a689a5b177sm2199352qtr.8.2022.12.14.12.04.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Dec 2022 11:39:21 -0800 (PST)
-Message-ID: <639a2669.170a0220.23ab7.5802@mx.google.com>
-Date:   Wed, 14 Dec 2022 11:39:21 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Wed, 14 Dec 2022 12:04:57 -0800 (PST)
+From:   Peter Xu <peterx@redhat.com>
+To:     linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        Pengfei Xu <pengfei.xu@intel.com>, peterx@redhat.com,
+        Nadav Amit <nadav.amit@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Huang Ying <ying.huang@intel.com>, stable@vger.kernel.org
+Subject: [PATCH 1/2] mm/uffd: Fix pte marker when fork() without fork event
+Date:   Wed, 14 Dec 2022 15:04:52 -0500
+Message-Id: <20221214200453.1772655-2-peterx@redhat.com>
+X-Mailer: git-send-email 2.37.3
+In-Reply-To: <20221214200453.1772655-1-peterx@redhat.com>
+References: <20221214200453.1772655-1-peterx@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Kernel: v5.4.226-66-g7d95ada83f22f
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.4 baseline: 91 runs,
- 2 regressions (v5.4.226-66-g7d95ada83f22f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,97 +83,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 91 runs, 2 regressions (v5.4.226-66-g7d95ada8=
-3f22f)
+When fork(), dst_vma is not guaranteed to have VM_UFFD_WP even if src may
+have it and has pte marker installed.  The warning is improper along with
+the comment.  The right thing is to inherit the pte marker when needed, or
+keep the dst pte empty.
 
-Regressions Summary
--------------------
+A vague guess is this happened by an accident when there's the prior patch
+to introduce src/dst vma into this helper during the uffd-wp feature got
+developed and I probably messed up in the rebase, since if we replace
+dst_vma with src_vma the warning & comment it all makes sense too.
 
-platform             | arch  | lab          | compiler | defconfig | regres=
-sions
----------------------+-------+--------------+----------+-----------+-------=
------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-10   | defconfig | 2     =
-     =
+Hugetlb did exactly the right here (copy_hugetlb_page_range()).  Fix the
+general path.
 
+Reproducer:
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.226-66-g7d95ada83f22f/plan/baseline/
+https://github.com/xupengfe/syzkaller_logs/blob/main/221208_115556_copy_page_range/repro.c
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.226-66-g7d95ada83f22f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7d95ada83f22f39ee7063a1c3f717e3a59b5ac7c =
+Cc: <stable@vger.kernel.org> # 5.19+
+Fixes: c56d1b62cce8 ("mm/shmem: handle uffd-wp during fork()")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=216808
+Reported-by: Pengfei Xu <pengfei.xu@intel.com>
+Signed-off-by: Peter Xu <peterx@redhat.com>
+---
+ mm/memory.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
+diff --git a/mm/memory.c b/mm/memory.c
+index aad226daf41b..032ef700c3e8 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -828,12 +828,8 @@ copy_nonpresent_pte(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+ 			return -EBUSY;
+ 		return -ENOENT;
+ 	} else if (is_pte_marker_entry(entry)) {
+-		/*
+-		 * We're copying the pgtable should only because dst_vma has
+-		 * uffd-wp enabled, do sanity check.
+-		 */
+-		WARN_ON_ONCE(!userfaultfd_wp(dst_vma));
+-		set_pte_at(dst_mm, addr, dst_pte, pte);
++		if (userfaultfd_wp(dst_vma))
++			set_pte_at(dst_mm, addr, dst_pte, pte);
+ 		return 0;
+ 	}
+ 	if (!userfaultfd_wp(dst_vma))
+-- 
+2.37.3
 
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig | regres=
-sions
----------------------+-------+--------------+----------+-----------+-------=
------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-10   | defconfig | 2     =
-     =
-
-
-  Details:     https://kernelci.org/test/plan/id/6399ea38dc3e33a7072abd29
-
-  Results:     3 PASS, 2 FAIL, 2 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.226-6=
-6-g7d95ada83f22f/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unleas=
-hed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.226-6=
-6-g7d95ada83f22f/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unleas=
-hed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221209.0/riscv/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.all-cpus-are-online: https://kernelci.org/test/case/id/=
-6399ea38dc3e33a7072abd2d
-        failing since 56 days (last pass: v5.4.219-270-gde284a6cd1e4, first=
- fail: v5.4.219-266-g5eb28a6c7901)
-
-    2022-12-14T15:22:16.935270  + cd /opt/bootrr
-    2022-12-14T15:22:16.936179  + sh helpers/bootrr-auto
-    2022-12-14T15:22:16.938476  /lava-3041038/1/../bin/lava-test-case
-    2022-12-14T15:22:17.943131  /lava-3041038/1/../bin/lava-test-case
-    2022-12-14T15:22:17.944248  <8>[   14.553529] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dall-cpus-are-online RESULT=3Dfail>   =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/6399ea38dc3e33a7=
-072abd32
-        failing since 56 days (last pass: v5.4.219-270-gde284a6cd1e4, first=
- fail: v5.4.219-266-g5eb28a6c7901)
-        3 lines
-
-    2022-12-14T15:22:15.844658  / # =
-
-    2022-12-14T15:22:15.849983  =
-
-    2022-12-14T15:22:15.958489  / ##
-    2022-12-14T15:22:15.978219   #
-    2022-12-14T15:22:16.081555  / # export SHELL=3D/bin/sh
-    2022-12-14T15:22:16.090321  export SHELL=3D/bin/sh
-    2022-12-14T15:22:16.193124  / # . /lava-3041038/environment
-    2022-12-14T15:22:16.202524  . /lava-3041038/environment
-    2022-12-14T15:22:16.305300  / # /lava-3041038/bin/lava-test-runner /lav=
-a-3041038/0
-    2022-12-14T15:22:16.314359  /lava-3041038/bin/lava-test-runner /lava-30=
-41038/0 =
-
-    ... (10 line(s) more)  =
-
- =20
