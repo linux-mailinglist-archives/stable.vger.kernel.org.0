@@ -2,148 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3457764CF75
-	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 19:31:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB4364CF8C
+	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 19:40:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238278AbiLNSbi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Dec 2022 13:31:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50586 "EHLO
+        id S238798AbiLNSku (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Dec 2022 13:40:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237369AbiLNSbh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 13:31:37 -0500
-Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 289D6B9A
-        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 10:31:36 -0800 (PST)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailout.west.internal (Postfix) with ESMTP id 9B936320092C;
-        Wed, 14 Dec 2022 13:31:32 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 14 Dec 2022 13:31:33 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1671042692; x=1671129092; bh=wVm9uamnkV
-        JXkEy6ZwTOqTXRRiflD4pBUnOU+budYIk=; b=ZM1PrdpMOvpXqLe3SobExmaby9
-        PqawKhWQP/GpFvwBZNLPZiZAXZQh+jjXte64SIfS0ENds84eTcC93kPPelGUlu5o
-        KZQhicS9d9OwqRRmyUG2+kVjH48Noot3MHlIF80gfZ/9nbeK4pogvr4XzXOu2Kok
-        jRL18ekLHrEI1RZj2jXGbqtkShg5Vads3wCDPCS3BtPx6fPvi/FdnmJeBtGG0tgv
-        JPdKC08VnVO5wCMr/2ZJvV4NLFgO5eEvX1GRKFwoTYaKoCHVmtXEoh43slab4DRD
-        UpBgiTmVp+4hUVxoN2B1yGYcUornjbMJZpNp2/tG1CdMEuRfrLWaeD5Wrvgw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm2; t=1671042692; x=1671129092; bh=wVm9uamnkVJXkEy6ZwTOqTXRRifl
-        D4pBUnOU+budYIk=; b=acQt3438x5lYFNxBglqH13T6gHKPd1bVdV/gX1ZALC8r
-        e4MmKvdANS8YP9C7zGOG6b8bYUPN0D6CdI75dgYzCP2e4bt672FfL/ICynZYt5O2
-        cGm2AuooIV/Rz9LSdNVjBiAyCUhRMoParJvtLHeLfz+ZW2htgwLcHHhNAPlrUEL6
-        OnbZWa1FHNrSnf11uq6IfDUL4+7bJK8NVfFpQ6x5RNGMFcOcg9oCdgcSSVqqIMc/
-        AmlCW3oUrb54roP3kC/yuQCCuzjeJ3o7LShPxEx76tHmSPrlXQeHjz24xfamnvnh
-        GzbNmARmvpBa5MLJH3lqj87jS1AemkJ2jQktn4mYNg==
-X-ME-Sender: <xms:gxaaY9pvPf8exJJfVjuRHaInAzIjv9q4Lmdcvrw_lnYOKm5XKHI2MQ>
-    <xme:gxaaY_qXlFBlAp_FEexWVIPO4fAJqiAGvxdKaipheJmboEd_Qv8wsKLQMflnCELuW
-    -An2eeg_QMcdQ>
-X-ME-Received: <xmr:gxaaY6Opp61SonzRKZpC4UCNdM-NZQ1llfd_FPVjhUQP5vFozAmg1AOs66AaDie0CCx3P-DJqRmgLoNB8wK_z6ddG2Z_rAp1>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfeefgdduudehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepgeehue
-    ehgfdtledutdelkeefgeejteegieekheefudeiffdvudeffeelvedttddvnecuffhomhgr
-    ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:gxaaY44Y85Pc1-91t9QacNlrySPoqVIv0k773oO6E8cWwakP_tcscQ>
-    <xmx:gxaaY87MvGkywrn8UU1XBeNHiZOpk69INcnLOzW01I5x6q2r__qvJw>
-    <xmx:gxaaYwjkMpiHzES0elJ85LnCDUBRvRohIXxA4VuGoQ8cvVasQzvjGA>
-    <xmx:hBaaY4q9Z5sZxNyWFHjh_kpzj8QeX-UgTfml_pL5UD8mddFC01I4EQ>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 14 Dec 2022 13:31:30 -0500 (EST)
-Date:   Wed, 14 Dec 2022 19:31:28 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Samuel Mendoza-Jonas <samjonas@amazon.com>
-Cc:     stable@vger.kernel.org, benh@amazon.com,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        David Hildenbrand <david@redhat.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.4 v2] mm/hugetlb: fix races when looking up a
- CONT-PTE/PMD size hugetlb page
-Message-ID: <Y5oWgLw6AiwTIq1f@kroah.com>
-References: <20221214020609.832545-1-samjonas@amazon.com>
+        with ESMTP id S238888AbiLNSkn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 13:40:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A30D3D45;
+        Wed, 14 Dec 2022 10:40:40 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 220D4B818A6;
+        Wed, 14 Dec 2022 18:40:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C064C433D2;
+        Wed, 14 Dec 2022 18:40:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1671043237;
+        bh=BfPmRbxFCqUCV8U+jqF/ZUYDmw0wAT7lnJ27V9BdeZI=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=KZ3P2Jv9oF0WMB2ZBUF8BZEtYZa176QxZ/CgppeP2V/ZRZb1Q+XA4uKrx14uaydIa
+         JLi5AO3VrEeT67vretVugZV2ptRwxX7gMv0bBKz+0U81WAz+cXR9C3iKiVQRHi+sTM
+         QfV05JduPaGsWxj/SkXIX7doH/ycy9MUp/RrRYsZKolGh+3OPu7WTNvbls6YQkAxiP
+         1ICtOk0GbuVzjPWHNDwORhPIFdcCieVZeVbOcPqQDt8ZHmB9jnIKGeDy8rLqbqyGqs
+         ie4+AZQ1jcKhNHX0npRoypQTT9b49vGVqgwRwQeMGW82mr3cNwrPQ9KGZhESwjuRz3
+         yh1TF3SdKsU5w==
+From:   Mark Brown <broonie@kernel.org>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-spi@vger.kernel.org, Herve Codina <herve.codina@bootlin.com>,
+        stable@vger.kernel.org
+In-Reply-To: =?utf-8?q?=3C8aab84c51aa330cf91f4b43782a1c483e150a4e3=2E1671025?=
+ =?utf-8?q?244=2Egit=2Echristophe=2Eleroy=40csgroup=2Eeu=3E?=
+References: =?utf-8?q?=3C8aab84c51aa330cf91f4b43782a1c483e150a4e3=2E16710252?=
+ =?utf-8?q?44=2Egit=2Echristophe=2Eleroy=40csgroup=2Eeu=3E?=
+Subject: Re: [PATCH] spi: fsl_spi: Don't change speed while chipselect is active
+Message-Id: <167104323615.416042.13205866259522482706.b4-ty@kernel.org>
+Date:   Wed, 14 Dec 2022 18:40:36 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221214020609.832545-1-samjonas@amazon.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.11.0-dev-7e003
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 13, 2022 at 06:06:09PM -0800, Samuel Mendoza-Jonas wrote:
-> From: Baolin Wang <baolin.wang@linux.alibaba.com>
+On Wed, 14 Dec 2022 14:41:33 +0100, Christophe Leroy wrote:
+> Commit c9bfcb315104 ("spi_mpc83xx: much improved driver") made
+> modifications to the driver to not perform speed changes while
+> chipselect is active. But those changes where lost with the
+> convertion to tranfer_one.
 > 
-> [ Upstream commit fac35ba763ed07ba93154c95ffc0c4a55023707f ]
+> Previous implementation was allowing speed changes during
+> message transfer when cs_change flag was set.
+> At the time being, core SPI does not provide any feature to change
+> speed while chipselect is off, so do not allow any speed change during
+> message transfer, and perform the transfer setup in prepare_message
+> in order to set correct speed while chipselect is still off.
 > 
-> On some architectures (like ARM64), it can support CONT-PTE/PMD size
-> hugetlb, which means it can support not only PMD/PUD size hugetlb (2M and
-> 1G), but also CONT-PTE/PMD size(64K and 32M) if a 4K page size specified.
-> 
-> So when looking up a CONT-PTE size hugetlb page by follow_page(), it will
-> use pte_offset_map_lock() to get the pte entry lock for the CONT-PTE size
-> hugetlb in follow_page_pte().  However this pte entry lock is incorrect
-> for the CONT-PTE size hugetlb, since we should use huge_pte_lock() to get
-> the correct lock, which is mm->page_table_lock.
-> 
-> That means the pte entry of the CONT-PTE size hugetlb under current pte
-> lock is unstable in follow_page_pte(), we can continue to migrate or
-> poison the pte entry of the CONT-PTE size hugetlb, which can cause some
-> potential race issues, even though they are under the 'pte lock'.
-> 
-> For example, suppose thread A is trying to look up a CONT-PTE size hugetlb
-> page by move_pages() syscall under the lock, however antoher thread B can
-> migrate the CONT-PTE hugetlb page at the same time, which will cause
-> thread A to get an incorrect page, if thread A also wants to do page
-> migration, then data inconsistency error occurs.
-> 
-> Moreover we have the same issue for CONT-PMD size hugetlb in
-> follow_huge_pmd().
-> 
-> To fix above issues, rename the follow_huge_pmd() as follow_huge_pmd_pte()
-> to handle PMD and PTE level size hugetlb, which uses huge_pte_lock() to
-> get the correct pte entry lock to make the pte entry stable.
-> 
-> Mike said:
-> 
-> Support for CONT_PMD/_PTE was added with bb9dd3df8ee9 ("arm64: hugetlb:
-> refactor find_num_contig()").  Patch series "Support for contiguous pte
-> hugepages", v4.  However, I do not believe these code paths were
-> executed until migration support was added with 5480280d3f2d ("arm64/mm:
-> enable HugeTLB migration for contiguous bit HugeTLB pages") I would go
-> with 5480280d3f2d for the Fixes: targe.
-> 
-> Link: https://lkml.kernel.org/r/635f43bdd85ac2615a58405da82b4d33c6e5eb05.1662017562.git.baolin.wang@linux.alibaba.com
-> Fixes: 5480280d3f2d ("arm64/mm: enable HugeTLB migration for contiguous bit HugeTLB pages")
-> Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-> Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
-> Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: Muchun Song <songmuchun@bytedance.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> [5.4: Fixup contextual diffs before pin_user_pages()]
-> Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
-> ---
-> v2: Fix up stray out label that is now unused.
+> [...]
 
-Now queued up, thanks.
+Applied to
 
-greg k-h
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-next
+
+Thanks!
+
+[1/1] spi: fsl_spi: Don't change speed while chipselect is active
+      commit: 3b553e0041a65e499fa4e25ee146f01f4ec4e617
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
