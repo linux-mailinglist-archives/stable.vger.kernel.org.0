@@ -2,398 +2,239 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04DD864C85A
-	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 12:47:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3B7864C8E9
+	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 13:23:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229463AbiLNLrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Dec 2022 06:47:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54164 "EHLO
+        id S238448AbiLNMXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Dec 2022 07:23:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237942AbiLNLrM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 06:47:12 -0500
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 810C1F4
-        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 03:47:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1671018430; x=1702554430;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=iJAT49p4bDPZaDkT2AKkRc3cw9FJtcOKyc44kCq9u/A=;
-  b=PR/oL53BFH6k8Apnp1tYpcHHWslKk0wI1HWGhT1k4Lf9KP8BzCy/9Ode
-   v3I2DKlGxjcwGHGWm3RinqElNdKQyKEyuzMvTN5qoss73zfgG650fCrak
-   1IWluPnB+vLtzG2iGuvlZdJqqYwm8xfRsO9xkgADLo/zd1pIbwaG8VSSZ
-   iIVjwAV6Q5isiGTl6NTVHrBX6M6df20ikj4C2zgDsQgN1vBH+F3Rec1Mz
-   yaqausqLYH9aW/roSj+HcnfOfQ6nGurJ/zkZtZz9c+FdGGZYmgA1UTbXe
-   uDmPkvwlm8wmMP3kSQN9vBjfETkBD73X35SD+3HGXR7y5Qwe3zvAE13Ma
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10560"; a="380585490"
-X-IronPort-AV: E=Sophos;i="5.96,244,1665471600"; 
-   d="scan'208";a="380585490"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2022 03:47:10 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10560"; a="977805308"
-X-IronPort-AV: E=Sophos;i="5.96,244,1665471600"; 
-   d="scan'208";a="977805308"
-Received: from msivosuo-mobl1.ger.corp.intel.com (HELO [10.252.20.193]) ([10.252.20.193])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2022 03:47:07 -0800
-Message-ID: <db6eccfa-4536-0212-c9a9-4a0ea6e4c877@intel.com>
-Date:   Wed, 14 Dec 2022 11:47:05 +0000
+        with ESMTP id S238434AbiLNMWk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 07:22:40 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 622B227DDF;
+        Wed, 14 Dec 2022 04:19:57 -0800 (PST)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BEBqdqO007897;
+        Wed, 14 Dec 2022 12:19:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=BWFAT2s11YwOMO24I7aS7fmWfo80Uwx0iZX7uqaMstU=;
+ b=FYet046YXXctlr1XociI70zl0XPtW1JzYW5Vm8tPp29nmLraC1n7unmsXFuHfN1j7AkR
+ VtvkrNijfqjOcLXaDRcUViKe3oKoYfkMJNR+3hFXLu6do0nrg2e9tYn0muY81D0fF6YE
+ t7bASe9F14XLTHpBFjFS5NooU1JAp2DTaHODcVsB04v2OQRQ29QxR4SSAGm4tBo2HWWp
+ NAPFn2+pYYs+obS8EMSyxt+fcaqr9VkGJFBdG/16VYPZ3pKQYvaOhX3YlgzX0Otk1xUH
+ FBEycZHfbdiRvBuBA0LcR6ys7S17LuyH0juPDQ9kD+NWozt7Bj8htTYPpBoq2MwC6y81 ww== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mfe0e8qvq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 14 Dec 2022 12:19:47 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BEBqe67008108;
+        Wed, 14 Dec 2022 12:19:47 GMT
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mfe0e8qva-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 14 Dec 2022 12:19:46 +0000
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BEC2X3J006181;
+        Wed, 14 Dec 2022 12:19:45 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([9.208.129.120])
+        by ppma01wdc.us.ibm.com (PPS) with ESMTPS id 3mf00wme6t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 14 Dec 2022 12:19:45 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+        by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BECJib57864938
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 14 Dec 2022 12:19:44 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 887D15805B;
+        Wed, 14 Dec 2022 12:19:44 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3E38758059;
+        Wed, 14 Dec 2022 12:19:43 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.48.104])
+        by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 14 Dec 2022 12:19:43 +0000 (GMT)
+Message-ID: <566721e9e8d639c82d841edef4d11d30a4d29694.camel@linux.ibm.com>
+Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     "Guozihua (Scott)" <guozihua@huawei.com>,
+        dmitry.kasatkin@gmail.com, Paul Moore <paul@paul-moore.com>,
+        sds@tycho.nsa.gov, eparis@parisplace.org,
+        Greg KH <gregkh@linuxfoundation.org>, sashal@kernel.org
+Cc:     selinux@vger.kernel.org,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        stable@vger.kernel.org
+Date:   Wed, 14 Dec 2022 07:19:42 -0500
+In-Reply-To: <6a5bc829-b788-5742-cbfc-dba348065dbe@huawei.com>
+References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
+         <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
+         <6a5bc829-b788-5742-cbfc-dba348065dbe@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: A-KnsEkCC7gADl6DYkufJzw2iuFL8KCD
+X-Proofpoint-GUID: qbOXUJUawqeV0nVD7U8PzKHp8gCktQTP
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.5.1
-Subject: Re: [PATCH] drm/i915: improve the catch-all evict to handle lock
- contention
-Content-Language: en-GB
-To:     Mani Milani <mani@chromium.org>
-Cc:     intel-gfx@lists.freedesktop.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>, stable@vger.kernel.org
-References: <20221206161141.128921-1-matthew.auld@intel.com>
- <CAHzEqDkd5u5A+2EfeVpnMoqHLWS=d5uLQquGDQ5TLAcx8Oydqw@mail.gmail.com>
-From:   Matthew Auld <matthew.auld@intel.com>
-In-Reply-To: <CAHzEqDkd5u5A+2EfeVpnMoqHLWS=d5uLQquGDQ5TLAcx8Oydqw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-14_04,2022-12-14_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
+ lowpriorityscore=0 malwarescore=0 mlxlogscore=999 adultscore=0 spamscore=0
+ impostorscore=0 priorityscore=1501 mlxscore=0 bulkscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2212140090
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 14/12/2022 03:32, Mani Milani wrote:
-> Thank you for the patch.
+On Wed, 2022-12-14 at 09:33 +0800, Guozihua (Scott) wrote:
+> On 2022/12/13 23:30, Mimi Zohar wrote:
+> > On Fri, 2022-12-09 at 15:00 +0800, Guozihua (Scott) wrote:
+> >> Hi community.
+> >>
+> >> Previously our team reported a race condition in IMA relates to LSM 
+> >> based rules which would case IMA to match files that should be filtered 
+> >> out under normal condition. The issue was originally analyzed and fixed 
+> >> on mainstream. The patch and the discussion could be found here: 
+> >> https://lore.kernel.org/all/20220921125804.59490-1-guozihua@huawei.com/
+> >>
+> >> After that, we did a regression test on 4.19 LTS and the same issue 
+> >> arises. Further analysis reveled that the issue is from a completely 
+> >> different cause.
+> >>
+> >> The cause is that selinux_audit_rule_init() would set the rule (which is 
+> >> a second level pointer) to NULL immediately after called. The relevant 
+> >> codes are as shown:
+> >>
+> >> security/selinux/ss/services.c:
+> >>> int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+> >>> {
+> >>>         struct selinux_state *state = &selinux_state;
+> >>>         struct policydb *policydb = &state->ss->policydb;
+> >>>         struct selinux_audit_rule *tmprule;
+> >>>         struct role_datum *roledatum;
+> >>>         struct type_datum *typedatum;
+> >>>         struct user_datum *userdatum;
+> >>>         struct selinux_audit_rule **rule = (struct selinux_audit_rule **)vrule;
+> >>>         int rc = 0;
+> >>>
+> >>>         *rule = NULL;
+> >> *rule is set to NULL here, which means the rule on IMA side is also NULL.
+> >>>
+> >>>         if (!state->initialized)
+> >>>                 return -EOPNOTSUPP;
+> >> ...
+> >>> out:
+> >>>         read_unlock(&state->ss->policy_rwlock);
+> >>>
+> >>>         if (rc) {
+> >>>                 selinux_audit_rule_free(tmprule);
+> >>>                 tmprule = NULL;
+> >>>         }
+> >>>
+> >>>         *rule = tmprule;
+> >> rule is updated at the end of the function.
+> >>>
+> >>>         return rc;
+> >>> }
+> >>
+> >> security/integrity/ima/ima_policy.c:
+> >>> static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+> >>>                             const struct cred *cred, u32 secid,
+> >>>                             enum ima_hooks func, int mask)
+> >>> {...
+> >>> for (i = 0; i < MAX_LSM_RULES; i++) {
+> >>>                 int rc = 0;
+> >>>                 u32 osid;
+> >>>                 int retried = 0;
+> >>>
+> >>>                 if (!rule->lsm[i].rule)
+> >>>                         continue;
+> >> Setting rule to NULL would lead to LSM based rule matching being skipped.
+> >>> retry:
+> >>>                 switch (i) {
+> >>
+> >> To solve this issue, there are multiple approaches we might take and I 
+> >> would like some input from the community.
+> >>
+> >> The first proposed solution would be to change 
+> >> selinux_audit_rule_init(). Remove the set to NULL bit and update the 
+> >> rule pointer with cmpxchg.
+> >>
+> >>> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> >>> index a9f2bc8443bd..aa74b04ccaf7 100644
+> >>> --- a/security/selinux/ss/services.c
+> >>> +++ b/security/selinux/ss/services.c
+> >>> @@ -3297,10 +3297,9 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+> >>>         struct type_datum *typedatum;
+> >>>         struct user_datum *userdatum;
+> >>>         struct selinux_audit_rule **rule = (struct selinux_audit_rule **)vrule;
+> >>> +       struct selinux_audit_rule *orig = rule;
+> >>>         int rc = 0;
+> >>>  
+> >>> -       *rule = NULL;
+> >>> -
+> >>>         if (!state->initialized)
+> >>>                 return -EOPNOTSUPP;
+> >>>  
+> >>> @@ -3382,7 +3381,8 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+> >>>                 tmprule = NULL;
+> >>>         }
+> >>>  
+> >>> -       *rule = tmprule;
+> >>> +       if (cmpxchg(rule, orig, tmprule) != orig)
+> >>> +               selinux_audit_rule_free(tmprule);
+> >>>  
+> >>>         return rc;
+> >>>  }
+> >>
+> >> This solution would be an easy fix, but might influence other modules 
+> >> calling selinux_audit_rule_init() directly or indirectly (on 4.19 LTS, 
+> >> only auditfilter and IMA it seems). And it might be worth returning an 
+> >> error code such as -EAGAIN.
+> >>
+> >> Or, we can access rules via RCU, similar to what we do on 5.10. This 
+> >> could means more code change and testing.
+> > 
+> > In the 4.19 kernel, IMA is doing a lazy LSM based policy rule update as
+> > needed.  IMA waits for selinux_audit_rule_init() to complete and
+> > shouldn't see NULL, unless there is an SELinux failure.  Before
+> > "fixing" the problem, what exactly is the problem?
 > 
-> I briefly tested this patch and it does fix my original problem of
-> "user-space application crashing due to receiving an -ENOSPC". Once
-> the code is reviewed, I can test it further and report back.
+> IMA runs on multiple cores. On 4.19 kernel, IMA do a lazy update on ALL
+> LSM based rules in one go without using RCU, which would still allow
+> other cores to access the rule being updated. And that's the issue.
 > 
-> However, there are a few changes in this patch that change the code
-> behaviour, which I do not understand. I must admit that I am not very
-> familiar with this code, but I decided to raise these points anyway, I
-> hope that is OK.
-
-Thanks a lot for taking a look.
-
-> Please find my comments inline below:
+> An example scenario would be:
+> 	CPU1			|	CPU2
+> opened a file and starts	|
+> updating LSM based rules.	|
+> 				| opened a file and starts
+> 				| matching rules.
+> 				|
+> set a LSM based rule to NULL.	| access the same LSM based rule and
+>  				| see that it's NULL.
 > 
-> On Wed, Dec 7, 2022 at 3:11 AM Matthew Auld <matthew.auld@intel.com> wrote:
->>
->> The catch-all evict can fail due to object lock contention, since it
->> only goes as far as trylocking the object, due to us already holding the
->> vm->mutex. Doing a full object lock here can deadlock, since the
->> vm->mutex is always our inner lock. Add another execbuf pass which drops
->> the vm->mutex and then tries to grab the object will the full lock,
->> before then retrying the eviction. This should be good enough for now to
->> fix the immediate regression with userspace seeing -ENOSPC from execbuf
->> due to contended object locks during GTT eviction.
->>
->> Testcase: igt@gem_ppgtt@shrink-vs-evict-*
->> Fixes: 7e00897be8bf ("drm/i915: Add object locking to i915_gem_evict_for_node and i915_gem_evict_something, v2.")
->> References: https://gitlab.freedesktop.org/drm/intel/-/issues/7627
->> References: https://gitlab.freedesktop.org/drm/intel/-/issues/7570
->> References: https://bugzilla.mozilla.org/show_bug.cgi?id=1779558
->> Signed-off-by: Matthew Auld <matthew.auld@intel.com>
->> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
->> Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
->> Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
->> Cc: Andrzej Hajda <andrzej.hajda@intel.com>
->> Cc: Mani Milani <mani@chromium.org>
->> Cc: <stable@vger.kernel.org> # v5.18+
->> ---
->>   .../gpu/drm/i915/gem/i915_gem_execbuffer.c    | 25 +++++++++++--
->>   drivers/gpu/drm/i915/gem/i915_gem_mman.c      |  2 +-
->>   drivers/gpu/drm/i915/i915_gem_evict.c         | 37 ++++++++++++++-----
->>   drivers/gpu/drm/i915/i915_gem_evict.h         |  4 +-
->>   drivers/gpu/drm/i915/i915_vma.c               |  2 +-
->>   .../gpu/drm/i915/selftests/i915_gem_evict.c   |  4 +-
->>   6 files changed, 56 insertions(+), 18 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
->> index 86956b902c97..e2ce1e4e9723 100644
->> --- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
->> +++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
->> @@ -745,25 +745,44 @@ static int eb_reserve(struct i915_execbuffer *eb)
->>           *
->>           * Defragmenting is skipped if all objects are pinned at a fixed location.
->>           */
->> -       for (pass = 0; pass <= 2; pass++) {
->> +       for (pass = 0; pass <= 3; pass++) {
->>                  int pin_flags = PIN_USER | PIN_VALIDATE;
->>
->>                  if (pass == 0)
->>                          pin_flags |= PIN_NONBLOCK;
->>
->>                  if (pass >= 1)
->> -                       unpinned = eb_unbind(eb, pass == 2);
->> +                       unpinned = eb_unbind(eb, pass >= 2);
->>
->>                  if (pass == 2) {
->>                          err = mutex_lock_interruptible(&eb->context->vm->mutex);
->>                          if (!err) {
->> -                               err = i915_gem_evict_vm(eb->context->vm, &eb->ww);
->> +                               err = i915_gem_evict_vm(eb->context->vm, &eb->ww, NULL);
->>                                  mutex_unlock(&eb->context->vm->mutex);
->>                          }
->>                          if (err)
->>                                  return err;
->>                  }
->>
->> +               if (pass == 3) {
->> +retry:
->> +                       err = mutex_lock_interruptible(&eb->context->vm->mutex);
->> +                       if (!err) {
->> +                               struct drm_i915_gem_object *busy_bo = NULL;
->> +
->> +                               err = i915_gem_evict_vm(eb->context->vm, &eb->ww, &busy_bo);
->> +                               mutex_unlock(&eb->context->vm->mutex);
->> +                               if (err && busy_bo) {
->> +                                       err = i915_gem_object_lock(busy_bo, &eb->ww);
->> +                                       i915_gem_object_put(busy_bo);
->> +                                       if (!err)
->> +                                               goto retry;
-> Could we possibly get stuck in a never-ending 'retry' loop here?
+> In this situation, CPU 2 would recognize this rule as not LSM based and
+> ignore the LSM part of the rule while matching.
 
-Each time we encounter a contended object lock we do the backoff here, 
-drop the vm->mutex and retry the lock with the full lock. When 
-re-entering evict_vm() that is one less object we need to lock again (we 
-don't drop it until we destroy the ww ctx). The number of objects in a 
-VM is finite (hopefully not too many for normal workloads).
+Would picking up just ima_lsm_update_rule(), without changing to the
+lsm policy update notifier, from upstream and calling it from
+ima_lsm_update_rules() resolve the RCU locking issue?  Or are there
+other issues?
 
-Note that in in evict_vm() there is: 
-dma_resv_locking_ctx(vma->obj->base.resv) == &ww->ctx, which returns 
-true if we have already locked this object, with the given ww ctx (so 
-eb->ww here).
+thanks,
 
-> 
->> +                               }
->> +                       }
->> +                       if (err)
->> +                               return err;
->> +               }
->> +
->>                  list_for_each_entry(ev, &eb->unbound, bind_link) {
->>                          err = eb_reserve_vma(eb, ev, pin_flags);
->>                          if (err)
->> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_mman.c b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
->> index d73ba0f5c4c5..4f69bff63068 100644
->> --- a/drivers/gpu/drm/i915/gem/i915_gem_mman.c
->> +++ b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
->> @@ -369,7 +369,7 @@ static vm_fault_t vm_fault_gtt(struct vm_fault *vmf)
->>                  if (vma == ERR_PTR(-ENOSPC)) {
->>                          ret = mutex_lock_interruptible(&ggtt->vm.mutex);
->>                          if (!ret) {
->> -                               ret = i915_gem_evict_vm(&ggtt->vm, &ww);
->> +                               ret = i915_gem_evict_vm(&ggtt->vm, &ww, NULL);
->>                                  mutex_unlock(&ggtt->vm.mutex);
->>                          }
->>                          if (ret)
->> diff --git a/drivers/gpu/drm/i915/i915_gem_evict.c b/drivers/gpu/drm/i915/i915_gem_evict.c
->> index 4cfe36b0366b..c02ebd6900ae 100644
->> --- a/drivers/gpu/drm/i915/i915_gem_evict.c
->> +++ b/drivers/gpu/drm/i915/i915_gem_evict.c
->> @@ -441,6 +441,11 @@ int i915_gem_evict_for_node(struct i915_address_space *vm,
->>    * @vm: Address space to cleanse
->>    * @ww: An optional struct i915_gem_ww_ctx. If not NULL, i915_gem_evict_vm
->>    * will be able to evict vma's locked by the ww as well.
->> + * @busy_bo: Optional pointer to struct drm_i915_gem_object. If not NULL, then
->> + * in the event i915_gem_evict_vm() is unable to trylock an object for eviction,
->> + * then @busy_bo will point to it. -EBUSY is also returned. The caller must drop
->> + * the vm->mutex, before trying again to acquire the contended lock. The caller
->> + * also owns a reference to the object.
->>    *
->>    * This function evicts all vmas from a vm.
->>    *
->> @@ -450,7 +455,8 @@ int i915_gem_evict_for_node(struct i915_address_space *vm,
->>    * To clarify: This is for freeing up virtual address space, not for freeing
->>    * memory in e.g. the shrinker.
->>    */
->> -int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_ww_ctx *ww)
->> +int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_ww_ctx *ww,
->> +                     struct drm_i915_gem_object **busy_bo)
->>   {
->>          int ret = 0;
->>
->> @@ -482,15 +488,22 @@ int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_ww_ctx *ww)
->>                           * the resv is shared among multiple objects, we still
->>                           * need the object ref.
->>                           */
->> -                       if (dying_vma(vma) ||
->> +                       if (!i915_gem_object_get_rcu(vma->obj) ||
->>                              (ww && (dma_resv_locking_ctx(vma->obj->base.resv) == &ww->ctx))) {
->>                                  __i915_vma_pin(vma);
->>                                  list_add(&vma->evict_link, &locked_eviction_list);
->>                                  continue;
->>                          }
->>
->> -                       if (!i915_gem_object_trylock(vma->obj, ww))
->> +                       if (!i915_gem_object_trylock(vma->obj, ww)) {
->> +                               if (busy_bo) {
->> +                                       *busy_bo = vma->obj; /* holds ref */
->> +                                       ret = -EBUSY;
->> +                                       break;
->> +                               }
->> +                               i915_gem_object_put(vma->obj);
-> If the 'trylock' above fails and 'busy_bo' is NULL, then the code
-> reaches here twice for every call of this function. This means the
-> 'i915_gem_object_put()' above gets called twice, as opposed to the
-> previous behaviour where it was never called. I wonder why the change?
+Mimi
 
-We now do i915_gem_object_get_rcu() above (still returns false if 
-dying), since busy_bo will need a reference to the BO to keep it alive, 
-when returning from evict_vm(). If busy_bo is NULL we just drop that 
-reference here to keep it all balanced.
 
-> 
->>                                  continue;
->> +                       }
->>
->>                          __i915_vma_pin(vma);
->>                          list_add(&vma->evict_link, &eviction_list);
->> @@ -498,25 +511,29 @@ int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_ww_ctx *ww)
->>                  if (list_empty(&eviction_list) && list_empty(&locked_eviction_list))
->>                          break;
->>
->> -               ret = 0;
-> I don't understand why the line above is removed? This causes the
-> inconsistencies I have explained in my comments further down.
-> Whereas if we keep this line, then all the vma's already in
-> 'locked_eviction_list' and 'eviction_list' lists get evicted normally,
-> and with 'trylock' failing again on the consecutive loop iteration(s)
-> where the eviction lists are empty, we will return with the correct
-> -EBUSY code anyway.
-
-Ignoring this patch, the ret = 0 here looks to not be needed. The only 
-time ret is non zero is below when unbinding stuff, and here the "while 
-(ret == 0)" at the end will catch that and bail anyway. So this 
-shouldn't have any change in behaviour AFAICT.
-
-With this patch I just want to set ret = -EBUSY and eventually return 
-that to the caller, and setting ret = 0 here gets in the way.
-
-> 
->>                  /* Unbind locked objects first, before unlocking the eviction_list */
->>                  list_for_each_entry_safe(vma, vn, &locked_eviction_list, evict_link) {
->>                          __i915_vma_unpin(vma);
->>
->> -                       if (ret == 0)
->> +                       if (ret == 0) {
->>                                  ret = __i915_vma_unbind(vma);
->> -                       if (ret != -EINTR) /* "Get me out of here!" */
->> -                               ret = 0;
->> +                               if (ret != -EINTR) /* "Get me out of here!" */
->> +                                       ret = 0;
->> +                       }
->> +                       if (!dying_vma(vma))
->> +                               i915_gem_object_put(vma->obj);
-> If 'busy_bo' != NULL and the 'trylock' above fails resulting in 'ret'
-> = -EBUSY, then for vma's prior to that, we end up calling
-> 'i915_gem_object_put()' without calling '__i915_vma_unbind()'.
-> IIUC, this means we effectively end up calling 'i915_gem_object_put()'
-> twice for vma's appearing before 'trylock' failure in the list, and
-> only once for vma's appearing after. This:
-
-The unbind() here just nukes the GPU page-tables for this VMA (once we 
-are sure the GPU is not still accessing them) and deletes the drm_mm 
-node from the VM, so the next user can use that GPU address/range. I 
-guess we could still do the unbind with -EBUSY, but not doing it 
-shouldn't break anything.
-
-> 1. Does not seem correct!
-> 2. Is different from previous code behaviour.
-> Why the change?
-
-Above we do i915_gem_object_get_rcu(), so this is just balancing that. 
-We get here either because the object is dying, in which case we don't 
-have or need a reference (or lock it seems). If it's not dying then we 
-already locked it, either because of the new retry thing added in this 
-patch, or if the object was locked as part of the execbuf. We also hold 
-a ref in that case.
-
-> 
->>                  }
->>
->>                  list_for_each_entry_safe(vma, vn, &eviction_list, evict_link) {
->>                          __i915_vma_unpin(vma);
->> -                       if (ret == 0)
->> +                       if (ret == 0) {
->>                                  ret = __i915_vma_unbind(vma);
->> -                       if (ret != -EINTR) /* "Get me out of here!" */
->> -                               ret = 0;
->> +                               if (ret != -EINTR) /* "Get me out of here!" */
->> +                                       ret = 0;
->> +                       }
->>
->>                          i915_gem_object_unlock(vma->obj);
->> +                       i915_gem_object_put(vma->obj);
-> Same as my previous comment above.
-> 
->>                  }
->>          } while (ret == 0);
->>
->> diff --git a/drivers/gpu/drm/i915/i915_gem_evict.h b/drivers/gpu/drm/i915/i915_gem_evict.h
->> index e593c530f9bd..bf0ee0e4fe60 100644
->> --- a/drivers/gpu/drm/i915/i915_gem_evict.h
->> +++ b/drivers/gpu/drm/i915/i915_gem_evict.h
->> @@ -11,6 +11,7 @@
->>   struct drm_mm_node;
->>   struct i915_address_space;
->>   struct i915_gem_ww_ctx;
->> +struct drm_i915_gem_object;
->>
->>   int __must_check i915_gem_evict_something(struct i915_address_space *vm,
->>                                            struct i915_gem_ww_ctx *ww,
->> @@ -23,6 +24,7 @@ int __must_check i915_gem_evict_for_node(struct i915_address_space *vm,
->>                                           struct drm_mm_node *node,
->>                                           unsigned int flags);
->>   int i915_gem_evict_vm(struct i915_address_space *vm,
->> -                     struct i915_gem_ww_ctx *ww);
->> +                     struct i915_gem_ww_ctx *ww,
->> +                     struct drm_i915_gem_object **busy_bo);
->>
->>   #endif /* __I915_GEM_EVICT_H__ */
->> diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
->> index 34f0e6c923c2..7d044888ac33 100644
->> --- a/drivers/gpu/drm/i915/i915_vma.c
->> +++ b/drivers/gpu/drm/i915/i915_vma.c
->> @@ -1599,7 +1599,7 @@ static int __i915_ggtt_pin(struct i915_vma *vma, struct i915_gem_ww_ctx *ww,
->>                           * locked objects when called from execbuf when pinning
->>                           * is removed. This would probably regress badly.
->>                           */
->> -                       i915_gem_evict_vm(vm, NULL);
->> +                       i915_gem_evict_vm(vm, NULL, NULL);
->>                          mutex_unlock(&vm->mutex);
->>                  }
->>          } while (1);
->> diff --git a/drivers/gpu/drm/i915/selftests/i915_gem_evict.c b/drivers/gpu/drm/i915/selftests/i915_gem_evict.c
->> index 8c6517d29b8e..37068542aafe 100644
->> --- a/drivers/gpu/drm/i915/selftests/i915_gem_evict.c
->> +++ b/drivers/gpu/drm/i915/selftests/i915_gem_evict.c
->> @@ -344,7 +344,7 @@ static int igt_evict_vm(void *arg)
->>
->>          /* Everything is pinned, nothing should happen */
->>          mutex_lock(&ggtt->vm.mutex);
->> -       err = i915_gem_evict_vm(&ggtt->vm, NULL);
->> +       err = i915_gem_evict_vm(&ggtt->vm, NULL, NULL);
->>          mutex_unlock(&ggtt->vm.mutex);
->>          if (err) {
->>                  pr_err("i915_gem_evict_vm on a full GGTT returned err=%d]\n",
->> @@ -356,7 +356,7 @@ static int igt_evict_vm(void *arg)
->>
->>          for_i915_gem_ww(&ww, err, false) {
->>                  mutex_lock(&ggtt->vm.mutex);
->> -               err = i915_gem_evict_vm(&ggtt->vm, &ww);
->> +               err = i915_gem_evict_vm(&ggtt->vm, &ww, NULL);
->>                  mutex_unlock(&ggtt->vm.mutex);
->>          }
->>
->> --
->> 2.38.1
->>
