@@ -2,130 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CCF764D1E9
-	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 22:42:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B21E064D243
+	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 23:20:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229658AbiLNVmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Dec 2022 16:42:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37822 "EHLO
+        id S229603AbiLNWUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Dec 2022 17:20:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229558AbiLNVme (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 16:42:34 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79854112A
-        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 13:41:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1671054106;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=cdHdAoArTyqSXyDa1PEkCBag/sq888ZHYvAImxogP+M=;
-        b=QUfsSdcVsNQnBCTCzLuhBnXl2a9A3NjR2yB5U8Myk1hfuTICSK63rNqX4aaAKRUxpcffVX
-        0P+nscIDWYnCP/e1kaN1n6Vs2mf5nQNND+yDhKSpxKymCN9FCLm73yQRwcXnPBNfqNaR0x
-        Jlmu47VT2q9aYfNM/VGp2Ueq4dJitDI=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-122-wUR0_d5GN3qdrhxdOTq7mQ-1; Wed, 14 Dec 2022 16:41:45 -0500
-X-MC-Unique: wUR0_d5GN3qdrhxdOTq7mQ-1
-Received: by mail-qk1-f200.google.com with SMTP id bq39-20020a05620a46a700b006ffd5db9fe9so1804184qkb.2
-        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 13:41:45 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=mime-version:user-agent:content-transfer-encoding:organization
-         :references:in-reply-to:date:cc:to:from:subject:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=cdHdAoArTyqSXyDa1PEkCBag/sq888ZHYvAImxogP+M=;
-        b=6t5UwFXz4BpPYUIXhQ1/MIyeeBIRm8KfIHeWuASxgAqBj/SH4K8jkOPE+4dd68C/aR
-         quEMS5rRSunGPZVN2nTJ2kpnQZPiLBqZSfysz6fN18janoaLoWw0ugIgAXvXOf8yi6m5
-         CJ7b8jbQkZyAof/P04Winn0CSS6vpC7DOzQcMihGgyrF6hfJ8MZNxysqBccpsZvYP3Zh
-         ksnqv534vqQqfiOc7tfLAEOLJacG4BKRkrpWxIHEyfvWusKFtAt1icpwsl/roT+QmwD3
-         p6HVNCdQ3sGzkzdFwHIe3l8UfKtCI7871eCC4/GErfm//NiG3TwuivqxZPLvtirKFOMZ
-         TfWQ==
-X-Gm-Message-State: ANoB5pn9ioSzYfFmJR+T3LIFd5F7rvUMG/zHrTvl9DluFG3X8XUkp/0Q
-        ny97OmW4hn9dxXB5bfPj/ilcQJjDXnl8ngfjxYJYyGS4E6NHVo26s1W77ASlzei1vtSgZ04z8jl
-        OKkjMYucCsS+NtWzX
-X-Received: by 2002:a0c:ee42:0:b0:4c6:9271:a037 with SMTP id m2-20020a0cee42000000b004c69271a037mr31285565qvs.30.1671054104458;
-        Wed, 14 Dec 2022 13:41:44 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf6/X83985KkuvLTvoDpqH8sCw8wzfXSCZscLl6n0ADVrXXhZF1/89D4asUprsIO5b6HJfQikQ==
-X-Received: by 2002:a0c:ee42:0:b0:4c6:9271:a037 with SMTP id m2-20020a0cee42000000b004c69271a037mr31285543qvs.30.1671054104212;
-        Wed, 14 Dec 2022 13:41:44 -0800 (PST)
-Received: from ?IPv6:2600:4040:5c6c:9200:beb9:10e2:8071:6929? ([2600:4040:5c6c:9200:beb9:10e2:8071:6929])
-        by smtp.gmail.com with ESMTPSA id u15-20020a05620a454f00b006fa22f0494bsm10879054qkp.117.2022.12.14.13.41.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Dec 2022 13:41:43 -0800 (PST)
-Message-ID: <1ade43347769118c82f1b68bd8b51172a1012a37.camel@redhat.com>
-Subject: Re: [PATCH 1/3] drm/display/dp_mst: Fix down/up message handling
- after sink disconnect
-From:   Lyude Paul <lyude@redhat.com>
-To:     Imre Deak <imre.deak@intel.com>, intel-gfx@lists.freedesktop.org
-Cc:     dri-devel@lists.freedesktop.org, stable@vger.kernel.org
-Date:   Wed, 14 Dec 2022 16:41:42 -0500
-In-Reply-To: <20221214184258.2869417-1-imre.deak@intel.com>
-References: <20221214184258.2869417-1-imre.deak@intel.com>
-Organization: Red Hat Inc.
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
+        with ESMTP id S229611AbiLNWUU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 17:20:20 -0500
+Received: from smtpout.efficios.com (smtpout.efficios.com [167.114.26.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B6841992;
+        Wed, 14 Dec 2022 14:20:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=efficios.com;
+        s=smtpout1; t=1671056416;
+        bh=oNv/gSWyb/MpDqS0P30UCCNCdFs5k2+DfmT7cH4zL1E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=J4HP1YEUylZ4Twplg0KjRig3OwM1h23nU7ydzPq6I19c5zCoqj5qxM1lAxVBInCfI
+         +VbRgaAsrgGuI93EKdy1e2+TbH0WG+I87Bn96TZTp37hQtZLRd7l9vmFpAFyWrRFxR
+         0VWs3su9aZgQ7d/eMKIP79Fntx6kEj701HyzDPUBHgwTs1HfuuvXTGhKnweSKYYXXs
+         V3w1nnOXumE2IhNRivgDzIWZsXmNZ2ef96WLQ/W6+WINMuwgG6phWxU2jt9lQUksJk
+         Pi4HpOe31zh2G0SuuvYcNQaUrel3MusCxAO/1pgPduejbbE53a9JX9KYY2pUX23TOO
+         BxOJw7c388LMQ==
+Received: from localhost.localdomain (192-222-180-24.qc.cable.ebox.net [192.222.180.24])
+        by smtpout.efficios.com (Postfix) with ESMTPSA id 4NXVDJ3VCjzbgh;
+        Wed, 14 Dec 2022 17:20:16 -0500 (EST)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Andre Almeida <andrealmeid@collabora.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Davidlohr Bueso <dave@stgolabs.net>, stable@vger.kernel.org
+Subject: [RFC PATCH] futex: Fix futex_waitv() hrtimer debug object leak on kcalloc error
+Date:   Wed, 14 Dec 2022 17:20:08 -0500
+Message-Id: <20221214222008.200393-1-mathieu.desnoyers@efficios.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-For the whole series:
+In a scenario where kcalloc() fails to allocate memory, the futex_waitv
+system call immediately returns -ENOMEM without invoking
+destroy_hrtimer_on_stack(). When CONFIG_DEBUG_OBJECTS_TIMERS=y, this
+results in leaking a timer debug object.
 
-Reviewed-by: Lyude Paul <lyude@redhat.com>
+Fixes: bf69bad38cf6 ("futex: Implement sys_futex_waitv()")
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Andre Almeida <andrealmeid@collabora.com>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Darren Hart <dvhart@infradead.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: stable@vger.kernel.org # v5.16+
+---
+ kernel/futex/syscalls.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-Thanks!
-
-On Wed, 2022-12-14 at 20:42 +0200, Imre Deak wrote:
-> If the sink gets disconnected during receiving a multi-packet DP MST AUX
-> down-reply/up-request sideband message, the state keeping track of which
-> packets have been received already is not reset. This results in a failed
-> sanity check for the subsequent message packet received after a sink is
-> reconnected (due to the pending message not yet completed with an
-> end-of-message-transfer packet), indicated by the
->=20
-> "sideband msg set header failed"
->=20
-> error.
->=20
-> Fix the above by resetting the up/down message reception state after a
-> disconnect event.
->=20
-> Cc: Lyude Paul <lyude@redhat.com>
-> Cc: <stable@vger.kernel.org> # v3.17+
-> Signed-off-by: Imre Deak <imre.deak@intel.com>
-> ---
->  drivers/gpu/drm/display/drm_dp_mst_topology.c | 3 +++
->  1 file changed, 3 insertions(+)
->=20
-> diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/=
-drm/display/drm_dp_mst_topology.c
-> index 51a46689cda70..90819fff2c9ba 100644
-> --- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
-> +++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
-> @@ -3641,6 +3641,9 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_m=
-st_topology_mgr *mgr, bool ms
->  		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
->  		ret =3D 0;
->  		mgr->payload_id_table_cleared =3D false;
-> +
-> +		memset(&mgr->down_rep_recv, 0, sizeof(mgr->down_rep_recv));
-> +		memset(&mgr->up_req_recv, 0, sizeof(mgr->up_req_recv));
->  	}
-> =20
->  out_unlock:
-
---=20
-Cheers,
- Lyude Paul (she/her)
- Software Engineer at Red Hat
+diff --git a/kernel/futex/syscalls.c b/kernel/futex/syscalls.c
+index 086a22d1adb7..a8074079b09e 100644
+--- a/kernel/futex/syscalls.c
++++ b/kernel/futex/syscalls.c
+@@ -286,19 +286,22 @@ SYSCALL_DEFINE5(futex_waitv, struct futex_waitv __user *, waiters,
+ 	}
+ 
+ 	futexv = kcalloc(nr_futexes, sizeof(*futexv), GFP_KERNEL);
+-	if (!futexv)
+-		return -ENOMEM;
++	if (!futexv) {
++		ret = -ENOMEM;
++		goto destroy_timer;
++	}
+ 
+ 	ret = futex_parse_waitv(futexv, waiters, nr_futexes);
+ 	if (!ret)
+ 		ret = futex_wait_multiple(futexv, nr_futexes, timeout ? &to : NULL);
+ 
++	kfree(futexv);
++
++destroy_timer:
+ 	if (timeout) {
+ 		hrtimer_cancel(&to.timer);
+ 		destroy_hrtimer_on_stack(&to.timer);
+ 	}
+-
+-	kfree(futexv);
+ 	return ret;
+ }
+ 
+-- 
+2.25.1
 
