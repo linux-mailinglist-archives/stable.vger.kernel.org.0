@@ -2,98 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 056CD64CD77
-	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 16:56:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D60CF64CD98
+	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 17:00:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238168AbiLNP40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Dec 2022 10:56:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55798 "EHLO
+        id S238843AbiLNQAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Dec 2022 11:00:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238214AbiLNPz7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 10:55:59 -0500
-Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D169D22B31;
-        Wed, 14 Dec 2022 07:53:56 -0800 (PST)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.west.internal (Postfix) with ESMTP id 0B6F432002D8;
-        Wed, 14 Dec 2022 10:53:53 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 14 Dec 2022 10:53:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1671033233; x=1671119633; bh=CyIY8Drrva
-        YiKFF2vUOVJLvYII5yfxQR4YH6JCbvsJ4=; b=MvRAhVA2FjrgQ/rTVnDffGST7n
-        e9sN0liY4NK15kqxO/PNN4vq+yXdmZp3YrWGguGUQODuuXOM6peOVClo6tQwfuZs
-        Y6kEVVnFGzI/S9kiXWha9z+PCFVKU2hJE4iwVhHdcrxxJ1LBWX9Sg5NwV9MczOZp
-        eEokm0vWdYTFP8+Zv1NUIyRJ0PJ8Z5esi0vT9SMiZyt+62HmCzYTqTgpU/K/HZi2
-        mzp7hl3rNnQsr4x3vYRKStVGRpBNu7zAaQ5AM+k5LMLF+uwJ6Y9oSc1tJRlHkQb9
-        A5wMCcpdxJyTecLFUL6Y5SG4B64Vl8E/IYuEyXTHUVCmBdxMAEKkGjlSm4qg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm2; t=1671033233; x=1671119633; bh=CyIY8DrrvaYiKFF2vUOVJLvYII5y
-        fxQR4YH6JCbvsJ4=; b=KtQJIImGbePM5JQOFehBhSMglottTdzLrTixlGhk2oht
-        biCrtesqLjjpYVRUm/sT2u5wcbhQy4Yy79/gtADsiUi0JbY6zUJzLUip1K3UH/1Z
-        jtncNLTdSjbKApBsr9txlYjuwh/Ht2iCaEifKj9yX2QWWVTDxMK9AnmTGYlbKczW
-        6JA1Cm9j+rjJHT8uJEfhKgB8k3CDc2XrGZWhY2eYoX6wY4zAePxRpqdEWUnbIkM+
-        iwiyW45qrdnmuBO+lm4VvfnHBlFRFyOh9y+coTYOtbhJDeo94NXXLQkvcbDHnzgg
-        oTslTdE8D+Bd7bGgva2jzz6/KY6M2TIiZ6zkRZj/6g==
-X-ME-Sender: <xms:kfGZY_8LTIE8_bkXs3JTJ3CwBOyRdqOhRo9cy4Ly1wdObLjoMl5CCw>
-    <xme:kfGZY7tRMtl_uw_q4dEgucVMAuvfceHPqyk-mHBQVTAq9eO-1_--swZj26lk8YXNU
-    p6qA9c1N_yqJQ>
-X-ME-Received: <xmr:kfGZY9Amnyl2gGbI0N6e0YpuhCPNfjgLpkV4zGTAifo52anXavzl7yZJJxsZkCAei0uONGU8_KsWmsjLBQEO8yUJUh9Cgas8>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfeefgdekvdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeegheeuhe
-    fgtdeluddtleekfeegjeetgeeikeehfeduieffvddufeefleevtddtvdenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:kfGZY7fSRSKir-cCW7XbfI5LOyRgKhEcCwK3UytS9kOKh5C_LlD7-A>
-    <xmx:kfGZY0PmAoJXzokl9tlHC_IO7aE1pyLzAzP3bUEluWyjE_k4V7TPhA>
-    <xmx:kfGZY9nYxtaFrqDRY8J8vl79eStAjk61bBBB9kv-K3FTQXtyPa8_Yg>
-    <xmx:kfGZYxrdgRyrT7E_wf86Fs5MVjxAUqS3u0rX0PLHOeyQ8dL28c2v6A>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 14 Dec 2022 10:53:52 -0500 (EST)
-Date:   Wed, 14 Dec 2022 16:53:50 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Cc:     stable <stable@vger.kernel.org>, netdev <netdev@vger.kernel.org>
-Subject: Re: Request for "net: bpf: Allow TC programs to call
- BPF_FUNC_skb_change_head" in 5.4
-Message-ID: <Y5nxjuRGdUDmEStG@kroah.com>
-References: <b5353d33-728e-db34-e65b-d94cddaf8547@6wind.com>
+        with ESMTP id S238923AbiLNQAT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 11:00:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB6882A271
+        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 07:58:47 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48AE261AA2
+        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 15:58:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4673EC433EF;
+        Wed, 14 Dec 2022 15:58:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1671033526;
+        bh=FSzI9ZvvfxPQmWRbohbWucMskgML+DqMUAysRYLSk7Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Uw9RxbEzWdMh3j6cgTnQfocwOw+njg4bQHxsv4gt8z6njmDBYdHWLUpnxhkQSHMn1
+         RrU1tPyWBqyYrgr3wF1ih60dUIhy9+ODd36N9S2RRxqNhs4aexJl2/u0fudeJZw6P+
+         VwxfU7BYJSVa6yBDDvK3Pb6hl+L3CrYV+3iL4cg0=
+Date:   Wed, 14 Dec 2022 16:58:43 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Amir Goldstein <amir73il@gmail.com>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Luis Henriques <lhenriques@suse.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 6.0 044/124] vfs: fix copy_file_range() averts filesystem
+ freeze protection
+Message-ID: <Y5nys0X8X9havZ4G@kroah.com>
+References: <20221205190808.422385173@linuxfoundation.org>
+ <20221205190809.690922836@linuxfoundation.org>
+ <CAOQ4uxhmZ4RnG0mGaMivyQjS43cUykyO-oVtCLX4AFyrnTXrVA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b5353d33-728e-db34-e65b-d94cddaf8547@6wind.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <CAOQ4uxhmZ4RnG0mGaMivyQjS43cUykyO-oVtCLX4AFyrnTXrVA@mail.gmail.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 14, 2022 at 11:57:32AM +0100, Nicolas Dichtel wrote:
-> Hi,
+On Tue, Dec 13, 2022 at 10:03:02AM +0200, Amir Goldstein wrote:
+> On Mon, Dec 5, 2022 at 9:24 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > From: Amir Goldstein <amir73il@gmail.com>
+> >
+> > [ Upstream commit 10bc8e4af65946b727728d7479c028742321b60a ]
+> >
+> > Commit 868f9f2f8e00 ("vfs: fix copy_file_range() regression in cross-fs
+> > copies") removed fallback to generic_copy_file_range() for cross-fs
+> > cases inside vfs_copy_file_range().
 > 
-> I would like to request for cherry-picking commit 6f3f65d80dac (linux v5.8) in
-> the linux-5.4.y branch.
+> Hi Greg,
 > 
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6f3f65d80dac
-> 
-> This commit is trivial, the potential regressions are low. The cherry-pick is
-> straightforward.
-> The kernel 5.4 is used by a lot of vendors, having this patch will help
-> supporting standard ebpf programs.
+> The regressing commit is in v5.15.53.
+> Please apply this fix to 5.15.y.
 
-Now queued up, thanks.
+This commit does not apply to 5.15.y as-is (breaks the build), can you
+provide a working backport?
+
+thanks,
 
 greg k-h
