@@ -2,68 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3EDB64C197
-	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 02:02:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8634064C1E0
+	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 02:33:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236910AbiLNBCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 20:02:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39124 "EHLO
+        id S235717AbiLNBdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 20:33:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237587AbiLNBCk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 20:02:40 -0500
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9B4A0FE6;
-        Tue, 13 Dec 2022 17:02:39 -0800 (PST)
-Received: by linux.microsoft.com (Postfix, from userid 1131)
-        id 048EA20B83FB; Tue, 13 Dec 2022 17:02:39 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 048EA20B83FB
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1670979759;
-        bh=maRg8G3Tdq9v9MViU7vfDaJQHCt4cZ60ApGNvy1tfP4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jlWXnu+Z252HouDKjPRxDiV6a9Cuvk7tSCTHQDGm9B8F4Ejs7Sj72bhT1WdWvN+iv
-         CqdbVI5NYaX/DFmG3LjrKzs8zpCax/keNOm/0TZq/2lUdXaj+34AX699nq9H90b22+
-         kE66aVnRv7MdHsmiUEZ/yEF1LdHAgsXidGMQBFmM=
-Date:   Tue, 13 Dec 2022 17:02:38 -0800
-From:   Kelsey Steele <kelseysteele@linux.microsoft.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.15 000/123] 5.15.83-rc1 review
-Message-ID: <20221214010238.GA4793@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <20221212130926.811961601@linuxfoundation.org>
+        with ESMTP id S229967AbiLNBdG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 20:33:06 -0500
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB982AE7;
+        Tue, 13 Dec 2022 17:33:03 -0800 (PST)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.55])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4NWyX444HPz16LYj;
+        Wed, 14 Dec 2022 09:32:04 +0800 (CST)
+Received: from [10.67.110.173] (10.67.110.173) by
+ dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.34; Wed, 14 Dec 2022 09:33:02 +0800
+Message-ID: <6a5bc829-b788-5742-cbfc-dba348065dbe@huawei.com>
+Date:   Wed, 14 Dec 2022 09:33:01 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221212130926.811961601@linuxfoundation.org>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.2
+Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
+Content-Language: en-US
+To:     Mimi Zohar <zohar@linux.ibm.com>, <dmitry.kasatkin@gmail.com>,
+        Paul Moore <paul@paul-moore.com>, <sds@tycho.nsa.gov>,
+        <eparis@parisplace.org>, Greg KH <gregkh@linuxfoundation.org>,
+        <sashal@kernel.org>
+CC:     <selinux@vger.kernel.org>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
+ <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
+From:   "Guozihua (Scott)" <guozihua@huawei.com>
+In-Reply-To: <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.110.173]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpemm500024.china.huawei.com (7.185.36.203)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 12, 2022 at 02:16:06PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.83 release.
-> There are 123 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 2022/12/13 23:30, Mimi Zohar wrote:
+> On Fri, 2022-12-09 at 15:00 +0800, Guozihua (Scott) wrote:
+>> Hi community.
+>>
+>> Previously our team reported a race condition in IMA relates to LSM 
+>> based rules which would case IMA to match files that should be filtered 
+>> out under normal condition. The issue was originally analyzed and fixed 
+>> on mainstream. The patch and the discussion could be found here: 
+>> https://lore.kernel.org/all/20220921125804.59490-1-guozihua@huawei.com/
+>>
+>> After that, we did a regression test on 4.19 LTS and the same issue 
+>> arises. Further analysis reveled that the issue is from a completely 
+>> different cause.
+>>
+>> The cause is that selinux_audit_rule_init() would set the rule (which is 
+>> a second level pointer) to NULL immediately after called. The relevant 
+>> codes are as shown:
+>>
+>> security/selinux/ss/services.c:
+>>> int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+>>> {
+>>>         struct selinux_state *state = &selinux_state;
+>>>         struct policydb *policydb = &state->ss->policydb;
+>>>         struct selinux_audit_rule *tmprule;
+>>>         struct role_datum *roledatum;
+>>>         struct type_datum *typedatum;
+>>>         struct user_datum *userdatum;
+>>>         struct selinux_audit_rule **rule = (struct selinux_audit_rule **)vrule;
+>>>         int rc = 0;
+>>>
+>>>         *rule = NULL;
+>> *rule is set to NULL here, which means the rule on IMA side is also NULL.
+>>>
+>>>         if (!state->initialized)
+>>>                 return -EOPNOTSUPP;
+>> ...
+>>> out:
+>>>         read_unlock(&state->ss->policy_rwlock);
+>>>
+>>>         if (rc) {
+>>>                 selinux_audit_rule_free(tmprule);
+>>>                 tmprule = NULL;
+>>>         }
+>>>
+>>>         *rule = tmprule;
+>> rule is updated at the end of the function.
+>>>
+>>>         return rc;
+>>> }
+>>
+>> security/integrity/ima/ima_policy.c:
+>>> static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+>>>                             const struct cred *cred, u32 secid,
+>>>                             enum ima_hooks func, int mask)
+>>> {...
+>>> for (i = 0; i < MAX_LSM_RULES; i++) {
+>>>                 int rc = 0;
+>>>                 u32 osid;
+>>>                 int retried = 0;
+>>>
+>>>                 if (!rule->lsm[i].rule)
+>>>                         continue;
+>> Setting rule to NULL would lead to LSM based rule matching being skipped.
+>>> retry:
+>>>                 switch (i) {
+>>
+>> To solve this issue, there are multiple approaches we might take and I 
+>> would like some input from the community.
+>>
+>> The first proposed solution would be to change 
+>> selinux_audit_rule_init(). Remove the set to NULL bit and update the 
+>> rule pointer with cmpxchg.
+>>
+>>> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+>>> index a9f2bc8443bd..aa74b04ccaf7 100644
+>>> --- a/security/selinux/ss/services.c
+>>> +++ b/security/selinux/ss/services.c
+>>> @@ -3297,10 +3297,9 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+>>>         struct type_datum *typedatum;
+>>>         struct user_datum *userdatum;
+>>>         struct selinux_audit_rule **rule = (struct selinux_audit_rule **)vrule;
+>>> +       struct selinux_audit_rule *orig = rule;
+>>>         int rc = 0;
+>>>  
+>>> -       *rule = NULL;
+>>> -
+>>>         if (!state->initialized)
+>>>                 return -EOPNOTSUPP;
+>>>  
+>>> @@ -3382,7 +3381,8 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+>>>                 tmprule = NULL;
+>>>         }
+>>>  
+>>> -       *rule = tmprule;
+>>> +       if (cmpxchg(rule, orig, tmprule) != orig)
+>>> +               selinux_audit_rule_free(tmprule);
+>>>  
+>>>         return rc;
+>>>  }
+>>
+>> This solution would be an easy fix, but might influence other modules 
+>> calling selinux_audit_rule_init() directly or indirectly (on 4.19 LTS, 
+>> only auditfilter and IMA it seems). And it might be worth returning an 
+>> error code such as -EAGAIN.
+>>
+>> Or, we can access rules via RCU, similar to what we do on 5.10. This 
+>> could means more code change and testing.
 > 
-> Responses should be made by Wed, 14 Dec 2022 13:08:57 +0000.
-> Anything received after that time might be too late.
+> In the 4.19 kernel, IMA is doing a lazy LSM based policy rule update as
+> needed.  IMA waits for selinux_audit_rule_init() to complete and
+> shouldn't see NULL, unless there is an SELinux failure.  Before
+> "fixing" the problem, what exactly is the problem?
 
-No regressions found on WSL x86_64 or WSL arm64
+IMA runs on multiple cores. On 4.19 kernel, IMA do a lazy update on ALL
+LSM based rules in one go without using RCU, which would still allow
+other cores to access the rule being updated. And that's the issue.
 
-Built, booted, and compared dmesg against 5.15.82.
+An example scenario would be:
+	CPU1			|	CPU2
+opened a file and starts	|
+updating LSM based rules.	|
+				| opened a file and starts
+				| matching rules.
+				|
+set a LSM based rule to NULL.	| access the same LSM based rule and
+ 				| see that it's NULL.
 
-Thank you.
+In this situation, CPU 2 would recognize this rule as not LSM based and
+ignore the LSM part of the rule while matching.
 
-Tested-by: Kelsey Steele <kelseysteele@linux.microsoft.com> 
+-- 
+Best
+GUO Zihua
+
