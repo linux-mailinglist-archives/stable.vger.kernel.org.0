@@ -2,245 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EFE064C21D
-	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 03:06:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7B6D64C2A9
+	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 04:16:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236726AbiLNCGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Dec 2022 21:06:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60886 "EHLO
+        id S237224AbiLNDQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Dec 2022 22:16:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236039AbiLNCGe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 21:06:34 -0500
-Received: from smtp-fw-33001.amazon.com (smtp-fw-33001.amazon.com [207.171.190.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6EB02229E
-        for <stable@vger.kernel.org>; Tue, 13 Dec 2022 18:06:32 -0800 (PST)
+        with ESMTP id S236910AbiLNDQZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Dec 2022 22:16:25 -0500
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A24E17880;
+        Tue, 13 Dec 2022 19:16:24 -0800 (PST)
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BDLOA0n014258;
+        Wed, 14 Dec 2022 03:16:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
+ from : message-id : references : date : in-reply-to : content-type :
+ mime-version; s=corp-2022-7-12;
+ bh=K0EaNu7eV76td9RAUkqBIxlp89gblDOGztoVW8+box0=;
+ b=uhBCyOoeKl3jRzPX1QUnSJlUvfUsOGRn94JSNsTARNM6NT21T1IyWmyQJHZfDD1pDZdZ
+ l/6zMXEYkQpTZV22GAzIO/wusaiW4v9Ripy3KnPSh7shCPXA/6+nWdB47cqABYwRxmdA
+ 0PClWrZgenkqfmSBRl6263qfwvMktR8t5MnqIiKOw4Krspm9RfzH5AWVseN8PjrSS+J9
+ krIy6wVgp18iFUy8i8ASuze4Ttk4nGPnq63dI6A3M9iad/OnAhOYyhNKOzKVmcNCQfq+
+ t7noInRrHp2wn53q7/5c+4q1uvRsuTruJgmr5FQGkKbcN+kEo0QTTUhMC/eXgtM/LyQa Zg== 
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3meyew8vk3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 14 Dec 2022 03:16:13 +0000
+Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 2BE00tMt012243;
+        Wed, 14 Dec 2022 03:16:12 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2041.outbound.protection.outlook.com [104.47.66.41])
+        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3meyev98va-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 14 Dec 2022 03:16:11 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=VoHc4b5AapvXa6w7TReG4ioPRIfIirQjg52ip46sP29KvCeb5BPT/B1HE8WcMhtaJfi7geVDkfrDDwxN3rk6Mq1k3vEYysTHCuhHgr0JiENvBlBO/Nwi986ideKD9aFXT6v1ssfdGAcIEwXLWSSLimhtlrVNXpkgf5lDlNVzesRlUrmytZwUP+K8FMu2PNfLpknGTh5e6czR+EQ+JMsNZXvm+XQ8xwpu23u2PKA3+URyu0MnLIsEEw4JHA4sipxQbsbCrPOcX/rKado6wJVwJpvygiA1JY2yOO3bOnkCD0kM5+JlHEjc0npuF+Vn9o0oUSCZEpl63/Db0jDT9INa1Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=K0EaNu7eV76td9RAUkqBIxlp89gblDOGztoVW8+box0=;
+ b=Wz8oiHp45rhK7zKQnvJWaTTf18wWScTHuMuArRLL5KJ0l5Pe8mtG/Ssb6YQdZQDBr45D3laV9LVszttUxdfK6YkQ991MMi0S2mZhI2vl+13ylZaNP0aTQEyUT0OUk2WzVFocxFm9QkFl4oN6ktGHbdUpI2NiqHjFkoKtcTKTVyvWrCp0B6W/x5o/+Gc/YRSymXk7jJmHF3lcDjO/R/f62myVPiRaekn4PV2ldc2mdggvI+hjrvyAvmK+ql4+u5W7bJ4Fq7JgcBrMY/8xBA+sOas4+ywQxhHQwnoTy1aes+PQJ+93Brs8d9yQWmTqSglZGTd9nrTt8k6ZoY9ZofLSmA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1670983593; x=1702519593;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=UXkJiqqx9nhbxTW4U3Q9/yT+oaU3Ff2K5U+QEdK8g5g=;
-  b=GUl4WGFLB8Zn3gk/Zn0b7xXD9yZtAFFZHP9WwiLJFUTPt/mfOQ/S5CzJ
-   I4D3EXP3FN2w26kS/NNxBPoebMl0Uhdf1zvReNj/ccamrlAPk6D7QoNMs
-   IBPdp+k4di1CQ0FXDJwbvKLQ15f+kDXEm8DzjdUtO10Mq07Yn2PvKKQMH
-   c=;
-X-IronPort-AV: E=Sophos;i="5.96,243,1665446400"; 
-   d="scan'208";a="248125540"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-pdx-2b-m6i4x-189d700f.us-west-2.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-33001.sea14.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2022 02:06:31 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-pdx-2b-m6i4x-189d700f.us-west-2.amazon.com (Postfix) with ESMTPS id F17F441714;
-        Wed, 14 Dec 2022 02:06:28 +0000 (UTC)
-Received: from EX19D001UWA002.ant.amazon.com (10.13.138.236) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1497.42; Wed, 14 Dec 2022 02:06:28 +0000
-Received: from u46989501580c5c.ant.amazon.com (10.43.160.83) by
- EX19D001UWA002.ant.amazon.com (10.13.138.236) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.20;
- Wed, 14 Dec 2022 02:06:26 +0000
-From:   Samuel Mendoza-Jonas <samjonas@amazon.com>
-To:     <stable@vger.kernel.org>
-CC:     <benh@amazon.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
-        "Mike Kravetz" <mike.kravetz@oracle.com>,
-        David Hildenbrand <david@redhat.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "Samuel Mendoza-Jonas" <samjonas@amazon.com>
-Subject: [PATCH 5.4 v2] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
-Date:   Tue, 13 Dec 2022 18:06:09 -0800
-Message-ID: <20221214020609.832545-1-samjonas@amazon.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=K0EaNu7eV76td9RAUkqBIxlp89gblDOGztoVW8+box0=;
+ b=tTveRhpU6FgArkjZaXDfiH2SXjGeXAZvMAG/NrmyGAwpr2yWtROn8sGj/oWKCHh1+4UOyJwB03dmbH7tS+hnT7JnWU1cJYfHEC4Tyk46nIL7mcMsGPeSSIutSYr35WqYv/jwcIMSbXWsxUZyUA3dRN5SLvcTY8pwjeGbKCZnS/Y=
+Received: from PH0PR10MB4759.namprd10.prod.outlook.com (2603:10b6:510:3d::12)
+ by CO1PR10MB4561.namprd10.prod.outlook.com (2603:10b6:303:9d::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.19; Wed, 14 Dec
+ 2022 03:16:08 +0000
+Received: from PH0PR10MB4759.namprd10.prod.outlook.com
+ ([fe80::25bc:7f6f:954:ca22]) by PH0PR10MB4759.namprd10.prod.outlook.com
+ ([fe80::25bc:7f6f:954:ca22%2]) with mapi id 15.20.5880.019; Wed, 14 Dec 2022
+ 03:16:07 +0000
+To:     <peter.wang@mediatek.com>
+Cc:     <stanley.chu@mediatek.com>, <linux-scsi@vger.kernel.org>,
+        <martin.petersen@oracle.com>, <avri.altman@wdc.com>,
+        <alim.akhtar@samsung.com>, <jejb@linux.ibm.com>,
+        <wsd_upstream@mediatek.com>, <linux-mediatek@lists.infradead.org>,
+        <chun-hung.wu@mediatek.com>, <alice.chao@mediatek.com>,
+        <cc.chou@mediatek.com>, <chaotian.jing@mediatek.com>,
+        <jiajie.hao@mediatek.com>, <powen.kao@mediatek.com>,
+        <qilin.tan@mediatek.com>, <lin.gui@mediatek.com>,
+        <tun-yu.yu@mediatek.com>, <eddie.huang@mediatek.com>,
+        <naomi.chu@mediatek.com>, <stable@vger.kernel.org>
+Subject: Re: [PATCH v6] ufs: core: wlun suspend SSU/enter hibern8 fail recovery
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+Organization: Oracle Corporation
+Message-ID: <yq14jtyekv2.fsf@ca-mkp.ca.oracle.com>
+References: <20221208072520.26210-1-peter.wang@mediatek.com>
+Date:   Tue, 13 Dec 2022 22:16:04 -0500
+In-Reply-To: <20221208072520.26210-1-peter.wang@mediatek.com> (peter wang's
+        message of "Thu, 8 Dec 2022 15:25:20 +0800")
 Content-Type: text/plain
-X-Originating-IP: [10.43.160.83]
-X-ClientProxiedBy: EX13D21UWA004.ant.amazon.com (10.43.160.252) To
- EX19D001UWA002.ant.amazon.com (10.13.138.236)
-X-Spam-Status: No, score=-11.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+X-ClientProxiedBy: SN7PR18CA0023.namprd18.prod.outlook.com
+ (2603:10b6:806:f3::16) To PH0PR10MB4759.namprd10.prod.outlook.com
+ (2603:10b6:510:3d::12)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR10MB4759:EE_|CO1PR10MB4561:EE_
+X-MS-Office365-Filtering-Correlation-Id: dcebeeea-8bcc-4bb2-ab36-08dadd818a0f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: XmYXRthKSQTduZCxJQ0GnPkD7WtSdMflRfS0ybvmvetF7dQIUzHyhAhWl3mxbbLiWbuxu9cY78sN9Zh+qgKJz53XDP96GIoot+lqRER572X19m21ibB9Y+3rn4Q7x7bLXHSPMR+DwP2jwqEBAnFIXWmgB9HtokBTWRwrauQSyiYwlLUQfLnsd8CuUaCTDBK73nDQXYii7I5Trh4PCmk6zX/uFcd/RmNawVpdb9sLknT63WjpemmMhnviKDdpPCd+nvhLoi0DCZGReoHNIsk+KBqxwPXw3xYc2l5gPxQLif8aFLAnoecCiF1XEeG1Aet2+Dl2/T7dMP93CN+8cNgtMHyVIWQG89N26DSvgeJbmnNWEMriS0ELeRlHeJCjyUBntv2/+4jBWwYR4gKVHN99L35RZuL5JXjs8dvY1Fe+z0C3S9oTy8cbrZR768Xi8vdPc7o68SYZrWAKLe7AZ6YUdVvRa0alMaY2COejTsUkVJhso6xWdbygHi8SlbM1qSs8gEepjpbyRBo48rlhCOa/wE38VkmQ9fp6I+XuTbC0Zh2euMvbNZvoMiBxNHpYIIDb+LEGfDmHx0roRMdETKAYwOX4JWvuSDDN5kc0Y8xghV2B5jLmQqvYIy0OSo2yw8YIosz4lL8f6HpU1S/hp78ifw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB4759.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(136003)(376002)(366004)(39860400002)(396003)(346002)(451199015)(86362001)(186003)(38100700002)(26005)(478600001)(6512007)(6506007)(6666004)(6486002)(36916002)(4744005)(7416002)(6916009)(316002)(4326008)(41300700001)(5660300002)(8936002)(8676002)(2906002)(15650500001)(83380400001)(54906003)(66556008)(66476007)(66946007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?cXIuDTAkEWHUwtM9SXFkVrYeOn88RU0oOKncof/KKeZOuDLMnxUN+RdFNex6?=
+ =?us-ascii?Q?33Y11u3p5NpUuVXc9W+bC0rtNBijIktL/O/bqsCp28uU3XfWt026sxI6/C3d?=
+ =?us-ascii?Q?df11r82mcQXCGViU1bz625Hp/nZkF4jYHMvFRUpeN8So6GGPi4Ck4byVaZIP?=
+ =?us-ascii?Q?ZFkCjOR5Z1OzjG1T4VmuNwcwECZyrYtpR7BXD+Ma6mQPFmgbAz3ak/Ajxw32?=
+ =?us-ascii?Q?COP+mu7O+1w2cAaPOAykJ2MQXCASkttvfw/tSFj11654SGcP1aLFawTqYTQe?=
+ =?us-ascii?Q?Odlv3k0MW/5k80tcDBNLwla8FjZ5p+ApLBFy0Q8ssN5wqAHjaiw9k3Y7dcKO?=
+ =?us-ascii?Q?d7GBtjigrPvO9Ve46HXaOzxPqIUJIhYFtixa/WLNoQEzqxOLUFA0E3FAYCfn?=
+ =?us-ascii?Q?6VOJAqRvRCuZjwyU0TGX4yY72S0oE/Y4LGSAbv6yz7GqW2/Tm+p+Qbe5PQiR?=
+ =?us-ascii?Q?aZwUm52KtZ8tuRtbNrHam1yzxBgg9YM3ZYcmCQ06UiFnND8GJEXoEVhHCVgk?=
+ =?us-ascii?Q?09jRwI4w8hXw560CfAv/lW44ZmLHF64L1l5Z6L0kobi+xhDe8wzGNSoTn3Bi?=
+ =?us-ascii?Q?NOpXcHlFfgNicxex6unOu4C3TBm4PrPRkD1l2T+TegbPmSTtpeLqy9x6ZHxl?=
+ =?us-ascii?Q?k8Ubcu39kk2ronI1abT0Yz0keZ7QyjTTkddvZajPmblqxUovyTQWv6sk9RA+?=
+ =?us-ascii?Q?JsgONhYa/z/1milLhVapM/bPSSVO9tc1KZETh9LuEGsJZRK3tMoJFf8vyLp6?=
+ =?us-ascii?Q?/mAOAoq3AhgbFfEzz6ReGapj0o3rOdcGA7Q/rTwVnD5UGFIr23glzftSGozt?=
+ =?us-ascii?Q?5cjrQyTPKFQlUhgeo1R49thtkCT9wfJRcnpdwpxE8O8zboFSpapn6qAhJrmE?=
+ =?us-ascii?Q?FUyG8kKiT+dLL2CcCXJ9fQEPKInFf+zX1ESko7ly/N2GIHAWuN1Pk5OgdwX4?=
+ =?us-ascii?Q?6UkDrLnjJnygMEMaKSMcotTBwr9/cxHZboEYjWc6oE0+uf+3DfCQ8nardPzN?=
+ =?us-ascii?Q?JRjV4IKz0y0QEMTE6DXBWfPiWohNZ9m1dWk2/ggf4mg51vafBCfaPN0qwl8B?=
+ =?us-ascii?Q?qvvm2SSqK0BcOlYuM8r2lJ+X5Nl1ZLZdT7tpIUOsb7+ZeeoOd2dd4AF0sqky?=
+ =?us-ascii?Q?lb3eeuutUufmx+gtU3fWHyi+9pw/U/y5oF2pDtIYJnNXXf66hiBYy4VLQYKv?=
+ =?us-ascii?Q?OiMc2e61+dA41FmG0CTzz3t5CulG2+DSEZGrpulww8cxMmSJ5VYDpkCQXC1Q?=
+ =?us-ascii?Q?ErNpxy5BCMnYZjas+05oOW2j5UWMS0XPcUGz47CpmNchW+md6vQe/NtV/8Vc?=
+ =?us-ascii?Q?3S5spxqxUss8Un01/iogTHmFzKsLPOwFnwVzxs1Kxyd72lFsAkUJWTW79LLd?=
+ =?us-ascii?Q?CYe1KvJZYRR9wRbPhp7Oiknri/0C7mB0b4Jz0nfbUXo+la0wCw2GqNP4iW9k?=
+ =?us-ascii?Q?Wa/oEZY+ggaAbu+ofeXcQH8zFbQEUB51/suUd/4UE5pLvE0bzADPcTZaCcy4?=
+ =?us-ascii?Q?RguXUBompEsOQ3CvCWv+HHNbuSHkR5LBetVGl+LjN+N7POs92cjmvK4a1C48?=
+ =?us-ascii?Q?iCm4gGwM8chFKf0YdqcrbJe9OVYHDiyvz9Ygp7RyJ4viZ4nAglrTfBKNG0j8?=
+ =?us-ascii?Q?JA=3D=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: dcebeeea-8bcc-4bb2-ab36-08dadd818a0f
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB4759.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Dec 2022 03:16:07.9094
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: ycmiTuNfDrlK00peBqfiXjwReNTqfjxzdbyCd+8ZXGcFdsBnmegXHPcJfxaauzW66LDhAileRHyioqT7SFAuDL/setm00pHW3YtUSkV8LOQ=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR10MB4561
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-13_10,2022-12-13_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 suspectscore=0 bulkscore=0
+ spamscore=0 mlxscore=0 mlxlogscore=751 adultscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2212140024
+X-Proofpoint-GUID: 44RzLwCi7laCf__EItwpKcEZsYL0Wqcz
+X-Proofpoint-ORIG-GUID: 44RzLwCi7laCf__EItwpKcEZsYL0Wqcz
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
 
-[ Upstream commit fac35ba763ed07ba93154c95ffc0c4a55023707f ]
+Peter,
 
-On some architectures (like ARM64), it can support CONT-PTE/PMD size
-hugetlb, which means it can support not only PMD/PUD size hugetlb (2M and
-1G), but also CONT-PTE/PMD size(64K and 32M) if a 4K page size specified.
+> When SSU/enter hibern8 fail in wlun suspend flow, trigger error
+> handler and return busy to break the suspend.  If not, wlun runtime pm
+> status become error and the consumer will stuck in runtime suspend
+> status.
 
-So when looking up a CONT-PTE size hugetlb page by follow_page(), it will
-use pte_offset_map_lock() to get the pte entry lock for the CONT-PTE size
-hugetlb in follow_page_pte().  However this pte entry lock is incorrect
-for the CONT-PTE size hugetlb, since we should use huge_pte_lock() to get
-the correct lock, which is mm->page_table_lock.
+Applied to 6.2/scsi-staging, thanks!
 
-That means the pte entry of the CONT-PTE size hugetlb under current pte
-lock is unstable in follow_page_pte(), we can continue to migrate or
-poison the pte entry of the CONT-PTE size hugetlb, which can cause some
-potential race issues, even though they are under the 'pte lock'.
-
-For example, suppose thread A is trying to look up a CONT-PTE size hugetlb
-page by move_pages() syscall under the lock, however antoher thread B can
-migrate the CONT-PTE hugetlb page at the same time, which will cause
-thread A to get an incorrect page, if thread A also wants to do page
-migration, then data inconsistency error occurs.
-
-Moreover we have the same issue for CONT-PMD size hugetlb in
-follow_huge_pmd().
-
-To fix above issues, rename the follow_huge_pmd() as follow_huge_pmd_pte()
-to handle PMD and PTE level size hugetlb, which uses huge_pte_lock() to
-get the correct pte entry lock to make the pte entry stable.
-
-Mike said:
-
-Support for CONT_PMD/_PTE was added with bb9dd3df8ee9 ("arm64: hugetlb:
-refactor find_num_contig()").  Patch series "Support for contiguous pte
-hugepages", v4.  However, I do not believe these code paths were
-executed until migration support was added with 5480280d3f2d ("arm64/mm:
-enable HugeTLB migration for contiguous bit HugeTLB pages") I would go
-with 5480280d3f2d for the Fixes: targe.
-
-Link: https://lkml.kernel.org/r/635f43bdd85ac2615a58405da82b4d33c6e5eb05.1662017562.git.baolin.wang@linux.alibaba.com
-Fixes: 5480280d3f2d ("arm64/mm: enable HugeTLB migration for contiguous bit HugeTLB pages")
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-[5.4: Fixup contextual diffs before pin_user_pages()]
-Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
----
-v2: Fix up stray out label that is now unused.
-
- include/linux/hugetlb.h |  6 +++---
- mm/gup.c                | 13 ++++++++++++-
- mm/hugetlb.c            | 30 +++++++++++++++---------------
- 3 files changed, 30 insertions(+), 19 deletions(-)
-
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index cef70d6e1657..c7507135c2a0 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -127,8 +127,8 @@ struct page *follow_huge_addr(struct mm_struct *mm, unsigned long address,
- struct page *follow_huge_pd(struct vm_area_struct *vma,
- 			    unsigned long address, hugepd_t hpd,
- 			    int flags, int pdshift);
--struct page *follow_huge_pmd(struct mm_struct *mm, unsigned long address,
--				pmd_t *pmd, int flags);
-+struct page *follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address,
-+				 int flags);
- struct page *follow_huge_pud(struct mm_struct *mm, unsigned long address,
- 				pud_t *pud, int flags);
- struct page *follow_huge_pgd(struct mm_struct *mm, unsigned long address,
-@@ -175,7 +175,7 @@ static inline void hugetlb_show_meminfo(void)
- {
- }
- #define follow_huge_pd(vma, addr, hpd, flags, pdshift) NULL
--#define follow_huge_pmd(mm, addr, pmd, flags)	NULL
-+#define follow_huge_pmd_pte(vma, addr, flags)	NULL
- #define follow_huge_pud(mm, addr, pud, flags)	NULL
- #define follow_huge_pgd(mm, addr, pgd, flags)	NULL
- #define prepare_hugepage_range(file, addr, len)	(-EINVAL)
-diff --git a/mm/gup.c b/mm/gup.c
-index 3ef769529548..98bd5e0a51c8 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -188,6 +188,17 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 	spinlock_t *ptl;
- 	pte_t *ptep, pte;
- 
-+	/*
-+	 * Considering PTE level hugetlb, like continuous-PTE hugetlb on
-+	 * ARM64 architecture.
-+	 */
-+	if (is_vm_hugetlb_page(vma)) {
-+		page = follow_huge_pmd_pte(vma, address, flags);
-+		if (page)
-+			return page;
-+		return no_page_table(vma, flags);
-+	}
-+
- retry:
- 	if (unlikely(pmd_bad(*pmd)))
- 		return no_page_table(vma, flags);
-@@ -333,7 +344,7 @@ static struct page *follow_pmd_mask(struct vm_area_struct *vma,
- 	if (pmd_none(pmdval))
- 		return no_page_table(vma, flags);
- 	if (pmd_huge(pmdval) && vma->vm_flags & VM_HUGETLB) {
--		page = follow_huge_pmd(mm, address, pmd, flags);
-+		page = follow_huge_pmd_pte(vma, address, flags);
- 		if (page)
- 			return page;
- 		return no_page_table(vma, flags);
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 2126d78f053d..e4478b62d0f7 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5157,30 +5157,30 @@ follow_huge_pd(struct vm_area_struct *vma,
- }
- 
- struct page * __weak
--follow_huge_pmd(struct mm_struct *mm, unsigned long address,
--		pmd_t *pmd, int flags)
-+follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address, int flags)
- {
-+	struct hstate *h = hstate_vma(vma);
-+	struct mm_struct *mm = vma->vm_mm;
- 	struct page *page = NULL;
- 	spinlock_t *ptl;
--	pte_t pte;
-+	pte_t *ptep, pte;
-+
- retry:
--	ptl = pmd_lockptr(mm, pmd);
--	spin_lock(ptl);
--	/*
--	 * make sure that the address range covered by this pmd is not
--	 * unmapped from other threads.
--	 */
--	if (!pmd_huge(*pmd))
--		goto out;
--	pte = huge_ptep_get((pte_t *)pmd);
-+	ptep = huge_pte_offset(mm, address, huge_page_size(h));
-+	if (!ptep)
-+		return NULL;
-+
-+	ptl = huge_pte_lock(h, mm, ptep);
-+	pte = huge_ptep_get(ptep);
- 	if (pte_present(pte)) {
--		page = pmd_page(*pmd) + ((address & ~PMD_MASK) >> PAGE_SHIFT);
-+		page = pte_page(pte) +
-+			((address & ~huge_page_mask(h)) >> PAGE_SHIFT);
- 		if (flags & FOLL_GET)
- 			get_page(page);
- 	} else {
- 		if (is_hugetlb_entry_migration(pte)) {
- 			spin_unlock(ptl);
--			__migration_entry_wait(mm, (pte_t *)pmd, ptl);
-+			__migration_entry_wait(mm, ptep, ptl);
- 			goto retry;
- 		}
- 		/*
-@@ -5188,7 +5188,7 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
- 		 * follow_page_mask().
- 		 */
- 	}
--out:
-+
- 	spin_unlock(ptl);
- 	return page;
- }
 -- 
-2.25.1
-
+Martin K. Petersen	Oracle Linux Engineering
