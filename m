@@ -2,117 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A711864D321
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 00:16:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C1DA64D370
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 00:29:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229749AbiLNXQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Dec 2022 18:16:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48196 "EHLO
+        id S229811AbiLNX3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Dec 2022 18:29:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229511AbiLNXQ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 18:16:28 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 853702CC9B;
-        Wed, 14 Dec 2022 15:16:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-        bh=C4PlJ3Sy7zWtp1PRUv3TzmsgmH1qPuEi2ojtvvgE5Ao=; b=OrKgF8eNHEWDfiaSD2I6V6hj+H
-        BP/ZjuxCLXtd6cJzTazwX/1XnUHqYEV+bisGpK5c3q+6znFwNPIbbGsx/bjfKzhzqwEFhHVD8Q1wT
-        FsYWWJk5kU7zzVb21/+wrwwNgfiXQpEcKf60UWbYde1BJO3bsPglEG3niZLM+5zGjryzkj4JrU0Mm
-        JNYQYxzHWUcGKIqvgWjap/XA/UtFdSyZ+nU+hvPe7+Fi5AZCj01Bbhg2BqfbsYKyE1jY+CRePZC2i
-        sX8aqTk5/A9SCv9j6ihrvVzpaCibkvszVQH/HklNsIsFR0LiRRKNMfJNqUkGWd6STIrK+Z+8cf4/a
-        cLBPkwtA==;
-Received: from [2601:1c2:d80:3110::a2e7]
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1p5az9-004BzT-MS; Wed, 14 Dec 2022 23:16:23 +0000
-Message-ID: <7a2bbeed-59c2-024f-4778-3f4db3d7beaa@infradead.org>
-Date:   Wed, 14 Dec 2022 15:16:22 -0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [RFC PATCH] mm/mempolicy: Fix memory leak in
- set_mempolicy_home_node system call
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Ben Widawsky <ben.widawsky@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andi Kleen <ak@linux.intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Huang Ying <ying.huang@intel.com>, linux-api@vger.kernel.org,
+        with ESMTP id S229838AbiLNX2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 18:28:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB053511EE;
+        Wed, 14 Dec 2022 15:26:38 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 568B361BF8;
+        Wed, 14 Dec 2022 23:26:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AB6DC433D2;
+        Wed, 14 Dec 2022 23:26:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1671060397;
+        bh=kkfEQgwWyo+kPv5VWEAu/1iunwHHV2AQpSwt9ibZlUY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=dVVEHCmymGa2rwiZytT5fwntuTx84t4e8vd1gx8FET1GJQpYgyYAdH9sdZ6Fr0CMY
+         PhprWN1t/BNlbT578Bu8t/D0NWQ8QYTm6GsFTklgMpS6nlzbg+MYzKdvZmzZfpEc5F
+         GHfAWvSnHtPJSjQD4C6UE0FSwvw8m5ukX8KkqT1arsj6v6EwP93inuCfI8WbefQ3Tu
+         u7sP8cx+q1AxHS0YUQ/L73VaoxaB/x/5q3azqCaC7N2uMJqgzv73aNDbqThJkg0z9j
+         GhQDq3zEEr5mVG6lztAWvl8pfJ/0LoE25pd4Mlu5zfuNMVqjVCd/gPxyEeDBD0QZTm
+         /TaWkt4hlXdGg==
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Kees Cook <keescook@chromium.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Tom Rix <trix@redhat.com>, linux-hardening@vger.kernel.org,
+        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
         stable@vger.kernel.org
-References: <20221214222110.200487-1-mathieu.desnoyers@efficios.com>
-Content-Language: en-US
-From:   Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <20221214222110.200487-1-mathieu.desnoyers@efficios.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Subject: [PATCH] security: Restrict CONFIG_ZERO_CALL_USED_REGS to gcc or clang > 15.0.6
+Date:   Wed, 14 Dec 2022 16:26:03 -0700
+Message-Id: <20221214232602.4118147-1-nathan@kernel.org>
+X-Mailer: git-send-email 2.39.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+A bad bug in clang's implementation of -fzero-call-used-regs can result
+in NULL pointer dereferences (see the links above the check for more
+information). Restrict CONFIG_CC_HAS_ZERO_CALL_USED_REGS to either a
+supported GCC version or a clang newer than 15.0.6, which will catch
+both a theoretical 15.0.7 and the upcoming 16.0.0, which will both have
+the bug fixed.
 
+Cc: stable@vger.kernel.org # v5.15+
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ security/Kconfig.hardening | 3 +++
+ 1 file changed, 3 insertions(+)
 
-On 12/14/22 14:21, Mathieu Desnoyers wrote:
-> When encountering any vma in the range with policy other than MPOL_BIND
-> or MPOL_PREFERRED_MANY, an error is returned without issuing a mpol_put
-> on the policy just allocated with mpol_dup().
-> 
-> This allows arbitrary users to leak kernel memory.
-> 
-> Fixes: c6018b4b2549 ("mm/mempolicy: add set_mempolicy_home_node syscall")
-> Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-> Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-> Cc: Ben Widawsky <ben.widawsky@intel.com>
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: Feng Tang <feng.tang@intel.com>
-> Cc: Michal Hocko <mhocko@kernel.org>
-> Cc: Andrea Arcangeli <aarcange@redhat.com>
-> Cc: Mel Gorman <mgorman@techsingularity.net>
-> Cc: Mike Kravetz <mike.kravetz@oracle.com>
-> Cc: Randy Dunlap <rdunlap@infradead.org>
-> Cc: Vlastimil Babka <vbabka@suse.cz>
-> Cc: Andi Kleen <ak@linux.intel.com>
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Cc: Huang Ying <ying.huang@intel.com>
-> Cc: <linux-api@vger.kernel.org>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: stable@vger.kernel.org # 5.17+
+diff --git a/security/Kconfig.hardening b/security/Kconfig.hardening
+index d766b7d0ffd1..53baa95cb644 100644
+--- a/security/Kconfig.hardening
++++ b/security/Kconfig.hardening
+@@ -257,6 +257,9 @@ config INIT_ON_FREE_DEFAULT_ON
+ 
+ config CC_HAS_ZERO_CALL_USED_REGS
+ 	def_bool $(cc-option,-fzero-call-used-regs=used-gpr)
++	# https://github.com/ClangBuiltLinux/linux/issues/1766
++	# https://github.com/llvm/llvm-project/issues/59242
++	depends on !CC_IS_CLANG || CLANG_VERSION > 150006
+ 
+ config ZERO_CALL_USED_REGS
+ 	bool "Enable register zeroing on function exit"
 
-Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-
-Thanks.
-
-> ---
->  mm/mempolicy.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-> index 61aa9aedb728..02c8a712282f 100644
-> --- a/mm/mempolicy.c
-> +++ b/mm/mempolicy.c
-> @@ -1540,6 +1540,7 @@ SYSCALL_DEFINE4(set_mempolicy_home_node, unsigned long, start, unsigned long, le
->  		 * the home node for vmas we already updated before.
->  		 */
->  		if (new->mode != MPOL_BIND && new->mode != MPOL_PREFERRED_MANY) {
-> +			mpol_put(new);
->  			err = -EOPNOTSUPP;
->  			break;
->  		}
-
+base-commit: 830b3c68c1fb1e9176028d02ef86f3cf76aa2476
 -- 
-~Randy
+2.39.0
+
