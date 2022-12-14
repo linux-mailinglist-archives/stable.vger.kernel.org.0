@@ -2,112 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BC3164C76B
-	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 11:51:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A91964C784
+	for <lists+stable@lfdr.de>; Wed, 14 Dec 2022 11:57:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238069AbiLNKv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Dec 2022 05:51:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56148 "EHLO
+        id S237522AbiLNK5n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Dec 2022 05:57:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238062AbiLNKv1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 05:51:27 -0500
-Received: from relmlie5.idc.renesas.com (relmlor1.renesas.com [210.160.252.171])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 54D4A10FD3;
-        Wed, 14 Dec 2022 02:51:26 -0800 (PST)
-X-IronPort-AV: E=Sophos;i="5.96,244,1665414000"; 
-   d="scan'208";a="143332208"
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie5.idc.renesas.com with ESMTP; 14 Dec 2022 19:51:25 +0900
-Received: from localhost.localdomain (unknown [10.226.93.99])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 32DD64005445;
-        Wed, 14 Dec 2022 19:51:20 +0900 (JST)
-From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Mitsuhiro Kimura <mitsuhiro.kimura.kc@renesas.com>,
-        netdev@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>
-Subject: [PATCH net v2] ravb: Fix "failed to switch device to config mode" message during unbind
-Date:   Wed, 14 Dec 2022 10:51:18 +0000
-Message-Id: <20221214105118.2495313-1-biju.das.jz@bp.renesas.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S238104AbiLNK5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Dec 2022 05:57:36 -0500
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A96524088
+        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 02:57:35 -0800 (PST)
+Received: by mail-wm1-x331.google.com with SMTP id v7so10970331wmn.0
+        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 02:57:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=6wind.com; s=google;
+        h=content-transfer-encoding:cc:to:organization:subject:from
+         :content-language:reply-to:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=T8kO0cf+ecnpn7Ch0hIeRV7skrYRYjdX2x8vsgPWpzk=;
+        b=KXKhH+RckKWRUK8MQHYMJnfQAbkMAJYgpY6wxuMaBqrx+vuRaRMiEme63OtSQVrPV/
+         +H2ej5UlMV0XwQ3CrANoBj6mVTa0cLS8hrFUdsJe9eKJ2nDXj77W4u/raRrZLbsgA1CQ
+         iGQ9q73GIxUoww9qIMd0NF8XLsMZwjRs3cARyWyokqqOzLPDbV7ZRKi4JfZBRv5mmKgo
+         cRJC7wjIBO49ANyQPrY7Z+0MASKaPr6tKIIF4oRViBumuB4aC3jEMFqeLK3a0Zww5Zc7
+         kkPwolvtA4Mv4KI76u0bWXTaD8iS67lHxQ50OiwptvFKc3zbm8qyeWYWbTjpgpkKMNNe
+         L2Pg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:organization:subject:from
+         :content-language:reply-to:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=T8kO0cf+ecnpn7Ch0hIeRV7skrYRYjdX2x8vsgPWpzk=;
+        b=dC/S0DCOmHy/BlVHoqX/GM0bewvAwcCTeRjE0Tbu7aIj5XirVeg/NJQn1DrLwQOq+j
+         9OlOFIuHN3omLBa6WY88dzZOs6/FkxKd1J4ap5z/NtM52zos2FQZ63D2zQuytv8qKibc
+         itiYBzMK+IuVIIc1VLAbOaB7TNHr75fmZp8SDotc7TNHK7IUlk+o/t5lZ0TRtPcmOfcm
+         A7zeyL6bpJRLWOcdsJGdUd6bnBE2RGj8V1yO6aU/TTrmOSsoICkD/9VFO8AznxiWwmNR
+         8stUJfERhL4OtJbqhXUiIzC/uXIbF+ZjJ2BAlYuNchzdZH1FrUrL2avJNixo6j4dFIbp
+         GoGQ==
+X-Gm-Message-State: ANoB5pmYbHJdB9oyvlCO9Fx6+l1Q4xZNclAeUFLSabHgtA0o7g9qWArD
+        978HM/D2p3XeNduuJ2xoas1bMVpyENd6iPaG
+X-Google-Smtp-Source: AA0mqf6E4Bz9NkCcpXdciOkr+stdaRcbJsYa5zXeXqRR/JsD8DOBmeKUnBBlRTQywYmMPPFoZzhRHQ==
+X-Received: by 2002:a05:600c:601c:b0:3cf:fc0b:3359 with SMTP id az28-20020a05600c601c00b003cffc0b3359mr18534475wmb.0.1671015453946;
+        Wed, 14 Dec 2022 02:57:33 -0800 (PST)
+Received: from ?IPV6:2a01:e0a:b41:c160:ec4b:78c8:feb3:5813? ([2a01:e0a:b41:c160:ec4b:78c8:feb3:5813])
+        by smtp.gmail.com with ESMTPSA id p16-20020a1c5450000000b003d07de1698asm1958164wmi.46.2022.12.14.02.57.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 14 Dec 2022 02:57:33 -0800 (PST)
+Message-ID: <b5353d33-728e-db34-e65b-d94cddaf8547@6wind.com>
+Date:   Wed, 14 Dec 2022 11:57:32 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=1.1 required=5.0 tests=AC_FROM_MANY_DOTS,BAYES_00,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: *
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Reply-To: nicolas.dichtel@6wind.com
+Content-Language: en-US
+From:   Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Subject: Request for "net: bpf: Allow TC programs to call
+ BPF_FUNC_skb_change_head" in 5.4
+Organization: 6WIND
+To:     stable <stable@vger.kernel.org>
+Cc:     netdev <netdev@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch fixes the error "ravb 11c20000.ethernet eth0: failed to switch
-device to config mode" during unbind.
+Hi,
 
-We are doing register access after pm_runtime_put_sync().
+I would like to request for cherry-picking commit 6f3f65d80dac (linux v5.8) in
+the linux-5.4.y branch.
 
-We usually do cleanup in reverse order of init. Currently in
-remove(), the "pm_runtime_put_sync" is not in reverse order.
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6f3f65d80dac
 
-Probe
-	reset_control_deassert(rstc);
-	pm_runtime_enable(&pdev->dev);
-	pm_runtime_get_sync(&pdev->dev);
+This commit is trivial, the potential regressions are low. The cherry-pick is
+straightforward.
+The kernel 5.4 is used by a lot of vendors, having this patch will help
+supporting standard ebpf programs.
 
-remove
-	pm_runtime_put_sync(&pdev->dev);
-	unregister_netdev(ndev);
-	..
-	ravb_mdio_release(priv);
-	pm_runtime_disable(&pdev->dev);
-
-Consider the call to unregister_netdev()
-unregister_netdev->unregister_netdevice_queue->rollback_registered_many
-that calls the below functions which access the registers after
-pm_runtime_put_sync()
- 1) ravb_get_stats
- 2) ravb_close
-
-Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
-Cc: stable@vger.kernel.org
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
----
-v1->v2:
- * Added Rb tag from Leon Romanovsky
- * Fixed the fixes tag
- * Patch header updated from net-next->net as it is fixes patch.
----
- drivers/net/ethernet/renesas/ravb_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index 33f723a9f471..b4e0fc7f65bd 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -2903,12 +2903,12 @@ static int ravb_remove(struct platform_device *pdev)
- 			  priv->desc_bat_dma);
- 	/* Set reset mode */
- 	ravb_write(ndev, CCC_OPC_RESET, CCC);
--	pm_runtime_put_sync(&pdev->dev);
- 	unregister_netdev(ndev);
- 	if (info->nc_queues)
- 		netif_napi_del(&priv->napi[RAVB_NC]);
- 	netif_napi_del(&priv->napi[RAVB_BE]);
- 	ravb_mdio_release(priv);
-+	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	reset_control_assert(priv->rstc);
- 	free_netdev(ndev);
--- 
-2.25.1
-
+Regards,
+Nicolas
