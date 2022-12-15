@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F077A64DD4A
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 16:08:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AF3A64DD4D
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 16:09:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229892AbiLOPIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 10:08:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37114 "EHLO
+        id S230111AbiLOPJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 10:09:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230013AbiLOPIX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 10:08:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1683030560
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 07:08:22 -0800 (PST)
+        with ESMTP id S230115AbiLOPId (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 10:08:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 305A830F6B
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 07:08:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA0E0616A9
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 15:08:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B7FCC433EF;
-        Thu, 15 Dec 2022 15:08:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 832CB616A9
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 15:08:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A83FC433D2;
+        Thu, 15 Dec 2022 15:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671116901;
-        bh=mJk/7lCvD0v/wZqyy24hE9mXl4Knq2V24HtU+hYNJq4=;
+        s=korg; t=1671116909;
+        bh=7eOLCls4k18+fACy16KoO3zoduCoXLHKpTjIyajBmM8=;
         h=Subject:To:Cc:From:Date:From;
-        b=LSa6b+rTixNaNqeeNhCisH+ZhlAsVcQs71Em0IUVO6z17frvl1MDRtYvXQXquFtTn
-         Ve556uIhyZbxD3EqISNRKIIricNBA2dJ3LDW6FJBhBqxNPe2EUb5aEVOkK+HDAn581
-         1bx3HtWSkRyDqKnbx9LoaPWKefOtFFOVL85hk2xA=
-Subject: FAILED: patch "[PATCH] cgroup: Reorganize css_set_lock and kernfs path processing" failed to apply to 6.0-stable tree
+        b=nKomZSJmxTsh8ZWZvhp4GE+M/LflYCOM0qkDAL9u65Ghbredk7JZZ8NA/AKoGaKg/
+         w9ogQy8cpfUFsx3cb2fefAcWpstCDoOlJGhot+PsXd95EeJtoN2gxsFsPe6r3DjjpX
+         auPg1l9E7QxtPV1Dc+uJTswDgr32v1vmUSlOQ4l4=
+Subject: FAILED: patch "[PATCH] cgroup: Reorganize css_set_lock and kernfs path processing" failed to apply to 5.15-stable tree
 To:     mkoutny@suse.com, dan.carpenter@oracle.com, tj@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Dec 2022 16:08:17 +0100
-Message-ID: <167111689725225@kroah.com>
+Date:   Thu, 15 Dec 2022 16:08:18 +0100
+Message-ID: <1671116898115241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,8 @@ Possible dependencies:
 46307fd6e27a ("cgroup: Reorganize css_set_lock and kernfs path processing")
 4534dee94105 ("cgroup: cgroup: Honor caller's cgroup NS when resolving cgroup id")
 74e4b956eb1c ("cgroup: Honor caller's cgroup NS when resolving path")
+e210a89f5b07 ("cgroup.c: add helper __cset_cgroup_from_root to cleanup duplicated codes")
+be288169712f ("cgroup: reduce dependency on cgroup_mutex")
 
 thanks,
 
