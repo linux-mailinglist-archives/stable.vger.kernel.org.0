@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2388F64E3CD
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 23:34:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 630F464E46B
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 00:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229691AbiLOWeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 17:34:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32952 "EHLO
+        id S229793AbiLOXDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 18:03:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229475AbiLOWeI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 17:34:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2741A57B58;
-        Thu, 15 Dec 2022 14:34:06 -0800 (PST)
+        with ESMTP id S229544AbiLOXDO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 18:03:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38F67442D4;
+        Thu, 15 Dec 2022 15:03:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA27C61F73;
-        Thu, 15 Dec 2022 22:34:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DE87C433EF;
-        Thu, 15 Dec 2022 22:34:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4746B81CD5;
+        Thu, 15 Dec 2022 23:03:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A642C433D2;
+        Thu, 15 Dec 2022 23:03:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1671143645;
-        bh=6iPJxecTvBK4cEUwHfWdNx6wyBAWUPZlfcRUseLfOhY=;
+        s=korg; t=1671145390;
+        bh=C2vB58TMzTiLftbZl3EniLqj1Vt98LnB/iNWmbMiiGE=;
         h=Date:To:From:Subject:From;
-        b=cH+4CzOIs0Hxyv55Gy2slhuBhXNUlqe4wq29ofaI+zhkmuJDdH9mXWB9HrlLW86jp
-         SEGQSDh75HQ+1CPKvXFFdf2TmwGR/TwJHYZWbIKDmnF8cO/ZdZzZGjgSNsxzsFHlpy
-         qpmJNxCvCtwVNjQeljc+XjhE/HXcx7X6GqmM7UyQ=
-Date:   Thu, 15 Dec 2022 14:34:04 -0800
+        b=gbQVlJv+bNWC+SKRr9C1gYwnvus1MZwlwdUO3uHFWUbnl7MzuaUJD6MLm8kZlxoZ6
+         RIxZcWWD/8FDYb2AnhtBbcYTryFkr8Sx47Fym9btbzYIKrE19IRxNEKV0kdabrsxIP
+         dWWsPDzDD3fhCMCJwRs0NUpQFuLjnPEKnYp8stzY=
+Date:   Thu, 15 Dec 2022 15:03:09 -0800
 To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        songmuchun@bytedance.com, peterx@redhat.com,
-        naoya.horiguchi@linux.dev, linmiaohe@huawei.com,
-        jthoughton@google.com, david@redhat.com,
-        aneesh.kumar@linux.vnet.ibm.com, almasrymina@google.com,
-        mike.kravetz@oracle.com, akpm@linux-foundation.org
+        slava@dubeyko.com, fmdefrancesco@gmail.com, liushixin2@huawei.com,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + hugetlb-really-allocate-vma-lock-for-all-sharable-vmas.patch added to mm-hotfixes-unstable branch
-Message-Id: <20221215223405.0DE87C433EF@smtp.kernel.org>
+Subject: + hfs-fix-missing-hfs_bnode_get-in-__hfs_bnode_create.patch added to mm-nonmm-unstable branch
+Message-Id: <20221215230310.5A642C433D2@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -49,14 +46,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: hugetlb: really allocate vma lock for all sharable vmas
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     hugetlb-really-allocate-vma-lock-for-all-sharable-vmas.patch
+     Subject: hfs: fix missing hfs_bnode_get() in __hfs_bnode_create
+has been added to the -mm mm-nonmm-unstable branch.  Its filename is
+     hfs-fix-missing-hfs_bnode_get-in-__hfs_bnode_create.patch
 
 This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/hugetlb-really-allocate-vma-lock-for-all-sharable-vmas.patch
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/hfs-fix-missing-hfs_bnode_get-in-__hfs_bnode_create.patch
 
-This patch will later appear in the mm-hotfixes-unstable branch at
+This patch will later appear in the mm-nonmm-unstable branch at
     git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 Before you just go and hit "reply", please:
@@ -72,406 +69,102 @@ branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 and is updated there every 2-3 working days
 
 ------------------------------------------------------
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: hugetlb: really allocate vma lock for all sharable vmas
-Date: Mon, 12 Dec 2022 15:50:41 -0800
+From: Liu Shixin <liushixin2@huawei.com>
+Subject: hfs: fix missing hfs_bnode_get() in __hfs_bnode_create
+Date: Mon, 12 Dec 2022 10:16:27 +0800
 
-Commit bbff39cc6cbc ("hugetlb: allocate vma lock for all sharable vmas")
-removed the pmd sharable checks in the vma lock helper routines.  However,
-it left the functional version of helper routines behind #ifdef
-CONFIG_ARCH_WANT_HUGE_PMD_SHARE.  Therefore, the vma lock is not being
-used for sharable vmas on architectures that do not support pmd sharing. 
-On these architectures, a potential fault/truncation race is exposed that
-could leave pages in a hugetlb file past i_size until the file is removed.
+Syzbot found a kernel BUG in hfs_bnode_put():
 
-Move the functional vma lock helpers outside the ifdef, and remove the
-non-functional stubs.  Since the vma lock is not just for pmd sharing,
-rename the routine __vma_shareable_flags_pmd.
+ kernel BUG at fs/hfs/bnode.c:466!
+ invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+ CPU: 0 PID: 3634 Comm: kworker/u4:5 Not tainted 6.1.0-rc7-syzkaller-00190-g97ee9d1c1696 #0
+ Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+ Workqueue: writeback wb_workfn (flush-7:0)
+ RIP: 0010:hfs_bnode_put+0x46f/0x480 fs/hfs/bnode.c:466
+ Code: 8a 80 ff e9 73 fe ff ff 89 d9 80 e1 07 80 c1 03 38 c1 0f 8c a0 fe ff ff 48 89 df e8 db 8a 80 ff e9 93 fe ff ff e8 a1 68 2c ff <0f> 0b e8 9a 68 2c ff 0f 0b 0f 1f 84 00 00 00 00 00 55 41 57 41 56
+ RSP: 0018:ffffc90003b4f258 EFLAGS: 00010293
+ RAX: ffffffff825e318f RBX: 0000000000000000 RCX: ffff8880739dd7c0
+ RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+ RBP: ffffc90003b4f430 R08: ffffffff825e2d9b R09: ffffed10045157d1
+ R10: ffffed10045157d1 R11: 1ffff110045157d0 R12: ffff8880228abe80
+ R13: ffff88807016c000 R14: dffffc0000000000 R15: ffff8880228abe00
+ FS:  0000000000000000(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007fa6ebe88718 CR3: 000000001e93d000 CR4: 00000000003506f0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  <TASK>
+  hfs_write_inode+0x1bc/0xb40
+  write_inode fs/fs-writeback.c:1440 [inline]
+  __writeback_single_inode+0x4d6/0x670 fs/fs-writeback.c:1652
+  writeback_sb_inodes+0xb3b/0x18f0 fs/fs-writeback.c:1878
+  __writeback_inodes_wb+0x125/0x420 fs/fs-writeback.c:1949
+  wb_writeback+0x440/0x7b0 fs/fs-writeback.c:2054
+  wb_check_start_all fs/fs-writeback.c:2176 [inline]
+  wb_do_writeback fs/fs-writeback.c:2202 [inline]
+  wb_workfn+0x827/0xef0 fs/fs-writeback.c:2235
+  process_one_work+0x877/0xdb0 kernel/workqueue.c:2289
+  worker_thread+0xb14/0x1330 kernel/workqueue.c:2436
+  kthread+0x266/0x300 kernel/kthread.c:376
+  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+  </TASK>
 
-Link: https://lkml.kernel.org/r/20221212235042.178355-1-mike.kravetz@oracle.com
-Fixes: bbff39cc6cbc ("hugetlb: allocate vma lock for all sharable vmas")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: James Houghton <jthoughton@google.com>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@linux.dev>
-Cc: Peter Xu <peterx@redhat.com>
+The BUG_ON() is triggered at here:
+
+/* Dispose of resources used by a node */
+void hfs_bnode_put(struct hfs_bnode *node)
+{
+	if (node) {
+ 		<skipped>
+ 		BUG_ON(!atomic_read(&node->refcnt)); <- we have issue here!!!!
+ 		<skipped>
+ 	}
+}
+
+By tracing the refcnt, I found the node is created by hfs_bmap_alloc()
+with refcnt 1.  Then the node is used by hfs_btree_write().  There is a
+missing of hfs_bnode_get() after find the node.  The issue happened in
+following path:
+
+<alloc>
+ hfs_bmap_alloc
+   hfs_bnode_find
+     __hfs_bnode_create   <- allocate a new node with refcnt 1.
+   hfs_bnode_put          <- decrease the refcnt
+
+<write>
+ hfs_btree_write
+   hfs_bnode_find
+     __hfs_bnode_create
+       hfs_bnode_findhash <- find the node without refcnt increased.
+   hfs_bnode_put	  <- trigger the BUG_ON() since refcnt is 0.
+
+Link: https://lkml.kernel.org/r/20221212021627.3766829-1-liushixin2@huawei.com
+Reported-by: syzbot+5b04b49a7ec7226c7426@syzkaller.appspotmail.com
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Cc: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/hugetlb.c |  333 +++++++++++++++++++++----------------------------
- 1 file changed, 148 insertions(+), 185 deletions(-)
+ fs/hfs/bnode.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/hugetlb.c~hugetlb-really-allocate-vma-lock-for-all-sharable-vmas
-+++ a/mm/hugetlb.c
-@@ -255,6 +255,152 @@ static inline struct hugepage_subpool *s
- 	return subpool_inode(file_inode(vma->vm_file));
- }
- 
-+/*
-+ * hugetlb vma_lock helper routines
-+ */
-+static bool __vma_shareable_lock(struct vm_area_struct *vma)
-+{
-+	return vma->vm_flags & (VM_MAYSHARE | VM_SHARED) &&
-+		vma->vm_private_data;
-+}
-+
-+void hugetlb_vma_lock_read(struct vm_area_struct *vma)
-+{
-+	if (__vma_shareable_lock(vma)) {
-+		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
-+
-+		down_read(&vma_lock->rw_sema);
-+	}
-+}
-+
-+void hugetlb_vma_unlock_read(struct vm_area_struct *vma)
-+{
-+	if (__vma_shareable_lock(vma)) {
-+		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
-+
-+		up_read(&vma_lock->rw_sema);
-+	}
-+}
-+
-+void hugetlb_vma_lock_write(struct vm_area_struct *vma)
-+{
-+	if (__vma_shareable_lock(vma)) {
-+		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
-+
-+		down_write(&vma_lock->rw_sema);
-+	}
-+}
-+
-+void hugetlb_vma_unlock_write(struct vm_area_struct *vma)
-+{
-+	if (__vma_shareable_lock(vma)) {
-+		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
-+
-+		up_write(&vma_lock->rw_sema);
-+	}
-+}
-+
-+int hugetlb_vma_trylock_write(struct vm_area_struct *vma)
-+{
-+	struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
-+
-+	if (!__vma_shareable_lock(vma))
-+		return 1;
-+
-+	return down_write_trylock(&vma_lock->rw_sema);
-+}
-+
-+void hugetlb_vma_assert_locked(struct vm_area_struct *vma)
-+{
-+	if (__vma_shareable_lock(vma)) {
-+		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
-+
-+		lockdep_assert_held(&vma_lock->rw_sema);
-+	}
-+}
-+
-+void hugetlb_vma_lock_release(struct kref *kref)
-+{
-+	struct hugetlb_vma_lock *vma_lock = container_of(kref,
-+			struct hugetlb_vma_lock, refs);
-+
-+	kfree(vma_lock);
-+}
-+
-+static void __hugetlb_vma_unlock_write_put(struct hugetlb_vma_lock *vma_lock)
-+{
-+	struct vm_area_struct *vma = vma_lock->vma;
-+
-+	/*
-+	 * vma_lock structure may or not be released as a result of put,
-+	 * it certainly will no longer be attached to vma so clear pointer.
-+	 * Semaphore synchronizes access to vma_lock->vma field.
-+	 */
-+	vma_lock->vma = NULL;
-+	vma->vm_private_data = NULL;
-+	up_write(&vma_lock->rw_sema);
-+	kref_put(&vma_lock->refs, hugetlb_vma_lock_release);
-+}
-+
-+static void __hugetlb_vma_unlock_write_free(struct vm_area_struct *vma)
-+{
-+	if (__vma_shareable_lock(vma)) {
-+		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
-+
-+		__hugetlb_vma_unlock_write_put(vma_lock);
-+	}
-+}
-+
-+static void hugetlb_vma_lock_free(struct vm_area_struct *vma)
-+{
-+	/*
-+	 * Only present in sharable vmas.
-+	 */
-+	if (!vma || !__vma_shareable_lock(vma))
-+		return;
-+
-+	if (vma->vm_private_data) {
-+		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
-+
-+		down_write(&vma_lock->rw_sema);
-+		__hugetlb_vma_unlock_write_put(vma_lock);
-+	}
-+}
-+
-+static void hugetlb_vma_lock_alloc(struct vm_area_struct *vma)
-+{
-+	struct hugetlb_vma_lock *vma_lock;
-+
-+	/* Only establish in (flags) sharable vmas */
-+	if (!vma || !(vma->vm_flags & VM_MAYSHARE))
-+		return;
-+
-+	/* Should never get here with non-NULL vm_private_data */
-+	if (vma->vm_private_data)
-+		return;
-+
-+	vma_lock = kmalloc(sizeof(*vma_lock), GFP_KERNEL);
-+	if (!vma_lock) {
-+		/*
-+		 * If we can not allocate structure, then vma can not
-+		 * participate in pmd sharing.  This is only a possible
-+		 * performance enhancement and memory saving issue.
-+		 * However, the lock is also used to synchronize page
-+		 * faults with truncation.  If the lock is not present,
-+		 * unlikely races could leave pages in a file past i_size
-+		 * until the file is removed.  Warn in the unlikely case of
-+		 * allocation failure.
-+		 */
-+		pr_warn_once("HugeTLB: unable to allocate vma specific lock\n");
-+		return;
-+	}
-+
-+	kref_init(&vma_lock->refs);
-+	init_rwsem(&vma_lock->rw_sema);
-+	vma_lock->vma = vma;
-+	vma->vm_private_data = vma_lock;
-+}
-+
- /* Helper that removes a struct file_region from the resv_map cache and returns
-  * it for use.
-  */
-@@ -6616,7 +6762,8 @@ bool hugetlb_reserve_pages(struct inode
- 	}
- 
- 	/*
--	 * vma specific semaphore used for pmd sharing synchronization
-+	 * vma specific semaphore used for pmd sharing and fault/truncation
-+	 * synchronization
- 	 */
- 	hugetlb_vma_lock_alloc(vma);
- 
-@@ -6872,149 +7019,6 @@ void adjust_range_if_pmd_sharing_possibl
- 		*end = ALIGN(*end, PUD_SIZE);
- }
- 
--static bool __vma_shareable_flags_pmd(struct vm_area_struct *vma)
--{
--	return vma->vm_flags & (VM_MAYSHARE | VM_SHARED) &&
--		vma->vm_private_data;
--}
--
--void hugetlb_vma_lock_read(struct vm_area_struct *vma)
--{
--	if (__vma_shareable_flags_pmd(vma)) {
--		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
--
--		down_read(&vma_lock->rw_sema);
--	}
--}
--
--void hugetlb_vma_unlock_read(struct vm_area_struct *vma)
--{
--	if (__vma_shareable_flags_pmd(vma)) {
--		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
--
--		up_read(&vma_lock->rw_sema);
--	}
--}
--
--void hugetlb_vma_lock_write(struct vm_area_struct *vma)
--{
--	if (__vma_shareable_flags_pmd(vma)) {
--		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
--
--		down_write(&vma_lock->rw_sema);
--	}
--}
--
--void hugetlb_vma_unlock_write(struct vm_area_struct *vma)
--{
--	if (__vma_shareable_flags_pmd(vma)) {
--		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
--
--		up_write(&vma_lock->rw_sema);
--	}
--}
--
--int hugetlb_vma_trylock_write(struct vm_area_struct *vma)
--{
--	struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
--
--	if (!__vma_shareable_flags_pmd(vma))
--		return 1;
--
--	return down_write_trylock(&vma_lock->rw_sema);
--}
--
--void hugetlb_vma_assert_locked(struct vm_area_struct *vma)
--{
--	if (__vma_shareable_flags_pmd(vma)) {
--		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
--
--		lockdep_assert_held(&vma_lock->rw_sema);
--	}
--}
--
--void hugetlb_vma_lock_release(struct kref *kref)
--{
--	struct hugetlb_vma_lock *vma_lock = container_of(kref,
--			struct hugetlb_vma_lock, refs);
--
--	kfree(vma_lock);
--}
--
--static void __hugetlb_vma_unlock_write_put(struct hugetlb_vma_lock *vma_lock)
--{
--	struct vm_area_struct *vma = vma_lock->vma;
--
--	/*
--	 * vma_lock structure may or not be released as a result of put,
--	 * it certainly will no longer be attached to vma so clear pointer.
--	 * Semaphore synchronizes access to vma_lock->vma field.
--	 */
--	vma_lock->vma = NULL;
--	vma->vm_private_data = NULL;
--	up_write(&vma_lock->rw_sema);
--	kref_put(&vma_lock->refs, hugetlb_vma_lock_release);
--}
--
--static void __hugetlb_vma_unlock_write_free(struct vm_area_struct *vma)
--{
--	if (__vma_shareable_flags_pmd(vma)) {
--		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
--
--		__hugetlb_vma_unlock_write_put(vma_lock);
--	}
--}
--
--static void hugetlb_vma_lock_free(struct vm_area_struct *vma)
--{
--	/*
--	 * Only present in sharable vmas.
--	 */
--	if (!vma || !__vma_shareable_flags_pmd(vma))
--		return;
--
--	if (vma->vm_private_data) {
--		struct hugetlb_vma_lock *vma_lock = vma->vm_private_data;
--
--		down_write(&vma_lock->rw_sema);
--		__hugetlb_vma_unlock_write_put(vma_lock);
--	}
--}
--
--static void hugetlb_vma_lock_alloc(struct vm_area_struct *vma)
--{
--	struct hugetlb_vma_lock *vma_lock;
--
--	/* Only establish in (flags) sharable vmas */
--	if (!vma || !(vma->vm_flags & VM_MAYSHARE))
--		return;
--
--	/* Should never get here with non-NULL vm_private_data */
--	if (vma->vm_private_data)
--		return;
--
--	vma_lock = kmalloc(sizeof(*vma_lock), GFP_KERNEL);
--	if (!vma_lock) {
--		/*
--		 * If we can not allocate structure, then vma can not
--		 * participate in pmd sharing.  This is only a possible
--		 * performance enhancement and memory saving issue.
--		 * However, the lock is also used to synchronize page
--		 * faults with truncation.  If the lock is not present,
--		 * unlikely races could leave pages in a file past i_size
--		 * until the file is removed.  Warn in the unlikely case of
--		 * allocation failure.
--		 */
--		pr_warn_once("HugeTLB: unable to allocate vma specific lock\n");
--		return;
--	}
--
--	kref_init(&vma_lock->refs);
--	init_rwsem(&vma_lock->rw_sema);
--	vma_lock->vma = vma;
--	vma->vm_private_data = vma_lock;
--}
--
- /*
-  * Search for a shareable pmd page for hugetlb. In any case calls pmd_alloc()
-  * and returns the corresponding pte. While this is not necessary for the
-@@ -7103,47 +7107,6 @@ int huge_pmd_unshare(struct mm_struct *m
- 
- #else /* !CONFIG_ARCH_WANT_HUGE_PMD_SHARE */
- 
--void hugetlb_vma_lock_read(struct vm_area_struct *vma)
--{
--}
--
--void hugetlb_vma_unlock_read(struct vm_area_struct *vma)
--{
--}
--
--void hugetlb_vma_lock_write(struct vm_area_struct *vma)
--{
--}
--
--void hugetlb_vma_unlock_write(struct vm_area_struct *vma)
--{
--}
--
--int hugetlb_vma_trylock_write(struct vm_area_struct *vma)
--{
--	return 1;
--}
--
--void hugetlb_vma_assert_locked(struct vm_area_struct *vma)
--{
--}
--
--void hugetlb_vma_lock_release(struct kref *kref)
--{
--}
--
--static void __hugetlb_vma_unlock_write_free(struct vm_area_struct *vma)
--{
--}
--
--static void hugetlb_vma_lock_free(struct vm_area_struct *vma)
--{
--}
--
--static void hugetlb_vma_lock_alloc(struct vm_area_struct *vma)
--{
--}
--
- pte_t *huge_pmd_share(struct mm_struct *mm, struct vm_area_struct *vma,
- 		      unsigned long addr, pud_t *pud)
- {
+--- a/fs/hfs/bnode.c~hfs-fix-missing-hfs_bnode_get-in-__hfs_bnode_create
++++ a/fs/hfs/bnode.c
+@@ -274,6 +274,7 @@ static struct hfs_bnode *__hfs_bnode_cre
+ 		tree->node_hash[hash] = node;
+ 		tree->node_hash_cnt++;
+ 	} else {
++		hfs_bnode_get(node2);
+ 		spin_unlock(&tree->hash_lock);
+ 		kfree(node);
+ 		wait_event(node2->lock_wq, !test_bit(HFS_BNODE_NEW, &node2->flags));
 _
 
-Patches currently in -mm which might be from mike.kravetz@oracle.com are
+Patches currently in -mm which might be from liushixin2@huawei.com are
 
-hugetlb-really-allocate-vma-lock-for-all-sharable-vmas.patch
+hfs-fix-missing-hfs_bnode_get-in-__hfs_bnode_create.patch
 
