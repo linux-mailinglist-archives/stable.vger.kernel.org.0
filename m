@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37EEE64E059
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:12:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A43564E04A
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:11:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229770AbiLOSMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 13:12:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42286 "EHLO
+        id S230253AbiLOSLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 13:11:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229448AbiLOSML (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:12:11 -0500
+        with ESMTP id S230323AbiLOSL1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:11:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5A9E2ED67
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:12:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4665E47310
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:11:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A2BD61E97
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:12:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80BEDC433EF;
-        Thu, 15 Dec 2022 18:12:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D58B261EA4
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:11:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3AC6C433D2;
+        Thu, 15 Dec 2022 18:11:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671127929;
-        bh=EQVw4W6XHpoYTwqKxUANMXO6GShKlmTRNZQPeDq9RPo=;
+        s=korg; t=1671127886;
+        bh=NvZsQhBEVa9BvcAEIzlPEstT1Xf5Bin7iI2soNcdTvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RFD/C+K8qpKV8/ZD/Q9fRVRYSK2qv/kWyc2ZYykkBnSvSbLCUSrwTVZws/DJI8VFL
-         HsmAnAcBZU0wNxlaVOhxMI+MKsAgdF2qS+jIqVF6TwlHY6Y2olpTKhx8aS2lBlFuTF
-         Kii9sjNmLZAcJ2CxADrhNuVSfS/e7/5MThhWh240=
+        b=Bcm9Cdcq2bLU5tCViGDQqC+puIfUT3gboozfWEKXh1CJJchLcVdHt1zCBFIhPLqR/
+         r9x777jiEsHRRprq8U+cMchaJdBhl1UQGc0ARwkvMzyp6ZdQvDsRZC9VMtvTF4208d
+         CVF+iLnCqhV9vZ4vbYOwSTzk2ntXdr1xt7YWY8ZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jialiang Wang <wangjialiang0806@163.com>,
-        Yinjun Zhang <yinjun.zhang@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 03/14] nfp: fix use-after-free in area_cache_get()
+        patches@lists.linux.dev, Heiko Schocher <hs@denx.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 12/15] can: sja1000: fix size of OCR_MODE_MASK define
 Date:   Thu, 15 Dec 2022 19:10:39 +0100
-Message-Id: <20221215172906.488544089@linuxfoundation.org>
+Message-Id: <20221215172907.525621700@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221215172906.338769943@linuxfoundation.org>
-References: <20221215172906.338769943@linuxfoundation.org>
+In-Reply-To: <20221215172906.638553794@linuxfoundation.org>
+References: <20221215172906.638553794@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jialiang Wang <wangjialiang0806@163.com>
+From: Heiko Schocher <hs@denx.de>
 
-commit 02e1a114fdb71e59ee6770294166c30d437bf86a upstream.
+[ Upstream commit 26e8f6a75248247982458e8237b98c9fb2ffcf9d ]
 
-area_cache_get() is used to distribute cache->area and set cache->id,
- and if cache->id is not 0 and cache->area->kref refcount is 0, it will
- release the cache->area by nfp_cpp_area_release(). area_cache_get()
- set cache->id before cpp->op->area_init() and nfp_cpp_area_acquire().
+bitfield mode in ocr register has only 2 bits not 3, so correct
+the OCR_MODE_MASK define.
 
-But if area_init() or nfp_cpp_area_acquire() fails, the cache->id is
- is already set but the refcount is not increased as expected. At this
- time, calling the nfp_cpp_area_release() will cause use-after-free.
-
-To avoid the use-after-free, set cache->id after area_init() and
- nfp_cpp_area_acquire() complete successfully.
-
-Note: This vulnerability is triggerable by providing emulated device
- equipped with specified configuration.
-
- BUG: KASAN: use-after-free in nfp6000_area_init (drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c:760)
-  Write of size 4 at addr ffff888005b7f4a0 by task swapper/0/1
-
- Call Trace:
-  <TASK>
- nfp6000_area_init (drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c:760)
- area_cache_get.constprop.8 (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:884)
-
- Allocated by task 1:
- nfp_cpp_area_alloc_with_name (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:303)
- nfp_cpp_area_cache_add (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:802)
- nfp6000_init (drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c:1230)
- nfp_cpp_from_operations (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:1215)
- nfp_pci_probe (drivers/net/ethernet/netronome/nfp/nfp_main.c:744)
-
- Freed by task 1:
- kfree (mm/slub.c:4562)
- area_cache_get.constprop.8 (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:873)
- nfp_cpp_read (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:924 drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:973)
- nfp_cpp_readl (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cpplib.c:48)
-
-Signed-off-by: Jialiang Wang <wangjialiang0806@163.com>
-Reviewed-by: Yinjun Zhang <yinjun.zhang@corigine.com>
-Acked-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20220810073057.4032-1-wangjialiang0806@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Heiko Schocher <hs@denx.de>
+Link: https://lore.kernel.org/all/20221123071636.2407823-1-hs@denx.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/can/platform/sja1000.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c
-@@ -874,7 +874,6 @@ area_cache_get(struct nfp_cpp *cpp, u32
- 	}
- 
- 	/* Adjust the start address to be cache size aligned */
--	cache->id = id;
- 	cache->addr = addr & ~(u64)(cache->size - 1);
- 
- 	/* Re-init to the new ID and address */
-@@ -894,6 +893,8 @@ area_cache_get(struct nfp_cpp *cpp, u32
- 		return NULL;
- 	}
- 
-+	cache->id = id;
-+
- exit:
- 	/* Adjust offset */
- 	*offset = addr - cache->addr;
+diff --git a/include/linux/can/platform/sja1000.h b/include/linux/can/platform/sja1000.h
+index 5755ae5a4712..6a869682c120 100644
+--- a/include/linux/can/platform/sja1000.h
++++ b/include/linux/can/platform/sja1000.h
+@@ -14,7 +14,7 @@
+ #define OCR_MODE_TEST     0x01
+ #define OCR_MODE_NORMAL   0x02
+ #define OCR_MODE_CLOCK    0x03
+-#define OCR_MODE_MASK     0x07
++#define OCR_MODE_MASK     0x03
+ #define OCR_TX0_INVERT    0x04
+ #define OCR_TX0_PULLDOWN  0x08
+ #define OCR_TX0_PULLUP    0x10
+-- 
+2.35.1
+
 
 
