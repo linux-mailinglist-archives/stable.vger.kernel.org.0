@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0246F64E041
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:11:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE6DA64E054
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:12:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230224AbiLOSLI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 13:11:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41598 "EHLO
+        id S229733AbiLOSMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 13:12:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229891AbiLOSLH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:11:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C945536C42
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:11:06 -0800 (PST)
+        with ESMTP id S229770AbiLOSL6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:11:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F7432ED5B
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:11:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8692CB81C1F
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:11:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9DBDC433D2;
-        Thu, 15 Dec 2022 18:11:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD40E61EA5
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:11:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98C33C433F0;
+        Thu, 15 Dec 2022 18:11:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671127864;
-        bh=NvZsQhBEVa9BvcAEIzlPEstT1Xf5Bin7iI2soNcdTvw=;
+        s=korg; t=1671127917;
+        bh=fnYpf1KMAowkcUXWPb36W/ocy6bzlV1c1fTke1mPyUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zEVWg/Dn609XB0+DyzDBsF2Pbx65tQLlKcC5JeV/phqdYbBlb8FnpGdRW75HsXMNk
-         6oZ9gd6pTG1himkkNF4sJG0/2Zh6vyuj1M5VoGXYrTkd2OPw37xftuuJIGZ/76btFT
-         Ku+KlGuS5jugJ0Z9NkY30ghUWfN/7vzblo3/7elg=
+        b=B34ZLX+A8t7r4yOxfYMwbPiUlgHPPK9/sLA+Iyf8SmRfOFom/EJ+UEML8QMl9eD4N
+         Pz1GHlsBPiPqSNSE27iCHs238DNbkucR0ViHgVep5oZG676zyx+ND1CIutLTLfwYtr
+         Gsxvx94YknfLr9dyw2dSweeQRXfhBGGurRL7raD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiko Schocher <hs@denx.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 8/9] can: sja1000: fix size of OCR_MODE_MASK define
+Subject: [PATCH 5.10 08/15] ASoC: fsl_micfil: explicitly clear CHnF flags
 Date:   Thu, 15 Dec 2022 19:10:35 +0100
-Message-Id: <20221215172905.761761350@linuxfoundation.org>
+Message-Id: <20221215172907.365131655@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221215172905.468656378@linuxfoundation.org>
-References: <20221215172905.468656378@linuxfoundation.org>
+In-Reply-To: <20221215172906.638553794@linuxfoundation.org>
+References: <20221215172906.638553794@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Schocher <hs@denx.de>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 26e8f6a75248247982458e8237b98c9fb2ffcf9d ]
+[ Upstream commit b776c4a4618ec1b5219d494c423dc142f23c4e8f ]
 
-bitfield mode in ocr register has only 2 bits not 3, so correct
-the OCR_MODE_MASK define.
+There may be failure when start 1 channel recording after
+8 channels recording. The reason is that the CHnF
+flags are not cleared successfully by software reset.
 
-Signed-off-by: Heiko Schocher <hs@denx.de>
-Link: https://lore.kernel.org/all/20221123071636.2407823-1-hs@denx.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+This issue is triggerred by the change of clearing
+software reset bit.
+
+CHnF flags are write 1 clear bits. Clear them by force
+write.
+
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1651925654-32060-2-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/can/platform/sja1000.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/fsl/fsl_micfil.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/include/linux/can/platform/sja1000.h b/include/linux/can/platform/sja1000.h
-index 5755ae5a4712..6a869682c120 100644
---- a/include/linux/can/platform/sja1000.h
-+++ b/include/linux/can/platform/sja1000.h
-@@ -14,7 +14,7 @@
- #define OCR_MODE_TEST     0x01
- #define OCR_MODE_NORMAL   0x02
- #define OCR_MODE_CLOCK    0x03
--#define OCR_MODE_MASK     0x07
-+#define OCR_MODE_MASK     0x03
- #define OCR_TX0_INVERT    0x04
- #define OCR_TX0_PULLDOWN  0x08
- #define OCR_TX0_PULLUP    0x10
+diff --git a/sound/soc/fsl/fsl_micfil.c b/sound/soc/fsl/fsl_micfil.c
+index ead4bfa13561..6c794605e33c 100644
+--- a/sound/soc/fsl/fsl_micfil.c
++++ b/sound/soc/fsl/fsl_micfil.c
+@@ -201,6 +201,14 @@ static int fsl_micfil_reset(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
++	/*
++	 * Set SRES should clear CHnF flags, But even add delay here
++	 * the CHnF may not be cleared sometimes, so clear CHnF explicitly.
++	 */
++	ret = regmap_write_bits(micfil->regmap, REG_MICFIL_STAT, 0xFF, 0xFF);
++	if (ret)
++		return ret;
++
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
