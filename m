@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA1A564E049
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:11:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75FC564E058
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:12:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230237AbiLOSLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 13:11:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41962 "EHLO
+        id S229668AbiLOSML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 13:12:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230267AbiLOSLZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:11:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BF114730B
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:11:24 -0800 (PST)
+        with ESMTP id S229448AbiLOSMK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:12:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F6392E9D8
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:12:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9DB561E97
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:11:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB639C433EF;
-        Thu, 15 Dec 2022 18:11:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1CE86B81C12
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:12:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86F8CC433EF;
+        Thu, 15 Dec 2022 18:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671127883;
-        bh=ichTvY2XwLxovpEKtQ5ifNVuTETq1W9frTj1VmQN8Gs=;
+        s=korg; t=1671127926;
+        bh=Y7s89FXm5+hPhERRA0JeN8mk51u/vp5RzSspf60rj9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfUpXiOkB8mbbZPZEOUz+r1vJZzzac1xasmt9MPy5ksgPftPfHltbpPB0eSyyS1zm
-         VkTuuxYq3WBVIPJVyIgI4CWYiPl8ms5MAY+NyDl09Zxu2WmDTadmJKso1RcQLApAwq
-         p3NYWCklbkxV+IutqzzOVQxjKevbzS3pa9Tm623c=
+        b=BWj7w8HnfirqzUGWiDuw/8SO1aXkxnG20t9fGA5TUMyxXfKM3I6fyvw9LAu1ovcA8
+         o+nKsWuktrjtcOfCsNBcG+uby12uRZqwh+42b4fg0it/LeT+OntoYazIUTz4weH96e
+         bc24OQrvDnqiKCEGMfZtUjqUyQORyzxV35iRZoCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 11/15] pinctrl: meditatek: Startup with the IRQs disabled
+        patches@lists.linux.dev, Namjae Jeon <linkinjeon@kernel.org>,
+        Luis Henriques <lhenriques@suse.de>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.15 02/14] vfs: fix copy_file_range() averts filesystem freeze protection
 Date:   Thu, 15 Dec 2022 19:10:38 +0100
-Message-Id: <20221215172907.476723300@linuxfoundation.org>
+Message-Id: <20221215172906.447775178@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221215172906.638553794@linuxfoundation.org>
-References: <20221215172906.638553794@linuxfoundation.org>
+In-Reply-To: <20221215172906.338769943@linuxfoundation.org>
+References: <20221215172906.338769943@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,102 +54,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Amir Goldstein <amir73il@gmail.com>
 
-[ Upstream commit 11780e37565db4dd064d3243ca68f755c13f65b4 ]
+commit 10bc8e4af65946b727728d7479c028742321b60a upstream.
 
-If the system is restarted via kexec(), the peripherals do not start
-with a known state.
+Commit 868f9f2f8e00 ("vfs: fix copy_file_range() regression in cross-fs
+copies") removed fallback to generic_copy_file_range() for cross-fs
+cases inside vfs_copy_file_range().
 
-If the previous system had enabled an IRQs we will receive unexected
-IRQs that can lock the system.
+To preserve behavior of nfsd and ksmbd server-side-copy, the fallback to
+generic_copy_file_range() was added in nfsd and ksmbd code, but that
+call is missing sb_start_write(), fsnotify hooks and more.
 
-[   28.109251] watchdog: BUG: soft lockup - CPU#0 stuck for 26s!
-[swapper/0:0]
-[   28.109263] Modules linked in:
-[   28.109273] CPU: 0 PID: 0 Comm: swapper/0 Not tainted
-5.15.79-14458-g4b9edf7b1ac6 #1 9f2e76613148af94acccd64c609a552fb4b4354b
-[   28.109284] Hardware name: Google Elm (DT)
-[   28.109290] pstate: 40400005 (nZcv daif +PAN -UAO -TCO -DIT -SSBS
-		BTYPE=--)
-[   28.109298] pc : __do_softirq+0xa0/0x388
-[   28.109309] lr : __do_softirq+0x70/0x388
-[   28.109316] sp : ffffffc008003ee0
-[   28.109321] x29: ffffffc008003f00 x28: 000000000000000a x27:
-0000000000000080
-[   28.109334] x26: 0000000000000001 x25: ffffffefa7b350c0 x24:
-ffffffefa7b47480
-[   28.109346] x23: ffffffefa7b3d000 x22: 0000000000000000 x21:
-ffffffefa7b0fa40
-[   28.109358] x20: ffffffefa7b005b0 x19: ffffffefa7b47480 x18:
-0000000000065b6b
-[   28.109370] x17: ffffffefa749c8b0 x16: 000000000000018c x15:
-00000000000001b8
-[   28.109382] x14: 00000000000d3b6b x13: 0000000000000006 x12:
-0000000000057e91
-[   28.109394] x11: 0000000000000000 x10: 0000000000000000 x9 :
-ffffffefa7b47480
-[   28.109406] x8 : 00000000000000e0 x7 : 000000000f424000 x6 :
-0000000000000000
-[   28.109418] x5 : ffffffefa7dfaca0 x4 : ffffffefa7dfadf0 x3 :
-000000000000000f
-[   28.109429] x2 : 0000000000000000 x1 : 0000000000000100 x0 :
-0000000001ac65c5
-[   28.109441] Call trace:
-[   28.109447]  __do_softirq+0xa0/0x388
-[   28.109454]  irq_exit+0xc0/0xe0
-[   28.109464]  handle_domain_irq+0x68/0x90
-[   28.109473]  gic_handle_irq+0xac/0xf0
-[   28.109480]  call_on_irq_stack+0x28/0x50
-[   28.109488]  do_interrupt_handler+0x44/0x58
-[   28.109496]  el1_interrupt+0x30/0x58
-[   28.109506]  el1h_64_irq_handler+0x18/0x24
-[   28.109512]  el1h_64_irq+0x7c/0x80
-[   28.109519]  arch_local_irq_enable+0xc/0x18
-[   28.109529]  default_idle_call+0x40/0x140
-[   28.109539]  do_idle+0x108/0x290
-[   28.109547]  cpu_startup_entry+0x2c/0x30
-[   28.109554]  rest_init+0xe8/0xf8
-[   28.109562]  arch_call_rest_init+0x18/0x24
-[   28.109571]  start_kernel+0x338/0x42c
-[   28.109578]  __primary_switched+0xbc/0xc4
-[   28.109588] Kernel panic - not syncing: softlockup: hung tasks
+Ideally, nfsd and ksmbd would pass a flag to vfs_copy_file_range() that
+will take care of the fallback, but that code would be subtle and we got
+vfs_copy_file_range() logic wrong too many times already.
 
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Link: https://lore.kernel.org/r/20221122-mtk-pinctrl-v1-1-bedf5655a3d2@chromium.org
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Instead, add a flag to explicitly request vfs_copy_file_range() to
+perform only generic_copy_file_range() and let nfsd and ksmbd use this
+flag only in the fallback path.
+
+This choise keeps the logic changes to minimum in the non-nfsd/ksmbd code
+paths to reduce the risk of further regressions.
+
+Fixes: 868f9f2f8e00 ("vfs: fix copy_file_range() regression in cross-fs copies")
+Tested-by: Namjae Jeon <linkinjeon@kernel.org>
+Tested-by: Luis Henriques <lhenriques@suse.de>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+[backport comments for v5.15: - sb_write_started() is missing - assert was dropped ]
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/mediatek/mtk-eint.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/ksmbd/vfs.c     |    6 +++---
+ fs/nfsd/vfs.c      |    4 ++--
+ fs/read_write.c    |   17 +++++++++++++----
+ include/linux/fs.h |    8 ++++++++
+ 4 files changed, 26 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pinctrl/mediatek/mtk-eint.c b/drivers/pinctrl/mediatek/mtk-eint.c
-index 22736f60c16c..64a32d3ca481 100644
---- a/drivers/pinctrl/mediatek/mtk-eint.c
-+++ b/drivers/pinctrl/mediatek/mtk-eint.c
-@@ -278,12 +278,15 @@ static struct irq_chip mtk_eint_irq_chip = {
+--- a/fs/ksmbd/vfs.c
++++ b/fs/ksmbd/vfs.c
+@@ -1788,9 +1788,9 @@ int ksmbd_vfs_copy_file_ranges(struct ks
+ 		ret = vfs_copy_file_range(src_fp->filp, src_off,
+ 					  dst_fp->filp, dst_off, len, 0);
+ 		if (ret == -EOPNOTSUPP || ret == -EXDEV)
+-			ret = generic_copy_file_range(src_fp->filp, src_off,
+-						      dst_fp->filp, dst_off,
+-						      len, 0);
++			ret = vfs_copy_file_range(src_fp->filp, src_off,
++						  dst_fp->filp, dst_off, len,
++						  COPY_FILE_SPLICE);
+ 		if (ret < 0)
+ 			return ret;
  
- static unsigned int mtk_eint_hw_init(struct mtk_eint *eint)
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -574,8 +574,8 @@ ssize_t nfsd_copy_file_range(struct file
+ 	ret = vfs_copy_file_range(src, src_pos, dst, dst_pos, count, 0);
+ 
+ 	if (ret == -EOPNOTSUPP || ret == -EXDEV)
+-		ret = generic_copy_file_range(src, src_pos, dst, dst_pos,
+-					      count, 0);
++		ret = vfs_copy_file_range(src, src_pos, dst, dst_pos, count,
++					  COPY_FILE_SPLICE);
+ 	return ret;
+ }
+ 
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -1418,7 +1418,9 @@ static int generic_copy_file_checks(stru
+ 	 * and several different sets of file_operations, but they all end up
+ 	 * using the same ->copy_file_range() function pointer.
+ 	 */
+-	if (file_out->f_op->copy_file_range) {
++	if (flags & COPY_FILE_SPLICE) {
++		/* cross sb splice is allowed */
++	} else if (file_out->f_op->copy_file_range) {
+ 		if (file_in->f_op->copy_file_range !=
+ 		    file_out->f_op->copy_file_range)
+ 			return -EXDEV;
+@@ -1468,8 +1470,9 @@ ssize_t vfs_copy_file_range(struct file
+ 			    size_t len, unsigned int flags)
  {
--	void __iomem *reg = eint->base + eint->regs->dom_en;
-+	void __iomem *dom_en = eint->base + eint->regs->dom_en;
-+	void __iomem *mask_set = eint->base + eint->regs->mask_set;
- 	unsigned int i;
+ 	ssize_t ret;
++	bool splice = flags & COPY_FILE_SPLICE;
  
- 	for (i = 0; i < eint->hw->ap_num; i += 32) {
--		writel(0xffffffff, reg);
--		reg += 4;
-+		writel(0xffffffff, dom_en);
-+		writel(0xffffffff, mask_set);
-+		dom_en += 4;
-+		mask_set += 4;
+-	if (flags != 0)
++	if (flags & ~COPY_FILE_SPLICE)
+ 		return -EINVAL;
+ 
+ 	ret = generic_copy_file_checks(file_in, pos_in, file_out, pos_out, &len,
+@@ -1495,14 +1498,14 @@ ssize_t vfs_copy_file_range(struct file
+ 	 * same sb using clone, but for filesystems where both clone and copy
+ 	 * are supported (e.g. nfs,cifs), we only call the copy method.
+ 	 */
+-	if (file_out->f_op->copy_file_range) {
++	if (!splice && file_out->f_op->copy_file_range) {
+ 		ret = file_out->f_op->copy_file_range(file_in, pos_in,
+ 						      file_out, pos_out,
+ 						      len, flags);
+ 		goto done;
  	}
  
- 	return 0;
--- 
-2.35.1
-
+-	if (file_in->f_op->remap_file_range &&
++	if (!splice && file_in->f_op->remap_file_range &&
+ 	    file_inode(file_in)->i_sb == file_inode(file_out)->i_sb) {
+ 		ret = file_in->f_op->remap_file_range(file_in, pos_in,
+ 				file_out, pos_out,
+@@ -1522,6 +1525,8 @@ ssize_t vfs_copy_file_range(struct file
+ 	 * consistent story about which filesystems support copy_file_range()
+ 	 * and which filesystems do not, that will allow userspace tools to
+ 	 * make consistent desicions w.r.t using copy_file_range().
++	 *
++	 * We also get here if caller (e.g. nfsd) requested COPY_FILE_SPLICE.
+ 	 */
+ 	ret = generic_copy_file_range(file_in, pos_in, file_out, pos_out, len,
+ 				      flags);
+@@ -1576,6 +1581,10 @@ SYSCALL_DEFINE6(copy_file_range, int, fd
+ 		pos_out = f_out.file->f_pos;
+ 	}
+ 
++	ret = -EINVAL;
++	if (flags != 0)
++		goto out;
++
+ 	ret = vfs_copy_file_range(f_in.file, pos_in, f_out.file, pos_out, len,
+ 				  flags);
+ 	if (ret > 0) {
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1990,6 +1990,14 @@ struct dir_context {
+  */
+ #define REMAP_FILE_ADVISORY		(REMAP_FILE_CAN_SHORTEN)
+ 
++/*
++ * These flags control the behavior of vfs_copy_file_range().
++ * They are not available to the user via syscall.
++ *
++ * COPY_FILE_SPLICE: call splice direct instead of fs clone/copy ops
++ */
++#define COPY_FILE_SPLICE		(1 << 0)
++
+ struct iov_iter;
+ 
+ struct file_operations {
 
 
