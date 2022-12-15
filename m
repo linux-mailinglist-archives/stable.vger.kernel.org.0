@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D95D64E069
+	by mail.lfdr.de (Postfix) with ESMTP id 3878964E068
 	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:13:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229981AbiLOSNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 13:13:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42578 "EHLO
+        id S230020AbiLOSNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 13:13:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230295AbiLOSMs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:12:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E36E5442DB
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:12:46 -0800 (PST)
+        with ESMTP id S230337AbiLOSMw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:12:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 937F62ED5C
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:12:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F43361EA0
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:12:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72C81C433EF;
-        Thu, 15 Dec 2022 18:12:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4924EB81B0B
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:12:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84085C433EF;
+        Thu, 15 Dec 2022 18:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671127965;
-        bh=NvZsQhBEVa9BvcAEIzlPEstT1Xf5Bin7iI2soNcdTvw=;
+        s=korg; t=1671127968;
+        bh=EbE7+iIOkrFcFdM7K7ydS9dNih3fYA4gOkrWXoLqfOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YckHH8x6lZOLEnbaZxYFjTx+3fVdpYwiLsS2XPyaHl73b57s2aiJSHrnyGlFruwQS
-         c63LTxKl1odzhBbgqZ3NFFq6NRAc4l7OoIRNvbcot5A1WNVTMocPkhbt3VqZXIf4Pi
-         gk/1v3u3N2M+5VuCNDWuRnRR98QtqVSkPVipgAWU=
+        b=MVbWcOuUVKZ5ekx2pWJLmuc4sUUpPKIJtwum7DPTUSFkGkvcPdsQYod19+sWgzCGV
+         r9aKN7o+FOMgbbo5Z0ZvYeoys8iq6IgWv59B+KDy1nWyg6061UFW6j0wIPmUvaKJE5
+         EQY8lvorCn0H7TM4uE4S6qdf6HsSgwi3Uep2ImME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiko Schocher <hs@denx.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 09/14] can: sja1000: fix size of OCR_MODE_MASK define
+        patches@lists.linux.dev, Mel Gorman <mgorman@techsingularity.net>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 6.0 01/16] rtc: cmos: Fix event handler registration ordering issue
 Date:   Thu, 15 Dec 2022 19:10:45 +0100
-Message-Id: <20221215172906.761875110@linuxfoundation.org>
+Message-Id: <20221215172908.232219022@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221215172906.338769943@linuxfoundation.org>
-References: <20221215172906.338769943@linuxfoundation.org>
+In-Reply-To: <20221215172908.162858817@linuxfoundation.org>
+References: <20221215172908.162858817@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,36 +56,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Schocher <hs@denx.de>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 26e8f6a75248247982458e8237b98c9fb2ffcf9d ]
+commit 4919d3eb2ec0ee364f7e3cf2d99646c1b224fae8 upstream.
 
-bitfield mode in ocr register has only 2 bits not 3, so correct
-the OCR_MODE_MASK define.
+Because acpi_install_fixed_event_handler() enables the event
+automatically on success, it is incorrect to call it before the
+handler routine passed to it is ready to handle events.
 
-Signed-off-by: Heiko Schocher <hs@denx.de>
-Link: https://lore.kernel.org/all/20221123071636.2407823-1-hs@denx.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unfortunately, the rtc-cmos driver does exactly the incorrect thing
+by calling cmos_wake_setup(), which passes rtc_handler() to
+acpi_install_fixed_event_handler(), before cmos_do_probe(), because
+rtc_handler() uses dev_get_drvdata() to get to the cmos object
+pointer and the driver data pointer is only populated in
+cmos_do_probe().
+
+This leads to a NULL pointer dereference in rtc_handler() on boot
+if the RTC fixed event happens to be active at the init time.
+
+To address this issue, change the initialization ordering of the
+driver so that cmos_wake_setup() is always called after a successful
+cmos_do_probe() call.
+
+While at it, change cmos_pnp_probe() to call cmos_do_probe() after
+the initial if () statement used for computing the IRQ argument to
+be passed to cmos_do_probe() which is cleaner than calling it in
+each branch of that if () (local variable "irq" can be of type int,
+because it is passed to that function as an argument of type int).
+
+Note that commit 6492fed7d8c9 ("rtc: rtc-cmos: Do not check
+ACPI_FADT_LOW_POWER_S0") caused this issue to affect a larger number
+of systems, because previously it only affected systems with
+ACPI_FADT_LOW_POWER_S0 set, but it is present regardless of that
+commit.
+
+Fixes: 6492fed7d8c9 ("rtc: rtc-cmos: Do not check ACPI_FADT_LOW_POWER_S0")
+Fixes: a474aaedac99 ("rtc-cmos: move wake setup from ACPI glue into RTC driver")
+Link: https://lore.kernel.org/linux-acpi/20221010141630.zfzi7mk7zvnmclzy@techsingularity.net/
+Reported-by: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+Tested-by: Mel Gorman <mgorman@techsingularity.net>
+Link: https://lore.kernel.org/r/5629262.DvuYhMxLoT@kreacher
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/can/platform/sja1000.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-cmos.c |   29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/include/linux/can/platform/sja1000.h b/include/linux/can/platform/sja1000.h
-index 5755ae5a4712..6a869682c120 100644
---- a/include/linux/can/platform/sja1000.h
-+++ b/include/linux/can/platform/sja1000.h
-@@ -14,7 +14,7 @@
- #define OCR_MODE_TEST     0x01
- #define OCR_MODE_NORMAL   0x02
- #define OCR_MODE_CLOCK    0x03
--#define OCR_MODE_MASK     0x07
-+#define OCR_MODE_MASK     0x03
- #define OCR_TX0_INVERT    0x04
- #define OCR_TX0_PULLDOWN  0x08
- #define OCR_TX0_PULLUP    0x10
--- 
-2.35.1
-
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1352,10 +1352,10 @@ static void cmos_check_acpi_rtc_status(s
+ 
+ static int cmos_pnp_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
+ {
+-	cmos_wake_setup(&pnp->dev);
++	int irq, ret;
+ 
+ 	if (pnp_port_start(pnp, 0) == 0x70 && !pnp_irq_valid(pnp, 0)) {
+-		unsigned int irq = 0;
++		irq = 0;
+ #ifdef CONFIG_X86
+ 		/* Some machines contain a PNP entry for the RTC, but
+ 		 * don't define the IRQ. It should always be safe to
+@@ -1364,13 +1364,17 @@ static int cmos_pnp_probe(struct pnp_dev
+ 		if (nr_legacy_irqs())
+ 			irq = RTC_IRQ;
+ #endif
+-		return cmos_do_probe(&pnp->dev,
+-				pnp_get_resource(pnp, IORESOURCE_IO, 0), irq);
+ 	} else {
+-		return cmos_do_probe(&pnp->dev,
+-				pnp_get_resource(pnp, IORESOURCE_IO, 0),
+-				pnp_irq(pnp, 0));
++		irq = pnp_irq(pnp, 0);
+ 	}
++
++	ret = cmos_do_probe(&pnp->dev, pnp_get_resource(pnp, IORESOURCE_IO, 0), irq);
++	if (ret)
++		return ret;
++
++	cmos_wake_setup(&pnp->dev);
++
++	return 0;
+ }
+ 
+ static void cmos_pnp_remove(struct pnp_dev *pnp)
+@@ -1454,10 +1458,9 @@ static inline void cmos_of_init(struct p
+ static int __init cmos_platform_probe(struct platform_device *pdev)
+ {
+ 	struct resource *resource;
+-	int irq;
++	int irq, ret;
+ 
+ 	cmos_of_init(pdev);
+-	cmos_wake_setup(&pdev->dev);
+ 
+ 	if (RTC_IOMAPPED)
+ 		resource = platform_get_resource(pdev, IORESOURCE_IO, 0);
+@@ -1467,7 +1470,13 @@ static int __init cmos_platform_probe(st
+ 	if (irq < 0)
+ 		irq = -1;
+ 
+-	return cmos_do_probe(&pdev->dev, resource, irq);
++	ret = cmos_do_probe(&pdev->dev, resource, irq);
++	if (ret)
++		return ret;
++
++	cmos_wake_setup(&pdev->dev);
++
++	return 0;
+ }
+ 
+ static int cmos_platform_remove(struct platform_device *pdev)
 
 
