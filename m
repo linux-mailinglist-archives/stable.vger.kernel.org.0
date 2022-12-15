@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA09264E071
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:14:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2658564E064
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:13:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229482AbiLOSOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 13:14:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43696 "EHLO
+        id S229524AbiLOSNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 13:13:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230373AbiLOSNZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:13:25 -0500
+        with ESMTP id S229959AbiLOSMh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:12:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 931FF49B79
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:13:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69D212ED5B
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:12:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D89E9B81B0B
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:13:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26EA4C433EF;
-        Thu, 15 Dec 2022 18:13:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2DB77B81B0B
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:12:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77617C433D2;
+        Thu, 15 Dec 2022 18:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671127992;
-        bh=EhtRQwmiTIg3YPCxEKm2JhGqN9VZcD67HLkWR4mRl9E=;
+        s=korg; t=1671127954;
+        bh=Ks7Pu9BH/4SDd5cXF9QYsdfEFUtiGldA5zs/xJljKN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=stSZO09Wjq/LnqsPqMf88Z5QwsW6m/LjQRRFU77lBFlhlQOQrpkOG5xhzcLPdXzXh
-         S18c498CZolz9bK/LObfZhjfZUzXOvWcNf0yevYoevJeFcbG3xN8ckCDQDTEh/bWUj
-         bM8leINR+AdpKJNGh3Rfmur8EGDQPFdzaAmz58ro=
+        b=Ky8hE1OVdDfKVb+/9+q5W6SWuQWf5NfdPUBysSriIlO1tkKucgvDof1qyFBDoc/Xt
+         D2mqjFWOBt6sBlBeTXT9mCktFFRbccDjteDe8zQzwzvLwmbzBxSCAzwX+d+DIqppy7
+         v90jX4a3M4tDR4ZiTrL2E8Okv49mfNAGEdCxDNL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Rui <rui.zhang@intel.com>,
-        Todd Brandt <todd.e.brandt@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 6.0 02/16] rtc: cmos: Fix wake alarm breakage
-Date:   Thu, 15 Dec 2022 19:10:46 +0100
-Message-Id: <20221215172908.275219856@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 11/14] net: fec: dont reset irq coalesce settings to defaults on "ip link up"
+Date:   Thu, 15 Dec 2022 19:10:47 +0100
+Message-Id: <20221215172907.210669704@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221215172908.162858817@linuxfoundation.org>
-References: <20221215172908.162858817@linuxfoundation.org>
+In-Reply-To: <20221215172906.338769943@linuxfoundation.org>
+References: <20221215172906.338769943@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,86 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit 0782b66ed2fbb035dda76111df0954515e417b24 upstream.
+[ Upstream commit df727d4547de568302b0ed15b0d4e8a469bdb456 ]
 
-Commit 4919d3eb2ec0 ("rtc: cmos: Fix event handler registration
-ordering issue") overlooked the fact that cmos_do_probe() depended
-on the preparations carried out by cmos_wake_setup() and the wake
-alarm stopped working after the ordering of them had been changed.
+Currently, when a FEC device is brought up, the irq coalesce settings
+are reset to their default values (1000us, 200 frames). That's
+unexpected, and breaks for example use of an appropriate .link file to
+make systemd-udev apply the desired
+settings (https://www.freedesktop.org/software/systemd/man/systemd.link.html),
+or any other method that would do a one-time setup during early boot.
 
-Address this by partially reverting commit 4919d3eb2ec0 so that
-cmos_wake_setup() is called before cmos_do_probe() again and moving
-the rtc_wake_setup() invocation from cmos_wake_setup() directly to the
-callers of cmos_do_probe() where it will happen after a successful
-completion of the latter.
+Refactor the code so that fec_restart() instead uses
+fec_enet_itr_coal_set(), which simply applies the settings that are
+stored in the private data, and initialize that private data with the
+default values.
 
-Fixes: 4919d3eb2ec0 ("rtc: cmos: Fix event handler registration ordering issue")
-Reported-by: Zhang Rui <rui.zhang@intel.com>
-Reported-by: Todd Brandt <todd.e.brandt@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Link: https://lore.kernel.org/r/5887691.lOV4Wx5bFT@kreacher
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cmos.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c | 22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
 
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -1233,6 +1233,9 @@ static u32 rtc_handler(void *context)
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index a829ba128b9d..351f7ef3bc8b 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -72,7 +72,7 @@
+ #include "fec.h"
  
- static inline void rtc_wake_setup(struct device *dev)
- {
-+	if (acpi_disabled)
-+		return;
-+
- 	acpi_install_fixed_event_handler(ACPI_EVENT_RTC, rtc_handler, dev);
- 	/*
- 	 * After the RTC handler is installed, the Fixed_RTC event should
-@@ -1286,7 +1289,6 @@ static void cmos_wake_setup(struct devic
+ static void set_multicast_list(struct net_device *ndev);
+-static void fec_enet_itr_coal_init(struct net_device *ndev);
++static void fec_enet_itr_coal_set(struct net_device *ndev);
  
- 	use_acpi_alarm_quirks();
+ #define DRIVER_NAME	"fec"
  
--	rtc_wake_setup(dev);
- 	acpi_rtc_info.wake_on = rtc_wake_on;
- 	acpi_rtc_info.wake_off = rtc_wake_off;
+@@ -1163,8 +1163,7 @@ fec_restart(struct net_device *ndev)
+ 		writel(0, fep->hwp + FEC_IMASK);
  
-@@ -1354,6 +1356,8 @@ static int cmos_pnp_probe(struct pnp_dev
- {
- 	int irq, ret;
+ 	/* Init the interrupt coalescing */
+-	fec_enet_itr_coal_init(ndev);
+-
++	fec_enet_itr_coal_set(ndev);
+ }
  
-+	cmos_wake_setup(&pnp->dev);
-+
- 	if (pnp_port_start(pnp, 0) == 0x70 && !pnp_irq_valid(pnp, 0)) {
- 		irq = 0;
- #ifdef CONFIG_X86
-@@ -1372,7 +1376,7 @@ static int cmos_pnp_probe(struct pnp_dev
- 	if (ret)
- 		return ret;
- 
--	cmos_wake_setup(&pnp->dev);
-+	rtc_wake_setup(&pnp->dev);
- 
+ static void fec_enet_stop_mode(struct fec_enet_private *fep, bool enabled)
+@@ -2760,19 +2759,6 @@ static int fec_enet_set_coalesce(struct net_device *ndev,
  	return 0;
  }
-@@ -1461,6 +1465,7 @@ static int __init cmos_platform_probe(st
- 	int irq, ret;
  
- 	cmos_of_init(pdev);
-+	cmos_wake_setup(&pdev->dev);
+-static void fec_enet_itr_coal_init(struct net_device *ndev)
+-{
+-	struct ethtool_coalesce ec;
+-
+-	ec.rx_coalesce_usecs = FEC_ITR_ICTT_DEFAULT;
+-	ec.rx_max_coalesced_frames = FEC_ITR_ICFT_DEFAULT;
+-
+-	ec.tx_coalesce_usecs = FEC_ITR_ICTT_DEFAULT;
+-	ec.tx_max_coalesced_frames = FEC_ITR_ICFT_DEFAULT;
+-
+-	fec_enet_set_coalesce(ndev, &ec, NULL, NULL);
+-}
+-
+ static int fec_enet_get_tunable(struct net_device *netdev,
+ 				const struct ethtool_tunable *tuna,
+ 				void *data)
+@@ -3526,6 +3512,10 @@ static int fec_enet_init(struct net_device *ndev)
+ 	fep->rx_align = 0x3;
+ 	fep->tx_align = 0x3;
+ #endif
++	fep->rx_pkts_itr = FEC_ITR_ICFT_DEFAULT;
++	fep->tx_pkts_itr = FEC_ITR_ICFT_DEFAULT;
++	fep->rx_time_itr = FEC_ITR_ICTT_DEFAULT;
++	fep->tx_time_itr = FEC_ITR_ICTT_DEFAULT;
  
- 	if (RTC_IOMAPPED)
- 		resource = platform_get_resource(pdev, IORESOURCE_IO, 0);
-@@ -1474,7 +1479,7 @@ static int __init cmos_platform_probe(st
- 	if (ret)
- 		return ret;
- 
--	cmos_wake_setup(&pdev->dev);
-+	rtc_wake_setup(&pdev->dev);
- 
- 	return 0;
- }
+ 	/* Check mask of the streaming and coherent API */
+ 	ret = dma_set_mask_and_coherent(&fep->pdev->dev, DMA_BIT_MASK(32));
+-- 
+2.35.1
+
 
 
