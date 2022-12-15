@@ -2,231 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDDAB64DEE3
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 17:44:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2214864E045
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:11:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229595AbiLOQol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 11:44:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39930 "EHLO
+        id S230269AbiLOSL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 13:11:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230263AbiLOQoj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 11:44:39 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03B0637FBD
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 08:44:37 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id v3so4546173pgh.4
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 08:44:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=xRg3Ebhae5myH043s+IcwAhWfxfKbWldsIKY6gkLZeo=;
-        b=Av9LOpVCyCtHulDtwLvTX8rwIYmC4CigSdT2P+bsNHrJ0MCHvApiOBtLEYGQ0Jb9BR
-         B84EGSDh/o191ONTjZwnr+oASKWY+DQnFQzdxE3TfdqCc3T6VgViVdYfs6Av4nEw2YDr
-         QHC8lJrvMQVyyVxOantR1naYuwJ51fvSO//dWNaIzpm+xnZTr6C7+iJE9CzddQ92Vg/O
-         WZ98iOYbArVoVk71qgw19a8u6FhO2l42BVJUiGBgJGaDCwxQyO+GGONNJ9dFbpBez73E
-         h+HcYExrhoOgcvQB6yLlfZ5Aup24kWSilMxZfH1KBbfpaNeNGaDNjSXFSTsMqh4wXLBN
-         B4Sw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=xRg3Ebhae5myH043s+IcwAhWfxfKbWldsIKY6gkLZeo=;
-        b=7GGAlCCDxIkajf1V0Mny1HfEvJUC8ZBYavqdfEOnuD1/Ec2aiXMFE6l/vxwCGdQJk/
-         TjDTWEAN4fo5nDjhZCfNZEU1WsTKZKzUohMxb9kP4NQH+SxmcbJyNFrKea3lc0UYqCaO
-         R96tR8IYf3+JMPm3g8nzKe484dL9qx/bQfxHJbgMFcCbF0bTzyoKBthUkTptGp462CZH
-         SIsBHc06lQyL+nNyzSAy4PZeU5hYsnX99At4XKNiBWLHO6KWfwkNxF8Q7/DnpdqqRw+5
-         a9CeRBM+3kHPHNA+a2A2OoHTKpF/WmHWtRJxG/vtr5aClmieF9cP+KzMqAnXJ1ZzpRC7
-         JHcw==
-X-Gm-Message-State: ANoB5pnjXkGTysrF4NuYw6et4R2Zg6FiR9BCvrtwCuap9wOuGtFb6Xxc
-        d17O4ny2mDTYNMF9sdCl8lGsAQ937brAEfXTHIqPHw==
-X-Google-Smtp-Source: AA0mqf7fTfCiIxcbreeucXBaXJb6zc6PWH7FHXl52skgHM8pjzdsihDXuYjKcCDu4BWAr+krBlTvXw==
-X-Received: by 2002:aa7:8690:0:b0:577:501c:c154 with SMTP id d16-20020aa78690000000b00577501cc154mr28700813pfo.6.1671122676890;
-        Thu, 15 Dec 2022 08:44:36 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d20-20020a621d14000000b0056e8eb09d58sm1988462pfd.170.2022.12.15.08.44.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Dec 2022 08:44:36 -0800 (PST)
-Message-ID: <639b4ef4.620a0220.a8119.4635@mx.google.com>
-Date:   Thu, 15 Dec 2022 08:44:36 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230271AbiLOSLR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:11:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72BD14730A;
+        Thu, 15 Dec 2022 10:11:14 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1008061E97;
+        Thu, 15 Dec 2022 18:11:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9D91C433EF;
+        Thu, 15 Dec 2022 18:11:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1671127873;
+        bh=joiqiiTYyFEvkCxvbEtvnVF8t0zVSbYWt7+ZlbnuLeA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GMen7gg7gw0gsMLa7HxMtflrRE3BRiZTRiS97MdUHERjK36GgK1mmC4erDsbJ+ivc
+         GvleQ2k8eW0bgY/gf89MPkvgmT2qw9Io9XAeHpHaFHdOA3TGtHFRBuaQoloy0vyoh5
+         cb24Z4ihK0gg5sI9xJBOBiWkokxbSR9irU+HId34=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: [PATCH 5.10 00/15] 5.10.160-rc1 review
+Date:   Thu, 15 Dec 2022 19:10:27 +0100
+Message-Id: <20221215172906.638553794@linuxfoundation.org>
+X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.159-6-g9d8fa42d6988
-X-Kernelci-Report-Type: build
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 build: 22 builds: 1 failed, 21 passed,
- 1 warning (v5.10.159-6-g9d8fa42d6988)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.160-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.160-rc1
+X-KernelTest-Deadline: 2022-12-17T17:29+00:00
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 build: 22 builds: 1 failed, 21 passed, 1 warning (v5.1=
-0.159-6-g9d8fa42d6988)
+This is the start of the stable review cycle for the 5.10.160 release.
+There are 15 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-0/kernel/v5.10.159-6-g9d8fa42d6988/
+Responses should be made by Sat, 17 Dec 2022 17:28:57 +0000.
+Anything received after that time might be too late.
 
-Tree: stable-rc
-Branch: queue/5.10
-Git Describe: v5.10.159-6-g9d8fa42d6988
-Git Commit: 9d8fa42d6988767a0afd26fec6291e04c9dcf7ef
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 4 unique architectures
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.160-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
-Build Failure Detected:
+thanks,
 
-mips:
-    ip27_defconfig: (gcc-10) FAIL
+greg k-h
 
-Warnings Detected:
+-------------
+Pseudo-Shortlog of commits:
 
-arm64:
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.160-rc1
 
-arm:
+Lei Rao <lei.rao@intel.com>
+    nvme-pci: clear the prp2 field when not used
 
-mips:
-    decstation_r4k_defconfig (gcc-10): 1 warning
+Charles Keepax <ckeepax@opensource.cirrus.com>
+    ASoC: cs42l51: Correct PGA Volume minimum value
 
-riscv:
+Yasushi SHOJI <yasushi.shoji@gmail.com>
+    can: mcba_usb: Fix termination command argument
+
+Heiko Schocher <hs@denx.de>
+    can: sja1000: fix size of OCR_MODE_MASK define
+
+Ricardo Ribalda <ribalda@chromium.org>
+    pinctrl: meditatek: Startup with the IRQs disabled
+
+Hou Tao <houtao1@huawei.com>
+    libbpf: Use page size as max_entries when probing ring buffer map
+
+Mark Brown <broonie@kernel.org>
+    ASoC: ops: Check bounds for second channel in snd_soc_put_volsw_sx()
+
+Shengjiu Wang <shengjiu.wang@nxp.com>
+    ASoC: fsl_micfil: explicitly clear CHnF flags
+
+Shengjiu Wang <shengjiu.wang@nxp.com>
+    ASoC: fsl_micfil: explicitly clear software reset bit
+
+Bing-Jhong Billy Jheng <billy@starlabs.sg>
+    io_uring: add missing item types for splice request
+
+Miklos Szeredi <mszeredi@redhat.com>
+    fuse: always revalidate if exclusive create
+
+Jialiang Wang <wangjialiang0806@163.com>
+    nfp: fix use-after-free in area_cache_get()
+
+Amir Goldstein <amir73il@gmail.com>
+    vfs: fix copy_file_range() averts filesystem freeze protection
+
+Amir Goldstein <amir73il@gmail.com>
+    vfs: fix copy_file_range() regression in cross-fs copies
+
+Paul E. McKenney <paulmck@kernel.org>
+    x86/smpboot: Move rcu_cpu_starting() earlier
 
 
-Warnings summary:
+-------------
 
-    1    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_g=
-p_kthread=E2=80=99 defined but not used [-Wunused-function]
+Diffstat:
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
+ Makefile                                           |  4 +-
+ arch/x86/kernel/cpu/mtrr/mtrr.c                    |  2 -
+ arch/x86/kernel/smpboot.c                          |  1 +
+ drivers/net/can/usb/mcba_usb.c                     | 10 ++-
+ .../ethernet/netronome/nfp/nfpcore/nfp_cppcore.c   |  3 +-
+ drivers/nvme/host/pci.c                            |  2 +
+ drivers/pinctrl/mediatek/mtk-eint.c                |  9 ++-
+ fs/fuse/dir.c                                      |  2 +-
+ fs/io_uring.c                                      |  2 +-
+ fs/nfsd/vfs.c                                      |  8 +-
+ fs/read_write.c                                    | 90 +++++++++++++---------
+ include/linux/can/platform/sja1000.h               |  2 +-
+ include/linux/fs.h                                 |  8 ++
+ sound/soc/codecs/cs42l51.c                         |  2 +-
+ sound/soc/fsl/fsl_micfil.c                         | 19 +++++
+ sound/soc/soc-ops.c                                |  6 ++
+ tools/lib/bpf/libbpf_probes.c                      |  2 +-
+ 17 files changed, 120 insertions(+), 52 deletions(-)
 
-Detailed per-defconfig build reports:
 
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning=
-, 0 section mismatches
-
-Warnings:
-    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
-read=E2=80=99 defined but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----
-For more info write to <info@kernelci.org>
