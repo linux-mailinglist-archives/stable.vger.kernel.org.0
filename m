@@ -2,115 +2,231 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB63D64DEDF
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 17:43:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDDAB64DEE3
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 17:44:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230154AbiLOQn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 11:43:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39386 "EHLO
+        id S229595AbiLOQol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 11:44:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230240AbiLOQn5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 11:43:57 -0500
-Received: from mx01.omp.ru (mx01.omp.ru [90.154.21.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1435331EF4;
-        Thu, 15 Dec 2022 08:43:54 -0800 (PST)
-Received: from [192.168.1.103] (178.176.74.151) by msexch01.omp.ru
- (10.188.4.12) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.986.14; Thu, 15 Dec
- 2022 19:43:43 +0300
-Subject: Re: [PATCH net v2] ravb: Fix "failed to switch device to config mode"
- message during unbind
-To:     <patchwork-bot+netdevbpf@kernel.org>,
-        Biju Das <biju.das.jz@bp.renesas.com>
-CC:     <davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
-        <pabeni@redhat.com>, <p.zabel@pengutronix.de>,
-        <geert+renesas@glider.be>, <liuhangbin@gmail.com>,
-        <mitsuhiro.kimura.kc@renesas.com>, <netdev@vger.kernel.org>,
-        <linux-renesas-soc@vger.kernel.org>,
-        <fabrizio.castro.jz@renesas.com>, <stable@vger.kernel.org>,
-        <leonro@nvidia.com>
-References: <20221214105118.2495313-1-biju.das.jz@bp.renesas.com>
- <167111521604.32410.3850134562584373463.git-patchwork-notify@kernel.org>
-From:   Sergey Shtylyov <s.shtylyov@omp.ru>
-Organization: Open Mobile Platform
-Message-ID: <b9afb491-73a9-5ffb-bef7-4f29dda6efe0@omp.ru>
-Date:   Thu, 15 Dec 2022 19:43:44 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
-MIME-Version: 1.0
-In-Reply-To: <167111521604.32410.3850134562584373463.git-patchwork-notify@kernel.org>
+        with ESMTP id S230263AbiLOQoj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 11:44:39 -0500
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03B0637FBD
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 08:44:37 -0800 (PST)
+Received: by mail-pg1-x529.google.com with SMTP id v3so4546173pgh.4
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 08:44:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=xRg3Ebhae5myH043s+IcwAhWfxfKbWldsIKY6gkLZeo=;
+        b=Av9LOpVCyCtHulDtwLvTX8rwIYmC4CigSdT2P+bsNHrJ0MCHvApiOBtLEYGQ0Jb9BR
+         B84EGSDh/o191ONTjZwnr+oASKWY+DQnFQzdxE3TfdqCc3T6VgViVdYfs6Av4nEw2YDr
+         QHC8lJrvMQVyyVxOantR1naYuwJ51fvSO//dWNaIzpm+xnZTr6C7+iJE9CzddQ92Vg/O
+         WZ98iOYbArVoVk71qgw19a8u6FhO2l42BVJUiGBgJGaDCwxQyO+GGONNJ9dFbpBez73E
+         h+HcYExrhoOgcvQB6yLlfZ5Aup24kWSilMxZfH1KBbfpaNeNGaDNjSXFSTsMqh4wXLBN
+         B4Sw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xRg3Ebhae5myH043s+IcwAhWfxfKbWldsIKY6gkLZeo=;
+        b=7GGAlCCDxIkajf1V0Mny1HfEvJUC8ZBYavqdfEOnuD1/Ec2aiXMFE6l/vxwCGdQJk/
+         TjDTWEAN4fo5nDjhZCfNZEU1WsTKZKzUohMxb9kP4NQH+SxmcbJyNFrKea3lc0UYqCaO
+         R96tR8IYf3+JMPm3g8nzKe484dL9qx/bQfxHJbgMFcCbF0bTzyoKBthUkTptGp462CZH
+         SIsBHc06lQyL+nNyzSAy4PZeU5hYsnX99At4XKNiBWLHO6KWfwkNxF8Q7/DnpdqqRw+5
+         a9CeRBM+3kHPHNA+a2A2OoHTKpF/WmHWtRJxG/vtr5aClmieF9cP+KzMqAnXJ1ZzpRC7
+         JHcw==
+X-Gm-Message-State: ANoB5pnjXkGTysrF4NuYw6et4R2Zg6FiR9BCvrtwCuap9wOuGtFb6Xxc
+        d17O4ny2mDTYNMF9sdCl8lGsAQ937brAEfXTHIqPHw==
+X-Google-Smtp-Source: AA0mqf7fTfCiIxcbreeucXBaXJb6zc6PWH7FHXl52skgHM8pjzdsihDXuYjKcCDu4BWAr+krBlTvXw==
+X-Received: by 2002:aa7:8690:0:b0:577:501c:c154 with SMTP id d16-20020aa78690000000b00577501cc154mr28700813pfo.6.1671122676890;
+        Thu, 15 Dec 2022 08:44:36 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d20-20020a621d14000000b0056e8eb09d58sm1988462pfd.170.2022.12.15.08.44.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Dec 2022 08:44:36 -0800 (PST)
+Message-ID: <639b4ef4.620a0220.a8119.4635@mx.google.com>
+Date:   Thu, 15 Dec 2022 08:44:36 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [178.176.74.151]
-X-ClientProxiedBy: msexch01.omp.ru (10.188.4.12) To msexch01.omp.ru
- (10.188.4.12)
-X-KSE-ServerInfo: msexch01.omp.ru, 9
-X-KSE-AntiSpam-Interceptor-Info: scan successful
-X-KSE-AntiSpam-Version: 5.9.59, Database issued on: 12/15/2022 16:24:15
-X-KSE-AntiSpam-Status: KAS_STATUS_NOT_DETECTED
-X-KSE-AntiSpam-Method: none
-X-KSE-AntiSpam-Rate: 59
-X-KSE-AntiSpam-Info: Lua profiles 174213 [Dec 15 2022]
-X-KSE-AntiSpam-Info: Version: 5.9.59.0
-X-KSE-AntiSpam-Info: Envelope from: s.shtylyov@omp.ru
-X-KSE-AntiSpam-Info: LuaCore: 502 502 69dee8ef46717dd3cb3eeb129cb7cc8dab9e30f6
-X-KSE-AntiSpam-Info: {rep_avail}
-X-KSE-AntiSpam-Info: {Tracking_arrow_text}
-X-KSE-AntiSpam-Info: {Tracking_uf_ne_domains}
-X-KSE-AntiSpam-Info: {Tracking_from_domain_doesnt_match_to}
-X-KSE-AntiSpam-Info: {relay has no DNS name}
-X-KSE-AntiSpam-Info: {SMTP from is not routable}
-X-KSE-AntiSpam-Info: {Found in DNSBL: 178.176.74.151 in (user)
- b.barracudacentral.org}
-X-KSE-AntiSpam-Info: git.kernel.org:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;omp.ru:7.1.1;127.0.0.199:7.1.2
-X-KSE-AntiSpam-Info: ApMailHostAddress: 178.176.74.151
-X-KSE-AntiSpam-Info: {DNS response errors}
-X-KSE-AntiSpam-Info: Rate: 59
-X-KSE-AntiSpam-Info: Status: not_detected
-X-KSE-AntiSpam-Info: Method: none
-X-KSE-AntiSpam-Info: Auth:dmarc=temperror header.from=omp.ru;spf=temperror
- smtp.mailfrom=omp.ru;dkim=none
-X-KSE-Antiphishing-Info: Clean
-X-KSE-Antiphishing-ScanningType: Heuristic
-X-KSE-Antiphishing-Method: None
-X-KSE-Antiphishing-Bases: 12/15/2022 16:27:00
-X-KSE-AttachmentFiltering-Interceptor-Info: protection disabled
-X-KSE-Antivirus-Interceptor-Info: scan successful
-X-KSE-Antivirus-Info: Clean, bases: 12/15/2022 10:28:00 AM
-X-KSE-BulkMessagesFiltering-Scan-Result: InTheLimit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Kernel: v5.10.159-6-g9d8fa42d6988
+X-Kernelci-Report-Type: build
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.10 build: 22 builds: 1 failed, 21 passed,
+ 1 warning (v5.10.159-6-g9d8fa42d6988)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/15/22 5:40 PM, patchwork-bot+netdevbpf@kernel.org wrote:
+stable-rc/queue/5.10 build: 22 builds: 1 failed, 21 passed, 1 warning (v5.1=
+0.159-6-g9d8fa42d6988)
 
-> Hello:
-> 
-> This patch was applied to netdev/net.git (master)
-> by Paolo Abeni <pabeni@redhat.com>:
-> 
-> On Wed, 14 Dec 2022 10:51:18 +0000 you wrote:
->> This patch fixes the error "ravb 11c20000.ethernet eth0: failed to switch
->> device to config mode" during unbind.
->>
->> We are doing register access after pm_runtime_put_sync().
->>
->> We usually do cleanup in reverse order of init. Currently in
->> remove(), the "pm_runtime_put_sync" is not in reverse order.
->>
->> [...]
-> 
-> Here is the summary with links:
->   - [net,v2] ravb: Fix "failed to switch device to config mode" message during unbind
->     https://git.kernel.org/netdev/net/c/c72a7e42592b
-> 
-> You are awesome, thank you!
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+0/kernel/v5.10.159-6-g9d8fa42d6988/
 
-   Oops, was going to review the patch tonight, now that I'm back from the hospitals.
+Tree: stable-rc
+Branch: queue/5.10
+Git Describe: v5.10.159-6-g9d8fa42d6988
+Git Commit: 9d8fa42d6988767a0afd26fec6291e04c9dcf7ef
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 4 unique architectures
 
-MBR, Sergey
+Build Failure Detected:
+
+mips:
+    ip27_defconfig: (gcc-10) FAIL
+
+Warnings Detected:
+
+arm64:
+
+arm:
+
+mips:
+    decstation_r4k_defconfig (gcc-10): 1 warning
+
+riscv:
+
+
+Warnings summary:
+
+    1    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_g=
+p_kthread=E2=80=99 defined but not used [-Wunused-function]
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
+read=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---
+For more info write to <info@kernelci.org>
