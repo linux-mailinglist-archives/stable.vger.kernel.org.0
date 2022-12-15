@@ -2,99 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7340264E1A7
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 20:17:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 222BD64E1B7
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 20:24:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229475AbiLOTRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 14:17:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59898 "EHLO
+        id S229544AbiLOTYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 14:24:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230039AbiLOTQg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 14:16:36 -0500
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2040.outbound.protection.outlook.com [40.107.243.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9285F396DC;
-        Thu, 15 Dec 2022 11:16:35 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kY8YxhLZ/s7NSlBOBVhHC1apxw5pzVJmoxB/ebma+bQO5LgZ4mWGkM59HGXNq6tDUS6/r1AfjxQvqs4z3m8rsxLWfN4ZEJNl02vy+LFlnJlg8+Ly0SagkrKxc9dqRfidmQmOO6rji3mZcxj1n/xl+qGNaYDMMLsu4unJwBd3eMUBtALcLbGY7qQzVZ4jVM1dONejl7LrKzMWpckw5xBvOQgOmam5WhiwQLJ+bJ4olIzVHzOT4ihIADcXOxQUq89s/LIXIwJZkh4DjthEKCcwGi/B5PGT7iQegO6TtTnTjKqmX4chNPCEVC9tkvwLRJUbSNIXNNqB+aJyn4PMc2rQcQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=AKV1mNoprL/sMayTX60gSb0wkWjN1K2SbLfP+Cw+2VI=;
- b=guZs9MhO72m4uc5AZdStbfXYrX8KR0icsWGFjh2AKiDQuo85ZCRNQ7ODpy3qSOO9Edh4oQ0BppluKuUNp+BVLpcNV3e8YXPrku2598rULTpeF4aHyhekHbVuyoFot7cZvZ0tzRzdFdpiaMNY5lNcbs82YVgEOSjq0k4FGkCwr8PYmBPBxYBTcjppWwIX8MvkNiwV+TNsplgmw4A/qqmYTtUSyR4i2r1ez5Uj9OdxYhQ1Pun/I7NHRqQu2vpSmUma59N9fmHIQ1hMSi4cIoUQkvSVfBjykOPWy3K7r/TNlhjTA6+P/nHhKlGyLEWFVBO572LkTF30gLrW6Md+Q2Q3Ug==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=AKV1mNoprL/sMayTX60gSb0wkWjN1K2SbLfP+Cw+2VI=;
- b=BNYQs+bywSnQ9XlTyHBRnpS+dkth8AG5k2BaXxGJ6jIm0dD0QuBa8HFeyQ5hsVcr0HggMfCGYiH76rv5M6mVeF0EtQMIlfXUOIrpWp0Vts1lAMahSVaJNz8jBSgSS7eyGuX5JEn1N75du91WvEOxAgjZQOorBmOkq2v5gOJh/E0=
-Received: from DM6PR07CA0115.namprd07.prod.outlook.com (2603:10b6:5:330::6) by
- PH7PR12MB8154.namprd12.prod.outlook.com (2603:10b6:510:2b9::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5924.11; Thu, 15 Dec
- 2022 19:16:33 +0000
-Received: from DM6NAM11FT108.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:330:cafe::fb) by DM6PR07CA0115.outlook.office365.com
- (2603:10b6:5:330::6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5924.12 via Frontend
- Transport; Thu, 15 Dec 2022 19:16:33 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- DM6NAM11FT108.mail.protection.outlook.com (10.13.172.95) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.5924.12 via Frontend Transport; Thu, 15 Dec 2022 19:16:32 +0000
-Received: from AUS-LX-MLIMONCI.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Thu, 15 Dec
- 2022 13:16:31 -0600
-From:   Mario Limonciello <mario.limonciello@amd.com>
-To:     <rafael@kernel.org>, Mario Limonciello <mario.limonciello@amd.com>,
-        Philipp Zabel <philipp.zabel@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-CC:     <anson.tsao@amd.com>, <ben@bcheng.me>, <paul@zogpog.com>,
-        <bilkow@tutanota.com>, <Shyam-sundar.S-k@amd.com>,
-        <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
-        <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/2] ACPI: x86: s2idle: Stop using AMD specific codepath for Rembrandt+
-Date:   Thu, 15 Dec 2022 13:16:16 -0600
-Message-ID: <20221215191617.1438-3-mario.limonciello@amd.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20221215191617.1438-1-mario.limonciello@amd.com>
-References: <20221215191617.1438-1-mario.limonciello@amd.com>
+        with ESMTP id S229694AbiLOTYJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 14:24:09 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA6DA43853
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 11:24:07 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id a14so295901pfa.1
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 11:24:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=BobwW8ojIxNeCuldGVu+BuZWkF1W878v0tKApHHQ/9c=;
+        b=CFN00hGRisS3hCO0B9bBhf79UjBqH3TVr8afpr12haAWOWC+Fj7tSpFw+x7jFbP0Yq
+         WN0KlXNT7Zza5UIBnR0yz5zBxwS2vHGWUUf3ikZms2p2aVzsP2+LKq4ZCHXwZ5qK4tg7
+         YGr8AoIPLyaHLw8agWmny0pWAl6e+AUNdNxVOD2M1H2eE2o1SkU6MrbyTu63xgoT8fcM
+         1kevjbKDM7hPfxMHqTfnTltIuZEy/YOFPqnN+zdfehg14sksrA0hbBfM+XFbCNUjiidm
+         ue2JGkZ+EHCf+PCfWVtsv0HcAJ0fc3c+3wUPYUBjhaYuXvVLd1lYPEhPe0csdB+WN3E7
+         WE0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=BobwW8ojIxNeCuldGVu+BuZWkF1W878v0tKApHHQ/9c=;
+        b=rGLIGMpJ6XslUuLlNexdfl033sqw05kVqFlyTTweKMdIPShs5w1/2JGSc1PeRSC9Il
+         QI0AY7GxpunbaQe86EREKeAfxG3SMcP5PYsGbsCauEc56pML2FZfoAOw9AAiQTxCPIEE
+         a0csx9pOAczYHKt0t9cFEXquL0leilTw1hx/6ACW2zdz+WXEYmBhHE2GXyjAfN3eLD/S
+         K2qyEluxtsHVIFXQfJqDvJydTS90zHVMVTtmCMusYBk5dvRptaormCRmL+0v32nuTHng
+         MxUiWEs3BPCKGt7zgTCegKZf2lwoEsPMWR8/htCTs5Ec+NntOE8PHJZ80S3yMhzR5f1U
+         zLMg==
+X-Gm-Message-State: ANoB5pnHvMuftRydu0gVYJ/CKkZc1lhKEwr7hFt8JwAaaPkrMG2r1qQV
+        5Q7SnfsF2pawx2ZrBfPhLT1syUavBJoXudsIK7Y1vQ==
+X-Google-Smtp-Source: AA0mqf6GV3jPauuYf5tTCnX51yw+Ba8VYgnhQxwi2LtBuQ02WVh1q0vtBu2yuLTABYem5horA9JGzQ==
+X-Received: by 2002:a05:6a00:290e:b0:566:900d:6395 with SMTP id cg14-20020a056a00290e00b00566900d6395mr28464495pfb.21.1671132246837;
+        Thu, 15 Dec 2022 11:24:06 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id r3-20020aa79623000000b00575bab45644sm2095494pfg.61.2022.12.15.11.24.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Dec 2022 11:24:06 -0800 (PST)
+Message-ID: <639b7456.a70a0220.9877c.4eaa@mx.google.com>
+Date:   Thu, 15 Dec 2022 11:24:06 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT108:EE_|PH7PR12MB8154:EE_
-X-MS-Office365-Filtering-Correlation-Id: 28538afb-ca4e-4229-b7b7-08daded0e077
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: kE2tQkXGoO/tiOIQAjfnvi3V3k+FNzN8x9meKkgkrhyDz0qu8+W/Ho3Gf2qT0coGVClTyvlm9DZapaEsh/Cq6OGBs/7PVzeVun6KjiMxkoVrghepuZXxJ1kHm/iDUcHKDIR7N+GDG1mohJnUFvFk18dp8xMGf0pKUswPVjzMGHGolKgbaG+xvKLp2oSTTa9yvKR7vrlmBtTymP5na2vMZ3A+f3r6AXNXxUrp0d5SnK/zHLB3pG/StgyUEWD0gGeuV06LM3QfRhMO3eD9LhIesUuoP6SyJGpQU3LFP0tPuIpigiYgjwJTysHKRM4bhlsc8iPJPyAHIRw6iax6del2rXytMhdZLU2fC8hfjIfrevipXGspKk3VJTgEAReyVhhwf/hP9lP2EUNm0V+3SsGDzzxzzF3j04xAGmRsvFsFKVDpIEE1ThYk5UMuCrvA59p/V5Qg5SrOn45o7lSJNqa7uCextGP4yRQ/Lmgk3tJZhYzgDglrIx29yaw7ubmvFksNvrHdLMgYYlQLWUWA8gsCAV0B+nhK5J2gPuPdV1ca2YuGkMO3gA+FHoHcVpBqc8ovBmzlhZxWD2s8Cb8l+r2++yyKp9Sip5hzMuQ7817o2pliGGC+GsqruYAAd7yJgAvyTp/iDssCiNy+XH1BVRnxe87m4gflN+k0uKVdOXM2Niq//SLBU5iNOvPl6uGY7+4Z411lsZTwUknTJspPWbfhmPolm0r3mIwnrRlzLoeCYjxJNzgz63vCG5foAnn3Xh9TX0K1U2Io0TfFLP0GXhmBSxTP7OT2ToO/N8H1HYpPEYMQd3k+ihC7/i8zbQ4cFC1t
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:CA;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(376002)(136003)(39860400002)(346002)(396003)(451199015)(46966006)(36840700001)(40470700004)(54906003)(110136005)(2906002)(8936002)(336012)(1076003)(41300700001)(8676002)(2616005)(70586007)(70206006)(36860700001)(5660300002)(40480700001)(47076005)(316002)(426003)(36756003)(83380400001)(44832011)(7416002)(40460700003)(4326008)(86362001)(82310400005)(478600001)(6666004)(26005)(186003)(82740400003)(45080400002)(7696005)(16526019)(966005)(356005)(81166007)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Dec 2022 19:16:32.6071
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 28538afb-ca4e-4229-b7b7-08daded0e077
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT108.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB8154
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.302-10-ge4355b7ce6ac
+X-Kernelci-Report-Type: build
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y build: 60 builds: 1 failed, 59 passed,
+ 4 warnings (v4.14.302-10-ge4355b7ce6ac)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -102,182 +71,383 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-After we introduced a module parameter and quirk infrastructure for
-picking the Microsoft GUID over the SOC vendor GUID we discovered
-that lots and lots of systems are getting this wrong.
+stable-rc/linux-4.14.y build: 60 builds: 1 failed, 59 passed, 4 warnings (v=
+4.14.302-10-ge4355b7ce6ac)
 
-The table continues to grow, and is becoming unwieldy.
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.302-10-ge4355b7ce6ac/
 
-We don't really have any benefit to forcing vendors to populate the
-AMD GUID. This is just extra work, and more and more vendors seem
-to mess it up.  As the Microsoft GUID is used by Windows as well,
-it's very likely that it won't be messed up like this.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.302-10-ge4355b7ce6ac
+Git Commit: e4355b7ce6ac1e6f35ed823eb333f029d35be3fa
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 4 unique architectures
 
-So drop all the quirks forcing it and the Rembrandt behavior. This
-means that Cezanne or later effectively only run the Microsoft GUID
-codepath with the exception of HP Elitebook 8*5 G9.
+Build Failure Detected:
 
-Fixes: fd894f05cf30 ("ACPI: x86: s2idle: If a new AMD _HID is missing assume Rembrandt")
-Cc: stable@vger.kernel.org # 6.1
-Reported-by: Benjamin Cheng <ben@bcheng.me>
-Reported-by: bilkow@tutanota.com
-Reported-by: Paul <paul@zogpog.com>
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2292
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216768
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+mips:
+    ip28_defconfig: (gcc-10) FAIL
+
+Warnings Detected:
+
+arc:
+
+arm:
+    stm32_defconfig (gcc-10): 1 warning
+
+i386:
+    allnoconfig (gcc-10): 3 warnings
+
+mips:
+
+
+Warnings summary:
+
+    1    ld: warning: creating DT_TEXTREL in a PIE
+    1    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+d-only section `.head.text'
+    1    arch/x86/entry/entry_32.S:480: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
+    1    arch/arm/mm/nommu.c:382:12: warning: assignment to =E2=80=98void *=
+=E2=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=
+=80=99} makes pointer from integer without a cast [-Wint-conversion]
+
+Section mismatches summary:
+
+    4    WARNING: modpost: Found 1 section mismatch(es).
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:480: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/arm/mm/nommu.c:382:12: warning: assignment to =E2=80=98void *=E2=
+=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=80=
+=99} makes pointer from integer without a cast [-Wint-conversion]
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
 ---
- drivers/acpi/x86/s2idle.c | 87 ++-------------------------------------
- 1 file changed, 3 insertions(+), 84 deletions(-)
-
-diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
-index 422415cb14f4..c7afce465a07 100644
---- a/drivers/acpi/x86/s2idle.c
-+++ b/drivers/acpi/x86/s2idle.c
-@@ -28,10 +28,6 @@ static bool sleep_no_lps0 __read_mostly;
- module_param(sleep_no_lps0, bool, 0644);
- MODULE_PARM_DESC(sleep_no_lps0, "Do not use the special LPS0 device interface");
- 
--static bool prefer_microsoft_dsm_guid __read_mostly;
--module_param(prefer_microsoft_dsm_guid, bool, 0644);
--MODULE_PARM_DESC(prefer_microsoft_dsm_guid, "Prefer using Microsoft GUID in LPS0 device _DSM evaluation");
--
- static const struct acpi_device_id lps0_device_ids[] = {
- 	{"PNP0D80", },
- 	{"", },
-@@ -369,27 +365,15 @@ static int validate_dsm(acpi_handle handle, const char *uuid, int rev, guid_t *d
- }
- 
- struct amd_lps0_hid_device_data {
--	const unsigned int rev_id;
- 	const bool check_off_by_one;
--	const bool prefer_amd_guid;
- };
- 
- static const struct amd_lps0_hid_device_data amd_picasso = {
--	.rev_id = 0,
- 	.check_off_by_one = true,
--	.prefer_amd_guid = false,
- };
- 
- static const struct amd_lps0_hid_device_data amd_cezanne = {
--	.rev_id = 0,
- 	.check_off_by_one = false,
--	.prefer_amd_guid = false,
--};
--
--static const struct amd_lps0_hid_device_data amd_rembrandt = {
--	.rev_id = 2,
--	.check_off_by_one = false,
--	.prefer_amd_guid = true,
- };
- 
- static const struct acpi_device_id amd_hid_ids[] = {
-@@ -397,7 +381,6 @@ static const struct acpi_device_id amd_hid_ids[] = {
- 	{"AMD0005",	(kernel_ulong_t)&amd_picasso,	},
- 	{"AMDI0005",	(kernel_ulong_t)&amd_picasso,	},
- 	{"AMDI0006",	(kernel_ulong_t)&amd_cezanne,	},
--	{"AMDI0007",	(kernel_ulong_t)&amd_rembrandt,	},
- 	{}
- };
- 
-@@ -407,68 +390,7 @@ static int lps0_prefer_amd(const struct dmi_system_id *id)
- 	rev_id = 2;
- 	return 0;
- }
--
--static int lps0_prefer_microsoft(const struct dmi_system_id *id)
--{
--	pr_debug("Preferring Microsoft GUID.\n");
--	prefer_microsoft_dsm_guid = true;
--	return 0;
--}
--
- static const struct dmi_system_id s2idle_dmi_table[] __initconst = {
--	{
--		/*
--		 * ASUS TUF Gaming A17 FA707RE
--		 * https://bugzilla.kernel.org/show_bug.cgi?id=216101
--		 */
--		.callback = lps0_prefer_microsoft,
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "ASUS TUF Gaming A17"),
--		},
--	},
--	{
--		/* ASUS ROG Zephyrus G14 (2022) */
--		.callback = lps0_prefer_microsoft,
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "ROG Zephyrus G14 GA402"),
--		},
--	},
--	{
--		/*
--		 * Lenovo Yoga Slim 7 Pro X 14ARH7
--		 * https://bugzilla.kernel.org/show_bug.cgi?id=216473 : 82V2
--		 * https://bugzilla.kernel.org/show_bug.cgi?id=216438 : 82TL
--		 */
--		.callback = lps0_prefer_microsoft,
--		.matches = {
--			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "82"),
--		},
--	},
--	{
--		/*
--		 * ASUSTeK COMPUTER INC. ROG Flow X13 GV301RE_GV301RE
--		 * https://gitlab.freedesktop.org/drm/amd/-/issues/2148
--		 */
--		.callback = lps0_prefer_microsoft,
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "ROG Flow X13 GV301"),
--		},
--	},
--	{
--		/*
--		 * ASUSTeK COMPUTER INC. ROG Flow X16 GV601RW_GV601RW
--		 * https://gitlab.freedesktop.org/drm/amd/-/issues/2148
--		 */
--		.callback = lps0_prefer_microsoft,
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "ROG Flow X16 GV601"),
--		},
--	},
- 	{
- 		/*
- 		 * AMD Rembrandt based HP EliteBook 835/845/865 G9
-@@ -504,16 +426,14 @@ static int lps0_device_attach(struct acpi_device *adev,
- 		if (dev_id->id[0])
- 			data = (const struct amd_lps0_hid_device_data *) dev_id->driver_data;
- 		else
--			data = &amd_rembrandt;
--		rev_id = data->rev_id;
-+			data = &amd_cezanne;
- 		lps0_dsm_func_mask = validate_dsm(adev->handle,
- 					ACPI_LPS0_DSM_UUID_AMD, rev_id, &lps0_dsm_guid);
- 		if (lps0_dsm_func_mask > 0x3 && data->check_off_by_one) {
- 			lps0_dsm_func_mask = (lps0_dsm_func_mask << 1) | 0x1;
- 			acpi_handle_debug(adev->handle, "_DSM UUID %s: Adjusted function mask: 0x%x\n",
- 					  ACPI_LPS0_DSM_UUID_AMD, lps0_dsm_func_mask);
--		} else if (lps0_dsm_func_mask_microsoft > 0 && data->prefer_amd_guid &&
--				!prefer_microsoft_dsm_guid) {
-+		} else if (lps0_dsm_func_mask_microsoft > 0 && rev_id) {
- 			lps0_dsm_func_mask_microsoft = -EINVAL;
- 			acpi_handle_debug(adev->handle, "_DSM Using AMD method\n");
- 		}
-@@ -521,8 +441,7 @@ static int lps0_device_attach(struct acpi_device *adev,
- 		rev_id = 1;
- 		lps0_dsm_func_mask = validate_dsm(adev->handle,
- 					ACPI_LPS0_DSM_UUID, rev_id, &lps0_dsm_guid);
--		if (!prefer_microsoft_dsm_guid)
--			lps0_dsm_func_mask_microsoft = -EINVAL;
-+		lps0_dsm_func_mask_microsoft = -EINVAL;
- 	}
- 
- 	if (lps0_dsm_func_mask < 0 && lps0_dsm_func_mask_microsoft < 0)
--- 
-2.34.1
-
+For more info write to <info@kernelci.org>
