@@ -2,95 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F97A64D619
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 06:21:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8211D64D63F
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 06:46:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229575AbiLOFVh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 00:21:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50320 "EHLO
+        id S229667AbiLOFq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 00:46:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbiLOFVg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 00:21:36 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2616F2A727
-        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 21:21:33 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id l10so5692914plb.8
-        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 21:21:33 -0800 (PST)
+        with ESMTP id S229560AbiLOFqy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 00:46:54 -0500
+Received: from mail-oa1-x30.google.com (mail-oa1-x30.google.com [IPv6:2001:4860:4864:20::30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3B5D36D71
+        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 21:46:53 -0800 (PST)
+Received: by mail-oa1-x30.google.com with SMTP id 586e51a60fabf-1442977d77dso19673774fac.6
+        for <stable@vger.kernel.org>; Wed, 14 Dec 2022 21:46:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        b=CcMMttFbAbBshS8reYTGS7D2+VHvywFKOCf29ARBfo9Tukl/D3q47jr59hUzO01Db1
-         mmiyk05PhSgW5NcVJvTpyzqMLnHYqhmdZryqJ30hwlulivcf6N0erJMkUBNuI7DjIYev
-         I7t+dcYzDWEg7vY4STCdVy2XRkfVhORslgJeXIlqET8VOuPKooYffLv8vHJsAgueJdUw
-         lKNIc1cCtMtOUvczEZKrSijLveNuWb/ynAVpM5RWwQCoDP7oBhpwlpMvkXtccXOaYb35
-         y5ezB+kU6DfMSES44WJ4W3H4vFVJu+JovoPLHU2UOroPN0QN5TjpXt6zF0dz5FOWuHl1
-         5ljQ==
+        d=chromium.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=8u7cxy/3xV68RzXCR9Wnk6dzstb0hBoTs9nATH0oh5g=;
+        b=jTONlSJJrz7XrhhvEjNegXJB8lytqJAAata1H755BeBLHLPrixgZa7502iu1j5uykN
+         0bB647zAaz7Nb4HvNDXIdmvW+Br93reuyUC4tCPABHHoXtoouKiW3zFhBNZVzo/hzvy7
+         wqKRbY3+PsiCVPrMynRPnAMuBzRudTDPDqmwk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        b=FYYftpELp6iVudAbezEvyNDl31odtNCACCB0ioEwvmm/x21BoBRHcfvCnN2Vnqf6h3
-         I6cFy9gyPbl7Uacn8RonjRKAfmTAgXKK4zOCh0StyQ+B3bR6/IfrFkOMEcrfLqpXBYJo
-         TnKSmNtz+Mj2NW2mxiWciksLokzGkQgffxMgwsQ67QWSopSN1l90w7hFvv6WDuGRjF5e
-         E6FHyD65At450WJb/ohvPACGmRoK91oBf9kFB6jOKUsY5T3hbM2Oh8xMMTXmVhK9VFCl
-         kJyEDEuvwPklmfqCxkXfPptgyGm2EQuutUNDbm5VyKBXOs9BFxEMjkUp+M1UjhpJ9nh6
-         YWeA==
-X-Gm-Message-State: ANoB5pldPeetoqL8uNH+EpVO3mFq7DgupbVTCMqWevkNQ+bPOSWOLCAk
-        pvlZHksGVT9JpEqKbG7eBy1YBuPpPrHPHpbC9SY=
-X-Google-Smtp-Source: AA0mqf68ZFcfUQMiMA2Ac7w2Cbw0a2Yi+r/eFGtQ3uDfHeKuNtFCFpiToQQYC8K6eYpp3JkRUzSnGAFF9Nz7aodoYA8=
-X-Received: by 2002:a17:902:d88d:b0:186:cb27:4e01 with SMTP id
- b13-20020a170902d88d00b00186cb274e01mr7377431plz.139.1671081692200; Wed, 14
- Dec 2022 21:21:32 -0800 (PST)
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8u7cxy/3xV68RzXCR9Wnk6dzstb0hBoTs9nATH0oh5g=;
+        b=7J3LIntEGTa3kzladU0rBToF4diZnvs6wKhDgZS4NOL5D+DAyKQ7I/+tSg7B3hQ8iy
+         XTV5RvhapuELPL3eb75WglQxPSj1E9tm1fatBiYSk3aPc4PoSd9h/Fnzv3ECilEB2YgU
+         YR7bqRIQgMbYlcyKXNlVM/bFMll/Ws/EOD3YAN2k91lNPxNUebUQsEHk7UA5zYEPoMeN
+         vjKaKX2WMCLzI03UuEEfECAFDl266hugSRkwrXr0zw18f0YQHIybCrpU/iPQrlPgfbUo
+         ihOCOkkUsh0kRG4hAzllLaN5xRvW9tn1+AtvxLbL0iALHEASHjCjz5XWhrHoYM7ZU3vW
+         sUFg==
+X-Gm-Message-State: AFqh2kqlMhOsgqN7ZVwV5rFF+LvrC0z8dPLB7lrL3XNUibpBYdiQQpH4
+        j5rdOGLyKouqdNPo9S80hXpJ5eZgECE0uKVLy8b5ifGqRv84xU7l
+X-Google-Smtp-Source: AMrXdXt70nfF0jNyaRmHUOVp/Sq1zPBWz8MtAmeo5Utauuiq1SiyfXEHlXIS8xeuGOWZSyUEALkQJb/IsvqYzExsJ2M=
+X-Received: by 2002:a05:6870:698b:b0:148:2c02:5323 with SMTP id
+ my11-20020a056870698b00b001482c025323mr675289oab.298.1671083213046; Wed, 14
+ Dec 2022 21:46:53 -0800 (PST)
 MIME-Version: 1.0
-Received: by 2002:a05:7022:b9b:b0:47:b70c:9023 with HTTP; Wed, 14 Dec 2022
- 21:21:31 -0800 (PST)
-Reply-To: elenatudorie987@gmail.com
-From:   Elena Tudorie <bestwinne@gmail.com>
-Date:   Thu, 15 Dec 2022 10:51:31 +0530
-Message-ID: <CAGg1EpROJphwU5XUt52Cozv9Z-yc7jyMXsy85RtciCJrJ_OG3Q@mail.gmail.com>
-Subject: Hello I Wish to seek your conscience about something urgently, Please
- reply this message, once you get it. Yours sister, Mrs.Elena Tudorie Email: tudorie_elena@outlook.com
-To:     undisclosed-recipients:;
+References: <20221206161141.128921-1-matthew.auld@intel.com>
+ <CAHzEqDkd5u5A+2EfeVpnMoqHLWS=d5uLQquGDQ5TLAcx8Oydqw@mail.gmail.com> <db6eccfa-4536-0212-c9a9-4a0ea6e4c877@intel.com>
+In-Reply-To: <db6eccfa-4536-0212-c9a9-4a0ea6e4c877@intel.com>
+From:   Mani Milani <mani@chromium.org>
+Date:   Thu, 15 Dec 2022 16:46:42 +1100
+Message-ID: <CAHzEqDkmLMUBMZTwiOhuoiW_yJH4SsAEbsFy_bzGoNvP0gaoxg@mail.gmail.com>
+Subject: Re: [PATCH] drm/i915: improve the catch-all evict to handle lock contention
+To:     Matthew Auld <matthew.auld@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=7.4 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,EMPTY_MESSAGE,FREEMAIL_FROM,
-        FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM,URG_BIZ autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:62b listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [elenatudorie987[at]gmail.com]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [bestwinne[at]gmail.com]
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  2.3 EMPTY_MESSAGE Message appears to have no textual parts
-        *  0.6 URG_BIZ Contains urgent matter
-        *  2.7 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *******
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Thanks for the explanations Matthew. It all makes sense now. I will
+now test this patch further and report back the results.
 
+There is just one comment block that needs to be updated I think. See below:
+
+On Wed, Dec 14, 2022 at 10:47 PM Matthew Auld <matthew.auld@intel.com> wrote:
+>
+...
+> >> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+> >> index 86956b902c97..e2ce1e4e9723 100644
+> >> --- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+> >> +++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+> >> @@ -745,25 +745,44 @@ static int eb_reserve(struct i915_execbuffer *eb)
+> >>           *
+> >>           * Defragmenting is skipped if all objects are pinned at a fixed location.
+> >>           */
+Could you please update the comment block above and add a little
+explanation for the new pass=3 you added?
+
+> >> -       for (pass = 0; pass <= 2; pass++) {
+> >> +       for (pass = 0; pass <= 3; pass++) {
+> >>                  int pin_flags = PIN_USER | PIN_VALIDATE;
+> >>
+> >>                  if (pass == 0)
+> >>                          pin_flags |= PIN_NONBLOCK;
+> >>
+> >> diff --git a/drivers/gpu/drm/i915/i915_gem_evict.c b/drivers/gpu/drm/i915/i915_gem_evict.c
+> >> index 4cfe36b0366b..c02ebd6900ae 100644
+> >> --- a/drivers/gpu/drm/i915/i915_gem_evict.c
+> >> +++ b/drivers/gpu/drm/i915/i915_gem_evict.c
+> >> @@ -441,6 +441,11 @@ int i915_gem_evict_for_node(struct i915_address_space *vm,
+> >>    * @vm: Address space to cleanse
+> >>    * @ww: An optional struct i915_gem_ww_ctx. If not NULL, i915_gem_evict_vm
+> >>    * will be able to evict vma's locked by the ww as well.
+> >> + * @busy_bo: Optional pointer to struct drm_i915_gem_object. If not NULL, then
+> >> + * in the event i915_gem_evict_vm() is unable to trylock an object for eviction,
+> >> + * then @busy_bo will point to it. -EBUSY is also returned. The caller must drop
+> >> + * the vm->mutex, before trying again to acquire the contended lock. The caller
+> >> + * also owns a reference to the object.
+> >>    *
+> >>    * This function evicts all vmas from a vm.
+> >>    *
+> >> @@ -450,7 +455,8 @@ int i915_gem_evict_for_node(struct i915_address_space *vm,
+> >>    * To clarify: This is for freeing up virtual address space, not for freeing
+> >>    * memory in e.g. the shrinker.
+> >>    */
+> >> -int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_ww_ctx *ww)
+> >> +int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_ww_ctx *ww,
+> >> +                     struct drm_i915_gem_object **busy_bo)
+> >>   {
+> >>          int ret = 0;
+> >>
+> >> @@ -482,15 +488,22 @@ int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_ww_ctx *ww)
+> >>                           * the resv is shared among multiple objects, we still
+> >>                           * need the object ref.
+> >>                           */
+> >> -                       if (dying_vma(vma) ||
+> >> +                       if (!i915_gem_object_get_rcu(vma->obj) ||
+Oops, sorry, I had missed the one line change above. After you pointed
+that out, all the 'i915_gem_object_put()' calls now make perfect
+sense. Thanks.
+
+> >>                              (ww && (dma_resv_locking_ctx(vma->obj->base.resv) == &ww->ctx))) {
+> >>                                  __i915_vma_pin(vma);
+> >>                                  list_add(&vma->evict_link, &locked_eviction_list);
+> >>                                  continue;
+> >>                          }
+> >>
+> >> -                       if (!i915_gem_object_trylock(vma->obj, ww))
+> >> +                       if (!i915_gem_object_trylock(vma->obj, ww)) {
+> >> +                               if (busy_bo) {
+> >> +                                       *busy_bo = vma->obj; /* holds ref */
+> >> +                                       ret = -EBUSY;
+> >> +                                       break;
+> >> +                               }
+> >> +                               i915_gem_object_put(vma->obj);
+> >>                                  continue;
+> >> +                       }
