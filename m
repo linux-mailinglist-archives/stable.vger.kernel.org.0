@@ -2,148 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F0E64DC84
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 14:54:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8941664DC94
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 14:57:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229785AbiLONy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 08:54:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33342 "EHLO
+        id S229634AbiLON5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 08:57:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229624AbiLONy2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 08:54:28 -0500
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AEE52ED45
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 05:54:25 -0800 (PST)
-Received: by mail-wm1-x32d.google.com with SMTP id o5-20020a05600c510500b003d21f02fbaaso1733209wms.4
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 05:54:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=9OTgqMJ72hTY8DmgwqYKfCFn5Uuqu5CGzMqc6diHDoY=;
-        b=uRvXA3sWZXvyIXrliOdhwK6HbALAYO1yJfHGmadQChubshMyKVuUMe1LaRyVZT/p6g
-         vD2RwRQVrzQUTjhNkNbDq3VU6SmxfYEJc5woUO4YwpxrZJ+gvCjzWoRQLihCNmre8M6u
-         I+Pfo122gPGAO3HQHXnpaJuuuPb7fFOB7TihTG6uEWHvXMtMN4wOs9Mmkg1vdU5oR26O
-         fdcp+P/UxjHHsyZbh2Qww9sA6XIRYc6RKkpgI+ggCB0Xb3E0L8CjT5GXOiE7ERlWxpik
-         LQ47MaHFDob5Pzq3mfuoa4BXA0TIB8xpBOMytHBvQmZBizGh0iUo+FQOdRXV3nvnAK19
-         JAjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=9OTgqMJ72hTY8DmgwqYKfCFn5Uuqu5CGzMqc6diHDoY=;
-        b=aVLVO487qifzrhhkY4G1uq5lyWDI55lkmY+/ud9x/p/EeC8eo/SjE+BSAQj9XNoV6i
-         yPi4bKWSh/OMEJ33UGJHsvGo/Iq2w0ePiZ0dM9kJ3sDVBenKPRqf11uqup3mvoPiU8iM
-         xPE7w7J+wsDYeIoZ5YyPdIqVcXAW+6wnZWMDae8rA6XyjJVRrj0JNVS3OaVVj9JmRsYA
-         kBpgVLOFy9vMnBxYIZrmEHjLi4pAPs2QtlPCVYmeV3FdbbPVOYxr7YdUQphcl2c0Evry
-         GFmNwV/bdI5G8XbB64eaMLtA10hKbgmOJeGapgtSlTYUPiKOw9UQtoJ4V/ad5wBS7nvS
-         RByQ==
-X-Gm-Message-State: ANoB5pmBf1uQanct5r9QNug/KEATesK/02vYbJLeAt7SJAjIZqPS8L0U
-        5qblJ2ymWENtqveH3Zirq7VSpQ==
-X-Google-Smtp-Source: AA0mqf7JVIcTPYdeX+DwIlk55rlpMShtycDHmgZrVZxgWpoACaOHyPw1OWw+dIhhtCWJetqZGFJ0Vg==
-X-Received: by 2002:a05:600c:3c92:b0:3cf:a851:d2f2 with SMTP id bg18-20020a05600c3c9200b003cfa851d2f2mr22167012wmb.21.1671112463881;
-        Thu, 15 Dec 2022 05:54:23 -0800 (PST)
-Received: from localhost ([82.66.159.240])
-        by smtp.gmail.com with ESMTPSA id w23-20020a05600c099700b003d1de805de5sm5632729wmp.16.2022.12.15.05.54.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Dec 2022 05:54:23 -0800 (PST)
-From:   Mattijs Korpershoek <mkorpershoek@baylibre.com>
-To:     Jason Andryuk <jandryuk@gmail.com>, linux-kernel@vger.kernel.org
-Cc:     xen-devel@lists.xenproject.org, Jason Andryuk <jandryuk@gmail.com>,
-        Phillip Susi <phill@thesusis.net>, stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org
-Subject: Re: [PATCH v2] Input: xen-kbdfront - drop keys to shrink modalias
-In-Reply-To: <20221209142615.33574-1-jandryuk@gmail.com>
-References: <20221209142615.33574-1-jandryuk@gmail.com>
-Date:   Thu, 15 Dec 2022 14:54:22 +0100
-Message-ID: <87359gkc1d.fsf@baylibre.com>
+        with ESMTP id S230043AbiLON5c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 08:57:32 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 997463055C;
+        Thu, 15 Dec 2022 05:57:20 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BFDuCDZ031042;
+        Thu, 15 Dec 2022 13:56:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : in-reply-to : references : date : message-id : mime-version :
+ content-type; s=pp1; bh=sZD5GHL0Wts8M3LookLZiILQir76BKnZ83UrOMH34TU=;
+ b=mJm0xhEmaVU5kZztL4q1aoGW/GPKf5tgHeE+As72FF0Z0CD14Mz/MLx53rL75d7vNqWY
+ 7Ph8GIuKaRAfvl7/ZmqAUWJpmnlxx96rlziZl+5y1i/Ob6DFzfKA1+3aKlaaalUgnSQh
+ zwiqsvuU6CCJ5/DUAar1lDshMsGf0/nzaVGqTac/VtRmdEtvRZKY5WuaCedDMgUIDFTs
+ M3tLxznHgMH0Jkdo4Jf7LvYuyccnj2UvhVrkS0PO2ciyt8MzP0swuiMMt8xO8FNK4rbs
+ QNnLyUsI0HndCFxbIb2mqo+yEvxh8NNkTqFB459cZcxv5kmyoelUaQfcokZcz8aEv4FA VA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mg4wdr0ca-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Dec 2022 13:56:55 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BFDuUWr031603;
+        Thu, 15 Dec 2022 13:56:55 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mg4wdr0c3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Dec 2022 13:56:55 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BFD3crx005714;
+        Thu, 15 Dec 2022 13:56:54 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([9.208.129.114])
+        by ppma03dal.us.ibm.com (PPS) with ESMTPS id 3meyfdxcw5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 15 Dec 2022 13:56:54 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+        by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BFDuqYq29033156
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 15 Dec 2022 13:56:53 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 939425805F;
+        Thu, 15 Dec 2022 13:56:52 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D7BAB58051;
+        Thu, 15 Dec 2022 13:56:46 +0000 (GMT)
+Received: from skywalker.linux.ibm.com (unknown [9.43.98.149])
+        by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 15 Dec 2022 13:56:46 +0000 (GMT)
+X-Mailer: emacs 29.0.60 (via feedmail 11-beta-1 I)
+From:   "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Ben Widawsky <ben.widawsky@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andi Kleen <ak@linux.intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Huang Ying <ying.huang@intel.com>, linux-api@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [RFC PATCH] mm/mempolicy: Fix memory leak in
+ set_mempolicy_home_node system call
+In-Reply-To: <20221214222110.200487-1-mathieu.desnoyers@efficios.com>
+References: <20221214222110.200487-1-mathieu.desnoyers@efficios.com>
+Date:   Thu, 15 Dec 2022 19:26:43 +0530
+Message-ID: <87r0x06a90.fsf@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: YsxdgRmNPa0CM3b1-lNIiSE2FqANa2A5
+X-Proofpoint-ORIG-GUID: cKSKxkmT5nN3gQQQGGgDepktkHOW77VH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-15_07,2022-12-15_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=999 malwarescore=0 phishscore=0 impostorscore=0 clxscore=1011
+ adultscore=0 suspectscore=0 bulkscore=0 priorityscore=1501 spamscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2212150110
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 09, 2022 at 09:26, Jason Andryuk <jandryuk@gmail.com> wrote:
+Mathieu Desnoyers <mathieu.desnoyers@efficios.com> writes:
 
-> xen kbdfront registers itself as being able to deliver *any* key since
-> it doesn't know what keys the backend may produce.
+> When encountering any vma in the range with policy other than MPOL_BIND
+> or MPOL_PREFERRED_MANY, an error is returned without issuing a mpol_put
+> on the policy just allocated with mpol_dup().
 >
-> Unfortunately, the generated modalias gets too large and uevent creation
-> fails with -ENOMEM.
+> This allows arbitrary users to leak kernel memory.
 >
-> This can lead to gdm not using the keyboard since there is no seat
-> associated [1] and the debian installer crashing [2].
->
-> Trim the ranges of key capabilities by removing some BTN_* ranges.
-> While doing this, some neighboring undefined ranges are removed to trim
-> it further.
->
-> An upper limit of KEY_KBD_LCD_MENU5 is still too large.  Use an upper
-> limit of KEY_BRIGHTNESS_MENU.
->
-> This removes:
-> BTN_DPAD_UP(0x220)..BTN_DPAD_RIGHT(0x223)
-> Empty space 0x224..0x229
->
-> Empty space 0x28a..0x28f
-> KEY_MACRO1(0x290)..KEY_MACRO30(0x2ad)
-> KEY_MACRO_RECORD_START          0x2b0
-> KEY_MACRO_RECORD_STOP           0x2b1
-> KEY_MACRO_PRESET_CYCLE          0x2b2
-> KEY_MACRO_PRESET1(0x2b3)..KEY_MACRO_PRESET3(0xb5)
-> Empty space 0x2b6..0x2b7
-> KEY_KBD_LCD_MENU1(0x2b8)..KEY_KBD_LCD_MENU5(0x2bc)
-> Empty space 0x2bd..0x2bf
-> BTN_TRIGGER_HAPPY(0x2c0)..BTN_TRIGGER_HAPPY40(0x2e7)
-> Empty space 0x2e8..0x2ff
->
-> The modalias shrinks from 2082 to 1550 bytes.
->
-> A chunk of keys need to be removed to allow the keyboard to be used.
-> This may break some functionality, but the hope is these macro keys are
-> uncommon and don't affect any users.
->
-> [1] https://github.com/systemd/systemd/issues/22944
-> [2] https://lore.kernel.org/xen-devel/87o8dw52jc.fsf@vps.thesusis.net/T/
->
-> Cc: Phillip Susi <phill@thesusis.net>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
 
-Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
+> Fixes: c6018b4b2549 ("mm/mempolicy: add set_mempolicy_home_node syscall")
+> Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+> Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+> Cc: Ben Widawsky <ben.widawsky@intel.com>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: Feng Tang <feng.tang@intel.com>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Cc: Andrea Arcangeli <aarcange@redhat.com>
+> Cc: Mel Gorman <mgorman@techsingularity.net>
+> Cc: Mike Kravetz <mike.kravetz@oracle.com>
+> Cc: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Andi Kleen <ak@linux.intel.com>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: Huang Ying <ying.huang@intel.com>
+> Cc: <linux-api@vger.kernel.org>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: stable@vger.kernel.org # 5.17+
 > ---
->  drivers/input/misc/xen-kbdfront.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
+>  mm/mempolicy.c | 1 +
+>  1 file changed, 1 insertion(+)
 >
-> v2:
-> Remove more keys: v1 didn't remove enough and modalias was still broken.
->
-> diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-> index 8d8ebdc2039b..4ecb579df748 100644
-> --- a/drivers/input/misc/xen-kbdfront.c
-> +++ b/drivers/input/misc/xen-kbdfront.c
-> @@ -256,7 +256,14 @@ static int xenkbd_probe(struct xenbus_device *dev,
->  		__set_bit(EV_KEY, kbd->evbit);
->  		for (i = KEY_ESC; i < KEY_UNKNOWN; i++)
->  			__set_bit(i, kbd->keybit);
-> -		for (i = KEY_OK; i < KEY_MAX; i++)
-> +		/* In theory we want to go KEY_OK..KEY_MAX, but that grows the
-> +		 * modalias line too long.  There is a gap of buttons from
-> +		 * BTN_DPAD_UP..BTN_DPAD_RIGHT and KEY_ALS_TOGGLE is the next
-> +		 * defined. Then continue up to KEY_BRIGHTNESS_MENU as an upper
-> +		 * limit. */
-> +		for (i = KEY_OK; i < BTN_DPAD_UP; i++)
-> +			__set_bit(i, kbd->keybit);
-> +		for (i = KEY_ALS_TOGGLE; i <= KEY_BRIGHTNESS_MENU; i++)
->  			__set_bit(i, kbd->keybit);
->  
->  		ret = input_register_device(kbd);
+> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+> index 61aa9aedb728..02c8a712282f 100644
+> --- a/mm/mempolicy.c
+> +++ b/mm/mempolicy.c
+> @@ -1540,6 +1540,7 @@ SYSCALL_DEFINE4(set_mempolicy_home_node, unsigned long, start, unsigned long, le
+>  		 * the home node for vmas we already updated before.
+>  		 */
+>  		if (new->mode != MPOL_BIND && new->mode != MPOL_PREFERRED_MANY) {
+> +			mpol_put(new);
+>  			err = -EOPNOTSUPP;
+>  			break;
+>  		}
 > -- 
-> 2.38.1
+> 2.25.1
