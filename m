@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D91C64E056
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:12:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA1A564E049
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:11:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229517AbiLOSMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 13:12:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42248 "EHLO
+        id S230237AbiLOSLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 13:11:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229917AbiLOSMF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:12:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B64B32ED5C
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:12:04 -0800 (PST)
+        with ESMTP id S230267AbiLOSLZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:11:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BF114730B
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:11:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EA2F61E59
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:12:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 450E9C433EF;
-        Thu, 15 Dec 2022 18:12:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9DB561E97
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:11:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB639C433EF;
+        Thu, 15 Dec 2022 18:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671127923;
-        bh=GqlCljcXYcLyLProTWx1L+qLCPI4QH6WP7FAKEXkoJM=;
+        s=korg; t=1671127883;
+        bh=ichTvY2XwLxovpEKtQ5ifNVuTETq1W9frTj1VmQN8Gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tstW8GKznt4wIqRf1qOhEiboT2mezSAVUG1skrZ40vMP39YhR9rPfd/CYe8aESR8q
-         oac8qUFZIJHmVb3gLuTLSpF5AVAvigf+X4W/EmztFrvFsxOCiEFLAzB7ZGdSQkfE1l
-         4lTCC2tJd00CDSCKFemF84rrGbKg8bmwWuUhl9P0=
+        b=vfUpXiOkB8mbbZPZEOUz+r1vJZzzac1xasmt9MPy5ksgPftPfHltbpPB0eSyyS1zm
+         VkTuuxYq3WBVIPJVyIgI4CWYiPl8ms5MAY+NyDl09Zxu2WmDTadmJKso1RcQLApAwq
+         p3NYWCklbkxV+IutqzzOVQxjKevbzS3pa9Tm623c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.15 01/14] x86/vdso: Conditionally export __vdso_sgx_enter_enclave()
-Date:   Thu, 15 Dec 2022 19:10:37 +0100
-Message-Id: <20221215172906.405983924@linuxfoundation.org>
+        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 11/15] pinctrl: meditatek: Startup with the IRQs disabled
+Date:   Thu, 15 Dec 2022 19:10:38 +0100
+Message-Id: <20221215172907.476723300@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221215172906.338769943@linuxfoundation.org>
-References: <20221215172906.338769943@linuxfoundation.org>
+In-Reply-To: <20221215172906.638553794@linuxfoundation.org>
+References: <20221215172906.638553794@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,42 +56,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit 45be2ad007a9c6bea70249c4cf3e4905afe4caeb upstream.
+[ Upstream commit 11780e37565db4dd064d3243ca68f755c13f65b4 ]
 
-Recently, ld.lld moved from '--undefined-version' to
-'--no-undefined-version' as the default, which breaks building the vDSO
-when CONFIG_X86_SGX is not set:
+If the system is restarted via kexec(), the peripherals do not start
+with a known state.
 
-  ld.lld: error: version script assignment of 'LINUX_2.6' to symbol '__vdso_sgx_enter_enclave' failed: symbol not defined
+If the previous system had enabled an IRQs we will receive unexected
+IRQs that can lock the system.
 
-__vdso_sgx_enter_enclave is only included in the vDSO when
-CONFIG_X86_SGX is set. Only export it if it will be present in the final
-object, which clears up the error.
+[   28.109251] watchdog: BUG: soft lockup - CPU#0 stuck for 26s!
+[swapper/0:0]
+[   28.109263] Modules linked in:
+[   28.109273] CPU: 0 PID: 0 Comm: swapper/0 Not tainted
+5.15.79-14458-g4b9edf7b1ac6 #1 9f2e76613148af94acccd64c609a552fb4b4354b
+[   28.109284] Hardware name: Google Elm (DT)
+[   28.109290] pstate: 40400005 (nZcv daif +PAN -UAO -TCO -DIT -SSBS
+		BTYPE=--)
+[   28.109298] pc : __do_softirq+0xa0/0x388
+[   28.109309] lr : __do_softirq+0x70/0x388
+[   28.109316] sp : ffffffc008003ee0
+[   28.109321] x29: ffffffc008003f00 x28: 000000000000000a x27:
+0000000000000080
+[   28.109334] x26: 0000000000000001 x25: ffffffefa7b350c0 x24:
+ffffffefa7b47480
+[   28.109346] x23: ffffffefa7b3d000 x22: 0000000000000000 x21:
+ffffffefa7b0fa40
+[   28.109358] x20: ffffffefa7b005b0 x19: ffffffefa7b47480 x18:
+0000000000065b6b
+[   28.109370] x17: ffffffefa749c8b0 x16: 000000000000018c x15:
+00000000000001b8
+[   28.109382] x14: 00000000000d3b6b x13: 0000000000000006 x12:
+0000000000057e91
+[   28.109394] x11: 0000000000000000 x10: 0000000000000000 x9 :
+ffffffefa7b47480
+[   28.109406] x8 : 00000000000000e0 x7 : 000000000f424000 x6 :
+0000000000000000
+[   28.109418] x5 : ffffffefa7dfaca0 x4 : ffffffefa7dfadf0 x3 :
+000000000000000f
+[   28.109429] x2 : 0000000000000000 x1 : 0000000000000100 x0 :
+0000000001ac65c5
+[   28.109441] Call trace:
+[   28.109447]  __do_softirq+0xa0/0x388
+[   28.109454]  irq_exit+0xc0/0xe0
+[   28.109464]  handle_domain_irq+0x68/0x90
+[   28.109473]  gic_handle_irq+0xac/0xf0
+[   28.109480]  call_on_irq_stack+0x28/0x50
+[   28.109488]  do_interrupt_handler+0x44/0x58
+[   28.109496]  el1_interrupt+0x30/0x58
+[   28.109506]  el1h_64_irq_handler+0x18/0x24
+[   28.109512]  el1h_64_irq+0x7c/0x80
+[   28.109519]  arch_local_irq_enable+0xc/0x18
+[   28.109529]  default_idle_call+0x40/0x140
+[   28.109539]  do_idle+0x108/0x290
+[   28.109547]  cpu_startup_entry+0x2c/0x30
+[   28.109554]  rest_init+0xe8/0xf8
+[   28.109562]  arch_call_rest_init+0x18/0x24
+[   28.109571]  start_kernel+0x338/0x42c
+[   28.109578]  __primary_switched+0xbc/0xc4
+[   28.109588] Kernel panic - not syncing: softlockup: hung tasks
 
-Fixes: 8466436952017 ("x86/vdso: Implement a vDSO for Intel SGX enclave call")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1756
-Link: https://lore.kernel.org/r/20221109000306.1407357-1-nathan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Link: https://lore.kernel.org/r/20221122-mtk-pinctrl-v1-1-bedf5655a3d2@chromium.org
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/vdso/vdso.lds.S |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pinctrl/mediatek/mtk-eint.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/arch/x86/entry/vdso/vdso.lds.S
-+++ b/arch/x86/entry/vdso/vdso.lds.S
-@@ -27,7 +27,9 @@ VERSION {
- 		__vdso_time;
- 		clock_getres;
- 		__vdso_clock_getres;
-+#ifdef CONFIG_X86_SGX
- 		__vdso_sgx_enter_enclave;
-+#endif
- 	local: *;
- 	};
- }
+diff --git a/drivers/pinctrl/mediatek/mtk-eint.c b/drivers/pinctrl/mediatek/mtk-eint.c
+index 22736f60c16c..64a32d3ca481 100644
+--- a/drivers/pinctrl/mediatek/mtk-eint.c
++++ b/drivers/pinctrl/mediatek/mtk-eint.c
+@@ -278,12 +278,15 @@ static struct irq_chip mtk_eint_irq_chip = {
+ 
+ static unsigned int mtk_eint_hw_init(struct mtk_eint *eint)
+ {
+-	void __iomem *reg = eint->base + eint->regs->dom_en;
++	void __iomem *dom_en = eint->base + eint->regs->dom_en;
++	void __iomem *mask_set = eint->base + eint->regs->mask_set;
+ 	unsigned int i;
+ 
+ 	for (i = 0; i < eint->hw->ap_num; i += 32) {
+-		writel(0xffffffff, reg);
+-		reg += 4;
++		writel(0xffffffff, dom_en);
++		writel(0xffffffff, mask_set);
++		dom_en += 4;
++		mask_set += 4;
+ 	}
+ 
+ 	return 0;
+-- 
+2.35.1
+
 
 
