@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52EDC64E048
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:11:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D91C64E056
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:12:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229847AbiLOSLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 13:11:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41934 "EHLO
+        id S229517AbiLOSMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 13:12:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230292AbiLOSLX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:11:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BBB645ECF
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:11:21 -0800 (PST)
+        with ESMTP id S229917AbiLOSMF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:12:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B64B32ED5C
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:12:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E06C861EA5
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:11:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB996C433D2;
-        Thu, 15 Dec 2022 18:11:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EA2F61E59
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:12:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 450E9C433EF;
+        Thu, 15 Dec 2022 18:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671127880;
-        bh=2BuHfM250BIV9oKXyCjXTvp0gtEGdBGY4IMkhrgOoVg=;
+        s=korg; t=1671127923;
+        bh=GqlCljcXYcLyLProTWx1L+qLCPI4QH6WP7FAKEXkoJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Di+fkN5L3Vk7X/RdDJGU6iZg1j5rITSQ2FSpJ8JTzp8wS2wC7cYK0oiHMepUuoSdE
-         TIFn+hFXAR9+/dJRyeDvsqTFl8YGMKTCdlO1e5fefuJDx8jiFIa1OYYKzR+VomnfcH
-         LVa1EBNqcuvoXoZksOhWJ/pMnsrZKyJTqHCBOz/c=
+        b=tstW8GKznt4wIqRf1qOhEiboT2mezSAVUG1skrZ40vMP39YhR9rPfd/CYe8aESR8q
+         oac8qUFZIJHmVb3gLuTLSpF5AVAvigf+X4W/EmztFrvFsxOCiEFLAzB7ZGdSQkfE1l
+         4lTCC2tJd00CDSCKFemF84rrGbKg8bmwWuUhl9P0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hou Tao <houtao1@huawei.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 10/15] libbpf: Use page size as max_entries when probing ring buffer map
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 5.15 01/14] x86/vdso: Conditionally export __vdso_sgx_enter_enclave()
 Date:   Thu, 15 Dec 2022 19:10:37 +0100
-Message-Id: <20221215172907.432746403@linuxfoundation.org>
+Message-Id: <20221215172906.405983924@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221215172906.638553794@linuxfoundation.org>
-References: <20221215172906.638553794@linuxfoundation.org>
+In-Reply-To: <20221215172906.338769943@linuxfoundation.org>
+References: <20221215172906.338769943@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,47 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 689eb2f1ba46b4b02195ac2a71c55b96d619ebf8 ]
+commit 45be2ad007a9c6bea70249c4cf3e4905afe4caeb upstream.
 
-Using page size as max_entries when probing ring buffer map, else the
-probe may fail on host with 64KB page size (e.g., an ARM64 host).
+Recently, ld.lld moved from '--undefined-version' to
+'--no-undefined-version' as the default, which breaks building the vDSO
+when CONFIG_X86_SGX is not set:
 
-After the fix, the output of "bpftool feature" on above host will be
-correct.
+  ld.lld: error: version script assignment of 'LINUX_2.6' to symbol '__vdso_sgx_enter_enclave' failed: symbol not defined
 
-Before :
-    eBPF map_type ringbuf is NOT available
-    eBPF map_type user_ringbuf is NOT available
+__vdso_sgx_enter_enclave is only included in the vDSO when
+CONFIG_X86_SGX is set. Only export it if it will be present in the final
+object, which clears up the error.
 
-After :
-    eBPF map_type ringbuf is available
-    eBPF map_type user_ringbuf is available
-
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20221116072351.1168938-2-houtao@huaweicloud.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8466436952017 ("x86/vdso: Implement a vDSO for Intel SGX enclave call")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1756
+Link: https://lore.kernel.org/r/20221109000306.1407357-1-nathan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/bpf/libbpf_probes.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/entry/vdso/vdso.lds.S |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/lib/bpf/libbpf_probes.c b/tools/lib/bpf/libbpf_probes.c
-index d38284a3aaf0..13393f0eab25 100644
---- a/tools/lib/bpf/libbpf_probes.c
-+++ b/tools/lib/bpf/libbpf_probes.c
-@@ -244,7 +244,7 @@ bool bpf_probe_map_type(enum bpf_map_type map_type, __u32 ifindex)
- 	case BPF_MAP_TYPE_RINGBUF:
- 		key_size = 0;
- 		value_size = 0;
--		max_entries = 4096;
-+		max_entries = sysconf(_SC_PAGE_SIZE);
- 		break;
- 	case BPF_MAP_TYPE_UNSPEC:
- 	case BPF_MAP_TYPE_HASH:
--- 
-2.35.1
-
+--- a/arch/x86/entry/vdso/vdso.lds.S
++++ b/arch/x86/entry/vdso/vdso.lds.S
+@@ -27,7 +27,9 @@ VERSION {
+ 		__vdso_time;
+ 		clock_getres;
+ 		__vdso_clock_getres;
++#ifdef CONFIG_X86_SGX
+ 		__vdso_sgx_enter_enclave;
++#endif
+ 	local: *;
+ 	};
+ }
 
 
