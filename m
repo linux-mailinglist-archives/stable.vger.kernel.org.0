@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6671764D8E5
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 10:46:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D097464D8F1
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 10:48:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230160AbiLOJqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 04:46:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45630 "EHLO
+        id S230236AbiLOJsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 04:48:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230137AbiLOJpz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 04:45:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB4D63A2;
-        Thu, 15 Dec 2022 01:45:52 -0800 (PST)
+        with ESMTP id S229804AbiLOJrh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 04:47:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 978BA19C25
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 01:46:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44E5AB8169B;
-        Thu, 15 Dec 2022 09:45:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E66AC433EF;
-        Thu, 15 Dec 2022 09:45:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44F35B819B4
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 09:46:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90C53C433EF;
+        Thu, 15 Dec 2022 09:46:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671097550;
-        bh=URF8kvnXmm4BcP1TbxIMhysn2xcdIgsFycLZvZfysCs=;
+        s=korg; t=1671097606;
+        bh=lx+rV5uueEQ5fb/PFo36Z/Pxl5a59hfrMqfij69X/io=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KAn6hWt1c9cQ9omJOJ5sU9iSW7M5u95iBbI5Ae9fdKowwdQWjPyLIkPmIWClzvuXE
-         2+Hnhq0tqGBgN0KsHaH6qhovzlzleL54J6VDxsVlfS0IeV0BiDf4r/1K2/KlMZqRs0
-         He7/849MoO43kDNz3HeFdp+8Z8i8jml6EUfviIaE=
-Date:   Thu, 15 Dec 2022 10:45:46 +0100
+        b=kM5N4Z9Htb8ZNFPyyonyLMYrh7myiFcp0ggcq8Iei9olVRhx6o9wc3IatXzuy72Vh
+         fo4Ffi9sWJkUMj+kjoDjadV0HgVrRe2/6oK/4Qrte41QMnvPb5ClqYM1ZyseW7q3qX
+         TR59n5QwI2a1oXX5QHFmwnKm3hG7d5IhOpabPG/U=
+Date:   Thu, 15 Dec 2022 10:46:35 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Lee Jones <lee@kernel.org>
-Cc:     Simon Horman <simon.horman@corigine.com>,
-        Jialiang Wang <wangjialiang0806@163.com>,
-        stable@vger.kernel.org, kuba@kernel.org, davem@davemloft.net,
-        edumazet@google.com, pabeni@redhat.com, niejianglei2021@163.com,
-        oss-drivers@corigine.com, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] nfp: fix use-after-free in area_cache_get()
-Message-ID: <Y5rsyiDNWp1QLhka@kroah.com>
-References: <20220810073057.4032-1-wangjialiang0806@163.com>
- <Y5CFNqYNMkryiDcP@google.com>
- <Y5HwAWNtH5IfH9OA@corigine.com>
- <Y5roA4gOpvKBQySv@google.com>
+To:     Wu Bo <bo.wu@vivo.com>
+Cc:     stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        Ken Schalk <kschalk@nvidia.com>
+Subject: Re: [PATCH 5.10] fuse: always revalidate if exclusive create
+Message-ID: <Y5rs+9XEFSAcXCir@kroah.com>
+References: <20221215093408.43407-1-bo.wu@vivo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y5roA4gOpvKBQySv@google.com>
+In-Reply-To: <20221215093408.43407-1-bo.wu@vivo.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -56,75 +49,21 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 15, 2022 at 09:25:23AM +0000, Lee Jones wrote:
-> Dear Stable,
+On Thu, Dec 15, 2022 at 05:34:08PM +0800, Wu Bo wrote:
+> From: Miklos Szeredi <mszeredi@redhat.com>
 > 
-> [NB: Re-poking Stable with the correct contact address this time! :)]
+> commit df8629af293493757beccac2d3168fe5a315636e upstream.
 > 
-> > > > area_cache_get() is used to distribute cache->area and set cache->id,
-> > > >  and if cache->id is not 0 and cache->area->kref refcount is 0, it will
-> > > >  release the cache->area by nfp_cpp_area_release(). area_cache_get()
-> > > >  set cache->id before cpp->op->area_init() and nfp_cpp_area_acquire().
-> > > >
-> > > > But if area_init() or nfp_cpp_area_acquire() fails, the cache->id is
-> > > >  is already set but the refcount is not increased as expected. At this
-> > > >  time, calling the nfp_cpp_area_release() will cause use-after-free.
-> > > >
-> > > > To avoid the use-after-free, set cache->id after area_init() and
-> > > >  nfp_cpp_area_acquire() complete successfully.
-> > > >
-> > > > Note: This vulnerability is triggerable by providing emulated device
-> > > >  equipped with specified configuration.
-> > > >
-> > > >  BUG: KASAN: use-after-free in nfp6000_area_init (/home/user/Kernel/v5.19
-> > > > /x86_64/src/drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c:760)
-> > > >   Write of size 4 at addr ffff888005b7f4a0 by task swapper/0/1
-> > > >
-> > > >  Call Trace:
-> > > >   <TASK>
-> > > >  nfp6000_area_init (/home/user/Kernel/v5.19/x86_64/src/drivers/net
-> > > > /ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c:760)
-> > > >  area_cache_get.constprop.8 (/home/user/Kernel/v5.19/x86_64/src/drivers
-> > > > /net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:884)
-> > > >
-> > > >  Allocated by task 1:
-> > > >  nfp_cpp_area_alloc_with_name (/home/user/Kernel/v5.19/x86_64/src/drivers
-> > > > /net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:303)
-> > > >  nfp_cpp_area_cache_add (/home/user/Kernel/v5.19/x86_64/src/drivers/net
-> > > > /ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:802)
-> > > >  nfp6000_init (/home/user/Kernel/v5.19/x86_64/src/drivers/net/ethernet
-> > > > /netronome/nfp/nfpcore/nfp6000_pcie.c:1230)
-> > > >  nfp_cpp_from_operations (/home/user/Kernel/v5.19/x86_64/src/drivers/net
-> > > > /ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:1215)
-> > > >  nfp_pci_probe (/home/user/Kernel/v5.19/x86_64/src/drivers/net/ethernet
-> > > > /netronome/nfp/nfp_main.c:744)
-> > > >
-> > > >  Freed by task 1:
-> > > >  kfree (/home/user/Kernel/v5.19/x86_64/src/mm/slub.c:4562)
-> > > >  area_cache_get.constprop.8 (/home/user/Kernel/v5.19/x86_64/src/drivers
-> > > > /net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:873)
-> > > >  nfp_cpp_read (/home/user/Kernel/v5.19/x86_64/src/drivers/net/ethernet
-> > > > /netronome/nfp/nfpcore/nfp_cppcore.c:924 /home/user/Kernel/v5.19/x86_64
-> > > > /src/drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:973)
-> > > >  nfp_cpp_readl (/home/user/Kernel/v5.19/x86_64/src/drivers/net/ethernet
-> > > > /netronome/nfp/nfpcore/nfp_cpplib.c:48)
-> > > >
-> > > > Signed-off-by: Jialiang Wang <wangjialiang0806@163.com>
-> > > 
-> > > Any reason why this doesn't have a Fixes: tag applied and/or didn't
-> > > get sent to Stable?
-> > > 
-> > > Looks as if this needs to go back as far as v4.19.
-> > > 
-> > > Fixes: 4cb584e0ee7df ("nfp: add CPP access core")
-> > > 
-> > > commit 02e1a114fdb71e59ee6770294166c30d437bf86a upstream.
+> Failure to do so may result in EEXIST even if the file only exists in the
+> cache and not in the filesystem.
 > 
-> Would you be able to take this with the information provided please?
+> The atomic nature of O_EXCL mandates that the cached state should be
+> ignored and existence verified anew.
+> 
+> Change-Id: I0f173de6f9f1af05d6e816246b5c56b670ec079c
 
-You really want this back to 4.14.y, as 4cb584e0ee7df ("nfp: add CPP
-access core") showed up in the 4.11 release, right?
+Where did this change-id come from?
 
-if so, now queued up.
+thanks,
 
 greg k-h
