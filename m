@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E154264E067
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:13:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B56664E076
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:14:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229976AbiLOSNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 13:13:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42514 "EHLO
+        id S229694AbiLOSOK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 13:14:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230230AbiLOSMo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:12:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFA99396F4
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:12:43 -0800 (PST)
+        with ESMTP id S229737AbiLOSNg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:13:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB974A060
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:13:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CCE461EA0
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:12:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FCB5C433D2;
-        Thu, 15 Dec 2022 18:12:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8019B81C1F
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:13:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15B29C433D2;
+        Thu, 15 Dec 2022 18:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671127962;
-        bh=pyepUv49aHr5CnGlPCA68LWtVIZxRoRXDWdIBzwsVOA=;
+        s=korg; t=1671128008;
+        bh=Elk+bS2olFo5I3kfhcfCnppXGyQSQXi3NhZl/A9ocb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GzTRpY7FSGD/8SVroRCkO+Nxb8YgstAUfn+z5hrGCWXf5Q+4gmlRxFDkKOozEDPx5
-         tubvntwSzi2SstoUZ1bZvcx2VC6YejBUvI9WigWz/yfUghc1Z02ODq5RFYgbER98DE
-         8D4VkAy7k/N3V+5lL9CZ0YEEk9j+ChK8f7OGj3YY=
+        b=CHOOCwk1N7LM8elfpvGLxTGdL6vX5V4JZHgjGDxOakq0Op9ivxXpLV70/3DJ1fQTa
+         KXKyLVssV7nxvkVOecm079HmVoMoFqR71gRCE05S9WbKgLmZZqQAQ3LUn76H0AM5eV
+         ENDEvaexCAfSFg7maJ9dV3WJGOy3Pdl+gcDV2L0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lei Rao <lei.rao@intel.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 14/14] nvme-pci: clear the prp2 field when not used
-Date:   Thu, 15 Dec 2022 19:10:50 +0100
-Message-Id: <20221215172907.335634098@linuxfoundation.org>
+        patches@lists.linux.dev, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 07/16] ASoC: fsl_micfil: explicitly clear CHnF flags
+Date:   Thu, 15 Dec 2022 19:10:51 +0100
+Message-Id: <20221215172908.470523768@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221215172906.338769943@linuxfoundation.org>
-References: <20221215172906.338769943@linuxfoundation.org>
+In-Reply-To: <20221215172908.162858817@linuxfoundation.org>
+References: <20221215172908.162858817@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,33 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lei Rao <lei.rao@intel.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit a56ea6147facce4ac1fc38675455f9733d96232b ]
+[ Upstream commit b776c4a4618ec1b5219d494c423dc142f23c4e8f ]
 
-If the prp2 field is not filled in nvme_setup_prp_simple(), the prp2
-field is garbage data. According to nvme spec, the prp2 is reserved if
-the data transfer does not cross a memory page boundary, so clear it to
-zero if it is not used.
+There may be failure when start 1 channel recording after
+8 channels recording. The reason is that the CHnF
+flags are not cleared successfully by software reset.
 
-Signed-off-by: Lei Rao <lei.rao@intel.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+This issue is triggerred by the change of clearing
+software reset bit.
+
+CHnF flags are write 1 clear bits. Clear them by force
+write.
+
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1651925654-32060-2-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/fsl/fsl_micfil.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 772bdc6845fb..d49df7123677 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -814,6 +814,8 @@ static blk_status_t nvme_setup_prp_simple(struct nvme_dev *dev,
- 	cmnd->dptr.prp1 = cpu_to_le64(iod->first_dma);
- 	if (bv->bv_len > first_prp_len)
- 		cmnd->dptr.prp2 = cpu_to_le64(iod->first_dma + first_prp_len);
-+	else
-+		cmnd->dptr.prp2 = 0;
- 	return BLK_STS_OK;
+diff --git a/sound/soc/fsl/fsl_micfil.c b/sound/soc/fsl/fsl_micfil.c
+index 8aa6871e0d42..4b86ef82fd93 100644
+--- a/sound/soc/fsl/fsl_micfil.c
++++ b/sound/soc/fsl/fsl_micfil.c
+@@ -205,6 +205,14 @@ static int fsl_micfil_reset(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
++	/*
++	 * Set SRES should clear CHnF flags, But even add delay here
++	 * the CHnF may not be cleared sometimes, so clear CHnF explicitly.
++	 */
++	ret = regmap_write_bits(micfil->regmap, REG_MICFIL_STAT, 0xFF, 0xFF);
++	if (ret)
++		return ret;
++
+ 	return 0;
  }
  
 -- 
