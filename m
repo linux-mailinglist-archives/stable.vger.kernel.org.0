@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3847E64E04B
-	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:11:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94EA764E05B
+	for <lists+stable@lfdr.de>; Thu, 15 Dec 2022 19:12:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229635AbiLOSLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 13:11:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41918 "EHLO
+        id S229625AbiLOSMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 13:12:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230229AbiLOSLb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:11:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A9FC2ED5B
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:11:30 -0800 (PST)
+        with ESMTP id S229448AbiLOSMQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 13:12:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A81F2E9D8
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 10:12:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E12B461E97
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:11:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5725C433EF;
-        Thu, 15 Dec 2022 18:11:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13D75B81C39
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 18:12:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61380C433EF;
+        Thu, 15 Dec 2022 18:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671127889;
-        bh=zkoKR8iknSyY9yvGv2F6VD/kvf7vdoZTjDPP34VSaTY=;
+        s=korg; t=1671127932;
+        bh=TqBnjsY6W9h8nVSTWhKJucNnSNV9DfSlrfaeFN+ZBDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJ3Kj5rY+FFguB+FWYJFSOtptdtG76N8Nu3hIBlPipJGq0yzQ9MC3J7JPh9cZXuq9
-         +a8M/W4i/+kITOkWlb2Nuy56beTqsZskQsGYnzSY/tS+yGWMQyd22ZIMxnQdUKJaS2
-         eesi+ThX5vve8L/Gv+499JrHtOGcqHTaZYPUD5i0=
+        b=F3ZzvcQq6IAOkMf+3HCl5VX/j85KlyUB7OwzWi+NnwPCENA4ogIXSj2wJzUEuMO7m
+         /pqpb8b7DN6lqw8gu7qlW02Xl9uP8Oi8EZ+ZaS2hrxGgMDEQh/isItzIE3gh8GfWyJ
+         SzCB+GuBbS8dCY+DQHyIRvkoZlwgwGDD8d+ObH3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yasushi SHOJI <yashi@spacecubics.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 13/15] can: mcba_usb: Fix termination command argument
+Subject: [PATCH 5.15 04/14] ASoC: fsl_micfil: explicitly clear software reset bit
 Date:   Thu, 15 Dec 2022 19:10:40 +0100
-Message-Id: <20221215172907.566009274@linuxfoundation.org>
+Message-Id: <20221215172906.537422169@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221215172906.638553794@linuxfoundation.org>
-References: <20221215172906.638553794@linuxfoundation.org>
+In-Reply-To: <20221215172906.338769943@linuxfoundation.org>
+References: <20221215172906.338769943@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yasushi SHOJI <yasushi.shoji@gmail.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 1a8e3bd25f1e789c8154e11ea24dc3ec5a4c1da0 ]
+[ Upstream commit 292709b9cf3ba470af94b62c9bb60284cc581b79 ]
 
-Microchip USB Analyzer can activate the internal termination resistors
-by setting the "termination" option ON, or OFF to to deactivate them.
-As I've observed, both with my oscilloscope and captured USB packets
-below, you must send "0" to turn it ON, and "1" to turn it OFF.
+SRES is self-cleared bit, but REG_MICFIL_CTRL1 is defined as
+non volatile register, it still remain in regmap cache after set,
+then every update of REG_MICFIL_CTRL1, software reset happens.
+to avoid this, clear it explicitly.
 
->From the schematics in the user's guide, I can confirm that you must
-drive the CAN_RES signal LOW "0" to activate the resistors.
-
-Reverse the argument value of usb_msg.termination to fix this.
-
-These are the two commands sequence, ON then OFF.
-
-> No.     Time           Source                Destination           Protocol Length Info
->       1 0.000000       host                  1.3.1                 USB      46     URB_BULK out
->
-> Frame 1: 46 bytes on wire (368 bits), 46 bytes captured (368 bits)
-> USB URB
-> Leftover Capture Data: a80000000000000000000000000000000000a8
->
-> No.     Time           Source                Destination           Protocol Length Info
->       2 4.372547       host                  1.3.1                 USB      46     URB_BULK out
->
-> Frame 2: 46 bytes on wire (368 bits), 46 bytes captured (368 bits)
-> USB URB
-> Leftover Capture Data: a80100000000000000000000000000000000a9
-
-Signed-off-by: Yasushi SHOJI <yashi@spacecubics.com>
-Link: https://lore.kernel.org/all/20221124152504.125994-1-yashi@spacecubics.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1651925654-32060-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/mcba_usb.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ sound/soc/fsl/fsl_micfil.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/can/usb/mcba_usb.c b/drivers/net/can/usb/mcba_usb.c
-index 21063335ab59..c07e327929ba 100644
---- a/drivers/net/can/usb/mcba_usb.c
-+++ b/drivers/net/can/usb/mcba_usb.c
-@@ -47,6 +47,10 @@
- #define MCBA_VER_REQ_USB 1
- #define MCBA_VER_REQ_CAN 2
- 
-+/* Drive the CAN_RES signal LOW "0" to activate R24 and R25 */
-+#define MCBA_VER_TERMINATION_ON 0
-+#define MCBA_VER_TERMINATION_OFF 1
-+
- #define MCBA_SIDL_EXID_MASK 0x8
- #define MCBA_DLC_MASK 0xf
- #define MCBA_DLC_RTR_MASK 0x40
-@@ -469,7 +473,7 @@ static void mcba_usb_process_ka_usb(struct mcba_priv *priv,
- 		priv->usb_ka_first_pass = false;
+diff --git a/sound/soc/fsl/fsl_micfil.c b/sound/soc/fsl/fsl_micfil.c
+index 9f90989ac59a..cb84d95c3aac 100644
+--- a/sound/soc/fsl/fsl_micfil.c
++++ b/sound/soc/fsl/fsl_micfil.c
+@@ -191,6 +191,17 @@ static int fsl_micfil_reset(struct device *dev)
+ 		return ret;
  	}
  
--	if (msg->termination_state)
-+	if (msg->termination_state == MCBA_VER_TERMINATION_ON)
- 		priv->can.termination = MCBA_TERMINATION_ENABLED;
- 	else
- 		priv->can.termination = MCBA_TERMINATION_DISABLED;
-@@ -789,9 +793,9 @@ static int mcba_set_termination(struct net_device *netdev, u16 term)
- 	};
- 
- 	if (term == MCBA_TERMINATION_ENABLED)
--		usb_msg.termination = 1;
-+		usb_msg.termination = MCBA_VER_TERMINATION_ON;
- 	else
--		usb_msg.termination = 0;
-+		usb_msg.termination = MCBA_VER_TERMINATION_OFF;
- 
- 	mcba_usb_xmit_cmd(priv, (struct mcba_usb_msg *)&usb_msg);
++	/*
++	 * SRES is self-cleared bit, but REG_MICFIL_CTRL1 is defined
++	 * as non-volatile register, so SRES still remain in regmap
++	 * cache after set, that every update of REG_MICFIL_CTRL1,
++	 * software reset happens. so clear it explicitly.
++	 */
++	ret = regmap_clear_bits(micfil->regmap, REG_MICFIL_CTRL1,
++				MICFIL_CTRL1_SRES);
++	if (ret)
++		return ret;
++
+ 	return 0;
+ }
  
 -- 
 2.35.1
