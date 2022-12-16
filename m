@@ -2,158 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8797364EE02
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 16:35:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF13564EE57
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 16:59:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229627AbiLPPfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 10:35:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52424 "EHLO
+        id S231977AbiLPP7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 10:59:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230365AbiLPPfI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 10:35:08 -0500
-Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::227])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B17B6186E6
-        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 07:35:06 -0800 (PST)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 85EA52000E;
-        Fri, 16 Dec 2022 15:35:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1671204904;
+        with ESMTP id S231888AbiLPP6h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 10:58:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F201146
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 07:57:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1671206263;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=CRNxLa3NwvaxA4E499bmTCzKgHqaavDobietvg9MgYY=;
-        b=Q4c9niRO1LOcj7mMPp04sNlIfybgVDeXp6jqcaYz3yfg7H1z3mU4HMQLDEGJpwHU95lQ5C
-        2fda/CNFNvfq0MwqGiHTBHXgGiNVr2Jl8Ze7X+ElZ73Hz15ONq4rrgx2r1l/zpLVjD5KAR
-        g3qMo4Y02PIGJjhYZrzRQEq/fXd1NIjShAYCKBuGvSRGd+epcQ7tBxBDywgp2i/d2fgs6j
-        XefI0PBloXW6k9iWOPoM3Ntowd6tFILovV8N28va1jjmu308UwCEGJgSV3l3VU2+A8K1cR
-        /WzPg8izSs9F//BxKxQ5owY7Ovwz3SFhnu2Yeh4LOtWUr5+XIRmoC/XHJjhDdg==
-Date:   Fri, 16 Dec 2022 16:35:01 +0100
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Marek Vasut <marex@denx.de>
-Cc:     Francesco Dolcini <francesco@dolcini.it>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-mtd@lists.infradead.org,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        u-boot@lists.denx.de
-Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is
- 0
-Message-ID: <20221216163501.1c2ace21@xps-13>
-In-Reply-To: <fb55a784-eda3-8916-1413-581b9436b3f2@denx.de>
-References: <Y5wiAPvPU+YY39oX@francesco-nb.int.toradex.com>
-        <6f5f5b32-d7fe-13cc-b52d-83a27bd9f53e@denx.de>
-        <20221216120155.4b78e5cf@xps-13>
-        <Y5xmi62hR6JeYUt1@francesco-nb.int.toradex.com>
-        <20221216143720.3c8923d8@xps-13>
-        <fb55a784-eda3-8916-1413-581b9436b3f2@denx.de>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+        bh=6dLsRoolqx1zZhtmb36YfFuBLbtpT274h3r2aL8GL4k=;
+        b=Gi98tnxYfVhe9t8XeWwMdKqfM/uOm3B6mRskY2pJfqI2WqxX/6K/bK4jVIqpLhuy8eekQ0
+        VH7tXDzjm5YP+rtMvthQQDDTGMYcx4vH6Zq4JuuU7ip1OQEgG5D2ek2qb6SzxVjonFvlGA
+        E0XelD39ySvO9P6s5UrodiVXnZVHccE=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-120-3Ej8ltyfMnCA8xGbROLi5g-1; Fri, 16 Dec 2022 10:57:37 -0500
+X-MC-Unique: 3Ej8ltyfMnCA8xGbROLi5g-1
+Received: by mail-wm1-f70.google.com with SMTP id m38-20020a05600c3b2600b003d1fc5f1f80so2739872wms.1
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 07:57:37 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:subject:organization:from
+         :content-language:references:cc:to:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=6dLsRoolqx1zZhtmb36YfFuBLbtpT274h3r2aL8GL4k=;
+        b=lBuzhsfA0Bs2eRF9d7PuoUkT1DcjUk7amYZVUMRejCT8+PTEjKe0IGPfS/eLTPlQ+H
+         lOU8k8IZHXzXwZw0QokIIlwKjp7fjg/jor6lQVWkgMx6FeiMbRZ0EXkzAPV5PDQzB97f
+         jfkpCe8B+ZSkha3CDEievZypybzUkQQZKQZ+5aP8djMixxLfDmoFk9eP6x8TRuLwdD0M
+         IuF/egN4zyuTighx6CMoem8jhQ30jv71ksm9rzDjktOh/CzJ9Efn7Lf6HSxJ8mJqiPM0
+         eZ9Xa7krqhYPZ15z3MZqOdyBsqXdeYOYbCntA0EDd+U0HiWMCfJuNKKDZja0LbcVDYTV
+         j+iA==
+X-Gm-Message-State: ANoB5plaVuis0SqDTDuLY1oSeHNMb7nbt9bsC+L9qMx6pXLLuTkmB5Ub
+        PJPVCa0hsSiPzxo8sjkxap6tPM/3+OarLj/aj4QcmSuF3DFFNrT0/fo2R+nJddYgM7h198iWPcN
+        UxcTorBR6ql4Bx0tr
+X-Received: by 2002:a05:600c:3549:b0:3c6:e61e:ae8c with SMTP id i9-20020a05600c354900b003c6e61eae8cmr35405997wmq.28.1671206256116;
+        Fri, 16 Dec 2022 07:57:36 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf64C2aBB45GXwS++QO6Sr3F4ze8EYUjLXrts0880Hw6xU+tVgHq4xUPJI4/W644ZIm86uv0JQ==
+X-Received: by 2002:a05:600c:3549:b0:3c6:e61e:ae8c with SMTP id i9-20020a05600c354900b003c6e61eae8cmr35405979wmq.28.1671206255823;
+        Fri, 16 Dec 2022 07:57:35 -0800 (PST)
+Received: from [192.168.3.108] (p4ff23686.dip0.t-ipconnect.de. [79.242.54.134])
+        by smtp.gmail.com with ESMTPSA id 8-20020a05600c028800b003c6d21a19a0sm2868815wmk.29.2022.12.16.07.57.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 16 Dec 2022 07:57:35 -0800 (PST)
+Message-ID: <8c36dd0a-90be-91bf-0ded-55b34ee0a770@redhat.com>
+Date:   Fri, 16 Dec 2022 16:57:33 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+To:     Peter Xu <peterx@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Pengfei Xu <pengfei.xu@intel.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Huang Ying <ying.huang@intel.com>, stable@vger.kernel.org
+References: <20221214200453.1772655-1-peterx@redhat.com>
+ <20221214200453.1772655-2-peterx@redhat.com>
+ <618b69be-0e99-e35f-04b3-9c63d78ece50@redhat.com> <Y5yGp6ToQD+eYrv/@x1n>
+Content-Language: en-US
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH 1/2] mm/uffd: Fix pte marker when fork() without fork
+ event
+In-Reply-To: <Y5yGp6ToQD+eYrv/@x1n>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Marek,
+>>
+>> Wouldn't it be cleaner to be able to "clean" specific markers from a PTE
+>> marker without having to special case on each and everyone? I mean, only
+>> uffd-wp is really special such that it might disappear for the target.
+> 
+> Quotting the commit message in patch 2:
+> 
+>    Currently there is a priority difference between the uffd-wp bit and the
+>    swapin error entry, in which the swapin error always has higher priority
+>    (e.g. we don't need to wr-protect a swapin error pte marker).
+> 
+>    If there will be a 3rd bit introduced, we'll probably need to consider a
+>    more involved approach so we may need to start operate on the bits.
+>    Let's leave that for later.
+> 
+> I actually started the fix with something like that, but I noticed it's not
+> needed to add more code if there's no 3rd bit introduced so I dropped that.
+> I decided to go the simpler change approach and leave that for later.
 
-marex@denx.de wrote on Fri, 16 Dec 2022 15:32:28 +0100:
+Okay, makes sense.
 
-> On 12/16/22 14:37, Miquel Raynal wrote:
->=20
-> Hi,
->=20
-> [...]
->=20
-> >>> What? =20
-> >>
-> >> Let me rephrase, I was not clear enough.
-> >> =20
-> >>> Since when my proposal is breaking boards? My proposal leads to a
-> >>> situation where:
-> >>> - If you have a board that has an inconsistent description but worked,
-> >>>    it will still work.
-> >>> - If you have a board that has a consistent description and worked, it
-> >>>    will still work.
-> >>> - If your have a board that has an inconsistent description and got
-> >>>    broken *recently* by another change (typically you "fix" the DT in
-> >>>    Linux to comply with the bindings), then you get a warning that le=
-ads
-> >>>    you on the right path, you then update your bootloader if you can,
-> >>>    but either way you add your machine compatible to the list of devi=
-ces
-> >>>    which need the early fix and your boot is fixed. =20
-> >>
-> >> This implies that we can proactively catch all the affected boards. I =
-do
-> >> not believe this is reasonable and because of that my comment before
-> >> about creating regression to the users. =20
-> >=20
-> > I really don't understand the reasoning here.
-> >=20
-> > What I say is: let's fix the boards known to be incorrectly described
-> > when we break them so they continue working with a broken firmware. =20
->=20
-> The second part of the message, as far as I understand it, is "ignore pro=
-blems this will cause to users of boards we do not know about, let them run=
- into unbootable systems after some linux kernel update,=20
+> 
+>>
+>> Something like (pseudocode):
+>>
+>> if (!userfaultfd_wp(dst_vma))
+>> 	pte_marker_clear_uff_wp(entry);
+>> if (!pte_marker_empty(entry)) {
+>> 	pte = make_pte_marker(pte_marker_get(entry));
+>> 	set_pte_at(dst_mm, addr, dst_pte, pte);
+>> }
+>>
+>> Then this fix would be correct and backport-able even without #2. And it
+>> would work for new types of markers :)
+> 
+> When that comes, we may need one set_pte_marker_at() taking care of empty
+> pte markers, otherwise there can be a lot of such check.
 
-Now you know what kernel update will break them, so you can prevent it
-from happening.=20
+Right. In the future it might be cleaner.
 
-For boards without even a dtsi in the kernel, should we care?
+> 
+>>
+>>
+>> I'd prefer a fix that doesn't break something else temporarily, even if the
+>> stable backport might require 5 additional minutes to do. So squashing #2
+>> into #1 would also work.
+> 
+> The thing is whether do we care about someone: (1) explicitly checkout at
+> the commit of patch 1, then (2) runs the kernel, hit a swapnin error, (3)
+> fork(), and (4) access the swapin error page in the child.
 
-> and once they suffer through system recovery, make them add compatible
-> string to the arch-side workaround".
->=20
-> > What regression could this possibly bring? I don't care about catching
-> > the 2k boards out there which work but wrongly describe their
-> > partitions. If they work, they will continue working. =20
->=20
-> Those boards would start failing once the Linux-side DT size-cells is cor=
-rected.
->=20
-> Also, this got missed in the previous discussion. If you use only board c=
-ompatible string in arch-side workaround, the workaround would be applied e=
-ven on systems with updated bootloaders, which is likely not what we want.
+I'm more concerned about backports, when one backports #1 but not #2. In 
+theory, patch #2 fixes patch #1, because that introduced IMHO a real 
+regression -- a possible memory corruption when discarding a hwpoison 
+marker. Warnings are not nice but at least indicate that something needs 
+a second look.
 
-If the heuristics here needs to be improved somehow, let's discuss that ;)
+> 
+> To me I don't care even starting from (1).. because it really shouldn't
+> happen at all in any serious environment.
+> 
+> The other reason is these are indeed two issues to solve.  Even if by
+> accident we kept the swapin error in old code we'll probably dump an
+> warning which is not wanted either.  It's not something someone will really
+> get benefit from..
+> 
+> So like many other places, I don't have a strong opinion, but personally I
+> prefer the current approach.
 
-> > You and Marek say: let's blindly always change a property in the DT, no
-> > matter if the board is broken, even if we don't know if this is the
-> > right thing to do, and apply this to the entire world. =20
->=20
-> As far as I can tell, if we have partitions in the NAND controller node a=
-nd size-cells=3D0, then the right thing to do is to override size-cells to =
-1 , because partitions with size-cells=3D0 make no sense.
 
-How do you know the firmware did not set #size-cell=3D0 on purpose to
-avoid using the partitions? How would this be more stupid than
-updating partitions without setting #size-cell to the right value? Can
-you be so sure every board in the world will never do that? And how do
-you handle the 64-bit case as well? You _do_no_know_ what applies in
-all the cases, guessing is dangerous here, you'll just support new
-broken cases or even break existing setups! What you do know however is
-what applies for a number of cases your clearly identified. Applying
-this logic to *all* cases in simply _broken_ and utterly stupid (tm). I
-don't know how to express that so we stop bike-shedding.
+Me neither, two patches just felt more complicated than it should be.
 
-> If the heuristics here needs to be improved somehow, let's discuss that.
->=20
-> > But with this approach you're not worried about regressions.
-> >=20
-> > I am sorry it does not stand. =20
->=20
-> [...]
+Anyhow, the final code change LGTM.
 
+-- 
 Thanks,
-Miqu=C3=A8l
+
+David / dhildenb
+
