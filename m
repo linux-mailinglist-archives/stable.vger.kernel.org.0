@@ -2,125 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE9964EF2E
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 17:32:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B342D64EF35
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 17:34:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231474AbiLPQcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 11:32:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35000 "EHLO
+        id S230233AbiLPQeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 11:34:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231277AbiLPQcc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 11:32:32 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E33CDE2D;
-        Fri, 16 Dec 2022 08:32:30 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 86A1A3454D;
-        Fri, 16 Dec 2022 16:32:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1671208349; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=ifpYR2PdESJAbvJefyXjW1EWj/1z2L0zImGtUVLVTog=;
-        b=G0OuXHi/vYNbH57ZVsfKkJHhPgNpbk73CrPzwAWNhyKC3Xh8oDQOLuRGpTKYCaTgy2aXzB
-        k0KaxX3xKjrzsD+IFm28RtsBbuoo+JfPz565cOawN8pNgSC13NF9g2u/aUaZ1t/RcOUdug
-        Qo9E/fq7nu67Auoe/CaI7a2LO2TRDg8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1671208349;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=ifpYR2PdESJAbvJefyXjW1EWj/1z2L0zImGtUVLVTog=;
-        b=yah1WAubrE2ujAH04CMoJ6yYkHNQn4D1DQrpz87GR8v/vJCOlcD2/p8mCcKOkvRmP0v02E
-        soZWIZ2/b5FHFHAA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 580D0138F0;
-        Fri, 16 Dec 2022 16:32:29 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id /03PFJ2dnGOaKQAAMHmgww
-        (envelope-from <vbabka@suse.cz>); Fri, 16 Dec 2022 16:32:29 +0000
-From:   Vlastimil Babka <vbabka@suse.cz>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-mm@kvack.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        =?UTF-8?q?Jakub=20Mat=C4=9Bna?= <matenajakub@gmail.com>,
-        stable@vger.kernel.org,
-        "Kirill A . Shutemov" <kirill@shutemov.name>,
-        Liam Howlett <liam.howlett@oracle.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Michal Hocko <mhocko@kernel.org>
-Subject: [PATCH for v6.1 regression] mm, mremap: fix mremap() expanding vma with addr inside vma
-Date:   Fri, 16 Dec 2022 17:32:27 +0100
-Message-Id: <20221216163227.24648-1-vbabka@suse.cz>
-X-Mailer: git-send-email 2.38.1
+        with ESMTP id S231451AbiLPQdr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 11:33:47 -0500
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DBCFE2D
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 08:33:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1671208426; x=1702744426;
+  h=date:from:to:cc:subject:message-id:reply-to:references:
+   mime-version:in-reply-to;
+  bh=3omOzoexz7b2rPBIg3en969awPF/T7AOgbuk5SQGxBk=;
+  b=hTmYRduNoQY4Ax7jXp2zwsWRs2ZE6zQq/39tKRbHOXVQXuFCKuRwf35m
+   HpZkWtlEd6qGbUN1/smZpNIseeq9fZJeanoSQ2aQv28nsLk7X8ijOicPv
+   6cWDvs6osQB8ezB1ii4rSNAW1i0M5bXvEU5Rzo1yTVX+6zlY/iceE9nsh
+   8HeEHKrs/wey6yzS8AvzqSdtN8VMM9m3uLSbxDK1MwuezTVI1Go/ADQ/G
+   X7WqaK+MrgFBC0AKwPVFAZ6HTw3fO0xj2gISWyv5P0wtaFJXHmUYb73WX
+   tUlaHw/G5yDfjxJEro3dU7vS45HIUnywJ8UpKYL3gyxvF0CHnCFs19eNU
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10563"; a="405258208"
+X-IronPort-AV: E=Sophos;i="5.96,249,1665471600"; 
+   d="scan'208";a="405258208"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Dec 2022 08:33:46 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10563"; a="643323420"
+X-IronPort-AV: E=Sophos;i="5.96,249,1665471600"; 
+   d="scan'208";a="643323420"
+Received: from ideak-desk.fi.intel.com ([10.237.72.58])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Dec 2022 08:33:44 -0800
+Date:   Fri, 16 Dec 2022 18:33:40 +0200
+From:   Imre Deak <imre.deak@intel.com>
+To:     Jani Nikula <jani.nikula@linux.intel.com>
+Cc:     Lyude Paul <lyude@redhat.com>, intel-gfx@lists.freedesktop.org,
+        stable@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: Re: [Intel-gfx] [PATCH 1/3] drm/display/dp_mst: Fix down/up message
+ handling after sink disconnect
+Message-ID: <Y5yd5PvWb2fl66/s@ideak-desk.fi.intel.com>
+Reply-To: imre.deak@intel.com
+References: <20221214184258.2869417-1-imre.deak@intel.com>
+ <1ade43347769118c82f1b68bd8b51172a1012a37.camel@redhat.com>
+ <Y5yKXXBUycSHov5g@ideak-desk.fi.intel.com>
+ <875yebuy68.fsf@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_SOFTFAIL autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <875yebuy68.fsf@intel.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since 6.1 we have noticed random rpm install failures that were tracked
-to mremap() returning -ENOMEM and to commit ca3d76b0aa80 ("mm: add
-merging after mremap resize").
+On Fri, Dec 16, 2022 at 06:10:39PM +0200, Jani Nikula wrote:
+> On Fri, 16 Dec 2022, Imre Deak <imre.deak@intel.com> wrote:
+> > On Wed, Dec 14, 2022 at 04:41:42PM -0500, Lyude Paul wrote:
+> >> For the whole series:
+> >> 
+> >> Reviewed-by: Lyude Paul <lyude@redhat.com>
+> >
+> > Thanks for the review, pushed it to drm-misc-next.
+> 
+> Hmm, with the drm-misc *not* cherry-picking patches from drm-misc-next
+> to drm-misc-fixes, these will only get backported to stable kernels
+> after they hit Linus' tree in the next (as opposed to current) merge
+> window after a full development cycle. Wonder if they should be
+> expedited.
 
-The problem occurs when mremap() expands a VMA in place, but using an
-starting address that's not vma->vm_start, but somewhere in the middle.
-The extension_pgoff calculation introduced by the commit is wrong in
-that case, so vma_merge() fails due to pgoffs not being compatible.
-Fix the calculation.
+Ok, it should've been pushed to -fixes then, will do that next time.
+Yes, I think sending them already before the next merge window would be
+good.
 
-By the way it seems that the situations, where rpm now expands a vma
-from the middle, were made possible also due to that commit, thanks to
-the improved vma merging. Yet it should work just fine, except for the
-buggy calculation.
-
-Reported-by: Jiri Slaby <jirislaby@kernel.org>
-Link: https://bugzilla.suse.com/show_bug.cgi?id=1206359
-Fixes: ca3d76b0aa80 ("mm: add merging after mremap resize")
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Jakub Matěna <matenajakub@gmail.com>
-Cc: <stable@vger.kernel.org>
-Cc: "Kirill A . Shutemov" <kirill@shutemov.name>
-Cc: Liam Howlett <liam.howlett@oracle.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Michal Hocko <mhocko@kernel.org>
----
-Hi, this fixes a regression in 6.1 so please process ASAP so that stable
-6.1.y can get the fix.
-
- mm/mremap.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/mm/mremap.c b/mm/mremap.c
-index e465ffe279bb..fe587c5d6591 100644
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -1016,7 +1016,8 @@ SYSCALL_DEFINE5(mremap, unsigned long, addr, unsigned long, old_len,
- 			long pages = (new_len - old_len) >> PAGE_SHIFT;
- 			unsigned long extension_start = addr + old_len;
- 			unsigned long extension_end = addr + new_len;
--			pgoff_t extension_pgoff = vma->vm_pgoff + (old_len >> PAGE_SHIFT);
-+			pgoff_t extension_pgoff = vma->vm_pgoff +
-+				((extension_start - vma->vm_start) >> PAGE_SHIFT);
- 
- 			if (vma->vm_flags & VM_ACCOUNT) {
- 				if (security_vm_enough_memory_mm(mm, pages)) {
--- 
-2.38.1
-
+> 
+> BR,
+> Jani.
+> 
+> >
+> >> Thanks!
+> >> 
+> >> On Wed, 2022-12-14 at 20:42 +0200, Imre Deak wrote:
+> >> > If the sink gets disconnected during receiving a multi-packet DP MST AUX
+> >> > down-reply/up-request sideband message, the state keeping track of which
+> >> > packets have been received already is not reset. This results in a failed
+> >> > sanity check for the subsequent message packet received after a sink is
+> >> > reconnected (due to the pending message not yet completed with an
+> >> > end-of-message-transfer packet), indicated by the
+> >> > 
+> >> > "sideband msg set header failed"
+> >> > 
+> >> > error.
+> >> > 
+> >> > Fix the above by resetting the up/down message reception state after a
+> >> > disconnect event.
+> >> > 
+> >> > Cc: Lyude Paul <lyude@redhat.com>
+> >> > Cc: <stable@vger.kernel.org> # v3.17+
+> >> > Signed-off-by: Imre Deak <imre.deak@intel.com>
+> >> > ---
+> >> >  drivers/gpu/drm/display/drm_dp_mst_topology.c | 3 +++
+> >> >  1 file changed, 3 insertions(+)
+> >> > 
+> >> > diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> >> > index 51a46689cda70..90819fff2c9ba 100644
+> >> > --- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> >> > +++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> >> > @@ -3641,6 +3641,9 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
+> >> >  		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
+> >> >  		ret = 0;
+> >> >  		mgr->payload_id_table_cleared = false;
+> >> > +
+> >> > +		memset(&mgr->down_rep_recv, 0, sizeof(mgr->down_rep_recv));
+> >> > +		memset(&mgr->up_req_recv, 0, sizeof(mgr->up_req_recv));
+> >> >  	}
+> >> >  
+> >> >  out_unlock:
+> >> 
+> >> -- 
+> >> Cheers,
+> >>  Lyude Paul (she/her)
+> >>  Software Engineer at Red Hat
+> >> 
+> 
+> -- 
+> Jani Nikula, Intel Open Source Graphics Center
