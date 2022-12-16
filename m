@@ -2,111 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84AC164F1EE
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 20:45:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 734F264F256
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 21:26:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232034AbiLPTpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 14:45:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46406 "EHLO
+        id S231295AbiLPU0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 15:26:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232054AbiLPTps (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 14:45:48 -0500
-Received: from smtpout.efficios.com (unknown [IPv6:2607:5300:203:b2ee::31e5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A4302DFA;
-        Fri, 16 Dec 2022 11:45:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=efficios.com;
-        s=smtpout1; t=1671219944;
-        bh=m6euT/AHHIicwNDOAp3nHcZWM1Blrtk8U8hPYxizTig=;
-        h=From:To:Cc:Subject:Date:From;
-        b=PIk5P77FwZkcBK/nqbbLY5gPhFLweG3xvdRtJ+7pucyP8Tc/+b6Zl9dsvj8VYKvel
-         st/7dYXU3zi6oJgrAVmdq/cSMhRdx59rRpbdtyghSzJ8QUJRppTGvoKDo4E6INIRom
-         i3G7vN5gD9MrhgZuWFHR9TgQSLMO6Q/6L/6+9NAFCUT00sQxLEGVqLnrp5MzgyakYb
-         6bFuOyfWvv+cqM9Ft4aEBmfxLMow78XFricxKUvRrDbv1Ch4xC6PubN2uBQwLeukWb
-         /sS5cQ6fAupXA74fIZGS/Lg2UwsO5QF3XuhTT9E7a+bRskff/B/CUv8Aq6dzoq289b
-         3EVjmEbeywJww==
-Received: from localhost.localdomain (192-222-180-24.qc.cable.ebox.net [192.222.180.24])
-        by smtpout.efficios.com (Postfix) with ESMTPSA id 4NYfj36pGkzbGk;
-        Fri, 16 Dec 2022 14:45:43 -0500 (EST)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     linux-mm@kvack.org
-Cc:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andi Kleen <ak@linux.intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        linux-api@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/2] mm/mempolicy: Fix memory leak in set_mempolicy_home_node system call
-Date:   Fri, 16 Dec 2022 14:45:36 -0500
-Message-Id: <20221216194537.238047-1-mathieu.desnoyers@efficios.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S230389AbiLPU0i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 15:26:38 -0500
+Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E441B3947E;
+        Fri, 16 Dec 2022 12:26:36 -0800 (PST)
+Received: by mail-qt1-x82f.google.com with SMTP id z12so3626436qtv.5;
+        Fri, 16 Dec 2022 12:26:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=rcRx1iOzeEHZanYkE8bGhrElsG764GjfvNJrIdjSpSE=;
+        b=EH9sGORcrxPkpJIGgXTqF0bnLJRWC1tzRxwIw+Q8Whlrje0bhyAePt4u67Tg6vzTxK
+         satVJ9y6zXFvImMyMjYekSi2prcvcLgdEMYd4SKJGa1uD88pfJK/xXIU1Is1T+VXdg7C
+         GPJU+15+hJNMeAbbl80VSF+T6dsHUfYYhvc57ct5ZSjm93vUe0cEbekFdnx0CF736RaD
+         mw/v4XQY0T9EZvHT/SBc8Jl/GpF3En61LQMbIIo51RP1AHtXcV4kR+S3qP5Z1j11LDt+
+         4r9bKXof6XKdoh+qKRRrQVbuLuXV/XvTlAMWSlxwp1UVHFQkzNL8pmKeiltFwYOX5BxF
+         Optw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=rcRx1iOzeEHZanYkE8bGhrElsG764GjfvNJrIdjSpSE=;
+        b=atlIgBUR0400y6b4wRsdXFUiw4pnEaUJiesoTFRUEq1hh7kzDoQGfHoenWOBe5o1zv
+         dc6vPxD/apvotWMbs1InwKE6KYjIE81EW79FKoBdvvLHZVm7yBvURbnUqueaY4X0xlFn
+         JTR6IOBNYXiu4lAsmsoglHc0zWdVX34IeUQ6TWfReyHm3Y2l+S5EcHi/UUsfUlVPXsd2
+         OXuTKuYzKQ5/TIssP5jJdmjiq55KWZA1GOnDmmEzAIzp6CHtH3cspTd8sPr3apFupWFq
+         Z10EkPm3J5SUAQ2SrKK2yxwYsYY71T2PHTuS6h2M3dK1Kx/8MQibmTnb+KkQln7ck4sg
+         ukhQ==
+X-Gm-Message-State: ANoB5plgOjraHkmr0JuLgL2WSyj08ZprwOEfXWCL6hKd9y8WeUYTbZA7
+        vJzbGsysGPUvOQsQU+y4B9g=
+X-Google-Smtp-Source: AA0mqf68KfR/QxmkWifs6d/s8rQecBbb0g1rZ1GJPSQzTpEY2hwym72KmjU2IHEfpwMYDOcwNUZTEA==
+X-Received: by 2002:ac8:4d01:0:b0:3a8:28d1:4541 with SMTP id w1-20020ac84d01000000b003a828d14541mr17595036qtv.66.1671222395956;
+        Fri, 16 Dec 2022 12:26:35 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id f1-20020a05620a280100b006ee949b8051sm2170694qkp.51.2022.12.16.12.26.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 16 Dec 2022 12:26:35 -0800 (PST)
+Message-ID: <925e3609-7bba-2045-1184-a6b0bf8f2b45@gmail.com>
+Date:   Fri, 16 Dec 2022 12:26:30 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RDNS_NONE,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH 5.15 00/14] 5.15.84-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221215172906.338769943@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20221215172906.338769943@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When encountering any vma in the range with policy other than MPOL_BIND
-or MPOL_PREFERRED_MANY, an error is returned without issuing a mpol_put
-on the policy just allocated with mpol_dup().
+On 12/15/22 10:10, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.84 release.
+> There are 14 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 17 Dec 2022 17:28:57 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.84-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-This allows arbitrary users to leak kernel memory.
-
-[ Mathieu: compile-tested only. Tested-by would be welcome. ]
-
-Fixes: c6018b4b2549 ("mm/mempolicy: add set_mempolicy_home_node syscall")
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: linux-api@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-mm@kvack.org
-Cc: stable@vger.kernel.org # 5.17+
----
- mm/mempolicy.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index 61aa9aedb728..02c8a712282f 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -1540,6 +1540,7 @@ SYSCALL_DEFINE4(set_mempolicy_home_node, unsigned long, start, unsigned long, le
- 		 * the home node for vmas we already updated before.
- 		 */
- 		if (new->mode != MPOL_BIND && new->mode != MPOL_PREFERRED_MANY) {
-+			mpol_put(new);
- 			err = -EOPNOTSUPP;
- 			break;
- 		}
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.25.1
+Florian
 
