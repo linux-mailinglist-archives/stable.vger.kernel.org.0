@@ -2,98 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 967C164EBC5
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 14:01:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC64364EBEA
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 14:10:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230246AbiLPNBb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 08:01:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44624 "EHLO
+        id S229561AbiLPNKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 08:10:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230233AbiLPNBa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 08:01:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CA7F165BA;
-        Fri, 16 Dec 2022 05:01:29 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB8CB620D5;
-        Fri, 16 Dec 2022 13:01:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6944BC433D2;
-        Fri, 16 Dec 2022 13:01:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671195688;
-        bh=hoC8httNwuEgrpw8+PhmGl5xoQeJWslKhGNiJEkT2pg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XiycMFRtJ5teD9KAg2kA2J1E0lqqD2DHa1XrQcLcTZs2eeAW1uUR3TdP467WpvAee
-         YLRcLGXmeyh2swnenMQBHGpvwzEdSNfa+dQnZlB+n4IHdlCDWfsti7HQUvyFLV0RuO
-         ykIfKHWl7AlcPOubalCB1Qezt+Dax3aQGlI6rPgxoyBaabLxH09ak6q9/XYdn69mBv
-         yOYI8vFtJBPvIzBBLxD3JlBApSuo+EacKoTyWPum+oN3UKPQ1v3I+sItcpuC91AE/N
-         YtzkJy6PgkYwrk5NXj0JE46tuBCsIp4mzLknaKgZ0aNLe64PPF/yhG3L2Pf/aNo/R0
-         8oovAXzrgLkZQ==
-Date:   Fri, 16 Dec 2022 13:01:22 +0000
-From:   Lee Jones <lee@kernel.org>
-To:     Theodore Ts'o <tytso@mit.edu>
-Cc:     syzbot <syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com>,
-        adilger.kernel@dilger.ca, gregkh@linuxfoundation.org,
-        lczerner@redhat.com, linux-ext4@vger.kernel.org,
-        linux-kernel@vger.kernel.org, sashal@kernel.org,
-        stable@vger.kernel.org, syzkaller-android-bugs@googlegroups.com,
-        tadeusz.struk@linaro.org
-Subject: Re: kernel BUG in ext4_free_blocks (2)
-Message-ID: <Y5xsIkpIznpObOJL@google.com>
-References: <0000000000006c411605e2f127e5@google.com>
- <000000000000b60c1105efe06dea@google.com>
- <Y5vTyjRX6ZgIYxgj@mit.edu>
+        with ESMTP id S229614AbiLPNKa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 08:10:30 -0500
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B01D242
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 05:10:30 -0800 (PST)
+Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2BGDA94m008171
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 16 Dec 2022 08:10:10 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+        t=1671196212; bh=6A1HlZSOMAQRr4FKU2q50VMcNFp/OOxmzrLfT0bUeVw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To;
+        b=nNsgKeEOqOyHKGyaN71I0uluXODIn0mBbOK91ZMYztJiJgqylXYj5RDj40DVUk/q3
+         V32yLn/w7rksFQJ8iRwyLIa+JXX/2ZzJwLxTCMvqBaC0Q3GjTzucX5tTZN6nUcLzSX
+         xUJ8SqfO5bOlON874dwDzpHWOysmMT2f8DN6kavS6E56T0tM9ww/hrkz1GDm0/UR05
+         65w/MJ68wOuV/pigdur8ODR9YZO4+e/tI2eYwTi8y33U8ZjoL/8fRGfSVJXiW+4otJ
+         f9sc3Z8D9uBELPEHVcGEEoXdtA67xDwJxJ1H38xB/Ssg06soEi1NvIreIoG159fPil
+         P3Mxf9w0OI2ZA==
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id 59AED15C40A2; Fri, 16 Dec 2022 08:10:09 -0500 (EST)
+Date:   Fri, 16 Dec 2022 08:10:09 -0500
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     Jun Nie <jun.nie@linaro.org>
+Cc:     stable@vger.kernel.org, djwong@kernel.org, jack@suse.cz,
+        jlayton@kernel.org, lczerner@redhat.com,
+        linux-ext4@vger.kernel.org, xuyang2018.jy@fujitsu.com
+Subject: Re: [PATCH v1] ext4: Remove deprecated noacl/nouser_xattr options
+Message-ID: <Y5xuMZn/Ysu2uThj@mit.edu>
+References: <166431556706.3511882.843791619431401636.b4-ty@mit.edu>
+ <20221216034116.869864-1-jun.nie@linaro.org>
+ <Y5wGZG05uicAPscI@mit.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Y5vTyjRX6ZgIYxgj@mit.edu>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <Y5wGZG05uicAPscI@mit.edu>
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 15 Dec 2022, Theodore Ts'o wrote:
+Here is a proper, minmized reproducer which reproduces on upstream, for someone
+who wants to try to work this bug.
 
-> On Thu, Dec 15, 2022 at 08:34:35AM -0800, syzbot wrote:
-> > This bug is marked as fixed by commit:
-> > ext4: block range must be validated before use in ext4_mb_clear_bb()
-> > But I can't find it in any tested tree for more than 90 days.
-> > Is it a correct commit? Please update it by replying:
-> > #syz fix: exact-commit-title
-> > Until then the bug is still considered open and
-> > new crashes with the same signature are ignored.
-> 
-> I don't know what is going on with syzkaller's commit detection, but
-> commit 1e1c2b86ef86 ("ext4: block range must be validated before use
-> in ext4_mb_clear_bb()") is an exact match for the commit title, and
-> it's been in the upstream kernel since v6.0.
-> 
-> How do we make syzkaller accept this?  I'll try this again, but I
-> don't hold out much hope.
+On Fri, Dec 16, 2022 at 12:47:16AM -0500, Theodore Ts'o wrote:
+> Fixing this the clean and proper way, which is by making
+> ext4_xattr_move_to_block() more intelligent/efficient, is left as an
+> exercise to the reader.
 
-I don't see the original bug report (was it posted to a lore
-associated list?), so there is no way to tell what branch syzbot was
-fuzzing at the time.  My assumption is that it was !Mainline.
+For someone who wants to work the bug, here is a cleaner, properly
+minimzed, easier-for-humans-to-understand reproducer:
 
-Although this does appear to be a Stable candidate, I do not see it
-in any of the Stable branches yet.  So I suspect the answer here is to
-wait for the fix to filter down.
+#!/bin/bash -vx
+#
+# This reproduces an ext4 bug caused by an unfortunate interaction
+# between lazytime updates happening when a file system is being
+# unmounted and expand_extra_isize
+#
+# Initially discovered via syzkaller:
+# https://syzkaller.appspot.com/bug?id=3613786cb88c93aa1c6a279b1df6a7b201347d08
+#
 
-In the mean time, I guess we should discuss whether syzbot should
-really be posting scans of downstream trees to upstream lists.
+img=/tmp/foo.img
+dir=/mnt
+file=$dir/file0
 
-> #syz fix: ext4: block range must be validated before use in ext4_mb_clear_bb()
-> 
-> Syzkaller, go home, you're drunk.
-
-=:-)
-
--- 
-Lee Jones [李琼斯]
+rm -f $img
+mke2fs -Fq -t ext4 -I 256 -O ea_inode -b 1024 $img 200k
+mount $img $dir
+v=$(dd if=/dev/zero bs=2000 count=1 2>/dev/null | tr '\0' =)
+touch $file
+attr -q -s test -V $v $file
+umount $dir
+mount -o debug_want_extra_isize=128,lazytime /tmp/foo.img $dir
+cat $file
+umount $dir
