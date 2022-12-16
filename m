@@ -2,105 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5B3964F1CD
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 20:29:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84AC164F1EE
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 20:45:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231414AbiLPT3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 14:29:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39144 "EHLO
+        id S232034AbiLPTpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 14:45:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbiLPT3r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 14:29:47 -0500
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFC989FC7;
-        Fri, 16 Dec 2022 11:29:44 -0800 (PST)
-Received: by mail-qt1-x82e.google.com with SMTP id s9so3495427qtx.6;
-        Fri, 16 Dec 2022 11:29:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Ivm4Ys7XgJf3YYzv4BAQtpAC/aUCSXOPDDFKz4AguEI=;
-        b=T2KjADE3vFRdeeLM3QPEW1ZQxBrwrazAjdzbOtVetkqh5X2egPgvfF4W4abf2+hFt7
-         tJJ53H4xNxgVnLzCoH9DyeXWUmrYWx2JvmWhfwNmbOkc+zFOTvGN+BM3h40zHll6N/GK
-         Cm2Ou4Qb1L0CV87Nluev0yXYuQxqECe2YaNUIZknKnhjfdZj+vPyGuuOOmsMDiXhlEaE
-         rWwpltSuLXzrDOpBGrHRy8I40xQQOK2gYwO6PJAU3TmB5CdOpO9sh6cJc4Z1TE3q4B2F
-         2Qxf3jSOrIXtT60nhds+Orh9UuZ1Dd29bNuqvhFnDzDSLRxfIR+gyRowiokookQutO06
-         drig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ivm4Ys7XgJf3YYzv4BAQtpAC/aUCSXOPDDFKz4AguEI=;
-        b=YSPbIB9G0YKzNNMp3qdPKZRYVa/zAOajdAHB4XeS7SNXUTmmDvGLlnf16TFp4jnGRz
-         +CKzh6y2OatSQrY7izVon3cw0ua96Ik9U9BWtEBXJl4F4W3L9JMWvyWHqfrkBSkG0Vkf
-         ccYTkjlNq7NXMQsnWm4V2W4JP/cKtHcsv9wVojXR12TYRt66a7L//Mw4KTbRHK4pOUtC
-         j7qzqlvbgGSSF3Hwk5i5gLk6HLatBFy7apDr5/RaP9j1hDPRZbMJd6A6Nsx0rbW7Nof+
-         mn8KG7EBvLVArnJtZ0dQ8yjpwZgC1ouj9s+S33RJrS4MFnLpjZ85MQF2WaeTa7ub2auG
-         YVBQ==
-X-Gm-Message-State: ANoB5pkFlqhKRzNXzTxeNIkSd2bEN5DvAqZ8dKY+5gd8conMSSvwmeQV
-        hVeiSOhtODyouaku9xEe4oGdPMyHRX+Xlg==
-X-Google-Smtp-Source: AA0mqf4a2wZSscbBjBMTalnfXiZzcPcbJkPZ2m+oVUABZ87B+JtRN8O6gr7/XDLHldFWYTmheWXkvg==
-X-Received: by 2002:a05:622a:5a19:b0:39c:fa1a:af56 with SMTP id fy25-20020a05622a5a1900b0039cfa1aaf56mr43429727qtb.56.1671218983813;
-        Fri, 16 Dec 2022 11:29:43 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id h3-20020a05620a244300b006fc9847d207sm2058098qkn.79.2022.12.16.11.29.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 16 Dec 2022 11:29:43 -0800 (PST)
-Message-ID: <c25d4315-c609-2fc6-0812-12c9980c1b70@gmail.com>
-Date:   Fri, 16 Dec 2022 11:29:40 -0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH 5.10 00/15] 5.10.160-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        with ESMTP id S232054AbiLPTps (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 14:45:48 -0500
+Received: from smtpout.efficios.com (unknown [IPv6:2607:5300:203:b2ee::31e5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A4302DFA;
+        Fri, 16 Dec 2022 11:45:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=efficios.com;
+        s=smtpout1; t=1671219944;
+        bh=m6euT/AHHIicwNDOAp3nHcZWM1Blrtk8U8hPYxizTig=;
+        h=From:To:Cc:Subject:Date:From;
+        b=PIk5P77FwZkcBK/nqbbLY5gPhFLweG3xvdRtJ+7pucyP8Tc/+b6Zl9dsvj8VYKvel
+         st/7dYXU3zi6oJgrAVmdq/cSMhRdx59rRpbdtyghSzJ8QUJRppTGvoKDo4E6INIRom
+         i3G7vN5gD9MrhgZuWFHR9TgQSLMO6Q/6L/6+9NAFCUT00sQxLEGVqLnrp5MzgyakYb
+         6bFuOyfWvv+cqM9Ft4aEBmfxLMow78XFricxKUvRrDbv1Ch4xC6PubN2uBQwLeukWb
+         /sS5cQ6fAupXA74fIZGS/Lg2UwsO5QF3XuhTT9E7a+bRskff/B/CUv8Aq6dzoq289b
+         3EVjmEbeywJww==
+Received: from localhost.localdomain (192-222-180-24.qc.cable.ebox.net [192.222.180.24])
+        by smtpout.efficios.com (Postfix) with ESMTPSA id 4NYfj36pGkzbGk;
+        Fri, 16 Dec 2022 14:45:43 -0500 (EST)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     linux-mm@kvack.org
+Cc:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andi Kleen <ak@linux.intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        linux-api@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
         stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20221215172906.638553794@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20221215172906.638553794@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Subject: [PATCH 1/2] mm/mempolicy: Fix memory leak in set_mempolicy_home_node system call
+Date:   Fri, 16 Dec 2022 14:45:36 -0500
+Message-Id: <20221216194537.238047-1-mathieu.desnoyers@efficios.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RDNS_NONE,SPF_HELO_NONE,
+        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/15/22 10:10, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.160 release.
-> There are 15 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 17 Dec 2022 17:28:57 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.160-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+When encountering any vma in the range with policy other than MPOL_BIND
+or MPOL_PREFERRED_MANY, an error is returned without issuing a mpol_put
+on the policy just allocated with mpol_dup().
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+This allows arbitrary users to leak kernel memory.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+[ Mathieu: compile-tested only. Tested-by would be welcome. ]
+
+Fixes: c6018b4b2549 ("mm/mempolicy: add set_mempolicy_home_node syscall")
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: linux-api@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-mm@kvack.org
+Cc: stable@vger.kernel.org # 5.17+
+---
+ mm/mempolicy.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+index 61aa9aedb728..02c8a712282f 100644
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -1540,6 +1540,7 @@ SYSCALL_DEFINE4(set_mempolicy_home_node, unsigned long, start, unsigned long, le
+ 		 * the home node for vmas we already updated before.
+ 		 */
+ 		if (new->mode != MPOL_BIND && new->mode != MPOL_PREFERRED_MANY) {
++			mpol_put(new);
+ 			err = -EOPNOTSUPP;
+ 			break;
+ 		}
 -- 
-Florian
+2.25.1
 
