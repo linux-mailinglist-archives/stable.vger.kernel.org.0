@@ -2,65 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E381264EDE2
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 16:27:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9BD364EDE8
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 16:27:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231128AbiLPP10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 10:27:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49352 "EHLO
+        id S231418AbiLPP1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 10:27:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231404AbiLPP1I (ORCPT
+        with ESMTP id S231415AbiLPP1I (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 10:27:08 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 685FD654DC;
-        Fri, 16 Dec 2022 07:27:05 -0800 (PST)
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 157486A741;
+        Fri, 16 Dec 2022 07:27:07 -0800 (PST)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 51BBF343E8;
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 22FD75D11C;
         Fri, 16 Dec 2022 15:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
         t=1671204423; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=HfKQUeQ1SIa69rVLeAXATmvBL+mGnddXPrlolxJGssY=;
-        b=jFWZ7EBYYjet3YIVMCgDSCeZgcTBs3jTiwDItkBCSDynBEKIHVNQymMmiaDI/mC/VVH9Vk
-        gw0lICdPOoOIiR/gMqp9mjvAoAOf0etEpOfi9u71/hGKU20NOzSlUy0VFWXnGLruRsphzt
-        +XtFuvYxJKOAY5SLZ10KaIuSotICwd4=
+        bh=p/O2ps2mHRo0JeIz+0MwgqaeKuW+vsefWvMFQwy+/iE=;
+        b=0raTvUDBW3B8jllKouEszKUtGXdHI7xoPCTH46FGf1CDAxPs/T9+bpWCs9gQ1JlKjKXdOP
+        aiThWZ2Sc8OTNEg6VmdO/RcSM16eevKIDpFkTloo6zkP8pypTb5YAWwwvxcCkqHdWoLcWA
+        9ZItq6an1kIoyIL4XVAS9uDR/1G9O/E=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
         s=susede2_ed25519; t=1671204423;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=HfKQUeQ1SIa69rVLeAXATmvBL+mGnddXPrlolxJGssY=;
-        b=tLRtc5ejHkq5YrtL9wkXCNfPOQ3VzHE6JMEtINvUkXm81LqlqWW+X/kqIRBrr1eVSe4SUI
-        Wx6ccZ3xenKAkaBA==
+        bh=p/O2ps2mHRo0JeIz+0MwgqaeKuW+vsefWvMFQwy+/iE=;
+        b=aVhVoJQL2LKiPSSCWqVsTuoufLupU0oarunCR2UdNUDFDryKzDIFSh9dYzRXO4C0h1XAYK
+        1zyOfi+CAZFu4mBQ==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 33916138FD;
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0C419138FD;
         Fri, 16 Dec 2022 15:27:03 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id 90WUDEeOnGP2CAAAMHmgww
+        id 857+AkeOnGPxCAAAMHmgww
         (envelope-from <jack@suse.cz>); Fri, 16 Dec 2022 15:27:03 +0000
 Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id DFAC5A0779; Fri, 16 Dec 2022 16:26:56 +0100 (CET)
+        id E6511A077A; Fri, 16 Dec 2022 16:26:56 +0100 (CET)
 From:   Jan Kara <jack@suse.cz>
 To:     <linux-fsdevel@vger.kernel.org>
-Cc:     Jan Kara <jack@suse.cz>, stable@vger.kernel.org
-Subject: [PATCH 19/20] udf: Truncate added extents on failed expansion
-Date:   Fri, 16 Dec 2022 16:24:23 +0100
-Message-Id: <20221216152656.6236-19-jack@suse.cz>
+Cc:     Jan Kara <jack@suse.cz>, stable@vger.kernel.org,
+        syzbot+60f291a24acecb3c2bd5@syzkaller.appspotmail.com
+Subject: [PATCH 20/20] udf: Do not bother merging very long extents
+Date:   Fri, 16 Dec 2022 16:24:24 +0100
+Message-Id: <20221216152656.6236-20-jack@suse.cz>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20221216121344.14025-1-jack@suse.cz>
 References: <20221216121344.14025-1-jack@suse.cz>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1694; i=jack@suse.cz; h=from:subject; bh=86GOJ7HpEKwMdSlvlydtulXjXpNknj/0u/tIGFNmTiw=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBjnI2mbOwosMviQ+DtKBoU2eQ5RP3DRfdUWxDwPM76 bUBFzrCJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCY5yNpgAKCRCcnaoHP2RA2YVzCA CUdIAcW1AxLvNT2ZQutf8D89FfKdd1mpZV/8Q7mJlYOz8IBPMRvtHfYs1SI6NCtQvC7BDuzyjU+2Mr W8mGcmuM1IDSQWoyd/4vDqM1RAXsBd1Y5vA7SmOtraC+KVsgfZs7/5jr2n5gPkGPHAqY8X5fjxmAT7 uTChkHuklbt//SKH0JUjiYSuz363sKhndThiUFGHU1lk2kntkB1K7Aon7IfZGrnGLoKm+Ju+p9eHbj 7QapjQJb1lTqXKA1cX6EpP+k99dxWW6S9O3Z4zTqYUNS0UApKTYThk16niFJRMDynDBNIoPFxPdYXd soO44MY7/HHCFKIOPnSA8l7L2JFtkB
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1744; i=jack@suse.cz; h=from:subject; bh=634NKhsU1nEd/5CQZlTXPRVOE4qDGCQjFjkGkWgMdFU=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBjnI2nwAOuu5SkHrpaBn0fv1TipKUOl7Izm3i/mcjC uy/bUoOJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCY5yNpwAKCRCcnaoHP2RA2bZOCA CGRJth+tUs/Qtp3sfuVnqzyyOjbJ/8GOfppkSJ6nz4I6h/FZ+6oFSoP+9X7iXgQ/3ZDNyYyWHZs8Mc 7iKJHjNJelp0I78aPvOrwcItArXX84MFK9eP0RohqcOVL9MefYtEogSBckHG4hE08J/SQciKrinZO2 ekObeIPPDR+OVbpdxKVhzl1ISIJFxp6yD61UbelXxHU+Nc37Ilkdsnuby2kkp40oJH/o/k+8fYJz8F o2tH/aHn1Fi5LZsis4QB0y2xW71xFmgttGACWdju3TJlOF4GdJQvFckIdj/mNN+exGCaz5ado5Qq6u az8UPM6IrS50+DuSsHkwM2feHD9hC+
 X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -72,63 +73,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When a file expansion failed because we didn't have enough space for
-indirect extents make sure we truncate extents created so far so that we
-don't leave extents beyond EOF.
+When merging very long extents we try to push as much length as possible
+to the first extent. However this is unnecessarily complicated and not
+really worth the trouble. Furthermore there was a bug in the logic
+resulting in corrupting extents in the file as syzbot reproducer shows.
+So just don't bother with the merging of extents that are too long
+together.
 
 CC: stable@vger.kernel.org
+Reported-by: syzbot+60f291a24acecb3c2bd5@syzkaller.appspotmail.com
 Signed-off-by: Jan Kara <jack@suse.cz>
 ---
- fs/udf/inode.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ fs/udf/inode.c | 19 ++-----------------
+ 1 file changed, 2 insertions(+), 17 deletions(-)
 
 diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index 787e6a7b355e..fc5937358148 100644
+index fc5937358148..09417342d8b6 100644
 --- a/fs/udf/inode.c
 +++ b/fs/udf/inode.c
-@@ -431,8 +431,10 @@ static int udf_do_extend_file(struct inode *inode,
- 	}
+@@ -999,23 +999,8 @@ static void udf_merge_extents(struct inode *inode, struct kernel_long_ad *laarr,
+ 			blocksize - 1) >> blocksize_bits)))) {
  
- 	if (fake) {
--		udf_add_aext(inode, last_pos, &last_ext->extLocation,
--			     last_ext->extLength, 1);
-+		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
-+				   last_ext->extLength, 1);
-+		if (err < 0)
-+			goto out_err;
- 		count++;
- 	} else {
- 		struct kernel_lb_addr tmploc;
-@@ -466,7 +468,7 @@ static int udf_do_extend_file(struct inode *inode,
- 		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
- 				   last_ext->extLength, 1);
- 		if (err)
--			return err;
-+			goto out_err;
- 		count++;
- 	}
- 	if (new_block_bytes) {
-@@ -475,7 +477,7 @@ static int udf_do_extend_file(struct inode *inode,
- 		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
- 				   last_ext->extLength, 1);
- 		if (err)
--			return err;
-+			goto out_err;
- 		count++;
- 	}
- 
-@@ -489,6 +491,11 @@ static int udf_do_extend_file(struct inode *inode,
- 		return -EIO;
- 
- 	return count;
-+out_err:
-+	/* Remove extents we've created so far */
-+	udf_clear_extent_cache(inode);
-+	udf_truncate_extents(inode);
-+	return err;
- }
- 
- /* Extend the final block of the file to final_block_len bytes */
+ 			if (((li->extLength & UDF_EXTENT_LENGTH_MASK) +
+-				(lip1->extLength & UDF_EXTENT_LENGTH_MASK) +
+-				blocksize - 1) & ~UDF_EXTENT_LENGTH_MASK) {
+-				lip1->extLength = (lip1->extLength -
+-						  (li->extLength &
+-						   UDF_EXTENT_LENGTH_MASK) +
+-						   UDF_EXTENT_LENGTH_MASK) &
+-							~(blocksize - 1);
+-				li->extLength = (li->extLength &
+-						 UDF_EXTENT_FLAG_MASK) +
+-						(UDF_EXTENT_LENGTH_MASK + 1) -
+-						blocksize;
+-				lip1->extLocation.logicalBlockNum =
+-					li->extLocation.logicalBlockNum +
+-					((li->extLength &
+-						UDF_EXTENT_LENGTH_MASK) >>
+-						blocksize_bits);
+-			} else {
++			     (lip1->extLength & UDF_EXTENT_LENGTH_MASK) +
++			     blocksize - 1) <= UDF_EXTENT_LENGTH_MASK) {
+ 				li->extLength = lip1->extLength +
+ 					(((li->extLength &
+ 						UDF_EXTENT_LENGTH_MASK) +
 -- 
 2.35.3
 
