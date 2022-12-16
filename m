@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2E4464EBA5
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 13:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C741D64EBA7
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 13:56:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230078AbiLPM4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 07:56:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43272 "EHLO
+        id S230134AbiLPM4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 07:56:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229730AbiLPM4f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 07:56:35 -0500
+        with ESMTP id S229730AbiLPM4o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 07:56:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBDC55214F;
-        Fri, 16 Dec 2022 04:56:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A7EA511E2;
+        Fri, 16 Dec 2022 04:56:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 747CDB81D68;
-        Fri, 16 Dec 2022 12:56:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0A75C433D2;
-        Fri, 16 Dec 2022 12:56:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8F19B81D66;
+        Fri, 16 Dec 2022 12:56:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 010E1C433EF;
+        Fri, 16 Dec 2022 12:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671195392;
-        bh=Kfk+UEFE+ijLIP41HA1GWCB8AUCuf4+FnPJwzOyV3To=;
-        h=From:To:Cc:Subject:Date:From;
-        b=S2ZGmRq9qGE+iQT51n0AAdkLJUatim4QW8zE5B2Y5OcFY5f1KnUivL0GWZrBc8tjC
-         64/dd+Klb960/xCMP6tIx+wzfqBip2fH7C5gBCeGc6bCbl/urRCIK/H3W7McgT8Yc4
-         WMmG0+w96raTZ5xy0YEdMjKrt7sxdyl8EgeSGqfNkcDxRa8Qntp2VJN+6Pwy0Ojen/
-         DD6RYoCcSXWx7mFHaNXP0LWVyMJAYFA3K8a+zqwdj1a/717hZIVORk858otbnWyEAB
-         w+P0NeXuKVlOcN87HsDTs97nCrplV6DbSuSKx/45mUWNiV7yGwS/Yvdu/fwlI0AcBQ
-         /b2DMQydGoW/g==
+        s=k20201202; t=1671195401;
+        bh=2QLoVGk209SaUKWKo2tocCt1tw8d0JNmir9rlSGElQw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=vJV+0gLE7Az0wuEv0yY4um0DcCJUJmpxLa1bcGFYw1CRAjVVQ5AbTEC2rXNBv5mpF
+         D2r1qfYYr7TCE6BnlXXKg2JU7rDjCZgK7i9BVUwmPUN0ACf5bXyWRHnRtKLOvmtEBU
+         v+QxftCvZbFbFbQj4nkhlF0mDTB4bci2d8NYIxxZkBYtjIQYBDNnRslkIlduysNx25
+         Xj2dE14hVhjGmKO2uqLMSXfn6S3Xr5xFDLfMw6Z75qLA3fh/OFxskvWT7Ht9eb+8Rq
+         nc5W6WdyZv6tPdNZclfQq+NwEh8mE5/gOGgc9VuBKVNGXdb1M1iGGLbT0uSvXlMyVc
+         WPsmwKss9pIsw==
 From:   Jiri Olsa <jolsa@kernel.org>
 To:     stable@vger.kernel.org
-Cc:     bpf@vger.kernel.org, Martynas Pumputis <m@lambda.lt>
-Subject: [PATCH stable 6.0 0/8] bpf: Fix kprobe_multi link attachment to kernel modules
-Date:   Fri, 16 Dec 2022 13:56:20 +0100
-Message-Id: <20221216125628.1622505-1-jolsa@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>, Song Liu <song@kernel.org>,
+        bpf@vger.kernel.org, Martynas Pumputis <m@lambda.lt>
+Subject: [PATCH stable 6.0 1/8] kallsyms: Make module_kallsyms_on_each_symbol generally available
+Date:   Fri, 16 Dec 2022 13:56:21 +0100
+Message-Id: <20221216125628.1622505-2-jolsa@kernel.org>
 X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20221216125628.1622505-1-jolsa@kernel.org>
+References: <20221216125628.1622505-1-jolsa@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -49,35 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hi,
-sending fixes for attaching bpf kprobe_multi link to kernel
-modules for stable 6.0. It all applies cleanly. 
+commit 73feb8d5fa3b755bb51077c0aabfb6aa556fd498 upstream.
 
-thanks,
-jirka
+Making module_kallsyms_on_each_symbol generally available, so it
+can be used outside CONFIG_LIVEPATCH option in following changes.
 
+Rather than adding another ifdef option let's make the function
+generally available (when CONFIG_KALLSYMS and CONFIG_MODULES
+options are defined).
 
+Cc: Christoph Hellwig <hch@lst.de>
+Acked-by: Song Liu <song@kernel.org>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Link: https://lore.kernel.org/r/20221025134148.3300700-2-jolsa@kernel.org
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 ---
-Jiri Olsa (8):
-      kallsyms: Make module_kallsyms_on_each_symbol generally available
-      ftrace: Add support to resolve module symbols in ftrace_lookup_symbols
-      bpf: Rename __bpf_kprobe_multi_cookie_cmp to bpf_kprobe_multi_addrs_cmp
-      bpf: Take module reference on kprobe_multi link
-      selftests/bpf: Add load_kallsyms_refresh function
-      selftests/bpf: Add bpf_testmod_fentry_* functions
-      selftests/bpf: Add kprobe_multi check to module attach test
-      selftests/bpf: Add kprobe_multi kmod attach api tests
+ include/linux/module.h   | 9 +++++++++
+ kernel/module/kallsyms.c | 2 --
+ 2 files changed, 9 insertions(+), 2 deletions(-)
 
- include/linux/module.h                                             |  9 ++++++++
- kernel/module/kallsyms.c                                           |  2 --
- kernel/trace/bpf_trace.c                                           | 98 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++---
- kernel/trace/ftrace.c                                              | 16 +++++++++-----
- tools/testing/selftests/bpf/bpf_testmod/bpf_testmod.c              | 24 +++++++++++++++++++++
- tools/testing/selftests/bpf/prog_tests/kprobe_multi_testmod_test.c | 89 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- tools/testing/selftests/bpf/prog_tests/module_attach.c             |  7 +++++++
- tools/testing/selftests/bpf/progs/kprobe_multi.c                   | 50 +++++++++++++++++++++++++++++++++++++++++++
- tools/testing/selftests/bpf/progs/test_module_attach.c             |  6 ++++++
- tools/testing/selftests/bpf/trace_helpers.c                        | 20 +++++++++++-------
- tools/testing/selftests/bpf/trace_helpers.h                        |  2 ++
- 11 files changed, 306 insertions(+), 17 deletions(-)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/kprobe_multi_testmod_test.c
+diff --git a/include/linux/module.h b/include/linux/module.h
+index 518296ea7f73..e72db35fbf75 100644
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -879,8 +879,17 @@ static inline bool module_sig_ok(struct module *module)
+ }
+ #endif	/* CONFIG_MODULE_SIG */
+ 
++#if defined(CONFIG_MODULES) && defined(CONFIG_KALLSYMS)
+ int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
+ 					     struct module *, unsigned long),
+ 				   void *data);
++#else
++static inline int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
++						 struct module *, unsigned long),
++						 void *data)
++{
++	return -EOPNOTSUPP;
++}
++#endif  /* CONFIG_MODULES && CONFIG_KALLSYMS */
+ 
+ #endif /* _LINUX_MODULE_H */
+diff --git a/kernel/module/kallsyms.c b/kernel/module/kallsyms.c
+index f5c5c9175333..4523f99b0358 100644
+--- a/kernel/module/kallsyms.c
++++ b/kernel/module/kallsyms.c
+@@ -494,7 +494,6 @@ unsigned long module_kallsyms_lookup_name(const char *name)
+ 	return ret;
+ }
+ 
+-#ifdef CONFIG_LIVEPATCH
+ int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
+ 					     struct module *, unsigned long),
+ 				   void *data)
+@@ -531,4 +530,3 @@ int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
+ 	mutex_unlock(&module_mutex);
+ 	return ret;
+ }
+-#endif /* CONFIG_LIVEPATCH */
+-- 
+2.38.1
+
