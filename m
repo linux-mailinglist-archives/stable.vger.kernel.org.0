@@ -2,91 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C6E64E66C
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 04:41:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88C9A64E6B5
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 05:32:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229825AbiLPDli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Dec 2022 22:41:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57066 "EHLO
+        id S229874AbiLPEcT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Dec 2022 23:32:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230012AbiLPDlh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 22:41:37 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7955F40466
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 19:41:36 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id hd14-20020a17090b458e00b0021909875bccso7530286pjb.1
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 19:41:36 -0800 (PST)
+        with ESMTP id S229841AbiLPEcO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Dec 2022 23:32:14 -0500
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B7FC13D26;
+        Thu, 15 Dec 2022 20:32:13 -0800 (PST)
+Received: by mail-pg1-x531.google.com with SMTP id f9so1001281pgf.7;
+        Thu, 15 Dec 2022 20:32:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=dH2XznVlVmDf1vz9vDgxaRsKNOb8GjVSvLyuIGJXLlM=;
-        b=oCpjkuGYsMNCAeB/waJy3huJxqsMJEN4j4R20qo/8ilzTjRHD1acY4anpxtOvShrPG
-         gYEdBoZGGr1976oZn8VpgvX7fII1lRMO7uUga5H+SWiTmt158LtNHwAB2S3o+due1gts
-         LzOpmcYj1rBeRnS2YL6PCOPZv82MtsSsuaGk15K9UBfomxlYpCM1tlj+eBMVrMYOhEAX
-         JETsYsZY1DyVJ27c20/y2JR7j8FpKABIRgcrqnD2I6Dz3UxdNBRf1T5trAnMEsNyIJqf
-         7V8AF4dvJQM1sgesydtgd46dSqZn/Wk+4YZkTGmv+LQXSxhpABelJK342hqq01L9zjlI
-         D8CQ==
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=oHCCuw298uC7S+tMrUZ1Er7Xg3PYJV4C5yb/JEiVNoA=;
+        b=RnCrxue86DUp4v/CQ/uLrjdjijleouqzV6EAFoAhsHkyHDnTmpVG22/LV6jN79czkX
+         jOPjexWjtesLSQs1oO+KVWYLoHaEGTg63vqv7y59pk6dhq2NP7BtmZLMzzVuzym46i+J
+         kAzIDljQls6r470dBtCWp+68vxHbFa7Cuama6FQFwLdZG5uBMHkhbVWJzFlY4W/Htx4m
+         Dyn7xtnKKGvlrdGX361WzhAxae8AS8PFQKzVqqRDPwPwH0/RX2ZMaFw6mQQSFontIsUC
+         mQbM1B+xVYZW1GAyUeQTGxUk+lJq0WPmhEcxmuJseqnTp4MeoeFeaA4xx4AUK097vR8g
+         p8Jw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=dH2XznVlVmDf1vz9vDgxaRsKNOb8GjVSvLyuIGJXLlM=;
-        b=YGbLaxCAz2us/Ja2zbcSH5Tjk5JgIXy8UX/vn/LHt3GcwMFFsVFO7RYAjr8A1bF7d0
-         cQI4hptO2uzyXVeAfPPJWQMpQ9CnOIXyya31/ooOCOVPUXhTY6C+YdpavGDTFWnxzlog
-         JekQTq/J0OKdMcJcXSDdErf0ALL8Ijs/6i8OGS4E3AAN5r7uA6ahhLwLj0lmW+NtHk7v
-         HdOS3cu9OMCXNGS1mXy8NbXCs0z8HT/iFjeWTa9XB7paNMJdOD+Vb8bHjww0t3QrwSkl
-         4nlseokSK4H+AN6xVs/QzMmLXaRnKkubUWeqn5r3EmMGccvwnzW9hEKoBfJ88G560s4t
-         mMxA==
-X-Gm-Message-State: ANoB5plAcSHH77HLpeucJfg6FiZ6BJtqxYOOf31ny1qouBpchuFtDcG6
-        M4UIsSnDXIg+YoEvzDnsg3eQ4w==
-X-Google-Smtp-Source: AA0mqf5HmDu8y9ZmGnJc48OIPjQpy4kb+B08hx6gN5Hafe8ll4etZJTrL2THwt/akkNTMEbfdJWYyQ==
-X-Received: by 2002:a17:90a:6685:b0:221:77b5:d678 with SMTP id m5-20020a17090a668500b0022177b5d678mr18630280pjj.10.1671162095983;
-        Thu, 15 Dec 2022 19:41:35 -0800 (PST)
-Received: from niej-dt-7B47.. (80.251.214.228.16clouds.com. [80.251.214.228])
-        by smtp.gmail.com with ESMTPSA id nl16-20020a17090b385000b00218f529e486sm3941937pjb.0.2022.12.15.19.41.29
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=oHCCuw298uC7S+tMrUZ1Er7Xg3PYJV4C5yb/JEiVNoA=;
+        b=D7XiQ40a0R2sdpIlJ/u0wbquZsDIQzHV93CYfUucY61m4DtsIe4oKJUVH4M5zo85Wa
+         26qGLs0i0dI/p2sV2+TKzcIuQ9M7X+3CWui0Z5+vV4aCl7fn9ap7nCzPtm1BN3crTJH3
+         L9npY48bf3d9HJTSclgs0j+q0fac55s8QVFVr6fPnQifvx/cHKDY+xhfJ4ZmpUgOeUHW
+         euStJymAFJPDAN+IH5RYwzDNwBAddrul/1HPIjus7xQmUFvnuqSY6DrzoDW1V5SrhTO6
+         5o4g/wAs2lx3jj5MCejd+d5Tl4CU3I+Ft0VBtUy0Rae8GeZdS5O863U1UBZnOZZK2lEV
+         citQ==
+X-Gm-Message-State: ANoB5plWHnB7b9knQ+mPFhPYIwUyjr7nc8USefBN7BUWAvYp4f75zQbP
+        FpWJ3wH6TRPejVEqhrVx78g=
+X-Google-Smtp-Source: AA0mqf7EThoZQ2V9zANsJYr1MDcCbwdh92xbEddue3cfypQWSUeGf4ZBkho2m4H38b77I1g166xTxA==
+X-Received: by 2002:a62:188d:0:b0:578:777e:7f18 with SMTP id 135-20020a62188d000000b00578777e7f18mr22783552pfy.3.1671165132698;
+        Thu, 15 Dec 2022 20:32:12 -0800 (PST)
+Received: from debian.me (subs09a-223-255-225-73.three.co.id. [223.255.225.73])
+        by smtp.gmail.com with ESMTPSA id z29-20020aa79e5d000000b0057524960947sm442027pfq.39.2022.12.15.20.32.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Dec 2022 19:41:35 -0800 (PST)
-From:   Jun Nie <jun.nie@linaro.org>
-To:     tytso@mit.edu, stable@vger.kernel.org
-Cc:     djwong@kernel.org, jack@suse.cz, jlayton@kernel.org,
-        lczerner@redhat.com, linux-ext4@vger.kernel.org,
-        xuyang2018.jy@fujitsu.com, Jun Nie <jun.nie@linaro.org>
-Subject: Re: [PATCH v1] ext4: Remove deprecated noacl/nouser_xattr options
-Date:   Fri, 16 Dec 2022 11:41:16 +0800
-Message-Id: <20221216034116.869864-1-jun.nie@linaro.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <166431556706.3511882.843791619431401636.b4-ty@mit.edu>
-References: <166431556706.3511882.843791619431401636.b4-ty@mit.edu>
+        Thu, 15 Dec 2022 20:32:11 -0800 (PST)
+Received: by debian.me (Postfix, from userid 1000)
+        id F0D14103CCF; Fri, 16 Dec 2022 11:32:07 +0700 (WIB)
+Date:   Fri, 16 Dec 2022 11:32:07 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.15 00/14] 5.15.84-rc1 review
+Message-ID: <Y5v0x5wIRbNj5TEB@debian.me>
+References: <20221215172906.338769943@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="R180pMqcGnsqKwiS"
+Content-Disposition: inline
+In-Reply-To: <20221215172906.338769943@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch[1] is needed on linux-5.15.y because the panic[2] is also found on
-linux-5.15.y when debugging bug[3]. Back ported patch[4] is confirmed to fix
-the bug on linux-5.15.y in the latest test of page[3]. Maybe back port on more
-branches is needed per patch comments.
 
-[1]
-2d544ec923dbe5 ("ext4: remove deprecated noacl/nouser_xattr options")
+--R180pMqcGnsqKwiS
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[2]
-https://syzkaller.appspot.com/text?tag=CrashLog&x=171b1077880000
+On Thu, Dec 15, 2022 at 07:10:36PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.84 release.
+> There are 14 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
 
-[3]
-https://syzkaller.appspot.com/bug?id=3613786cb88c93aa1c6a279b1df6a7b201347d08
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.2.0).
 
-[4]
-https://syzkaller.appspot.com/text?tag=Patch&x=1766eb13880000
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-Regards,
-Jun
+--=20
+An old man doll... just what I always wanted! - Clara
+
+--R180pMqcGnsqKwiS
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY5v0vgAKCRD2uYlJVVFO
+o19nAP93ROelBBB1P6C+ieeJtlERdLdkjdze3O1tkcqWnTdnPwEApXh94oshE1FZ
++zFALVEoatEiqZ45KBu38BY9mUG3aAA=
+=1cFY
+-----END PGP SIGNATURE-----
+
+--R180pMqcGnsqKwiS--
