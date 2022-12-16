@@ -2,180 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82C1664E9E4
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 12:02:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A6864EA0D
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 12:15:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230223AbiLPLCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 06:02:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47704 "EHLO
+        id S230397AbiLPLPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 06:15:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229754AbiLPLCC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 06:02:02 -0500
-Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [217.70.183.200])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E1612BD2
-        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 03:02:00 -0800 (PST)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 5A60A20008;
-        Fri, 16 Dec 2022 11:01:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1671188519;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=NrRmFSTxWSFOcAFF91oEN2EuEZEt1gzRnrXqpvlWtAY=;
-        b=CspEJzDlwWrWwvnJSBeZSQ9SFAGNYQXpI7a4PI7LvQOike5EZZF7+uKgv7iHWvt0teaFeX
-        V7pgGpiJBZGUcK4ua3uw5SYAOFo7vteXZGV6+uJPIHUK3PQAoiPiuH8noqmb2J/8aNsM0r
-        /lqcqFE8gDh2dKQ0Y3GO0MQGbEKtcxRY5bM2leqJ/IbFv0hMbkly2/DmDNYiz18uFfhtAp
-        yVg//iCmMimR4SxUv5R1BVV7JT3zvEyPvWY2z0ThC1ieBDj9KBVFa75eOcy7L+03ET7Tdd
-        o0ioHcYNR8uAX80T4FcPb7pxpde3ywmit5pvDCH5iFEvNTfCVzKG7bAp32P78w==
-Date:   Fri, 16 Dec 2022 12:01:55 +0100
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Marek Vasut <marex@denx.de>
-Cc:     Francesco Dolcini <francesco@dolcini.it>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-mtd@lists.infradead.org,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        u-boot@lists.denx.de
-Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is
- 0
-Message-ID: <20221216120155.4b78e5cf@xps-13>
-In-Reply-To: <6f5f5b32-d7fe-13cc-b52d-83a27bd9f53e@denx.de>
-References: <Y5wiAPvPU+YY39oX@francesco-nb.int.toradex.com>
-        <6f5f5b32-d7fe-13cc-b52d-83a27bd9f53e@denx.de>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+        with ESMTP id S230207AbiLPLPP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 06:15:15 -0500
+Received: from qproxy5-pub.mail.unifiedlayer.com (qproxy5-pub.mail.unifiedlayer.com [69.89.21.30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 254713720D
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 03:15:14 -0800 (PST)
+Received: from gproxy1-pub.mail.unifiedlayer.com (gproxy1-pub.mail.unifiedlayer.com [69.89.25.95])
+        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id 23C2680312A3
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 11:14:54 +0000 (UTC)
+Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
+        by progateway3.mail.pro1.eigbox.com (Postfix) with ESMTP id DA23410048C33
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 11:13:53 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id 68f3pV0u68FgT68f3pbiSO; Fri, 16 Dec 2022 11:13:53 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=AYt0o1bG c=1 sm=1 tr=0 ts=639c52f1
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=sHyYjHe8cH0A:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=ID0sHYrF0ttGq9hImI0A:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=C1Gk3WR60xBx5j7TMCCl3jFFITCLtmd00+7RqlkeWK0=; b=Wbk4UBbRK1A2iOrztTv4n6Wrbv
+        yeAvIx9G+OWfHJLD4uWyz3sMClDN3fLF23j53OxM17QtMYbPVPO/ZYNxQ1/zkHmafDJmIf4C498Wt
+        6DndCvZoc+HcyayXDKxiXo2ErcXTd8tqn1tkJnSpbIXHNn1yL24JSn4Mpmz6n8tev5tzgblHrOO0K
+        NgJrnKklKuHry1W5TaKOw/qFoC61nTcXEeJw6aRvH+mwqOqmHI/OHq+MFLFHfgmU3xbPk1jrAKqqb
+        MjEtGnf3xpncGJkYOtlFlYMexet0TXRPyJijF0DawVOA7s2kO2BMLOK1I0JjrneTqPQfqWqAJJhlD
+        VPCdRfxQ==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:33370 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1p68f2-003WsH-G7;
+        Fri, 16 Dec 2022 04:13:52 -0700
+Subject: Re: [PATCH 6.0 00/16] 6.0.14-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221215172908.162858817@linuxfoundation.org>
+In-Reply-To: <20221215172908.162858817@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <0b3e5d0c-d9da-0fa5-b5bb-e21c255cd883@w6rz.net>
+Date:   Fri, 16 Dec 2022 03:13:47 -0800
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1p68f2-003WsH-G7
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:33370
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 2
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 12/15/22 10:10 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.14 release.
+> There are 16 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 17 Dec 2022 17:28:57 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.14-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-marex@denx.de wrote on Fri, 16 Dec 2022 11:46:18 +0100:
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-> On 12/16/22 08:45, Francesco Dolcini wrote:
-> > Hello Marek and Miquel, =20
->=20
-> Hi,
->=20
-> > On Thu, Dec 15, 2022 at 08:16:04AM +0100, Miquel Raynal wrote: =20
-> >> So my first first idea was to avoid using the broken "fixup mtdparts"
-> >> function in U-Boot and I am still convinced this is what we should do
-> >> in priority. =20
-> >=20
-> > This is something that was already discussed, but I was not really
-> > thinking much on it till now. Do you think that the whole idea of
-> > editing the MTD partitions from the firmware is wrong and we should just
-> > pass the partition on the command line OR that the current
-> > implementation is broken and can/should be fixed? =20
->=20
-> No, patching the partition layout into DT is fine. Firmwares of all kinds=
- have been patching various parts of the DT before passing it to OS since f=
-orever, or more recently, merging multiple DT fragments and passing the com=
-posite DT to Linux.
->=20
-> As far as I recall, OF predates Linux and the OF tree has been usually as=
-sembled by the Forth firmware of that era from various chunks stored in dif=
-ferent parts of the system. So this patching is fundamental part of the des=
-ign since the beginning.
->=20
-> It is difficult to describe complex structure like the partition mapping =
-on kernel command line, it should really be in DT or other such structure, =
-so patching it into the DT is fine.
+Tested-by: Ron Economos <re@w6rz.net>
 
-I think describing it in the DT is fine and welcome.
-I think patching it in the DT is ugly. My 2cts.
-
-> The only detail here is, it should be patched into the DT correctly  ... =
-and ... if old firmwares do not do that, Linux should fix it up.  You don't=
- throw away your old PC just because it doesn't have perfect  ACPI tables o=
-ne would expect today, I don't see why we should do that  with DT machines.
->=20
-> >> I am still against piggy hacks in the generic ofpart.c driver, but
-> >> what we could do however is a DT fixup in the init_machine (or the
-> >> dt_fixup) hook for imx7 Colibri, very much like this:
-> >> https://elixir.bootlin.com/linux/latest/source/arch/arm/mach-mvebu/boa=
-rd-v7.c#L111
-> >> Plus a warning there saying "your dt is broken, update your firmware".=
- =20
-> >=20
-> > I have a couple of concerns/question with this approach:
-> >   - do we have a single point to handle this? Different architectures a=
-re
-> >     affected by these issue. Duplicating the fixup code in multiple pla=
-ce
-> >     does not seems a great idea
-> >   - If we believe that the device tree is wrong, in the i.MX7 case
-> >     because of #size-cells should be set to 0 and not 1, we should not
-> >     alter the FDT. Other part of the code could rely on this being
-> >     correctly set to 0 moving forward.
-> >=20
-> > If I understood you are proposing to have a fixup at the machine level
-> > that is converting a valid nand-controller node definition to a "broken"
-> > one. Unless I misunderstood you and you are thinking about rewriting the
-> > whole MTD partition from a broken definition to a proper one.
-
-No, quite the opposite.
-
-Either size-cell is wrong which makes the description totally
-inconsistent (if size-cell is there, it must have a use, otherwise why
-do we keep it?) and we must fix it, or it is right and we should not
-touch it.
-
-What I propose is to check very early whether the description is
-consistent on the board known to have this problem. If the description
-is wrong, we fix it and the generic parser can then do its work
-properly.
-
-> >=20
-> > On Thu, Dec 15, 2022 at 09:04:46AM +0100, Miquel Raynal wrote: =20
-> >> marex@denx.de wrote on Thu, 15 Dec 2022 08:45:33 +0100: =20
-> >>> Sadly, it does only fix the known cases, not the unknown cases like
-> >>> downstream forks which never get any bootloader updates ever, and
-> >>> which you can't find in upstream U-Boot, and which you therefore
-> >>> cannot easily catch in the arch side fixup. =20
-> >>
-> >> And ? =20
-> >=20
-> > I'm not personally and directly concerned, since the machine I care are
-> > all available upstream and known, however this is a general problem with
-> > U-Boot code being at the same time widely used on a range of embedded
-> > products and producing a broken MTD partition list.
-> >=20
-> > I think we will just silently break boards and just creating a lot of
-> > issues to people. We would just introduce regression to the users, being
-> > aware of it and deliberately decide to not care and move the problem to
-> > someone else. I do not think this is a good way to go. =20
-
-What? Since when my proposal is breaking boards? My proposal leads to a
-situation where:
-- If you have a board that has an inconsistent description but worked,
-  it will still work.
-- If you have a board that has a consistent description and worked, it
-  will still work.
-- If your have a board that has an inconsistent description and got
-  broken *recently* by another change (typically you "fix" the DT in
-  Linux to comply with the bindings), then you get a warning that leads
-  you on the right path, you then update your bootloader if you can,
-  but either way you add your machine compatible to the list of devices
-  which need the early fix and your boot is fixed.
-- If you add support for a new board with an old kernel and have an
-  inconsistent description it does not "just work because we have an
-  automatic piggy hack in the driver". I am against it.
-
-Whether or not it is acceptable by arch maintainer is something else,
-we won't know until we include them in the loop with a proper patch.
-
-Thanks,
-Miqu=C3=A8l
