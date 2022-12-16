@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 510BD64EBEC
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 14:11:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3503564EBEF
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 14:12:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229614AbiLPNLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 08:11:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48888 "EHLO
+        id S230165AbiLPNMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 08:12:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229469AbiLPNLQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 08:11:16 -0500
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77E472DA91;
-        Fri, 16 Dec 2022 05:11:14 -0800 (PST)
-Received: by mail-wm1-x330.google.com with SMTP id ja17so1826169wmb.3;
-        Fri, 16 Dec 2022 05:11:14 -0800 (PST)
+        with ESMTP id S230212AbiLPNMd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 08:12:33 -0500
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A398E2DA91;
+        Fri, 16 Dec 2022 05:12:30 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id h7so2449415wrs.6;
+        Fri, 16 Dec 2022 05:12:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=zATequ/mwmonfG64bUqQyd1X7tC746Mmt3aX2pV/efU=;
-        b=cnr3D4KYC9xbOBqrz6evjwfdGLm6LNRh1nNvK7iRmdHNOEAQDzHqQRQjJ+RTUnW1yV
-         9M+Z2GUPARuXXPFTulNKJxGTulLWWfGuzAp4qw+ZPWfRoXchq6UjwQ9lTjmqwpphf+6R
-         mjUWKaxNvXP90d0z1J3UpVZVsv7s2dVRY9Sg8k6VOx0vt6GRyLtNmxQ3tM3G8mSU7Fz5
-         mP2Cb4J2WgNM5ctAykaeoptE66DWjuu8ATLJ+M+7sV4K38V1Kt0+4+AhzLc3Pb+x6T8Z
-         3ayc98PuglG6VoATd+jxeBhwYU+V94427ItIWWHDFQqLx+0jyUt4wzh+Dv2anq+9qpqW
-         65Qg==
+        bh=X8YsgKnIJOFyhQ7t2VLMQ+l0kptJ6IwPkdNPAIwj52U=;
+        b=e+24v0hMJak1xczraQjZAwxkBmUk7qX8GcEIOjpXyxlZedje68ToeO99k6VVts1dx8
+         jo6dfxxfJPzYE310mS+T5urjm1b6hdOfYH7rGUCOz82BaZG8FmZtRjtZc1Y0Hyjnf95J
+         6+skiaJWQ4wCpCfstbz1ieEV/X21grU2JjDP6p8Cyke9f/kFAEBifKTij7VaxIjJAoCS
+         3p7bQRz5fJM8cZtUtFiCm8HB7XWWsCL93yPJi3K2x+CfPsLaLXYtfuSXUgKVV7jH1kwt
+         p6NDtHmedcTmOZT5JjWJa8qF0eSHlMYH1/PY7wKS2dpS9o8kNbq6WccwD3oHS7Z8GKqb
+         T3JA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=zATequ/mwmonfG64bUqQyd1X7tC746Mmt3aX2pV/efU=;
-        b=xR8czvt2OT7eQYoMEBAIxU0O/3witieYfCgjJtPJppvxAYknVtcdZlSw6dz+BqGzjH
-         VOfq6jBoUa6WSBC+E907C+c+JX8VdCwx0w49oWbfzKSadAiU3UyNVeEBmflrRQpp/E9P
-         ccHa03XwfS0NpuyzQFu1ObDamUCabDmtzB/keipYpLRDBkVwCQz8lfg8leWRk0o1W5JO
-         vdt2VDopyLqp3O+42mPA7DhPTCdr25Y29Qrs3R1hrHljtEjx2SOGErRClAPJwOeyE3jF
-         RRIBxYnFRWaWA+3ONXd6KSI8otTEOS6YoaHo5mwaMbYEdrmElxNGnu1cAdcy5g7vcIGz
-         sgUw==
-X-Gm-Message-State: ANoB5plJx8IhjU/cXzgiilih+PHm5I3aaCoVzvmP4CRp+xzbIHv2VwvG
-        TxaShgvrzUixKXo30rGFan4=
-X-Google-Smtp-Source: AA0mqf5k281z8UJtBhUW+9e1XQsZSnWIKmXhrEWjl4ZqIneSYpsc/fQguq2DhmimPbPQUxoO9Buvqw==
-X-Received: by 2002:a05:600c:1d91:b0:3d0:274a:3171 with SMTP id p17-20020a05600c1d9100b003d0274a3171mr16573641wms.0.1671196272788;
-        Fri, 16 Dec 2022 05:11:12 -0800 (PST)
+        bh=X8YsgKnIJOFyhQ7t2VLMQ+l0kptJ6IwPkdNPAIwj52U=;
+        b=f4mJed4VmRI73xEPS8wT4SLb9e9m8oJaVMTbuKoNLtLT5AYI79coUG+SecLLZISv0Q
+         nV4hDZZ2pkQzIRwWvCNC42mrHiijNnpsJk4ecmBUvCY2AssrtmYrrU9LRvGtbGhgHlwI
+         0HkuCG0n1WShk6tl39tMxvbhruUUByGRJaYgaSfDhhFS2xEfP0rG+XnSa1sQDUIrhzNJ
+         oSesyoHM8gJwPdUI3E/q0yXZhidZKDWASuFNZLbidP555q/cYSBbW+hMvrm+0xP2lhJP
+         n4MP/Z13lwpSCqpX2OoTN4pfxspFExH4vvUQWKpQA4r6q4d1wtztnKNN77fb+zaSsahj
+         j8Uw==
+X-Gm-Message-State: ANoB5pmyy5X3WNO7P42uP4rq+teBQ+nSmoplfXPwO+yvMScr+2zid70n
+        5BrFDSb2uYNvVNS+ZRYmS+Q=
+X-Google-Smtp-Source: AA0mqf45Q5dIuAPy6YO4qn22IivwKdjbN8vmLve0xUekmrOuGQraf/FhRjglL2gPUJkd0W4UjeqMSQ==
+X-Received: by 2002:a5d:69c5:0:b0:242:1926:ea3d with SMTP id s5-20020a5d69c5000000b002421926ea3dmr20922040wrw.35.1671196349188;
+        Fri, 16 Dec 2022 05:12:29 -0800 (PST)
 Received: from debian (host-78-150-37-98.as13285.net. [78.150.37.98])
-        by smtp.gmail.com with ESMTPSA id p16-20020a1c5450000000b003d07de1698asm9562837wmi.46.2022.12.16.05.11.12
+        by smtp.gmail.com with ESMTPSA id w1-20020adfec41000000b002422b462975sm2253950wrn.34.2022.12.16.05.12.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Dec 2022 05:11:12 -0800 (PST)
-Date:   Fri, 16 Dec 2022 13:11:10 +0000
+        Fri, 16 Dec 2022 05:12:28 -0800 (PST)
+Date:   Fri, 16 Dec 2022 13:12:27 +0000
 From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
@@ -57,13 +57,13 @@ Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
         rwarsow@gmx.de
-Subject: Re: [PATCH 5.4 0/9] 5.4.228-rc1 review
-Message-ID: <Y5xubgkE7EG4bPaR@debian>
-References: <20221215172905.468656378@linuxfoundation.org>
+Subject: Re: [PATCH 5.10 00/15] 5.10.160-rc1 review
+Message-ID: <Y5xuu/JMKzzL3glu@debian>
+References: <20221215172906.638553794@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221215172905.468656378@linuxfoundation.org>
+In-Reply-To: <20221215172906.638553794@linuxfoundation.org>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
@@ -77,8 +77,8 @@ X-Mailing-List: stable@vger.kernel.org
 Hi Greg,
 
 On Thu, Dec 15, 2022 at 07:10:27PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.228 release.
-> There are 9 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.10.160 release.
+> There are 15 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -86,9 +86,9 @@ On Thu, Dec 15, 2022 at 07:10:27PM +0100, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 
 Build test (gcc version 11.3.1 20221127):
-mips: 65 configs -> no failure
-arm: 106 configs -> no failure
-arm64: 2 configs -> no failure
+mips: 63 configs -> no failure
+arm: 104 configs -> no failure
+arm64: 3 configs -> no failure
 x86_64: 4 configs -> no failure
 alpha allmodconfig -> no failure
 powerpc allmodconfig -> no failure
@@ -96,12 +96,13 @@ riscv allmodconfig -> no failure
 s390 allmodconfig -> no failure
 xtensa allmodconfig -> no failure
 
-
 Boot test:
 x86_64: Booted on my test laptop. No regression.
 x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
 
-[1]. https://openqa.qa.codethink.co.uk/tests/2361
+[1]. https://openqa.qa.codethink.co.uk/tests/2362
+[2]. https://openqa.qa.codethink.co.uk/tests/2366
 
 
 Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
