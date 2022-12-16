@@ -2,221 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA2F664E718
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 06:47:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F9264E757
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 07:46:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229469AbiLPFrn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 00:47:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37714 "EHLO
+        id S229836AbiLPGqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 01:46:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229668AbiLPFrm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 00:47:42 -0500
-Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6492F643
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 21:47:41 -0800 (PST)
-Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2BG5lH2C023104
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 16 Dec 2022 00:47:18 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
-        t=1671169641; bh=rbJVZ8DsMM6S8Bsd5BYiY8W/KAivyA6ztnbNyvSqbik=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=Uk6AdQcMDlLn+bYErQu2TQ1PYRkljk0Kv202BLpcxk9E+k2R13fHH1FqCV1zMmOEE
-         PPgTW3EnLf7HWgpVaTuWRYCTEGyfnAoCNEbV0gMO4nBBF8eDBKISvsFeMSroXrcnAq
-         QK4tPgmdh8RGsjgcOD4sYLvKFkasb/0gQ1aWR+lvGnQdVrQ3+x/D9ji6+qmDNdOZdk
-         bD+69bE2ZlQv04A+52fEedBc/si0o9RhaW3fvksiVp5/RIUg+3vO0W64/z2CIjTDjV
-         6P5ktV1diokPDqZvpVMyoeYVbyZ+IcX35LAnk+F8GUXaqri2tpo4JQVDrthHsndxP2
-         /+a+CCRQC8HYA==
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id E788A15C40A2; Fri, 16 Dec 2022 00:47:16 -0500 (EST)
-Date:   Fri, 16 Dec 2022 00:47:16 -0500
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     Jun Nie <jun.nie@linaro.org>
-Cc:     stable@vger.kernel.org, djwong@kernel.org, jack@suse.cz,
-        jlayton@kernel.org, lczerner@redhat.com,
-        linux-ext4@vger.kernel.org, xuyang2018.jy@fujitsu.com
-Subject: Re: [PATCH v1] ext4: Remove deprecated noacl/nouser_xattr options
-Message-ID: <Y5wGZG05uicAPscI@mit.edu>
-References: <166431556706.3511882.843791619431401636.b4-ty@mit.edu>
- <20221216034116.869864-1-jun.nie@linaro.org>
+        with ESMTP id S229611AbiLPGqa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 01:46:30 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 183A510568
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 22:45:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1671173141;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=EyyTXVbRxW6RoYTlLvUhbIorlI9fdIsygWbvarVeWmI=;
+        b=UJ+wWNTd2u2LXx4Qtcm2JSkk7dpuLaCYgLYDnnxh3yw4Be4qPZqeREhBzuGDRYogu1QrXg
+        /ZgQlvZPU6eGGWbTb35TqOmS8GxPN1YyTW0KJes9QWmvUiMCrq0Y7HM2FbNcobZwWp25X9
+        uvUzpHihxP9WAlBGevPdfenbUNmTYJw=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-553-9t1ATvGbO-2O0uy-BXGviA-1; Fri, 16 Dec 2022 01:45:39 -0500
+X-MC-Unique: 9t1ATvGbO-2O0uy-BXGviA-1
+Received: by mail-pj1-f71.google.com with SMTP id k2-20020a17090a514200b002198214abdcso841515pjm.8
+        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 22:45:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-language:content-transfer-encoding:in-reply-to:mime-version
+         :user-agent:date:message-id:from:references:cc:to:subject
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=EyyTXVbRxW6RoYTlLvUhbIorlI9fdIsygWbvarVeWmI=;
+        b=J+uRTKTociuSuBw8xqEaEZbqnwiSvO/GACgu1J6z1nAhW3aOyc9lVyyAAF4WpuIXp1
+         9BjC4KRLIYJCmHQ686byaaX8jN/th8dtmpf0VfCLnYkj4bbwnAx3f6nrmJoK4LUg9ejF
+         6iZ0U27hDEFRaTUK5kJfpa1BUmNeWv7bTlleIE7Ye00q/wutT55sIFMsk0S6NJHbYrCt
+         xPQEtovw7BLxV2jLF5eb+bpssy6QF3H80Av/PrmQ2NcVifI7sbwUJyoE05tw+g3JQ5/s
+         G939IQKXnPbcuJJgb7nStuPtCbBIN6kPLtKRbZjPjOO3QTqCKItZAX3TPJyX1mqg8vpw
+         Kb8A==
+X-Gm-Message-State: ANoB5pmR3GJ78Qe/jOl3RqPDLJ2Fs8VfS74u/pommJmWCOpVeVTNkm4q
+        9bXU9Iyzvfjy81gbYDUZwv8zYHED4vMPZxC4gAxePtDdB4rlNGOPamD1ZkoTv5rlZVFN115AjRN
+        X1CvMv+n4XukoSQGaLwaS/GQICvFTWiCnM5pUTtLOgIDtIoP+xKfxsXw1294FrYb8HA==
+X-Received: by 2002:a05:6a00:324b:b0:574:3cde:385a with SMTP id bn11-20020a056a00324b00b005743cde385amr28148004pfb.32.1671173138638;
+        Thu, 15 Dec 2022 22:45:38 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf6HfByRs7AYndW60H7cHGDSkY5CKgg+GZAUndAV7yc7i56Odny6jIgYb7nID+7Kd4ogaNjoQw==
+X-Received: by 2002:a05:6a00:324b:b0:574:3cde:385a with SMTP id bn11-20020a056a00324b00b005743cde385amr28147984pfb.32.1671173138212;
+        Thu, 15 Dec 2022 22:45:38 -0800 (PST)
+Received: from [10.72.12.85] ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id b27-20020aa78edb000000b005772bf1b61bsm698482pfr.67.2022.12.15.22.45.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 15 Dec 2022 22:45:37 -0800 (PST)
+Subject: Re: [PATCH v5 1/2] ceph: switch to vfs_inode_has_locks() to fix file
+ lock bug
+To:     Ilya Dryomov <idryomov@gmail.com>
+Cc:     jlayton@kernel.org, ceph-devel@vger.kernel.org,
+        mchangir@redhat.com, lhenriques@suse.de, viro@zeniv.linux.org.uk,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20221214033512.659913-1-xiubli@redhat.com>
+ <20221214033512.659913-2-xiubli@redhat.com>
+ <CAOi1vP9Je-DnqUdYcBi_zSDUgj30aYrTeGq1MSwS66E7ptaTSg@mail.gmail.com>
+From:   Xiubo Li <xiubli@redhat.com>
+Message-ID: <d0035a08-b2db-7bd5-4a19-2427404e3cf4@redhat.com>
+Date:   Fri, 16 Dec 2022 14:45:30 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221216034116.869864-1-jun.nie@linaro.org>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
-        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+In-Reply-To: <CAOi1vP9Je-DnqUdYcBi_zSDUgj30aYrTeGq1MSwS66E7ptaTSg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 16, 2022 at 11:41:16AM +0800, Jun Nie wrote:
-> This patch[1] is needed on linux-5.15.y because the panic[2] is also found on
-> linux-5.15.y when debugging bug[3]. Back ported patch[4] is confirmed to fix
-> the bug on linux-5.15.y in the latest test of page[3]. Maybe back port on more
-> branches is needed per patch comments.
 
-This is not a proper fix for the syzkaller report being reported here:
+On 15/12/2022 21:20, Ilya Dryomov wrote:
+> On Wed, Dec 14, 2022 at 4:35 AM <xiubli@redhat.com> wrote:
+>> From: Xiubo Li <xiubli@redhat.com>
+>>
+>> For the POSIX locks they are using the same owner, which is the
+>> thread id. And multiple POSIX locks could be merged into single one,
+>> so when checking whether the 'file' has locks may fail.
+>>
+>> For a file where some openers use locking and others don't is a
+>> really odd usage pattern though. Locks are like stoplights -- they
+>> only work if everyone pays attention to them.
+>>
+>> Just switch ceph_get_caps() to check whether any locks are set on
+>> the inode. If there are POSIX/OFD/FLOCK locks on the file at the
+>> time, we should set CHECK_FILELOCK, regardless of what fd was used
+>> to set the lock.
+>>
+>> Cc: stable@vger.kernel.org
+>> Cc: Jeff Layton <jlayton@kernel.org>
+>> Fixes: ff5d913dfc71 ("ceph: return -EIO if read/write against filp that lost file locks")
+>> Reviewed-by: Jeff Layton <jlayton@kernel.org>
+>> Signed-off-by: Xiubo Li <xiubli@redhat.com>
+>> ---
+>>   fs/ceph/caps.c  | 2 +-
+>>   fs/ceph/locks.c | 4 ----
+>>   fs/ceph/super.h | 1 -
+>>   3 files changed, 1 insertion(+), 6 deletions(-)
+>>
+>> diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+>> index 065e9311b607..948136f81fc8 100644
+>> --- a/fs/ceph/caps.c
+>> +++ b/fs/ceph/caps.c
+>> @@ -2964,7 +2964,7 @@ int ceph_get_caps(struct file *filp, int need, int want, loff_t endoff, int *got
+>>
+>>          while (true) {
+>>                  flags &= CEPH_FILE_MODE_MASK;
+>> -               if (atomic_read(&fi->num_locks))
+>> +               if (vfs_inode_has_locks(inode))
+>>                          flags |= CHECK_FILELOCK;
+>>                  _got = 0;
+>>                  ret = try_get_cap_refs(inode, need, want, endoff,
+>> diff --git a/fs/ceph/locks.c b/fs/ceph/locks.c
+>> index 3e2843e86e27..b191426bf880 100644
+>> --- a/fs/ceph/locks.c
+>> +++ b/fs/ceph/locks.c
+>> @@ -32,18 +32,14 @@ void __init ceph_flock_init(void)
+>>
+>>   static void ceph_fl_copy_lock(struct file_lock *dst, struct file_lock *src)
+>>   {
+>> -       struct ceph_file_info *fi = dst->fl_file->private_data;
+>>          struct inode *inode = file_inode(dst->fl_file);
+>>          atomic_inc(&ceph_inode(inode)->i_filelock_ref);
+>> -       atomic_inc(&fi->num_locks);
+>>   }
+>>
+>>   static void ceph_fl_release_lock(struct file_lock *fl)
+>>   {
+>> -       struct ceph_file_info *fi = fl->fl_file->private_data;
+>>          struct inode *inode = file_inode(fl->fl_file);
+>>          struct ceph_inode_info *ci = ceph_inode(inode);
+>> -       atomic_dec(&fi->num_locks);
+>>          if (atomic_dec_and_test(&ci->i_filelock_ref)) {
+>>                  /* clear error when all locks are released */
+>>                  spin_lock(&ci->i_ceph_lock);
+>> diff --git a/fs/ceph/super.h b/fs/ceph/super.h
+>> index 14454f464029..e7662ff6f149 100644
+>> --- a/fs/ceph/super.h
+>> +++ b/fs/ceph/super.h
+>> @@ -804,7 +804,6 @@ struct ceph_file_info {
+>>          struct list_head rw_contexts;
+>>
+>>          u32 filp_gen;
+>> -       atomic_t num_locks;
+>>   };
+>>
+>>   struct ceph_dir_file_info {
+>> --
+>> 2.31.1
+>>
+> Hi Xiubo,
+>
+> You marked this for stable but there is an obvious dependency on
+> vfs_inode_has_locks() that just got merged for 6.2-rc1.  Are you
+> intending to take it into stable kernels as well?
 
-https://syzkaller.appspot.com/bug?id=3613786cb88c93aa1c6a279b1df6a7b201347d08
+In the testing branch I just removed the stable list and will do the 
+backport myself.
 
-It's true that the reproducer will no longer trigger, but that's just
-because the reproducer is just exiting early because it is passing in
-a mount option which is no longer being accepted.  In fact, that mount
-option is completely unneeded and it's a failing of syzkaller that it
-doesn't adequately minimize the reproducer by trying to remove various
-random mount options that are not actually needed.  For example,
-running the reproducer will trigger warnings like this:
+Thanks
 
-	EXT4-fs: Ignoring removed nobh option
-
-If we modify the kernel to simply ignore nouser_xattr, then the
-reproducer will still trigger.  So this is not the right patch to
-backport.
-
-It's important that people who are trying to fix syzkaller bugs
-understand what is fundamentally going on, instead of using blunt
-force patches that simple paper over the issue.  Please remember that
-syzkaller is supposed to help us improve the kernel, and it's not just
-about trying to reduce the count of open syzkaller reports for its own
-sake.  (This is really much more of a quality of implementation issue,
-since this is not something that would really ever trigger in real
-life, nor is it really a security issue --- despite some people
-thinking that all syzkaller reports are actually security issues, and
-we must run around like chickens with their heads cut off and until
-they are all fixed.)
-
-
-The real root cause of the problem is that the file system is getting
-mounted with these mount options:
-
-nouser_xattr,acl,debug_want_extra_isize=0x0000000000000080,lazytime,nobh,quota
-
-Of which nouser_attr, acl, nobh, and quota are completely pointless.
-It's also **super** unfortunate that the reproducer isn't written in
-C, but this horrible psuedo-assimply language:
-
-  memcpy(
-      (void*)0x20000000,
-      "\x6e\x6f\x75\x73\x65\x72\x5f\x78\x61\x74\x74\x72\x2c\x61\x63\x6c\x2c\x64"
-      "\x65\x62\x75\x67\x5f\x77\x61\x6e\x74\x5f\x65\x78\x74\x72\x61\x5f\x69\x73"
-      "\x69\x7a\x65\x3d\x30\x78\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30"
-      "\x30\x30\x38\x30\x2c\x6c\x61\x7a\x79\x74\x69\x6d\x65\x2c\x6e\x6f\x62\x68"
-      "\x2c\x71\x75\x6f\x74\x61\x2c\x00\x3d\x93\x09\x61\x36\x5d\x73\x58\x9c",
-      89);
-
-      ...
-  syz_mount_image(0x20000440, 0x20000480, 0x1e, 0x20000000, 2, 0x427,
-  			      		  	^^^^^^^^^^
-                  0x200004c0);
-
-(And again, this is stuff that I've complained to the syzkaller team
-for years and years and years as being fundamentally developer hostile
-and disrespects the time of upstream maintainers.  ARGH!!!!)
-
-Anyway.....  So now let's look at the stack trace:
-
- ext4_xattr_block_set+0x8f8/0x3820 fs/ext4/xattr.c:1971
- ext4_xattr_move_to_block fs/ext4/xattr.c:2603 [inline]
- ext4_xattr_make_inode_space fs/ext4/xattr.c:2672 [inline]
- ext4_expand_extra_isize_ea+0x1591/0x1f30 fs/ext4/xattr.c:2764
- __ext4_expand_extra_isize+0x29e/0x3d0 fs/ext4/inode.c:5826
- ext4_try_to_expand_extra_isize fs/ext4/inode.c:5869 [inline]
- __ext4_mark_inode_dirty+0x4bf/0x7a0 fs/ext4/inode.c:5947
- ext4_dirty_inode+0xbc/0x100 fs/ext4/inode.c:5979
- __mark_inode_dirty+0x1f9/0x9d0 fs/fs-writeback.c:2431
- mark_inode_dirty_sync include/linux/fs.h:2429 [inline]
- iput+0x155/0x7d0 fs/inode.c:1686
- dentry_unlink_inode+0x349/0x430 fs/dcache.c:376
- __dentry_kill+0x3e2/0x5d0 fs/dcache.c:582
- shrink_dentry_list+0x379/0x4d0 fs/dcache.c:1176
- shrink_dcache_parent+0xcd/0x350
- do_one_tree fs/dcache.c:1657 [inline]
- shrink_dcache_for_umount+0x7c/0x1a0 fs/dcache.c:1674
- generic_shutdown_super+0x69/0x2d0 fs/super.c:447
- kill_block_super+0x80/0xe0 fs/super.c:1395
-
-Because lazytime is enabled, after running the reproducer under
-strace, what happens is that inode #12 gets touched so its access time
-is modified, but because lazytime is enabled, we don't actually update
-the on-disk until we actually unmount the superblock.  That's why
-generic_shutdown_super() is in the stack trace.
-
-At that point, when we shrink the dentry cache, when we eject the
-inode from memory, iput() needs to update the on-disk inode with the
-updated atime.  So far, so good.  But then we call ext4_dirty_inode(),
-and then that interacts with the "debug_want_extra_isize-=128" mount
-option.  So at this point, we try to expand inode's extra isize space,
-and in order to do that we have to move some extended attributes.
-
-Unfortunately, how ext4 currently does this is a bit stupid, and it
-reads the contents of the ea_inode into memory, deletes the ea_inode
-and then creates a new ea_inode.  That works, but it's horribly
-inefficient, and **that's*** what we should actually fix.
-
-Unfortunately, because we try to create a new ea_inode, when
-ext4_xattr_block_set() calls the static function (which gets inlined)
-ext4_xattr_inode_create(), and at that point, the call to
-ext4_new_inode trips over the fact that the file system is being
-unmoutned, and sb->s_root has already been set to NULL.
-
-So this is what actually goes *boom*:
-
-	ea_inode = ext4_new_inode(handle, inode->i_sb->s_root->d_inode,
-					  ^^^^^^^^^^^^^^^^^^^ NULL ptr, oops!
-				  S_IFREG | 0600, NULL, inode->i_ino + 1, owner,
-				  EXT4_EA_INODE_FL);
+- Xiubo
 
 
-We can prove this is the issue by using the following debugging patch,
-which prevents the reproducer from triggering after prining the "fs
-being unmouinted" message:
-
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2697,6 +2697,13 @@ int ext4_expand_extra_isize_ea(struct inode *inode, int new_extra_isize,
- 	int s_min_extra_isize = le16_to_cpu(sbi->s_es->s_min_extra_isize);
- 	int isize_diff;	/* How much do we need to grow i_extra_isize */
- 
-+	pr_err("ext4_expand_extra_isize_ea ino %lu new_extra_isize %d curr %d\n",
-+	       inode->i_ino, new_extra_isize, EXT4_I(inode)->i_extra_isize);
-+	if (inode->i_sb->s_root == NULL) {
-+		pr_err("ext4_expand_extra_isize_ea: fs being unmounted\n");
-+		return -EINVAL;
-+	}
-+
- retry:
- 	isize_diff = new_extra_isize - EXT4_I(inode)->i_extra_isize;
- 	if (EXT4_I(inode)->i_extra_isize >= new_extra_isize)
-
-Fixing this the clean and proper way, which is by making
-ext4_xattr_move_to_block() more intelligent/efficient, is left as an
-exercise to the reader.
-
-Cheers,
-
-						- Ted
-
-P.S.  Note that this fix is actually needed for the current upstream
-kernel; the reproducer will trigger in 6.1, although we need to either
-modify the reproducer to drop the completely pointless nouser_xattr
-mount option (which is a bit painful since the !@?! mount options is
-obfuscated by virtue of being in hex for no particular good reason) or
-by hacking the kernel to ignore that mount options, via a patch like
-this:
-
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1658,6 +1658,7 @@ static const struct fs_parameter_spec ext4_param_specs[] = {
- 	fsparam_flag	("oldalloc",		Opt_removed),
- 	fsparam_flag	("orlov",		Opt_removed),
- 	fsparam_flag	("user_xattr",		Opt_user_xattr),
-+	fsparam_flag	("nouser_xattr",	Opt_removed),
- 	fsparam_flag	("acl",			Opt_acl),
- 	fsparam_flag	("norecovery",		Opt_noload),
- 	fsparam_flag	("noload",		Opt_noload),
+> Thanks,
+>
+>                  Ilya
+>
 
