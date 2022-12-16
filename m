@@ -2,99 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4F9A64EC87
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 15:03:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4505364ECA0
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 15:09:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229923AbiLPODF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 09:03:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41076 "EHLO
+        id S230246AbiLPOJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 09:09:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbiLPODE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 09:03:04 -0500
-Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00AF1A19D
-        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 06:03:02 -0800 (PST)
-Received: from fsav315.sakura.ne.jp (fsav315.sakura.ne.jp [153.120.85.146])
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 2BGE30pY022162;
-        Fri, 16 Dec 2022 23:03:00 +0900 (JST)
-        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Received: from www262.sakura.ne.jp (202.181.97.72)
- by fsav315.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav315.sakura.ne.jp);
- Fri, 16 Dec 2022 23:03:00 +0900 (JST)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav315.sakura.ne.jp)
-Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
-        (authenticated bits=0)
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 2BGE2xnN022155
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
-        Fri, 16 Dec 2022 23:03:00 +0900 (JST)
-        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Message-ID: <86bdfea2-7125-2e54-c2c0-920f28ff80ce@I-love.SAKURA.ne.jp>
-Date:   Fri, 16 Dec 2022 23:02:56 +0900
+        with ESMTP id S229730AbiLPOJS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 09:09:18 -0500
+Received: from mail-vs1-xe2e.google.com (mail-vs1-xe2e.google.com [IPv6:2607:f8b0:4864:20::e2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E14A02B620
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 06:09:16 -0800 (PST)
+Received: by mail-vs1-xe2e.google.com with SMTP id q128so2326930vsa.13
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 06:09:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FnRfmSoVrweCHiDP2b0XcKWHIVQTBT4Xkvqu5EsIIQ0=;
+        b=VOwauKxPWCtAmTi3Wi1n4svZrbY1EFqlnEPgFCNRcge0fMzBZ4PPgHSZMe1lB0S47S
+         W+eJaRe5NkVfzYfu1zXvThwENTXqsx40U+O8K0rMWmg3MaxgcP5EHS3t+ZoQKhU/J+C/
+         Wp+eIcCdsTqgXxbkrBWkA3ssnd3cciVmALdtwQu1n40TDg1pupS5XEoNOIclfyjcstfw
+         Db1iFNlwt1ujdTOFsGpC6COskmi2QiOHK+Y3WSGhO+X68RTW/QyPYhHsJnQ4WscNTKDw
+         2tO19hncdHNAEtoatz2T7zTdvB6wyAJKbkOqMejJ8Qm7POyhANbF6/QHY34tqWneQekz
+         TbrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FnRfmSoVrweCHiDP2b0XcKWHIVQTBT4Xkvqu5EsIIQ0=;
+        b=8Ne5c5P7dSjibqIv98u0E0rSaqvi3c6x/jpjkJADUTR/1ruOu2SlagNiMy1j1Ofvau
+         uaedP8z2zNHWif+/9LEHkCFJDX7dQhSRdZCob8gFLHROTPkSzL6pF+PzvLLWALzF/hf4
+         B672z1WlU6/Sidul0jUDM3bqQ3fpmqMkQQfxcuP1lqA9vNQ5X6c+3+iHFUN7afG48Vjl
+         aax6vWDNp0+IX335ChcOv1bC+nDWBNwmlLw/XwlGZ1ScQ26eecPMZJlHpa5kiE7EeJ/Y
+         dX4mkuwygjyLoWwrEu/zEU2ytKivFLYMqzE4OmjjVrjXxXbIUp4ISHBwEd1JPX4aE8p4
+         yxjw==
+X-Gm-Message-State: ANoB5pn3rPwRtYJxayX4jxzXiuCMyT+wr7xGotAAm7woEtzeglTInHtC
+        TQHTgdX300cwT/j4rAO7GqSvof37ZIhOvZLR8UHHIA==
+X-Google-Smtp-Source: AA0mqf5juU3gdTbuCO9BuR51VBuKiOzXTXd5L1I41olQyxcEgnnVdsr0IFsJjjwuLnykSLE3YaQflJM0w+2POr9y134=
+X-Received: by 2002:a67:be11:0:b0:3b1:27f1:ab21 with SMTP id
+ x17-20020a67be11000000b003b127f1ab21mr18748024vsq.48.1671199755907; Fri, 16
+ Dec 2022 06:09:15 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH] fbcon: Use kzalloc() in fbcon_prepare_logo()
-Content-Language: en-US
-To:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        Alexander Potapenko <glider@google.com>,
-        Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        kasan-dev <kasan-dev@googlegroups.com>
-Cc:     Daniel Vetter <daniel@ffwll.ch>, Helge Deller <deller@gmx.de>,
-        Linux Fbdev development list <linux-fbdev@vger.kernel.org>,
-        DRI <dri-devel@lists.freedesktop.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <cad03d25-0ea0-32c4-8173-fd1895314bce@I-love.SAKURA.ne.jp>
- <CAMuHMdUH4CU9EfoirSxjivg08FDimtstn7hizemzyQzYeq6b6g@mail.gmail.com>
-From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-In-Reply-To: <CAMuHMdUH4CU9EfoirSxjivg08FDimtstn7hizemzyQzYeq6b6g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+References: <0000000000006c411605e2f127e5@google.com> <000000000000b60c1105efe06dea@google.com>
+ <Y5vTyjRX6ZgIYxgj@mit.edu> <Y5xsIkpIznpObOJL@google.com>
+In-Reply-To: <Y5xsIkpIznpObOJL@google.com>
+From:   Aleksandr Nogikh <nogikh@google.com>
+Date:   Fri, 16 Dec 2022 15:09:04 +0100
+Message-ID: <CANp29Y6KHBE-fpfJCXeN5Ju_qSOfUYAp2n+cNrGj25QtU0X=sA@mail.gmail.com>
+Subject: Re: kernel BUG in ext4_free_blocks (2)
+To:     Lee Jones <lee@kernel.org>
+Cc:     "Theodore Ts'o" <tytso@mit.edu>,
+        syzbot <syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com>,
+        adilger.kernel@dilger.ca, gregkh@linuxfoundation.org,
+        lczerner@redhat.com, linux-ext4@vger.kernel.org,
+        linux-kernel@vger.kernel.org, sashal@kernel.org,
+        stable@vger.kernel.org, syzkaller-android-bugs@googlegroups.com,
+        tadeusz.struk@linaro.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022/12/15 18:36, Geert Uytterhoeven wrote:
-> The next line is:
-> 
->         scr_memsetw(save, erase, array3_size(logo_lines, new_cols, 2));
-> 
-> So how can this turn out to be uninitialized later below?
-> 
->         scr_memcpyw(q, save, array3_size(logo_lines, new_cols, 2));
-> 
-> What am I missing?
+On Fri, Dec 16, 2022 at 2:01 PM Lee Jones <lee@kernel.org> wrote:
+>
+> On Thu, 15 Dec 2022, Theodore Ts'o wrote:
+>
+> > On Thu, Dec 15, 2022 at 08:34:35AM -0800, syzbot wrote:
+> > > This bug is marked as fixed by commit:
+> > > ext4: block range must be validated before use in ext4_mb_clear_bb()
+> > > But I can't find it in any tested tree for more than 90 days.
+> > > Is it a correct commit? Please update it by replying:
+> > > #syz fix: exact-commit-title
+> > > Until then the bug is still considered open and
+> > > new crashes with the same signature are ignored.
+> >
+> > I don't know what is going on with syzkaller's commit detection, but
+> > commit 1e1c2b86ef86 ("ext4: block range must be validated before use
+> > in ext4_mb_clear_bb()") is an exact match for the commit title, and
+> > it's been in the upstream kernel since v6.0.
+> >
+> > How do we make syzkaller accept this?  I'll try this again, but I
+> > don't hold out much hope.
+>
+> I don't see the original bug report (was it posted to a lore
+> associated list?), so there is no way to tell what branch syzbot was
+> fuzzing at the time.  My assumption is that it was !Mainline.
 
-Good catch. It turned out that this was a KMSAN problem (i.e. a false positive report).
+Syzbot is actually reacting here to this bug from the Android namespace:
 
-On x86_64, scr_memsetw() is implemented as
+https://syzkaller.appspot.com/bug?id=3D5266d464285a03cee9dbfda7d2452a72c3c2=
+ae7c
 
-        static inline void scr_memsetw(u16 *s, u16 c, unsigned int count)
-        {
-                memset16(s, c, count / 2);
-        }
+>
+> Although this does appear to be a Stable candidate, I do not see it
+> in any of the Stable branches yet.  So I suspect the answer here is to
+> wait for the fix to filter down.
+>
+> In the mean time, I guess we should discuss whether syzbot should
+> really be posting scans of downstream trees to upstream lists.
 
-and memset16() is implemented as
+In this particular case, syzbot has captured all the recipients from
+the patch email [1], because that email Cc'd
+syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com. To syzbot, all
+these people were involved in the original bug discussion, and so it
+notified them about the problem.
 
-        static inline void *memset16(uint16_t *s, uint16_t v, size_t n)
-        {
-        	long d0, d1;
-        	asm volatile("rep\n\t"
-        		     "stosw"
-        		     : "=&c" (d0), "=&D" (d1)
-        		     : "a" (v), "1" (s), "0" (n)
-        		     : "memory");
-        	return s;
-        }
+FWIW I've sent a PR[2] to make the "I can't find it in any tested
+tree" message include the link to the syzkaller dashboard. Hopefully
+it will help resolve such confusions faster.
 
-. Plain memset() in arch/x86/include/asm/string_64.h is redirected to __msan_memset()
-but memsetXX() are not redirected to __msan_memsetXX(). That is, memory initialization
-via memsetXX() results in KMSAN's shadow memory being not updated.
+[1] https://lore.kernel.org/all/20220713185904.64138-1-tadeusz.struk@linaro=
+.org/
+[2] https://github.com/google/syzkaller/pull/3591
 
-KMSAN folks, how should we fix this problem?
-Redirect assembly-implemented memset16(size) to memset(size*2) if KMSAN is enabled?
+--
+Aleksandr
 
+
+>
+> > #syz fix: ext4: block range must be validated before use in ext4_mb_cle=
+ar_bb()
+> >
+> > Syzkaller, go home, you're drunk.
+>
+> =3D:-)
+>
+> --
+> Lee Jones [=E6=9D=8E=E7=90=BC=E6=96=AF]
+>
+> --
+> You received this message because you are subscribed to the Google Groups=
+ "syzkaller-android-bugs" group.
+> To unsubscribe from this group and stop receiving emails from it, send an=
+ email to syzkaller-android-bugs+unsubscribe@googlegroups.com.
+> To view this discussion on the web visit https://groups.google.com/d/msgi=
+d/syzkaller-android-bugs/Y5xsIkpIznpObOJL%40google.com.
