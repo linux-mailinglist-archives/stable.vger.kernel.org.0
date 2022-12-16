@@ -2,120 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 978D164ECC0
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 15:15:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CA2A64ECE1
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 15:32:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230365AbiLPOPo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 09:15:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48126 "EHLO
+        id S231166AbiLPOcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 09:32:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230476AbiLPOPm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 09:15:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C46D1132;
-        Fri, 16 Dec 2022 06:15:38 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229754AbiLPOce (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 09:32:34 -0500
+Received: from phobos.denx.de (phobos.denx.de [IPv6:2a01:238:438b:c500:173d:9f52:ddab:ee01])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E0D7566D0
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 06:32:32 -0800 (PST)
+Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86E85B81D98;
-        Fri, 16 Dec 2022 14:15:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44912C433EF;
-        Fri, 16 Dec 2022 14:15:35 +0000 (UTC)
-Date:   Fri, 16 Dec 2022 09:15:33 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Pratyush Yadav <ptyadav@amazon.de>
-Cc:     <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <patches@lists.linux.dev>,
-        Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Primiano Tucci <primiano@google.com>
-Subject: Re: [PATCH 5.4] tracing/ring-buffer: Only do full wait when cpu !=
- RING_BUFFER_ALL_CPUS
-Message-ID: <20221216091533.6a74d5c5@gandalf.local.home>
-In-Reply-To: <20221216134241.81381-1-ptyadav@amazon.de>
-References: <20221216134241.81381-1-ptyadav@amazon.de>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        (Authenticated sender: marex@denx.de)
+        by phobos.denx.de (Postfix) with ESMTPSA id 399DE85098;
+        Fri, 16 Dec 2022 15:32:29 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+        s=phobos-20191101; t=1671201150;
+        bh=YcZLu+PifMn6/LIs0eaXk/f/5yxHO5tGvNL/baVZmM8=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=jAdo0ae+D/tgrS7aMSIRbVQTQwA5TrltVH/OoPMpkOn3oF2ajFc+6pcHfGtLtLMvD
+         tZHhP9VIQJyqUE14DiYyhtIAI8YzszTLiMapqN+MzbMoySfntfI/eaVHc7L1Rnbw8a
+         M9TYA6qs6DgWLoA66u0/nAARWlGWLAevEi7lfiXrH+p3uhmWZOANgKMdWVVWAge8nv
+         Wn85qaBJb2E6I2DtRNOnzmJDfQzlsSDYugOTBQm/jj4Hq+g54qh1j17iDovtpHy2LV
+         H7/FYJJF2ntK9zetJqmBOVzM61rFJ+fud6V0Zys5lRzC3J1SCY9qEwZX9DMKVMXwOZ
+         bmsHguusLgzcQ==
+Message-ID: <fb55a784-eda3-8916-1413-581b9436b3f2@denx.de>
+Date:   Fri, 16 Dec 2022 15:32:28 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is 0
+Content-Language: en-US
+To:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Francesco Dolcini <francesco@dolcini.it>
+Cc:     Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        u-boot@lists.denx.de
+References: <Y5wiAPvPU+YY39oX@francesco-nb.int.toradex.com>
+ <6f5f5b32-d7fe-13cc-b52d-83a27bd9f53e@denx.de>
+ <20221216120155.4b78e5cf@xps-13>
+ <Y5xmi62hR6JeYUt1@francesco-nb.int.toradex.com>
+ <20221216143720.3c8923d8@xps-13>
+From:   Marek Vasut <marex@denx.de>
+In-Reply-To: <20221216143720.3c8923d8@xps-13>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Virus-Scanned: clamav-milter 0.103.6 at phobos.denx.de
+X-Virus-Status: Clean
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 16 Dec 2022 14:42:41 +0100
-Pratyush Yadav <ptyadav@amazon.de> wrote:
+On 12/16/22 14:37, Miquel Raynal wrote:
 
-> full_hit() directly uses cpu as an array index. Since
-> RING_BUFFER_ALL_CPUS == -1, calling full_hit() with cpu ==
-> RING_BUFFER_ALL_CPUS will cause an invalid memory access.
-> 
-> The upstream commit 42fb0a1e84ff ("tracing/ring-buffer: Have polling
-> block on watermark") already does this. This was missed when backporting
-> to v5.4.y.
-> 
-> This bug was discovered and resolved using Coverity Static Analysis
-> Security Testing (SAST) by Synopsys, Inc.
+Hi,
 
-Nice.
+[...]
 
+>>> What?
+>>
+>> Let me rephrase, I was not clear enough.
+>>
+>>> Since when my proposal is breaking boards? My proposal leads to a
+>>> situation where:
+>>> - If you have a board that has an inconsistent description but worked,
+>>>    it will still work.
+>>> - If you have a board that has a consistent description and worked, it
+>>>    will still work.
+>>> - If your have a board that has an inconsistent description and got
+>>>    broken *recently* by another change (typically you "fix" the DT in
+>>>    Linux to comply with the bindings), then you get a warning that leads
+>>>    you on the right path, you then update your bootloader if you can,
+>>>    but either way you add your machine compatible to the list of devices
+>>>    which need the early fix and your boot is fixed.
+>>
+>> This implies that we can proactively catch all the affected boards. I do
+>> not believe this is reasonable and because of that my comment before
+>> about creating regression to the users.
 > 
-> Fixes: e65ac2bdda54 ("tracing/ring-buffer: Have polling block on watermark")
-> Signed-off-by: Pratyush Yadav <ptyadav@amazon.de>
-> ---
+> I really don't understand the reasoning here.
 > 
-> I am not familiar with this code. This was just pointed out by our
-> static analysis tool and I wrote a quick patch fixing this. Only
-> compile-tested.
-> 
->  kernel/trace/ring_buffer.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-> index 176d858903bd..11e8189dd8ae 100644
-> --- a/kernel/trace/ring_buffer.c
-> +++ b/kernel/trace/ring_buffer.c
-> @@ -727,6 +727,7 @@ __poll_t ring_buffer_poll_wait(struct ring_buffer *buffer, int cpu,
-> 
->  	if (cpu == RING_BUFFER_ALL_CPUS) {
->  		work = &buffer->irq_work;
-> +		full = 0;
+> What I say is: let's fix the boards known to be incorrectly described
+> when we break them so they continue working with a broken firmware.
 
-Good catch. This was indeed missed in the backport. The backported patch
-even added the comment:
+The second part of the message, as far as I understand it, is "ignore 
+problems this will cause to users of boards we do not know about, let 
+them run into unbootable systems after some linux kernel update, and 
+once they suffer through system recovery, make them add compatible 
+string to the arch-side workaround".
 
- * @full: wait until the percentage of pages are available, if @cpu != RING_BUFFER_ALL_CPUS
+> What regression could this possibly bring? I don't care about catching
+> the 2k boards out there which work but wrongly describe their
+> partitions. If they work, they will continue working.
 
-Greg, please take this patch.
+Those boards would start failing once the Linux-side DT size-cells is 
+corrected.
 
-Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Also, this got missed in the previous discussion. If you use only board 
+compatible string in arch-side workaround, the workaround would be 
+applied even on systems with updated bootloaders, which is likely not 
+what we want.
 
-Thanks,
+> You and Marek say: let's blindly always change a property in the DT, no
+> matter if the board is broken, even if we don't know if this is the
+> right thing to do, and apply this to the entire world.
 
--- Steve
+As far as I can tell, if we have partitions in the NAND controller node 
+and size-cells=0, then the right thing to do is to override size-cells 
+to 1 , because partitions with size-cells=0 make no sense.
 
->  	} else {
->  		if (!cpumask_test_cpu(cpu, buffer->cpumask))
->  			return -EINVAL;
-> --
-> 2.38.1
+If the heuristics here needs to be improved somehow, let's discuss that.
+
+> But with this approach you're not worried about regressions.
 > 
-> 
-> 
-> 
-> Amazon Development Center Germany GmbH
-> Krausenstr. 38
-> 10117 Berlin
-> Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
-> Eingetragen am Amtsgericht Charlottenburg unter HRB 149173 B
-> Sitz: Berlin
-> Ust-ID: DE 289 237 879
-> 
-> 
+> I am sorry it does not stand.
 
+[...]
