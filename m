@@ -2,97 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF6D64E7EF
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 08:52:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08BF064E872
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 10:05:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229495AbiLPHwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 02:52:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56816 "EHLO
+        id S230070AbiLPJFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 04:05:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229639AbiLPHww (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 02:52:52 -0500
-Received: from smtp-out-08.comm2000.it (smtp-out-08.comm2000.it [212.97.32.78])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7067520986
-        for <stable@vger.kernel.org>; Thu, 15 Dec 2022 23:52:51 -0800 (PST)
-Received: from francesco-nb.int.toradex.com (93-49-2-63.ip317.fastwebnet.it [93.49.2.63])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: francesco@dolcini.it)
-        by smtp-out-08.comm2000.it (Postfix) with ESMTPSA id A9CB6426668;
-        Fri, 16 Dec 2022 08:52:49 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailserver.it;
-        s=mailsrv; t=1671177169;
-        bh=HLaXNaF9mrgP2DSCe+1XOpANqOwz9+kAh1gAdGINbZY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=gvIZykeGYsqzYQGmpktJ/UnYaqy6LxNezbUxGv+MY1T4LWECVJz67SOMBZYOSUQ3b
-         ME65aUaExHrdzqsYD91ULBZVqrRC2ramAlirxP/Ju1uWFlII7LTIqU2HKJsVets3cq
-         IJBeEEl+KWfgRzPWWAlUZnZHNW/w7HrPKErYq3RYy9qwAhf6OIUqrSQ49O2aPNTOg2
-         s2TyPkDvzLN5qsClutosEJBhfvKOWSdwmQoW80m1JhfzPX4ibffwojnkiANf+kGGKB
-         Bd+szTsnxVzJXzlqilCizlt4P/3UKOOWUgJs6QDZM5EGokAzpFizJQi5cqFCoaAL6b
-         XWf6V4fhO1Mbg==
-Date:   Fri, 16 Dec 2022 08:52:48 +0100
-From:   Francesco Dolcini <francesco@dolcini.it>
-To:     Marek Vasut <marex@denx.de>
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Francesco Dolcini <francesco@dolcini.it>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-mtd@lists.infradead.org,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        u-boot@lists.denx.de
-Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is 0
-Message-ID: <Y5wj0BHKBYvNRFFK@francesco-nb.int.toradex.com>
-References: <e80377c9-1542-d47d-6d35-2efdc15bcbf8@denx.de>
- <20221202175730.231d75d5@xps-13>
- <7afd364c-33b8-38a9-65a6-015b4360db6b@denx.de>
- <Y43VdPftDbq6cD2L@francesco-nb.int.toradex.com>
- <20221205144917.6514168a@xps-13>
- <ecca019d-b0b7-630c-4221-2684cb51634c@denx.de>
- <20221215081604.5385fa56@xps-13>
- <ac50a1ee-4312-48f6-af78-7b95a77e6fda@denx.de>
- <20221215090446.28363133@xps-13>
- <a54bf573-c14a-a546-10fc-e50274986ff5@denx.de>
+        with ESMTP id S230072AbiLPJFS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 04:05:18 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6918920183
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 01:04:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1671181471;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=LJMVmx5617wnYVO/Ti21QHTcgxd/PcheSNh2Us8/9os=;
+        b=aozE8vGo+gT+EvRZ0u9JZaPAUTu72QqzSOO5gkndp7sHZLKKpKpWn2sVaKP+GbXfdR81zB
+        zydYcUitc0gjQVtlc0vKd13R4PZAfZ8bGVyxfqSEUxu5sA1rpvqIAZBA8JKfrx2q6ZC9OH
+        FnFaK6lNS8atNHvVoPRzgkAgvw7qwBs=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-193-QOjpV_YzP8iaJvY-QN5dxw-1; Fri, 16 Dec 2022 04:04:30 -0500
+X-MC-Unique: QOjpV_YzP8iaJvY-QN5dxw-1
+Received: by mail-wr1-f71.google.com with SMTP id h10-20020adfaa8a000000b0024208cf285eso287444wrc.22
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 01:04:30 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:subject:organization:from
+         :references:cc:to:content-language:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=LJMVmx5617wnYVO/Ti21QHTcgxd/PcheSNh2Us8/9os=;
+        b=RFxGTJvL/hLWKsEeyHRCjpz4dtKmTZh8gnqx+uonGMtKoq+XtvHAZBYI5P7KYUha21
+         53fDOt8af/kssAYU3Up59rSM2+CV4WEOaDTe2kYv+G5y+mBq6URBMjnty++YhkPgA8+l
+         r2KAJM/E3C+dv+zAuXjRKNt98Yv6NQqlVjN6XHwD+ZWBbXOp9lughOzDqOOTfgPfJCpK
+         HtswazwuRhgCT+5/U4j1EABYULJoPmBOF4PtKzFgjZcf5RxAXflrI2VAWtMvSNlctYAy
+         +TmjYWkCrHm41iWReaUZrLL8PEy2YwbPJ0GWgl+o1yKYX3wrpy6Vd50U8yFsdmXnBQb+
+         8k7w==
+X-Gm-Message-State: ANoB5pkt+s3C9cVp82gR98Z0RAztGiQJ+Vp734PA4qmXtjkqQUi/lo1K
+        yxkeHw+0llvGNMkLsxclCpWpsKG9FN2Qx6oWt+81UTQcmodE0xVV+naxMPXcT1DwZA0B2pUR2Eq
+        8Gu9b1/zyq0MImfs8
+X-Received: by 2002:a05:600c:5570:b0:3d1:ee6c:f897 with SMTP id ja16-20020a05600c557000b003d1ee6cf897mr24618887wmb.3.1671181469141;
+        Fri, 16 Dec 2022 01:04:29 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf44EaOB06LEJ5Xrw6HHHrPTv1tXz6Tk6ti4LOhrQzaZKR+fbWWGTZDSKlTS7qMorzGnBsu8Nw==
+X-Received: by 2002:a05:600c:5570:b0:3d1:ee6c:f897 with SMTP id ja16-20020a05600c557000b003d1ee6cf897mr24618865wmb.3.1671181468820;
+        Fri, 16 Dec 2022 01:04:28 -0800 (PST)
+Received: from ?IPV6:2003:cb:c71c:3900:7211:d436:8d8b:531c? (p200300cbc71c39007211d4368d8b531c.dip0.t-ipconnect.de. [2003:cb:c71c:3900:7211:d436:8d8b:531c])
+        by smtp.gmail.com with ESMTPSA id k5-20020a05600c1c8500b003d237d60318sm2096196wms.2.2022.12.16.01.04.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 16 Dec 2022 01:04:28 -0800 (PST)
+Message-ID: <618b69be-0e99-e35f-04b3-9c63d78ece50@redhat.com>
+Date:   Fri, 16 Dec 2022 10:04:27 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a54bf573-c14a-a546-10fc-e50274986ff5@denx.de>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Content-Language: en-US
+To:     Peter Xu <peterx@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        Pengfei Xu <pengfei.xu@intel.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Huang Ying <ying.huang@intel.com>, stable@vger.kernel.org
+References: <20221214200453.1772655-1-peterx@redhat.com>
+ <20221214200453.1772655-2-peterx@redhat.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH 1/2] mm/uffd: Fix pte marker when fork() without fork
+ event
+In-Reply-To: <20221214200453.1772655-2-peterx@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 16, 2022 at 01:36:03AM +0100, Marek Vasut wrote:
-> On 12/15/22 09:04, Miquel Raynal wrote:
-> > > > That would fix all cases and only have an impact on the affected
-> > > > boards.
-> > > 
-> > > Sadly, it does only fix the known cases, not the unknown cases
-> > > like downstream forks which never get any bootloader updates ever,
-> > > and which you can't find in upstream U-Boot, and which you
-> > > therefore cannot easily catch in the arch side fixup.
-> > 
-> > And ?
+On 14.12.22 21:04, Peter Xu wrote:
+> When fork(), dst_vma is not guaranteed to have VM_UFFD_WP even if src may
+> have it and has pte marker installed.  The warning is improper along with
+> the comment.  The right thing is to inherit the pte marker when needed, or
+> keep the dst pte empty.
 > 
-> I was under the impression Linux was supposed to deliver the best possible
-> experience to its users even on not-perfect hardware, and if there are any
-> quirks, the kernel should try to fix them up or work around them as best as
-> it can, not dismiss them as broken hardware and fail to boot outright.
+> A vague guess is this happened by an accident when there's the prior patch
+> to introduce src/dst vma into this helper during the uffd-wp feature got
+> developed and I probably messed up in the rebase, since if we replace
+> dst_vma with src_vma the warning & comment it all makes sense too.
+> 
+> Hugetlb did exactly the right here (copy_hugetlb_page_range()).  Fix the
+> general path.
+> 
+> Reproducer:
+> 
+> https://github.com/xupengfe/syzkaller_logs/blob/main/221208_115556_copy_page_range/repro.c
+> 
+> Cc: <stable@vger.kernel.org> # 5.19+
+> Fixes: c56d1b62cce8 ("mm/shmem: handle uffd-wp during fork()")
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=216808
+> Reported-by: Pengfei Xu <pengfei.xu@intel.com>
+> Signed-off-by: Peter Xu <peterx@redhat.com>
+> ---
+>   mm/memory.c | 8 ++------
+>   1 file changed, 2 insertions(+), 6 deletions(-)
+> 
+> diff --git a/mm/memory.c b/mm/memory.c
+> index aad226daf41b..032ef700c3e8 100644
+> --- a/mm/memory.c
+> +++ b/mm/memory.c
+> @@ -828,12 +828,8 @@ copy_nonpresent_pte(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+>   			return -EBUSY;
+>   		return -ENOENT;
+>   	} else if (is_pte_marker_entry(entry)) {
+> -		/*
+> -		 * We're copying the pgtable should only because dst_vma has
+> -		 * uffd-wp enabled, do sanity check.
+> -		 */
+> -		WARN_ON_ONCE(!userfaultfd_wp(dst_vma));
+> -		set_pte_at(dst_mm, addr, dst_pte, pte);
+> +		if (userfaultfd_wp(dst_vma))
+> +			set_pte_at(dst_mm, addr, dst_pte, pte);
+>   		return 0;
+>   	}
+>   	if (!userfaultfd_wp(dst_vma))
 
-I would say something more on this.
+Staring at the code first made me go "what about other PTE markers". I 
+then looked into the discussion in patch #2. The fix as is is 
+suboptimal, because it
 
-We are not talking about Linux not working well on some hardware, we are
-talking about breaking hardware that was working fine since ever.
-I believe that the Linux has a quite strong point of view on such kind
-of regression.
+1) Removes the warning which is good, but
+2) Silently drops swapin errors now
 
-Quoting Linus
-> If the kernel used to work for you, the rule is that it continues to work for you.
+So it silently breaks something else temporarily ...
 
-Francesco
+
+I remember, that theoretically we could have multiple markers stored in 
+a single PTE marker.
+
+Wouldn't it be cleaner to be able to "clean" specific markers from a PTE 
+marker without having to special case on each and everyone? I mean, only 
+uffd-wp is really special such that it might disappear for the target.
+
+Something like (pseudocode):
+
+if (!userfaultfd_wp(dst_vma))
+	pte_marker_clear_uff_wp(entry);
+if (!pte_marker_empty(entry)) {
+	pte = make_pte_marker(pte_marker_get(entry));
+	set_pte_at(dst_mm, addr, dst_pte, pte);
+}
+
+Then this fix would be correct and backport-able even without #2. And it
+would work for new types of markers :)
+
+
+I'd prefer a fix that doesn't break something else temporarily, even if 
+the stable backport might require 5 additional minutes to do. So 
+squashing #2 into #1 would also work.
+
+-- 
+Thanks,
+
+David / dhildenb
 
