@@ -2,149 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34AEE64EFBF
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 17:51:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D39ED64EFFE
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 18:05:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231641AbiLPQvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 11:51:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49736 "EHLO
+        id S231614AbiLPRFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 12:05:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231639AbiLPQus (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 11:50:48 -0500
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 881476F4B7
-        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 08:50:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1671209400; x=1702745400;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version;
-  bh=icRczXlqHzD+ae5wgkamu3FNINHiBF4DVSht/FvMcyA=;
-  b=OTZFtswUibzDFEIqE4a+sKfZ8U6M9gHd/4Me2yFuRrI+K2DV3XEJzfa6
-   6ua+//qb0xswg3TiGa7xt90HMKR6FWbJ/Ev6agw6/btY1d0orLH8eMcLG
-   11OvzH5Jd+yYVnOdEX60Saw77jp0B07cUpHIt2SOSpHcahLQIVNkUS0MF
-   fBz/N/esC5iQ4uygExSp/Jh/6cLxSuwE2JaFJYSlkZlpxekc+JMsZ3Q2Q
-   AWPOiDIqI6hjl+DgZE2fStYodYEPO0o/W7PUaKQVg1JnT6VGk/YTbSS3h
-   jkEILtyIYuhCrZesNcNcMfIsxHF8sPq1YW16us21c44glIMARXcn9l3iM
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10563"; a="320178310"
-X-IronPort-AV: E=Sophos;i="5.96,249,1665471600"; 
-   d="scan'208";a="320178310"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Dec 2022 08:50:00 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10563"; a="895294387"
-X-IronPort-AV: E=Sophos;i="5.96,249,1665471600"; 
-   d="scan'208";a="895294387"
-Received: from fbielich-mobl3.ger.corp.intel.com (HELO localhost) ([10.252.62.38])
-  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Dec 2022 08:49:57 -0800
-From:   Jani Nikula <jani.nikula@linux.intel.com>
-To:     imre.deak@intel.com
-Cc:     Lyude Paul <lyude@redhat.com>, intel-gfx@lists.freedesktop.org,
-        stable@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: Re: [Intel-gfx] [PATCH 1/3] drm/display/dp_mst: Fix down/up message
- handling after sink disconnect
-In-Reply-To: <Y5yd5PvWb2fl66/s@ideak-desk.fi.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20221214184258.2869417-1-imre.deak@intel.com>
- <1ade43347769118c82f1b68bd8b51172a1012a37.camel@redhat.com>
- <Y5yKXXBUycSHov5g@ideak-desk.fi.intel.com> <875yebuy68.fsf@intel.com>
- <Y5yd5PvWb2fl66/s@ideak-desk.fi.intel.com>
-Date:   Fri, 16 Dec 2022 18:49:54 +0200
-Message-ID: <87zgbnthsd.fsf@intel.com>
+        with ESMTP id S229902AbiLPRFO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 12:05:14 -0500
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F4A969AB0
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 09:05:13 -0800 (PST)
+Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2BGH4tFH017214
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 16 Dec 2022 12:04:56 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+        t=1671210298; bh=czyZa4h4xnG1V2lFwz0kam2aIsqEihy+AZSfIfZu/AY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To;
+        b=KvOaE/9hc3wBmqQYhQFxe6AuvtCcPhKHEh9QBl1oQgL/pTsVUkHNLxzTggMMcMLqd
+         i+XOmb4YWd/KI7Z2HU/F81WV6tBI6d/fdZNqDBb/xigPS2Z/Ms+Wd5+BHnykxt/iIS
+         pGqVYGXAwtdDxmJiUcIc4H3fg13OOvvgRpdT51t5SVaDFo7DL1JPv/TNNKQG1x5D1+
+         IoOWtbG+k7bEq5VP9YSTjAWj/VM9kuO0c1cY8mHlZ90Xx4+9372a78jYN2xFMg/2pw
+         krgWbFFpjHLZByuOqZpCSsHwNfmRB6g8l470apqUcLDnX/EL4upEPkzC1a4Hmv+/ly
+         ozWT4d3npKD+g==
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id 4F0E415C40A2; Fri, 16 Dec 2022 12:04:55 -0500 (EST)
+Date:   Fri, 16 Dec 2022 12:04:55 -0500
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     Aleksandr Nogikh <nogikh@google.com>
+Cc:     Lee Jones <lee@kernel.org>,
+        syzbot <syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com>,
+        adilger.kernel@dilger.ca, gregkh@linuxfoundation.org,
+        lczerner@redhat.com, linux-ext4@vger.kernel.org,
+        linux-kernel@vger.kernel.org, sashal@kernel.org,
+        stable@vger.kernel.org, syzkaller-android-bugs@googlegroups.com,
+        tadeusz.struk@linaro.org
+Subject: Re: kernel BUG in ext4_free_blocks (2)
+Message-ID: <Y5ylNxoN2p7dmcRD@mit.edu>
+References: <0000000000006c411605e2f127e5@google.com>
+ <000000000000b60c1105efe06dea@google.com>
+ <Y5vTyjRX6ZgIYxgj@mit.edu>
+ <Y5xsIkpIznpObOJL@google.com>
+ <CANp29Y6KHBE-fpfJCXeN5Ju_qSOfUYAp2n+cNrGj25QtU0X=sA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANp29Y6KHBE-fpfJCXeN5Ju_qSOfUYAp2n+cNrGj25QtU0X=sA@mail.gmail.com>
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 16 Dec 2022, Imre Deak <imre.deak@intel.com> wrote:
-> On Fri, Dec 16, 2022 at 06:10:39PM +0200, Jani Nikula wrote:
->> On Fri, 16 Dec 2022, Imre Deak <imre.deak@intel.com> wrote:
->> > On Wed, Dec 14, 2022 at 04:41:42PM -0500, Lyude Paul wrote:
->> >> For the whole series:
->> >> 
->> >> Reviewed-by: Lyude Paul <lyude@redhat.com>
->> >
->> > Thanks for the review, pushed it to drm-misc-next.
->> 
->> Hmm, with the drm-misc *not* cherry-picking patches from drm-misc-next
->> to drm-misc-fixes, these will only get backported to stable kernels
->> after they hit Linus' tree in the next (as opposed to current) merge
->> window after a full development cycle. Wonder if they should be
->> expedited.
->
-> Ok, it should've been pushed to -fixes then, will do that next time.
-> Yes, I think sending them already before the next merge window would be
-> good.
+On Fri, Dec 16, 2022 at 03:09:04PM +0100, Aleksandr Nogikh wrote:
+> 
+> Syzbot is actually reacting here to this bug from the Android namespace:
+> 
+> https://syzkaller.appspot.com/bug?id=5266d464285a03cee9dbfda7d2452a72c3c2ae7c
 
-Cc: drm-misc maintainers, I think this is for you to figure out.
+Thanks for the clarification; stupid question, though -- I see
+"upstream" is listed on the dashboard link above.  Assuming that
+"usptream" is "Linus's tree", why was it still saying, "I can't find
+this patch in any of my trees"?  What about the upstream tree?
 
-BR,
-Jani.
+> > Although this does appear to be a Stable candidate, I do not see it
+> > in any of the Stable branches yet.  So I suspect the answer here is to
+> > wait for the fix to filter down.
 
+The reason why it's not hit any of the long-term stable trees is
+because the patch doesn't apply cleanly, because there are
+pre-requisite commits that were required.  Here are the required
+commits for 5.15:
 
->
->> 
->> BR,
->> Jani.
->> 
->> >
->> >> Thanks!
->> >> 
->> >> On Wed, 2022-12-14 at 20:42 +0200, Imre Deak wrote:
->> >> > If the sink gets disconnected during receiving a multi-packet DP MST AUX
->> >> > down-reply/up-request sideband message, the state keeping track of which
->> >> > packets have been received already is not reset. This results in a failed
->> >> > sanity check for the subsequent message packet received after a sink is
->> >> > reconnected (due to the pending message not yet completed with an
->> >> > end-of-message-transfer packet), indicated by the
->> >> > 
->> >> > "sideband msg set header failed"
->> >> > 
->> >> > error.
->> >> > 
->> >> > Fix the above by resetting the up/down message reception state after a
->> >> > disconnect event.
->> >> > 
->> >> > Cc: Lyude Paul <lyude@redhat.com>
->> >> > Cc: <stable@vger.kernel.org> # v3.17+
->> >> > Signed-off-by: Imre Deak <imre.deak@intel.com>
->> >> > ---
->> >> >  drivers/gpu/drm/display/drm_dp_mst_topology.c | 3 +++
->> >> >  1 file changed, 3 insertions(+)
->> >> > 
->> >> > diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/drm/display/drm_dp_mst_topology.c
->> >> > index 51a46689cda70..90819fff2c9ba 100644
->> >> > --- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
->> >> > +++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
->> >> > @@ -3641,6 +3641,9 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
->> >> >  		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
->> >> >  		ret = 0;
->> >> >  		mgr->payload_id_table_cleared = false;
->> >> > +
->> >> > +		memset(&mgr->down_rep_recv, 0, sizeof(mgr->down_rep_recv));
->> >> > +		memset(&mgr->up_req_recv, 0, sizeof(mgr->up_req_recv));
->> >> >  	}
->> >> >  
->> >> >  out_unlock:
->> >> 
->> >> -- 
->> >> Cheers,
->> >>  Lyude Paul (she/her)
->> >>  Software Engineer at Red Hat
->> >> 
->> 
->> -- 
->> Jani Nikula, Intel Open Source Graphics Center
+https://git.kernel.org/pub/scm/linux/kernel/git/tytso/ext4.git ext4_for_5.15.83
 
--- 
-Jani Nikula, Intel Open Source Graphics Center
+% git log --reverse --oneline  v5.15.83..
+96d070a12a7c ext4: refactor ext4_free_blocks() to pull out ext4_mb_clear_bb()
+    [ Upstream commit 8ac3939db99f99667b8eb670cf4baf292896e72d ]
+2fa7a1780ecd ext4: add ext4_sb_block_valid() refactored out of ext4_inode_block_valid()
+    [ Upstream commit 6bc6c2bdf1baca6522b8d9ba976257d722423085 ]
+8dc76aa246b1 ext4: add strict range checks while freeing blocks
+    [ Upstream commit a00b482b82fb098956a5bed22bd7873e56f152f1 ]
+deb2e1554497 ext4: block range must be validated before use in ext4_mb_clear_bb()
+    [ Upstream commit 1e1c2b86ef86a8477fd9b9a4f48a6bfe235606f6 ]
+
+Further backports to LTS kernels for 5.10, 5.4, etc., are left as an
+exercise to the reader.  :-)
+
+	     	   	      	       	     - Ted
+					     
+P.S.  I have not tried to run gce-xfstests regressions yet. so the
+only QA done on these backports is "it builds, ship it!"  (And it
+fixes the syzbot reproducers.)  Then again, we're not running this
+kind of regression tests on the LTS kernels.
+
+P.P.S.  If anyone is willing to volunteer to be an ext4 backports
+maintainer, please contact me.  The job description is (a) dealing
+with the stable backport failures and addressing the patch conflicts,
+potentially by dragging in patch prerequisites, and (b) running
+"gce-xfstests ltm -c ext4/all -g auto" and making sure there are no
+regressions.
+
+	     	   		  	      - Ted
