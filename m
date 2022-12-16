@@ -2,96 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CA5C64E947
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 11:21:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2A1264E981
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 11:33:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229655AbiLPKVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 05:21:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52418 "EHLO
+        id S229636AbiLPKdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 05:33:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230103AbiLPKVQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 05:21:16 -0500
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67D67558D;
-        Fri, 16 Dec 2022 02:21:12 -0800 (PST)
-Received: by mail-pg1-x534.google.com with SMTP id b12so1454501pgj.6;
-        Fri, 16 Dec 2022 02:21:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=u5s2efA9OpsOkJAjhuuBC6txtEfx9OeQwLBhU20dKA0=;
-        b=GU5K59LVv0g5znwPI2UdFduZID1wexyKsPHZIwlLgDN0Tn/2oA7P5MgUmvGXOhTXbo
-         nTLRTT5X2hAZWT6+Z1xG+pz4hxAmyqkoZ+fnf8LDmuC9k/kh8g3kWHY3wPkvbt8Tj+bW
-         80JZZZ13QCCcF4yocIs0I21+TW1AXTMBdmIHG4lZZxSweEhXGvJt+zY21RH5ICYl5sTs
-         i51Js9RApQbG3+yNQk6JnRM4vC03L8V2wcj2HuDuf01hta+EtHLuuJV3yoCbhAslQZ17
-         q3z1klErSDgupsCl1h18YSKlWNeeUM3Oze8rhT4kBGHOJgpoboizig9BWsHuy74RLxgy
-         zJNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=u5s2efA9OpsOkJAjhuuBC6txtEfx9OeQwLBhU20dKA0=;
-        b=du4SVrCMd+YUmik+sWcmow8mI/hoos+6q7Jw1JmdxP8dy4BoBkZYzVsd0YK10MwMK3
-         Om5fO37UG3HbXtsJMzvB+0iJD46UEpjscg6bBykievbhQWjQX4ZgZSFRkHKejedcCdxY
-         W80IW7v6LMUOAhSTM5F8teozCXfqwj87UuAksKLuFMS4ZUuGStMHdf4FjVpzsWu3suH2
-         RUH3ucF+3fBkcpPhomLGMiyCRzGJpN+uuiGjZZnaQgy6+3WyDuYpZQzWhEXxSMpuupzZ
-         tWXlmlj/U/p6RAiyHP1Koa/Soo9qvbuT/rqwjABqG0RWPdWXnH8jLLDYp8Q3t3I4HUxx
-         MYKg==
-X-Gm-Message-State: ANoB5pkm7/16eZBBCDEcnz1IzhoHdMPWUzZvoER362ChY9mZMTVni5pL
-        p/8kRWe2HI2uw2Nzi7TG1bXvYEeY8Zk2fnenflo=
-X-Google-Smtp-Source: AA0mqf59EK5o43aImON/i5f3koYcOESjaO9ughNFEWatMBlE5FkNjTHOk+vd7nxHBsWzEckowBSYmunDU8QO/cUy5W8=
-X-Received: by 2002:a05:6a00:1d22:b0:577:16ac:8447 with SMTP id
- a34-20020a056a001d2200b0057716ac8447mr17087539pfx.56.1671186071940; Fri, 16
- Dec 2022 02:21:11 -0800 (PST)
+        with ESMTP id S230281AbiLPKdD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 05:33:03 -0500
+X-Greylist: delayed 524 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 16 Dec 2022 02:33:01 PST
+Received: from outbound-smtp60.blacknight.com (outbound-smtp60.blacknight.com [46.22.136.244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A68B050D48
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 02:33:01 -0800 (PST)
+Received: from mail.blacknight.com (pemlinmail04.blacknight.ie [81.17.254.17])
+        by outbound-smtp60.blacknight.com (Postfix) with ESMTPS id 0D662FAA4D
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 10:24:16 +0000 (GMT)
+Received: (qmail 5411 invoked from network); 16 Dec 2022 10:24:15 -0000
+Received: from unknown (HELO techsingularity.net) (mgorman@techsingularity.net@[84.203.198.246])
+  by 81.17.254.9 with ESMTPSA (AES256-SHA encrypted, authenticated); 16 Dec 2022 10:24:15 -0000
+Date:   Fri, 16 Dec 2022 10:24:10 +0000
+From:   Mel Gorman <mgorman@techsingularity.net>
+To:     "Akira Naribayashi (Fujitsu)" <a.naribayashi@fujitsu.com>
+Cc:     "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "vbabka@suse.cz" <vbabka@suse.cz>,
+        "rientjes@google.com" <rientjes@google.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] mm, compaction: fix fast_isolate_around() to stay within
+ boundaries
+Message-ID: <20221216102410.hem6wxqyqf43vnnp@techsingularity.net>
+References: <20221027132557.5f724149bd5753036f41512a@linux-foundation.org>
+ <20221031073559.36021-1-a.naribayashi@fujitsu.com>
+ <TYCPR01MB77752C15C512BB7EC952F05BE53C9@TYCPR01MB7775.jpnprd01.prod.outlook.com>
+ <20221107154350.34brdl3ms2ve5wud@techsingularity.net>
+ <TYCPR01MB7775D957483C895456CFE146E53E9@TYCPR01MB7775.jpnprd01.prod.outlook.com>
+ <20221123102550.kbsd3xclsr6o27up@techsingularity.net>
+ <OS3PR01MB7779E069E3F269349D4EEA3AE51C9@OS3PR01MB7779.jpnprd01.prod.outlook.com>
 MIME-Version: 1.0
-References: <20221215172906.638553794@linuxfoundation.org>
-In-Reply-To: <20221215172906.638553794@linuxfoundation.org>
-From:   Allen Pais <stable.kernel.dev@gmail.com>
-Date:   Fri, 16 Dec 2022 02:21:01 -0800
-Message-ID: <CAJq+SaDApqmwA4p3-yA6zyiwP-LHyKySS9mpXrFnndWw2RJ=ew@mail.gmail.com>
-Subject: Re: [PATCH 5.10 00/15] 5.10.160-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <OS3PR01MB7779E069E3F269349D4EEA3AE51C9@OS3PR01MB7779.jpnprd01.prod.outlook.com>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
->
-> This is the start of the stable review cycle for the 5.10.160 release.
-> There are 15 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 17 Dec 2022 17:28:57 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.160-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Fri, Dec 09, 2022 at 09:19:37AM +0000, Akira Naribayashi (Fujitsu) wrote:
+> On Wed, 23 Nov 2022 10:26:05 +0000, Mei Gorman wrote:
+> > On Wed, Nov 09, 2022 at 05:41:12AM +0000, Akira Naribayashi (Fujitsu) wrote:
+> > > On Mon, 7 Nov 2022 15:43:56 +0000, Mei Gorman wrote:
+> > > > On Mon, Nov 07, 2022 at 12:32:34PM +0000, Akira Naribayashi (Fujitsu) wrote:
+> > > > > > Under what circumstances will this panic occur?  I assume those
+> > > > > > circumstnces are pretty rare, give that 6e2b7044c1992 was nearly two
+> > > > > > years ago.
+> > > > > > 
+> > > > > > Did you consider the desirability of backporting this fix into earlier
+> > > > > > kernels?
+> > > > > 
+> > > > > 
+> > > > > Panic can occur on systems with multiple zones in a single pageblock.
+> > > > > 
+> > > > 
+> > > > Please provide an example of the panic and the zoneinfo.
+> > > 
+> > > This issue is occurring in our customer's environment and cannot 
+> > > be shared publicly as it contains customer information.
+> > > Also, the panic is occurring with the kernel in RHEL and may not 
+> > > panic with Upstream's community kernel.
+> > > In other words, it is possible to panic on older kernels.
+> > > I think this fix should be backported to stable kernel series.
+> > > 
+> > > > > The reason it is rare is that it only happens in special configurations.
+> > > > 
+> > > > How is this special configuration created?
+> > > 
+> > > This is the case when the node boundary is not aligned to pageblock boundary.
+> > 
+> > In that case, does this work to avoid rescanning an area that was already
+> > isolated?
+> 
+> In the case of your patch, I think I need to clamp the isolated_end as well.
+> Because sometimes isolated_end < start_pfn(value before entering Scan after) < end_pfn.
+> 
+> After re-reading the source, I think the problem is that min_pfn and low_pfn
+> can be out of range in fast_isolate_freepages.
+> How about the following patch?
+> 
 
-Compiled and booted on my x86_64 and ARM64 test systems. No errors or
-regressions.
+Ok, makes sense and it is a condition that could happen because of pageblock
+alignment.
 
-Tested-by: Allen Pais <apais@linux.microsoft.com>
-
-Thanks.
+-- 
+Mel Gorman
+SUSE Labs
