@@ -2,119 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4078B64EC34
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 14:43:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4F9A64EC87
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 15:03:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230145AbiLPNnF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 08:43:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33002 "EHLO
+        id S229923AbiLPODF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 09:03:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229627AbiLPNnF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 08:43:05 -0500
-Received: from smtp-fw-6001.amazon.com (smtp-fw-6001.amazon.com [52.95.48.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 396C5167E7;
-        Fri, 16 Dec 2022 05:43:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.de; i=@amazon.de; q=dns/txt; s=amazon201209;
-  t=1671198183; x=1702734183;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=NBqV0S/NrkjAjfsbG61ehP8Z4OJavtUZCdDZHryrRTM=;
-  b=fkZHRSxWv7XXPQBU8AZSBWuUPFcpMC8ExNX2jwBq+ks86M/RWD1i2rXi
-   PshPFs+7/C3jIfeFRw3rZoNFcYq3g3odlYZ1KG+hqpeKor+laxIvBmsvM
-   wZVJiMwwn8h13FDzosaLUtSWlHD1QIT6WYgVSo7bQgFo43+vgc5v7BOEZ
-   4=;
-X-IronPort-AV: E=Sophos;i="5.96,249,1665446400"; 
-   d="scan'208";a="279704532"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-pdx-2c-m6i4x-94edd59b.us-west-2.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-6001.iad6.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Dec 2022 13:43:00 +0000
-Received: from EX13D50EUB003.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-pdx-2c-m6i4x-94edd59b.us-west-2.amazon.com (Postfix) with ESMTPS id 0138541B19;
-        Fri, 16 Dec 2022 13:42:58 +0000 (UTC)
-Received: from EX19D028EUB002.ant.amazon.com (10.252.61.43) by
- EX13D50EUB003.ant.amazon.com (10.43.166.146) with Microsoft SMTP Server (TLS)
- id 15.0.1497.42; Fri, 16 Dec 2022 13:42:57 +0000
-Received: from dev-dsk-ptyadav-1c-37607b33.eu-west-1.amazon.com
- (10.43.161.114) by EX19D028EUB002.ant.amazon.com (10.252.61.43) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.1118.20; Fri, 16 Dec
- 2022 13:42:54 +0000
-From:   Pratyush Yadav <ptyadav@amazon.de>
-To:     <stable@vger.kernel.org>
-CC:     Pratyush Yadav <ptyadav@amazon.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <patches@lists.linux.dev>,
-        Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Primiano Tucci <primiano@google.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4] tracing/ring-buffer: Only do full wait when cpu != RING_BUFFER_ALL_CPUS
-Date:   Fri, 16 Dec 2022 14:42:41 +0100
-Message-ID: <20221216134241.81381-1-ptyadav@amazon.de>
-X-Mailer: git-send-email 2.38.1
+        with ESMTP id S229453AbiLPODE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 09:03:04 -0500
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00AF1A19D
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 06:03:02 -0800 (PST)
+Received: from fsav315.sakura.ne.jp (fsav315.sakura.ne.jp [153.120.85.146])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 2BGE30pY022162;
+        Fri, 16 Dec 2022 23:03:00 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav315.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav315.sakura.ne.jp);
+ Fri, 16 Dec 2022 23:03:00 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav315.sakura.ne.jp)
+Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+        (authenticated bits=0)
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 2BGE2xnN022155
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+        Fri, 16 Dec 2022 23:03:00 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <86bdfea2-7125-2e54-c2c0-920f28ff80ce@I-love.SAKURA.ne.jp>
+Date:   Fri, 16 Dec 2022 23:02:56 +0900
 MIME-Version: 1.0
-X-Originating-IP: [10.43.161.114]
-X-ClientProxiedBy: EX13D36UWB001.ant.amazon.com (10.43.161.84) To
- EX19D028EUB002.ant.amazon.com (10.252.61.43)
-Content-Type: text/plain; charset="us-ascii"
+User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH] fbcon: Use kzalloc() in fbcon_prepare_logo()
+Content-Language: en-US
+To:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alexander Potapenko <glider@google.com>,
+        Marco Elver <elver@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        kasan-dev <kasan-dev@googlegroups.com>
+Cc:     Daniel Vetter <daniel@ffwll.ch>, Helge Deller <deller@gmx.de>,
+        Linux Fbdev development list <linux-fbdev@vger.kernel.org>,
+        DRI <dri-devel@lists.freedesktop.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <cad03d25-0ea0-32c4-8173-fd1895314bce@I-love.SAKURA.ne.jp>
+ <CAMuHMdUH4CU9EfoirSxjivg08FDimtstn7hizemzyQzYeq6b6g@mail.gmail.com>
+From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+In-Reply-To: <CAMuHMdUH4CU9EfoirSxjivg08FDimtstn7hizemzyQzYeq6b6g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-full_hit() directly uses cpu as an array index. Since
-RING_BUFFER_ALL_CPUS == -1, calling full_hit() with cpu ==
-RING_BUFFER_ALL_CPUS will cause an invalid memory access.
+On 2022/12/15 18:36, Geert Uytterhoeven wrote:
+> The next line is:
+> 
+>         scr_memsetw(save, erase, array3_size(logo_lines, new_cols, 2));
+> 
+> So how can this turn out to be uninitialized later below?
+> 
+>         scr_memcpyw(q, save, array3_size(logo_lines, new_cols, 2));
+> 
+> What am I missing?
 
-The upstream commit 42fb0a1e84ff ("tracing/ring-buffer: Have polling
-block on watermark") already does this. This was missed when backporting
-to v5.4.y.
+Good catch. It turned out that this was a KMSAN problem (i.e. a false positive report).
 
-This bug was discovered and resolved using Coverity Static Analysis
-Security Testing (SAST) by Synopsys, Inc.
+On x86_64, scr_memsetw() is implemented as
 
-Fixes: e65ac2bdda54 ("tracing/ring-buffer: Have polling block on watermark")
-Signed-off-by: Pratyush Yadav <ptyadav@amazon.de>
----
+        static inline void scr_memsetw(u16 *s, u16 c, unsigned int count)
+        {
+                memset16(s, c, count / 2);
+        }
 
-I am not familiar with this code. This was just pointed out by our
-static analysis tool and I wrote a quick patch fixing this. Only
-compile-tested.
+and memset16() is implemented as
 
- kernel/trace/ring_buffer.c | 1 +
- 1 file changed, 1 insertion(+)
+        static inline void *memset16(uint16_t *s, uint16_t v, size_t n)
+        {
+        	long d0, d1;
+        	asm volatile("rep\n\t"
+        		     "stosw"
+        		     : "=&c" (d0), "=&D" (d1)
+        		     : "a" (v), "1" (s), "0" (n)
+        		     : "memory");
+        	return s;
+        }
 
-diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-index 176d858903bd..11e8189dd8ae 100644
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -727,6 +727,7 @@ __poll_t ring_buffer_poll_wait(struct ring_buffer *buffer, int cpu,
+. Plain memset() in arch/x86/include/asm/string_64.h is redirected to __msan_memset()
+but memsetXX() are not redirected to __msan_memsetXX(). That is, memory initialization
+via memsetXX() results in KMSAN's shadow memory being not updated.
 
- 	if (cpu == RING_BUFFER_ALL_CPUS) {
- 		work = &buffer->irq_work;
-+		full = 0;
- 	} else {
- 		if (!cpumask_test_cpu(cpu, buffer->cpumask))
- 			return -EINVAL;
---
-2.38.1
-
-
-
-
-Amazon Development Center Germany GmbH
-Krausenstr. 38
-10117 Berlin
-Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
-Eingetragen am Amtsgericht Charlottenburg unter HRB 149173 B
-Sitz: Berlin
-Ust-ID: DE 289 237 879
-
-
+KMSAN folks, how should we fix this problem?
+Redirect assembly-implemented memset16(size) to memset(size*2) if KMSAN is enabled?
 
