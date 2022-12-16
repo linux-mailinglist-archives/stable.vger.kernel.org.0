@@ -2,172 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF3FC64F0FD
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 19:32:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 654D464F135
+	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 19:46:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231689AbiLPScK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 13:32:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38914 "EHLO
+        id S231201AbiLPSqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 13:46:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231703AbiLPScG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 13:32:06 -0500
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CA506F481
-        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 10:32:04 -0800 (PST)
-Received: by mail-ej1-x644.google.com with SMTP id qk9so8182316ejc.3
-        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 10:32:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amarulasolutions.com; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=bEp6X+kd+ZUKra+vj/Jby9rdX+eNGaULERxsVFbN5ao=;
-        b=Y4HTZigyE3nWe1oSM96w36c01d87RVvSgik//pYDUewr29aleb73YBADMHWVrKzv+4
-         DgRL6Vh6k4tF+yPUucffIDIrLLSXZvmVrY9+H0EN6ARtxlz6bvEktwCxXHIZwjc4iml+
-         ag2EYie7bDEVkFllGU6AiAvPVJuMQbLjTCmQM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bEp6X+kd+ZUKra+vj/Jby9rdX+eNGaULERxsVFbN5ao=;
-        b=H6uylkIebYdYlYlBwnGKDHOgDXP1r1OKr9SnDcPdetv9nsXVRMmVQa3SyKduy9gbvW
-         rboGkxWHM23sE3LztRydRvb6fb3xcr6BNyA8JeR0NLBsyABy4Z4/TyP13UjjYrT7Hkwe
-         3WhtrMtU6czW9zNI9Or/bV290bdhtxKZ3A66ihSy92c/pSg2g6/yDCkYBHb565B9i3Qo
-         pEeDssCDM5752YsyxFOwSa7I3cEoj8UBFn7TEGBGFsaBalQrzt6REChewOcXRGyyfuvY
-         xJu/EmWVNzGqlO4le+eb57rHP+lpPiQoUHHbTGNFbOjvGX5nPB+bjBI/mnJ7mQkrt+SF
-         5h7w==
-X-Gm-Message-State: ANoB5pk0t7oQh7DR2+5u0Itj2PBCpohtkkLIP2eLmbucqYvuYBGf7Hip
-        KPbmmDEpaXJV076kolKCvbnN+A==
-X-Google-Smtp-Source: AA0mqf5/jMisEuPQc2GA/MdiKW9CIWa1auXj5/VfFOtVz0nThvp4/GDSBxNVG1bDLbPSL+o6oitLVQ==
-X-Received: by 2002:a17:906:3f90:b0:7ad:943a:4da0 with SMTP id b16-20020a1709063f9000b007ad943a4da0mr27171962ejj.21.1671215523036;
-        Fri, 16 Dec 2022 10:32:03 -0800 (PST)
-Received: from panicking (93-44-112-168.ip96.fastwebnet.it. [93.44.112.168])
-        by smtp.gmail.com with ESMTPSA id v25-20020a170906b01900b007add1c4dadbsm1104260ejy.153.2022.12.16.10.32.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Dec 2022 10:32:02 -0800 (PST)
-Date:   Fri, 16 Dec 2022 19:31:59 +0100
-From:   Michael Trimarchi <michael@amarulasolutions.com>
-To:     NeilBrown <neilb@suse.de>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com, Netdev <netdev@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        linux-nfs@vger.kernel.org,
-        Anna Schumaker <anna.schumaker@netapp.com>
-Subject: Re: [PATCH 4.19 000/338] 4.19.238-rc1 review
-Message-ID: <Y5y5n8JoGZNt1otY@panicking>
-References: <20220414110838.883074566@linuxfoundation.org>
- <CA+G9fYvgzFW7sMZVdw5r970QNNg4OK8=pbQV0kDfbOX-rXu5Rw@mail.gmail.com>
- <CA+G9fYscMP+DTzaQGw1p-KxyhPi0JB64ABDu_aNSU0r+_VgBHg@mail.gmail.com>
- <165094019509.1648.12340115187043043420@noble.neil.brown.name>
+        with ESMTP id S231835AbiLPSqO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 13:46:14 -0500
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 563DA27CEF
+        for <stable@vger.kernel.org>; Fri, 16 Dec 2022 10:46:13 -0800 (PST)
+Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2BGIjlov020254
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 16 Dec 2022 13:45:48 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+        t=1671216350; bh=0ide3HOJSrViN20xczF1Lt88DnIce25P4e17wke2XSM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To;
+        b=L67a+VJrOjI8MJDnUZ3P412ybi+mdUtqNGzdz0Q19atGUsE2Tmbbq02ThviVCatDr
+         3ACLUMbdaRTnpfiR/OnnkxFaGrJfXLq/Mqp3giSScJdxbpK1XN38euO7xISS1iCpS7
+         436DWZodGTKz8tYWjACJXT40UhiTZqSX7xklVcZx4c/R79ZXms52bu60uztS9leDCx
+         4CMLRGAvflf4t4BQZgnRNRGjIP6HiBLYvymJ4DcMFf0fbkLsZQ6QcyDV2Y39UX6utv
+         rKrwOYd/n03Pw3tv9EYdKAvsDVeWy9fTH+x7jRSdsUhcu4nQus0GGWgS3am9fy0YE2
+         fefjmXxO44sHA==
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id CD0DD15C40A2; Fri, 16 Dec 2022 13:45:47 -0500 (EST)
+Date:   Fri, 16 Dec 2022 13:45:47 -0500
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     Aleksandr Nogikh <nogikh@google.com>
+Cc:     Lee Jones <lee@kernel.org>,
+        syzbot <syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com>,
+        adilger.kernel@dilger.ca, gregkh@linuxfoundation.org,
+        lczerner@redhat.com, linux-ext4@vger.kernel.org,
+        linux-kernel@vger.kernel.org, sashal@kernel.org,
+        stable@vger.kernel.org, syzkaller-android-bugs@googlegroups.com,
+        tadeusz.struk@linaro.org
+Subject: Re: kernel BUG in ext4_free_blocks (2)
+Message-ID: <Y5y824gPqZo+vcxb@mit.edu>
+References: <0000000000006c411605e2f127e5@google.com>
+ <000000000000b60c1105efe06dea@google.com>
+ <Y5vTyjRX6ZgIYxgj@mit.edu>
+ <Y5xsIkpIznpObOJL@google.com>
+ <CANp29Y6KHBE-fpfJCXeN5Ju_qSOfUYAp2n+cNrGj25QtU0X=sA@mail.gmail.com>
+ <Y5ylNxoN2p7dmcRD@mit.edu>
+ <CANp29Y4QVp1G83pSqpxeETbw_+kQQ5CZUz+Vgi767WxE8AuhHQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <165094019509.1648.12340115187043043420@noble.neil.brown.name>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+In-Reply-To: <CANp29Y4QVp1G83pSqpxeETbw_+kQQ5CZUz+Vgi767WxE8AuhHQ@mail.gmail.com>
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Neil
-
-On Tue, Apr 26, 2022 at 12:29:55PM +1000, NeilBrown wrote:
-> On Thu, 21 Apr 2022, Naresh Kamboju wrote:
-> > On Mon, 18 Apr 2022 at 14:09, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
-> > >
-> > > On Thu, 14 Apr 2022 at 18:45, Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > This is the start of the stable review cycle for the 4.19.238 release.
-> > > > There are 338 patches in this series, all will be posted as a response
-> > > > to this one.  If anyone has any issues with these being applied, please
-> > > > let me know.
-> > > >
-> > > > Responses should be made by Sat, 16 Apr 2022 11:07:54 +0000.
-> > > > Anything received after that time might be too late.
-> > > >
-> > > > The whole patch series can be found in one patch at:
-> > > >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.238-rc1.gz
-> > > > or in the git tree and branch at:
-> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> > > > and the diffstat can be found below.
-> > > >
-> > > > thanks,
-> > > >
-> > > > greg k-h
-> > >
-> > >
-> > > Following kernel warning noticed on arm64 Juno-r2 while booting
-> > > stable-rc 4.19.238. Here is the full test log link [1].
-> > >
-> > > [    0.000000] Booting Linux on physical CPU 0x0000000100 [0x410fd033]
-> > > [    0.000000] Linux version 4.19.238 (tuxmake@tuxmake) (gcc version
-> > > 11.2.0 (Debian 11.2.0-18)) #1 SMP PREEMPT @1650206156
-> > > [    0.000000] Machine model: ARM Juno development board (r2)
-> > > <trim>
-> > > [   18.499895] ================================
-> > > [   18.504172] WARNING: inconsistent lock state
-> > > [   18.508451] 4.19.238 #1 Not tainted
-> > > [   18.511944] --------------------------------
-> > > [   18.516222] inconsistent {IN-SOFTIRQ-W} -> {SOFTIRQ-ON-W} usage.
-> > > [   18.522242] kworker/u12:3/60 [HC0[0]:SC0[0]:HE1:SE1] takes:
-> > > [   18.527826] (____ptrval____)
-> > > (&(&xprt->transport_lock)->rlock){+.?.}, at: xprt_destroy+0x70/0xe0
-> > > [   18.536648] {IN-SOFTIRQ-W} state was registered at:
-> > > [   18.541543]   lock_acquire+0xc8/0x23c
+On Fri, Dec 16, 2022 at 06:14:50PM +0100, Aleksandr Nogikh wrote:
+> > Thanks for the clarification; stupid question, though -- I see
+> > "upstream" is listed on the dashboard link above.  Assuming that
+> > "usptream" is "Linus's tree", why was it still saying, "I can't find
+> > this patch in any of my trees"?  What about the upstream tree?
 > 
-> Prior to Linux 5.3, ->transport_lock needs spin_lock_bh() and 
-> spin_unlock_bh().
-> 
+> Bugs from different namespaces are treated independently, so in this
+> particular case syzbot was expecting the fixing commit to reach the
+> Android trees that it fuzzes.
 
-We get the same deadlock or similar one and we think that
-can be connected to this thread on 4.19.243. For us is a bit
-difficult to hit but we are going to apply this change
+Is there a way someone can look at the dashboard link to determine
+which (a) what namespace a particular syzkaller report is in, and (b)
+what trees are included in a particular namespace?
 
-net: sunrpc: Fix deadlock in xprt_destroy
+Adding a link to the e-mail to the dashboard page may not help if it's
+not obvious why the dashboard mentions "upstream" and yet it's not in
+"any of the trees".  Maybe the e-mail should explicitly list the trees
+that syzkaller will be searching?
 
-Prior to Linux 5.3, ->transport_lock needs spin_lock_bh() and
-spin_unlock_bh().
+And it would seem that it would be a *feature* if looking at a syzbot
+dashboard from Android namespace could expose the fact that particular
+patch is in any of the LTS trees or Linus's upstream tree, no?
 
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
----
- net/sunrpc/xprt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Also, what is the reason for Android for being in a separate
+namespace?  Is it running on a separate syzbot VM?  I can understand
+why from a feature perspective, that Fuschia and OpenBSD should be in
+separate namespaces; but what are the reasons that there are separate
+namespaces for Android versus the upstream kernel?  Especially since
+the Android dashboard is apparently referencing the upstream kernel?
+What's up with that?
 
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index d05fa7c36d00..b1abf4848bbc 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1550,9 +1550,9 @@ static void xprt_destroy(struct rpc_xprt *xprt)
- 	 * is cleared.  We use ->transport_lock to ensure the mod_timer()
- 	 * can only run *before* del_time_sync(), never after.
- 	 */
--	spin_lock(&xprt->transport_lock);
-+	spin_lock_bh(&xprt->transport_lock);
- 	del_timer_sync(&xprt->timer);
--	spin_unlock(&xprt->transport_lock);
-+	spin_unlock_bh(&xprt->transport_lock);
- 
- 	/*
- 	 * Destroy sockets etc from the system workqueue so they can
--- 
-2.37.2
+Put another way, while I think it's super useful to have a link to
+Syzbot dashboard page, in the e-mail, I'm not sure it's going to be a
+complete solution to the confusion that was inspired by this case.
 
-> Thanks,
-> NeilBrown
->
+That being said, in general I think a link to the Dashboard is useful;
+in fact, it might be nice if we could encourage upstream developers
+put in the commit trailer:
 
-Thank you
+Link: https://syzkaller.appspot.com/bug?id=5266d464285a03cee9dbfda7d2452a72c3c2ae7c
+
+in addition to, or better yet, instead of:
+
+Reported-by: syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com
+
+... and have Syzbot be able to translate from the Link: tag as being
+equivalent to the Reported-by: link.  That's becase the Link is going
+to be much more useful to humans than the Reported-by --- we've had a
+number of cases where as part of the patch review, we really wanted to
+get back to the Dashboard page, and it's not easy to get to the
+Dashboard from the Reported-by tag.
+
+Thanks,
+
+						- Ted
+
