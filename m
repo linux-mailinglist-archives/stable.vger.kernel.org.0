@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B201C64FAD0
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:45:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79F7664FAC6
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:45:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231229AbiLQPkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Dec 2022 10:40:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43646 "EHLO
+        id S231418AbiLQPkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Dec 2022 10:40:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231186AbiLQPia (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:38:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE58F25DB;
-        Sat, 17 Dec 2022 07:30:47 -0800 (PST)
+        with ESMTP id S231292AbiLQPj0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:39:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE1892180;
+        Sat, 17 Dec 2022 07:30:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C395460C01;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6A5DB802C6;
+        Sat, 17 Dec 2022 15:30:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8C8CC43398;
         Sat, 17 Dec 2022 15:30:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44751C433EF;
-        Sat, 17 Dec 2022 15:30:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671291040;
-        bh=ekaNhfdppCHtWyCxuz2IMweIRM+SE/hGj17+uDFVQx4=;
+        s=k20201202; t=1671291041;
+        bh=SLuoQTM+ujcjCEbGzYCHnjy9/9SF/cw1bs9ZM2PIfms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEJK9E0LPIts/jPbDZCNY5DqbiNr6mFFNq2oYVTflDnxxd2+Q1Gm59L+ndYFhV6bQ
-         Si3k3uJwi4jcscTvJTmZH3bbVERTgnYo3QuXRaToleVyU42T3zwJPVLHrZqzmzURLt
-         NLpPpvUuNRhPYaHR/rxDRNZ03AZlZ41Y1rBBSqpD/rpn5t7pHWQLA6dwvca3xZv+8I
-         Wji22+VU44vfKckr4vqv7noF89wmgJKhipjjTZBa7mVdT+bf0R+Q/KdIFqIGCvR1L3
-         ixTDUx20hoT+9e92ue3/OV0w+6hxedY3IEZPHIjXvTSQ7GyJSnM+L5qFNM7TYfDhZV
-         MhphOSpxSlxXg==
+        b=DeraZjixlbJD5ox+1vsBB1sKf4HkdQPn8A8LoPAckNS0D/qcHMcIs3r8mVG8DbjT4
+         BCx4maw6kphy9kf23Yrf/7xIrcFI9JNTJbcV9wzEg1DhgXyvg9Nagr4a2RzXo9ThlQ
+         Vd/gd4Q2tEx2qPnnAw43KfLQGXe+41q71/z6goy5jQ8bAGVNhD3nfNorJvjG9aeEmz
+         XlR1seggMvd47A+Gf5XFon2exO7+mWuTUY66DhTSQC9GZmK35vYeAfsziQ7o2rJGz3
+         TjEPsqA+tyk4XRj4B+j+cNtWEssQN7YqFHCikcq4b7TF1J7T/JrYrSXzfHdC2zQbmz
+         Op3pmxcIdFw/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hoi Pok Wu <wuhoipok@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, shaggy@kernel.org,
-        mudongliangabcd@gmail.com, paskripkin@gmail.com, r33s3n6@gmail.com,
-        jfs-discussion@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.14 3/8] fs: jfs: fix shift-out-of-bounds in dbDiscardAG
-Date:   Sat, 17 Dec 2022 10:30:26 -0500
-Message-Id: <20221217153033.99394-3-sashal@kernel.org>
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Chen Zhongjin <chenzhongjin@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, robert.moore@intel.com,
+        linux-acpi@vger.kernel.org, devel@acpica.org
+Subject: [PATCH AUTOSEL 4.14 4/8] ACPICA: Fix error code path in acpi_ds_call_control_method()
+Date:   Sat, 17 Dec 2022 10:30:27 -0500
+Message-Id: <20221217153033.99394-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221217153033.99394-1-sashal@kernel.org>
 References: <20221217153033.99394-1-sashal@kernel.org>
@@ -57,37 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoi Pok Wu <wuhoipok@gmail.com>
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 25e70c6162f207828dd405b432d8f2a98dbf7082 ]
+[ Upstream commit 404ec60438add1afadaffaed34bb5fe4ddcadd40 ]
 
-This should be applied to most URSAN bugs found recently by syzbot,
-by guarding the dbMount. As syzbot feeding rubbish into the bmap
-descriptor.
+A use-after-free in acpi_ps_parse_aml() after a failing invocaion of
+acpi_ds_call_control_method() is reported by KASAN [1] and code
+inspection reveals that next_walk_state pushed to the thread by
+acpi_ds_create_walk_state() is freed on errors, but it is not popped
+from the thread beforehand.  Thus acpi_ds_get_current_walk_state()
+called by acpi_ps_parse_aml() subsequently returns it as the new
+walk state which is incorrect.
 
-Signed-off-by: Hoi Pok Wu <wuhoipok@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+To address this, make acpi_ds_call_control_method() call
+acpi_ds_pop_walk_state() to pop next_walk_state from the thread before
+returning an error.
+
+Link: https://lore.kernel.org/linux-acpi/20221019073443.248215-1-chenzhongjin@huawei.com/ # [1]
+Reported-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Chen Zhongjin <chenzhongjin@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_dmap.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/acpi/acpica/dsmethod.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
-index a46fa0f3db57..0ca1ad2610df 100644
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -211,6 +211,11 @@ int dbMount(struct inode *ipbmap)
- 		goto err_release_metapage;
+diff --git a/drivers/acpi/acpica/dsmethod.c b/drivers/acpi/acpica/dsmethod.c
+index d7fc36917c67..88e729e24314 100644
+--- a/drivers/acpi/acpica/dsmethod.c
++++ b/drivers/acpi/acpica/dsmethod.c
+@@ -551,7 +551,7 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
+ 	info = ACPI_ALLOCATE_ZEROED(sizeof(struct acpi_evaluate_info));
+ 	if (!info) {
+ 		status = AE_NO_MEMORY;
+-		goto cleanup;
++		goto pop_walk_state;
  	}
  
-+	if (((bmp->db_mapsize - 1) >> bmp->db_agl2size) > MAXAG) {
-+		err = -EINVAL;
-+		goto err_release_metapage;
-+	}
+ 	info->parameters = &this_walk_state->operands[0];
+@@ -563,7 +563,7 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
+ 
+ 	ACPI_FREE(info);
+ 	if (ACPI_FAILURE(status)) {
+-		goto cleanup;
++		goto pop_walk_state;
+ 	}
+ 
+ 	/*
+@@ -595,6 +595,12 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
+ 
+ 	return_ACPI_STATUS(status);
+ 
++pop_walk_state:
 +
- 	for (i = 0; i < MAXAG; i++)
- 		bmp->db_agfree[i] = le64_to_cpu(dbmp_le->dn_agfree[i]);
- 	bmp->db_agsize = le64_to_cpu(dbmp_le->dn_agsize);
++	/* On error, pop the walk state to be deleted from thread */
++
++	acpi_ds_pop_walk_state(thread);
++
+ cleanup:
+ 
+ 	/* On error, we must terminate the method properly */
 -- 
 2.35.1
 
