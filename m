@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 952E264FA6E
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:45:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F347464FAC2
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:45:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230434AbiLQPef (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Dec 2022 10:34:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34440 "EHLO
+        id S230076AbiLQPfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Dec 2022 10:35:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230212AbiLQPd3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:33:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E883616590;
-        Sat, 17 Dec 2022 07:29:19 -0800 (PST)
+        with ESMTP id S230288AbiLQPdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:33:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9A07167C0;
+        Sat, 17 Dec 2022 07:29:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7861560C13;
-        Sat, 17 Dec 2022 15:29:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39E35C433F0;
-        Sat, 17 Dec 2022 15:29:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6BC2CB80123;
+        Sat, 17 Dec 2022 15:29:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1228EC433F0;
+        Sat, 17 Dec 2022 15:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671290958;
-        bh=uqAdmF1FaDGQ10Ckz+SV5eiJjH+tRdfj9Fty0e54Wpw=;
+        s=k20201202; t=1671290962;
+        bh=qR0vw+uQELOwhOUev5/wnJO2JEk9ykAYOvrnAJzGcKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=exPvd/GwFSLSfcjJtPraTGnx+dB6f9emOV6hiM+5vzroXLZLHQt1Mhb+m28RDzFN3
-         tFuNJWPDNcZxIg4E+7/3cMzKv2MZtVoSE9XZacH8ftqLE2l8pO/KUV5Q+nk0my1OeR
-         a05ZW0x8Y8QGsYc3jJDD3PSSX9DS8ZwBUIEfqu+mDEP0A5tmKOlCpDjh1S/RFasjxN
-         UyyAtV3Z757D0xvEco9BPJaOhhDwaZ/A6D693At0NTRez5qm7OzkBR4mB1QMpUICEA
-         wGvhr1twg3jDbQopxOmG7HjVjrv2FT5X39Zcmf9GKJ2gsfN7fNuXeK3UnC0Uu6wsYO
-         GQB6DRjQf2fig==
+        b=g5eyvnlKw8jePeaONi5vrZ4UCwL1qh1Mtu6ZqIC8hOfx9pbBjKHXXXtar1NR+UiVT
+         yXR43aeB35nzXQ5JpYixu4gT4yGKe4S9PamHzYzSVFd5AGbB5ZdyQ7at1rIj2ebOTf
+         Vfxnjw5rR2C4/rE94RYVhggFCP6KwJ5UWE/TNiGgphA9fRfCgrs/YPeOxq5+P57z5o
+         RTpjB934NIWD+57n5ETVm8RxsYsec1hUUQN+CTuKg9an7w0A+okYFZkpBVMH1Em4hr
+         +LLqfKP2gL2omOERsg9wVHfLwIKyOG16quwqMSnGAneeOTS2SarlVg8OaHQmP5QGx/
+         dSJtzBhpz78iQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+Cc:     Zheng Yejian <zhengyejian1@huawei.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Zhang Jinhao <zhangjinhao2@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-nilfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 08/10] nilfs2: fix shift-out-of-bounds due to too large exponent of block size
-Date:   Sat, 17 Dec 2022 10:28:58 -0500
-Message-Id: <20221217152902.98870-8-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, dave@stgolabs.net,
+        tangmeng@uniontech.com, willy@infradead.org
+Subject: [PATCH AUTOSEL 5.15 09/10] acct: fix potential integer overflow in encode_comp_t()
+Date:   Sat, 17 Dec 2022 10:28:59 -0500
+Message-Id: <20221217152902.98870-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221217152902.98870-1-sashal@kernel.org>
 References: <20221217152902.98870-1-sashal@kernel.org>
@@ -55,107 +60,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Zheng Yejian <zhengyejian1@huawei.com>
 
-[ Upstream commit ebeccaaef67a4895d2496ab8d9c2fb8d89201211 ]
+[ Upstream commit c5f31c655bcc01b6da53b836ac951c1556245305 ]
 
-If field s_log_block_size of superblock data is corrupted and too large,
-init_nilfs() and load_nilfs() still can trigger a shift-out-of-bounds
-warning followed by a kernel panic (if panic_on_warn is set):
+The integer overflow is descripted with following codes:
+  > 317 static comp_t encode_comp_t(u64 value)
+  > 318 {
+  > 319         int exp, rnd;
+    ......
+  > 341         exp <<= MANTSIZE;
+  > 342         exp += value;
+  > 343         return exp;
+  > 344 }
 
- shift exponent 38973 is too large for 32-bit type 'int'
- Call Trace:
-  <TASK>
-  dump_stack_lvl+0xcd/0x134
-  ubsan_epilogue+0xb/0x50
-  __ubsan_handle_shift_out_of_bounds.cold.12+0x17b/0x1f5
-  init_nilfs.cold.11+0x18/0x1d [nilfs2]
-  nilfs_mount+0x9b5/0x12b0 [nilfs2]
-  ...
+Currently comp_t is defined as type of '__u16', but the variable 'exp' is
+type of 'int', so overflow would happen when variable 'exp' in line 343 is
+greater than 65535.
 
-This fixes the issue by adding and using a new helper function for getting
-block size with sanity check.
-
-Link: https://lkml.kernel.org/r/20221027044306.42774-3-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Link: https://lkml.kernel.org/r/20210515140631.369106-3-zhengyejian1@huawei.com
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Cc: Hanjun Guo <guohanjun@huawei.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Zhang Jinhao <zhangjinhao2@huawei.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/the_nilfs.c | 42 ++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 38 insertions(+), 4 deletions(-)
+ kernel/acct.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/nilfs2/the_nilfs.c b/fs/nilfs2/the_nilfs.c
-index 6a86acd35696..6aa6cef0757f 100644
---- a/fs/nilfs2/the_nilfs.c
-+++ b/fs/nilfs2/the_nilfs.c
-@@ -193,6 +193,34 @@ static int nilfs_store_log_cursor(struct the_nilfs *nilfs,
- 	return ret;
- }
+diff --git a/kernel/acct.c b/kernel/acct.c
+index 23a7ab8e6cbc..2b5cc63eb295 100644
+--- a/kernel/acct.c
++++ b/kernel/acct.c
+@@ -331,6 +331,8 @@ static comp_t encode_comp_t(unsigned long value)
+ 		exp++;
+ 	}
  
-+/**
-+ * nilfs_get_blocksize - get block size from raw superblock data
-+ * @sb: super block instance
-+ * @sbp: superblock raw data buffer
-+ * @blocksize: place to store block size
-+ *
-+ * nilfs_get_blocksize() calculates the block size from the block size
-+ * exponent information written in @sbp and stores it in @blocksize,
-+ * or aborts with an error message if it's too large.
-+ *
-+ * Return Value: On success, 0 is returned. If the block size is too
-+ * large, -EINVAL is returned.
-+ */
-+static int nilfs_get_blocksize(struct super_block *sb,
-+			       struct nilfs_super_block *sbp, int *blocksize)
-+{
-+	unsigned int shift_bits = le32_to_cpu(sbp->s_log_block_size);
-+
-+	if (unlikely(shift_bits >
-+		     ilog2(NILFS_MAX_BLOCK_SIZE) - BLOCK_SIZE_BITS)) {
-+		nilfs_err(sb, "too large filesystem blocksize: 2 ^ %u KiB",
-+			  shift_bits);
-+		return -EINVAL;
-+	}
-+	*blocksize = BLOCK_SIZE << shift_bits;
-+	return 0;
-+}
-+
- /**
-  * load_nilfs - load and recover the nilfs
-  * @nilfs: the_nilfs structure to be released
-@@ -246,11 +274,15 @@ int load_nilfs(struct the_nilfs *nilfs, struct super_block *sb)
- 		nilfs->ns_sbwtime = le64_to_cpu(sbp[0]->s_wtime);
- 
- 		/* verify consistency between two super blocks */
--		blocksize = BLOCK_SIZE << le32_to_cpu(sbp[0]->s_log_block_size);
-+		err = nilfs_get_blocksize(sb, sbp[0], &blocksize);
-+		if (err)
-+			goto scan_error;
-+
- 		if (blocksize != nilfs->ns_blocksize) {
- 			nilfs_warn(sb,
- 				   "blocksize differs between two super blocks (%d != %d)",
- 				   blocksize, nilfs->ns_blocksize);
-+			err = -EINVAL;
- 			goto scan_error;
- 		}
- 
-@@ -609,9 +641,11 @@ int init_nilfs(struct the_nilfs *nilfs, struct super_block *sb, char *data)
- 	if (err)
- 		goto failed_sbh;
- 
--	blocksize = BLOCK_SIZE << le32_to_cpu(sbp->s_log_block_size);
--	if (blocksize < NILFS_MIN_BLOCK_SIZE ||
--	    blocksize > NILFS_MAX_BLOCK_SIZE) {
-+	err = nilfs_get_blocksize(sb, sbp, &blocksize);
-+	if (err)
-+		goto failed_sbh;
-+
-+	if (blocksize < NILFS_MIN_BLOCK_SIZE) {
- 		nilfs_err(sb,
- 			  "couldn't mount because of unsupported filesystem blocksize %d",
- 			  blocksize);
++	if (exp > (((comp_t) ~0U) >> MANTSIZE))
++		return (comp_t) ~0U;
+ 	/*
+ 	 * Clean it up and polish it off.
+ 	 */
 -- 
 2.35.1
 
