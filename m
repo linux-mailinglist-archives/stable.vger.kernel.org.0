@@ -2,52 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB37C64FA1C
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:33:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB90764F9F9
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:32:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229880AbiLQPaT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Dec 2022 10:30:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
+        id S229797AbiLQPa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Dec 2022 10:30:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230086AbiLQP3K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:29:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712451740C;
-        Sat, 17 Dec 2022 07:28:00 -0800 (PST)
+        with ESMTP id S230170AbiLQP3W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:29:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F1441834B;
+        Sat, 17 Dec 2022 07:28:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EBD4060C04;
-        Sat, 17 Dec 2022 15:27:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5704EC433F0;
-        Sat, 17 Dec 2022 15:27:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D44DB802C3;
+        Sat, 17 Dec 2022 15:28:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28BC3C4339E;
+        Sat, 17 Dec 2022 15:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671290879;
-        bh=GiT7CCcJHCT0wN/FYRSBDJwgEgqKON+84OSY5MfM6HA=;
+        s=k20201202; t=1671290888;
+        bh=3AZAoDc18ZnziJnVMDSe32b1UpNvK44xxuL1Y7Z5fdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjDGP0Uh3i64gu3zsespVmTwqwSCl4vH03dQzK3Qfn+bKuPciojxHNdyNn6TB0Xnq
-         Zk9P3+Wr4NWYT+OrB7pfcp9iprHI3h2EkEADNVc2/U6rES1U8r0tlCTfmHz22YC393
-         WFwF6ykvPSO7x6i3IcJedUdcjwEtv8UQVuj8IBB5ZU/4ugtaqaswp7T8I0T7Wmk+Qv
-         UqAEEYqvcSDBNFfSAzp4JwrVpCvkoAKF/DIGf+Ukt+GGpwcARf9y6YIjbGInl/ZH+j
-         +XpoLK0SjLApi2AxtxcMWBhJg08GYr+9bILr5G0sczlbM+U62PRT5mvHmueDJ7Aalj
-         AXlmxoL49WNRA==
+        b=UZqMNaCLx/15b4DgyZa08sSKP2y+lofQ0cfv96ZdJbKz3xBi9nZa3U8JoH3kTxKNF
+         5arf2y4VOZJEr1hn8PyJn5g7i5k8+bIrrQZtVgUo603BVJicl0kO2fXgiDk6jQx4W7
+         HZdymlBs+DAqHvlq42wtqDV4OGK+jFp6ZrxiUOBSsi5Ht9ybBJOObb1ie0dZOjJx6o
+         OhzMHIBaJwUDx88tW9Hdp7DdQh4lL6YfM7jGBzZXpt95qYDgPEVGaTTbr+/g+WBOUm
+         RljTJ3X+W71XI620O6i+e5tDwgtgdtrr0mO18rsYVySKzsfuDUB/c9eZBP+F6PNorg
+         Kp2n6ft8/W7HQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Yejian <zhengyejian1@huawei.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Zhang Jinhao <zhangjinhao2@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, tangmeng@uniontech.com,
-        willy@infradead.org
-Subject: [PATCH AUTOSEL 6.1 17/22] acct: fix potential integer overflow in encode_comp_t()
-Date:   Sat, 17 Dec 2022 10:27:18 -0500
-Message-Id: <20221217152727.98061-17-sashal@kernel.org>
+Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Robert Elliott <elliott@hpe.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        sathyanarayanan.kuppuswamy@linux.intel.com, ak@linux.intel.com,
+        kirill.shutemov@linux.intel.com, ben-linux@fluff.org,
+        seanjc@google.com, pbonzini@redhat.com, rafael.j.wysocki@intel.com,
+        suravee.suthikulpanit@amd.com, rdunlap@infradead.org,
+        daniel.sneddon@linux.intel.com
+Subject: [PATCH AUTOSEL 6.1 18/22] x86/apic: Handle no CONFIG_X86_X2APIC on systems with x2APIC enabled by BIOS
+Date:   Sat, 17 Dec 2022 10:27:19 -0500
+Message-Id: <20221217152727.98061-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221217152727.98061-1-sashal@kernel.org>
 References: <20221217152727.98061-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,49 +64,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Mateusz Jończyk <mat.jonczyk@o2.pl>
 
-[ Upstream commit c5f31c655bcc01b6da53b836ac951c1556245305 ]
+[ Upstream commit e3998434da4f5b1f57f8d6a8a9f8502ee3723bae ]
 
-The integer overflow is descripted with following codes:
-  > 317 static comp_t encode_comp_t(u64 value)
-  > 318 {
-  > 319         int exp, rnd;
-    ......
-  > 341         exp <<= MANTSIZE;
-  > 342         exp += value;
-  > 343         return exp;
-  > 344 }
+A kernel that was compiled without CONFIG_X86_X2APIC was unable to boot on
+platforms that have x2APIC already enabled in the BIOS before starting the
+kernel.
 
-Currently comp_t is defined as type of '__u16', but the variable 'exp' is
-type of 'int', so overflow would happen when variable 'exp' in line 343 is
-greater than 65535.
+The kernel was supposed to panic with an approprite error message in
+validate_x2apic() due to the missing X2APIC support.
 
-Link: https://lkml.kernel.org/r/20210515140631.369106-3-zhengyejian1@huawei.com
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Cc: Hanjun Guo <guohanjun@huawei.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Zhang Jinhao <zhangjinhao2@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+However, validate_x2apic() was run too late in the boot cycle, and the
+kernel tried to initialize the APIC nonetheless. This resulted in an
+earlier panic in setup_local_APIC() because the APIC was not registered.
+
+In my experiments, a panic message in setup_local_APIC() was not visible
+in the graphical console, which resulted in a hang with no indication
+what has gone wrong.
+
+Instead of calling panic(), disable the APIC, which results in a somewhat
+working system with the PIC only (and no SMP). This way the user is able to
+diagnose the problem more easily.
+
+Disabling X2APIC mode is not an option because it's impossible on systems
+with locked x2APIC.
+
+The proper place to disable the APIC in this case is in check_x2apic(),
+which is called early from setup_arch(). Doing this in
+__apic_intr_mode_select() is too late.
+
+Make check_x2apic() unconditionally available and remove the empty stub.
+
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Reported-by: Robert Elliott (Servers) <elliott@hpe.com>
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/lkml/d573ba1c-0dc4-3016-712a-cc23a8a33d42@molgen.mpg.de
+Link: https://lore.kernel.org/lkml/20220911084711.13694-3-mat.jonczyk@o2.pl
+Link: https://lore.kernel.org/all/20221129215008.7247-1-mat.jonczyk@o2.pl
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/acct.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/Kconfig            |  4 ++--
+ arch/x86/include/asm/apic.h |  3 +--
+ arch/x86/kernel/apic/apic.c | 13 ++++++++-----
+ 3 files changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/acct.c b/kernel/acct.c
-index 62200d799b9b..034a26daabb2 100644
---- a/kernel/acct.c
-+++ b/kernel/acct.c
-@@ -350,6 +350,8 @@ static comp_t encode_comp_t(unsigned long value)
- 		exp++;
- 	}
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 67745ceab0db..b2c0fce3f257 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -462,8 +462,8 @@ config X86_X2APIC
  
-+	if (exp > (((comp_t) ~0U) >> MANTSIZE))
-+		return (comp_t) ~0U;
+ 	  Some Intel systems circa 2022 and later are locked into x2APIC mode
+ 	  and can not fall back to the legacy APIC modes if SGX or TDX are
+-	  enabled in the BIOS.  They will be unable to boot without enabling
+-	  this option.
++	  enabled in the BIOS. They will boot with very reduced functionality
++	  without enabling this option.
+ 
+ 	  If you don't know what to do here, say N.
+ 
+diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
+index 3415321c8240..3216da7074ba 100644
+--- a/arch/x86/include/asm/apic.h
++++ b/arch/x86/include/asm/apic.h
+@@ -249,7 +249,6 @@ static inline u64 native_x2apic_icr_read(void)
+ extern int x2apic_mode;
+ extern int x2apic_phys;
+ extern void __init x2apic_set_max_apicid(u32 apicid);
+-extern void __init check_x2apic(void);
+ extern void x2apic_setup(void);
+ static inline int x2apic_enabled(void)
+ {
+@@ -258,13 +257,13 @@ static inline int x2apic_enabled(void)
+ 
+ #define x2apic_supported()	(boot_cpu_has(X86_FEATURE_X2APIC))
+ #else /* !CONFIG_X86_X2APIC */
+-static inline void check_x2apic(void) { }
+ static inline void x2apic_setup(void) { }
+ static inline int x2apic_enabled(void) { return 0; }
+ 
+ #define x2apic_mode		(0)
+ #define	x2apic_supported()	(0)
+ #endif /* !CONFIG_X86_X2APIC */
++extern void __init check_x2apic(void);
+ 
+ struct irq_data;
+ 
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index c6876d3ea4b1..20d9a604da7c 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1931,16 +1931,19 @@ void __init check_x2apic(void)
+ 	}
+ }
+ #else /* CONFIG_X86_X2APIC */
+-static int __init validate_x2apic(void)
++void __init check_x2apic(void)
+ {
+ 	if (!apic_is_x2apic_enabled())
+-		return 0;
++		return;
  	/*
- 	 * Clean it up and polish it off.
+-	 * Checkme: Can we simply turn off x2apic here instead of panic?
++	 * Checkme: Can we simply turn off x2APIC here instead of disabling the APIC?
  	 */
+-	panic("BIOS has enabled x2apic but kernel doesn't support x2apic, please disable x2apic in BIOS.\n");
++	pr_err("Kernel does not support x2APIC, please recompile with CONFIG_X86_X2APIC.\n");
++	pr_err("Disabling APIC, expect reduced performance and functionality.\n");
++
++	disable_apic = 1;
++	setup_clear_cpu_cap(X86_FEATURE_APIC);
+ }
+-early_initcall(validate_x2apic);
+ 
+ static inline void try_to_enable_x2apic(int remap_mode) { }
+ static inline void __x2apic_enable(void) { }
 -- 
 2.35.1
 
