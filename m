@@ -2,47 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D06F64F5B4
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:12:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04E5464F5B1
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:11:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230300AbiLQAMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 19:12:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44194 "EHLO
+        id S230081AbiLQALw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 19:11:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230155AbiLQALW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:11:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4225C897C7;
-        Fri, 16 Dec 2022 16:10:27 -0800 (PST)
+        with ESMTP id S229865AbiLQALT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:11:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2484740801;
+        Fri, 16 Dec 2022 16:10:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C93DA622D0;
-        Sat, 17 Dec 2022 00:10:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E64CEC4339C;
-        Sat, 17 Dec 2022 00:10:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6624622CB;
+        Sat, 17 Dec 2022 00:10:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79287C433D2;
+        Sat, 17 Dec 2022 00:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671235826;
-        bh=l/uTSJpkb7iF9/bwE+UEqemQYnCtWxrWUH9JUkWJkGE=;
+        s=k20201202; t=1671235829;
+        bh=mv8tgCOUMGgtx94A/3ywNez81omKJEm3PGs42DkrCxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dhdd7xkr6rP22tO0oUkeB1G3jtT88Nyi+rMojDaTMp72vwew6YDJo5HoSHWgM9wo9
-         8jh7HhBeBWZjCy+WbDmAtOrot86Ze4kh9FSUPOrzxKCwQGi2M25XOi/iTBSYkXC4aT
-         jvVX+omNn13dzyBE+mYIfXF1VwFvIbPTkQnttd/p1sLh0knVFpAt/XLii1JK1dEx6p
-         lWjOpMGABaGNa1IfjkteHxfGKGnpIhraqupBXnMrkcF2FOZABneGZ3WcuEVatvE2WQ
-         EepvjBGlXwLxuwyX5DZqd+A/o8zBIdavX3YKIRoMKEAcEmOSaECJBq19fA4jh/LDAy
-         YSgJw3TkbiEKg==
+        b=dfQq5FjS5taah0ZNDWPi0cUQ25cV3PhQepoa22b7kh4Z325yNlaTCMZb9x5IcVjHy
+         k097TCRlP/rX7Sv2ApHnnxgLulYYNb3Ui9FHmiAFODTSa/F6k1o3kgSNi+RfcPDyb7
+         eafZNXxDWyTtUYJV0pUf5cGY0pcj11oeurfKo5wAA8RUtk8BP9gxsdY2YOqvnjEqK6
+         y5HBcwt/puSF8WZQw7lwkI46um/4Mfgj5Li2gYV/JdkcR6eIFgIFMEWzYJ0jIiXMc3
+         YecBKpTCHHO6PmWWh5IQVW09aJqvpgSnl5hzFXTO8zDKg355IaTIQGsQE8c8mmdl3W
+         SnsZlfWYrOa7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adriana Kobylak <anoo@us.ibm.com>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        keescook@chromium.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-aspeed@lists.ozlabs.org, linux-hardening@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 3/8] ARM: dts: aspeed: rainier,everest: Move reserved memory regions
-Date:   Fri, 16 Dec 2022 19:10:07 -0500
-Message-Id: <20221217001013.41239-3-sashal@kernel.org>
+Cc:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        Fabio A M Martins <fabiomirmar@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, deller@gmx.de,
+        linux-hyperv@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.0 4/8] video: hyperv_fb: Avoid taking busy spinlock on panic path
+Date:   Fri, 16 Dec 2022 19:10:08 -0500
+Message-Id: <20221217001013.41239-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221217001013.41239-1-sashal@kernel.org>
 References: <20221217001013.41239-1-sashal@kernel.org>
@@ -59,121 +65,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adriana Kobylak <anoo@us.ibm.com>
+From: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
 
-[ Upstream commit e184d42a6e085f95f5c4f1a4fbabebab2984cb68 ]
+[ Upstream commit 1d044ca035dc22df0d3b39e56f2881071d9118bd ]
 
-Move the reserved regions to account for a decrease in DRAM when ECC is
-enabled. ECC takes 1/9th of memory.
+The Hyper-V framebuffer code registers a panic notifier in order
+to try updating its fbdev if the kernel crashed. The notifier
+callback is straightforward, but it calls the vmbus_sendpacket()
+routine eventually, and such function takes a spinlock for the
+ring buffer operations.
 
-Running on HW with ECC off, u-boot prints:
-DRAM:  already initialized, 1008 MiB (capacity:1024 MiB, VGA:16 MiB, ECC:off)
+Panic path runs in atomic context, with local interrupts and
+preemption disabled, and all secondary CPUs shutdown. That said,
+taking a spinlock might cause a lockup if a secondary CPU was
+disabled with such lock taken. Fix it here by checking if the
+ring buffer spinlock is busy on Hyper-V framebuffer panic notifier;
+if so, bail-out avoiding the potential lockup scenario.
 
-And with ECC on, u-boot prints:
-DRAM:  already initialized, 896 MiB (capacity:1024 MiB, VGA:16 MiB, ECC:on, ECC size:896 MiB)
-
-This implies that MCR54 is configured for ECC to be bounded at the
-bottom of a 16MiB VGA memory region:
-
-1024MiB - 16MiB (VGA) = 1008MiB
-1008MiB / 9 (for ECC) = 112MiB
-1008MiB - 112MiB = 896MiB (available DRAM)
-
-The flash_memory region currently starts at offset 896MiB:
-0xb8000000 (flash_memory offset) - 0x80000000 (base memory address) = 0x38000000 = 896MiB
-
-This is the end of the available DRAM with ECC enabled and therefore it
-needs to be moved.
-
-Since the flash_memory is 64MiB in size and needs to be 64MiB aligned,
-it can just be moved up by 64MiB and would sit right at the end of the
-available DRAM buffer.
-
-The ramoops region currently follows the flash_memory, but it can be
-moved to sit above flash_memory which would minimize the address-space
-fragmentation.
-
-Signed-off-by: Adriana Kobylak <anoo@us.ibm.com>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Link: https://lore.kernel.org/r/20220916195535.1020185-1-anoo@linux.ibm.com
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Cc: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+Cc: Dexuan Cui <decui@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Michael Kelley <mikelley@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Cc: Wei Liu <wei.liu@kernel.org>
+Tested-by: Fabio A M Martins <fabiomirmar@gmail.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20220819221731.480795-10-gpiccoli@igalia.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts | 17 ++++++++---------
- arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts | 16 +++++++++-------
- 2 files changed, 17 insertions(+), 16 deletions(-)
+ drivers/hv/ring_buffer.c        | 13 +++++++++++++
+ drivers/video/fbdev/hyperv_fb.c |  8 +++++++-
+ include/linux/hyperv.h          |  2 ++
+ 3 files changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts b/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
-index a6a2bc3b855c..fcc890e3ad73 100644
---- a/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
-@@ -162,16 +162,9 @@ reserved-memory {
- 		#size-cells = <1>;
- 		ranges;
+diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
+index 59a4aa86d1f3..c6692fd5ab15 100644
+--- a/drivers/hv/ring_buffer.c
++++ b/drivers/hv/ring_buffer.c
+@@ -280,6 +280,19 @@ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
+ 	ring_info->pkt_buffer_size = 0;
+ }
  
--		/* LPC FW cycle bridge region requires natural alignment */
--		flash_memory: region@b8000000 {
--			no-map;
--			reg = <0xb8000000 0x04000000>; /* 64M */
--		};
--
--		/* 48MB region from the end of flash to start of vga memory */
--		ramoops@bc000000 {
-+		ramoops@b3e00000 {
- 			compatible = "ramoops";
--			reg = <0xbc000000 0x200000>; /* 16 * (4 * 0x8000) */
-+			reg = <0xb3e00000 0x200000>; /* 16 * (4 * 0x8000) */
- 			record-size = <0x8000>;
- 			console-size = <0x8000>;
- 			ftrace-size = <0x8000>;
-@@ -179,6 +172,12 @@ ramoops@bc000000 {
- 			max-reason = <3>; /* KMSG_DUMP_EMERG */
- 		};
- 
-+		/* LPC FW cycle bridge region requires natural alignment */
-+		flash_memory: region@b4000000 {
-+			no-map;
-+			reg = <0xb4000000 0x04000000>; /* 64M */
-+		};
++/*
++ * Check if the ring buffer spinlock is available to take or not; used on
++ * atomic contexts, like panic path (see the Hyper-V framebuffer driver).
++ */
 +
- 		/* VGA region is dictated by hardware strapping */
- 		vga_memory: region@bf000000 {
- 			no-map;
-diff --git a/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts b/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
-index bf59a9962379..4879da4cdbd2 100644
---- a/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
-@@ -95,14 +95,9 @@ reserved-memory {
- 		#size-cells = <1>;
- 		ranges;
- 
--		flash_memory: region@b8000000 {
--			no-map;
--			reg = <0xb8000000 0x04000000>; /* 64M */
--		};
--
--		ramoops@bc000000 {
-+		ramoops@b3e00000 {
- 			compatible = "ramoops";
--			reg = <0xbc000000 0x200000>; /* 16 * (4 * 0x8000) */
-+			reg = <0xb3e00000 0x200000>; /* 16 * (4 * 0x8000) */
- 			record-size = <0x8000>;
- 			console-size = <0x8000>;
- 			ftrace-size = <0x8000>;
-@@ -110,6 +105,13 @@ ramoops@bc000000 {
- 			max-reason = <3>; /* KMSG_DUMP_EMERG */
- 		};
- 
-+		/* LPC FW cycle bridge region requires natural alignment */
-+		flash_memory: region@b4000000 {
-+			no-map;
-+			reg = <0xb4000000 0x04000000>; /* 64M */
-+		};
++bool hv_ringbuffer_spinlock_busy(struct vmbus_channel *channel)
++{
++	struct hv_ring_buffer_info *rinfo = &channel->outbound;
 +
-+		/* VGA region is dictated by hardware strapping */
- 		vga_memory: region@bf000000 {
- 			no-map;
- 			compatible = "shared-dma-pool";
++	return spin_is_locked(&rinfo->ring_lock);
++}
++EXPORT_SYMBOL_GPL(hv_ringbuffer_spinlock_busy);
++
+ /* Write to the ring buffer. */
+ int hv_ringbuffer_write(struct vmbus_channel *channel,
+ 			const struct kvec *kv_list, u32 kv_count,
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index b58b445bb529..0839ba7d3a34 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -779,12 +779,18 @@ static void hvfb_ondemand_refresh_throttle(struct hvfb_par *par,
+ static int hvfb_on_panic(struct notifier_block *nb,
+ 			 unsigned long e, void *p)
+ {
++	struct hv_device *hdev;
+ 	struct hvfb_par *par;
+ 	struct fb_info *info;
+ 
+ 	par = container_of(nb, struct hvfb_par, hvfb_panic_nb);
+-	par->synchronous_fb = true;
+ 	info = par->info;
++	hdev = device_to_hv_device(info->device);
++
++	if (hv_ringbuffer_spinlock_busy(hdev->channel))
++		return NOTIFY_DONE;
++
++	par->synchronous_fb = true;
+ 	if (par->need_docopy)
+ 		hvfb_docopy(par, 0, dio_fb_size);
+ 	synthvid_update(info, 0, 0, INT_MAX, INT_MAX);
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 3b42264333ef..646f1da9f27e 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -1341,6 +1341,8 @@ struct hv_ring_buffer_debug_info {
+ int hv_ringbuffer_get_debuginfo(struct hv_ring_buffer_info *ring_info,
+ 				struct hv_ring_buffer_debug_info *debug_info);
+ 
++bool hv_ringbuffer_spinlock_busy(struct vmbus_channel *channel);
++
+ /* Vmbus interface */
+ #define vmbus_driver_register(driver)	\
+ 	__vmbus_driver_register(driver, THIS_MODULE, KBUILD_MODNAME)
 -- 
 2.35.1
 
