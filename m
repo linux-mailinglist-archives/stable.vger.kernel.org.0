@@ -2,96 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F1C64F40B
-	for <lists+stable@lfdr.de>; Fri, 16 Dec 2022 23:24:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF01164F589
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:09:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229580AbiLPWYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 17:24:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53720 "EHLO
+        id S229743AbiLQAJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 19:09:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229469AbiLPWYu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 17:24:50 -0500
-Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com [IPv6:2607:f8b0:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C37EA28704;
-        Fri, 16 Dec 2022 14:24:48 -0800 (PST)
-Received: by mail-ot1-x332.google.com with SMTP id p24-20020a0568301d5800b0066e6dc09be5so2199940oth.8;
-        Fri, 16 Dec 2022 14:24:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=YYit2c2jkPTrVbVdrstlPkLC+5NweBeML4Ph4fLR/gM=;
-        b=bpXekg32yy+5yfgTWmHPlH7BIoMCxlTwyDV9EX8GwGlAkfN2nHsUy8FW8dsU4bRr02
-         vOqOny21fNUns7idHCoVAFlq0ZSOclRxe9hM8P9CJkalsAqC4u2hkg+Jkhg5WAQfaEgM
-         juUO7DYhzZZk911NrZrUate4wCCbejstmeYtX4biljNBcQFc9FFfgXqBNy/Bsp7T54GZ
-         Qbl9LFB1f3x7JriCsOO+MmRNvsVo69B5B+tJkx9Ajt7pps1ZXFANDYydwlYKvo8WDSK+
-         y3rft9+VBUzSlCDFCCEBXRIzDaCT+c/9awf23H4oj/D9DScs7hntDmtsas3i1FsiUP5Q
-         Hkhw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=YYit2c2jkPTrVbVdrstlPkLC+5NweBeML4Ph4fLR/gM=;
-        b=EZug3SKcWFLezgXgqqZLphYGG+0NOWnqDmdWTaH7DTkozFkNO3vt4Nlgsly/wTDuOS
-         7OduHb1rs8xbBoncy45EZsFZan6p9y/XxOSUWbo4YuFAl+7YTHOnLgf/I7ScTekXViVw
-         tZ1ND9xYdhoR7HPtRFN6IfH3G5LPxwjuLVMOV5kFOsz636cEgD2vWtVxIKmCvHvsfP4u
-         1kxWCpAUZgpsq2mRmdZpn+DpuA+SqU+hYAGC+X4WBC3X/QP0k9WQcxtLuP8QRg5F3JmD
-         ciJyYMUvx2UVi2ppmN6ww8Bp2uBWy5IcGbwLhdrXGeCIQelub8tmJPZp/cAWZ+Ig8hk2
-         uT2A==
-X-Gm-Message-State: ANoB5pmOBoQNIN04N/GRlwgUzSntH8qrqlYkyM1VDsH5lHXoQ4Sm6rFq
-        BFzApPCgMZvHhFZFjdYhbkI=
-X-Google-Smtp-Source: AA0mqf5oYROIxEhb5ZDap0hW5Paj3ULGJFVZ92lTc0ewMnYuzYiZVz9U4HZ9kmzbDYBjT2wNgNMLQQ==
-X-Received: by 2002:a9d:7cc7:0:b0:670:5d89:b1d4 with SMTP id r7-20020a9d7cc7000000b006705d89b1d4mr17179706otn.35.1671229488024;
-        Fri, 16 Dec 2022 14:24:48 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id cr27-20020a056830671b00b006393ea22c1csm1400225otb.16.2022.12.16.14.24.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Dec 2022 14:24:47 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Fri, 16 Dec 2022 14:24:46 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.0 00/16] 6.0.14-rc1 review
-Message-ID: <20221216222446.GA4070447@roeck-us.net>
-References: <20221215172908.162858817@linuxfoundation.org>
+        with ESMTP id S229453AbiLQAJm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:09:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DE676E9ED;
+        Fri, 16 Dec 2022 16:09:42 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E06A5621A1;
+        Sat, 17 Dec 2022 00:09:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35004C433EF;
+        Sat, 17 Dec 2022 00:09:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1671235781;
+        bh=FtAeghpOcG2WZJsrWRmoGbAgKj+g/KOYm0uLL2+J9z0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=YAxQy6bjIYHUeso98wKjj2cJYiE2u9GGKELZXCseOoc89YinC3UQjXcgoaTq2tgwP
+         YWPI0YoiqwbXhCFi3VdGsfMIMrdGrJoFmCcUiH6aZhfErTqiufAukSKsw7fzZJxsir
+         r02BKMyUzvD9N5+DKqK/yUgZ5WKGr30whw0DnzlCF5RNRskOYXmy/4wI7IDxdrQz3X
+         8e6XiLKWA+t3zwpZmqGo4E6Cd7s0C7zOqX6I7fYqiIS/rtEyowSf9c062XQ3O6kR0z
+         ditkzAZ5G4DnYjpzfIU0hQv9cztvb1qlo1VL6JO4a3e6PXui1UPsL2s+5NLbQPxIYR
+         T8RAH4tc55UIg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Zqiang <qiang1.zhang@intel.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, frederic@kernel.org,
+        quic_neeraju@quicinc.com, josh@joshtriplett.org,
+        rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 1/9] rcu: Fix __this_cpu_read() lockdep warning in rcu_force_quiescent_state()
+Date:   Fri, 16 Dec 2022 19:09:28 -0500
+Message-Id: <20221217000937.41115-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221215172908.162858817@linuxfoundation.org>
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 15, 2022 at 07:10:44PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.14 release.
-> There are 16 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 17 Dec 2022 17:28:57 +0000.
-> Anything received after that time might be too late.
-> 
+From: Zqiang <qiang1.zhang@intel.com>
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 500 pass: 500 fail: 0
+[ Upstream commit ceb1c8c9b8aa9199da46a0f29d2d5f08d9b44c15 ]
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+Running rcutorture with non-zero fqs_duration module parameter in a
+kernel built with CONFIG_PREEMPTION=y results in the following splat:
 
-Guenter
+BUG: using __this_cpu_read() in preemptible [00000000]
+code: rcu_torture_fqs/398
+caller is __this_cpu_preempt_check+0x13/0x20
+CPU: 3 PID: 398 Comm: rcu_torture_fqs Not tainted 6.0.0-rc1-yoctodev-standard+
+Call Trace:
+<TASK>
+dump_stack_lvl+0x5b/0x86
+dump_stack+0x10/0x16
+check_preemption_disabled+0xe5/0xf0
+__this_cpu_preempt_check+0x13/0x20
+rcu_force_quiescent_state.part.0+0x1c/0x170
+rcu_force_quiescent_state+0x1e/0x30
+rcu_torture_fqs+0xca/0x160
+? rcu_torture_boost+0x430/0x430
+kthread+0x192/0x1d0
+? kthread_complete_and_exit+0x30/0x30
+ret_from_fork+0x22/0x30
+</TASK>
+
+The problem is that rcu_force_quiescent_state() uses __this_cpu_read()
+in preemptible code instead of the proper raw_cpu_read().  This commit
+therefore changes __this_cpu_read() to raw_cpu_read().
+
+Signed-off-by: Zqiang <qiang1.zhang@intel.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ kernel/rcu/tree.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 93416afebd59..14d9384fba05 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -2418,7 +2418,7 @@ void rcu_force_quiescent_state(void)
+ 	struct rcu_node *rnp_old = NULL;
+ 
+ 	/* Funnel through hierarchy to reduce memory contention. */
+-	rnp = __this_cpu_read(rcu_data.mynode);
++	rnp = raw_cpu_read(rcu_data.mynode);
+ 	for (; rnp != NULL; rnp = rnp->parent) {
+ 		ret = (READ_ONCE(rcu_state.gp_flags) & RCU_GP_FLAG_FQS) ||
+ 		       !raw_spin_trylock(&rnp->fqslock);
+-- 
+2.35.1
+
