@@ -2,87 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E86B364F73A
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 03:59:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86BDF64F76D
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 04:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229488AbiLQC7L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 21:59:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56074 "EHLO
+        id S229495AbiLQDxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 22:53:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbiLQC7K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 21:59:10 -0500
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8608EBF4F;
-        Fri, 16 Dec 2022 18:59:09 -0800 (PST)
-Received: from canpemm500002.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4NYrD73c80zqT0r;
-        Sat, 17 Dec 2022 10:54:47 +0800 (CST)
-Received: from [10.174.151.185] (10.174.151.185) by
- canpemm500002.china.huawei.com (7.192.104.244) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.34; Sat, 17 Dec 2022 10:59:07 +0800
-Subject: Re: [PATCH 1/2] mm/uffd: Fix pte marker when fork() without fork
- event
-To:     Peter Xu <peterx@redhat.com>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-CC:     Andrea Arcangeli <aarcange@redhat.com>,
-        Pengfei Xu <pengfei.xu@intel.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Huang Ying <ying.huang@intel.com>, <stable@vger.kernel.org>
-References: <20221214200453.1772655-1-peterx@redhat.com>
- <20221214200453.1772655-2-peterx@redhat.com>
-From:   Miaohe Lin <linmiaohe@huawei.com>
-Message-ID: <eeedfdcb-2f9a-86fb-ab62-32cdfaf5d289@huawei.com>
-Date:   Sat, 17 Dec 2022 10:59:06 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+        with ESMTP id S229948AbiLQDxM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 22:53:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E40C6C723;
+        Fri, 16 Dec 2022 19:53:11 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B60D56231A;
+        Sat, 17 Dec 2022 03:53:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE2F8C433EF;
+        Sat, 17 Dec 2022 03:53:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1671249190;
+        bh=tvtSBxOjRjr8AD1Nit2OYvq2xfn8/939ipq48vK7DLA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=OQ2qyig1Ro+5frbEspzt9RXufwAwYshGg5d/dnepFr7yiNB6dz+tgePcHbW3H1RT7
+         8d6i52uzaJJyvYaWAVgr19fW4UdciX/9S1s+C6SNHKoGAXFV0QFHu8bwtVAcClSo8p
+         kOV6h2wVMqvmCis34nqkPTeRqwqxPC+GsoBhuGquiUVVdiDW6Z/m5tDHT/+79HUzsV
+         pjzmUlxnremRXcnNzaH3wrqw2Hi2D++kss1HCA8m3PNijYr8JELSHf54b1fzz00O9s
+         DZ8XBgSOtMmMoBQ+jkerirWRfZ1IxljS3goEfWl9Dz2gXH15Y5aTcWjR4a40EKqkwF
+         mENXqYKlr8Vag==
+Date:   Fri, 16 Dec 2022 19:53:07 -0800
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Luca Boccassi <bluca@debian.org>
+Cc:     linux-fscrypt@vger.kernel.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net,
+        linux-btrfs@vger.kernel.org, linux-integrity@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] fsverity: don't check builtin signatures when
+ require_signatures=0
+Message-ID: <Y509I/WlKJWwRhM2@sol.localdomain>
+References: <20221208033523.122642-1-ebiggers@kernel.org>
+ <CAMw=ZnQUmeOWQkMM9Kn5iYaT4dyDQ3j1K=dUgk9jFNcHPxxHrg@mail.gmail.com>
+ <Y5zd6ucBc20CV7Le@sol.localdomain>
+ <CAMw=ZnS5mXpQYtGHEK7-Q-VEojhooXiQVsGPT3e8NCW8uxnWyA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20221214200453.1772655-2-peterx@redhat.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.151.185]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- canpemm500002.china.huawei.com (7.192.104.244)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMw=ZnS5mXpQYtGHEK7-Q-VEojhooXiQVsGPT3e8NCW8uxnWyA@mail.gmail.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022/12/15 4:04, Peter Xu wrote:
-> When fork(), dst_vma is not guaranteed to have VM_UFFD_WP even if src may
-> have it and has pte marker installed.  The warning is improper along with
-> the comment.  The right thing is to inherit the pte marker when needed, or
-> keep the dst pte empty.
+On Sat, Dec 17, 2022 at 02:06:04AM +0000, Luca Boccassi wrote:
+> On Fri, 16 Dec 2022 at 21:06, Eric Biggers <ebiggers@kernel.org> wrote:
+> >
+> > On Thu, Dec 08, 2022 at 08:42:56PM +0000, Luca Boccassi wrote:
+> > > On Thu, 8 Dec 2022 at 03:35, Eric Biggers <ebiggers@kernel.org> wrote:
+> > > >
+> > > > From: Eric Biggers <ebiggers@google.com>
+> > > >
+> > > > An issue that arises when migrating from builtin signatures to userspace
+> > > > signatures is that existing files that have builtin signatures cannot be
+> > > > opened unless either CONFIG_FS_VERITY_BUILTIN_SIGNATURES is disabled or
+> > > > the signing certificate is left in the .fs-verity keyring.
+> > > >
+> > > > Since builtin signatures provide no security benefit when
+> > > > fs.verity.require_signatures=0 anyway, let's just skip the signature
+> > > > verification in this case.
+> > > >
+> > > > Fixes: 432434c9f8e1 ("fs-verity: support builtin file signatures")
+> > > > Cc: <stable@vger.kernel.org> # v5.4+
+> > > > Signed-off-by: Eric Biggers <ebiggers@google.com>
+> > > > ---
+> > > >  fs/verity/signature.c | 18 ++++++++++++++++--
+> > > >  1 file changed, 16 insertions(+), 2 deletions(-)
+> > >
+> > > Acked-by: Luca Boccassi <bluca@debian.org>
+> >
+> > So if I can't apply
+> > https://lore.kernel.org/linux-fscrypt/20221208033548.122704-1-ebiggers@kernel.org
+> > ("fsverity: mark builtin signatures as deprecated") due to IPE, wouldn't I not
+> > be able to apply this patch either?  Surely IPE isn't depending on
+> > fs.verity.require_signatures=1, given that it enforces the policy itself?
 > 
-> A vague guess is this happened by an accident when there's the prior patch
-> to introduce src/dst vma into this helper during the uffd-wp feature got
-> developed and I probably messed up in the rebase, since if we replace
-> dst_vma with src_vma the warning & comment it all makes sense too.
-> 
-> Hugetlb did exactly the right here (copy_hugetlb_page_range()).  Fix the
-> general path.
-> 
-> Reproducer:
-> 
-> https://github.com/xupengfe/syzkaller_logs/blob/main/221208_115556_copy_page_range/repro.c
-> 
-> Cc: <stable@vger.kernel.org> # 5.19+
-> Fixes: c56d1b62cce8 ("mm/shmem: handle uffd-wp during fork()")
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=216808
-> Reported-by: Pengfei Xu <pengfei.xu@intel.com>
-> Signed-off-by: Peter Xu <peterx@redhat.com>
+> I'm not sure what you mean? Skipping verification when this syscfg is
+> disabled makes sense to me, as you noted it doesn't serve any purpose
+> in that case.
 
-Looks good to me. Thanks.
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Currently, fsverity builtin signatures are only useful if
+fs.verity.require_signatures is set to 1 *and* userspace actually checks that
+files have fsverity enabled.  However, IPE would change that if it actually gets
+merged upstream, at least based on the version that was most recently sent out.
+It would introduce a use of fsverity builtin signatures directly in the kernel
+(https://lore.kernel.org/r/1654714889-26728-14-git-send-email-deven.desai@linux.microsoft.com
+and
+https://lore.kernel.org/r/1654714889-26728-15-git-send-email-deven.desai@linux.microsoft.com).
 
-Thanks,
-Miaohe Lin
+IIUC, the IPE patches add code that checks whether a file has a fsverity builtin
+signature, and if so it assumes that it was verified by fs/verity/ and creates a
+*boolean* file property "fsverity_signature" for IPE to operate on.
 
+Since the IPE patches check for the presence of a builtin signature directly,
+instead of indirectly by checking whether the inode has fsverity enabled at all,
+there would be no need for the fs.verity.require_signatures setting with IPE.
+
+The IPE patches do assume that the signature, if present, always gets verified
+by fs/verity/.  That's what this patch would break.
+
+Of course, for upstream I shouldn't care about breaking out-of-tree code.  So I
+could apply this anyway.  But I'd at least like to be consistent.  If "fsverity:
+mark builtin signatures as deprecated" isn't going to be applied because of IPE,
+then I'd think this patch shouldn't be applied either, for the same reason...
+
+- Eric
