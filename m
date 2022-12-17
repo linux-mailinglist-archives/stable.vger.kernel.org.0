@@ -2,55 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ECFB64FAAB
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE6564FA57
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:45:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229996AbiLQPiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229785AbiLQPiC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 17 Dec 2022 10:38:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41820 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230427AbiLQPfp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:35:45 -0500
+        with ESMTP id S230425AbiLQPfr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:35:47 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 759AC209B9;
-        Sat, 17 Dec 2022 07:30:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6BB222287;
+        Sat, 17 Dec 2022 07:30:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D98C460C01;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23EFB60C17;
+        Sat, 17 Dec 2022 15:30:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1FFCC433EF;
         Sat, 17 Dec 2022 15:30:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E006C43396;
-        Sat, 17 Dec 2022 15:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671291000;
-        bh=h5S1/BnZHF2ZLzb0VuOYYkvTeHbY827TxoAKiSCnIOs=;
+        s=k20201202; t=1671291001;
+        bh=YZgSeHYj5jxf+uya8RhJZ5L4+aUfdAFox38v7ee+lek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCHIUu0pu99v5I581Nt9UzactrqSnpI42rX1FxwnZRI/d6fep22S3mNXEqUgTkPvm
-         /taW6nD69C2YTOhhb3g91ossrRdDNOj2gqu+/ma0YKpko4zrtaSUL2dpMBWVxfphx/
-         QzUGVsEcXGqO08kcg05ENVJpnmQosNWnBssQ+lHT+RitRnV/HXRy/JNwDrFb+WEdtV
-         qOdxzaFlfqzubs5uw9fvCzKCD3vJpB971cj2fvpICU3hPqFLEKlkG6n/9pM1y31pgR
-         eke0m1s+Xl915cwO679cu3Dp0teBno5ORwjmSceGj+RF0gYSoeyGxX+rrTyu9OguJx
-         N9uIWUI+8p3pw==
+        b=FUuuUwNFcFDDc9lddjWFKCtmYz1y3IqAMyPIUt+xP9mv4XzABeydW3sLpsGnm+tkC
+         kJCIePPwtS8H6KdM2OS1JoIfJsvAatwA2FVGbOIW6ATDb7Gx16uK4AzUw8HW+HT0Yc
+         mQjP9Aec7js07Bta6QDb97sn4QkmnnYF1Tlvj9Jb2AQkxJTQjjnFLyJJcCxVnrjjIk
+         QfqfzrESKamam1R84tVzEpf7DM/KNogP6u+P407qFiSdakjJOvQX1LKxmXv6v7D1wT
+         dHW7pkSyxfP84FbM5YtRdahch5D/4wajmUNsC5jYzbPX+85/wcxOTViDmKluNhgp7f
+         IMXH1TAklc5cA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jianglei Nie <niejianglei2021@163.com>,
-        Baoquan He <bhe@redhat.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Chen Lifu <chenlifu@huawei.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Li Chen <lchen@ambarella.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Russell King <linux@armlinux.org.uk>,
-        ye xingchen <ye.xingchen@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>,
+Cc:     Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+e91619dd4c11c4960706@syzkaller.appspotmail.com,
         Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, kexec@lists.infradead.org,
-        linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 5/9] proc/vmcore: fix potential memory leak in vmcore_init()
-Date:   Sat, 17 Dec 2022 10:29:43 -0500
-Message-Id: <20221217152949.99146-5-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-nilfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 6/9] nilfs2: fix shift-out-of-bounds/overflow in nilfs_sb2_bad_offset()
+Date:   Sat, 17 Dec 2022 10:29:44 -0500
+Message-Id: <20221217152949.99146-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221217152949.99146-1-sashal@kernel.org>
 References: <20221217152949.99146-1-sashal@kernel.org>
@@ -67,60 +56,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-[ Upstream commit 12b9d301ff73122aebd78548fa4c04ca69ed78fe ]
+[ Upstream commit 610a2a3d7d8be3537458a378ec69396a76c385b6 ]
 
-Patch series "Some minor cleanup patches resent".
+Patch series "nilfs2: fix UBSAN shift-out-of-bounds warnings on mount
+time".
 
-The first three patches trivial clean up patches.
+The first patch fixes a bug reported by syzbot, and the second one fixes
+the remaining bug of the same kind.  Although they are triggered by the
+same super block data anomaly, I divided it into the above two because the
+details of the issues and how to fix it are different.
 
-And for the patch "kexec: replace crash_mem_range with range", I got a
-ibm-p9wr ppc64le system to test, it works well.
+Both are required to eliminate the shift-out-of-bounds issues at mount
+time.
 
-This patch (of 4):
+This patch (of 2):
 
-elfcorehdr_alloc() allocates a memory chunk for elfcorehdr_addr with
-kzalloc().  If is_vmcore_usable() returns false, elfcorehdr_addr is a
-predefined value.  If parse_crash_elf_headers() gets some error and
-returns a negetive value, the elfcorehdr_addr should be released with
-elfcorehdr_free().
+If the block size exponent information written in an on-disk superblock is
+corrupted, nilfs_sb2_bad_offset helper function can trigger
+shift-out-of-bounds warning followed by a kernel panic (if panic_on_warn
+is set):
 
-Fix it by calling elfcorehdr_free() when parse_crash_elf_headers() fails.
+ shift exponent 38983 is too large for 64-bit type 'unsigned long long'
+ Call Trace:
+  <TASK>
+  __dump_stack lib/dump_stack.c:88 [inline]
+  dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
+  ubsan_epilogue lib/ubsan.c:151 [inline]
+  __ubsan_handle_shift_out_of_bounds+0x33d/0x3b0 lib/ubsan.c:322
+  nilfs_sb2_bad_offset fs/nilfs2/the_nilfs.c:449 [inline]
+  nilfs_load_super_block+0xdf5/0xe00 fs/nilfs2/the_nilfs.c:523
+  init_nilfs+0xb7/0x7d0 fs/nilfs2/the_nilfs.c:577
+  nilfs_fill_super+0xb1/0x5d0 fs/nilfs2/super.c:1047
+  nilfs_mount+0x613/0x9b0 fs/nilfs2/super.c:1317
+  ...
 
-Link: https://lkml.kernel.org/r/20220929042936.22012-1-bhe@redhat.com
-Link: https://lkml.kernel.org/r/20220929042936.22012-2-bhe@redhat.com
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Chen Lifu <chenlifu@huawei.com>
-Cc: "Eric W . Biederman" <ebiederm@xmission.com>
-Cc: Li Chen <lchen@ambarella.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: ye xingchen <ye.xingchen@zte.com.cn>
-Cc: Zeal Robot <zealci@zte.com.cn>
+In addition, since nilfs_sb2_bad_offset() performs multiplication without
+considering the upper bound, the computation may overflow if the disk
+layout parameters are not normal.
+
+This fixes these issues by inserting preliminary sanity checks for those
+parameters and by converting the comparison from one involving
+multiplication and left bit-shifting to one using division and right
+bit-shifting.
+
+Link: https://lkml.kernel.org/r/20221027044306.42774-1-konishi.ryusuke@gmail.com
+Link: https://lkml.kernel.org/r/20221027044306.42774-2-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+e91619dd4c11c4960706@syzkaller.appspotmail.com
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/vmcore.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/nilfs2/the_nilfs.c | 31 +++++++++++++++++++++++++++----
+ 1 file changed, 27 insertions(+), 4 deletions(-)
 
-diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
-index b1102a31a108..18e50c207561 100644
---- a/fs/proc/vmcore.c
-+++ b/fs/proc/vmcore.c
-@@ -1554,6 +1554,7 @@ static int __init vmcore_init(void)
- 		return rc;
- 	rc = parse_crash_elf_headers();
- 	if (rc) {
-+		elfcorehdr_free(elfcorehdr_addr);
- 		pr_warn("Kdump: vmcore not initialized\n");
- 		return rc;
- 	}
+diff --git a/fs/nilfs2/the_nilfs.c b/fs/nilfs2/the_nilfs.c
+index fb61c33c6004..74ef3d313686 100644
+--- a/fs/nilfs2/the_nilfs.c
++++ b/fs/nilfs2/the_nilfs.c
+@@ -13,6 +13,7 @@
+ #include <linux/blkdev.h>
+ #include <linux/backing-dev.h>
+ #include <linux/random.h>
++#include <linux/log2.h>
+ #include <linux/crc32.h>
+ #include "nilfs.h"
+ #include "segment.h"
+@@ -448,11 +449,33 @@ static int nilfs_valid_sb(struct nilfs_super_block *sbp)
+ 	return crc == le32_to_cpu(sbp->s_sum);
+ }
+ 
+-static int nilfs_sb2_bad_offset(struct nilfs_super_block *sbp, u64 offset)
++/**
++ * nilfs_sb2_bad_offset - check the location of the second superblock
++ * @sbp: superblock raw data buffer
++ * @offset: byte offset of second superblock calculated from device size
++ *
++ * nilfs_sb2_bad_offset() checks if the position on the second
++ * superblock is valid or not based on the filesystem parameters
++ * stored in @sbp.  If @offset points to a location within the segment
++ * area, or if the parameters themselves are not normal, it is
++ * determined to be invalid.
++ *
++ * Return Value: true if invalid, false if valid.
++ */
++static bool nilfs_sb2_bad_offset(struct nilfs_super_block *sbp, u64 offset)
+ {
+-	return offset < ((le64_to_cpu(sbp->s_nsegments) *
+-			  le32_to_cpu(sbp->s_blocks_per_segment)) <<
+-			 (le32_to_cpu(sbp->s_log_block_size) + 10));
++	unsigned int shift_bits = le32_to_cpu(sbp->s_log_block_size);
++	u32 blocks_per_segment = le32_to_cpu(sbp->s_blocks_per_segment);
++	u64 nsegments = le64_to_cpu(sbp->s_nsegments);
++	u64 index;
++
++	if (blocks_per_segment < NILFS_SEG_MIN_BLOCKS ||
++	    shift_bits > ilog2(NILFS_MAX_BLOCK_SIZE) - BLOCK_SIZE_BITS)
++		return true;
++
++	index = offset >> (shift_bits + BLOCK_SIZE_BITS);
++	do_div(index, blocks_per_segment);
++	return index < nsegments;
+ }
+ 
+ static void nilfs_release_super_block(struct the_nilfs *nilfs)
 -- 
 2.35.1
 
