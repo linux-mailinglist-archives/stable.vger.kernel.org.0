@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A169E64F5BD
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:12:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FECE64F5C4
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:12:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230331AbiLQAM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 19:12:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45776 "EHLO
+        id S229873AbiLQAMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 19:12:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229954AbiLQALj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:11:39 -0500
+        with ESMTP id S229548AbiLQALr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:11:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1EEDE1A;
-        Fri, 16 Dec 2022 16:10:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21FFE47;
+        Fri, 16 Dec 2022 16:10:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91DD4B81E56;
-        Sat, 17 Dec 2022 00:10:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E35BC433D2;
-        Sat, 17 Dec 2022 00:10:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77211B81E55;
+        Sat, 17 Dec 2022 00:10:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EC0AC433EF;
+        Sat, 17 Dec 2022 00:10:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671235837;
-        bh=szzF0nqELXBbcHSgIINGEe0Mevl8C6tCferRbhARNgU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y7LRS/cdlcbrPVF8I8rIUebVeGu7loiZ+rk+Fa43TWUHMG4y8oLf2lAbCxKkXidt/
-         PxhAc0w5kYKODP6T5UdZQ1D/cCDrk9hxeKYuD7Z4kcObQY6oqXScuQQSZxS4izKpaH
-         rgjA/VJukfsynFg8Z5EZXNw4bOdfDLUey1nwHKMHhEO1CCGeIp3SGe9rE5vrIRjiVl
-         6d4Oc+T2rQYoxueoqXGSUnQuZRYV4/dKJUOLh3Sj3Ia7ZXVs85LFInx1TxcBd1ATsF
-         +BDvOg3BvPUsBMkO/GGhX13cNnctagAz4YgVbm96HJGtjt6lLb9kP/8m28RWGvY2hG
-         PONoQWPnGgb0Q==
+        s=k20201202; t=1671235842;
+        bh=8EsqfBJhnpIecq5KIgt0aYEKapSpV/WLVB1jLuGwtIA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=J9vzjex4uq0g8nvXNZWbNphSlQJhr6hd0zkBjgClKIO6RCSyVhjlA9zmyj5+zVGWu
+         75b3APOJP6NeLiJRfGK6GW2IlZbDZQ+xnINEkoTOgZ0TgW/Ou5CY/uMr6FaW1r49hD
+         H4BhXs0BbAt97IAnpYYuBQ/FYNj7KSyDvi72TdwYX9RN8DACnrUsqLvy0Ykq+60vSC
+         4zcidgqnx510BuXjKMC+5FYmXFr+k7nkWf62IoUMcyUBWNFBDRgssjnD2wfXQOqURz
+         E1OSmhdtcAdYdtR2EUYW6QUqmsZS2VllH4KkV3mYwLFUIVD/gTUS0Svi5shcz6C6HV
+         Z2NB/SAjEHnKg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marijn Suijten <marijn.suijten@somainline.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Luca Weiss <luca.weiss@fairphone.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 8/8] arm64: dts: qcom: sm6350: Add apps_smmu with streamID to SDHCI 1/2 nodes
-Date:   Fri, 16 Dec 2022 19:10:12 -0500
-Message-Id: <20221217001013.41239-8-sashal@kernel.org>
+Cc:     Zqiang <qiang1.zhang@intel.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, frederic@kernel.org,
+        quic_neeraju@quicinc.com, josh@joshtriplett.org,
+        rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 1/5] rcu: Fix __this_cpu_read() lockdep warning in rcu_force_quiescent_state()
+Date:   Fri, 16 Dec 2022 19:10:34 -0500
+Message-Id: <20221217001038.41355-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221217001013.41239-1-sashal@kernel.org>
-References: <20221217001013.41239-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,51 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Zqiang <qiang1.zhang@intel.com>
 
-[ Upstream commit 7372b944a6ba5ac86628eaacc89ed4f103435cb9 ]
+[ Upstream commit ceb1c8c9b8aa9199da46a0f29d2d5f08d9b44c15 ]
 
-When enabling the APPS SMMU the mainline driver reconfigures the SMMU
-from its bootloader configuration, losing the stream mapping for (among
-which) the SDHCI hardware and breaking its ADMA feature.  This feature
-can be disabled with:
+Running rcutorture with non-zero fqs_duration module parameter in a
+kernel built with CONFIG_PREEMPTION=y results in the following splat:
 
-    sdhci.debug_quirks=0x40
+BUG: using __this_cpu_read() in preemptible [00000000]
+code: rcu_torture_fqs/398
+caller is __this_cpu_preempt_check+0x13/0x20
+CPU: 3 PID: 398 Comm: rcu_torture_fqs Not tainted 6.0.0-rc1-yoctodev-standard+
+Call Trace:
+<TASK>
+dump_stack_lvl+0x5b/0x86
+dump_stack+0x10/0x16
+check_preemption_disabled+0xe5/0xf0
+__this_cpu_preempt_check+0x13/0x20
+rcu_force_quiescent_state.part.0+0x1c/0x170
+rcu_force_quiescent_state+0x1e/0x30
+rcu_torture_fqs+0xca/0x160
+? rcu_torture_boost+0x430/0x430
+kthread+0x192/0x1d0
+? kthread_complete_and_exit+0x30/0x30
+ret_from_fork+0x22/0x30
+</TASK>
 
-But it is of course desired to have this feature enabled and working
-through the SMMU.
+The problem is that rcu_force_quiescent_state() uses __this_cpu_read()
+in preemptible code instead of the proper raw_cpu_read().  This commit
+therefore changes __this_cpu_read() to raw_cpu_read().
 
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Reviewed-by: Luca Weiss <luca.weiss@fairphone.com>
-Tested-by: Luca Weiss <luca.weiss@fairphone.com> # sm7225-fairphone-fp4
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221030073232.22726-11-marijn.suijten@somainline.org
+Signed-off-by: Zqiang <qiang1.zhang@intel.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm6350.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/rcu/tree.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm6350.dtsi b/arch/arm64/boot/dts/qcom/sm6350.dtsi
-index d06aefdf3d9e..f4cf49b4848b 100644
---- a/arch/arm64/boot/dts/qcom/sm6350.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm6350.dtsi
-@@ -482,6 +482,7 @@ sdhc_1: mmc@7c4000 {
- 			interrupts = <GIC_SPI 641 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 644 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-names = "hc_irq", "pwr_irq";
-+			iommus = <&apps_smmu 0x60 0x0>;
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 63f7ce228cc3..cf101da389b0 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -2674,7 +2674,7 @@ void rcu_force_quiescent_state(void)
+ 	struct rcu_node *rnp_old = NULL;
  
- 			clocks = <&gcc GCC_SDCC1_AHB_CLK>,
- 				 <&gcc GCC_SDCC1_APPS_CLK>,
-@@ -928,6 +929,7 @@ sdhc_2: mmc@8804000 {
- 			interrupts = <GIC_SPI 204 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 222 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-names = "hc_irq", "pwr_irq";
-+			iommus = <&apps_smmu 0x560 0x0>;
- 
- 			clocks = <&gcc GCC_SDCC2_AHB_CLK>,
- 				 <&gcc GCC_SDCC2_APPS_CLK>,
+ 	/* Funnel through hierarchy to reduce memory contention. */
+-	rnp = __this_cpu_read(rcu_data.mynode);
++	rnp = raw_cpu_read(rcu_data.mynode);
+ 	for (; rnp != NULL; rnp = rnp->parent) {
+ 		ret = (READ_ONCE(rcu_state.gp_flags) & RCU_GP_FLAG_FQS) ||
+ 		       !raw_spin_trylock(&rnp->fqslock);
 -- 
 2.35.1
 
