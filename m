@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 631BE64F9DD
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:27:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC26864FA06
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:33:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229524AbiLQP1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Dec 2022 10:27:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60584 "EHLO
+        id S229863AbiLQP1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Dec 2022 10:27:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229624AbiLQP1i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:27:38 -0500
+        with ESMTP id S229637AbiLQP1m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:27:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B40211C32;
-        Sat, 17 Dec 2022 07:27:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9E871582D;
+        Sat, 17 Dec 2022 07:27:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FF8760C13;
-        Sat, 17 Dec 2022 15:27:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A752FC433F0;
-        Sat, 17 Dec 2022 15:27:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85F5A60C13;
+        Sat, 17 Dec 2022 15:27:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07D74C433F2;
+        Sat, 17 Dec 2022 15:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671290856;
-        bh=OOTfHPq132Z/gNUYFksJS8kJvhXbse9O8ds3QhYEmVc=;
+        s=k20201202; t=1671290860;
+        bh=QvL08K4TOjV+c1hptRTLJj/aEsioY1Kr+jIUnHrI1AM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qB45JXBnIIotGtfDGFYj8gpvF2dPznIgx6Ye3d4Uo7xqfDJd5YKEfbIFqP6NUfNxq
-         /blT1ZsTZOyfNmIKMUsTA3Z2Pso/PiribYdGCjzF9ba9DtgVWm+hS1iGMmdSqSEriM
-         qsYi2gNGeTZRtCSWHS6KvyBxahJ65Znk5wH5NRcS+MPQYuNOMRS6oP4B1aaWLi7Lx4
-         /kIg3NXp+3wbf/a76PNqqMJRZnV3JXZ7D06T2wH87UvNHv+nttYEb5TP+AP7BKBCB6
-         8DA/2Daf5SM9J1XONLuNKeTrILk4Id8zEmWFz3W8mhB2g1vOjxbu1ncxLjON4ueAgk
-         eq5nPU5aopIeA==
+        b=SbGXRN3NBY0xsx0dmLcvfal8/rcnUGnFdTfbDS2VpV9MPy0ZC59yqk9XfUnmT99bS
+         RlBedAvNo9YiAOGJ4fT/s3Mur1ZupTm0OmHV0ecrka9vPpA15a6iZ4eNtVlmH0PFr5
+         S3cBgu1Q0Js4CggkuzmBs+pZfwZgFrRogWmtJa4I+8A2k0DugbaKACfnB/E3GFu+oP
+         m4sdheXzZBOpjd5/LIIi4vTvBPtBD/9eSnIx4CmcOvvoVtmI0DJlP33y7V0AUbSJvp
+         s5VZmw/1qqqF28dPNJkHl/mC1XkT9JvgvOzzrplVaUfMhKzQFE9KTEKq+6jJzg0rWi
+         Einxqr6H69TNA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Dr. David Alan Gilbert" <linux@treblig.org>,
-        syzbot+5fc38b2ddbbca7f5c680@syzkaller.appspotmail.com,
-        Kees Cook <keescook@chromium.org>,
+Cc:     Hoi Pok Wu <wuhoipok@gmail.com>,
         Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>, shaggy@kernel.org,
-        brauner@kernel.org, jfs-discussion@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 6.1 03/22] jfs: Fix fortify moan in symlink
-Date:   Sat, 17 Dec 2022 10:27:04 -0500
-Message-Id: <20221217152727.98061-3-sashal@kernel.org>
+        mudongliangabcd@gmail.com, r33s3n6@gmail.com, paskripkin@gmail.com,
+        jfs-discussion@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 6.1 04/22] fs: jfs: fix shift-out-of-bounds in dbDiscardAG
+Date:   Sat, 17 Dec 2022 10:27:05 -0500
+Message-Id: <20221217152727.98061-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221217152727.98061-1-sashal@kernel.org>
 References: <20221217152727.98061-1-sashal@kernel.org>
@@ -58,58 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Dr. David Alan Gilbert" <linux@treblig.org>
+From: Hoi Pok Wu <wuhoipok@gmail.com>
 
-[ Upstream commit ebe060369f8d6e4588b115f252bebf5ba4d64350 ]
+[ Upstream commit 25e70c6162f207828dd405b432d8f2a98dbf7082 ]
 
-JFS has in jfs_incore.h:
+This should be applied to most URSAN bugs found recently by syzbot,
+by guarding the dbMount. As syzbot feeding rubbish into the bmap
+descriptor.
 
-      /* _inline may overflow into _inline_ea when needed */
-      /* _inline_ea may overlay the last part of
-       * file._xtroot if maxentry = XTROOTINITSLOT
-       */
-      union {
-        struct {
-          /* 128: inline symlink */
-          unchar _inline[128];
-          /* 128: inline extended attr */
-          unchar _inline_ea[128];
-        };
-        unchar _inline_all[256];
-
-and currently the symlink code copies into _inline;
-if this is larger than 128 bytes it triggers a fortify warning of the
-form:
-
-  memcpy: detected field-spanning write (size 132) of single field
-     "ip->i_link" at fs/jfs/namei.c:950 (size 18446744073709551615)
-
-when it's actually OK.
-
-Copy it into _inline_all instead.
-
-Reported-by: syzbot+5fc38b2ddbbca7f5c680@syzkaller.appspotmail.com
-Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Hoi Pok Wu <wuhoipok@gmail.com>
 Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/namei.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/jfs/jfs_dmap.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/jfs/namei.c b/fs/jfs/namei.c
-index 9db4f5789c0e..4fbbf88435e6 100644
---- a/fs/jfs/namei.c
-+++ b/fs/jfs/namei.c
-@@ -946,7 +946,7 @@ static int jfs_symlink(struct user_namespace *mnt_userns, struct inode *dip,
- 	if (ssize <= IDATASIZE) {
- 		ip->i_op = &jfs_fast_symlink_inode_operations;
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index e1cbfbb60303..765838578a72 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -198,6 +198,11 @@ int dbMount(struct inode *ipbmap)
+ 		goto err_release_metapage;
+ 	}
  
--		ip->i_link = JFS_IP(ip)->i_inline;
-+		ip->i_link = JFS_IP(ip)->i_inline_all;
- 		memcpy(ip->i_link, name, ssize);
- 		ip->i_size = ssize - 1;
- 
++	if (((bmp->db_mapsize - 1) >> bmp->db_agl2size) > MAXAG) {
++		err = -EINVAL;
++		goto err_release_metapage;
++	}
++
+ 	for (i = 0; i < MAXAG; i++)
+ 		bmp->db_agfree[i] = le64_to_cpu(dbmp_le->dn_agfree[i]);
+ 	bmp->db_agsize = le64_to_cpu(dbmp_le->dn_agsize);
 -- 
 2.35.1
 
