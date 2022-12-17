@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF01164F589
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:09:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D2B64F58B
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:10:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229743AbiLQAJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 19:09:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43538 "EHLO
+        id S229844AbiLQAKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 19:10:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbiLQAJm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:09:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DE676E9ED;
-        Fri, 16 Dec 2022 16:09:42 -0800 (PST)
+        with ESMTP id S229851AbiLQAJ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:09:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9739D73B12;
+        Fri, 16 Dec 2022 16:09:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E06A5621A1;
-        Sat, 17 Dec 2022 00:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35004C433EF;
-        Sat, 17 Dec 2022 00:09:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2DDA4B81E41;
+        Sat, 17 Dec 2022 00:09:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5AF7C433EF;
+        Sat, 17 Dec 2022 00:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671235781;
-        bh=FtAeghpOcG2WZJsrWRmoGbAgKj+g/KOYm0uLL2+J9z0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=YAxQy6bjIYHUeso98wKjj2cJYiE2u9GGKELZXCseOoc89YinC3UQjXcgoaTq2tgwP
-         YWPI0YoiqwbXhCFi3VdGsfMIMrdGrJoFmCcUiH6aZhfErTqiufAukSKsw7fzZJxsir
-         r02BKMyUzvD9N5+DKqK/yUgZ5WKGr30whw0DnzlCF5RNRskOYXmy/4wI7IDxdrQz3X
-         8e6XiLKWA+t3zwpZmqGo4E6Cd7s0C7zOqX6I7fYqiIS/rtEyowSf9c062XQ3O6kR0z
-         ditkzAZ5G4DnYjpzfIU0hQv9cztvb1qlo1VL6JO4a3e6PXui1UPsL2s+5NLbQPxIYR
-         T8RAH4tc55UIg==
+        s=k20201202; t=1671235794;
+        bh=n+UO3JEjJNtE6E7bl5JwaGCjw+WpyVJcpCgHb+zK70g=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=XYdkp4uOHEe1zDTjKmZY70ueOCkT7KFVCEsuL7DKp2C6aYFTpgBx6SXNoHoQ2k4GC
+         zgWUqb8wCM2prt1Ob4JXl9yztWNkCqS5IIxZDQLysHB4MJ+L1qRr+Arw/xPBfMmV5v
+         kGrefqiASlNZ1JP+UR4IaaDKumBcCQKwYGodzL/Nq2LymUoW8BxCDs9N2bXoaZKcf/
+         0lyc0OsCUsYGme4ws69H+CEGt6oRBTLv0uqXpA5Gy+1OcKtjeQUKUs2J9jgX51j6Ap
+         5epxzDhfLpl1BTBrbr1brsrkDfqUNWSeUw/6oiFaEL4zMaAIhTzymZgGv9k6IIlxWW
+         p29dwsMOSxgsw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zqiang <qiang1.zhang@intel.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, frederic@kernel.org,
-        quic_neeraju@quicinc.com, josh@joshtriplett.org,
-        rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 1/9] rcu: Fix __this_cpu_read() lockdep warning in rcu_force_quiescent_state()
-Date:   Fri, 16 Dec 2022 19:09:28 -0500
-Message-Id: <20221217000937.41115-1-sashal@kernel.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        broonie@kernel.org, keescook@chromium.org,
+        christophe.leroy@csgroup.eu, flaniel@linux.microsoft.com,
+        wangkefeng.wang@huawei.com, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.1 2/9] arm64: make is_ttbrX_addr() noinstr-safe
+Date:   Fri, 16 Dec 2022 19:09:29 -0500
+Message-Id: <20221217000937.41115-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221217000937.41115-1-sashal@kernel.org>
+References: <20221217000937.41115-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,57 +58,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang1.zhang@intel.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit ceb1c8c9b8aa9199da46a0f29d2d5f08d9b44c15 ]
+[ Upstream commit d8c1d798a2e5091128c391c6dadcc9be334af3f5 ]
 
-Running rcutorture with non-zero fqs_duration module parameter in a
-kernel built with CONFIG_PREEMPTION=y results in the following splat:
+We use is_ttbr0_addr() in noinstr code, but as it's only marked as
+inline, it's theoretically possible for the compiler to place it
+out-of-line and instrument it, which would be problematic.
 
-BUG: using __this_cpu_read() in preemptible [00000000]
-code: rcu_torture_fqs/398
-caller is __this_cpu_preempt_check+0x13/0x20
-CPU: 3 PID: 398 Comm: rcu_torture_fqs Not tainted 6.0.0-rc1-yoctodev-standard+
-Call Trace:
-<TASK>
-dump_stack_lvl+0x5b/0x86
-dump_stack+0x10/0x16
-check_preemption_disabled+0xe5/0xf0
-__this_cpu_preempt_check+0x13/0x20
-rcu_force_quiescent_state.part.0+0x1c/0x170
-rcu_force_quiescent_state+0x1e/0x30
-rcu_torture_fqs+0xca/0x160
-? rcu_torture_boost+0x430/0x430
-kthread+0x192/0x1d0
-? kthread_complete_and_exit+0x30/0x30
-ret_from_fork+0x22/0x30
-</TASK>
+Mark is_ttbr0_addr() as __always_inline such that that can safely be
+used from noinstr code. For consistency, do the same to is_ttbr1_addr().
+Note that while is_ttbr1_addr() calls arch_kasan_reset_tag(), this is a
+macro (and its callees are either macros or __always_inline), so there
+is not a risk of transient instrumentation.
 
-The problem is that rcu_force_quiescent_state() uses __this_cpu_read()
-in preemptible code instead of the proper raw_cpu_read().  This commit
-therefore changes __this_cpu_read() to raw_cpu_read().
-
-Signed-off-by: Zqiang <qiang1.zhang@intel.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20221114144042.3001140-1-mark.rutland@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/processor.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 93416afebd59..14d9384fba05 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -2418,7 +2418,7 @@ void rcu_force_quiescent_state(void)
- 	struct rcu_node *rnp_old = NULL;
+diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
+index 445aa3af3b76..400f8956328b 100644
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -308,13 +308,13 @@ static inline void compat_start_thread(struct pt_regs *regs, unsigned long pc,
+ }
+ #endif
  
- 	/* Funnel through hierarchy to reduce memory contention. */
--	rnp = __this_cpu_read(rcu_data.mynode);
-+	rnp = raw_cpu_read(rcu_data.mynode);
- 	for (; rnp != NULL; rnp = rnp->parent) {
- 		ret = (READ_ONCE(rcu_state.gp_flags) & RCU_GP_FLAG_FQS) ||
- 		       !raw_spin_trylock(&rnp->fqslock);
+-static inline bool is_ttbr0_addr(unsigned long addr)
++static __always_inline bool is_ttbr0_addr(unsigned long addr)
+ {
+ 	/* entry assembly clears tags for TTBR0 addrs */
+ 	return addr < TASK_SIZE;
+ }
+ 
+-static inline bool is_ttbr1_addr(unsigned long addr)
++static __always_inline bool is_ttbr1_addr(unsigned long addr)
+ {
+ 	/* TTBR1 addresses may have a tag if KASAN_SW_TAGS is in use */
+ 	return arch_kasan_reset_tag(addr) >= PAGE_OFFSET;
 -- 
 2.35.1
 
