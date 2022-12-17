@@ -2,70 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CF564F92A
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 14:55:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 028E064F9DA
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:27:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230323AbiLQNzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Dec 2022 08:55:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36180 "EHLO
+        id S229504AbiLQP1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Dec 2022 10:27:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230253AbiLQNzB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 08:55:01 -0500
-Received: from mail-qv1-xf32.google.com (mail-qv1-xf32.google.com [IPv6:2607:f8b0:4864:20::f32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC34813F11
-        for <stable@vger.kernel.org>; Sat, 17 Dec 2022 05:54:58 -0800 (PST)
-Received: by mail-qv1-xf32.google.com with SMTP id c14so3511118qvq.0
-        for <stable@vger.kernel.org>; Sat, 17 Dec 2022 05:54:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:sender:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=UleXfybfkB/Pp7XCNYIxvDWfUpO/oLpvjkUbrsMk7bk=;
-        b=D1PRUyv/HYRy+qB27d/g+CB1D2akP+es73S1ygDjjtFnXFBX3YoX7Pu1ns32nupF60
-         YPCg07uado3P/ovyGJ4LiRnuPxELxTug69bwvjlIsmdNPdulk2Hr0j/Nqzt1Tuy4DUHq
-         Q7dlvZklGyM0kfSZWf6nvG6/e5EQjqIYn4w+FpR4a3fAvU2ADZRzipfLj0W3Lmuc90FE
-         kJaYbQFvyuntG3J/zpyOKBMl3fOn51SU2ODY0t+vQXuBA+vyeaMdw3JMcM0D07yPiKWw
-         vRYdqSxVB5RYsts+uiyzG0Kb0oqkkai95Z69/snnOmbLSi/7WvbhKIlCiJ49BlMyeiB1
-         dOog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:sender:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=UleXfybfkB/Pp7XCNYIxvDWfUpO/oLpvjkUbrsMk7bk=;
-        b=SeqL6yLCBuf+W/F/90uwY6Q3VvTNhpmVsmM42zoXwZdey/xApkqUxynSXgkXTF1cdf
-         Hwc6sl5zSav92nMIwsgQBwOUAwU0/myPEvR0U5Fg/O0mImyMiI6YE6k2kjGdU7rRTvDi
-         kBNAYSYjm33S/qBRKyGtm77XNHj3PgITIhQLbntyAnSO8akNJUNLxoTLPqW3o7RtvZVf
-         7o/tK2UFSdGeUxHv0nLoBPV/TVhbOfmQJrcsFf+tnM6OH6butKT20rVH0KCZZyruv/bo
-         Gwzy8xq5PSYBqh8plHzsRodpprSXiOVebQH5DhIZCdy0hQvkYWTTMQZU3WmWyP+60G/l
-         sPGg==
-X-Gm-Message-State: ANoB5pnxT4ZTNtNGKy6KSJMSnLq7fkB4BTgGkTUITKjj8fcCugg/mpVE
-        45fFkRcj/BJ7fsbN6wohzDWm+Ail3Y2Jp7Yglwo=
-X-Google-Smtp-Source: AA0mqf7lCnbALq3WZLOYVmwLPm1uNwRZFn04XzmHUnTUjMRRU/cOLCT/JiJPNy7mJ7eyPzDQWsQrPUn7eGZuBLrkltQ=
-X-Received: by 2002:ad4:55cd:0:b0:4c7:57af:c44 with SMTP id
- bt13-20020ad455cd000000b004c757af0c44mr20844924qvb.98.1671285297866; Sat, 17
- Dec 2022 05:54:57 -0800 (PST)
+        with ESMTP id S229469AbiLQP1f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:27:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECD2511C32;
+        Sat, 17 Dec 2022 07:27:33 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1875B802C3;
+        Sat, 17 Dec 2022 15:27:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03432C43392;
+        Sat, 17 Dec 2022 15:27:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1671290851;
+        bh=oK4XDHowo8pk+fzEGgRwIFdrMEojl+jVI5Mt9gJlPyU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BKgz+hTyGBmFUdxeYOm7eYdvUzNZf6A99C43tRxr15D9Gn/zSTVhekAa+Zs2QoOKE
+         SDmtVxBGIEuV979uTa1+1ikTK1AEb6/wcmLz9/vgkKYlhLSOM8ohu6ZK0gc7F15xtl
+         iqD5Q9SLU/j9CnRZzN8Ay6ZxuaXi1AmQd0HMYe4Tok4d80UIfzrwWCmkVY+3qVeci0
+         IiFVzQwDhUg42CFCIaLMCDYJRjpmGTWqheP2Dv6H4/6uQ7wVBu1Oe4uZ8zNAxogfZW
+         8GpPm+EW9xzol8VWcndir0sWRrBHg2W1RSnmtwXw1bxwOd9/uJtNEys7949w7owj1F
+         9eQNWVCMrewUw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzbot+15342c1aa6a00fb7a438@syzkaller.appspotmail.com,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, shaggy@kernel.org,
+        paskripkin@gmail.com, r33s3n6@gmail.com, wuhoipok@gmail.com,
+        jfs-discussion@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 6.1 01/22] fs: jfs: fix shift-out-of-bounds in dbAllocAG
+Date:   Sat, 17 Dec 2022 10:27:02 -0500
+Message-Id: <20221217152727.98061-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Sender: asfiss2018@gmail.com
-Received: by 2002:a05:622a:38f:0:0:0:0 with HTTP; Sat, 17 Dec 2022 05:54:57
- -0800 (PST)
-From:   John Kumor <a45476306@gmail.com>
-Date:   Sat, 17 Dec 2022 13:54:57 +0000
-X-Google-Sender-Auth: qmfptrVryDAEdz_G4wWmCDajJaQ
-Message-ID: <CAMhHx7-pKJbRUq6vn__nUpM7sPxwsGwVWyQ9AZGUkJzA42dAMA@mail.gmail.com>
-Subject: Kindly reply back.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=0.1 required=5.0 tests=BAYES_20,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings!!
-Did you receive my previous email?
-Regards,
-John Kumor,
+From: Dongliang Mu <mudongliangabcd@gmail.com>
+
+[ Upstream commit 898f706695682b9954f280d95e49fa86ffa55d08 ]
+
+Syzbot found a crash : UBSAN: shift-out-of-bounds in dbAllocAG. The
+underlying bug is the missing check of bmp->db_agl2size. The field can
+be greater than 64 and trigger the shift-out-of-bounds.
+
+Fix this bug by adding a check of bmp->db_agl2size in dbMount since this
+field is used in many following functions. The upper bound for this
+field is L2MAXL2SIZE - L2MAXAG, thanks for the help of Dave Kleikamp.
+Note that, for maintenance, I reorganized error handling code of dbMount.
+
+Reported-by: syzbot+15342c1aa6a00fb7a438@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/jfs/jfs_dmap.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index 6b838d3ae7c2..e1cbfbb60303 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -155,7 +155,7 @@ int dbMount(struct inode *ipbmap)
+ 	struct bmap *bmp;
+ 	struct dbmap_disk *dbmp_le;
+ 	struct metapage *mp;
+-	int i;
++	int i, err;
+ 
+ 	/*
+ 	 * allocate/initialize the in-memory bmap descriptor
+@@ -170,8 +170,8 @@ int dbMount(struct inode *ipbmap)
+ 			   BMAPBLKNO << JFS_SBI(ipbmap->i_sb)->l2nbperpage,
+ 			   PSIZE, 0);
+ 	if (mp == NULL) {
+-		kfree(bmp);
+-		return -EIO;
++		err = -EIO;
++		goto err_kfree_bmp;
+ 	}
+ 
+ 	/* copy the on-disk bmap descriptor to its in-memory version. */
+@@ -181,9 +181,8 @@ int dbMount(struct inode *ipbmap)
+ 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
+ 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
+ 	if (!bmp->db_numag) {
+-		release_metapage(mp);
+-		kfree(bmp);
+-		return -EINVAL;
++		err = -EINVAL;
++		goto err_release_metapage;
+ 	}
+ 
+ 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
+@@ -194,6 +193,11 @@ int dbMount(struct inode *ipbmap)
+ 	bmp->db_agwidth = le32_to_cpu(dbmp_le->dn_agwidth);
+ 	bmp->db_agstart = le32_to_cpu(dbmp_le->dn_agstart);
+ 	bmp->db_agl2size = le32_to_cpu(dbmp_le->dn_agl2size);
++	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG) {
++		err = -EINVAL;
++		goto err_release_metapage;
++	}
++
+ 	for (i = 0; i < MAXAG; i++)
+ 		bmp->db_agfree[i] = le64_to_cpu(dbmp_le->dn_agfree[i]);
+ 	bmp->db_agsize = le64_to_cpu(dbmp_le->dn_agsize);
+@@ -214,6 +218,12 @@ int dbMount(struct inode *ipbmap)
+ 	BMAP_LOCK_INIT(bmp);
+ 
+ 	return (0);
++
++err_release_metapage:
++	release_metapage(mp);
++err_kfree_bmp:
++	kfree(bmp);
++	return err;
+ }
+ 
+ 
+-- 
+2.35.1
+
