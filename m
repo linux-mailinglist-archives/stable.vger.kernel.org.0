@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7386164FA24
+	by mail.lfdr.de (Postfix) with ESMTP id BFC0364FA25
 	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:33:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230018AbiLQPa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Dec 2022 10:30:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33422 "EHLO
+        id S229908AbiLQPbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Dec 2022 10:31:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229968AbiLQP3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:29:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2E2618361;
-        Sat, 17 Dec 2022 07:28:13 -0800 (PST)
+        with ESMTP id S230210AbiLQPak (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:30:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3849186EF;
+        Sat, 17 Dec 2022 07:28:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E0EE60C1C;
-        Sat, 17 Dec 2022 15:28:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF974C43398;
-        Sat, 17 Dec 2022 15:28:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E2B6B803F1;
+        Sat, 17 Dec 2022 15:28:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E8F1C433F0;
+        Sat, 17 Dec 2022 15:28:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671290892;
-        bh=SsZLdHxV3v0ozemZuINALEFC99IXb8xrVlBR4IvXihw=;
+        s=k20201202; t=1671290896;
+        bh=Nr7Czi64UOU5LI7QtmOhNRgux5NWwntjgCqwpLPPEEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LpYA4Hgq/2yTc979xavlykNy/zBL4rferZpaZeqmM6DOsK/N/C+fl9eRKYsLZBFZQ
-         xKcIsC6P05a+TGshm6zNF++p9iloySHrid4JuJ+uvROpuRCIhSDzDeu2Gl12eU6chx
-         F3dbVGECy4HrglSp/Uo5qLxTo8W8M6Yhy1uR/tribgGBdUCzjuWuO6vbZo+dU1Q/lg
-         5wPbLhMTKKhuHeNXztFrZmlZ8zUycqlQMc4J9vX+bD5LEGkPR6OYlYOVVgVNhKlrVX
-         MSA/ffZ+GSmzMjh0YUf2ilLvyN+aCisgp6PkKiaIN2gH7WPkHjZ+3VA/gbOzFwxmET
-         awodm9x+x3Pmw==
+        b=H/e2kv34ukb4kuBDnS/kMO/tQC7OwcIUsAWNQpDa3oiaLkwLCMchWEcFMAQVdjB9f
+         RhNYSPXymHzPP2YIHcqLcqUxMLZdQyWQYzMj1w//4oegzU8Yr2Xx44uKJx1Xyr9WI0
+         uePu9tsisrQX+Aj1TdpCxnahtu5WVcuoOqVZZkiReAn0yR+BphkGBaKk017xwrnFji
+         3qXM/Vhh1qk5qBM0YINfGiXfjjY0QRbuqMScSCPjS0pEA+Sf1+laGHlwAUh2jYSea9
+         tfS5pqcXvXkm+wjIxWUdN85fC12h/TAPy1os97fKNhWy9hO9B4TqbwVKhsA/GxwSRl
+         +dJajVeZSkvJQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, clm@fb.com,
-        linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 20/22] btrfs: do not panic if we can't allocate a prealloc extent state
-Date:   Sat, 17 Dec 2022 10:27:21 -0500
-Message-Id: <20221217152727.98061-20-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        mario.limonciello@amd.com, andriy.shevchenko@linux.intel.com,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 21/22] ACPI: x86: Add skip i2c clients quirk for Medion Lifetab S10346
+Date:   Sat, 17 Dec 2022 10:27:22 -0500
+Message-Id: <20221217152727.98061-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221217152727.98061-1-sashal@kernel.org>
 References: <20221217152727.98061-1-sashal@kernel.org>
@@ -56,124 +58,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 5a75034e71ef5ec0fce983afcb6c9cb0147cd5b9 ]
+[ Upstream commit ecc6aaabcedc276128315f57755364106017c606 ]
 
-We sometimes have to allocate new extent states when clearing or setting
-new bits in an extent io tree.  Generally we preallocate this before
-taking the tree spin lock, but we can use this preallocated extent state
-sometimes and then need to try to do a GFP_ATOMIC allocation under the
-lock.
+The Medion Lifetab S10346 is a x86 tablet which ships with Android x86 as
+factory OS. The Android x86 kernel fork ignores I2C devices described in
+the DSDT, except for the PMIC and Audio codecs.
 
-Unfortunately sometimes this fails, and then we hit the BUG_ON() and
-bring the box down.  This happens roughly 20 times a week in our fleet.
+As usual the Medion Lifetab S10346's DSDT contains a bunch of extra I2C
+devices which are not actually there, causing various resource conflicts.
+Add an ACPI_QUIRK_SKIP_I2C_CLIENTS quirk for the Medion Lifetab S10346 to
+the acpi_quirk_skip_dmi_ids table to woraround this.
 
-However the vast majority of callers use GFP_NOFS, which means that if
-this GFP_ATOMIC allocation fails, we could simply drop the spin lock, go
-back and allocate a new extent state with our given gfp mask, and begin
-again from where we left off.
-
-For the remaining callers that do not use GFP_NOFS, they are generally
-using GFP_NOWAIT, which still allows for some reclaim.  So allow these
-allocations to attempt to happen outside of the spin lock so we don't
-need to rely on GFP_ATOMIC allocations.
-
-This in essence creates an infinite loop for anything that isn't
-GFP_NOFS.  To address this we may want to migrate to using mempools for
-extent states so that we will always have emergency reserves in order to
-make our allocations.
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent-io-tree.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ drivers/acpi/x86/utils.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/fs/btrfs/extent-io-tree.c b/fs/btrfs/extent-io-tree.c
-index 83cb0378096f..3676580c2d97 100644
---- a/fs/btrfs/extent-io-tree.c
-+++ b/fs/btrfs/extent-io-tree.c
-@@ -572,7 +572,7 @@ int __clear_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
- 	if (bits & (EXTENT_LOCKED | EXTENT_BOUNDARY))
- 		clear = 1;
- again:
--	if (!prealloc && gfpflags_allow_blocking(mask)) {
-+	if (!prealloc) {
- 		/*
- 		 * Don't care for allocation failure here because we might end
- 		 * up not needing the pre-allocated extent state at all, which
-@@ -636,7 +636,8 @@ int __clear_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
- 
- 	if (state->start < start) {
- 		prealloc = alloc_extent_state_atomic(prealloc);
--		BUG_ON(!prealloc);
-+		if (!prealloc)
-+			goto search_again;
- 		err = split_state(tree, state, prealloc, start);
- 		if (err)
- 			extent_io_tree_panic(tree, err);
-@@ -657,7 +658,8 @@ int __clear_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
- 	 */
- 	if (state->start <= end && state->end > end) {
- 		prealloc = alloc_extent_state_atomic(prealloc);
--		BUG_ON(!prealloc);
-+		if (!prealloc)
-+			goto search_again;
- 		err = split_state(tree, state, prealloc, end + 1);
- 		if (err)
- 			extent_io_tree_panic(tree, err);
-@@ -966,7 +968,7 @@ static int __set_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
- 	else
- 		ASSERT(failed_start == NULL);
- again:
--	if (!prealloc && gfpflags_allow_blocking(mask)) {
-+	if (!prealloc) {
- 		/*
- 		 * Don't care for allocation failure here because we might end
- 		 * up not needing the pre-allocated extent state at all, which
-@@ -991,7 +993,8 @@ static int __set_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
- 	state = tree_search_for_insert(tree, start, &p, &parent);
- 	if (!state) {
- 		prealloc = alloc_extent_state_atomic(prealloc);
--		BUG_ON(!prealloc);
-+		if (!prealloc)
-+			goto search_again;
- 		prealloc->start = start;
- 		prealloc->end = end;
- 		insert_state_fast(tree, prealloc, p, parent, bits, changeset);
-@@ -1062,7 +1065,8 @@ static int __set_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
- 		}
- 
- 		prealloc = alloc_extent_state_atomic(prealloc);
--		BUG_ON(!prealloc);
-+		if (!prealloc)
-+			goto search_again;
- 		err = split_state(tree, state, prealloc, start);
- 		if (err)
- 			extent_io_tree_panic(tree, err);
-@@ -1099,7 +1103,8 @@ static int __set_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
- 			this_end = last_start - 1;
- 
- 		prealloc = alloc_extent_state_atomic(prealloc);
--		BUG_ON(!prealloc);
-+		if (!prealloc)
-+			goto search_again;
- 
- 		/*
- 		 * Avoid to free 'prealloc' if it can be merged with the later
-@@ -1130,7 +1135,8 @@ static int __set_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
- 		}
- 
- 		prealloc = alloc_extent_state_atomic(prealloc);
--		BUG_ON(!prealloc);
-+		if (!prealloc)
-+			goto search_again;
- 		err = split_state(tree, state, prealloc, end + 1);
- 		if (err)
- 			extent_io_tree_panic(tree, err);
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index 635de40b5822..4e816bb402f6 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -329,6 +329,17 @@ static const struct dmi_system_id acpi_quirk_skip_dmi_ids[] = {
+ 		.driver_data = (void *)(ACPI_QUIRK_SKIP_I2C_CLIENTS |
+ 					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY),
+ 	},
++	{
++		/* Medion Lifetab S10346 */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
++			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
++			/* Way too generic, also match on BIOS data */
++			DMI_MATCH(DMI_BIOS_DATE, "10/22/2015"),
++		},
++		.driver_data = (void *)(ACPI_QUIRK_SKIP_I2C_CLIENTS |
++					ACPI_QUIRK_SKIP_ACPI_AC_AND_BATTERY),
++	},
+ 	{
+ 		/* Nextbook Ares 8 */
+ 		.matches = {
 -- 
 2.35.1
 
