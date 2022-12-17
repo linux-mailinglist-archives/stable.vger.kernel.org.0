@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11DB664F5E5
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:14:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1858C64F5EA
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:14:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230281AbiLQAOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 19:14:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43918 "EHLO
+        id S229660AbiLQAOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 19:14:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230393AbiLQANS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:13:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 042887508B;
-        Fri, 16 Dec 2022 16:11:21 -0800 (PST)
+        with ESMTP id S229726AbiLQANg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:13:36 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C25176165;
+        Fri, 16 Dec 2022 16:11:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D31962295;
-        Sat, 17 Dec 2022 00:11:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB94BC433F1;
-        Sat, 17 Dec 2022 00:11:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7E951CE1EBA;
+        Sat, 17 Dec 2022 00:11:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2B79C433EF;
+        Sat, 17 Dec 2022 00:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671235880;
-        bh=Y7QUCuIeT36PPyWNZwZPgzNoFAeSyVVRpGZ7GZi+7cc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5AnnJqNT/qJymgeecCYgyRc3NDLcvncZYXourw3GHb44m29V0ETQ8S0hRv61eBKn
-         gMcwyVZbnz2L5sheozfYwDGNuhafidUs2qx7ztNGPMe5acjAUzTE7IRMHBZ+Fs0I1X
-         JEEtK4mAUDZYbdCDspX7f3nQIuzgSD5Dg1Qe+m4UeL8ihoJzBCJEBcC+bloUigX56Y
-         mlaljeCfyudqk1Qo6zVqEVPKRh91yHPLkoC6KqpkS8LMDX/+z+QPn/pU1C938WMVFM
-         rf+6zAmvnO7njkNRkrxp1x04HOH3/bPLaj0xCe/fU30llNK3cEg7m9HYJpSEmNvRN0
-         nIJcX8/g60LRg==
+        s=k20201202; t=1671235884;
+        bh=PLWjoElbUUTrwiueek+ck3ZZEqIQCzSUwGIQlRGcNmA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=TN9BFkUH1TWsdjogqt4Uchmmg2roCwf1UWvZvw2PPWvWUtZkK7fL8UfO3IaELs6HX
+         qXFvzFMQAwh/bafUaTn1A4GpZ7qfrPEb+ZXkUmoD5BBkuNb+B535QveMhbYVpyxsaH
+         EcBnaYLdQCojHw6d12pOEVAMkjXc1rXzvnzvz72VhLhhQVMli/8+qTQG0bfwaQCTEa
+         Zcx65QhrCbHVYhOrmqQMdG3G4r3+yt7YlSQmg01Nu+h4Is6mg/SGLpO/cUJLfJ0+oo
+         0rpO+w6tm+l3gFeBkPLtW1iAyurzQ03SqXk5i/HqpT8gh/lYQIjDq8NgFGgkNsodY7
+         dt0iLuo9mY5XQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Liu Shixin <liushixin2@huawei.com>,
         Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>, viro@zeniv.linux.org.uk,
         linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.4 2/2] binfmt_misc: fix shift-out-of-bounds in check_special_flags
-Date:   Fri, 16 Dec 2022 19:11:15 -0500
-Message-Id: <20221217001116.41497-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19] binfmt_misc: fix shift-out-of-bounds in check_special_flags
+Date:   Fri, 16 Dec 2022 19:11:21 -0500
+Message-Id: <20221217001121.41535-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221217001116.41497-1-sashal@kernel.org>
-References: <20221217001116.41497-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -91,10 +89,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/fs/binfmt_misc.c b/fs/binfmt_misc.c
-index 056a68292e15..23b563ff0dd7 100644
+index 27a04f492541..8fe7edd2b001 100644
 --- a/fs/binfmt_misc.c
 +++ b/fs/binfmt_misc.c
-@@ -44,10 +44,10 @@ static LIST_HEAD(entries);
+@@ -42,10 +42,10 @@ static LIST_HEAD(entries);
  static int enabled = 1;
  
  enum {Enabled, Magic};
