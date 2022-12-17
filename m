@@ -2,111 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55E9E64F5F0
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:15:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16CE164F6EF
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 03:06:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231127AbiLQAPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 19:15:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45350 "EHLO
+        id S230089AbiLQCGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 21:06:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230437AbiLQANr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:13:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F447682E;
-        Fri, 16 Dec 2022 16:11:34 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73BCFB81E4A;
-        Sat, 17 Dec 2022 00:11:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61EA4C433F0;
-        Sat, 17 Dec 2022 00:11:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671235892;
-        bh=vMndOG5sdgeg8DD+EqgRVsExZdtKN+MFV/3z5NYiEF0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BTkob2+/C9qE2PyryiIjgdrz+6SMuXG16swzphD1uoLabaET6+5HM2b86SXYxB7H2
-         efnUf935ensHLDpxZqoqR4IBT715MCgw460zPaQ+GxvPaGP/dzTYEbA4qxWLNuxbI+
-         d5FinO2xNp61sT2qOmsVjU/haZyXKx5ZbS+DoYoU0L2N9TfrimUfCHY2R89DoKLXHa
-         sQMM2z1XLqeEVbUs7n9yXZcdsUDhsI7ghigmsRTKio+F6MHNT5dqMDkBl/yw44dISJ
-         kYwM3NDt+Tc2++y9o6LyNqpAQiMoa7fWH7nmj+hojKWi4vIuV8NUEH9LIkIkYWHplB
-         SM1m+BRuVPkBQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liu Shixin <liushixin2@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, viro@zeniv.linux.org.uk,
-        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.9] binfmt_misc: fix shift-out-of-bounds in check_special_flags
-Date:   Fri, 16 Dec 2022 19:11:28 -0500
-Message-Id: <20221217001129.41587-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S230076AbiLQCGR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 21:06:17 -0500
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE69410073;
+        Fri, 16 Dec 2022 18:06:16 -0800 (PST)
+Received: by mail-qt1-f175.google.com with SMTP id g7so4227046qts.1;
+        Fri, 16 Dec 2022 18:06:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ZKc6CEuQzPI93BCDJ+XZTxYCZmLQ7juv1HMMaSYki58=;
+        b=DVfYOLBn8HZAISjW1goeKXgobVNs0oC6WDP9AT4P/+dbdMrLK0payuarSgePDlSg+4
+         8HScN1+I74ha7xavA1IKQKvgxKKpIGYg+D6nRXAJCQ/S0mrzxxbRtEVVndsB5cWe4JC3
+         oxKzuw2YBNn7sh+Z2zUDPoIeuDkmwlUmelq7cWstr1MrpD2WDFMd0w07eZx6sVWYNmeg
+         oDwJQmx1OXnzrBrmV5AfTjIurNrKexJc2LtufPcGeuLE73UcAW/J31xrRVfj8PbRYSm9
+         JYbAbonP5mON2aLxzyhLfdQJXPpkS/hzjEUrYOf+5510JVQ0R3ghgSLkl2o1jk1knu+m
+         CFYQ==
+X-Gm-Message-State: ANoB5pmbbhe0hRpqsr2K5+p81eacFMxUdGlAla5/770fyBCEk1lO0m8V
+        tC25wSEpwJQ9PWPdT3WMNnOq0KUD477jkw==
+X-Google-Smtp-Source: AA0mqf4rXy848Ygy5vtZRG6Ebev54YNctwJPnNvrFcHN8DVf3xCvxM4gu5VtZyW8WyPAfXMtFzOOfQ==
+X-Received: by 2002:ac8:7ef2:0:b0:3a8:20e:2bb with SMTP id r18-20020ac87ef2000000b003a8020e02bbmr41297785qtc.6.1671242775900;
+        Fri, 16 Dec 2022 18:06:15 -0800 (PST)
+Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com. [209.85.219.181])
+        by smtp.gmail.com with ESMTPSA id h5-20020ac87145000000b003a69225c2cdsm2284945qtp.56.2022.12.16.18.06.15
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 16 Dec 2022 18:06:15 -0800 (PST)
+Received: by mail-yb1-f181.google.com with SMTP id d128so4244927ybf.10;
+        Fri, 16 Dec 2022 18:06:15 -0800 (PST)
+X-Received: by 2002:a25:bac8:0:b0:6d8:186:aac8 with SMTP id
+ a8-20020a25bac8000000b006d80186aac8mr88282764ybk.23.1671242775020; Fri, 16
+ Dec 2022 18:06:15 -0800 (PST)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+References: <20221208033523.122642-1-ebiggers@kernel.org> <CAMw=ZnQUmeOWQkMM9Kn5iYaT4dyDQ3j1K=dUgk9jFNcHPxxHrg@mail.gmail.com>
+ <Y5zd6ucBc20CV7Le@sol.localdomain>
+In-Reply-To: <Y5zd6ucBc20CV7Le@sol.localdomain>
+From:   Luca Boccassi <bluca@debian.org>
+Date:   Sat, 17 Dec 2022 02:06:04 +0000
+X-Gmail-Original-Message-ID: <CAMw=ZnS5mXpQYtGHEK7-Q-VEojhooXiQVsGPT3e8NCW8uxnWyA@mail.gmail.com>
+Message-ID: <CAMw=ZnS5mXpQYtGHEK7-Q-VEojhooXiQVsGPT3e8NCW8uxnWyA@mail.gmail.com>
+Subject: Re: [PATCH] fsverity: don't check builtin signatures when require_signatures=0
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     linux-fscrypt@vger.kernel.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net,
+        linux-btrfs@vger.kernel.org, linux-integrity@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+On Fri, 16 Dec 2022 at 21:06, Eric Biggers <ebiggers@kernel.org> wrote:
+>
+> On Thu, Dec 08, 2022 at 08:42:56PM +0000, Luca Boccassi wrote:
+> > On Thu, 8 Dec 2022 at 03:35, Eric Biggers <ebiggers@kernel.org> wrote:
+> > >
+> > > From: Eric Biggers <ebiggers@google.com>
+> > >
+> > > An issue that arises when migrating from builtin signatures to userspace
+> > > signatures is that existing files that have builtin signatures cannot be
+> > > opened unless either CONFIG_FS_VERITY_BUILTIN_SIGNATURES is disabled or
+> > > the signing certificate is left in the .fs-verity keyring.
+> > >
+> > > Since builtin signatures provide no security benefit when
+> > > fs.verity.require_signatures=0 anyway, let's just skip the signature
+> > > verification in this case.
+> > >
+> > > Fixes: 432434c9f8e1 ("fs-verity: support builtin file signatures")
+> > > Cc: <stable@vger.kernel.org> # v5.4+
+> > > Signed-off-by: Eric Biggers <ebiggers@google.com>
+> > > ---
+> > >  fs/verity/signature.c | 18 ++++++++++++++++--
+> > >  1 file changed, 16 insertions(+), 2 deletions(-)
+> >
+> > Acked-by: Luca Boccassi <bluca@debian.org>
+>
+> So if I can't apply
+> https://lore.kernel.org/linux-fscrypt/20221208033548.122704-1-ebiggers@kernel.org
+> ("fsverity: mark builtin signatures as deprecated") due to IPE, wouldn't I not
+> be able to apply this patch either?  Surely IPE isn't depending on
+> fs.verity.require_signatures=1, given that it enforces the policy itself?
 
-[ Upstream commit 6a46bf558803dd2b959ca7435a5c143efe837217 ]
+I'm not sure what you mean? Skipping verification when this syscfg is
+disabled makes sense to me, as you noted it doesn't serve any purpose
+in that case.
 
-UBSAN reported a shift-out-of-bounds warning:
-
- left shift of 1 by 31 places cannot be represented in type 'int'
- Call Trace:
-  <TASK>
-  __dump_stack lib/dump_stack.c:88 [inline]
-  dump_stack_lvl+0x8d/0xcf lib/dump_stack.c:106
-  ubsan_epilogue+0xa/0x44 lib/ubsan.c:151
-  __ubsan_handle_shift_out_of_bounds+0x1e7/0x208 lib/ubsan.c:322
-  check_special_flags fs/binfmt_misc.c:241 [inline]
-  create_entry fs/binfmt_misc.c:456 [inline]
-  bm_register_write+0x9d3/0xa20 fs/binfmt_misc.c:654
-  vfs_write+0x11e/0x580 fs/read_write.c:582
-  ksys_write+0xcf/0x120 fs/read_write.c:637
-  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-  do_syscall_64+0x34/0x80 arch/x86/entry/common.c:80
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
- RIP: 0033:0x4194e1
-
-Since the type of Node's flags is unsigned long, we should define these
-macros with same type too.
-
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221102025123.1117184-1-liushixin2@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- fs/binfmt_misc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/fs/binfmt_misc.c b/fs/binfmt_misc.c
-index 2bda9245cabe..558e4007131e 100644
---- a/fs/binfmt_misc.c
-+++ b/fs/binfmt_misc.c
-@@ -42,10 +42,10 @@ static LIST_HEAD(entries);
- static int enabled = 1;
- 
- enum {Enabled, Magic};
--#define MISC_FMT_PRESERVE_ARGV0 (1 << 31)
--#define MISC_FMT_OPEN_BINARY (1 << 30)
--#define MISC_FMT_CREDENTIALS (1 << 29)
--#define MISC_FMT_OPEN_FILE (1 << 28)
-+#define MISC_FMT_PRESERVE_ARGV0 (1UL << 31)
-+#define MISC_FMT_OPEN_BINARY (1UL << 30)
-+#define MISC_FMT_CREDENTIALS (1UL << 29)
-+#define MISC_FMT_OPEN_FILE (1UL << 28)
- 
- typedef struct {
- 	struct list_head list;
--- 
-2.35.1
-
+Kind regards,
+Luca Boccassi
