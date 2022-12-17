@@ -2,44 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBA8E64F9F6
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:32:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43C1964FA07
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:33:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230150AbiLQPbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Dec 2022 10:31:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37438 "EHLO
+        id S230155AbiLQPbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Dec 2022 10:31:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230157AbiLQPa7 (ORCPT
+        with ESMTP id S230222AbiLQPa7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:30:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD0B815F39;
-        Sat, 17 Dec 2022 07:28:36 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE8B417079;
+        Sat, 17 Dec 2022 07:28:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F0AA60C14;
-        Sat, 17 Dec 2022 15:28:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3427C43398;
-        Sat, 17 Dec 2022 15:28:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 534D560C17;
+        Sat, 17 Dec 2022 15:28:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0501CC43392;
+        Sat, 17 Dec 2022 15:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671290915;
-        bh=7btK5kH8e8Xyd6l+hOUla2wVBlEdr53EZgl+CozyNOc=;
+        s=k20201202; t=1671290917;
+        bh=m+0cHHIgAywfyZAfv1jb7Y7hiDkSQYIxOyOUnSNl6HM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gZ6969nJdWepMtgxRTsMlHJuoUJ2/oKd2MIbxf7sP2RFddxmPcvSm6yiCYo9LUiQ+
-         GPcbR7z4R+642qFmssHn3oDLqx4fxChk8JuyeUJqrzQIGJobmlms/HBTl3svcuUPpU
-         y+wReN62WZ1OOTP7Oi6hB9U7xcSGZFrxattwC6djkkbQIDM6Q10IjGT83XEUkIPh+G
-         4wWYKEO7QhCs81VXD2Dt7pJJE1MqlObTJKk/1kbGoP8aGDNu0OXxIP/BaU6ZxortaJ
-         i0VMkHRU0X1xUVbSX8fIvKu22h7Ll//pLXZcrj19KqZvBgwLouzq3klDY9ECJFi2/Q
-         SZzhFn8cwuR+g==
+        b=JRwejK+mwip5BEkkXe7JGGJwxIvqnZfayZSsyW7pB+EovqWwNxCienlwnB9RAC5+A
+         kJez0TJ9oKgPDmBGNJI8LI744Syy0CZmOutexUzcBvOjGf/J7Z9zrDBeI3AXnQWmLm
+         it30rkNchUPu4KGL9/gadPx/h1eisjhv/CXiByKWSFUyjhFsylwp9LO8V43XpNPlJ1
+         VQSjVDFxI8hB6UnoGq0329WNU34oAKritxjjzHNXYAku2uzieQAY6lhWocZHQ8V9rV
+         V025dDxbicii6H5lFjMth+rxEUhaNENtDvP04BIl4Sm4V5PUh3k2GDXPs5lz99Ioub
+         sXMz+R5tvX8Sw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Chen Zhongjin <chenzhongjin@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, robert.moore@intel.com,
-        linux-acpi@vger.kernel.org, devel@acpica.org
-Subject: [PATCH AUTOSEL 6.0 07/16] ACPICA: Fix error code path in acpi_ds_call_control_method()
-Date:   Sat, 17 Dec 2022 10:28:10 -0500
-Message-Id: <20221217152821.98618-7-sashal@kernel.org>
+Cc:     Jianglei Nie <niejianglei2021@163.com>,
+        Baoquan He <bhe@redhat.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Chen Lifu <chenlifu@huawei.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Li Chen <lchen@ambarella.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Russell King <linux@armlinux.org.uk>,
+        ye xingchen <ye.xingchen@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, kexec@lists.infradead.org,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 08/16] proc/vmcore: fix potential memory leak in vmcore_init()
+Date:   Sat, 17 Dec 2022 10:28:11 -0500
+Message-Id: <20221217152821.98618-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221217152821.98618-1-sashal@kernel.org>
 References: <20221217152821.98618-1-sashal@kernel.org>
@@ -56,66 +67,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit 404ec60438add1afadaffaed34bb5fe4ddcadd40 ]
+[ Upstream commit 12b9d301ff73122aebd78548fa4c04ca69ed78fe ]
 
-A use-after-free in acpi_ps_parse_aml() after a failing invocaion of
-acpi_ds_call_control_method() is reported by KASAN [1] and code
-inspection reveals that next_walk_state pushed to the thread by
-acpi_ds_create_walk_state() is freed on errors, but it is not popped
-from the thread beforehand.  Thus acpi_ds_get_current_walk_state()
-called by acpi_ps_parse_aml() subsequently returns it as the new
-walk state which is incorrect.
+Patch series "Some minor cleanup patches resent".
 
-To address this, make acpi_ds_call_control_method() call
-acpi_ds_pop_walk_state() to pop next_walk_state from the thread before
-returning an error.
+The first three patches trivial clean up patches.
 
-Link: https://lore.kernel.org/linux-acpi/20221019073443.248215-1-chenzhongjin@huawei.com/ # [1]
-Reported-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Chen Zhongjin <chenzhongjin@huawei.com>
+And for the patch "kexec: replace crash_mem_range with range", I got a
+ibm-p9wr ppc64le system to test, it works well.
+
+This patch (of 4):
+
+elfcorehdr_alloc() allocates a memory chunk for elfcorehdr_addr with
+kzalloc().  If is_vmcore_usable() returns false, elfcorehdr_addr is a
+predefined value.  If parse_crash_elf_headers() gets some error and
+returns a negetive value, the elfcorehdr_addr should be released with
+elfcorehdr_free().
+
+Fix it by calling elfcorehdr_free() when parse_crash_elf_headers() fails.
+
+Link: https://lkml.kernel.org/r/20220929042936.22012-1-bhe@redhat.com
+Link: https://lkml.kernel.org/r/20220929042936.22012-2-bhe@redhat.com
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Acked-by: Baoquan He <bhe@redhat.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Chen Lifu <chenlifu@huawei.com>
+Cc: "Eric W . Biederman" <ebiederm@xmission.com>
+Cc: Li Chen <lchen@ambarella.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: ye xingchen <ye.xingchen@zte.com.cn>
+Cc: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/dsmethod.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/proc/vmcore.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/acpi/acpica/dsmethod.c b/drivers/acpi/acpica/dsmethod.c
-index ae2e768830bf..9332bc688713 100644
---- a/drivers/acpi/acpica/dsmethod.c
-+++ b/drivers/acpi/acpica/dsmethod.c
-@@ -517,7 +517,7 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
- 	info = ACPI_ALLOCATE_ZEROED(sizeof(struct acpi_evaluate_info));
- 	if (!info) {
- 		status = AE_NO_MEMORY;
--		goto cleanup;
-+		goto pop_walk_state;
+diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+index f2aa86c421f2..74747571d58e 100644
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -1567,6 +1567,7 @@ static int __init vmcore_init(void)
+ 		return rc;
+ 	rc = parse_crash_elf_headers();
+ 	if (rc) {
++		elfcorehdr_free(elfcorehdr_addr);
+ 		pr_warn("Kdump: vmcore not initialized\n");
+ 		return rc;
  	}
- 
- 	info->parameters = &this_walk_state->operands[0];
-@@ -529,7 +529,7 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
- 
- 	ACPI_FREE(info);
- 	if (ACPI_FAILURE(status)) {
--		goto cleanup;
-+		goto pop_walk_state;
- 	}
- 
- 	next_walk_state->method_nesting_depth =
-@@ -575,6 +575,12 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
- 
- 	return_ACPI_STATUS(status);
- 
-+pop_walk_state:
-+
-+	/* On error, pop the walk state to be deleted from thread */
-+
-+	acpi_ds_pop_walk_state(thread);
-+
- cleanup:
- 
- 	/* On error, we must terminate the method properly */
 -- 
 2.35.1
 
