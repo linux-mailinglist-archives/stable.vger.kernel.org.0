@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3692A64F5E7
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:14:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11DB664F5E5
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230381AbiLQAOP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 19:14:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45768 "EHLO
+        id S230281AbiLQAOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 19:14:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230229AbiLQANS (ORCPT
+        with ESMTP id S230393AbiLQANS (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:13:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03EBB747FF;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 042887508B;
         Fri, 16 Dec 2022 16:11:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69BEFB81E54;
-        Sat, 17 Dec 2022 00:11:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26DF3C433EF;
-        Sat, 17 Dec 2022 00:11:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D31962295;
+        Sat, 17 Dec 2022 00:11:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB94BC433F1;
+        Sat, 17 Dec 2022 00:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671235879;
-        bh=psW9D7HuHQR8IbgKxb7fKgnTBW7O+7/ybDF+u7UdMx0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=MtBxOD1E5ktAcz6j37i3oXenvYRVW7zINq9B4L5caB5MgR1OOp8aksz9gzJ9w2iUY
-         lRMgXH3g0XhHFMQNfWbfjF1l72Q2JjQzfcI75S1Qm9KpmZY3q034jbtSt48Dtf0rGS
-         y9lxv4Hig23NdT1MJGCQkoPL3n9O74gmKdwpkjHz4Pf20B1o6G25gGmTVzslFZfgBA
-         8OWzmZ2IMf/V60PYR9l/UiaDOqzHNGHBwundDTWFJ1uXPAZypF80jNr2MrhIMlyniM
-         ugCsMhtHzPghdYkt40ZrV+q5sDuy4S39Pi+m96p7Kx+tvmgEI7Q+NN0CWSRoRHyjc+
-         sfvWRSNxOHrnw==
+        s=k20201202; t=1671235880;
+        bh=Y7QUCuIeT36PPyWNZwZPgzNoFAeSyVVRpGZ7GZi+7cc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=G5AnnJqNT/qJymgeecCYgyRc3NDLcvncZYXourw3GHb44m29V0ETQ8S0hRv61eBKn
+         gMcwyVZbnz2L5sheozfYwDGNuhafidUs2qx7ztNGPMe5acjAUzTE7IRMHBZ+Fs0I1X
+         JEEtK4mAUDZYbdCDspX7f3nQIuzgSD5Dg1Qe+m4UeL8ihoJzBCJEBcC+bloUigX56Y
+         mlaljeCfyudqk1Qo6zVqEVPKRh91yHPLkoC6KqpkS8LMDX/+z+QPn/pU1C938WMVFM
+         rf+6zAmvnO7njkNRkrxp1x04HOH3/bPLaj0xCe/fU30llNK3cEg7m9HYJpSEmNvRN0
+         nIJcX8/g60LRg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zqiang <qiang1.zhang@intel.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, frederic@kernel.org,
-        quic_neeraju@quicinc.com, josh@joshtriplett.org,
-        rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 1/2] rcu: Fix __this_cpu_read() lockdep warning in rcu_force_quiescent_state()
-Date:   Fri, 16 Dec 2022 19:11:14 -0500
-Message-Id: <20221217001116.41497-1-sashal@kernel.org>
+Cc:     Liu Shixin <liushixin2@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, viro@zeniv.linux.org.uk,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.4 2/2] binfmt_misc: fix shift-out-of-bounds in check_special_flags
+Date:   Fri, 16 Dec 2022 19:11:15 -0500
+Message-Id: <20221217001116.41497-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221217001116.41497-1-sashal@kernel.org>
+References: <20221217001116.41497-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,57 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang1.zhang@intel.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit ceb1c8c9b8aa9199da46a0f29d2d5f08d9b44c15 ]
+[ Upstream commit 6a46bf558803dd2b959ca7435a5c143efe837217 ]
 
-Running rcutorture with non-zero fqs_duration module parameter in a
-kernel built with CONFIG_PREEMPTION=y results in the following splat:
+UBSAN reported a shift-out-of-bounds warning:
 
-BUG: using __this_cpu_read() in preemptible [00000000]
-code: rcu_torture_fqs/398
-caller is __this_cpu_preempt_check+0x13/0x20
-CPU: 3 PID: 398 Comm: rcu_torture_fqs Not tainted 6.0.0-rc1-yoctodev-standard+
-Call Trace:
-<TASK>
-dump_stack_lvl+0x5b/0x86
-dump_stack+0x10/0x16
-check_preemption_disabled+0xe5/0xf0
-__this_cpu_preempt_check+0x13/0x20
-rcu_force_quiescent_state.part.0+0x1c/0x170
-rcu_force_quiescent_state+0x1e/0x30
-rcu_torture_fqs+0xca/0x160
-? rcu_torture_boost+0x430/0x430
-kthread+0x192/0x1d0
-? kthread_complete_and_exit+0x30/0x30
-ret_from_fork+0x22/0x30
-</TASK>
+ left shift of 1 by 31 places cannot be represented in type 'int'
+ Call Trace:
+  <TASK>
+  __dump_stack lib/dump_stack.c:88 [inline]
+  dump_stack_lvl+0x8d/0xcf lib/dump_stack.c:106
+  ubsan_epilogue+0xa/0x44 lib/ubsan.c:151
+  __ubsan_handle_shift_out_of_bounds+0x1e7/0x208 lib/ubsan.c:322
+  check_special_flags fs/binfmt_misc.c:241 [inline]
+  create_entry fs/binfmt_misc.c:456 [inline]
+  bm_register_write+0x9d3/0xa20 fs/binfmt_misc.c:654
+  vfs_write+0x11e/0x580 fs/read_write.c:582
+  ksys_write+0xcf/0x120 fs/read_write.c:637
+  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+  do_syscall_64+0x34/0x80 arch/x86/entry/common.c:80
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ RIP: 0033:0x4194e1
 
-The problem is that rcu_force_quiescent_state() uses __this_cpu_read()
-in preemptible code instead of the proper raw_cpu_read().  This commit
-therefore changes __this_cpu_read() to raw_cpu_read().
+Since the type of Node's flags is unsigned long, we should define these
+macros with same type too.
 
-Signed-off-by: Zqiang <qiang1.zhang@intel.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221102025123.1117184-1-liushixin2@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/binfmt_misc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 5797cf2909b0..615283404d9d 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -2317,7 +2317,7 @@ void rcu_force_quiescent_state(void)
- 	struct rcu_node *rnp_old = NULL;
+diff --git a/fs/binfmt_misc.c b/fs/binfmt_misc.c
+index 056a68292e15..23b563ff0dd7 100644
+--- a/fs/binfmt_misc.c
++++ b/fs/binfmt_misc.c
+@@ -44,10 +44,10 @@ static LIST_HEAD(entries);
+ static int enabled = 1;
  
- 	/* Funnel through hierarchy to reduce memory contention. */
--	rnp = __this_cpu_read(rcu_data.mynode);
-+	rnp = raw_cpu_read(rcu_data.mynode);
- 	for (; rnp != NULL; rnp = rnp->parent) {
- 		ret = (READ_ONCE(rcu_state.gp_flags) & RCU_GP_FLAG_FQS) ||
- 		      !raw_spin_trylock(&rnp->fqslock);
+ enum {Enabled, Magic};
+-#define MISC_FMT_PRESERVE_ARGV0 (1 << 31)
+-#define MISC_FMT_OPEN_BINARY (1 << 30)
+-#define MISC_FMT_CREDENTIALS (1 << 29)
+-#define MISC_FMT_OPEN_FILE (1 << 28)
++#define MISC_FMT_PRESERVE_ARGV0 (1UL << 31)
++#define MISC_FMT_OPEN_BINARY (1UL << 30)
++#define MISC_FMT_CREDENTIALS (1UL << 29)
++#define MISC_FMT_OPEN_FILE (1UL << 28)
+ 
+ typedef struct {
+ 	struct list_head list;
 -- 
 2.35.1
 
