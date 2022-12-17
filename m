@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7737D64FB78
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 19:05:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9297C64FB7C
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 19:07:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229710AbiLQSFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Dec 2022 13:05:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60664 "EHLO
+        id S229549AbiLQSHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Dec 2022 13:07:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbiLQSFO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 13:05:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E97713EB7;
-        Sat, 17 Dec 2022 10:05:13 -0800 (PST)
+        with ESMTP id S229453AbiLQSHr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 13:07:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5809B13F19;
+        Sat, 17 Dec 2022 10:07:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBCDEB802C3;
-        Sat, 17 Dec 2022 18:05:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F22C433D2;
-        Sat, 17 Dec 2022 18:05:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E415060C25;
+        Sat, 17 Dec 2022 18:07:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BCB6C433EF;
+        Sat, 17 Dec 2022 18:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671300310;
-        bh=/Uc2Dbixn2Du0U4OtE/VQPRi6FRx3WQWkyH/6XtWzdE=;
+        s=k20201202; t=1671300465;
+        bh=r1vakY8wqf9PRcMTFAgJTflUZDdGfaUl2V7LaQG1BqU=;
         h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=Zc1r4lZW2vM7FxQea2mBSHn/RGUd/wpUjnwkwYmZtoPgVDQdLZPu+3PRHbuEjyiiY
-         /AW1QM9pF1ImEfgZxuXr+YKALiVtOUVU1Gsi8fCiz+nyOiy3ihGM8tBIc1ek+Ytsny
-         SvXFrdj8wJC65n3stRkvEOFYSUP3x/0VyJA1oNNpKDxpWF2arWZHDa8Pb4piU60UYB
-         3RDRtplo+T0CmVmnxZA1C5WID0aHyKH7aPqgOWo488y7NFo1SFAR52qyPn2ztYszOf
-         7foJ8CI3Mj3upw+fXdGgD5cOXE2nsUUnf19w2qby7d6UuJJnv1ZD+n/ay+dLY05//b
-         53xUILcwzsuGg==
+        b=fxLdObvEuVNbXiP2+1gcqxI7vU5ecYfN60WTs0lQxCODJ83saLeyA6vLeEzb6Xw5f
+         9ygYEB4fuqLeYdtsjNtpT9avqJHd/ESvCwJkRsDl3xA5kDnqoCyQWZm1V9/3MJBgpt
+         kbD/MapLDzprnpv9Jjh0UCUxOaG+/5s52yZMzRh82RJwuIUB1Z2ygs5bd1mVsbie8c
+         AoWea74KVDkPQKSPXmx+Jvv4CqWfbYERjma7dOrHZXL9MvUoggOmM/jyyd3DxK/hA7
+         NGRBB+TwkjcOH+BpqRrYX6N32EHB6qbMUZl+6GMrDtxPAY9ivgNpMMtiwnvAI36JpT
+         Jo418C5s6yl3A==
 Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
         by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.95)
         (envelope-from <maz@kernel.org>)
-        id 1p6bYa-00DJod-1O;
-        Sat, 17 Dec 2022 18:05:08 +0000
-Date:   Sat, 17 Dec 2022 18:05:07 +0000
-Message-ID: <86r0wxq52k.wl-maz@kernel.org>
+        id 1p6bb5-00DJpQ-3U;
+        Sat, 17 Dec 2022 18:07:43 +0000
+Date:   Sat, 17 Dec 2022 18:07:42 +0000
+Message-ID: <86pmchq4y9.wl-maz@kernel.org>
 From:   Marc Zyngier <maz@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
@@ -46,10 +46,10 @@ Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Huacai Chen <chenhuacai@loongson.cn>, bhelgaas@google.com,
         rafael@kernel.org, linux-pci@vger.kernel.org,
         linux-acpi@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.4 7/9] ACPI / PCI: fix LPIC IRQ model default PCI IRQ polarity
-In-Reply-To: <20221217152949.99146-7-sashal@kernel.org>
-References: <20221217152949.99146-1-sashal@kernel.org>
-        <20221217152949.99146-7-sashal@kernel.org>
+Subject: Re: [PATCH AUTOSEL 6.0 11/16] ACPI / PCI: fix LPIC IRQ model default PCI IRQ polarity
+In-Reply-To: <20221217152821.98618-11-sashal@kernel.org>
+References: <20221217152821.98618-1-sashal@kernel.org>
+        <20221217152821.98618-11-sashal@kernel.org>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
  FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
  (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -68,7 +68,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 17 Dec 2022 15:29:45 +0000,
+On Sat, 17 Dec 2022 15:28:14 +0000,
 Sasha Levin <sashal@kernel.org> wrote:
 > 
 > From: Jianmin Lv <lvjianmin@loongson.cn>
@@ -99,10 +99,10 @@ Sasha Levin <sashal@kernel.org> wrote:
 >  1 file changed, 4 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
-> index dea8a60e18a4..7b843a70f33d 100644
+> index 08e15774fb9f..ff30ceca2203 100644
 > --- a/drivers/acpi/pci_irq.c
 > +++ b/drivers/acpi/pci_irq.c
-> @@ -399,13 +399,15 @@ int acpi_pci_irq_enable(struct pci_dev *dev)
+> @@ -387,13 +387,15 @@ int acpi_pci_irq_enable(struct pci_dev *dev)
 >  	u8 pin;
 >  	int triggering = ACPI_LEVEL_SENSITIVE;
 >  	/*
@@ -121,12 +121,13 @@ Sasha Levin <sashal@kernel.org> wrote:
 >  	char *link = NULL;
 >  	char link_desc[16];
 
-This cannot even compile, as the *architecture* is not even supported
-in 5.4.
+This is pointless on its own too, as it requires plenty of other
+changes, none of which are stable candidates. Please drop this as well
+as the v6.1 backport.
 
-Please drop this patch.
+Thanks,
 
-       M.
+	M.
 
 -- 
 Without deviation from the norm, progress is not possible.
