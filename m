@@ -2,58 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A439D64FAB2
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:45:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7737D64FB78
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 19:05:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231186AbiLQPnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Dec 2022 10:43:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56442 "EHLO
+        id S229710AbiLQSFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Dec 2022 13:05:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231602AbiLQPl7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:41:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C0102B60D;
-        Sat, 17 Dec 2022 07:31:33 -0800 (PST)
+        with ESMTP id S229453AbiLQSFO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 13:05:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E97713EB7;
+        Sat, 17 Dec 2022 10:05:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F20CB80684;
-        Sat, 17 Dec 2022 15:31:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB10C433F1;
-        Sat, 17 Dec 2022 15:31:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CBCDEB802C3;
+        Sat, 17 Dec 2022 18:05:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F22C433D2;
+        Sat, 17 Dec 2022 18:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671291072;
-        bh=VKwZ2zF2aVV2tEPQziZrVGlKv+NmWygqWOW8DfVQGBI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzmbYFeEvWFDg664H2wAmFW6O0lUTRa5Y/0q5c9yBg/GIlZw515CZsCZ/DwYOqRal
-         jeIfPc1KoRhGAZ7niRyvB50Y2O5IiR+Nwlb+xfWkJiqp9oN7KLV2Mr7UTx0PDT4A5K
-         iorB1/FRF3u1igGSycPoXrcVq6la72MYZHwVVbWxrt8O6KNZJS3CWJndlYaHAcSlO3
-         LpxRDgfIatMiYoBwXzLOFILEJsfUTwd728XnUWFTPYt1DorJhZITUYQg6uqk/PMPS8
-         y7vpmNkKo6xIAgICV3BYcrkTufgaI8NkhpGaSyxQdaOg1mXO3uGsw1mukip9SAyqQI
-         E9+eOwfiLwS8g==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     ZhangPeng <zhangpeng362@huawei.com>,
-        syzbot+e836ff7133ac02be825f@syzkaller.appspotmail.com,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Nanyong Sun <sunnanyong@huawei.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 8/8] hfs: fix OOB Read in __hfs_brec_find
-Date:   Sat, 17 Dec 2022 10:30:52 -0500
-Message-Id: <20221217153053.99513-8-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221217153053.99513-1-sashal@kernel.org>
-References: <20221217153053.99513-1-sashal@kernel.org>
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+        s=k20201202; t=1671300310;
+        bh=/Uc2Dbixn2Du0U4OtE/VQPRi6FRx3WQWkyH/6XtWzdE=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=Zc1r4lZW2vM7FxQea2mBSHn/RGUd/wpUjnwkwYmZtoPgVDQdLZPu+3PRHbuEjyiiY
+         /AW1QM9pF1ImEfgZxuXr+YKALiVtOUVU1Gsi8fCiz+nyOiy3ihGM8tBIc1ek+Ytsny
+         SvXFrdj8wJC65n3stRkvEOFYSUP3x/0VyJA1oNNpKDxpWF2arWZHDa8Pb4piU60UYB
+         3RDRtplo+T0CmVmnxZA1C5WID0aHyKH7aPqgOWo488y7NFo1SFAR52qyPn2ztYszOf
+         7foJ8CI3Mj3upw+fXdGgD5cOXE2nsUUnf19w2qby7d6UuJJnv1ZD+n/ay+dLY05//b
+         53xUILcwzsuGg==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1p6bYa-00DJod-1O;
+        Sat, 17 Dec 2022 18:05:08 +0000
+Date:   Sat, 17 Dec 2022 18:05:07 +0000
+Message-ID: <86r0wxq52k.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jianmin Lv <lvjianmin@loongson.cn>,
+        Huacai Chen <chenhuacai@loongson.cn>, bhelgaas@google.com,
+        rafael@kernel.org, linux-pci@vger.kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.4 7/9] ACPI / PCI: fix LPIC IRQ model default PCI IRQ polarity
+In-Reply-To: <20221217152949.99146-7-sashal@kernel.org>
+References: <20221217152949.99146-1-sashal@kernel.org>
+        <20221217152949.99146-7-sashal@kernel.org>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: sashal@kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, lvjianmin@loongson.cn, chenhuacai@loongson.cn, bhelgaas@google.com, rafael@kernel.org, linux-pci@vger.kernel.org, linux-acpi@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -63,79 +68,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+On Sat, 17 Dec 2022 15:29:45 +0000,
+Sasha Levin <sashal@kernel.org> wrote:
+> 
+> From: Jianmin Lv <lvjianmin@loongson.cn>
+> 
+> [ Upstream commit d0c50cc4b957b2cf6e43cec4998d212b5abe9220 ]
+> 
+> On LoongArch based systems, the PCI devices (e.g. SATA controllers and
+> PCI-to-PCI bridge controllers) in Loongson chipsets output high-level
+> interrupt signal to the interrupt controller they are connected (see
+> Loongson 7A1000 Bridge User Manual v2.00, sec 5.3, "For the bridge chip,
+> AC97 DMA interrupts are edge triggered, gpio interrupts can be configured
+> to be level triggered or edge triggered as needed, and the rest of the
+> interrupts are level triggered and active high."), while the IRQs are
+> active low from the perspective of PCI (see Conventional PCI spec r3.0,
+> sec 2.2.6, "Interrupts on PCI are optional and defined as level sensitive,
+> asserted low."), which means that the interrupt output of PCI devices plugged
+> into PCI-to-PCI bridges of Loongson chipset will be also converted to high-level.
+> So high level triggered type is required to be passed to acpi_register_gsi()
+> when creating mappings for PCI devices.
+> 
+> Signed-off-by: Jianmin Lv <lvjianmin@loongson.cn>
+> Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Link: https://lore.kernel.org/r/20221022075955.11726-2-lvjianmin@loongson.cn
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/acpi/pci_irq.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
+> index dea8a60e18a4..7b843a70f33d 100644
+> --- a/drivers/acpi/pci_irq.c
+> +++ b/drivers/acpi/pci_irq.c
+> @@ -399,13 +399,15 @@ int acpi_pci_irq_enable(struct pci_dev *dev)
+>  	u8 pin;
+>  	int triggering = ACPI_LEVEL_SENSITIVE;
+>  	/*
+> -	 * On ARM systems with the GIC interrupt model, level interrupts
+> +	 * On ARM systems with the GIC interrupt model, or LoongArch
+> +	 * systems with the LPIC interrupt model, level interrupts
+>  	 * are always polarity high by specification; PCI legacy
+>  	 * IRQs lines are inverted before reaching the interrupt
+>  	 * controller and must therefore be considered active high
+>  	 * as default.
+>  	 */
+> -	int polarity = acpi_irq_model == ACPI_IRQ_MODEL_GIC ?
+> +	int polarity = acpi_irq_model == ACPI_IRQ_MODEL_GIC ||
+> +		       acpi_irq_model == ACPI_IRQ_MODEL_LPIC ?
+>  				      ACPI_ACTIVE_HIGH : ACPI_ACTIVE_LOW;
+>  	char *link = NULL;
+>  	char link_desc[16];
 
-[ Upstream commit 8d824e69d9f3fa3121b2dda25053bae71e2460d2 ]
+This cannot even compile, as the *architecture* is not even supported
+in 5.4.
 
-Syzbot reported a OOB read bug:
+Please drop this patch.
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in hfs_strcmp+0x117/0x190
-fs/hfs/string.c:84
-Read of size 1 at addr ffff88807eb62c4e by task kworker/u4:1/11
-CPU: 1 PID: 11 Comm: kworker/u4:1 Not tainted
-6.1.0-rc6-syzkaller-00308-g644e9524388a #0
-Workqueue: writeback wb_workfn (flush-7:0)
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
- print_address_description+0x74/0x340 mm/kasan/report.c:284
- print_report+0x107/0x1f0 mm/kasan/report.c:395
- kasan_report+0xcd/0x100 mm/kasan/report.c:495
- hfs_strcmp+0x117/0x190 fs/hfs/string.c:84
- __hfs_brec_find+0x213/0x5c0 fs/hfs/bfind.c:75
- hfs_brec_find+0x276/0x520 fs/hfs/bfind.c:138
- hfs_write_inode+0x34c/0xb40 fs/hfs/inode.c:462
- write_inode fs/fs-writeback.c:1440 [inline]
+       M.
 
-If the input inode of hfs_write_inode() is incorrect:
-struct inode
-  struct hfs_inode_info
-    struct hfs_cat_key
-      struct hfs_name
-        u8 len # len is greater than HFS_NAMELEN(31) which is the
-maximum length of an HFS filename
-
-OOB read occurred:
-hfs_write_inode()
-  hfs_brec_find()
-    __hfs_brec_find()
-      hfs_cat_keycmp()
-        hfs_strcmp() # OOB read occurred due to len is too large
-
-Fix this by adding a Check on len in hfs_write_inode() before calling
-hfs_brec_find().
-
-Link: https://lkml.kernel.org/r/20221130065959.2168236-1-zhangpeng362@huawei.com
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Reported-by: <syzbot+e836ff7133ac02be825f@syzkaller.appspotmail.com>
-Cc: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jeff Layton <jlayton@kernel.org>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Nanyong Sun <sunnanyong@huawei.com>
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- fs/hfs/inode.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/fs/hfs/inode.c b/fs/hfs/inode.c
-index de0d6d4c46b6..cd4eee5b8358 100644
---- a/fs/hfs/inode.c
-+++ b/fs/hfs/inode.c
-@@ -452,6 +452,8 @@ int hfs_write_inode(struct inode *inode, struct writeback_control *wbc)
- 		/* panic? */
- 		return -EIO;
- 
-+	if (HFS_I(main_inode)->cat_key.CName.len > HFS_NAMELEN)
-+		return -EIO;
- 	fd.search_key->cat = HFS_I(main_inode)->cat_key;
- 	if (hfs_brec_find(&fd))
- 		/* panic? */
 -- 
-2.35.1
-
+Without deviation from the norm, progress is not possible.
