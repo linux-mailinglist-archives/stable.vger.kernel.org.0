@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6B664FA78
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:45:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3327664FA58
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:45:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230478AbiLQPf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Dec 2022 10:35:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37438 "EHLO
+        id S230314AbiLQPff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Dec 2022 10:35:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229947AbiLQPeK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:34:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4AD41C13B;
-        Sat, 17 Dec 2022 07:29:31 -0800 (PST)
+        with ESMTP id S230368AbiLQPeQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:34:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E63AB1CB1C;
+        Sat, 17 Dec 2022 07:29:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5153360C12;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84ACF60C01;
+        Sat, 17 Dec 2022 15:29:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 307F7C4339B;
         Sat, 17 Dec 2022 15:29:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98112C433EF;
-        Sat, 17 Dec 2022 15:29:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671290970;
-        bh=I/XyCol5pnMbI/CN1tjUjrGqu52RblGTyM+9o+KiCLk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=S9oelT/XvGBXioWERIvjT0BrOf6kXcSRU5a+jGLRdtGMKpoM6nnSaaO3vNDy4v836
-         TnSgo96DlfeRS5iOP3zjUz8w4Yrfk8YgF+hv//FPs8OEBmB7ASJ29CEKkbPK7V6Qy7
-         sBbFG1U+aiPNrQe9qdlurwCFn7MWKdHqI4lDxg+aSwlnxGzbh3xIcl7z0kqc9ZDVpr
-         aHdRsB86J67BCgiXI51Xf99qbZpkomiq9ZZRW9ABJ64yNHnWDlPwJnKmRq3agGWAYT
-         Ze5rvKk44zetYBZiGsNxyFq7mC9PRQJ39iM/dq3Z9N/Zi2EQYVZGt8hfW2KwRq8wot
-         792ErHL9fMjDw==
+        s=k20201202; t=1671290971;
+        bh=ZQ4z1tvIOChJc8+qig50F5VwGBdfQVUJgHmTG5ePtVw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=U93SSHn+5WqDLJQ+TAdIprDcdbkPGS/zBgRTLJvPkqgbtovY/XaLdDmtnrgBmWPvR
+         UjvQqEOb571DM6Syk9s28w5ZeM+AXPNzpnrwRiMcdWIwfyqyFqj8lOXF4UeC4e6qQv
+         2U2ThkZOWgf98ItlUZpqUDjA4G5nuzX74Q55t3fXfzuWGkdscLDmdwLOl/eWliKoXY
+         L4pEkeL6jpv8s6X/pghVtstzmkpk6B5k/S/4+qUhKSSQf5WCpgQPp1/DruVi/I0LHC
+         VjXBuvcCAUmZoh+SorAwV2f+JPJW8gi9pUJSGcDPu6QpPnRTiM8RpRndtaQIhGxkr8
+         vyaeImwS7bgRA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        syzbot+15342c1aa6a00fb7a438@syzkaller.appspotmail.com,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, shaggy@kernel.org,
-        wuhoipok@gmail.com, paskripkin@gmail.com, r33s3n6@gmail.com,
-        jfs-discussion@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.10 1/9] fs: jfs: fix shift-out-of-bounds in dbAllocAG
-Date:   Sat, 17 Dec 2022 10:29:18 -0500
-Message-Id: <20221217152927.99012-1-sashal@kernel.org>
+Cc:     Shigeru Yoshida <syoshida@redhat.com>,
+        syzbot+7902cd7684bc35306224@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jack@suse.com
+Subject: [PATCH AUTOSEL 5.10 2/9] udf: Avoid double brelse() in udf_rename()
+Date:   Sat, 17 Dec 2022 10:29:19 -0500
+Message-Id: <20221217152927.99012-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221217152927.99012-1-sashal@kernel.org>
+References: <20221217152927.99012-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,88 +56,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit 898f706695682b9954f280d95e49fa86ffa55d08 ]
+[ Upstream commit c791730f2554a9ebb8f18df9368dc27d4ebc38c2 ]
 
-Syzbot found a crash : UBSAN: shift-out-of-bounds in dbAllocAG. The
-underlying bug is the missing check of bmp->db_agl2size. The field can
-be greater than 64 and trigger the shift-out-of-bounds.
+syzbot reported a warning like below [1]:
 
-Fix this bug by adding a check of bmp->db_agl2size in dbMount since this
-field is used in many following functions. The upper bound for this
-field is L2MAXL2SIZE - L2MAXAG, thanks for the help of Dave Kleikamp.
-Note that, for maintenance, I reorganized error handling code of dbMount.
+VFS: brelse: Trying to free free buffer
+WARNING: CPU: 2 PID: 7301 at fs/buffer.c:1145 __brelse+0x67/0xa0
+...
+Call Trace:
+ <TASK>
+ invalidate_bh_lru+0x99/0x150
+ smp_call_function_many_cond+0xe2a/0x10c0
+ ? generic_remap_file_range_prep+0x50/0x50
+ ? __brelse+0xa0/0xa0
+ ? __mutex_lock+0x21c/0x12d0
+ ? smp_call_on_cpu+0x250/0x250
+ ? rcu_read_lock_sched_held+0xb/0x60
+ ? lock_release+0x587/0x810
+ ? __brelse+0xa0/0xa0
+ ? generic_remap_file_range_prep+0x50/0x50
+ on_each_cpu_cond_mask+0x3c/0x80
+ blkdev_flush_mapping+0x13a/0x2f0
+ blkdev_put_whole+0xd3/0xf0
+ blkdev_put+0x222/0x760
+ deactivate_locked_super+0x96/0x160
+ deactivate_super+0xda/0x100
+ cleanup_mnt+0x222/0x3d0
+ task_work_run+0x149/0x240
+ ? task_work_cancel+0x30/0x30
+ do_exit+0xb29/0x2a40
+ ? reacquire_held_locks+0x4a0/0x4a0
+ ? do_raw_spin_lock+0x12a/0x2b0
+ ? mm_update_next_owner+0x7c0/0x7c0
+ ? rwlock_bug.part.0+0x90/0x90
+ ? zap_other_threads+0x234/0x2d0
+ do_group_exit+0xd0/0x2a0
+ __x64_sys_exit_group+0x3a/0x50
+ do_syscall_64+0x34/0xb0
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Reported-by: syzbot+15342c1aa6a00fb7a438@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+The cause of the issue is that brelse() is called on both ofibh.sbh
+and ofibh.ebh by udf_find_entry() when it returns NULL.  However,
+brelse() is called by udf_rename(), too.  So, b_count on buffer_head
+becomes unbalanced.
+
+This patch fixes the issue by not calling brelse() by udf_rename()
+when udf_find_entry() returns NULL.
+
+Link: https://syzkaller.appspot.com/bug?id=8297f45698159c6bca8a1f87dc983667c1a1c851 [1]
+Reported-by: syzbot+7902cd7684bc35306224@syzkaller.appspotmail.com
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221023095741.271430-1-syoshida@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_dmap.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ fs/udf/namei.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
-index 0ce17ea8fa8a..b0a65aaed43e 100644
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -155,7 +155,7 @@ int dbMount(struct inode *ipbmap)
- 	struct bmap *bmp;
- 	struct dbmap_disk *dbmp_le;
- 	struct metapage *mp;
--	int i;
-+	int i, err;
+diff --git a/fs/udf/namei.c b/fs/udf/namei.c
+index aff5ca32e4f6..58120d2f265f 100644
+--- a/fs/udf/namei.c
++++ b/fs/udf/namei.c
+@@ -1090,8 +1090,9 @@ static int udf_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		return -EINVAL;
  
- 	/*
- 	 * allocate/initialize the in-memory bmap descriptor
-@@ -170,8 +170,8 @@ int dbMount(struct inode *ipbmap)
- 			   BMAPBLKNO << JFS_SBI(ipbmap->i_sb)->l2nbperpage,
- 			   PSIZE, 0);
- 	if (mp == NULL) {
--		kfree(bmp);
--		return -EIO;
-+		err = -EIO;
-+		goto err_kfree_bmp;
+ 	ofi = udf_find_entry(old_dir, &old_dentry->d_name, &ofibh, &ocfi);
+-	if (IS_ERR(ofi)) {
+-		retval = PTR_ERR(ofi);
++	if (!ofi || IS_ERR(ofi)) {
++		if (IS_ERR(ofi))
++			retval = PTR_ERR(ofi);
+ 		goto end_rename;
  	}
  
- 	/* copy the on-disk bmap descriptor to its in-memory version. */
-@@ -181,9 +181,8 @@ int dbMount(struct inode *ipbmap)
- 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
- 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
- 	if (!bmp->db_numag) {
--		release_metapage(mp);
--		kfree(bmp);
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto err_release_metapage;
- 	}
+@@ -1100,8 +1101,7 @@ static int udf_rename(struct inode *old_dir, struct dentry *old_dentry,
  
- 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
-@@ -194,6 +193,11 @@ int dbMount(struct inode *ipbmap)
- 	bmp->db_agwidth = le32_to_cpu(dbmp_le->dn_agwidth);
- 	bmp->db_agstart = le32_to_cpu(dbmp_le->dn_agstart);
- 	bmp->db_agl2size = le32_to_cpu(dbmp_le->dn_agl2size);
-+	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG) {
-+		err = -EINVAL;
-+		goto err_release_metapage;
-+	}
-+
- 	for (i = 0; i < MAXAG; i++)
- 		bmp->db_agfree[i] = le64_to_cpu(dbmp_le->dn_agfree[i]);
- 	bmp->db_agsize = le64_to_cpu(dbmp_le->dn_agsize);
-@@ -214,6 +218,12 @@ int dbMount(struct inode *ipbmap)
- 	BMAP_LOCK_INIT(bmp);
+ 	brelse(ofibh.sbh);
+ 	tloc = lelb_to_cpu(ocfi.icb.extLocation);
+-	if (!ofi || udf_get_lb_pblock(old_dir->i_sb, &tloc, 0)
+-	    != old_inode->i_ino)
++	if (udf_get_lb_pblock(old_dir->i_sb, &tloc, 0) != old_inode->i_ino)
+ 		goto end_rename;
  
- 	return (0);
-+
-+err_release_metapage:
-+	release_metapage(mp);
-+err_kfree_bmp:
-+	kfree(bmp);
-+	return err;
- }
- 
- 
+ 	nfi = udf_find_entry(new_dir, &new_dentry->d_name, &nfibh, &ncfi);
 -- 
 2.35.1
 
