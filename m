@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 236F564F9F7
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:32:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB37C64FA1C
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 16:33:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230064AbiLQP3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Dec 2022 10:29:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33414 "EHLO
+        id S229880AbiLQPaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Dec 2022 10:30:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230062AbiLQP3H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:29:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCB351705F;
-        Sat, 17 Dec 2022 07:27:57 -0800 (PST)
+        with ESMTP id S230086AbiLQP3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Dec 2022 10:29:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712451740C;
+        Sat, 17 Dec 2022 07:28:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DB26B802C3;
-        Sat, 17 Dec 2022 15:27:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15DC4C43392;
-        Sat, 17 Dec 2022 15:27:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBD4060C04;
+        Sat, 17 Dec 2022 15:27:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5704EC433F0;
+        Sat, 17 Dec 2022 15:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671290876;
-        bh=wgtxMlx7CjihsMRuaBVm90tUKVAegYDMFYtSba8yGNE=;
+        s=k20201202; t=1671290879;
+        bh=GiT7CCcJHCT0wN/FYRSBDJwgEgqKON+84OSY5MfM6HA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzC6iBjQuIUK4ZnW6J3rBH57bWp111YPFTIz+WHJ7UOUmSmvZh2JsP9JdG3N9eaWA
-         0gOpM/bVvrj6B5Aq940abyCz3y1Ja7X+SeX5zDfRnD/2DM1diKPxo35SUvVCJxsIPD
-         +S8CUXJFszg9ujw4dq+dcTBwGOWtLiemtDQ3qKWcDZLK/1Q3qDRgZ0SCXzNGp114hp
-         M9L6nz2832GY2Llbj86rgGXBLeHI4CSgdAqe6OIuszAW4lfBDiwVY56/+USK1Ot3zM
-         eiqMrEtCDXFtk7cssF9ABv/FxdQnFASSmYhDGJAEuP/X/M39i3xzR16et6I/VvR195
-         TK0Z14tjPgqug==
+        b=jjDGP0Uh3i64gu3zsespVmTwqwSCl4vH03dQzK3Qfn+bKuPciojxHNdyNn6TB0Xnq
+         Zk9P3+Wr4NWYT+OrB7pfcp9iprHI3h2EkEADNVc2/U6rES1U8r0tlCTfmHz22YC393
+         WFwF6ykvPSO7x6i3IcJedUdcjwEtv8UQVuj8IBB5ZU/4ugtaqaswp7T8I0T7Wmk+Qv
+         UqAEEYqvcSDBNFfSAzp4JwrVpCvkoAKF/DIGf+Ukt+GGpwcARf9y6YIjbGInl/ZH+j
+         +XpoLK0SjLApi2AxtxcMWBhJg08GYr+9bILr5G0sczlbM+U62PRT5mvHmueDJ7Aalj
+         AXlmxoL49WNRA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jianmin Lv <lvjianmin@loongson.cn>,
-        Huacai Chen <chenhuacai@loongson.cn>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        bhelgaas@google.com, rafael@kernel.org, linux-pci@vger.kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 16/22] ACPI / PCI: fix LPIC IRQ model default PCI IRQ polarity
-Date:   Sat, 17 Dec 2022 10:27:17 -0500
-Message-Id: <20221217152727.98061-16-sashal@kernel.org>
+Cc:     Zheng Yejian <zhengyejian1@huawei.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Zhang Jinhao <zhangjinhao2@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, tangmeng@uniontech.com,
+        willy@infradead.org
+Subject: [PATCH AUTOSEL 6.1 17/22] acct: fix potential integer overflow in encode_comp_t()
+Date:   Sat, 17 Dec 2022 10:27:18 -0500
+Message-Id: <20221217152727.98061-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221217152727.98061-1-sashal@kernel.org>
 References: <20221217152727.98061-1-sashal@kernel.org>
@@ -57,55 +60,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianmin Lv <lvjianmin@loongson.cn>
+From: Zheng Yejian <zhengyejian1@huawei.com>
 
-[ Upstream commit d0c50cc4b957b2cf6e43cec4998d212b5abe9220 ]
+[ Upstream commit c5f31c655bcc01b6da53b836ac951c1556245305 ]
 
-On LoongArch based systems, the PCI devices (e.g. SATA controllers and
-PCI-to-PCI bridge controllers) in Loongson chipsets output high-level
-interrupt signal to the interrupt controller they are connected (see
-Loongson 7A1000 Bridge User Manual v2.00, sec 5.3, "For the bridge chip,
-AC97 DMA interrupts are edge triggered, gpio interrupts can be configured
-to be level triggered or edge triggered as needed, and the rest of the
-interrupts are level triggered and active high."), while the IRQs are
-active low from the perspective of PCI (see Conventional PCI spec r3.0,
-sec 2.2.6, "Interrupts on PCI are optional and defined as level sensitive,
-asserted low."), which means that the interrupt output of PCI devices plugged
-into PCI-to-PCI bridges of Loongson chipset will be also converted to high-level.
-So high level triggered type is required to be passed to acpi_register_gsi()
-when creating mappings for PCI devices.
+The integer overflow is descripted with following codes:
+  > 317 static comp_t encode_comp_t(u64 value)
+  > 318 {
+  > 319         int exp, rnd;
+    ......
+  > 341         exp <<= MANTSIZE;
+  > 342         exp += value;
+  > 343         return exp;
+  > 344 }
 
-Signed-off-by: Jianmin Lv <lvjianmin@loongson.cn>
-Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20221022075955.11726-2-lvjianmin@loongson.cn
+Currently comp_t is defined as type of '__u16', but the variable 'exp' is
+type of 'int', so overflow would happen when variable 'exp' in line 343 is
+greater than 65535.
+
+Link: https://lkml.kernel.org/r/20210515140631.369106-3-zhengyejian1@huawei.com
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Cc: Hanjun Guo <guohanjun@huawei.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Zhang Jinhao <zhangjinhao2@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/pci_irq.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/acct.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
-index 08e15774fb9f..ff30ceca2203 100644
---- a/drivers/acpi/pci_irq.c
-+++ b/drivers/acpi/pci_irq.c
-@@ -387,13 +387,15 @@ int acpi_pci_irq_enable(struct pci_dev *dev)
- 	u8 pin;
- 	int triggering = ACPI_LEVEL_SENSITIVE;
+diff --git a/kernel/acct.c b/kernel/acct.c
+index 62200d799b9b..034a26daabb2 100644
+--- a/kernel/acct.c
++++ b/kernel/acct.c
+@@ -350,6 +350,8 @@ static comp_t encode_comp_t(unsigned long value)
+ 		exp++;
+ 	}
+ 
++	if (exp > (((comp_t) ~0U) >> MANTSIZE))
++		return (comp_t) ~0U;
  	/*
--	 * On ARM systems with the GIC interrupt model, level interrupts
-+	 * On ARM systems with the GIC interrupt model, or LoongArch
-+	 * systems with the LPIC interrupt model, level interrupts
- 	 * are always polarity high by specification; PCI legacy
- 	 * IRQs lines are inverted before reaching the interrupt
- 	 * controller and must therefore be considered active high
- 	 * as default.
+ 	 * Clean it up and polish it off.
  	 */
--	int polarity = acpi_irq_model == ACPI_IRQ_MODEL_GIC ?
-+	int polarity = acpi_irq_model == ACPI_IRQ_MODEL_GIC ||
-+		       acpi_irq_model == ACPI_IRQ_MODEL_LPIC ?
- 				      ACPI_ACTIVE_HIGH : ACPI_ACTIVE_LOW;
- 	char *link = NULL;
- 	char link_desc[16];
 -- 
 2.35.1
 
