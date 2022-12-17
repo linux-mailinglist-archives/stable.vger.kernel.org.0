@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64D2B64F58B
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:10:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C531864F58C
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:10:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229844AbiLQAKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 19:10:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43768 "EHLO
+        id S230020AbiLQAKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 19:10:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229851AbiLQAJ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:09:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9739D73B12;
-        Fri, 16 Dec 2022 16:09:56 -0800 (PST)
+        with ESMTP id S229907AbiLQAKA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:10:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E1173B1F;
+        Fri, 16 Dec 2022 16:09:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2DDA4B81E41;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60EE4622CA;
+        Sat, 17 Dec 2022 00:09:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E8CDC433EF;
         Sat, 17 Dec 2022 00:09:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5AF7C433EF;
-        Sat, 17 Dec 2022 00:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671235794;
-        bh=n+UO3JEjJNtE6E7bl5JwaGCjw+WpyVJcpCgHb+zK70g=;
+        s=k20201202; t=1671235796;
+        bh=l/uTSJpkb7iF9/bwE+UEqemQYnCtWxrWUH9JUkWJkGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XYdkp4uOHEe1zDTjKmZY70ueOCkT7KFVCEsuL7DKp2C6aYFTpgBx6SXNoHoQ2k4GC
-         zgWUqb8wCM2prt1Ob4JXl9yztWNkCqS5IIxZDQLysHB4MJ+L1qRr+Arw/xPBfMmV5v
-         kGrefqiASlNZ1JP+UR4IaaDKumBcCQKwYGodzL/Nq2LymUoW8BxCDs9N2bXoaZKcf/
-         0lyc0OsCUsYGme4ws69H+CEGt6oRBTLv0uqXpA5Gy+1OcKtjeQUKUs2J9jgX51j6Ap
-         5epxzDhfLpl1BTBrbr1brsrkDfqUNWSeUw/6oiFaEL4zMaAIhTzymZgGv9k6IIlxWW
-         p29dwsMOSxgsw==
+        b=nW2Ya+mxjnazqcEtAu94JgWjG5i1j9fKZFjbcE7WkwA/TX6/rY0Rg4WB1+NMji0GT
+         8grodPCAZsJUaswlki4Y5T84ws1eQbX/ybk1vz2B+Nir2tmgiNHKyrf2Wz5gAa6RwN
+         Kw7g6WK4K8M/9Amj+CBqECg+LKj4bXLq1eYJnWJYNXWDsAFW+h77cpOgmMnJ+laHiZ
+         5u0QyyH4ChpU/BtIvuAyjLK60U3KQhKJaab7gw0+sCZrhxF6Q9mJJ7RSPvzb65vVcS
+         sBHpRSVc2lv9a+5ZCsHv3AOqX4KROgMInuc9AdqFnCPg7D6rdobBJe56zIhS4v/KvF
+         vG9eV4wdaXwgw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        broonie@kernel.org, keescook@chromium.org,
-        christophe.leroy@csgroup.eu, flaniel@linux.microsoft.com,
-        wangkefeng.wang@huawei.com, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.1 2/9] arm64: make is_ttbrX_addr() noinstr-safe
-Date:   Fri, 16 Dec 2022 19:09:29 -0500
-Message-Id: <20221217000937.41115-2-sashal@kernel.org>
+Cc:     Adriana Kobylak <anoo@us.ibm.com>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        keescook@chromium.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-aspeed@lists.ozlabs.org, linux-hardening@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 3/9] ARM: dts: aspeed: rainier,everest: Move reserved memory regions
+Date:   Fri, 16 Dec 2022 19:09:30 -0500
+Message-Id: <20221217000937.41115-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221217000937.41115-1-sashal@kernel.org>
 References: <20221217000937.41115-1-sashal@kernel.org>
@@ -58,50 +59,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Adriana Kobylak <anoo@us.ibm.com>
 
-[ Upstream commit d8c1d798a2e5091128c391c6dadcc9be334af3f5 ]
+[ Upstream commit e184d42a6e085f95f5c4f1a4fbabebab2984cb68 ]
 
-We use is_ttbr0_addr() in noinstr code, but as it's only marked as
-inline, it's theoretically possible for the compiler to place it
-out-of-line and instrument it, which would be problematic.
+Move the reserved regions to account for a decrease in DRAM when ECC is
+enabled. ECC takes 1/9th of memory.
 
-Mark is_ttbr0_addr() as __always_inline such that that can safely be
-used from noinstr code. For consistency, do the same to is_ttbr1_addr().
-Note that while is_ttbr1_addr() calls arch_kasan_reset_tag(), this is a
-macro (and its callees are either macros or __always_inline), so there
-is not a risk of transient instrumentation.
+Running on HW with ECC off, u-boot prints:
+DRAM:  already initialized, 1008 MiB (capacity:1024 MiB, VGA:16 MiB, ECC:off)
 
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20221114144042.3001140-1-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+And with ECC on, u-boot prints:
+DRAM:  already initialized, 896 MiB (capacity:1024 MiB, VGA:16 MiB, ECC:on, ECC size:896 MiB)
+
+This implies that MCR54 is configured for ECC to be bounded at the
+bottom of a 16MiB VGA memory region:
+
+1024MiB - 16MiB (VGA) = 1008MiB
+1008MiB / 9 (for ECC) = 112MiB
+1008MiB - 112MiB = 896MiB (available DRAM)
+
+The flash_memory region currently starts at offset 896MiB:
+0xb8000000 (flash_memory offset) - 0x80000000 (base memory address) = 0x38000000 = 896MiB
+
+This is the end of the available DRAM with ECC enabled and therefore it
+needs to be moved.
+
+Since the flash_memory is 64MiB in size and needs to be 64MiB aligned,
+it can just be moved up by 64MiB and would sit right at the end of the
+available DRAM buffer.
+
+The ramoops region currently follows the flash_memory, but it can be
+moved to sit above flash_memory which would minimize the address-space
+fragmentation.
+
+Signed-off-by: Adriana Kobylak <anoo@us.ibm.com>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Link: https://lore.kernel.org/r/20220916195535.1020185-1-anoo@linux.ibm.com
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/processor.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts | 17 ++++++++---------
+ arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts | 16 +++++++++-------
+ 2 files changed, 17 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
-index 445aa3af3b76..400f8956328b 100644
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -308,13 +308,13 @@ static inline void compat_start_thread(struct pt_regs *regs, unsigned long pc,
- }
- #endif
+diff --git a/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts b/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
+index a6a2bc3b855c..fcc890e3ad73 100644
+--- a/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
++++ b/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
+@@ -162,16 +162,9 @@ reserved-memory {
+ 		#size-cells = <1>;
+ 		ranges;
  
--static inline bool is_ttbr0_addr(unsigned long addr)
-+static __always_inline bool is_ttbr0_addr(unsigned long addr)
- {
- 	/* entry assembly clears tags for TTBR0 addrs */
- 	return addr < TASK_SIZE;
- }
+-		/* LPC FW cycle bridge region requires natural alignment */
+-		flash_memory: region@b8000000 {
+-			no-map;
+-			reg = <0xb8000000 0x04000000>; /* 64M */
+-		};
+-
+-		/* 48MB region from the end of flash to start of vga memory */
+-		ramoops@bc000000 {
++		ramoops@b3e00000 {
+ 			compatible = "ramoops";
+-			reg = <0xbc000000 0x200000>; /* 16 * (4 * 0x8000) */
++			reg = <0xb3e00000 0x200000>; /* 16 * (4 * 0x8000) */
+ 			record-size = <0x8000>;
+ 			console-size = <0x8000>;
+ 			ftrace-size = <0x8000>;
+@@ -179,6 +172,12 @@ ramoops@bc000000 {
+ 			max-reason = <3>; /* KMSG_DUMP_EMERG */
+ 		};
  
--static inline bool is_ttbr1_addr(unsigned long addr)
-+static __always_inline bool is_ttbr1_addr(unsigned long addr)
- {
- 	/* TTBR1 addresses may have a tag if KASAN_SW_TAGS is in use */
- 	return arch_kasan_reset_tag(addr) >= PAGE_OFFSET;
++		/* LPC FW cycle bridge region requires natural alignment */
++		flash_memory: region@b4000000 {
++			no-map;
++			reg = <0xb4000000 0x04000000>; /* 64M */
++		};
++
+ 		/* VGA region is dictated by hardware strapping */
+ 		vga_memory: region@bf000000 {
+ 			no-map;
+diff --git a/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts b/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
+index bf59a9962379..4879da4cdbd2 100644
+--- a/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
++++ b/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
+@@ -95,14 +95,9 @@ reserved-memory {
+ 		#size-cells = <1>;
+ 		ranges;
+ 
+-		flash_memory: region@b8000000 {
+-			no-map;
+-			reg = <0xb8000000 0x04000000>; /* 64M */
+-		};
+-
+-		ramoops@bc000000 {
++		ramoops@b3e00000 {
+ 			compatible = "ramoops";
+-			reg = <0xbc000000 0x200000>; /* 16 * (4 * 0x8000) */
++			reg = <0xb3e00000 0x200000>; /* 16 * (4 * 0x8000) */
+ 			record-size = <0x8000>;
+ 			console-size = <0x8000>;
+ 			ftrace-size = <0x8000>;
+@@ -110,6 +105,13 @@ ramoops@bc000000 {
+ 			max-reason = <3>; /* KMSG_DUMP_EMERG */
+ 		};
+ 
++		/* LPC FW cycle bridge region requires natural alignment */
++		flash_memory: region@b4000000 {
++			no-map;
++			reg = <0xb4000000 0x04000000>; /* 64M */
++		};
++
++		/* VGA region is dictated by hardware strapping */
+ 		vga_memory: region@bf000000 {
+ 			no-map;
+ 			compatible = "shared-dma-pool";
 -- 
 2.35.1
 
