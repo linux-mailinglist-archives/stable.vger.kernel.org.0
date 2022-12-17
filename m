@@ -2,46 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF41E64F5D8
-	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:13:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12F6F64F5DA
+	for <lists+stable@lfdr.de>; Sat, 17 Dec 2022 01:13:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230256AbiLQANi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Dec 2022 19:13:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45044 "EHLO
+        id S230421AbiLQANl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Dec 2022 19:13:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230358AbiLQAMd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:12:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 348DB36D45;
-        Fri, 16 Dec 2022 16:11:09 -0800 (PST)
+        with ESMTP id S229548AbiLQAMn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Dec 2022 19:12:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1561340825;
+        Fri, 16 Dec 2022 16:11:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C393C622C8;
-        Sat, 17 Dec 2022 00:11:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 186B5C433D2;
-        Sat, 17 Dec 2022 00:11:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5E63622D4;
+        Sat, 17 Dec 2022 00:11:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69EECC433F0;
+        Sat, 17 Dec 2022 00:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671235868;
-        bh=GGH++P1BIAxQRI2nLwZUP/1q16Czvf47MMs+3TpiWu4=;
+        s=k20201202; t=1671235871;
+        bh=XQ77/NIn43nPV6FOhatGAzc+UK1dL+UTMKzIc3Bguac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wnvoa80X19jLZDDSYkfq6IRur3AjmP3m/tPAu9Hkmdo0TVZbBgrwLFFZH5r8Gk35d
-         eFTR5k0PvtUsLH7BxKWnn7frLDfGa8mC1YUV8XA9WfYDJZsVKqQAZvQNR9D2Un6pKY
-         rkzA6D/aq0y/ZQRWTYAYQUW9A/7vcU8WFfl813F/xSF4DW61RHnSzEltcW2UoIyUe0
-         IBNdG66taUTo3t8jmwtyBNzMxjjZq85vylrh0AwYmGvFlWqAxUp6jYtOYc7kEsZQK4
-         zYCdma6sIoevSkchuapr9m8TPKKhMkEMjcpS5CLyj2ymkQzD+ymnVdeZOhG99YW+UZ
-         J6/CWqyeIYp3w==
+        b=sMeyBF2u3bpIQAtPzxcZrZ/m0m03QGTCOHJ80fw6h3hI+dyY4URSvKZ7gT80q6CH+
+         4j2DsHHU0bk3fMI05UF/dcfEbxgzucUCs5AYhAGNZuEx7TQxJCuALCf4gD0wge4SCI
+         MiWTbn0x6sc50bPE1ODx9kH/xerRtgFqPaRocUx4nNd1qKmwi25y957rcIkQFiu6Wj
+         d58u5lO+35qxfzhUNFG3k9wIUO8qqhcAULss6/pKqXhqGqiMz/0Jmca/UpR0dkk/M5
+         6v7fVPrM7TMMvlioym4orc7Jd6gNXjSxxPQFDsImK85Dl2cCQk3Q0X2vBqLv10J7md
+         dHehQrNk8cidA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        broonie@kernel.org, keescook@chromium.org,
-        wangkefeng.wang@huawei.com, flaniel@linux.microsoft.com,
-        christophe.leroy@csgroup.eu, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 2/5] arm64: make is_ttbrX_addr() noinstr-safe
-Date:   Fri, 16 Dec 2022 19:10:54 -0500
-Message-Id: <20221217001058.41426-2-sashal@kernel.org>
+Cc:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        Fabio A M Martins <fabiomirmar@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, deller@gmx.de,
+        linux-hyperv@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 3/5] video: hyperv_fb: Avoid taking busy spinlock on panic path
+Date:   Fri, 16 Dec 2022 19:10:55 -0500
+Message-Id: <20221217001058.41426-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221217001058.41426-1-sashal@kernel.org>
 References: <20221217001058.41426-1-sashal@kernel.org>
@@ -58,50 +65,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
 
-[ Upstream commit d8c1d798a2e5091128c391c6dadcc9be334af3f5 ]
+[ Upstream commit 1d044ca035dc22df0d3b39e56f2881071d9118bd ]
 
-We use is_ttbr0_addr() in noinstr code, but as it's only marked as
-inline, it's theoretically possible for the compiler to place it
-out-of-line and instrument it, which would be problematic.
+The Hyper-V framebuffer code registers a panic notifier in order
+to try updating its fbdev if the kernel crashed. The notifier
+callback is straightforward, but it calls the vmbus_sendpacket()
+routine eventually, and such function takes a spinlock for the
+ring buffer operations.
 
-Mark is_ttbr0_addr() as __always_inline such that that can safely be
-used from noinstr code. For consistency, do the same to is_ttbr1_addr().
-Note that while is_ttbr1_addr() calls arch_kasan_reset_tag(), this is a
-macro (and its callees are either macros or __always_inline), so there
-is not a risk of transient instrumentation.
+Panic path runs in atomic context, with local interrupts and
+preemption disabled, and all secondary CPUs shutdown. That said,
+taking a spinlock might cause a lockup if a secondary CPU was
+disabled with such lock taken. Fix it here by checking if the
+ring buffer spinlock is busy on Hyper-V framebuffer panic notifier;
+if so, bail-out avoiding the potential lockup scenario.
 
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20221114144042.3001140-1-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Cc: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+Cc: Dexuan Cui <decui@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Michael Kelley <mikelley@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Cc: Wei Liu <wei.liu@kernel.org>
+Tested-by: Fabio A M Martins <fabiomirmar@gmail.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20220819221731.480795-10-gpiccoli@igalia.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/processor.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hv/ring_buffer.c        | 13 +++++++++++++
+ drivers/video/fbdev/hyperv_fb.c |  8 +++++++-
+ include/linux/hyperv.h          |  2 ++
+ 3 files changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
-index 7c546c3487c9..c628d8e3a403 100644
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -230,13 +230,13 @@ static inline void compat_start_thread(struct pt_regs *regs, unsigned long pc,
- }
- #endif
- 
--static inline bool is_ttbr0_addr(unsigned long addr)
-+static __always_inline bool is_ttbr0_addr(unsigned long addr)
- {
- 	/* entry assembly clears tags for TTBR0 addrs */
- 	return addr < TASK_SIZE;
+diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
+index 769851b6e74c..7ed6fad3fa8f 100644
+--- a/drivers/hv/ring_buffer.c
++++ b/drivers/hv/ring_buffer.c
+@@ -246,6 +246,19 @@ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
+ 	mutex_unlock(&ring_info->ring_buffer_mutex);
  }
  
--static inline bool is_ttbr1_addr(unsigned long addr)
-+static __always_inline bool is_ttbr1_addr(unsigned long addr)
++/*
++ * Check if the ring buffer spinlock is available to take or not; used on
++ * atomic contexts, like panic path (see the Hyper-V framebuffer driver).
++ */
++
++bool hv_ringbuffer_spinlock_busy(struct vmbus_channel *channel)
++{
++	struct hv_ring_buffer_info *rinfo = &channel->outbound;
++
++	return spin_is_locked(&rinfo->ring_lock);
++}
++EXPORT_SYMBOL_GPL(hv_ringbuffer_spinlock_busy);
++
+ /* Write to the ring buffer. */
+ int hv_ringbuffer_write(struct vmbus_channel *channel,
+ 			const struct kvec *kv_list, u32 kv_count)
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index 40baa79f8046..f0a66a344d87 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -798,12 +798,18 @@ static void hvfb_ondemand_refresh_throttle(struct hvfb_par *par,
+ static int hvfb_on_panic(struct notifier_block *nb,
+ 			 unsigned long e, void *p)
  {
- 	/* TTBR1 addresses may have a tag if KASAN_SW_TAGS is in use */
- 	return arch_kasan_reset_tag(addr) >= PAGE_OFFSET;
++	struct hv_device *hdev;
+ 	struct hvfb_par *par;
+ 	struct fb_info *info;
+ 
+ 	par = container_of(nb, struct hvfb_par, hvfb_panic_nb);
+-	par->synchronous_fb = true;
+ 	info = par->info;
++	hdev = device_to_hv_device(info->device);
++
++	if (hv_ringbuffer_spinlock_busy(hdev->channel))
++		return NOTIFY_DONE;
++
++	par->synchronous_fb = true;
+ 	if (par->need_docopy)
+ 		hvfb_docopy(par, 0, dio_fb_size);
+ 	synthvid_update(info, 0, 0, INT_MAX, INT_MAX);
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 1ce131f29f3b..eada4d8d6587 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -1269,6 +1269,8 @@ struct hv_ring_buffer_debug_info {
+ int hv_ringbuffer_get_debuginfo(struct hv_ring_buffer_info *ring_info,
+ 				struct hv_ring_buffer_debug_info *debug_info);
+ 
++bool hv_ringbuffer_spinlock_busy(struct vmbus_channel *channel);
++
+ /* Vmbus interface */
+ #define vmbus_driver_register(driver)	\
+ 	__vmbus_driver_register(driver, THIS_MODULE, KBUILD_MODNAME)
 -- 
 2.35.1
 
