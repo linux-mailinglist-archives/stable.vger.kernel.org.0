@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B768650158
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:28:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD85A650161
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:29:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232099AbiLRQ2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:28:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44786 "EHLO
+        id S232080AbiLRQ3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:29:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232241AbiLRQ1Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:27:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D46614024;
-        Sun, 18 Dec 2022 08:10:17 -0800 (PST)
+        with ESMTP id S232096AbiLRQ2d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:28:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BB0A140A8;
+        Sun, 18 Dec 2022 08:10:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAFF8B803F1;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B61FF60DB4;
+        Sun, 18 Dec 2022 16:10:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B6FCC433D2;
         Sun, 18 Dec 2022 16:10:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74C42C433EF;
-        Sun, 18 Dec 2022 16:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379815;
-        bh=qf0oSLV4E6w5ebS0SOBfjay3IS6Hh2aOO/vzy9pPhyY=;
+        s=k20201202; t=1671379817;
+        bh=plYTi2TZNI27U9t9LXYCJAAmbOeZYQ61BCO1+T+YmE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eULV2OSP48Msm9GF9K3Mv26Rnbtaf5cIFxp+yWb1UXW7MMCf3FXVn7XGeFM2v6TeP
-         6R1oPO5FYr5bi8HthmB9qTD6btNoxMDsmxzY9roW2skClteiuAYqxgu749DgpNccqa
-         yisWybk/SDV08napnxWzH8B8qpu8Pe+mxAiSHjxdY/ECnTQyFlSW7E2NvNba1f0Jd9
-         KmmyPryM48qHz4DOBoqnMPRsYRjz/kc42ah02+OpO3G5qRoNacdGVIS04s8mAhNKvP
-         wzyY4/xSIRa5gzWZbFQEmmm6QA6FBQ9KYugO/0JqlQz+mwWLwJNelFlyuAYpru1xnb
-         Ik9AjH7J5k35Q==
+        b=UPR2u4zdtp1JoTXjzHq3pRY+6Vk8iCGKVh+zREl4TIbbr91FxjthqywLmSPfvCNEz
+         EjomQ+VfJ6jB5awzvmoWnSvGgU2KVGxYHJK0dT1QZwIyLnY56NZoQQQnVmuwO6Laug
+         8kYaMaeUSyyIBcozzy9mTL9RzOitU7pO+oslLlQUSW3nm+KS0YdCyAC3lnPGwwxdzv
+         msIKhti1NYaOBrC/nSElUNVyBuvAEZNlC3aBTobTuSMFlmUVXsJ5wMnI+B2YnYpZ13
+         hfn7EbADjboVOKNRFT71SlTPi7IRlSl7EyIdEco8ziSO270nY0UXddYpX3sASuh26n
+         W3ALWV9UeMNog==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Martin Leung <Martin.Leung@amd.com>,
-        Tom Chung <chiahsuan.chung@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, Charlene.Liu@amd.com, jerry.zuo@amd.com,
-        sancchen@amd.com, jaehyun.chung@amd.com, tales.aparecida@gmail.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 40/73] drm/amd/display: fix array index out of bound error in bios parser
-Date:   Sun, 18 Dec 2022 11:07:08 -0500
-Message-Id: <20221218160741.927862-40-sashal@kernel.org>
+Cc:     Sagi Grimberg <sagi@grimberg.me>, Hannes Reinecke <hare@suse.de>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
+        axboe@fb.com, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.0 41/73] nvme-auth: don't override ctrl keys before validation
+Date:   Sun, 18 Dec 2022 11:07:09 -0500
+Message-Id: <20221218160741.927862-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -63,66 +57,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurabindo Pillai <aurabindo.pillai@amd.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 4fc1ba4aa589ca267468ad23fedef37562227d32 ]
+[ Upstream commit 01604350e14560d4d69323eb1ba12a257a643ea8 ]
 
-[Why&How]
-Firmware headers dictate that gpio_pin array only has a size of 8. The
-count returned from vbios however is greater than 8.
+Replace ctrl ctrl_key/host_key only after nvme_auth_generate_key is successful.
+Also, this fixes a bug where the keys are leaked.
 
-Fix this by not using array indexing but incrementing the pointer since
-gpio_pin definition in atomfirmware.h is hardcoded to size 8
-
-Reviewed-by: Martin Leung <Martin.Leung@amd.com>
-Acked-by: Tom Chung <chiahsuan.chung@amd.com>
-Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/bios/bios_parser2.c   | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ drivers/nvme/host/core.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
-index de3a1f3fd4f1..c98cd7c5b9f7 100644
---- a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
-+++ b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
-@@ -487,6 +487,7 @@ static enum bp_result get_gpio_i2c_info(
- 	uint32_t count = 0;
- 	unsigned int table_index = 0;
- 	bool find_valid = false;
-+	struct atom_gpio_pin_assignment *pin;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index aca50bb93750..5413d58b3f2c 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3739,13 +3739,17 @@ static ssize_t nvme_ctrl_dhchap_secret_store(struct device *dev,
+ 	memcpy(dhchap_secret, buf, count);
+ 	nvme_auth_stop(ctrl);
+ 	if (strcmp(dhchap_secret, opts->dhchap_secret)) {
++		struct nvme_dhchap_key *key, *host_key;
+ 		int ret;
  
- 	if (!info)
- 		return BP_RESULT_BADINPUT;
-@@ -514,20 +515,17 @@ static enum bp_result get_gpio_i2c_info(
- 			- sizeof(struct atom_common_table_header))
- 				/ sizeof(struct atom_gpio_pin_assignment);
- 
-+	pin = (struct atom_gpio_pin_assignment *) header->gpio_pin;
-+
- 	for (table_index = 0; table_index < count; table_index++) {
--		if (((record->i2c_id & I2C_HW_CAP) == (
--		header->gpio_pin[table_index].gpio_id &
--						I2C_HW_CAP)) &&
--		((record->i2c_id & I2C_HW_ENGINE_ID_MASK)  ==
--		(header->gpio_pin[table_index].gpio_id &
--					I2C_HW_ENGINE_ID_MASK)) &&
--		((record->i2c_id & I2C_HW_LANE_MUX) ==
--		(header->gpio_pin[table_index].gpio_id &
--						I2C_HW_LANE_MUX))) {
-+		if (((record->i2c_id & I2C_HW_CAP) 				== (pin->gpio_id & I2C_HW_CAP)) &&
-+		    ((record->i2c_id & I2C_HW_ENGINE_ID_MASK)	== (pin->gpio_id & I2C_HW_ENGINE_ID_MASK)) &&
-+		    ((record->i2c_id & I2C_HW_LANE_MUX) 		== (pin->gpio_id & I2C_HW_LANE_MUX))) {
- 			/* still valid */
- 			find_valid = true;
- 			break;
- 		}
-+		pin = (struct atom_gpio_pin_assignment *)((uint8_t *)pin + sizeof(struct atom_gpio_pin_assignment));
+-		ret = nvme_auth_generate_key(dhchap_secret, &ctrl->host_key);
++		ret = nvme_auth_generate_key(dhchap_secret, &key);
+ 		if (ret)
+ 			return ret;
+ 		kfree(opts->dhchap_secret);
+ 		opts->dhchap_secret = dhchap_secret;
++		host_key = ctrl->host_key;
++		ctrl->host_key = key;
++		nvme_auth_free_key(host_key);
+ 		/* Key has changed; re-authentication with new key */
+ 		nvme_auth_reset(ctrl);
  	}
+@@ -3789,13 +3793,17 @@ static ssize_t nvme_ctrl_dhchap_ctrl_secret_store(struct device *dev,
+ 	memcpy(dhchap_secret, buf, count);
+ 	nvme_auth_stop(ctrl);
+ 	if (strcmp(dhchap_secret, opts->dhchap_ctrl_secret)) {
++		struct nvme_dhchap_key *key, *ctrl_key;
+ 		int ret;
  
- 	/* If we don't find the entry that we are looking for then
+-		ret = nvme_auth_generate_key(dhchap_secret, &ctrl->ctrl_key);
++		ret = nvme_auth_generate_key(dhchap_secret, &key);
+ 		if (ret)
+ 			return ret;
+ 		kfree(opts->dhchap_ctrl_secret);
+ 		opts->dhchap_ctrl_secret = dhchap_secret;
++		ctrl_key = ctrl->ctrl_key;
++		ctrl->ctrl_key = key;
++		nvme_auth_free_key(ctrl_key);
+ 		/* Key has changed; re-authentication with new key */
+ 		nvme_auth_reset(ctrl);
+ 	}
 -- 
 2.35.1
 
