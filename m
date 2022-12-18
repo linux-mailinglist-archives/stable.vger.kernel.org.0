@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1714765017A
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:31:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84A20650182
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:31:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232030AbiLRQbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:31:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50580 "EHLO
+        id S232217AbiLRQbi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:31:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232055AbiLRQaz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:30:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E9915A1F;
-        Sun, 18 Dec 2022 08:11:11 -0800 (PST)
+        with ESMTP id S232113AbiLRQbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:31:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5654C15A28;
+        Sun, 18 Dec 2022 08:11:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8E8F60DB4;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E031B80BA8;
+        Sun, 18 Dec 2022 16:11:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13194C433EF;
         Sun, 18 Dec 2022 16:11:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 998BCC433EF;
-        Sun, 18 Dec 2022 16:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379870;
-        bh=xEMiQK885xmLg3qtc8QmYHFfWoEH/3qKOlQ4YuaktGU=;
+        s=k20201202; t=1671379872;
+        bh=OPvkiT7QvUdo/gNXFO9oYOmBeAvWlq2GcTA3WpacEwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ml//22VTDTPSrTLQ9yq8w4Cu5AhhVlm8RLFX3YgYJQ78VWZdCHFUPhi5PL1RHfhiN
-         k0FYe3Aash/mAgqTmwpBmwM5MwY5iC5rCnpZkVYrqHqNP1tWU7adckcc9HO2aOj+la
-         6pP/awxW8TgqkP04ROEgHzmL+LpDVco4gOpCKlBp92gNDHigPhNCV8UE7o5Vdcz+02
-         kcZdjnerYDpiUX/7FmiH0rcqh+6/wpci7l/b0Xb6mSBht02LVER5QPfMHIyat7ZfEz
-         EtJOzxo/daY71QzeI5f7P36zbNNLichA8xdMHdB4LEB4QEM0/5+hFFLtfa2gXleEiw
-         PVgrStogfzDuA==
+        b=nXSO/KEWGncG+FZEbPuG99CreR0ou8KUlULcbGf9HQfhIiBar77xVhmD+gMYZrEnY
+         H55/Th9q01pwK8qKcrypjZa7jngLCaGgjDRF3OM4N0diJ3bPXw4FchIiTikcpDN22m
+         BKkvlxVUIyugd0t8Y+pgT/sEolWc/oBofP7fq9b7r30Pk4ObVJv+cpW7yBD/Dmg9Sr
+         ZF0caud39mOfdUnIZTmFupdatvxB3kzahp5pUvDTL62cz6dZms5InNprNYWKeRg+9f
+         LKtbao/zO3xXi4E91fBJVenncaobll3k/fH0Zzm7/RW6k3brPNkVRIjK9nWx9TFZ0W
+         7ZadX3Vr/oCQg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mazin Al Haddad <mazinalhaddad05@gmail.com>,
-        syzbot+f66dd31987e6740657be@syzkaller.appspotmail.com,
+Cc:     Yunfei Dong <yunfei.dong@mediatek.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 52/73] media: dvb-usb: fix memory leak in dvb_usb_adapter_init()
-Date:   Sun, 18 Dec 2022 11:07:20 -0500
-Message-Id: <20221218160741.927862-52-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, tiffany.lin@mediatek.com,
+        andrew-ct.chen@mediatek.com, matthias.bgg@gmail.com,
+        linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.0 53/73] media: mediatek: vcodec: Can't set dst buffer to done when lat decode error
+Date:   Sun, 18 Dec 2022 11:07:21 -0500
+Message-Id: <20221218160741.927862-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -56,95 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mazin Al Haddad <mazinalhaddad05@gmail.com>
+From: Yunfei Dong <yunfei.dong@mediatek.com>
 
-[ Upstream commit 94d90fb06b94a90c176270d38861bcba34ce377d ]
+[ Upstream commit 3568ecd3f3a6d133ab7feffbba34955c8c79bbc4 ]
 
-Syzbot reports a memory leak in "dvb_usb_adapter_init()".
-The leak is due to not accounting for and freeing current iteration's
-adapter->priv in case of an error. Currently if an error occurs,
-it will exit before incrementing "num_adapters_initalized",
-which is used as a reference counter to free all adap->priv
-in "dvb_usb_adapter_exit()". There are multiple error paths that
-can exit from before incrementing the counter. Including the
-error handling paths for "dvb_usb_adapter_stream_init()",
-"dvb_usb_adapter_dvb_init()" and "dvb_usb_adapter_frontend_init()"
-within "dvb_usb_adapter_init()".
+Core thread will call v4l2_m2m_buf_done to set dst buffer done for
+lat architecture. If lat call v4l2_m2m_buf_done_and_job_finish to
+free dst buffer when lat decode error, core thread will access kernel
+NULL pointer dereference, then crash.
 
-This means that in case of an error in any of these functions the
-current iteration is not accounted for and the current iteration's
-adap->priv is not freed.
-
-Fix this by freeing the current iteration's adap->priv in the
-"stream_init_err:" label in the error path. The rest of the
-(accounted for) adap->priv objects are freed in dvb_usb_adapter_exit()
-as expected using the num_adapters_initalized variable.
-
-Syzbot report:
-
-BUG: memory leak
-unreferenced object 0xffff8881172f1a00 (size 512):
-  comm "kworker/0:2", pid 139, jiffies 4294994873 (age 10.960s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-backtrace:
-    [<ffffffff844af012>] dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:75 [inline]
-    [<ffffffff844af012>] dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:184 [inline]
-    [<ffffffff844af012>] dvb_usb_device_init.cold+0x4e5/0x79e drivers/media/usb/dvb-usb/dvb-usb-init.c:308
-    [<ffffffff830db21d>] dib0700_probe+0x8d/0x1b0 drivers/media/usb/dvb-usb/dib0700_core.c:883
-    [<ffffffff82d3fdc7>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff8274ab37>] call_driver_probe drivers/base/dd.c:542 [inline]
-    [<ffffffff8274ab37>] really_probe.part.0+0xe7/0x310 drivers/base/dd.c:621
-    [<ffffffff8274ae6c>] really_probe drivers/base/dd.c:583 [inline]
-    [<ffffffff8274ae6c>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:752
-    [<ffffffff8274af6a>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:782
-    [<ffffffff8274b786>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:899
-    [<ffffffff82747c87>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff8274b352>] __device_attach+0x122/0x260 drivers/base/dd.c:970
-    [<ffffffff827498f6>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
-    [<ffffffff82745cdb>] device_add+0x5fb/0xdf0 drivers/base/core.c:3405
-    [<ffffffff82d3d202>] usb_set_configuration+0x8f2/0xb80 drivers/usb/core/message.c:2170
-    [<ffffffff82d4dbfc>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
-    [<ffffffff82d3f49c>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
-    [<ffffffff8274ab37>] call_driver_probe drivers/base/dd.c:542 [inline]
-    [<ffffffff8274ab37>] really_probe.part.0+0xe7/0x310 drivers/base/dd.c:621
-    [<ffffffff8274ae6c>] really_probe drivers/base/dd.c:583 [inline]
-    [<ffffffff8274ae6c>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:752
-
-Link: https://syzkaller.appspot.com/bug?extid=f66dd31987e6740657be
-Reported-and-tested-by: syzbot+f66dd31987e6740657be@syzkaller.appspotmail.com
-
-Link: https://lore.kernel.org/linux-media/20220824012152.539788-1-mazinalhaddad05@gmail.com
-Signed-off-by: Mazin Al Haddad <mazinalhaddad05@gmail.com>
+Signed-off-by: Yunfei Dong <yunfei.dong@mediatek.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dvb-usb-init.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c   | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/dvb-usb/dvb-usb-init.c b/drivers/media/usb/dvb-usb/dvb-usb-init.c
-index 61439c8f33ca..58eea8ab5477 100644
---- a/drivers/media/usb/dvb-usb/dvb-usb-init.c
-+++ b/drivers/media/usb/dvb-usb/dvb-usb-init.c
-@@ -81,7 +81,7 @@ static int dvb_usb_adapter_init(struct dvb_usb_device *d, short *adapter_nrs)
+diff --git a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
+index c45bd2599bb2..f41a3ff17b04 100644
+--- a/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
++++ b/drivers/media/platform/mediatek/vcodec/mtk_vcodec_dec_stateless.c
+@@ -250,7 +250,7 @@ static void mtk_vdec_worker(struct work_struct *work)
  
- 		ret = dvb_usb_adapter_stream_init(adap);
- 		if (ret)
--			return ret;
-+			goto stream_init_err;
- 
- 		ret = dvb_usb_adapter_dvb_init(adap, adapter_nrs);
- 		if (ret)
-@@ -114,6 +114,8 @@ static int dvb_usb_adapter_init(struct dvb_usb_device *d, short *adapter_nrs)
- 	dvb_usb_adapter_dvb_exit(adap);
- dvb_init_err:
- 	dvb_usb_adapter_stream_exit(adap);
-+stream_init_err:
-+	kfree(adap->priv);
- 	return ret;
- }
- 
+ 	state = ret ? VB2_BUF_STATE_ERROR : VB2_BUF_STATE_DONE;
+ 	if (!IS_VDEC_LAT_ARCH(dev->vdec_pdata->hw_arch) ||
+-	    ctx->current_codec == V4L2_PIX_FMT_VP8_FRAME || ret) {
++	    ctx->current_codec == V4L2_PIX_FMT_VP8_FRAME) {
+ 		v4l2_m2m_buf_done_and_job_finish(dev->m2m_dev_dec, ctx->m2m_ctx, state);
+ 		if (src_buf_req)
+ 			v4l2_ctrl_request_complete(src_buf_req, &ctx->ctrl_hdl);
 -- 
 2.35.1
 
