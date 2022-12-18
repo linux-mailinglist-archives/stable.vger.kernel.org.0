@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9DF650194
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:34:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 119346501A0
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:34:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231975AbiLRQeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:34:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53588 "EHLO
+        id S232147AbiLRQee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:34:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231969AbiLRQdO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:33:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34B8AB4AB;
-        Sun, 18 Dec 2022 08:12:11 -0800 (PST)
+        with ESMTP id S232187AbiLRQd1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:33:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38ED8DF79;
+        Sun, 18 Dec 2022 08:12:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C514F60DD3;
-        Sun, 18 Dec 2022 16:12:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A5BEC43396;
-        Sun, 18 Dec 2022 16:12:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5ADB2CE0B9A;
+        Sun, 18 Dec 2022 16:12:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B5FAC433EF;
+        Sun, 18 Dec 2022 16:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379930;
-        bh=ipKdulpmmSmjZ0WXk55vOzU802/+Oml+uBFJbdoVsIk=;
+        s=k20201202; t=1671379939;
+        bh=X9QyHZW0/Q7y1ozPfSbuoElW40mP7FohwywJd74HR88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kdjNqNSnwFm6lwf1ssgQzOQN4IQch2pmDLNJAvTXgR2aBqxpQDCZrFjm0irGAduHI
-         qhi1ESFpo9GxoSb+NIURbkOKvq4r4jDP1GReufUI5Wvhg6H5cB6T3agysQAE16rLGS
-         MxaYY5/vJh066adDXAXGWQakkuE1asFBJG1wpoOEjQX/iejCL9RpUUO7wAPTOvdEn3
-         A3DiK348pPqbEaSyGJc2ajLqTcq+akcRlQdvQ2h6GF4lmZHC/csdbnbGvAaUNlH8+U
-         WB7ZkH043jne3X+BHTFAECCf3FHsAT2LjHGg8lGFXv9dSQ89bYR/IidBdIrEGi1ejv
-         /Q538KPHM3Z7Q==
+        b=p+4qOYfMbDtOvi2ba95q9UrEMmZOmMaGYYUGIJfk5MV92hkMW0GkLC/1vf/7UPPO+
+         ip3v3UMfP7hygksHHh9K9UYhMdzxqapDkKrql31MRZr0VayStUWalsG/4L+LG/jm6j
+         M8SjQ4ZVQ9c8Oh6isy/QrWUyOPW7L2L3vEBp78yZm+vV3V3P1ogGTTyeIXysgG2cP5
+         l8Xon0G4T5RNI49ENcdMaiYQcFn42Xq2Z9fUJ0/Hsuvzmo4UJcL7DaDSLPvjVP1/xh
+         qL+vYXw8xiJIYtroMYnt56WdK69YFLjJ7XO1OXx9GEpUDDBSjGlip5Eed1eKEa94VV
+         XzALuNdU31lOA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Denis Pauk <pauk.denis@gmail.com>,
-        yutesdb <mundanedefoliation@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
-        linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 62/73] hwmon: (nct6775) add ASUS CROSSHAIR VIII/TUF/ProArt B550M
-Date:   Sun, 18 Dec 2022 11:07:30 -0500
-Message-Id: <20221218160741.927862-62-sashal@kernel.org>
+Cc:     James Hilliard <james.hilliard1@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, daniel@iogearbox.net,
+        shuah@kernel.org, yhs@fb.com, alan.maguire@oracle.com,
+        bpf@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 63/73] selftests/bpf: Fix conflicts with built-in functions in bpf_iter_ksym
+Date:   Sun, 18 Dec 2022 11:07:31 -0500
+Message-Id: <20221218160741.927862-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -57,71 +58,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Pauk <pauk.denis@gmail.com>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-[ Upstream commit 1864069c695d475e0ce98a335c62274b81be57b4 ]
+[ Upstream commit ab0350c743d5c93fd88742f02b3dff12168ab435 ]
 
-Boards such as
-* ProArt B550-CREATOR
-* ProArt Z490-CREATOR 10G
-* ROG CROSSHAIR VIII EXTREME
-* ROG CROSSHAIR VIII HERO (WI-FI)
-* TUF GAMING B550M-E
-* TUF GAMING B550M-E (WI-FI)
-* TUF GAMING B550M-PLUS WIFI II
-have got a nct6775 chip, but by default there's no use of it
-because of resource conflict with WMI method.
+Both tolower and toupper are built in c functions, we should not
+redefine them as this can result in a build error.
 
-This commit adds such boards to the WMI monitoring list.
+Fixes the following errors:
+progs/bpf_iter_ksym.c:10:20: error: conflicting types for built-in function 'tolower'; expected 'int(int)' [-Werror=builtin-declaration-mismatch]
+   10 | static inline char tolower(char c)
+      |                    ^~~~~~~
+progs/bpf_iter_ksym.c:5:1: note: 'tolower' is declared in header '<ctype.h>'
+    4 | #include <bpf/bpf_helpers.h>
+  +++ |+#include <ctype.h>
+    5 |
+progs/bpf_iter_ksym.c:17:20: error: conflicting types for built-in function 'toupper'; expected 'int(int)' [-Werror=builtin-declaration-mismatch]
+   17 | static inline char toupper(char c)
+      |                    ^~~~~~~
+progs/bpf_iter_ksym.c:17:20: note: 'toupper' is declared in header '<ctype.h>'
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204807
-Signed-off-by: Denis Pauk <pauk.denis@gmail.com>
-Reported-by: yutesdb <mundanedefoliation@gmail.com>
-Tested-by: yutesdb <mundanedefoliation@gmail.com>
-Link: https://lore.kernel.org/r/20221114214456.3891-1-pauk.denis@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+See background on this sort of issue:
+https://stackoverflow.com/a/20582607
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=12213
+
+(C99, 7.1.3p1) "All identifiers with external linkage in any of the
+following subclauses (including the future library directions) are
+always reserved for use as identifiers with external linkage."
+
+This is documented behavior in GCC:
+https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-std-2
+
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/r/20221203010847.2191265-1-james.hilliard1@gmail.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/nct6775-platform.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ tools/testing/selftests/bpf/progs/bpf_iter_ksym.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hwmon/nct6775-platform.c b/drivers/hwmon/nct6775-platform.c
-index 41c97cfacfb8..50fe9533cf43 100644
---- a/drivers/hwmon/nct6775-platform.c
-+++ b/drivers/hwmon/nct6775-platform.c
-@@ -1043,7 +1043,9 @@ static struct platform_device *pdev[2];
+diff --git a/tools/testing/selftests/bpf/progs/bpf_iter_ksym.c b/tools/testing/selftests/bpf/progs/bpf_iter_ksym.c
+index 285c008cbf9c..9ba14c37bbcc 100644
+--- a/tools/testing/selftests/bpf/progs/bpf_iter_ksym.c
++++ b/tools/testing/selftests/bpf/progs/bpf_iter_ksym.c
+@@ -7,14 +7,14 @@ char _license[] SEC("license") = "GPL";
  
- static const char * const asus_wmi_boards[] = {
- 	"PRO H410T",
-+	"ProArt B550-CREATOR",
- 	"ProArt X570-CREATOR WIFI",
-+	"ProArt Z490-CREATOR 10G",
- 	"Pro B550M-C",
- 	"Pro WS X570-ACE",
- 	"PRIME B360-PLUS",
-@@ -1055,8 +1057,10 @@ static const char * const asus_wmi_boards[] = {
- 	"PRIME X570-P",
- 	"PRIME X570-PRO",
- 	"ROG CROSSHAIR VIII DARK HERO",
-+	"ROG CROSSHAIR VIII EXTREME",
- 	"ROG CROSSHAIR VIII FORMULA",
- 	"ROG CROSSHAIR VIII HERO",
-+	"ROG CROSSHAIR VIII HERO (WI-FI)",
- 	"ROG CROSSHAIR VIII IMPACT",
- 	"ROG STRIX B550-A GAMING",
- 	"ROG STRIX B550-E GAMING",
-@@ -1080,8 +1084,11 @@ static const char * const asus_wmi_boards[] = {
- 	"ROG STRIX Z490-G GAMING (WI-FI)",
- 	"ROG STRIX Z490-H GAMING",
- 	"ROG STRIX Z490-I GAMING",
-+	"TUF GAMING B550M-E",
-+	"TUF GAMING B550M-E (WI-FI)",
- 	"TUF GAMING B550M-PLUS",
- 	"TUF GAMING B550M-PLUS (WI-FI)",
-+	"TUF GAMING B550M-PLUS WIFI II",
- 	"TUF GAMING B550-PLUS",
- 	"TUF GAMING B550-PLUS WIFI II",
- 	"TUF GAMING B550-PRO",
+ unsigned long last_sym_value = 0;
+ 
+-static inline char tolower(char c)
++static inline char to_lower(char c)
+ {
+ 	if (c >= 'A' && c <= 'Z')
+ 		c += ('a' - 'A');
+ 	return c;
+ }
+ 
+-static inline char toupper(char c)
++static inline char to_upper(char c)
+ {
+ 	if (c >= 'a' && c <= 'z')
+ 		c -= ('a' - 'A');
+@@ -54,7 +54,7 @@ int dump_ksym(struct bpf_iter__ksym *ctx)
+ 	type = iter->type;
+ 
+ 	if (iter->module_name[0]) {
+-		type = iter->exported ? toupper(type) : tolower(type);
++		type = iter->exported ? to_upper(type) : to_lower(type);
+ 		BPF_SEQ_PRINTF(seq, "0x%llx %c %s [ %s ] ",
+ 			       value, type, iter->name, iter->module_name);
+ 	} else {
 -- 
 2.35.1
 
