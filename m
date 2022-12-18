@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88E9A6500FE
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:23:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D04FB6500F8
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:23:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231717AbiLRQXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:23:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59872 "EHLO
+        id S231633AbiLRQXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:23:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231720AbiLRQWn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:22:43 -0500
+        with ESMTP id S231660AbiLRQWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:22:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B177313D7A;
-        Sun, 18 Dec 2022 08:09:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0A213D7D;
+        Sun, 18 Dec 2022 08:09:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA2EFB80766;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 863E9B80BA4;
+        Sun, 18 Dec 2022 16:08:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FBB5C433EF;
         Sun, 18 Dec 2022 16:08:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8DD5C433D2;
-        Sun, 18 Dec 2022 16:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379713;
-        bh=mjBAZQAoIFRCA8kFTE+Z9mTUJWFLiwAtDPkEr+hzzTc=;
+        s=k20201202; t=1671379715;
+        bh=a7cOuKmiI68p8RBDkFm/L8woSvQj7c6/VpAFxLadteQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RjrHwlloSGtYCeWh33uv+8ust5hgcFhb5LqHeoTvOAO6g7YDu+pPVL2a11+M6wXo8
-         wVduIWxEjWUV0NN3sRdSoNnqVdx+xtoG3bh2mSho0ppYmV1wTKOkILsUztIoFvr2GC
-         kqq0JfQY9aBlzG3K4ESFdINlxLVUQv5n9jiCNC/nvnMkDKQiVtOLOXYCDU1AZSkt39
-         9weqEwSQ6b0SNq7abktXoPAhd8oN0VKSwLn7kmMCe3V5sOfu27KxLoVJNGrudBSZsY
-         MjIMVCFCHd52qou9ygRHI89x4a+BqHRUJSDiU5mkEE/VCko322NZqlOxbW475lK7sD
-         08lVHEcAoZvHg==
+        b=VlyFEyP0SGnXVJM4njOrqZIFz5orSkFRv147DzVI/IcRtppq3g6bLlCgDvNKaL9BM
+         tNHXYMooDJbdG4wwVmrHOitqNZ4BtBsV7JK7egL6jXHy59fic75wxzV/gKnmoQnRon
+         fTVwsf/ZcRXjNV6Op9UTT6KCBGDk0WNu6Gpj7s6ILFecNDcDkeoPgLEBWlidCQy9nW
+         kS7jSIFJjvrQk2mMY/Q0im/qv8QNpafx3VRDBcbfwVrJH8xrhQKgzQ0kNiJ9lG9Icw
+         b7dfIn55zdteGscYHl0jNB4oZasYE5ioEtrx5ForviezQTTT0KY44mYyqwHZ4lfAU8
+         ELoqmJDU1bjJg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     gehao <gehao@kylinos.cn>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+Cc:     Hamza Mahfooz <hamza.mahfooz@amd.com>, Roman Li <roman.li@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, christian.koenig@amd.com, Xinhui.Pan@amd.com,
-        airlied@gmail.com, daniel@ffwll.ch, HaoPing.Liu@amd.com,
-        aurabindo.pillai@amd.com, amd-gfx@lists.freedesktop.org,
+        Sasha Levin <sashal@kernel.org>,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, airlied@gmail.com, daniel@ffwll.ch,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 10/73] drm/amd/display: prevent memory leak
-Date:   Sun, 18 Dec 2022 11:06:38 -0500
-Message-Id: <20221218160741.927862-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 11/73] drm/edid: add a quirk for two LG monitors to get them to work on 10bpc
+Date:   Sun, 18 Dec 2022 11:06:39 -0500
+Message-Id: <20221218160741.927862-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -60,71 +59,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: gehao <gehao@kylinos.cn>
+From: Hamza Mahfooz <hamza.mahfooz@amd.com>
 
-[ Upstream commit d232afb1f3417ae8194ccf19ad3a8360e70e104e ]
+[ Upstream commit aa193f7eff8ff753577351140b8af13b76cdc7c2 ]
 
-In dce6(0,1,4)_create_resource_pool and dce80_create_resource_pool
-the allocated memory should be released if construct pool fails.
+The LG 27GP950 and LG 27GN950 have visible display corruption when
+trying to use 10bpc modes. So, to fix this, cap their maximum DSC
+target bitrate to 15bpp.
 
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: gehao <gehao@kylinos.cn>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Suggested-by: Roman Li <roman.li@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce60/dce60_resource.c | 3 +++
- drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c | 2 ++
- 2 files changed, 5 insertions(+)
+ drivers/gpu/drm/drm_edid.c  | 12 ++++++++++++
+ include/drm/drm_connector.h |  6 ++++++
+ 2 files changed, 18 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce60/dce60_resource.c b/drivers/gpu/drm/amd/display/dc/dce60/dce60_resource.c
-index fc6aa098bda0..8db9f7514466 100644
---- a/drivers/gpu/drm/amd/display/dc/dce60/dce60_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce60/dce60_resource.c
-@@ -1128,6 +1128,7 @@ struct resource_pool *dce60_create_resource_pool(
- 	if (dce60_construct(num_virtual_links, dc, pool))
- 		return &pool->base;
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index eaa819381281..fefcfac999d9 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -87,6 +87,8 @@ static int oui(u8 first, u8 second, u8 third)
+ #define EDID_QUIRK_FORCE_10BPC			(1 << 11)
+ /* Non desktop display (i.e. HMD) */
+ #define EDID_QUIRK_NON_DESKTOP			(1 << 12)
++/* Cap the DSC target bitrate to 15bpp */
++#define EDID_QUIRK_CAP_DSC_15BPP		(1 << 13)
  
-+	kfree(pool);
- 	BREAK_TO_DEBUGGER();
- 	return NULL;
- }
-@@ -1325,6 +1326,7 @@ struct resource_pool *dce61_create_resource_pool(
- 	if (dce61_construct(num_virtual_links, dc, pool))
- 		return &pool->base;
+ #define MICROSOFT_IEEE_OUI	0xca125c
  
-+	kfree(pool);
- 	BREAK_TO_DEBUGGER();
- 	return NULL;
- }
-@@ -1518,6 +1520,7 @@ struct resource_pool *dce64_create_resource_pool(
- 	if (dce64_construct(num_virtual_links, dc, pool))
- 		return &pool->base;
+@@ -147,6 +149,12 @@ static const struct edid_quirk {
+ 	EDID_QUIRK('F', 'C', 'M', 13600, EDID_QUIRK_PREFER_LARGE_75 |
+ 				       EDID_QUIRK_DETAILED_IN_CM),
  
-+	kfree(pool);
- 	BREAK_TO_DEBUGGER();
- 	return NULL;
- }
-diff --git a/drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c b/drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c
-index b28025960050..5825e6f412bd 100644
---- a/drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c
-@@ -1137,6 +1137,7 @@ struct resource_pool *dce80_create_resource_pool(
- 	if (dce80_construct(num_virtual_links, dc, pool))
- 		return &pool->base;
++	/* LG 27GP950 */
++	EDID_QUIRK('G', 'S', 'M', 0x5bbf, EDID_QUIRK_CAP_DSC_15BPP),
++
++	/* LG 27GN950 */
++	EDID_QUIRK('G', 'S', 'M', 0x5b9a, EDID_QUIRK_CAP_DSC_15BPP),
++
+ 	/* LGD panel of HP zBook 17 G2, eDP 10 bpc, but reports unknown bpc */
+ 	EDID_QUIRK('L', 'G', 'D', 764, EDID_QUIRK_FORCE_10BPC),
  
-+	kfree(pool);
- 	BREAK_TO_DEBUGGER();
- 	return NULL;
- }
-@@ -1336,6 +1337,7 @@ struct resource_pool *dce81_create_resource_pool(
- 	if (dce81_construct(num_virtual_links, dc, pool))
- 		return &pool->base;
+@@ -6116,6 +6124,7 @@ static void drm_reset_display_info(struct drm_connector *connector)
  
-+	kfree(pool);
- 	BREAK_TO_DEBUGGER();
- 	return NULL;
+ 	info->mso_stream_count = 0;
+ 	info->mso_pixel_overlap = 0;
++	info->max_dsc_bpp = 0;
  }
+ 
+ static u32 update_display_info(struct drm_connector *connector,
+@@ -6202,6 +6211,9 @@ static u32 update_display_info(struct drm_connector *connector,
+ 		info->non_desktop = true;
+ 	}
+ 
++	if (quirks & EDID_QUIRK_CAP_DSC_15BPP)
++		info->max_dsc_bpp = 15;
++
+ 	return quirks;
+ }
+ 
+diff --git a/include/drm/drm_connector.h b/include/drm/drm_connector.h
+index 7df7876b2ad5..d9879fc9ceb1 100644
+--- a/include/drm/drm_connector.h
++++ b/include/drm/drm_connector.h
+@@ -635,6 +635,12 @@ struct drm_display_info {
+ 	 * @mso_pixel_overlap: eDP MSO segment pixel overlap, 0-8 pixels.
+ 	 */
+ 	u8 mso_pixel_overlap;
++
++	/**
++	 * @max_dsc_bpp: Maximum DSC target bitrate, if it is set to 0 the
++	 * monitor's default value is used instead.
++	 */
++	u32 max_dsc_bpp;
+ };
+ 
+ int drm_display_info_set_bus_formats(struct drm_display_info *info,
 -- 
 2.35.1
 
