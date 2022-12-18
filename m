@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE372650314
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:57:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 770C6650317
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:58:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232904AbiLRQ5z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:57:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41758 "EHLO
+        id S232905AbiLRQ55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:57:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233066AbiLRQ5E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:57:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ADF71C137;
-        Sun, 18 Dec 2022 08:19:40 -0800 (PST)
+        with ESMTP id S233072AbiLRQ5G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:57:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2498E1C411;
+        Sun, 18 Dec 2022 08:19:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6FACB80BA8;
-        Sun, 18 Dec 2022 16:19:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40F66C43392;
-        Sun, 18 Dec 2022 16:19:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B126060C99;
+        Sun, 18 Dec 2022 16:19:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C5ECC433D2;
+        Sun, 18 Dec 2022 16:19:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380378;
-        bh=mZ8UvLfDsKgykeZh6NMW3/QLEABOpBenoQEbhEUsugg=;
+        s=k20201202; t=1671380380;
+        bh=L7QBOubpQX1WNlFRy75XautUJd4viMxIeZ6KVlGJcfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OLsK3rFQPAiWmxowyEQGXJlPSqaIOZQFMBQxDK1Ql8zMXpBCg6luBSmiWcuQ/aOQA
-         wYl521zI3BiCIZJoG5MqQ0Irs8ZHbXd1JjtXj738fpwo+RGxnfw4U+op5zxxg9e6el
-         lS6k4PxKw4f2Kw/XMJuEYdyQUjtepFp8QQTZZMEWU/m0AAU0brZL9tmtitXwI+ekwl
-         vFtUMIvmW1FYCnCqISgCxRELV1wjpRvAS1gkNcT+b2XpQq0XfjZf+DmjzN4MGKOR7r
-         IbfzOflPbJPukuLPboxPKpwaxwZgqpsuOgx5Lj+BVgwvIorFVWA+39JoO/RKb3t76H
-         C6wRcSdeX0fuw==
+        b=Fwvmv8uhMXO3uSxfyBf7inrXTsaRSWZDUm09nO1GeoYv8XePJ0iyDglDq/Ylvun2R
+         n3oB1oazcuJyrdS85SYX/Tsk0WDnQaMn9L0acmVkzTffJ+jzrJ2q42U6Kx4cCIygh3
+         E20zJxU80FGvz88XniV8Ugt/XThKWz4HRwY3N1QAHaF7Lv2yrijK7nq2pLeCgkjGcN
+         G84ChZQMTzCuvPnc5QpGC/ldxI/jqDN98Ox9NVN0FHMeM/xLcTUs/QXUztU8q2l57a
+         aQbN3FxNdn7VEbCVZRU59WMzzszddhG1zp35fwtBWMucxmDHCJ2oxyKenfOx3IpgYa
+         SZTj0bqLO4r3w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Stanislav Fomichev <sdf@google.com>,
-        Paul Mackerras <paulus@samba.org>, linux-ppp@vger.kernel.org,
-        syzbot+41cab52ab62ee99ed24a@syzkaller.appspotmail.com,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
+        syzbot+8dd0551dda6020944c5d@syzkaller.appspotmail.com,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
+        martin.lau@linux.dev, ast@kernel.org, andrii@kernel.org,
         bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 21/30] ppp: associate skb with a device at tx
-Date:   Sun, 18 Dec 2022 11:18:26 -0500
-Message-Id: <20221218161836.933697-21-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 22/30] bpf: Prevent decl_tag from being referenced in func_proto arg
+Date:   Sun, 18 Dec 2022 11:18:27 -0500
+Message-Id: <20221218161836.933697-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218161836.933697-1-sashal@kernel.org>
 References: <20221218161836.933697-1-sashal@kernel.org>
@@ -61,58 +60,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit 9f225444467b98579cf28d94f4ad053460dfdb84 ]
+[ Upstream commit f17472d4599697d701aa239b4c475a506bccfd19 ]
 
-Syzkaller triggered flow dissector warning with the following:
+Syzkaller managed to hit another decl_tag issue:
 
-r0 = openat$ppp(0xffffffffffffff9c, &(0x7f0000000000), 0xc0802, 0x0)
-ioctl$PPPIOCNEWUNIT(r0, 0xc004743e, &(0x7f00000000c0))
-ioctl$PPPIOCSACTIVE(r0, 0x40107446, &(0x7f0000000240)={0x2, &(0x7f0000000180)=[{0x20, 0x0, 0x0, 0xfffff034}, {0x6}]})
-pwritev(r0, &(0x7f0000000040)=[{&(0x7f0000000140)='\x00!', 0x2}], 0x1, 0x0, 0x0)
+  btf_func_proto_check kernel/bpf/btf.c:4506 [inline]
+  btf_check_all_types kernel/bpf/btf.c:4734 [inline]
+  btf_parse_type_sec+0x1175/0x1980 kernel/bpf/btf.c:4763
+  btf_parse kernel/bpf/btf.c:5042 [inline]
+  btf_new_fd+0x65a/0xb00 kernel/bpf/btf.c:6709
+  bpf_btf_load+0x6f/0x90 kernel/bpf/syscall.c:4342
+  __sys_bpf+0x50a/0x6c0 kernel/bpf/syscall.c:5034
+  __do_sys_bpf kernel/bpf/syscall.c:5093 [inline]
+  __se_sys_bpf kernel/bpf/syscall.c:5091 [inline]
+  __x64_sys_bpf+0x7c/0x90 kernel/bpf/syscall.c:5091
+  do_syscall_64+0x54/0x70 arch/x86/entry/common.c:48
 
-[    9.485814] WARNING: CPU: 3 PID: 329 at net/core/flow_dissector.c:1016 __skb_flow_dissect+0x1ee0/0x1fa0
-[    9.485929]  skb_get_poff+0x53/0xa0
-[    9.485937]  bpf_skb_get_pay_offset+0xe/0x20
-[    9.485944]  ? ppp_send_frame+0xc2/0x5b0
-[    9.485949]  ? _raw_spin_unlock_irqrestore+0x40/0x60
-[    9.485958]  ? __ppp_xmit_process+0x7a/0xe0
-[    9.485968]  ? ppp_xmit_process+0x5b/0xb0
-[    9.485974]  ? ppp_write+0x12a/0x190
-[    9.485981]  ? do_iter_write+0x18e/0x2d0
-[    9.485987]  ? __import_iovec+0x30/0x130
-[    9.485997]  ? do_pwritev+0x1b6/0x240
-[    9.486016]  ? trace_hardirqs_on+0x47/0x50
-[    9.486023]  ? __x64_sys_pwritev+0x24/0x30
-[    9.486026]  ? do_syscall_64+0x3d/0x80
-[    9.486031]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
+This seems similar to commit ea68376c8bed ("bpf: prevent decl_tag from being
+referenced in func_proto") but for the argument.
 
-Flow dissector tries to find skb net namespace either via device
-or via socket. Neigher is set in ppp_send_frame, so let's manually
-use ppp->dev.
-
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: linux-ppp@vger.kernel.org
-Reported-by: syzbot+41cab52ab62ee99ed24a@syzkaller.appspotmail.com
+Reported-by: syzbot+8dd0551dda6020944c5d@syzkaller.appspotmail.com
 Signed-off-by: Stanislav Fomichev <sdf@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20221123035422.872531-2-sdf@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ppp/ppp_generic.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/bpf/btf.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
-index a085213dc2ea..078c0f474f96 100644
---- a/drivers/net/ppp/ppp_generic.c
-+++ b/drivers/net/ppp/ppp_generic.c
-@@ -1522,6 +1522,8 @@ ppp_send_frame(struct ppp *ppp, struct sk_buff *skb)
- 	int len;
- 	unsigned char *cp;
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index a28bbec8c59f..8fd65a0eb7f3 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -2849,6 +2849,11 @@ static int btf_func_proto_check(struct btf_verifier_env *env,
+ 			break;
+ 		}
  
-+	skb->dev = ppp->dev;
++		if (btf_type_is_resolve_source_only(arg_type)) {
++			btf_verifier_log_type(env, t, "Invalid arg#%u", i + 1);
++			return -EINVAL;
++		}
 +
- 	if (proto < 0x8000) {
- #ifdef CONFIG_PPP_FILTER
- 		/* check if we should pass this packet */
+ 		if (args[i].name_off &&
+ 		    (!btf_name_offset_valid(btf, args[i].name_off) ||
+ 		     !btf_name_valid_identifier(btf, args[i].name_off))) {
 -- 
 2.35.1
 
