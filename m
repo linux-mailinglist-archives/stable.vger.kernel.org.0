@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90DC5650303
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:57:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC593650308
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:57:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232032AbiLRQ5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:57:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36936 "EHLO
+        id S231670AbiLRQ5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:57:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231752AbiLRQ4F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:56:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E7891C10D;
-        Sun, 18 Dec 2022 08:19:26 -0800 (PST)
+        with ESMTP id S232584AbiLRQ4M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:56:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E32F81C428;
+        Sun, 18 Dec 2022 08:19:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F34A2B80BA4;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B4DDB80BD1;
+        Sun, 18 Dec 2022 16:19:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 797E8C433D2;
         Sun, 18 Dec 2022 16:19:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90DADC433EF;
-        Sun, 18 Dec 2022 16:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380362;
-        bh=HCLQb5do4JIKc7tx7gSvpeCjPAm+kvzfoLaPPIroch8=;
+        s=k20201202; t=1671380364;
+        bh=W+IcFTVx0VkQg4HKtFx5uc2tChB3WMlWjwn4LlfMPpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VB7rmwQrt/hgpF60yPDz4U0V/HddQ9yBrksnORt3lnvm+pr6aHxIHYSABCsiCSwsx
-         w8B+V9WC7qhUcVHLWEPOyXKiXjnPD2B5PkwT5sQpd8YHjR2WSh+QowvCDOBj07MQ4L
-         gNfw3vqmZ0MpqJezLuDLUSz7IyCVkkrVF4/CsQAXq822mHwzICB/r2LqGFa9+jvkQT
-         wuCTxPa687IF3ieBCZAzWfW3bSL2zoVgWyFfzXjMg/6+HMAhdrXEAYsC0olI5vFQGP
-         TPcZ2StAaPhAWLHPTG9/8EL5v1BE4ei7uXPCKjJmSMoIRY565CgLzagOGiEB+OOpeK
-         6MDc+O0Vu+gKQ==
+        b=AgBQPkfF94bzDjTqBXDOv4NQfYvKt9DnItDpjU/T2YEGSxd7iuY9H7yZcqyF9TkGe
+         IWmpGOsp7p/RpR+OaLNITCAQHdHnqYZV97FRX05kRjDbBO5rTfvhUf3fvCTLlNQArB
+         RWpbzdHSDsGfmQQ7nOlDP4uG/71vDJ6RiDOcv3uwBB/8e6ck356zJCuwkVYFpe/O41
+         i9T1s25hQ9jNOSUFnVSfKsbT8uq0K63OHrlKb9ikmgIJSr9DfbZbpGGmaqxughD+Je
+         tVXSc2Pnd8/dAdtkyV5pUECmDGZ9AuPNC5sstfoTr3HBxE3bihX82pa3MmfPP3FCLB
+         6vIO/La3MTK0A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Sandy Huang <hjc@rock-chips.com>,
-        =?UTF-8?q?Heiko=20St=C3=BCbner?= <heiko@sntech.de>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org,
+        <ville.syrjala@linux.intel.com>,
+        Alain Volmat <alain.volmat@foss.st.com>,
         Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>, airlied@gmail.com,
         daniel@ffwll.ch, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 15/30] drm/rockchip: Use drm_mode_copy()
-Date:   Sun, 18 Dec 2022 11:18:20 -0500
-Message-Id: <20221218161836.933697-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 16/30] drm/sti: Use drm_mode_copy()
+Date:   Sun, 18 Dec 2022 11:18:21 -0500
+Message-Id: <20221218161836.933697-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218161836.933697-1-sashal@kernel.org>
 References: <20221218161836.933697-1-sashal@kernel.org>
@@ -63,7 +61,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 2bfaa28000d2830d3209161a4541cce0660e1b84 ]
+[ Upstream commit 442cf8e22ba25a77cb9092d78733fdbac9844e50 ]
 
 struct drm_display_mode embeds a list head, so overwriting
 the full struct with another one will corrupt the list
@@ -121,59 +119,56 @@ struct drm_display_mode *mode;
 - &*mode
 + mode
 
+Cc: Alain Volmat <alain.volmat@foss.st.com>
 Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Sandy Huang <hjc@rock-chips.com>
-Cc: "Heiko Stübner" <heiko@sntech.de>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-rockchip@lists.infradead.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20221107192545.9896-7-ville.syrjala@linux.intel.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20221107192545.9896-8-ville.syrjala@linux.intel.com
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/cdn-dp-core.c | 2 +-
- drivers/gpu/drm/rockchip/inno_hdmi.c   | 2 +-
- drivers/gpu/drm/rockchip/rk3066_hdmi.c | 2 +-
+ drivers/gpu/drm/sti/sti_dvo.c  | 2 +-
+ drivers/gpu/drm/sti/sti_hda.c  | 2 +-
+ drivers/gpu/drm/sti/sti_hdmi.c | 2 +-
  3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/cdn-dp-core.c b/drivers/gpu/drm/rockchip/cdn-dp-core.c
-index 67dae1354aa6..2ea672f4420d 100644
---- a/drivers/gpu/drm/rockchip/cdn-dp-core.c
-+++ b/drivers/gpu/drm/rockchip/cdn-dp-core.c
-@@ -563,7 +563,7 @@ static void cdn_dp_encoder_mode_set(struct drm_encoder *encoder,
- 	video->v_sync_polarity = !!(mode->flags & DRM_MODE_FLAG_NVSYNC);
- 	video->h_sync_polarity = !!(mode->flags & DRM_MODE_FLAG_NHSYNC);
+diff --git a/drivers/gpu/drm/sti/sti_dvo.c b/drivers/gpu/drm/sti/sti_dvo.c
+index e55870190bf5..3c65c73aa854 100644
+--- a/drivers/gpu/drm/sti/sti_dvo.c
++++ b/drivers/gpu/drm/sti/sti_dvo.c
+@@ -287,7 +287,7 @@ static void sti_dvo_set_mode(struct drm_bridge *bridge,
  
--	memcpy(&dp->mode, adjusted, sizeof(*mode));
-+	drm_mode_copy(&dp->mode, adjusted);
- }
+ 	DRM_DEBUG_DRIVER("\n");
  
- static bool cdn_dp_check_link_status(struct cdn_dp_device *dp)
-diff --git a/drivers/gpu/drm/rockchip/inno_hdmi.c b/drivers/gpu/drm/rockchip/inno_hdmi.c
-index ed344a795b4d..f2e2cc66f489 100644
---- a/drivers/gpu/drm/rockchip/inno_hdmi.c
-+++ b/drivers/gpu/drm/rockchip/inno_hdmi.c
-@@ -487,7 +487,7 @@ static void inno_hdmi_encoder_mode_set(struct drm_encoder *encoder,
- 	inno_hdmi_setup(hdmi, adj_mode);
+-	memcpy(&dvo->mode, mode, sizeof(struct drm_display_mode));
++	drm_mode_copy(&dvo->mode, mode);
  
- 	/* Store the display mode for plugin/DPMS poweron events */
--	memcpy(&hdmi->previous_mode, adj_mode, sizeof(hdmi->previous_mode));
-+	drm_mode_copy(&hdmi->previous_mode, adj_mode);
- }
+ 	/* According to the path used (main or aux), the dvo clocks should
+ 	 * have a different parent clock. */
+diff --git a/drivers/gpu/drm/sti/sti_hda.c b/drivers/gpu/drm/sti/sti_hda.c
+index 94e404f13234..158192680bea 100644
+--- a/drivers/gpu/drm/sti/sti_hda.c
++++ b/drivers/gpu/drm/sti/sti_hda.c
+@@ -522,7 +522,7 @@ static void sti_hda_set_mode(struct drm_bridge *bridge,
  
- static void inno_hdmi_encoder_enable(struct drm_encoder *encoder)
-diff --git a/drivers/gpu/drm/rockchip/rk3066_hdmi.c b/drivers/gpu/drm/rockchip/rk3066_hdmi.c
-index 85fc5f01f761..4a81c5c8a550 100644
---- a/drivers/gpu/drm/rockchip/rk3066_hdmi.c
-+++ b/drivers/gpu/drm/rockchip/rk3066_hdmi.c
-@@ -382,7 +382,7 @@ rk3066_hdmi_encoder_mode_set(struct drm_encoder *encoder,
- 	struct rk3066_hdmi *hdmi = to_rk3066_hdmi(encoder);
+ 	DRM_DEBUG_DRIVER("\n");
  
- 	/* Store the display mode for plugin/DPMS poweron events. */
--	memcpy(&hdmi->previous_mode, adj_mode, sizeof(hdmi->previous_mode));
-+	drm_mode_copy(&hdmi->previous_mode, adj_mode);
- }
+-	memcpy(&hda->mode, mode, sizeof(struct drm_display_mode));
++	drm_mode_copy(&hda->mode, mode);
  
- static void rk3066_hdmi_encoder_enable(struct drm_encoder *encoder)
+ 	if (!hda_get_mode_idx(hda->mode, &mode_idx)) {
+ 		DRM_ERROR("Undefined mode\n");
+diff --git a/drivers/gpu/drm/sti/sti_hdmi.c b/drivers/gpu/drm/sti/sti_hdmi.c
+index 9862c322f0c4..c91ce51836ca 100644
+--- a/drivers/gpu/drm/sti/sti_hdmi.c
++++ b/drivers/gpu/drm/sti/sti_hdmi.c
+@@ -933,7 +933,7 @@ static void sti_hdmi_set_mode(struct drm_bridge *bridge,
+ 	DRM_DEBUG_DRIVER("\n");
+ 
+ 	/* Copy the drm display mode in the connector local structure */
+-	memcpy(&hdmi->mode, mode, sizeof(struct drm_display_mode));
++	drm_mode_copy(&hdmi->mode, mode);
+ 
+ 	/* Update clock framerate according to the selected mode */
+ 	ret = clk_set_rate(hdmi->clk_pix, mode->clock * 1000);
 -- 
 2.35.1
 
