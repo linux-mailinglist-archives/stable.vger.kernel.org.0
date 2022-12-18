@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7FC86503C1
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:08:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 103E06503E3
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:09:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233440AbiLRRIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 12:08:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53526 "EHLO
+        id S233593AbiLRRJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 12:09:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233526AbiLRRHN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 12:07:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6461A13D42;
-        Sun, 18 Dec 2022 08:23:13 -0800 (PST)
+        with ESMTP id S233642AbiLRRHv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 12:07:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 332FB1E3EB;
+        Sun, 18 Dec 2022 08:23:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF9B760D39;
-        Sun, 18 Dec 2022 16:23:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E898C433EF;
-        Sun, 18 Dec 2022 16:23:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DEB47B803F1;
+        Sun, 18 Dec 2022 16:23:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CFFDC433EF;
+        Sun, 18 Dec 2022 16:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380592;
-        bh=IbI/rddTL4Lp14pulRMePGIgy0VKrx8t1hQOvYy9RS8=;
+        s=k20201202; t=1671380597;
+        bh=IiznI6s7z6AJ6dUU8a+7Bqq7FFsj2KoatyvFS47s3fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XZPb4g3Z30Gq+Cu6AfetWHgUfG/v1zp/tKxWpNXpOt32EmhZZU6RNvQUwu60/Vspr
-         XV6xc+nu+kKPiAlEvOZweZvVh95Lo6CZ0YUPPAIUfZRdUNUIfMwky+nJq/NvnWj9wp
-         RpbV1Wf4fYkbyF7z2aZbQ02oBPvHLESRFyTbvE2bPQOQCiTQAH72kcr/qihrpmWaOP
-         X0B9IXSaXc/Jupr7BW1iBrjw4ZwunkafJDmQ/5uiPxRGTvOXSfTJGEGqJqxF4ObZg2
-         2E3+Rxe/IH+zLb0nc6CaXJD3UCbOQbxz90Ln8jMYnmOPNXu70p2pGmLU/czJKs/anZ
-         6rGB9YCqgigAw==
+        b=WdeHzq/xs9ISBrwVpKAK4chvIPscD7WMOAnl5e1gpaBFqIBcLMzDYiBabTKpjpvBn
+         GD+2WQ3e2FDICoj7Wk4Ewk+03oNQ5KDwrQREQusUjEHxkraihP61Yw18nGxNWbT28i
+         gJcg2OfJEhP6UH/bILoG7vxjph1fKcE5Brc2frWsVEF03qCCGDXr4tQmgjfzw7P+oa
+         xHyBO15Nn9d/1p3KhGRw0Sekyd2XgwdHh7fbubVDtWBdX8JSa1Oqa6rNdQ3uP7o5/9
+         dMjsMSUQJY8+gj9XyEmrgOb648BNMSOiDnzS3wXYXrj93gYqCJnZPMhqrp/tZ8T+lc
+         BGRZ+h9UVmUzw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        Sasha Levin <sashal@kernel.org>,
-        openipmi-developer@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.9 03/20] ipmi: fix memleak when unload ipmi driver
-Date:   Sun, 18 Dec 2022 11:22:48 -0500
-Message-Id: <20221218162305.935724-3-sashal@kernel.org>
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com, ndesaulniers@google.com,
+        wintera@linux.ibm.com, mkl@pengutronix.de, f.fainelli@gmail.com,
+        colin.i.king@gmail.com, netdev@vger.kernel.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 4.9 04/20] net: ethernet: ti: Fix return type of netcp_ndo_start_xmit()
+Date:   Sun, 18 Dec 2022 11:22:49 -0500
+Message-Id: <20221218162305.935724-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218162305.935724-1-sashal@kernel.org>
 References: <20221218162305.935724-1-sashal@kernel.org>
@@ -56,62 +60,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 36992eb6b9b83f7f9cdc8e74fb5799d7b52e83e9 ]
+[ Upstream commit 63fe6ff674a96cfcfc0fa8df1051a27aa31c70b4 ]
 
-After the IPMI disconnect problem, the memory kept rising and we tried
-to unload the driver to free the memory. However, only part of the
-free memory is recovered after the driver is uninstalled. Using
-ebpf to hook free functions, we find that neither ipmi_user nor
-ipmi_smi_msg is free, only ipmi_recv_msg is free.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-We find that the deliver_smi_err_response call in clean_smi_msgs does
-the destroy processing on each message from the xmit_msg queue without
-checking the return value and free ipmi_smi_msg.
+  drivers/net/ethernet/ti/netcp_core.c:1944:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = netcp_ndo_start_xmit,
+                                    ^~~~~~~~~~~~~~~~~~~~
+  1 error generated.
 
-deliver_smi_err_response is called only at this location. Adding the
-free handling has no effect.
+->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
+'netdev_tx_t', not 'int'. Adjust the return type of
+netcp_ndo_start_xmit() to match the prototype's to resolve the warning
+and CFI failure.
 
-To verify, try using ebpf to trace the free function.
-
-  $ bpftrace -e 'kretprobe:ipmi_alloc_recv_msg {printf("alloc rcv
-      %p\n",retval);} kprobe:free_recv_msg {printf("free recv %p\n",
-      arg0)} kretprobe:ipmi_alloc_smi_msg {printf("alloc smi %p\n",
-        retval);} kprobe:free_smi_msg {printf("free smi  %p\n",arg0)}'
-
-Signed-off-by: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
-Message-Id: <20221007092617.87597-4-zhangyuchen.lcr@bytedance.com>
-[Fixed the comment above handle_one_recv_msg().]
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221102160933.1601260-1-nathan@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/ti/netcp_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index 74044b52d2c6..97d3c9d4ebc7 100644
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -2930,12 +2930,16 @@ static void deliver_smi_err_response(ipmi_smi_t intf,
- 				     struct ipmi_smi_msg *msg,
- 				     unsigned char err)
- {
-+	int rv;
- 	msg->rsp[0] = msg->data[0] | 4;
- 	msg->rsp[1] = msg->data[1];
- 	msg->rsp[2] = err;
- 	msg->rsp_size = 3;
--	/* It's an error, so it will never requeue, no need to check return. */
--	handle_one_recv_msg(intf, msg);
-+
-+	/* This will never requeue, but it may ask us to free the message. */
-+	rv = handle_one_recv_msg(intf, msg);
-+	if (rv == 0)
-+		ipmi_free_smi_msg(msg);
+diff --git a/drivers/net/ethernet/ti/netcp_core.c b/drivers/net/ethernet/ti/netcp_core.c
+index c17967b23d3c..957701d48712 100644
+--- a/drivers/net/ethernet/ti/netcp_core.c
++++ b/drivers/net/ethernet/ti/netcp_core.c
+@@ -1237,7 +1237,7 @@ static int netcp_tx_submit_skb(struct netcp_intf *netcp,
  }
  
- static void cleanup_smi_msgs(ipmi_smi_t intf)
+ /* Submit the packet */
+-static int netcp_ndo_start_xmit(struct sk_buff *skb, struct net_device *ndev)
++static netdev_tx_t netcp_ndo_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ {
+ 	struct netcp_intf *netcp = netdev_priv(ndev);
+ 	int subqueue = skb_get_queue_mapping(skb);
 -- 
 2.35.1
 
