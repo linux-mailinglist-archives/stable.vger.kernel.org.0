@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CD3D650171
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:30:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A19E8650172
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:30:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232153AbiLRQa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:30:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42164 "EHLO
+        id S232197AbiLRQa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:30:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232120AbiLRQ3a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:29:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A305191;
-        Sun, 18 Dec 2022 08:10:49 -0800 (PST)
+        with ESMTP id S231745AbiLRQ3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:29:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A28B25CA;
+        Sun, 18 Dec 2022 08:10:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1EA9EB80766;
-        Sun, 18 Dec 2022 16:10:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52C0DC433EF;
-        Sun, 18 Dec 2022 16:10:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F099B60DB4;
+        Sun, 18 Dec 2022 16:10:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDFA9C433EF;
+        Sun, 18 Dec 2022 16:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379844;
-        bh=KwN2bMdPre7EeSZ84sX1w8C+zSF1PheaV2lQkhgNTPc=;
+        s=k20201202; t=1671379849;
+        bh=mvMMLmvxlfsWFgwEr+ZHtBmL6gLBDdJIqM9J7cHhbW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qu8rCFVLTm9mqFhfzaS1Kx8GxDo5UB5gfcWqpPS2Op2wBVFYBhIchCe0uJ+XBpCmr
-         Wtoi3TMSLIVgwEwtnI+fbWXWYGgrNAqQKNYB2dIucIlReIHndIZU1yf5SUJ/9g6oJ8
-         oBHtCcU+45OA7828lgjkzitO+HzcIxTrUrz6/8UH4ZEE9yjWq4bjupEzHHAp/R3he6
-         el15odWDmNS7nzaVc8IUwZgEzSaHJlKI1efib2uxMTXvSjCKFQDIaRAlOXkZRJIqXz
-         R2m9iHSqGH8GNzQCy8/9mRaGRTckn18Cw+hZ5Gv1DGzKtlq7kqTg+QAeNU/LocFKvr
-         7vOPMvJU3VpZQ==
+        b=GrwWahXm5zfyeaodXMTUmkbglYp1w6Q27cpdBopYvGHf5b3UEfgOzHWzn1Ke5gmz+
+         1U8U/ZWzNf+aNebzEpDlOtYNP8GFeLgSCDge+UGY16rDWksjGjM/6V1lzarzKC0F4/
+         SvWE/q9KyNWbtupqIZ8WyfBRud2qLjA2k5M2aDt8WyPhNny+dW24YNi8DLtzpEL6Nm
+         sKE1zkU157g+ydvQkHdTooDVFyKIpp6rv55WfXh0G4L31osKYm7E6H30rp5x2hZz3M
+         CwH6uxCA+OexnnFHFud36nfyT7xaHLSG2IvJbhaFGk7M1alws1duX87Qctnin6K0px
+         a4k24l9Fy6lqA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxim Korotkov <korotkov.maxim.s@gmail.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, pabeni@redhat.com, nikolay@nvidia.com,
-        sean.anderson@seco.com, trix@redhat.com, marco@mebeim.net,
-        wsa+renesas@sang-engineering.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 49/73] ethtool: avoiding integer overflow in ethtool_phys_id()
-Date:   Sun, 18 Dec 2022 11:07:17 -0500
-Message-Id: <20221218160741.927862-49-sashal@kernel.org>
+Cc:     Yan Lei <yan_lei@dahuatech.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 50/73] media: dvb-frontends: fix leak of memory fw
+Date:   Sun, 18 Dec 2022 11:07:18 -0500
+Message-Id: <20221218160741.927862-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -59,41 +55,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Korotkov <korotkov.maxim.s@gmail.com>
+From: Yan Lei <yan_lei@dahuatech.com>
 
-[ Upstream commit 64a8f8f7127da228d59a39e2c5e75f86590f90b4 ]
+[ Upstream commit a15fe8d9f1bf460a804bcf18a890bfd2cf0d5caa ]
 
-The value of an arithmetic expression "n * id.data" is subject
-to possible overflow due to a failure to cast operands to a larger data
-type before performing arithmetic. Used macro for multiplication instead
-operator for avoiding overflow.
-
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Signed-off-by: Maxim Korotkov <korotkov.maxim.s@gmail.com>
-Reviewed-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20221122122901.22294-1-korotkov.maxim.s@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/linux-media/20220410061925.4107-1-chinayanlei2002@163.com
+Signed-off-by: Yan Lei <yan_lei@dahuatech.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ethtool/ioctl.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/dvb-frontends/bcm3510.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ethtool/ioctl.c b/net/ethtool/ioctl.c
-index 6a7308de192d..6b59e7a1c906 100644
---- a/net/ethtool/ioctl.c
-+++ b/net/ethtool/ioctl.c
-@@ -2007,7 +2007,8 @@ static int ethtool_phys_id(struct net_device *dev, void __user *useraddr)
- 	} else {
- 		/* Driver expects to be called at twice the frequency in rc */
- 		int n = rc * 2, interval = HZ / n;
--		u64 count = n * id.data, i = 0;
-+		u64 count = mul_u32_u32(n, id.data);
-+		u64 i = 0;
- 
- 		do {
- 			rtnl_lock();
+diff --git a/drivers/media/dvb-frontends/bcm3510.c b/drivers/media/dvb-frontends/bcm3510.c
+index da0ff7b44da4..68b92b4419cf 100644
+--- a/drivers/media/dvb-frontends/bcm3510.c
++++ b/drivers/media/dvb-frontends/bcm3510.c
+@@ -649,6 +649,7 @@ static int bcm3510_download_firmware(struct dvb_frontend* fe)
+ 		deb_info("firmware chunk, addr: 0x%04x, len: 0x%04x, total length: 0x%04zx\n",addr,len,fw->size);
+ 		if ((ret = bcm3510_write_ram(st,addr,&b[i+4],len)) < 0) {
+ 			err("firmware download failed: %d\n",ret);
++			release_firmware(fw);
+ 			return ret;
+ 		}
+ 		i += 4 + len;
 -- 
 2.35.1
 
