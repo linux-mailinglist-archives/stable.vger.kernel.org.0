@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A4A465033D
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:00:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A17A7650341
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:00:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233185AbiLRRAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 12:00:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41668 "EHLO
+        id S233194AbiLRRAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 12:00:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233048AbiLRQ61 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:58:27 -0500
+        with ESMTP id S233092AbiLRQ6t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:58:49 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2658F1CB1A;
-        Sun, 18 Dec 2022 08:20:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B461CFEC;
+        Sun, 18 Dec 2022 08:20:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5E6F60DC9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F10D660C40;
+        Sun, 18 Dec 2022 16:20:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D402EC433D2;
         Sun, 18 Dec 2022 16:20:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78FDAC433D2;
-        Sun, 18 Dec 2022 16:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380425;
-        bh=LtT4wh0HgSOrfm1wIad160b2or6MP8wnEZ3ZyYOvlZY=;
+        s=k20201202; t=1671380427;
+        bh=v3rsYLW/Hkn9ggyyLGYMgSr/niGDYjo7G5oPRDwWYgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JvvKzS40hohg9rcgscvYSmtq2ej31WdR3W4rxKX4dN5IlElKdVVZhijpKSSjFETfH
-         mNhhXYBsApjXp6M8R/rEqtlf+guo29VzKIlX3lP+llvtyISCS5HAa64CChNgeVob12
-         KkhZsDUI/IeUSKnm6ENq0BVKe7yCv8DVrz9A03677PGG1IK8pwCL9R54Z8pZm3CRAY
-         hn8SPCmGmUOqsVmXNrmn5T+7+aYMJDuRamx7HaZLd+bc8bS/2TXMY43GOx7HkTQLe9
-         6ncWARygiZ2iHMRVoXp0X2AKpPeRA5fZtsI9ZC4DAzprtmcAjwSM5P8v+EkAjg4qx4
-         iu/E46A3oWjCg==
+        b=Oav+81wPqnGmpubx8S9EBUiMeV6sFPDLvTglM7Fqt+fMnF3p6yFsghXj+jJEwsqX4
+         hlSBPXnt/GYLNR/rYzIaog1D0ZHEca4MGA2It0Xx0/N+d6vdgRx+yXDZNd1hBFa/kA
+         L+XyHrlYDJuj38qiNJ3hDqxWhSjh7qSDyW/EYfkMNfq21+MvqcVkErcBqxLV76eneq
+         Yu04vB0ps6G+kIv6y7dQ/Lx3Q4CvNqFmjGSjGgjRD8QM/wAc44kfBNNgy33gcGtL3H
+         TBtNHG457F3TleB1g1ntC4Yj2tHTTpgF0onw9mZYVAA4E09444/CejT7b4Vf8t6/TQ
+         oeTimpP8OtN6A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        Sasha Levin <sashal@kernel.org>,
-        openipmi-developer@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 04/26] ipmi: fix memleak when unload ipmi driver
-Date:   Sun, 18 Dec 2022 11:19:54 -0500
-Message-Id: <20221218162016.934280-4-sashal@kernel.org>
+Cc:     Stanislav Fomichev <sdf@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        syzbot+f635e86ec3fa0a37e019@syzkaller.appspotmail.com,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, martin.lau@linux.dev,
+        daniel@iogearbox.net, andrii@kernel.org, davem@davemloft.net,
+        kuba@kernel.org, pabeni@redhat.com, bpf@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 05/26] bpf: make sure skb->len != 0 when redirecting to a tunneling device
+Date:   Sun, 18 Dec 2022 11:19:55 -0500
+Message-Id: <20221218162016.934280-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218162016.934280-1-sashal@kernel.org>
 References: <20221218162016.934280-1-sashal@kernel.org>
@@ -56,62 +61,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit 36992eb6b9b83f7f9cdc8e74fb5799d7b52e83e9 ]
+[ Upstream commit 07ec7b502800ba9f7b8b15cb01dd6556bb41aaca ]
 
-After the IPMI disconnect problem, the memory kept rising and we tried
-to unload the driver to free the memory. However, only part of the
-free memory is recovered after the driver is uninstalled. Using
-ebpf to hook free functions, we find that neither ipmi_user nor
-ipmi_smi_msg is free, only ipmi_recv_msg is free.
+syzkaller managed to trigger another case where skb->len == 0
+when we enter __dev_queue_xmit:
 
-We find that the deliver_smi_err_response call in clean_smi_msgs does
-the destroy processing on each message from the xmit_msg queue without
-checking the return value and free ipmi_smi_msg.
+WARNING: CPU: 0 PID: 2470 at include/linux/skbuff.h:2576 skb_assert_len include/linux/skbuff.h:2576 [inline]
+WARNING: CPU: 0 PID: 2470 at include/linux/skbuff.h:2576 __dev_queue_xmit+0x2069/0x35e0 net/core/dev.c:4295
 
-deliver_smi_err_response is called only at this location. Adding the
-free handling has no effect.
+Call Trace:
+ dev_queue_xmit+0x17/0x20 net/core/dev.c:4406
+ __bpf_tx_skb net/core/filter.c:2115 [inline]
+ __bpf_redirect_no_mac net/core/filter.c:2140 [inline]
+ __bpf_redirect+0x5fb/0xda0 net/core/filter.c:2163
+ ____bpf_clone_redirect net/core/filter.c:2447 [inline]
+ bpf_clone_redirect+0x247/0x390 net/core/filter.c:2419
+ bpf_prog_48159a89cb4a9a16+0x59/0x5e
+ bpf_dispatcher_nop_func include/linux/bpf.h:897 [inline]
+ __bpf_prog_run include/linux/filter.h:596 [inline]
+ bpf_prog_run include/linux/filter.h:603 [inline]
+ bpf_test_run+0x46c/0x890 net/bpf/test_run.c:402
+ bpf_prog_test_run_skb+0xbdc/0x14c0 net/bpf/test_run.c:1170
+ bpf_prog_test_run+0x345/0x3c0 kernel/bpf/syscall.c:3648
+ __sys_bpf+0x43a/0x6c0 kernel/bpf/syscall.c:5005
+ __do_sys_bpf kernel/bpf/syscall.c:5091 [inline]
+ __se_sys_bpf kernel/bpf/syscall.c:5089 [inline]
+ __x64_sys_bpf+0x7c/0x90 kernel/bpf/syscall.c:5089
+ do_syscall_64+0x54/0x70 arch/x86/entry/common.c:48
+ entry_SYSCALL_64_after_hwframe+0x61/0xc6
 
-To verify, try using ebpf to trace the free function.
+The reproducer doesn't really reproduce outside of syzkaller
+environment, so I'm taking a guess here. It looks like we
+do generate correct ETH_HLEN-sized packet, but we redirect
+the packet to the tunneling device. Before we do so, we
+__skb_pull l2 header and arrive again at skb->len == 0.
+Doesn't seem like we can do anything better than having
+an explicit check after __skb_pull?
 
-  $ bpftrace -e 'kretprobe:ipmi_alloc_recv_msg {printf("alloc rcv
-      %p\n",retval);} kprobe:free_recv_msg {printf("free recv %p\n",
-      arg0)} kretprobe:ipmi_alloc_smi_msg {printf("alloc smi %p\n",
-        retval);} kprobe:free_smi_msg {printf("free smi  %p\n",arg0)}'
-
-Signed-off-by: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
-Message-Id: <20221007092617.87597-4-zhangyuchen.lcr@bytedance.com>
-[Fixed the comment above handle_one_recv_msg().]
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot+f635e86ec3fa0a37e019@syzkaller.appspotmail.com
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20221027225537.353077-1-sdf@google.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/core/filter.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index 4cf3ef4ddec3..8cfc7e6ab645 100644
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -3461,12 +3461,16 @@ static void deliver_smi_err_response(struct ipmi_smi *intf,
- 				     struct ipmi_smi_msg *msg,
- 				     unsigned char err)
- {
-+	int rv;
- 	msg->rsp[0] = msg->data[0] | 4;
- 	msg->rsp[1] = msg->data[1];
- 	msg->rsp[2] = err;
- 	msg->rsp_size = 3;
--	/* It's an error, so it will never requeue, no need to check return. */
--	handle_one_recv_msg(intf, msg);
-+
-+	/* This will never requeue, but it may ask us to free the message. */
-+	rv = handle_one_recv_msg(intf, msg);
-+	if (rv == 0)
-+		ipmi_free_smi_msg(msg);
- }
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 5129e89f52bb..aa2e7baa13c4 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -2025,6 +2025,10 @@ static int __bpf_redirect_no_mac(struct sk_buff *skb, struct net_device *dev,
  
- static void cleanup_smi_msgs(struct ipmi_smi *intf)
+ 	if (mlen) {
+ 		__skb_pull(skb, mlen);
++		if (unlikely(!skb->len)) {
++			kfree_skb(skb);
++			return -ERANGE;
++		}
+ 
+ 		/* At ingress, the mac header has already been pulled once.
+ 		 * At egress, skb_pospull_rcsum has to be done in case that
 -- 
 2.35.1
 
