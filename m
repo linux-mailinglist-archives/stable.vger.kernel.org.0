@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7824B6500C4
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:19:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 623646500B2
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:18:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231356AbiLRQTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:19:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58870 "EHLO
+        id S231756AbiLRQR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:17:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231481AbiLRQRV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:17:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A6711A3D;
-        Sun, 18 Dec 2022 08:07:42 -0800 (PST)
+        with ESMTP id S231838AbiLRQRE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:17:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FFF1D11B;
+        Sun, 18 Dec 2022 08:07:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 874ABB80BD9;
-        Sun, 18 Dec 2022 16:07:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B71EC433F0;
-        Sun, 18 Dec 2022 16:07:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DA03B8097A;
+        Sun, 18 Dec 2022 16:07:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C35E6C433F1;
+        Sun, 18 Dec 2022 16:07:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379642;
-        bh=2vuIp7xoXRMPD2bc+HVIy5VN5APR07A+WEOo1yickug=;
+        s=k20201202; t=1671379643;
+        bh=L8aI6zpMCK6k+RVf1stpAquGtD/tHaTUqbsuYkzbmi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d5faaB4soYEmq8xT51VmtMUZ/C6iw55sEcSBO02OaQD0madEti8ZM/G+HMRsIJiCl
-         Jo2f4UeTgrSPJ1SxVbv2D3p2/dVCPWFrz7M/cHM8/oFrFfthhSjav7RMI3gqs2DEH8
-         KqQd3JF8CklJa5y3MHVDAtZYZIbaBS+gYIowkTZq8hzZ6ZVIdA3owzghGI7F6UKfT7
-         fGAyYEq0jUklYZbYFeA3k9tVG5SrCI/96RKaLCgGJb2SHfVEgoD1a5hJx4o1fUg0hR
-         ztbwbFeSYp7Fk5xs3CdQNGgj2MWwnBUZ0OEclFWnKwq1Ojtzu6lnE/9W8zzJlgbsM+
-         HglWtadJw0NUg==
+        b=VsqUam0DMXdry4MgHRtNz5MzFaHI3CysT3kGzoAy08MhWCdywskrXsZXzmU5ivnQr
+         8WqMDUiyBUqSGfUMgosL6uGQgzhzKYtUYHKETM298IjIZITw5JBxq9GsTtwl7LYmkL
+         OtQHXR6Lwa0AESgKZxKulCH8yIXfxklFgnn1lVt3dPPg8zkO41dQ8L5YSwcMOHfa8R
+         5kR0s3fpj0o1UiEVSukRPA8f9a63PxspgRY1uYwTQ7ynQipeeoxN08yczAVe7JRepI
+         piwGg0mnF4Agd4c3DOqImLGUosEUMOdoIV6xgT4atl1+t2hNwhkgP9nvoXy74ngwxb
+         FjpK8Q685LAxw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Prathamesh Shete <pshete@nvidia.com>,
-        Aniruddha TVS Rao <anrao@nvidia.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, thierry.reding@gmail.com,
-        jonathanh@nvidia.com, linux-mmc@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 78/85] mmc: sdhci-tegra: Issue CMD and DAT resets together
-Date:   Sun, 18 Dec 2022 11:01:35 -0500
-Message-Id: <20221218160142.925394-78-sashal@kernel.org>
+Cc:     Shigeru Yoshida <syoshida@redhat.com>,
+        syzbot+9ca7a12fd736d93e0232@syzkaller.appspotmail.com,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Sasha Levin <sashal@kernel.org>, hverkuil@xs4all.nl,
+        mchehab@kernel.org, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 79/85] media: si470x: Fix use-after-free in si470x_int_in_callback()
+Date:   Sun, 18 Dec 2022 11:01:36 -0500
+Message-Id: <20221218160142.925394-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160142.925394-1-sashal@kernel.org>
 References: <20221218160142.925394-1-sashal@kernel.org>
@@ -60,75 +57,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prathamesh Shete <pshete@nvidia.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit acc13958c2b2623c17e2450b8cd6881b698756d3 ]
+[ Upstream commit 7d21e0b1b41b21d628bf2afce777727bd4479aa5 ]
 
-In case of error condition to avoid system crash Tegra SDMMC controller
-requires CMD and DAT resets issued together. SDHCI controller FSM goes
-into bad state due to rapid SD card hot-plug event. Issuing reset on the
-CMD FSM before DATA FSM results in kernel panic, hence add support to
-issue CMD and DAT resets together.
+syzbot reported use-after-free in si470x_int_in_callback() [1].  This
+indicates that urb->context, which contains struct si470x_device
+object, is freed when si470x_int_in_callback() is called.
 
-This is applicable to Tegra186 and later chips.
+The cause of this issue is that si470x_int_in_callback() is called for
+freed urb.
 
-Signed-off-by: Aniruddha TVS Rao <anrao@nvidia.com>
-Signed-off-by: Prathamesh Shete <pshete@nvidia.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20221206165945.3551774-7-thierry.reding@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+si470x_usb_driver_probe() calls si470x_start_usb(), which then calls
+usb_submit_urb() and si470x_start().  If si470x_start_usb() fails,
+si470x_usb_driver_probe() doesn't kill urb, but it just frees struct
+si470x_device object, as depicted below:
+
+si470x_usb_driver_probe()
+  ...
+  si470x_start_usb()
+    ...
+    usb_submit_urb()
+    retval = si470x_start()
+    return retval
+  if (retval < 0)
+    free struct si470x_device object, but don't kill urb
+
+This patch fixes this issue by killing urb when si470x_start_usb()
+fails and urb is submitted.  If si470x_start_usb() fails and urb is
+not submitted, i.e. submitting usb fails, it just frees struct
+si470x_device object.
+
+Reported-by: syzbot+9ca7a12fd736d93e0232@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=94ed6dddd5a55e90fd4bab942aa4bb297741d977 [1]
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-tegra.c | 3 ++-
- drivers/mmc/host/sdhci.c       | 5 +++++
- drivers/mmc/host/sdhci.h       | 2 ++
- 3 files changed, 9 insertions(+), 1 deletion(-)
+ drivers/media/radio/si470x/radio-si470x-usb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci-tegra.c b/drivers/mmc/host/sdhci-tegra.c
-index c71000a07656..1adaa94c31ac 100644
---- a/drivers/mmc/host/sdhci-tegra.c
-+++ b/drivers/mmc/host/sdhci-tegra.c
-@@ -1526,7 +1526,8 @@ static const struct sdhci_pltfm_data sdhci_tegra186_pdata = {
- 		  SDHCI_QUIRK_NO_HISPD_BIT |
- 		  SDHCI_QUIRK_BROKEN_ADMA_ZEROLEN_DESC |
- 		  SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
--	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
-+	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN |
-+		   SDHCI_QUIRK2_ISSUE_CMD_DAT_RESET_TOGETHER,
- 	.ops  = &tegra186_sdhci_ops,
- };
+diff --git a/drivers/media/radio/si470x/radio-si470x-usb.c b/drivers/media/radio/si470x/radio-si470x-usb.c
+index 6b2768623c88..aa7a580dbecc 100644
+--- a/drivers/media/radio/si470x/radio-si470x-usb.c
++++ b/drivers/media/radio/si470x/radio-si470x-usb.c
+@@ -727,8 +727,10 @@ static int si470x_usb_driver_probe(struct usb_interface *intf,
  
-diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
-index c7ad32a75b57..632341911b6e 100644
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -270,6 +270,11 @@ enum sdhci_reset_reason {
+ 	/* start radio */
+ 	retval = si470x_start_usb(radio);
+-	if (retval < 0)
++	if (retval < 0 && !radio->int_in_running)
+ 		goto err_buf;
++	else if (retval < 0)	/* in case of radio->int_in_running == 1 */
++		goto err_all;
  
- static void sdhci_reset_for_reason(struct sdhci_host *host, enum sdhci_reset_reason reason)
- {
-+	if (host->quirks2 & SDHCI_QUIRK2_ISSUE_CMD_DAT_RESET_TOGETHER) {
-+		sdhci_do_reset(host, SDHCI_RESET_CMD | SDHCI_RESET_DATA);
-+		return;
-+	}
-+
- 	switch (reason) {
- 	case SDHCI_RESET_FOR_INIT:
- 		sdhci_do_reset(host, SDHCI_RESET_CMD | SDHCI_RESET_DATA);
-diff --git a/drivers/mmc/host/sdhci.h b/drivers/mmc/host/sdhci.h
-index 87a3aaa07438..5ce7cdcc192f 100644
---- a/drivers/mmc/host/sdhci.h
-+++ b/drivers/mmc/host/sdhci.h
-@@ -478,6 +478,8 @@ struct sdhci_host {
-  * block count.
-  */
- #define SDHCI_QUIRK2_USE_32BIT_BLK_CNT			(1<<18)
-+/* Issue CMD and DATA reset together */
-+#define SDHCI_QUIRK2_ISSUE_CMD_DAT_RESET_TOGETHER	(1<<19)
- 
- 	int irq;		/* Device IRQ */
- 	void __iomem *ioaddr;	/* Mapped address */
+ 	/* set initial frequency */
+ 	si470x_set_freq(radio, 87.5 * FREQ_MUL); /* available in all regions */
 -- 
 2.35.1
 
