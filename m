@@ -2,52 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 419C165033E
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:00:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A4A465033D
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:00:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233190AbiLRRAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 12:00:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45930 "EHLO
+        id S233185AbiLRRAW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 12:00:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233082AbiLRQ6q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:58:46 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6795B1CFF9;
-        Sun, 18 Dec 2022 08:20:27 -0800 (PST)
+        with ESMTP id S233048AbiLRQ61 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:58:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2658F1CB1A;
+        Sun, 18 Dec 2022 08:20:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7EAF3CE0B9A;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5E6F60DC9;
         Sun, 18 Dec 2022 16:20:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD934C433EF;
-        Sun, 18 Dec 2022 16:20:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78FDAC433D2;
+        Sun, 18 Dec 2022 16:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380423;
-        bh=MAAF9cFBWVvZUUf8z3zc8SydFeMhTvgVuM+fYaPOVmU=;
+        s=k20201202; t=1671380425;
+        bh=LtT4wh0HgSOrfm1wIad160b2or6MP8wnEZ3ZyYOvlZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UsT2lDLezcspyv1GAYNRBaP7TvwxLbtVftlFUMP3elG8VnU59xzYCXvX3eb6MxXst
-         DSsCEB+DX7vIpAi8gdVs8n0P3qpCl6e4JG7kH4+f4iV/G6qivse9SEzyW8w0ZhACnB
-         VR3Y5lF0kdw8yNEVo+S6m9wn6qd0n8dzRnMAIQL3jTspZa0fBDFoYHO2xeeWyp/fOg
-         O6sC/aOhFAfYC/geMzOBde7aIsBQuQxXizTklBTdVjaUFaZYeVC2NMttZ8apxvw6xq
-         GXEZogmHFIbNT4hOkzu41wI5ZY7uSTFGEbn/vznt6Wk6LaWonhIjNg36pKYcnFJJNC
-         vc/0XRjKrRLfw==
+        b=JvvKzS40hohg9rcgscvYSmtq2ej31WdR3W4rxKX4dN5IlElKdVVZhijpKSSjFETfH
+         mNhhXYBsApjXp6M8R/rEqtlf+guo29VzKIlX3lP+llvtyISCS5HAa64CChNgeVob12
+         KkhZsDUI/IeUSKnm6ENq0BVKe7yCv8DVrz9A03677PGG1IK8pwCL9R54Z8pZm3CRAY
+         hn8SPCmGmUOqsVmXNrmn5T+7+aYMJDuRamx7HaZLd+bc8bS/2TXMY43GOx7HkTQLe9
+         6ncWARygiZ2iHMRVoXp0X2AKpPeRA5fZtsI9ZC4DAzprtmcAjwSM5P8v+EkAjg4qx4
+         iu/E46A3oWjCg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 03/26] ASoC: codecs: rt298: Add quirk for KBL-R RVP platform
-Date:   Sun, 18 Dec 2022 11:19:53 -0500
-Message-Id: <20221218162016.934280-3-sashal@kernel.org>
+Cc:     Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
+        Corey Minyard <cminyard@mvista.com>,
+        Sasha Levin <sashal@kernel.org>,
+        openipmi-developer@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.19 04/26] ipmi: fix memleak when unload ipmi driver
+Date:   Sun, 18 Dec 2022 11:19:54 -0500
+Message-Id: <20221218162016.934280-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218162016.934280-1-sashal@kernel.org>
 References: <20221218162016.934280-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,40 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
 
-[ Upstream commit 953dbd1cef18ce9ac0d69c1bd735b929fe52a17e ]
+[ Upstream commit 36992eb6b9b83f7f9cdc8e74fb5799d7b52e83e9 ]
 
-KBL-R RVP platforms also use combojack, so we need to enable that
-configuration for them.
+After the IPMI disconnect problem, the memory kept rising and we tried
+to unload the driver to free the memory. However, only part of the
+free memory is recovered after the driver is uninstalled. Using
+ebpf to hook free functions, we find that neither ipmi_user nor
+ipmi_smi_msg is free, only ipmi_recv_msg is free.
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20221010121955.718168-4-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+We find that the deliver_smi_err_response call in clean_smi_msgs does
+the destroy processing on each message from the xmit_msg queue without
+checking the return value and free ipmi_smi_msg.
+
+deliver_smi_err_response is called only at this location. Adding the
+free handling has no effect.
+
+To verify, try using ebpf to trace the free function.
+
+  $ bpftrace -e 'kretprobe:ipmi_alloc_recv_msg {printf("alloc rcv
+      %p\n",retval);} kprobe:free_recv_msg {printf("free recv %p\n",
+      arg0)} kretprobe:ipmi_alloc_smi_msg {printf("alloc smi %p\n",
+        retval);} kprobe:free_smi_msg {printf("free smi  %p\n",arg0)}'
+
+Signed-off-by: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+Message-Id: <20221007092617.87597-4-zhangyuchen.lcr@bytedance.com>
+[Fixed the comment above handle_one_recv_msg().]
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt298.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/char/ipmi/ipmi_msghandler.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/rt298.c b/sound/soc/codecs/rt298.c
-index 06cdba4edfe2..3181b91a025b 100644
---- a/sound/soc/codecs/rt298.c
-+++ b/sound/soc/codecs/rt298.c
-@@ -1169,6 +1169,13 @@ static const struct dmi_system_id force_combo_jack_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Geminilake")
- 		}
- 	},
-+	{
-+		.ident = "Intel Kabylake R RVP",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Kabylake Client platform")
-+		}
-+	},
- 	{ }
- };
+diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+index 4cf3ef4ddec3..8cfc7e6ab645 100644
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -3461,12 +3461,16 @@ static void deliver_smi_err_response(struct ipmi_smi *intf,
+ 				     struct ipmi_smi_msg *msg,
+ 				     unsigned char err)
+ {
++	int rv;
+ 	msg->rsp[0] = msg->data[0] | 4;
+ 	msg->rsp[1] = msg->data[1];
+ 	msg->rsp[2] = err;
+ 	msg->rsp_size = 3;
+-	/* It's an error, so it will never requeue, no need to check return. */
+-	handle_one_recv_msg(intf, msg);
++
++	/* This will never requeue, but it may ask us to free the message. */
++	rv = handle_one_recv_msg(intf, msg);
++	if (rv == 0)
++		ipmi_free_smi_msg(msg);
+ }
  
+ static void cleanup_smi_msgs(struct ipmi_smi *intf)
 -- 
 2.35.1
 
