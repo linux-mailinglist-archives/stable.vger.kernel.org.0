@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99CA46503BD
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:08:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8DE56503CA
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:08:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233390AbiLRRIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 12:08:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53496 "EHLO
+        id S233374AbiLRRIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 12:08:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233435AbiLRRGl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 12:06:41 -0500
+        with ESMTP id S233438AbiLRRGm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 12:06:42 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BCD7BCB5;
-        Sun, 18 Dec 2022 08:23:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 319CDCE11;
+        Sun, 18 Dec 2022 08:23:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF29DB80BA7;
-        Sun, 18 Dec 2022 16:22:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B69AC433F2;
-        Sun, 18 Dec 2022 16:22:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E38EBB80BA8;
+        Sun, 18 Dec 2022 16:22:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E454EC433EF;
+        Sun, 18 Dec 2022 16:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380577;
-        bh=jYlnDpsPEYdYgSC5uCE8Own5vDjIvdrPBeaL73y0wKw=;
+        s=k20201202; t=1671380578;
+        bh=yPl+W0vivCeUr4WZMW40HE08Gc6NkZUO0IEisN3YrCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KhZ6JGYyq6T7Okdk6Awuab7O/t/sBgrhCMXbEd1eKo64k/t+6hHkzE+mwu89qe+Bw
-         J95l18zQAkf7HU44djBuXh/3BE6GPEAaqjhPO+Fj1jaD1LAwUEe1/Xy6/83Fd3VWkw
-         Y0sxCgJeXdHnOAigiJX+S7Y/QnXEDib/gzN3jYhQEFkXR65QC0HZUfcQmZ5W+orWw2
-         EnFlcftK2fxT7C0E4JILz+kaF92a+nm1iLewVoe/4zuZXaQrvNQwE7wYNaOyj8yEZB
-         fNSW78344d59FyoINHsA7rTfHLeVoFGcK+9FRO8Iek14mnsqbKJWvY/gMbbxmdTlNj
-         jHyWdn+FIxF8g==
+        b=pE0nwrYyxBLvS20IQ8uEEq4KSNszAL3+BX/Won0UoCvSU1xCSm57itWFBbvgUSLHY
+         PnaTYO+2JViCTwhu8hwG+xomofq3EARnITUuPxGMef5jcIPkruKRPlfa1dgKwe2qGX
+         OmD5uASPv4GIG1fG1s1PYGLAXWye6CzO+yukzbSElwiyLTvOoWWlQylEssW8pMYZ4Y
+         wmG3Cz24eVEn0nq7VHo9dU2NUCretBko8bAF9Bmo1gDg6j/S+96yiRdcldu9z+yY60
+         y/9CNWxOk5rvTITPWIAoS3Y1PyvPDOXNKwW3AA3wKTZC9KlU+/32RnkxLRkeplVFTk
+         Bl938nWJv9Qwg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Bin <yebin10@huawei.com>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 20/23] blk-mq: fix possible memleak when register 'hctx' failed
-Date:   Sun, 18 Dec 2022 11:21:46 -0500
-Message-Id: <20221218162149.935047-20-sashal@kernel.org>
+Cc:     Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, adrian.hunter@intel.com,
+        linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 21/23] mmc: f-sdh30: Add quirks for broken timeout clock capability
+Date:   Sun, 18 Dec 2022 11:21:47 -0500
+Message-Id: <20221218162149.935047-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218162149.935047-1-sashal@kernel.org>
 References: <20221218162149.935047-1-sashal@kernel.org>
@@ -55,84 +57,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 4b7a21c57b14fbcd0e1729150189e5933f5088e9 ]
+[ Upstream commit aae9d3a440736691b3c1cb09ae2c32c4f1ee2e67 ]
 
-There's issue as follows when do fault injection test:
-unreferenced object 0xffff888132a9f400 (size 512):
-  comm "insmod", pid 308021, jiffies 4324277909 (age 509.733s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 08 f4 a9 32 81 88 ff ff  ...........2....
-    08 f4 a9 32 81 88 ff ff 00 00 00 00 00 00 00 00  ...2............
-  backtrace:
-    [<00000000e8952bb4>] kmalloc_node_trace+0x22/0xa0
-    [<00000000f9980e0f>] blk_mq_alloc_and_init_hctx+0x3f1/0x7e0
-    [<000000002e719efa>] blk_mq_realloc_hw_ctxs+0x1e6/0x230
-    [<000000004f1fda40>] blk_mq_init_allocated_queue+0x27e/0x910
-    [<00000000287123ec>] __blk_mq_alloc_disk+0x67/0xf0
-    [<00000000a2a34657>] 0xffffffffa2ad310f
-    [<00000000b173f718>] 0xffffffffa2af824a
-    [<0000000095a1dabb>] do_one_initcall+0x87/0x2a0
-    [<00000000f32fdf93>] do_init_module+0xdf/0x320
-    [<00000000cbe8541e>] load_module+0x3006/0x3390
-    [<0000000069ed1bdb>] __do_sys_finit_module+0x113/0x1b0
-    [<00000000a1a29ae8>] do_syscall_64+0x35/0x80
-    [<000000009cd878b0>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+There is a case where the timeout clock is not supplied to the capability.
+Add a quirk for that.
 
-Fault injection context as follows:
- kobject_add
- blk_mq_register_hctx
- blk_mq_sysfs_register
- blk_register_queue
- device_add_disk
- null_add_dev.part.0 [null_blk]
-
-As 'blk_mq_register_hctx' may already add some objects when failed halfway,
-but there isn't do fallback, caller don't know which objects add failed.
-To solve above issue just do fallback when add objects failed halfway in
-'blk_mq_register_hctx'.
-
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20221117022940.873959-1-yebin@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Acked-by: Jassi Brar <jaswinder.singh@linaro.org>
+Link: https://lore.kernel.org/r/20221111081033.3813-7-hayashi.kunihiko@socionext.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-sysfs.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci_f_sdh30.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
-index c97fafa1b206..dd98410eddae 100644
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -235,7 +235,7 @@ static int blk_mq_register_hctx(struct blk_mq_hw_ctx *hctx)
- {
- 	struct request_queue *q = hctx->queue;
- 	struct blk_mq_ctx *ctx;
--	int i, ret;
-+	int i, j, ret;
+diff --git a/drivers/mmc/host/sdhci_f_sdh30.c b/drivers/mmc/host/sdhci_f_sdh30.c
+index 111b66f5439b..43e787954293 100644
+--- a/drivers/mmc/host/sdhci_f_sdh30.c
++++ b/drivers/mmc/host/sdhci_f_sdh30.c
+@@ -180,6 +180,9 @@ static int sdhci_f_sdh30_probe(struct platform_device *pdev)
+ 	if (reg & SDHCI_CAN_DO_8BIT)
+ 		priv->vendor_hs200 = F_SDH30_EMMC_HS200;
  
- 	if (!hctx->nr_ctx)
- 		return 0;
-@@ -247,9 +247,16 @@ static int blk_mq_register_hctx(struct blk_mq_hw_ctx *hctx)
- 	hctx_for_each_ctx(hctx, ctx, i) {
- 		ret = kobject_add(&ctx->kobj, &hctx->kobj, "cpu%u", ctx->cpu);
- 		if (ret)
--			break;
-+			goto out;
- 	}
- 
-+	return 0;
-+out:
-+	hctx_for_each_ctx(hctx, ctx, j) {
-+		if (j < i)
-+			kobject_del(&ctx->kobj);
-+	}
-+	kobject_del(&hctx->kobj);
- 	return ret;
- }
- 
++	if (!(reg & SDHCI_TIMEOUT_CLK_MASK))
++		host->quirks |= SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK;
++
+ 	ret = sdhci_add_host(host);
+ 	if (ret)
+ 		goto err_add_host;
 -- 
 2.35.1
 
