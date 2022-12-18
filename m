@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2F44650076
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:15:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 028A665007B
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:15:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231719AbiLRQPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:15:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55512 "EHLO
+        id S231645AbiLRQPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:15:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231689AbiLRQOl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:14:41 -0500
+        with ESMTP id S231646AbiLRQOq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:14:46 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A27C1BC15;
-        Sun, 18 Dec 2022 08:06:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76035FD0A;
+        Sun, 18 Dec 2022 08:06:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 238D9B80B4D;
-        Sun, 18 Dec 2022 16:06:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9BBFC433D2;
-        Sun, 18 Dec 2022 16:06:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00989B8097A;
+        Sun, 18 Dec 2022 16:06:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF2B2C433D2;
+        Sun, 18 Dec 2022 16:06:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379573;
-        bh=1aIuIkEBkra234fdZs9njiL/A7ZhiKe0gzh1gZzzi3g=;
+        s=k20201202; t=1671379584;
+        bh=JHm/6dzc4r6whOycWrF1yhKD4XfQCnsH8/sRMi1k5sU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GZ2aGppMPLLMRzkfWNB/JvBvNbNxChjYU1GzLHZvoHvLEo4Ja4ogcwWkdx9aH1LT/
-         XJVQM57ghIqlr9qgffF1KCbt8rxmHvEElGTOtLeyOrYwwPH7PjTBTyT+qdQKOQZ+lj
-         8LA+a1Wu5fBJ/0xVXu1vTgpFUThTaIDvTSzvMgBDOvHQEzxGm9OvLSHIB9ryajxcLk
-         r2t8NPnIS3g16gAywn3eWNOtYGCvnUPw1ru2OqNPpFbUM+4c3n9l0HBne1Bp/fDXds
-         vMGpDl6iKGHHtv8X+TiSw7+Dr4Vo8/g1lpBvOyZ5qQRn9ddQcdmcXLwIauKCu6TfeJ
-         SUHfYt9IBN4MQ==
+        b=eTY4yftnIu3iGW/Z0FnYgNObu4p8CFy9yihUIxxAdqPnhuMr99sZROu2s98AMHQJE
+         fbo/AEERyfRdlOim/WmvpEN+NrXpX1ySySP7ymdxjAdtWqwqA1m+lwwayjmVfFDxEp
+         rlp5nahXnd64XSO4j7uKoVd3pBcrOtcSlNCfpEuHhxSMLifRf9z3ILiPcMyYvYlEAT
+         TgcYENN7ni95kebB5AHBWPvd/6HUITU3GjyfzIT5yHlXL8gQiSa0d6CTDl61XjUfrw
+         LBKhtSGRq4GJRAJyBYaM6pxn2B1NGrowWHk0ZB+d7O4PXtMd+qzOwcCJUVMBrqDlAM
+         nVi+LwvEepbDw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liang He <windhl@126.com>, Luben Tuikov <luben.tuikov@amd.com>,
+Cc:     Wesley Chalmers <Wesley.Chalmers@amd.com>,
+        Dillon Varone <Dillon.Varone@amd.com>,
+        Jasdeep Dhillon <jdhillon@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        andrey.grodzovsky@amd.com, Hawking.Zhang@amd.com,
-        evan.quan@amd.com, YiPeng.Chai@amd.com,
-        Amaranath.Somalapuram@amd.com, Bokun.Zhang@amd.com,
-        tao.zhou1@amd.com, shaoyun.liu@amd.com, yang.lee@linux.alibaba.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 64/85] drm/amdgpu: Fix potential double free and null pointer dereference
-Date:   Sun, 18 Dec 2022 11:01:21 -0500
-Message-Id: <20221218160142.925394-64-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, Anthony.Koo@amd.com, alex.hung@amd.com,
+        Jun.Lei@amd.com, Roman.Li@amd.com, mwen@igalia.com,
+        dingchen.zhang@amd.com, martin.tsai@amd.com, aric.cyr@amd.com,
+        Max.Tseng@amd.com, Alvin.Lee2@amd.com, wayne.lin@amd.com,
+        wenjing.liu@amd.com, hanghong.ma@amd.com, aurabindo.pillai@amd.com,
+        jiapeng.chong@linux.alibaba.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.1 65/85] drm/amd/display: Use the largest vready_offset in pipe group
+Date:   Sun, 18 Dec 2022 11:01:22 -0500
+Message-Id: <20221218160142.925394-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160142.925394-1-sashal@kernel.org>
 References: <20221218160142.925394-1-sashal@kernel.org>
@@ -61,61 +66,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Wesley Chalmers <Wesley.Chalmers@amd.com>
 
-[ Upstream commit dfd0287bd3920e132a8dae2a0ec3d92eaff5f2dd ]
+[ Upstream commit 5842abd985b792a3b13a89b6dae4869b56656c92 ]
 
-In amdgpu_get_xgmi_hive(), we should not call kfree() after
-kobject_put() as the PUT will call kfree().
+[WHY]
+Corruption can occur in LB if vready_offset is not large enough.
+DML calculates vready_offset for each pipe, but we currently select the
+top pipe's vready_offset, which is not necessarily enough for all pipes
+in the group.
 
-In amdgpu_device_ip_init(), we need to check the returned *hive*
-which can be NULL before we dereference it.
+[HOW]
+Wherever program_global_sync is currently called, iterate through the
+entire pipe group and find the highest vready_offset.
 
-Signed-off-by: Liang He <windhl@126.com>
-Reviewed-by: Luben Tuikov <luben.tuikov@amd.com>
+Reviewed-by: Dillon Varone <Dillon.Varone@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Signed-off-by: Wesley Chalmers <Wesley.Chalmers@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 5 +++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c   | 2 --
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ .../amd/display/dc/dcn10/dcn10_hw_sequencer.c | 30 +++++++++++++++++--
+ .../drm/amd/display/dc/dcn20/dcn20_hwseq.c    | 29 ++++++++++++++++--
+ 2 files changed, 55 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index f1e9663b4051..00976e15b698 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2462,6 +2462,11 @@ static int amdgpu_device_ip_init(struct amdgpu_device *adev)
- 			if (!amdgpu_sriov_vf(adev)) {
- 				struct amdgpu_hive_info *hive = amdgpu_get_xgmi_hive(adev);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+index 11e4c4e46947..c06538c37a11 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -867,6 +867,32 @@ static void false_optc_underflow_wa(
+ 		tg->funcs->clear_optc_underflow(tg);
+ }
  
-+				if (WARN_ON(!hive)) {
-+					r = -ENOENT;
-+					goto init_failed;
-+				}
++static int calculate_vready_offset_for_group(struct pipe_ctx *pipe)
++{
++	struct pipe_ctx *other_pipe;
++	int vready_offset = pipe->pipe_dlg_param.vready_offset;
 +
- 				if (!hive->reset_domain ||
- 				    !amdgpu_reset_get_reset_domain(hive->reset_domain)) {
- 					r = -ENOENT;
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
-index 47159e9a0884..4b9e7b050ccd 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
-@@ -386,7 +386,6 @@ struct amdgpu_hive_info *amdgpu_get_xgmi_hive(struct amdgpu_device *adev)
- 	if (ret) {
- 		dev_err(adev->dev, "XGMI: failed initializing kobject for xgmi hive\n");
- 		kobject_put(&hive->kobj);
--		kfree(hive);
- 		hive = NULL;
- 		goto pro_end;
- 	}
-@@ -410,7 +409,6 @@ struct amdgpu_hive_info *amdgpu_get_xgmi_hive(struct amdgpu_device *adev)
- 				dev_err(adev->dev, "XGMI: failed initializing reset domain for xgmi hive\n");
- 				ret = -ENOMEM;
- 				kobject_put(&hive->kobj);
--				kfree(hive);
- 				hive = NULL;
- 				goto pro_end;
- 			}
++	/* Always use the largest vready_offset of all connected pipes */
++	for (other_pipe = pipe->bottom_pipe; other_pipe != NULL; other_pipe = other_pipe->bottom_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++	for (other_pipe = pipe->top_pipe; other_pipe != NULL; other_pipe = other_pipe->top_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++	for (other_pipe = pipe->next_odm_pipe; other_pipe != NULL; other_pipe = other_pipe->next_odm_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++	for (other_pipe = pipe->prev_odm_pipe; other_pipe != NULL; other_pipe = other_pipe->prev_odm_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++
++	return vready_offset;
++}
++
+ enum dc_status dcn10_enable_stream_timing(
+ 		struct pipe_ctx *pipe_ctx,
+ 		struct dc_state *context,
+@@ -910,7 +936,7 @@ enum dc_status dcn10_enable_stream_timing(
+ 	pipe_ctx->stream_res.tg->funcs->program_timing(
+ 			pipe_ctx->stream_res.tg,
+ 			&stream->timing,
+-			pipe_ctx->pipe_dlg_param.vready_offset,
++			calculate_vready_offset_for_group(pipe_ctx),
+ 			pipe_ctx->pipe_dlg_param.vstartup_start,
+ 			pipe_ctx->pipe_dlg_param.vupdate_offset,
+ 			pipe_ctx->pipe_dlg_param.vupdate_width,
+@@ -2900,7 +2926,7 @@ void dcn10_program_pipe(
+ 
+ 		pipe_ctx->stream_res.tg->funcs->program_global_sync(
+ 				pipe_ctx->stream_res.tg,
+-				pipe_ctx->pipe_dlg_param.vready_offset,
++				calculate_vready_offset_for_group(pipe_ctx),
+ 				pipe_ctx->pipe_dlg_param.vstartup_start,
+ 				pipe_ctx->pipe_dlg_param.vupdate_offset,
+ 				pipe_ctx->pipe_dlg_param.vupdate_width);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+index a7e0001a8f46..de6a57f3ca02 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+@@ -1616,6 +1616,31 @@ static void dcn20_update_dchubp_dpp(
+ 		hubp->funcs->phantom_hubp_post_enable(hubp);
+ }
+ 
++static int calculate_vready_offset_for_group(struct pipe_ctx *pipe)
++{
++	struct pipe_ctx *other_pipe;
++	int vready_offset = pipe->pipe_dlg_param.vready_offset;
++
++	/* Always use the largest vready_offset of all connected pipes */
++	for (other_pipe = pipe->bottom_pipe; other_pipe != NULL; other_pipe = other_pipe->bottom_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++	for (other_pipe = pipe->top_pipe; other_pipe != NULL; other_pipe = other_pipe->top_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++	for (other_pipe = pipe->next_odm_pipe; other_pipe != NULL; other_pipe = other_pipe->next_odm_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++	for (other_pipe = pipe->prev_odm_pipe; other_pipe != NULL; other_pipe = other_pipe->prev_odm_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++
++	return vready_offset;
++}
+ 
+ static void dcn20_program_pipe(
+ 		struct dc *dc,
+@@ -1634,7 +1659,7 @@ static void dcn20_program_pipe(
+ 			&& !pipe_ctx->prev_odm_pipe) {
+ 		pipe_ctx->stream_res.tg->funcs->program_global_sync(
+ 				pipe_ctx->stream_res.tg,
+-				pipe_ctx->pipe_dlg_param.vready_offset,
++				calculate_vready_offset_for_group(pipe_ctx),
+ 				pipe_ctx->pipe_dlg_param.vstartup_start,
+ 				pipe_ctx->pipe_dlg_param.vupdate_offset,
+ 				pipe_ctx->pipe_dlg_param.vupdate_width);
+@@ -2037,7 +2062,7 @@ bool dcn20_update_bandwidth(
+ 
+ 			pipe_ctx->stream_res.tg->funcs->program_global_sync(
+ 					pipe_ctx->stream_res.tg,
+-					pipe_ctx->pipe_dlg_param.vready_offset,
++					calculate_vready_offset_for_group(pipe_ctx),
+ 					pipe_ctx->pipe_dlg_param.vstartup_start,
+ 					pipe_ctx->pipe_dlg_param.vupdate_offset,
+ 					pipe_ctx->pipe_dlg_param.vupdate_width);
 -- 
 2.35.1
 
