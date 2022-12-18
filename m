@@ -2,46 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B019964FF64
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D460764FF69
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:02:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230461AbiLRQBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:01:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33406 "EHLO
+        id S230510AbiLRQCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:02:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230473AbiLRQBv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:01:51 -0500
+        with ESMTP id S230473AbiLRQCE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:02:04 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD6A755B1;
-        Sun, 18 Dec 2022 08:01:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 905BCB48E;
+        Sun, 18 Dec 2022 08:01:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7509BB80B4A;
-        Sun, 18 Dec 2022 16:01:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FF66C433EF;
-        Sun, 18 Dec 2022 16:01:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DFACB80B4A;
+        Sun, 18 Dec 2022 16:01:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2FC0C433D2;
+        Sun, 18 Dec 2022 16:01:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379308;
-        bh=AJg30lQM+3uKhnVTxpxBj1HiLwsVIJR8eAyQmiDceYU=;
+        s=k20201202; t=1671379317;
+        bh=WN4jXTBwZMG3r9Ku5wrg4UFAMxrGkwNZ84/nO3iLoZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/lFchjfmMiQ9ZyIcJ1+cW7YNEQXm/nUSSIEOx7UKaBndQJjEWwQKQQHAotnAsb+y
-         6JAvIsazOShaRjabIYXi8UushGeCrsh9k2FcCWJk0ga0up5VsB10/5pryPaKUBE55U
-         QOiW4tilqhM67Fr2hD1e8d0UPzAMQ/kvszPSHSTwsWZe1xHQSIt0owG2Ho0xmp894z
-         FtBQ9iK1augQqli+iv7kRw/ofOX5MyuQFJUVgw9dYYIllSyvR0d6hhqvJJJIpKnpNl
-         Pqan1Evx/KUU1JtsxW2HUsQen0CRQ8rNaQ7edEUWvmRS53yGM0hZjz/vF6AXLz2k7E
-         2RFDBdkEhZO5A==
+        b=YoURB2PRHbh1C13CV/0+qh6CQijrfJ0miMYREGrrdwDojJlF/u7HlKTnOZw4lyNKd
+         tiqFKJjdoRS/iiSSD9Qw6oKnNr95i/JOtsPIrhe84tANqy1aqFcsEBVegPhAbmpNBH
+         MVvNtNK5E7s1jGBZiwjIvHo4u5HBbfHgY6030bbe9Dz72aixkXOlNuTfk6LpGZlzFA
+         SgUvSwpdYFgbe5doDX5Omoyo8nm9kj+Zl5qWYIPknG9Q2V60bicUO+923/mFqDQJmw
+         alOGCINXfX35Q/smXJdrFwFjrJsFeP0hV5i4r+OYsuAs7Iz/c/32xfMQ97Z7s/sWXf
+         +AJC/pLsGtg0Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ming Qian <ming.qian@nxp.com>,
-        Mirela Rabulea <mirela.rabulea@nxp.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
-        shawnguo@kernel.org, linux-media@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.1 02/85] media: imx-jpeg: Disable useless interrupt to avoid kernel panic
-Date:   Sun, 18 Dec 2022 11:00:19 -0500
-Message-Id: <20221218160142.925394-2-sashal@kernel.org>
+Cc:     Wright Feng <wright.feng@cypress.com>,
+        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
+        Ian Lin <ian.lin@infineon.com>, Kalle Valo <kvalo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, aspriel@gmail.com,
+        franky.lin@broadcom.com, hante.meuleman@broadcom.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, marcan@marcan.st, linus.walleij@linaro.org,
+        rmk+kernel@armlinux.org.uk, soontak.lee@cypress.com,
+        alep@cypress.com, linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        SHA-cyfmac-dev-list@infineon.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 03/85] brcmfmac: return error when getting invalid max_flowrings from dongle
+Date:   Sun, 18 Dec 2022 11:00:20 -0500
+Message-Id: <20221218160142.925394-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160142.925394-1-sashal@kernel.org>
 References: <20221218160142.925394-1-sashal@kernel.org>
@@ -58,46 +63,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Wright Feng <wright.feng@cypress.com>
 
-[ Upstream commit c3720e65c9013a7b2a5dbb63e6bf6d74a35dd894 ]
+[ Upstream commit 2aca4f3734bd717e04943ddf340d49ab62299a00 ]
 
-There is a hardware bug that the interrupt STMBUF_HALF may be triggered
-after or when disable interrupt.
-It may led to unexpected kernel panic.
-And interrupt STMBUF_HALF and STMBUF_RTND have no other effect.
-So disable them and the unused interrupts.
+When firmware hit trap at initialization, host will read abnormal
+max_flowrings number from dongle, and it will cause kernel panic when
+doing iowrite to initialize dongle ring.
+To detect this error at early stage, we directly return error when getting
+invalid max_flowrings(>256).
 
-meanwhile clear the interrupt status when disable interrupt.
-
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Reviewed-by: Mirela Rabulea <mirela.rabulea@nxp.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Ian Lin <ian.lin@infineon.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220929031001.9962-3-ian.lin@infineon.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c
-index 9418fcf740a8..ef28122a5ed4 100644
---- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c
-+++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg-hw.c
-@@ -76,12 +76,14 @@ void print_wrapper_info(struct device *dev, void __iomem *reg)
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index 80083f9ea311..8b72deff12f5 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -1218,6 +1218,10 @@ static int brcmf_pcie_init_ringbuffers(struct brcmf_pciedev_info *devinfo)
+ 				BRCMF_NROF_H2D_COMMON_MSGRINGS;
+ 		max_completionrings = BRCMF_NROF_D2H_COMMON_MSGRINGS;
+ 	}
++	if (max_flowrings > 256) {
++		brcmf_err(bus, "invalid max_flowrings(%d)\n", max_flowrings);
++		return -EIO;
++	}
  
- void mxc_jpeg_enable_irq(void __iomem *reg, int slot)
- {
--	writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
-+	writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_STATUS));
-+	writel(0xF0C, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
- }
- 
- void mxc_jpeg_disable_irq(void __iomem *reg, int slot)
- {
- 	writel(0x0, reg + MXC_SLOT_OFFSET(slot, SLOT_IRQ_EN));
-+	writel(0xFFFFFFFF, reg + MXC_SLOT_OFFSET(slot, SLOT_STATUS));
- }
- 
- void mxc_jpeg_sw_reset(void __iomem *reg)
+ 	if (devinfo->dma_idx_sz != 0) {
+ 		bufsz = (max_submissionrings + max_completionrings) *
 -- 
 2.35.1
 
