@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 119346501A0
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:34:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9479765019D
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:34:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232147AbiLRQee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:34:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56288 "EHLO
+        id S232291AbiLRQeb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:34:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232187AbiLRQd1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:33:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38ED8DF79;
-        Sun, 18 Dec 2022 08:12:23 -0800 (PST)
+        with ESMTP id S232147AbiLRQdX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:33:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED637DF70;
+        Sun, 18 Dec 2022 08:12:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5ADB2CE0B9A;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82CFE60DCF;
         Sun, 18 Dec 2022 16:12:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B5FAC433EF;
-        Sun, 18 Dec 2022 16:12:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 146CFC43396;
+        Sun, 18 Dec 2022 16:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379939;
-        bh=X9QyHZW0/Q7y1ozPfSbuoElW40mP7FohwywJd74HR88=;
+        s=k20201202; t=1671379940;
+        bh=wS2CJozuBVaCyuHPiu85yFQAGc/LKO2AOVr+rCZej9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p+4qOYfMbDtOvi2ba95q9UrEMmZOmMaGYYUGIJfk5MV92hkMW0GkLC/1vf/7UPPO+
-         ip3v3UMfP7hygksHHh9K9UYhMdzxqapDkKrql31MRZr0VayStUWalsG/4L+LG/jm6j
-         M8SjQ4ZVQ9c8Oh6isy/QrWUyOPW7L2L3vEBp78yZm+vV3V3P1ogGTTyeIXysgG2cP5
-         l8Xon0G4T5RNI49ENcdMaiYQcFn42Xq2Z9fUJ0/Hsuvzmo4UJcL7DaDSLPvjVP1/xh
-         qL+vYXw8xiJIYtroMYnt56WdK69YFLjJ7XO1OXx9GEpUDDBSjGlip5Eed1eKEa94VV
-         XzALuNdU31lOA==
+        b=MggUNE67K8/ttM60EbXvl6gO2lUckJPsfSIKUR/VD7mYIws3zzW/pplKlmai5VrY1
+         1CleHS6ws6jOJ3vZmfcogVIrRKCWUoBx8dVwaDgQuM7DbkTD1bInBiDry/a2BiB3Ag
+         mF5OW7sZUT0zYSeyU2DOkxDV7Wnzi/M0rWqIOyOZhkjwpQya+bzmEgNU8S1lV4er6b
+         78wnjHab5kJ6Ndyuw/CXpwJOw8Z2Wmg/nkveQiUd1qdalOSPdhtwt3VySmQLinx2VT
+         YHQA4ipAs2vKsk4iVe1LtLN6VSKn5U+EHqwZ5JDw9fcv/Vg2vWyep6KLGNR7t2TXzq
+         pOaTXQg9QnkLg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Hilliard <james.hilliard1@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, daniel@iogearbox.net,
-        shuah@kernel.org, yhs@fb.com, alan.maguire@oracle.com,
-        bpf@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 63/73] selftests/bpf: Fix conflicts with built-in functions in bpf_iter_ksym
-Date:   Sun, 18 Dec 2022 11:07:31 -0500
-Message-Id: <20221218160741.927862-63-sashal@kernel.org>
+Cc:     Hawkins Jiawei <yin31149@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, anna@kernel.org,
+        linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 64/73] nfs: fix possible null-ptr-deref when parsing param
+Date:   Sun, 18 Dec 2022 11:07:32 -0500
+Message-Id: <20221218160741.927862-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -58,76 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Hawkins Jiawei <yin31149@gmail.com>
 
-[ Upstream commit ab0350c743d5c93fd88742f02b3dff12168ab435 ]
+[ Upstream commit 5559405df652008e56eee88872126fe4c451da67 ]
 
-Both tolower and toupper are built in c functions, we should not
-redefine them as this can result in a build error.
+According to commit "vfs: parse: deal with zero length string value",
+kernel will set the param->string to null pointer in vfs_parse_fs_string()
+if fs string has zero length.
 
-Fixes the following errors:
-progs/bpf_iter_ksym.c:10:20: error: conflicting types for built-in function 'tolower'; expected 'int(int)' [-Werror=builtin-declaration-mismatch]
-   10 | static inline char tolower(char c)
-      |                    ^~~~~~~
-progs/bpf_iter_ksym.c:5:1: note: 'tolower' is declared in header '<ctype.h>'
-    4 | #include <bpf/bpf_helpers.h>
-  +++ |+#include <ctype.h>
-    5 |
-progs/bpf_iter_ksym.c:17:20: error: conflicting types for built-in function 'toupper'; expected 'int(int)' [-Werror=builtin-declaration-mismatch]
-   17 | static inline char toupper(char c)
-      |                    ^~~~~~~
-progs/bpf_iter_ksym.c:17:20: note: 'toupper' is declared in header '<ctype.h>'
+Yet the problem is that, nfs_fs_context_parse_param() will dereferences the
+param->string, without checking whether it is a null pointer, which may
+trigger a null-ptr-deref bug.
 
-See background on this sort of issue:
-https://stackoverflow.com/a/20582607
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=12213
+This patch solves it by adding sanity check on param->string
+in nfs_fs_context_parse_param().
 
-(C99, 7.1.3p1) "All identifiers with external linkage in any of the
-following subclauses (including the future library directions) are
-always reserved for use as identifiers with external linkage."
-
-This is documented behavior in GCC:
-https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-std-2
-
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/r/20221203010847.2191265-1-james.hilliard1@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/bpf_iter_ksym.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/nfs/fs_context.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/progs/bpf_iter_ksym.c b/tools/testing/selftests/bpf/progs/bpf_iter_ksym.c
-index 285c008cbf9c..9ba14c37bbcc 100644
---- a/tools/testing/selftests/bpf/progs/bpf_iter_ksym.c
-+++ b/tools/testing/selftests/bpf/progs/bpf_iter_ksym.c
-@@ -7,14 +7,14 @@ char _license[] SEC("license") = "GPL";
+diff --git a/fs/nfs/fs_context.c b/fs/nfs/fs_context.c
+index 4da701fd1424..0c330bc13ef2 100644
+--- a/fs/nfs/fs_context.c
++++ b/fs/nfs/fs_context.c
+@@ -684,6 +684,8 @@ static int nfs_fs_context_parse_param(struct fs_context *fc,
+ 			return ret;
+ 		break;
+ 	case Opt_vers:
++		if (!param->string)
++			goto out_invalid_value;
+ 		trace_nfs_mount_assign(param->key, param->string);
+ 		ret = nfs_parse_version_string(fc, param->string);
+ 		if (ret < 0)
+@@ -696,6 +698,8 @@ static int nfs_fs_context_parse_param(struct fs_context *fc,
+ 		break;
  
- unsigned long last_sym_value = 0;
+ 	case Opt_proto:
++		if (!param->string)
++			goto out_invalid_value;
+ 		trace_nfs_mount_assign(param->key, param->string);
+ 		protofamily = AF_INET;
+ 		switch (lookup_constant(nfs_xprt_protocol_tokens, param->string, -1)) {
+@@ -732,6 +736,8 @@ static int nfs_fs_context_parse_param(struct fs_context *fc,
+ 		break;
  
--static inline char tolower(char c)
-+static inline char to_lower(char c)
- {
- 	if (c >= 'A' && c <= 'Z')
- 		c += ('a' - 'A');
- 	return c;
- }
- 
--static inline char toupper(char c)
-+static inline char to_upper(char c)
- {
- 	if (c >= 'a' && c <= 'z')
- 		c -= ('a' - 'A');
-@@ -54,7 +54,7 @@ int dump_ksym(struct bpf_iter__ksym *ctx)
- 	type = iter->type;
- 
- 	if (iter->module_name[0]) {
--		type = iter->exported ? toupper(type) : tolower(type);
-+		type = iter->exported ? to_upper(type) : to_lower(type);
- 		BPF_SEQ_PRINTF(seq, "0x%llx %c %s [ %s ] ",
- 			       value, type, iter->name, iter->module_name);
- 	} else {
+ 	case Opt_mountproto:
++		if (!param->string)
++			goto out_invalid_value;
+ 		trace_nfs_mount_assign(param->key, param->string);
+ 		mountfamily = AF_INET;
+ 		switch (lookup_constant(nfs_xprt_protocol_tokens, param->string, -1)) {
 -- 
 2.35.1
 
