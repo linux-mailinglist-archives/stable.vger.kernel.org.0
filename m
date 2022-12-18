@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1478650371
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:04:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53953650373
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:04:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232764AbiLRRE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 12:04:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53526 "EHLO
+        id S233214AbiLRREr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 12:04:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233089AbiLRRCy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 12:02:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECE171276C;
-        Sun, 18 Dec 2022 08:21:13 -0800 (PST)
+        with ESMTP id S233217AbiLRRDX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 12:03:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA6D1DA41;
+        Sun, 18 Dec 2022 08:21:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFCD260DCC;
-        Sun, 18 Dec 2022 16:21:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBFA3C433F0;
-        Sun, 18 Dec 2022 16:21:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 968B5B80BD1;
+        Sun, 18 Dec 2022 16:21:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C20A5C433EF;
+        Sun, 18 Dec 2022 16:21:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380472;
-        bh=k4yTj0C2jGK8AyiWoJPffHwj2JpKzjvrK1itF90RIZI=;
+        s=k20201202; t=1671380477;
+        bh=iJ5gAYpzP8X2I6wP90o/f3wKH74SBdM7lJNZXzn9mmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMAbXNvC8mLfwp1dpId3Kixv3GfWFl9wK3zolIJc48puH+ykTpgL7gQDHDJLFOdC8
-         L9jl5o0zvzzFym1W26ZiBGZ8qgN9Lo4x/HdF1AFBmqjxBXHVXE6Lprou4R9HnZZ3qv
-         1xlbyl+VkWsS9OQsWevtCOxxM6bjTTzd7Lu36nSN6/pwX0t+dHca6WEpoDub1j112r
-         TMDBG24aJmZGalpAQFirXCH1XCCiyN5vssbZA0Bf8s2JrWgb88uERyZ3JxUIx2MELQ
-         FUls1MD5JDH0HF16Db/EYqXjo0UQoci2penn/qGHUOo83yD9GcAB6en7c3Dx1bpHhg
-         nrqU5SmkIftEQ==
+        b=sRt+8q6apmbOggMG50L2mxhREMyaEBj8p5Z7ZrKjgTlBTVe2qignv97umHyS+IiNP
+         Vp7y+2nWI2/pPdow1h4oHM7ud9XOvOpBdHa+HmnXJr21U1Nl0C3C9QBAIhAED+CEJ5
+         9f3su9cU+ySu6Vevy0MSllLpk8gOP26fnrQjK+cLD2BP90CFzmObcQhhdwnHeF8Csi
+         NLyFI2MiSc5dxcFjsO0NSkf/J1U1vhcLJPcn3WwdrtcLhswTFNLgHfrpMu5epHAExE
+         +hD9htE2skPlF2k9OIeLMK559T3+Y+xNXY8/dQ9YudO6csr9kkx1tCwfiwHdeuvZ5V
+         b5aN7mm9tCrmw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stanislav Fomichev <sdf@google.com>,
-        Paul Mackerras <paulus@samba.org>, linux-ppp@vger.kernel.org,
-        syzbot+41cab52ab62ee99ed24a@syzkaller.appspotmail.com,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 18/26] ppp: associate skb with a device at tx
-Date:   Sun, 18 Dec 2022 11:20:08 -0500
-Message-Id: <20221218162016.934280-18-sashal@kernel.org>
+Cc:     Yan Lei <yan_lei@dahuatech.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 19/26] media: dvb-frontends: fix leak of memory fw
+Date:   Sun, 18 Dec 2022 11:20:09 -0500
+Message-Id: <20221218162016.934280-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218162016.934280-1-sashal@kernel.org>
 References: <20221218162016.934280-1-sashal@kernel.org>
@@ -59,60 +55,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislav Fomichev <sdf@google.com>
+From: Yan Lei <yan_lei@dahuatech.com>
 
-[ Upstream commit 9f225444467b98579cf28d94f4ad053460dfdb84 ]
+[ Upstream commit a15fe8d9f1bf460a804bcf18a890bfd2cf0d5caa ]
 
-Syzkaller triggered flow dissector warning with the following:
-
-r0 = openat$ppp(0xffffffffffffff9c, &(0x7f0000000000), 0xc0802, 0x0)
-ioctl$PPPIOCNEWUNIT(r0, 0xc004743e, &(0x7f00000000c0))
-ioctl$PPPIOCSACTIVE(r0, 0x40107446, &(0x7f0000000240)={0x2, &(0x7f0000000180)=[{0x20, 0x0, 0x0, 0xfffff034}, {0x6}]})
-pwritev(r0, &(0x7f0000000040)=[{&(0x7f0000000140)='\x00!', 0x2}], 0x1, 0x0, 0x0)
-
-[    9.485814] WARNING: CPU: 3 PID: 329 at net/core/flow_dissector.c:1016 __skb_flow_dissect+0x1ee0/0x1fa0
-[    9.485929]  skb_get_poff+0x53/0xa0
-[    9.485937]  bpf_skb_get_pay_offset+0xe/0x20
-[    9.485944]  ? ppp_send_frame+0xc2/0x5b0
-[    9.485949]  ? _raw_spin_unlock_irqrestore+0x40/0x60
-[    9.485958]  ? __ppp_xmit_process+0x7a/0xe0
-[    9.485968]  ? ppp_xmit_process+0x5b/0xb0
-[    9.485974]  ? ppp_write+0x12a/0x190
-[    9.485981]  ? do_iter_write+0x18e/0x2d0
-[    9.485987]  ? __import_iovec+0x30/0x130
-[    9.485997]  ? do_pwritev+0x1b6/0x240
-[    9.486016]  ? trace_hardirqs_on+0x47/0x50
-[    9.486023]  ? __x64_sys_pwritev+0x24/0x30
-[    9.486026]  ? do_syscall_64+0x3d/0x80
-[    9.486031]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Flow dissector tries to find skb net namespace either via device
-or via socket. Neigher is set in ppp_send_frame, so let's manually
-use ppp->dev.
-
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: linux-ppp@vger.kernel.org
-Reported-by: syzbot+41cab52ab62ee99ed24a@syzkaller.appspotmail.com
-Signed-off-by: Stanislav Fomichev <sdf@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/linux-media/20220410061925.4107-1-chinayanlei2002@163.com
+Signed-off-by: Yan Lei <yan_lei@dahuatech.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ppp/ppp_generic.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/dvb-frontends/bcm3510.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
-index 3f335b57d5cd..220b28711f98 100644
---- a/drivers/net/ppp/ppp_generic.c
-+++ b/drivers/net/ppp/ppp_generic.c
-@@ -1528,6 +1528,8 @@ ppp_send_frame(struct ppp *ppp, struct sk_buff *skb)
- 	int len;
- 	unsigned char *cp;
- 
-+	skb->dev = ppp->dev;
-+
- 	if (proto < 0x8000) {
- #ifdef CONFIG_PPP_FILTER
- 		/* check if we should pass this packet */
+diff --git a/drivers/media/dvb-frontends/bcm3510.c b/drivers/media/dvb-frontends/bcm3510.c
+index e92542b92d34..6457b0912d14 100644
+--- a/drivers/media/dvb-frontends/bcm3510.c
++++ b/drivers/media/dvb-frontends/bcm3510.c
+@@ -649,6 +649,7 @@ static int bcm3510_download_firmware(struct dvb_frontend* fe)
+ 		deb_info("firmware chunk, addr: 0x%04x, len: 0x%04x, total length: 0x%04zx\n",addr,len,fw->size);
+ 		if ((ret = bcm3510_write_ram(st,addr,&b[i+4],len)) < 0) {
+ 			err("firmware download failed: %d\n",ret);
++			release_firmware(fw);
+ 			return ret;
+ 		}
+ 		i += 4 + len;
 -- 
 2.35.1
 
