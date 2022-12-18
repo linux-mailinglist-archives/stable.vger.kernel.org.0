@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE5E65003A
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2614650053
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:13:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231644AbiLRQLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:11:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42660 "EHLO
+        id S231562AbiLRQNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:13:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231201AbiLRQKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:10:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEFADB4B9;
-        Sun, 18 Dec 2022 08:05:05 -0800 (PST)
+        with ESMTP id S231585AbiLRQKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:10:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A82ABCE1C;
+        Sun, 18 Dec 2022 08:05:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D1CD60DD4;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D74EEB80B4D;
+        Sun, 18 Dec 2022 16:05:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30386C433F0;
         Sun, 18 Dec 2022 16:05:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B279BC433D2;
-        Sun, 18 Dec 2022 16:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379504;
-        bh=5dESTzjoxtj+PGCgWeYDASVV5uQCGgMhjAxb4tifOzc=;
+        s=k20201202; t=1671379506;
+        bh=JQkNrYxNccafkooCq8unRqC3PodZ5psPvaDCz7dH4FA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ab0W5JEmsFfdmDSBkShnM7mY2u/5kX6X8hbxheb8HVqetwwq0MiZMC3YJZ8zMru9a
-         DF7m99BhbteFX4kCGwdysN++SxzbJYAGlK1jw+CJrHvT3hLc6ZRdLM3EO2XohCW5XT
-         cuMfIjxJsN1ZiEEQ7oBgt7gVLCu5MF9/NETNUVbNpElcAHpdo/gKbxBqucFfNTppKH
-         Igwni481lSqrONEf1eCsylG9hew8jHlxbmSXg+fTweCQmXvReqobu8Se5rvRHzNwhI
-         shK0XOB5NLc1U7gQytwkTwvNIkrGOAd1rfCP5uiq9q8ZLkoMczMfWabfA0hNrFcTWN
-         96Chhx0OtJC3g==
+        b=i0m+u5hRpWA09wfGL6BoUzTavYiC/7rhqPMgJs93CArBtYxGCDPToWuGu7kqzTfNm
+         yTZbMExQlGzFYghALcbPAXWy5QZbkl446u9hWwEsxhV3qWDbCIDsZsGXQmIsRr155d
+         2eeynw2JS0oIsWTN2uXcJi3JHpRoZ6zpx6tyI4W5AtQE0o9McyNbRVlvcPGa/DD+EO
+         oXYiTDKpTGfcKpOohJtHiZnAtIPs70sCDis/GZg1rsLNTZ3/r/bHvaJRhaU/dRJSj9
+         THEdSXhF7RaduQIW08v4oQBnFe6htJy7aDAY5buplB+M3yQhMVXMX6pHSQcnmItQWI
+         Zci0bkf2m11UQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Stanislav Fomichev <sdf@google.com>,
-        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
-        andrii@kernel.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 52/85] bpf/verifier: Use kmalloc_size_roundup() to match ksize() usage
-Date:   Sun, 18 Dec 2022 11:01:09 -0500
-Message-Id: <20221218160142.925394-52-sashal@kernel.org>
+Cc:     Stanislav Fomichev <sdf@google.com>,
+        Paul Mackerras <paulus@samba.org>, linux-ppp@vger.kernel.org,
+        syzbot+41cab52ab62ee99ed24a@syzkaller.appspotmail.com,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 53/85] ppp: associate skb with a device at tx
+Date:   Sun, 18 Dec 2022 11:01:10 -0500
+Message-Id: <20221218160142.925394-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160142.925394-1-sashal@kernel.org>
 References: <20221218160142.925394-1-sashal@kernel.org>
@@ -57,106 +59,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit ceb35b666d42c2e91b1f94aeca95bb5eb0943268 ]
+[ Upstream commit 9f225444467b98579cf28d94f4ad053460dfdb84 ]
 
-Most allocation sites in the kernel want an explicitly sized allocation
-(and not "more"), and that dynamic runtime analysis tools (e.g. KASAN,
-UBSAN_BOUNDS, FORTIFY_SOURCE, etc) are looking for precise bounds checking
-(i.e. not something that is rounded up). A tiny handful of allocations
-were doing an implicit alloc/realloc loop that actually depended on
-ksize(), and didn't actually always call realloc. This has created a
-long series of bugs and problems over many years related to the runtime
-bounds checking, so these callers are finally being adjusted to _not_
-depend on the ksize() side-effect, by doing one of several things:
+Syzkaller triggered flow dissector warning with the following:
 
-- tracking the allocation size precisely and just never calling ksize()
-  at all [1].
+r0 = openat$ppp(0xffffffffffffff9c, &(0x7f0000000000), 0xc0802, 0x0)
+ioctl$PPPIOCNEWUNIT(r0, 0xc004743e, &(0x7f00000000c0))
+ioctl$PPPIOCSACTIVE(r0, 0x40107446, &(0x7f0000000240)={0x2, &(0x7f0000000180)=[{0x20, 0x0, 0x0, 0xfffff034}, {0x6}]})
+pwritev(r0, &(0x7f0000000040)=[{&(0x7f0000000140)='\x00!', 0x2}], 0x1, 0x0, 0x0)
 
-- always calling realloc and not using ksize() at all. (This solution
-  ends up actually be a subset of the next solution.)
+[    9.485814] WARNING: CPU: 3 PID: 329 at net/core/flow_dissector.c:1016 __skb_flow_dissect+0x1ee0/0x1fa0
+[    9.485929]  skb_get_poff+0x53/0xa0
+[    9.485937]  bpf_skb_get_pay_offset+0xe/0x20
+[    9.485944]  ? ppp_send_frame+0xc2/0x5b0
+[    9.485949]  ? _raw_spin_unlock_irqrestore+0x40/0x60
+[    9.485958]  ? __ppp_xmit_process+0x7a/0xe0
+[    9.485968]  ? ppp_xmit_process+0x5b/0xb0
+[    9.485974]  ? ppp_write+0x12a/0x190
+[    9.485981]  ? do_iter_write+0x18e/0x2d0
+[    9.485987]  ? __import_iovec+0x30/0x130
+[    9.485997]  ? do_pwritev+0x1b6/0x240
+[    9.486016]  ? trace_hardirqs_on+0x47/0x50
+[    9.486023]  ? __x64_sys_pwritev+0x24/0x30
+[    9.486026]  ? do_syscall_64+0x3d/0x80
+[    9.486031]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-- using kmalloc_size_roundup() to explicitly round up the desired
-  allocation size immediately [2].
+Flow dissector tries to find skb net namespace either via device
+or via socket. Neigher is set in ppp_send_frame, so let's manually
+use ppp->dev.
 
-The bpf/verifier case is this another of this latter case, and is the
-last outstanding case to be fixed in the kernel.
-
-Because some of the dynamic bounds checking depends on the size being an
-_argument_ to an allocator function (i.e. see the __alloc_size attribute),
-the ksize() users are rare, and it could waste local variables, it
-was been deemed better to explicitly separate the rounding up from the
-allocation itself [3].
-
-Round up allocations with kmalloc_size_roundup() so that the verifier's
-use of ksize() is always accurate.
-
-[1] e.g.:
-    https://git.kernel.org/linus/712f210a457d
-    https://git.kernel.org/linus/72c08d9f4c72
-
-[2] e.g.:
-    https://git.kernel.org/netdev/net-next/c/12d6c1d3a2ad
-    https://git.kernel.org/netdev/net-next/c/ab3f7828c979
-    https://git.kernel.org/netdev/net-next/c/d6dd508080a3
-
-[3] https://lore.kernel.org/lkml/0ea1fc165a6c6117f982f4f135093e69cb884930.camel@redhat.com/
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/bpf/20221118183409.give.387-kees@kernel.org
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: linux-ppp@vger.kernel.org
+Reported-by: syzbot+41cab52ab62ee99ed24a@syzkaller.appspotmail.com
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/ppp/ppp_generic.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 264b3dc714cc..22b2f1f74cdc 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -1008,9 +1008,9 @@ static void *copy_array(void *dst, const void *src, size_t n, size_t size, gfp_t
- 	if (unlikely(check_mul_overflow(n, size, &bytes)))
- 		return NULL;
+diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
+index 9206c660a72e..d4c821c8cf57 100644
+--- a/drivers/net/ppp/ppp_generic.c
++++ b/drivers/net/ppp/ppp_generic.c
+@@ -1743,6 +1743,8 @@ ppp_send_frame(struct ppp *ppp, struct sk_buff *skb)
+ 	int len;
+ 	unsigned char *cp;
  
--	if (ksize(dst) < bytes) {
-+	if (ksize(dst) < ksize(src)) {
- 		kfree(dst);
--		dst = kmalloc_track_caller(bytes, flags);
-+		dst = kmalloc_track_caller(kmalloc_size_roundup(bytes), flags);
- 		if (!dst)
- 			return NULL;
- 	}
-@@ -1027,12 +1027,14 @@ static void *copy_array(void *dst, const void *src, size_t n, size_t size, gfp_t
-  */
- static void *realloc_array(void *arr, size_t old_n, size_t new_n, size_t size)
- {
-+	size_t alloc_size;
- 	void *new_arr;
- 
- 	if (!new_n || old_n == new_n)
- 		goto out;
- 
--	new_arr = krealloc_array(arr, new_n, size, GFP_KERNEL);
-+	alloc_size = kmalloc_size_roundup(size_mul(new_n, size));
-+	new_arr = krealloc(arr, alloc_size, GFP_KERNEL);
- 	if (!new_arr) {
- 		kfree(arr);
- 		return NULL;
-@@ -2504,9 +2506,11 @@ static int push_jmp_history(struct bpf_verifier_env *env,
- {
- 	u32 cnt = cur->jmp_history_cnt;
- 	struct bpf_idx_pair *p;
-+	size_t alloc_size;
- 
- 	cnt++;
--	p = krealloc(cur->jmp_history, cnt * sizeof(*p), GFP_USER);
-+	alloc_size = kmalloc_size_roundup(size_mul(cnt, sizeof(*p)));
-+	p = krealloc(cur->jmp_history, alloc_size, GFP_USER);
- 	if (!p)
- 		return -ENOMEM;
- 	p[cnt - 1].idx = env->insn_idx;
++	skb->dev = ppp->dev;
++
+ 	if (proto < 0x8000) {
+ #ifdef CONFIG_PPP_FILTER
+ 		/* check if we should pass this packet */
 -- 
 2.35.1
 
