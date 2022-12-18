@@ -2,47 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6850165023E
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:44:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC060650242
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:45:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232679AbiLRQo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:44:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43988 "EHLO
+        id S232570AbiLRQo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:44:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232437AbiLRQoW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:44:22 -0500
+        with ESMTP id S232580AbiLRQo0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:44:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3617CC16;
-        Sun, 18 Dec 2022 08:15:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F7EDE5;
+        Sun, 18 Dec 2022 08:15:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71A7460C99;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 452E260DC9;
+        Sun, 18 Dec 2022 16:15:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92318C433D2;
         Sun, 18 Dec 2022 16:15:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29BCDC433F0;
-        Sun, 18 Dec 2022 16:15:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380142;
-        bh=hruMlHNLXmBwMxIYmTb9Gv7YQfxrO7SUpelH+78KGQU=;
+        s=k20201202; t=1671380144;
+        bh=/lVAV+9Yg62+MEiBQNhOz3uYi8L2ODHMHpSHJe7i3sI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uf1pIAnmdTBQaG7Lya+IqYzre5UpYcOdJE40aq8FayjFdFbO7LHK+2cD8vmMqQz6o
-         r768CMo95E6nNwyUXPEh0v3iZ+g0c3i5wPxzhSram27v5c1TopNY5xeHlDFuXXcXGR
-         Sny9DK1iVJYsdGU3Y2ANz+Pm6n5azc87eOq4jNl3sDzMkcaP1sdkVQqRDFM+oCnQQc
-         H+4WJmmwbN9MNT8JG8PWIwiD2Rm7PIarl2tvBAvw4htnYawJ2nsahmEmN9PWW9GxKY
-         50JIFxsfpXl8PtoSOP094ead6wFu8ZXMspskHBea5Jjx5KrNe6V0Ys6IVf2KnkAtJl
-         fFTMpwKxbeT7Q==
+        b=pC1bsqLUfQh9Y/tjV2oRYMYnxclwNseqU0CN+w6TtgXqWZ6X19txvLInlzY8ZAYDl
+         Ro2XTzCSq+Sky29Oh1oNW2UMMyZ5kiJcnqKYkvjrHM3ZdsX9/Dq9tyqzHwIaXOMi/G
+         1tr0k1P1Sa5dKIQuGjoG8xvlBzwziqybLeLgp8YIcLeAhUbZu6PYkeMz8j758ErI7R
+         STco1FWaoXGvabY+reUmm7IquBqs1r2W95yNdJwlKhXayFhC6sNJ6AYgHLYKIsQIky
+         zDlwQwUJvvBL8cTyewFk7ffPVXCuL9Z1P+A0ZNbj6ZoK0jWn5doLlMaBpCwChdacEh
+         ud7DZimrsnuJA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rui Zhang <zr.zhang@vivo.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com
-Subject: [PATCH AUTOSEL 5.15 40/46] regulator: core: fix use_count leakage when handling boot-on
-Date:   Sun, 18 Dec 2022 11:12:38 -0500
-Message-Id: <20221218161244.930785-40-sashal@kernel.org>
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Ioana Ciornei <ioana.ciornei@nxp.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 41/46] net: dpaa2: publish MAC stringset to ethtool -S even if MAC is missing
+Date:   Sun, 18 Dec 2022 11:12:39 -0500
+Message-Id: <20221218161244.930785-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218161244.930785-1-sashal@kernel.org>
 References: <20221218161244.930785-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -55,57 +58,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rui Zhang <zr.zhang@vivo.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 0591b14ce0398125439c759f889647369aa616a0 ]
+[ Upstream commit 29811d6e19d795efcf26644b66c4152abbac35a6 ]
 
-I found a use_count leakage towards supply regulator of rdev with
-boot-on option.
+DPNIs and DPSW objects can connect and disconnect at runtime from DPMAC
+objects on the same fsl-mc bus. The DPMAC object also holds "ethtool -S"
+unstructured counters. Those counters are only shown for the entity
+owning the netdev (DPNI, DPSW) if it's connected to a DPMAC.
 
-┌───────────────────┐           ┌───────────────────┐
-│  regulator_dev A  │           │  regulator_dev B  │
-│     (boot-on)     │           │     (boot-on)     │
-│    use_count=0    │◀──supply──│    use_count=1    │
-│                   │           │                   │
-└───────────────────┘           └───────────────────┘
+The ethtool stringset code path is split into multiple callbacks, but
+currently, connecting and disconnecting the DPMAC takes the rtnl_lock().
+This blocks the entire ethtool code path from running, see
+ethnl_default_doit() -> rtnl_lock() -> ops->prepare_data() ->
+strset_prepare_data().
 
-In case of rdev(A) configured with `regulator-boot-on', the use_count
-of supplying regulator(B) will increment inside
-regulator_enable(rdev->supply).
+This is going to be a problem if we are going to no longer require
+rtnl_lock() when connecting/disconnecting the DPMAC, because the DPMAC
+could appear between ops->get_sset_count() and ops->get_strings().
+If it appears out of the blue, we will provide a stringset into an array
+that was dimensioned thinking the DPMAC wouldn't be there => array
+accessed out of bounds.
 
-Thus, B will acts like always-on, and further balanced
-regulator_enable/disable cannot actually disable it anymore.
+There isn't really a good way to work around that, and I don't want to
+put too much pressure on the ethtool framework by playing locking games.
+Just make the DPMAC counters be always available. They'll be zeroes if
+the DPNI or DPSW isn't connected to a DPMAC.
 
-However, B was also configured with `regulator-boot-on', we wish it
-could be disabled afterwards.
-
-Signed-off-by: Rui Zhang <zr.zhang@vivo.com>
-Link: https://lore.kernel.org/r/20221201033806.2567812-1-zr.zhang@vivo.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Tested-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c | 12 +++---------
+ .../ethernet/freescale/dpaa2/dpaa2-switch-ethtool.c  | 11 ++---------
+ 2 files changed, 5 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 221ae807b379..18ffa787d0a2 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1531,7 +1531,13 @@ static int set_machine_constraints(struct regulator_dev *rdev)
- 		if (rdev->supply_name && !rdev->supply)
- 			return -EPROBE_DEFER;
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c
+index 2da5f881f630..714a0a058faf 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c
+@@ -184,7 +184,6 @@ static int dpaa2_eth_set_pauseparam(struct net_device *net_dev,
+ static void dpaa2_eth_get_strings(struct net_device *netdev, u32 stringset,
+ 				  u8 *data)
+ {
+-	struct dpaa2_eth_priv *priv = netdev_priv(netdev);
+ 	u8 *p = data;
+ 	int i;
  
--		if (rdev->supply) {
-+		/* If supplying regulator has already been enabled,
-+		 * it's not intended to have use_count increment
-+		 * when rdev is only boot-on.
-+		 */
-+		if (rdev->supply &&
-+		    (rdev->constraints->always_on ||
-+		     !regulator_is_enabled(rdev->supply))) {
- 			ret = regulator_enable(rdev->supply);
- 			if (ret < 0) {
- 				_regulator_put(rdev->supply);
+@@ -198,22 +197,17 @@ static void dpaa2_eth_get_strings(struct net_device *netdev, u32 stringset,
+ 			strscpy(p, dpaa2_ethtool_extras[i], ETH_GSTRING_LEN);
+ 			p += ETH_GSTRING_LEN;
+ 		}
+-		if (dpaa2_eth_has_mac(priv))
+-			dpaa2_mac_get_strings(p);
++		dpaa2_mac_get_strings(p);
+ 		break;
+ 	}
+ }
+ 
+ static int dpaa2_eth_get_sset_count(struct net_device *net_dev, int sset)
+ {
+-	int num_ss_stats = DPAA2_ETH_NUM_STATS + DPAA2_ETH_NUM_EXTRA_STATS;
+-	struct dpaa2_eth_priv *priv = netdev_priv(net_dev);
+-
+ 	switch (sset) {
+ 	case ETH_SS_STATS: /* ethtool_get_stats(), ethtool_get_drvinfo() */
+-		if (dpaa2_eth_has_mac(priv))
+-			num_ss_stats += dpaa2_mac_get_sset_count();
+-		return num_ss_stats;
++		return DPAA2_ETH_NUM_STATS + DPAA2_ETH_NUM_EXTRA_STATS +
++		       dpaa2_mac_get_sset_count();
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch-ethtool.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch-ethtool.c
+index 720c9230cab5..40ee57ef55be 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch-ethtool.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch-ethtool.c
+@@ -145,14 +145,9 @@ dpaa2_switch_set_link_ksettings(struct net_device *netdev,
+ static int
+ dpaa2_switch_ethtool_get_sset_count(struct net_device *netdev, int sset)
+ {
+-	struct ethsw_port_priv *port_priv = netdev_priv(netdev);
+-	int num_ss_stats = DPAA2_SWITCH_NUM_COUNTERS;
+-
+ 	switch (sset) {
+ 	case ETH_SS_STATS:
+-		if (port_priv->mac)
+-			num_ss_stats += dpaa2_mac_get_sset_count();
+-		return num_ss_stats;
++		return DPAA2_SWITCH_NUM_COUNTERS + dpaa2_mac_get_sset_count();
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
+@@ -161,7 +156,6 @@ dpaa2_switch_ethtool_get_sset_count(struct net_device *netdev, int sset)
+ static void dpaa2_switch_ethtool_get_strings(struct net_device *netdev,
+ 					     u32 stringset, u8 *data)
+ {
+-	struct ethsw_port_priv *port_priv = netdev_priv(netdev);
+ 	u8 *p = data;
+ 	int i;
+ 
+@@ -172,8 +166,7 @@ static void dpaa2_switch_ethtool_get_strings(struct net_device *netdev,
+ 			       ETH_GSTRING_LEN);
+ 			p += ETH_GSTRING_LEN;
+ 		}
+-		if (port_priv->mac)
+-			dpaa2_mac_get_strings(p);
++		dpaa2_mac_get_strings(p);
+ 		break;
+ 	}
+ }
 -- 
 2.35.1
 
