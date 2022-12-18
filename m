@@ -2,94 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB82C65040F
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:13:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1906C6504E7
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 23:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233496AbiLRRNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 12:13:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43658 "EHLO
+        id S229871AbiLRWB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 17:01:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233585AbiLRRLw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 12:11:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A9BD1EC5D;
-        Sun, 18 Dec 2022 08:24:03 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3CA3B801C0;
-        Sun, 18 Dec 2022 16:24:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6818C433B3;
-        Sun, 18 Dec 2022 16:23:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380640;
-        bh=3WqGSj+1m0F3VlMTs7183wM7F30z46aKwTvbELsoDwg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+honjqbUF/YFJrmy+HwHD1PtdePvgNYf8sPWpStQtGGKWuV5pEhAdFIR8ko0Xtsn
-         BMX5YyvznVsXHLLHbOhqc/6gNa4tK+T6hUgS5k6rR9HeJby4q3ndSO+L3FZqlrKDFD
-         mKynUN5SBcAwsIFpDurExhqOa4cfc/ER/c3pE89xPwHAOCULtL+Ix/vkCgQfZGuQRF
-         S1W3G+gC4jAu0XeizLyJv23wPn8FD9juk6hWNi7PSi0eYBU3q9o1UIj2d2UGM7EviD
-         TnbPZIQCZu+2RysKcQKbIeElQrb9fGKfyTqMYNNA06zJV+NVtWI//A+QHEQpJVSB2x
-         HmeK8UaYsLZ8Q==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, mturquette@baylibre.com,
-        windhl@126.com, avolmat@me.com, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 20/20] clk: st: Fix memory leak in st_of_quadfs_setup()
-Date:   Sun, 18 Dec 2022 11:23:05 -0500
-Message-Id: <20221218162305.935724-20-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221218162305.935724-1-sashal@kernel.org>
-References: <20221218162305.935724-1-sashal@kernel.org>
+        with ESMTP id S229507AbiLRWBy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 17:01:54 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B90117648
+        for <stable@vger.kernel.org>; Sun, 18 Dec 2022 14:01:53 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id 4so7336880plj.3
+        for <stable@vger.kernel.org>; Sun, 18 Dec 2022 14:01:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=T9f0Ku46RA66RnD1s7kuU6MfXVLxET4cBAuDiB4K0jo=;
+        b=B9140m+7GOOtIoyl+XxoMzUCwWRYhXKo6ccbH6GzdPzZBGzP0lCOojvqJWg9q4Fbi/
+         wdYPDLxBWL2l60ODuSP7gxs1GWTLcC3U0ybod+FfrdQ1c9oWzuchtGChNZKq2nyAMUc1
+         kxdawef9kUkmqlSHPsgCnHZPMIv3IOlgxTRk2tirUTEyojgFJCltOnrx2WG15BwQ3je0
+         n3ZNX7K5CUzAfE20e2Dxzp0z47b3/vB+5PNY/CY42Kel8p/uMxcDUskNga+0OxgRp2xb
+         PicDoWd+66yNQHISyJC+GRgcUnJTqvNPjMqfXSQjvd92XevhR3ygPBJfEKe/Bknhemj8
+         w5bw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=T9f0Ku46RA66RnD1s7kuU6MfXVLxET4cBAuDiB4K0jo=;
+        b=aGlyO2o+8viCmYjcyzlGDAnKLSZNb7VqT2odAYItzbHfPVbZnvaiF7Zy6C4WEAnC9x
+         5vEFWzatCPFemKmLG2GgDP47+6Hw/rcR1fmeYI4AQ4E88Dnaqi9OqOGBje7BoJOY7uTM
+         aNuQV3q67vwGfXuCCKpIO9pgt4kp3bOAnhyu9Xu8q3+RHnhl1jL/4wxpER3Gfx6Th9qD
+         LGEmIzHIBte0Tu+a238ZmMv+yf84yq1RivAIuVGiZdpL31vmGmXOa/HWy2+bjc/ZbhJg
+         QvnnKMS4bJhzYF35ClfgHMGnLw7RWzLtslIBQFbqc9s+LNmNow2gSq65KjjdE7qP3Exb
+         T5bA==
+X-Gm-Message-State: AFqh2krqX20IDbaGxHwWKzfr5vCX3IbSURmpZGmsyVuuDcBYFJVZKUpB
+        C6vyJsN+c+teyBxLYEo+kZ9Q1IK9eU9anDRC6+w=
+X-Google-Smtp-Source: AMrXdXv1cWk7WRfGZmpcIsItp3bo7jj6WSSFpyl7S5bxWUESTspHxw7ZZxcB3d5+O6/H8EnzFQ6TXHGagMzUc7qkZeg=
+X-Received: by 2002:a17:90a:94cc:b0:219:8198:c121 with SMTP id
+ j12-20020a17090a94cc00b002198198c121mr1248525pjw.139.1671400913218; Sun, 18
+ Dec 2022 14:01:53 -0800 (PST)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:a05:6a10:cc94:b0:346:f765:548d with HTTP; Sun, 18 Dec 2022
+ 14:01:52 -0800 (PST)
+Reply-To: ab8111977@gmail.com
+From:   MS NADAGE LASSOU <hyep1657@gmail.com>
+Date:   Sun, 18 Dec 2022 23:01:52 +0100
+Message-ID: <CAKeFKLT9t9s4sYq0f=Cvsc3046Hy33gwhodLNdQWKiZJV+iA6w@mail.gmail.com>
+Subject: REPLY TO HAVE DETAILS.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: Yes, score=5.3 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,UNDISC_FREEM
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:635 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.4987]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [hyep1657[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [hyep1657[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [ab8111977[at]gmail.com]
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  2.7 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+Greetings.
 
-[ Upstream commit cfd3ffb36f0d566846163118651d868e607300ba ]
-
-If st_clk_register_quadfs_pll() fails, @lock should be freed before goto
-@err_exit, otherwise will cause meory leak issue, fix it.
-
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Link: https://lore.kernel.org/r/20221122133614.184910-1-xiujianfeng@huawei.com
-Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/clk/st/clkgen-fsyn.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/clk/st/clkgen-fsyn.c b/drivers/clk/st/clkgen-fsyn.c
-index 14819d919df1..715c5d3a5cde 100644
---- a/drivers/clk/st/clkgen-fsyn.c
-+++ b/drivers/clk/st/clkgen-fsyn.c
-@@ -948,9 +948,10 @@ static void __init st_of_quadfs_setup(struct device_node *np,
- 
- 	clk = st_clk_register_quadfs_pll(pll_name, clk_parent_name, data,
- 			reg, lock);
--	if (IS_ERR(clk))
-+	if (IS_ERR(clk)) {
-+		kfree(lock);
- 		goto err_exit;
--	else
-+	} else
- 		pr_debug("%s: parent %s rate %u\n",
- 			__clk_get_name(clk),
- 			__clk_get_name(clk_get_parent(clk)),
--- 
-2.35.1
-
+I am Ms Nadage Lassou,I have important discussIon with you for your benefit=
+.
+Thanks for your time and =C2=A0Attention.
+Regards.
+Ms Nadage Lassou
