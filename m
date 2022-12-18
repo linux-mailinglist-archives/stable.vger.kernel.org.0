@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D89650110
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:24:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D924650128
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:25:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231387AbiLRQX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:23:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40218 "EHLO
+        id S232017AbiLRQZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:25:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231610AbiLRQXC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:23:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83B4A13E0C;
-        Sun, 18 Dec 2022 08:09:27 -0800 (PST)
+        with ESMTP id S231822AbiLRQXi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:23:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2C9B13E2C;
+        Sun, 18 Dec 2022 08:09:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4872B80BA8;
-        Sun, 18 Dec 2022 16:08:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41DB6C433EF;
-        Sun, 18 Dec 2022 16:08:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D42C60DCC;
+        Sun, 18 Dec 2022 16:08:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC11FC433F1;
+        Sun, 18 Dec 2022 16:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379725;
-        bh=kP1ODcle7cl+j0fYMC+sUTP2LRY6lVqeTfHQaN893tc=;
+        s=k20201202; t=1671379726;
+        bh=8cNekZ4Ly99pLxeUE847IppAKRmEzQ5qOYdrADTmNG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=REum8SpxKxO3WPlJ5pRoVj3s7GOo1ApT44CVVVWr4xJ/ictc5IWA7G2oClBnHpzpA
-         Y5qh6FNgk/mUDTwLtir9DyeB3oX8X65jTlO2arM8p3D/XxQrR/3tMJsDoZc6Y27jUL
-         vk9IhvzSGQLqCzwcs4TDQOCurb3OkM1vnVOJhDgbw9rhagPMsJyIaPjRW3YjzGXc5Q
-         AWWKm2K36GWyXjwSensOBmerJVq9DVbtxTBDqfJVlQslzlD9zjoVBgm9Xs15M8yNyE
-         3NaZa3id+UlK8Ztn/xyMJV6aS2MaRoL2/9BWvb4LVFsU1MhwgRvFfRRBf3iXgwAuOV
-         uznxZMyaBbA7A==
+        b=YJ4LsjQFxfV8kqHvNRUCrdvgkQLcvQ+LcMmRibYTyndDht/DcW+19vymCvWc6qYCY
+         LRrD01Wtdv0PwOMCjVEm5jha9pnz3MSWUPBiGd5Nc9NN/ugX6aWQ5WNzGr66ZMqe2f
+         fQ55LAQcwEoJ5T+mchV4kHeI0Ss9dg4cqAFVZqp7cdYeOEzuKVZzl+RVBmE1Z0t3BN
+         j21yxX/WPD0Jul+zJ1nM0cEHiILixRWElASfhOyGsCHJbWf7qWM/NVJAXMY4k8j/2K
+         pjrbb5MopWj/4h9MDI0r8BSDJqTdQcjXvG4yhf1jZTgZbN6mFlaStHyPUcz7ZJ6StV
+         pA0Uo7so+LcRg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Jeffery <djeffery@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Keith Busch <kbusch@kernel.org>,
-        virtualization@lists.linux-foundation.org,
-        Bart Van Assche <bvanassche@acm.org>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 14/73] blk-mq: avoid double ->queue_rq() because of early timeout
-Date:   Sun, 18 Dec 2022 11:06:42 -0500
-Message-Id: <20221218160741.927862-14-sashal@kernel.org>
+Cc:     Kerem Karabay <kekrby@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 15/73] HID: apple: fix key translations where multiple quirks attempt to translate the same key
+Date:   Sun, 18 Dec 2022 11:06:43 -0500
+Message-Id: <20221218160741.927862-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -59,146 +55,242 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Jeffery <djeffery@redhat.com>
+From: Kerem Karabay <kekrby@gmail.com>
 
-[ Upstream commit 82c229476b8f6afd7e09bc4dc77d89dc19ff7688 ]
+[ Upstream commit 5476fcf7f7b901db1cea92acb1abdd12609e30e1 ]
 
-David Jeffery found one double ->queue_rq() issue, so far it can
-be triggered in VM use case because of long vmexit latency or preempt
-latency of vCPU pthread or long page fault in vCPU pthread, then block
-IO req could be timed out before queuing the request to hardware but after
-calling blk_mq_start_request() during ->queue_rq(), then timeout handler
-may handle it by requeue, then double ->queue_rq() is caused, and kernel
-panic.
+The hid-apple driver does not support chaining translations or
+dependencies on other translations. This creates two problems:
 
-So far, it is driver's responsibility to cover the race between timeout
-and completion, so it seems supposed to be solved in driver in theory,
-given driver has enough knowledge.
+1 - In Non-English keyboards of Macs, KEY_102ND and KEY_GRAVE are
+swapped and the APPLE_ISO_TILDE_QUIRK is used to work around this
+problem. The quirk is not set for the Macs where these bugs happen yet
+(see the 2nd patch for that), but this can be forced by setting the
+iso_layout parameter. Unfortunately, this only partially works.
+KEY_102ND gets translated to KEY_GRAVE, but KEY_GRAVE does not get
+translated to KEY_102ND, so both of them end up functioning as
+KEY_GRAVE. This is because the driver translates the keys as if Fn was
+pressed and the original is sent if it is not pressed, without any
+further translations happening on the key[#463]. KEY_GRAVE is present at
+macbookpro_no_esc_fn_keys[#195], so this is what happens:
 
-But it is really one common problem, lots of driver could have similar
-issue, and could be hard to fix all affected drivers, even it isn't easy
-for driver to handle the race. So David suggests this patch by draining
-in-progress ->queue_rq() for solving this issue.
+    - KEY_GRAVE -> KEY_ESC (as if Fn is pressed)
+    - KEY_GRAVE is returned (Fn isn't pressed, so translation is discarded)
+    - KEY_GRAVE -> KEY_102ND (this part is not reached!)
+    ...
 
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Keith Busch <kbusch@kernel.org>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20221026051957.358818-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+2 - In case the touchbar does not work, the driver supports sending
+Escape when Fn+KEY_GRAVE is pressed. As mentioned previously, KEY_102ND
+is actually KEY_GRAVE and needs to be translated before this happens.
+
+Normally, these are the steps that should happen:
+
+    - KEY_102ND -> KEY_GRAVE
+    - KEY_GRAVE -> KEY_ESC (Fn is pressed)
+    - KEY_ESC is returned
+
+Though this is what happens instead, as dependencies on other
+translations are not supported:
+
+    - KEY_102ND -> KEY_ESC (Fn is pressed)
+    - KEY_ESC is returned
+
+This patch fixes both bugs by ordering the translations correctly and by
+making the translations continue and not return immediately after
+translating a key so that chained translations work and translations can
+depend on other ones.
+
+This patch also simplifies the implementation of the swap_fn_leftctrl
+option a little bit, as it makes it simply use a normal translation
+instead adding extra code to translate a key to KEY_FN[#381]. This change
+wasn't put in another patch as the code that translates the Fn key needs
+to be changed because of the changes in the patch, and those changes
+would be discarded with the next patch anyway (the part that originally
+translates KEY_FN to KEY_LEFTCTRL needs to be made an else-if branch of
+the part that transltes KEY_LEFTCTRL to KEY_FN).
+
+Note: Line numbers (#XYZ) are for drivers/hid/hid-apple.c at commit
+20afcc462579 ("HID: apple: Add "GANSS" to the non-Apple list").
+
+Note: These bugs are only present on Macs with a keyboard with no
+dedicated escape key and a non-English layout.
+
+Signed-off-by: Kerem Karabay <kekrby@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 56 +++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 44 insertions(+), 12 deletions(-)
+ drivers/hid/hid-apple.c | 102 +++++++++++++++++-----------------------
+ 1 file changed, 44 insertions(+), 58 deletions(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 3f1f5e3e0951..1a30f6580274 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -1442,7 +1442,13 @@ static void blk_mq_rq_timed_out(struct request *req)
- 	blk_add_timer(req);
- }
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 6970797cdc56..e86bbf85b87e 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -314,6 +314,7 @@ static const struct apple_key_translation swapped_option_cmd_keys[] = {
  
--static bool blk_mq_req_expired(struct request *rq, unsigned long *next)
-+struct blk_expired_data {
-+	bool has_timedout_rq;
-+	unsigned long next;
-+	unsigned long timeout_start;
-+};
-+
-+static bool blk_mq_req_expired(struct request *rq, struct blk_expired_data *expired)
- {
- 	unsigned long deadline;
+ static const struct apple_key_translation swapped_fn_leftctrl_keys[] = {
+ 	{ KEY_FN, KEY_LEFTCTRL },
++	{ KEY_LEFTCTRL, KEY_FN },
+ 	{ }
+ };
  
-@@ -1452,13 +1458,13 @@ static bool blk_mq_req_expired(struct request *rq, unsigned long *next)
- 		return false;
+@@ -375,24 +376,40 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ 	struct apple_sc *asc = hid_get_drvdata(hid);
+ 	const struct apple_key_translation *trans, *table;
+ 	bool do_translate;
+-	u16 code = 0;
++	u16 code = usage->code;
+ 	unsigned int real_fnmode;
  
- 	deadline = READ_ONCE(rq->deadline);
--	if (time_after_eq(jiffies, deadline))
-+	if (time_after_eq(expired->timeout_start, deadline))
- 		return true;
- 
--	if (*next == 0)
--		*next = deadline;
--	else if (time_after(*next, deadline))
--		*next = deadline;
-+	if (expired->next == 0)
-+		expired->next = deadline;
-+	else if (time_after(expired->next, deadline))
-+		expired->next = deadline;
- 	return false;
- }
- 
-@@ -1472,7 +1478,7 @@ void blk_mq_put_rq_ref(struct request *rq)
- 
- static bool blk_mq_check_expired(struct request *rq, void *priv)
- {
--	unsigned long *next = priv;
-+	struct blk_expired_data *expired = priv;
- 
- 	/*
- 	 * blk_mq_queue_tag_busy_iter() has locked the request, so it cannot
-@@ -1481,7 +1487,18 @@ static bool blk_mq_check_expired(struct request *rq, void *priv)
- 	 * it was completed and reallocated as a new request after returning
- 	 * from blk_mq_check_expired().
- 	 */
--	if (blk_mq_req_expired(rq, next))
-+	if (blk_mq_req_expired(rq, expired)) {
-+		expired->has_timedout_rq = true;
-+		return false;
-+	}
-+	return true;
-+}
-+
-+static bool blk_mq_handle_expired(struct request *rq, void *priv)
-+{
-+	struct blk_expired_data *expired = priv;
-+
-+	if (blk_mq_req_expired(rq, expired))
- 		blk_mq_rq_timed_out(rq);
- 	return true;
- }
-@@ -1490,7 +1507,9 @@ static void blk_mq_timeout_work(struct work_struct *work)
- {
- 	struct request_queue *q =
- 		container_of(work, struct request_queue, timeout_work);
--	unsigned long next = 0;
-+	struct blk_expired_data expired = {
-+		.timeout_start = jiffies,
-+	};
- 	struct blk_mq_hw_ctx *hctx;
- 	unsigned long i;
- 
-@@ -1510,10 +1529,23 @@ static void blk_mq_timeout_work(struct work_struct *work)
- 	if (!percpu_ref_tryget(&q->q_usage_counter))
- 		return;
- 
--	blk_mq_queue_tag_busy_iter(q, blk_mq_check_expired, &next);
-+	/* check if there is any timed-out request */
-+	blk_mq_queue_tag_busy_iter(q, blk_mq_check_expired, &expired);
-+	if (expired.has_timedout_rq) {
-+		/*
-+		 * Before walking tags, we must ensure any submit started
-+		 * before the current time has finished. Since the submit
-+		 * uses srcu or rcu, wait for a synchronization point to
-+		 * ensure all running submits have finished
-+		 */
-+		blk_mq_wait_quiesce_done(q);
-+
-+		expired.next = 0;
-+		blk_mq_queue_tag_busy_iter(q, blk_mq_handle_expired, &expired);
-+	}
- 
--	if (next != 0) {
--		mod_timer(&q->timeout, next);
-+	if (expired.next != 0) {
-+		mod_timer(&q->timeout, expired.next);
+-	u16 fn_keycode = (swap_fn_leftctrl) ? (KEY_LEFTCTRL) : (KEY_FN);
+-
+-	if (usage->code == fn_keycode) {
+-		asc->fn_on = !!value;
+-		input_event_with_scancode(input, usage->type, KEY_FN,
+-				usage->hid, value);
+-		return 1;
+-	}
+-
+ 	if (fnmode == 3) {
+ 		real_fnmode = (asc->quirks & APPLE_IS_NON_APPLE) ? 2 : 1;
  	} else {
- 		/*
- 		 * Request timeouts are handled as a forward rolling timer. If
+ 		real_fnmode = fnmode;
+ 	}
+ 
++	if (swap_fn_leftctrl) {
++		trans = apple_find_translation(swapped_fn_leftctrl_keys, code);
++
++		if (trans)
++			code = trans->to;
++	}
++
++	if (iso_layout > 0 || (iso_layout < 0 && (asc->quirks & APPLE_ISO_TILDE_QUIRK) &&
++			hid->country == HID_COUNTRY_INTERNATIONAL_ISO)) {
++		trans = apple_find_translation(apple_iso_keyboard, code);
++
++		if (trans)
++			code = trans->to;
++	}
++
++	if (swap_opt_cmd) {
++		trans = apple_find_translation(swapped_option_cmd_keys, code);
++
++		if (trans)
++			code = trans->to;
++	}
++
++	if (code == KEY_FN)
++		asc->fn_on = !!value;
++
+ 	if (real_fnmode) {
+ 		if (hid->product == USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI ||
+ 		    hid->product == USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO ||
+@@ -430,15 +447,18 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ 		else
+ 			table = apple_fn_keys;
+ 
+-		trans = apple_find_translation (table, usage->code);
++		trans = apple_find_translation(table, code);
+ 
+ 		if (trans) {
+-			if (test_bit(trans->from, input->key))
++			bool from_is_set = test_bit(trans->from, input->key);
++			bool to_is_set = test_bit(trans->to, input->key);
++
++			if (from_is_set)
+ 				code = trans->from;
+-			else if (test_bit(trans->to, input->key))
++			else if (to_is_set)
+ 				code = trans->to;
+ 
+-			if (!code) {
++			if (!(from_is_set || to_is_set)) {
+ 				if (trans->flags & APPLE_FLAG_FKEY) {
+ 					switch (real_fnmode) {
+ 					case 1:
+@@ -455,62 +475,31 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ 					do_translate = asc->fn_on;
+ 				}
+ 
+-				code = do_translate ? trans->to : trans->from;
++				if (do_translate)
++					code = trans->to;
+ 			}
+-
+-			input_event_with_scancode(input, usage->type, code,
+-					usage->hid, value);
+-			return 1;
+ 		}
+ 
+ 		if (asc->quirks & APPLE_NUMLOCK_EMULATION &&
+-				(test_bit(usage->code, asc->pressed_numlock) ||
++				(test_bit(code, asc->pressed_numlock) ||
+ 				test_bit(LED_NUML, input->led))) {
+-			trans = apple_find_translation(powerbook_numlock_keys,
+-					usage->code);
++			trans = apple_find_translation(powerbook_numlock_keys, code);
+ 
+ 			if (trans) {
+ 				if (value)
+-					set_bit(usage->code,
+-							asc->pressed_numlock);
++					set_bit(code, asc->pressed_numlock);
+ 				else
+-					clear_bit(usage->code,
+-							asc->pressed_numlock);
++					clear_bit(code, asc->pressed_numlock);
+ 
+-				input_event_with_scancode(input, usage->type,
+-						trans->to, usage->hid, value);
++				code = trans->to;
+ 			}
+-
+-			return 1;
+ 		}
+ 	}
+ 
+-	if (iso_layout > 0 || (iso_layout < 0 && (asc->quirks & APPLE_ISO_TILDE_QUIRK) &&
+-			hid->country == HID_COUNTRY_INTERNATIONAL_ISO)) {
+-		trans = apple_find_translation(apple_iso_keyboard, usage->code);
+-		if (trans) {
+-			input_event_with_scancode(input, usage->type,
+-					trans->to, usage->hid, value);
+-			return 1;
+-		}
+-	}
++	if (usage->code != code) {
++		input_event_with_scancode(input, usage->type, code, usage->hid, value);
+ 
+-	if (swap_opt_cmd) {
+-		trans = apple_find_translation(swapped_option_cmd_keys, usage->code);
+-		if (trans) {
+-			input_event_with_scancode(input, usage->type,
+-					trans->to, usage->hid, value);
+-			return 1;
+-		}
+-	}
+-
+-	if (swap_fn_leftctrl) {
+-		trans = apple_find_translation(swapped_fn_leftctrl_keys, usage->code);
+-		if (trans) {
+-			input_event_with_scancode(input, usage->type,
+-					trans->to, usage->hid, value);
+-			return 1;
+-		}
++		return 1;
+ 	}
+ 
+ 	return 0;
+@@ -640,9 +629,6 @@ static void apple_setup_input(struct input_dev *input)
+ 	apple_setup_key_translation(input, apple2021_fn_keys);
+ 	apple_setup_key_translation(input, macbookpro_no_esc_fn_keys);
+ 	apple_setup_key_translation(input, macbookpro_dedicated_esc_fn_keys);
+-
+-	if (swap_fn_leftctrl)
+-		apple_setup_key_translation(input, swapped_fn_leftctrl_keys);
+ }
+ 
+ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 -- 
 2.35.1
 
