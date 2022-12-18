@@ -2,42 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE32650292
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:48:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDB0765029E
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:49:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232777AbiLRQsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:48:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52328 "EHLO
+        id S232851AbiLRQtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:49:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232822AbiLRQrJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:47:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5EAF11474;
-        Sun, 18 Dec 2022 08:17:27 -0800 (PST)
+        with ESMTP id S232878AbiLRQrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:47:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 180C7193F0;
+        Sun, 18 Dec 2022 08:17:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 734A660DB4;
-        Sun, 18 Dec 2022 16:17:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 314CBC433F0;
-        Sun, 18 Dec 2022 16:17:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F83AB803F1;
+        Sun, 18 Dec 2022 16:17:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F082C433D2;
+        Sun, 18 Dec 2022 16:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380246;
-        bh=ZdQSz7tW5yZEMT0VNybgqJOPuzQrhHJfYipUtk8agig=;
+        s=k20201202; t=1671380254;
+        bh=xFRUKXf8zJ06rIVt1mya4gNo6gCbDNxsXQS9kxIiydU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICX996aF6tCez0IOJCaUbwhgGnNXQ2k6EqQl7iYdYZv+9H8CLnKSeDB1nmu9YF5M0
-         vY23nTna2mekblElHDkeSZHeU3rCeOO6oK4LGPoXYJ9gDTl7X6b2k6TXsuz+aNpJSN
-         WMvbOvNwkXRxSh+gn4ZQspMq4g/Cweg5zqq5dt6gOxOKRBeLBx50l3c0Vk5zqavgxp
-         LmtsOqEWM0DRSKKhLL6RAm5p0pkzREjY8t7EfPcPVZWdQ9JpSmipTu96peD7Hx4UIH
-         iAfrejCmOODucYlgfVeuXoi8RE3zmcRfdNgpTLiDpfgnXt35iEY919qRcsDMuzycJP
-         3QRLx0EBxvVtQ==
+        b=OrDLImXX/oj1CMSzvHIk4aQv7CNDSH39EAmlEzvEO/3IAgjOwotwNfo+7HWHlKZuX
+         2zIvgPNZiIzc1HL1styt9+dROOtvfo36DE6jWIfvdpuRD23SIIhmJTT2r3RGM4ZxEg
+         N8tIBjiHtxRJragj6HCnDivO1F9i09xJ2tTDvNeo3nU2Dvs0dF0VLUi7PqsCHaHVhc
+         KvlbuswwRyMe+2/2EzhQMsRhMi02Gf3/OT2euNEj0DmE+gCga+LZDbFWDR2K+vfr5k
+         6L131ommZP2Ws9XGBTlaKOFMzF2nzisiRiUmAH5UHMcOgWsBIo0mJhOznVYsmLXWRU
+         NCO3KtKGnV8EQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiang Li <jiang.li@ugreen.com>, Song Liu <song@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 23/39] md/raid1: stop mdx_raid1 thread when raid1 array run failed
-Date:   Sun, 18 Dec 2022 11:15:43 -0500
-Message-Id: <20221218161559.932604-23-sashal@kernel.org>
+Cc:     Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Martin Leung <Martin.Leung@amd.com>,
+        Tom Chung <chiahsuan.chung@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, Charlene.Liu@amd.com, sancchen@amd.com,
+        jaehyun.chung@amd.com, tales.aparecida@gmail.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 24/39] drm/amd/display: fix array index out of bound error in bios parser
+Date:   Sun, 18 Dec 2022 11:15:44 -0500
+Message-Id: <20221218161559.932604-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218161559.932604-1-sashal@kernel.org>
 References: <20221218161559.932604-1-sashal@kernel.org>
@@ -54,69 +63,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiang Li <jiang.li@ugreen.com>
+From: Aurabindo Pillai <aurabindo.pillai@amd.com>
 
-[ Upstream commit b611ad14006e5be2170d9e8e611bf49dff288911 ]
+[ Upstream commit 4fc1ba4aa589ca267468ad23fedef37562227d32 ]
 
-fail run raid1 array when we assemble array with the inactive disk only,
-but the mdx_raid1 thread were not stop, Even if the associated resources
-have been released. it will caused a NULL dereference when we do poweroff.
+[Why&How]
+Firmware headers dictate that gpio_pin array only has a size of 8. The
+count returned from vbios however is greater than 8.
 
-This causes the following Oops:
-    [  287.587787] BUG: kernel NULL pointer dereference, address: 0000000000000070
-    [  287.594762] #PF: supervisor read access in kernel mode
-    [  287.599912] #PF: error_code(0x0000) - not-present page
-    [  287.605061] PGD 0 P4D 0
-    [  287.607612] Oops: 0000 [#1] SMP NOPTI
-    [  287.611287] CPU: 3 PID: 5265 Comm: md0_raid1 Tainted: G     U            5.10.146 #0
-    [  287.619029] Hardware name: xxxxxxx/To be filled by O.E.M, BIOS 5.19 06/16/2022
-    [  287.626775] RIP: 0010:md_check_recovery+0x57/0x500 [md_mod]
-    [  287.632357] Code: fe 01 00 00 48 83 bb 10 03 00 00 00 74 08 48 89 ......
-    [  287.651118] RSP: 0018:ffffc90000433d78 EFLAGS: 00010202
-    [  287.656347] RAX: 0000000000000000 RBX: ffff888105986800 RCX: 0000000000000000
-    [  287.663491] RDX: ffffc90000433bb0 RSI: 00000000ffffefff RDI: ffff888105986800
-    [  287.670634] RBP: ffffc90000433da0 R08: 0000000000000000 R09: c0000000ffffefff
-    [  287.677771] R10: 0000000000000001 R11: ffffc90000433ba8 R12: ffff888105986800
-    [  287.684907] R13: 0000000000000000 R14: fffffffffffffe00 R15: ffff888100b6b500
-    [  287.692052] FS:  0000000000000000(0000) GS:ffff888277f80000(0000) knlGS:0000000000000000
-    [  287.700149] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    [  287.705897] CR2: 0000000000000070 CR3: 000000000320a000 CR4: 0000000000350ee0
-    [  287.713033] Call Trace:
-    [  287.715498]  raid1d+0x6c/0xbbb [raid1]
-    [  287.719256]  ? __schedule+0x1ff/0x760
-    [  287.722930]  ? schedule+0x3b/0xb0
-    [  287.726260]  ? schedule_timeout+0x1ed/0x290
-    [  287.730456]  ? __switch_to+0x11f/0x400
-    [  287.734219]  md_thread+0xe9/0x140 [md_mod]
-    [  287.738328]  ? md_thread+0xe9/0x140 [md_mod]
-    [  287.742601]  ? wait_woken+0x80/0x80
-    [  287.746097]  ? md_register_thread+0xe0/0xe0 [md_mod]
-    [  287.751064]  kthread+0x11a/0x140
-    [  287.754300]  ? kthread_park+0x90/0x90
-    [  287.757974]  ret_from_fork+0x1f/0x30
+Fix this by not using array indexing but incrementing the pointer since
+gpio_pin definition in atomfirmware.h is hardcoded to size 8
 
-In fact, when raid1 array run fail, we need to do
-md_unregister_thread() before raid1_free().
-
-Signed-off-by: Jiang Li <jiang.li@ugreen.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Reviewed-by: Martin Leung <Martin.Leung@amd.com>
+Acked-by: Tom Chung <chiahsuan.chung@amd.com>
+Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid1.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../gpu/drm/amd/display/dc/bios/bios_parser2.c   | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index fb31e5dd54a6..6b5cc3f59fb3 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -3115,6 +3115,7 @@ static int raid1_run(struct mddev *mddev)
- 	 * RAID1 needs at least one disk in active
- 	 */
- 	if (conf->raid_disks - mddev->degraded < 1) {
-+		md_unregister_thread(&conf->thread);
- 		ret = -EINVAL;
- 		goto abort;
+diff --git a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
+index 29d64e7e304f..930d2b7d3448 100644
+--- a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
++++ b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
+@@ -352,6 +352,7 @@ static enum bp_result get_gpio_i2c_info(
+ 	uint32_t count = 0;
+ 	unsigned int table_index = 0;
+ 	bool find_valid = false;
++	struct atom_gpio_pin_assignment *pin;
+ 
+ 	if (!info)
+ 		return BP_RESULT_BADINPUT;
+@@ -379,20 +380,17 @@ static enum bp_result get_gpio_i2c_info(
+ 			- sizeof(struct atom_common_table_header))
+ 				/ sizeof(struct atom_gpio_pin_assignment);
+ 
++	pin = (struct atom_gpio_pin_assignment *) header->gpio_pin;
++
+ 	for (table_index = 0; table_index < count; table_index++) {
+-		if (((record->i2c_id & I2C_HW_CAP) == (
+-		header->gpio_pin[table_index].gpio_id &
+-						I2C_HW_CAP)) &&
+-		((record->i2c_id & I2C_HW_ENGINE_ID_MASK)  ==
+-		(header->gpio_pin[table_index].gpio_id &
+-					I2C_HW_ENGINE_ID_MASK)) &&
+-		((record->i2c_id & I2C_HW_LANE_MUX) ==
+-		(header->gpio_pin[table_index].gpio_id &
+-						I2C_HW_LANE_MUX))) {
++		if (((record->i2c_id & I2C_HW_CAP) 				== (pin->gpio_id & I2C_HW_CAP)) &&
++		    ((record->i2c_id & I2C_HW_ENGINE_ID_MASK)	== (pin->gpio_id & I2C_HW_ENGINE_ID_MASK)) &&
++		    ((record->i2c_id & I2C_HW_LANE_MUX) 		== (pin->gpio_id & I2C_HW_LANE_MUX))) {
+ 			/* still valid */
+ 			find_valid = true;
+ 			break;
+ 		}
++		pin = (struct atom_gpio_pin_assignment *)((uint8_t *)pin + sizeof(struct atom_gpio_pin_assignment));
  	}
+ 
+ 	/* If we don't find the entry that we are looking for then
 -- 
 2.35.1
 
