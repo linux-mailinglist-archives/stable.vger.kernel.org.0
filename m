@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AC7A6501A8
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:34:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86B9A6501AA
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:34:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232311AbiLRQel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:34:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54766 "EHLO
+        id S232320AbiLRQer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:34:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232252AbiLRQd3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:33:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3193CB7DD;
-        Sun, 18 Dec 2022 08:12:25 -0800 (PST)
+        with ESMTP id S232211AbiLRQdb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:33:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C172DF1A;
+        Sun, 18 Dec 2022 08:12:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2C6D60DCA;
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5ED1B80B43;
+        Sun, 18 Dec 2022 16:12:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA9AAC433D2;
         Sun, 18 Dec 2022 16:12:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D1AC433D2;
-        Sun, 18 Dec 2022 16:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379944;
-        bh=Cor8swcP0qAWcg+ypKfV1BiE+5LdDXUHnzurt0BoCp0=;
+        s=k20201202; t=1671379945;
+        bh=uK2N8sWvtuJXEQYlSUHzg5AuM8NSppLJ4Q9v8QvjAWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tkp7xrhl/87f2D57c7bZaXOk38H/w/27GcEgfZQdNMz9Rtt7iXsCYpaCeZSx1RvHl
-         D7AqVV6122eptJlltmBker2YuwOh9D8SCHojU60A57ZGNO8lvlW4F9iWa6JheQ4Tgt
-         IE5DwiuYfbe3BS+wvvVxx8BwU1r28BAZlowtRrEGRvomHMMd8oVF66P2jOb2SSsR+Z
-         f05zyxz38h2z4doV/NXDKCvUNCh/g/VpHTR/VNZlk3vzB9U1U0orxqRbozVCF5bMKo
-         N3rJGXdJoLwoe3Ys1bPP6tZSs8eIFOr8AMUXWyQ8V2fqzFwAChpFq+SkKzIKcAt0KE
-         TPZzGsvdg6bTg==
+        b=Qn5mBo9LqtRbIvCcLYjGDS/ENbHEOeJf+dQOjdBaatRTmM9TWTcePALqkfPtx/ob0
+         qyNzHw1/Z68Dfzvv2uC9mHpil+NgIin4Zm165uPDMG1iM7EgQN1pZdkpF6CNQ0y92b
+         iCvohxbgsLoP2t8mVcEcHr9els1ULH5plTNDkAnlU1GHp9jk9uDV2VjsGr/QMa/lJC
+         ff4OmQeKS82tAOeb0CCM8C5NGcFAt2dS1h3OtYtXykUHJ6usNlBzRB8UBQJMYaSKoa
+         mV8f20BVwb7GWr9e4QQu50FZRY6LalBgqv+1VN+o2tuGrvv+NmLCW4ZqkmOhA3nCPq
+         YEzyo2zVbZcIQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Duy Nguyen <duy.nguyen.rh@renesas.com>,
         Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org,
         linux-renesas-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 66/73] mmc: renesas_sdhi: add quirk for broken register layout
-Date:   Sun, 18 Dec 2022 11:07:34 -0500
-Message-Id: <20221218160741.927862-66-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 67/73] mmc: renesas_sdhi: better reset from HS400 mode
+Date:   Sun, 18 Dec 2022 11:07:35 -0500
+Message-Id: <20221218160741.927862-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -60,57 +59,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit ec9e80ae1719de541c719116a1ca0a0c70e9240c ]
+[ Upstream commit 0da69dd2155019ed4c444ede0e79ce7a4a6af627 ]
 
-Some early Gen3 SoCs have the DTRANEND1 bit at a different location than
-all later SoCs. Because we need the bit soon, add a quirk so we know
-which bit to use.
+Up to now, HS400 adjustment mode was only disabled on soft reset when a
+calibration table was in use. It is safer, though, to disable it as soon
+as the instance has an adjustment related quirk set, i.e. bad taps or a
+calibration table.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Duy Nguyen <duy.nguyen.rh@renesas.com>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20221006190452.5316-5-wsa+renesas@sang-engineering.com
+Link: https://lore.kernel.org/r/20221120113457.42010-3-wsa+renesas@sang-engineering.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/renesas_sdhi.h               | 1 +
- drivers/mmc/host/renesas_sdhi_internal_dmac.c | 4 +++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/mmc/host/renesas_sdhi_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/renesas_sdhi.h b/drivers/mmc/host/renesas_sdhi.h
-index c4abfee1ebae..e4c490729c98 100644
---- a/drivers/mmc/host/renesas_sdhi.h
-+++ b/drivers/mmc/host/renesas_sdhi.h
-@@ -44,6 +44,7 @@ struct renesas_sdhi_quirks {
- 	bool fixed_addr_mode;
- 	bool dma_one_rx_only;
- 	bool manual_tap_correction;
-+	bool old_info1_layout;
- 	u32 hs400_bad_taps;
- 	const u8 (*hs400_calib_table)[SDHI_CALIB_TABLE_MAX];
- };
-diff --git a/drivers/mmc/host/renesas_sdhi_internal_dmac.c b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-index 42937596c4c4..7c81c2680701 100644
---- a/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-+++ b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-@@ -49,7 +49,8 @@
- /* DM_CM_INFO1 and DM_CM_INFO1_MASK */
- #define INFO1_CLEAR		0
- #define INFO1_MASK_CLEAR	GENMASK_ULL(31, 0)
--#define INFO1_DTRANEND1		BIT(17)
-+#define INFO1_DTRANEND1		BIT(20)
-+#define INFO1_DTRANEND1_OLD	BIT(17)
- #define INFO1_DTRANEND0		BIT(16)
+diff --git a/drivers/mmc/host/renesas_sdhi_core.c b/drivers/mmc/host/renesas_sdhi_core.c
+index b970699743e0..02682c2fd957 100644
+--- a/drivers/mmc/host/renesas_sdhi_core.c
++++ b/drivers/mmc/host/renesas_sdhi_core.c
+@@ -546,7 +546,7 @@ static void renesas_sdhi_reset_hs400_mode(struct tmio_mmc_host *host,
+ 			 SH_MOBILE_SDHI_SCC_TMPPORT2_HS400OSEL) &
+ 			sd_scc_read32(host, priv, SH_MOBILE_SDHI_SCC_TMPPORT2));
  
- /* DM_CM_INFO2 and DM_CM_INFO2_MASK */
-@@ -165,6 +166,7 @@ static const struct renesas_sdhi_quirks sdhi_quirks_4tap_nohs400_one_rx = {
- 	.hs400_disabled = true,
- 	.hs400_4taps = true,
- 	.dma_one_rx_only = true,
-+	.old_info1_layout = true,
- };
+-	if (priv->adjust_hs400_calib_table)
++	if (priv->quirks && (priv->quirks->hs400_calib_table || priv->quirks->hs400_bad_taps))
+ 		renesas_sdhi_adjust_hs400_mode_disable(host);
  
- static const struct renesas_sdhi_quirks sdhi_quirks_4tap = {
+ 	sd_ctrl_write16(host, CTL_SD_CARD_CLK_CTL, CLK_CTL_SCLKEN |
 -- 
 2.35.1
 
