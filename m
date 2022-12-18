@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9AAD650365
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:03:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3309A65036B
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:04:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233268AbiLRRDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 12:03:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45046 "EHLO
+        id S233309AbiLRREW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 12:04:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233369AbiLRRCi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 12:02:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D19E315FD2;
-        Sun, 18 Dec 2022 08:21:06 -0800 (PST)
+        with ESMTP id S233421AbiLRRCs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 12:02:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 412591276F;
+        Sun, 18 Dec 2022 08:21:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88D2EB803F1;
-        Sun, 18 Dec 2022 16:21:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A33A0C433D2;
-        Sun, 18 Dec 2022 16:21:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D094060DC9;
+        Sun, 18 Dec 2022 16:21:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D831DC433D2;
+        Sun, 18 Dec 2022 16:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380464;
-        bh=uT0YmWr4/lUhW267+4TnSWcFDE4Uny0pj1pF42wAsS4=;
+        s=k20201202; t=1671380470;
+        bh=OEzMX2QBCarEPGj3nv0syZnlYMTrmJvqWJspe9cOE6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kitj5TrspLPbIU4rcXaqi+9guMd9mHgbBXkk1onWUv6mUdVHeovh913iPzrevDHsl
-         PmZLyM5yDQ8u9dJfGNnpuexeXBYccyjadNvcFNEWTeDgm4Fx/E9X0oqbzlQqCLoDrJ
-         VAatvjnxpCbWN9SXCKz/SkMXmM+dfXPTLiOJrVVhDjULTl0Zkuvi/EA0Gkf8KFl2qJ
-         bQEXDP+P6IDEUC5BMR2yrLT25atglFskc/VZxKndNVkl4j/9ubXmd9Kj18QjRCLQN4
-         Q/0yzU+oye6RJ1h9fbFdhGB4KepH6TcVGXL8NNPoKdkfZOCbup/8yYBfg8ra05Z3IC
-         aa8FJjeBblQnQ==
+        b=qJsQ/Fm5lcnk1DR9l02+oi3KXvTMCRNY/8sHI9DBwZQ+mpUjryyqi0tQJymzi/xnk
+         /if+NkynlCTxHdJqtvGvPcwM3Zf9HG9Mug1IYWFyVV4mUutyewmzZk+7PFQ92/UeMN
+         xLuU9RoFV64uyYUmBVrq0dridXVwndAkaFefQOLVORKB/d8DcjMWrTHeBdY7J9A2Li
+         6GCtQ2yAECttxLAo2iMW6s1ikf8cvjGuAlCnQnUtlwqd7zRKHbmwkEVgGjryw/l5Vv
+         UgLqpBOTZAYrLJJVrGAbErbDEZTNE7iUpkCxUlpI8Ffdqlh0ndHupQGQxE7WrYDQiJ
+         XGk24/r6eiwUw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiang Li <jiang.li@ugreen.com>, Song Liu <song@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 16/26] md/raid1: stop mdx_raid1 thread when raid1 array run failed
-Date:   Sun, 18 Dec 2022 11:20:06 -0500
-Message-Id: <20221218162016.934280-16-sashal@kernel.org>
+Cc:     Schspa Shi <schspa@gmail.com>,
+        syzbot+6fd64001c20aa99e34a4@syzkaller.appspotmail.com,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, hca@linux.ibm.com,
+        ulf.hansson@linaro.org, jack@suse.cz, Jason@zx2c4.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 17/26] mrp: introduce active flags to prevent UAF when applicant uninit
+Date:   Sun, 18 Dec 2022 11:20:07 -0500
+Message-Id: <20221218162016.934280-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218162016.934280-1-sashal@kernel.org>
 References: <20221218162016.934280-1-sashal@kernel.org>
@@ -54,69 +59,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiang Li <jiang.li@ugreen.com>
+From: Schspa Shi <schspa@gmail.com>
 
-[ Upstream commit b611ad14006e5be2170d9e8e611bf49dff288911 ]
+[ Upstream commit ab0377803dafc58f1e22296708c1c28e309414d6 ]
 
-fail run raid1 array when we assemble array with the inactive disk only,
-but the mdx_raid1 thread were not stop, Even if the associated resources
-have been released. it will caused a NULL dereference when we do poweroff.
+The caller of del_timer_sync must prevent restarting of the timer, If
+we have no this synchronization, there is a small probability that the
+cancellation will not be successful.
 
-This causes the following Oops:
-    [  287.587787] BUG: kernel NULL pointer dereference, address: 0000000000000070
-    [  287.594762] #PF: supervisor read access in kernel mode
-    [  287.599912] #PF: error_code(0x0000) - not-present page
-    [  287.605061] PGD 0 P4D 0
-    [  287.607612] Oops: 0000 [#1] SMP NOPTI
-    [  287.611287] CPU: 3 PID: 5265 Comm: md0_raid1 Tainted: G     U            5.10.146 #0
-    [  287.619029] Hardware name: xxxxxxx/To be filled by O.E.M, BIOS 5.19 06/16/2022
-    [  287.626775] RIP: 0010:md_check_recovery+0x57/0x500 [md_mod]
-    [  287.632357] Code: fe 01 00 00 48 83 bb 10 03 00 00 00 74 08 48 89 ......
-    [  287.651118] RSP: 0018:ffffc90000433d78 EFLAGS: 00010202
-    [  287.656347] RAX: 0000000000000000 RBX: ffff888105986800 RCX: 0000000000000000
-    [  287.663491] RDX: ffffc90000433bb0 RSI: 00000000ffffefff RDI: ffff888105986800
-    [  287.670634] RBP: ffffc90000433da0 R08: 0000000000000000 R09: c0000000ffffefff
-    [  287.677771] R10: 0000000000000001 R11: ffffc90000433ba8 R12: ffff888105986800
-    [  287.684907] R13: 0000000000000000 R14: fffffffffffffe00 R15: ffff888100b6b500
-    [  287.692052] FS:  0000000000000000(0000) GS:ffff888277f80000(0000) knlGS:0000000000000000
-    [  287.700149] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    [  287.705897] CR2: 0000000000000070 CR3: 000000000320a000 CR4: 0000000000350ee0
-    [  287.713033] Call Trace:
-    [  287.715498]  raid1d+0x6c/0xbbb [raid1]
-    [  287.719256]  ? __schedule+0x1ff/0x760
-    [  287.722930]  ? schedule+0x3b/0xb0
-    [  287.726260]  ? schedule_timeout+0x1ed/0x290
-    [  287.730456]  ? __switch_to+0x11f/0x400
-    [  287.734219]  md_thread+0xe9/0x140 [md_mod]
-    [  287.738328]  ? md_thread+0xe9/0x140 [md_mod]
-    [  287.742601]  ? wait_woken+0x80/0x80
-    [  287.746097]  ? md_register_thread+0xe0/0xe0 [md_mod]
-    [  287.751064]  kthread+0x11a/0x140
-    [  287.754300]  ? kthread_park+0x90/0x90
-    [  287.757974]  ret_from_fork+0x1f/0x30
+And syzbot report the fellowing crash:
+==================================================================
+BUG: KASAN: use-after-free in hlist_add_head include/linux/list.h:929 [inline]
+BUG: KASAN: use-after-free in enqueue_timer+0x18/0xa4 kernel/time/timer.c:605
+Write at addr f9ff000024df6058 by task syz-fuzzer/2256
+Pointer tag: [f9], memory tag: [fe]
 
-In fact, when raid1 array run fail, we need to do
-md_unregister_thread() before raid1_free().
+CPU: 1 PID: 2256 Comm: syz-fuzzer Not tainted 6.1.0-rc5-syzkaller-00008-
+ge01d50cbd6ee #0
+Hardware name: linux,dummy-virt (DT)
+Call trace:
+ dump_backtrace.part.0+0xe0/0xf0 arch/arm64/kernel/stacktrace.c:156
+ dump_backtrace arch/arm64/kernel/stacktrace.c:162 [inline]
+ show_stack+0x18/0x40 arch/arm64/kernel/stacktrace.c:163
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x68/0x84 lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:284 [inline]
+ print_report+0x1a8/0x4a0 mm/kasan/report.c:395
+ kasan_report+0x94/0xb4 mm/kasan/report.c:495
+ __do_kernel_fault+0x164/0x1e0 arch/arm64/mm/fault.c:320
+ do_bad_area arch/arm64/mm/fault.c:473 [inline]
+ do_tag_check_fault+0x78/0x8c arch/arm64/mm/fault.c:749
+ do_mem_abort+0x44/0x94 arch/arm64/mm/fault.c:825
+ el1_abort+0x40/0x60 arch/arm64/kernel/entry-common.c:367
+ el1h_64_sync_handler+0xd8/0xe4 arch/arm64/kernel/entry-common.c:427
+ el1h_64_sync+0x64/0x68 arch/arm64/kernel/entry.S:576
+ hlist_add_head include/linux/list.h:929 [inline]
+ enqueue_timer+0x18/0xa4 kernel/time/timer.c:605
+ mod_timer+0x14/0x20 kernel/time/timer.c:1161
+ mrp_periodic_timer_arm net/802/mrp.c:614 [inline]
+ mrp_periodic_timer+0xa0/0xc0 net/802/mrp.c:627
+ call_timer_fn.constprop.0+0x24/0x80 kernel/time/timer.c:1474
+ expire_timers+0x98/0xc4 kernel/time/timer.c:1519
 
-Signed-off-by: Jiang Li <jiang.li@ugreen.com>
-Signed-off-by: Song Liu <song@kernel.org>
+To fix it, we can introduce a new active flags to make sure the timer will
+not restart.
+
+Reported-by: syzbot+6fd64001c20aa99e34a4@syzkaller.appspotmail.com
+
+Signed-off-by: Schspa Shi <schspa@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid1.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/net/mrp.h |  1 +
+ net/802/mrp.c     | 18 +++++++++++++-----
+ 2 files changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index 876d3e1339d1..0f8b1fb3d051 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -3110,6 +3110,7 @@ static int raid1_run(struct mddev *mddev)
- 	 * RAID1 needs at least one disk in active
+diff --git a/include/net/mrp.h b/include/net/mrp.h
+index ef58b4a07190..c6c53370e390 100644
+--- a/include/net/mrp.h
++++ b/include/net/mrp.h
+@@ -120,6 +120,7 @@ struct mrp_applicant {
+ 	struct sk_buff		*pdu;
+ 	struct rb_root		mad;
+ 	struct rcu_head		rcu;
++	bool			active;
+ };
+ 
+ struct mrp_port {
+diff --git a/net/802/mrp.c b/net/802/mrp.c
+index 32f87d458f05..ce6e4774d333 100644
+--- a/net/802/mrp.c
++++ b/net/802/mrp.c
+@@ -609,7 +609,10 @@ static void mrp_join_timer(struct timer_list *t)
+ 	spin_unlock(&app->lock);
+ 
+ 	mrp_queue_xmit(app);
+-	mrp_join_timer_arm(app);
++	spin_lock(&app->lock);
++	if (likely(app->active))
++		mrp_join_timer_arm(app);
++	spin_unlock(&app->lock);
+ }
+ 
+ static void mrp_periodic_timer_arm(struct mrp_applicant *app)
+@@ -623,11 +626,12 @@ static void mrp_periodic_timer(struct timer_list *t)
+ 	struct mrp_applicant *app = from_timer(app, t, periodic_timer);
+ 
+ 	spin_lock(&app->lock);
+-	mrp_mad_event(app, MRP_EVENT_PERIODIC);
+-	mrp_pdu_queue(app);
++	if (likely(app->active)) {
++		mrp_mad_event(app, MRP_EVENT_PERIODIC);
++		mrp_pdu_queue(app);
++		mrp_periodic_timer_arm(app);
++	}
+ 	spin_unlock(&app->lock);
+-
+-	mrp_periodic_timer_arm(app);
+ }
+ 
+ static int mrp_pdu_parse_end_mark(struct sk_buff *skb, int *offset)
+@@ -875,6 +879,7 @@ int mrp_init_applicant(struct net_device *dev, struct mrp_application *appl)
+ 	app->dev = dev;
+ 	app->app = appl;
+ 	app->mad = RB_ROOT;
++	app->active = true;
+ 	spin_lock_init(&app->lock);
+ 	skb_queue_head_init(&app->queue);
+ 	rcu_assign_pointer(dev->mrp_port->applicants[appl->type], app);
+@@ -903,6 +908,9 @@ void mrp_uninit_applicant(struct net_device *dev, struct mrp_application *appl)
+ 
+ 	RCU_INIT_POINTER(port->applicants[appl->type], NULL);
+ 
++	spin_lock_bh(&app->lock);
++	app->active = false;
++	spin_unlock_bh(&app->lock);
+ 	/* Delete timer and generate a final TX event to flush out
+ 	 * all pending messages before the applicant is gone.
  	 */
- 	if (conf->raid_disks - mddev->degraded < 1) {
-+		md_unregister_thread(&conf->thread);
- 		ret = -EINVAL;
- 		goto abort;
- 	}
 -- 
 2.35.1
 
