@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD85A650161
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:29:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 522D065015A
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:28:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232080AbiLRQ3M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:29:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44788 "EHLO
+        id S232123AbiLRQ2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:28:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232096AbiLRQ2d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:28:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BB0A140A8;
-        Sun, 18 Dec 2022 08:10:32 -0800 (PST)
+        with ESMTP id S232039AbiLRQ2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:28:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865CF13E20;
+        Sun, 18 Dec 2022 08:10:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B61FF60DB4;
-        Sun, 18 Dec 2022 16:10:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B6FCC433D2;
-        Sun, 18 Dec 2022 16:10:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0A1360C58;
+        Sun, 18 Dec 2022 16:10:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EADA9C433F0;
+        Sun, 18 Dec 2022 16:10:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379817;
-        bh=plYTi2TZNI27U9t9LXYCJAAmbOeZYQ61BCO1+T+YmE8=;
+        s=k20201202; t=1671379824;
+        bh=V8YllKjvCJNIj7V5WSrIPDxidINa0i7icQUaZYLwdqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPR2u4zdtp1JoTXjzHq3pRY+6Vk8iCGKVh+zREl4TIbbr91FxjthqywLmSPfvCNEz
-         EjomQ+VfJ6jB5awzvmoWnSvGgU2KVGxYHJK0dT1QZwIyLnY56NZoQQQnVmuwO6Laug
-         8kYaMaeUSyyIBcozzy9mTL9RzOitU7pO+oslLlQUSW3nm+KS0YdCyAC3lnPGwwxdzv
-         msIKhti1NYaOBrC/nSElUNVyBuvAEZNlC3aBTobTuSMFlmUVXsJ5wMnI+B2YnYpZ13
-         hfn7EbADjboVOKNRFT71SlTPi7IRlSl7EyIdEco8ziSO270nY0UXddYpX3sASuh26n
-         W3ALWV9UeMNog==
+        b=iGoEGb5qKv/jFfL7RFmJoyR3NRtwlOAA7PktdM0jydHsfquRoA3wmxSvZqXs8BGSw
+         B2Z/L79I/aBkpHupurrmgw0NE2V9ucM07Bd8yb8S4+h43NQjy9B8zmfhraDaqs3Kfz
+         EVhbAi5Ya3EsbYpeh8iKzRC5lv/ywiXQ8dyGBSB8Mf0chCX6UgitGkEx9IcRgsS/oO
+         6OUyaY06CsXPJdFyuV3AfL0Z6qNI8z3X28dDjrdWhLuZsHf+rvSj7/0EklC17hX2Zu
+         J5gKOVLQWWLuMwOkS1NRoZRZRRZ9hGq/O0HEzkBX1EJ5b2q1t/Vs+0mJFCCjAd15Ac
+         zvziJ2z3Mvl5w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>, Hannes Reinecke <hare@suse.de>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
-        axboe@fb.com, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.0 41/73] nvme-auth: don't override ctrl keys before validation
-Date:   Sun, 18 Dec 2022 11:07:09 -0500
-Message-Id: <20221218160741.927862-41-sashal@kernel.org>
+Cc:     Eric Dumazet <edumazet@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        pabeni@redhat.com, bigeasy@linutronix.de, imagedong@tencent.com,
+        kuniyu@amazon.com, petrm@nvidia.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 42/73] net: add atomic_long_t to net_device_stats fields
+Date:   Sun, 18 Dec 2022 11:07:10 -0500
+Message-Id: <20221218160741.927862-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -57,64 +57,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 01604350e14560d4d69323eb1ba12a257a643ea8 ]
+[ Upstream commit 6c1c5097781f563b70a81683ea6fdac21637573b ]
 
-Replace ctrl ctrl_key/host_key only after nvme_auth_generate_key is successful.
-Also, this fixes a bug where the keys are leaked.
+Long standing KCSAN issues are caused by data-race around
+some dev->stats changes.
 
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Most performance critical paths already use per-cpu
+variables, or per-queue ones.
+
+It is reasonable (and more correct) to use atomic operations
+for the slow paths.
+
+This patch adds an union for each field of net_device_stats,
+so that we can convert paths that are not yet protected
+by a spinlock or a mutex.
+
+netdev_stats_to_stats64() no longer has an #if BITS_PER_LONG==64
+
+Note that the memcpy() we were using on 64bit arches
+had no provision to avoid load-tearing,
+while atomic_long_read() is providing the needed protection
+at no cost.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ include/linux/netdevice.h | 58 +++++++++++++++++++++++----------------
+ include/net/dst.h         |  5 ++--
+ net/core/dev.c            | 14 ++--------
+ 3 files changed, 40 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index aca50bb93750..5413d58b3f2c 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3739,13 +3739,17 @@ static ssize_t nvme_ctrl_dhchap_secret_store(struct device *dev,
- 	memcpy(dhchap_secret, buf, count);
- 	nvme_auth_stop(ctrl);
- 	if (strcmp(dhchap_secret, opts->dhchap_secret)) {
-+		struct nvme_dhchap_key *key, *host_key;
- 		int ret;
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 05d6f3facd5a..47b8b0ab7694 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -171,31 +171,38 @@ static inline bool dev_xmit_complete(int rc)
+  *	(unsigned long) so they can be read and written atomically.
+  */
  
--		ret = nvme_auth_generate_key(dhchap_secret, &ctrl->host_key);
-+		ret = nvme_auth_generate_key(dhchap_secret, &key);
- 		if (ret)
- 			return ret;
- 		kfree(opts->dhchap_secret);
- 		opts->dhchap_secret = dhchap_secret;
-+		host_key = ctrl->host_key;
-+		ctrl->host_key = key;
-+		nvme_auth_free_key(host_key);
- 		/* Key has changed; re-authentication with new key */
- 		nvme_auth_reset(ctrl);
- 	}
-@@ -3789,13 +3793,17 @@ static ssize_t nvme_ctrl_dhchap_ctrl_secret_store(struct device *dev,
- 	memcpy(dhchap_secret, buf, count);
- 	nvme_auth_stop(ctrl);
- 	if (strcmp(dhchap_secret, opts->dhchap_ctrl_secret)) {
-+		struct nvme_dhchap_key *key, *ctrl_key;
- 		int ret;
++#define NET_DEV_STAT(FIELD)			\
++	union {					\
++		unsigned long FIELD;		\
++		atomic_long_t __##FIELD;	\
++	}
++
+ struct net_device_stats {
+-	unsigned long	rx_packets;
+-	unsigned long	tx_packets;
+-	unsigned long	rx_bytes;
+-	unsigned long	tx_bytes;
+-	unsigned long	rx_errors;
+-	unsigned long	tx_errors;
+-	unsigned long	rx_dropped;
+-	unsigned long	tx_dropped;
+-	unsigned long	multicast;
+-	unsigned long	collisions;
+-	unsigned long	rx_length_errors;
+-	unsigned long	rx_over_errors;
+-	unsigned long	rx_crc_errors;
+-	unsigned long	rx_frame_errors;
+-	unsigned long	rx_fifo_errors;
+-	unsigned long	rx_missed_errors;
+-	unsigned long	tx_aborted_errors;
+-	unsigned long	tx_carrier_errors;
+-	unsigned long	tx_fifo_errors;
+-	unsigned long	tx_heartbeat_errors;
+-	unsigned long	tx_window_errors;
+-	unsigned long	rx_compressed;
+-	unsigned long	tx_compressed;
++	NET_DEV_STAT(rx_packets);
++	NET_DEV_STAT(tx_packets);
++	NET_DEV_STAT(rx_bytes);
++	NET_DEV_STAT(tx_bytes);
++	NET_DEV_STAT(rx_errors);
++	NET_DEV_STAT(tx_errors);
++	NET_DEV_STAT(rx_dropped);
++	NET_DEV_STAT(tx_dropped);
++	NET_DEV_STAT(multicast);
++	NET_DEV_STAT(collisions);
++	NET_DEV_STAT(rx_length_errors);
++	NET_DEV_STAT(rx_over_errors);
++	NET_DEV_STAT(rx_crc_errors);
++	NET_DEV_STAT(rx_frame_errors);
++	NET_DEV_STAT(rx_fifo_errors);
++	NET_DEV_STAT(rx_missed_errors);
++	NET_DEV_STAT(tx_aborted_errors);
++	NET_DEV_STAT(tx_carrier_errors);
++	NET_DEV_STAT(tx_fifo_errors);
++	NET_DEV_STAT(tx_heartbeat_errors);
++	NET_DEV_STAT(tx_window_errors);
++	NET_DEV_STAT(rx_compressed);
++	NET_DEV_STAT(tx_compressed);
+ };
++#undef NET_DEV_STAT
  
--		ret = nvme_auth_generate_key(dhchap_secret, &ctrl->ctrl_key);
-+		ret = nvme_auth_generate_key(dhchap_secret, &key);
- 		if (ret)
- 			return ret;
- 		kfree(opts->dhchap_ctrl_secret);
- 		opts->dhchap_ctrl_secret = dhchap_secret;
-+		ctrl_key = ctrl->ctrl_key;
-+		ctrl->ctrl_key = key;
-+		nvme_auth_free_key(ctrl_key);
- 		/* Key has changed; re-authentication with new key */
- 		nvme_auth_reset(ctrl);
- 	}
+ /* per-cpu stats, allocated on demand.
+  * Try to fit them in a single cache line, for dev_get_stats() sake.
+@@ -5143,4 +5150,9 @@ extern struct list_head ptype_base[PTYPE_HASH_SIZE] __read_mostly;
+ 
+ extern struct net_device *blackhole_netdev;
+ 
++/* Note: Avoid these macros in fast path, prefer per-cpu or per-queue counters. */
++#define DEV_STATS_INC(DEV, FIELD) atomic_long_inc(&(DEV)->stats.__##FIELD)
++#define DEV_STATS_ADD(DEV, FIELD, VAL) 	\
++		atomic_long_add((VAL), &(DEV)->stats.__##FIELD)
++
+ #endif	/* _LINUX_NETDEVICE_H */
+diff --git a/include/net/dst.h b/include/net/dst.h
+index 6aa252c3fc55..19af7a2713cc 100644
+--- a/include/net/dst.h
++++ b/include/net/dst.h
+@@ -362,9 +362,8 @@ static inline void __skb_tunnel_rx(struct sk_buff *skb, struct net_device *dev,
+ static inline void skb_tunnel_rx(struct sk_buff *skb, struct net_device *dev,
+ 				 struct net *net)
+ {
+-	/* TODO : stats should be SMP safe */
+-	dev->stats.rx_packets++;
+-	dev->stats.rx_bytes += skb->len;
++	DEV_STATS_INC(dev, rx_packets);
++	DEV_STATS_ADD(dev, rx_bytes, skb->len);
+ 	__skb_tunnel_rx(skb, dev, net);
+ }
+ 
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 2c14f48d2457..4c4564a9a758 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -10398,24 +10398,16 @@ void netdev_run_todo(void)
+ void netdev_stats_to_stats64(struct rtnl_link_stats64 *stats64,
+ 			     const struct net_device_stats *netdev_stats)
+ {
+-#if BITS_PER_LONG == 64
+-	BUILD_BUG_ON(sizeof(*stats64) < sizeof(*netdev_stats));
+-	memcpy(stats64, netdev_stats, sizeof(*netdev_stats));
+-	/* zero out counters that only exist in rtnl_link_stats64 */
+-	memset((char *)stats64 + sizeof(*netdev_stats), 0,
+-	       sizeof(*stats64) - sizeof(*netdev_stats));
+-#else
+-	size_t i, n = sizeof(*netdev_stats) / sizeof(unsigned long);
+-	const unsigned long *src = (const unsigned long *)netdev_stats;
++	size_t i, n = sizeof(*netdev_stats) / sizeof(atomic_long_t);
++	const atomic_long_t *src = (atomic_long_t *)netdev_stats;
+ 	u64 *dst = (u64 *)stats64;
+ 
+ 	BUILD_BUG_ON(n > sizeof(*stats64) / sizeof(u64));
+ 	for (i = 0; i < n; i++)
+-		dst[i] = src[i];
++		dst[i] = atomic_long_read(&src[i]);
+ 	/* zero out counters that only exist in rtnl_link_stats64 */
+ 	memset((char *)stats64 + n * sizeof(u64), 0,
+ 	       sizeof(*stats64) - n * sizeof(u64));
+-#endif
+ }
+ EXPORT_SYMBOL(netdev_stats_to_stats64);
+ 
 -- 
 2.35.1
 
