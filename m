@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA4E06500D9
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:20:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E9D6500C9
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:19:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231874AbiLRQUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:20:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55512 "EHLO
+        id S231675AbiLRQTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:19:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231673AbiLRQTV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:19:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB0E1181F;
-        Sun, 18 Dec 2022 08:07:56 -0800 (PST)
+        with ESMTP id S231673AbiLRQRu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:17:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10BE211170;
+        Sun, 18 Dec 2022 08:07:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86F54B801C0;
-        Sun, 18 Dec 2022 16:07:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F22E5C433F0;
-        Sun, 18 Dec 2022 16:07:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E652560DCA;
+        Sun, 18 Dec 2022 16:07:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50C62C433EF;
+        Sun, 18 Dec 2022 16:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379658;
-        bh=zuivJDDa6t3bP4XeCrzKE0ZbuKINDY+r/1FxTcakRjU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KTqXXX/foeS5hLSlLBZbgk6aDIMq3dsAO+EvYkJKPIBg4SGfZQ6jlUVGSkV/bhCaf
-         lob1ezvduQ6IPnr4CNSMzywx/SQjxNRo37RFx2yP2qcHNXyAp+tHsHJlUdCeZlSNP5
-         5yMvOxr4JBcP7L93b3p8409fW+6IgfiwccdqxbfWpyVubQAapsLYgeacNFH9qxl1+T
-         fAIc/cWVAM2hRD0aImNzMNlW+0fhdtNmnESLeOkJ22OthaJ67tf2wZuVPVbR7H+fMp
-         JaK5aiojzT47NtTK7N9mc/5SOfqNjjuxEOctX8osUZgxd8V6uIIhIcAHGSr9XAp94r
-         u2A+8ZOQ8ZfWA==
+        s=k20201202; t=1671379664;
+        bh=gWX7FAuymLzIe0lTlL9cbB0Xr8qLpez2pdwNDs2A8Yw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=NJe4WNNsyu2xGRJuBKoyg8NGVdqA9daOHHnYwGOWmteCUUusWL2so8hbBk2FKR2y/
+         TqPLhHg/oQLwI+ZKHxbJrMC2BrJzXsDkeLLRmvuEKxSqVa5ccgirV3PANUY2vofHsd
+         sbijcqqHjlwIhA+g16uqVRH5NQaXp6pazK0a+EvbwbqrXcx31wdPj2GX+OKuJyjUEh
+         frSQ9srxoclqNVEUFRbkxjX8QfkQ94Q2/ArjYfVqEpIcU9Ffi4JEitDOVkr0x71N4Q
+         pz15Sn1xJlFV12Mx55svAdr4oFZDzH7R5wpaaH0Y0hZOSbNbTlrE19N0HnnJpuZj0f
+         C2mgd/CqLWBcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Peter <sven@svenpeter.dev>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>, marcel@holtmann.org,
-        johan.hedberg@gmail.com, luiz.dentz@gmail.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 85/85] Bluetooth: Add quirk to disable MWS Transport Configuration
-Date:   Sun, 18 Dec 2022 11:01:42 -0500
-Message-Id: <20221218160142.925394-85-sashal@kernel.org>
+Cc:     Doug Brown <doug@schmorgal.com>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>, airlied@gmail.com,
+        daniel@ffwll.ch, etnaviv@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.0 01/73] drm/etnaviv: add missing quirks for GC300
+Date:   Sun, 18 Dec 2022 11:06:29 -0500
+Message-Id: <20221218160741.927862-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221218160142.925394-1-sashal@kernel.org>
-References: <20221218160142.925394-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,87 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Peter <sven@svenpeter.dev>
+From: Doug Brown <doug@schmorgal.com>
 
-[ Upstream commit ffcb0a445ec2d5753751437706aa0a7ea8351099 ]
+[ Upstream commit cc7d3fb446a91f24978a6aa59cbb578f92e22242 ]
 
-Broadcom 4378/4387 controllers found in Apple Silicon Macs claim to
-support getting MWS Transport Layer Configuration,
+The GC300's features register doesn't specify that a 2D pipe is
+available, and like the GC600, its idle register reports zero bits where
+modules aren't present.
 
-< HCI Command: Read Local Supported... (0x04|0x0002) plen 0
-> HCI Event: Command Complete (0x0e) plen 68
-      Read Local Supported Commands (0x04|0x0002) ncmd 1
-        Status: Success (0x00)
-[...]
-          Get MWS Transport Layer Configuration (Octet 30 - Bit 3)]
-[...]
-
-, but then don't actually allow the required command:
-
-> HCI Event: Command Complete (0x0e) plen 15
-      Get MWS Transport Layer Configuration (0x05|0x000c) ncmd 1
-        Status: Command Disallowed (0x0c)
-        Number of transports: 0
-        Baud rate list: 0 entries
-        00 00 00 00 00 00 00 00 00 00
-
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Doug Brown <doug@schmorgal.com>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/bluetooth/hci.h      | 10 ++++++++++
- include/net/bluetooth/hci_core.h |  3 +++
- net/bluetooth/hci_sync.c         |  2 +-
- 3 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
-index d8abeac2fc1e..7a381fcef939 100644
---- a/include/net/bluetooth/hci.h
-+++ b/include/net/bluetooth/hci.h
-@@ -284,6 +284,16 @@ enum {
- 	 * during the hdev->setup vendor callback.
- 	 */
- 	HCI_QUIRK_BROKEN_EXT_SCAN,
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+index 37018bc55810..f667e7906d1f 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+@@ -416,6 +416,12 @@ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
+ 	if (gpu->identity.model == chipModel_GC700)
+ 		gpu->identity.features &= ~chipFeatures_FAST_CLEAR;
+ 
++	/* These models/revisions don't have the 2D pipe bit */
++	if ((gpu->identity.model == chipModel_GC500 &&
++	     gpu->identity.revision <= 2) ||
++	    gpu->identity.model == chipModel_GC300)
++		gpu->identity.features |= chipFeatures_PIPE_2D;
 +
-+	/*
-+	 * When this quirk is set, the HCI_OP_GET_MWS_TRANSPORT_CONFIG command is
-+	 * disabled. This is required for some Broadcom controllers which
-+	 * erroneously claim to support MWS Transport Layer Configuration.
-+	 *
-+	 * This quirk can be set before hci_register_dev is called or
-+	 * during the hdev->setup vendor callback.
-+	 */
-+	HCI_QUIRK_BROKEN_MWS_TRANSPORT_CONFIG,
- };
+ 	if ((gpu->identity.model == chipModel_GC500 &&
+ 	     gpu->identity.revision < 2) ||
+ 	    (gpu->identity.model == chipModel_GC300 &&
+@@ -449,8 +455,9 @@ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
+ 				gpu_read(gpu, VIVS_HI_CHIP_MINOR_FEATURE_5);
+ 	}
  
- /* HCI device flags */
-diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
-index 3cd00be0fcd2..7f585e5dd71b 100644
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -1719,6 +1719,9 @@ void hci_conn_del_sysfs(struct hci_conn *conn);
- 	((dev)->le_features[3] & HCI_LE_CIS_PERIPHERAL)
- #define bis_capable(dev) ((dev)->le_features[3] & HCI_LE_ISO_BROADCASTER)
- 
-+#define mws_transport_config_capable(dev) (((dev)->commands[30] & 0x08) && \
-+	(!test_bit(HCI_QUIRK_BROKEN_MWS_TRANSPORT_CONFIG, &(dev)->quirks)))
-+
- /* ----- HCI protocols ----- */
- #define HCI_PROTO_DEFER             0x01
- 
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index 1fc693122a47..3a68d9bc43b8 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -4261,7 +4261,7 @@ static int hci_read_local_pairing_opts_sync(struct hci_dev *hdev)
- /* Get MWS transport configuration if the HCI command is supported */
- static int hci_get_mws_transport_config_sync(struct hci_dev *hdev)
- {
--	if (!(hdev->commands[30] & 0x08))
-+	if (!mws_transport_config_capable(hdev))
- 		return 0;
- 
- 	return __hci_cmd_sync_status(hdev, HCI_OP_GET_MWS_TRANSPORT_CONFIG,
+-	/* GC600 idle register reports zero bits where modules aren't present */
+-	if (gpu->identity.model == chipModel_GC600)
++	/* GC600/300 idle register reports zero bits where modules aren't present */
++	if (gpu->identity.model == chipModel_GC600 ||
++	    gpu->identity.model == chipModel_GC300)
+ 		gpu->idle_mask = VIVS_HI_IDLE_STATE_TX |
+ 				 VIVS_HI_IDLE_STATE_RA |
+ 				 VIVS_HI_IDLE_STATE_SE |
 -- 
 2.35.1
 
