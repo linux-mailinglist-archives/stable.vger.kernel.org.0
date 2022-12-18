@@ -2,43 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADBAA65023A
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:44:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EF4565023D
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:44:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232538AbiLRQoX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:44:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43986 "EHLO
+        id S232229AbiLRQoz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:44:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232453AbiLRQmg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:42:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5168ABC1E;
-        Sun, 18 Dec 2022 08:15:30 -0800 (PST)
+        with ESMTP id S232667AbiLRQoV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:44:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D1AD21F;
+        Sun, 18 Dec 2022 08:15:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0538CB80BD1;
-        Sun, 18 Dec 2022 16:15:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1331C433F2;
-        Sun, 18 Dec 2022 16:15:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 380B8B803F1;
+        Sun, 18 Dec 2022 16:15:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0046FC433EF;
+        Sun, 18 Dec 2022 16:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380127;
-        bh=2h+M05ApNHE6xRq8bd6r6AZBEC+OQeir99791RdYMCE=;
+        s=k20201202; t=1671380139;
+        bh=bGDsxwRMuhHdwn4tRIuRcfyfJm46g2xSTZ3EKUTpDM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WBjM66jDTtFXjgOI49e03V8iDV4kN52DAtU/Dn8VzXRI42c0nCF7srTocZvGP9okK
-         AVkb3guviHBth3uP0f8cAHAh4zV40Mmr341IHJVS1ywcpZbsXI2BRC6/fGmvTr3Frc
-         GbXWH9vNPiVTpBKI5I1rITMCRzDe87RBQ7zG4FP5h+uVjL+eQQpUIZRXRNQT3IZIBV
-         ycny1ZXh/NALxnLHEu52X3FZjYdIWIFnOKh29QXqRyjeP2xXu5hcZxJ6nVpGqU+Rrx
-         kndbUk/0O88uAYhoU/VM9it+V0qIoCEV+Mv63aHT8rcEQWTvM827lLkvYABSzC8iFE
-         n/Z8O/UWCMRjQ==
+        b=qC9i7nM88uV6seoc+vlIi6ZNR9j0LizimXhPddp7o42TdabW07cXpeSRhDshf1Fx1
+         m3h6Wze3ttdwhgFpfMUL7C+4ChZtHsUjKb3pzpOh+GDvCmQZbj5c9Y1Pw1iR7AddsW
+         OKRI0G1Fl52IPVoPBMGKJZmuxRWxZ4r4Mq7Nl6o4BgyScMvF5XDHGSzNEP7kpuBOi6
+         fk7mVMLwE+BVmmFmW3gWrHP4DZHeeDXXygIUpsqtsd76xCCGBeAe2DpQJmI9bhRi98
+         k9Yx1QhGE+bChLBcYJGXMv+1n5zAOUYnCWePEvnPZsl/ZeG+5zRFdw8WJFB1zAUpfl
+         mq2hs3xm9h/LA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Bin <yebin10@huawei.com>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 37/46] blk-mq: fix possible memleak when register 'hctx' failed
-Date:   Sun, 18 Dec 2022 11:12:35 -0500
-Message-Id: <20221218161244.930785-37-sashal@kernel.org>
+Cc:     Wesley Chalmers <Wesley.Chalmers@amd.com>,
+        Dillon Varone <Dillon.Varone@amd.com>,
+        Jasdeep Dhillon <jdhillon@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, Anthony.Koo@amd.com, Jun.Lei@amd.com,
+        alex.hung@amd.com, Roman.Li@amd.com, mwen@igalia.com,
+        dingchen.zhang@amd.com, martin.tsai@amd.com, aric.cyr@amd.com,
+        Max.Tseng@amd.com, Alvin.Lee2@amd.com, wayne.lin@amd.com,
+        wenjing.liu@amd.com, hanghong.ma@amd.com, aurabindo.pillai@amd.com,
+        jiapeng.chong@linux.alibaba.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 38/46] drm/amd/display: Use the largest vready_offset in pipe group
+Date:   Sun, 18 Dec 2022 11:12:36 -0500
+Message-Id: <20221218161244.930785-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218161244.930785-1-sashal@kernel.org>
 References: <20221218161244.930785-1-sashal@kernel.org>
@@ -55,84 +66,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Wesley Chalmers <Wesley.Chalmers@amd.com>
 
-[ Upstream commit 4b7a21c57b14fbcd0e1729150189e5933f5088e9 ]
+[ Upstream commit 5842abd985b792a3b13a89b6dae4869b56656c92 ]
 
-There's issue as follows when do fault injection test:
-unreferenced object 0xffff888132a9f400 (size 512):
-  comm "insmod", pid 308021, jiffies 4324277909 (age 509.733s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 08 f4 a9 32 81 88 ff ff  ...........2....
-    08 f4 a9 32 81 88 ff ff 00 00 00 00 00 00 00 00  ...2............
-  backtrace:
-    [<00000000e8952bb4>] kmalloc_node_trace+0x22/0xa0
-    [<00000000f9980e0f>] blk_mq_alloc_and_init_hctx+0x3f1/0x7e0
-    [<000000002e719efa>] blk_mq_realloc_hw_ctxs+0x1e6/0x230
-    [<000000004f1fda40>] blk_mq_init_allocated_queue+0x27e/0x910
-    [<00000000287123ec>] __blk_mq_alloc_disk+0x67/0xf0
-    [<00000000a2a34657>] 0xffffffffa2ad310f
-    [<00000000b173f718>] 0xffffffffa2af824a
-    [<0000000095a1dabb>] do_one_initcall+0x87/0x2a0
-    [<00000000f32fdf93>] do_init_module+0xdf/0x320
-    [<00000000cbe8541e>] load_module+0x3006/0x3390
-    [<0000000069ed1bdb>] __do_sys_finit_module+0x113/0x1b0
-    [<00000000a1a29ae8>] do_syscall_64+0x35/0x80
-    [<000000009cd878b0>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+[WHY]
+Corruption can occur in LB if vready_offset is not large enough.
+DML calculates vready_offset for each pipe, but we currently select the
+top pipe's vready_offset, which is not necessarily enough for all pipes
+in the group.
 
-Fault injection context as follows:
- kobject_add
- blk_mq_register_hctx
- blk_mq_sysfs_register
- blk_register_queue
- device_add_disk
- null_add_dev.part.0 [null_blk]
+[HOW]
+Wherever program_global_sync is currently called, iterate through the
+entire pipe group and find the highest vready_offset.
 
-As 'blk_mq_register_hctx' may already add some objects when failed halfway,
-but there isn't do fallback, caller don't know which objects add failed.
-To solve above issue just do fallback when add objects failed halfway in
-'blk_mq_register_hctx'.
-
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20221117022940.873959-1-yebin@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Dillon Varone <Dillon.Varone@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Signed-off-by: Wesley Chalmers <Wesley.Chalmers@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-sysfs.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ .../amd/display/dc/dcn10/dcn10_hw_sequencer.c | 30 +++++++++++++++++--
+ .../drm/amd/display/dc/dcn20/dcn20_hwseq.c    | 29 ++++++++++++++++--
+ 2 files changed, 55 insertions(+), 4 deletions(-)
 
-diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
-index 253c857cba47..7074ce8d2d03 100644
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -187,7 +187,7 @@ static int blk_mq_register_hctx(struct blk_mq_hw_ctx *hctx)
- {
- 	struct request_queue *q = hctx->queue;
- 	struct blk_mq_ctx *ctx;
--	int i, ret;
-+	int i, j, ret;
- 
- 	if (!hctx->nr_ctx)
- 		return 0;
-@@ -199,9 +199,16 @@ static int blk_mq_register_hctx(struct blk_mq_hw_ctx *hctx)
- 	hctx_for_each_ctx(hctx, ctx, i) {
- 		ret = kobject_add(&ctx->kobj, &hctx->kobj, "cpu%u", ctx->cpu);
- 		if (ret)
--			break;
-+			goto out;
- 	}
- 
-+	return 0;
-+out:
-+	hctx_for_each_ctx(hctx, ctx, j) {
-+		if (j < i)
-+			kobject_del(&ctx->kobj);
-+	}
-+	kobject_del(&hctx->kobj);
- 	return ret;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+index 91ab4dbbe1a6..c655d03ef754 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -804,6 +804,32 @@ static void false_optc_underflow_wa(
+ 		tg->funcs->clear_optc_underflow(tg);
  }
  
++static int calculate_vready_offset_for_group(struct pipe_ctx *pipe)
++{
++	struct pipe_ctx *other_pipe;
++	int vready_offset = pipe->pipe_dlg_param.vready_offset;
++
++	/* Always use the largest vready_offset of all connected pipes */
++	for (other_pipe = pipe->bottom_pipe; other_pipe != NULL; other_pipe = other_pipe->bottom_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++	for (other_pipe = pipe->top_pipe; other_pipe != NULL; other_pipe = other_pipe->top_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++	for (other_pipe = pipe->next_odm_pipe; other_pipe != NULL; other_pipe = other_pipe->next_odm_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++	for (other_pipe = pipe->prev_odm_pipe; other_pipe != NULL; other_pipe = other_pipe->prev_odm_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++
++	return vready_offset;
++}
++
+ enum dc_status dcn10_enable_stream_timing(
+ 		struct pipe_ctx *pipe_ctx,
+ 		struct dc_state *context,
+@@ -838,7 +864,7 @@ enum dc_status dcn10_enable_stream_timing(
+ 	pipe_ctx->stream_res.tg->funcs->program_timing(
+ 			pipe_ctx->stream_res.tg,
+ 			&stream->timing,
+-			pipe_ctx->pipe_dlg_param.vready_offset,
++			calculate_vready_offset_for_group(pipe_ctx),
+ 			pipe_ctx->pipe_dlg_param.vstartup_start,
+ 			pipe_ctx->pipe_dlg_param.vupdate_offset,
+ 			pipe_ctx->pipe_dlg_param.vupdate_width,
+@@ -2776,7 +2802,7 @@ void dcn10_program_pipe(
+ 
+ 		pipe_ctx->stream_res.tg->funcs->program_global_sync(
+ 				pipe_ctx->stream_res.tg,
+-				pipe_ctx->pipe_dlg_param.vready_offset,
++				calculate_vready_offset_for_group(pipe_ctx),
+ 				pipe_ctx->pipe_dlg_param.vstartup_start,
+ 				pipe_ctx->pipe_dlg_param.vupdate_offset,
+ 				pipe_ctx->pipe_dlg_param.vupdate_width);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+index 58eea3aa3bfc..bf2a8f53694b 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+@@ -1564,6 +1564,31 @@ static void dcn20_update_dchubp_dpp(
+ 		hubp->funcs->set_blank(hubp, false);
+ }
+ 
++static int calculate_vready_offset_for_group(struct pipe_ctx *pipe)
++{
++	struct pipe_ctx *other_pipe;
++	int vready_offset = pipe->pipe_dlg_param.vready_offset;
++
++	/* Always use the largest vready_offset of all connected pipes */
++	for (other_pipe = pipe->bottom_pipe; other_pipe != NULL; other_pipe = other_pipe->bottom_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++	for (other_pipe = pipe->top_pipe; other_pipe != NULL; other_pipe = other_pipe->top_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++	for (other_pipe = pipe->next_odm_pipe; other_pipe != NULL; other_pipe = other_pipe->next_odm_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++	for (other_pipe = pipe->prev_odm_pipe; other_pipe != NULL; other_pipe = other_pipe->prev_odm_pipe) {
++		if (other_pipe->pipe_dlg_param.vready_offset > vready_offset)
++			vready_offset = other_pipe->pipe_dlg_param.vready_offset;
++	}
++
++	return vready_offset;
++}
+ 
+ static void dcn20_program_pipe(
+ 		struct dc *dc,
+@@ -1582,7 +1607,7 @@ static void dcn20_program_pipe(
+ 
+ 		pipe_ctx->stream_res.tg->funcs->program_global_sync(
+ 				pipe_ctx->stream_res.tg,
+-				pipe_ctx->pipe_dlg_param.vready_offset,
++				calculate_vready_offset_for_group(pipe_ctx),
+ 				pipe_ctx->pipe_dlg_param.vstartup_start,
+ 				pipe_ctx->pipe_dlg_param.vupdate_offset,
+ 				pipe_ctx->pipe_dlg_param.vupdate_width);
+@@ -1875,7 +1900,7 @@ bool dcn20_update_bandwidth(
+ 
+ 			pipe_ctx->stream_res.tg->funcs->program_global_sync(
+ 					pipe_ctx->stream_res.tg,
+-					pipe_ctx->pipe_dlg_param.vready_offset,
++					calculate_vready_offset_for_group(pipe_ctx),
+ 					pipe_ctx->pipe_dlg_param.vstartup_start,
+ 					pipe_ctx->pipe_dlg_param.vupdate_offset,
+ 					pipe_ctx->pipe_dlg_param.vupdate_width);
 -- 
 2.35.1
 
