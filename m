@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C097650240
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:45:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6850165023E
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:44:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232682AbiLRQo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:44:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43992 "EHLO
+        id S232679AbiLRQo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:44:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232469AbiLRQoX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:44:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36207C32;
-        Sun, 18 Dec 2022 08:15:44 -0800 (PST)
+        with ESMTP id S232437AbiLRQoW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:44:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3617CC16;
+        Sun, 18 Dec 2022 08:15:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB00FB80BA4;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 71A7460C99;
+        Sun, 18 Dec 2022 16:15:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29BCDC433F0;
         Sun, 18 Dec 2022 16:15:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B888BC433D2;
-        Sun, 18 Dec 2022 16:15:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380141;
-        bh=jAGMBJQ8iKFm4a6UjusnlvElGzGbYmjlZEsQBr9PFdQ=;
+        s=k20201202; t=1671380142;
+        bh=hruMlHNLXmBwMxIYmTb9Gv7YQfxrO7SUpelH+78KGQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BDnwl28mSxzvOLUUYnhULqBVbOldF/k5ly2v2QwyJMgBIEVR+Q3daaE6xl9XrrqwZ
-         EhDjZkM+Irs/QjcTjmBAq1Jj3xL7pNeqqvSzSZrYJA4j1G1j/nwEzwhMP0mxs4fXE3
-         41T5i690AnXoQlaCoV+z4bIY0oWvCUZcLtK46Msoj7/kQLljaFZqUsF+0y7Y3j4kgP
-         1SgPkXE/en/YuNXrNQeRpUZ81Kf3e+Bn+kX53w0yHo70sPzmK2HmiZLqDYXCTfBzKU
-         jZsM0MHIIpp3sla1XGiL0gKWnnzwo7hvs0MBVA2QzF+dl9ONmjNuKUb1DTOO8tQ1zR
-         3kQn0BP9/QioA==
+        b=Uf1pIAnmdTBQaG7Lya+IqYzre5UpYcOdJE40aq8FayjFdFbO7LHK+2cD8vmMqQz6o
+         r768CMo95E6nNwyUXPEh0v3iZ+g0c3i5wPxzhSram27v5c1TopNY5xeHlDFuXXcXGR
+         Sny9DK1iVJYsdGU3Y2ANz+Pm6n5azc87eOq4jNl3sDzMkcaP1sdkVQqRDFM+oCnQQc
+         H+4WJmmwbN9MNT8JG8PWIwiD2Rm7PIarl2tvBAvw4htnYawJ2nsahmEmN9PWW9GxKY
+         50JIFxsfpXl8PtoSOP094ead6wFu8ZXMspskHBea5Jjx5KrNe6V0Ys6IVf2KnkAtJl
+         fFTMpwKxbeT7Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 39/46] libbpf: Avoid enum forward-declarations in public API in C++ mode
-Date:   Sun, 18 Dec 2022 11:12:37 -0500
-Message-Id: <20221218161244.930785-39-sashal@kernel.org>
+Cc:     Rui Zhang <zr.zhang@vivo.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com
+Subject: [PATCH AUTOSEL 5.15 40/46] regulator: core: fix use_count leakage when handling boot-on
+Date:   Sun, 18 Dec 2022 11:12:38 -0500
+Message-Id: <20221218161244.930785-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218161244.930785-1-sashal@kernel.org>
 References: <20221218161244.930785-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,69 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Rui Zhang <zr.zhang@vivo.com>
 
-[ Upstream commit b42693415b86f608049cf1b4870adc1dc65e58b0 ]
+[ Upstream commit 0591b14ce0398125439c759f889647369aa616a0 ]
 
-C++ enum forward declarations are fundamentally not compatible with pure
-C enum definitions, and so libbpf's use of `enum bpf_stats_type;`
-forward declaration in libbpf/bpf.h public API header is causing C++
-compilation issues.
+I found a use_count leakage towards supply regulator of rdev with
+boot-on option.
 
-More details can be found in [0], but it comes down to C++ supporting
-enum forward declaration only with explicitly specified backing type:
+┌───────────────────┐           ┌───────────────────┐
+│  regulator_dev A  │           │  regulator_dev B  │
+│     (boot-on)     │           │     (boot-on)     │
+│    use_count=0    │◀──supply──│    use_count=1    │
+│                   │           │                   │
+└───────────────────┘           └───────────────────┘
 
-  enum bpf_stats_type: int;
+In case of rdev(A) configured with `regulator-boot-on', the use_count
+of supplying regulator(B) will increment inside
+regulator_enable(rdev->supply).
 
-In C (and I believe it's a GCC extension also), such forward declaration
-is simply:
+Thus, B will acts like always-on, and further balanced
+regulator_enable/disable cannot actually disable it anymore.
 
-  enum bpf_stats_type;
+However, B was also configured with `regulator-boot-on', we wish it
+could be disabled afterwards.
 
-Further, in Linux UAPI this enum is defined in pure C way:
-
-enum bpf_stats_type { BPF_STATS_RUN_TIME = 0; }
-
-And even though in both cases backing type is int, which can be
-confirmed by looking at DWARF information, for C++ compiler actual enum
-definition and forward declaration are incompatible.
-
-To eliminate this problem, for C++ mode define input argument as int,
-which makes enum unnecessary in libbpf public header. This solves the
-issue and as demonstrated by next patch doesn't cause any unwanted
-compiler warnings, at least with default warnings setting.
-
-  [0] https://stackoverflow.com/questions/42766839/c11-enum-forward-causes-underlying-type-mismatch
-  [1] Closes: https://github.com/libbpf/libbpf/issues/249
-
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20221130200013.2997831-1-andrii@kernel.org
+Signed-off-by: Rui Zhang <zr.zhang@vivo.com>
+Link: https://lore.kernel.org/r/20221201033806.2567812-1-zr.zhang@vivo.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/bpf.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/regulator/core.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/bpf.h b/tools/lib/bpf/bpf.h
-index 6fffb3cdf39b..49bd43b998c8 100644
---- a/tools/lib/bpf/bpf.h
-+++ b/tools/lib/bpf/bpf.h
-@@ -249,8 +249,15 @@ LIBBPF_API int bpf_task_fd_query(int pid, int fd, __u32 flags, char *buf,
- 				 __u32 *buf_len, __u32 *prog_id, __u32 *fd_type,
- 				 __u64 *probe_offset, __u64 *probe_addr);
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 221ae807b379..18ffa787d0a2 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1531,7 +1531,13 @@ static int set_machine_constraints(struct regulator_dev *rdev)
+ 		if (rdev->supply_name && !rdev->supply)
+ 			return -EPROBE_DEFER;
  
-+#ifdef __cplusplus
-+/* forward-declaring enums in C++ isn't compatible with pure C enums, so
-+ * instead define bpf_enable_stats() as accepting int as an input
-+ */
-+LIBBPF_API int bpf_enable_stats(int type);
-+#else
- enum bpf_stats_type; /* defined in up-to-date linux/bpf.h */
- LIBBPF_API int bpf_enable_stats(enum bpf_stats_type type);
-+#endif
- 
- struct bpf_prog_bind_opts {
- 	size_t sz; /* size of this struct for forward/backward compatibility */
+-		if (rdev->supply) {
++		/* If supplying regulator has already been enabled,
++		 * it's not intended to have use_count increment
++		 * when rdev is only boot-on.
++		 */
++		if (rdev->supply &&
++		    (rdev->constraints->always_on ||
++		     !regulator_is_enabled(rdev->supply))) {
+ 			ret = regulator_enable(rdev->supply);
+ 			if (ret < 0) {
+ 				_regulator_put(rdev->supply);
 -- 
 2.35.1
 
