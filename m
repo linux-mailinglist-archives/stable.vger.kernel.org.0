@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C9B64FFB4
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:05:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3BD664FFBD
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:05:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231253AbiLRQFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:05:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34922 "EHLO
+        id S231205AbiLRQFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:05:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231293AbiLRQEn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:04:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC048B4AB;
-        Sun, 18 Dec 2022 08:03:09 -0800 (PST)
+        with ESMTP id S231261AbiLRQEp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:04:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F9A5B7FC;
+        Sun, 18 Dec 2022 08:03:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5577860DCC;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2ACF8B80BA2;
+        Sun, 18 Dec 2022 16:03:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 520C1C433D2;
         Sun, 18 Dec 2022 16:03:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53521C433EF;
-        Sun, 18 Dec 2022 16:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379388;
-        bh=UGuOnxnM7GPmefNXCCPZBE0jOJo+3GsKpHYT1te8Qhc=;
+        s=k20201202; t=1671379390;
+        bh=KMhrUUpmIqudRraCh/csHaZvu0BwU6XU1uIyFMa8VuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oP+8czzkgNR8RJkxPdHfE59EGgDaEgZY2xbsylV6QCHyRRG12WIjdwlcS1Mb/NLn9
-         kNwXZe79rnMp4LoyyaA1IwLonHTtSNBgO+hhVhQz/bdkGAMDUBO/ufySp0SsQyUQmr
-         HdqlUDpt0ha7uS7lZ16Hv5Jnab5iYbYVStThD15sbkLDOG6lIMlF8egaqAV/pHQc3M
-         grSg5RH8vurSUIu6xGE88RKnCAevnFPlN2ISfziYxCeuPyoRrmOlWfpcL+EMcAdCuA
-         IxclxO15vlBuIKhJGW50mZ2C6B+4svb6tUX1/A53hH2HNEnsIDYJCQQFLbhUIKWKP9
-         B2VOvrqOA/QcQ==
+        b=Cso/tWTmtp/RECFwuMeUValmWoiWTf8RerjqzBA5klH2q/DAM9wN93z2L+kb2gJcD
+         Fzj1iu1xgSgMPax5w0eGDDkjgSaetA2tzvZHoensfEtn4l9NgrmJuf415DQtkaG6Qc
+         PUAxLXVeLzGnaiJmuLyO9uDMpWzVJSDQhth7MyfHJeCln9ltNmHpu4HmnMH1bhuWPP
+         22nfSP1nfC+296fXgHOPyieCyOQPzaAFU4YCcIQttDzLzgMHsCoQwAS2PKRKyEDeqK
+         EkrUR6+DJ1ABLn8DwiptwX5PDRCYumM12N84+DN0MtljtmbOhG0C2C8agqfarprP5m
+         WTQ3knFKXdrPw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, airlied@gmail.com,
-        daniel@ffwll.ch, khilman@baylibre.com, ndesaulniers@google.com,
-        dri-devel@lists.freedesktop.org, linux-amlogic@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.1 22/85] drm/meson: Fix return type of meson_encoder_cvbs_mode_valid()
-Date:   Sun, 18 Dec 2022 11:00:39 -0500
-Message-Id: <20221218160142.925394-22-sashal@kernel.org>
+Cc:     Stanislav Fomichev <sdf@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        syzbot+f635e86ec3fa0a37e019@syzkaller.appspotmail.com,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, daniel@iogearbox.net,
+        andrii@kernel.org, martin.lau@linux.dev, davem@davemloft.net,
+        kuba@kernel.org, pabeni@redhat.com, bpf@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 23/85] bpf: make sure skb->len != 0 when redirecting to a tunneling device
+Date:   Sun, 18 Dec 2022 11:00:40 -0500
+Message-Id: <20221218160142.925394-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160142.925394-1-sashal@kernel.org>
 References: <20221218160142.925394-1-sashal@kernel.org>
@@ -60,57 +61,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit 6c4e4d35203301906afb53c6d1e1302d4c793c05 ]
+[ Upstream commit 07ec7b502800ba9f7b8b15cb01dd6556bb41aaca ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+syzkaller managed to trigger another case where skb->len == 0
+when we enter __dev_queue_xmit:
 
-  drivers/gpu/drm/meson/meson_encoder_cvbs.c:211:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_bridge *, const struct drm_display_info *, const struct drm_display_mode *)' with an expression of type 'int (struct drm_bridge *, const struct drm_display_info *, const struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .mode_valid = meson_encoder_cvbs_mode_valid,
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  1 error generated.
+WARNING: CPU: 0 PID: 2470 at include/linux/skbuff.h:2576 skb_assert_len include/linux/skbuff.h:2576 [inline]
+WARNING: CPU: 0 PID: 2470 at include/linux/skbuff.h:2576 __dev_queue_xmit+0x2069/0x35e0 net/core/dev.c:4295
 
-->mode_valid() in 'struct drm_bridge_funcs' expects a return type of
-'enum drm_mode_status', not 'int'. Adjust the return type of
-meson_encoder_cvbs_mode_valid() to match the prototype's to resolve the
-warning and CFI failure.
+Call Trace:
+ dev_queue_xmit+0x17/0x20 net/core/dev.c:4406
+ __bpf_tx_skb net/core/filter.c:2115 [inline]
+ __bpf_redirect_no_mac net/core/filter.c:2140 [inline]
+ __bpf_redirect+0x5fb/0xda0 net/core/filter.c:2163
+ ____bpf_clone_redirect net/core/filter.c:2447 [inline]
+ bpf_clone_redirect+0x247/0x390 net/core/filter.c:2419
+ bpf_prog_48159a89cb4a9a16+0x59/0x5e
+ bpf_dispatcher_nop_func include/linux/bpf.h:897 [inline]
+ __bpf_prog_run include/linux/filter.h:596 [inline]
+ bpf_prog_run include/linux/filter.h:603 [inline]
+ bpf_test_run+0x46c/0x890 net/bpf/test_run.c:402
+ bpf_prog_test_run_skb+0xbdc/0x14c0 net/bpf/test_run.c:1170
+ bpf_prog_test_run+0x345/0x3c0 kernel/bpf/syscall.c:3648
+ __sys_bpf+0x43a/0x6c0 kernel/bpf/syscall.c:5005
+ __do_sys_bpf kernel/bpf/syscall.c:5091 [inline]
+ __se_sys_bpf kernel/bpf/syscall.c:5089 [inline]
+ __x64_sys_bpf+0x7c/0x90 kernel/bpf/syscall.c:5089
+ do_syscall_64+0x54/0x70 arch/x86/entry/common.c:48
+ entry_SYSCALL_64_after_hwframe+0x61/0xc6
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221102155242.1927166-1-nathan@kernel.org
+The reproducer doesn't really reproduce outside of syzkaller
+environment, so I'm taking a guess here. It looks like we
+do generate correct ETH_HLEN-sized packet, but we redirect
+the packet to the tunneling device. Before we do so, we
+__skb_pull l2 header and arrive again at skb->len == 0.
+Doesn't seem like we can do anything better than having
+an explicit check after __skb_pull?
+
+Cc: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot+f635e86ec3fa0a37e019@syzkaller.appspotmail.com
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20221027225537.353077-1-sdf@google.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/meson/meson_encoder_cvbs.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/core/filter.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/meson/meson_encoder_cvbs.c b/drivers/gpu/drm/meson/meson_encoder_cvbs.c
-index 5675bc2a92cf..3f73b211fa8e 100644
---- a/drivers/gpu/drm/meson/meson_encoder_cvbs.c
-+++ b/drivers/gpu/drm/meson/meson_encoder_cvbs.c
-@@ -116,9 +116,10 @@ static int meson_encoder_cvbs_get_modes(struct drm_bridge *bridge,
- 	return i;
- }
+diff --git a/net/core/filter.c b/net/core/filter.c
+index bb0136e7a8e4..cb3b635e35be 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -2126,6 +2126,10 @@ static int __bpf_redirect_no_mac(struct sk_buff *skb, struct net_device *dev,
  
--static int meson_encoder_cvbs_mode_valid(struct drm_bridge *bridge,
--					const struct drm_display_info *display_info,
--					const struct drm_display_mode *mode)
-+static enum drm_mode_status
-+meson_encoder_cvbs_mode_valid(struct drm_bridge *bridge,
-+			      const struct drm_display_info *display_info,
-+			      const struct drm_display_mode *mode)
- {
- 	if (meson_cvbs_get_mode(mode))
- 		return MODE_OK;
+ 	if (mlen) {
+ 		__skb_pull(skb, mlen);
++		if (unlikely(!skb->len)) {
++			kfree_skb(skb);
++			return -ERANGE;
++		}
+ 
+ 		/* At ingress, the mac header has already been pulled once.
+ 		 * At egress, skb_pospull_rcsum has to be done in case that
 -- 
 2.35.1
 
