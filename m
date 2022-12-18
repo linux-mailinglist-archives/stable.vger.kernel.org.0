@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A4636501B5
+	by mail.lfdr.de (Postfix) with ESMTP id E85D96501B6
 	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:35:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232356AbiLRQfI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:35:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54952 "EHLO
+        id S232359AbiLRQfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:35:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230472AbiLRQdh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:33:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ADDDDF87;
-        Sun, 18 Dec 2022 08:12:36 -0800 (PST)
+        with ESMTP id S232246AbiLRQdr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:33:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78E510C;
+        Sun, 18 Dec 2022 08:12:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08D3260DCC;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C2F4B80BA4;
+        Sun, 18 Dec 2022 16:12:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A4B8C433F0;
         Sun, 18 Dec 2022 16:12:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02869C433EF;
-        Sun, 18 Dec 2022 16:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379955;
-        bh=/GxB3VXeqgAo1zA+QITkwNGaTLyrw5PEyzasluEWebw=;
+        s=k20201202; t=1671379957;
+        bh=zf7RAbo9htvu/+5dLGrdZRXxBzlJZ32Qyt64KwWEkBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GAgSf/JCFVRGeW17mAIeLRYOpDQelgKrxSJJO1oqXL2gETQnX+xL9a8yfm1RpqSAg
-         2pH4WTInf2NvNP1z9ZTBTiUpYg1OVwPgu+q4zsFM0M5LGdDUWh87hvgD5klIOx1doX
-         48sqVSX3HFON3S+hd1o12X/BslvPtpJPSBfM+0QkaPHMZLR8C8bMaEOWVXI2cRiDNj
-         YMlltlYvITYNT7iZa5TV052eHs5GjBByYRO4JFdGX2KuFHvRewOwpFzBqOQEBDp3/d
-         oypbhkF1gs/4x/S5xHaWcKAQ5U45acB5m1EeC4j2eBebCHQdIRkNI3AbjeFqPMMGCF
-         Hag1wh1NamJKg==
+        b=ThVkszKfcNItmqBSLQTiBG5rwQtwHfuLUEZRbwX/5cHK4QQGvKZlL3T6w/qcwVJnB
+         0JLPIZcqh5QW+6k5PUPqABaDb21csBh/I48t+KNbi+zUUcQ4kZdiputghqUmRBYWwj
+         axGGjACcTDyNTn6F+hOOlRcS1yN9pks4PX2Jji6Uyy2LW5wa2VoI0E95GJBza3oQv4
+         OCVqs5DQMidZ6jthQ2fD2pObhz+alPcMCzdIwkMJKwtSklKTJUTZOgBN6UST0nxRs4
+         APyGCTekxsi1FdtcZfqsOEIQtOSspSampMZwwLHX5BWc0OUPilPhCnywalWkk1mvkm
+         XNeG7C/2NzvcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     ChiYuan Huang <cy_huang@richtek.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, djrscally@gmail.com,
-        hdegoede@redhat.com, markgross@kernel.org, lgirdwood@gmail.com,
-        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
-        platform-driver-x86@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.0 70/73] regulator: core: Use different devices for resource allocation and DT lookup
-Date:   Sun, 18 Dec 2022 11:07:38 -0500
-Message-Id: <20221218160741.927862-70-sashal@kernel.org>
+Cc:     Marek Vasut <marex@denx.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>, marcel@holtmann.org,
+        johan.hedberg@gmail.com, luiz.dentz@gmail.com,
+        linux-bluetooth@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 71/73] Bluetooth: hci_bcm: Add CYW4373A0 support
+Date:   Sun, 18 Dec 2022 11:07:39 -0500
+Message-Id: <20221218160741.927862-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -61,162 +58,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChiYuan Huang <cy_huang@richtek.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 8f3cbcd6b440032ebc7f7d48a1689dcc70a4eb98 ]
+[ Upstream commit 02d056a3404e20245a69dcb4022a0930085fc5ec ]
 
-Following by the below discussion, there's the potential UAF issue
-between regulator and mfd.
-https://lore.kernel.org/all/20221128143601.1698148-1-yangyingliang@huawei.com/
+CYW4373A0 is a Wi-Fi + Bluetooth combo device from Cypress.
+This chip is present e.g. on muRata 2AE module.
 
-From the analysis of Yingliang
+This chip has additional quirk where the HCI command 0xfc45, used on
+older chips to switch UART clock from 24 MHz to 48 MHz, to support
+baudrates over 3 Mbdps, is no longer recognized by this newer chip.
+This newer chip can configure the 4 Mbdps baudrate without the need
+to issue HCI command 0xfc45, so add flag to indicate this and do not
+issue the command on this chip to avoid failure to set 4 Mbdps baud
+rate.
 
-CPU A				|CPU B
-mt6370_probe()			|
-  devm_mfd_add_devices()	|
-				|mt6370_regulator_probe()
-				|  regulator_register()
-				|    //allocate init_data and add it to devres
-				|    regulator_of_get_init_data()
-i2c_unregister_device()		|
-  device_del()			|
-    devres_release_all()	|
-      // init_data is freed	|
-      release_nodes()		|
-				|  // using init_data causes UAF
-				|  regulator_register()
+It is not clear whether there is a way to determine which chip does
+and which chip does not support the HCI command 0xfc45, other than
+trial and error.
 
-It's common to use mfd core to create child device for the regulator.
-In order to do the DT lookup for init data, the child that registered
-the regulator would pass its parent as the parameter. And this causes
-init data resource allocated to its parent, not itself. The issue happen
-when parent device is going to release and regulator core is still doing
-some operation of init data constraint for the regulator of child device.
-
-To fix it, this patch expand 'regulator_register' API to use the
-different devices for init data allocation and DT lookup.
-
-Reported-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
-Link: https://lore.kernel.org/r/1670311341-32664-1-git-send-email-u0084500@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel/int3472/clk_and_regulator.c | 3 ++-
- drivers/regulator/core.c                               | 8 ++++----
- drivers/regulator/devres.c                             | 2 +-
- drivers/regulator/of_regulator.c                       | 2 +-
- drivers/regulator/stm32-vrefbuf.c                      | 2 +-
- include/linux/regulator/driver.h                       | 3 ++-
- 6 files changed, 11 insertions(+), 9 deletions(-)
+ drivers/bluetooth/hci_bcm.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/intel/int3472/clk_and_regulator.c b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
-index 1cf958983e86..b2342b3d78c7 100644
---- a/drivers/platform/x86/intel/int3472/clk_and_regulator.c
-+++ b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
-@@ -185,7 +185,8 @@ int skl_int3472_register_regulator(struct int3472_discrete_device *int3472,
- 	cfg.init_data = &init_data;
- 	cfg.ena_gpiod = int3472->regulator.gpio;
- 
--	int3472->regulator.rdev = regulator_register(&int3472->regulator.rdesc,
-+	int3472->regulator.rdev = regulator_register(int3472->dev,
-+						     &int3472->regulator.rdesc,
- 						     &cfg);
- 	if (IS_ERR(int3472->regulator.rdev)) {
- 		ret = PTR_ERR(int3472->regulator.rdev);
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 02ea917c7fd1..d7119b92c0b4 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5386,6 +5386,7 @@ static struct regulator_coupler generic_regulator_coupler = {
- 
- /**
-  * regulator_register - register regulator
-+ * @dev: the device that drive the regulator
-  * @regulator_desc: regulator to register
-  * @cfg: runtime configuration for regulator
-  *
-@@ -5394,7 +5395,8 @@ static struct regulator_coupler generic_regulator_coupler = {
-  * or an ERR_PTR() on error.
+diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
+index d7e0b75db8a6..2b6c0e1922cb 100644
+--- a/drivers/bluetooth/hci_bcm.c
++++ b/drivers/bluetooth/hci_bcm.c
+@@ -53,11 +53,13 @@
+  * struct bcm_device_data - device specific data
+  * @no_early_set_baudrate: Disallow set baudrate before driver setup()
+  * @drive_rts_on_open: drive RTS signal on ->open() when platform requires it
++ * @no_uart_clock_set: UART clock set command for >3Mbps mode is unavailable
+  * @max_autobaud_speed: max baudrate supported by device in autobaud mode
   */
- struct regulator_dev *
--regulator_register(const struct regulator_desc *regulator_desc,
-+regulator_register(struct device *dev,
-+		   const struct regulator_desc *regulator_desc,
- 		   const struct regulator_config *cfg)
- {
- 	const struct regulator_init_data *init_data;
-@@ -5403,7 +5405,6 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	struct regulator_dev *rdev;
- 	bool dangling_cfg_gpiod = false;
- 	bool dangling_of_gpiod = false;
--	struct device *dev;
- 	int ret, i;
+ struct bcm_device_data {
+ 	bool	no_early_set_baudrate;
+ 	bool	drive_rts_on_open;
++	bool	no_uart_clock_set;
+ 	u32	max_autobaud_speed;
+ };
  
- 	if (cfg == NULL)
-@@ -5415,8 +5416,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 		goto rinse;
+@@ -100,6 +102,7 @@ struct bcm_device_data {
+  * @is_suspended: whether flow control is currently disabled
+  * @no_early_set_baudrate: don't set_baudrate before setup()
+  * @drive_rts_on_open: drive RTS signal on ->open() when platform requires it
++ * @no_uart_clock_set: UART clock set command for >3Mbps mode is unavailable
+  * @pcm_int_params: keep the initial PCM configuration
+  * @use_autobaud_mode: start Bluetooth device in autobaud mode
+  * @max_autobaud_speed: max baudrate supported by device in autobaud mode
+@@ -140,6 +143,7 @@ struct bcm_device {
+ #endif
+ 	bool			no_early_set_baudrate;
+ 	bool			drive_rts_on_open;
++	bool			no_uart_clock_set;
+ 	bool			use_autobaud_mode;
+ 	u8			pcm_int_params[5];
+ 	u32			max_autobaud_speed;
+@@ -172,10 +176,11 @@ static inline void host_set_baudrate(struct hci_uart *hu, unsigned int speed)
+ static int bcm_set_baudrate(struct hci_uart *hu, unsigned int speed)
+ {
+ 	struct hci_dev *hdev = hu->hdev;
++	struct bcm_data *bcm = hu->priv;
+ 	struct sk_buff *skb;
+ 	struct bcm_update_uart_baud_rate param;
+ 
+-	if (speed > 3000000) {
++	if (speed > 3000000 && !bcm->dev->no_uart_clock_set) {
+ 		struct bcm_write_uart_clock_setting clock;
+ 
+ 		clock.type = BCM_UART_CLOCK_48MHZ;
+@@ -1529,6 +1534,7 @@ static int bcm_serdev_probe(struct serdev_device *serdev)
+ 		bcmdev->max_autobaud_speed = data->max_autobaud_speed;
+ 		bcmdev->no_early_set_baudrate = data->no_early_set_baudrate;
+ 		bcmdev->drive_rts_on_open = data->drive_rts_on_open;
++		bcmdev->no_uart_clock_set = data->no_uart_clock_set;
  	}
  
--	dev = cfg->dev;
--	WARN_ON(!dev);
-+	WARN_ON(!dev || !cfg->dev);
+ 	return hci_uart_register_device(&bcmdev->serdev_hu, &bcm_proto);
+@@ -1550,6 +1556,10 @@ static struct bcm_device_data bcm43438_device_data = {
+ 	.drive_rts_on_open = true,
+ };
  
- 	if (regulator_desc->name == NULL || regulator_desc->ops == NULL) {
- 		ret = -EINVAL;
-diff --git a/drivers/regulator/devres.c b/drivers/regulator/devres.c
-index 32823a87fd40..d94db64cd490 100644
---- a/drivers/regulator/devres.c
-+++ b/drivers/regulator/devres.c
-@@ -221,7 +221,7 @@ struct regulator_dev *devm_regulator_register(struct device *dev,
- 	if (!ptr)
- 		return ERR_PTR(-ENOMEM);
- 
--	rdev = regulator_register(regulator_desc, config);
-+	rdev = regulator_register(dev, regulator_desc, config);
- 	if (!IS_ERR(rdev)) {
- 		*ptr = rdev;
- 		devres_add(dev, ptr);
-diff --git a/drivers/regulator/of_regulator.c b/drivers/regulator/of_regulator.c
-index e12b681c72e5..bd0c5d1fd647 100644
---- a/drivers/regulator/of_regulator.c
-+++ b/drivers/regulator/of_regulator.c
-@@ -505,7 +505,7 @@ struct regulator_init_data *regulator_of_get_init_data(struct device *dev,
- 	struct device_node *child;
- 	struct regulator_init_data *init_data = NULL;
- 
--	child = regulator_of_get_init_node(dev, desc);
-+	child = regulator_of_get_init_node(config->dev, desc);
- 	if (!child)
- 		return NULL;
- 
-diff --git a/drivers/regulator/stm32-vrefbuf.c b/drivers/regulator/stm32-vrefbuf.c
-index 30ea3bc8ca19..7a454b7b6eab 100644
---- a/drivers/regulator/stm32-vrefbuf.c
-+++ b/drivers/regulator/stm32-vrefbuf.c
-@@ -210,7 +210,7 @@ static int stm32_vrefbuf_probe(struct platform_device *pdev)
- 						      pdev->dev.of_node,
- 						      &stm32_vrefbuf_regu);
- 
--	rdev = regulator_register(&stm32_vrefbuf_regu, &config);
-+	rdev = regulator_register(&pdev->dev, &stm32_vrefbuf_regu, &config);
- 	if (IS_ERR(rdev)) {
- 		ret = PTR_ERR(rdev);
- 		dev_err(&pdev->dev, "register failed with error %d\n", ret);
-diff --git a/include/linux/regulator/driver.h b/include/linux/regulator/driver.h
-index f9a7461e72b8..d3b4a3d4514a 100644
---- a/include/linux/regulator/driver.h
-+++ b/include/linux/regulator/driver.h
-@@ -687,7 +687,8 @@ static inline int regulator_err2notif(int err)
- 
- 
- struct regulator_dev *
--regulator_register(const struct regulator_desc *regulator_desc,
-+regulator_register(struct device *dev,
-+		   const struct regulator_desc *regulator_desc,
- 		   const struct regulator_config *config);
- struct regulator_dev *
- devm_regulator_register(struct device *dev,
++static struct bcm_device_data cyw4373a0_device_data = {
++	.no_uart_clock_set = true,
++};
++
+ static struct bcm_device_data cyw55572_device_data = {
+ 	.max_autobaud_speed = 921600,
+ };
+@@ -1566,6 +1576,7 @@ static const struct of_device_id bcm_bluetooth_of_match[] = {
+ 	{ .compatible = "brcm,bcm4349-bt", .data = &bcm43438_device_data },
+ 	{ .compatible = "brcm,bcm43540-bt", .data = &bcm4354_device_data },
+ 	{ .compatible = "brcm,bcm4335a0" },
++	{ .compatible = "cypress,cyw4373a0-bt", .data = &cyw4373a0_device_data },
+ 	{ .compatible = "infineon,cyw55572-bt", .data = &cyw55572_device_data },
+ 	{ },
+ };
 -- 
 2.35.1
 
