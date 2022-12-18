@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 482526502BE
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:53:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70A7F6502C1
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232741AbiLRQxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232808AbiLRQxL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 18 Dec 2022 11:53:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34574 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233050AbiLRQwb (ORCPT
+        with ESMTP id S233051AbiLRQwb (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:52:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1C6611478;
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12E4E11838;
         Sun, 18 Dec 2022 08:18:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F1A4B80BA4;
-        Sun, 18 Dec 2022 16:18:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D8A4C433F1;
-        Sun, 18 Dec 2022 16:18:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC464B80BAA;
+        Sun, 18 Dec 2022 16:18:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC739C433EF;
+        Sun, 18 Dec 2022 16:18:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380301;
-        bh=N0q58NOKlB182lXyIjtsJmQ29ooopntDX1/ZIkcm5VA=;
+        s=k20201202; t=1671380302;
+        bh=cy62qzUXmxJDIjtBNB+9WcseOi5CuKs9U+vaJzf7JtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O6UFGvRqWwjb5xc6EQFO5ZGvJtDKwiafAGi13iSQ59ikPBsbp5/yO2s4ydVF1EPDL
-         SmiJidYG9gnwNEls0sUBWLeMi9u90h1Ey1hr7UmBujBL27rPEOce4fS+0ZjQfP4I/L
-         8ny8/OTb+CCTydYNAL6T3e9/+bvGySxG3/X6M1WrHMCVG0mW2P4ms7QY9U3Pk7G5sL
-         EHX8MH0jtGRQ0aAL661aDNcSgn9YbW568SDIIFp2ojliUcuEbREw/puJ1QWKXH1aiL
-         bPdT/8GKmcqWU2T+EYj4K4PyeHCUl0+1seC/yCbxQ708Mb45zSuFGJbq3V+jzhUEsC
-         A+ex+GZHepVQg==
+        b=Bk+GtxgSt0LEre6cX7NwNZnyCaXE+ESKN/2+61+Exaqnd6vPqFlOlPMsqLd7R61+E
+         h+OZHyNFX8B2/L4IGFZOPR0FNdPh9bPh+EcZ37o5pPtYwnWSW+VWTl3V2AP6eX1pTn
+         9FlXY4Z8L6lSwb9KWpoiaSQttx1KK8Ku7JLFuty7iyocHUR9kBuQ8zNHW/51ftg6Nn
+         IGk7EUyRmqLDvNgQWs2lI6hL6qvRrNOfH3P7F9RUk11antjWALD41kFaU3GgclutkP
+         UL2q8pezt1OF4v315Z3o422Z90jiz/SX8OWEiR2aQKsIC5QleoFBU0qqnSBxbVWUtg
+         GAS/osU48XiUg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Bin <yebin10@huawei.com>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 33/39] blk-mq: fix possible memleak when register 'hctx' failed
-Date:   Sun, 18 Dec 2022 11:15:53 -0500
-Message-Id: <20221218161559.932604-33-sashal@kernel.org>
+Cc:     Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 34/39] libbpf: Avoid enum forward-declarations in public API in C++ mode
+Date:   Sun, 18 Dec 2022 11:15:54 -0500
+Message-Id: <20221218161559.932604-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218161559.932604-1-sashal@kernel.org>
 References: <20221218161559.932604-1-sashal@kernel.org>
@@ -55,84 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 4b7a21c57b14fbcd0e1729150189e5933f5088e9 ]
+[ Upstream commit b42693415b86f608049cf1b4870adc1dc65e58b0 ]
 
-There's issue as follows when do fault injection test:
-unreferenced object 0xffff888132a9f400 (size 512):
-  comm "insmod", pid 308021, jiffies 4324277909 (age 509.733s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 08 f4 a9 32 81 88 ff ff  ...........2....
-    08 f4 a9 32 81 88 ff ff 00 00 00 00 00 00 00 00  ...2............
-  backtrace:
-    [<00000000e8952bb4>] kmalloc_node_trace+0x22/0xa0
-    [<00000000f9980e0f>] blk_mq_alloc_and_init_hctx+0x3f1/0x7e0
-    [<000000002e719efa>] blk_mq_realloc_hw_ctxs+0x1e6/0x230
-    [<000000004f1fda40>] blk_mq_init_allocated_queue+0x27e/0x910
-    [<00000000287123ec>] __blk_mq_alloc_disk+0x67/0xf0
-    [<00000000a2a34657>] 0xffffffffa2ad310f
-    [<00000000b173f718>] 0xffffffffa2af824a
-    [<0000000095a1dabb>] do_one_initcall+0x87/0x2a0
-    [<00000000f32fdf93>] do_init_module+0xdf/0x320
-    [<00000000cbe8541e>] load_module+0x3006/0x3390
-    [<0000000069ed1bdb>] __do_sys_finit_module+0x113/0x1b0
-    [<00000000a1a29ae8>] do_syscall_64+0x35/0x80
-    [<000000009cd878b0>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+C++ enum forward declarations are fundamentally not compatible with pure
+C enum definitions, and so libbpf's use of `enum bpf_stats_type;`
+forward declaration in libbpf/bpf.h public API header is causing C++
+compilation issues.
 
-Fault injection context as follows:
- kobject_add
- blk_mq_register_hctx
- blk_mq_sysfs_register
- blk_register_queue
- device_add_disk
- null_add_dev.part.0 [null_blk]
+More details can be found in [0], but it comes down to C++ supporting
+enum forward declaration only with explicitly specified backing type:
 
-As 'blk_mq_register_hctx' may already add some objects when failed halfway,
-but there isn't do fallback, caller don't know which objects add failed.
-To solve above issue just do fallback when add objects failed halfway in
-'blk_mq_register_hctx'.
+  enum bpf_stats_type: int;
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20221117022940.873959-1-yebin@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+In C (and I believe it's a GCC extension also), such forward declaration
+is simply:
+
+  enum bpf_stats_type;
+
+Further, in Linux UAPI this enum is defined in pure C way:
+
+enum bpf_stats_type { BPF_STATS_RUN_TIME = 0; }
+
+And even though in both cases backing type is int, which can be
+confirmed by looking at DWARF information, for C++ compiler actual enum
+definition and forward declaration are incompatible.
+
+To eliminate this problem, for C++ mode define input argument as int,
+which makes enum unnecessary in libbpf public header. This solves the
+issue and as demonstrated by next patch doesn't cause any unwanted
+compiler warnings, at least with default warnings setting.
+
+  [0] https://stackoverflow.com/questions/42766839/c11-enum-forward-causes-underlying-type-mismatch
+  [1] Closes: https://github.com/libbpf/libbpf/issues/249
+
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20221130200013.2997831-1-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-sysfs.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ tools/lib/bpf/bpf.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
-index 7b52e7657b2d..f0bc3398f3ed 100644
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -242,7 +242,7 @@ static int blk_mq_register_hctx(struct blk_mq_hw_ctx *hctx)
- {
- 	struct request_queue *q = hctx->queue;
- 	struct blk_mq_ctx *ctx;
--	int i, ret;
-+	int i, j, ret;
+diff --git a/tools/lib/bpf/bpf.h b/tools/lib/bpf/bpf.h
+index 875dde20d56e..92a3eaa154dd 100644
+--- a/tools/lib/bpf/bpf.h
++++ b/tools/lib/bpf/bpf.h
+@@ -241,8 +241,15 @@ LIBBPF_API int bpf_task_fd_query(int pid, int fd, __u32 flags, char *buf,
+ 				 __u32 *buf_len, __u32 *prog_id, __u32 *fd_type,
+ 				 __u64 *probe_offset, __u64 *probe_addr);
  
- 	if (!hctx->nr_ctx)
- 		return 0;
-@@ -254,9 +254,16 @@ static int blk_mq_register_hctx(struct blk_mq_hw_ctx *hctx)
- 	hctx_for_each_ctx(hctx, ctx, i) {
- 		ret = kobject_add(&ctx->kobj, &hctx->kobj, "cpu%u", ctx->cpu);
- 		if (ret)
--			break;
-+			goto out;
- 	}
++#ifdef __cplusplus
++/* forward-declaring enums in C++ isn't compatible with pure C enums, so
++ * instead define bpf_enable_stats() as accepting int as an input
++ */
++LIBBPF_API int bpf_enable_stats(int type);
++#else
+ enum bpf_stats_type; /* defined in up-to-date linux/bpf.h */
+ LIBBPF_API int bpf_enable_stats(enum bpf_stats_type type);
++#endif
  
-+	return 0;
-+out:
-+	hctx_for_each_ctx(hctx, ctx, j) {
-+		if (j < i)
-+			kobject_del(&ctx->kobj);
-+	}
-+	kobject_del(&hctx->kobj);
- 	return ret;
- }
- 
+ struct bpf_prog_bind_opts {
+ 	size_t sz; /* size of this struct for forward/backward compatibility */
 -- 
 2.35.1
 
