@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D04FB6500F8
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:23:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 692D5650105
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:23:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231633AbiLRQXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:23:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59600 "EHLO
+        id S231835AbiLRQXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:23:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231660AbiLRQWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:22:37 -0500
+        with ESMTP id S231847AbiLRQWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:22:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0A213D7D;
-        Sun, 18 Dec 2022 08:09:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5436313DD8;
+        Sun, 18 Dec 2022 08:09:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 863E9B80BA4;
-        Sun, 18 Dec 2022 16:08:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FBB5C433EF;
-        Sun, 18 Dec 2022 16:08:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EEDCCB80BE8;
+        Sun, 18 Dec 2022 16:08:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA97BC433D2;
+        Sun, 18 Dec 2022 16:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379715;
-        bh=a7cOuKmiI68p8RBDkFm/L8woSvQj7c6/VpAFxLadteQ=;
+        s=k20201202; t=1671379721;
+        bh=I0zmRpAnpEzBpelyV5npPz99wAZE8ysIdUEzvcXg8WI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VlyFEyP0SGnXVJM4njOrqZIFz5orSkFRv147DzVI/IcRtppq3g6bLlCgDvNKaL9BM
-         tNHXYMooDJbdG4wwVmrHOitqNZ4BtBsV7JK7egL6jXHy59fic75wxzV/gKnmoQnRon
-         fTVwsf/ZcRXjNV6Op9UTT6KCBGDk0WNu6Gpj7s6ILFecNDcDkeoPgLEBWlidCQy9nW
-         kS7jSIFJjvrQk2mMY/Q0im/qv8QNpafx3VRDBcbfwVrJH8xrhQKgzQ0kNiJ9lG9Icw
-         b7dfIn55zdteGscYHl0jNB4oZasYE5ioEtrx5ForviezQTTT0KY44mYyqwHZ4lfAU8
-         ELoqmJDU1bjJg==
+        b=Dq40WPpV3tk0mzqn5JwLwr/8aSTugAKX7dsgMilJ8yKDpi3WVwFYWj2+brtC7BZVP
+         snoBDJ6ouTbpY/e7GQxN+pHv+REiWR1XZwVCllzW5UtIkzUNeK66XDB45M0dnRb3p1
+         /mUE2eYS1H9h6Lv1OGhQN/cTXc25pBzP8iXuCmYPCrZQkz7Sg4zFpc7+vemveLr3Cu
+         QvxngGZcI55ctHxS9jLnjNJc2gNOYfIk6urr9uEotSgUrcwDa2texZe+TsYPpV+uz5
+         +W6jTaBYpdKW8UvXdu1LtEi5DFHcAWyNiedpSUp/Bw157GPdGrxOWGyc7tMThKbp5x
+         AAqMALHpfKn/w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hamza Mahfooz <hamza.mahfooz@amd.com>, Roman Li <roman.li@amd.com>,
+Cc:     Hamza Mahfooz <hamza.mahfooz@amd.com>,
         Harry Wentland <harry.wentland@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, airlied@gmail.com, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 11/73] drm/edid: add a quirk for two LG monitors to get them to work on 10bpc
-Date:   Sun, 18 Dec 2022 11:06:39 -0500
-Message-Id: <20221218160741.927862-11-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, sunpeng.li@amd.com,
+        Rodrigo.Siqueira@amd.com, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
+        Wayne.Lin@amd.com, Jerry.Zuo@amd.com, lyude@redhat.com,
+        ian.chen@amd.com, colin.i.king@gmail.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.0 12/73] Revert "drm/amd/display: Limit max DSC target bpp for specific monitors"
+Date:   Sun, 18 Dec 2022 11:06:40 -0500
+Message-Id: <20221218160741.927862-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -61,83 +63,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hamza Mahfooz <hamza.mahfooz@amd.com>
 
-[ Upstream commit aa193f7eff8ff753577351140b8af13b76cdc7c2 ]
+[ Upstream commit 6803dfd3a69ccb318772463a86e40929fd4fbac7 ]
 
-The LG 27GP950 and LG 27GN950 have visible display corruption when
-trying to use 10bpc modes. So, to fix this, cap their maximum DSC
-target bitrate to 15bpp.
+This reverts commit 55eea8ef98641f6e1e1c202bd3a49a57c1dd4059.
 
-Suggested-by: Roman Li <roman.li@amd.com>
+This quirk is now handled in the DRM core, so we can drop all of
+the internal code that was added to handle it.
+
 Reviewed-by: Harry Wentland <harry.wentland@amd.com>
 Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c  | 12 ++++++++++++
- include/drm/drm_connector.h |  6 ++++++
- 2 files changed, 18 insertions(+)
+ .../amd/display/amdgpu_dm/amdgpu_dm_helpers.c | 35 -------------------
+ 1 file changed, 35 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index eaa819381281..fefcfac999d9 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -87,6 +87,8 @@ static int oui(u8 first, u8 second, u8 third)
- #define EDID_QUIRK_FORCE_10BPC			(1 << 11)
- /* Non desktop display (i.e. HMD) */
- #define EDID_QUIRK_NON_DESKTOP			(1 << 12)
-+/* Cap the DSC target bitrate to 15bpp */
-+#define EDID_QUIRK_CAP_DSC_15BPP		(1 << 13)
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
+index a0154a5f7183..e2d3027c3993 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
+@@ -41,39 +41,6 @@
+ #include "dm_helpers.h"
+ #include "ddc_service_types.h"
  
- #define MICROSOFT_IEEE_OUI	0xca125c
+-struct monitor_patch_info {
+-	unsigned int manufacturer_id;
+-	unsigned int product_id;
+-	void (*patch_func)(struct dc_edid_caps *edid_caps, unsigned int param);
+-	unsigned int patch_param;
+-};
+-static void set_max_dsc_bpp_limit(struct dc_edid_caps *edid_caps, unsigned int param);
+-
+-static const struct monitor_patch_info monitor_patch_table[] = {
+-{0x6D1E, 0x5BBF, set_max_dsc_bpp_limit, 15},
+-{0x6D1E, 0x5B9A, set_max_dsc_bpp_limit, 15},
+-};
+-
+-static void set_max_dsc_bpp_limit(struct dc_edid_caps *edid_caps, unsigned int param)
+-{
+-	if (edid_caps)
+-		edid_caps->panel_patch.max_dsc_target_bpp_limit = param;
+-}
+-
+-static int amdgpu_dm_patch_edid_caps(struct dc_edid_caps *edid_caps)
+-{
+-	int i, ret = 0;
+-
+-	for (i = 0; i < ARRAY_SIZE(monitor_patch_table); i++)
+-		if ((edid_caps->manufacturer_id == monitor_patch_table[i].manufacturer_id)
+-			&&  (edid_caps->product_id == monitor_patch_table[i].product_id)) {
+-			monitor_patch_table[i].patch_func(edid_caps, monitor_patch_table[i].patch_param);
+-			ret++;
+-		}
+-
+-	return ret;
+-}
+-
+ /* dm_helpers_parse_edid_caps
+  *
+  * Parse edid caps
+@@ -148,8 +115,6 @@ enum dc_edid_status dm_helpers_parse_edid_caps(
+ 	kfree(sads);
+ 	kfree(sadb);
  
-@@ -147,6 +149,12 @@ static const struct edid_quirk {
- 	EDID_QUIRK('F', 'C', 'M', 13600, EDID_QUIRK_PREFER_LARGE_75 |
- 				       EDID_QUIRK_DETAILED_IN_CM),
- 
-+	/* LG 27GP950 */
-+	EDID_QUIRK('G', 'S', 'M', 0x5bbf, EDID_QUIRK_CAP_DSC_15BPP),
-+
-+	/* LG 27GN950 */
-+	EDID_QUIRK('G', 'S', 'M', 0x5b9a, EDID_QUIRK_CAP_DSC_15BPP),
-+
- 	/* LGD panel of HP zBook 17 G2, eDP 10 bpc, but reports unknown bpc */
- 	EDID_QUIRK('L', 'G', 'D', 764, EDID_QUIRK_FORCE_10BPC),
- 
-@@ -6116,6 +6124,7 @@ static void drm_reset_display_info(struct drm_connector *connector)
- 
- 	info->mso_stream_count = 0;
- 	info->mso_pixel_overlap = 0;
-+	info->max_dsc_bpp = 0;
+-	amdgpu_dm_patch_edid_caps(edid_caps);
+-
+ 	return result;
  }
  
- static u32 update_display_info(struct drm_connector *connector,
-@@ -6202,6 +6211,9 @@ static u32 update_display_info(struct drm_connector *connector,
- 		info->non_desktop = true;
- 	}
- 
-+	if (quirks & EDID_QUIRK_CAP_DSC_15BPP)
-+		info->max_dsc_bpp = 15;
-+
- 	return quirks;
- }
- 
-diff --git a/include/drm/drm_connector.h b/include/drm/drm_connector.h
-index 7df7876b2ad5..d9879fc9ceb1 100644
---- a/include/drm/drm_connector.h
-+++ b/include/drm/drm_connector.h
-@@ -635,6 +635,12 @@ struct drm_display_info {
- 	 * @mso_pixel_overlap: eDP MSO segment pixel overlap, 0-8 pixels.
- 	 */
- 	u8 mso_pixel_overlap;
-+
-+	/**
-+	 * @max_dsc_bpp: Maximum DSC target bitrate, if it is set to 0 the
-+	 * monitor's default value is used instead.
-+	 */
-+	u32 max_dsc_bpp;
- };
- 
- int drm_display_info_set_bus_formats(struct drm_display_info *info,
 -- 
 2.35.1
 
