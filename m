@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11A05650362
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:03:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9AAD650365
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:03:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233253AbiLRRDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 12:03:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53456 "EHLO
+        id S233268AbiLRRDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 12:03:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233363AbiLRRCh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 12:02:37 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FC0C18E35;
+        with ESMTP id S233369AbiLRRCi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 12:02:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D19E315FD2;
         Sun, 18 Dec 2022 08:21:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A00EACE0BAF;
-        Sun, 18 Dec 2022 16:21:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BAE9C433F0;
-        Sun, 18 Dec 2022 16:21:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88D2EB803F1;
+        Sun, 18 Dec 2022 16:21:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A33A0C433D2;
+        Sun, 18 Dec 2022 16:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380462;
-        bh=KZFU1leGzQQD6HVHzCIQHyBf69zaJo1yZHVmC8bGzM0=;
+        s=k20201202; t=1671380464;
+        bh=uT0YmWr4/lUhW267+4TnSWcFDE4Uny0pj1pF42wAsS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fk+E9rYbR7GkdJFVe3f5XLrdrfgYuanpp5fGnB1VaLlDHGUTg2EEhOBODs9LLyx53
-         rqTx/HY2TH78RLaMK887hiSu1tFO6R/oSwXOSEaxbzg7pkucJAEpwmFX1JmwaL8oQp
-         FRBRAp8kCS/zDq4pujGhpQj5Ftmg+xJStexwwtKEkjdFaZ7eCGd8TH6jngwR32yBTT
-         QIvHxgSMrBoGs1tAPKt9usxOJWdU02xDz6/EMe9Z1vvpRHbJV49cmjIOa54gPk34XG
-         vcxghhF2qITSJbS1kdAJ/aABbpwrGiSwZXj672W7zk6M8O+7wbVSV6t2AmoaCsLHDo
-         xpCykArahbzpg==
+        b=kitj5TrspLPbIU4rcXaqi+9guMd9mHgbBXkk1onWUv6mUdVHeovh913iPzrevDHsl
+         PmZLyM5yDQ8u9dJfGNnpuexeXBYccyjadNvcFNEWTeDgm4Fx/E9X0oqbzlQqCLoDrJ
+         VAatvjnxpCbWN9SXCKz/SkMXmM+dfXPTLiOJrVVhDjULTl0Zkuvi/EA0Gkf8KFl2qJ
+         bQEXDP+P6IDEUC5BMR2yrLT25atglFskc/VZxKndNVkl4j/9ubXmd9Kj18QjRCLQN4
+         Q/0yzU+oye6RJ1h9fbFdhGB4KepH6TcVGXL8NNPoKdkfZOCbup/8yYBfg8ra05Z3IC
+         aa8FJjeBblQnQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Li Zhong <floridsleeves@gmail.com>, Song Liu <song@kernel.org>,
+Cc:     Jiang Li <jiang.li@ugreen.com>, Song Liu <song@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 15/26] drivers/md/md-bitmap: check the return value of md_bitmap_get_counter()
-Date:   Sun, 18 Dec 2022 11:20:05 -0500
-Message-Id: <20221218162016.934280-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 16/26] md/raid1: stop mdx_raid1 thread when raid1 array run failed
+Date:   Sun, 18 Dec 2022 11:20:06 -0500
+Message-Id: <20221218162016.934280-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218162016.934280-1-sashal@kernel.org>
 References: <20221218162016.934280-1-sashal@kernel.org>
@@ -54,62 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zhong <floridsleeves@gmail.com>
+From: Jiang Li <jiang.li@ugreen.com>
 
-[ Upstream commit 3bd548e5b819b8c0f2c9085de775c5c7bff9052f ]
+[ Upstream commit b611ad14006e5be2170d9e8e611bf49dff288911 ]
 
-Check the return value of md_bitmap_get_counter() in case it returns
-NULL pointer, which will result in a null pointer dereference.
+fail run raid1 array when we assemble array with the inactive disk only,
+but the mdx_raid1 thread were not stop, Even if the associated resources
+have been released. it will caused a NULL dereference when we do poweroff.
 
-v2: update the check to include other dereference
+This causes the following Oops:
+    [  287.587787] BUG: kernel NULL pointer dereference, address: 0000000000000070
+    [  287.594762] #PF: supervisor read access in kernel mode
+    [  287.599912] #PF: error_code(0x0000) - not-present page
+    [  287.605061] PGD 0 P4D 0
+    [  287.607612] Oops: 0000 [#1] SMP NOPTI
+    [  287.611287] CPU: 3 PID: 5265 Comm: md0_raid1 Tainted: G     U            5.10.146 #0
+    [  287.619029] Hardware name: xxxxxxx/To be filled by O.E.M, BIOS 5.19 06/16/2022
+    [  287.626775] RIP: 0010:md_check_recovery+0x57/0x500 [md_mod]
+    [  287.632357] Code: fe 01 00 00 48 83 bb 10 03 00 00 00 74 08 48 89 ......
+    [  287.651118] RSP: 0018:ffffc90000433d78 EFLAGS: 00010202
+    [  287.656347] RAX: 0000000000000000 RBX: ffff888105986800 RCX: 0000000000000000
+    [  287.663491] RDX: ffffc90000433bb0 RSI: 00000000ffffefff RDI: ffff888105986800
+    [  287.670634] RBP: ffffc90000433da0 R08: 0000000000000000 R09: c0000000ffffefff
+    [  287.677771] R10: 0000000000000001 R11: ffffc90000433ba8 R12: ffff888105986800
+    [  287.684907] R13: 0000000000000000 R14: fffffffffffffe00 R15: ffff888100b6b500
+    [  287.692052] FS:  0000000000000000(0000) GS:ffff888277f80000(0000) knlGS:0000000000000000
+    [  287.700149] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    [  287.705897] CR2: 0000000000000070 CR3: 000000000320a000 CR4: 0000000000350ee0
+    [  287.713033] Call Trace:
+    [  287.715498]  raid1d+0x6c/0xbbb [raid1]
+    [  287.719256]  ? __schedule+0x1ff/0x760
+    [  287.722930]  ? schedule+0x3b/0xb0
+    [  287.726260]  ? schedule_timeout+0x1ed/0x290
+    [  287.730456]  ? __switch_to+0x11f/0x400
+    [  287.734219]  md_thread+0xe9/0x140 [md_mod]
+    [  287.738328]  ? md_thread+0xe9/0x140 [md_mod]
+    [  287.742601]  ? wait_woken+0x80/0x80
+    [  287.746097]  ? md_register_thread+0xe0/0xe0 [md_mod]
+    [  287.751064]  kthread+0x11a/0x140
+    [  287.754300]  ? kthread_park+0x90/0x90
+    [  287.757974]  ret_from_fork+0x1f/0x30
 
-Signed-off-by: Li Zhong <floridsleeves@gmail.com>
+In fact, when raid1 array run fail, we need to do
+md_unregister_thread() before raid1_free().
+
+Signed-off-by: Jiang Li <jiang.li@ugreen.com>
 Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md-bitmap.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ drivers/md/raid1.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/md/md-bitmap.c b/drivers/md/md-bitmap.c
-index 7cf9d34ce20e..157a1735d7b7 100644
---- a/drivers/md/md-bitmap.c
-+++ b/drivers/md/md-bitmap.c
-@@ -2191,20 +2191,23 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
- 
- 		if (set) {
- 			bmc_new = md_bitmap_get_counter(&bitmap->counts, block, &new_blocks, 1);
--			if (*bmc_new == 0) {
--				/* need to set on-disk bits too. */
--				sector_t end = block + new_blocks;
--				sector_t start = block >> chunkshift;
--				start <<= chunkshift;
--				while (start < end) {
--					md_bitmap_file_set_bit(bitmap, block);
--					start += 1 << chunkshift;
-+			if (bmc_new) {
-+				if (*bmc_new == 0) {
-+					/* need to set on-disk bits too. */
-+					sector_t end = block + new_blocks;
-+					sector_t start = block >> chunkshift;
-+
-+					start <<= chunkshift;
-+					while (start < end) {
-+						md_bitmap_file_set_bit(bitmap, block);
-+						start += 1 << chunkshift;
-+					}
-+					*bmc_new = 2;
-+					md_bitmap_count_page(&bitmap->counts, block, 1);
-+					md_bitmap_set_pending(&bitmap->counts, block);
- 				}
--				*bmc_new = 2;
--				md_bitmap_count_page(&bitmap->counts, block, 1);
--				md_bitmap_set_pending(&bitmap->counts, block);
-+				*bmc_new |= NEEDED_MASK;
- 			}
--			*bmc_new |= NEEDED_MASK;
- 			if (new_blocks < old_blocks)
- 				old_blocks = new_blocks;
- 		}
+diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
+index 876d3e1339d1..0f8b1fb3d051 100644
+--- a/drivers/md/raid1.c
++++ b/drivers/md/raid1.c
+@@ -3110,6 +3110,7 @@ static int raid1_run(struct mddev *mddev)
+ 	 * RAID1 needs at least one disk in active
+ 	 */
+ 	if (conf->raid_disks - mddev->degraded < 1) {
++		md_unregister_thread(&conf->thread);
+ 		ret = -EINVAL;
+ 		goto abort;
+ 	}
 -- 
 2.35.1
 
