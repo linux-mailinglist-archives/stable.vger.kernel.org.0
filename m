@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFBDB650225
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:42:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F78965021A
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:42:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232528AbiLRQmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:42:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35870 "EHLO
+        id S232370AbiLRQme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:42:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232178AbiLRQlW (ORCPT
+        with ESMTP id S232563AbiLRQlW (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:41:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EC4EBC0A;
-        Sun, 18 Dec 2022 08:14:56 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A819FF5B8;
+        Sun, 18 Dec 2022 08:15:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF503B80B43;
-        Sun, 18 Dec 2022 16:14:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CB5DC433F0;
-        Sun, 18 Dec 2022 16:14:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46F1160C99;
+        Sun, 18 Dec 2022 16:15:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B521C433EF;
+        Sun, 18 Dec 2022 16:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380093;
-        bh=Bjp1jxD3DELJl90QpM4hSVLxyl4yYLKc/TpVZaE/S5E=;
+        s=k20201202; t=1671380099;
+        bh=zj4Qla6FW38MAVqVWW2OZCFZVQ7hi5ig+svWj3pUsPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oBrHrVkkyPg+PsIUqVTEmtZj3whRyhB/jdnmz+ieZItJZdfiDF7WqLxwE0OOd0/WI
-         l9g6WYDlz6rUalNDg+HEsj4LtpyHIJG8FvcmKguMoljvDEom+D6mhuA69GH1EKrCYs
-         0YHauaTZaRlkWHU0by2Qm99S/nPvQQnAZRMc9dtyFplNfTzJGDRqpEDdzejS+1EC4H
-         NgzFrcvji+UjcinCd3AzxaAdCayGQs4rDUTI70/kRZnzg8bz3OgR8FF2WT4UoiPuNQ
-         K7goeL7xqlLxX+g/EqPLqbGYAcrN76iO1SZrh6fy+9OkjlfhPBgsxxx7PUIVEIwU1J
-         DwKICWgjQPrCg==
+        b=V4FpC/az2dBLGt0j3Fs5Snuz5yuvuh27IC81wQzxM4XYOWY5Xiqa3DrDBh07gfiDM
+         cvyT/7oafMHhU/ZrP6UkQr48FYCqcx1cWXvwEn4E1ZNUrvZRErmJ1Bi1JvECFnw0r3
+         QFgDkfwZfSKdpsQI4jpwdpANt8Audq3ft8Y5OKKuLDpfXiaNeJnwYG2GBTIiobbCC+
+         dhiNNBKXpLUnOAPh3BO3RC7wTnut6mWfuU8drBSrqq2zay40vfzupXbnq6VPxS1NpB
+         AojgEAOGHtoLfMKoyN9LmhumxF35bhmQWayyaO2/jQDziwIh/2W+qc7josjn7GaR5X
+         bH1LZLPDpWvcw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stanislav Fomichev <sdf@google.com>,
-        syzbot+8dd0551dda6020944c5d@syzkaller.appspotmail.com,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
-        martin.lau@linux.dev, ast@kernel.org, andrii@kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 32/46] bpf: Prevent decl_tag from being referenced in func_proto arg
-Date:   Sun, 18 Dec 2022 11:12:30 -0500
-Message-Id: <20221218161244.930785-32-sashal@kernel.org>
+Cc:     Maxim Korotkov <korotkov.maxim.s@gmail.com>,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com, f.fainelli@gmail.com,
+        trix@redhat.com, wsa+renesas@sang-engineering.com,
+        sean.anderson@seco.com, marco@mebeim.net, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 33/46] ethtool: avoiding integer overflow in ethtool_phys_id()
+Date:   Sun, 18 Dec 2022 11:12:31 -0500
+Message-Id: <20221218161244.930785-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218161244.930785-1-sashal@kernel.org>
 References: <20221218161244.930785-1-sashal@kernel.org>
@@ -58,53 +59,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislav Fomichev <sdf@google.com>
+From: Maxim Korotkov <korotkov.maxim.s@gmail.com>
 
-[ Upstream commit f17472d4599697d701aa239b4c475a506bccfd19 ]
+[ Upstream commit 64a8f8f7127da228d59a39e2c5e75f86590f90b4 ]
 
-Syzkaller managed to hit another decl_tag issue:
+The value of an arithmetic expression "n * id.data" is subject
+to possible overflow due to a failure to cast operands to a larger data
+type before performing arithmetic. Used macro for multiplication instead
+operator for avoiding overflow.
 
-  btf_func_proto_check kernel/bpf/btf.c:4506 [inline]
-  btf_check_all_types kernel/bpf/btf.c:4734 [inline]
-  btf_parse_type_sec+0x1175/0x1980 kernel/bpf/btf.c:4763
-  btf_parse kernel/bpf/btf.c:5042 [inline]
-  btf_new_fd+0x65a/0xb00 kernel/bpf/btf.c:6709
-  bpf_btf_load+0x6f/0x90 kernel/bpf/syscall.c:4342
-  __sys_bpf+0x50a/0x6c0 kernel/bpf/syscall.c:5034
-  __do_sys_bpf kernel/bpf/syscall.c:5093 [inline]
-  __se_sys_bpf kernel/bpf/syscall.c:5091 [inline]
-  __x64_sys_bpf+0x7c/0x90 kernel/bpf/syscall.c:5091
-  do_syscall_64+0x54/0x70 arch/x86/entry/common.c:48
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-This seems similar to commit ea68376c8bed ("bpf: prevent decl_tag from being
-referenced in func_proto") but for the argument.
-
-Reported-by: syzbot+8dd0551dda6020944c5d@syzkaller.appspotmail.com
-Signed-off-by: Stanislav Fomichev <sdf@google.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20221123035422.872531-2-sdf@google.com
+Signed-off-by: Maxim Korotkov <korotkov.maxim.s@gmail.com>
+Reviewed-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20221122122901.22294-1-korotkov.maxim.s@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/btf.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/ethtool/ioctl.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index 7cb13b9f69a6..0c2fa93bd8d2 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -3864,6 +3864,11 @@ static int btf_func_proto_check(struct btf_verifier_env *env,
- 			break;
- 		}
+diff --git a/net/ethtool/ioctl.c b/net/ethtool/ioctl.c
+index e4983f473a3c..6991d77dcb2e 100644
+--- a/net/ethtool/ioctl.c
++++ b/net/ethtool/ioctl.c
+@@ -1988,7 +1988,8 @@ static int ethtool_phys_id(struct net_device *dev, void __user *useraddr)
+ 	} else {
+ 		/* Driver expects to be called at twice the frequency in rc */
+ 		int n = rc * 2, interval = HZ / n;
+-		u64 count = n * id.data, i = 0;
++		u64 count = mul_u32_u32(n, id.data);
++		u64 i = 0;
  
-+		if (btf_type_is_resolve_source_only(arg_type)) {
-+			btf_verifier_log_type(env, t, "Invalid arg#%u", i + 1);
-+			return -EINVAL;
-+		}
-+
- 		if (args[i].name_off &&
- 		    (!btf_name_offset_valid(btf, args[i].name_off) ||
- 		     !btf_name_valid_identifier(btf, args[i].name_off))) {
+ 		do {
+ 			rtnl_lock();
 -- 
 2.35.1
 
