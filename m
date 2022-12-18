@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 528386500BA
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:18:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 972C96500E6
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:20:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231784AbiLRQSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:18:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52224 "EHLO
+        id S231912AbiLRQUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:20:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231853AbiLRQRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:17:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36C371116A;
-        Sun, 18 Dec 2022 08:07:38 -0800 (PST)
+        with ESMTP id S231674AbiLRQUC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:20:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C260ECE0A;
+        Sun, 18 Dec 2022 08:08:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFAD460DC8;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CAB4660DDB;
+        Sun, 18 Dec 2022 16:07:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9ED3C43392;
         Sun, 18 Dec 2022 16:07:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D421C433D2;
-        Sun, 18 Dec 2022 16:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379654;
-        bh=zf7RAbo9htvu/+5dLGrdZRXxBzlJZ32Qyt64KwWEkBE=;
+        s=k20201202; t=1671379656;
+        bh=r1Tr7Ex1lfuWB1lk5cCRThE2qppV0fzq6eYgqDGwVGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nVj96XpiH3n+dsROyJi9idQTVqdCzdbjWmEtV6rIsJmum5MnxGTlz412Q7UJ6AvCJ
-         thP7w6dY8YWu5CPPDgoxzo4tyqB3jz9a8t7toqH65osBqLm31OIfpnzOXK6uMmB/2L
-         d/PiJr65ZfBznIO60xiaN4PlbjC6RPSa3YtL28oUavQ7JFe3m3JFQ1enXZg49oeQSj
-         jryWiZWNvMb4zoy796KZrOcaYXKuhbJ81fUzbm5L91tIXHj5dcHQ+/lkTmnEv/SKnY
-         ZGv4ZZjIgRtnhAWaayM7aKII8eSzCvzWwQnTlonJ551CqCJ/U4gthegTE+ZOqYKFbA
-         LMLL3xv/WXScA==
+        b=RLIia0J1zkGFHNU5Y5sxRiwtLM1leREctrQp3OO1Uw3LKjV8D5P0B2104URKRigVP
+         CZze5tx9RT2yhAiyrqyJzf+U53HFni1JoRXH10LCiFVQ4r95AzvUOMX1SFq7LrBetw
+         a/WIx51Ku1LiZSjAphhU4IuC2uZnkdyKEFYPypwNLgR1o5TQJ8JcXuivYhw1RuUWaf
+         xa1syUY+7vL+AthdhJR9yvdPaZy+XcqUMDMRUjSK038NJhfsCx5WPYkG8Vv2fPtr/O
+         57iovPL5gx0rHkK/u2hdTNvT8PKgOmijCeNNkBpi0Vp6WxN+PVkT/tE/2d5yXQv6/r
+         JOO7eUuW9grWQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Vasut <marex@denx.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
+Cc:     Sven Peter <sven@svenpeter.dev>,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>, marcel@holtmann.org,
-        johan.hedberg@gmail.com, luiz.dentz@gmail.com,
-        linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 83/85] Bluetooth: hci_bcm: Add CYW4373A0 support
-Date:   Sun, 18 Dec 2022 11:01:40 -0500
-Message-Id: <20221218160142.925394-83-sashal@kernel.org>
+        johan.hedberg@gmail.com, luiz.dentz@gmail.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 84/85] Bluetooth: Add quirk to disable extended scanning
+Date:   Sun, 18 Dec 2022 11:01:41 -0500
+Message-Id: <20221218160142.925394-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160142.925394-1-sashal@kernel.org>
 References: <20221218160142.925394-1-sashal@kernel.org>
@@ -58,107 +58,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Sven Peter <sven@svenpeter.dev>
 
-[ Upstream commit 02d056a3404e20245a69dcb4022a0930085fc5ec ]
+[ Upstream commit 392fca352c7a95e2828d49e7500e26d0c87ca265 ]
 
-CYW4373A0 is a Wi-Fi + Bluetooth combo device from Cypress.
-This chip is present e.g. on muRata 2AE module.
+Broadcom 4377 controllers found in Apple x86 Macs with the T2 chip
+claim to support extended scanning when querying supported states,
 
-This chip has additional quirk where the HCI command 0xfc45, used on
-older chips to switch UART clock from 24 MHz to 48 MHz, to support
-baudrates over 3 Mbdps, is no longer recognized by this newer chip.
-This newer chip can configure the 4 Mbdps baudrate without the need
-to issue HCI command 0xfc45, so add flag to indicate this and do not
-issue the command on this chip to avoid failure to set 4 Mbdps baud
-rate.
+< HCI Command: LE Read Supported St.. (0x08|0x001c) plen 0
+> HCI Event: Command Complete (0x0e) plen 12
+      LE Read Supported States (0x08|0x001c) ncmd 1
+        Status: Success (0x00)
+        States: 0x000003ffffffffff
+[...]
+          LE Set Extended Scan Parameters (Octet 37 - Bit 5)
+          LE Set Extended Scan Enable (Octet 37 - Bit 6)
+[...]
 
-It is not clear whether there is a way to determine which chip does
-and which chip does not support the HCI command 0xfc45, other than
-trial and error.
+, but then fail to actually implement the extended scanning:
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Marek Vasut <marex@denx.de>
+< HCI Command: LE Set Extended Sca.. (0x08|0x0041) plen 8
+        Own address type: Random (0x01)
+        Filter policy: Accept all advertisement (0x00)
+        PHYs: 0x01
+        Entry 0: LE 1M
+          Type: Active (0x01)
+          Interval: 11.250 msec (0x0012)
+          Window: 11.250 msec (0x0012)
+> HCI Event: Command Complete (0x0e) plen 4
+      LE Set Extended Scan Parameters (0x08|0x0041) ncmd 1
+        Status: Unknown HCI Command (0x01)
+
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_bcm.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ include/net/bluetooth/hci.h      | 10 ++++++++++
+ include/net/bluetooth/hci_core.h |  4 +++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
-index d7e0b75db8a6..2b6c0e1922cb 100644
---- a/drivers/bluetooth/hci_bcm.c
-+++ b/drivers/bluetooth/hci_bcm.c
-@@ -53,11 +53,13 @@
-  * struct bcm_device_data - device specific data
-  * @no_early_set_baudrate: Disallow set baudrate before driver setup()
-  * @drive_rts_on_open: drive RTS signal on ->open() when platform requires it
-+ * @no_uart_clock_set: UART clock set command for >3Mbps mode is unavailable
-  * @max_autobaud_speed: max baudrate supported by device in autobaud mode
-  */
- struct bcm_device_data {
- 	bool	no_early_set_baudrate;
- 	bool	drive_rts_on_open;
-+	bool	no_uart_clock_set;
- 	u32	max_autobaud_speed;
- };
- 
-@@ -100,6 +102,7 @@ struct bcm_device_data {
-  * @is_suspended: whether flow control is currently disabled
-  * @no_early_set_baudrate: don't set_baudrate before setup()
-  * @drive_rts_on_open: drive RTS signal on ->open() when platform requires it
-+ * @no_uart_clock_set: UART clock set command for >3Mbps mode is unavailable
-  * @pcm_int_params: keep the initial PCM configuration
-  * @use_autobaud_mode: start Bluetooth device in autobaud mode
-  * @max_autobaud_speed: max baudrate supported by device in autobaud mode
-@@ -140,6 +143,7 @@ struct bcm_device {
- #endif
- 	bool			no_early_set_baudrate;
- 	bool			drive_rts_on_open;
-+	bool			no_uart_clock_set;
- 	bool			use_autobaud_mode;
- 	u8			pcm_int_params[5];
- 	u32			max_autobaud_speed;
-@@ -172,10 +176,11 @@ static inline void host_set_baudrate(struct hci_uart *hu, unsigned int speed)
- static int bcm_set_baudrate(struct hci_uart *hu, unsigned int speed)
- {
- 	struct hci_dev *hdev = hu->hdev;
-+	struct bcm_data *bcm = hu->priv;
- 	struct sk_buff *skb;
- 	struct bcm_update_uart_baud_rate param;
- 
--	if (speed > 3000000) {
-+	if (speed > 3000000 && !bcm->dev->no_uart_clock_set) {
- 		struct bcm_write_uart_clock_setting clock;
- 
- 		clock.type = BCM_UART_CLOCK_48MHZ;
-@@ -1529,6 +1534,7 @@ static int bcm_serdev_probe(struct serdev_device *serdev)
- 		bcmdev->max_autobaud_speed = data->max_autobaud_speed;
- 		bcmdev->no_early_set_baudrate = data->no_early_set_baudrate;
- 		bcmdev->drive_rts_on_open = data->drive_rts_on_open;
-+		bcmdev->no_uart_clock_set = data->no_uart_clock_set;
- 	}
- 
- 	return hci_uart_register_device(&bcmdev->serdev_hu, &bcm_proto);
-@@ -1550,6 +1556,10 @@ static struct bcm_device_data bcm43438_device_data = {
- 	.drive_rts_on_open = true,
- };
- 
-+static struct bcm_device_data cyw4373a0_device_data = {
-+	.no_uart_clock_set = true,
-+};
+diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
+index 684f1cd28730..d8abeac2fc1e 100644
+--- a/include/net/bluetooth/hci.h
++++ b/include/net/bluetooth/hci.h
+@@ -274,6 +274,16 @@ enum {
+ 	 * during the hdev->setup vendor callback.
+ 	 */
+ 	HCI_QUIRK_BROKEN_ENHANCED_SETUP_SYNC_CONN,
 +
- static struct bcm_device_data cyw55572_device_data = {
- 	.max_autobaud_speed = 921600,
++	/*
++	 * When this quirk is set, the HCI_OP_LE_SET_EXT_SCAN_ENABLE command is
++	 * disabled. This is required for some Broadcom controllers which
++	 * erroneously claim to support extended scanning.
++	 *
++	 * This quirk can be set before hci_register_dev is called or
++	 * during the hdev->setup vendor callback.
++	 */
++	HCI_QUIRK_BROKEN_EXT_SCAN,
  };
-@@ -1566,6 +1576,7 @@ static const struct of_device_id bcm_bluetooth_of_match[] = {
- 	{ .compatible = "brcm,bcm4349-bt", .data = &bcm43438_device_data },
- 	{ .compatible = "brcm,bcm43540-bt", .data = &bcm4354_device_data },
- 	{ .compatible = "brcm,bcm4335a0" },
-+	{ .compatible = "cypress,cyw4373a0-bt", .data = &cyw4373a0_device_data },
- 	{ .compatible = "infineon,cyw55572-bt", .data = &cyw55572_device_data },
- 	{ },
- };
+ 
+ /* HCI device flags */
+diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
+index c54bc71254af..3cd00be0fcd2 100644
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -1689,7 +1689,9 @@ void hci_conn_del_sysfs(struct hci_conn *conn);
+ 
+ /* Use ext scanning if set ext scan param and ext scan enable is supported */
+ #define use_ext_scan(dev) (((dev)->commands[37] & 0x20) && \
+-			   ((dev)->commands[37] & 0x40))
++			   ((dev)->commands[37] & 0x40) && \
++			   !test_bit(HCI_QUIRK_BROKEN_EXT_SCAN, &(dev)->quirks))
++
+ /* Use ext create connection if command is supported */
+ #define use_ext_conn(dev) ((dev)->commands[37] & 0x80)
+ 
 -- 
 2.35.1
 
