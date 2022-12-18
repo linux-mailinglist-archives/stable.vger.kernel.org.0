@@ -2,47 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BA8364FF90
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:04:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D41E64FF93
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:04:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231219AbiLRQEK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:04:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35006 "EHLO
+        id S231248AbiLRQEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:04:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231225AbiLRQDX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:03:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F165BF51;
-        Sun, 18 Dec 2022 08:02:36 -0800 (PST)
+        with ESMTP id S231249AbiLRQDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:03:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93A6DBF72;
+        Sun, 18 Dec 2022 08:02:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC3EBB80B4D;
-        Sun, 18 Dec 2022 16:02:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 974DEC433D2;
-        Sun, 18 Dec 2022 16:02:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3087C60DCE;
+        Sun, 18 Dec 2022 16:02:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66690C433D2;
+        Sun, 18 Dec 2022 16:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379353;
-        bh=QG4DOtGBvWPfutdY4gutfUHbJvS+CD5uT6XcePVcGuU=;
+        s=k20201202; t=1671379360;
+        bh=2z2kx3GfS55LxRLsKjgo8pcqfUBZUKUOXS4w7KtOlKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sf5b51M0cUpLdEEzRznDGS+g0exWIKBCc8iZRUXyVMrbAbgp502n6p4FWsBSaN7qI
-         YfJHMUqzVVFtbqDuaZ5vj71vaMGYfb4tnTN12R5TDnR4doRm3z6lU2fzus6J1Bkin2
-         MYhvdjfSWXLYAYIUcXK+fgg2xOj5ftz3D10Mb3wDDLQFRojFVww5H3/xa2Su9t//RP
-         hPTPqjUyScAkY7oUwAEIlTEFxfGC/RQZ+HczmEaKn/MhwkKMxXapqQDzKs/oy+Zdwn
-         FMhTWDMlXUvHf6Mxb2FwveKc/d7goTDF2RZdlW2GxAQ5PE5sVdNLX/BZOrjdCWuEUy
-         EozjKjajUJBiA==
+        b=bgt0jytGj7JY/bWy+7M3WDvU8+6DhXmv/ybFuQ6Z7xYq9pvjKUBe8qGRxvcs5Y4HQ
+         kfxMVduKOckCznBKpFlPOHpwT8v/Vo0y9wtxhWU7Yk5I8t0OhPuTv7vRzBtuHT5hum
+         FLAV6A4BIHhApKb+QBUAlL0XI9rZwTMUHjtmb+c5Ps+QV2J0rHaQYSG2btvZG9ucmP
+         ++AjSXn+IzIlFA6LPjRwMerwDN+DQZIzoXC4gDHtp6uu/JD7HUumlKHELvTcj9jlR7
+         +Ra3nrFGMBZ+SmILs/TmFMtqKMiefYvGrJ2v15MQG1y4DMV1J1pWef6oJFN+tNRour
+         WsB04VvRhWFNQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>, Rasesh Mody <rmody@marvell.com>,
-        GR-Linux-NIC-Dev@marvell.com,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 6.1 11/85] bnx2: Use kmalloc_size_roundup() to match ksize() usage
-Date:   Sun, 18 Dec 2022 11:00:28 -0500
-Message-Id: <20221218160142.925394-11-sashal@kernel.org>
+Cc:     zhikzhai <zhikai.zhai@amd.com>,
+        Mark Broadworth <mark.broadworth@amd.com>,
+        Dillon Varone <Dillon.Varone@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, christian.koenig@amd.com, Xinhui.Pan@amd.com,
+        airlied@gmail.com, daniel@ffwll.ch, Jun.Lei@amd.com,
+        Alvin.Lee2@amd.com, HaoPing.Liu@amd.com,
+        meenakshikumar.somasundaram@amd.com, Samson.Tam@amd.com,
+        wenjing.liu@amd.com, alex.hung@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.1 12/85] drm/amd/display: skip commit minimal transition state
+Date:   Sun, 18 Dec 2022 11:00:29 -0500
+Message-Id: <20221218160142.925394-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160142.925394-1-sashal@kernel.org>
 References: <20221218160142.925394-1-sashal@kernel.org>
@@ -59,45 +64,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: zhikzhai <zhikai.zhai@amd.com>
 
-[ Upstream commit d6dd508080a3cdc0ab34ebf66c3734f2dff907ad ]
+[ Upstream commit 1e8fd864afdc7a52df375e888a03b8472fc24f5d ]
 
-Round up allocations with kmalloc_size_roundup() so that build_skb()'s
-use of ksize() is always accurate and no special handling of the memory
-is needed by KASAN, UBSAN_BOUNDS, nor FORTIFY_SOURCE.
+[WHY]
+Now dynamic ODM will now be disabled when MPO is required safe
+transitions to avoid underflow, but we are triggering the way of minimal
+transition too often. Commit state of dc with no check will do pipeline
+setup which may re-initialize the component with no need such as audio.
 
-Cc: Rasesh Mody <rmody@marvell.com>
-Cc: GR-Linux-NIC-Dev@marvell.com
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: netdev@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221022021004.gonna.489-kees@kernel.org
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+[HOW]
+Just do the minimal transition when all of pipes are in use, otherwise
+return true to skip.
+
+Tested-by: Mark Broadworth <mark.broadworth@amd.com>
+Reviewed-by: Dillon Varone <Dillon.Varone@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: zhikzhai <zhikai.zhai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnx2.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2.c b/drivers/net/ethernet/broadcom/bnx2.c
-index fec57f1982c8..dbe310144780 100644
---- a/drivers/net/ethernet/broadcom/bnx2.c
-+++ b/drivers/net/ethernet/broadcom/bnx2.c
-@@ -5415,8 +5415,9 @@ bnx2_set_rx_ring_size(struct bnx2 *bp, u32 size)
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 997ab031f816..5c00907099c1 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -3650,10 +3650,32 @@ static bool commit_minimal_transition_state(struct dc *dc,
+ 	bool temp_subvp_policy;
+ 	enum dc_status ret = DC_ERROR_UNEXPECTED;
+ 	unsigned int i, j;
++	unsigned int pipe_in_use = 0;
  
- 	bp->rx_buf_use_size = rx_size;
- 	/* hw alignment + build_skb() overhead*/
--	bp->rx_buf_size = SKB_DATA_ALIGN(bp->rx_buf_use_size + BNX2_RX_ALIGN) +
--		NET_SKB_PAD + SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-+	bp->rx_buf_size = kmalloc_size_roundup(
-+		SKB_DATA_ALIGN(bp->rx_buf_use_size + BNX2_RX_ALIGN) +
-+		NET_SKB_PAD + SKB_DATA_ALIGN(sizeof(struct skb_shared_info)));
- 	bp->rx_jumbo_thresh = rx_size - BNX2_RX_OFFSET;
- 	bp->rx_ring_size = size;
- 	bp->rx_max_ring = bnx2_find_max_ring(size, BNX2_MAX_RX_RINGS);
+ 	if (!transition_context)
+ 		return false;
+ 
++	/* check current pipes in use*/
++	for (i = 0; i < dc->res_pool->pipe_count; i++) {
++		struct pipe_ctx *pipe = &transition_base_context->res_ctx.pipe_ctx[i];
++
++		if (pipe->plane_state)
++			pipe_in_use++;
++	}
++
++	/* When the OS add a new surface if we have been used all of pipes with odm combine
++	 * and mpc split feature, it need use commit_minimal_transition_state to transition safely.
++	 * After OS exit MPO, it will back to use odm and mpc split with all of pipes, we need
++	 * call it again. Otherwise return true to skip.
++	 *
++	 * Reduce the scenarios to use dc_commit_state_no_check in the stage of flip. Especially
++	 * enter/exit MPO when DCN still have enough resources.
++	 */
++	if (pipe_in_use != dc->res_pool->pipe_count) {
++		dc_release_state(transition_context);
++		return true;
++	}
++
+ 	if (!dc->config.is_vmin_only_asic) {
+ 		tmp_mpc_policy = dc->debug.pipe_split_policy;
+ 		dc->debug.pipe_split_policy = MPC_SPLIT_AVOID;
 -- 
 2.35.1
 
