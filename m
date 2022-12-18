@@ -2,42 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BA9D65014F
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:27:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E48BC650156
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:28:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231610AbiLRQ1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:27:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45514 "EHLO
+        id S231997AbiLRQ2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:28:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232062AbiLRQZt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:25:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 841BE13F3A;
-        Sun, 18 Dec 2022 08:09:56 -0800 (PST)
+        with ESMTP id S232193AbiLRQ1R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:27:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C98CC74E;
+        Sun, 18 Dec 2022 08:10:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 280E6B80BE6;
-        Sun, 18 Dec 2022 16:09:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48DD9C433F2;
-        Sun, 18 Dec 2022 16:09:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2D1760C99;
+        Sun, 18 Dec 2022 16:10:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E460C433D2;
+        Sun, 18 Dec 2022 16:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379794;
-        bh=5xvXsTOLzHlAJIewX3mcwQxGPCuRzuNZW0UpJ8JmGrk=;
+        s=k20201202; t=1671379808;
+        bh=scAjh5f8FKUHPUIaZJCpBxjtgn9vl/P0GaSN3HR+cwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gk7JPp4XkoXS4t/XvQhzGJtmzsu5S3rHHZ+O7onIJ/pR0eC8X0K4XtePoTALE0gqX
-         6vmfJfV97kYfH5OfgdFA/01K2oyqsf0CUpq4HWEz0xa3XkWAGw1Hlm5c9D9V6ycc8j
-         9sw9PQdd5Z8IyJJCWW/FQVphczhYXm+qSi1AwrNxpxN9f/RpCmuK56D3r6PRlvP8PT
-         TT9oW1OZiz8CU2cwDAbB4i+0Ww+7C+hwatPiaKxGQvnDGEG9hoGUTBN5RGy0tNB0kW
-         IuSioyBFQbGpIgD4fgJOJCRNz+D+/xdCy0GU1YDOZELQONj04wNtONsfL95+PV9WD4
-         +C3SqoPgqTh/g==
+        b=MwNTZgIFAQoliuf77jm4sursZHCaJfvWkxNxCF05847NUaxnwOivA6shnrnEuyikO
+         EN/DvJi2trT9avk6A2vMa6kTgKqBnZPdXv0+ZNM3raZBGV5qhB6JWwFlbRKHdV+8G3
+         7dxL2m+LPH4kL373jofqMipr6d+G/F+TEAYNdkA5qeMrn+/gzErGLGpzT3JsXKocvI
+         zngUR/HTS6cmy4QFDno1PRHfJ6WjlxaqBIwxHiCG1O7Cc88u0p60T0vCxK26wVMRLc
+         D0CjNwjM+LNNKH9v6rcRX3xmGoTSpp1uuhoNt+/GHc5a6EllQuWzl5gUEl0rlBejzR
+         4/Gti3muUMm1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiang Li <jiang.li@ugreen.com>, Song Liu <song@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 38/73] md/raid1: stop mdx_raid1 thread when raid1 array run failed
-Date:   Sun, 18 Dec 2022 11:07:06 -0500
-Message-Id: <20221218160741.927862-38-sashal@kernel.org>
+Cc:     George Shen <george.shen@amd.com>, Alvin Lee <Alvin.Lee2@amd.com>,
+        Tom Chung <chiahsuan.chung@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, jun.lei@amd.com, Dillon.Varone@amd.com,
+        samson.tam@amd.com, rdunlap@infradead.org, David.Galiffi@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.0 39/73] drm/amd/display: Workaround to increase phantom pipe vactive in pipesplit
+Date:   Sun, 18 Dec 2022 11:07:07 -0500
+Message-Id: <20221218160741.927862-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -54,69 +62,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiang Li <jiang.li@ugreen.com>
+From: George Shen <george.shen@amd.com>
 
-[ Upstream commit b611ad14006e5be2170d9e8e611bf49dff288911 ]
+[ Upstream commit 5b8f9deaf3b6badfc0da968e6e07ceabd19700b6 ]
 
-fail run raid1 array when we assemble array with the inactive disk only,
-but the mdx_raid1 thread were not stop, Even if the associated resources
-have been released. it will caused a NULL dereference when we do poweroff.
+[Why]
+Certain high resolution displays exhibit DCC line corruption with SubVP
+enabled. This is likely due to insufficient DCC meta data buffered
+immediately after the mclk switch.
 
-This causes the following Oops:
-    [  287.587787] BUG: kernel NULL pointer dereference, address: 0000000000000070
-    [  287.594762] #PF: supervisor read access in kernel mode
-    [  287.599912] #PF: error_code(0x0000) - not-present page
-    [  287.605061] PGD 0 P4D 0
-    [  287.607612] Oops: 0000 [#1] SMP NOPTI
-    [  287.611287] CPU: 3 PID: 5265 Comm: md0_raid1 Tainted: G     U            5.10.146 #0
-    [  287.619029] Hardware name: xxxxxxx/To be filled by O.E.M, BIOS 5.19 06/16/2022
-    [  287.626775] RIP: 0010:md_check_recovery+0x57/0x500 [md_mod]
-    [  287.632357] Code: fe 01 00 00 48 83 bb 10 03 00 00 00 74 08 48 89 ......
-    [  287.651118] RSP: 0018:ffffc90000433d78 EFLAGS: 00010202
-    [  287.656347] RAX: 0000000000000000 RBX: ffff888105986800 RCX: 0000000000000000
-    [  287.663491] RDX: ffffc90000433bb0 RSI: 00000000ffffefff RDI: ffff888105986800
-    [  287.670634] RBP: ffffc90000433da0 R08: 0000000000000000 R09: c0000000ffffefff
-    [  287.677771] R10: 0000000000000001 R11: ffffc90000433ba8 R12: ffff888105986800
-    [  287.684907] R13: 0000000000000000 R14: fffffffffffffe00 R15: ffff888100b6b500
-    [  287.692052] FS:  0000000000000000(0000) GS:ffff888277f80000(0000) knlGS:0000000000000000
-    [  287.700149] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    [  287.705897] CR2: 0000000000000070 CR3: 000000000320a000 CR4: 0000000000350ee0
-    [  287.713033] Call Trace:
-    [  287.715498]  raid1d+0x6c/0xbbb [raid1]
-    [  287.719256]  ? __schedule+0x1ff/0x760
-    [  287.722930]  ? schedule+0x3b/0xb0
-    [  287.726260]  ? schedule_timeout+0x1ed/0x290
-    [  287.730456]  ? __switch_to+0x11f/0x400
-    [  287.734219]  md_thread+0xe9/0x140 [md_mod]
-    [  287.738328]  ? md_thread+0xe9/0x140 [md_mod]
-    [  287.742601]  ? wait_woken+0x80/0x80
-    [  287.746097]  ? md_register_thread+0xe0/0xe0 [md_mod]
-    [  287.751064]  kthread+0x11a/0x140
-    [  287.754300]  ? kthread_park+0x90/0x90
-    [  287.757974]  ret_from_fork+0x1f/0x30
+[How]
+Add workaround to increase phantom pipe vactive height by
+meta_row_height number of lines, thus increasing the amount of meta data
+buffered immediately after mclk switch finishes.
 
-In fact, when raid1 array run fail, we need to do
-md_unregister_thread() before raid1_free().
-
-Signed-off-by: Jiang Li <jiang.li@ugreen.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+Acked-by: Tom Chung <chiahsuan.chung@amd.com>
+Signed-off-by: George Shen <george.shen@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid1.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index 05d8438cfec8..58f705f42948 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -3159,6 +3159,7 @@ static int raid1_run(struct mddev *mddev)
- 	 * RAID1 needs at least one disk in active
- 	 */
- 	if (conf->raid_disks - mddev->degraded < 1) {
-+		md_unregister_thread(&conf->thread);
- 		ret = -EINVAL;
- 		goto abort;
- 	}
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
+index 07c56e231b04..d05df4f7139f 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
+@@ -485,9 +485,11 @@ void dcn32_set_phantom_stream_timing(struct dc *dc,
+ 	unsigned int i, pipe_idx;
+ 	struct pipe_ctx *pipe;
+ 	uint32_t phantom_vactive, phantom_bp, pstate_width_fw_delay_lines;
++	unsigned int num_dpp;
+ 	unsigned int vlevel = context->bw_ctx.dml.vba.VoltageLevel;
+ 	unsigned int dcfclk = context->bw_ctx.dml.vba.DCFCLKState[vlevel][context->bw_ctx.dml.vba.maxMpcComb];
+ 	unsigned int socclk = context->bw_ctx.dml.vba.SOCCLKPerState[vlevel];
++	struct vba_vars_st *vba = &context->bw_ctx.dml.vba;
+ 
+ 	dc_assert_fp_enabled();
+ 
+@@ -523,6 +525,11 @@ void dcn32_set_phantom_stream_timing(struct dc *dc,
+ 	phantom_vactive = get_subviewport_lines_needed_in_mall(&context->bw_ctx.dml, pipes, pipe_cnt, pipe_idx) +
+ 				pstate_width_fw_delay_lines + dc->caps.subvp_swath_height_margin_lines;
+ 
++	// W/A for DCC corruption with certain high resolution timings.
++	// Determing if pipesplit is used. If so, add meta_row_height to the phantom vactive.
++	num_dpp = vba->NoOfDPP[vba->VoltageLevel][vba->maxMpcComb][vba->pipe_plane[pipe_idx]];
++	phantom_vactive += num_dpp > 1 ? vba->meta_row_height[vba->pipe_plane[pipe_idx]] : 0;
++
+ 	// For backporch of phantom pipe, use vstartup of the main pipe
+ 	phantom_bp = get_vstartup(&context->bw_ctx.dml, pipes, pipe_cnt, pipe_idx);
+ 
 -- 
 2.35.1
 
