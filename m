@@ -2,51 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3BAD6503BE
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:08:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C14CB6503D0
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 18:08:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233137AbiLRRH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 12:07:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59384 "EHLO
+        id S233302AbiLRRIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 12:08:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233354AbiLRRGN (ORCPT
+        with ESMTP id S233301AbiLRRGN (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 12:06:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B3A813D02;
-        Sun, 18 Dec 2022 08:22:29 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF15813CD7;
+        Sun, 18 Dec 2022 08:22:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26014B80BA4;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8933B60DB4;
         Sun, 18 Dec 2022 16:22:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC267C433F0;
-        Sun, 18 Dec 2022 16:22:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52283C43396;
+        Sun, 18 Dec 2022 16:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380546;
-        bh=9GObN/HTbEbVuoRVdNZrI7/ETYOR+CKnmzigy4Y9eKc=;
+        s=k20201202; t=1671380548;
+        bh=M1Rv4ePsvtWaW4+sBTVXzWFT21qk4HkDaNMH+tQ+aGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bfKyr5hryfI2fxFGAwTCuCDs+H9fNHnYCgoT8YAXPgk34Crg6hhrPqmvH5EXh2w6h
-         3vOJASFHXGOu/f5SrH9u2124y1owLbCvrU61BuDgReF6BGdVrP0zwKxTQ1eAGMpO73
-         U53+UTS9BnazAVhCkThZfOQtqiHlZQeSiCmegCWJtuBU4cdHH2Y4PpjzrKSfLoGtrE
-         DBrieg+/v1jA8d878UsMvkxhT+B0QpQawV31vgem9ZNhCQQYQjOANtlxpCl5VoOCfz
-         njq3pUzuKQUpyJDt1cGFXC/XHbNaMYOkkzcCpMyhCgnoLCO1pGdC4YktURNb39Wj+f
-         1IIoxiruO3NsQ==
+        b=fXG9t2tIpXyRmERwDiql3l3dElxs6Pfaw3Zrc0Hb8/fA3rHPmLEWGGCf05ddlK4lR
+         60knEuM4Y6RU7kwYBGCoUd8Nfi6l2zhQunTabXxgKaqKLVvNa9lyMfZIRwhVkmxMso
+         MvTRDh8XyOhOLYP3z8/mxr5M259uTGfw/9iVsNiVxo/g59hcFryZdoeEmQKgKMz3jO
+         DwApwbh/BTuMbdlwVEUGbHAptEGLE2TDTkusglAVO5wrZWeZpaYlQyKjfOIm1uvpI+
+         BDv3uxsl0+Mo5eaFgMztJD8OMGi0D6+0W25kCTTNlx5z4cQKX2A96yQ7YKyBnFXk7f
+         H88DOxSyodHoQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Alain Volmat <alain.volmat@foss.st.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>, airlied@gmail.com,
-        daniel@ffwll.ch, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 13/23] drm/sti: Use drm_mode_copy()
-Date:   Sun, 18 Dec 2022 11:21:39 -0500
-Message-Id: <20221218162149.935047-13-sashal@kernel.org>
+Cc:     Jiang Li <jiang.li@ugreen.com>, Song Liu <song@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 14/23] md/raid1: stop mdx_raid1 thread when raid1 array run failed
+Date:   Sun, 18 Dec 2022 11:21:40 -0500
+Message-Id: <20221218162149.935047-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218162149.935047-1-sashal@kernel.org>
 References: <20221218162149.935047-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,116 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Jiang Li <jiang.li@ugreen.com>
 
-[ Upstream commit 442cf8e22ba25a77cb9092d78733fdbac9844e50 ]
+[ Upstream commit b611ad14006e5be2170d9e8e611bf49dff288911 ]
 
-struct drm_display_mode embeds a list head, so overwriting
-the full struct with another one will corrupt the list
-(if the destination mode is on a list). Use drm_mode_copy()
-instead which explicitly preserves the list head of
-the destination mode.
+fail run raid1 array when we assemble array with the inactive disk only,
+but the mdx_raid1 thread were not stop, Even if the associated resources
+have been released. it will caused a NULL dereference when we do poweroff.
 
-Even if we know the destination mode is not on any list
-using drm_mode_copy() seems decent as it sets a good
-example. Bad examples of not using it might eventually
-get copied into code where preserving the list head
-actually matters.
+This causes the following Oops:
+    [  287.587787] BUG: kernel NULL pointer dereference, address: 0000000000000070
+    [  287.594762] #PF: supervisor read access in kernel mode
+    [  287.599912] #PF: error_code(0x0000) - not-present page
+    [  287.605061] PGD 0 P4D 0
+    [  287.607612] Oops: 0000 [#1] SMP NOPTI
+    [  287.611287] CPU: 3 PID: 5265 Comm: md0_raid1 Tainted: G     U            5.10.146 #0
+    [  287.619029] Hardware name: xxxxxxx/To be filled by O.E.M, BIOS 5.19 06/16/2022
+    [  287.626775] RIP: 0010:md_check_recovery+0x57/0x500 [md_mod]
+    [  287.632357] Code: fe 01 00 00 48 83 bb 10 03 00 00 00 74 08 48 89 ......
+    [  287.651118] RSP: 0018:ffffc90000433d78 EFLAGS: 00010202
+    [  287.656347] RAX: 0000000000000000 RBX: ffff888105986800 RCX: 0000000000000000
+    [  287.663491] RDX: ffffc90000433bb0 RSI: 00000000ffffefff RDI: ffff888105986800
+    [  287.670634] RBP: ffffc90000433da0 R08: 0000000000000000 R09: c0000000ffffefff
+    [  287.677771] R10: 0000000000000001 R11: ffffc90000433ba8 R12: ffff888105986800
+    [  287.684907] R13: 0000000000000000 R14: fffffffffffffe00 R15: ffff888100b6b500
+    [  287.692052] FS:  0000000000000000(0000) GS:ffff888277f80000(0000) knlGS:0000000000000000
+    [  287.700149] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    [  287.705897] CR2: 0000000000000070 CR3: 000000000320a000 CR4: 0000000000350ee0
+    [  287.713033] Call Trace:
+    [  287.715498]  raid1d+0x6c/0xbbb [raid1]
+    [  287.719256]  ? __schedule+0x1ff/0x760
+    [  287.722930]  ? schedule+0x3b/0xb0
+    [  287.726260]  ? schedule_timeout+0x1ed/0x290
+    [  287.730456]  ? __switch_to+0x11f/0x400
+    [  287.734219]  md_thread+0xe9/0x140 [md_mod]
+    [  287.738328]  ? md_thread+0xe9/0x140 [md_mod]
+    [  287.742601]  ? wait_woken+0x80/0x80
+    [  287.746097]  ? md_register_thread+0xe0/0xe0 [md_mod]
+    [  287.751064]  kthread+0x11a/0x140
+    [  287.754300]  ? kthread_park+0x90/0x90
+    [  287.757974]  ret_from_fork+0x1f/0x30
 
-Obviously one case not covered here is when the mode
-itself is embedded in a larger structure and the whole
-structure is copied. But if we are careful when copying
-into modes embedded in structures I think we can be a
-little more reassured that bogus list heads haven't been
-propagated in.
+In fact, when raid1 array run fail, we need to do
+md_unregister_thread() before raid1_free().
 
-@is_mode_copy@
-@@
-drm_mode_copy(...)
-{
-...
-}
-
-@depends on !is_mode_copy@
-struct drm_display_mode *mode;
-expression E, S;
-@@
-(
-- *mode = E
-+ drm_mode_copy(mode, &E)
-|
-- memcpy(mode, E, S)
-+ drm_mode_copy(mode, E)
-)
-
-@depends on !is_mode_copy@
-struct drm_display_mode mode;
-expression E;
-@@
-(
-- mode = E
-+ drm_mode_copy(&mode, &E)
-|
-- memcpy(&mode, E, S)
-+ drm_mode_copy(&mode, E)
-)
-
-@@
-struct drm_display_mode *mode;
-@@
-- &*mode
-+ mode
-
-Cc: Alain Volmat <alain.volmat@foss.st.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221107192545.9896-8-ville.syrjala@linux.intel.com
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Jiang Li <jiang.li@ugreen.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sti/sti_dvo.c  | 2 +-
- drivers/gpu/drm/sti/sti_hda.c  | 2 +-
- drivers/gpu/drm/sti/sti_hdmi.c | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/md/raid1.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/sti/sti_dvo.c b/drivers/gpu/drm/sti/sti_dvo.c
-index 852bf2293b05..872a06670b34 100644
---- a/drivers/gpu/drm/sti/sti_dvo.c
-+++ b/drivers/gpu/drm/sti/sti_dvo.c
-@@ -288,7 +288,7 @@ static void sti_dvo_set_mode(struct drm_bridge *bridge,
- 
- 	DRM_DEBUG_DRIVER("\n");
- 
--	memcpy(&dvo->mode, mode, sizeof(struct drm_display_mode));
-+	drm_mode_copy(&dvo->mode, mode);
- 
- 	/* According to the path used (main or aux), the dvo clocks should
- 	 * have a different parent clock. */
-diff --git a/drivers/gpu/drm/sti/sti_hda.c b/drivers/gpu/drm/sti/sti_hda.c
-index 0399bb18d387..9a7a9aa5445e 100644
---- a/drivers/gpu/drm/sti/sti_hda.c
-+++ b/drivers/gpu/drm/sti/sti_hda.c
-@@ -518,7 +518,7 @@ static void sti_hda_set_mode(struct drm_bridge *bridge,
- 
- 	DRM_DEBUG_DRIVER("\n");
- 
--	memcpy(&hda->mode, mode, sizeof(struct drm_display_mode));
-+	drm_mode_copy(&hda->mode, mode);
- 
- 	if (!hda_get_mode_idx(hda->mode, &mode_idx)) {
- 		DRM_ERROR("Undefined mode\n");
-diff --git a/drivers/gpu/drm/sti/sti_hdmi.c b/drivers/gpu/drm/sti/sti_hdmi.c
-index bbb195a92e93..c5b2f36c5feb 100644
---- a/drivers/gpu/drm/sti/sti_hdmi.c
-+++ b/drivers/gpu/drm/sti/sti_hdmi.c
-@@ -924,7 +924,7 @@ static void sti_hdmi_set_mode(struct drm_bridge *bridge,
- 	DRM_DEBUG_DRIVER("\n");
- 
- 	/* Copy the drm display mode in the connector local structure */
--	memcpy(&hdmi->mode, mode, sizeof(struct drm_display_mode));
-+	drm_mode_copy(&hdmi->mode, mode);
- 
- 	/* Update clock framerate according to the selected mode */
- 	ret = clk_set_rate(hdmi->clk_pix, mode->clock * 1000);
+diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
+index daa478e0b856..28f78199de3b 100644
+--- a/drivers/md/raid1.c
++++ b/drivers/md/raid1.c
+@@ -3105,6 +3105,7 @@ static int raid1_run(struct mddev *mddev)
+ 	 * RAID1 needs at least one disk in active
+ 	 */
+ 	if (conf->raid_disks - mddev->degraded < 1) {
++		md_unregister_thread(&conf->thread);
+ 		ret = -EINVAL;
+ 		goto abort;
+ 	}
 -- 
 2.35.1
 
