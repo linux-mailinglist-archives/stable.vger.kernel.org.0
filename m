@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41B9B6502C3
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:53:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D65256502C5
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:53:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232796AbiLRQxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:53:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34840 "EHLO
+        id S232876AbiLRQxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:53:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233084AbiLRQwg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:52:36 -0500
+        with ESMTP id S233086AbiLRQwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:52:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB2561AF29;
-        Sun, 18 Dec 2022 08:18:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D58A1ADB8;
+        Sun, 18 Dec 2022 08:18:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27078B80B43;
-        Sun, 18 Dec 2022 16:18:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DB53C433F0;
-        Sun, 18 Dec 2022 16:18:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99560B80BEA;
+        Sun, 18 Dec 2022 16:18:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99E5DC433F2;
+        Sun, 18 Dec 2022 16:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671380303;
-        bh=A/W60D1LJ2ghPUbm4fp4AEIO05J9PdNuzfEgJRBkH5U=;
+        s=k20201202; t=1671380305;
+        bh=1fqa4hwTzUpUc3qjpVotRIMcelCiIEWnjYcZFbHL+44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ILAM1MIeNxn6MOhy2wp+WKTsUypjaNTA2zf9jl/EyWne+14XGaZ94A2nhmFNI+Xnh
-         a9URn6r+GJozlzM1trpj1A8tJ7kJVoI6TEpc6XYVjdfuQOPdYcBBEqSk7nPtOCJorJ
-         0hYIq0nijxlvuVYoecGvdB1l+M+86hzF6kBBBAeeRZ6zQiaWRwxNkrp/IqcxXa3XIL
-         Dcl4lIxmjdpXAY4MMeF11EuRY9RSvm/4Owwj6MsKMLpClsueLmJ30pJ984FUhn5lUn
-         hN7RLuztRySsjplDiScZlpkVGTkSUr7qGQ2b6IEdIQE801DgB6iMSJpfvisGKS05p+
-         gDsoKJq5YzbIg==
+        b=XNpvQOlPYsr08dyvO66jY9etlxovC4Eq6lWvDvqJ8AEWWNgbDWcJdWts3/bo861PT
+         sPwUXV9XUYSX1ycOwCM6IA6TFWC41BZ7JS/xm+smmobSwIdSvfHTC2QagsQvjAZNLW
+         ZXRBMKJtKiIjO5F+3iP/mnxBGIERLDbJ/tk6NRyTzDgFoijytxu/JMX/gGZOc/eWaM
+         mj2WlWyEadhrQs0teQZVnk9KQSs0XKdBiSQrFkaI65lS8XkiFMB8iJOqte6S5mqg2i
+         YNu1oY/BO+vxwWLLvxAcnY3UbMCkscGRaj6vRh+ml6rIMm4g6KIM1avP65zsiw7s22
+         2TsjARW4rI/LQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rui Zhang <zr.zhang@vivo.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com
-Subject: [PATCH AUTOSEL 5.10 35/39] regulator: core: fix use_count leakage when handling boot-on
-Date:   Sun, 18 Dec 2022 11:15:55 -0500
-Message-Id: <20221218161559.932604-35-sashal@kernel.org>
+Cc:     Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, adrian.hunter@intel.com,
+        linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 36/39] mmc: f-sdh30: Add quirks for broken timeout clock capability
+Date:   Sun, 18 Dec 2022 11:15:56 -0500
+Message-Id: <20221218161559.932604-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218161559.932604-1-sashal@kernel.org>
 References: <20221218161559.932604-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -55,57 +57,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rui Zhang <zr.zhang@vivo.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 0591b14ce0398125439c759f889647369aa616a0 ]
+[ Upstream commit aae9d3a440736691b3c1cb09ae2c32c4f1ee2e67 ]
 
-I found a use_count leakage towards supply regulator of rdev with
-boot-on option.
+There is a case where the timeout clock is not supplied to the capability.
+Add a quirk for that.
 
-┌───────────────────┐           ┌───────────────────┐
-│  regulator_dev A  │           │  regulator_dev B  │
-│     (boot-on)     │           │     (boot-on)     │
-│    use_count=0    │◀──supply──│    use_count=1    │
-│                   │           │                   │
-└───────────────────┘           └───────────────────┘
-
-In case of rdev(A) configured with `regulator-boot-on', the use_count
-of supplying regulator(B) will increment inside
-regulator_enable(rdev->supply).
-
-Thus, B will acts like always-on, and further balanced
-regulator_enable/disable cannot actually disable it anymore.
-
-However, B was also configured with `regulator-boot-on', we wish it
-could be disabled afterwards.
-
-Signed-off-by: Rui Zhang <zr.zhang@vivo.com>
-Link: https://lore.kernel.org/r/20221201033806.2567812-1-zr.zhang@vivo.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Acked-by: Jassi Brar <jaswinder.singh@linaro.org>
+Link: https://lore.kernel.org/r/20221111081033.3813-7-hayashi.kunihiko@socionext.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci_f_sdh30.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index eb083b26ab4f..d23b403ae162 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1428,7 +1428,13 @@ static int set_machine_constraints(struct regulator_dev *rdev)
- 		if (rdev->supply_name && !rdev->supply)
- 			return -EPROBE_DEFER;
+diff --git a/drivers/mmc/host/sdhci_f_sdh30.c b/drivers/mmc/host/sdhci_f_sdh30.c
+index 3f5977979cf2..6c4f43e11282 100644
+--- a/drivers/mmc/host/sdhci_f_sdh30.c
++++ b/drivers/mmc/host/sdhci_f_sdh30.c
+@@ -168,6 +168,9 @@ static int sdhci_f_sdh30_probe(struct platform_device *pdev)
+ 	if (reg & SDHCI_CAN_DO_8BIT)
+ 		priv->vendor_hs200 = F_SDH30_EMMC_HS200;
  
--		if (rdev->supply) {
-+		/* If supplying regulator has already been enabled,
-+		 * it's not intended to have use_count increment
-+		 * when rdev is only boot-on.
-+		 */
-+		if (rdev->supply &&
-+		    (rdev->constraints->always_on ||
-+		     !regulator_is_enabled(rdev->supply))) {
- 			ret = regulator_enable(rdev->supply);
- 			if (ret < 0) {
- 				_regulator_put(rdev->supply);
++	if (!(reg & SDHCI_TIMEOUT_CLK_MASK))
++		host->quirks |= SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK;
++
+ 	ret = sdhci_add_host(host);
+ 	if (ret)
+ 		goto err_add_host;
 -- 
 2.35.1
 
