@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C1D965014B
-	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:27:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BA9D65014F
+	for <lists+stable@lfdr.de>; Sun, 18 Dec 2022 17:27:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230426AbiLRQ1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 11:27:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44738 "EHLO
+        id S231610AbiLRQ1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 11:27:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232030AbiLRQ0y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:26:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8473D13F98;
-        Sun, 18 Dec 2022 08:10:05 -0800 (PST)
+        with ESMTP id S232062AbiLRQZt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 11:25:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 841BE13F3A;
+        Sun, 18 Dec 2022 08:09:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4791A60DD7;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 280E6B80BE6;
+        Sun, 18 Dec 2022 16:09:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48DD9C433F2;
         Sun, 18 Dec 2022 16:09:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAD94C43392;
-        Sun, 18 Dec 2022 16:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379793;
-        bh=XLEiZvTkEEAwuhWrHpN9qyqocU/jogGxwcB92TCq5kI=;
+        s=k20201202; t=1671379794;
+        bh=5xvXsTOLzHlAJIewX3mcwQxGPCuRzuNZW0UpJ8JmGrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WvFAtXjLFq1aRaLpZ6G0X3ZnWZXfxnUVAq7vVaahOjlgWgwsbsBgaT14AtB2O5v9T
-         zlOO4MgcvVk352cqmMvVxR7soe9Z6PCIV9GYF7J6c+h2pYE3i0E045cKbe9hTLp7E0
-         3qPMIAI7qIFbXQnOxsXWMp2c3Ds4sY1sz7o3KBA3pUYgs61tbZti+C36gb3Ut5iFE6
-         1GFnYufH7yFNL7WQNwboHym1hCnzqKSxCSphwXvKl1pVX3VEeVSpXQjj6SyiX7/F+h
-         a3LoC8dveSzSrFg1+ZszODi0KjsPIPrA3lQn5Kd41F6FZh4SXzVs+tofx2m7U/j7ME
-         Qa2IP46jhcznA==
+        b=Gk7JPp4XkoXS4t/XvQhzGJtmzsu5S3rHHZ+O7onIJ/pR0eC8X0K4XtePoTALE0gqX
+         6vmfJfV97kYfH5OfgdFA/01K2oyqsf0CUpq4HWEz0xa3XkWAGw1Hlm5c9D9V6ycc8j
+         9sw9PQdd5Z8IyJJCWW/FQVphczhYXm+qSi1AwrNxpxN9f/RpCmuK56D3r6PRlvP8PT
+         TT9oW1OZiz8CU2cwDAbB4i+0Ww+7C+hwatPiaKxGQvnDGEG9hoGUTBN5RGy0tNB0kW
+         IuSioyBFQbGpIgD4fgJOJCRNz+D+/xdCy0GU1YDOZELQONj04wNtONsfL95+PV9WD4
+         +C3SqoPgqTh/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiao Ni <xni@redhat.com>, Yi Zhang <yi.zhang@redhat.com>,
-        Ming Lei <ming.lei@redhat.com>, Song Liu <song@kernel.org>,
+Cc:     Jiang Li <jiang.li@ugreen.com>, Song Liu <song@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 37/73] md/raid0, raid10: Don't set discard sectors for request queue
-Date:   Sun, 18 Dec 2022 11:07:05 -0500
-Message-Id: <20221218160741.927862-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 38/73] md/raid1: stop mdx_raid1 thread when raid1 array run failed
+Date:   Sun, 18 Dec 2022 11:07:06 -0500
+Message-Id: <20221218160741.927862-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
 References: <20221218160741.927862-1-sashal@kernel.org>
@@ -55,80 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Ni <xni@redhat.com>
+From: Jiang Li <jiang.li@ugreen.com>
 
-[ Upstream commit 8e1a2279ca2b0485cc379a153d02a9793f74a48f ]
+[ Upstream commit b611ad14006e5be2170d9e8e611bf49dff288911 ]
 
-It should use disk_stack_limits to get a proper max_discard_sectors
-rather than setting a value by stack drivers.
+fail run raid1 array when we assemble array with the inactive disk only,
+but the mdx_raid1 thread were not stop, Even if the associated resources
+have been released. it will caused a NULL dereference when we do poweroff.
 
-And there is a bug. If all member disks are rotational devices,
-raid0/raid10 set max_discard_sectors. So the member devices are
-not ssd/nvme, but raid0/raid10 export the wrong value. It reports
-warning messages in function __blkdev_issue_discard when mkfs.xfs
-like this:
+This causes the following Oops:
+    [  287.587787] BUG: kernel NULL pointer dereference, address: 0000000000000070
+    [  287.594762] #PF: supervisor read access in kernel mode
+    [  287.599912] #PF: error_code(0x0000) - not-present page
+    [  287.605061] PGD 0 P4D 0
+    [  287.607612] Oops: 0000 [#1] SMP NOPTI
+    [  287.611287] CPU: 3 PID: 5265 Comm: md0_raid1 Tainted: G     U            5.10.146 #0
+    [  287.619029] Hardware name: xxxxxxx/To be filled by O.E.M, BIOS 5.19 06/16/2022
+    [  287.626775] RIP: 0010:md_check_recovery+0x57/0x500 [md_mod]
+    [  287.632357] Code: fe 01 00 00 48 83 bb 10 03 00 00 00 74 08 48 89 ......
+    [  287.651118] RSP: 0018:ffffc90000433d78 EFLAGS: 00010202
+    [  287.656347] RAX: 0000000000000000 RBX: ffff888105986800 RCX: 0000000000000000
+    [  287.663491] RDX: ffffc90000433bb0 RSI: 00000000ffffefff RDI: ffff888105986800
+    [  287.670634] RBP: ffffc90000433da0 R08: 0000000000000000 R09: c0000000ffffefff
+    [  287.677771] R10: 0000000000000001 R11: ffffc90000433ba8 R12: ffff888105986800
+    [  287.684907] R13: 0000000000000000 R14: fffffffffffffe00 R15: ffff888100b6b500
+    [  287.692052] FS:  0000000000000000(0000) GS:ffff888277f80000(0000) knlGS:0000000000000000
+    [  287.700149] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    [  287.705897] CR2: 0000000000000070 CR3: 000000000320a000 CR4: 0000000000350ee0
+    [  287.713033] Call Trace:
+    [  287.715498]  raid1d+0x6c/0xbbb [raid1]
+    [  287.719256]  ? __schedule+0x1ff/0x760
+    [  287.722930]  ? schedule+0x3b/0xb0
+    [  287.726260]  ? schedule_timeout+0x1ed/0x290
+    [  287.730456]  ? __switch_to+0x11f/0x400
+    [  287.734219]  md_thread+0xe9/0x140 [md_mod]
+    [  287.738328]  ? md_thread+0xe9/0x140 [md_mod]
+    [  287.742601]  ? wait_woken+0x80/0x80
+    [  287.746097]  ? md_register_thread+0xe0/0xe0 [md_mod]
+    [  287.751064]  kthread+0x11a/0x140
+    [  287.754300]  ? kthread_park+0x90/0x90
+    [  287.757974]  ret_from_fork+0x1f/0x30
 
-[ 4616.022599] ------------[ cut here ]------------
-[ 4616.027779] WARNING: CPU: 4 PID: 99634 at block/blk-lib.c:50 __blkdev_issue_discard+0x16a/0x1a0
-[ 4616.140663] RIP: 0010:__blkdev_issue_discard+0x16a/0x1a0
-[ 4616.146601] Code: 24 4c 89 20 31 c0 e9 fe fe ff ff c1 e8 09 8d 48 ff 4c 89 f0 4c 09 e8 48 85 c1 0f 84 55 ff ff ff b8 ea ff ff ff e9 df fe ff ff <0f> 0b 48 8d 74 24 08 e8 ea d6 00 00 48 c7 c6 20 1e 89 ab 48 c7 c7
-[ 4616.167567] RSP: 0018:ffffaab88cbffca8 EFLAGS: 00010246
-[ 4616.173406] RAX: ffff9ba1f9e44678 RBX: 0000000000000000 RCX: ffff9ba1c9792080
-[ 4616.181376] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9ba1c9792080
-[ 4616.189345] RBP: 0000000000000cc0 R08: ffffaab88cbffd10 R09: 0000000000000000
-[ 4616.197317] R10: 0000000000000012 R11: 0000000000000000 R12: 0000000000000000
-[ 4616.205288] R13: 0000000000400000 R14: 0000000000000cc0 R15: ffff9ba1c9792080
-[ 4616.213259] FS:  00007f9a5534e980(0000) GS:ffff9ba1b7c80000(0000) knlGS:0000000000000000
-[ 4616.222298] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 4616.228719] CR2: 000055a390a4c518 CR3: 0000000123e40006 CR4: 00000000001706e0
-[ 4616.236689] Call Trace:
-[ 4616.239428]  blkdev_issue_discard+0x52/0xb0
-[ 4616.244108]  blkdev_common_ioctl+0x43c/0xa00
-[ 4616.248883]  blkdev_ioctl+0x116/0x280
-[ 4616.252977]  __x64_sys_ioctl+0x8a/0xc0
-[ 4616.257163]  do_syscall_64+0x5c/0x90
-[ 4616.261164]  ? handle_mm_fault+0xc5/0x2a0
-[ 4616.265652]  ? do_user_addr_fault+0x1d8/0x690
-[ 4616.270527]  ? do_syscall_64+0x69/0x90
-[ 4616.274717]  ? exc_page_fault+0x62/0x150
-[ 4616.279097]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[ 4616.284748] RIP: 0033:0x7f9a55398c6b
+In fact, when raid1 array run fail, we need to do
+md_unregister_thread() before raid1_free().
 
-Signed-off-by: Xiao Ni <xni@redhat.com>
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jiang Li <jiang.li@ugreen.com>
 Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid0.c  | 1 -
- drivers/md/raid10.c | 2 --
- 2 files changed, 3 deletions(-)
+ drivers/md/raid1.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
-index 857c49399c28..b536befd8898 100644
---- a/drivers/md/raid0.c
-+++ b/drivers/md/raid0.c
-@@ -398,7 +398,6 @@ static int raid0_run(struct mddev *mddev)
- 
- 		blk_queue_max_hw_sectors(mddev->queue, mddev->chunk_sectors);
- 		blk_queue_max_write_zeroes_sectors(mddev->queue, mddev->chunk_sectors);
--		blk_queue_max_discard_sectors(mddev->queue, UINT_MAX);
- 
- 		blk_queue_io_min(mddev->queue, mddev->chunk_sectors << 9);
- 		blk_queue_io_opt(mddev->queue,
-diff --git a/drivers/md/raid10.c b/drivers/md/raid10.c
-index 64d6e4cd8a3a..b19c6ce89d5e 100644
---- a/drivers/md/raid10.c
-+++ b/drivers/md/raid10.c
-@@ -4104,8 +4104,6 @@ static int raid10_run(struct mddev *mddev)
- 	conf->thread = NULL;
- 
- 	if (mddev->queue) {
--		blk_queue_max_discard_sectors(mddev->queue,
--					      UINT_MAX);
- 		blk_queue_max_write_zeroes_sectors(mddev->queue, 0);
- 		blk_queue_io_min(mddev->queue, mddev->chunk_sectors << 9);
- 		raid10_set_io_opt(conf);
+diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
+index 05d8438cfec8..58f705f42948 100644
+--- a/drivers/md/raid1.c
++++ b/drivers/md/raid1.c
+@@ -3159,6 +3159,7 @@ static int raid1_run(struct mddev *mddev)
+ 	 * RAID1 needs at least one disk in active
+ 	 */
+ 	if (conf->raid_disks - mddev->degraded < 1) {
++		md_unregister_thread(&conf->thread);
+ 		ret = -EINVAL;
+ 		goto abort;
+ 	}
 -- 
 2.35.1
 
