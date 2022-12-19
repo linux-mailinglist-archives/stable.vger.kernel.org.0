@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25FE4650E61
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 16:15:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CEF4650E62
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 16:15:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231631AbiLSPO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 10:14:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42832 "EHLO
+        id S231556AbiLSPPC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 10:15:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231556AbiLSPO6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 10:14:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF69063D9
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 07:14:56 -0800 (PST)
+        with ESMTP id S232822AbiLSPPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 10:15:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C23F0F1D
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 07:14:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67205B80E53
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 15:14:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83591C433EF;
-        Mon, 19 Dec 2022 15:14:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5209560FBE
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 15:14:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64A18C433D2;
+        Mon, 19 Dec 2022 15:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671462894;
-        bh=Xjr6EhhNkN2s9IZBZD3b6W6gYKUkhaDIb+aFjWTdV4s=;
+        s=korg; t=1671462897;
+        bh=5rZYHJssjOlf/s3b5hayElti1pARNcwAxjS+gGWbn3w=;
         h=Subject:To:Cc:From:Date:From;
-        b=1k5HAeTqbrxaBwcbp5nXkvo9n2IbjkUZ8p9Yz1ECDsQKhqxu8AwuGwaroi7SDYk6i
-         nIFms7qToIJbZkjpmpcfWl26brYLdhLRQH+rSVBjqxgeGue30JznwpLFgyniZQczis
-         d/AZrUk38AHCEJDpHhICVo0B+n+DPXK44WD1hOmI=
-Subject: FAILED: patch "[PATCH] cifs: fix oops during encryption" failed to apply to 6.0-stable tree
+        b=ouSCyqxYmyl2WMXlsFCzRy+vVk0L2snqMqkOtsCGfFvgR4qTYvtimQdZ7C8spYKcn
+         lpTSeV8kb1iAqk0tfzQd6ZDVegLlJAdn8BNFXW9HH4RD0fTjk2xbjKFtyEv5ZQuu8Q
+         NcJkDiEOOjv8kGEZbC1Rv/tJQRHY8T0r/DzeiQ+E=
+Subject: FAILED: patch "[PATCH] cifs: fix oops during encryption" failed to apply to 5.15-stable tree
 To:     pc@cjr.nz, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 19 Dec 2022 16:14:51 +0100
-Message-ID: <16714628910105@kroah.com>
+Date:   Mon, 19 Dec 2022 16:14:53 +0100
+Message-ID: <1671462893105173@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,23 @@ Possible dependencies:
 f7f291e14dde ("cifs: fix oops during encryption")
 76894f3e2f71 ("cifs: improve symlink handling for smb2+")
 a4e430c8c8ba ("cifs: replace kfree() with kfree_sensitive() for sensitive data")
+a63ec83c462b ("cifs: Add constructor/destructors for tcon->cfid")
+dcb45fd7f501 ("cifs: Do not use tcon->cfid directly, use the cfid we get from open_cached_dir")
+05b98fd2da6b ("cifs: Move cached-dir functions into a separate file")
+fb157ed226d2 ("cifs: when insecure legacy is disabled shrink amount of SMB1 code")
+d7d7a66aacd6 ("cifs: avoid use of global locks for high contention data")
+9543c8ab3016 ("cifs: list_for_each() -> list_for_each_entry()")
+4da2cd0517e0 ("cifs: remove redundant initialization to variable mnt_sign_enabled")
+af3a6d1018f0 ("cifs: update cifs_ses::ip_addr after failover")
+b54034a73baf ("cifs: during reconnect, update interface if necessary")
+387ba9bf4cb8 ("cifs: do not build smb1ops if legacy support is disabled")
+cc391b694ff0 ("cifs: fix potential deadlock in direct reclaim")
+44a48081fc03 ("smb3: remove unneeded null check in cifs_readdir")
+d87c48ce4d89 ("cifs: cache the dirents for entries in a cached directory")
+5752bf645f9d ("cifs: avoid parallel session setups on same channel")
+dd3cd8709ed5 ("cifs: use new enum for ses_status")
+1a6a41d4cedd ("cifs: do not use tcpStatus after negotiate completes")
+bbdf6cf56c88 ("smb3: check for null tcon")
 
 thanks,
 
