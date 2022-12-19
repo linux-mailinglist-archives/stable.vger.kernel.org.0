@@ -2,209 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAD84650814
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 08:34:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D4346508DE
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 09:51:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231529AbiLSHe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 02:34:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36878 "EHLO
+        id S231128AbiLSIvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 03:51:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231564AbiLSHeZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 02:34:25 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD34B26E7
-        for <stable@vger.kernel.org>; Sun, 18 Dec 2022 23:33:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1671435221;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=VzssRu5rC+27vv5HkiX3uUCEC9dLPIbrWZcvoE6Jfts=;
-        b=F86uWEg6bQlSphCC9OS2jvShAzymZzLHJV/+Zr4hKAuv0OQWOriF5fFDfxlpDeugl/24aH
-        FsTIEy5HGcvc8TbnIla8WH07mR4ABsRXklkwoAdzVYs9zx94n2kNd3cv8RupWIThPmGGHT
-        Yh/mygDg5tqlBpJdb1DOqq8grTx66pw=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-501-6vnfGTMqN2WktPChZXRpuw-1; Mon, 19 Dec 2022 02:33:38 -0500
-X-MC-Unique: 6vnfGTMqN2WktPChZXRpuw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5B59B185A78B;
-        Mon, 19 Dec 2022 07:33:38 +0000 (UTC)
-Received: from server.redhat.com (ovpn-12-67.pek2.redhat.com [10.72.12.67])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0E55B40C2064;
-        Mon, 19 Dec 2022 07:33:34 +0000 (UTC)
-From:   Cindy Lu <lulu@redhat.com>
-To:     lulu@redhat.com, jasowang@redhat.com, mst@redhat.com,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH v4] vhost_vdpa: fix the crash in unmap a large memory
-Date:   Mon, 19 Dec 2022 15:33:31 +0800
-Message-Id: <20221219073331.556140-1-lulu@redhat.com>
+        with ESMTP id S231387AbiLSIub (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 03:50:31 -0500
+Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5ECCCE02;
+        Mon, 19 Dec 2022 00:50:11 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4NbCs63L1Mz9ttD8;
+        Mon, 19 Dec 2022 16:43:06 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwBHywagJaBjl6AmAA--.3254S2;
+        Mon, 19 Dec 2022 09:49:46 +0100 (CET)
+Message-ID: <0f80852578436dbba7a0fce03d86c3fa2d38c571.camel@huaweicloud.com>
+Subject: Re: [PATCH v2] KEYS: asymmetric: Copy sig and digest in
+ public_key_verify_signature()
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Herbert Xu <herbert@gondor.apana.org.au>
+Cc:     Eric Biggers <ebiggers@kernel.org>, dhowells@redhat.com,
+        davem@davemloft.net, zohar@linux.ibm.com,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
+        linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Date:   Mon, 19 Dec 2022 09:49:29 +0100
+In-Reply-To: <Y5bxJ5UZNPzxwtoy@gondor.apana.org.au>
+References: <20221209150633.1033556-1-roberto.sassu@huaweicloud.com>
+         <Y5OGr59A9wo86rYY@sol.localdomain>
+         <fa8a307541735ec9258353d8ccb75c20bb22aafe.camel@huaweicloud.com>
+         <Y5bxJ5UZNPzxwtoy@gondor.apana.org.au>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: LxC2BwBHywagJaBjl6AmAA--.3254S2
+X-Coremail-Antispam: 1UD129KBjvdXoW7JF43Gr1UCw18Gr47ZFWUJwb_yoWfuwbEgF
+        y3CF4kX34Fvr17tF4rtr4qqrs3GrWkAry7Xr4Ig3sxJ3s5Jws7WrsYkrs3Wr1xXr4rJF9F
+        gryrZ347X3W29jkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUIcSsGvfJTRUUUb78YFVCjjxCrM7AC8VAFwI0_Xr0_Wr1l1xkIjI8I6I8E6xAIw20E
+        Y4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwV
+        A0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x02
+        67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r4j6F4UM28EF7xvwVC2z280aVCY1x0267
+        AKxVW8JVW8Jr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2
+        j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7x
+        kEbVWUJVW8JwACjcxG0xvEwIxGrwACI402YVCY1x02628vn2kIc2xKxwCF04k20xvY0x0E
+        wIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E74
+        80Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVC0
+        I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04
+        k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY
+        1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU13rcDUUUUU==
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQALBF1jj4bHxwAAs5
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While testing in vIOMMU, sometimes Guest will unmap very large memory,
-which will cause the crash. To fix this, add a new function
-vhost_vdpa_general_unmap(). This function will only unmap the memory
-that saved in iotlb.
+On Mon, 2022-12-12 at 17:15 +0800, Herbert Xu wrote:
+> On Mon, Dec 12, 2022 at 10:07:38AM +0100, Roberto Sassu wrote:
+> > The problem is a misalignment between req->src_len (set to sig->s_size
+> > by akcipher_request_set_crypt()) and the length of the scatterlist (if
+> > we set the latter to sig->s_size + sig->digest_size).
+> > 
+> > When rsa_enc() calls mpi_read_raw_from_sgl(), it passes req->src_len as
+> > argument, and the latter allocates the MPI according to that. However,
+> > it does parsing depending on the length of the scatterlist.
+> > 
+> > If there are two scatterlists, it is not a problem, there is no
+> > misalignment. mpi_read_raw_from_sgl() picks the first. If there is just
+> > one, mpi_read_raw_from_sgl() parses all data there.
+> 
+> Thanks for the explanation.  That's definitely a bug which should
+> be fixed either in the RSA code or in MPI.
+> 
+> I'll look into it.
 
-Call Trace:
-[  647.820144] ------------[ cut here ]------------
-[  647.820848] kernel BUG at drivers/iommu/intel/iommu.c:1174!
-[  647.821486] invalid opcode: 0000 [#1] PREEMPT SMP PTI
-[  647.822082] CPU: 10 PID: 1181 Comm: qemu-system-x86 Not tainted 6.0.0-rc1home_lulu_2452_lulu7_vhost+ #62
-[  647.823139] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.15.0-29-g6a62e0cb0dfe-prebuilt.qem4
-[  647.824365] RIP: 0010:domain_unmap+0x48/0x110
-[  647.825424] Code: 48 89 fb 8d 4c f6 1e 39 c1 0f 4f c8 83 e9 0c 83 f9 3f 7f 18 48 89 e8 48 d3 e8 48 85 c0 75 59
-[  647.828064] RSP: 0018:ffffae5340c0bbf0 EFLAGS: 00010202
-[  647.828973] RAX: 0000000000000001 RBX: ffff921793d10540 RCX: 000000000000001b
-[  647.830083] RDX: 00000000080000ff RSI: 0000000000000001 RDI: ffff921793d10540
-[  647.831214] RBP: 0000000007fc0100 R08: ffffae5340c0bcd0 R09: 0000000000000003
-[  647.832388] R10: 0000007fc0100000 R11: 0000000000100000 R12: 00000000080000ff
-[  647.833668] R13: ffffae5340c0bcd0 R14: ffff921793d10590 R15: 0000008000100000
-[  647.834782] FS:  00007f772ec90640(0000) GS:ffff921ce7a80000(0000) knlGS:0000000000000000
-[  647.836004] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  647.836990] CR2: 00007f02c27a3a20 CR3: 0000000101b0c006 CR4: 0000000000372ee0
-[  647.838107] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  647.839283] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  647.840666] Call Trace:
-[  647.841437]  <TASK>
-[  647.842107]  intel_iommu_unmap_pages+0x93/0x140
-[  647.843112]  __iommu_unmap+0x91/0x1b0
-[  647.844003]  iommu_unmap+0x6a/0x95
-[  647.844885]  vhost_vdpa_unmap+0x1de/0x1f0 [vhost_vdpa]
-[  647.845985]  vhost_vdpa_process_iotlb_msg+0xf0/0x90b [vhost_vdpa]
-[  647.847235]  ? _raw_spin_unlock+0x15/0x30
-[  647.848181]  ? _copy_from_iter+0x8c/0x580
-[  647.849137]  vhost_chr_write_iter+0xb3/0x430 [vhost]
-[  647.850126]  vfs_write+0x1e4/0x3a0
-[  647.850897]  ksys_write+0x53/0xd0
-[  647.851688]  do_syscall_64+0x3a/0x90
-[  647.852508]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  647.853457] RIP: 0033:0x7f7734ef9f4f
-[  647.854408] Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 29 76 f8 ff 48 8b 54 24 18 48 8b 74 24 10 41 89 c8
-[  647.857217] RSP: 002b:00007f772ec8f040 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
-[  647.858486] RAX: ffffffffffffffda RBX: 00000000fef00000 RCX: 00007f7734ef9f4f
-[  647.859713] RDX: 0000000000000048 RSI: 00007f772ec8f090 RDI: 0000000000000010
-[  647.860942] RBP: 00007f772ec8f1a0 R08: 0000000000000000 R09: 0000000000000000
-[  647.862206] R10: 0000000000000001 R11: 0000000000000293 R12: 0000000000000010
-[  647.863446] R13: 0000000000000002 R14: 0000000000000000 R15: ffffffff01100000
-[  647.864692]  </TASK>
-[  647.865458] Modules linked in: rpcsec_gss_krb5 auth_rpcgss nfsv4 dns_resolver nfs lockd grace fscache netfs v]
-[  647.874688] ---[ end trace 0000000000000000 ]---
+Hi Herbert
 
-Cc: stable@vger.kernel.org
-Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
-Signed-off-by: Cindy Lu <lulu@redhat.com>
----
- drivers/vhost/vdpa.c | 40 +++++++++++++++++++++++-----------------
- 1 file changed, 23 insertions(+), 17 deletions(-)
+do you have any news on this bug?
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 166044642fd5..f8da6a3f98d2 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -683,10 +683,20 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
- 	mutex_unlock(&d->mutex);
- 	return r;
- }
-+static void vhost_vdpa_general_unmap(struct vhost_vdpa *v,
-+				     struct vhost_iotlb_map *map, u32 asid)
-+{
-+	struct vdpa_device *vdpa = v->vdpa;
-+	const struct vdpa_config_ops *ops = vdpa->config;
-+	if (ops->dma_map) {
-+		ops->dma_unmap(vdpa, asid, map->start, map->size);
-+	} else if (ops->set_map == NULL) {
-+		iommu_unmap(v->domain, map->start, map->size);
-+	}
-+}
- 
--static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v,
--				struct vhost_iotlb *iotlb,
--				u64 start, u64 last)
-+static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v, struct vhost_iotlb *iotlb,
-+				u64 start, u64 last, u32 asid)
- {
- 	struct vhost_dev *dev = &v->vdev;
- 	struct vhost_iotlb_map *map;
-@@ -703,13 +713,13 @@ static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v,
- 			unpin_user_page(page);
- 		}
- 		atomic64_sub(PFN_DOWN(map->size), &dev->mm->pinned_vm);
-+		vhost_vdpa_general_unmap(v, map, asid);
- 		vhost_iotlb_map_free(iotlb, map);
- 	}
- }
- 
--static void vhost_vdpa_va_unmap(struct vhost_vdpa *v,
--				struct vhost_iotlb *iotlb,
--				u64 start, u64 last)
-+static void vhost_vdpa_va_unmap(struct vhost_vdpa *v, struct vhost_iotlb *iotlb,
-+				u64 start, u64 last, u32 asid)
- {
- 	struct vhost_iotlb_map *map;
- 	struct vdpa_map_file *map_file;
-@@ -718,20 +728,21 @@ static void vhost_vdpa_va_unmap(struct vhost_vdpa *v,
- 		map_file = (struct vdpa_map_file *)map->opaque;
- 		fput(map_file->file);
- 		kfree(map_file);
-+		vhost_vdpa_general_unmap(v, map, asid);
- 		vhost_iotlb_map_free(iotlb, map);
- 	}
- }
- 
- static void vhost_vdpa_iotlb_unmap(struct vhost_vdpa *v,
--				   struct vhost_iotlb *iotlb,
--				   u64 start, u64 last)
-+				   struct vhost_iotlb *iotlb, u64 start,
-+				   u64 last, u32 asid)
- {
- 	struct vdpa_device *vdpa = v->vdpa;
- 
- 	if (vdpa->use_va)
--		return vhost_vdpa_va_unmap(v, iotlb, start, last);
-+		return vhost_vdpa_va_unmap(v, iotlb, start, last, asid);
- 
--	return vhost_vdpa_pa_unmap(v, iotlb, start, last);
-+	return vhost_vdpa_pa_unmap(v, iotlb, start, last, asid);
- }
- 
- static int perm_to_iommu_flags(u32 perm)
-@@ -798,17 +809,12 @@ static void vhost_vdpa_unmap(struct vhost_vdpa *v,
- 	const struct vdpa_config_ops *ops = vdpa->config;
- 	u32 asid = iotlb_to_asid(iotlb);
- 
--	vhost_vdpa_iotlb_unmap(v, iotlb, iova, iova + size - 1);
-+	vhost_vdpa_iotlb_unmap(v, iotlb, iova, iova + size - 1, asid);
- 
--	if (ops->dma_map) {
--		ops->dma_unmap(vdpa, asid, iova, size);
--	} else if (ops->set_map) {
-+	if (ops->set_map) {
- 		if (!v->in_batch)
- 			ops->set_map(vdpa, asid, iotlb);
--	} else {
--		iommu_unmap(v->domain, iova, size);
- 	}
--
- 	/* If we are in the middle of batch processing, delay the free
- 	 * of AS until BATCH_END.
- 	 */
--- 
-2.34.3
+Thanks
+
+Roberto
 
