@@ -2,55 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F50465132E
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:28:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16DF665131B
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232416AbiLST2C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:28:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51334 "EHLO
+        id S232159AbiLST1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:27:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232578AbiLST1r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E86912AE8;
-        Mon, 19 Dec 2022 11:27:46 -0800 (PST)
+        with ESMTP id S232995AbiLST1R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 300699FF6
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:26:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE60861128;
-        Mon, 19 Dec 2022 19:27:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7531C433EF;
-        Mon, 19 Dec 2022 19:27:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3E58B80EF6
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:26:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FB65C433D2;
+        Mon, 19 Dec 2022 19:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671478065;
-        bh=+l6fYEjZ8zaNn6yJ0BowpGeVO91nrKBeUQXrDwrHFic=;
-        h=From:To:Cc:Subject:Date:From;
-        b=X2LbN7Oq6bHL82yy/wx4Gf9F/89BL5qqi1yv8hBtvzdSSnIOlj4Hf7LltYiDv/RrL
-         vyjIMB4V+IrCSwOmMqm8hh5s8MJCcMSsK4dUQUkd2wXV6rtQoRESsKrYk8LQD8tNpf
-         VJtT1b7ErqNXE334LnbmU4VaxDJg8/sNWOzkqmWw=
+        s=korg; t=1671478014;
+        bh=QoXBBS7efzN+KjB96+CjCiVW1VNSfpT/cFiwnOtfoyk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=e45C6fsGcOqDx5nvFaoYsTGNM7Trk0heGUuEYiLdQttSkdwyA5XDghSNZcC+3/voC
+         OoV7eii+qaBBW/oQzdYQVPTTddXeYNPONHjXu0HQ3yo06lIVYxp6YZCOPlpg9zWvHE
+         LWkSUYkncH++rO0RSDZgVtRBocooOr8pbwNX2p8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: [PATCH 5.15 00/17] 5.15.85-rc1 review
-Date:   Mon, 19 Dec 2022 20:24:46 +0100
-Message-Id: <20221219182940.739981110@linuxfoundation.org>
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.15 01/17] udf: Discard preallocation before extending file with a hole
+Date:   Mon, 19 Dec 2022 20:24:47 +0100
+Message-Id: <20221219182940.785742320@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-MIME-Version: 1.0
+In-Reply-To: <20221219182940.739981110@linuxfoundation.org>
+References: <20221219182940.739981110@linuxfoundation.org>
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.85-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.15.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.15.85-rc1
-X-KernelTest-Deadline: 2022-12-21T18:29+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -62,102 +53,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.15.85 release.
-There are 17 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Jan Kara <jack@suse.cz>
 
-Responses should be made by Wed, 21 Dec 2022 18:29:31 +0000.
-Anything received after that time might be too late.
+commit 16d0556568148bdcaa45d077cac9f8f7077cf70a upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.85-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-and the diffstat can be found below.
+When extending file with a hole, we tried to preserve existing
+preallocation for the file. However that is not very useful and
+complicates code because the previous extent may need to be rounded to
+block boundary as well (which we forgot to do thus causing data
+corruption for sequence like:
 
-thanks,
+xfs_io -f -c "pwrite 0x75e63 11008" -c "truncate 0x7b24b" \
+  -c "truncate 0xabaa3" -c "pwrite 0xac70b 22954" \
+  -c "pwrite 0x93a43 11358" -c "pwrite 0xb8e65 52211" file
 
-greg k-h
+with 512-byte block size. Just discard preallocation before extending
+file to simplify things and also fix this data corruption.
 
--------------
-Pseudo-Shortlog of commits:
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ fs/udf/inode.c |   46 ++++++++++++++++++----------------------------
+ 1 file changed, 18 insertions(+), 28 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.15.85-rc1
-
-Rasmus Villemoes <linux@rasmusvillemoes.dk>
-    net: loopback: use NET_NAME_PREDICTABLE for name_assign_type
-
-Tiezhu Yang <yangtiezhu@loongson.cn>
-    selftests: net: Use "grep -E" instead of "egrep"
-
-Sungwoo Kim <iam@sung-woo.kim>
-    Bluetooth: L2CAP: Fix u8 overflow
-
-José Expósito <jose.exposito89@gmail.com>
-    HID: uclogic: Add HID_QUIRK_HIDINPUT_FORCE quirk
-
-Ferry Toth <ftoth@exalondelft.nl>
-    usb: ulpi: defer ulpi_register on ulpi_read_id timeout
-
-Shruthi Sanil <shruthi.sanil@intel.com>
-    usb: dwc3: pci: Update PCIe device ID for USB3 controller on CPU sub-system for Raptor Lake
-
-Tony Nguyen <anthony.l.nguyen@intel.com>
-    igb: Initialize mailbox message for VF reset
-
-Reka Norman <rekanorman@chromium.org>
-    xhci: Apply XHCI_RESET_TO_DEFAULT quirk to ADL-N
-
-Johan Hovold <johan@kernel.org>
-    USB: serial: f81534: fix division by zero on line-speed change
-
-Johan Hovold <johan@kernel.org>
-    USB: serial: f81232: fix division by zero on line-speed change
-
-Bruno Thomsen <bruno.thomsen@gmail.com>
-    USB: serial: cp210x: add Kamstrup RF sniffer PIDs
-
-Duke Xin <duke_xinanwen@163.com>
-    USB: serial: option: add Quectel EM05-G modem
-
-Szymon Heidrich <szymon.heidrich@gmail.com>
-    usb: gadget: uvc: Prevent buffer overflow in setup handler
-
-Jan Kara <jack@suse.cz>
-    udf: Fix extending file within last block
-
-Jan Kara <jack@suse.cz>
-    udf: Do not bother looking for prealloc extents if i_lenExtents matches i_size
-
-Jan Kara <jack@suse.cz>
-    udf: Fix preallocation discarding at indirect extent boundary
-
-Jan Kara <jack@suse.cz>
-    udf: Discard preallocation before extending file with a hole
-
-
--------------
-
-Diffstat:
-
- Makefile                                  |  4 +-
- drivers/hid/hid-uclogic-core.c            |  1 +
- drivers/net/ethernet/intel/igb/igb_main.c |  2 +-
- drivers/net/loopback.c                    |  2 +-
- drivers/usb/common/ulpi.c                 |  2 +-
- drivers/usb/dwc3/dwc3-pci.c               |  2 +-
- drivers/usb/gadget/function/f_uvc.c       |  5 +-
- drivers/usb/host/xhci-pci.c               |  4 +-
- drivers/usb/serial/cp210x.c               |  2 +
- drivers/usb/serial/f81232.c               | 12 +++--
- drivers/usb/serial/f81534.c               | 12 +++--
- drivers/usb/serial/option.c               |  3 ++
- fs/udf/inode.c                            | 76 ++++++++++++++-----------------
- fs/udf/truncate.c                         | 48 ++++++-------------
- net/bluetooth/l2cap_core.c                |  3 +-
- tools/testing/selftests/net/toeplitz.sh   |  2 +-
- 16 files changed, 84 insertions(+), 96 deletions(-)
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -438,6 +438,12 @@ static int udf_get_block(struct inode *i
+ 		iinfo->i_next_alloc_goal++;
+ 	}
+ 
++	/*
++	 * Block beyond EOF and prealloc extents? Just discard preallocation
++	 * as it is not useful and complicates things.
++	 */
++	if (((loff_t)block) << inode->i_blkbits > iinfo->i_lenExtents)
++		udf_discard_prealloc(inode);
+ 	udf_clear_extent_cache(inode);
+ 	phys = inode_getblk(inode, block, &err, &new);
+ 	if (!phys)
+@@ -487,8 +493,6 @@ static int udf_do_extend_file(struct ino
+ 	uint32_t add;
+ 	int count = 0, fake = !(last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
+ 	struct super_block *sb = inode->i_sb;
+-	struct kernel_lb_addr prealloc_loc = {};
+-	uint32_t prealloc_len = 0;
+ 	struct udf_inode_info *iinfo;
+ 	int err;
+ 
+@@ -509,19 +513,6 @@ static int udf_do_extend_file(struct ino
+ 			~(sb->s_blocksize - 1);
+ 	}
+ 
+-	/* Last extent are just preallocated blocks? */
+-	if ((last_ext->extLength & UDF_EXTENT_FLAG_MASK) ==
+-						EXT_NOT_RECORDED_ALLOCATED) {
+-		/* Save the extent so that we can reattach it to the end */
+-		prealloc_loc = last_ext->extLocation;
+-		prealloc_len = last_ext->extLength;
+-		/* Mark the extent as a hole */
+-		last_ext->extLength = EXT_NOT_RECORDED_NOT_ALLOCATED |
+-			(last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
+-		last_ext->extLocation.logicalBlockNum = 0;
+-		last_ext->extLocation.partitionReferenceNum = 0;
+-	}
+-
+ 	/* Can we merge with the previous extent? */
+ 	if ((last_ext->extLength & UDF_EXTENT_FLAG_MASK) ==
+ 					EXT_NOT_RECORDED_NOT_ALLOCATED) {
+@@ -549,7 +540,7 @@ static int udf_do_extend_file(struct ino
+ 		 * more extents, we may need to enter possible following
+ 		 * empty indirect extent.
+ 		 */
+-		if (new_block_bytes || prealloc_len)
++		if (new_block_bytes)
+ 			udf_next_aext(inode, last_pos, &tmploc, &tmplen, 0);
+ 	}
+ 
+@@ -583,17 +574,6 @@ static int udf_do_extend_file(struct ino
+ 	}
+ 
+ out:
+-	/* Do we have some preallocated blocks saved? */
+-	if (prealloc_len) {
+-		err = udf_add_aext(inode, last_pos, &prealloc_loc,
+-				   prealloc_len, 1);
+-		if (err)
+-			return err;
+-		last_ext->extLocation = prealloc_loc;
+-		last_ext->extLength = prealloc_len;
+-		count++;
+-	}
+-
+ 	/* last_pos should point to the last written extent... */
+ 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
+ 		last_pos->offset -= sizeof(struct short_ad);
+@@ -646,8 +626,17 @@ static int udf_extend_file(struct inode
+ 	else
+ 		BUG();
+ 
++	/*
++	 * When creating hole in file, just don't bother with preserving
++	 * preallocation. It likely won't be very useful anyway.
++	 */
++	udf_discard_prealloc(inode);
++
+ 	etype = inode_bmap(inode, first_block, &epos, &eloc, &elen, &offset);
+ 	within_final_block = (etype != -1);
++	/* We don't expect extents past EOF... */
++	WARN_ON_ONCE(etype != -1 &&
++		     elen > ((loff_t)offset + 1) << inode->i_blkbits);
+ 
+ 	if ((!epos.bh && epos.offset == udf_file_entry_alloc_offset(inode)) ||
+ 	    (epos.bh && epos.offset == sizeof(struct allocExtDesc))) {
+@@ -776,10 +765,11 @@ static sector_t inode_getblk(struct inod
+ 		goto out_free;
+ 	}
+ 
+-	/* Are we beyond EOF? */
++	/* Are we beyond EOF and preallocated extent? */
+ 	if (etype == -1) {
+ 		int ret;
+ 		loff_t hole_len;
++
+ 		isBeyondEOF = true;
+ 		if (count) {
+ 			if (c)
 
 
