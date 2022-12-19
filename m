@@ -2,173 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB026515B6
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 23:54:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B02536516B0
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 00:22:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231860AbiLSWyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 17:54:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51304 "EHLO
+        id S229607AbiLSXWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 18:22:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230091AbiLSWyn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 17:54:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F5B612A99;
-        Mon, 19 Dec 2022 14:54:41 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14356B81041;
-        Mon, 19 Dec 2022 22:54:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B86B6C433EF;
-        Mon, 19 Dec 2022 22:54:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1671490478;
-        bh=56zPAhXWjjrQVaeIzfV2LiLrLyHiDNRWM2KQd62kxg8=;
-        h=Date:To:From:Subject:From;
-        b=PCfa14NCYRy2ITzD7/AVVHsGMtztpg1kkeCjAcxxERNdMIFB1IXcUlPveKrHO3XcT
-         4+g/kH5JJhNaPr+kDM5Fr0kFvKSIv00fhVHTkifQk9koj3udRIMKGs3ngUBmDS7/2W
-         zTwc0eDIJkcHAHGBwCSMgz6DvKOuPZc/7v+10/l4=
-Date:   Mon, 19 Dec 2022 14:54:37 -0800
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        songmuchun@bytedance.com, shakeelb@google.com,
-        roman.gushchin@linux.dev, mhocko@suse.com, hughd@google.com,
-        hannes@cmpxchg.org, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-memcontrol-deprecate-charge-moving.patch added to mm-unstable branch
-Message-Id: <20221219225438.B86B6C433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229441AbiLSXWK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 18:22:10 -0500
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3720E5FA0;
+        Mon, 19 Dec 2022 15:22:09 -0800 (PST)
+Received: by mail-pj1-x1034.google.com with SMTP id b13-20020a17090a5a0d00b0021906102d05so10367651pjd.5;
+        Mon, 19 Dec 2022 15:22:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=92qNU0Pb2An2LZWcMglNNqJebkSusC9umdTJ4WDVykw=;
+        b=pjzTUfJ46fLQi4dWC9vri+3Yn1OAC9s266Yv9Ns5Bxwtfw2TtPg6AABhb6JZcbvYam
+         18ZqgY9J+IxnxZMKpU/HJlUB80YQP5ewnR2boqsMCy5lfaaAXnwiPdapfoNRCLfcL1rv
+         zSsy8zNgp3094o3iwciKyFFe/mFKza5jdJE5v3lwn+9EZJN0FyUckgYevwlbc87wW2E0
+         x8Yi3zbOrvxUNe6KXt/9KsHMp2mN7sNM0AN7Kr0Wk7gIRo1PqEuNNnt+TsWY0V1eDZx+
+         8/jWt5ycHQ1TlhFuJ54l4BG2EB4jiPT5PCnriVT6CnGSSN0gmBeIu8xbFu4HXRrggXbu
+         9rSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=92qNU0Pb2An2LZWcMglNNqJebkSusC9umdTJ4WDVykw=;
+        b=NVCrGl/R+F/SriHgD1MsIqE7GEEoMaQahLV3Ct8IVasI7zd56ZPTayKHpJatW/Bq8D
+         1S+bJH325lKuKoz/iI4tlfjuQuzvifisc14YVsEFNgn4l0uOjjq3kgFlqstxeNHJlqmV
+         emiJUkNno1fRt2KhsqFxkcsZGBJ2KDda/uzZL1MbmBp5A2hJ8WA487VEJv61tNLpZdHb
+         2FNwsVbBwKQsanqVy+Cnlr0+DKEgBFqBTjbSagGcdu03lc5bajElVkqxOc7PLnO/yNQB
+         F2hH0pBwv+2neCHm+MrozjSd+GqkRQGWZnFnkFTbJ1XA3+1+5m7P/UKXY/XjRhwjcVMM
+         OdbA==
+X-Gm-Message-State: AFqh2kpo/8cNOpDgrPwwXJebrz46rHymTLmUF7EO9Ome5em6eFXm378v
+        8/WCQQHj1HD+rMn1Ocrhgtg=
+X-Google-Smtp-Source: AMrXdXsUNtrXcUDFBBp/ETSAt1qfFRJ2Ev7+yfubKUCERURB2rFZdvhPppebIcm2RnanK6C8hX+1yg==
+X-Received: by 2002:a17:902:f648:b0:191:327d:ddc0 with SMTP id m8-20020a170902f64800b00191327dddc0mr857547plg.21.1671492128605;
+        Mon, 19 Dec 2022 15:22:08 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id b12-20020a170903228c00b00177faf558b5sm7677791plh.250.2022.12.19.15.22.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 19 Dec 2022 15:22:08 -0800 (PST)
+Message-ID: <af80e9fe-2929-d909-4c11-4fdcffd74780@gmail.com>
+Date:   Mon, 19 Dec 2022 15:21:55 -0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH 5.10 00/18] 5.10.161-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221219182940.701087296@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20221219182940.701087296@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 12/19/22 11:24, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.161 release.
+> There are 18 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 21 Dec 2022 18:29:31 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.161-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-The patch titled
-     Subject: mm: memcontrol: deprecate charge moving
-has been added to the -mm mm-unstable branch.  Its filename is
-     mm-memcontrol-deprecate-charge-moving.patch
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-memcontrol-deprecate-charge-moving.patch
-
-This patch will later appear in the mm-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Johannes Weiner <hannes@cmpxchg.org>
-Subject: mm: memcontrol: deprecate charge moving
-Date: Wed, 7 Dec 2022 14:00:39 +0100
-
-Charge moving mode in cgroup1 allows memory to follow tasks as they
-migrate between cgroups.  This is, and always has been, a questionable
-thing to do - for several reasons.
-
-First, it's expensive.  Pages need to be identified, locked and isolated
-from various MM operations, and reassigned, one by one.
-
-Second, it's unreliable.  Once pages are charged to a cgroup, there isn't
-always a clear owner task anymore.  Cache isn't moved at all, for example.
-Mapped memory is moved - but if trylocking or isolating a page fails,
-it's arbitrarily left behind.  Frequent moving between domains may leave a
-task's memory scattered all over the place.
-
-Third, it isn't really needed.  Launcher tasks can kick off workload tasks
-directly in their target cgroup.  Using dedicated per-workload groups
-allows fine-grained policy adjustments - no need to move tasks and their
-physical pages between control domains.  The feature was never
-forward-ported to cgroup2, and it hasn't been missed.
-
-Despite it being a niche usecase, the maintenance overhead of supporting
-it is enormous.  Because pages are moved while they are live and subject
-to various MM operations, the synchronization rules are complicated. 
-There are lock_page_memcg() in MM and FS code, which non-cgroup people
-don't understand.  In some cases we've been able to shift code and cgroup
-API calls around such that we can rely on native locking as much as
-possible.  But that's fragile, and sometimes we need to hold MM locks for
-longer than we otherwise would (pte lock e.g.).
-
-Mark the feature deprecated. Hopefully we can remove it soon.
-
-And backport into -stable kernels so that people who develop against
-earlier kernels are warned about this deprecation as early as possible.
-
-Link: https://lkml.kernel.org/r/Y5COd+qXwk/S+n8N@cmpxchg.org
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Hugh Dickins <hughd@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Roman Gushchin <roman.gushchin@linux.dev>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- Documentation/admin-guide/cgroup-v1/memory.rst |   11 ++++++++++-
- mm/memcontrol.c                                |    4 ++++
- 2 files changed, 14 insertions(+), 1 deletion(-)
-
---- a/Documentation/admin-guide/cgroup-v1/memory.rst~mm-memcontrol-deprecate-charge-moving
-+++ a/Documentation/admin-guide/cgroup-v1/memory.rst
-@@ -86,6 +86,8 @@ Brief summary of control files.
-  memory.swappiness		     set/show swappiness parameter of vmscan
- 				     (See sysctl's vm.swappiness)
-  memory.move_charge_at_immigrate     set/show controls of moving charges
-+                                     This knob is deprecated and shouldn't be
-+                                     used.
-  memory.oom_control		     set/show oom controls.
-  memory.numa_stat		     show the number of memory usage per numa
- 				     node
-@@ -717,9 +719,16 @@ NOTE2:
-        It is recommended to set the soft limit always below the hard limit,
-        otherwise the hard limit will take precedence.
- 
--8. Move charges at task migration
-+8. Move charges at task migration (DEPRECATED!)
- =================================
- 
-+THIS IS DEPRECATED!
-+
-+It's expensive and unreliable! It's better practice to launch workload
-+tasks directly from inside their target cgroup. Use dedicated workload
-+cgroups to allow fine-grained policy adjustments without having to
-+move physical pages between control domains.
-+
- Users can move charges associated with a task along with task migration, that
- is, uncharge task's pages from the old cgroup and charge them to the new cgroup.
- This feature is not supported in !CONFIG_MMU environments because of lack of
---- a/mm/memcontrol.c~mm-memcontrol-deprecate-charge-moving
-+++ a/mm/memcontrol.c
-@@ -3919,6 +3919,10 @@ static int mem_cgroup_move_charge_write(
- {
- 	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
- 
-+	pr_warn_once("Cgroup memory moving (move_charge_at_immigrate) is deprecated. "
-+		     "Please report your usecase to linux-mm@kvack.org if you "
-+		     "depend on this functionality.\n");
-+
- 	if (val & ~MOVE_MASK)
- 		return -EINVAL;
- 
-_
-
-Patches currently in -mm which might be from hannes@cmpxchg.org are
-
-mm-memcontrol-skip-moving-non-present-pages-that-are-mapped-elsewhere.patch
-mm-rmap-remove-lock_page_memcg.patch
-mm-memcontrol-deprecate-charge-moving.patch
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
 
