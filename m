@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10ADD651332
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:28:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25EED65131C
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232796AbiLST2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:28:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49764 "EHLO
+        id S232866AbiLST1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:27:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231531AbiLST1w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E04125D6
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:27:52 -0800 (PST)
+        with ESMTP id S232176AbiLST1T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED2CE6A
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:26:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF8DC60EF0
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:27:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3796C433EF;
-        Mon, 19 Dec 2022 19:27:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABC07B80EF6
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:26:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F38BBC433D2;
+        Mon, 19 Dec 2022 19:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671478071;
-        bh=hky+L9OqszPzzfyyNFRtDqP5ZOd/0ysZcJ2HNj/l+b4=;
+        s=korg; t=1671478017;
+        bh=9PflqMHndcrEEj+KVu6hLngyH7XT+6q3LunISMM9Eoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zg4+TG1CyD5KZ0oeK4dQNT2E95VXwAaDJjDCPykUIUmOp1aKh+4IefNsaxLhm0mWR
-         5d5+G+NT0rk6/bQgzJOEWtZyNGZhqEMQj72wvM3ZfFvrQWhYpE6KFJ+iIt2sklR82a
-         3sAZzJrRqUXU0vV5+qpkvmz/Ax5OqTeqzsbzMhX8=
+        b=pfpg3wi/7emVdQpLrpBU0lQhQ0Up1d/qU9FcthsmOptWFjlWb9pWBRK6/KWL+JNiv
+         znl2Ot0+0VfliWSkfP5yP78PUpPj3MlmOBgqD6NHKW3nF+puejJ+BSLJp9EdsBX9JO
+         Z8rEdNY1AGV9eAdFTkGsxjp5pGVtm0i5Zgl3yTww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.10 02/18] udf: Fix preallocation discarding at indirect extent boundary
-Date:   Mon, 19 Dec 2022 20:24:55 +0100
-Message-Id: <20221219182940.777307576@linuxfoundation.org>
+        patches@lists.linux.dev, Reka Norman <rekanorman@chromium.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.15 10/17] xhci: Apply XHCI_RESET_TO_DEFAULT quirk to ADL-N
+Date:   Mon, 19 Dec 2022 20:24:56 +0100
+Message-Id: <20221219182941.053489013@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221219182940.701087296@linuxfoundation.org>
-References: <20221219182940.701087296@linuxfoundation.org>
+In-Reply-To: <20221219182940.739981110@linuxfoundation.org>
+References: <20221219182940.739981110@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,96 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Reka Norman <rekanorman@chromium.org>
 
-commit cfe4c1b25dd6d2f056afc00b7c98bcb3dd0b1fc3 upstream.
+commit fed70b61ef2c0aed54456db3d485b215f6cc3209 upstream.
 
-When preallocation extent is the first one in the extent block, the
-code would corrupt extent tree header instead. Fix the problem and use
-udf_delete_aext() for deleting extent to avoid some code duplication.
+ADL-N systems have the same issue as ADL-P, where a large boot firmware
+delay is seen if USB ports are left in U3 at shutdown. So apply the
+XHCI_RESET_TO_DEFAULT quirk to ADL-N as well.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+This patch depends on commit 34cd2db408d5 ("xhci: Add quirk to reset
+host back to default state at shutdown").
+
+The issue it fixes is a ~20s boot time delay when booting from S5. It
+affects ADL-N devices, and ADL-N support was added starting from v5.16.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Reka Norman <rekanorman@chromium.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20221130091944.2171610-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/truncate.c |   45 +++++++++++++--------------------------------
- 1 file changed, 13 insertions(+), 32 deletions(-)
+ drivers/usb/host/xhci-pci.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/udf/truncate.c
-+++ b/fs/udf/truncate.c
-@@ -120,60 +120,41 @@ void udf_truncate_tail_extent(struct ino
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -59,6 +59,7 @@
+ #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
+ #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
+ #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI		0x51ed
++#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_PCH_XHCI	0x54ed
  
- void udf_discard_prealloc(struct inode *inode)
- {
--	struct extent_position epos = { NULL, 0, {0, 0} };
-+	struct extent_position epos = {};
-+	struct extent_position prev_epos = {};
- 	struct kernel_lb_addr eloc;
- 	uint32_t elen;
- 	uint64_t lbcount = 0;
- 	int8_t etype = -1, netype;
--	int adsize;
- 	struct udf_inode_info *iinfo = UDF_I(inode);
+ #define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
+@@ -247,7 +248,8 @@ static void xhci_pci_quirks(struct devic
+ 		xhci->quirks |= XHCI_MISSING_CAS;
  
- 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB ||
- 	    inode->i_size == iinfo->i_lenExtents)
- 		return;
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+-	    pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI)
++	    (pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_PCH_XHCI))
+ 		xhci->quirks |= XHCI_RESET_TO_DEFAULT;
  
--	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
--		adsize = sizeof(struct short_ad);
--	else if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_LONG)
--		adsize = sizeof(struct long_ad);
--	else
--		adsize = 0;
--
- 	epos.block = iinfo->i_location;
- 
- 	/* Find the last extent in the file */
--	while ((netype = udf_next_aext(inode, &epos, &eloc, &elen, 1)) != -1) {
--		etype = netype;
-+	while ((netype = udf_next_aext(inode, &epos, &eloc, &elen, 0)) != -1) {
-+		brelse(prev_epos.bh);
-+		prev_epos = epos;
-+		if (prev_epos.bh)
-+			get_bh(prev_epos.bh);
-+
-+		etype = udf_next_aext(inode, &epos, &eloc, &elen, 1);
- 		lbcount += elen;
- 	}
- 	if (etype == (EXT_NOT_RECORDED_ALLOCATED >> 30)) {
--		epos.offset -= adsize;
- 		lbcount -= elen;
--		extent_trunc(inode, &epos, &eloc, etype, elen, 0);
--		if (!epos.bh) {
--			iinfo->i_lenAlloc =
--				epos.offset -
--				udf_file_entry_alloc_offset(inode);
--			mark_inode_dirty(inode);
--		} else {
--			struct allocExtDesc *aed =
--				(struct allocExtDesc *)(epos.bh->b_data);
--			aed->lengthAllocDescs =
--				cpu_to_le32(epos.offset -
--					    sizeof(struct allocExtDesc));
--			if (!UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_STRICT) ||
--			    UDF_SB(inode->i_sb)->s_udfrev >= 0x0201)
--				udf_update_tag(epos.bh->b_data, epos.offset);
--			else
--				udf_update_tag(epos.bh->b_data,
--					       sizeof(struct allocExtDesc));
--			mark_buffer_dirty_inode(epos.bh, inode);
--		}
-+		udf_delete_aext(inode, prev_epos);
-+		udf_free_blocks(inode->i_sb, inode, &eloc, 0,
-+				DIV_ROUND_UP(elen, 1 << inode->i_blkbits));
- 	}
- 	/* This inode entry is in-memory only and thus we don't have to mark
- 	 * the inode dirty */
- 	iinfo->i_lenExtents = lbcount;
- 	brelse(epos.bh);
-+	brelse(prev_epos.bh);
- }
- 
- static void udf_update_alloc_ext_desc(struct inode *inode,
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
 
 
