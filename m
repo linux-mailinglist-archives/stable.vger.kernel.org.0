@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F4AC65143A
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 21:46:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DD7A65143E
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 21:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232642AbiLSUq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 15:46:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57680 "EHLO
+        id S230007AbiLSUq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 15:46:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232586AbiLSUqZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 15:46:25 -0500
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9494C120A2
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 12:46:24 -0800 (PST)
-Received: by mail-yb1-xb4a.google.com with SMTP id i10-20020a25f20a000000b006ea4f43c0ddso12126585ybe.21
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 12:46:24 -0800 (PST)
+        with ESMTP id S232302AbiLSUq1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 15:46:27 -0500
+Received: from mail-il1-x14a.google.com (mail-il1-x14a.google.com [IPv6:2607:f8b0:4864:20::14a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D511276F
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 12:46:26 -0800 (PST)
+Received: by mail-il1-x14a.google.com with SMTP id l13-20020a056e021c0d00b003034e24b866so7340054ilh.22
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 12:46:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=6S5anngOGqBeJ8dWJgoyIXF8JBImIfN2OM+kqAQMiJE=;
-        b=gnQMVJ3xF+K9w4Ke8/SF9LQfX63JngjuAaaKEfwICm0afC0ubsmlLvX2d+aJYYPPut
-         xwDVxhQ+UVNR6WozYsWHk2OzoMgMuRCsS7/M2n8kC3agf1OnnvKkjN3Vajtk5OGqxQFA
-         7xXkYzcDyqKcOR4oR0UgA1nDOo/Cmx29kWXiVsRI8HQqaTtfntgrPzQGh9MJJepxkBbX
-         bU/wUvhMA1u9zzQq9V+8A6YAURGA388ei9l+gpGY8fr57zm3z7k2LLw5klooWKkMe/iT
-         G7qCAr3jLShHNmsds2xY+/62uvMpDO/xyAprxT1lJZ4oAusILamm3Cvn4cN/R3SAIwlB
-         PvYA==
+        bh=S7UrSOUGP+a8SdpdysICkGiHV2UeH0pTpanyW1FANts=;
+        b=awanE9lkV2lS1NwSLmOwByOYf9g/kmku46qRrN0Qko+KTOC8NCLFn939E5b1YSq9iE
+         e8I9HjrFjaRH0YufjNA1YtUq9cELaJ/9oNQKRTURdsAHf0fZon3vCt85dCE7CkNfgrjC
+         GXtBmi0BQRPJPJkYcQi54sqSOrS4J5dF1RyBWcpQyas9hZUtYOs4UVkV/JtfbIWA2egd
+         cvWbTIKloG9IS/l1R1KDWneqFiiJf4OOK/QnHPK1LYTUrkxwjGNgcqRHPCMesXO+htkB
+         kQtPISQPX62cnn3pPqXepP2ZWMru0HvYxM01YPdFLwKrtpmjVBJsOC3Ox96baIQSNggn
+         BdlA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=6S5anngOGqBeJ8dWJgoyIXF8JBImIfN2OM+kqAQMiJE=;
-        b=akhXNcxSqUDvo9iAy/icm2q7VzU1suUGCumoN0HbIwrwSP4inLwA0Wqw/37cqbJy2r
-         8kIuE60WQHHw3eDwZuwNH+3KiyeRko0+H8NgGo55OzsALXSOSG2FxjyjfdjzmbchSv7U
-         07J1qHoIk6AUulXwNuQMorSJhx+egE2s53cRe+Gn+0uuFF0g7CbEYm/wEa2/7MWI87Go
-         5yc9sO6dbPXYjQmWAwr6CkOVbjLVns/ZUVTNyxF7kbahbEE74TTcg7gM0IqVGz+59b1B
-         ohik5Naxt4AWxAmiK91dKKVq7DESDBGEqh/uZNKWGCkeGrKMx12zC1xCjbZfVGHEUfQt
-         fT9A==
-X-Gm-Message-State: ANoB5pl0Lvkp4t9JdjyqG43bifYh9dvQqm7FMczqxIxTIkXQTc+ZhjTE
-        kduqryOI59byJqeNmHdVSE5RQ5fLpGYBj1E=
-X-Google-Smtp-Source: AA0mqf7kZBjoNWYV8TibcRALWUvI1Rfi91G32OQZdtuSY8fGUv9/eoVoqpXctVBvfvV0GPpqkHk4vvZGgsZlRtU=
+        bh=S7UrSOUGP+a8SdpdysICkGiHV2UeH0pTpanyW1FANts=;
+        b=kytOtDXao4a3cAl2Nz8a49k30c400kU7xaWMi8cNVJLh+vW4zu5XrUW9iA0maB7XVL
+         apnbOA5FH5lO6uqui1BUNs/jvCZ52FKhQBlh+YeOEBXmJJ2WEBnyADt0FMzw7s/GHMNR
+         bShKRo8hVPoGmPPnq2Iq97Q153WQAbkGuIxx99B9zYFLwKyxPXfU/nbVcurfeiuZ0Yns
+         u8/ld5lNl6qJZwSAkmtNnfmrOJN2g9WMfpkHG4ifJEHGJz9ekLDWWkcbl5dmy+/j9ojk
+         cLvt9vkhK/er4mv5ZczuxzSx99yiH99UkKiK9iJbIyQeJoQK+PGIexPJmkMGju6Rzm0t
+         /9sQ==
+X-Gm-Message-State: AFqh2kpXsTs89YvmNTD873HbC6KMl+hV26Fj+mXTnpq/o0ZgGIF68ZJv
+        7OS23wwxalC3LK9QDmE2Seo2Uhz8AJHIWpc=
+X-Google-Smtp-Source: AMrXdXvASLX+bEGK9PqHTbJ1D5tdl6EsQ+ZoWrZiL0X8c3M6xdBh7C7vDHsT1vuh3MKDIJ0/3XEWDcW2a90QzlA=
 X-Received: from allenwebb.c.googlers.com ([fda3:e722:ac3:cc00:2b:ff92:c0a8:12e8])
- (user=allenwebb job=sendgmr) by 2002:a25:e807:0:b0:6f8:a76c:7a23 with SMTP id
- k7-20020a25e807000000b006f8a76c7a23mr45891538ybd.513.1671482783822; Mon, 19
- Dec 2022 12:46:23 -0800 (PST)
-Date:   Mon, 19 Dec 2022 14:46:10 -0600
+ (user=allenwebb job=sendgmr) by 2002:a05:6e02:ec7:b0:30b:b665:fdc4 with SMTP
+ id i7-20020a056e020ec700b0030bb665fdc4mr529287ilk.27.1671482786264; Mon, 19
+ Dec 2022 12:46:26 -0800 (PST)
+Date:   Mon, 19 Dec 2022 14:46:12 -0600
 In-Reply-To: <20221219204619.2205248-1-allenwebb@google.com>
 Mime-Version: 1.0
 References: <20221219191855.2010466-1-allenwebb@google.com> <20221219204619.2205248-1-allenwebb@google.com>
 X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
-Message-ID: <20221219204619.2205248-3-allenwebb@google.com>
-Subject: [PATCH v9 02/10] rockchip-mailbox: Fix typo
+Message-ID: <20221219204619.2205248-5-allenwebb@google.com>
+Subject: [PATCH v9 04/10] stmpe-spi: Fix typo
 From:   Allen Webb <allenwebb@google.com>
 To:     "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
         "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
@@ -72,30 +72,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A one character difference in the name supplied to MODULE_DEVICE_TABLE
+A small difference in the name supplied to MODULE_DEVICE_TABLE
 breaks a future patch set, so fix the typo.
 
 Cc: stable@vger.kernel.org
-Fixes: f70ed3b5dc8b ("mailbox: rockchip: Add Rockchip mailbox driver")
+Fixes: e789995d5c61 ("mfd: Add support for STMPE SPI interface")
 Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Allen Webb <allenwebb@google.com>
 ---
- drivers/mailbox/rockchip-mailbox.c | 2 +-
+ drivers/mfd/stmpe-spi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mailbox/rockchip-mailbox.c b/drivers/mailbox/rockchip-mailbox.c
-index 979acc810f30..ca50f7f176f6 100644
---- a/drivers/mailbox/rockchip-mailbox.c
-+++ b/drivers/mailbox/rockchip-mailbox.c
-@@ -159,7 +159,7 @@ static const struct of_device_id rockchip_mbox_of_match[] = {
- 	{ .compatible = "rockchip,rk3368-mailbox", .data = &rk3368_drv_data},
- 	{ },
+diff --git a/drivers/mfd/stmpe-spi.c b/drivers/mfd/stmpe-spi.c
+index ad8055a0e286..6791a5368977 100644
+--- a/drivers/mfd/stmpe-spi.c
++++ b/drivers/mfd/stmpe-spi.c
+@@ -129,7 +129,7 @@ static const struct spi_device_id stmpe_spi_id[] = {
+ 	{ "stmpe2403", STMPE2403 },
+ 	{ }
  };
--MODULE_DEVICE_TABLE(of, rockchp_mbox_of_match);
-+MODULE_DEVICE_TABLE(of, rockchip_mbox_of_match);
+-MODULE_DEVICE_TABLE(spi, stmpe_id);
++MODULE_DEVICE_TABLE(spi, stmpe_spi_id);
  
- static int rockchip_mbox_probe(struct platform_device *pdev)
- {
+ static struct spi_driver stmpe_spi_driver = {
+ 	.driver = {
 -- 
 2.37.3
 
