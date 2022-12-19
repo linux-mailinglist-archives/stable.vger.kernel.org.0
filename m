@@ -2,43 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3274B650E72
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 16:15:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99082650E81
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 16:18:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232889AbiLSPPW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 10:15:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43118 "EHLO
+        id S231401AbiLSPSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 10:18:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232866AbiLSPPR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 10:15:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C22CE65DF
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 07:15:15 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A0BFB80E56
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 15:15:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B92E5C433EF;
-        Mon, 19 Dec 2022 15:15:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671462913;
-        bh=URL3Eves0TeL4rORoyB3VbscNRp9uQetyOxljCYmiTM=;
-        h=Subject:To:Cc:From:Date:From;
-        b=merJfnBsFZKSRngLwieSwzfQT3u+EE1/XgMHbSwDp4tPhhIHPcIGfdJoPVnCtKmGr
-         2ckYdANewucwI4uXDxApLDlcD59pKHxkXfAkBv213FYWdHialelnKTXyXYcqZts+PE
-         UVZ5JQUA8KEggxl0SPUKVj922icf5SI66gUqeon4=
-Subject: FAILED: patch "[PATCH] cifs: fix oops during encryption" failed to apply to 4.9-stable tree
-To:     pc@cjr.nz, stfrench@microsoft.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 19 Dec 2022 16:15:02 +0100
-Message-ID: <1671462902221112@kroah.com>
+        with ESMTP id S232320AbiLSPRq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 10:17:46 -0500
+Received: from mail-ua1-x92a.google.com (mail-ua1-x92a.google.com [IPv6:2607:f8b0:4864:20::92a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77397BAF
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 07:17:45 -0800 (PST)
+Received: by mail-ua1-x92a.google.com with SMTP id p9so2137814uam.12
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 07:17:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Hzg9lEbdoeIi95HGge8FIicgyWxpuv5ofad+2T9Oo+w=;
+        b=vf+EdVAqFRrbZV6gfZgTJTQZFxIIxxcX/kzR2qP1xzXQ0BvyLOHyhqcm0TZ8Sd/k9u
+         zmWHDKo7VDm/fHJ88Yxwmmw0sVCY9N9KsiHYMwsA5rnIE6hfTKNyDnY4bTbZyOHSywQ0
+         sD6gdp+RW+TEyLMYAvxibdK/BRYuYKWrPXjrsijq0gsiI7K1aPLTeviNrOgT+VzHzCC1
+         HnL/qb9SSb7sbztMpCgnCWcI2Y6DZ0iJNT9IWpys9BF0HZQ0ZXIamagLlTFXiwE4ortf
+         hH1FQSusn8bqh14f2/uLxL5kItJp7e3OMa7J6ZAIPsYcHEStyeoQyWrFGK/t1nMX2ZpX
+         Eukg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Hzg9lEbdoeIi95HGge8FIicgyWxpuv5ofad+2T9Oo+w=;
+        b=j9+n6t6n4hWbEx2sPCtP7eTs3CY0hUbtS3+VwM8ZxM4A43dy53K3JucA6rdk956m5N
+         E/6fh5gwnGa97f+6f+vkKJwHwMlunb1OJ4XBg8VaTOkXU3EL+B7R2MiMFlRtug91Z66d
+         cxzsMZA3MhtBGJw/w/1WoMXjJC0Oo7uKmXJKgwRfl343eNaWfkubhskEicKXkB0gl5LQ
+         iuThX9pNfj4k3qDl2/1Mh2LbelQV3sHRfu6hWYBc2b2s4d8j+GDKuwurj7HKyfApsdeb
+         a+HnZeSCQA56fRk+VKG7v3ais9OJuvh+KKFjYWGLcJQcODdmMzHrHbjvmj4a5kXvG0fQ
+         /MbA==
+X-Gm-Message-State: ANoB5pnTGoxiM8Rm24+VDbJQK8ZrwETeyE5/NH+zeI9KTh2ZatkfIk5E
+        cspZTnjbYUuMYX/qaeVjOA+zcDusLIiFXAjtMnRr0SkkvE1qvauc
+X-Google-Smtp-Source: AA0mqf5MLDW8jZ95Id9Fy4LwMIM44AGn9kHCeWhushX2D+H1XHrWeoYu94ghiY/VR5EVuElL/fPp0ny1hXipMlmzOmw=
+X-Received: by 2002:a9f:3588:0:b0:418:7beb:6f42 with SMTP id
+ t8-20020a9f3588000000b004187beb6f42mr51439847uad.92.1671463064068; Mon, 19
+ Dec 2022 07:17:44 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 19 Dec 2022 20:47:32 +0530
+Message-ID: <CA+G9fYs=G_AAbkNOfLv7Oyvt6uOZ8CYun8fUQ-GghoKtbD5WAw@mail.gmail.com>
+Subject: Linux-stable-rc/ queue_5.10
+To:     linux-stable <stable@vger.kernel.org>, llvm@lists.linux.dev
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Shuah Khan <shuah@kernel.org>, lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,427 +62,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The MIPS tinyconfig with clang nightly  build failed,
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Possible dependencies:
+Build warnings / errors,
+make --silent --keep-going --jobs=8
+O=/home/tuxbuild/.cache/tuxmake/builds/1/build LLVM=1 LLVM_IAS=0
+ARCH=mips CROSS_COMPILE=mips-linux-gnu- HOSTCC=clang CC=clang
+tinyconfig
 
-f7f291e14dde ("cifs: fix oops during encryption")
-76894f3e2f71 ("cifs: improve symlink handling for smb2+")
-a4e430c8c8ba ("cifs: replace kfree() with kfree_sensitive() for sensitive data")
-a63ec83c462b ("cifs: Add constructor/destructors for tcon->cfid")
-dcb45fd7f501 ("cifs: Do not use tcon->cfid directly, use the cfid we get from open_cached_dir")
-05b98fd2da6b ("cifs: Move cached-dir functions into a separate file")
-fb157ed226d2 ("cifs: when insecure legacy is disabled shrink amount of SMB1 code")
-d7d7a66aacd6 ("cifs: avoid use of global locks for high contention data")
-9543c8ab3016 ("cifs: list_for_each() -> list_for_each_entry()")
-4da2cd0517e0 ("cifs: remove redundant initialization to variable mnt_sign_enabled")
-af3a6d1018f0 ("cifs: update cifs_ses::ip_addr after failover")
-b54034a73baf ("cifs: during reconnect, update interface if necessary")
-387ba9bf4cb8 ("cifs: do not build smb1ops if legacy support is disabled")
-cc391b694ff0 ("cifs: fix potential deadlock in direct reclaim")
-44a48081fc03 ("smb3: remove unneeded null check in cifs_readdir")
-d87c48ce4d89 ("cifs: cache the dirents for entries in a cached directory")
-5752bf645f9d ("cifs: avoid parallel session setups on same channel")
-dd3cd8709ed5 ("cifs: use new enum for ses_status")
-1a6a41d4cedd ("cifs: do not use tcpStatus after negotiate completes")
-bbdf6cf56c88 ("smb3: check for null tcon")
+/tmp/calibrate-9ea8cf.s: Assembler messages:
+/tmp/calibrate-9ea8cf.s:134: Error: .module is not permitted after
+generating code
+/tmp/calibrate-9ea8cf.s:168: Error: .module is not permitted after
+generating code
+/tmp/calibrate-9ea8cf.s:192: Error: .module is not permitted after
+generating code
+/tmp/calibrate-9ea8cf.s:216: Error: .module is not permitted after
+generating code
+clang: error: assembler command failed with exit code 1 (use -v to see
+invocation)
+make[2]: *** [/builds/linux/scripts/Makefile.build:286:
+init/calibrate.o] Error 1
 
-thanks,
+Build link,
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2J8KYpCyqe9C5esb4CrLQjCT3SN/
 
-greg k-h
+Steps to reproduce:
+------------------
+# To install tuxmake on your system globally:
+# sudo pip3 install -U tuxmake
+#
+# See https://docs.tuxmake.org/ for complete documentation.
+# Original tuxmake command with fragments listed below.
+# tuxmake --runtime podman --target-arch mips --toolchain
+clang-nightly --kconfig tinyconfig LLVM=1 LLVM_IAS=0
 
------------------- original commit in Linus's tree ------------------
+tuxmake --runtime podman --target-arch mips --toolchain clang-nightly
+--kconfig https://storage.tuxsuite.com/public/linaro/lkft/builds/2J8KYpCyqe9C5esb4CrLQjCT3SN/config
+LLVM=1 LLVM_IAS=0
 
-From f7f291e14dde32a07b1f0aa06921d28f875a7b54 Mon Sep 17 00:00:00 2001
-From: Paulo Alcantara <pc@cjr.nz>
-Date: Sun, 11 Dec 2022 18:18:55 -0300
-Subject: [PATCH] cifs: fix oops during encryption
-
-When running xfstests against Azure the following oops occurred on an
-arm64 system
-
-  Unable to handle kernel write to read-only memory at virtual address
-  ffff0001221cf000
-  Mem abort info:
-    ESR = 0x9600004f
-    EC = 0x25: DABT (current EL), IL = 32 bits
-    SET = 0, FnV = 0
-    EA = 0, S1PTW = 0
-    FSC = 0x0f: level 3 permission fault
-  Data abort info:
-    ISV = 0, ISS = 0x0000004f
-    CM = 0, WnR = 1
-  swapper pgtable: 4k pages, 48-bit VAs, pgdp=00000000294f3000
-  [ffff0001221cf000] pgd=18000001ffff8003, p4d=18000001ffff8003,
-  pud=18000001ff82e003, pmd=18000001ff71d003, pte=00600001221cf787
-  Internal error: Oops: 9600004f [#1] PREEMPT SMP
-  ...
-  pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
-  pc : __memcpy+0x40/0x230
-  lr : scatterwalk_copychunks+0xe0/0x200
-  sp : ffff800014e92de0
-  x29: ffff800014e92de0 x28: ffff000114f9de80 x27: 0000000000000008
-  x26: 0000000000000008 x25: ffff800014e92e78 x24: 0000000000000008
-  x23: 0000000000000001 x22: 0000040000000000 x21: ffff000000000000
-  x20: 0000000000000001 x19: ffff0001037c4488 x18: 0000000000000014
-  x17: 235e1c0d6efa9661 x16: a435f9576b6edd6c x15: 0000000000000058
-  x14: 0000000000000001 x13: 0000000000000008 x12: ffff000114f2e590
-  x11: ffffffffffffffff x10: 0000040000000000 x9 : ffff8000105c3580
-  x8 : 2e9413b10000001a x7 : 534b4410fb86b005 x6 : 534b4410fb86b005
-  x5 : ffff0001221cf008 x4 : ffff0001037c4490 x3 : 0000000000000001
-  x2 : 0000000000000008 x1 : ffff0001037c4488 x0 : ffff0001221cf000
-  Call trace:
-   __memcpy+0x40/0x230
-   scatterwalk_map_and_copy+0x98/0x100
-   crypto_ccm_encrypt+0x150/0x180
-   crypto_aead_encrypt+0x2c/0x40
-   crypt_message+0x750/0x880
-   smb3_init_transform_rq+0x298/0x340
-   smb_send_rqst.part.11+0xd8/0x180
-   smb_send_rqst+0x3c/0x100
-   compound_send_recv+0x534/0xbc0
-   smb2_query_info_compound+0x32c/0x440
-   smb2_set_ea+0x438/0x4c0
-   cifs_xattr_set+0x5d4/0x7c0
-
-This is because in scatterwalk_copychunks(), we attempted to write to
-a buffer (@sign) that was allocated in the stack (vmalloc area) by
-crypt_message() and thus accessing its remaining 8 (x2) bytes ended up
-crossing a page boundary.
-
-To simply fix it, we could just pass @sign kmalloc'd from
-crypt_message() and then we're done.  Luckily, we don't seem to pass
-any other vmalloc'd buffers in smb_rqst::rq_iov...
-
-Instead, let's map the correct pages and offsets from vmalloc buffers
-as well in cifs_sg_set_buf() and then avoiding such oopses.
-
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Cc: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
-
-diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
-index cd3a173e65b1..703685e2db5e 100644
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -13,6 +13,8 @@
- #include <linux/in6.h>
- #include <linux/inet.h>
- #include <linux/slab.h>
-+#include <linux/scatterlist.h>
-+#include <linux/mm.h>
- #include <linux/mempool.h>
- #include <linux/workqueue.h>
- #include <linux/utsname.h>
-@@ -2140,4 +2142,70 @@ static inline void move_cifs_info_to_smb2(struct smb2_file_all_info *dst, const
- 	dst->FileNameLength = src->FileNameLength;
- }
- 
-+static inline unsigned int cifs_get_num_sgs(const struct smb_rqst *rqst,
-+					    int num_rqst,
-+					    const u8 *sig)
-+{
-+	unsigned int len, skip;
-+	unsigned int nents = 0;
-+	unsigned long addr;
-+	int i, j;
-+
-+	/* Assumes the first rqst has a transform header as the first iov.
-+	 * I.e.
-+	 * rqst[0].rq_iov[0]  is transform header
-+	 * rqst[0].rq_iov[1+] data to be encrypted/decrypted
-+	 * rqst[1+].rq_iov[0+] data to be encrypted/decrypted
-+	 */
-+	for (i = 0; i < num_rqst; i++) {
-+		/*
-+		 * The first rqst has a transform header where the
-+		 * first 20 bytes are not part of the encrypted blob.
-+		 */
-+		for (j = 0; j < rqst[i].rq_nvec; j++) {
-+			struct kvec *iov = &rqst[i].rq_iov[j];
-+
-+			skip = (i == 0) && (j == 0) ? 20 : 0;
-+			addr = (unsigned long)iov->iov_base + skip;
-+			if (unlikely(is_vmalloc_addr((void *)addr))) {
-+				len = iov->iov_len - skip;
-+				nents += DIV_ROUND_UP(offset_in_page(addr) + len,
-+						      PAGE_SIZE);
-+			} else {
-+				nents++;
-+			}
-+		}
-+		nents += rqst[i].rq_npages;
-+	}
-+	nents += DIV_ROUND_UP(offset_in_page(sig) + SMB2_SIGNATURE_SIZE, PAGE_SIZE);
-+	return nents;
-+}
-+
-+/* We can not use the normal sg_set_buf() as we will sometimes pass a
-+ * stack object as buf.
-+ */
-+static inline struct scatterlist *cifs_sg_set_buf(struct scatterlist *sg,
-+						  const void *buf,
-+						  unsigned int buflen)
-+{
-+	unsigned long addr = (unsigned long)buf;
-+	unsigned int off = offset_in_page(addr);
-+
-+	addr &= PAGE_MASK;
-+	if (unlikely(is_vmalloc_addr((void *)addr))) {
-+		do {
-+			unsigned int len = min_t(unsigned int, buflen, PAGE_SIZE - off);
-+
-+			sg_set_page(sg++, vmalloc_to_page((void *)addr), len, off);
-+
-+			off = 0;
-+			addr += PAGE_SIZE;
-+			buflen -= len;
-+		} while (buflen);
-+	} else {
-+		sg_set_page(sg++, virt_to_page(addr), buflen, off);
-+	}
-+	return sg;
-+}
-+
- #endif	/* _CIFS_GLOB_H */
-diff --git a/fs/cifs/cifsproto.h b/fs/cifs/cifsproto.h
-index f216fa269c85..9c6147ca029d 100644
---- a/fs/cifs/cifsproto.h
-+++ b/fs/cifs/cifsproto.h
-@@ -600,8 +600,8 @@ int setup_aio_ctx_iter(struct cifs_aio_ctx *ctx, struct iov_iter *iter, int rw);
- int cifs_alloc_hash(const char *name, struct shash_desc **sdesc);
- void cifs_free_hash(struct shash_desc **sdesc);
- 
--extern void rqst_page_get_length(struct smb_rqst *rqst, unsigned int page,
--				unsigned int *len, unsigned int *offset);
-+void rqst_page_get_length(const struct smb_rqst *rqst, unsigned int page,
-+			  unsigned int *len, unsigned int *offset);
- struct cifs_chan *
- cifs_ses_find_chan(struct cifs_ses *ses, struct TCP_Server_Info *server);
- int cifs_try_adding_channels(struct cifs_sb_info *cifs_sb, struct cifs_ses *ses);
-diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
-index 3e68d8208cf5..1cbecd64d697 100644
---- a/fs/cifs/misc.c
-+++ b/fs/cifs/misc.c
-@@ -1136,8 +1136,8 @@ cifs_free_hash(struct shash_desc **sdesc)
-  * @len: Where to store the length for this page:
-  * @offset: Where to store the offset for this page
-  */
--void rqst_page_get_length(struct smb_rqst *rqst, unsigned int page,
--				unsigned int *len, unsigned int *offset)
-+void rqst_page_get_length(const struct smb_rqst *rqst, unsigned int page,
-+			  unsigned int *len, unsigned int *offset)
- {
- 	*len = rqst->rq_pagesz;
- 	*offset = (page == 0) ? rqst->rq_offset : 0;
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 72b22d033ed5..6e772b31e02a 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -4204,69 +4204,82 @@ fill_transform_hdr(struct smb2_transform_hdr *tr_hdr, unsigned int orig_len,
- 	memcpy(&tr_hdr->SessionId, &shdr->SessionId, 8);
- }
- 
--/* We can not use the normal sg_set_buf() as we will sometimes pass a
-- * stack object as buf.
-- */
--static inline void smb2_sg_set_buf(struct scatterlist *sg, const void *buf,
--				   unsigned int buflen)
-+static void *smb2_aead_req_alloc(struct crypto_aead *tfm, const struct smb_rqst *rqst,
-+				 int num_rqst, const u8 *sig, u8 **iv,
-+				 struct aead_request **req, struct scatterlist **sgl,
-+				 unsigned int *num_sgs)
- {
--	void *addr;
--	/*
--	 * VMAP_STACK (at least) puts stack into the vmalloc address space
--	 */
--	if (is_vmalloc_addr(buf))
--		addr = vmalloc_to_page(buf);
--	else
--		addr = virt_to_page(buf);
--	sg_set_page(sg, addr, buflen, offset_in_page(buf));
-+	unsigned int req_size = sizeof(**req) + crypto_aead_reqsize(tfm);
-+	unsigned int iv_size = crypto_aead_ivsize(tfm);
-+	unsigned int len;
-+	u8 *p;
-+
-+	*num_sgs = cifs_get_num_sgs(rqst, num_rqst, sig);
-+
-+	len = iv_size;
-+	len += crypto_aead_alignmask(tfm) & ~(crypto_tfm_ctx_alignment() - 1);
-+	len = ALIGN(len, crypto_tfm_ctx_alignment());
-+	len += req_size;
-+	len = ALIGN(len, __alignof__(struct scatterlist));
-+	len += *num_sgs * sizeof(**sgl);
-+
-+	p = kmalloc(len, GFP_ATOMIC);
-+	if (!p)
-+		return NULL;
-+
-+	*iv = (u8 *)PTR_ALIGN(p, crypto_aead_alignmask(tfm) + 1);
-+	*req = (struct aead_request *)PTR_ALIGN(*iv + iv_size,
-+						crypto_tfm_ctx_alignment());
-+	*sgl = (struct scatterlist *)PTR_ALIGN((u8 *)*req + req_size,
-+					       __alignof__(struct scatterlist));
-+	return p;
- }
- 
--/* Assumes the first rqst has a transform header as the first iov.
-- * I.e.
-- * rqst[0].rq_iov[0]  is transform header
-- * rqst[0].rq_iov[1+] data to be encrypted/decrypted
-- * rqst[1+].rq_iov[0+] data to be encrypted/decrypted
-- */
--static struct scatterlist *
--init_sg(int num_rqst, struct smb_rqst *rqst, u8 *sign)
-+static void *smb2_get_aead_req(struct crypto_aead *tfm, const struct smb_rqst *rqst,
-+			       int num_rqst, const u8 *sig, u8 **iv,
-+			       struct aead_request **req, struct scatterlist **sgl)
- {
--	unsigned int sg_len;
-+	unsigned int off, len, skip;
- 	struct scatterlist *sg;
--	unsigned int i;
--	unsigned int j;
--	unsigned int idx = 0;
--	int skip;
--
--	sg_len = 1;
--	for (i = 0; i < num_rqst; i++)
--		sg_len += rqst[i].rq_nvec + rqst[i].rq_npages;
-+	unsigned int num_sgs;
-+	unsigned long addr;
-+	int i, j;
-+	void *p;
- 
--	sg = kmalloc_array(sg_len, sizeof(struct scatterlist), GFP_KERNEL);
--	if (!sg)
-+	p = smb2_aead_req_alloc(tfm, rqst, num_rqst, sig, iv, req, sgl, &num_sgs);
-+	if (!p)
- 		return NULL;
- 
--	sg_init_table(sg, sg_len);
-+	sg_init_table(*sgl, num_sgs);
-+	sg = *sgl;
-+
-+	/* Assumes the first rqst has a transform header as the first iov.
-+	 * I.e.
-+	 * rqst[0].rq_iov[0]  is transform header
-+	 * rqst[0].rq_iov[1+] data to be encrypted/decrypted
-+	 * rqst[1+].rq_iov[0+] data to be encrypted/decrypted
-+	 */
- 	for (i = 0; i < num_rqst; i++) {
-+		/*
-+		 * The first rqst has a transform header where the
-+		 * first 20 bytes are not part of the encrypted blob.
-+		 */
- 		for (j = 0; j < rqst[i].rq_nvec; j++) {
--			/*
--			 * The first rqst has a transform header where the
--			 * first 20 bytes are not part of the encrypted blob
--			 */
--			skip = (i == 0) && (j == 0) ? 20 : 0;
--			smb2_sg_set_buf(&sg[idx++],
--					rqst[i].rq_iov[j].iov_base + skip,
--					rqst[i].rq_iov[j].iov_len - skip);
--			}
-+			struct kvec *iov = &rqst[i].rq_iov[j];
- 
-+			skip = (i == 0) && (j == 0) ? 20 : 0;
-+			addr = (unsigned long)iov->iov_base + skip;
-+			len = iov->iov_len - skip;
-+			sg = cifs_sg_set_buf(sg, (void *)addr, len);
-+		}
- 		for (j = 0; j < rqst[i].rq_npages; j++) {
--			unsigned int len, offset;
--
--			rqst_page_get_length(&rqst[i], j, &len, &offset);
--			sg_set_page(&sg[idx++], rqst[i].rq_pages[j], len, offset);
-+			rqst_page_get_length(&rqst[i], j, &len, &off);
-+			sg_set_page(sg++, rqst[i].rq_pages[j], len, off);
- 		}
- 	}
--	smb2_sg_set_buf(&sg[idx], sign, SMB2_SIGNATURE_SIZE);
--	return sg;
-+	cifs_sg_set_buf(sg, sig, SMB2_SIGNATURE_SIZE);
-+
-+	return p;
- }
- 
- static int
-@@ -4314,11 +4327,11 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
- 	u8 sign[SMB2_SIGNATURE_SIZE] = {};
- 	u8 key[SMB3_ENC_DEC_KEY_SIZE];
- 	struct aead_request *req;
--	char *iv;
--	unsigned int iv_len;
-+	u8 *iv;
- 	DECLARE_CRYPTO_WAIT(wait);
- 	struct crypto_aead *tfm;
- 	unsigned int crypt_len = le32_to_cpu(tr_hdr->OriginalMessageSize);
-+	void *creq;
- 
- 	rc = smb2_get_enc_key(server, le64_to_cpu(tr_hdr->SessionId), enc, key);
- 	if (rc) {
-@@ -4352,32 +4365,15 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
- 		return rc;
- 	}
- 
--	req = aead_request_alloc(tfm, GFP_KERNEL);
--	if (!req) {
--		cifs_server_dbg(VFS, "%s: Failed to alloc aead request\n", __func__);
-+	creq = smb2_get_aead_req(tfm, rqst, num_rqst, sign, &iv, &req, &sg);
-+	if (unlikely(!creq))
- 		return -ENOMEM;
--	}
- 
- 	if (!enc) {
- 		memcpy(sign, &tr_hdr->Signature, SMB2_SIGNATURE_SIZE);
- 		crypt_len += SMB2_SIGNATURE_SIZE;
- 	}
- 
--	sg = init_sg(num_rqst, rqst, sign);
--	if (!sg) {
--		cifs_server_dbg(VFS, "%s: Failed to init sg\n", __func__);
--		rc = -ENOMEM;
--		goto free_req;
--	}
--
--	iv_len = crypto_aead_ivsize(tfm);
--	iv = kzalloc(iv_len, GFP_KERNEL);
--	if (!iv) {
--		cifs_server_dbg(VFS, "%s: Failed to alloc iv\n", __func__);
--		rc = -ENOMEM;
--		goto free_sg;
--	}
--
- 	if ((server->cipher_type == SMB2_ENCRYPTION_AES128_GCM) ||
- 	    (server->cipher_type == SMB2_ENCRYPTION_AES256_GCM))
- 		memcpy(iv, (char *)tr_hdr->Nonce, SMB3_AES_GCM_NONCE);
-@@ -4386,6 +4382,7 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
- 		memcpy(iv + 1, (char *)tr_hdr->Nonce, SMB3_AES_CCM_NONCE);
- 	}
- 
-+	aead_request_set_tfm(req, tfm);
- 	aead_request_set_crypt(req, sg, sg, crypt_len, iv);
- 	aead_request_set_ad(req, assoc_data_len);
- 
-@@ -4398,11 +4395,7 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
- 	if (!rc && enc)
- 		memcpy(&tr_hdr->Signature, sign, SMB2_SIGNATURE_SIZE);
- 
--	kfree_sensitive(iv);
--free_sg:
--	kfree_sensitive(sg);
--free_req:
--	kfree_sensitive(req);
-+	kfree_sensitive(creq);
- 	return rc;
- }
- 
-
+--
+Linaro LKFT
+https://lkft.linaro.org
