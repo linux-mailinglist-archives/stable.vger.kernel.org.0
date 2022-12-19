@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 002D0651321
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 719F6651337
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:28:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232506AbiLST1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:27:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49738 "EHLO
+        id S232659AbiLST2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:28:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232744AbiLST11 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:27 -0500
+        with ESMTP id S232832AbiLST2L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:28:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B83A13F09
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:27:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A9515824
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:28:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB2BE6109A
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:27:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFB50C433EF;
-        Mon, 19 Dec 2022 19:27:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B819A6112B
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:28:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78C3FC433EF;
+        Mon, 19 Dec 2022 19:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671478032;
-        bh=riyEXSCxEjeDrWaRHbbQWSjZro/Z222V/DZB1Lk0WYg=;
+        s=korg; t=1671478090;
+        bh=8iSXyV+qmWP4GFG8JrPB7xuJXiOdE5TjS9+Jl/nrPSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/GepvrMRyRe0KpBv4bxHKL9zFLKCMqHqEFF++tdr/ThILAyAFfDSEzfzVafgwZWF
-         5VjzBZTdDk0RMnmUzqNd6ztkPINY4urpg11FEs+B7yAj+RKeVCmpFaH8DgoRofHmZc
-         OErJSMe1J6qe91vKC5GNBsXLAHeSxg/jRGS5zzh4=
+        b=uiV7l/gfyZ4NIfCGY/uUC9rm1VaoFBgNCg4hWfjTSCRrvh+VFTkFmcqdNaA8b4Gi7
+         O60vir1BCnaHpShejieEplMBvUBeVgUKvCVVp52GymsB78FthWZOBEQ7VllrJvJ7mo
+         PTPp1E4PqVY9OCLkHvDfAPwHbEp9rWGfeqnSiKSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sungwoo Kim <iam@sung-woo.kim>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 15/17] Bluetooth: L2CAP: Fix u8 overflow
+        patches@lists.linux.dev,
+        "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 08/18] USB: serial: f81232: fix division by zero on line-speed change
 Date:   Mon, 19 Dec 2022 20:25:01 +0100
-Message-Id: <20221219182941.197191924@linuxfoundation.org>
+Message-Id: <20221219182940.952796836@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221219182940.739981110@linuxfoundation.org>
-References: <20221219182940.739981110@linuxfoundation.org>
+In-Reply-To: <20221219182940.701087296@linuxfoundation.org>
+References: <20221219182940.701087296@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sungwoo Kim <iam@sung-woo.kim>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit bcd70260ef56e0aee8a4fc6cd214a419900b0765 ]
+commit a08ca6ebafe615c9028c53fc4c9e6c9b2b1f2888 upstream.
 
-By keep sending L2CAP_CONF_REQ packets, chan->num_conf_rsp increases
-multiple times and eventually it will wrap around the maximum number
-(i.e., 255).
-This patch prevents this by adding a boundary check with
-L2CAP_MAX_CONF_RSP
+The driver leaves the line speed unchanged in case a requested speed is
+not supported. Make sure to handle the case where the current speed is
+B0 (hangup) without dividing by zero when determining the clock source.
 
-Btmon log:
-Bluetooth monitor ver 5.64
-= Note: Linux version 6.1.0-rc2 (x86_64)                               0.264594
-= Note: Bluetooth subsystem version 2.22                               0.264636
-@ MGMT Open: btmon (privileged) version 1.22                  {0x0001} 0.272191
-= New Index: 00:00:00:00:00:00 (Primary,Virtual,hci0)          [hci0] 13.877604
-@ RAW Open: 9496 (privileged) version 2.22                   {0x0002} 13.890741
-= Open Index: 00:00:00:00:00:00                                [hci0] 13.900426
-(...)
-> ACL Data RX: Handle 200 flags 0x00 dlen 1033             #32 [hci0] 14.273106
-        invalid packet size (12 != 1033)
-        08 00 01 00 02 01 04 00 01 10 ff ff              ............
-> ACL Data RX: Handle 200 flags 0x00 dlen 1547             #33 [hci0] 14.273561
-        invalid packet size (14 != 1547)
-        0a 00 01 00 04 01 06 00 40 00 00 00 00 00        ........@.....
-> ACL Data RX: Handle 200 flags 0x00 dlen 2061             #34 [hci0] 14.274390
-        invalid packet size (16 != 2061)
-        0c 00 01 00 04 01 08 00 40 00 00 00 00 00 00 04  ........@.......
-> ACL Data RX: Handle 200 flags 0x00 dlen 2061             #35 [hci0] 14.274932
-        invalid packet size (16 != 2061)
-        0c 00 01 00 04 01 08 00 40 00 00 00 07 00 03 00  ........@.......
-= bluetoothd: Bluetooth daemon 5.43                                   14.401828
-> ACL Data RX: Handle 200 flags 0x00 dlen 1033             #36 [hci0] 14.275753
-        invalid packet size (12 != 1033)
-        08 00 01 00 04 01 04 00 40 00 00 00              ........@...
-
-Signed-off-by: Sungwoo Kim <iam@sung-woo.kim>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 268ddb5e9b62 ("USB: serial: f81232: add high baud rate support")
+Cc: stable@vger.kernel.org      # 5.2
+Cc: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/f81232.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 761efd7da514..e15fcf72a342 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -4453,7 +4453,8 @@ static inline int l2cap_config_req(struct l2cap_conn *conn,
+--- a/drivers/usb/serial/f81232.c
++++ b/drivers/usb/serial/f81232.c
+@@ -130,9 +130,6 @@ static u8 const clock_table[] = { F81232
  
- 	chan->ident = cmd->ident;
- 	l2cap_send_cmd(conn, cmd->ident, L2CAP_CONF_RSP, len, rsp);
--	chan->num_conf_rsp++;
-+	if (chan->num_conf_rsp < L2CAP_CONF_MAX_CONF_RSP)
-+		chan->num_conf_rsp++;
+ static int calc_baud_divisor(speed_t baudrate, speed_t clockrate)
+ {
+-	if (!baudrate)
+-		return 0;
+-
+ 	return DIV_ROUND_CLOSEST(clockrate, baudrate);
+ }
  
- 	/* Reset config buffer. */
- 	chan->conf_len = 0;
--- 
-2.35.1
-
+@@ -523,9 +520,14 @@ static void f81232_set_baudrate(struct t
+ 	speed_t baud_list[] = { baudrate, old_baudrate, F81232_DEF_BAUDRATE };
+ 
+ 	for (i = 0; i < ARRAY_SIZE(baud_list); ++i) {
+-		idx = f81232_find_clk(baud_list[i]);
++		baudrate = baud_list[i];
++		if (baudrate == 0) {
++			tty_encode_baud_rate(tty, 0, 0);
++			return;
++		}
++
++		idx = f81232_find_clk(baudrate);
+ 		if (idx >= 0) {
+-			baudrate = baud_list[i];
+ 			tty_encode_baud_rate(tty, baudrate, baudrate);
+ 			break;
+ 		}
 
 
