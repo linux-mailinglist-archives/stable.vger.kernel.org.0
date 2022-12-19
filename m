@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A9036512F0
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2022651310
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232539AbiLSTZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:25:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50342 "EHLO
+        id S232607AbiLST1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:27:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232693AbiLSTYk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:24:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B105A140E5
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:24:30 -0800 (PST)
+        with ESMTP id S231511AbiLST0c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:26:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15EB6329
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:26:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4926C60EF0
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:24:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 469E7C433D2;
-        Mon, 19 Dec 2022 19:24:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A46326109A
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:26:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B08D9C433D2;
+        Mon, 19 Dec 2022 19:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671477869;
-        bh=oMAzkoQPevLcgi40z9VdWz78/mwiPrfO1A/FqoCJaeI=;
+        s=korg; t=1671477976;
+        bh=Hbq50VbUFEVVqKD0Q5oDKqIw7LVPtOiJhJHjvE8rWLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHeXUWia1Nv/dTqFc0o1uGtoj9Uyoy1xComkOxyejq9VPjwAQ9nTafTLjrE/V/Q24
-         fU6+gTZt8HXGlCZUf2MnC2uV8fDx2ZJ3DZhnIaCrJ4IfOFOdJHb3EVRtBcmdEsKEJZ
-         5rpj+EbuV7DNQ/chx8G1aUH9qTyMdIxCivT8tf0Q=
+        b=mURVp8HcCte54BeFcDJrtUi1Gt69kynQgdZ/gNVQ0d9UQT4TWMQdtZD01hupw+IzJ
+         IB01Iuv7EdpsHwctQHkN1paJLn+eDlq2ekLFfpsSCbQjmSujV4McOz/dlRcdZCiddJ
+         iGoKWRs+dkIR2TXV+smoonD2XkOEIH+KT/7IJI9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 6.1 15/25] USB: serial: f81232: fix division by zero on line-speed change
+        patches@lists.linux.dev, Song Liu <song@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 6.0 07/28] selftests/bpf: Add bpf_testmod_fentry_* functions
 Date:   Mon, 19 Dec 2022 20:22:54 +0100
-Message-Id: <20221219182944.041582664@linuxfoundation.org>
+Message-Id: <20221219182944.492514965@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221219182943.395169070@linuxfoundation.org>
-References: <20221219182943.395169070@linuxfoundation.org>
+In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
+References: <20221219182944.179389009@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jiri Olsa <jolsa@kernel.org>
 
-commit a08ca6ebafe615c9028c53fc4c9e6c9b2b1f2888 upstream.
+commit fee356ede980b6c2c8db612e18b25738356d6744 upstream.
 
-The driver leaves the line speed unchanged in case a requested speed is
-not supported. Make sure to handle the case where the current speed is
-B0 (hangup) without dividing by zero when determining the clock source.
+Adding 3 bpf_testmod_fentry_* functions to have a way to test
+kprobe multi link on kernel module. They follow bpf_fentry_test*
+functions prototypes/code.
 
-Fixes: 268ddb5e9b62 ("USB: serial: f81232: add high baud rate support")
-Cc: stable@vger.kernel.org      # 5.2
-Cc: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Adding equivalent functions to all bpf_fentry_test* does not
+seems necessary at the moment, could be added later.
+
+Acked-by: Song Liu <song@kernel.org>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Link: https://lore.kernel.org/r/20221025134148.3300700-7-jolsa@kernel.org
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/f81232.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ tools/testing/selftests/bpf/bpf_testmod/bpf_testmod.c |   24 ++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/drivers/usb/serial/f81232.c
-+++ b/drivers/usb/serial/f81232.c
-@@ -130,9 +130,6 @@ static u8 const clock_table[] = { F81232
- 
- static int calc_baud_divisor(speed_t baudrate, speed_t clockrate)
- {
--	if (!baudrate)
--		return 0;
--
- 	return DIV_ROUND_CLOSEST(clockrate, baudrate);
+--- a/tools/testing/selftests/bpf/bpf_testmod/bpf_testmod.c
++++ b/tools/testing/selftests/bpf/bpf_testmod/bpf_testmod.c
+@@ -88,6 +88,23 @@ __weak noinline struct file *bpf_testmod
+ 	}
  }
  
-@@ -498,9 +495,14 @@ static void f81232_set_baudrate(struct t
- 	speed_t baud_list[] = { baudrate, old_baudrate, F81232_DEF_BAUDRATE };
- 
- 	for (i = 0; i < ARRAY_SIZE(baud_list); ++i) {
--		idx = f81232_find_clk(baud_list[i]);
-+		baudrate = baud_list[i];
-+		if (baudrate == 0) {
-+			tty_encode_baud_rate(tty, 0, 0);
-+			return;
-+		}
++noinline int bpf_testmod_fentry_test1(int a)
++{
++	return a + 1;
++}
 +
-+		idx = f81232_find_clk(baudrate);
- 		if (idx >= 0) {
--			baudrate = baud_list[i];
- 			tty_encode_baud_rate(tty, baudrate, baudrate);
- 			break;
- 		}
++noinline int bpf_testmod_fentry_test2(int a, u64 b)
++{
++	return a + b;
++}
++
++noinline int bpf_testmod_fentry_test3(char a, int b, u64 c)
++{
++	return a + b + c;
++}
++
++int bpf_testmod_fentry_ok;
++
+ noinline ssize_t
+ bpf_testmod_test_read(struct file *file, struct kobject *kobj,
+ 		      struct bin_attribute *bin_attr,
+@@ -119,6 +136,13 @@ bpf_testmod_test_read(struct file *file,
+ 			return snprintf(buf, len, "%d\n", writable.val);
+ 	}
+ 
++	if (bpf_testmod_fentry_test1(1) != 2 ||
++	    bpf_testmod_fentry_test2(2, 3) != 5 ||
++	    bpf_testmod_fentry_test3(4, 5, 6) != 15)
++		goto out;
++
++	bpf_testmod_fentry_ok = 1;
++out:
+ 	return -EIO; /* always fail */
+ }
+ EXPORT_SYMBOL(bpf_testmod_test_read);
 
 
