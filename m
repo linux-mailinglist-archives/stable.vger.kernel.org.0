@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B177B65130D
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A70A96512F6
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:25:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232283AbiLST1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:27:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49880 "EHLO
+        id S230470AbiLSTZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:25:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232680AbiLST0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:26:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCA7B13D42
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:26:05 -0800 (PST)
+        with ESMTP id S232635AbiLSTZI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:25:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF6E1145C
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:24:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7890560F93
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:26:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7129DC433F0;
-        Mon, 19 Dec 2022 19:26:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B447AB80F4B
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:24:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CA48C433EF;
+        Mon, 19 Dec 2022 19:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671477964;
-        bh=2ktixRPzbKnwNXYxtSVgA80LeEe/dN1cRmpSm14PV1U=;
+        s=korg; t=1671477887;
+        bh=CnJvXTf4P2itAINfYRtvFMKFQAY6c4YbLe9xG5KR0uA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WS899v1wWEekyQ8ffWonHMOeTCiWRQBHfzO+pxXDqdOFJLhAqSAXdR0f0ZKjk/DX/
-         WOYF4vFaMob8cqJ4QVbYGjSaYpoabAx0vtLA+p0P2jcfkg01nM8zD9H7CRae4MzsHf
-         fNznic53BaZv1QXd+/4Wx7bcfNlGKfORzhXxp2L0=
+        b=VW/VSoOGWitgU3T1tjjb/2aDhH1hWmZIYObThy8eam0ixaz2O8HJ3jMo3COk3IXVo
+         ksMb5z5cdRJ8NG2yZn+VNaI74PUF8wLgAdko3/A506mlE/yn7c2fDAomXNtgTty+yG
+         S4BL0BJ7I16fPbG3w/YxYwsLR/rstde7YD0ylDMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martynas Pumputis <m@lambda.lt>,
-        Song Liu <song@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 6.0 03/28] ftrace: Add support to resolve module symbols in ftrace_lookup_symbols
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
+Subject: [PATCH 6.1 11/25] udf: Fix extending file within last block
 Date:   Mon, 19 Dec 2022 20:22:50 +0100
-Message-Id: <20221219182944.342333467@linuxfoundation.org>
+Message-Id: <20221219182943.874778437@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
-References: <20221219182944.179389009@linuxfoundation.org>
+In-Reply-To: <20221219182943.395169070@linuxfoundation.org>
+References: <20221219182943.395169070@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +51,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Jan Kara <jack@suse.cz>
 
-commit 3640bf8584f4ab0f5eed6285f09213954acd8b62 upstream.
+commit 1f3868f06855c97a4954c99b36f3fc9eb8f60326 upstream.
 
-Currently ftrace_lookup_symbols iterates only over core symbols,
-adding module_kallsyms_on_each_symbol call to check on modules
-symbols as well.
+When extending file within last block it can happen that the extent is
+already rounded to the blocksize and thus contains the offset we want to
+grow up to. In such case we would mistakenly expand the last extent and
+make it one block longer than it should be, exposing unallocated block
+in a file and causing data corruption. Fix the problem by properly
+detecting this case and bailing out.
 
-Also removing 'args.found == args.cnt' condition, because it's
-already checked in kallsyms_callback function.
-
-Also removing 'err < 0' check, because both *kallsyms_on_each_symbol
-functions do not return error.
-
-Reported-by: Martynas Pumputis <m@lambda.lt>
-Acked-by: Song Liu <song@kernel.org>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Link: https://lore.kernel.org/r/20221025134148.3300700-3-jolsa@kernel.org
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ fs/udf/inode.c |   32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -8261,6 +8261,10 @@ struct kallsyms_data {
- 	size_t found;
- };
- 
-+/* This function gets called for all kernel and module symbols
-+ * and returns 1 in case we resolved all the requested symbols,
-+ * 0 otherwise.
-+ */
- static int kallsyms_callback(void *data, const char *name,
- 			     struct module *mod, unsigned long addr)
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -590,13 +590,17 @@ out:
+ static void udf_do_extend_final_block(struct inode *inode,
+ 				      struct extent_position *last_pos,
+ 				      struct kernel_long_ad *last_ext,
+-				      uint32_t final_block_len)
++				      uint32_t new_elen)
  {
-@@ -8304,17 +8308,19 @@ static int kallsyms_callback(void *data,
- int ftrace_lookup_symbols(const char **sorted_syms, size_t cnt, unsigned long *addrs)
- {
- 	struct kallsyms_data args;
--	int err;
-+	int found_all;
+-	struct super_block *sb = inode->i_sb;
+ 	uint32_t added_bytes;
  
- 	memset(addrs, 0, sizeof(*addrs) * cnt);
- 	args.addrs = addrs;
- 	args.syms = sorted_syms;
- 	args.cnt = cnt;
- 	args.found = 0;
--	err = kallsyms_on_each_symbol(kallsyms_callback, &args);
--	if (err < 0)
--		return err;
--	return args.found == args.cnt ? 0 : -ESRCH;
-+
-+	found_all = kallsyms_on_each_symbol(kallsyms_callback, &args);
-+	if (found_all)
-+		return 0;
-+	found_all = module_kallsyms_on_each_symbol(kallsyms_callback, &args);
-+	return found_all ? 0 : -ESRCH;
- }
+-	added_bytes = final_block_len -
+-		      (last_ext->extLength & (sb->s_blocksize - 1));
++	/*
++	 * Extent already large enough? It may be already rounded up to block
++	 * size...
++	 */
++	if (new_elen <= (last_ext->extLength & UDF_EXTENT_LENGTH_MASK))
++		return;
++	added_bytes = (last_ext->extLength & UDF_EXTENT_LENGTH_MASK) - new_elen;
+ 	last_ext->extLength += added_bytes;
+ 	UDF_I(inode)->i_lenExtents += added_bytes;
  
- #ifdef CONFIG_SYSCTL
+@@ -613,12 +617,12 @@ static int udf_extend_file(struct inode
+ 	int8_t etype;
+ 	struct super_block *sb = inode->i_sb;
+ 	sector_t first_block = newsize >> sb->s_blocksize_bits, offset;
+-	unsigned long partial_final_block;
++	loff_t new_elen;
+ 	int adsize;
+ 	struct udf_inode_info *iinfo = UDF_I(inode);
+ 	struct kernel_long_ad extent;
+ 	int err = 0;
+-	int within_final_block;
++	bool within_last_ext;
+ 
+ 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
+ 		adsize = sizeof(struct short_ad);
+@@ -634,9 +638,9 @@ static int udf_extend_file(struct inode
+ 	udf_discard_prealloc(inode);
+ 
+ 	etype = inode_bmap(inode, first_block, &epos, &eloc, &elen, &offset);
+-	within_final_block = (etype != -1);
++	within_last_ext = (etype != -1);
+ 	/* We don't expect extents past EOF... */
+-	WARN_ON_ONCE(etype != -1 &&
++	WARN_ON_ONCE(within_last_ext &&
+ 		     elen > ((loff_t)offset + 1) << inode->i_blkbits);
+ 
+ 	if ((!epos.bh && epos.offset == udf_file_entry_alloc_offset(inode)) ||
+@@ -653,19 +657,17 @@ static int udf_extend_file(struct inode
+ 		extent.extLength |= etype << 30;
+ 	}
+ 
+-	partial_final_block = newsize & (sb->s_blocksize - 1);
++	new_elen = ((loff_t)offset << inode->i_blkbits) |
++					(newsize & (sb->s_blocksize - 1));
+ 
+ 	/* File has extent covering the new size (could happen when extending
+ 	 * inside a block)?
+ 	 */
+-	if (within_final_block) {
++	if (within_last_ext) {
+ 		/* Extending file within the last file block */
+-		udf_do_extend_final_block(inode, &epos, &extent,
+-					  partial_final_block);
++		udf_do_extend_final_block(inode, &epos, &extent, new_elen);
+ 	} else {
+-		loff_t add = ((loff_t)offset << sb->s_blocksize_bits) |
+-			     partial_final_block;
+-		err = udf_do_extend_file(inode, &epos, &extent, add);
++		err = udf_do_extend_file(inode, &epos, &extent, new_elen);
+ 	}
+ 
+ 	if (err < 0)
 
 
