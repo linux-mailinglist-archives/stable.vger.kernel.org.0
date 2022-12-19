@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3EAF651314
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73D7F651315
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232725AbiLST10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:27:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51124 "EHLO
+        id S232735AbiLST11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:27:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232866AbiLST0y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:26:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A8E525DE
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:26:35 -0800 (PST)
+        with ESMTP id S232887AbiLST05 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:26:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 032E115826
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:26:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB28560F93
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:26:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C21DC433EF;
-        Mon, 19 Dec 2022 19:26:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51268B80F97
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:26:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94C7DC433D2;
+        Mon, 19 Dec 2022 19:26:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671477994;
-        bh=cpC2J3PotioDThivrAY30LR9J14qdtQlBsBivvfn5U4=;
+        s=korg; t=1671477997;
+        bh=TkbDt47k2Q5e0PKPovq3L8nAcVZYYuzMMVoQGkvc76I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sU8u8q6gCmsr/poPn9YPWnltk9Lypsm2/8TN7URw3ik/LpoDWEEo4B72wHh8+NbdK
-         5tajAA6jjxMiDjrJPBSoEfF2Ssowd52eSE3qJdhi84D/66ULCD3nPF1LyEokS874YP
-         a1aEtvfziOOQLldeHASdqddZme6VbNJX4uLxG6Pg=
+        b=KBOBvcVN7Y+iOhODJBfOGqGle6LQBuWdeCSjXq4yKxgPe3P6FiGqFPbRYa/y2AprR
+         flOv3oxfiAjEP2tUAfJkrLYN/P9tBaK0GT0VXitUPuwZybfGEgcPrpr2EWfpAa5Scj
+         bTFSDreetz/RWMZDlq+WadxHeBYN4Hc3WU8ocqWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Shruthi Sanil <shruthi.sanil@intel.com>
-Subject: [PATCH 6.0 23/28] usb: dwc3: pci: Update PCIe device ID for USB3 controller on CPU sub-system for Raptor Lake
-Date:   Mon, 19 Dec 2022 20:23:10 +0100
-Message-Id: <20221219182945.181024447@linuxfoundation.org>
+        patches@lists.linux.dev, stable@kernel.org,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Nikolaus Voss <nikolaus.voss@haag-streit.com>
+Subject: [PATCH 6.0 24/28] KEYS: encrypted: fix key instantiation with user-provided data
+Date:   Mon, 19 Dec 2022 20:23:11 +0100
+Message-Id: <20221219182945.214543883@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
 References: <20221219182944.179389009@linuxfoundation.org>
@@ -53,33 +53,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shruthi Sanil <shruthi.sanil@intel.com>
+From: Nikolaus Voss <nikolaus.voss@haag-streit.com>
 
-commit f05f80f217bf52443a2582bca19fd78188333f25 upstream.
+commit 5adedd42245af0860ebda8fe0949f24f5204c1b1 upstream.
 
-The device ID 0xa70e is defined for the USB3 device controller in the CPU
-sub-system of Raptor Lake platform. Hence updating the ID accordingly.
+Commit cd3bc044af48 ("KEYS: encrypted: Instantiate key with
+user-provided decrypted data") added key instantiation with user
+provided decrypted data.  The user data is hex-ascii-encoded but was
+just memcpy'ed to the binary buffer. Fix this to use hex2bin instead.
 
-Fixes: bad0d1d726ac ("usb: dwc3: pci: Add support for Intel Raptor Lake")
-Cc: stable <stable@kernel.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Shruthi Sanil <shruthi.sanil@intel.com>
-Link: https://lore.kernel.org/r/20221125105327.27945-1-shruthi.sanil@intel.com
+Old keys created from user provided decrypted data saved with "keyctl
+pipe" are still valid, however if the key is recreated from decrypted
+data the old key must be converted to the correct format. This can be
+done with a small shell script, e.g.:
+
+BROKENKEY=abcdefABCDEF1234567890aaaaaaaaaa
+NEWKEY=$(echo -ne $BROKENKEY | xxd -p -c32)
+keyctl add user masterkey "$(cat masterkey.bin)" @u
+keyctl add encrypted testkey "new user:masterkey 32 $NEWKEY" @u
+
+However, NEWKEY is still broken: If for BROKENKEY 32 bytes were
+specified, a brute force attacker knowing the key properties would only
+need to try at most 2^(16*8) keys, as if the key was only 16 bytes long.
+
+The security issue is a result of the combination of limiting the input
+range to hex-ascii and using memcpy() instead of hex2bin(). It could
+have been fixed either by allowing binary input or using hex2bin() (and
+doubling the ascii input key length). This patch implements the latter.
+
+The corresponding test for the Linux Test Project ltp has also been
+fixed (see link below).
+
+Fixes: cd3bc044af48 ("KEYS: encrypted: Instantiate key with user-provided decrypted data")
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/ltp/20221006081709.92303897@mail.steuer-voss.de/
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Nikolaus Voss <nikolaus.voss@haag-streit.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/security/keys/trusted-encrypted.rst |    3 ++-
+ security/keys/encrypted-keys/encrypted.c          |    6 +++---
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -44,7 +44,7 @@
- #define PCI_DEVICE_ID_INTEL_ADLP		0x51ee
- #define PCI_DEVICE_ID_INTEL_ADLM		0x54ee
- #define PCI_DEVICE_ID_INTEL_ADLS		0x7ae1
--#define PCI_DEVICE_ID_INTEL_RPL			0x460e
-+#define PCI_DEVICE_ID_INTEL_RPL			0xa70e
- #define PCI_DEVICE_ID_INTEL_RPLS		0x7a61
- #define PCI_DEVICE_ID_INTEL_MTLP		0x7ec1
- #define PCI_DEVICE_ID_INTEL_MTL			0x7e7e
+--- a/Documentation/security/keys/trusted-encrypted.rst
++++ b/Documentation/security/keys/trusted-encrypted.rst
+@@ -350,7 +350,8 @@ Load an encrypted key "evm" from saved b
+ 
+ Instantiate an encrypted key "evm" using user-provided decrypted data::
+ 
+-    $ keyctl add encrypted evm "new default user:kmk 32 `cat evm_decrypted_data.blob`" @u
++    $ evmkey=$(dd if=/dev/urandom bs=1 count=32 | xxd -c32 -p)
++    $ keyctl add encrypted evm "new default user:kmk 32 $evmkey" @u
+     794890253
+ 
+     $ keyctl print 794890253
+--- a/security/keys/encrypted-keys/encrypted.c
++++ b/security/keys/encrypted-keys/encrypted.c
+@@ -627,7 +627,7 @@ static struct encrypted_key_payload *enc
+ 			pr_err("encrypted key: instantiation of keys using provided decrypted data is disabled since CONFIG_USER_DECRYPTED_DATA is set to false\n");
+ 			return ERR_PTR(-EINVAL);
+ 		}
+-		if (strlen(decrypted_data) != decrypted_datalen) {
++		if (strlen(decrypted_data) != decrypted_datalen * 2) {
+ 			pr_err("encrypted key: decrypted data provided does not match decrypted data length provided\n");
+ 			return ERR_PTR(-EINVAL);
+ 		}
+@@ -791,8 +791,8 @@ static int encrypted_init(struct encrypt
+ 		ret = encrypted_key_decrypt(epayload, format, hex_encoded_iv);
+ 	} else if (decrypted_data) {
+ 		get_random_bytes(epayload->iv, ivsize);
+-		memcpy(epayload->decrypted_data, decrypted_data,
+-				   epayload->decrypted_datalen);
++		ret = hex2bin(epayload->decrypted_data, decrypted_data,
++			      epayload->decrypted_datalen);
+ 	} else {
+ 		get_random_bytes(epayload->iv, ivsize);
+ 		get_random_bytes(epayload->decrypted_data, epayload->decrypted_datalen);
 
 
