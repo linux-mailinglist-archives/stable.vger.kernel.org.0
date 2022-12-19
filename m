@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 224E2651436
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 21:46:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F4AC65143A
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 21:46:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232593AbiLSUqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 15:46:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57682 "EHLO
+        id S232642AbiLSUq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 15:46:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232394AbiLSUqY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 15:46:24 -0500
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C9E1262B
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 12:46:23 -0800 (PST)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-3cf0762f741so120975727b3.16
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 12:46:23 -0800 (PST)
+        with ESMTP id S232586AbiLSUqZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 15:46:25 -0500
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9494C120A2
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 12:46:24 -0800 (PST)
+Received: by mail-yb1-xb4a.google.com with SMTP id i10-20020a25f20a000000b006ea4f43c0ddso12126585ybe.21
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 12:46:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=w/Gqg4YrMLjJiJaPudpqPxo3JMr/czsipkBHlpgnkpY=;
-        b=ndN2I2jiGwpc8MXc/JM2wIcpg63LQ0N88uByf+lCP7EUUvNLgJ7/Aoy4qQFqYVpl0g
-         SCKRXpZZOA0x3OsI8dVGtGuyvH0Zd6V45Fby6zPRuUq0lvbWZxJ+vlgXN6JzavmUfDAX
-         1K7hMGMGnTMtZQ3v0pHazPH92wtCC81d53Snj/7oFlXwF0FJMY+n73/d776Hd3wIYK7s
-         oXGmgH5QGBo0XfmYb4MElR763fEXMT3a+Z9EIa5gqIF108x2T43KfAiKVcurToqJiLPy
-         4aLVTykL4Ud6W5RiukK3/hNmLb1DpIN/QWWHXsAtuErZQr+vfJ6ry8z2SvgYviEgCwO3
-         P19A==
+        bh=6S5anngOGqBeJ8dWJgoyIXF8JBImIfN2OM+kqAQMiJE=;
+        b=gnQMVJ3xF+K9w4Ke8/SF9LQfX63JngjuAaaKEfwICm0afC0ubsmlLvX2d+aJYYPPut
+         xwDVxhQ+UVNR6WozYsWHk2OzoMgMuRCsS7/M2n8kC3agf1OnnvKkjN3Vajtk5OGqxQFA
+         7xXkYzcDyqKcOR4oR0UgA1nDOo/Cmx29kWXiVsRI8HQqaTtfntgrPzQGh9MJJepxkBbX
+         bU/wUvhMA1u9zzQq9V+8A6YAURGA388ei9l+gpGY8fr57zm3z7k2LLw5klooWKkMe/iT
+         G7qCAr3jLShHNmsds2xY+/62uvMpDO/xyAprxT1lJZ4oAusILamm3Cvn4cN/R3SAIwlB
+         PvYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=w/Gqg4YrMLjJiJaPudpqPxo3JMr/czsipkBHlpgnkpY=;
-        b=YTYPdPDTqeiqq7byFTcFsj0HJM5JEoCKCS5x7Z08Ia8xIMHrooz6pGOBJaZfU/HnQy
-         dPEYnvr7yxkiaF+nbmrKKGc/tHuHMlaaC8mZ5ddkWPorsH+d+Jkgd+G59GRDS4Z/uFxt
-         EQPTCleKUX4DEpMGYX1JUHGgezBiiMoHRD6ntUv+COdeI/ITMZwKLJXY1nFH4dm2TR/P
-         sev0j0633vnzI5w0xFr9bS6681UJfEtH+0Rn3MHva3e5w7qqzgATWLhWZCUqGRh5s7X0
-         mPAn6ShkVYmWzH1znu1qjvQmruIUzVbdyZ4qE06s/nGyyixJPLTr1vZQdNGRbWiqy9T/
-         lcNA==
-X-Gm-Message-State: AFqh2ko+pUwN4+amsZm2PgssNA21b6N2FwQskvslc2kllsvaudnAel77
-        9Mkt3UhcPe4ATuGVI+hpRnzroMx/2HMY8cc=
-X-Google-Smtp-Source: AMrXdXtoAUdvut+1L/DmyRCpgsHs9tozY7MxSP5gsjsnTr5Y01RLIfxcnyAHBwKz5tgnxKA7krwwyyRtuqrtnpc=
+        bh=6S5anngOGqBeJ8dWJgoyIXF8JBImIfN2OM+kqAQMiJE=;
+        b=akhXNcxSqUDvo9iAy/icm2q7VzU1suUGCumoN0HbIwrwSP4inLwA0Wqw/37cqbJy2r
+         8kIuE60WQHHw3eDwZuwNH+3KiyeRko0+H8NgGo55OzsALXSOSG2FxjyjfdjzmbchSv7U
+         07J1qHoIk6AUulXwNuQMorSJhx+egE2s53cRe+Gn+0uuFF0g7CbEYm/wEa2/7MWI87Go
+         5yc9sO6dbPXYjQmWAwr6CkOVbjLVns/ZUVTNyxF7kbahbEE74TTcg7gM0IqVGz+59b1B
+         ohik5Naxt4AWxAmiK91dKKVq7DESDBGEqh/uZNKWGCkeGrKMx12zC1xCjbZfVGHEUfQt
+         fT9A==
+X-Gm-Message-State: ANoB5pl0Lvkp4t9JdjyqG43bifYh9dvQqm7FMczqxIxTIkXQTc+ZhjTE
+        kduqryOI59byJqeNmHdVSE5RQ5fLpGYBj1E=
+X-Google-Smtp-Source: AA0mqf7kZBjoNWYV8TibcRALWUvI1Rfi91G32OQZdtuSY8fGUv9/eoVoqpXctVBvfvV0GPpqkHk4vvZGgsZlRtU=
 X-Received: from allenwebb.c.googlers.com ([fda3:e722:ac3:cc00:2b:ff92:c0a8:12e8])
- (user=allenwebb job=sendgmr) by 2002:a81:6dd0:0:b0:3e7:c742:f827 with SMTP id
- i199-20020a816dd0000000b003e7c742f827mr617806ywc.91.1671482782916; Mon, 19
- Dec 2022 12:46:22 -0800 (PST)
-Date:   Mon, 19 Dec 2022 14:46:09 -0600
+ (user=allenwebb job=sendgmr) by 2002:a25:e807:0:b0:6f8:a76c:7a23 with SMTP id
+ k7-20020a25e807000000b006f8a76c7a23mr45891538ybd.513.1671482783822; Mon, 19
+ Dec 2022 12:46:23 -0800 (PST)
+Date:   Mon, 19 Dec 2022 14:46:10 -0600
 In-Reply-To: <20221219204619.2205248-1-allenwebb@google.com>
 Mime-Version: 1.0
 References: <20221219191855.2010466-1-allenwebb@google.com> <20221219204619.2205248-1-allenwebb@google.com>
 X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
-Message-ID: <20221219204619.2205248-2-allenwebb@google.com>
-Subject: [PATCH v9 01/10] imx: Fix typo
+Message-ID: <20221219204619.2205248-3-allenwebb@google.com>
+Subject: [PATCH v9 02/10] rockchip-mailbox: Fix typo
 From:   Allen Webb <allenwebb@google.com>
 To:     "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
         "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
@@ -76,26 +76,26 @@ A one character difference in the name supplied to MODULE_DEVICE_TABLE
 breaks a future patch set, so fix the typo.
 
 Cc: stable@vger.kernel.org
-Fixes: 556f5cf9568a ("soc: imx: add i.MX8MP HSIO blk-ctrl")
+Fixes: f70ed3b5dc8b ("mailbox: rockchip: Add Rockchip mailbox driver")
 Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Allen Webb <allenwebb@google.com>
 ---
- drivers/soc/imx/imx8mp-blk-ctrl.c | 2 +-
+ drivers/mailbox/rockchip-mailbox.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/imx/imx8mp-blk-ctrl.c b/drivers/soc/imx/imx8mp-blk-ctrl.c
-index 0e3b6ba22f94..344a0a71df14 100644
---- a/drivers/soc/imx/imx8mp-blk-ctrl.c
-+++ b/drivers/soc/imx/imx8mp-blk-ctrl.c
-@@ -743,7 +743,7 @@ static const struct of_device_id imx8mp_blk_ctrl_of_match[] = {
- 		/* Sentinel */
- 	}
+diff --git a/drivers/mailbox/rockchip-mailbox.c b/drivers/mailbox/rockchip-mailbox.c
+index 979acc810f30..ca50f7f176f6 100644
+--- a/drivers/mailbox/rockchip-mailbox.c
++++ b/drivers/mailbox/rockchip-mailbox.c
+@@ -159,7 +159,7 @@ static const struct of_device_id rockchip_mbox_of_match[] = {
+ 	{ .compatible = "rockchip,rk3368-mailbox", .data = &rk3368_drv_data},
+ 	{ },
  };
--MODULE_DEVICE_TABLE(of, imx8m_blk_ctrl_of_match);
-+MODULE_DEVICE_TABLE(of, imx8mp_blk_ctrl_of_match);
+-MODULE_DEVICE_TABLE(of, rockchp_mbox_of_match);
++MODULE_DEVICE_TABLE(of, rockchip_mbox_of_match);
  
- static struct platform_driver imx8mp_blk_ctrl_driver = {
- 	.probe = imx8mp_blk_ctrl_probe,
+ static int rockchip_mbox_probe(struct platform_device *pdev)
+ {
 -- 
 2.37.3
 
