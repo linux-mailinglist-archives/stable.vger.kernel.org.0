@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8925651306
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:26:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9E086512ED
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:25:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232693AbiLST0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:26:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50438 "EHLO
+        id S232684AbiLSTZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:25:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232692AbiLSTZ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:25:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C98E1261D
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:25:53 -0800 (PST)
+        with ESMTP id S231967AbiLSTYg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:24:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06DBE13F05
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:24:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 535306111A
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:25:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D57CC433EF;
-        Mon, 19 Dec 2022 19:25:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABBA6B80FA0
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:24:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD8B9C433EF;
+        Mon, 19 Dec 2022 19:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671477952;
-        bh=oMAzkoQPevLcgi40z9VdWz78/mwiPrfO1A/FqoCJaeI=;
+        s=korg; t=1671477860;
+        bh=3shrtc50Pe5iisggjD661bKL+IjgC5Oa+a+lkfrztOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZtUMCEKnUq8yX/kv7BU9yvWKUqsJ0bdSSTtrOJ7tbWZwgh93CLM5tbjLMh+MUItJD
-         Y127wGyZR1uzI/60r12Xw46hpBpdk+EgTdj7vkqkhxCmifQQJGMJx1IVh9COnVaPtV
-         kd5BPWta6xOiawBPe82RB/VmzSDZFJRuii6U88xg=
+        b=IvBvqixS+QtOJchmGrpguJLTy59iTu6jvEmFDIBt9O/s7/ZSzPrwDzSpOm5aZZ43M
+         1CElIMsB5bIDK/0coUQPNeSmTKGKrH0qqEP87TqfeIIj2VG1WUKr/wwSiXsGvbwSHz
+         ERTOQb8vnIqd5sHlz6c8kJOMxcVGienX1v9938is=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 6.0 17/28] USB: serial: f81232: fix division by zero on line-speed change
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Ferry Toth <ftoth@exalondelft.nl>
+Subject: [PATCH 6.1 25/25] usb: ulpi: defer ulpi_register on ulpi_read_id timeout
 Date:   Mon, 19 Dec 2022 20:23:04 +0100
-Message-Id: <20221219182944.925732326@linuxfoundation.org>
+Message-Id: <20221219182944.457372692@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
-References: <20221219182944.179389009@linuxfoundation.org>
+In-Reply-To: <20221219182943.395169070@linuxfoundation.org>
+References: <20221219182943.395169070@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Ferry Toth <ftoth@exalondelft.nl>
 
-commit a08ca6ebafe615c9028c53fc4c9e6c9b2b1f2888 upstream.
+commit 8a7b31d545d3a15f0e6f5984ae16f0ca4fd76aac upstream.
 
-The driver leaves the line speed unchanged in case a requested speed is
-not supported. Make sure to handle the case where the current speed is
-B0 (hangup) without dividing by zero when determining the clock source.
+Since commit 0f0101719138 ("usb: dwc3: Don't switch OTG -> peripheral
+if extcon is present") Dual Role support on Intel Merrifield platform
+broke due to rearranging the call to dwc3_get_extcon().
 
-Fixes: 268ddb5e9b62 ("USB: serial: f81232: add high baud rate support")
-Cc: stable@vger.kernel.org      # 5.2
-Cc: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+It appears to be caused by ulpi_read_id() on the first test write failing
+with -ETIMEDOUT. Currently ulpi_read_id() expects to discover the phy via
+DT when the test write fails and returns 0 in that case, even if DT does not
+provide the phy. As a result usb probe completes without phy.
+
+Make ulpi_read_id() return -ETIMEDOUT to its user if the first test write
+fails. The user should then handle it appropriately. A follow up patch
+will make dwc3_core_init() set -EPROBE_DEFER in this case and bail out.
+
+Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
+Cc: stable@vger.kernel.org
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
+Link: https://lore.kernel.org/r/20221205201527.13525-2-ftoth@exalondelft.nl
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/f81232.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/usb/common/ulpi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/f81232.c
-+++ b/drivers/usb/serial/f81232.c
-@@ -130,9 +130,6 @@ static u8 const clock_table[] = { F81232
+--- a/drivers/usb/common/ulpi.c
++++ b/drivers/usb/common/ulpi.c
+@@ -207,7 +207,7 @@ static int ulpi_read_id(struct ulpi *ulp
+ 	/* Test the interface */
+ 	ret = ulpi_write(ulpi, ULPI_SCRATCH, 0xaa);
+ 	if (ret < 0)
+-		goto err;
++		return ret;
  
- static int calc_baud_divisor(speed_t baudrate, speed_t clockrate)
- {
--	if (!baudrate)
--		return 0;
--
- 	return DIV_ROUND_CLOSEST(clockrate, baudrate);
- }
- 
-@@ -498,9 +495,14 @@ static void f81232_set_baudrate(struct t
- 	speed_t baud_list[] = { baudrate, old_baudrate, F81232_DEF_BAUDRATE };
- 
- 	for (i = 0; i < ARRAY_SIZE(baud_list); ++i) {
--		idx = f81232_find_clk(baud_list[i]);
-+		baudrate = baud_list[i];
-+		if (baudrate == 0) {
-+			tty_encode_baud_rate(tty, 0, 0);
-+			return;
-+		}
-+
-+		idx = f81232_find_clk(baudrate);
- 		if (idx >= 0) {
--			baudrate = baud_list[i];
- 			tty_encode_baud_rate(tty, baudrate, baudrate);
- 			break;
- 		}
+ 	ret = ulpi_read(ulpi, ULPI_SCRATCH);
+ 	if (ret < 0)
 
 
