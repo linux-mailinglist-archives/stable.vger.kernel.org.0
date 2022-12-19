@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06A19651347
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:29:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE0C5651322
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232813AbiLST3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:29:18 -0500
+        id S232598AbiLST1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:27:48 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232876AbiLST2q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:28:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ADE01582D
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:28:46 -0800 (PST)
+        with ESMTP id S232243AbiLST13 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D18FE25DA
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:27:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3E82B80F4B
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:28:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12914C433D2;
-        Mon, 19 Dec 2022 19:28:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FD99B80F4B
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:27:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02DEAC433F0;
+        Mon, 19 Dec 2022 19:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671478123;
-        bh=xtoi+cL5e9Hl7BG0Y7UVhfjTsNzzC+GciBM14Jm1VT0=;
+        s=korg; t=1671478035;
+        bh=HvNKuWYFW8umeX/fI6aXrzjdk4JcPKrYu3UMnlPw/N8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHEZ1HLkL5Wn8TA4mtElZ3nEewQx/CJZabwI4p3u3pW2vqItST0/MdKZ8ykqVPlgR
-         F/0DFi4vY6DFqFpy5+QI3UnvqdmjLNll64RIKvWV6FaX0reiXeIdxR9lD18ZSMPPss
-         gKhLcq7CPoI8W/aQLdsezZDi0kgWS78CHBtTbU9I=
+        b=ay6AkpVMmwykJOfVIrsMdsOtQY45ur42zSPBViAHal+Udp7nWbLmdsv0CztfWRB8Q
+         M5gF4h/W4opj5u3A5TBXv3ewF3xwbu1TvWDrua0GyNoj+Xw85HoqHkIU75XAH8p93s
+         YDOwK3B9ct0bleK+D+64B8TEso2Qo0VWN6BkSs3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 09/18] USB: serial: f81534: fix division by zero on line-speed change
+        patches@lists.linux.dev, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 16/17] selftests: net: Use "grep -E" instead of "egrep"
 Date:   Mon, 19 Dec 2022 20:25:02 +0100
-Message-Id: <20221219182940.981930907@linuxfoundation.org>
+Message-Id: <20221219182941.227748263@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221219182940.701087296@linuxfoundation.org>
-References: <20221219182940.701087296@linuxfoundation.org>
+In-Reply-To: <20221219182940.739981110@linuxfoundation.org>
+References: <20221219182940.739981110@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-commit 188c9c2e0c7f4ae864113f80c40bafb394062271 upstream.
+[ Upstream commit 6a30d3e3491dc562384e9f15b201a8a25b57439f ]
 
-The driver leaves the line speed unchanged in case a requested speed is
-not supported. Make sure to handle the case where the current speed is
-B0 (hangup) without dividing by zero when determining the clock source.
+The latest version of grep claims the egrep is now obsolete so the build
+now contains warnings that look like:
+	egrep: warning: egrep is obsolescent; using grep -E
+fix this using "grep -E" instead.
 
-Fixes: 3aacac02f385 ("USB: serial: f81534: add high baud rate support")
-Cc: stable@vger.kernel.org      # 4.16
-Cc: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  sed -i "s/egrep/grep -E/g" `grep egrep -rwl tools/testing/selftests/net`
+
+Here are the steps to install the latest grep:
+
+  wget http://ftp.gnu.org/gnu/grep/grep-3.8.tar.gz
+  tar xf grep-3.8.tar.gz
+  cd grep-3.8 && ./configure && make
+  sudo make install
+  export PATH=/usr/local/bin:$PATH
+
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Link: https://lore.kernel.org/r/1669864248-829-1-git-send-email-yangtiezhu@loongson.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/f81534.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ tools/testing/selftests/net/toeplitz.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/f81534.c
-+++ b/drivers/usb/serial/f81534.c
-@@ -538,9 +538,6 @@ static int f81534_submit_writer(struct u
- 
- static u32 f81534_calc_baud_divisor(u32 baudrate, u32 clockrate)
- {
--	if (!baudrate)
--		return 0;
--
- 	/* Round to nearest divisor */
- 	return DIV_ROUND_CLOSEST(clockrate, baudrate);
- }
-@@ -570,9 +567,14 @@ static int f81534_set_port_config(struct
- 	u32 baud_list[] = {baudrate, old_baudrate, F81534_DEFAULT_BAUD_RATE};
- 
- 	for (i = 0; i < ARRAY_SIZE(baud_list); ++i) {
--		idx = f81534_find_clk(baud_list[i]);
-+		baudrate = baud_list[i];
-+		if (baudrate == 0) {
-+			tty_encode_baud_rate(tty, 0, 0);
-+			return 0;
-+		}
-+
-+		idx = f81534_find_clk(baudrate);
- 		if (idx >= 0) {
--			baudrate = baud_list[i];
- 			tty_encode_baud_rate(tty, baudrate, baudrate);
- 			break;
- 		}
+diff --git a/tools/testing/selftests/net/toeplitz.sh b/tools/testing/selftests/net/toeplitz.sh
+index 0a49907cd4fe..da5bfd834eff 100755
+--- a/tools/testing/selftests/net/toeplitz.sh
++++ b/tools/testing/selftests/net/toeplitz.sh
+@@ -32,7 +32,7 @@ DEV="eth0"
+ # This is determined by reading the RSS indirection table using ethtool.
+ get_rss_cfg_num_rxqs() {
+ 	echo $(ethtool -x "${DEV}" |
+-		egrep [[:space:]]+[0-9]+:[[:space:]]+ |
++		grep -E [[:space:]]+[0-9]+:[[:space:]]+ |
+ 		cut -d: -f2- |
+ 		awk '{$1=$1};1' |
+ 		tr ' ' '\n' |
+-- 
+2.35.1
+
 
 
