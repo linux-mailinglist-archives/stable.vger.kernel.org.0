@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D52AB6512FE
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:26:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E38446512F5
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:25:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232348AbiLST0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:26:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51124 "EHLO
+        id S232769AbiLSTZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:25:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232678AbiLSTZl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:25:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3252C329
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:25:40 -0800 (PST)
+        with ESMTP id S232789AbiLSTY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:24:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5E5112AE0
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:24:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB395B80EF7
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:25:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23F28C433EF;
-        Mon, 19 Dec 2022 19:25:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 515C760FA8
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:24:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44BC2C433D2;
+        Mon, 19 Dec 2022 19:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671477937;
-        bh=T6ogtEA/k+38oJHMiRWvj7T+7+jE5E9D0h7SCn0qiRo=;
+        s=korg; t=1671477884;
+        bh=ZxRVTZF2Dom3p2LrtO55FfDbBzBtO0kHbIR0ZsDK7F8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wWnf0qJFwLwn4262QzUXrIwJUZgqRv/udxJMpB99v3RKTMTdBHBUMsH8pltr+qMxJ
-         fsMkbSqduOJMVPv72FjuzncA6Y2gxnR6288Sg1C+HrIp/LQjYy5FL1AmtyUZ+ttHRg
-         zqXQGecpF9wrJFmuBbuEcUZPN3veOvFoZ8z37ZEY=
+        b=Uom4oNw3+LBgWATB0LO5j/vNni112Rb+0RCq0tpWYxe+X/dDNOUOX98pm4ecbWPNa
+         r8ECVKo1d0uz3oTuNXehq+imRFq27Is+UQ+HP1T4EigW/JYdjKqwkaYJ1j3QQBvlKf
+         GVUBAMzCC9SuNhefQtrGEL9wZ85RXJagNbAtxafY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
-Subject: [PATCH 6.0 12/28] udf: Do not bother looking for prealloc extents if i_lenExtents matches i_size
+        patches@lists.linux.dev, Akihiko Odaki <akihiko.odaki@daynix.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.1 20/25] igb: Initialize mailbox message for VF reset
 Date:   Mon, 19 Dec 2022 20:22:59 +0100
-Message-Id: <20221219182944.703887592@linuxfoundation.org>
+Message-Id: <20221219182944.266385974@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
-References: <20221219182944.179389009@linuxfoundation.org>
+In-Reply-To: <20221219182943.395169070@linuxfoundation.org>
+References: <20221219182943.395169070@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,34 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Tony Nguyen <anthony.l.nguyen@intel.com>
 
-commit 6ad53f0f71c52871202a7bf096feb2c59db33fc5 upstream.
+commit de5dc44370fbd6b46bd7f1a1e00369be54a041c8 upstream.
 
-If rounded block-rounded i_lenExtents matches block rounded i_size,
-there are no preallocation extents. Do not bother walking extent linked
-list.
+When a MAC address is not assigned to the VF, that portion of the message
+sent to the VF is not set. The memory, however, is allocated from the
+stack meaning that information may be leaked to the VM. Initialize the
+message buffer to 0 so that no information is passed to the VM in this
+case.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 6ddbc4cf1f4d ("igb: Indicate failure on vf reset for empty mac address")
+Reported-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20221212190031.3983342-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/truncate.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igb/igb_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/udf/truncate.c
-+++ b/fs/udf/truncate.c
-@@ -127,9 +127,10 @@ void udf_discard_prealloc(struct inode *
- 	uint64_t lbcount = 0;
- 	int8_t etype = -1, netype;
- 	struct udf_inode_info *iinfo = UDF_I(inode);
-+	int bsize = 1 << inode->i_blkbits;
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -7521,7 +7521,7 @@ static void igb_vf_reset_msg(struct igb_
+ {
+ 	struct e1000_hw *hw = &adapter->hw;
+ 	unsigned char *vf_mac = adapter->vf_data[vf].vf_mac_addresses;
+-	u32 reg, msgbuf[3];
++	u32 reg, msgbuf[3] = {};
+ 	u8 *addr = (u8 *)(&msgbuf[1]);
  
- 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB ||
--	    inode->i_size == iinfo->i_lenExtents)
-+	    ALIGN(inode->i_size, bsize) == ALIGN(iinfo->i_lenExtents, bsize))
- 		return;
- 
- 	epos.block = iinfo->i_location;
+ 	/* process all the same items cleared in a function level reset */
 
 
