@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD667651328
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 861B4651329
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232699AbiLST1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:27:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50550 "EHLO
+        id S232609AbiLST14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:27:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232821AbiLST1d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2454140DB
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:27:29 -0800 (PST)
+        with ESMTP id S232844AbiLST1f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E37714094
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:27:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 938B3B80EF6
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:27:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E38ADC433F0;
-        Mon, 19 Dec 2022 19:27:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF3DD60FA8
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:27:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB947C433F0;
+        Mon, 19 Dec 2022 19:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671478047;
-        bh=rH1IHoV1NfgCo1z/yBkUlYi4eoPEuDmkDR6eO9Dv8eQ=;
+        s=korg; t=1671478050;
+        bh=N9+LkSGPlH6aGfEeZIwERcCy2a7ct6Vo/K5d/4F4o08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q4MpvJqWekcS1XnHTp4ycLPFl3dDobzWllf7Mc5+44CFpS9vRa/oufr2/VOHCBteV
-         AjAe54Yhn7UpWx8bPxxhcBudY2TBJN+vwtkarUPcR0zogpLR0kwrKm/FatdgdlruHq
-         wPMl8w3l7piaE2/2Vw49xJCLvRyZ9WQDNxy0oc80=
+        b=BDBpxTSYXv8AWIqsgE41j/ISeIPPoAWxQV6VY+La2Lbq/uOFwis9ngxRhmpsYHWBm
+         0DbyTYNuB4bPo/2mw7fKHPBs2lNaSLEGenLGQ9+5W2e3Mxn5pJ/iZeK8BR7E8Io/qq
+         RoG2/ceEiwCVcnBb/zlSJgM2GXwp3adDTkSfpz+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.15 04/17] udf: Fix extending file within last block
-Date:   Mon, 19 Dec 2022 20:24:50 +0100
-Message-Id: <20221219182940.873795878@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Daniel Scally <dan.scally@ideasonboard.com>,
+        Szymon Heidrich <szymon.heidrich@gmail.com>
+Subject: [PATCH 5.15 05/17] usb: gadget: uvc: Prevent buffer overflow in setup handler
+Date:   Mon, 19 Dec 2022 20:24:51 +0100
+Message-Id: <20221219182940.902823319@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221219182940.739981110@linuxfoundation.org>
 References: <20221219182940.739981110@linuxfoundation.org>
@@ -51,99 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-commit 1f3868f06855c97a4954c99b36f3fc9eb8f60326 upstream.
+commit 4c92670b16727365699fe4b19ed32013bab2c107 upstream.
 
-When extending file within last block it can happen that the extent is
-already rounded to the blocksize and thus contains the offset we want to
-grow up to. In such case we would mistakenly expand the last extent and
-make it one block longer than it should be, exposing unallocated block
-in a file and causing data corruption. Fix the problem by properly
-detecting this case and bailing out.
+Setup function uvc_function_setup permits control transfer
+requests with up to 64 bytes of payload (UVC_MAX_REQUEST_SIZE),
+data stage handler for OUT transfer uses memcpy to copy req->actual
+bytes to uvc_event->data.data array of size 60. This may result
+in an overflow of 4 bytes.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: cdda479f15cd ("USB gadget: video class function driver")
+Cc: stable <stable@kernel.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Daniel Scally <dan.scally@ideasonboard.com>
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Link: https://lore.kernel.org/r/20221206141301.51305-1-szymon.heidrich@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/inode.c |   32 +++++++++++++++++---------------
- 1 file changed, 17 insertions(+), 15 deletions(-)
+ drivers/usb/gadget/function/f_uvc.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -589,13 +589,17 @@ out:
- static void udf_do_extend_final_block(struct inode *inode,
- 				      struct extent_position *last_pos,
- 				      struct kernel_long_ad *last_ext,
--				      uint32_t final_block_len)
-+				      uint32_t new_elen)
- {
--	struct super_block *sb = inode->i_sb;
- 	uint32_t added_bytes;
+--- a/drivers/usb/gadget/function/f_uvc.c
++++ b/drivers/usb/gadget/function/f_uvc.c
+@@ -213,8 +213,9 @@ uvc_function_ep0_complete(struct usb_ep
  
--	added_bytes = final_block_len -
--		      (last_ext->extLength & (sb->s_blocksize - 1));
-+	/*
-+	 * Extent already large enough? It may be already rounded up to block
-+	 * size...
-+	 */
-+	if (new_elen <= (last_ext->extLength & UDF_EXTENT_LENGTH_MASK))
-+		return;
-+	added_bytes = (last_ext->extLength & UDF_EXTENT_LENGTH_MASK) - new_elen;
- 	last_ext->extLength += added_bytes;
- 	UDF_I(inode)->i_lenExtents += added_bytes;
- 
-@@ -612,12 +616,12 @@ static int udf_extend_file(struct inode
- 	int8_t etype;
- 	struct super_block *sb = inode->i_sb;
- 	sector_t first_block = newsize >> sb->s_blocksize_bits, offset;
--	unsigned long partial_final_block;
-+	loff_t new_elen;
- 	int adsize;
- 	struct udf_inode_info *iinfo = UDF_I(inode);
- 	struct kernel_long_ad extent;
- 	int err = 0;
--	int within_final_block;
-+	bool within_last_ext;
- 
- 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
- 		adsize = sizeof(struct short_ad);
-@@ -633,9 +637,9 @@ static int udf_extend_file(struct inode
- 	udf_discard_prealloc(inode);
- 
- 	etype = inode_bmap(inode, first_block, &epos, &eloc, &elen, &offset);
--	within_final_block = (etype != -1);
-+	within_last_ext = (etype != -1);
- 	/* We don't expect extents past EOF... */
--	WARN_ON_ONCE(etype != -1 &&
-+	WARN_ON_ONCE(within_last_ext &&
- 		     elen > ((loff_t)offset + 1) << inode->i_blkbits);
- 
- 	if ((!epos.bh && epos.offset == udf_file_entry_alloc_offset(inode)) ||
-@@ -652,19 +656,17 @@ static int udf_extend_file(struct inode
- 		extent.extLength |= etype << 30;
+ 		memset(&v4l2_event, 0, sizeof(v4l2_event));
+ 		v4l2_event.type = UVC_EVENT_DATA;
+-		uvc_event->data.length = req->actual;
+-		memcpy(&uvc_event->data.data, req->buf, req->actual);
++		uvc_event->data.length = min_t(unsigned int, req->actual,
++			sizeof(uvc_event->data.data));
++		memcpy(&uvc_event->data.data, req->buf, uvc_event->data.length);
+ 		v4l2_event_queue(&uvc->vdev, &v4l2_event);
  	}
- 
--	partial_final_block = newsize & (sb->s_blocksize - 1);
-+	new_elen = ((loff_t)offset << inode->i_blkbits) |
-+					(newsize & (sb->s_blocksize - 1));
- 
- 	/* File has extent covering the new size (could happen when extending
- 	 * inside a block)?
- 	 */
--	if (within_final_block) {
-+	if (within_last_ext) {
- 		/* Extending file within the last file block */
--		udf_do_extend_final_block(inode, &epos, &extent,
--					  partial_final_block);
-+		udf_do_extend_final_block(inode, &epos, &extent, new_elen);
- 	} else {
--		loff_t add = ((loff_t)offset << sb->s_blocksize_bits) |
--			     partial_final_block;
--		err = udf_do_extend_file(inode, &epos, &extent, add);
-+		err = udf_do_extend_file(inode, &epos, &extent, new_elen);
- 	}
- 
- 	if (err < 0)
+ }
 
 
