@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0853650E60
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 16:13:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25FE4650E61
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 16:15:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232840AbiLSPNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 10:13:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42472 "EHLO
+        id S231631AbiLSPO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 10:14:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232832AbiLSPNM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 10:13:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D4E063B3
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 07:13:12 -0800 (PST)
+        with ESMTP id S231556AbiLSPO6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 10:14:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF69063D9
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 07:14:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AEDF960FEF
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 15:13:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFA68C433F0;
-        Mon, 19 Dec 2022 15:13:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67205B80E53
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 15:14:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83591C433EF;
+        Mon, 19 Dec 2022 15:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671462791;
-        bh=Nxyki6dXX/UMIxzzE8kY49sa3R71fcCjQRyuMw2K2Es=;
+        s=korg; t=1671462894;
+        bh=Xjr6EhhNkN2s9IZBZD3b6W6gYKUkhaDIb+aFjWTdV4s=;
         h=Subject:To:Cc:From:Date:From;
-        b=1I3EgUSLjAesQmQK6Bx6GskqzDJ9OWJyjCNMCtlGed+JuNu52s+vgoUsG4LYVPfvS
-         RiM/vzekxs0gP7B9HS0bqCgbGoHvIJ6sEluDD2e4hn87AUcp9WuV7+BGODpXVB5lCj
-         lw1V9HaLWzlY1IWOseqyJ7D1Hz4xQQ7mPJYsbhMI=
-Subject: FAILED: patch "[PATCH] usb: musb: remove extra check in musb_gadget_vbus_draw" failed to apply to 4.14-stable tree
-To:     ivo.g.dimitrov.75@gmail.com, gregkh@linuxfoundation.org,
-        stable@kernel.org
+        b=1k5HAeTqbrxaBwcbp5nXkvo9n2IbjkUZ8p9Yz1ECDsQKhqxu8AwuGwaroi7SDYk6i
+         nIFms7qToIJbZkjpmpcfWl26brYLdhLRQH+rSVBjqxgeGue30JznwpLFgyniZQczis
+         d/AZrUk38AHCEJDpHhICVo0B+n+DPXK44WD1hOmI=
+Subject: FAILED: patch "[PATCH] cifs: fix oops during encryption" failed to apply to 6.0-stable tree
+To:     pc@cjr.nz, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 19 Dec 2022 16:12:54 +0100
-Message-ID: <16714627744996@kroah.com>
+Date:   Mon, 19 Dec 2022 16:14:51 +0100
+Message-ID: <16714628910105@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,18 +47,16 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-ecec4b20d29c ("usb: musb: remove extra check in musb_gadget_vbus_draw")
-a6d45ea063f0 ("usb: musb: Allow running without CONFIG_USB_PHY")
-21acc656a06e ("usb: musb: Add and use inline functions musb_{get,set}_state")
-df561f6688fe ("treewide: Use fallthrough pseudo-keyword")
-37711e5e2325 ("Merge tag 'nfs-for-5.9-1' of git://git.linux-nfs.org/projects/trondmy/linux-nfs")
+f7f291e14dde ("cifs: fix oops during encryption")
+76894f3e2f71 ("cifs: improve symlink handling for smb2+")
+a4e430c8c8ba ("cifs: replace kfree() with kfree_sensitive() for sensitive data")
 
 thanks,
 
@@ -67,40 +64,392 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ecec4b20d29c3d6922dafe7d2555254a454272d2 Mon Sep 17 00:00:00 2001
-From: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
-Date: Fri, 25 Nov 2022 20:21:15 +0200
-Subject: [PATCH] usb: musb: remove extra check in musb_gadget_vbus_draw
+From f7f291e14dde32a07b1f0aa06921d28f875a7b54 Mon Sep 17 00:00:00 2001
+From: Paulo Alcantara <pc@cjr.nz>
+Date: Sun, 11 Dec 2022 18:18:55 -0300
+Subject: [PATCH] cifs: fix oops during encryption
 
-The checks for musb->xceiv and musb->xceiv->set_power duplicate those in
-usb_phy_set_power(), so there is no need of them. Moreover, not calling
-usb_phy_set_power() results in usb_phy_set_charger_current() not being
-called, so current USB config max current is not propagated through USB
-charger framework and charger drivers may try to draw more current than
-allowed or possible.
+When running xfstests against Azure the following oops occurred on an
+arm64 system
 
-Fix that by removing those extra checks and calling usb_phy_set_power()
-directly.
+  Unable to handle kernel write to read-only memory at virtual address
+  ffff0001221cf000
+  Mem abort info:
+    ESR = 0x9600004f
+    EC = 0x25: DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+    FSC = 0x0f: level 3 permission fault
+  Data abort info:
+    ISV = 0, ISS = 0x0000004f
+    CM = 0, WnR = 1
+  swapper pgtable: 4k pages, 48-bit VAs, pgdp=00000000294f3000
+  [ffff0001221cf000] pgd=18000001ffff8003, p4d=18000001ffff8003,
+  pud=18000001ff82e003, pmd=18000001ff71d003, pte=00600001221cf787
+  Internal error: Oops: 9600004f [#1] PREEMPT SMP
+  ...
+  pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
+  pc : __memcpy+0x40/0x230
+  lr : scatterwalk_copychunks+0xe0/0x200
+  sp : ffff800014e92de0
+  x29: ffff800014e92de0 x28: ffff000114f9de80 x27: 0000000000000008
+  x26: 0000000000000008 x25: ffff800014e92e78 x24: 0000000000000008
+  x23: 0000000000000001 x22: 0000040000000000 x21: ffff000000000000
+  x20: 0000000000000001 x19: ffff0001037c4488 x18: 0000000000000014
+  x17: 235e1c0d6efa9661 x16: a435f9576b6edd6c x15: 0000000000000058
+  x14: 0000000000000001 x13: 0000000000000008 x12: ffff000114f2e590
+  x11: ffffffffffffffff x10: 0000040000000000 x9 : ffff8000105c3580
+  x8 : 2e9413b10000001a x7 : 534b4410fb86b005 x6 : 534b4410fb86b005
+  x5 : ffff0001221cf008 x4 : ffff0001037c4490 x3 : 0000000000000001
+  x2 : 0000000000000008 x1 : ffff0001037c4488 x0 : ffff0001221cf000
+  Call trace:
+   __memcpy+0x40/0x230
+   scatterwalk_map_and_copy+0x98/0x100
+   crypto_ccm_encrypt+0x150/0x180
+   crypto_aead_encrypt+0x2c/0x40
+   crypt_message+0x750/0x880
+   smb3_init_transform_rq+0x298/0x340
+   smb_send_rqst.part.11+0xd8/0x180
+   smb_send_rqst+0x3c/0x100
+   compound_send_recv+0x534/0xbc0
+   smb2_query_info_compound+0x32c/0x440
+   smb2_set_ea+0x438/0x4c0
+   cifs_xattr_set+0x5d4/0x7c0
 
-Tested on Motorola Droid4 and Nokia N900
+This is because in scatterwalk_copychunks(), we attempted to write to
+a buffer (@sign) that was allocated in the stack (vmalloc area) by
+crypt_message() and thus accessing its remaining 8 (x2) bytes ended up
+crossing a page boundary.
 
-Fixes: a9081a008f84 ("usb: phy: Add USB charger support")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
-Link: https://lore.kernel.org/r/1669400475-4762-1-git-send-email-ivo.g.dimitrov.75@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To simply fix it, we could just pass @sign kmalloc'd from
+crypt_message() and then we're done.  Luckily, we don't seem to pass
+any other vmalloc'd buffers in smb_rqst::rq_iov...
 
-diff --git a/drivers/usb/musb/musb_gadget.c b/drivers/usb/musb/musb_gadget.c
-index 6cb9514ef340..31c44325e828 100644
---- a/drivers/usb/musb/musb_gadget.c
-+++ b/drivers/usb/musb/musb_gadget.c
-@@ -1630,8 +1630,6 @@ static int musb_gadget_vbus_draw(struct usb_gadget *gadget, unsigned mA)
- {
- 	struct musb	*musb = gadget_to_musb(gadget);
+Instead, let's map the correct pages and offsets from vmalloc buffers
+as well in cifs_sg_set_buf() and then avoiding such oopses.
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
+
+diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
+index cd3a173e65b1..703685e2db5e 100644
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -13,6 +13,8 @@
+ #include <linux/in6.h>
+ #include <linux/inet.h>
+ #include <linux/slab.h>
++#include <linux/scatterlist.h>
++#include <linux/mm.h>
+ #include <linux/mempool.h>
+ #include <linux/workqueue.h>
+ #include <linux/utsname.h>
+@@ -2140,4 +2142,70 @@ static inline void move_cifs_info_to_smb2(struct smb2_file_all_info *dst, const
+ 	dst->FileNameLength = src->FileNameLength;
+ }
  
--	if (!musb->xceiv || !musb->xceiv->set_power)
--		return -EOPNOTSUPP;
- 	return usb_phy_set_power(musb->xceiv, mA);
++static inline unsigned int cifs_get_num_sgs(const struct smb_rqst *rqst,
++					    int num_rqst,
++					    const u8 *sig)
++{
++	unsigned int len, skip;
++	unsigned int nents = 0;
++	unsigned long addr;
++	int i, j;
++
++	/* Assumes the first rqst has a transform header as the first iov.
++	 * I.e.
++	 * rqst[0].rq_iov[0]  is transform header
++	 * rqst[0].rq_iov[1+] data to be encrypted/decrypted
++	 * rqst[1+].rq_iov[0+] data to be encrypted/decrypted
++	 */
++	for (i = 0; i < num_rqst; i++) {
++		/*
++		 * The first rqst has a transform header where the
++		 * first 20 bytes are not part of the encrypted blob.
++		 */
++		for (j = 0; j < rqst[i].rq_nvec; j++) {
++			struct kvec *iov = &rqst[i].rq_iov[j];
++
++			skip = (i == 0) && (j == 0) ? 20 : 0;
++			addr = (unsigned long)iov->iov_base + skip;
++			if (unlikely(is_vmalloc_addr((void *)addr))) {
++				len = iov->iov_len - skip;
++				nents += DIV_ROUND_UP(offset_in_page(addr) + len,
++						      PAGE_SIZE);
++			} else {
++				nents++;
++			}
++		}
++		nents += rqst[i].rq_npages;
++	}
++	nents += DIV_ROUND_UP(offset_in_page(sig) + SMB2_SIGNATURE_SIZE, PAGE_SIZE);
++	return nents;
++}
++
++/* We can not use the normal sg_set_buf() as we will sometimes pass a
++ * stack object as buf.
++ */
++static inline struct scatterlist *cifs_sg_set_buf(struct scatterlist *sg,
++						  const void *buf,
++						  unsigned int buflen)
++{
++	unsigned long addr = (unsigned long)buf;
++	unsigned int off = offset_in_page(addr);
++
++	addr &= PAGE_MASK;
++	if (unlikely(is_vmalloc_addr((void *)addr))) {
++		do {
++			unsigned int len = min_t(unsigned int, buflen, PAGE_SIZE - off);
++
++			sg_set_page(sg++, vmalloc_to_page((void *)addr), len, off);
++
++			off = 0;
++			addr += PAGE_SIZE;
++			buflen -= len;
++		} while (buflen);
++	} else {
++		sg_set_page(sg++, virt_to_page(addr), buflen, off);
++	}
++	return sg;
++}
++
+ #endif	/* _CIFS_GLOB_H */
+diff --git a/fs/cifs/cifsproto.h b/fs/cifs/cifsproto.h
+index f216fa269c85..9c6147ca029d 100644
+--- a/fs/cifs/cifsproto.h
++++ b/fs/cifs/cifsproto.h
+@@ -600,8 +600,8 @@ int setup_aio_ctx_iter(struct cifs_aio_ctx *ctx, struct iov_iter *iter, int rw);
+ int cifs_alloc_hash(const char *name, struct shash_desc **sdesc);
+ void cifs_free_hash(struct shash_desc **sdesc);
+ 
+-extern void rqst_page_get_length(struct smb_rqst *rqst, unsigned int page,
+-				unsigned int *len, unsigned int *offset);
++void rqst_page_get_length(const struct smb_rqst *rqst, unsigned int page,
++			  unsigned int *len, unsigned int *offset);
+ struct cifs_chan *
+ cifs_ses_find_chan(struct cifs_ses *ses, struct TCP_Server_Info *server);
+ int cifs_try_adding_channels(struct cifs_sb_info *cifs_sb, struct cifs_ses *ses);
+diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
+index 3e68d8208cf5..1cbecd64d697 100644
+--- a/fs/cifs/misc.c
++++ b/fs/cifs/misc.c
+@@ -1136,8 +1136,8 @@ cifs_free_hash(struct shash_desc **sdesc)
+  * @len: Where to store the length for this page:
+  * @offset: Where to store the offset for this page
+  */
+-void rqst_page_get_length(struct smb_rqst *rqst, unsigned int page,
+-				unsigned int *len, unsigned int *offset)
++void rqst_page_get_length(const struct smb_rqst *rqst, unsigned int page,
++			  unsigned int *len, unsigned int *offset)
+ {
+ 	*len = rqst->rq_pagesz;
+ 	*offset = (page == 0) ? rqst->rq_offset : 0;
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 72b22d033ed5..6e772b31e02a 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -4204,69 +4204,82 @@ fill_transform_hdr(struct smb2_transform_hdr *tr_hdr, unsigned int orig_len,
+ 	memcpy(&tr_hdr->SessionId, &shdr->SessionId, 8);
+ }
+ 
+-/* We can not use the normal sg_set_buf() as we will sometimes pass a
+- * stack object as buf.
+- */
+-static inline void smb2_sg_set_buf(struct scatterlist *sg, const void *buf,
+-				   unsigned int buflen)
++static void *smb2_aead_req_alloc(struct crypto_aead *tfm, const struct smb_rqst *rqst,
++				 int num_rqst, const u8 *sig, u8 **iv,
++				 struct aead_request **req, struct scatterlist **sgl,
++				 unsigned int *num_sgs)
+ {
+-	void *addr;
+-	/*
+-	 * VMAP_STACK (at least) puts stack into the vmalloc address space
+-	 */
+-	if (is_vmalloc_addr(buf))
+-		addr = vmalloc_to_page(buf);
+-	else
+-		addr = virt_to_page(buf);
+-	sg_set_page(sg, addr, buflen, offset_in_page(buf));
++	unsigned int req_size = sizeof(**req) + crypto_aead_reqsize(tfm);
++	unsigned int iv_size = crypto_aead_ivsize(tfm);
++	unsigned int len;
++	u8 *p;
++
++	*num_sgs = cifs_get_num_sgs(rqst, num_rqst, sig);
++
++	len = iv_size;
++	len += crypto_aead_alignmask(tfm) & ~(crypto_tfm_ctx_alignment() - 1);
++	len = ALIGN(len, crypto_tfm_ctx_alignment());
++	len += req_size;
++	len = ALIGN(len, __alignof__(struct scatterlist));
++	len += *num_sgs * sizeof(**sgl);
++
++	p = kmalloc(len, GFP_ATOMIC);
++	if (!p)
++		return NULL;
++
++	*iv = (u8 *)PTR_ALIGN(p, crypto_aead_alignmask(tfm) + 1);
++	*req = (struct aead_request *)PTR_ALIGN(*iv + iv_size,
++						crypto_tfm_ctx_alignment());
++	*sgl = (struct scatterlist *)PTR_ALIGN((u8 *)*req + req_size,
++					       __alignof__(struct scatterlist));
++	return p;
+ }
+ 
+-/* Assumes the first rqst has a transform header as the first iov.
+- * I.e.
+- * rqst[0].rq_iov[0]  is transform header
+- * rqst[0].rq_iov[1+] data to be encrypted/decrypted
+- * rqst[1+].rq_iov[0+] data to be encrypted/decrypted
+- */
+-static struct scatterlist *
+-init_sg(int num_rqst, struct smb_rqst *rqst, u8 *sign)
++static void *smb2_get_aead_req(struct crypto_aead *tfm, const struct smb_rqst *rqst,
++			       int num_rqst, const u8 *sig, u8 **iv,
++			       struct aead_request **req, struct scatterlist **sgl)
+ {
+-	unsigned int sg_len;
++	unsigned int off, len, skip;
+ 	struct scatterlist *sg;
+-	unsigned int i;
+-	unsigned int j;
+-	unsigned int idx = 0;
+-	int skip;
+-
+-	sg_len = 1;
+-	for (i = 0; i < num_rqst; i++)
+-		sg_len += rqst[i].rq_nvec + rqst[i].rq_npages;
++	unsigned int num_sgs;
++	unsigned long addr;
++	int i, j;
++	void *p;
+ 
+-	sg = kmalloc_array(sg_len, sizeof(struct scatterlist), GFP_KERNEL);
+-	if (!sg)
++	p = smb2_aead_req_alloc(tfm, rqst, num_rqst, sig, iv, req, sgl, &num_sgs);
++	if (!p)
+ 		return NULL;
+ 
+-	sg_init_table(sg, sg_len);
++	sg_init_table(*sgl, num_sgs);
++	sg = *sgl;
++
++	/* Assumes the first rqst has a transform header as the first iov.
++	 * I.e.
++	 * rqst[0].rq_iov[0]  is transform header
++	 * rqst[0].rq_iov[1+] data to be encrypted/decrypted
++	 * rqst[1+].rq_iov[0+] data to be encrypted/decrypted
++	 */
+ 	for (i = 0; i < num_rqst; i++) {
++		/*
++		 * The first rqst has a transform header where the
++		 * first 20 bytes are not part of the encrypted blob.
++		 */
+ 		for (j = 0; j < rqst[i].rq_nvec; j++) {
+-			/*
+-			 * The first rqst has a transform header where the
+-			 * first 20 bytes are not part of the encrypted blob
+-			 */
+-			skip = (i == 0) && (j == 0) ? 20 : 0;
+-			smb2_sg_set_buf(&sg[idx++],
+-					rqst[i].rq_iov[j].iov_base + skip,
+-					rqst[i].rq_iov[j].iov_len - skip);
+-			}
++			struct kvec *iov = &rqst[i].rq_iov[j];
+ 
++			skip = (i == 0) && (j == 0) ? 20 : 0;
++			addr = (unsigned long)iov->iov_base + skip;
++			len = iov->iov_len - skip;
++			sg = cifs_sg_set_buf(sg, (void *)addr, len);
++		}
+ 		for (j = 0; j < rqst[i].rq_npages; j++) {
+-			unsigned int len, offset;
+-
+-			rqst_page_get_length(&rqst[i], j, &len, &offset);
+-			sg_set_page(&sg[idx++], rqst[i].rq_pages[j], len, offset);
++			rqst_page_get_length(&rqst[i], j, &len, &off);
++			sg_set_page(sg++, rqst[i].rq_pages[j], len, off);
+ 		}
+ 	}
+-	smb2_sg_set_buf(&sg[idx], sign, SMB2_SIGNATURE_SIZE);
+-	return sg;
++	cifs_sg_set_buf(sg, sig, SMB2_SIGNATURE_SIZE);
++
++	return p;
+ }
+ 
+ static int
+@@ -4314,11 +4327,11 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
+ 	u8 sign[SMB2_SIGNATURE_SIZE] = {};
+ 	u8 key[SMB3_ENC_DEC_KEY_SIZE];
+ 	struct aead_request *req;
+-	char *iv;
+-	unsigned int iv_len;
++	u8 *iv;
+ 	DECLARE_CRYPTO_WAIT(wait);
+ 	struct crypto_aead *tfm;
+ 	unsigned int crypt_len = le32_to_cpu(tr_hdr->OriginalMessageSize);
++	void *creq;
+ 
+ 	rc = smb2_get_enc_key(server, le64_to_cpu(tr_hdr->SessionId), enc, key);
+ 	if (rc) {
+@@ -4352,32 +4365,15 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
+ 		return rc;
+ 	}
+ 
+-	req = aead_request_alloc(tfm, GFP_KERNEL);
+-	if (!req) {
+-		cifs_server_dbg(VFS, "%s: Failed to alloc aead request\n", __func__);
++	creq = smb2_get_aead_req(tfm, rqst, num_rqst, sign, &iv, &req, &sg);
++	if (unlikely(!creq))
+ 		return -ENOMEM;
+-	}
+ 
+ 	if (!enc) {
+ 		memcpy(sign, &tr_hdr->Signature, SMB2_SIGNATURE_SIZE);
+ 		crypt_len += SMB2_SIGNATURE_SIZE;
+ 	}
+ 
+-	sg = init_sg(num_rqst, rqst, sign);
+-	if (!sg) {
+-		cifs_server_dbg(VFS, "%s: Failed to init sg\n", __func__);
+-		rc = -ENOMEM;
+-		goto free_req;
+-	}
+-
+-	iv_len = crypto_aead_ivsize(tfm);
+-	iv = kzalloc(iv_len, GFP_KERNEL);
+-	if (!iv) {
+-		cifs_server_dbg(VFS, "%s: Failed to alloc iv\n", __func__);
+-		rc = -ENOMEM;
+-		goto free_sg;
+-	}
+-
+ 	if ((server->cipher_type == SMB2_ENCRYPTION_AES128_GCM) ||
+ 	    (server->cipher_type == SMB2_ENCRYPTION_AES256_GCM))
+ 		memcpy(iv, (char *)tr_hdr->Nonce, SMB3_AES_GCM_NONCE);
+@@ -4386,6 +4382,7 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
+ 		memcpy(iv + 1, (char *)tr_hdr->Nonce, SMB3_AES_CCM_NONCE);
+ 	}
+ 
++	aead_request_set_tfm(req, tfm);
+ 	aead_request_set_crypt(req, sg, sg, crypt_len, iv);
+ 	aead_request_set_ad(req, assoc_data_len);
+ 
+@@ -4398,11 +4395,7 @@ crypt_message(struct TCP_Server_Info *server, int num_rqst,
+ 	if (!rc && enc)
+ 		memcpy(&tr_hdr->Signature, sign, SMB2_SIGNATURE_SIZE);
+ 
+-	kfree_sensitive(iv);
+-free_sg:
+-	kfree_sensitive(sg);
+-free_req:
+-	kfree_sensitive(req);
++	kfree_sensitive(creq);
+ 	return rc;
  }
  
 
