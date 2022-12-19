@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBEC5651318
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAE0C651319
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232822AbiLST1d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:27:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50546 "EHLO
+        id S232827AbiLST1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:27:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232966AbiLST1K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712E6FCD4
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:26:48 -0800 (PST)
+        with ESMTP id S232588AbiLST1L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B743515F03
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:26:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29310B80EF6
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:26:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CF8CC433EF;
-        Mon, 19 Dec 2022 19:26:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 546F260F93
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:26:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55B26C433EF;
+        Mon, 19 Dec 2022 19:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671478005;
-        bh=HvNKuWYFW8umeX/fI6aXrzjdk4JcPKrYu3UMnlPw/N8=;
+        s=korg; t=1671478008;
+        bh=JcJAohdVommNiKb/r0jtp/FlBXIDbmpdu+aTbW7u1wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QrFuIMG94nIr6f3DuEh2+ZfabVjffzNMx71av+xM1Yo30tHK4moollx53XimtpUSn
-         hVijDTnjlS5c4vUD1N/kXJv5t2Wa/yeKlONs8dTTa6iuWkEPMTzdGVxq6PHYi0DDMw
-         eB0KOWa6vbgM5jRYV/TD3i3oaOxubnbTTGlnac8U=
+        b=BnBtgyh/Wa/2hNXeoDMlwu/vwLya+/qsCX7hu7fH6SDGCKlO8jSFsw4FCiYkIR+eY
+         YLagPWxpEXeo052HY5GzoSU/Ol824D0fehI0Jkhe/XeNCQPFKwxn7AUsJl4vQp00O5
+         e16NXzT4aJVrTDpICOGqaVz85IneF20bNNkm5kkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 27/28] selftests: net: Use "grep -E" instead of "egrep"
-Date:   Mon, 19 Dec 2022 20:23:14 +0100
-Message-Id: <20221219182945.343897724@linuxfoundation.org>
+Subject: [PATCH 6.0 28/28] net: loopback: use NET_NAME_PREDICTABLE for name_assign_type
+Date:   Mon, 19 Dec 2022 20:23:15 +0100
+Message-Id: <20221219182945.393706203@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
 References: <20221219182944.179389009@linuxfoundation.org>
@@ -53,46 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-[ Upstream commit 6a30d3e3491dc562384e9f15b201a8a25b57439f ]
+[ Upstream commit 31d929de5a112ee1b977a89c57de74710894bbbf ]
 
-The latest version of grep claims the egrep is now obsolete so the build
-now contains warnings that look like:
-	egrep: warning: egrep is obsolescent; using grep -E
-fix this using "grep -E" instead.
+When the name_assign_type attribute was introduced (commit
+685343fc3ba6, "net: add name_assign_type netdev attribute"), the
+loopback device was explicitly mentioned as one which would make use
+of NET_NAME_PREDICTABLE:
 
-  sed -i "s/egrep/grep -E/g" `grep egrep -rwl tools/testing/selftests/net`
+    The name_assign_type attribute gives hints where the interface name of a
+    given net-device comes from. These values are currently defined:
+...
+      NET_NAME_PREDICTABLE:
+        The ifname has been assigned by the kernel in a predictable way
+        that is guaranteed to avoid reuse and always be the same for a
+        given device. Examples include statically created devices like
+        the loopback device [...]
 
-Here are the steps to install the latest grep:
+Switch to that so that reading /sys/class/net/lo/name_assign_type
+produces something sensible instead of returning -EINVAL.
 
-  wget http://ftp.gnu.org/gnu/grep/grep-3.8.tar.gz
-  tar xf grep-3.8.tar.gz
-  cd grep-3.8 && ./configure && make
-  sudo make install
-  export PATH=/usr/local/bin:$PATH
-
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Link: https://lore.kernel.org/r/1669864248-829-1-git-send-email-yangtiezhu@loongson.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/toeplitz.sh | 2 +-
+ drivers/net/loopback.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/toeplitz.sh b/tools/testing/selftests/net/toeplitz.sh
-index 0a49907cd4fe..da5bfd834eff 100755
---- a/tools/testing/selftests/net/toeplitz.sh
-+++ b/tools/testing/selftests/net/toeplitz.sh
-@@ -32,7 +32,7 @@ DEV="eth0"
- # This is determined by reading the RSS indirection table using ethtool.
- get_rss_cfg_num_rxqs() {
- 	echo $(ethtool -x "${DEV}" |
--		egrep [[:space:]]+[0-9]+:[[:space:]]+ |
-+		grep -E [[:space:]]+[0-9]+:[[:space:]]+ |
- 		cut -d: -f2- |
- 		awk '{$1=$1};1' |
- 		tr ' ' '\n' |
+diff --git a/drivers/net/loopback.c b/drivers/net/loopback.c
+index 14e8d04cb434..2e9742952c4e 100644
+--- a/drivers/net/loopback.c
++++ b/drivers/net/loopback.c
+@@ -211,7 +211,7 @@ static __net_init int loopback_net_init(struct net *net)
+ 	int err;
+ 
+ 	err = -ENOMEM;
+-	dev = alloc_netdev(0, "lo", NET_NAME_UNKNOWN, loopback_setup);
++	dev = alloc_netdev(0, "lo", NET_NAME_PREDICTABLE, loopback_setup);
+ 	if (!dev)
+ 		goto out;
+ 
 -- 
 2.35.1
 
