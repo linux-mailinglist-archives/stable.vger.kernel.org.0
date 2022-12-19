@@ -2,148 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D741650C7C
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 14:12:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7CAE650CDD
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 14:53:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231693AbiLSNMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 08:12:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
+        id S231556AbiLSNxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 08:53:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231344AbiLSNMO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 08:12:14 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F36FAE6;
-        Mon, 19 Dec 2022 05:12:12 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BJCtms5012747;
-        Mon, 19 Dec 2022 13:11:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=7SOk3YQS9lGF+iOcoXSrRXy0VxCFllYVUtTeYrhBRa4=;
- b=Mw80rg3XtzkNIKSPvjeoAktUoofyrw3eEO1clBdKVy812AVaudYoubfEsO8oAtr0XOpF
- 6RyoKoGWLcGLgtgHB2S6tCB+Z0Wnn0TMfmnz9DK/RZAZ7iBKghrhc/98gHYCeQNckoNx
- uoVx0Rj7gAuVOcWYHxsEJA2FpbU9fQIgFZD2JRZkmwYSvuqaE2CzgrypDdDcklVJ+Gro
- 9PyvrOhDVpJq02/KBjRSFwa4xzb9IUvrhqyHicAqaURktYNmXsevIa/ItUVQNrS3U0YU
- h7e8IogRImIP1SdhfXzTEH7WbPmINUpcBDnqb61qnP+hE/keOKAOAaQ6tAuWVWsqCJL2 lg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mjrd0gcuy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Dec 2022 13:11:52 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BJCtmn7012754;
-        Mon, 19 Dec 2022 13:11:52 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mjrd0gcu3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Dec 2022 13:11:52 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BJCtBGB027516;
-        Mon, 19 Dec 2022 13:11:51 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([9.208.129.114])
-        by ppma03dal.us.ibm.com (PPS) with ESMTPS id 3mh6yugva5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Dec 2022 13:11:51 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-        by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BJDBnwU35914172
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 19 Dec 2022 13:11:49 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6206758063;
-        Mon, 19 Dec 2022 13:11:49 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B233458056;
-        Mon, 19 Dec 2022 13:11:48 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.175.166])
-        by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 19 Dec 2022 13:11:48 +0000 (GMT)
-Message-ID: <6348a26f165c27c562db48eb39b04417cbe1380c.camel@linux.ibm.com>
-Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     "Guozihua (Scott)" <guozihua@huawei.com>,
-        Paul Moore <paul@paul-moore.com>
-Cc:     dmitry.kasatkin@gmail.com, sds@tycho.nsa.gov,
-        eparis@parisplace.org, Greg KH <gregkh@linuxfoundation.org>,
-        sashal@kernel.org, selinux@vger.kernel.org,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        stable@vger.kernel.org
-Date:   Mon, 19 Dec 2022 08:11:48 -0500
-In-Reply-To: <381efcb7-604f-7f89-e950-efc142350417@huawei.com>
-References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
-         <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
-         <6a5bc829-b788-5742-cbfc-dba348065dbe@huawei.com>
-         <566721e9e8d639c82d841edef4d11d30a4d29694.camel@linux.ibm.com>
-         <fffb29b7-a1ac-33fb-6aca-989e5567f565@huawei.com>
-         <40cf70a96d2adbff1c0646d3372f131413989854.camel@linux.ibm.com>
-         <a63d5d4b-d7a9-fdcb-2b90-b5e2a974ca4c@huawei.com>
-         <757bc525f7d3fe6db5f3ee1f86de2f4d02d8286b.camel@linux.ibm.com>
-         <CAHC9VhR2mfaVjXz3sBzbkBamt8nE-9aV+jSOs9jH1ESnKvDrvw@mail.gmail.com>
-         <fc11076f-1760-edf3-c0e4-8f58d5e0335c@huawei.com>
-         <CAHC9VhT0SRWMi2gQKaBPOj1owqUh-24O9L2DyOZ8JDgEr+ZQiQ@mail.gmail.com>
-         <381efcb7-604f-7f89-e950-efc142350417@huawei.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Amv06k9OtLUp96ONYuzQNEdbPO-IKNK3
-X-Proofpoint-ORIG-GUID: JDSlwQ3HQPtBFR7CoLs4wZH2Qe5GKoWd
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-19_01,2022-12-15_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 mlxscore=0 mlxlogscore=999 clxscore=1015 phishscore=0
- malwarescore=0 suspectscore=0 impostorscore=0 lowpriorityscore=0
- adultscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2212190115
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S231439AbiLSNxk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 08:53:40 -0500
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BF7DBF43
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 05:53:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1671458019; x=1702994019;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=IbUkMrdd5439/WX0kV+ojOsF0VrveVn6NbNd14e3uNk=;
+  b=PG49b4obAxp807Oxk+bi6O78m+pA3lheMpEE/HpXAQpuEmUES8AiirG/
+   7yePo3extslonHL5ggXefPL/XhdoecuRzKvkeqRBCSEKusRCstUagULTR
+   XSOX20y/qCvwHPmlzbnFDGNJ5y53tFrelEMo8HFPfX/ZgyDYvm3K8Q7lY
+   ci7qRh4xGNU7dR4R7OdjDDToJIk1IleIL294mYmEITsYczDIrW86VQEsH
+   r2Q8AYfes76SEBfI1SCq8j7M/P563UMPyamG8ihmtqBnB2uwLsB/0lUFm
+   5F8Z+cb8YeTb4Juqswsotknz4Hn40QjQKOLgnkYKBuZX4Poscty+nLIfx
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10566"; a="383693582"
+X-IronPort-AV: E=Sophos;i="5.96,255,1665471600"; 
+   d="scan'208";a="383693582"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Dec 2022 05:53:38 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10566"; a="979381561"
+X-IronPort-AV: E=Sophos;i="5.96,255,1665471600"; 
+   d="scan'208";a="979381561"
+Received: from debian-skl.sh.intel.com ([10.239.159.40])
+  by fmsmga005.fm.intel.com with ESMTP; 19 Dec 2022 05:53:36 -0800
+From:   Zhenyu Wang <zhenyuw@linux.intel.com>
+To:     intel-gvt-dev@lists.freedesktop.org
+Cc:     Wang@vger.kernel.org, Zhi <zhi.a.wang@intel.com>,
+        He@vger.kernel.org, Yu <yu.he@intel.com>, stable@vger.kernel.org
+Subject: [PATCH 1/2] drm/i915/gvt: fix gvt debugfs destroy
+Date:   Mon, 19 Dec 2022 22:03:56 +0800
+Message-Id: <20221219140357.769557-1-zhenyuw@linux.intel.com>
+X-Mailer: git-send-email 2.39.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2022-12-19 at 15:10 +0800, Guozihua (Scott) wrote:
-> On 2022/12/16 11:04, Paul Moore wrote:
-> > On Thu, Dec 15, 2022 at 9:36 PM Guozihua (Scott) <guozihua@huawei.com> wrote:
-> >> On 2022/12/16 5:04, Paul Moore wrote:
-> > 
-> > ...
-> > 
-> >>> How bad is the backport really?  Perhaps it is worth doing it to see
-> >>> what it looks like?
-> >>>
-> >> It might not be that bad, I'll try to post a version next Monday.
-> > 
-> > Thanks for giving it a shot.
-> > 
-> When I am trying a partial backport of b16942455193 ("ima: use the lsm
-> policy update notifier"), I took a closer look into it and if we rip off
-> the RCU and the notifier part, there would be a potential UAF issue when
-> multiple processes are calling ima_lsm_update_rule() and
-> ima_match_rules() at the same time. ima_lsm_update_rule() would free the
-> old rule if the new rule is successfully copied and initialized, leading
-> to ima_match_rules() accessing a freed rule.
-> 
-> To reserve the mainline solution, we would have to either introduce RCU
-> for rule access, which would work better with notifier mechanism or the
-> same rule would be updated multiple times, or we would have to introduce
-> a lock for LSM based rule update.
+When gvt debug fs is destroyed, need to have a sane check if drm
+minor's debugfs root is still available or not, otherwise in case like
+device remove through unbinding, drm minor's debugfs directory has
+already been removed, then intel_gvt_debugfs_clean() would act upon
+dangling pointer like below oops.
 
-Even with the RCU changes, the rules will be updated multiple times. 
-With your "ima: Handle -ESTALE returned by ima_filter_rule_match()"
-patch, upstream makes a single local copy of the rule to avoid updating
-it multiple times.  Without the notifier, it's updating all the rules.
+i915 0000:00:02.0: Direct firmware load for i915/gvt/vid_0x8086_did_0x1926_rid_0x0a.golden_hw_state failed with error -2
+i915 0000:00:02.0: MDEV: Registered
+Console: switching to colour dummy device 80x25
+i915 0000:00:02.0: MDEV: Unregistering
+BUG: kernel NULL pointer dereference, address: 00000000000000a0
+PGD 0 P4D 0
+Oops: 0002 [#1] PREEMPT SMP PTI
+CPU: 2 PID: 2486 Comm: gfx-unbind.sh Tainted: G          I        6.1.0-rc8+ #15
+Hardware name: Dell Inc. XPS 13 9350/0JXC1H, BIOS 1.13.0 02/10/2020
+RIP: 0010:down_write+0x1f/0x90
+Code: 1d ff ff 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 53 48 89 fb e8 62 c0 ff ff bf 01 00 00 00 e8 28 5e 31 ff 31 c0 ba 01 00 00 00 <f0> 48 0f b1 13 75 33 65 48 8b 04 25 c0 bd 01 00 48 89 43 08 bf 01
+RSP: 0018:ffff9eb3036ffcc8 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 00000000000000a0 RCX: ffffff8100000000
+RDX: 0000000000000001 RSI: 0000000000000064 RDI: ffffffffa48787a8
+RBP: ffff9eb3036ffd30 R08: ffffeb1fc45a0608 R09: ffffeb1fc45a05c0
+R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff91acc33fa328 R14: ffff91acc033f080 R15: ffff91acced533e0
+FS:  00007f6947bba740(0000) GS:ffff91ae36d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000000000a0 CR3: 00000001133a2002 CR4: 00000000003706e0
+Call Trace:
+ <TASK>
+ simple_recursive_removal+0x9f/0x2a0
+ ? start_creating.part.0+0x120/0x120
+ ? _raw_spin_lock+0x13/0x40
+ debugfs_remove+0x40/0x60
+ intel_gvt_debugfs_clean+0x15/0x30 [kvmgt]
+ intel_gvt_clean_device+0x49/0xe0 [kvmgt]
+ intel_gvt_driver_remove+0x2f/0xb0
+ i915_driver_remove+0xa4/0xf0
+ i915_pci_remove+0x1a/0x30
+ pci_device_remove+0x33/0xa0
+ device_release_driver_internal+0x1b2/0x230
+ unbind_store+0xe0/0x110
+ kernfs_fop_write_iter+0x11b/0x1f0
+ vfs_write+0x203/0x3d0
+ ksys_write+0x63/0xe0
+ do_syscall_64+0x37/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f6947cb5190
+Code: 40 00 48 8b 15 71 9c 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 80 3d 51 24 0e 00 00 74 17 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 48 83 ec 28 48 89
+RSP: 002b:00007ffcbac45a28 EFLAGS: 00000202 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 000000000000000d RCX: 00007f6947cb5190
+RDX: 000000000000000d RSI: 0000555e35c866a0 RDI: 0000000000000001
+RBP: 0000555e35c866a0 R08: 0000000000000002 R09: 0000555e358cb97c
+R10: 0000000000000000 R11: 0000000000000202 R12: 0000000000000001
+R13: 000000000000000d R14: 0000000000000000 R15: 0000555e358cb8e0
+ </TASK>
+Modules linked in: kvmgt
+CR2: 00000000000000a0
+---[ end trace 0000000000000000 ]---
 
-Perhaps an atomic variable to detect if the rules are already being
-updated would suffice.  If the atomic variable is set, make a single
-local copy of the rule.
+Cc: Wang, Zhi <zhi.a.wang@intel.com>
+Cc: He, Yu <yu.he@intel.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
+Fixes: bc7b0be316ae ("drm/i915/gvt: Add basic debugfs infrastructure")
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+---
+ drivers/gpu/drm/i915/gvt/debugfs.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/gpu/drm/i915/gvt/debugfs.c b/drivers/gpu/drm/i915/gvt/debugfs.c
+index 9f1c209d9251..d7df27feee8c 100644
+--- a/drivers/gpu/drm/i915/gvt/debugfs.c
++++ b/drivers/gpu/drm/i915/gvt/debugfs.c
+@@ -199,6 +199,10 @@ void intel_gvt_debugfs_init(struct intel_gvt *gvt)
+  */
+ void intel_gvt_debugfs_clean(struct intel_gvt *gvt)
+ {
+-	debugfs_remove_recursive(gvt->debugfs_root);
+-	gvt->debugfs_root = NULL;
++	struct drm_minor *minor = gvt->gt->i915->drm.primary;
++
++	if (minor->debugfs_root) {
++		debugfs_remove_recursive(gvt->debugfs_root);
++		gvt->debugfs_root = NULL;
++	}
+ }
 -- 
-thanks,
-
-Mimi
-
+2.39.0
 
