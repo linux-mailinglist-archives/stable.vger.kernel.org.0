@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48F35651320
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBF30651336
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:28:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232135AbiLST1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:27:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50380 "EHLO
+        id S232195AbiLST2f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:28:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232699AbiLST10 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8044413CF3
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:27:10 -0800 (PST)
+        with ESMTP id S232277AbiLST2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:28:10 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19B0313E8A
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:28:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2D6260FA8
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:27:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDAF3C433EF;
-        Mon, 19 Dec 2022 19:27:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 884D2CE105F
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:28:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77DA3C433EF;
+        Mon, 19 Dec 2022 19:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671478029;
-        bh=NmHYeCaXXFEtSVNq2vYn2o2X3MdTvxoe/2Pv2zKOdrs=;
+        s=korg; t=1671478086;
+        bh=G0EJ61GzTux+H9glg4QmpfhsB6ctKiswmTxE6m1BVDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VyHQCN2Ud1ZBFKh+iye3U9IlZtGHHs3k2g4W/XFKFB+bAVh/zC8yIqkttD3f80Gpt
-         53saZPcuZ1O6liWXCw/8i2vdL75+yBl2rxJAbYneDcLhVJbvO9XLa9MSt3RHZ/h8Zq
-         m9CsVg+Vv4lzvootirV+SDU1yhO87LFnfxPy/3UQ=
+        b=fa2bQKUUA5tZbComu9cPsAjSX3u9Z+usvpNKn/8jg5IkbvVM36EzuLkMN2/McJyAN
+         Scele0W3tnjYO7rStTt+3ESlNsZxJmhnb9qnjGf+jj1d0zkObWMJKiUFPRrdp70O5m
+         Fupslo3UEK88pDgmC6UxnVQN+hTh/KHk1EcO4DOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Torge Matthies <openglfreak@googlemail.com>,
-        Alexander Zhang <alex@alexyzhang.dev>,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 14/17] HID: uclogic: Add HID_QUIRK_HIDINPUT_FORCE quirk
+        patches@lists.linux.dev, Bruno Thomsen <bruno.thomsen@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 07/18] USB: serial: cp210x: add Kamstrup RF sniffer PIDs
 Date:   Mon, 19 Dec 2022 20:25:00 +0100
-Message-Id: <20221219182941.168444560@linuxfoundation.org>
+Message-Id: <20221219182940.924245260@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221219182940.739981110@linuxfoundation.org>
-References: <20221219182940.739981110@linuxfoundation.org>
+In-Reply-To: <20221219182940.701087296@linuxfoundation.org>
+References: <20221219182940.701087296@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Bruno Thomsen <bruno.thomsen@gmail.com>
 
-[ Upstream commit 3405a4beaaa852f3ed2a5eb3b5149932d5c3779b ]
+commit e88906b169ebcb8046e8f0ad76edd09ab41cfdfe upstream.
 
-Commit f7d8e387d9ae ("HID: uclogic: Switch to Digitizer usage for
-styluses") changed the usage used in UCLogic from "Pen" to "Digitizer".
+The RF sniffers are based on cp210x where the RF frontends
+are based on a different USB stack.
 
-However, the IS_INPUT_APPLICATION() macro evaluates to false for
-HID_DG_DIGITIZER causing issues with the XP-Pen Star G640 tablet.
+RF sniffers can analyze packets meta data including power level
+and perform packet injection.
 
-Add the HID_QUIRK_HIDINPUT_FORCE quirk to bypass the
-IS_INPUT_APPLICATION() check.
+Can be used to perform RF frontend self-test when connected to
+a concentrator, ex. arch/arm/boot/dts/imx7d-flex-concentrator.dts
 
-Reported-by: Torge Matthies <openglfreak@googlemail.com>
-Reported-by: Alexander Zhang <alex@alexyzhang.dev>
-Tested-by: Alexander Zhang <alex@alexyzhang.dev>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Bruno Thomsen <bruno.thomsen@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-uclogic-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/cp210x.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
-index d8ab0139e5cd..785d81d61ba4 100644
---- a/drivers/hid/hid-uclogic-core.c
-+++ b/drivers/hid/hid-uclogic-core.c
-@@ -172,6 +172,7 @@ static int uclogic_probe(struct hid_device *hdev,
- 	 * than the pen, so use QUIRK_MULTI_INPUT for all tablets.
- 	 */
- 	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-+	hdev->quirks |= HID_QUIRK_HIDINPUT_FORCE;
- 
- 	/* Allocate and assign driver data */
- 	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
--- 
-2.35.1
-
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -199,6 +199,8 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x16DC, 0x0015) }, /* W-IE-NE-R Plein & Baus GmbH CML Control, Monitoring and Data Logger */
+ 	{ USB_DEVICE(0x17A8, 0x0001) }, /* Kamstrup Optical Eye/3-wire */
+ 	{ USB_DEVICE(0x17A8, 0x0005) }, /* Kamstrup M-Bus Master MultiPort 250D */
++	{ USB_DEVICE(0x17A8, 0x0011) }, /* Kamstrup 444 MHz RF sniffer */
++	{ USB_DEVICE(0x17A8, 0x0013) }, /* Kamstrup 870 MHz RF sniffer */
+ 	{ USB_DEVICE(0x17A8, 0x0101) }, /* Kamstrup 868 MHz wM-Bus C-Mode Meter Reader (Int Ant) */
+ 	{ USB_DEVICE(0x17A8, 0x0102) }, /* Kamstrup 868 MHz wM-Bus C-Mode Meter Reader (Ext Ant) */
+ 	{ USB_DEVICE(0x17F4, 0xAAAA) }, /* Wavesense Jazz blood glucose meter */
 
 
