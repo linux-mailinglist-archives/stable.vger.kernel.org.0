@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 494FE650E63
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 16:15:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8681C650E64
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 16:15:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232822AbiLSPPE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 10:15:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42856 "EHLO
+        id S232824AbiLSPPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 10:15:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232195AbiLSPPD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 10:15:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3CDA63D9
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 07:15:01 -0800 (PST)
+        with ESMTP id S232195AbiLSPPG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 10:15:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3118CB7DB
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 07:15:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4083060FEF
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 15:15:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F37CC433EF;
-        Mon, 19 Dec 2022 15:15:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0A7560FEF
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 15:15:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70B19C433D2;
+        Mon, 19 Dec 2022 15:15:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671462900;
-        bh=QWuNMv/ZD2CkqOv47RyerB1YzRazqrcdbSaNJwmX7WY=;
+        s=korg; t=1671462904;
+        bh=4OZFu/Uxo7TumPClqMQmF9aSsADCXC3Rcn4SZgx5xg0=;
         h=Subject:To:Cc:From:Date:From;
-        b=gh6wTyNl1GXBLfSVvMYwYU22uwYPUQqt45IidpulLwCO0QNeKOpRbVDsDuquQlTyB
-         mbxd2Ds8e9xtzpNmNScvGkgKz904H39uF0HvOhSymim6N2rNdzrmQBe35g8OO7qzwA
-         bKIKW6YmAQElq9qaejhoKU6B8616HIQ0aIRBnCNM=
-Subject: FAILED: patch "[PATCH] cifs: fix oops during encryption" failed to apply to 5.10-stable tree
+        b=L01feATX8v9kybFh+5vtHTf0uTJ6oaUN5daJaPdtVmXzy+wYLOBP1nxHhOF23ewvy
+         5Cd2xV7MafBiFDpUVWgeZvtkZpHcd+6OFbLID9qLMgAcZit6C9vW2c6C4zGz8QEi8O
+         7NNG23ZYCPCfLKrj4Ry+1ByYR3bl3yqSkciIw9lg=
+Subject: FAILED: patch "[PATCH] cifs: fix oops during encryption" failed to apply to 5.4-stable tree
 To:     pc@cjr.nz, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 19 Dec 2022 16:14:54 +0100
-Message-ID: <1671462894189167@kroah.com>
+Date:   Mon, 19 Dec 2022 16:14:56 +0100
+Message-ID: <16714628966462@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
