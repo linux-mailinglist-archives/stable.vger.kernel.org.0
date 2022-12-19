@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7D3D6512DF
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0969C6512E0
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:24:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232781AbiLSTYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232717AbiLSTYO (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Dec 2022 14:24:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44334 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232400AbiLSTXp (ORCPT
+        with ESMTP id S232735AbiLSTXp (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:23:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD16A1A4
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:23:22 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E40101B
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:23:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77E776111A
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:23:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AF73C433EF;
-        Mon, 19 Dec 2022 19:23:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 972D36111A
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:23:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95164C433F0;
+        Mon, 19 Dec 2022 19:23:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671477801;
-        bh=4+TCtaYKzRBEaGUn2XVaLjqjZCkoirRN2tm0M0jPTnI=;
+        s=korg; t=1671477805;
+        bh=cJmINEy4D30ha3tppFiCOaYoDk1uowRgBwxqQLzpsbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RLlLIX1KoX3GolNnhniHivr9Q2mKo/keLT6nHxuQylrTJ10xAng/SM1GVb3NFGZ/M
-         aPnDxFjqy4/JvfX8XUprWXAAmW02EpnMSJmlsXiLH1VSraenEuoTqCBptISDroiRXo
-         CSfJcNo57qxraZKQCiDgC9MHfJPxdDWABbUOks1c=
+        b=eysNPgjbcxplir37xbpmTBSet7ruM1ZM3LkEs1ridPMCJ0Qy96M6QnC4h4FTYNTBH
+         i9QwHhyxYOIrczvWHDtYc9o3720m9ax6BBQmD0jFBOl1sLaWEJZMP9PUySz13OC0rQ
+         mjWmp9qTSn83uwdRDHPU1ebDoZIhlup0YlMiWUZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         John Thomson <git@johnthomson.fastmail.com.au>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Subject: [PATCH 6.1 03/25] PCI: mt7621: Add sentinel to quirks table
-Date:   Mon, 19 Dec 2022 20:22:42 +0100
-Message-Id: <20221219182943.543410305@linuxfoundation.org>
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 6.1 04/25] mips: ralink: mt7621: define MT7621_SYSC_BASE with __iomem
+Date:   Mon, 19 Dec 2022 20:22:43 +0100
+Message-Id: <20221219182943.592687776@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221219182943.395169070@linuxfoundation.org>
 References: <20221219182943.395169070@linuxfoundation.org>
@@ -56,41 +55,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: John Thomson <git@johnthomson.fastmail.com.au>
 
-commit 19098934f910b4d47cb30251dd39ffa57bef9523 upstream.
+commit a2cab953b4c077cc02878d424466d3a6eac32aaf upstream.
 
-Current driver is missing a sentinel in the struct soc_device_attribute
-array, which causes an oops when assessed by the
-soc_device_match(mt7621_pcie_quirks_match) call.
+So that MT7621_SYSC_BASE can be used later in multiple functions without
+needing to repeat this __iomem declaration each time
 
-This was only exposed once the CONFIG_SOC_MT7621 mt7621 soc_dev_attr
-was fixed to register the SOC as a device, in:
-
-commit 7c18b64bba3b ("mips: ralink: mt7621: do not use kzalloc too early")
-
-Fix it by adding the required sentinel.
-
-Link: https://lore.kernel.org/lkml/26ebbed1-0fe9-4af9-8466-65f841d0b382@app.fastmail.com
-Link: https://lore.kernel.org/r/20221205204645.301301-1-git@johnthomson.fastmail.com.au
-Fixes: b483b4e4d3f6 ("staging: mt7621-pci: add quirks for 'E2' revision using 'soc_device_attribute'")
 Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
-Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Acked-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pcie-mt7621.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/mips/include/asm/mach-ralink/mt7621.h |    4 +++-
+ arch/mips/ralink/mt7621.c                  |    7 +++----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/pci/controller/pcie-mt7621.c
-+++ b/drivers/pci/controller/pcie-mt7621.c
-@@ -466,7 +466,8 @@ static int mt7621_pcie_register_host(str
- }
+--- a/arch/mips/include/asm/mach-ralink/mt7621.h
++++ b/arch/mips/include/asm/mach-ralink/mt7621.h
+@@ -7,10 +7,12 @@
+ #ifndef _MT7621_REGS_H_
+ #define _MT7621_REGS_H_
  
- static const struct soc_device_attribute mt7621_pcie_quirks_match[] = {
--	{ .soc_id = "mt7621", .revision = "E2" }
-+	{ .soc_id = "mt7621", .revision = "E2" },
-+	{ /* sentinel */ }
- };
++#define IOMEM(x)			((void __iomem *)(KSEG1ADDR(x)))
++
+ #define MT7621_PALMBUS_BASE		0x1C000000
+ #define MT7621_PALMBUS_SIZE		0x03FFFFFF
  
- static int mt7621_pcie_probe(struct platform_device *pdev)
+-#define MT7621_SYSC_BASE		0x1E000000
++#define MT7621_SYSC_BASE		IOMEM(0x1E000000)
+ 
+ #define SYSC_REG_CHIP_NAME0		0x00
+ #define SYSC_REG_CHIP_NAME1		0x04
+--- a/arch/mips/ralink/mt7621.c
++++ b/arch/mips/ralink/mt7621.c
+@@ -126,7 +126,6 @@ static void soc_dev_init(struct ralink_s
+ 
+ void __init prom_soc_init(struct ralink_soc_info *soc_info)
+ {
+-	void __iomem *sysc = (void __iomem *) KSEG1ADDR(MT7621_SYSC_BASE);
+ 	unsigned char *name = NULL;
+ 	u32 n0;
+ 	u32 n1;
+@@ -154,8 +153,8 @@ void __init prom_soc_init(struct ralink_
+ 		__sync();
+ 	}
+ 
+-	n0 = __raw_readl(sysc + SYSC_REG_CHIP_NAME0);
+-	n1 = __raw_readl(sysc + SYSC_REG_CHIP_NAME1);
++	n0 = __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_NAME0);
++	n1 = __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_NAME1);
+ 
+ 	if (n0 == MT7621_CHIP_NAME0 && n1 == MT7621_CHIP_NAME1) {
+ 		name = "MT7621";
+@@ -164,7 +163,7 @@ void __init prom_soc_init(struct ralink_
+ 		panic("mt7621: unknown SoC, n0:%08x n1:%08x\n", n0, n1);
+ 	}
+ 	ralink_soc = MT762X_SOC_MT7621AT;
+-	rev = __raw_readl(sysc + SYSC_REG_CHIP_REV);
++	rev = __raw_readl(MT7621_SYSC_BASE + SYSC_REG_CHIP_REV);
+ 
+ 	snprintf(soc_info->sys_type, RAMIPS_SYS_TYPE_LEN,
+ 		"MediaTek %s ver:%u eco:%u",
 
 
