@@ -2,156 +2,439 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 215976509F3
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 11:18:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93277650A16
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 11:28:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231753AbiLSKSM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 05:18:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37132 "EHLO
+        id S231531AbiLSK2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 05:28:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231703AbiLSKRw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 05:17:52 -0500
-Received: from new4-smtp.messagingengine.com (new4-smtp.messagingengine.com [66.111.4.230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55C76DFF1;
-        Mon, 19 Dec 2022 02:17:45 -0800 (PST)
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.nyi.internal (Postfix) with ESMTP id D253A580108;
-        Mon, 19 Dec 2022 05:17:42 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 19 Dec 2022 05:17:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1671445062; x=1671452262; bh=fgJpD5UpCl
-        Ln/YQQSaCgxLEoTAIdNYkTyp1io2SyGro=; b=va+/8G9ABffa8iE8Ef/xT4D79l
-        xcUirBK5yU76M+dai+1doV7MVnGsYvy3Wq2ovw9OpHGQIdGp4gNZ6JqIP72MCKmQ
-        b9alGGd49E73osu8mV1ltBigx9WwvbIK7Yy4F81fAB9lrROaqDjRPKNCRKprKo42
-        viXDuEppo/06gzG8R0aPnlZvq6O0n3dKtvgxvvWiFwmzRCpJfF9rth0kwViCGy+q
-        P1PsTjDhd0PxyQ1g4BnjD63WsNVHFQlBK25j7Lbw7qLlDDXsvb14G+MK8nkDeZCH
-        D+H0SFojd8c8PQroSALVk5lkb4eyhMnPAGE3I2pn8DcCqnta+UGjnRiv1Kcw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm2; t=1671445062; x=1671452262; bh=fgJpD5UpClLn/YQQSaCgxLEoTAId
-        NYkTyp1io2SyGro=; b=C/e+3ah36yKkFpO3JF7+nfBc5JgWZCTNbKxVOtEiQcQY
-        AdKn2ioP/7d/1IlsDd8LLDeFlvRJvkMejA8D/d3jsb5bfPodD2HtRRiUONS01ppe
-        AwZoZGsVGNbrZa26ifiEHQGNkuwTUgPj68zU0ZhJQTCM7b74fOiF/catd/L6Hj7O
-        E8i9tykNM+HkvdYQR8IXaH3c55zRT+VLEX5YKaVaXxeLQuTBpppXv7er6PvUYYSU
-        mB9UT2aJnzanL6rnou8rC8xRUKyROG3sfYvCyj6XJ6kCl4GnMAtlzRswgy6UV7AX
-        +8hmWZFu6c1QlCG11coZv3Jv12QEI+3bOUsdt5LnWw==
-X-ME-Sender: <xms:RjqgY13qxT9bvsBlPdQ-jVvSUbhzUcZTbI-x-TiWwpWHtvKt3wvF1A>
-    <xme:RjqgY8FzhvPEMdqudqPd6sejDygAvbnO7qcCKjtyo6yJK718mU4P9zz8F4QqQMLxM
-    hdMw5y4ai-T6A>
-X-ME-Received: <xmr:RjqgY14Hi4fa97pkJcd8B7KvSWHcQvfloUCFTQEJdNNaZqonoAbK07-_WQ6178SYnRk7GHbMD5g_8JvhJ4-U966CTqOLZTCX>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrgeefgdduvdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeduieefve
-    ehhfdvtdeihfdvvefhleelfeeifeefkeeigefgtefhvdduteefteffkeenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgpdhgihhthhhusgdrtghomhenucevlhhushhtvghrufhiii
-    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:RjqgYy0DXDJrkJk5v4FwpROKwgry4zWkxLlFD02nMfeY0PGhduOwVQ>
-    <xmx:RjqgY4GMx0uoKH96qVed6v9NR9cVofU1xA_fok_yPm9EKdRYlpLSzw>
-    <xmx:RjqgYz9VBXJJxJD85B7ajprr_zI3g7xym63KcT7NA7sE_KvvIPae5A>
-    <xmx:RjqgY6lYEg8q2uqycRF3wSmlCYKWpGjSdMS8_rzV3UyF3Abgui_r7Q>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 19 Dec 2022 05:17:41 -0500 (EST)
-Date:   Mon, 19 Dec 2022 11:17:39 +0100
-From:   Greg KH <greg@kroah.com>
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc:     stable@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org, corbet@lwn.net,
-        kernel-dev@igalia.com, kernel@gpiccoli.net, fenghua.yu@intel.com,
-        joshua@froggi.es, pgofman@codeweavers.com, pavel@denx.de,
-        pgriffais@valvesoftware.com, zfigura@codeweavers.com,
-        cristian.ciocaltea@collabora.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Andre Almeida <andrealmeid@igalia.com>
-Subject: Re: [PATCH 6.0.y / 6.1.y] x86/split_lock: Add sysctl to control the
- misery mode
-Message-ID: <Y6A6Q57/qz7w7cxM@kroah.com>
-References: <20221218234400.795055-1-gpiccoli@igalia.com>
+        with ESMTP id S231824AbiLSK2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 05:28:13 -0500
+Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CF82DFF
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 02:27:59 -0800 (PST)
+Received: by mail-lf1-x134.google.com with SMTP id p36so12918921lfa.12
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 02:27:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QCwINa/Xyynd5tKM8WbncyIZot9QQcVukVXJMMrbO+o=;
+        b=iGxI+wRN5xrUTGjqFuxyWRtox8T6IG7ZG3xWE5AVXwd/bCSzJinPsjwjUmKu11B9lG
+         FS9Aky8yuUEn5bZp+hD5zVjtMlX18qyQARvcNCNryv/Vxh8bXsugl+Y9Jx5w/E7kwJ1B
+         lhyixsq0SLJb/J2Zcd6479uZKdETbbyxnaxPtQjN43T3EDH2Avv3HDXMQGNHCaZLmESz
+         1HRSuLjAbLv3lR0L4BfhJQAhD+C6b3QK3Rzdp468kEuDZXyzrlcKEUxTPkfVSGZoFjnd
+         iQES+qIuxCpjRpQGUdi0TdmgWXCJKONX4es6jl0gU6lQL2v1ZVz7f0nBavON+9s4kEog
+         lsFg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QCwINa/Xyynd5tKM8WbncyIZot9QQcVukVXJMMrbO+o=;
+        b=iXsWvct5ojs9lws5tx2kUMZkYp+jttklR4YLtHg3KBZ5Qvd4YJSNDhJI2oROu7u/M0
+         YPh9iZQbfpYrhPPtgL53VRJOvaP1H4G5WzW82VvMyVEdaWMQ12QspA7FTgGvFUuyhCvZ
+         NfxWLqGHN5UoO3iIfxsmEYCIXnDX+adqqXP/GN3i1bvotjjhL0nYZpAbjzWv2CH73kJh
+         2+q4vArcwQvwQG6pYe4lNLt+Wlfe8B+ghAjGm5jNUxIIf8S7QJwBxx9VHK9gBZwZPfuQ
+         fOHzPsE3KUun3dXBLLv+BvW/j4mY/v3khXuvl3iMxWhLevV7gAY8/e+yzgUCM7numc9e
+         tKKg==
+X-Gm-Message-State: ANoB5pmx3SOtfunngEEwd/SOfuS1OY0fgjNJyPflZiVHD3/+I3A5DvMo
+        PXwBphgcR6NExV2WP5oqD6pWkyMc9sOszePrjP4=
+X-Google-Smtp-Source: AA0mqf6GS1DCVpVD986kde0rUppyINGFBT1T4azIjO802Jr+L98lOMmng8sQVRMOn6Gf4+wu9pwJAzNOXHLddhg//50=
+X-Received: by 2002:ac2:546a:0:b0:4b5:7d6e:5fe7 with SMTP id
+ e10-20020ac2546a000000b004b57d6e5fe7mr6187711lfn.469.1671445677614; Mon, 19
+ Dec 2022 02:27:57 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221218234400.795055-1-gpiccoli@igalia.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+References: <20221216113456.414183-1-matthew.auld@intel.com> <CAHzEqDn8Vyrsidv14tU6dwxxf4oP1S-ZgNW7MJiwhcJm6NJeAQ@mail.gmail.com>
+In-Reply-To: <CAHzEqDn8Vyrsidv14tU6dwxxf4oP1S-ZgNW7MJiwhcJm6NJeAQ@mail.gmail.com>
+From:   Matthew Auld <matthew.william.auld@gmail.com>
+Date:   Mon, 19 Dec 2022 10:27:30 +0000
+Message-ID: <CAM0jSHNWHdCE1Z0h8DMXV_=-bEFMbcVFHMwuzW10q2twm3dRKQ@mail.gmail.com>
+Subject: Re: [Intel-gfx] [PATCH v2] drm/i915: improve the catch-all evict to
+ handle lock contention
+To:     Mani Milani <mani@chromium.org>
+Cc:     Matthew Auld <matthew.auld@intel.com>,
+        =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
+        Andrzej Hajda <andrzej.hajda@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 18, 2022 at 08:44:00PM -0300, Guilherme G. Piccoli wrote:
-> commit 727209376f4998bc84db1d5d8af15afea846a92b upstream.
-> 
-> Commit b041b525dab9 ("x86/split_lock: Make life miserable for split lockers")
-> changed the way the split lock detector works when in "warn" mode;
-> basically, it not only shows the warn message, but also intentionally
-> introduces a slowdown through sleeping plus serialization mechanism
-> on such task. Based on discussions in [0], seems the warning alone
-> wasn't enough motivation for userspace developers to fix their
-> applications.
-> 
-> This slowdown is enough to totally break some proprietary (aka.
-> unfixable) userspace[1].
-> 
-> Happens that originally the proposal in [0] was to add a new mode
-> which would warns + slowdown the "split locking" task, keeping the
-> old warn mode untouched. In the end, that idea was discarded and
-> the regular/default "warn" mode now slows down the applications. This
-> is quite aggressive with regards proprietary/legacy programs that
-> basically are unable to properly run in kernel with this change.
-> While it is understandable that a malicious application could DoS
-> by split locking, it seems unacceptable to regress old/proprietary
-> userspace programs through a default configuration that previously
-> worked. An example of such breakage was reported in [1].
-> 
-> Add a sysctl to allow controlling the "misery mode" behavior, as per
-> Thomas suggestion on [2]. This way, users running legacy and/or
-> proprietary software are allowed to still execute them with a decent
-> performance while still observing the warning messages on kernel log.
-> 
-> [0] https://lore.kernel.org/lkml/20220217012721.9694-1-tony.luck@intel.com/
-> [1] https://github.com/doitsujin/dxvk/issues/2938
-> [2] https://lore.kernel.org/lkml/87pmf4bter.ffs@tglx/
-> 
-> [ dhansen: minor changelog tweaks, including clarifying the actual
->   	   problem ]
-> 
-> Fixes: b041b525dab9 ("x86/split_lock: Make life miserable for split lockers")
-> Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-> Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-> Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-> Reviewed-by: Tony Luck <tony.luck@intel.com>
-> Tested-by: Andre Almeida <andrealmeid@igalia.com>
-> Link: https://lore.kernel.org/all/20221024200254.635256-1-gpiccoli%40igalia.com
-> ---
-> 
-> 
-> Hi folks, I've build tested this on both 6.0.13 and 6.1, worked fine. The
-> split lock detector code changed almost nothing since 6.0, so that makes
-> sense...
-> 
-> I think this is important to have in stable, some gaming community members
-> seems excited with that, it'll help with general proprietary software
-> (that is basically unfixable), making them run smoothly on 6.0.y and 6.1.y.
+On Sun, 18 Dec 2022 at 23:50, Mani Milani <mani@chromium.org> wrote:
+>
+> Thank you for updating the docs Matthew. I am looking forward to this
+> patch landing.
 
-What specific programs have this problem and what are the exact results
-of it?
+Pushed to drm-intel-gt-next. Thanks for the reviews.
 
-Also, this is really a new feature and not really a "fix", but one could
-argue a lot that this is a "resolve a performance problem" if you want
-to and have the numbers to back it up  {hint}
-
-thanks,
-
-greg k-h
+>
+> On Fri, Dec 16, 2022 at 10:35 PM Matthew Auld <matthew.auld@intel.com> wr=
+ote:
+> >
+> > The catch-all evict can fail due to object lock contention, since it
+> > only goes as far as trylocking the object, due to us already holding th=
+e
+> > vm->mutex. Doing a full object lock here can deadlock, since the
+> > vm->mutex is always our inner lock. Add another execbuf pass which drop=
+s
+> > the vm->mutex and then tries to grab the object will the full lock,
+> > before then retrying the eviction. This should be good enough for now t=
+o
+> > fix the immediate regression with userspace seeing -ENOSPC from execbuf
+> > due to contended object locks during GTT eviction.
+> >
+> > v2 (Mani)
+> >   - Also revamp the docs for the different passes.
+> >
+> > Testcase: igt@gem_ppgtt@shrink-vs-evict-*
+> > Fixes: 7e00897be8bf ("drm/i915: Add object locking to i915_gem_evict_fo=
+r_node and i915_gem_evict_something, v2.")
+> > References: https://gitlab.freedesktop.org/drm/intel/-/issues/7627
+> > References: https://gitlab.freedesktop.org/drm/intel/-/issues/7570
+> > References: https://bugzilla.mozilla.org/show_bug.cgi?id=3D1779558
+> > Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+> > Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> > Cc: Thomas Hellstr=C3=B6m <thomas.hellstrom@linux.intel.com>
+> > Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+> > Cc: Andrzej Hajda <andrzej.hajda@intel.com>
+> > Cc: Mani Milani <mani@chromium.org>
+> > Cc: <stable@vger.kernel.org> # v5.18+
+> > Reviewed-by: Mani Milani <mani@chromium.org>
+> > Tested-by: Mani Milani <mani@chromium.org>
+> > ---
+> >  .../gpu/drm/i915/gem/i915_gem_execbuffer.c    | 59 +++++++++++++++----
+> >  drivers/gpu/drm/i915/gem/i915_gem_mman.c      |  2 +-
+> >  drivers/gpu/drm/i915/i915_gem_evict.c         | 37 ++++++++----
+> >  drivers/gpu/drm/i915/i915_gem_evict.h         |  4 +-
+> >  drivers/gpu/drm/i915/i915_vma.c               |  2 +-
+> >  .../gpu/drm/i915/selftests/i915_gem_evict.c   |  4 +-
+> >  6 files changed, 82 insertions(+), 26 deletions(-)
+> >
+> > diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/g=
+pu/drm/i915/gem/i915_gem_execbuffer.c
+> > index 192bb3f10733..f98600ca7557 100644
+> > --- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+> > +++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+> > @@ -733,32 +733,69 @@ static int eb_reserve(struct i915_execbuffer *eb)
+> >         bool unpinned;
+> >
+> >         /*
+> > -        * Attempt to pin all of the buffers into the GTT.
+> > -        * This is done in 2 phases:
+> > +        * We have one more buffers that we couldn't bind, which could =
+be due to
+> > +        * various reasons. To resolve this we have 4 passes, with ever=
+y next
+> > +        * level turning the screws tighter:
+> >          *
+> > -        * 1. Unbind all objects that do not match the GTT constraints =
+for
+> > -        *    the execbuffer (fenceable, mappable, alignment etc).
+> > -        * 2. Bind new objects.
+> > +        * 0. Unbind all objects that do not match the GTT constraints =
+for the
+> > +        * execbuffer (fenceable, mappable, alignment etc). Bind all ne=
+w
+> > +        * objects.  This avoids unnecessary unbinding of later objects=
+ in order
+> > +        * to make room for the earlier objects *unless* we need to def=
+ragment.
+> >          *
+> > -        * This avoid unnecessary unbinding of later objects in order t=
+o make
+> > -        * room for the earlier objects *unless* we need to defragment.
+> > +        * 1. Reorder the buffers, where objects with the most restrict=
+ive
+> > +        * placement requirements go first (ignoring fixed location buf=
+fers for
+> > +        * now).  For example, objects needing the mappable aperture (t=
+he first
+> > +        * 256M of GTT), should go first vs objects that can be placed =
+just
+> > +        * about anywhere. Repeat the previous pass.
+> >          *
+> > -        * Defragmenting is skipped if all objects are pinned at a fixe=
+d location.
+> > +        * 2. Consider buffers that are pinned at a fixed location. Als=
+o try to
+> > +        * evict the entire VM this time, leaving only objects that we =
+were
+> > +        * unable to lock. Try again to bind the buffers. (still using =
+the new
+> > +        * buffer order).
+> > +        *
+> > +        * 3. We likely have object lock contention for one or more stu=
+bborn
+> > +        * objects in the VM, for which we need to evict to make forwar=
+d
+> > +        * progress (perhaps we are fighting the shrinker?). When evict=
+ing the
+> > +        * VM this time around, anything that we can't lock we now trac=
+k using
+> > +        * the busy_bo, using the full lock (after dropping the vm->mut=
+ex to
+> > +        * prevent deadlocks), instead of trylock. We then continue to =
+evict the
+> > +        * VM, this time with the stubborn object locked, which we can =
+now
+> > +        * hopefully unbind (if still bound in the VM). Repeat until th=
+e VM is
+> > +        * evicted. Finally we should be able bind everything.
+> >          */
+> > -       for (pass =3D 0; pass <=3D 2; pass++) {
+> > +       for (pass =3D 0; pass <=3D 3; pass++) {
+> >                 int pin_flags =3D PIN_USER | PIN_VALIDATE;
+> >
+> >                 if (pass =3D=3D 0)
+> >                         pin_flags |=3D PIN_NONBLOCK;
+> >
+> >                 if (pass >=3D 1)
+> > -                       unpinned =3D eb_unbind(eb, pass =3D=3D 2);
+> > +                       unpinned =3D eb_unbind(eb, pass >=3D 2);
+> >
+> >                 if (pass =3D=3D 2) {
+> >                         err =3D mutex_lock_interruptible(&eb->context->=
+vm->mutex);
+> >                         if (!err) {
+> > -                               err =3D i915_gem_evict_vm(eb->context->=
+vm, &eb->ww);
+> > +                               err =3D i915_gem_evict_vm(eb->context->=
+vm, &eb->ww, NULL);
+> > +                               mutex_unlock(&eb->context->vm->mutex);
+> > +                       }
+> > +                       if (err)
+> > +                               return err;
+> > +               }
+> > +
+> > +               if (pass =3D=3D 3) {
+> > +retry:
+> > +                       err =3D mutex_lock_interruptible(&eb->context->=
+vm->mutex);
+> > +                       if (!err) {
+> > +                               struct drm_i915_gem_object *busy_bo =3D=
+ NULL;
+> > +
+> > +                               err =3D i915_gem_evict_vm(eb->context->=
+vm, &eb->ww, &busy_bo);
+> >                                 mutex_unlock(&eb->context->vm->mutex);
+> > +                               if (err && busy_bo) {
+> > +                                       err =3D i915_gem_object_lock(bu=
+sy_bo, &eb->ww);
+> > +                                       i915_gem_object_put(busy_bo);
+> > +                                       if (!err)
+> > +                                               goto retry;
+> > +                               }
+> >                         }
+> >                         if (err)
+> >                                 return err;
+> > diff --git a/drivers/gpu/drm/i915/gem/i915_gem_mman.c b/drivers/gpu/drm=
+/i915/gem/i915_gem_mman.c
+> > index d73ba0f5c4c5..4f69bff63068 100644
+> > --- a/drivers/gpu/drm/i915/gem/i915_gem_mman.c
+> > +++ b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
+> > @@ -369,7 +369,7 @@ static vm_fault_t vm_fault_gtt(struct vm_fault *vmf=
+)
+> >                 if (vma =3D=3D ERR_PTR(-ENOSPC)) {
+> >                         ret =3D mutex_lock_interruptible(&ggtt->vm.mute=
+x);
+> >                         if (!ret) {
+> > -                               ret =3D i915_gem_evict_vm(&ggtt->vm, &w=
+w);
+> > +                               ret =3D i915_gem_evict_vm(&ggtt->vm, &w=
+w, NULL);
+> >                                 mutex_unlock(&ggtt->vm.mutex);
+> >                         }
+> >                         if (ret)
+> > diff --git a/drivers/gpu/drm/i915/i915_gem_evict.c b/drivers/gpu/drm/i9=
+15/i915_gem_evict.c
+> > index 4cfe36b0366b..c02ebd6900ae 100644
+> > --- a/drivers/gpu/drm/i915/i915_gem_evict.c
+> > +++ b/drivers/gpu/drm/i915/i915_gem_evict.c
+> > @@ -441,6 +441,11 @@ int i915_gem_evict_for_node(struct i915_address_sp=
+ace *vm,
+> >   * @vm: Address space to cleanse
+> >   * @ww: An optional struct i915_gem_ww_ctx. If not NULL, i915_gem_evic=
+t_vm
+> >   * will be able to evict vma's locked by the ww as well.
+> > + * @busy_bo: Optional pointer to struct drm_i915_gem_object. If not NU=
+LL, then
+> > + * in the event i915_gem_evict_vm() is unable to trylock an object for=
+ eviction,
+> > + * then @busy_bo will point to it. -EBUSY is also returned. The caller=
+ must drop
+> > + * the vm->mutex, before trying again to acquire the contended lock. T=
+he caller
+> > + * also owns a reference to the object.
+> >   *
+> >   * This function evicts all vmas from a vm.
+> >   *
+> > @@ -450,7 +455,8 @@ int i915_gem_evict_for_node(struct i915_address_spa=
+ce *vm,
+> >   * To clarify: This is for freeing up virtual address space, not for f=
+reeing
+> >   * memory in e.g. the shrinker.
+> >   */
+> > -int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_w=
+w_ctx *ww)
+> > +int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_w=
+w_ctx *ww,
+> > +                     struct drm_i915_gem_object **busy_bo)
+> >  {
+> >         int ret =3D 0;
+> >
+> > @@ -482,15 +488,22 @@ int i915_gem_evict_vm(struct i915_address_space *=
+vm, struct i915_gem_ww_ctx *ww)
+> >                          * the resv is shared among multiple objects, w=
+e still
+> >                          * need the object ref.
+> >                          */
+> > -                       if (dying_vma(vma) ||
+> > +                       if (!i915_gem_object_get_rcu(vma->obj) ||
+> >                             (ww && (dma_resv_locking_ctx(vma->obj->base=
+.resv) =3D=3D &ww->ctx))) {
+> >                                 __i915_vma_pin(vma);
+> >                                 list_add(&vma->evict_link, &locked_evic=
+tion_list);
+> >                                 continue;
+> >                         }
+> >
+> > -                       if (!i915_gem_object_trylock(vma->obj, ww))
+> > +                       if (!i915_gem_object_trylock(vma->obj, ww)) {
+> > +                               if (busy_bo) {
+> > +                                       *busy_bo =3D vma->obj; /* holds=
+ ref */
+> > +                                       ret =3D -EBUSY;
+> > +                                       break;
+> > +                               }
+> > +                               i915_gem_object_put(vma->obj);
+> >                                 continue;
+> > +                       }
+> >
+> >                         __i915_vma_pin(vma);
+> >                         list_add(&vma->evict_link, &eviction_list);
+> > @@ -498,25 +511,29 @@ int i915_gem_evict_vm(struct i915_address_space *=
+vm, struct i915_gem_ww_ctx *ww)
+> >                 if (list_empty(&eviction_list) && list_empty(&locked_ev=
+iction_list))
+> >                         break;
+> >
+> > -               ret =3D 0;
+> >                 /* Unbind locked objects first, before unlocking the ev=
+iction_list */
+> >                 list_for_each_entry_safe(vma, vn, &locked_eviction_list=
+, evict_link) {
+> >                         __i915_vma_unpin(vma);
+> >
+> > -                       if (ret =3D=3D 0)
+> > +                       if (ret =3D=3D 0) {
+> >                                 ret =3D __i915_vma_unbind(vma);
+> > -                       if (ret !=3D -EINTR) /* "Get me out of here!" *=
+/
+> > -                               ret =3D 0;
+> > +                               if (ret !=3D -EINTR) /* "Get me out of =
+here!" */
+> > +                                       ret =3D 0;
+> > +                       }
+> > +                       if (!dying_vma(vma))
+> > +                               i915_gem_object_put(vma->obj);
+> >                 }
+> >
+> >                 list_for_each_entry_safe(vma, vn, &eviction_list, evict=
+_link) {
+> >                         __i915_vma_unpin(vma);
+> > -                       if (ret =3D=3D 0)
+> > +                       if (ret =3D=3D 0) {
+> >                                 ret =3D __i915_vma_unbind(vma);
+> > -                       if (ret !=3D -EINTR) /* "Get me out of here!" *=
+/
+> > -                               ret =3D 0;
+> > +                               if (ret !=3D -EINTR) /* "Get me out of =
+here!" */
+> > +                                       ret =3D 0;
+> > +                       }
+> >
+> >                         i915_gem_object_unlock(vma->obj);
+> > +                       i915_gem_object_put(vma->obj);
+> >                 }
+> >         } while (ret =3D=3D 0);
+> >
+> > diff --git a/drivers/gpu/drm/i915/i915_gem_evict.h b/drivers/gpu/drm/i9=
+15/i915_gem_evict.h
+> > index e593c530f9bd..bf0ee0e4fe60 100644
+> > --- a/drivers/gpu/drm/i915/i915_gem_evict.h
+> > +++ b/drivers/gpu/drm/i915/i915_gem_evict.h
+> > @@ -11,6 +11,7 @@
+> >  struct drm_mm_node;
+> >  struct i915_address_space;
+> >  struct i915_gem_ww_ctx;
+> > +struct drm_i915_gem_object;
+> >
+> >  int __must_check i915_gem_evict_something(struct i915_address_space *v=
+m,
+> >                                           struct i915_gem_ww_ctx *ww,
+> > @@ -23,6 +24,7 @@ int __must_check i915_gem_evict_for_node(struct i915_=
+address_space *vm,
+> >                                          struct drm_mm_node *node,
+> >                                          unsigned int flags);
+> >  int i915_gem_evict_vm(struct i915_address_space *vm,
+> > -                     struct i915_gem_ww_ctx *ww);
+> > +                     struct i915_gem_ww_ctx *ww,
+> > +                     struct drm_i915_gem_object **busy_bo);
+> >
+> >  #endif /* __I915_GEM_EVICT_H__ */
+> > diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i91=
+5_vma.c
+> > index 34f0e6c923c2..7d044888ac33 100644
+> > --- a/drivers/gpu/drm/i915/i915_vma.c
+> > +++ b/drivers/gpu/drm/i915/i915_vma.c
+> > @@ -1599,7 +1599,7 @@ static int __i915_ggtt_pin(struct i915_vma *vma, =
+struct i915_gem_ww_ctx *ww,
+> >                          * locked objects when called from execbuf when=
+ pinning
+> >                          * is removed. This would probably regress badl=
+y.
+> >                          */
+> > -                       i915_gem_evict_vm(vm, NULL);
+> > +                       i915_gem_evict_vm(vm, NULL, NULL);
+> >                         mutex_unlock(&vm->mutex);
+> >                 }
+> >         } while (1);
+> > diff --git a/drivers/gpu/drm/i915/selftests/i915_gem_evict.c b/drivers/=
+gpu/drm/i915/selftests/i915_gem_evict.c
+> > index 8c6517d29b8e..37068542aafe 100644
+> > --- a/drivers/gpu/drm/i915/selftests/i915_gem_evict.c
+> > +++ b/drivers/gpu/drm/i915/selftests/i915_gem_evict.c
+> > @@ -344,7 +344,7 @@ static int igt_evict_vm(void *arg)
+> >
+> >         /* Everything is pinned, nothing should happen */
+> >         mutex_lock(&ggtt->vm.mutex);
+> > -       err =3D i915_gem_evict_vm(&ggtt->vm, NULL);
+> > +       err =3D i915_gem_evict_vm(&ggtt->vm, NULL, NULL);
+> >         mutex_unlock(&ggtt->vm.mutex);
+> >         if (err) {
+> >                 pr_err("i915_gem_evict_vm on a full GGTT returned err=
+=3D%d]\n",
+> > @@ -356,7 +356,7 @@ static int igt_evict_vm(void *arg)
+> >
+> >         for_i915_gem_ww(&ww, err, false) {
+> >                 mutex_lock(&ggtt->vm.mutex);
+> > -               err =3D i915_gem_evict_vm(&ggtt->vm, &ww);
+> > +               err =3D i915_gem_evict_vm(&ggtt->vm, &ww, NULL);
+> >                 mutex_unlock(&ggtt->vm.mutex);
+> >         }
+> >
+> > --
+> > 2.38.1
+> >
