@@ -2,420 +2,256 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AD066505C3
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 00:50:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FDAA65060A
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 02:07:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229730AbiLRXuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Dec 2022 18:50:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58844 "EHLO
+        id S231142AbiLSBHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Dec 2022 20:07:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231185AbiLRXug (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 18:50:36 -0500
-Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80CDC63AB
-        for <stable@vger.kernel.org>; Sun, 18 Dec 2022 15:50:33 -0800 (PST)
-Received: by mail-ot1-x335.google.com with SMTP id v19-20020a9d5a13000000b0066e82a3872dso4547761oth.5
-        for <stable@vger.kernel.org>; Sun, 18 Dec 2022 15:50:33 -0800 (PST)
+        with ESMTP id S231270AbiLSBHX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Dec 2022 20:07:23 -0500
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC4C9BCAF;
+        Sun, 18 Dec 2022 17:07:09 -0800 (PST)
+Received: by mail-pf1-x42c.google.com with SMTP id w26so5195909pfj.6;
+        Sun, 18 Dec 2022 17:07:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20210112;
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=MoAhorohdWLbJhBVy8IWApxJEGCwa7noGLJpkcJ1xxc=;
-        b=i79NGUJaT6Ms9QCE3hN0lQiazETNR1M70XfxZi0VIXB7lz7fqCXUlI8e1YKPtCXcGa
-         uhHHhZMYUgEYJnNdh62Mqjwaskym/6BJHenpEyPH+QTbuCg1f1e2itq7Hk68KP38bXlv
-         lWLYypmYE07Djtt1PMH23RR4wkgL9TQdpeCIM=
+        bh=at2ZIJN0aArK83g7h6ll8s+9NXONWJZLA6sQDdvOrT8=;
+        b=X4x/cJtvxS/zc9GvbTX2iFVt5nkFOJQ6SXrXGrKrGpp8m0g1vgKbS/wq7rOtfJ+lL9
+         aA/2zYMjt+84oSrJ1HqT1x6+rXBYvhVD7EtwBSL8TsTEaiwFHr7tjpFcu07kaLpKtO3I
+         bnHlbwcP2U+KTb3sgqAz0YkxkGxm8jjYMpbKEv78IIeMNr+GISSTJplYUVWQC0SQEuun
+         UInK4wBoKfsuJQhi6+OAoixHakcHNq6Q2j7ticPOa94nYg5UbG6jLZu+cOvrCmlK01sj
+         OQD+BBi8DOcnq5yAUl4OJAiDMZK4usgJn4/SqLVXRRlpsxQQr68xlpjXb6+5UkYi2tR5
+         RZ+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=MoAhorohdWLbJhBVy8IWApxJEGCwa7noGLJpkcJ1xxc=;
-        b=lr+O7jjGCLJBmvarZDZsoHAQQ7Dda+25xyBYuiarCbDiHhATx5b3iUTsk9Yxn7wLK5
-         FPdn+Y88bCZPuv9vm/vLc7SEAF5M9/agt/ltqnGjj0+KIz2GmmSI1XiJo94W3FLkuo2B
-         xBqLXHibkjJPZQ1gH9kqOebOK60da//p7SSxpPzkZZMoc/VRWiMe6OBZBxlNNiorlIAY
-         t7FDbmEH8B7Y/ZHhZHWcLIHLmIjYg6tKMPo1a+y8RcK6Q4il9LMy9nGYRGeVcb/iPvYe
-         ISXboJQFlsb78qRkFN9TiySOZyUXfwPp0g1bGdTzcZo403L44+UmHeHIhlVhgyX//qTG
-         WXxg==
-X-Gm-Message-State: ANoB5pn2a2b7EDsaJrFIv9mSYDS2cYC1HHwkIUZWUnMqAtnhCrw0AzVt
-        1YSGMH8lD1itOqzbWD+J/bwX610aUPkYJKR3dCTtgw==
-X-Google-Smtp-Source: AA0mqf5OWazahbWxtrD7JrItxhQu7BPNgYp7cbdxS3odR1UAQcC8qTnwvVWhdDyHr76diflvkrkHbOyTsV/Cc1KtkOA=
-X-Received: by 2002:a05:6830:6311:b0:66d:334d:ba27 with SMTP id
- cg17-20020a056830631100b0066d334dba27mr40273743otb.7.1671407432851; Sun, 18
- Dec 2022 15:50:32 -0800 (PST)
+        bh=at2ZIJN0aArK83g7h6ll8s+9NXONWJZLA6sQDdvOrT8=;
+        b=I8sSf7uQkcFttPGHWF4RaENo2uwwQYBP6krbngHw/X/jrDzQHkg1fH/fwmXJCD6sku
+         /D7zWk9Fjwjz0hxj8vAMlWNSFh8sB2VbJsx32bIk9fiaiwPikgxhNcwIGHhUacvd5D2c
+         cXUFQ1vAHMcbhxp4PPPZ1dmoR1Cqzak36jo+jV9P7wQAd33cYUaEWSlxUFdVDYjhTeYd
+         3eJoAspCsLDtx55kAkxjCjXqGP4nf7h6yCz5rXRmaSwRtvMtHpcJsHKKdCKcPAKYefWX
+         WNo9I/IZtnJ/D3Qv4HSdi0Tc42TRSDoQxkDhk7ed+/vEcIr3CNevbq7VuHsjVjMzSZ7g
+         WvjQ==
+X-Gm-Message-State: AFqh2kqEPSavsm+6YFfL9odb247kruC/qyVEmLfwo2ZeGdl9JhP8bmXJ
+        f2Quqk6kQ5MzDyO8uEW8kMQ=
+X-Google-Smtp-Source: AMrXdXt+agRNzKN4/SqOXLSpUgul8kx/brh9hJvOqVESYpVXNkja/n92FhRpVLTAoC+oUTKgzyYMWw==
+X-Received: by 2002:aa7:850c:0:b0:57f:69a8:1e04 with SMTP id v12-20020aa7850c000000b0057f69a81e04mr10300084pfn.26.1671412029102;
+        Sun, 18 Dec 2022 17:07:09 -0800 (PST)
+Received: from cyhuang-hp-elitebook-840-g3.rt ([2402:7500:568:adee:c012:1ba9:3520:947a])
+        by smtp.gmail.com with ESMTPSA id k74-20020a62844d000000b00576e4c7b9ecsm5186190pfd.214.2022.12.18.17.07.04
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 18 Dec 2022 17:07:08 -0800 (PST)
+Date:   Mon, 19 Dec 2022 09:07:01 +0800
+From:   ChiYuan Huang <u0084500@gmail.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        ChiYuan Huang <cy_huang@richtek.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Mark Brown <broonie@kernel.org>, djrscally@gmail.com,
+        hdegoede@redhat.com, markgross@kernel.org, lgirdwood@gmail.com,
+        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
+        platform-driver-x86@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH AUTOSEL 6.0 70/73] regulator: core: Use different devices
+ for resource allocation and DT lookup
+Message-ID: <20221219010656.GA6977@cyhuang-hp-elitebook-840-g3.rt>
+References: <20221218160741.927862-1-sashal@kernel.org>
+ <20221218160741.927862-70-sashal@kernel.org>
 MIME-Version: 1.0
-References: <20221216113456.414183-1-matthew.auld@intel.com>
-In-Reply-To: <20221216113456.414183-1-matthew.auld@intel.com>
-From:   Mani Milani <mani@chromium.org>
-Date:   Mon, 19 Dec 2022 10:50:21 +1100
-Message-ID: <CAHzEqDn8Vyrsidv14tU6dwxxf4oP1S-ZgNW7MJiwhcJm6NJeAQ@mail.gmail.com>
-Subject: Re: [PATCH v2] drm/i915: improve the catch-all evict to handle lock contention
-To:     Matthew Auld <matthew.auld@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221218160741.927862-70-sashal@kernel.org>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thank you for updating the docs Matthew. I am looking forward to this
-patch landing.
+On Sun, Dec 18, 2022 at 11:07:38AM -0500, Sasha Levin wrote:
+Hi,
+  Thanks, but there's one more case not considered.
+  It may cause a unexpected regulator shutdown by regulator core.
 
-On Fri, Dec 16, 2022 at 10:35 PM Matthew Auld <matthew.auld@intel.com> wrot=
-e:
->
-> The catch-all evict can fail due to object lock contention, since it
-> only goes as far as trylocking the object, due to us already holding the
-> vm->mutex. Doing a full object lock here can deadlock, since the
-> vm->mutex is always our inner lock. Add another execbuf pass which drops
-> the vm->mutex and then tries to grab the object will the full lock,
-> before then retrying the eviction. This should be good enough for now to
-> fix the immediate regression with userspace seeing -ENOSPC from execbuf
-> due to contended object locks during GTT eviction.
->
-> v2 (Mani)
->   - Also revamp the docs for the different passes.
->
-> Testcase: igt@gem_ppgtt@shrink-vs-evict-*
-> Fixes: 7e00897be8bf ("drm/i915: Add object locking to i915_gem_evict_for_=
-node and i915_gem_evict_something, v2.")
-> References: https://gitlab.freedesktop.org/drm/intel/-/issues/7627
-> References: https://gitlab.freedesktop.org/drm/intel/-/issues/7570
-> References: https://bugzilla.mozilla.org/show_bug.cgi?id=3D1779558
-> Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Cc: Thomas Hellstr=C3=B6m <thomas.hellstrom@linux.intel.com>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-> Cc: Andrzej Hajda <andrzej.hajda@intel.com>
-> Cc: Mani Milani <mani@chromium.org>
-> Cc: <stable@vger.kernel.org> # v5.18+
-> Reviewed-by: Mani Milani <mani@chromium.org>
-> Tested-by: Mani Milani <mani@chromium.org>
+  Here's the discussion link that reported from Marek Szyprowski.
+  https://lore.kernel.org/lkml/dd329b51-f11a-2af6-9549-c8a014fd5a71@samsung.com/
+
+  I have post a patch to fix it.
+  You may need to cherry-pick the below patch also.
+  0debed5b117d ("regulator: core: Fix resolve supply lookup issue")
+
+Best regards,
+ChiYuan.
+
+> From: ChiYuan Huang <cy_huang@richtek.com>
+> 
+> [ Upstream commit 8f3cbcd6b440032ebc7f7d48a1689dcc70a4eb98 ]
+> 
+> Following by the below discussion, there's the potential UAF issue
+> between regulator and mfd.
+> https://lore.kernel.org/all/20221128143601.1698148-1-yangyingliang@huawei.com/
+> 
+> >From the analysis of Yingliang
+> 
+> CPU A				|CPU B
+> mt6370_probe()			|
+>   devm_mfd_add_devices()	|
+> 				|mt6370_regulator_probe()
+> 				|  regulator_register()
+> 				|    //allocate init_data and add it to devres
+> 				|    regulator_of_get_init_data()
+> i2c_unregister_device()		|
+>   device_del()			|
+>     devres_release_all()	|
+>       // init_data is freed	|
+>       release_nodes()		|
+> 				|  // using init_data causes UAF
+> 				|  regulator_register()
+> 
+> It's common to use mfd core to create child device for the regulator.
+> In order to do the DT lookup for init data, the child that registered
+> the regulator would pass its parent as the parameter. And this causes
+> init data resource allocated to its parent, not itself. The issue happen
+> when parent device is going to release and regulator core is still doing
+> some operation of init data constraint for the regulator of child device.
+> 
+> To fix it, this patch expand 'regulator_register' API to use the
+> different devices for init data allocation and DT lookup.
+> 
+> Reported-by: Yang Yingliang <yangyingliang@huawei.com>
+> Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
+> Link: https://lore.kernel.org/r/1670311341-32664-1-git-send-email-u0084500@gmail.com
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->  .../gpu/drm/i915/gem/i915_gem_execbuffer.c    | 59 +++++++++++++++----
->  drivers/gpu/drm/i915/gem/i915_gem_mman.c      |  2 +-
->  drivers/gpu/drm/i915/i915_gem_evict.c         | 37 ++++++++----
->  drivers/gpu/drm/i915/i915_gem_evict.h         |  4 +-
->  drivers/gpu/drm/i915/i915_vma.c               |  2 +-
->  .../gpu/drm/i915/selftests/i915_gem_evict.c   |  4 +-
->  6 files changed, 82 insertions(+), 26 deletions(-)
->
-> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu=
-/drm/i915/gem/i915_gem_execbuffer.c
-> index 192bb3f10733..f98600ca7557 100644
-> --- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-> +++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-> @@ -733,32 +733,69 @@ static int eb_reserve(struct i915_execbuffer *eb)
->         bool unpinned;
->
->         /*
-> -        * Attempt to pin all of the buffers into the GTT.
-> -        * This is done in 2 phases:
-> +        * We have one more buffers that we couldn't bind, which could be=
- due to
-> +        * various reasons. To resolve this we have 4 passes, with every =
-next
-> +        * level turning the screws tighter:
->          *
-> -        * 1. Unbind all objects that do not match the GTT constraints fo=
-r
-> -        *    the execbuffer (fenceable, mappable, alignment etc).
-> -        * 2. Bind new objects.
-> +        * 0. Unbind all objects that do not match the GTT constraints fo=
-r the
-> +        * execbuffer (fenceable, mappable, alignment etc). Bind all new
-> +        * objects.  This avoids unnecessary unbinding of later objects i=
-n order
-> +        * to make room for the earlier objects *unless* we need to defra=
-gment.
->          *
-> -        * This avoid unnecessary unbinding of later objects in order to =
-make
-> -        * room for the earlier objects *unless* we need to defragment.
-> +        * 1. Reorder the buffers, where objects with the most restrictiv=
-e
-> +        * placement requirements go first (ignoring fixed location buffe=
-rs for
-> +        * now).  For example, objects needing the mappable aperture (the=
- first
-> +        * 256M of GTT), should go first vs objects that can be placed ju=
-st
-> +        * about anywhere. Repeat the previous pass.
->          *
-> -        * Defragmenting is skipped if all objects are pinned at a fixed =
-location.
-> +        * 2. Consider buffers that are pinned at a fixed location. Also =
-try to
-> +        * evict the entire VM this time, leaving only objects that we we=
-re
-> +        * unable to lock. Try again to bind the buffers. (still using th=
-e new
-> +        * buffer order).
-> +        *
-> +        * 3. We likely have object lock contention for one or more stubb=
-orn
-> +        * objects in the VM, for which we need to evict to make forward
-> +        * progress (perhaps we are fighting the shrinker?). When evictin=
-g the
-> +        * VM this time around, anything that we can't lock we now track =
-using
-> +        * the busy_bo, using the full lock (after dropping the vm->mutex=
- to
-> +        * prevent deadlocks), instead of trylock. We then continue to ev=
-ict the
-> +        * VM, this time with the stubborn object locked, which we can no=
-w
-> +        * hopefully unbind (if still bound in the VM). Repeat until the =
-VM is
-> +        * evicted. Finally we should be able bind everything.
->          */
-> -       for (pass =3D 0; pass <=3D 2; pass++) {
-> +       for (pass =3D 0; pass <=3D 3; pass++) {
->                 int pin_flags =3D PIN_USER | PIN_VALIDATE;
->
->                 if (pass =3D=3D 0)
->                         pin_flags |=3D PIN_NONBLOCK;
->
->                 if (pass >=3D 1)
-> -                       unpinned =3D eb_unbind(eb, pass =3D=3D 2);
-> +                       unpinned =3D eb_unbind(eb, pass >=3D 2);
->
->                 if (pass =3D=3D 2) {
->                         err =3D mutex_lock_interruptible(&eb->context->vm=
-->mutex);
->                         if (!err) {
-> -                               err =3D i915_gem_evict_vm(eb->context->vm=
-, &eb->ww);
-> +                               err =3D i915_gem_evict_vm(eb->context->vm=
-, &eb->ww, NULL);
-> +                               mutex_unlock(&eb->context->vm->mutex);
-> +                       }
-> +                       if (err)
-> +                               return err;
-> +               }
-> +
-> +               if (pass =3D=3D 3) {
-> +retry:
-> +                       err =3D mutex_lock_interruptible(&eb->context->vm=
-->mutex);
-> +                       if (!err) {
-> +                               struct drm_i915_gem_object *busy_bo =3D N=
-ULL;
-> +
-> +                               err =3D i915_gem_evict_vm(eb->context->vm=
-, &eb->ww, &busy_bo);
->                                 mutex_unlock(&eb->context->vm->mutex);
-> +                               if (err && busy_bo) {
-> +                                       err =3D i915_gem_object_lock(busy=
-_bo, &eb->ww);
-> +                                       i915_gem_object_put(busy_bo);
-> +                                       if (!err)
-> +                                               goto retry;
-> +                               }
->                         }
->                         if (err)
->                                 return err;
-> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_mman.c b/drivers/gpu/drm/i=
-915/gem/i915_gem_mman.c
-> index d73ba0f5c4c5..4f69bff63068 100644
-> --- a/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-> +++ b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-> @@ -369,7 +369,7 @@ static vm_fault_t vm_fault_gtt(struct vm_fault *vmf)
->                 if (vma =3D=3D ERR_PTR(-ENOSPC)) {
->                         ret =3D mutex_lock_interruptible(&ggtt->vm.mutex)=
-;
->                         if (!ret) {
-> -                               ret =3D i915_gem_evict_vm(&ggtt->vm, &ww)=
-;
-> +                               ret =3D i915_gem_evict_vm(&ggtt->vm, &ww,=
- NULL);
->                                 mutex_unlock(&ggtt->vm.mutex);
->                         }
->                         if (ret)
-> diff --git a/drivers/gpu/drm/i915/i915_gem_evict.c b/drivers/gpu/drm/i915=
-/i915_gem_evict.c
-> index 4cfe36b0366b..c02ebd6900ae 100644
-> --- a/drivers/gpu/drm/i915/i915_gem_evict.c
-> +++ b/drivers/gpu/drm/i915/i915_gem_evict.c
-> @@ -441,6 +441,11 @@ int i915_gem_evict_for_node(struct i915_address_spac=
-e *vm,
->   * @vm: Address space to cleanse
->   * @ww: An optional struct i915_gem_ww_ctx. If not NULL, i915_gem_evict_=
-vm
->   * will be able to evict vma's locked by the ww as well.
-> + * @busy_bo: Optional pointer to struct drm_i915_gem_object. If not NULL=
-, then
-> + * in the event i915_gem_evict_vm() is unable to trylock an object for e=
-viction,
-> + * then @busy_bo will point to it. -EBUSY is also returned. The caller m=
-ust drop
-> + * the vm->mutex, before trying again to acquire the contended lock. The=
- caller
-> + * also owns a reference to the object.
+>  drivers/platform/x86/intel/int3472/clk_and_regulator.c | 3 ++-
+>  drivers/regulator/core.c                               | 8 ++++----
+>  drivers/regulator/devres.c                             | 2 +-
+>  drivers/regulator/of_regulator.c                       | 2 +-
+>  drivers/regulator/stm32-vrefbuf.c                      | 2 +-
+>  include/linux/regulator/driver.h                       | 3 ++-
+>  6 files changed, 11 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/platform/x86/intel/int3472/clk_and_regulator.c b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
+> index 1cf958983e86..b2342b3d78c7 100644
+> --- a/drivers/platform/x86/intel/int3472/clk_and_regulator.c
+> +++ b/drivers/platform/x86/intel/int3472/clk_and_regulator.c
+> @@ -185,7 +185,8 @@ int skl_int3472_register_regulator(struct int3472_discrete_device *int3472,
+>  	cfg.init_data = &init_data;
+>  	cfg.ena_gpiod = int3472->regulator.gpio;
+>  
+> -	int3472->regulator.rdev = regulator_register(&int3472->regulator.rdesc,
+> +	int3472->regulator.rdev = regulator_register(int3472->dev,
+> +						     &int3472->regulator.rdesc,
+>  						     &cfg);
+>  	if (IS_ERR(int3472->regulator.rdev)) {
+>  		ret = PTR_ERR(int3472->regulator.rdev);
+> diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+> index 02ea917c7fd1..d7119b92c0b4 100644
+> --- a/drivers/regulator/core.c
+> +++ b/drivers/regulator/core.c
+> @@ -5386,6 +5386,7 @@ static struct regulator_coupler generic_regulator_coupler = {
+>  
+>  /**
+>   * regulator_register - register regulator
+> + * @dev: the device that drive the regulator
+>   * @regulator_desc: regulator to register
+>   * @cfg: runtime configuration for regulator
 >   *
->   * This function evicts all vmas from a vm.
->   *
-> @@ -450,7 +455,8 @@ int i915_gem_evict_for_node(struct i915_address_space=
- *vm,
->   * To clarify: This is for freeing up virtual address space, not for fre=
-eing
->   * memory in e.g. the shrinker.
+> @@ -5394,7 +5395,8 @@ static struct regulator_coupler generic_regulator_coupler = {
+>   * or an ERR_PTR() on error.
 >   */
-> -int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_ww_=
-ctx *ww)
-> +int i915_gem_evict_vm(struct i915_address_space *vm, struct i915_gem_ww_=
-ctx *ww,
-> +                     struct drm_i915_gem_object **busy_bo)
+>  struct regulator_dev *
+> -regulator_register(const struct regulator_desc *regulator_desc,
+> +regulator_register(struct device *dev,
+> +		   const struct regulator_desc *regulator_desc,
+>  		   const struct regulator_config *cfg)
 >  {
->         int ret =3D 0;
->
-> @@ -482,15 +488,22 @@ int i915_gem_evict_vm(struct i915_address_space *vm=
-, struct i915_gem_ww_ctx *ww)
->                          * the resv is shared among multiple objects, we =
-still
->                          * need the object ref.
->                          */
-> -                       if (dying_vma(vma) ||
-> +                       if (!i915_gem_object_get_rcu(vma->obj) ||
->                             (ww && (dma_resv_locking_ctx(vma->obj->base.r=
-esv) =3D=3D &ww->ctx))) {
->                                 __i915_vma_pin(vma);
->                                 list_add(&vma->evict_link, &locked_evicti=
-on_list);
->                                 continue;
->                         }
->
-> -                       if (!i915_gem_object_trylock(vma->obj, ww))
-> +                       if (!i915_gem_object_trylock(vma->obj, ww)) {
-> +                               if (busy_bo) {
-> +                                       *busy_bo =3D vma->obj; /* holds r=
-ef */
-> +                                       ret =3D -EBUSY;
-> +                                       break;
-> +                               }
-> +                               i915_gem_object_put(vma->obj);
->                                 continue;
-> +                       }
->
->                         __i915_vma_pin(vma);
->                         list_add(&vma->evict_link, &eviction_list);
-> @@ -498,25 +511,29 @@ int i915_gem_evict_vm(struct i915_address_space *vm=
-, struct i915_gem_ww_ctx *ww)
->                 if (list_empty(&eviction_list) && list_empty(&locked_evic=
-tion_list))
->                         break;
->
-> -               ret =3D 0;
->                 /* Unbind locked objects first, before unlocking the evic=
-tion_list */
->                 list_for_each_entry_safe(vma, vn, &locked_eviction_list, =
-evict_link) {
->                         __i915_vma_unpin(vma);
->
-> -                       if (ret =3D=3D 0)
-> +                       if (ret =3D=3D 0) {
->                                 ret =3D __i915_vma_unbind(vma);
-> -                       if (ret !=3D -EINTR) /* "Get me out of here!" */
-> -                               ret =3D 0;
-> +                               if (ret !=3D -EINTR) /* "Get me out of he=
-re!" */
-> +                                       ret =3D 0;
-> +                       }
-> +                       if (!dying_vma(vma))
-> +                               i915_gem_object_put(vma->obj);
->                 }
->
->                 list_for_each_entry_safe(vma, vn, &eviction_list, evict_l=
-ink) {
->                         __i915_vma_unpin(vma);
-> -                       if (ret =3D=3D 0)
-> +                       if (ret =3D=3D 0) {
->                                 ret =3D __i915_vma_unbind(vma);
-> -                       if (ret !=3D -EINTR) /* "Get me out of here!" */
-> -                               ret =3D 0;
-> +                               if (ret !=3D -EINTR) /* "Get me out of he=
-re!" */
-> +                                       ret =3D 0;
-> +                       }
->
->                         i915_gem_object_unlock(vma->obj);
-> +                       i915_gem_object_put(vma->obj);
->                 }
->         } while (ret =3D=3D 0);
->
-> diff --git a/drivers/gpu/drm/i915/i915_gem_evict.h b/drivers/gpu/drm/i915=
-/i915_gem_evict.h
-> index e593c530f9bd..bf0ee0e4fe60 100644
-> --- a/drivers/gpu/drm/i915/i915_gem_evict.h
-> +++ b/drivers/gpu/drm/i915/i915_gem_evict.h
-> @@ -11,6 +11,7 @@
->  struct drm_mm_node;
->  struct i915_address_space;
->  struct i915_gem_ww_ctx;
-> +struct drm_i915_gem_object;
->
->  int __must_check i915_gem_evict_something(struct i915_address_space *vm,
->                                           struct i915_gem_ww_ctx *ww,
-> @@ -23,6 +24,7 @@ int __must_check i915_gem_evict_for_node(struct i915_ad=
-dress_space *vm,
->                                          struct drm_mm_node *node,
->                                          unsigned int flags);
->  int i915_gem_evict_vm(struct i915_address_space *vm,
-> -                     struct i915_gem_ww_ctx *ww);
-> +                     struct i915_gem_ww_ctx *ww,
-> +                     struct drm_i915_gem_object **busy_bo);
->
->  #endif /* __I915_GEM_EVICT_H__ */
-> diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_=
-vma.c
-> index 34f0e6c923c2..7d044888ac33 100644
-> --- a/drivers/gpu/drm/i915/i915_vma.c
-> +++ b/drivers/gpu/drm/i915/i915_vma.c
-> @@ -1599,7 +1599,7 @@ static int __i915_ggtt_pin(struct i915_vma *vma, st=
-ruct i915_gem_ww_ctx *ww,
->                          * locked objects when called from execbuf when p=
-inning
->                          * is removed. This would probably regress badly.
->                          */
-> -                       i915_gem_evict_vm(vm, NULL);
-> +                       i915_gem_evict_vm(vm, NULL, NULL);
->                         mutex_unlock(&vm->mutex);
->                 }
->         } while (1);
-> diff --git a/drivers/gpu/drm/i915/selftests/i915_gem_evict.c b/drivers/gp=
-u/drm/i915/selftests/i915_gem_evict.c
-> index 8c6517d29b8e..37068542aafe 100644
-> --- a/drivers/gpu/drm/i915/selftests/i915_gem_evict.c
-> +++ b/drivers/gpu/drm/i915/selftests/i915_gem_evict.c
-> @@ -344,7 +344,7 @@ static int igt_evict_vm(void *arg)
->
->         /* Everything is pinned, nothing should happen */
->         mutex_lock(&ggtt->vm.mutex);
-> -       err =3D i915_gem_evict_vm(&ggtt->vm, NULL);
-> +       err =3D i915_gem_evict_vm(&ggtt->vm, NULL, NULL);
->         mutex_unlock(&ggtt->vm.mutex);
->         if (err) {
->                 pr_err("i915_gem_evict_vm on a full GGTT returned err=3D%=
-d]\n",
-> @@ -356,7 +356,7 @@ static int igt_evict_vm(void *arg)
->
->         for_i915_gem_ww(&ww, err, false) {
->                 mutex_lock(&ggtt->vm.mutex);
-> -               err =3D i915_gem_evict_vm(&ggtt->vm, &ww);
-> +               err =3D i915_gem_evict_vm(&ggtt->vm, &ww, NULL);
->                 mutex_unlock(&ggtt->vm.mutex);
->         }
->
-> --
-> 2.38.1
->
+>  	const struct regulator_init_data *init_data;
+> @@ -5403,7 +5405,6 @@ regulator_register(const struct regulator_desc *regulator_desc,
+>  	struct regulator_dev *rdev;
+>  	bool dangling_cfg_gpiod = false;
+>  	bool dangling_of_gpiod = false;
+> -	struct device *dev;
+>  	int ret, i;
+>  
+>  	if (cfg == NULL)
+> @@ -5415,8 +5416,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
+>  		goto rinse;
+>  	}
+>  
+> -	dev = cfg->dev;
+> -	WARN_ON(!dev);
+> +	WARN_ON(!dev || !cfg->dev);
+>  
+>  	if (regulator_desc->name == NULL || regulator_desc->ops == NULL) {
+>  		ret = -EINVAL;
+> diff --git a/drivers/regulator/devres.c b/drivers/regulator/devres.c
+> index 32823a87fd40..d94db64cd490 100644
+> --- a/drivers/regulator/devres.c
+> +++ b/drivers/regulator/devres.c
+> @@ -221,7 +221,7 @@ struct regulator_dev *devm_regulator_register(struct device *dev,
+>  	if (!ptr)
+>  		return ERR_PTR(-ENOMEM);
+>  
+> -	rdev = regulator_register(regulator_desc, config);
+> +	rdev = regulator_register(dev, regulator_desc, config);
+>  	if (!IS_ERR(rdev)) {
+>  		*ptr = rdev;
+>  		devres_add(dev, ptr);
+> diff --git a/drivers/regulator/of_regulator.c b/drivers/regulator/of_regulator.c
+> index e12b681c72e5..bd0c5d1fd647 100644
+> --- a/drivers/regulator/of_regulator.c
+> +++ b/drivers/regulator/of_regulator.c
+> @@ -505,7 +505,7 @@ struct regulator_init_data *regulator_of_get_init_data(struct device *dev,
+>  	struct device_node *child;
+>  	struct regulator_init_data *init_data = NULL;
+>  
+> -	child = regulator_of_get_init_node(dev, desc);
+> +	child = regulator_of_get_init_node(config->dev, desc);
+>  	if (!child)
+>  		return NULL;
+>  
+> diff --git a/drivers/regulator/stm32-vrefbuf.c b/drivers/regulator/stm32-vrefbuf.c
+> index 30ea3bc8ca19..7a454b7b6eab 100644
+> --- a/drivers/regulator/stm32-vrefbuf.c
+> +++ b/drivers/regulator/stm32-vrefbuf.c
+> @@ -210,7 +210,7 @@ static int stm32_vrefbuf_probe(struct platform_device *pdev)
+>  						      pdev->dev.of_node,
+>  						      &stm32_vrefbuf_regu);
+>  
+> -	rdev = regulator_register(&stm32_vrefbuf_regu, &config);
+> +	rdev = regulator_register(&pdev->dev, &stm32_vrefbuf_regu, &config);
+>  	if (IS_ERR(rdev)) {
+>  		ret = PTR_ERR(rdev);
+>  		dev_err(&pdev->dev, "register failed with error %d\n", ret);
+> diff --git a/include/linux/regulator/driver.h b/include/linux/regulator/driver.h
+> index f9a7461e72b8..d3b4a3d4514a 100644
+> --- a/include/linux/regulator/driver.h
+> +++ b/include/linux/regulator/driver.h
+> @@ -687,7 +687,8 @@ static inline int regulator_err2notif(int err)
+>  
+>  
+>  struct regulator_dev *
+> -regulator_register(const struct regulator_desc *regulator_desc,
+> +regulator_register(struct device *dev,
+> +		   const struct regulator_desc *regulator_desc,
+>  		   const struct regulator_config *config);
+>  struct regulator_dev *
+>  devm_regulator_register(struct device *dev,
+> -- 
+> 2.35.1
+> 
