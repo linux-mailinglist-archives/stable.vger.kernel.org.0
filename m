@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7857D65130E
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 646656512EE
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:25:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232520AbiLST1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:27:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51228 "EHLO
+        id S229866AbiLSTZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:25:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232678AbiLST0T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:26:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E77CC14014
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:26:12 -0800 (PST)
+        with ESMTP id S232671AbiLSTYg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:24:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D55BE6F
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:24:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8EE9CB80EF7
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:26:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 041A0C433D2;
-        Mon, 19 Dec 2022 19:26:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39CA660EF0
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:24:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 134ADC433D2;
+        Mon, 19 Dec 2022 19:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671477970;
-        bh=bSFDkDOTWDRwnFGmNTG9lfE4clN00j4UiQo/7GRiwpE=;
+        s=korg; t=1671477863;
+        bh=9tOCVl8i7a60XfWezwjp7WkRn/fZwyxdSoraZlYDY/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u35c5u8Ev+WGI8r92qV98U+0XxhhfhKlX4dNncPEDwv/+GIJebPOMmYyQDGrMciA1
-         6josLuqggQD6zySYTN1+DsIkp/mGRfuZ7KSS0KAtH+mYGvxE8Ojvy/R2+TM7LZpVVW
-         4tdx0SMUvFIFK1y1fhg6ukmoMRGc8LqOyjn9YuhM=
+        b=jTYvsecmA/KRO2gyZ5x+hK3MBgVllAMEFIHVI0l5FSNxitnsf063PNV5Wz9/VLEey
+         kfn7dy8SO+EF8tQz7oOi4/OBgvFQQr/hA9ZlUFSRagTQhCuuhhQCfad6nGz6e3nRR4
+         zvz2hvl4s70y9kTvMZ+sSeLeyeYQ4LeUJ2SgEBgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrii Nakryiko <andrii@kernel.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 6.0 05/28] bpf: Take module reference on kprobe_multi link
+        patches@lists.linux.dev, Duke Xin <duke_xinanwen@163.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 6.1 13/25] USB: serial: option: add Quectel EM05-G modem
 Date:   Mon, 19 Dec 2022 20:22:52 +0100
-Message-Id: <20221219182944.420203135@linuxfoundation.org>
+Message-Id: <20221219182943.951801310@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
-References: <20221219182944.179389009@linuxfoundation.org>
+In-Reply-To: <20221219182943.395169070@linuxfoundation.org>
+References: <20221219182943.395169070@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,173 +52,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Duke Xin <duke_xinanwen@163.com>
 
-commit e22061b2d3095c12f90336479f24bf5eeb70e1bd upstream.
+commit f0052d7a1edb3d8921b4e154aa8c46c4845b3714 upstream.
 
-Currently we allow to create kprobe multi link on function from kernel
-module, but we don't take the module reference to ensure it's not
-unloaded while we are tracing it.
+The EM05-G modem has 2 USB configurations that are configurable via the AT
+command AT+QCFG="usbnet",[ 0 | 2 ] which make the modem enumerate with
+the following interfaces, respectively:
 
-The multi kprobe link is based on fprobe/ftrace layer which takes
-different approach and releases ftrace hooks when module is unloaded
-even if there's tracer registered on top of it.
+"RMNET" : AT + DIAG + NMEA + Modem + QMI
+"MBIM"  : MBIM + AT + DIAG + NMEA + Modem
 
-Adding code that gathers all the related modules for the link and takes
-their references before it's attached. All kernel module references are
-released after link is unregistered.
+The detailed description of the USB configuration for each mode as follows:
 
-Note that we do it the same way already for trampoline probes
-(but for single address).
+RMNET Mode
+--------------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 21 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0311 Rev= 3.18
+S:  Manufacturer=Quectel
+S:  Product=Quectel EM05-G
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Link: https://lore.kernel.org/r/20221025134148.3300700-5-jolsa@kernel.org
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+MBIM Mode
+--------------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 16 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0311 Rev= 3.18
+S:  Manufacturer=Quectel
+S:  Product=Quectel EM05-G
+C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
+E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
+I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: Duke Xin <duke_xinanwen@163.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/bpf_trace.c |   92 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 92 insertions(+)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/kernel/trace/bpf_trace.c
-+++ b/kernel/trace/bpf_trace.c
-@@ -2264,6 +2264,8 @@ struct bpf_kprobe_multi_link {
- 	unsigned long *addrs;
- 	u64 *cookies;
- 	u32 cnt;
-+	u32 mods_cnt;
-+	struct module **mods;
- };
- 
- struct bpf_kprobe_multi_run_ctx {
-@@ -2319,6 +2321,14 @@ error:
- 	return err;
- }
- 
-+static void kprobe_multi_put_modules(struct module **mods, u32 cnt)
-+{
-+	u32 i;
-+
-+	for (i = 0; i < cnt; i++)
-+		module_put(mods[i]);
-+}
-+
- static void free_user_syms(struct user_syms *us)
- {
- 	kvfree(us->syms);
-@@ -2331,6 +2341,7 @@ static void bpf_kprobe_multi_link_releas
- 
- 	kmulti_link = container_of(link, struct bpf_kprobe_multi_link, link);
- 	unregister_fprobe(&kmulti_link->fp);
-+	kprobe_multi_put_modules(kmulti_link->mods, kmulti_link->mods_cnt);
- }
- 
- static void bpf_kprobe_multi_link_dealloc(struct bpf_link *link)
-@@ -2340,6 +2351,7 @@ static void bpf_kprobe_multi_link_deallo
- 	kmulti_link = container_of(link, struct bpf_kprobe_multi_link, link);
- 	kvfree(kmulti_link->addrs);
- 	kvfree(kmulti_link->cookies);
-+	kfree(kmulti_link->mods);
- 	kfree(kmulti_link);
- }
- 
-@@ -2475,6 +2487,71 @@ static void symbols_swap_r(void *a, void
- 	}
- }
- 
-+struct module_addr_args {
-+	unsigned long *addrs;
-+	u32 addrs_cnt;
-+	struct module **mods;
-+	int mods_cnt;
-+	int mods_cap;
-+};
-+
-+static int module_callback(void *data, const char *name,
-+			   struct module *mod, unsigned long addr)
-+{
-+	struct module_addr_args *args = data;
-+	struct module **mods;
-+
-+	/* We iterate all modules symbols and for each we:
-+	 * - search for it in provided addresses array
-+	 * - if found we check if we already have the module pointer stored
-+	 *   (we iterate modules sequentially, so we can check just the last
-+	 *   module pointer)
-+	 * - take module reference and store it
-+	 */
-+	if (!bsearch(&addr, args->addrs, args->addrs_cnt, sizeof(addr),
-+		       bpf_kprobe_multi_addrs_cmp))
-+		return 0;
-+
-+	if (args->mods && args->mods[args->mods_cnt - 1] == mod)
-+		return 0;
-+
-+	if (args->mods_cnt == args->mods_cap) {
-+		args->mods_cap = max(16, args->mods_cap * 3 / 2);
-+		mods = krealloc_array(args->mods, args->mods_cap, sizeof(*mods), GFP_KERNEL);
-+		if (!mods)
-+			return -ENOMEM;
-+		args->mods = mods;
-+	}
-+
-+	if (!try_module_get(mod))
-+		return -EINVAL;
-+
-+	args->mods[args->mods_cnt] = mod;
-+	args->mods_cnt++;
-+	return 0;
-+}
-+
-+static int get_modules_for_addrs(struct module ***mods, unsigned long *addrs, u32 addrs_cnt)
-+{
-+	struct module_addr_args args = {
-+		.addrs     = addrs,
-+		.addrs_cnt = addrs_cnt,
-+	};
-+	int err;
-+
-+	/* We return either err < 0 in case of error, ... */
-+	err = module_kallsyms_on_each_symbol(module_callback, &args);
-+	if (err) {
-+		kprobe_multi_put_modules(args.mods, args.mods_cnt);
-+		kfree(args.mods);
-+		return err;
-+	}
-+
-+	/* or number of modules found if everything is ok. */
-+	*mods = args.mods;
-+	return args.mods_cnt;
-+}
-+
- int bpf_kprobe_multi_link_attach(const union bpf_attr *attr, struct bpf_prog *prog)
- {
- 	struct bpf_kprobe_multi_link *link = NULL;
-@@ -2585,10 +2662,25 @@ int bpf_kprobe_multi_link_attach(const u
- 		       bpf_kprobe_multi_cookie_cmp,
- 		       bpf_kprobe_multi_cookie_swap,
- 		       link);
-+	} else {
-+		/*
-+		 * We need to sort addrs array even if there are no cookies
-+		 * provided, to allow bsearch in get_modules_for_addrs.
-+		 */
-+		sort(addrs, cnt, sizeof(*addrs),
-+		       bpf_kprobe_multi_addrs_cmp, NULL);
-+	}
-+
-+	err = get_modules_for_addrs(&link->mods, addrs, cnt);
-+	if (err < 0) {
-+		bpf_link_cleanup(&link_primer);
-+		return err;
- 	}
-+	link->mods_cnt = err;
- 
- 	err = register_fprobe_ips(&link->fp, addrs, cnt);
- 	if (err) {
-+		kprobe_multi_put_modules(link->mods, link->mods_cnt);
- 		bpf_link_cleanup(&link_primer);
- 		return err;
- 	}
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -255,6 +255,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EP06			0x0306
+ #define QUECTEL_PRODUCT_EM05G			0x030a
+ #define QUECTEL_PRODUCT_EM060K			0x030b
++#define QUECTEL_PRODUCT_EM05G_SG		0x0311
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
+ #define QUECTEL_PRODUCT_RM520N			0x0801
+@@ -1160,6 +1161,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
+ 	  .driver_info = RSVD(6) | ZLP },
++	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_SG, 0xff),
++	  .driver_info = RSVD(6) | ZLP },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0x00, 0x40) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0xff, 0x30) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0xff, 0x40) },
 
 
