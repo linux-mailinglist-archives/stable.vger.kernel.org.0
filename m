@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FF3F6512EA
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:25:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEC18651303
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231944AbiLSTZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:25:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50070 "EHLO
+        id S232785AbiLST0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:26:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232785AbiLSTYc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:24:32 -0500
+        with ESMTP id S231821AbiLSTZr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:25:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9628913E99
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:24:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED05DB2
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:25:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4ABD1B80EF6
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:24:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FD9BC433EF;
-        Mon, 19 Dec 2022 19:24:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7301DB80F97
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:25:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEA24C433D2;
+        Mon, 19 Dec 2022 19:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671477851;
-        bh=vYKeTppjGl837v9HY6B7ZCuKfbLO4QPiHSBQ2EWEIeg=;
+        s=korg; t=1671477944;
+        bh=5ZDOjbYUGFtDrhJfNexYvt7IYoYLQn0v7tEJh8v3gi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L7nBnhbp0RsIRxLU49FToLIvL6/DnSGb5CSO5R3RhsKz+YqLEmOYVqDViFL6zdWyj
-         eZ7mFjy+qDkDSwElOQmxGQgwyrUC4cDyfGIxwMzAc0trns8YDfYV0mHwSxdEWEGYWx
-         99t793PU3ve736eZ3MTTRWgmX64QLtqkS89X/M1o=
+        b=bFxtRXF69WyPUD24XxFbDXg/1Nx8uIeaYvRwsPXDUZFQq6Bwu7JSRq2orCfrXfIIw
+         dQ4Aoett3ZxNzUdZ9xTXA7jaPKLShLnCOT3RebukiFPQ3L67YYLrwd4B/CKryDBx/j
+         rDJk+iRkBsrABDpj9obE0wcztKLrPFGaHxRsuPCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, stable <stable@kernel.org>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Shruthi Sanil <shruthi.sanil@intel.com>
-Subject: [PATCH 6.1 22/25] usb: dwc3: pci: Update PCIe device ID for USB3 controller on CPU sub-system for Raptor Lake
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Daniel Scally <dan.scally@ideasonboard.com>,
+        Szymon Heidrich <szymon.heidrich@gmail.com>
+Subject: [PATCH 6.0 14/28] usb: gadget: uvc: Prevent buffer overflow in setup handler
 Date:   Mon, 19 Dec 2022 20:23:01 +0100
-Message-Id: <20221219182944.333617395@linuxfoundation.org>
+Message-Id: <20221219182944.794460009@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221219182943.395169070@linuxfoundation.org>
-References: <20221219182943.395169070@linuxfoundation.org>
+In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
+References: <20221219182944.179389009@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shruthi Sanil <shruthi.sanil@intel.com>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-commit f05f80f217bf52443a2582bca19fd78188333f25 upstream.
+commit 4c92670b16727365699fe4b19ed32013bab2c107 upstream.
 
-The device ID 0xa70e is defined for the USB3 device controller in the CPU
-sub-system of Raptor Lake platform. Hence updating the ID accordingly.
+Setup function uvc_function_setup permits control transfer
+requests with up to 64 bytes of payload (UVC_MAX_REQUEST_SIZE),
+data stage handler for OUT transfer uses memcpy to copy req->actual
+bytes to uvc_event->data.data array of size 60. This may result
+in an overflow of 4 bytes.
 
-Fixes: bad0d1d726ac ("usb: dwc3: pci: Add support for Intel Raptor Lake")
+Fixes: cdda479f15cd ("USB gadget: video class function driver")
 Cc: stable <stable@kernel.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Shruthi Sanil <shruthi.sanil@intel.com>
-Link: https://lore.kernel.org/r/20221125105327.27945-1-shruthi.sanil@intel.com
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Daniel Scally <dan.scally@ideasonboard.com>
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Link: https://lore.kernel.org/r/20221206141301.51305-1-szymon.heidrich@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_uvc.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -45,7 +45,7 @@
- #define PCI_DEVICE_ID_INTEL_ADLN		0x465e
- #define PCI_DEVICE_ID_INTEL_ADLN_PCH		0x54ee
- #define PCI_DEVICE_ID_INTEL_ADLS		0x7ae1
--#define PCI_DEVICE_ID_INTEL_RPL			0x460e
-+#define PCI_DEVICE_ID_INTEL_RPL			0xa70e
- #define PCI_DEVICE_ID_INTEL_RPLS		0x7a61
- #define PCI_DEVICE_ID_INTEL_MTLP		0x7ec1
- #define PCI_DEVICE_ID_INTEL_MTL			0x7e7e
+--- a/drivers/usb/gadget/function/f_uvc.c
++++ b/drivers/usb/gadget/function/f_uvc.c
+@@ -216,8 +216,9 @@ uvc_function_ep0_complete(struct usb_ep
+ 
+ 		memset(&v4l2_event, 0, sizeof(v4l2_event));
+ 		v4l2_event.type = UVC_EVENT_DATA;
+-		uvc_event->data.length = req->actual;
+-		memcpy(&uvc_event->data.data, req->buf, req->actual);
++		uvc_event->data.length = min_t(unsigned int, req->actual,
++			sizeof(uvc_event->data.data));
++		memcpy(&uvc_event->data.data, req->buf, uvc_event->data.length);
+ 		v4l2_event_queue(&uvc->vdev, &v4l2_event);
+ 	}
+ }
 
 
