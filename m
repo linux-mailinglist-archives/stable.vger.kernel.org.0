@@ -2,70 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F8486509C1
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 11:04:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EBF96509EA
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 11:16:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231292AbiLSKEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 05:04:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60274 "EHLO
+        id S231648AbiLSKQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 05:16:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229499AbiLSKEc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 05:04:32 -0500
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com [209.85.166.72])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D87DB2DF4
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 02:04:31 -0800 (PST)
-Received: by mail-io1-f72.google.com with SMTP id h11-20020a6b7a0b000000b006e0004fc167so3836216iom.5
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 02:04:31 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=eyU2aTqJrEienAovyYz9d8BtwNn+WYphP8UJdFWjqvw=;
-        b=nHDjDs1EX7js12qlj1fljAl1eJ361O6GxtEW0k7jB/4cKvCgXOBFUbCdzDBr4TrrI0
-         20bNES/YXgeQmD0Liatqmncf/jGXrxSx1Af1JGE8ZnMAsbjRZXFCeyCjElmMX3N15T9Q
-         Nlqh+SF86bnV2NrkIIzXoNGhMnf/4rItMicHCcmpWK6CZ0H43ngk8j2LFDeLgPzlJz4U
-         KJqFYnZj1UTO6rJDlCaOShZW7VTQyt6MQrfqHaFnZN4aBsMs4tESDNRl66Dj2SII4RLE
-         g80zQd20rhGAN5ybzisf2GI7rSFHmBpO1Sf99UUkDyvmZY8YhagKrgRSH/t18F+r0yR7
-         HLyw==
-X-Gm-Message-State: ANoB5pn99ad/B6HqvGJJcel9ByH/05FceH+jHV5ckZszyBhKQ95QQ8Ig
-        /VlgTdooUlL+OKAgJJBeNdNPXXP5mYTseS7pSB7uSQO1fKCw
-X-Google-Smtp-Source: AA0mqf59Vv/cxyI3zDwpIJ7v3WG0pccDSkld2sIjZgSJZzD2DTs3ssqktEYjfqDBM9eGMQ/fdZ///hGWO63SchopcMxN/THnH7fo
+        with ESMTP id S231545AbiLSKQj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 05:16:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D6D9B489
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 02:16:38 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36B7060ED6
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 10:16:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1B0BC433D2;
+        Mon, 19 Dec 2022 10:16:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1671444997;
+        bh=9oSB6wA8J0Fzx083OD1V1hloA8OfjH0qFSMJ7us/7WY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CtINC5s/cgbuu3HFa9IFKokcpDAxtvkkrFG7lq+neuxtRFk12UkcOMDgCZnPTwjfz
+         inoU3m51/gfUPKIvL4yUCrkVcQm7kMv6mrE7B6meG1zwbAouCj91yewXH+pzCSIAxM
+         EqMVqA2yzGwiB9/FZtyx0WyY13p3PBSMyWuYs96g=
+Date:   Mon, 19 Dec 2022 11:16:33 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.15 11/14] net: fec: dont reset irq coalesce settings to
+ defaults on "ip link up"
+Message-ID: <Y6A6AZRYm4Yq3cIz@kroah.com>
+References: <20221215172906.338769943@linuxfoundation.org>
+ <20221215172907.210669704@linuxfoundation.org>
+ <6314ea2f-61f7-2c5a-86d3-1158b80bd5d4@rasmusvillemoes.dk>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:14a:b0:303:f9f:74cb with SMTP id
- j10-20020a056e02014a00b003030f9f74cbmr25665155ilr.167.1671444271272; Mon, 19
- Dec 2022 02:04:31 -0800 (PST)
-Date:   Mon, 19 Dec 2022 02:04:31 -0800
-In-Reply-To: <000000000000b960c00594598949@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <0000000000000d1f3105f02b729c@google.com>
-Subject: Re: KASAN: use-after-free Read in tc_chain_fill_node
-From:   syzbot <syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com>
-To:     davem@davemloft.net, gregkh@linuxfoundation.org, jiri@mellanox.com,
-        lee.jones@linaro.org, linux-kernel@vger.kernel.org,
-        stable-commits@vger.kernel.org, stable@vger.kernel.org,
-        syzkaller-lts-bugs@googlegroups.com, vladbu@mellanox.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6314ea2f-61f7-2c5a-86d3-1158b80bd5d4@rasmusvillemoes.dk>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This bug is marked as fixed by commit:
-net: core: netlink: add helper refcount dec and lock function
-net: sched: add helper function to take reference to Qdisc
-net: sched: extend Qdisc with rcu
-net: sched: rename qdisc_destroy() to qdisc_put()
-net: sched: use Qdisc rcu API instead of relying on rtnl lock
-But I can't find it in any tested tree for more than 90 days.
-Is it a correct commit? Please update it by replying:
-#syz fix: exact-commit-title
+On Fri, Dec 16, 2022 at 10:13:48AM +0100, Rasmus Villemoes wrote:
+> On 15/12/2022 19.10, Greg Kroah-Hartman wrote:
+> > From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> > 
+> > [ Upstream commit df727d4547de568302b0ed15b0d4e8a469bdb456 ]
+> 
+> You should not take this unless you at the same time also take
+> 
+> commit 7e6303567ce3ca506e4a2704e4baa86f1d8bde02
+> Author: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> Date:   Mon Dec 5 21:46:04 2022 +0100
+> 
+>     net: fec: properly guard irq coalesce setup
+> 
+> which
+> 
+>     Fixes: df727d4547de (net: fec: don't reset irq coalesce settings to
+> defaults on "ip link up")
+> 
+> The same of course applies to the 6.0.y series.
+> 
+> I don't know if your scripts already do this and it just somehow failed
+> here, but it would probably be a good idea to always check if there is
+> already a Fixes for a commit that gets chosen for -stable.
 
-Until then the bug is still considered open and new crashes with the same signature are ignored.
+Ick, sorry, I thought I did run my "are there fixes for the queue"
+script, but it looks like I did not at all, thank you for catching this!
+I've now queued it up.
 
-Dashboard link: https://syzkaller.appspot.com/bug?extid=5f229e48cccc804062c0
+greg k-h
