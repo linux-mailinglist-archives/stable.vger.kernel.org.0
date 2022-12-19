@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EB36651324
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D19CB65133C
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:28:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232674AbiLST1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:27:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50466 "EHLO
+        id S232868AbiLST24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:28:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232779AbiLST1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D70213F72
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:27:21 -0800 (PST)
+        with ESMTP id S232746AbiLST2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:28:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C56A7D5D
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:28:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B53F6B80F97
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:27:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF5C9C433EF;
-        Mon, 19 Dec 2022 19:27:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 880FAB80F4B
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:28:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD685C433D2;
+        Mon, 19 Dec 2022 19:28:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671478038;
-        bh=ge5RUukD9XT75lLSEX4INDIWUIQdr5aLW7fIKhgF9ss=;
+        s=korg; t=1671478096;
+        bh=GwNPNgTrw9lFxqSpgIc/697osRh2UKoDqnLwDq4JGWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RvqsqdTXL8bkhCDcKX1pugatvLWQVS0VMJawcy8/nVDOm8FrZSh47WhJgTx1Ppo/z
-         tEw2mXPzgahuvXT1K9YXT+SnGzJt2mvlqO8JJggyTLXwbVxiwMOUi46bb9UZCJphMN
-         Q6FlYLMINKyKIQ09gCoMAAwV99I5xwx5pM+I6jGo=
+        b=mAc2nC2wSgljHgi/aZUN5HePfpV/KECx3m99m9sPLoLsgX+luE1EFsK+zaDuhfJgx
+         j2MIXS4iVmOomQUUk5eKRRUcgOx8pLTrHGBPxnGWSZn0I0l7JRQWCLjuHjyyvsIHih
+         nKjC2eP20ElzxRWJRzWijN75L9DnV2RUi/gAO6eM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 17/17] net: loopback: use NET_NAME_PREDICTABLE for name_assign_type
+        patches@lists.linux.dev, Reka Norman <rekanorman@chromium.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.10 10/18] xhci: Apply XHCI_RESET_TO_DEFAULT quirk to ADL-N
 Date:   Mon, 19 Dec 2022 20:25:03 +0100
-Message-Id: <20221219182941.256764595@linuxfoundation.org>
+Message-Id: <20221219182941.013061951@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221219182940.739981110@linuxfoundation.org>
-References: <20221219182940.739981110@linuxfoundation.org>
+In-Reply-To: <20221219182940.701087296@linuxfoundation.org>
+References: <20221219182940.701087296@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Reka Norman <rekanorman@chromium.org>
 
-[ Upstream commit 31d929de5a112ee1b977a89c57de74710894bbbf ]
+commit fed70b61ef2c0aed54456db3d485b215f6cc3209 upstream.
 
-When the name_assign_type attribute was introduced (commit
-685343fc3ba6, "net: add name_assign_type netdev attribute"), the
-loopback device was explicitly mentioned as one which would make use
-of NET_NAME_PREDICTABLE:
+ADL-N systems have the same issue as ADL-P, where a large boot firmware
+delay is seen if USB ports are left in U3 at shutdown. So apply the
+XHCI_RESET_TO_DEFAULT quirk to ADL-N as well.
 
-    The name_assign_type attribute gives hints where the interface name of a
-    given net-device comes from. These values are currently defined:
-...
-      NET_NAME_PREDICTABLE:
-        The ifname has been assigned by the kernel in a predictable way
-        that is guaranteed to avoid reuse and always be the same for a
-        given device. Examples include statically created devices like
-        the loopback device [...]
+This patch depends on commit 34cd2db408d5 ("xhci: Add quirk to reset
+host back to default state at shutdown").
 
-Switch to that so that reading /sys/class/net/lo/name_assign_type
-produces something sensible instead of returning -EINVAL.
+The issue it fixes is a ~20s boot time delay when booting from S5. It
+affects ADL-N devices, and ADL-N support was added starting from v5.16.
 
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Reka Norman <rekanorman@chromium.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20221130091944.2171610-3-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/loopback.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci-pci.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/loopback.c b/drivers/net/loopback.c
-index a1c77cc00416..498e5c8013ef 100644
---- a/drivers/net/loopback.c
-+++ b/drivers/net/loopback.c
-@@ -208,7 +208,7 @@ static __net_init int loopback_net_init(struct net *net)
- 	int err;
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -59,6 +59,7 @@
+ #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
+ #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
+ #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI		0x51ed
++#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_PCH_XHCI	0x54ed
  
- 	err = -ENOMEM;
--	dev = alloc_netdev(0, "lo", NET_NAME_UNKNOWN, loopback_setup);
-+	dev = alloc_netdev(0, "lo", NET_NAME_PREDICTABLE, loopback_setup);
- 	if (!dev)
- 		goto out;
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
+@@ -242,7 +243,8 @@ static void xhci_pci_quirks(struct devic
+ 		xhci->quirks |= XHCI_MISSING_CAS;
  
--- 
-2.35.1
-
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+-	    pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI)
++	    (pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_PCH_XHCI))
+ 		xhci->quirks |= XHCI_RESET_TO_DEFAULT;
+ 
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
 
 
