@@ -2,140 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A772965119C
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 19:15:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 087D3651207
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 19:33:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232147AbiLSSP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 13:15:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37724 "EHLO
+        id S232625AbiLSSdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 13:33:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232158AbiLSSPY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 13:15:24 -0500
-Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89ADF13DCE
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 10:15:23 -0800 (PST)
-Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2BJIF4Ce015721
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 19 Dec 2022 13:15:04 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
-        t=1671473706; bh=RPZcPeqiNQ/txvHn7bKkT7EcINFhNS0Qm6B4IweGX98=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=NMYC7AA6LuGf8a6NW6qf8Pm3KhIx10BCL60vB2yDFeUEviJNykiDfB5bpRHnk17Qs
-         5aZtm/ugMun8c4i1gr7EuLSC0fX9FQ7/7sstYQHVBEAxLqdMW6XZSR7e6zOJ+yNxg9
-         0UnAzDQO94KhF1rp843GP1XkdmSu5+AvP8lb+38SOfEbMiN8oSW3abLuV6e5TGe8Jg
-         M0T7KzUWXn8+Jf3kCvVryfP75Eo853NMheoooFmDMRlD+buKsgnP2Q25G9DTr5++ym
-         BautrZUXd6IDlRak9kDYfCu5uo8cp3xO92SPN0iPsegzK0nvdnrAj2w8DfQ1iOdjH0
-         4cM4iOpnO4yVA==
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id EA15E15C3511; Mon, 19 Dec 2022 13:15:03 -0500 (EST)
-Date:   Mon, 19 Dec 2022 13:15:03 -0500
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     Aleksandr Nogikh <nogikh@google.com>
-Cc:     Lee Jones <lee@kernel.org>,
-        syzbot <syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com>,
-        adilger.kernel@dilger.ca, gregkh@linuxfoundation.org,
-        lczerner@redhat.com, linux-ext4@vger.kernel.org,
-        linux-kernel@vger.kernel.org, sashal@kernel.org,
-        stable@vger.kernel.org, syzkaller-android-bugs@googlegroups.com,
-        tadeusz.struk@linaro.org
-Subject: Re: kernel BUG in ext4_free_blocks (2)
-Message-ID: <Y6CqJ8fgQQW8AhT6@mit.edu>
-References: <0000000000006c411605e2f127e5@google.com>
- <000000000000b60c1105efe06dea@google.com>
- <Y5vTyjRX6ZgIYxgj@mit.edu>
- <Y5xsIkpIznpObOJL@google.com>
- <CANp29Y6KHBE-fpfJCXeN5Ju_qSOfUYAp2n+cNrGj25QtU0X=sA@mail.gmail.com>
- <Y5ylNxoN2p7dmcRD@mit.edu>
- <CANp29Y4QVp1G83pSqpxeETbw_+kQQ5CZUz+Vgi767WxE8AuhHQ@mail.gmail.com>
- <Y5y824gPqZo+vcxb@mit.edu>
- <CANp29Y4S0TTVjonA9ADpBKviNHR+n3nYi2hy2hcee-4ArD5t4Q@mail.gmail.com>
+        with ESMTP id S232304AbiLSSc0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 13:32:26 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29DBB13E0B
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 10:31:34 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id x2so9827951plb.13
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 10:31:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=d0mC3YHxzlEQlwMPao/Y7ASve0hKwhscYa/RkKUoFYA=;
+        b=XP3AwAH3vWxz0xfNNFiGJ5EgonMs84vx5Gf0ya1zoxdRXLS4mgG7GJljlIBSp3sWSp
+         pE/P+777utad613pX0v1LpwSeiQaQvT4BLznyztZI4BRxJ5UCdxvQf89huY3c6odg0BZ
+         beom1cAixCxe2nouy47FZellniD8Vj/wWCeqrhrqnkFR5Qq6FVs9El10bowukBUYxbJ0
+         xPlgcxMmxk4q03q9VnvSF3FMGZEKbhc1dlcU1cDCt9J7ry2zH1y19dccMivVxxN4upEw
+         VJcf3SeWyVV/qqV6sPnsX4Li7PS8XBkntHkOC/PKcKZHZEyaZWDgxxizO3meAyubPNKE
+         VQZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=d0mC3YHxzlEQlwMPao/Y7ASve0hKwhscYa/RkKUoFYA=;
+        b=GSm4lGf2Atc8ybVs3rZ9WlC/JX8K+jq/ObiguhQCdwvfw6usuJBhjyKlcas/BWjsOk
+         PYF2gk8Ukyv4j5s/0MyRy64Rfn/ZGcG1i/3w4PD9sHEK5l6ZXYwoGwqViU7pZ1LNIVFo
+         Olt/w4SgG7fabd2hiRCdViOf9Pf8DD8eyifJPTan3w0yHA4cS9cMgS26XNr+ZkIz81vQ
+         I+8TdO7Nj555CkDxP70dDc7GZb+sC05NieHVmVuKwHd5dHrIE34N/x8r3Z8Eff11UkhJ
+         ZRNOzs9PQ18OQnV3ll7AZTH3Z42iJ/dn7OwsD0G6sxC4FguTw4Wqcqx3IibtdS6B79VD
+         g/mA==
+X-Gm-Message-State: ANoB5pmMSrzOkk2TqUGZ+DxJBN+STrA9ucjAEIX/IYAh5KILB4yJ+WMe
+        C2CE376OgR9+7+NmjKjNwDpf
+X-Google-Smtp-Source: AA0mqf68ucZQ4pkSIP4B+LV1flkcOGQPj3b5PkGW/rCTTB9ay4fMMIaU9BVc6OCx2wDMonxlDiHDWg==
+X-Received: by 2002:a17:903:251:b0:189:7891:574d with SMTP id j17-20020a170903025100b001897891574dmr50681181plh.47.1671474693614;
+        Mon, 19 Dec 2022 10:31:33 -0800 (PST)
+Received: from localhost.localdomain ([220.158.159.17])
+        by smtp.gmail.com with ESMTPSA id d2-20020a170903230200b00186e34524e3sm7480979plh.136.2022.12.19.10.31.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Dec 2022 10:31:32 -0800 (PST)
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     andersson@kernel.org, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, bp@alien8.de,
+        tony.luck@intel.com
+Cc:     quic_saipraka@quicinc.com, konrad.dybcio@linaro.org,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        james.morse@arm.com, mchehab@kernel.org, rric@kernel.org,
+        linux-edac@vger.kernel.org, quic_ppareek@quicinc.com,
+        luca.weiss@fairphone.com, ahalaney@redhat.com,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH v3 12/15] EDAC/device: Make use of poll_msec value in edac_device_ctl_info struct
+Date:   Mon, 19 Dec 2022 23:59:55 +0530
+Message-Id: <20221219182958.476231-13-manivannan.sadhasivam@linaro.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221219182958.476231-1-manivannan.sadhasivam@linaro.org>
+References: <20221219182958.476231-1-manivannan.sadhasivam@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CANp29Y4S0TTVjonA9ADpBKviNHR+n3nYi2hy2hcee-4ArD5t4Q@mail.gmail.com>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
-        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 19, 2022 at 05:12:47PM +0100, Aleksandr Nogikh wrote:
-> (a) Once you have opened the bug report page, you can find the
-> namespace at the top of the page.
-> (b) One can at least see the list of the tested trees on the main page
-> of the namespace -- we do share the latest commits for each manager
-> instance. Also see the comment below.
+The EDAC drivers may optionally pass the poll_msec value. Use that value if
+available, else fall back to 1000ms.
 
-It's not obvious what you mean by the "main page" of the namespace.
-I'm guessing, but from the bug report page, there is a horizontal set
-of icons, "Open", "Fixed", "Invalid" .... (which all have the same
-icons), that the "Open" icon is the one that gets to the main page?
+Cc: <stable@vger.kernel.org> # 4.9
+Fixes: e27e3dac6517 ("drivers/edac: add edac_device class")
+Reported-by: Luca Weiss <luca.weiss@fairphone.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+---
+ drivers/edac/edac_device.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Assuming that this[1] is what was meant by "main page" (which is also
-implied by the URL, but it's otherwise **really** not obvious), where
-is the list of tested trees?
+diff --git a/drivers/edac/edac_device.c b/drivers/edac/edac_device.c
+index 19522c568aa5..19c3ab2a434e 100644
+--- a/drivers/edac/edac_device.c
++++ b/drivers/edac/edac_device.c
+@@ -447,7 +447,7 @@ int edac_device_add_device(struct edac_device_ctl_info *edac_dev)
+ 		 * enable workq processing on this instance,
+ 		 * default = 1000 msec
+ 		 */
+-		edac_device_workq_setup(edac_dev, 1000);
++		edac_device_workq_setup(edac_dev, edac_dev->poll_msec ? edac_dev->poll_msec : 1000);
+ 	} else {
+ 		edac_dev->op_state = OP_RUNNING_INTERRUPT;
+ 	}
+-- 
+2.25.1
 
-[1] https://syzkaller.appspot.com/android-5-10
-
-I see the table "Instances", but it looks like the only two instances,
-ci2-android-5-10 and ci2-android-5-10-perf, are both apparently
-looking at the same commit --- but there's nothing that tells you what
-kernel tree those commits are from.  I can't see **anything* that
-looks like an explicit git repo URL plus branch name.  Is it perhaps
-one of these?
-
-https://android.googlesource.com/kernel/common/+/refs/heads/android12-5.10
-https://android.googlesource.com/kernel/common/+/refs/heads/android13-5.10
-
-It also appears that the android-5-10 "namespace" doesn't track any
-other trees other than the Android 5.10 tree.  Which means the e-mail
-message, "I can't find the commit on any tested tree" is ***super***
-misleading.  At least for the android-5-10 namespace, why not just
-say, "I don't see that commit on the git branch <explicit git repo and
-branch name>"?
-
-I did finally find the missing information, but it required a lot of
-clicking and searching.  From the bug page [2], the status line is:
-
-    Status: upstream: reported C repro on 2022/11/27 00:51
-
-Has a link to the e-mail sent to the upstream developers[3].  And in
-*that* e-mail, we can find the git tree involved: 
-
-   git tree: android12-5.10-lts
-
-[3] https://groups.google.com/g/syzkaller-android-bugs/c/LmaUwJpTXkA/m/HjsARFKWCQAJ
-
-
-Going back to your pull request[4] to add a link to the dashboard in
-the e-mail, how about also adding to the e-mail an indication about
-the Syzkaller namespace.  That way, the upstream developer can quickly
-determine that the namespace is "Android-X.Y" and simply hit the 'd'
-key as not really relevant to the upstream developer.
-
-[4] https://github.com/google/syzkaller/pull/3591
-
-I assume that there's someone in the Android kernel ecosystem that is
-responsible for figuring out how to make sure commits are backported
-from upstream into the LTS kernels, and the LTS kernels to the
-relevant Android branch.
-
-I do know one thing for certain --- I don't scale to the point where
-this can made my problem.  So I want to be able to more quickly triage
-e-mails that are Not My Problem.
-
-More generally, I think we need some kind of MAINTAINERS-like file
-which explicitly lists who does have that responsibility, and which
-can be used by Syzkaller so we aren't just blindly spamming all of the
-upstream developers in the hopes that one of them will do somebody
-else's job just to shut up the nag mail.  Otherwise, the natural
-reaction will be to resort to a mail filter to /dev/null the nag mail.
-:-/
-
-					- Ted
