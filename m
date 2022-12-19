@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B81E65130A
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F0AB65131A
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232709AbiLST0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:26:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50594 "EHLO
+        id S232846AbiLST1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:27:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232531AbiLST0L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:26:11 -0500
+        with ESMTP id S232976AbiLST1M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:27:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19C4D13CE0
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:26:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E166E6F
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:26:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 808166111A
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:26:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77D9BC433F1;
-        Mon, 19 Dec 2022 19:26:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B65E60F93
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:26:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DCE3C433F1;
+        Mon, 19 Dec 2022 19:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671477961;
-        bh=QRfjUgsQLDW5HCX4CeXjYfYlOsNkFBIr6C8mJaHfc48=;
+        s=korg; t=1671478011;
+        bh=cFZDr3iGcfKiX9rWgBaBaE9vpKVOax1baPuaHLrzF6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=johGZ2bBaL4c3DbOXcg2GwE6MziMgW5ZJwnf+7rjf06mOYbhkx5ENOCvqS9HeisBA
-         icepctIi1PSMO3SyuVHOijwa+vwuNvyBI4ivEu0MTBJoqscxpLX8Av89eJ0Mky8E/8
-         PmwaBt7w019+lHfx9AB7bVqDH5vukw1gP3NOLGAg=
+        b=QQYnxBuk7iWsHWF1/fypIDSDG9gLna0Aa/6bVDCtcyI4nDxKmOT5YmtJKeg++QT/t
+         NQ3TWOq+97EE3EJL+bd2qhEYiXjoQ0u7GTEaaGxliwtgE4WvI3ooTeJPXjk9DJ+trQ
+         7AwRcUhd819GQOI9cFzE3LTXLPK5swx6FlePQous=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Reka Norman <rekanorman@chromium.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 6.0 20/28] xhci: Apply XHCI_RESET_TO_DEFAULT quirk to ADL-N
-Date:   Mon, 19 Dec 2022 20:23:07 +0100
-Message-Id: <20221219182945.057039552@linuxfoundation.org>
+        patches@lists.linux.dev, Akihiko Odaki <akihiko.odaki@daynix.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.0 21/28] igb: Initialize mailbox message for VF reset
+Date:   Mon, 19 Dec 2022 20:23:08 +0100
+Message-Id: <20221219182945.105856338@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
 References: <20221219182944.179389009@linuxfoundation.org>
@@ -52,48 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reka Norman <rekanorman@chromium.org>
+From: Tony Nguyen <anthony.l.nguyen@intel.com>
 
-commit fed70b61ef2c0aed54456db3d485b215f6cc3209 upstream.
+commit de5dc44370fbd6b46bd7f1a1e00369be54a041c8 upstream.
 
-ADL-N systems have the same issue as ADL-P, where a large boot firmware
-delay is seen if USB ports are left in U3 at shutdown. So apply the
-XHCI_RESET_TO_DEFAULT quirk to ADL-N as well.
+When a MAC address is not assigned to the VF, that portion of the message
+sent to the VF is not set. The memory, however, is allocated from the
+stack meaning that information may be leaked to the VM. Initialize the
+message buffer to 0 so that no information is passed to the VM in this
+case.
 
-This patch depends on commit 34cd2db408d5 ("xhci: Add quirk to reset
-host back to default state at shutdown").
-
-The issue it fixes is a ~20s boot time delay when booting from S5. It
-affects ADL-N devices, and ADL-N support was added starting from v5.16.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Reka Norman <rekanorman@chromium.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20221130091944.2171610-3-mathias.nyman@linux.intel.com
+Fixes: 6ddbc4cf1f4d ("igb: Indicate failure on vf reset for empty mac address")
+Reported-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20221212190031.3983342-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-pci.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igb/igb_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -59,6 +59,7 @@
- #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
- #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI		0x51ed
-+#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_PCH_XHCI	0x54ed
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -7522,7 +7522,7 @@ static void igb_vf_reset_msg(struct igb_
+ {
+ 	struct e1000_hw *hw = &adapter->hw;
+ 	unsigned char *vf_mac = adapter->vf_data[vf].vf_mac_addresses;
+-	u32 reg, msgbuf[3];
++	u32 reg, msgbuf[3] = {};
+ 	u8 *addr = (u8 *)(&msgbuf[1]);
  
- #define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
-@@ -246,7 +247,8 @@ static void xhci_pci_quirks(struct devic
- 		xhci->quirks |= XHCI_MISSING_CAS;
- 
- 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
--	    pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI)
-+	    (pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI ||
-+	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_PCH_XHCI))
- 		xhci->quirks |= XHCI_RESET_TO_DEFAULT;
- 
- 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+ 	/* process all the same items cleared in a function level reset */
 
 
