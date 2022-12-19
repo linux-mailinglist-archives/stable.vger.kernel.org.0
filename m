@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A18D6512FD
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:26:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B177B65130D
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 20:27:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232564AbiLST0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 14:26:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50036 "EHLO
+        id S232283AbiLST1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 14:27:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232277AbiLSTZd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:25:33 -0500
+        with ESMTP id S232680AbiLST0O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 14:26:14 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEC60F1C
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:25:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCA7B13D42
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 11:26:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BED86109A
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:25:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44852C433EF;
-        Mon, 19 Dec 2022 19:25:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7890560F93
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:26:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7129DC433F0;
+        Mon, 19 Dec 2022 19:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671477931;
-        bh=9QF0bl25L5DLL1DBNGISC6SPFeEo/9AT4+fpHI6PJ4U=;
+        s=korg; t=1671477964;
+        bh=2ktixRPzbKnwNXYxtSVgA80LeEe/dN1cRmpSm14PV1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2AZZ74NsK1P0Hq8p7NgwY8DSkE7wVTXZvAXS+yZlwl8D+6dA8jhPpBgG3lV0MJ3JZ
-         LPkAFEEO9gSlKcz5cI/PI5et0TFPOpi2r1tsg7Ujlnta/mmdt1T+ktQ9oR+Fudk9J9
-         pgnIxbyDuFwFuiPY1DoMjCf8EyiFX/7gtsdchg7w=
+        b=WS899v1wWEekyQ8ffWonHMOeTCiWRQBHfzO+pxXDqdOFJLhAqSAXdR0f0ZKjk/DX/
+         WOYF4vFaMob8cqJ4QVbYGjSaYpoabAx0vtLA+p0P2jcfkg01nM8zD9H7CRae4MzsHf
+         fNznic53BaZv1QXd+/4Wx7bcfNlGKfORzhXxp2L0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        patches@lists.linux.dev, Martynas Pumputis <m@lambda.lt>,
         Song Liu <song@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
         Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 6.0 02/28] kallsyms: Make module_kallsyms_on_each_symbol generally available
-Date:   Mon, 19 Dec 2022 20:22:49 +0100
-Message-Id: <20221219182944.294037997@linuxfoundation.org>
+Subject: [PATCH 6.0 03/28] ftrace: Add support to resolve module symbols in ftrace_lookup_symbols
+Date:   Mon, 19 Dec 2022 20:22:50 +0100
+Message-Id: <20221219182944.342333467@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
 References: <20221219182944.179389009@linuxfoundation.org>
@@ -55,60 +55,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jiri Olsa <jolsa@kernel.org>
 
-commit 73feb8d5fa3b755bb51077c0aabfb6aa556fd498 upstream.
+commit 3640bf8584f4ab0f5eed6285f09213954acd8b62 upstream.
 
-Making module_kallsyms_on_each_symbol generally available, so it
-can be used outside CONFIG_LIVEPATCH option in following changes.
+Currently ftrace_lookup_symbols iterates only over core symbols,
+adding module_kallsyms_on_each_symbol call to check on modules
+symbols as well.
 
-Rather than adding another ifdef option let's make the function
-generally available (when CONFIG_KALLSYMS and CONFIG_MODULES
-options are defined).
+Also removing 'args.found == args.cnt' condition, because it's
+already checked in kallsyms_callback function.
 
-Cc: Christoph Hellwig <hch@lst.de>
+Also removing 'err < 0' check, because both *kallsyms_on_each_symbol
+functions do not return error.
+
+Reported-by: Martynas Pumputis <m@lambda.lt>
 Acked-by: Song Liu <song@kernel.org>
 Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Link: https://lore.kernel.org/r/20221025134148.3300700-2-jolsa@kernel.org
+Link: https://lore.kernel.org/r/20221025134148.3300700-3-jolsa@kernel.org
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/module.h   |    9 +++++++++
- kernel/module/kallsyms.c |    2 --
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ kernel/trace/ftrace.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/include/linux/module.h
-+++ b/include/linux/module.h
-@@ -879,8 +879,17 @@ static inline bool module_sig_ok(struct
- }
- #endif	/* CONFIG_MODULE_SIG */
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -8261,6 +8261,10 @@ struct kallsyms_data {
+ 	size_t found;
+ };
  
-+#if defined(CONFIG_MODULES) && defined(CONFIG_KALLSYMS)
- int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
- 					     struct module *, unsigned long),
- 				   void *data);
-+#else
-+static inline int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
-+						 struct module *, unsigned long),
-+						 void *data)
-+{
-+	return -EOPNOTSUPP;
-+}
-+#endif  /* CONFIG_MODULES && CONFIG_KALLSYMS */
++/* This function gets called for all kernel and module symbols
++ * and returns 1 in case we resolved all the requested symbols,
++ * 0 otherwise.
++ */
+ static int kallsyms_callback(void *data, const char *name,
+ 			     struct module *mod, unsigned long addr)
+ {
+@@ -8304,17 +8308,19 @@ static int kallsyms_callback(void *data,
+ int ftrace_lookup_symbols(const char **sorted_syms, size_t cnt, unsigned long *addrs)
+ {
+ 	struct kallsyms_data args;
+-	int err;
++	int found_all;
  
- #endif /* _LINUX_MODULE_H */
---- a/kernel/module/kallsyms.c
-+++ b/kernel/module/kallsyms.c
-@@ -494,7 +494,6 @@ unsigned long module_kallsyms_lookup_nam
- 	return ret;
+ 	memset(addrs, 0, sizeof(*addrs) * cnt);
+ 	args.addrs = addrs;
+ 	args.syms = sorted_syms;
+ 	args.cnt = cnt;
+ 	args.found = 0;
+-	err = kallsyms_on_each_symbol(kallsyms_callback, &args);
+-	if (err < 0)
+-		return err;
+-	return args.found == args.cnt ? 0 : -ESRCH;
++
++	found_all = kallsyms_on_each_symbol(kallsyms_callback, &args);
++	if (found_all)
++		return 0;
++	found_all = module_kallsyms_on_each_symbol(kallsyms_callback, &args);
++	return found_all ? 0 : -ESRCH;
  }
  
--#ifdef CONFIG_LIVEPATCH
- int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
- 					     struct module *, unsigned long),
- 				   void *data)
-@@ -531,4 +530,3 @@ out:
- 	mutex_unlock(&module_mutex);
- 	return ret;
- }
--#endif /* CONFIG_LIVEPATCH */
+ #ifdef CONFIG_SYSCTL
 
 
