@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C056B650E5D
-	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 16:13:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4237B650E5E
+	for <lists+stable@lfdr.de>; Mon, 19 Dec 2022 16:13:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232827AbiLSPNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 10:13:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42370 "EHLO
+        id S232831AbiLSPNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 10:13:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232560AbiLSPND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 10:13:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA2E63B3
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 07:13:03 -0800 (PST)
+        with ESMTP id S232822AbiLSPNF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 10:13:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 855AE646C
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 07:13:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1E75B80E53
-        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 15:13:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 417ABC433D2;
-        Mon, 19 Dec 2022 15:13:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2335460FF1
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 15:13:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39386C433F1;
+        Mon, 19 Dec 2022 15:13:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671462780;
-        bh=GQE+LN+Oai7RoL5eqfOLWww4t7AS8qdSD91T+Ddq/Qo=;
+        s=korg; t=1671462783;
+        bh=PueuScv3sUDIEEFuu/mbU8xgLP+aKzBEWkZA2ljU0zE=;
         h=Subject:To:Cc:From:Date:From;
-        b=pi6O+EzGXIWUF3ATQsZINM9a4KW6ygmh2LkwUSEcgApeTymT5vX1lQNEHj2ozaop0
-         oBvjvBq3XlOZ2QrTRZXac9TP1JTMr476r7ylYO+pPBNQRt2xT7JTKPXTfhr0HOYg5+
-         ACBCSlIbp9fT5doA836Y0fKJEu66lfXjBV6dbU7I=
-Subject: FAILED: patch "[PATCH] usb: musb: remove extra check in musb_gadget_vbus_draw" failed to apply to 5.10-stable tree
+        b=Nmw3qNXFAfRJw4rHFrs6gYMXoAJ2rEmjNli85TonTZwzGtpzdotI0PxzkKPxSAdyQ
+         5CxpQzAmfKj9jsSZsP9/SwtkjFmBTxexEiqMc81kUiZXc5qO3DxUXHDIq3HNiMgzUt
+         jVifI0ORkZAXkbvXZpsYD99KKHqIOFGr1eWOT61k=
+Subject: FAILED: patch "[PATCH] usb: musb: remove extra check in musb_gadget_vbus_draw" failed to apply to 5.4-stable tree
 To:     ivo.g.dimitrov.75@gmail.com, gregkh@linuxfoundation.org,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 19 Dec 2022 16:12:51 +0100
-Message-ID: <167146277124849@kroah.com>
+Date:   Mon, 19 Dec 2022 16:12:52 +0100
+Message-ID: <167146277224179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,8 @@ Possible dependencies:
 ecec4b20d29c ("usb: musb: remove extra check in musb_gadget_vbus_draw")
 a6d45ea063f0 ("usb: musb: Allow running without CONFIG_USB_PHY")
 21acc656a06e ("usb: musb: Add and use inline functions musb_{get,set}_state")
+df561f6688fe ("treewide: Use fallthrough pseudo-keyword")
+37711e5e2325 ("Merge tag 'nfs-for-5.9-1' of git://git.linux-nfs.org/projects/trondmy/linux-nfs")
 
 thanks,
 
