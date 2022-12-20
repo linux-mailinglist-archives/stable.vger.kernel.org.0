@@ -2,112 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82F6F6522A1
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 15:32:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5BA6522A3
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 15:32:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233662AbiLTOcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Dec 2022 09:32:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58858 "EHLO
+        id S233776AbiLTOc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Dec 2022 09:32:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234076AbiLTOcC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 09:32:02 -0500
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D302A1903F;
-        Tue, 20 Dec 2022 06:31:57 -0800 (PST)
-Received: by mail-ej1-x632.google.com with SMTP id bj12so29531502ejb.13;
-        Tue, 20 Dec 2022 06:31:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=kKA2m1GpNhmHLnfnQbZcy+sQ/FmMKp62G6SqfzzaR/M=;
-        b=GDczp8FDlsiECF3tY8paH+ODlk3YQmcQFUEjE/Oa2vdD3wnxeYKa9SJqSCLsn+kB+K
-         Tk3MEwBVsD5awvi2o5OLix9zX7WpBiC428wLOjBDVzB/gkY8mbD5GuzMWelCVN6EAWVu
-         hezcxEreawPnKBIm4oUTx07+MJ6ku5nnwX61E9kHg/1O7TkLnXdFlYqOy6XKau+TFp6/
-         9vFym2pLNuT3dRTXHZHlJ0KHABWb8/FXdXdFRZe55XI1PTqabwb31Xt9/Q+KEYjb+NO8
-         9VgBPf4JscWb3Qu0gKJUbklaFUvRpgAfc/DH5eq3j1yNizPOQMfy9krmfkiTIVBuaoTh
-         7yEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=kKA2m1GpNhmHLnfnQbZcy+sQ/FmMKp62G6SqfzzaR/M=;
-        b=Dd+EkwRQ4R2e3jlNZ7HjT6kcvCrnFb2rjV1PUhDCPqo6dkDJirMXW3NvQX0ERONlkf
-         eshSCPGwYb3o9Hsgxc77RC4+vCwE0m4pJI7JSS3HnlvDlVpLqdq1zxzscpplYiOB4JVM
-         fVjlKwoD01qA6GXikvtArXc09IHKzFJJHtOZPu60daG8HEDcFNtTmGeaGgNo7zb1D+rP
-         PDAQZSRy5IHgvAY0SnIo5cwv4KNJ3davAZGyUcJfDHG8lv5A5JPMmrX3nWmn4ZNEU5dy
-         BkyzUVbr2TFJwIpo2TD0bx71vUDL29Q7fQgf5P/9IS8kEKCecj9RXHwvlTXe4rC5sBKL
-         MivA==
-X-Gm-Message-State: ANoB5pnlUg27msjhTqbVtdjCoFluwV1y2tpwnJoio/MKdahYVXDYaZnT
-        VGJRE2XvZ/cJJ7EjvMWLups7hlB9ySEXWH2oFSI=
-X-Google-Smtp-Source: AA0mqf4Df+9Kirvr72XWWNGdIIHj0am8gCWMVFtNo1gKBiqkjG+h4fG/V2e23bwp/xaEEI/U1+5KQF9JWa50d/cJwm4=
-X-Received: by 2002:a17:906:6d03:b0:78d:9d0b:a9f6 with SMTP id
- m3-20020a1709066d0300b0078d9d0ba9f6mr38397050ejr.661.1671546716154; Tue, 20
- Dec 2022 06:31:56 -0800 (PST)
+        with ESMTP id S234140AbiLTOcV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 09:32:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E756DDEA9;
+        Tue, 20 Dec 2022 06:32:20 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DC6A61478;
+        Tue, 20 Dec 2022 14:32:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67B91C433EF;
+        Tue, 20 Dec 2022 14:32:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1671546739;
+        bh=I9Cu+kAKzr7nMCJCiEna+C9QzBUQlwXRBtFRhj+AnWY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=i6ikgmsgRMPQj5I+OkiUddOnkhLld+aADGqP/TPYKPzpZ6Exmj7qfvunajVl8SbaS
+         BwClnc3miLkgwLxgoLdjqCg7/7pVvccQuRisfE4G4cBqLkhv8j7gI6cUC6PxerLH7H
+         O/wxsdusiIWFJl/5DkVzQqiUMAepsFo1sb96DzAk=
+Date:   Tue, 20 Dec 2022 15:32:15 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Allen Webb <allenwebb@google.com>
+Cc:     "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>, stable@vger.kernel.org,
+        kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH v9 01/10] imx: Fix typo
+Message-ID: <Y6HHb8alGpMHLpM/@kroah.com>
+References: <20221219191855.2010466-1-allenwebb@google.com>
+ <20221219204619.2205248-1-allenwebb@google.com>
+ <20221219204619.2205248-2-allenwebb@google.com>
+ <Y6FZWOC1DSHHZNWy@kroah.com>
+ <CAJzde06et8qZPmu=zF13rJt8=v_etMjgTRhv9y75wdrX7doC0g@mail.gmail.com>
 MIME-Version: 1.0
-References: <20221219182943.395169070@linuxfoundation.org> <Y6Gp25YJ/m+DcgWH@debian>
-In-Reply-To: <Y6Gp25YJ/m+DcgWH@debian>
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Date:   Tue, 20 Dec 2022 14:31:20 +0000
-Message-ID: <CADVatmM9_d6gOo7VTM1ybVgNDM_w2+NdKM3DC67L9KjeWL7Ltg@mail.gmail.com>
-Subject: Re: [PATCH 6.1 00/25] 6.1.1-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
-        rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJzde06et8qZPmu=zF13rJt8=v_etMjgTRhv9y75wdrX7doC0g@mail.gmail.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On Tue, 20 Dec 2022 at 12:26, Sudip Mukherjee (Codethink)
-<sudipm.mukherjee@gmail.com> wrote:
->
-> Hi Greg,
->
-> On Mon, Dec 19, 2022 at 08:22:39PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 6.1.1 release.
-> > There are 25 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
+On Tue, Dec 20, 2022 at 08:26:06AM -0600, Allen Webb wrote:
+> On Mon, Dec 19, 2022 at 3:23 PM Luis Chamberlain <mcgrof@kernel.org> wrote:
 > >
-> > Responses should be made by Wed, 21 Dec 2022 18:29:31 +0000.
-> > Anything received after that time might be too late.
->
+> > On Mon, Dec 19, 2022 at 02:46:09PM -0600, Allen Webb wrote:
+> > > A one character difference in the name supplied to MODULE_DEVICE_TABLE
+> > > breaks a future patch set, so fix the typo.
+> >
+> > What behaviour is broken here for older kernels? What would not work
+> > that makes this patch worthy of consideration for stable? The commit
+> > log should be clear on that.
+> >
+> > In the future, it may be useful for you to wait at least 1 week or so
+> > before sending a new series becuase just a couple of days is not enough
+> > if you are getting feedback.
+> >
+> > So before sending a v10, please give it at least a few days or a week.
+> >
+> >   Luis
+> 
+> On Tue, Dec 20, 2022 at 12:42 AM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Mon, Dec 19, 2022 at 02:46:09PM -0600, Allen Webb wrote:
+> > > A one character difference in the name supplied to MODULE_DEVICE_TABLE
+> > > breaks a future patch set, so fix the typo.
+> >
+> > Breaking a future change is not worth a stable backport, right?  Doesn't
+> > this fix a real issue now?  If so, please explain that.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> I will update the commit message to say that it breaks compilation
+> when building imx8mp-blk-ctrl as a module (and so forth for the other
+> similar patches).
 
-<snip>
-
->
-> Boot test:
-> x86_64: Booted on my test laptop. No regression.
-> x86_64: Booted on qemu. No regression. [1]
-> arm64: Booted on rpi4b (4GB model). No regression. [2]
-> mips: Booted on ci20 board. Regression.
->
-> Note:
-> networking.service is failing on mips ci20 boards. Issue seen on v6.1 also.
-> Will report upstream after bisecting.
-
-This has already been fixed in mainline by:
-ca637c0ece14 ("MIPS: DTS: CI20: fix reset line polarity of the
-ethernet controller")
-
-I have tested 6.1.1-rc1 with the above commit cherry-picked and it has
-fixed the issue.
-
-
--- 
-Regards
-Sudip
+Can that code be built as a module?  Same for the other changes...
