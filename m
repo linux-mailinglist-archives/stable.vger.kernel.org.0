@@ -2,71 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D96E6522F9
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 15:46:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 379E7652308
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 15:48:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233234AbiLTOqH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Dec 2022 09:46:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41062 "EHLO
+        id S233700AbiLTOse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Dec 2022 09:48:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234107AbiLTOqD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 09:46:03 -0500
-Received: from mail-vs1-xe2a.google.com (mail-vs1-xe2a.google.com [IPv6:2607:f8b0:4864:20::e2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA15D5FB6
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 06:46:00 -0800 (PST)
-Received: by mail-vs1-xe2a.google.com with SMTP id q128so11917752vsa.13
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 06:46:00 -0800 (PST)
+        with ESMTP id S234170AbiLTOsJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 09:48:09 -0500
+Received: from mail-oa1-x36.google.com (mail-oa1-x36.google.com [IPv6:2001:4860:4864:20::36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A96771C91C;
+        Tue, 20 Dec 2022 06:48:08 -0800 (PST)
+Received: by mail-oa1-x36.google.com with SMTP id 586e51a60fabf-1445ca00781so15645348fac.1;
+        Tue, 20 Dec 2022 06:48:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=7HC4qlOKB+DV/kQUmV/UX6t7pk+Pw6VldO/FKc2Kz+8=;
-        b=q2JpO7TB5c5ty9Zf8VhtiI8gbxFjhI0pDBkJ3Z2u7pJ8g3VYOtRg/GX7Dgl2IRhzdR
-         0/zVbXFUyfARbciZ98KtaCjD7WbtHJhwz+HvwzP0vTeE37CNb/gtVHR9gv8qfCluhgI/
-         R9kSHQEv/4FA33N9H4vVSIY7zNVH0yZj+wMuRfAoPbH4Id3Rb3JRuMoXuV06H/rk0QrT
-         eXiSiGJBhEEbf6cBEJgG+EdfGHKWO7xkFpFA4y9IK5/KVUojWWsLhb7Pb1kZyKm1d4Ud
-         4uD4RIeyfkBMnOENbUi3tiGDmvlN83ItO/gmxSzGSg/Keqtf3JoSvVSitK+m6HbIZAiu
-         LWkg==
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QAmoyhOy1ZWXGk11kq9psAaHF5RfeZwq2ZqTGvEITGc=;
+        b=Z97/Iz5yfCjram36iGpwvUByoee7z1ahP0JebtKlkXn/sCLsKzSANfyMoXWdIEQm+v
+         VEV36hX6dokVyuozmHh91OhWWFw2lnDD+5q+7x8H8fCRn6lHtyLL4JWxJaXHQJnigA94
+         UWvwwESxo+WtMBJgiEnHrz7rlj2L38APsVx3q8G4hy2ke257N2f1EYDgv8pwt8siFwcT
+         gLRtKR2i3YcZAmN864n8GH2ZwXYEscQzaA6QZjn6AoGfDPjeJ9U/myWDaeCgxwXcFlNt
+         YJUBO6ymGP0pqOkLiia6lueXWr618dRyPBuA8pNwPj7oo4oxCeQwuiNMnqGQQvKcP9rT
+         0+/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=7HC4qlOKB+DV/kQUmV/UX6t7pk+Pw6VldO/FKc2Kz+8=;
-        b=Nk09yAn7n55NNK3wIirq7gWysEm1dopFo+mC0rc9Uo4UokmwiwUn5+lTpGe5DsN9ez
-         daUpDphMJOPl/yNe0qFBa5jO1NpF7EMFEjnM4Y9jjRshXJK0Gy3A9eS1UOwyjW+8GU83
-         07QLo61AErDzh5+uBf7LLWYk3R93YrJM5Xx98LZOnq6QzqpUti8GwDYTgWKxYxCgOr61
-         eWPOeqvYsadLaDZfm+GkDDGl6f1NuqEaMSjahbKkjETdKzeK5fB+yt6C4vQ7+gSxM79I
-         0c91i+JiOMjSJw6m1qnbo7lKK6qXL/PjRcdyX9AVpqQtO9M/VBeHLqzvEdku9NncwmV8
-         QbVw==
-X-Gm-Message-State: ANoB5pnfem1UmpEK52fFftZN4FEkAtYq0gJ1g5rJu+48eaG34vIZ7zPk
-        xIi7xU0TedZrmTpPtjhxLkYb+mqO8N8RPjk7Fj8+wg==
-X-Google-Smtp-Source: AA0mqf5yQLmpSVdtAnFMtorbc897HTaDSF7eVW0ETN5ux8oIwTgrBEdfaw5c3Sxp5LRxc7nKc9yDcFgo2JBf25RTsAQ=
-X-Received: by 2002:a67:bd14:0:b0:3b2:e40d:1d9b with SMTP id
- y20-20020a67bd14000000b003b2e40d1d9bmr12372544vsq.51.1671547559757; Tue, 20
- Dec 2022 06:45:59 -0800 (PST)
-MIME-Version: 1.0
-References: <20221219191855.2010466-1-allenwebb@google.com>
- <20221219204619.2205248-1-allenwebb@google.com> <20221219204619.2205248-2-allenwebb@google.com>
- <Y6FZWOC1DSHHZNWy@kroah.com> <CAJzde06et8qZPmu=zF13rJt8=v_etMjgTRhv9y75wdrX7doC0g@mail.gmail.com>
- <Y6HHb8alGpMHLpM/@kroah.com>
-In-Reply-To: <Y6HHb8alGpMHLpM/@kroah.com>
-From:   Allen Webb <allenwebb@google.com>
-Date:   Tue, 20 Dec 2022 08:45:48 -0600
-Message-ID: <CAJzde05ZWmXrxKE+B8_YHd1nEzHpFfodSdGbS6jVOCqKAj-fxQ@mail.gmail.com>
-Subject: Re: [PATCH v9 01/10] imx: Fix typo
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QAmoyhOy1ZWXGk11kq9psAaHF5RfeZwq2ZqTGvEITGc=;
+        b=x4Ips1PTXr3D626dlN9OS4jny1HULRonFn65EJPhRch9ZScV/jhq8dS3+jZxYX++CP
+         H5sS/j8pyUpi1D4XsOJDa46NNYxH6M/yWDua23E+NQi3gfHcw4U4MlhBGlY7G/3LF9Vi
+         9NJSXcIBx8JTWQSYDDhrbZygsv3LYP3o1eppeNX3acaKe6kc5GNO2/DNwzcMLbsMmwVz
+         InlbvlndWgvZ64v3RbU47MlU/H7qOXJ9OqtHFWeJ2HacvyGhl+PguHtAohsyEf/MQk3a
+         GTDad5iOtiXUrEgn7w5WwztbhqbZgVsE4xnRudZK078Di1b0WvwBd98CNdmApKQuAeNB
+         TObA==
+X-Gm-Message-State: ANoB5plUa/0juse2gsooHn0b3cFNfIA0OUZVdeLvTXh5Y9TIVNx5n0hG
+        twWx3KPP0t3FGkZPvEoXOF8=
+X-Google-Smtp-Source: AA0mqf5YS65IjMVg6g5bcWB/qEYNNiwMix7u401YOjWwoQTpLcTkg2QWZnNwE3miWGSdnfjju9dbHQ==
+X-Received: by 2002:a05:6870:514d:b0:143:c900:521b with SMTP id z13-20020a056870514d00b00143c900521bmr21959823oak.0.1671547687921;
+        Tue, 20 Dec 2022 06:48:07 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id q10-20020a056870808a00b00143ae7d4ccesm6034886oab.45.2022.12.20.06.48.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Dec 2022 06:48:07 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 20 Dec 2022 06:48:06 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>, stable@vger.kernel.org,
-        kernel test robot <lkp@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.10 00/18] 5.10.161-rc1 review
+Message-ID: <20221220144806.GB3748047@roeck-us.net>
+References: <20221219182940.701087296@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221219182940.701087296@linuxfoundation.org>
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -74,57 +77,21 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 20, 2022 at 8:32 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Dec 20, 2022 at 08:26:06AM -0600, Allen Webb wrote:
-> > On Mon, Dec 19, 2022 at 3:23 PM Luis Chamberlain <mcgrof@kernel.org> wrote:
-> > >
-> > > On Mon, Dec 19, 2022 at 02:46:09PM -0600, Allen Webb wrote:
-> > > > A one character difference in the name supplied to MODULE_DEVICE_TABLE
-> > > > breaks a future patch set, so fix the typo.
-> > >
-> > > What behaviour is broken here for older kernels? What would not work
-> > > that makes this patch worthy of consideration for stable? The commit
-> > > log should be clear on that.
-> > >
-> > > In the future, it may be useful for you to wait at least 1 week or so
-> > > before sending a new series becuase just a couple of days is not enough
-> > > if you are getting feedback.
-> > >
-> > > So before sending a v10, please give it at least a few days or a week.
-> > >
-> > >   Luis
-> >
-> > On Tue, Dec 20, 2022 at 12:42 AM Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Mon, Dec 19, 2022 at 02:46:09PM -0600, Allen Webb wrote:
-> > > > A one character difference in the name supplied to MODULE_DEVICE_TABLE
-> > > > breaks a future patch set, so fix the typo.
-> > >
-> > > Breaking a future change is not worth a stable backport, right?  Doesn't
-> > > this fix a real issue now?  If so, please explain that.
-> > >
-> > > thanks,
-> > >
-> > > greg k-h
-> >
-> > I will update the commit message to say that it breaks compilation
-> > when building imx8mp-blk-ctrl as a module (and so forth for the other
-> > similar patches).
->
-> Can that code be built as a module?  Same for the other changes...
+On Mon, Dec 19, 2022 at 08:24:53PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.161 release.
+> There are 18 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 21 Dec 2022 18:29:31 +0000.
+> Anything received after that time might be too late.
+> 
 
-Nope, I will remove the cc: stable and revert the commit messages back
-to just referencing the future change, but this time I will be more
-specific.
+Build results:
+	total: 162 pass: 162 fail: 0
+Qemu test results:
+	total: 475 pass: 475 fail: 0
 
-SOC_IMX8M
-symbol value 'm' invalid for SOC_IMX8M
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-ROCKCHIP_MBOX
-symbol value 'm' invalid for ROCKCHIP_MBOX
-
-STMPE_SPI
-symbol value 'm' invalid for STMPE_SPI
+Guenter
