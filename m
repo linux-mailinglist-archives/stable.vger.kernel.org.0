@@ -2,100 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 277716527D8
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 21:26:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCD35652805
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 21:42:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230026AbiLTU0L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Dec 2022 15:26:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59044 "EHLO
+        id S229727AbiLTUms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Dec 2022 15:42:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229906AbiLTU0K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 15:26:10 -0500
-Received: from EX-PRD-EDGE02.vmware.com (EX-PRD-EDGE02.vmware.com [208.91.3.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A8E62643;
-        Tue, 20 Dec 2022 12:26:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-    s=s1024; d=vmware.com;
-    h=from:to:cc:subject:date:message-id:mime-version:content-type;
-    bh=8U3eApao12GWve8oDar6sUznovKCP+eRvJkCKrFxhQk=;
-    b=jjd/yi5NVcbT58GYrgPH93KraPA/fbV41LCvBgxmC/dqS6gDeYdXYmr8u2Sx9f
-      jYIvYpX3HWQxcnJyARsc5cryAnvi+dWkhgXl9E71PYMroHzRdDnjmEr1Do0CZ8
-      wQplh+OMzczxvQJ2/htcQVkqidfni8cW54Sf27mS17GtN+w=
-Received: from sc9-mailhost2.vmware.com (10.113.161.72) by
- EX-PRD-EDGE02.vmware.com (10.188.245.7) with Microsoft SMTP Server id
- 15.1.2375.34; Tue, 20 Dec 2022 12:25:57 -0800
-Received: from htb-1n-eng-dhcp122.eng.vmware.com (unknown [10.20.114.216])
-        by sc9-mailhost2.vmware.com (Postfix) with ESMTP id 2666420201;
-        Tue, 20 Dec 2022 12:25:59 -0800 (PST)
-Received: by htb-1n-eng-dhcp122.eng.vmware.com (Postfix, from userid 0)
-        id 2079AAE377; Tue, 20 Dec 2022 12:25:59 -0800 (PST)
-From:   Ronak Doshi <doshir@vmware.com>
-To:     <netdev@vger.kernel.org>
-CC:     <stable@vger.kernel.org>, Ronak Doshi <doshir@vmware.com>,
-        VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: [PATCH net ] vmxnet3: correctly report csum_level for encapsulated packet
-Date:   Tue, 20 Dec 2022 12:25:55 -0800
-Message-ID: <20221220202556.24421-1-doshir@vmware.com>
-X-Mailer: git-send-email 2.11.0
-MIME-Version: 1.0
-Content-Type: text/plain
-Received-SPF: None (EX-PRD-EDGE02.vmware.com: doshir@vmware.com does not
- designate permitted sender hosts)
+        with ESMTP id S233910AbiLTUmi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 15:42:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C16261B9D1;
+        Tue, 20 Dec 2022 12:42:36 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 652C0615B9;
+        Tue, 20 Dec 2022 20:42:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5BD3C433EF;
+        Tue, 20 Dec 2022 20:42:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1671568955;
+        bh=PGrG0md7K7FotQmq+2NMgclYpNmSdsE77lXRX6WCrUU=;
+        h=Date:To:From:Subject:From;
+        b=T1ysSKxNNmL4f1d5zWa0nAt7zfOyl6EapnzmPdtqcl4YG2iyuiO48VYe9HMSd0ZJN
+         LZjyWmkurosn94p57mwe5gzH+BC0OFNBOjJkcToJ2vvH7/O6crVfC7yr5B6VNUjyei
+         O4sTKODyIeo5v7n2DMrdW9dRtmLMZ3obzIusebho=
+Date:   Tue, 20 Dec 2022 12:42:34 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        oberpar@linux.ibm.com, mliska@suse.cz, rickaran@axis.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + gcov-add-support-for-checksum-field.patch added to mm-hotfixes-unstable branch
+Message-Id: <20221220204235.B5BD3C433EF@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload
-support") added support for encapsulation offload. However, the
-pathc did not report correctly the csum_level for encapsulated packet.
 
-This patch fixes this issue by reporting correct csum level for the
-encapsulated packet.
+The patch titled
+     Subject: gcov: add support for checksum field
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     gcov-add-support-for-checksum-field.patch
 
-Fixes: dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload support")
-Signed-off-by: Ronak Doshi <doshir@vmware.com>
-Acked-by: Peng Li <lpeng@vmware.com>
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/gcov-add-support-for-checksum-field.patch
+
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Rickard x Andersson <rickaran@axis.com>
+Subject: gcov: add support for checksum field
+Date: Tue, 20 Dec 2022 11:23:18 +0100
+
+In GCC version 12.1 a checksum field was added.
+
+This patch fixes a kernel crash occurring during boot when using
+gcov-kernel with GCC version 12.2.  The crash occurred on a system running
+on i.MX6SX.
+
+Link: https://lkml.kernel.org/r/20221220102318.3418501-1-rickaran@axis.com
+Fixes: 977ef30a7d88 ("gcov: support GCC 12.1 and newer compilers")
+Signed-off-by: Rickard x Andersson <rickaran@axis.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Tested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Reviewed-By: Martin Liska <mliska@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/net/vmxnet3/vmxnet3_drv.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
-index 6f1e560fb15c..56267c327f0b 100644
---- a/drivers/net/vmxnet3/vmxnet3_drv.c
-+++ b/drivers/net/vmxnet3/vmxnet3_drv.c
-@@ -1288,6 +1288,10 @@ vmxnet3_rx_csum(struct vmxnet3_adapter *adapter,
- 		    (le32_to_cpu(gdesc->dword[3]) &
- 		     VMXNET3_RCD_CSUM_OK) == VMXNET3_RCD_CSUM_OK) {
- 			skb->ip_summed = CHECKSUM_UNNECESSARY;
-+			if ((le32_to_cpu(gdesc->dword[0]) &
-+				     (1UL << VMXNET3_RCD_HDR_INNER_SHIFT))) {
-+				skb->csum_level = 1;
-+			}
- 			WARN_ON_ONCE(!(gdesc->rcd.tcp || gdesc->rcd.udp) &&
- 				     !(le32_to_cpu(gdesc->dword[0]) &
- 				     (1UL << VMXNET3_RCD_HDR_INNER_SHIFT)));
-@@ -1297,6 +1301,10 @@ vmxnet3_rx_csum(struct vmxnet3_adapter *adapter,
- 		} else if (gdesc->rcd.v6 && (le32_to_cpu(gdesc->dword[3]) &
- 					     (1 << VMXNET3_RCD_TUC_SHIFT))) {
- 			skb->ip_summed = CHECKSUM_UNNECESSARY;
-+			if ((le32_to_cpu(gdesc->dword[0]) &
-+				     (1UL << VMXNET3_RCD_HDR_INNER_SHIFT))) {
-+				skb->csum_level = 1;
-+			}
- 			WARN_ON_ONCE(!(gdesc->rcd.tcp || gdesc->rcd.udp) &&
- 				     !(le32_to_cpu(gdesc->dword[0]) &
- 				     (1UL << VMXNET3_RCD_HDR_INNER_SHIFT)));
--- 
-2.11.0
+ kernel/gcov/gcc_4_7.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+--- a/kernel/gcov/gcc_4_7.c~gcov-add-support-for-checksum-field
++++ a/kernel/gcov/gcc_4_7.c
+@@ -82,6 +82,7 @@ struct gcov_fn_info {
+  * @version: gcov version magic indicating the gcc version used for compilation
+  * @next: list head for a singly-linked list
+  * @stamp: uniquifying time stamp
++ * @checksum: unique object checksum
+  * @filename: name of the associated gcov data file
+  * @merge: merge functions (null for unused counter type)
+  * @n_functions: number of instrumented functions
+@@ -94,6 +95,10 @@ struct gcov_info {
+ 	unsigned int version;
+ 	struct gcov_info *next;
+ 	unsigned int stamp;
++ /* Since GCC 12.1 a checksum field is added. */
++#if (__GNUC__ >= 12)
++	unsigned int checksum;
++#endif
+ 	const char *filename;
+ 	void (*merge[GCOV_COUNTERS])(gcov_type *, unsigned int);
+ 	unsigned int n_functions;
+_
+
+Patches currently in -mm which might be from rickaran@axis.com are
+
+gcov-add-support-for-checksum-field.patch
 
