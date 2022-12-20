@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 354A56517CA
+	by mail.lfdr.de (Postfix) with ESMTP id 89A2E6517CB
 	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 02:22:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232716AbiLTBWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232821AbiLTBWM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Dec 2022 20:22:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51806 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232938AbiLTBV2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 20:21:28 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21D5FAC0;
-        Mon, 19 Dec 2022 17:21:13 -0800 (PST)
+        with ESMTP id S232912AbiLTBVZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 20:21:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D305D115;
+        Mon, 19 Dec 2022 17:21:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 59D63CE1142;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEF78611B8;
         Tue, 20 Dec 2022 01:21:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49DC1C433EF;
-        Tue, 20 Dec 2022 01:21:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27286C433D2;
+        Tue, 20 Dec 2022 01:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671499269;
-        bh=GfROr8HR6qZP6TAhiHR0HybOQfzTNxipuRy8eXjgMtc=;
+        s=k20201202; t=1671499271;
+        bh=cC6PVn5s+FJZaiUsnv2n67Lrx/nqLoNCbE1HweE/1Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/mMHEUdg1xJYqkHvbnaZeAWCJhGbsOlGgf8Trg0CkNLyilB4ANHWJQQdBqrpPrmW
-         GMU+tCoe4+LChVCJGEP11suX8SbkoCFssyyor0YFa8e5SZEagtsz1M+hxE0WWX3NQP
-         Ik2Q4ogPViLBVUTl8AUZjxgLivERmu3qQ45XFRDD/ixqdMZfoCHkIRzmg5JdfxWKUV
-         Bp6GPqbSkUiDTtYP9OdpgfOSzWxTF1TUPHj90++OCI61xUdgquELxRuGcj29w8Vb6O
-         tjNyn4BjZK57OlRT/5dxLxDJSZvXRzShfCZb0m2yD4GNDv6ixpd2MBni8/+u9ofhFa
-         +YQBc2Bc66MUA==
+        b=NIbaYs4M2m8pGxG5gNnyeWjXSsARxTPm0o3xC4+ZvzZoABJBbmtTtxEVp+osSB4vN
+         2N1whJfH2XJfjph5Jz/QHj5zw+MDfS9s7BhgE05AG7nSGdV3V4VTYAWyeECVnrlBcN
+         C9HE3oUF4E+XIJReLlVfQrqICDsOELdukvAePnU4jDR0iwtqATIETgwkoPty4cHQgj
+         h1G8Ww6Q12eWq1KrvR1VUYxy/mxFZlaDsK1dbObTEpqjxh2MlmX5AuP3MXzxmXQMlF
+         O/plKfH+LG3IfcBpWEw0m2O3UKqmUUHrWtg2ctbswU0jKiKRiqSuJ1DP6lpDL9bf6O
+         RFrnEz4UFWJOA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
-        ram.vegesna@broadcom.com, jejb@linux.ibm.com,
-        ndesaulniers@google.com, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.1 06/16] scsi: elx: libefc: Fix second parameter type in state callbacks
-Date:   Mon, 19 Dec 2022 20:20:43 -0500
-Message-Id: <20221220012053.1222101-6-sashal@kernel.org>
+Cc:     Hawkins Jiawei <yin31149@gmail.com>,
+        syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Ian Kent <raven@themaw.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, muchun.song@linux.dev,
+        linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 6.1 07/16] hugetlbfs: fix null-ptr-deref in hugetlbfs_parse_param()
+Date:   Mon, 19 Dec 2022 20:20:44 -0500
+Message-Id: <20221220012053.1222101-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221220012053.1222101-1-sashal@kernel.org>
 References: <20221220012053.1222101-1-sashal@kernel.org>
@@ -60,79 +60,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Hawkins Jiawei <yin31149@gmail.com>
 
-[ Upstream commit 3d75e766b58a7410d4e835c534e1b4664a8f62d0 ]
+[ Upstream commit 26215b7ee923b9251f7bb12c4e5f09dc465d35f2 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function pointer
-prototype to make sure the call target is valid to help mitigate ROP
-attacks. If they are not identical, there is a failure at run time, which
-manifests as either a kernel panic or thread getting killed. A proposed
-warning in clang aims to catch these at compile time, which reveals:
+Syzkaller reports a null-ptr-deref bug as follows:
+======================================================
+KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+RIP: 0010:hugetlbfs_parse_param+0x1dd/0x8e0 fs/hugetlbfs/inode.c:1380
+[...]
+Call Trace:
+ <TASK>
+ vfs_parse_fs_param fs/fs_context.c:148 [inline]
+ vfs_parse_fs_param+0x1f9/0x3c0 fs/fs_context.c:129
+ vfs_parse_fs_string+0xdb/0x170 fs/fs_context.c:191
+ generic_parse_monolithic+0x16f/0x1f0 fs/fs_context.c:231
+ do_new_mount fs/namespace.c:3036 [inline]
+ path_mount+0x12de/0x1e20 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ [...]
+ </TASK>
+======================================================
 
-  drivers/scsi/elx/libefc/efc_node.c:811:22: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') from 'void (*)(struct efc_sm_ctx *, enum efc_sm_event, void *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-                  ctx->current_state = state;
-                                    ^ ~~~~~
-  drivers/scsi/elx/libefc/efc_node.c:878:21: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') from 'void (*)(struct efc_sm_ctx *, enum efc_sm_event, void *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          node->nodedb_state = state;
-                            ^ ~~~~~
-  drivers/scsi/elx/libefc/efc_node.c:905:6: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, enum efc_sm_event, void *)' from 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') [-Werror,-Wincompatible-function-pointer-types-strict]
-                  pf = node->nodedb_state;
-                    ^ ~~~~~~~~~~~~~~~~~~
+According to commit "vfs: parse: deal with zero length string value",
+kernel will set the param->string to null pointer in vfs_parse_fs_string()
+if fs string has zero length.
 
-  drivers/scsi/elx/libefc/efc_device.c:455:22: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') from 'void (struct efc_sm_ctx *, enum efc_sm_event, void *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-                  node->nodedb_state = __efc_d_init;
-                                    ^ ~~~~~~~~~~~~
+Yet the problem is that, hugetlbfs_parse_param() will dereference the
+param->string, without checking whether it is a null pointer.  To be more
+specific, if hugetlbfs_parse_param() parses an illegal mount parameter,
+such as "size=,", kernel will constructs struct fs_parameter with null
+pointer in vfs_parse_fs_string(), then passes this struct fs_parameter to
+hugetlbfs_parse_param(), which triggers the above null-ptr-deref bug.
 
-  drivers/scsi/elx/libefc/efc_sm.c:41:22: error: incompatible function pointer types assigning to 'void (*)(struct efc_sm_ctx *, u32, void *)' (aka 'void (*)(struct efc_sm_ctx *, unsigned int, void *)') from 'void (*)(struct efc_sm_ctx *, enum efc_sm_event, void *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-                  ctx->current_state = state;
-                                    ^ ~~~~~
+This patch solves it by adding sanity check on param->string
+in hugetlbfs_parse_param().
 
-The type of the second parameter in the prototypes of ->current_state() and
-->nodedb_state() ('u32') does not match the implementations, which have a
-second parameter type of 'enum efc_sm_event'. Update the prototypes to have
-the correct second parameter type, clearing up all the warnings and CFI
-failures.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20221102161906.2781508-1-nathan@kernel.org
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lkml.kernel.org/r/20221020231609.4810-1-yin31149@gmail.com
+Reported-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
+Tested-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
+  Link: https://lore.kernel.org/all/0000000000005ad00405eb7148c6@google.com/
+Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Hawkins Jiawei <yin31149@gmail.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Ian Kent <raven@themaw.net>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/elx/libefc/efclib.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/hugetlbfs/inode.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/elx/libefc/efclib.h b/drivers/scsi/elx/libefc/efclib.h
-index dde20891c2dd..57e338612812 100644
---- a/drivers/scsi/elx/libefc/efclib.h
-+++ b/drivers/scsi/elx/libefc/efclib.h
-@@ -58,10 +58,12 @@ enum efc_node_send_ls_acc {
- #define EFC_LINK_STATUS_UP		0
- #define EFC_LINK_STATUS_DOWN		1
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index df7772335dc0..8eea709e3659 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -1377,7 +1377,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
  
-+enum efc_sm_event;
-+
- /* State machine context header  */
- struct efc_sm_ctx {
- 	void (*current_state)(struct efc_sm_ctx *ctx,
--			      u32 evt, void *arg);
-+			      enum efc_sm_event evt, void *arg);
+ 	case Opt_size:
+ 		/* memparse() will accept a K/M/G without a digit */
+-		if (!isdigit(param->string[0]))
++		if (!param->string || !isdigit(param->string[0]))
+ 			goto bad_val;
+ 		ctx->max_size_opt = memparse(param->string, &rest);
+ 		ctx->max_val_type = SIZE_STD;
+@@ -1387,7 +1387,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
  
- 	const char	*description;
- 	void		*app;
-@@ -365,7 +367,7 @@ struct efc_node {
- 	int			prev_evt;
+ 	case Opt_nr_inodes:
+ 		/* memparse() will accept a K/M/G without a digit */
+-		if (!isdigit(param->string[0]))
++		if (!param->string || !isdigit(param->string[0]))
+ 			goto bad_val;
+ 		ctx->nr_inodes = memparse(param->string, &rest);
+ 		return 0;
+@@ -1403,7 +1403,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
  
- 	void (*nodedb_state)(struct efc_sm_ctx *ctx,
--			     u32 evt, void *arg);
-+			     enum efc_sm_event evt, void *arg);
- 	struct timer_list	gidpt_delay_timer;
- 	u64			time_last_gidpt_msec;
- 
+ 	case Opt_min_size:
+ 		/* memparse() will accept a K/M/G without a digit */
+-		if (!isdigit(param->string[0]))
++		if (!param->string || !isdigit(param->string[0]))
+ 			goto bad_val;
+ 		ctx->min_size_opt = memparse(param->string, &rest);
+ 		ctx->min_val_type = SIZE_STD;
 -- 
 2.35.1
 
