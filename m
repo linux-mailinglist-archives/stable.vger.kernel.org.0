@@ -2,127 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31F2F652784
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 21:03:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C94B65278E
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 21:09:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234058AbiLTUDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Dec 2022 15:03:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46336 "EHLO
+        id S234128AbiLTUJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Dec 2022 15:09:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232195AbiLTUDa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 15:03:30 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C33A91D321;
-        Tue, 20 Dec 2022 12:03:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=UlAEvc5vrzcxeVoggj4bi4wq684c5KQyaWNN4gbqhuI=; b=jyIHu/BsHD4RKeUC+9/gkw5a8x
-        9UhiqjxcN4ZnmrJ6qjyf6nS+b9Mor/YznV+zrh7vcDYRwGXa2T7VT1aSHMH6aA6NXsabAFn1FEkS/
-        acCKvzNcVWH1MdLQFY9b7s9erGWNKtuRpI7sJTej22och5Vhabr9d0uTPRl37LqB2ApTqfhiIogDz
-        llNQBcHXYalrdeRR50pXhOHjY/2oE2AVqQQuPH9VgFy92uzIw1xGVMmYy0lZxupGbJZe+a+9TxTEr
-        QwiE8Os3w9fhkriWNev9KvKa2ZBpaPrj3eoCrE9zcBMo0QkRQHT3UzeO5EFRDGd8ALVHAA0FBSUQO
-        8e8TA4LA==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1p7ipg-003fXB-Vh; Tue, 20 Dec 2022 20:03:24 +0000
-Date:   Tue, 20 Dec 2022 12:03:24 -0800
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Allen Webb <allenwebb@google.com>
-Cc:     Nick Alcock <nick.alcock@oracle.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>, stable@vger.kernel.org,
-        kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH v9 02/10] rockchip-mailbox: Fix typo
-Message-ID: <Y6IVDE3NEE6teggy@bombadil.infradead.org>
-References: <20221219191855.2010466-1-allenwebb@google.com>
- <20221219204619.2205248-1-allenwebb@google.com>
- <20221219204619.2205248-3-allenwebb@google.com>
- <Y6FaUynXTrYD6OYT@kroah.com>
- <CAJzde04Hbd2+s-Bqog2V81dBEeZD7WWaFCf2BkesQS4yUAKiNA@mail.gmail.com>
- <Y6H6/U0w96Z4kpDn@bombadil.infradead.org>
- <CAJzde04igO0LJ46Hsbcm-hJBFtPdqJC6svaoMkb3WBG0e1fGBw@mail.gmail.com>
- <Y6IDOwxOxZpsdtiu@bombadil.infradead.org>
- <CAJzde06q3w7CHd8FSs-bwS3EeVv6xrBzCwerQVqps49V=_voQQ@mail.gmail.com>
+        with ESMTP id S233028AbiLTUJd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 15:09:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE9A21ADA1;
+        Tue, 20 Dec 2022 12:09:32 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4544E615A1;
+        Tue, 20 Dec 2022 20:09:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 951ABC433D2;
+        Tue, 20 Dec 2022 20:09:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1671566971;
+        bh=vE/hvEPaEAJb0j8KpsZSnoLCuvka9VSEHpuoo8I5z6g=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=TlJ7R+1f0o9VPMmdC8dWRi0B0EulVG6oEJQeztTQccayl0++Yb6o+bwDofxvNzS79
+         roUMlS6354v+FHRNB9+mdnJr7hmOxr35h0jiZHVNLGflvOggVzshtiZd+VVh5hJhjJ
+         huyaOewPHVhp4ZbTuRLCzhC9kXrKXbeBeV3WpzcwB4X7xn0B4cOHaHpN9KWiKNn8KF
+         /UXeIheLzRe0U8AMt09SdWnXRglAI4ooEDpiCLshQb4xl5bfc45Vbc1cukrflqB8P2
+         7lxYOn+9bXuANyVcVw91w8frkMrivauu4fO4ZG5tc04MJo9u0WpYi3zBJBq2FWBI3m
+         Vs4RVAHdV8+GQ==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=valley-girl.lan)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1p7ivZ-00Dzct-IW;
+        Tue, 20 Dec 2022 20:09:29 +0000
+From:   Marc Zyngier <maz@kernel.org>
+To:     <kvmarm@lists.cs.columbia.edu>, <kvmarm@lists.linux.dev>,
+        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc:     James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Quentin Perret <qperret@google.com>, stable@vger.kernel.org
+Subject: [PATCH 1/3] KVM: arm64: Fix S1PTW handling on RO memslots
+Date:   Tue, 20 Dec 2022 20:09:21 +0000
+Message-Id: <20221220200923.1532710-2-maz@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20221220200923.1532710-1-maz@kernel.org>
+References: <20221220200923.1532710-1-maz@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJzde06q3w7CHd8FSs-bwS3EeVv6xrBzCwerQVqps49V=_voQQ@mail.gmail.com>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: kvmarm@lists.cs.columbia.edu, kvmarm@lists.linux.dev, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, james.morse@arm.com, suzuki.poulose@arm.com, alexandru.elisei@arm.com, oliver.upton@linux.dev, ardb@kernel.org, will@kernel.org, qperret@google.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 20, 2022 at 01:49:04PM -0600, Allen Webb wrote:
-> I took another stab at clarifying (and also dropped the ifdev since
-> the same macro works both for separate and built-in modules:
-> 
-> /*
->  * Creates an alias so file2alias.c can find device table.
->  *
->  * Use this in cases where a device table is used to match devices because it
->  * surfaces match-id based module aliases to userspace for:
->  *   - Automatic module loading.
->  *   - Tools like USBGuard which allow or block devices based on policy such as
->  *     which modules match a device.
->  *
->  * The module name is included in the alias for two reasons:
->  *   - It avoids creating two aliases with the same name for built-in modules.
->  *     Historically MODULE_DEVICE_TABLE was a no-op for built-in modules, so
->  *     there was nothing to stop different modules from having the same device
->  *     table name and consequently the same alias when building as a module.
->  *   - The module name is needed by files2alias.c to associate a particular
->  *     device table with its associated module for built-in modules since
->  *     files2alias would otherwise see the module name as `vmlinuz.o`.
->  */
+A recent development on the EFI front has resulted in guests having
+their page tables baked in the firmware binary, and mapped into
+the IPA space as part as a read-only memslot.
 
-This is still weak in light of the questions I had. It does not make it
-easy for a driver developer who is going to support only built-in only
-if they need to define this or not. And it seems we're still discussing
-the merits of this, so I'd wait until this is fleshed out, but I think
-we are on the right track finally.
+Not only this is legitimate, but it also results in added security,
+so thumbs up. However, this clashes mildly with our handling of a S1PTW
+as a write to correctly handle AF/DB updates to the S1 PTs, and results
+in the guest taking an abort it won't recover from (the PTs mapping the
+vectors will suffer freom the same problem...).
 
-> The deciding factor in whether it makes sense to remove these vs fix
-> them seems to be, "How complete do we want modules.builtin.alias to
-> be?"
-> 
-> Arguably we should just drop these in cases where there isn't an
-> "authorized" sysfs attribute but following that logic there is not any
-> reason to generate built-in aliases for anything except USB and
-> thunderbolt.
+So clearly our handling is... wrong.
 
-There we go, now we have a *real* use case for this for built-in stuff
-to consider. Is USBGuard effective even for built-in stuff?
+Instead, switch to a two-pronged approach:
 
-Given everything discussed so far I'd like to get clarification if it
-even help for built-in USB / thunderbolt. Does it? If so how? What could
-userspace do with this information if the driver is already built-in?
+- On S1PTW translation fault, handle the fault as a read
 
-> On the flip side, if we are going to the effort to make this a generic
-> solution that covers everything, the built-in aliases are only as
-> useful as they are complete, so we would want everything that defines
-> a device table to call the macro correctly.
+- On S1PTW permission fault, handle the fault as a write
 
-It is the ambiguity which is terrible to add. If the only use case is
-for USB and Thunderbolt then we can spell it out, then only those driver
-developers would care to consider it if the driver is bool. And, a
-respective tooling would scrape only those drivers to verify if the
-table is missing for built-in too.
+This is of no consequence to SW that *writes* to its PTs (the write
+will trigger a non-S1PTW fault), and SW that uses RO PTs will not
+use AF/DB anyway, as that'd be wrong.
 
-> It definitely is needed for never-tristate modules that match devices
-> in subsystems that surface the authorized attribute.
+Only in the case described in c4ad98e4b72c ("KVM: arm64: Assume write
+fault on S1PTW permission fault on instruction fetch") do we end-up
+with two back-to-back faults (page being evicted and faulted back).
+I don't think this is a case worth optimising for.
 
-What is this "authorized attribute" BTW exactly? Do have some
-documentation reference?
+Fixes: c4ad98e4b72c ("KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+---
+ arch/arm64/include/asm/kvm_emulate.h | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-  Luis
+diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
+index 9bdba47f7e14..fd6ad8b21f85 100644
+--- a/arch/arm64/include/asm/kvm_emulate.h
++++ b/arch/arm64/include/asm/kvm_emulate.h
+@@ -373,8 +373,26 @@ static __always_inline int kvm_vcpu_sys_get_rt(struct kvm_vcpu *vcpu)
+ 
+ static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
+ {
+-	if (kvm_vcpu_abt_iss1tw(vcpu))
+-		return true;
++	if (kvm_vcpu_abt_iss1tw(vcpu)) {
++		/*
++		 * Only a permission fault on a S1PTW should be
++		 * considered as a write. Otherwise, page tables baked
++		 * in a read-only memslot will result in an exception
++		 * being delivered in the guest.
++		 *
++		 * The drawback is that we end-up fauling twice if the
++		 * guest is using any of HW AF/DB: a translation fault
++		 * to map the page containing the PT (read only at
++		 * first), then a permission fault to allow the flags
++		 * to be set.
++		 */
++		switch (kvm_vcpu_trap_get_fault_type(vcpu)) {
++		case ESR_ELx_FSC_PERM:
++			return true;
++		default:
++			return false;
++		}
++	}
+ 
+ 	if (kvm_vcpu_trap_is_iabt(vcpu))
+ 		return false;
+-- 
+2.34.1
+
