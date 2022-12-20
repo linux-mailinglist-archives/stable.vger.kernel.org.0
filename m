@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89A2E6517CB
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 02:22:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D09786517C3
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 02:22:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232821AbiLTBWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 20:22:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51758 "EHLO
+        id S229993AbiLTBWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 20:22:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232912AbiLTBVZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 20:21:25 -0500
+        with ESMTP id S232691AbiLTBV1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 20:21:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D305D115;
-        Mon, 19 Dec 2022 17:21:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2717FD1B;
+        Mon, 19 Dec 2022 17:21:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEF78611B8;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62D9B61210;
+        Tue, 20 Dec 2022 01:21:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD646C433F0;
         Tue, 20 Dec 2022 01:21:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27286C433D2;
-        Tue, 20 Dec 2022 01:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671499271;
-        bh=cC6PVn5s+FJZaiUsnv2n67Lrx/nqLoNCbE1HweE/1Ek=;
+        s=k20201202; t=1671499272;
+        bh=Yhax/MwVbtU6W9yuuNo0wM5O1TjPnhk2PUjHwj/80aA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NIbaYs4M2m8pGxG5gNnyeWjXSsARxTPm0o3xC4+ZvzZoABJBbmtTtxEVp+osSB4vN
-         2N1whJfH2XJfjph5Jz/QHj5zw+MDfS9s7BhgE05AG7nSGdV3V4VTYAWyeECVnrlBcN
-         C9HE3oUF4E+XIJReLlVfQrqICDsOELdukvAePnU4jDR0iwtqATIETgwkoPty4cHQgj
-         h1G8Ww6Q12eWq1KrvR1VUYxy/mxFZlaDsK1dbObTEpqjxh2MlmX5AuP3MXzxmXQMlF
-         O/plKfH+LG3IfcBpWEw0m2O3UKqmUUHrWtg2ctbswU0jKiKRiqSuJ1DP6lpDL9bf6O
-         RFrnEz4UFWJOA==
+        b=YlLsGMTK+wW6K4QPPyHaE0YGXDxfETtyO1zNaoYST664PL/KMwqdduqTrfOyEzLLi
+         xhDkzwkw0jBYRWDJLxU7IBiDjUhTYVS/IGBLCDTy0Rcvha/C2zWlCaSOC4dYJm9LWZ
+         EeZhjzx3Jpu3tWTeepcxZ21z3GYsDqesiRX0Bv8TfJzPsEvslkYBxnN12npDdeXr9a
+         7SG/6unjvq2jLoU5JokKsfVo52JtMcyfL9QtQYKOzMcLDMS90m7OMakVS9Bcm8Fpzj
+         /ESB6ua/7jcEzHSuhEaKM/bJvOL2Ai80o7+xFxzVTNHVujnhX6ke8b3Wbqb/wuI3Ai
+         z724P6SggOzGw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hawkins Jiawei <yin31149@gmail.com>,
-        syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Ian Kent <raven@themaw.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, muchun.song@linux.dev,
-        linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 6.1 07/16] hugetlbfs: fix null-ptr-deref in hugetlbfs_parse_param()
-Date:   Mon, 19 Dec 2022 20:20:44 -0500
-Message-Id: <20221220012053.1222101-7-sashal@kernel.org>
+Cc:     Mike McGowen <mike.mcgowen@microchip.com>,
+        Scott Benesh <scott.benesh@microchip.com>,
+        Scott Teel <scott.teel@microchip.com>,
+        Don Brace <don.brace@microchip.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        storagedev@microchip.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 08/16] scsi: smartpqi: Add new controller PCI IDs
+Date:   Mon, 19 Dec 2022 20:20:45 -0500
+Message-Id: <20221220012053.1222101-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221220012053.1222101-1-sashal@kernel.org>
 References: <20221220012053.1222101-1-sashal@kernel.org>
@@ -60,94 +59,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Mike McGowen <mike.mcgowen@microchip.com>
 
-[ Upstream commit 26215b7ee923b9251f7bb12c4e5f09dc465d35f2 ]
+[ Upstream commit 0b93cf2a9097b1c3d75642ef878ba87f15f03043 ]
 
-Syzkaller reports a null-ptr-deref bug as follows:
-======================================================
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-RIP: 0010:hugetlbfs_parse_param+0x1dd/0x8e0 fs/hugetlbfs/inode.c:1380
-[...]
-Call Trace:
- <TASK>
- vfs_parse_fs_param fs/fs_context.c:148 [inline]
- vfs_parse_fs_param+0x1f9/0x3c0 fs/fs_context.c:129
- vfs_parse_fs_string+0xdb/0x170 fs/fs_context.c:191
- generic_parse_monolithic+0x16f/0x1f0 fs/fs_context.c:231
- do_new_mount fs/namespace.c:3036 [inline]
- path_mount+0x12de/0x1e20 fs/namespace.c:3370
- do_mount fs/namespace.c:3383 [inline]
- __do_sys_mount fs/namespace.c:3591 [inline]
- __se_sys_mount fs/namespace.c:3568 [inline]
- __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- [...]
- </TASK>
-======================================================
+All PCI ID entries in Hex.
+Add PCI IDs for ByteDance controllers:
+                                            VID  / DID  / SVID / SDID
+                                            ----   ----   ----   ----
+    ByteHBA JGH43024-8                      9005 / 028f / 1e93 / 1000
+    ByteHBA JGH43034-8                      9005 / 028f / 1e93 / 1001
+    ByteHBA JGH44014-8                      9005 / 028f / 1e93 / 1002
 
-According to commit "vfs: parse: deal with zero length string value",
-kernel will set the param->string to null pointer in vfs_parse_fs_string()
-if fs string has zero length.
+Add PCI IDs for new Inspur controllers:
+                                            VID  / DID  / SVID / SDID
+                                            ----   ----   ----   ----
+    INSPUR RT0800M7E                        9005 / 028f / 1bd4 / 0086
+    INSPUR RT0800M7H                        9005 / 028f / 1bd4 / 0087
+    INSPUR RT0804M7R                        9005 / 028f / 1bd4 / 0088
+    INSPUR RT0808M7R                        9005 / 028f / 1bd4 / 0089
 
-Yet the problem is that, hugetlbfs_parse_param() will dereference the
-param->string, without checking whether it is a null pointer.  To be more
-specific, if hugetlbfs_parse_param() parses an illegal mount parameter,
-such as "size=,", kernel will constructs struct fs_parameter with null
-pointer in vfs_parse_fs_string(), then passes this struct fs_parameter to
-hugetlbfs_parse_param(), which triggers the above null-ptr-deref bug.
+Add PCI IDs for new FAB A controllers:
+                                            VID  / DID  / SVID / SDID
+                                            ----   ----   ----   ----
+    Adaptec SmartRAID 3254-16e /e           9005 / 028f / 9005 / 1475
+    Adaptec HBA 1200-16e                    9005 / 028f / 9005 / 14c3
+    Adaptec HBA 1200-8e                     9005 / 028f / 9005 / 14c4
 
-This patch solves it by adding sanity check on param->string
-in hugetlbfs_parse_param().
+Add H3C controller PCI IDs:
+                                            VID  / DID  / SVID / SDID
+                                            ----   ----   ----   ----
+    H3C H4508-Mf-8i                         9005 / 028f / 193d / 110b
 
-Link: https://lkml.kernel.org/r/20221020231609.4810-1-yin31149@gmail.com
-Reported-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
-Tested-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
-  Link: https://lore.kernel.org/all/0000000000005ad00405eb7148c6@google.com/
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Hawkins Jiawei <yin31149@gmail.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Ian Kent <raven@themaw.net>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
+Reviewed-by: Scott Teel <scott.teel@microchip.com>
+Signed-off-by: Mike McGowen <mike.mcgowen@microchip.com>
+Signed-off-by: Don Brace <don.brace@microchip.com>
+Link: https://lore.kernel.org/r/166793530327.322537.6056884426657539311.stgit@brunhilda
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hugetlbfs/inode.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/smartpqi/smartpqi_init.c | 44 +++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index df7772335dc0..8eea709e3659 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -1377,7 +1377,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
- 
- 	case Opt_size:
- 		/* memparse() will accept a K/M/G without a digit */
--		if (!isdigit(param->string[0]))
-+		if (!param->string || !isdigit(param->string[0]))
- 			goto bad_val;
- 		ctx->max_size_opt = memparse(param->string, &rest);
- 		ctx->max_val_type = SIZE_STD;
-@@ -1387,7 +1387,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
- 
- 	case Opt_nr_inodes:
- 		/* memparse() will accept a K/M/G without a digit */
--		if (!isdigit(param->string[0]))
-+		if (!param->string || !isdigit(param->string[0]))
- 			goto bad_val;
- 		ctx->nr_inodes = memparse(param->string, &rest);
- 		return 0;
-@@ -1403,7 +1403,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
- 
- 	case Opt_min_size:
- 		/* memparse() will accept a K/M/G without a digit */
--		if (!isdigit(param->string[0]))
-+		if (!param->string || !isdigit(param->string[0]))
- 			goto bad_val;
- 		ctx->min_size_opt = memparse(param->string, &rest);
- 		ctx->min_val_type = SIZE_STD;
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index b971fbe3b3a1..78fc743f46e4 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -9302,6 +9302,10 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x193d, 0x1109)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x193d, 0x110b)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x193d, 0x8460)
+@@ -9402,6 +9406,22 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x1bd4, 0x0072)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1bd4, 0x0086)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1bd4, 0x0087)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1bd4, 0x0088)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1bd4, 0x0089)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x19e5, 0xd227)
+@@ -9650,6 +9670,10 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_ADAPTEC2, 0x1474)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1475)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_ADAPTEC2, 0x1480)
+@@ -9706,6 +9730,14 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_ADAPTEC2, 0x14c2)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14c3)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14c4)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_ADAPTEC2, 0x14d0)
+@@ -9942,6 +9974,18 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_LENOVO, 0x0623)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++				0x1e93, 0x1000)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++				0x1e93, 0x1001)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++				0x1e93, 0x1002)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_ANY_ID, PCI_ANY_ID)
 -- 
 2.35.1
 
