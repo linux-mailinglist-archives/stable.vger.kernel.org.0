@@ -2,120 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6AAA6525B7
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 18:45:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90C946525D4
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 18:54:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233802AbiLTRpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Dec 2022 12:45:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40960 "EHLO
+        id S233621AbiLTRy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Dec 2022 12:54:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233763AbiLTRpa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 12:45:30 -0500
-Received: from qproxy2-pub.mail.unifiedlayer.com (qproxy2-pub.mail.unifiedlayer.com [69.89.16.161])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B41C1AF36
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 09:45:29 -0800 (PST)
-Received: from gproxy4-pub.mail.unifiedlayer.com (gproxy4-pub.mail.unifiedlayer.com [69.89.23.142])
-        by qproxy2.mail.unifiedlayer.com (Postfix) with ESMTP id BE0DA803C8E6
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 17:45:08 +0000 (UTC)
-Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
-        by progateway6.mail.pro1.eigbox.com (Postfix) with ESMTP id F0F0D10048554
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 17:44:35 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id 7gfLp0vmO9rmy7gfLph1l6; Tue, 20 Dec 2022 17:44:35 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=a5L1SWeF c=1 sm=1 tr=0 ts=63a1f483
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=sHyYjHe8cH0A:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=Mr7br2G1yL84+ZgN3ql83w2Wlq+KgqVo7AJXmT9xhpc=; b=w0+W4I8UFcqrIJ9mtKiomHXem1
-        tryp2h3/yhndw8d8foYOr3d4IUCtU201gQ4O2ngVGXUBbnsEOcwS/wmVrVmbp0F1gbAbrreZceiEJ
-        /mjmgvGlCEuOamA8LUhOZ1ZUQPMzvXWpucTPJfe32ZBgk2uB08+zvqFPF4shPHCz1Wq3xmKhCk14R
-        Cg/P+BCGVmeTIqb6Bk6hnBVVLz5Gdn/XFAtEnyK4vzKTt2idbiwXs9hvF6NEjNUhNX4e8l1X1MHC1
-        Y4y9vne0pWE34EwCk397Ib9wQcb4+s42My3ScvePnDDlRd5laYf8B+S47ym/cyw8zTt7Cl8HUSB42
-        plly4TuQ==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:33968 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1p7gfJ-001qHU-VD;
-        Tue, 20 Dec 2022 10:44:34 -0700
-Subject: Re: [PATCH 6.0 00/28] 6.0.15-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20221219182944.179389009@linuxfoundation.org>
-In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <3a6341b7-5f00-59ce-efe1-36e888a4d3ca@w6rz.net>
-Date:   Tue, 20 Dec 2022 09:44:29 -0800
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S229626AbiLTRyZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 12:54:25 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E162865DB;
+        Tue, 20 Dec 2022 09:54:24 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BKHhbrS025375;
+        Tue, 20 Dec 2022 17:54:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=K6TTv6Wy5iMjG3NldPXdah0kMw4suzOvdHwCh1UyfJ4=;
+ b=GAk2BHJfFWBQRvJGacpWNUJnEE09zzpKGZfBPbBUYmOtP8QFkr9ae99oX8m4grWXqWnq
+ d8bqniMzbyl4vFFTMHjoludF6VwQtALe54lW1Vr9XvozIINjW4Xaw8ZJHWv60I1j0GK7
+ edvG+7dlWRoSxkx3+pa9TZuo30YVnaf+bOaxOt2H2baAFV85mCr/KdX+1rRdygk0b3rj
+ BQue4bHhFpBb9aX5RAHpZdlPzqzzZBrPw0QZbbrBRMeWL+ykRCSJMLglbs10rcqxy8uJ
+ JZvTnp05kzoP7fU9zqeUSaIbdln+fWPNzGGGirFFaGOvXPgYhoAmMZqCeXoQAdF5Q6FR cw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mkhpyr8j2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Dec 2022 17:54:19 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BKHhgxV025964;
+        Tue, 20 Dec 2022 17:54:18 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mkhpyr8hd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Dec 2022 17:54:18 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BK2b0uc031759;
+        Tue, 20 Dec 2022 17:54:16 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3mh6yw35m4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Dec 2022 17:54:16 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+        by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BKHsEVM47841558
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 20 Dec 2022 17:54:14 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5594320043;
+        Tue, 20 Dec 2022 17:54:14 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C308120040;
+        Tue, 20 Dec 2022 17:54:12 +0000 (GMT)
+Received: from [9.171.170.120] (unknown [9.171.170.120])
+        by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 20 Dec 2022 17:54:12 +0000 (GMT)
+Message-ID: <22a981c2-2896-bc2e-115c-f1d85c0084bd@linux.ibm.com>
+Date:   Tue, 20 Dec 2022 18:53:53 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v2] gcov: Add support for checksum field
+To:     Rickard Andersson <rickaran@axis.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     rickard314.andersson@gmail.com, mliska@suse.cz,
+        Jesper.Nilsson@axis.com, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20221220102318.3418501-1-rickaran@axis.com>
 Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1p7gfJ-001qHU-VD
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:33968
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-        autolearn_force=no version=3.4.6
+From:   Peter Oberparleiter <oberpar@linux.ibm.com>
+In-Reply-To: <20221220102318.3418501-1-rickaran@axis.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 2IGTKjfofqA9QIiCTRAD_GnqvLzzcziX
+X-Proofpoint-GUID: DcnKJYy7h_NyPg9Wb7f6t7cZuxnMkLMG
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-20_06,2022-12-20_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
+ suspectscore=0 bulkscore=0 malwarescore=0 adultscore=0 lowpriorityscore=0
+ mlxlogscore=999 phishscore=0 impostorscore=0 spamscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2212200146
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/19/22 11:22 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.15 release.
-> There are 28 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 21 Dec 2022 18:29:31 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.15-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On 20.12.2022 11:23, Rickard Andersson wrote:
+> From: Rickard x Andersson <rickaran@axis.com>
+> 
+> In GCC version 12.1 a checksum field was added.
+> 
+> This patch fixes a kernel crash occurring during boot when
+> using gcov-kernel with GCC version 12.2. The crash occurred on
+> a system running on i.MX6SX.
+> 
+> Fixes: 977ef30a7d88 ("gcov: support GCC 12.1 and newer compilers")
+> Signed-off-by: Rickard x Andersson <rickaran@axis.com>
+> Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+> Tested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+> Cc: <stable@vger.kernel.org>
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Thank you for the fix!
 
-Tested-by: Ron Economos <re@w6rz.net>
+Andrew, could you pick this up via your tree?
+
+> ---
+>  kernel/gcov/gcc_4_7.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/kernel/gcov/gcc_4_7.c b/kernel/gcov/gcc_4_7.c
+> index c699feda21ac..04880d8fba25 100644
+> --- a/kernel/gcov/gcc_4_7.c
+> +++ b/kernel/gcov/gcc_4_7.c
+> @@ -85,6 +85,7 @@ struct gcov_fn_info {
+>   * @version: gcov version magic indicating the gcc version used for compilation
+>   * @next: list head for a singly-linked list
+>   * @stamp: uniquifying time stamp
+> + * @checksum: unique object checksum
+>   * @filename: name of the associated gcov data file
+>   * @merge: merge functions (null for unused counter type)
+>   * @n_functions: number of instrumented functions
+> @@ -97,6 +98,10 @@ struct gcov_info {
+>  	unsigned int version;
+>  	struct gcov_info *next;
+>  	unsigned int stamp;
+> + /* Since GCC 12.1 a checksum field is added. */
+> +#if (__GNUC__ >= 12)
+> +	unsigned int checksum;
+> +#endif
+>  	const char *filename;
+>  	void (*merge[GCOV_COUNTERS])(gcov_type *, unsigned int);
+>  	unsigned int n_functions;
+
+-- 
+Peter Oberparleiter
+Linux on IBM Z Development - IBM Germany R&D
 
