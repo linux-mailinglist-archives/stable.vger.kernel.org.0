@@ -2,109 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC5AD65227A
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 15:26:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E3F1652294
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 15:31:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233899AbiLTO0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Dec 2022 09:26:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53066 "EHLO
+        id S234029AbiLTObA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Dec 2022 09:31:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233894AbiLTO0X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 09:26:23 -0500
-Received: from mail-vs1-xe2b.google.com (mail-vs1-xe2b.google.com [IPv6:2607:f8b0:4864:20::e2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 191BAB4A1
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 06:26:18 -0800 (PST)
-Received: by mail-vs1-xe2b.google.com with SMTP id h26so11906659vsr.5
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 06:26:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=dOTj4EKc4DtuiZEeC7kPyAapzOMSPLY5av1ZgnWFYWs=;
-        b=URjdmIRpeR3h3kPCGuMWB46Qb6AeKarBtQuQr0z3itmqEsfYG8YgF1CyXzgprN3zgz
-         yskU7RLRo3xI88jMG/JaXIQ4pfv/IbwOdD5AG6t2n4aiYQUzraubORsbiX3blEBYfRdw
-         t/CXjlStdRZd6yQwlrM+QhExtut7jnhlndE89Zz7uBMUZGM0eEd7Gp4Xbp/G5BzPkjpw
-         GPF4+DSuPuzwQmtIN+NecYTnynJIR1P4aZL2atFRQVKnMIQIjEJ51csAIrK+iGcLa40T
-         D6HWDjqfbE8Z+ppQ0kM9wRraiJzPxC6A3CQpApIMUv6ayzDOy77GMLs/tGPWdzfOI4t1
-         DUjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=dOTj4EKc4DtuiZEeC7kPyAapzOMSPLY5av1ZgnWFYWs=;
-        b=37GJAPYrn41CdIE0kw7vXIsnYzxXYk4rbkxnIhYZlqwvv+9ZM1Nt+u8jbpfkplprq6
-         Arp5RuypmkvHO2ato7hYnO2coVtfoR7Oz087SqmCxc6BUXgDy3I6Z/h9oGZMKHVfBEuE
-         jD8zoi2f+kCW1Id2uaZIT2Dgx0tQA0jomgyyD1CeKpDAHd/WPTduJMI1zERTfPut+AZ5
-         7WUiXt3lwtT8HDBZRISZSioogWvMqaBBJ/3MVorIOmIf+c0ZuSiLk94DbMUg1TI2YWsk
-         09TgLvDDHVIqtjokuS5qQWvEWOGnlaxBFV+LERpUccCj1nBI4RHC1p+kcrOvjJ6b9ygJ
-         r8aA==
-X-Gm-Message-State: ANoB5pm6bZuJz6EMpL03jlTnJiFgPP1ooLJAuWqSF06pnR1+gr3+tnUX
-        Ux21mf/O5dOZtAkrfqsARHI6KREZM9WmaHNlGFpKNA==
-X-Google-Smtp-Source: AA0mqf5JjKIjeV+9+aHhQxj19YLPX6LE+tWVIFecY61JnDpk4xJOJkg+52bmreGQ8g5xpC6CGIush1JD5XH4IlUpNWY=
-X-Received: by 2002:a67:f04e:0:b0:3b1:1713:ba11 with SMTP id
- q14-20020a67f04e000000b003b11713ba11mr21558567vsm.76.1671546377728; Tue, 20
- Dec 2022 06:26:17 -0800 (PST)
+        with ESMTP id S230074AbiLTOag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 09:30:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AD0B186ED;
+        Tue, 20 Dec 2022 06:29:36 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C605B81544;
+        Tue, 20 Dec 2022 14:29:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01D9BC433EF;
+        Tue, 20 Dec 2022 14:29:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1671546573;
+        bh=UpuzXOOwZs/NV2IUnN+0K9e9seG0tvY+bi0SqVPpbV4=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=NknLAKqa2ouuaAl7QOcccbkv7hks/4MoiSc1MkD0fawpN63QHxiGxngEklza0gWdE
+         CWNhwUBXCGIAhVvl5Yb+10utM51fJUKbd6wSv6fUbVReDxE+08Clu7hGwq96Y68MA2
+         0MTGn31kUiZOOKvH8JPEOzLNWnwoiEFSbsyhqZTLWZ5pIpm3xR7Heqs5kcQR5bkPDD
+         wb8z8XpC1FtSV3ZnYAFGuStmSmKhqzvCeIHY2R3dccd85/ZZ17EY5QbyJPuCVPvHhw
+         Po9NpbOl8AiOuV2GLLQ+lAHw3nAMTK6KWYq6XCv4gKGWBSn2tDfiT/UhHKgOxHWiyg
+         XwV/Uwz2hlR/Q==
+Date:   Tue, 20 Dec 2022 15:29:33 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Jason Gerecke <killertofu@gmail.com>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org,
+        "Tobita, Tatsunosuke" <tatsunosuke.tobita@wacom.com>,
+        Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Joshua Dickens <Joshua@Joshua-Dickens.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] HID: wacom: Ensure bootloader PID is usable in hidraw
+ mode
+In-Reply-To: <20221201231141.112916-1-jason.gerecke@wacom.com>
+Message-ID: <nycvar.YFH.7.76.2212201529260.9000@cbobk.fhfr.pm>
+References: <20221201231141.112916-1-jason.gerecke@wacom.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-References: <20221219191855.2010466-1-allenwebb@google.com>
- <20221219204619.2205248-1-allenwebb@google.com> <20221219204619.2205248-2-allenwebb@google.com>
- <Y6FZWOC1DSHHZNWy@kroah.com>
-In-Reply-To: <Y6FZWOC1DSHHZNWy@kroah.com>
-From:   Allen Webb <allenwebb@google.com>
-Date:   Tue, 20 Dec 2022 08:26:06 -0600
-Message-ID: <CAJzde06et8qZPmu=zF13rJt8=v_etMjgTRhv9y75wdrX7doC0g@mail.gmail.com>
-Subject: Re: [PATCH v9 01/10] imx: Fix typo
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>, stable@vger.kernel.org,
-        kernel test robot <lkp@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 19, 2022 at 3:23 PM Luis Chamberlain <mcgrof@kernel.org> wrote:
->
-> On Mon, Dec 19, 2022 at 02:46:09PM -0600, Allen Webb wrote:
-> > A one character difference in the name supplied to MODULE_DEVICE_TABLE
-> > breaks a future patch set, so fix the typo.
->
-> What behaviour is broken here for older kernels? What would not work
-> that makes this patch worthy of consideration for stable? The commit
-> log should be clear on that.
->
-> In the future, it may be useful for you to wait at least 1 week or so
-> before sending a new series becuase just a couple of days is not enough
-> if you are getting feedback.
->
-> So before sending a v10, please give it at least a few days or a week.
->
->   Luis
+On Thu, 1 Dec 2022, Jason Gerecke wrote:
 
-On Tue, Dec 20, 2022 at 12:42 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Dec 19, 2022 at 02:46:09PM -0600, Allen Webb wrote:
-> > A one character difference in the name supplied to MODULE_DEVICE_TABLE
-> > breaks a future patch set, so fix the typo.
->
-> Breaking a future change is not worth a stable backport, right?  Doesn't
-> this fix a real issue now?  If so, please explain that.
->
-> thanks,
->
-> greg k-h
+> From: Jason Gerecke <killertofu@gmail.com>
+> 
+> Some Wacom devices have a special "bootloader" mode that is used for
+> firmware flashing. When operating in this mode, the device cannot be
+> used for input, and the HID descriptor is not able to be processed by
+> the driver. The driver generates an "Unknown device_type" warning and
+> then returns an error code from wacom_probe(). This is a problem because
+> userspace still needs to be able to interact with the device via hidraw
+> to perform the firmware flash.
+> 
+> This commit adds a non-generic device definition for 056a:0094 which
+> is used when devices are in "bootloader" mode. It marks the devices
+> with a special BOOTLOADER type that is recognized by wacom_probe() and
+> wacom_raw_event(). When we see this type we ensure a hidraw device is
+> created and otherwise keep our hands off so that userspace is in full
+> control.
+> 
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Tested-by: Tatsunosuke Tobita <tatsunosuke.tobita@wacom.com>
+> Cc: <stable@vger.kernel.org>
 
-I will update the commit message to say that it breaks compilation
-when building imx8mp-blk-ctrl as a module (and so forth for the other
-similar patches).
+Applied, thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs
+
