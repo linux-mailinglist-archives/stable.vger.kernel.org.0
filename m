@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26E61651817
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 02:25:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D494651831
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 02:26:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233003AbiLTBZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 20:25:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52450 "EHLO
+        id S233393AbiLTBZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 20:25:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233234AbiLTBY0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 20:24:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8CE595AB;
-        Mon, 19 Dec 2022 17:22:22 -0800 (PST)
+        with ESMTP id S233243AbiLTBY1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 20:24:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B27847658;
+        Mon, 19 Dec 2022 17:22:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5650D6120F;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2E410CE0D9E;
+        Tue, 20 Dec 2022 01:22:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4786CC433D2;
         Tue, 20 Dec 2022 01:22:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0D2AC433EF;
-        Tue, 20 Dec 2022 01:22:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671499341;
-        bh=YQKS/rpStmGrZKPeSL0eAJmUklWKF0SSZbbLL7gi+k0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Kvt6LWVAS5wEYDfK+6McqNzKuznJjX4U4ZChgxa6dUSu2vW4P8h7SbgREwQQRrOJN
-         Sel/saI3ApnVuEqz1Jh4QzF4ttcKSNEMbCvh99U2fsGDNQ4jWVLzh4AfArU56AA0qR
-         UqNFG3HhC6S6crFJ9jMsBv9pCot7alYIwYs2DLGUQj4hOZgvkKsKJz2iCfbBtt7zSE
-         GKMQhLWzbwoBwHappDIazR8daHxivtw7unaaVZGehIHcOqISjjRGP6davlGLqlB6hO
-         qT3l8L2usslpJfqrLyj98hLSgps3r3ZFyGJcBnaUT6eqh9f9LAVhyCx6Kytds03Jo6
-         YZz7vlX6vcS5Q==
+        s=k20201202; t=1671499343;
+        bh=NEUP6zN9OADZm5zNxMnUdUs2DJSQYC2jc+XVsX3Rf54=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ZTVasnUPSaEBar63AkmTIuZ+OhvtKXo414yUINvcQtms7ApfiS+Lfzs3HNMSb9QLb
+         qcn5/2dc3SCwURklVLjd/VL/AU5IdZ8xSaNI05WyeWvek4oieBgVcUz+81NJ13Zdv7
+         N/Y3RZlgsS8xwzvlZ4vJ05Lrmc1TwiYsqKFvmu/6yFIdl+wUmPk6q/WXbavqccUZ7B
+         Y6e26tz64ui58OhmaO0z9yjyEObISbKNKNY7HrXUyt+DhSSYuU9PibE65VzZdAepsM
+         HsHkj0Ql9Wt/DvE/uSsWbN36nPIp8r80TPLQXuzrRuJExFF0BhPeNJjhSUViJYn/pD
+         0AiCAvLjPkvMw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hawkins Jiawei <yin31149@gmail.com>,
-        syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Ian Kent <raven@themaw.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, muchun.song@linux.dev,
-        linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.10 1/5] hugetlbfs: fix null-ptr-deref in hugetlbfs_parse_param()
-Date:   Mon, 19 Dec 2022 20:22:14 -0500
-Message-Id: <20221220012218.1222657-1-sashal@kernel.org>
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, stefan@agner.ch,
+        alison.wang@nxp.com, airlied@gmail.com, daniel@ffwll.ch,
+        ndesaulniers@google.com, dri-devel@lists.freedesktop.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.10 2/5] drm/fsl-dcu: Fix return type of fsl_dcu_drm_connector_mode_valid()
+Date:   Mon, 19 Dec 2022 20:22:15 -0500
+Message-Id: <20221220012218.1222657-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221220012218.1222657-1-sashal@kernel.org>
+References: <20221220012218.1222657-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,94 +59,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 26215b7ee923b9251f7bb12c4e5f09dc465d35f2 ]
+[ Upstream commit 96d845a67b7e406cfed7880a724c8ca6121e022e ]
 
-Syzkaller reports a null-ptr-deref bug as follows:
-======================================================
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-RIP: 0010:hugetlbfs_parse_param+0x1dd/0x8e0 fs/hugetlbfs/inode.c:1380
-[...]
-Call Trace:
- <TASK>
- vfs_parse_fs_param fs/fs_context.c:148 [inline]
- vfs_parse_fs_param+0x1f9/0x3c0 fs/fs_context.c:129
- vfs_parse_fs_string+0xdb/0x170 fs/fs_context.c:191
- generic_parse_monolithic+0x16f/0x1f0 fs/fs_context.c:231
- do_new_mount fs/namespace.c:3036 [inline]
- path_mount+0x12de/0x1e20 fs/namespace.c:3370
- do_mount fs/namespace.c:3383 [inline]
- __do_sys_mount fs/namespace.c:3591 [inline]
- __se_sys_mount fs/namespace.c:3568 [inline]
- __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- [...]
- </TASK>
-======================================================
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-According to commit "vfs: parse: deal with zero length string value",
-kernel will set the param->string to null pointer in vfs_parse_fs_string()
-if fs string has zero length.
+  drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c:74:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .mode_valid = fsl_dcu_drm_connector_mode_valid,
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  1 error generated.
 
-Yet the problem is that, hugetlbfs_parse_param() will dereference the
-param->string, without checking whether it is a null pointer.  To be more
-specific, if hugetlbfs_parse_param() parses an illegal mount parameter,
-such as "size=,", kernel will constructs struct fs_parameter with null
-pointer in vfs_parse_fs_string(), then passes this struct fs_parameter to
-hugetlbfs_parse_param(), which triggers the above null-ptr-deref bug.
+->mode_valid() in 'struct drm_connector_helper_funcs' expects a return
+type of 'enum drm_mode_status', not 'int'. Adjust the return type of
+fsl_dcu_drm_connector_mode_valid() to match the prototype's to resolve
+the warning and CFI failure.
 
-This patch solves it by adding sanity check on param->string
-in hugetlbfs_parse_param().
-
-Link: https://lkml.kernel.org/r/20221020231609.4810-1-yin31149@gmail.com
-Reported-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
-Tested-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
-  Link: https://lore.kernel.org/all/0000000000005ad00405eb7148c6@google.com/
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Hawkins Jiawei <yin31149@gmail.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Ian Kent <raven@themaw.net>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221102154215.78059-1-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hugetlbfs/inode.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index a2f43f1a85f8..5181e6d4e18c 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -1261,7 +1261,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
+diff --git a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
+index 4d4a715b429d..2c2b92324a2e 100644
+--- a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
++++ b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c
+@@ -60,8 +60,9 @@ static int fsl_dcu_drm_connector_get_modes(struct drm_connector *connector)
+ 	return drm_panel_get_modes(fsl_connector->panel, connector);
+ }
  
- 	case Opt_size:
- 		/* memparse() will accept a K/M/G without a digit */
--		if (!isdigit(param->string[0]))
-+		if (!param->string || !isdigit(param->string[0]))
- 			goto bad_val;
- 		ctx->max_size_opt = memparse(param->string, &rest);
- 		ctx->max_val_type = SIZE_STD;
-@@ -1271,7 +1271,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
- 
- 	case Opt_nr_inodes:
- 		/* memparse() will accept a K/M/G without a digit */
--		if (!isdigit(param->string[0]))
-+		if (!param->string || !isdigit(param->string[0]))
- 			goto bad_val;
- 		ctx->nr_inodes = memparse(param->string, &rest);
- 		return 0;
-@@ -1287,7 +1287,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
- 
- 	case Opt_min_size:
- 		/* memparse() will accept a K/M/G without a digit */
--		if (!isdigit(param->string[0]))
-+		if (!param->string || !isdigit(param->string[0]))
- 			goto bad_val;
- 		ctx->min_size_opt = memparse(param->string, &rest);
- 		ctx->min_val_type = SIZE_STD;
+-static int fsl_dcu_drm_connector_mode_valid(struct drm_connector *connector,
+-					    struct drm_display_mode *mode)
++static enum drm_mode_status
++fsl_dcu_drm_connector_mode_valid(struct drm_connector *connector,
++				 struct drm_display_mode *mode)
+ {
+ 	if (mode->hdisplay & 0xf)
+ 		return MODE_ERROR;
 -- 
 2.35.1
 
