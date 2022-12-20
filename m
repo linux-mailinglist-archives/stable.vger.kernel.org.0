@@ -2,66 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F35886524D7
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 17:42:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6AAA6525B7
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 18:45:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229575AbiLTQmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Dec 2022 11:42:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41218 "EHLO
+        id S233802AbiLTRpb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Dec 2022 12:45:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230075AbiLTQlq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 11:41:46 -0500
-Received: from mail-wr1-x449.google.com (mail-wr1-x449.google.com [IPv6:2a00:1450:4864:20::449])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D19A17A91
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 08:41:45 -0800 (PST)
-Received: by mail-wr1-x449.google.com with SMTP id t23-20020adfa2d7000000b00269092d6f8dso186786wra.20
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 08:41:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=OTNceY23AA38a0nnsKzPgPMXfy0S7X52/MJzcro4EXc=;
-        b=MP6A5o/sswJ8AVbWgBG0Qiw5G/Sd/4XmeRK871/E+itWC425/UWTA+3yF6kdSm+y8V
-         CVIMwkHnWvHBP02oJEBGOusy/IimIHMH20oQcvGdaucSMpckrK/S1d18048ion+N8iMa
-         0L94kAXC18YKiQ1kbAkxVDSUlL5i+GLOmkR3U5kBpqz5wgDaVzfdvX74/Ev+/FSQ3+fu
-         AS8gSxVy1gYemsu0YepZKSSWc2l4dQOL0XoIdA5XUnCT9xGssF2Oq5ETLvKC66AkYE1d
-         jH9zjD39wPvfcrfb2JO6psmcYWc150l8BXEMxmIKSKdyi65HIhm1CSan7e6Uto3SlRhH
-         ZwrQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=OTNceY23AA38a0nnsKzPgPMXfy0S7X52/MJzcro4EXc=;
-        b=lNG0jic7BP4di2gfwpOSAZtp37xIYI9pQLY2avFDU3XZ4sU8KUw6pULv7ITfaGl6Ky
-         cR3/owsFbkYqxqSAM1QGINXGELfg0ZLjS2VE9r4agaBzqldJBc5XEoqQv7zAUHSRAWsl
-         c9DYaPZY2UxTZ/G2azSy2CG1DODuBLMFu4vtl+wtnJCt62GN5UxUwAlAVshzEDaLp7AW
-         Nmu1UUAMpUTjT0ed1pae8HmBX8VSO/B6U1k8PKy9870BL1PHx3agBsHM0EeONKg/dmmp
-         HbTqieNGuLdDuczsk8YaHpAf4vdXOIWXUUt+7qVrmet0GiIN8IqvIUNl5+nHeC/RIIxW
-         yVxQ==
-X-Gm-Message-State: AFqh2krXJ4tgwpbQdi/PTlQvzWYIRvvmy5gfkcw9AgAkrWihneRDyL+k
-        y3pb765pbOPMSlyAwsLY3tw42eJqwoS044dZcA==
-X-Google-Smtp-Source: AMrXdXvB8Wyf6pcwsq4X1oo8PHLh1LbYA/KH4Cza2WstD2/dEP9f3qpqfFFvchaiblUbVod5g44Xm8QTQAoeh6nTrQ==
-X-Received: from peternewman10.zrh.corp.google.com ([2a00:79e0:9d:6:8175:5362:6754:c66d])
- (user=peternewman job=sendgmr) by 2002:a05:600c:3553:b0:3cf:6f23:a3e3 with
- SMTP id i19-20020a05600c355300b003cf6f23a3e3mr56813wmq.1.1671554503082; Tue,
- 20 Dec 2022 08:41:43 -0800 (PST)
-Date:   Tue, 20 Dec 2022 17:41:31 +0100
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
-Message-ID: <20221220164132.443083-1-peternewman@google.com>
-Subject: [PATCH v3 1/2] x86/resctrl: Fix event counts regression in reused RMIDs
-From:   Peter Newman <peternewman@google.com>
-To:     reinette.chatre@intel.com, fenghua.yu@intel.com
-Cc:     Babu.Moger@amd.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        eranian@google.com, hpa@zytor.com, james.morse@arm.com,
-        linux-kernel@vger.kernel.org, mingo@redhat.com,
-        quic_jiles@quicinc.com, tan.shaopeng@fujitsu.com,
-        tglx@linutronix.de, x86@kernel.org,
-        Peter Newman <peternewman@google.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
+        with ESMTP id S233763AbiLTRpa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 12:45:30 -0500
+Received: from qproxy2-pub.mail.unifiedlayer.com (qproxy2-pub.mail.unifiedlayer.com [69.89.16.161])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B41C1AF36
+        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 09:45:29 -0800 (PST)
+Received: from gproxy4-pub.mail.unifiedlayer.com (gproxy4-pub.mail.unifiedlayer.com [69.89.23.142])
+        by qproxy2.mail.unifiedlayer.com (Postfix) with ESMTP id BE0DA803C8E6
+        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 17:45:08 +0000 (UTC)
+Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
+        by progateway6.mail.pro1.eigbox.com (Postfix) with ESMTP id F0F0D10048554
+        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 17:44:35 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id 7gfLp0vmO9rmy7gfLph1l6; Tue, 20 Dec 2022 17:44:35 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=a5L1SWeF c=1 sm=1 tr=0 ts=63a1f483
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=sHyYjHe8cH0A:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=Mr7br2G1yL84+ZgN3ql83w2Wlq+KgqVo7AJXmT9xhpc=; b=w0+W4I8UFcqrIJ9mtKiomHXem1
+        tryp2h3/yhndw8d8foYOr3d4IUCtU201gQ4O2ngVGXUBbnsEOcwS/wmVrVmbp0F1gbAbrreZceiEJ
+        /mjmgvGlCEuOamA8LUhOZ1ZUQPMzvXWpucTPJfe32ZBgk2uB08+zvqFPF4shPHCz1Wq3xmKhCk14R
+        Cg/P+BCGVmeTIqb6Bk6hnBVVLz5Gdn/XFAtEnyK4vzKTt2idbiwXs9hvF6NEjNUhNX4e8l1X1MHC1
+        Y4y9vne0pWE34EwCk397Ib9wQcb4+s42My3ScvePnDDlRd5laYf8B+S47ym/cyw8zTt7Cl8HUSB42
+        plly4TuQ==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:33968 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1p7gfJ-001qHU-VD;
+        Tue, 20 Dec 2022 10:44:34 -0700
+Subject: Re: [PATCH 6.0 00/28] 6.0.15-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221219182944.179389009@linuxfoundation.org>
+In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <3a6341b7-5f00-59ce-efe1-36e888a4d3ca@w6rz.net>
+Date:   Tue, 20 Dec 2022 09:44:29 -0800
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1p7gfJ-001qHU-VD
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:33968
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 2
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,116 +96,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When creating a new monitoring group, the RMID allocated for it may have
-been used by a group which was previously removed. In this case, the
-hardware counters will have non-zero values which should be deducted
-from what is reported in the new group's counts.
+On 12/19/22 11:22 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.15 release.
+> There are 28 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 21 Dec 2022 18:29:31 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.15-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-resctrl_arch_reset_rmid() initializes the prev_msr value for counters to
-0, causing the initial count to be charged to the new group. Resurrect
-__rmid_read() and use it to initialize prev_msr correctly.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Unlike before, __rmid_read() checks for error bits in the MSR read so
-that callers don't need to.
-
-Fixes: 1d81d15db39c ("x86/resctrl: Move mbm_overflow_count() into resctrl_arch_rmid_read()")
-Signed-off-by: Peter Newman <peternewman@google.com>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc: stable@vger.kernel.org
----
-v3:
- - add changelog
- - CC stable
-v2:
- - move error bit processing into __rmid_read()
-
-v1: https://lore.kernel.org/lkml/20221207112924.3602960-1-peternewman@google.com/
-v2: https://lore.kernel.org/lkml/20221214160856.2164207-1-peternewman@google.com/
----
- arch/x86/kernel/cpu/resctrl/monitor.c | 49 ++++++++++++++++++---------
- 1 file changed, 33 insertions(+), 16 deletions(-)
-
-diff --git a/arch/x86/kernel/cpu/resctrl/monitor.c b/arch/x86/kernel/cpu/resctrl/monitor.c
-index efe0c30d3a12..77538abeb72a 100644
---- a/arch/x86/kernel/cpu/resctrl/monitor.c
-+++ b/arch/x86/kernel/cpu/resctrl/monitor.c
-@@ -146,6 +146,30 @@ static inline struct rmid_entry *__rmid_entry(u32 rmid)
- 	return entry;
- }
- 
-+static int __rmid_read(u32 rmid, enum resctrl_event_id eventid, u64 *val)
-+{
-+	u64 msr_val;
-+
-+	/*
-+	 * As per the SDM, when IA32_QM_EVTSEL.EvtID (bits 7:0) is configured
-+	 * with a valid event code for supported resource type and the bits
-+	 * IA32_QM_EVTSEL.RMID (bits 41:32) are configured with valid RMID,
-+	 * IA32_QM_CTR.data (bits 61:0) reports the monitored data.
-+	 * IA32_QM_CTR.Error (bit 63) and IA32_QM_CTR.Unavailable (bit 62)
-+	 * are error bits.
-+	 */
-+	wrmsr(MSR_IA32_QM_EVTSEL, eventid, rmid);
-+	rdmsrl(MSR_IA32_QM_CTR, msr_val);
-+
-+	if (msr_val & RMID_VAL_ERROR)
-+		return -EIO;
-+	if (msr_val & RMID_VAL_UNAVAIL)
-+		return -EINVAL;
-+
-+	*val = msr_val;
-+	return 0;
-+}
-+
- static struct arch_mbm_state *get_arch_mbm_state(struct rdt_hw_domain *hw_dom,
- 						 u32 rmid,
- 						 enum resctrl_event_id eventid)
-@@ -172,8 +196,12 @@ void resctrl_arch_reset_rmid(struct rdt_resource *r, struct rdt_domain *d,
- 	struct arch_mbm_state *am;
- 
- 	am = get_arch_mbm_state(hw_dom, rmid, eventid);
--	if (am)
-+	if (am) {
- 		memset(am, 0, sizeof(*am));
-+
-+		/* Record any initial, non-zero count value. */
-+		__rmid_read(rmid, eventid, &am->prev_msr);
-+	}
- }
- 
- static u64 mbm_overflow_count(u64 prev_msr, u64 cur_msr, unsigned int width)
-@@ -191,25 +219,14 @@ int resctrl_arch_rmid_read(struct rdt_resource *r, struct rdt_domain *d,
- 	struct rdt_hw_domain *hw_dom = resctrl_to_arch_dom(d);
- 	struct arch_mbm_state *am;
- 	u64 msr_val, chunks;
-+	int ret;
- 
- 	if (!cpumask_test_cpu(smp_processor_id(), &d->cpu_mask))
- 		return -EINVAL;
- 
--	/*
--	 * As per the SDM, when IA32_QM_EVTSEL.EvtID (bits 7:0) is configured
--	 * with a valid event code for supported resource type and the bits
--	 * IA32_QM_EVTSEL.RMID (bits 41:32) are configured with valid RMID,
--	 * IA32_QM_CTR.data (bits 61:0) reports the monitored data.
--	 * IA32_QM_CTR.Error (bit 63) and IA32_QM_CTR.Unavailable (bit 62)
--	 * are error bits.
--	 */
--	wrmsr(MSR_IA32_QM_EVTSEL, eventid, rmid);
--	rdmsrl(MSR_IA32_QM_CTR, msr_val);
--
--	if (msr_val & RMID_VAL_ERROR)
--		return -EIO;
--	if (msr_val & RMID_VAL_UNAVAIL)
--		return -EINVAL;
-+	ret = __rmid_read(rmid, eventid, &msr_val);
-+	if (ret)
-+		return ret;
- 
- 	am = get_arch_mbm_state(hw_dom, rmid, eventid);
- 	if (am) {
-
-base-commit: 830b3c68c1fb1e9176028d02ef86f3cf76aa2476
--- 
-2.39.0.314.g84b9a713c41-goog
+Tested-by: Ron Economos <re@w6rz.net>
 
