@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C272651F96
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 12:21:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E1C652055
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 13:26:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229703AbiLTLVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Dec 2022 06:21:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41994 "EHLO
+        id S230179AbiLTM0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Dec 2022 07:26:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229690AbiLTLVt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 06:21:49 -0500
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAECEC76;
-        Tue, 20 Dec 2022 03:21:48 -0800 (PST)
-Received: by mail-wr1-x435.google.com with SMTP id h10so11415277wrx.3;
-        Tue, 20 Dec 2022 03:21:48 -0800 (PST)
+        with ESMTP id S229623AbiLTM0H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 07:26:07 -0500
+Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5562E9B;
+        Tue, 20 Dec 2022 04:26:06 -0800 (PST)
+Received: by mail-wm1-x336.google.com with SMTP id f13-20020a1cc90d000000b003d08c4cf679so8617705wmb.5;
+        Tue, 20 Dec 2022 04:26:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=jXvNzSwe14GwembRofkcyx2c3hAwwdfCyz2pLlFfdRc=;
-        b=MU4jSemS38tVlsQiYswpcuwJNcGecNw7YNZQxU8fBDHclLKMLGBZv667yDqqTzvXDn
-         cSB4B+NZr9XlM/dxYOvp+OCAL3bxmO6MlnMnDYy/5cRBQsmf+l/X1NnIXiWndgeyVzXf
-         c2V553sAMdGCyfG3h0L+XjZUqGqwlkOzR+4mZsu6DkRTkWctpzpXG6rOSfz9tflNOWCT
-         Q/XcWVW0D1VC/LfYIEL1GT34OXGLYGtCImbnJ6ugfI02ZoUOJUjDTeoGpuFDKj6e8vCg
-         kNzQPVsls7dWzf7AvL9EpQiEQTqtgJG/qup95G9XWx3pveeb8VLCEtLn/hWoWnyygTYw
-         V/6w==
+        bh=JYPzO1sV+Q9V3ln8qWKl03fQyPbIX5Xv6crA24tJRIc=;
+        b=DVc3xzencbOETXcD/75Y4g3qqyEejDQn7ccQsCrBCE44LyvZwIgNoiFHgiOl5q+RZ/
+         BkU98R5tEWTD8g/DHt2GdntW6/SZGWa1/N8nyqo4smPtzJRLaMYKJKLbVAPLQ2abFizP
+         SncdSlHAz+szR3gZSmD/mskRXySndHblL+Yu6XbU151/n+z8io0Qo+olqQuhdp/Pcwi7
+         dwXGVspbenPCjGdhayCiJXm+j/boknUFV+ZpDFpN7LpYXMiu6J8EK15/sgq8BGINiV30
+         J6Z7gsVYRcL4BvQxNdAsdIPOIAwEnIICzdAti044GzKYiaKhYKbi6M/YSG36ijcNvRg1
+         rOHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jXvNzSwe14GwembRofkcyx2c3hAwwdfCyz2pLlFfdRc=;
-        b=T3/X+2IluY/46HtMrd/GVuaUnOSgymM6ptXmPSCoEJ9R+669mcm/7tZiIujk+qKMh3
-         O+zj/lpr3ZHMVEPJ/UBOnWsSaPtEVD7rAkjqc0PsexooIJqXx9ppQCFIyd8pdNCDECLb
-         0nVH82qXyezVbl/a2J3cg7PeXrBGFjPddo4zB5yGT5Qq8xO9IuzzsT0ROh4naQU3UDqu
-         FXPNRS95cTjmEMZuMqYEgKAzjH7BQvB4BKMO/OAcoNhXR8FpURu93MOX/5qODZq8fR4C
-         zg9AFwn8GA6RRO3jfG3Is/GCnTVVT2K131cBz/kpUf6GcexjlI9JdxTxU9LxoK8pEz6p
-         O+lw==
-X-Gm-Message-State: AFqh2kr3JWmEs7tUlHptYo54EevA9cBpLOr1uhVkHTF8Sn0dsu+0XvUN
-        m7PZSPVrcUxZgPMKvVYBekQwex9ZRqI=
-X-Google-Smtp-Source: AMrXdXtpanZSi3KG2wNuIs05bD0kXsEQp3YLAjyOipKywJY3kNlVyZYRAbIlo5AWHPqXnQRYCa5Rlw==
-X-Received: by 2002:a5d:4041:0:b0:242:8177:62ad with SMTP id w1-20020a5d4041000000b00242817762admr1250599wrp.0.1671535307159;
-        Tue, 20 Dec 2022 03:21:47 -0800 (PST)
+        bh=JYPzO1sV+Q9V3ln8qWKl03fQyPbIX5Xv6crA24tJRIc=;
+        b=y49x6GI7k0WWaQg8UXWD8Y25A06TlcjKKYV74iRlZ7drj4P014yYCCKVvs/yl96ia7
+         /xAp16vlJPEMeQAlqHf/5FMs1aevt8+j7aZnzemWMcq9pi9zhK9IVKtEFwDfhiBCb3kT
+         DBr5GQwzcV0QOzMlrAfs5YndcV7HjhujVZ6akXU74ggBPzIgNUwvaw7aJoe42raJiEJb
+         /v84omfAuCnQYtdbl/OJkt4QCvBVDbas1OniQf2Y1ZUdYNq4eZoGP8kuyvHFWNbGbwA+
+         SfLE+vZhhPWwaoohhKODjp8mZgvXkeezKoJGLAnJll8qBhnsgzJEB3wUZuVmX4h1brW9
+         fqFQ==
+X-Gm-Message-State: ANoB5pkhvAprvXmdlJuI3yhgU2c+RpjYI00Id6cFwHpM7QKrDTw5gS7g
+        r5r48FnICkwKEzV0NyzXkFs=
+X-Google-Smtp-Source: AA0mqf7FmP+sPdD68l4OCaTcBjwJEHVWyxx/tEbdfAkj2zTju/NvgA8gRUAxchzNVHPvqutKLCSR8Q==
+X-Received: by 2002:a05:600c:2d0b:b0:3d2:2d2a:d581 with SMTP id x11-20020a05600c2d0b00b003d22d2ad581mr20856209wmf.30.1671539165332;
+        Tue, 20 Dec 2022 04:26:05 -0800 (PST)
 Received: from debian (host-78-150-37-98.as13285.net. [78.150.37.98])
-        by smtp.gmail.com with ESMTPSA id bh10-20020a05600005ca00b00242442c8ebdsm12597012wrb.111.2022.12.20.03.21.46
+        by smtp.gmail.com with ESMTPSA id t16-20020a1c7710000000b003c6f3f6675bsm22148657wmi.26.2022.12.20.04.26.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Dec 2022 03:21:46 -0800 (PST)
-Date:   Tue, 20 Dec 2022 11:21:45 +0000
+        Tue, 20 Dec 2022 04:26:04 -0800 (PST)
+Date:   Tue, 20 Dec 2022 12:26:03 +0000
 From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
@@ -57,13 +57,13 @@ Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
         rwarsow@gmx.de
-Subject: Re: [PATCH 6.0 00/28] 6.0.15-rc1 review
-Message-ID: <Y6GayS3t0QReca3q@debian>
-References: <20221219182944.179389009@linuxfoundation.org>
+Subject: Re: [PATCH 6.1 00/25] 6.1.1-rc1 review
+Message-ID: <Y6Gp25YJ/m+DcgWH@debian>
+References: <20221219182943.395169070@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221219182944.179389009@linuxfoundation.org>
+In-Reply-To: <20221219182943.395169070@linuxfoundation.org>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
@@ -76,9 +76,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi Greg,
 
-On Mon, Dec 19, 2022 at 08:22:47PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.15 release.
-> There are 28 patches in this series, all will be posted as a response
+On Mon, Dec 19, 2022 at 08:22:39PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.1 release.
+> There are 25 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -101,11 +101,15 @@ Boot test:
 x86_64: Booted on my test laptop. No regression.
 x86_64: Booted on qemu. No regression. [1]
 arm64: Booted on rpi4b (4GB model). No regression. [2]
-mips: Booted on ci20 board. No regression. [3]
+mips: Booted on ci20 board. Regression.
 
-[1]. https://openqa.qa.codethink.co.uk/tests/2421
-[2]. https://openqa.qa.codethink.co.uk/tests/2426
-[3]. https://openqa.qa.codethink.co.uk/tests/2429
+Note:
+networking.service is failing on mips ci20 boards. Issue seen on v6.1 also.
+Will report upstream after bisecting.
+
+
+[1]. https://openqa.qa.codethink.co.uk/tests/2420
+[2]. https://openqa.qa.codethink.co.uk/tests/2427
 
 Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
