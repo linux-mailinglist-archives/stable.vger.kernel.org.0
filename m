@@ -2,66 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C53AB652455
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 17:11:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B93FE652459
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 17:11:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229560AbiLTQK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Dec 2022 11:10:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50134 "EHLO
+        id S233837AbiLTQLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Dec 2022 11:11:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233947AbiLTQI4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 11:08:56 -0500
-Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7A641A396
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 08:07:28 -0800 (PST)
-Received: by mail-qv1-xf34.google.com with SMTP id d13so8486286qvj.8
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 08:07:28 -0800 (PST)
+        with ESMTP id S233336AbiLTQLi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 11:11:38 -0500
+Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EF67327;
+        Tue, 20 Dec 2022 08:11:38 -0800 (PST)
+Received: by mail-oi1-x234.google.com with SMTP id k189so10963760oif.7;
+        Tue, 20 Dec 2022 08:11:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=N69AnN/HCGfz6y/pBDE+Dl/UeoUyFu+chnsy6BgVL3w=;
-        b=AeRgstx1cCT95ZSqqjbb0GKPXOYVhZE6R9V7VefA0fuOv1IQyjSThAUuHdmwVnnlwI
-         J+pHWLQ9/btK/Bbr26xFePa4nNDVhGq1HgL9+ysZsavOpVvcwUAAyzyu4tQCL4RhQcfJ
-         tnVIdnTnfnoJDi1BiXApTBA+gc7afeH4jfmOy9uzcXLRI2cnltWkAYFKDLrymTD2cq7J
-         F1pDiKQeiRZZ6QXxucTvaql35Jt8YRMXbB/PftvS4tX5KZOg6FGCzbcDR3/Hn42lSqwg
-         HqqKhe8YXkk7/2SCbe6UMLVu+MtM8aNoqPN/LdDEWVFG/huTmFGddFVwhFL2ztYZ5/dx
-         NNaA==
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0nqVemB5NAW8Opb3ZlNFskEE6ackCvwbZHpBlW+CEzU=;
+        b=Lw3RYRPrt5CsG/F80OVaJpBpo1+1aPazHI9eR3wxDkd72rUvLTnr/o2KwGKah3nnJ/
+         Gxfuw0PcR/8+hHifhxJP1ebrHm0whKWJoJHPiEwPWkcAZbpYD/dxc/a+QDBhLCSZ07Fe
+         1I8c2uAyJ/wV+5O6VPUt0UU7SQ8YwPEkZx5yGQUI7tLO5NhjPnPSiniA/BbaVKIUUPvm
+         hlNHxg8bUO7poz5nMdZsKd5SjTzViACgGG6A6gnP6n/CuU/5RRdx+G4T9jjPi+hZiAn0
+         J+aT6QOGqqMc6w5RHF5To+oV7cAYKTKFm9g1Mn3Uc+c073df1IYNCQY3aIQxdbv5wtjv
+         doOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=N69AnN/HCGfz6y/pBDE+Dl/UeoUyFu+chnsy6BgVL3w=;
-        b=qcwwh8LbiI2m0SZ5pRPFc/yHIUzqXUxyGMM/N5jVOAc3YcFco9MR4i+SVK2w8sqhz2
-         bt7n5xOP9EFBr/+QrURRh+PSx6tqTQnZK17yBnHCGs1eYRxUQCOV1TJIc7JoPZiIDPD0
-         1A9koVxQRis0P2Sx+t5ZYJ2xh5sb1u67KquLiiUQiB7e40Cgc+niRO6P8U2H8lscUFOc
-         XO22D/Ev0jFGJu7G69yJpNSYsJVA7TGyQ48UmL56/u6xAYREHfprqTTvWvbPwJ3l7P8I
-         Bq9i9Ub4sEORQWNM87W35DLEjJmNPZwhU7wg2rQZypLDmk6APA2IFUOjWRUsgc47v9E6
-         /NYw==
-X-Gm-Message-State: AFqh2kpGJQ9BBj9uKDxRVZIszuceBPO2uvhayvshzcBpRv+tP4MDxUgr
-        smfiJcmPgxpWTXRfejX6aHmsa8OfmwE86LvOOi+wzg==
-X-Google-Smtp-Source: AMrXdXsBNTd5k7lmnyqqX9fuJ3m71PHVIcvyxLDNEzzwTVKxCrIS5FWKx9DnSYOatAouialVfNPvEhcABgtwbnY2Seo=
-X-Received: by 2002:a05:6214:5c83:b0:4f4:65c1:d799 with SMTP id
- lj3-20020a0562145c8300b004f465c1d799mr1004017qvb.81.1671552447953; Tue, 20
- Dec 2022 08:07:27 -0800 (PST)
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=0nqVemB5NAW8Opb3ZlNFskEE6ackCvwbZHpBlW+CEzU=;
+        b=aTg1eygaSp5jPlJsFzhFFrHngxH+xHSQD1NqdOQNdRoT3+prMQEm1T/o8GcjoZl6LM
+         sF4SBkKLehj6mYvu1J8mRy2Ay97zHG6Euivg1QOonaeTsXn5c02zYQMQVrNfBhC4Aaj3
+         ZXblAxksxO+toh32Q6YQ9G5ETktYua+3WA7IJcNsU7LaugxPF5rnWHjXD381m5a9F1Pj
+         cYKgIVTbPDJsO/qkVxd1T12gZhlB31yBVUba+vggBm4yYikgl9sSUzFrIFvXmjztKCKP
+         HQ1JbcHlfniexfUoAbVrygLrcFmWrksPAjWxLgXQbF/7udp/p1gCsHICvhUdc541cxLV
+         YYqA==
+X-Gm-Message-State: AFqh2kris9UenW/bcq3Hm8x4B9wb+12DIlXKr0etbL2BMf3Pf0VCk8Bd
+        6O/UvKWIBvVbjRpCuECiTAE=
+X-Google-Smtp-Source: AMrXdXsWsGlu/AHcFFzt8quemYx+kRMP2DB1Pf5xDEub/X32Us+pjyG/4psspaaVA1dIyQ6StI/dTw==
+X-Received: by 2002:aca:5ec3:0:b0:35e:de12:d768 with SMTP id s186-20020aca5ec3000000b0035ede12d768mr8438517oib.53.1671552697389;
+        Tue, 20 Dec 2022 08:11:37 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id et1-20020a056808280100b00359a9663053sm5660017oib.4.2022.12.20.08.11.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Dec 2022 08:11:37 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 20 Dec 2022 08:11:35 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 00/25] 6.1.1-rc1 review
+Message-ID: <20221220161135.GA1983195@roeck-us.net>
+References: <20221219182943.395169070@linuxfoundation.org>
+ <20221220150049.GE3748047@roeck-us.net>
+ <Y6HQfwEnw75iajYr@kroah.com>
 MIME-Version: 1.0
-References: <20221216133125.3159406-1-peternewman@google.com>
-In-Reply-To: <20221216133125.3159406-1-peternewman@google.com>
-From:   Peter Newman <peternewman@google.com>
-Date:   Tue, 20 Dec 2022 17:07:17 +0100
-Message-ID: <CALPaoCiQmh-t_Wj8mzr6+_EUo_9x2=xVQOYh0_NSP+sVHGvCtA@mail.gmail.com>
-Subject: Re: [PATCH v6] x86/resctrl: Fix task CLOSID/RMID update race
-To:     reinette.chatre@intel.com, fenghua.yu@intel.com
-Cc:     bp@alien8.de, derkling@google.com, eranian@google.com,
-        hpa@zytor.com, james.morse@arm.com, jannh@google.com,
-        kpsingh@google.com, linux-kernel@vger.kernel.org, mingo@redhat.com,
-        tglx@linutronix.de, x86@kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y6HQfwEnw75iajYr@kroah.com>
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,16 +79,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 16, 2022 at 2:31 PM Peter Newman <peternewman@google.com> wrote:
-> In a memory bandwidth-metered compute host, malicious jobs could exploit
-> this race to remain in a previous CLOSID or RMID in order to dodge a
-> class-of-service downgrade imposed by an admin or to steal bandwidth.
+On Tue, Dec 20, 2022 at 04:10:55PM +0100, Greg Kroah-Hartman wrote:
+> On Tue, Dec 20, 2022 at 07:00:49AM -0800, Guenter Roeck wrote:
+> > On Mon, Dec 19, 2022 at 08:22:39PM +0100, Greg Kroah-Hartman wrote:
+> > > This is the start of the stable review cycle for the 6.1.1 release.
+> > > There are 25 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > > 
+> > > Responses should be made by Wed, 21 Dec 2022 18:29:31 +0000.
+> > > Anything received after that time might be too late.
+> > > 
+> > 
+> > Build results:
+> > 	total: 155 pass: 155 fail: 0
+> > Qemu test results:
+> > 	total: 500 pass: 498 fail: 2
+> > Failed tests:
+> > 	arm:xilinx-zynq-a9:multi_v7_defconfig:usb0:mem128:net,default:zynq-zc702:rootfs
+> > 	arm:xilinx-zynq-a9:multi_v7_defconfig:usb0:mem128:zynq-zed:rootfs
+> > 
+> > The failure bisects to commit e013ba1e4e12 ("usb: ulpi: defer ulpi_register on
+> > ulpi_read_id timeout") and is inherited from mainline. Reverting the offending
+> > patch fixes the problem.
+> 
+> Odd, yet that same commit works just fine on 6.0 and 5.15 and 5.10?  I
+> hadn't had any reports of this being an issue on Linus's tree either,
+> did I miss those?
+> 
 
-After discussing with Reinette some more[1], I think the payoff of
-exploiting this is too little for this to concern me, so I'll remove
-the paragraph above.
+I testbed has a bad hair day. The reports for the other branches are wrong.
+I restarted the tests and expect them to fail there as well. Sorry for that.
 
-[1] https://lore.kernel.org/lkml/CALPaoCi8hcFzNN9O9fS9Etri_KMdU32UU1tJsfeO1OxR-i1j7g@mail.gmail.com/
+You probably didn't see any reports on mainline because I didn't report
+the issue there yet. There are so many failures in mainline that it is
+a bit difficult to keep up. This would be a full-time job, and I just
+don't have that much time, sorry.
 
-Consequently I don't think this fix is critical enough to be needed on
-stable, so I'll drop the CC: stable from the update.
+Guenter
