@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1106651825
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 02:25:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDC2651842
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 02:26:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233371AbiLTBZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 20:25:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52460 "EHLO
+        id S233434AbiLTBZw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 20:25:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233029AbiLTBYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 20:24:30 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 998E811A10;
-        Mon, 19 Dec 2022 17:22:30 -0800 (PST)
+        with ESMTP id S233253AbiLTBYb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 20:24:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6910F11A17;
+        Mon, 19 Dec 2022 17:22:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 10BE5CE1142;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F02BB810FA;
+        Tue, 20 Dec 2022 01:22:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2D37C433D2;
         Tue, 20 Dec 2022 01:22:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC9EDC433D2;
-        Tue, 20 Dec 2022 01:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671499347;
-        bh=xadfa5UUa/VvR7/Q+w8xXinb6FW7rp5NXKRfhIxiI8E=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/JMKqQPe1KGyWaqKziUoXtjVlXZ20Gw6O1ECuQjY2goWDDDvmYoT09pKZQ6HuExW
-         XXdbpKr3B5RFSC5JWjEMIxQw7TdwbGd9k1lHxwKxqfMo7YjYJ+fiYqr2qNRkmgN5vE
-         V/LtZYI8kFl0gcjsvha36fhcEgONjYfumSAoKpvLws+MpnSjet5TGnVA1h1UcPYV3c
-         r+glaIIZS9XlVnzqdNRjjB0/hzrUiqt6Mkq077mdSc5Llyz1Ospj9XKeS16U5fta7n
-         cGAz3VybeybHgw7j3qvDjsAL0vek71zmv/FwK5+yqSsTD/AQABtOM40SYlM6J8zsNv
-         X73tKpMvNl1CA==
+        s=k20201202; t=1671499350;
+        bh=aJlILcbht/YEnxfR7Jkxij3uWW+rqVcQU1fJAnSJwA0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=B/KCIjQkJ+orw0sGRBcKRPbKBxBnqCTGpCQzOL+SEwUt0LyM5rJtdIDB5pcz5eGDw
+         yov/amRo8UZIk+oPdhAHVvk7Lsj756ThGL5zjs7PJhlkkHvM3uFum6sg/6758AXGX3
+         el2z2TIwbFEYFqOgJFr3UukCDVBS/8ZgNLV1FlBrREmnoGvdoW8vEhxjHpm0U/p/dz
+         aVBnDhS1OfpDofYA5FU3VgYAMDry+Qj4s6zX9WlqsOL1Qk/ANHtV4IhwZUf82qvfru
+         iSlCHlIAkG+Y85ZFACsAq/ifaD+dDWM8RgiGxj6C6YbBMkiSuMaCtD3CxoNTFeQhy5
+         Av1uF0n5AdtRA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Mike Marshall <hubcap@omnibond.com>,
-        Sasha Levin <sashal@kernel.org>, devel@lists.orangefs.org
-Subject: [PATCH AUTOSEL 5.10 5/5] orangefs: Fix kmemleak in orangefs_{kernel,client}_debug_init()
-Date:   Mon, 19 Dec 2022 20:22:18 -0500
-Message-Id: <20221220012218.1222657-5-sashal@kernel.org>
+Cc:     Hawkins Jiawei <yin31149@gmail.com>,
+        syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Ian Kent <raven@themaw.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, muchun.song@linux.dev,
+        linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.4 1/5] hugetlbfs: fix null-ptr-deref in hugetlbfs_parse_param()
+Date:   Mon, 19 Dec 2022 20:22:23 -0500
+Message-Id: <20221220012227.1222729-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221220012218.1222657-1-sashal@kernel.org>
-References: <20221220012218.1222657-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,105 +58,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Hawkins Jiawei <yin31149@gmail.com>
 
-[ Upstream commit 31720a2b109b3080eb77e97b8f6f50a27b4ae599 ]
+[ Upstream commit 26215b7ee923b9251f7bb12c4e5f09dc465d35f2 ]
 
-When insert and remove the orangefs module, there are memory leaked
-as below:
+Syzkaller reports a null-ptr-deref bug as follows:
+======================================================
+KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+RIP: 0010:hugetlbfs_parse_param+0x1dd/0x8e0 fs/hugetlbfs/inode.c:1380
+[...]
+Call Trace:
+ <TASK>
+ vfs_parse_fs_param fs/fs_context.c:148 [inline]
+ vfs_parse_fs_param+0x1f9/0x3c0 fs/fs_context.c:129
+ vfs_parse_fs_string+0xdb/0x170 fs/fs_context.c:191
+ generic_parse_monolithic+0x16f/0x1f0 fs/fs_context.c:231
+ do_new_mount fs/namespace.c:3036 [inline]
+ path_mount+0x12de/0x1e20 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ [...]
+ </TASK>
+======================================================
 
-unreferenced object 0xffff88816b0cc000 (size 2048):
-  comm "insmod", pid 783, jiffies 4294813439 (age 65.512s)
-  hex dump (first 32 bytes):
-    6e 6f 6e 65 0a 00 00 00 00 00 00 00 00 00 00 00  none............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000031ab7788>] kmalloc_trace+0x27/0xa0
-    [<000000005b405fee>] orangefs_debugfs_init.cold+0xaf/0x17f
-    [<00000000e5a0085b>] 0xffffffffa02780f9
-    [<000000004232d9f7>] do_one_initcall+0x87/0x2a0
-    [<0000000054f22384>] do_init_module+0xdf/0x320
-    [<000000003263bdea>] load_module+0x2f98/0x3330
-    [<0000000052cd4153>] __do_sys_finit_module+0x113/0x1b0
-    [<00000000250ae02b>] do_syscall_64+0x35/0x80
-    [<00000000f11c03c7>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+According to commit "vfs: parse: deal with zero length string value",
+kernel will set the param->string to null pointer in vfs_parse_fs_string()
+if fs string has zero length.
 
-Use the golbal variable as the buffer rather than dynamic allocate to
-slove the problem.
+Yet the problem is that, hugetlbfs_parse_param() will dereference the
+param->string, without checking whether it is a null pointer.  To be more
+specific, if hugetlbfs_parse_param() parses an illegal mount parameter,
+such as "size=,", kernel will constructs struct fs_parameter with null
+pointer in vfs_parse_fs_string(), then passes this struct fs_parameter to
+hugetlbfs_parse_param(), which triggers the above null-ptr-deref bug.
 
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+This patch solves it by adding sanity check on param->string
+in hugetlbfs_parse_param().
+
+Link: https://lkml.kernel.org/r/20221020231609.4810-1-yin31149@gmail.com
+Reported-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
+Tested-by: syzbot+a3e6acd85ded5c16a709@syzkaller.appspotmail.com
+  Link: https://lore.kernel.org/all/0000000000005ad00405eb7148c6@google.com/
+Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Hawkins Jiawei <yin31149@gmail.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Ian Kent <raven@themaw.net>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/orangefs/orangefs-debugfs.c | 26 +++-----------------------
- 1 file changed, 3 insertions(+), 23 deletions(-)
+ fs/hugetlbfs/inode.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
-index a848b6ef9599..1b508f543384 100644
---- a/fs/orangefs/orangefs-debugfs.c
-+++ b/fs/orangefs/orangefs-debugfs.c
-@@ -194,15 +194,10 @@ void orangefs_debugfs_init(int debug_mask)
-  */
- static void orangefs_kernel_debug_init(void)
- {
--	int rc = -ENOMEM;
--	char *k_buffer = NULL;
-+	static char k_buffer[ORANGEFS_MAX_DEBUG_STRING_LEN] = { };
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index 7d039ba5ae28..b1d31c78fc9d 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -1232,7 +1232,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
  
- 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
+ 	case Opt_size:
+ 		/* memparse() will accept a K/M/G without a digit */
+-		if (!isdigit(param->string[0]))
++		if (!param->string || !isdigit(param->string[0]))
+ 			goto bad_val;
+ 		ctx->max_size_opt = memparse(param->string, &rest);
+ 		ctx->max_val_type = SIZE_STD;
+@@ -1242,7 +1242,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
  
--	k_buffer = kzalloc(ORANGEFS_MAX_DEBUG_STRING_LEN, GFP_KERNEL);
--	if (!k_buffer)
--		goto out;
--
- 	if (strlen(kernel_debug_string) + 1 < ORANGEFS_MAX_DEBUG_STRING_LEN) {
- 		strcpy(k_buffer, kernel_debug_string);
- 		strcat(k_buffer, "\n");
-@@ -213,9 +208,6 @@ static void orangefs_kernel_debug_init(void)
+ 	case Opt_nr_inodes:
+ 		/* memparse() will accept a K/M/G without a digit */
+-		if (!isdigit(param->string[0]))
++		if (!param->string || !isdigit(param->string[0]))
+ 			goto bad_val;
+ 		ctx->nr_inodes = memparse(param->string, &rest);
+ 		return 0;
+@@ -1258,7 +1258,7 @@ static int hugetlbfs_parse_param(struct fs_context *fc, struct fs_parameter *par
  
- 	debugfs_create_file(ORANGEFS_KMOD_DEBUG_FILE, 0444, debug_dir, k_buffer,
- 			    &kernel_debug_fops);
--
--out:
--	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
- }
- 
- 
-@@ -299,18 +291,13 @@ static int help_show(struct seq_file *m, void *v)
- /*
-  * initialize the client-debug file.
-  */
--static int orangefs_client_debug_init(void)
-+static void orangefs_client_debug_init(void)
- {
- 
--	int rc = -ENOMEM;
--	char *c_buffer = NULL;
-+	static char c_buffer[ORANGEFS_MAX_DEBUG_STRING_LEN] = { };
- 
- 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
- 
--	c_buffer = kzalloc(ORANGEFS_MAX_DEBUG_STRING_LEN, GFP_KERNEL);
--	if (!c_buffer)
--		goto out;
--
- 	if (strlen(client_debug_string) + 1 < ORANGEFS_MAX_DEBUG_STRING_LEN) {
- 		strcpy(c_buffer, client_debug_string);
- 		strcat(c_buffer, "\n");
-@@ -324,13 +311,6 @@ static int orangefs_client_debug_init(void)
- 						  debug_dir,
- 						  c_buffer,
- 						  &kernel_debug_fops);
--
--	rc = 0;
--
--out:
--
--	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
--	return rc;
- }
- 
- /* open ORANGEFS_KMOD_DEBUG_FILE or ORANGEFS_CLIENT_DEBUG_FILE.*/
+ 	case Opt_min_size:
+ 		/* memparse() will accept a K/M/G without a digit */
+-		if (!isdigit(param->string[0]))
++		if (!param->string || !isdigit(param->string[0]))
+ 			goto bad_val;
+ 		ctx->min_size_opt = memparse(param->string, &rest);
+ 		ctx->min_val_type = SIZE_STD;
 -- 
 2.35.1
 
