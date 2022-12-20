@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87EF765180A
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 02:25:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33D4F65180C
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 02:25:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232589AbiLTBYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 20:24:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52480 "EHLO
+        id S233103AbiLTBYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 20:24:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233194AbiLTBWi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 20:22:38 -0500
+        with ESMTP id S233202AbiLTBWk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 20:22:40 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A301658E;
-        Mon, 19 Dec 2022 17:21:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3AEBFCCE;
+        Mon, 19 Dec 2022 17:21:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C593D6120F;
-        Tue, 20 Dec 2022 01:21:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2680EC433D2;
-        Tue, 20 Dec 2022 01:21:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 641F56122C;
+        Tue, 20 Dec 2022 01:21:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1F5BC433F0;
+        Tue, 20 Dec 2022 01:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671499310;
-        bh=qOA0kc5AT61+wN807kw4Lv6g/XMsGIrYoDY0P4yySpc=;
+        s=k20201202; t=1671499313;
+        bh=meXrmIHc4uB22MVvnpTkZ0t6/lXPGSax7WRu1NPzbQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T25eC21SvsWFQLFyDVzWysedVoZdu1U7dIIKwCaH8hpTHnSe/iQUoIj2TZy3xREnb
-         7sTX3HlmN4uHdFDc5jBc70HR6xgMpBNj9lsNonVJMWoXhVterFYRqsiOYlY0m+ijQA
-         Rh5bWSXDkaNY0v6R9yqKMquwA5DrrshLtBWPTjjmgBLblhbcqJrKB4JoWvHdePrXbt
-         3qdo5lFbU+/SOq+xOsCglsrgkLx1MZOdV8xpC7881vrTVaGoZdpFE8wFNGWmFpTA+X
-         Wu5LuJVIwsnQ4v7nCNK2HPTKgRfhJ9pnCx/VNMk83VAesJDGZAPYw/J/rkUCoBHJby
-         VbP2vYYSDgoLg==
+        b=CY8/VzROTZcB8q71U70ILPgIXT1JwhIJfYS4CqGFlffiPRUPExsVF9ZkfSjGA14+1
+         pWIObzXHVF4QznJ+IYky/Mb+ic+825GuE/I2416CyOH1+LGqf7+QZbOlmBRWWd5vLX
+         HmuvXZxNBrc9lnMBSwNI7MirrTQWKYq7as/5R4V21zsB5VFauLq0tpHvoWpA7j+GEK
+         MFssHw3Kg1eFFfJK4YgUdjcSWL1yeu6mg6lRVSchhOe0X7x0qu7JiKqFL4LLpJKrlY
+         r8tNPhMZTefyee0CfaIBAdApmjtAh4hfUGsMqswXk06jAZNRNcqk0h3iXNCO9DLVbW
+         zzNd1gqQyjcAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, alain.volmat@foss.st.com,
-        airlied@gmail.com, daniel@ffwll.ch, ndesaulniers@google.com,
-        dri-devel@lists.freedesktop.org, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.0 11/16] drm/sti: Fix return type of sti_{dvo,hda,hdmi}_connector_mode_valid()
-Date:   Mon, 19 Dec 2022 20:21:21 -0500
-Message-Id: <20221220012127.1222311-11-sashal@kernel.org>
+Cc:     Maurizio Lombardi <mlombard@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, d.bogdanov@yadro.com,
+        k.shelekhin@yadro.com, mgurtovoy@nvidia.com,
+        yang.lee@linux.alibaba.com, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 12/16] scsi: target: iscsi: Fix a race condition between login_work and the login thread
+Date:   Mon, 19 Dec 2022 20:21:22 -0500
+Message-Id: <20221220012127.1222311-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221220012127.1222311-1-sashal@kernel.org>
 References: <20221220012127.1222311-1-sashal@kernel.org>
@@ -57,93 +59,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit 0ad811cc08a937d875cbad0149c1bab17f84ba05 ]
+[ Upstream commit fec1b2fa62c162d03f5dcd7b03e3c89d3116d49f ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+In case a malicious initiator sends some random data immediately after a
+login PDU; the iscsi_target_sk_data_ready() callback will schedule the
+login_work and, at the same time, the negotiation may end without clearing
+the LOGIN_FLAGS_INITIAL_PDU flag (because no additional PDU exchanges are
+required to complete the login).
 
-  drivers/gpu/drm/sti/sti_hda.c:637:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .mode_valid = sti_hda_connector_mode_valid,
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  drivers/gpu/drm/sti/sti_dvo.c:376:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .mode_valid = sti_dvo_connector_mode_valid,
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  drivers/gpu/drm/sti/sti_hdmi.c:1035:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .mode_valid = sti_hdmi_connector_mode_valid,
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The login has been completed but the login_work function will find the
+LOGIN_FLAGS_INITIAL_PDU flag set and will never stop from rescheduling
+itself; at this point, if the initiator drops the connection, the
+iscsit_conn structure will be freed, login_work will dereference a released
+socket structure and the kernel crashes.
 
-->mode_valid() in 'struct drm_connector_helper_funcs' expects a return
-type of 'enum drm_mode_status', not 'int'. Adjust the return type of
-sti_{dvo,hda,hdmi}_connector_mode_valid() to match the prototype's to
-resolve the warning and CFI failure.
+BUG: kernel NULL pointer dereference, address: 0000000000000230
+PF: supervisor write access in kernel mode
+PF: error_code(0x0002) - not-present page
+Workqueue: events iscsi_target_do_login_rx [iscsi_target_mod]
+RIP: 0010:_raw_read_lock_bh+0x15/0x30
+Call trace:
+ iscsi_target_do_login_rx+0x75/0x3f0 [iscsi_target_mod]
+ process_one_work+0x1e8/0x3c0
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221102155623.3042869-1-nathan@kernel.org
+Fix this bug by forcing login_work to stop after the login has been
+completed and the socket callbacks have been restored.
+
+Add a comment to clearify the return values of iscsi_target_do_login()
+
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Link: https://lore.kernel.org/r/20221115125638.102517-1-mlombard@redhat.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sti/sti_dvo.c  | 5 +++--
- drivers/gpu/drm/sti/sti_hda.c  | 5 +++--
- drivers/gpu/drm/sti/sti_hdmi.c | 5 +++--
- 3 files changed, 9 insertions(+), 6 deletions(-)
+ drivers/target/iscsi/iscsi_target_nego.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/sti/sti_dvo.c b/drivers/gpu/drm/sti/sti_dvo.c
-index b6ee8a82e656..076d5f30a09c 100644
---- a/drivers/gpu/drm/sti/sti_dvo.c
-+++ b/drivers/gpu/drm/sti/sti_dvo.c
-@@ -346,8 +346,9 @@ static int sti_dvo_connector_get_modes(struct drm_connector *connector)
+diff --git a/drivers/target/iscsi/iscsi_target_nego.c b/drivers/target/iscsi/iscsi_target_nego.c
+index f2919319ad38..ff49c8f3fe24 100644
+--- a/drivers/target/iscsi/iscsi_target_nego.c
++++ b/drivers/target/iscsi/iscsi_target_nego.c
+@@ -1018,6 +1018,13 @@ static int iscsi_target_handle_csg_one(struct iscsit_conn *conn, struct iscsi_lo
+ 	return 0;
+ }
  
- #define CLK_TOLERANCE_HZ 50
- 
--static int sti_dvo_connector_mode_valid(struct drm_connector *connector,
--					struct drm_display_mode *mode)
-+static enum drm_mode_status
-+sti_dvo_connector_mode_valid(struct drm_connector *connector,
-+			     struct drm_display_mode *mode)
++/*
++ * RETURN VALUE:
++ *
++ *  1 = Login successful
++ * -1 = Login failed
++ *  0 = More PDU exchanges required
++ */
+ static int iscsi_target_do_login(struct iscsit_conn *conn, struct iscsi_login *login)
  {
- 	int target = mode->clock * 1000;
- 	int target_min = target - CLK_TOLERANCE_HZ;
-diff --git a/drivers/gpu/drm/sti/sti_hda.c b/drivers/gpu/drm/sti/sti_hda.c
-index 03cc401ed593..a53b5a15c2a9 100644
---- a/drivers/gpu/drm/sti/sti_hda.c
-+++ b/drivers/gpu/drm/sti/sti_hda.c
-@@ -601,8 +601,9 @@ static int sti_hda_connector_get_modes(struct drm_connector *connector)
+ 	int pdu_count = 0;
+@@ -1363,12 +1370,13 @@ int iscsi_target_start_negotiation(
+ 		ret = -1;
  
- #define CLK_TOLERANCE_HZ 50
+ 	if (ret < 0) {
+-		cancel_delayed_work_sync(&conn->login_work);
+ 		iscsi_target_restore_sock_callbacks(conn);
+ 		iscsi_remove_failed_auth_entry(conn);
+ 	}
+-	if (ret != 0)
++	if (ret != 0) {
++		cancel_delayed_work_sync(&conn->login_work);
+ 		iscsi_target_nego_release(conn);
++	}
  
--static int sti_hda_connector_mode_valid(struct drm_connector *connector,
--					struct drm_display_mode *mode)
-+static enum drm_mode_status
-+sti_hda_connector_mode_valid(struct drm_connector *connector,
-+			     struct drm_display_mode *mode)
- {
- 	int target = mode->clock * 1000;
- 	int target_min = target - CLK_TOLERANCE_HZ;
-diff --git a/drivers/gpu/drm/sti/sti_hdmi.c b/drivers/gpu/drm/sti/sti_hdmi.c
-index cb82622877d2..09e0cadb6368 100644
---- a/drivers/gpu/drm/sti/sti_hdmi.c
-+++ b/drivers/gpu/drm/sti/sti_hdmi.c
-@@ -1004,8 +1004,9 @@ static int sti_hdmi_connector_get_modes(struct drm_connector *connector)
- 
- #define CLK_TOLERANCE_HZ 50
- 
--static int sti_hdmi_connector_mode_valid(struct drm_connector *connector,
--					struct drm_display_mode *mode)
-+static enum drm_mode_status
-+sti_hdmi_connector_mode_valid(struct drm_connector *connector,
-+			      struct drm_display_mode *mode)
- {
- 	int target = mode->clock * 1000;
- 	int target_min = target - CLK_TOLERANCE_HZ;
+ 	return ret;
+ }
 -- 
 2.35.1
 
