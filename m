@@ -2,112 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 777D96518DD
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 03:40:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92FB565194A
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 04:09:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230035AbiLTCkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 21:40:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36118 "EHLO
+        id S232444AbiLTDJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 22:09:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229779AbiLTCkC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 21:40:02 -0500
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD09B11C0D;
-        Mon, 19 Dec 2022 18:40:00 -0800 (PST)
-Received: by mail-pj1-x102c.google.com with SMTP id hd14-20020a17090b458e00b0021909875bccso49412pjb.1;
-        Mon, 19 Dec 2022 18:40:00 -0800 (PST)
+        with ESMTP id S229454AbiLTDJg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 22:09:36 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E661A2BE7
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:09:35 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id 124so7672658pfy.0
+        for <stable@vger.kernel.org>; Mon, 19 Dec 2022 19:09:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=wny72aPReRMnCd0XeW2CGKHfoxhgRZf/niDzIS7HIgw=;
-        b=gvwqRB/LB6onoVmMSOgniy1P3V78tygXvZsXL9aS1YUTqPKdvrbGyHZLh+Gl3HiN9q
-         7rldTqoKcXP8q53NKDikwI7acQTxJcPdVFL97twHOP7TowYYTsWfDXrkdUdwA2dNyIcI
-         Qicwf6Aa2IqNFT9IYM1EnWDCT/9J327669kv72RVXIsjSDM+fddzXcdRDBUhp0JNCZq0
-         4oobvNd/IMextn6OrDRV5Z7GjWKbYFeqae0tiq5TZy1YbbUf0xCe4edfnhrWvNWhlNMB
-         sC+SG1ihYQQ6DxXMX3y1LG70f2F24LQ4BP+Ki1kgQBYUI65qXg8+JEjQrQ7H9kcPEOGJ
-         3dFQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=MpYAoLP9649H/B6ucsGbKTIVtYl7qQI0xAIPtSY4dEU=;
+        b=bTExC8ozE4mewtRpX/mKNXb1WvEC1dfS823g/OMqElBPALonAWrQinLHo/diDlVYdP
+         CAGwzPdVzIL7fd6IHR5zuUaDqmOEGCyRBo72+qj4LELW7Oj8dELcbHvKmdcOwxxwI2QB
+         ZXgymfn4ZfCnOoGaIGDeRhLxd5+BUAJAjxgplnwAVHa40oec9BXm+v7PHYhXKLK+O+1z
+         YcD2Uffbqu7biRrH9prFvLaO2+txNciFkcYx4GNMmvvKrb3diMDdYEhftpN6wQ3J01lA
+         DhwG8ybVkAtdJ0lsHEklAxxTS41gxtzYfdXP/ENjfGPE9U72k9F90qVBgSCFtN4SjRTM
+         Fd9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wny72aPReRMnCd0XeW2CGKHfoxhgRZf/niDzIS7HIgw=;
-        b=vatjLmPpw1vd2o4QxHxONCkPhkA63MrOCUtTuwLj70j1HVPiR0RK7O+FG9cA0ASA7q
-         A1SS7xHK+XMNA7Nh8KJ8COklntmooGMUIs//V9bbkptAtva1wimBAlJHEdKgvqXfNsZr
-         JCobNmxaeqmX1fzRckJx7QU8kRJVY+r99UHbaLhdd6wuZulG9rOb+sG5ElPIKTROsL1Y
-         cNJenGHBAG0IyAw3kw1+XBd+GEnjeOdbI4xYk06nRSVo4zCyiHrKtj4FKT2MOkTgrHpc
-         8B7yXPqfsSnqadQGbhHQmwbbG0aCMk0DMBREbYcP9cieqJBZXAiJJc99dx8B2fW/z465
-         7zOw==
-X-Gm-Message-State: ANoB5pmeM3YyvYplrBfVc/J1sk+OmSLcnQ5CCe+fTaL2B1gx9avVhmHx
-        1/7PdPFzqP1lbZVDCuIPhl8=
-X-Google-Smtp-Source: AA0mqf5kAXoy+VUHSK32qiFpAkFGSdd6KsTYnWzXlk2u6Dg4ThI58wlhv2zF4gUEobM85yJoJonAuA==
-X-Received: by 2002:a17:902:d650:b0:189:f86:f00 with SMTP id y16-20020a170902d65000b001890f860f00mr41234131plh.16.1671504000279;
-        Mon, 19 Dec 2022 18:40:00 -0800 (PST)
-Received: from debian.me (subs03-180-214-233-73.three.co.id. [180.214.233.73])
-        by smtp.gmail.com with ESMTPSA id jh19-20020a170903329300b001869efb722csm7914388plb.215.2022.12.19.18.39.59
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=MpYAoLP9649H/B6ucsGbKTIVtYl7qQI0xAIPtSY4dEU=;
+        b=KcTtmH7jIRTEiB7/EjCwgiRIDcZo8OLsxMZOLe1QPjA3Zml9wyn2lwamqC3s0lF/Ic
+         +bgXzvA6CaFRhgo+gpbSYL7hnP+0s+bsRucsnz5nMq8TyIiV8gdNs4061BQVPtC2+yPP
+         zo9yecIrXbP21erjeyvrELYihetdNXuV1JRdcnm1zed33D9Pde5umWm1R1JsGAbWVUMj
+         suXievuLVz5KvDQvAbYezNzHDEHAawgDoQxtfudu72b05D7EbfENyG3mLWUTGJb44pRk
+         dDzNMDMYwuE+YznyYvNo/PTXoPStrkma7aYeg+B0a5X2xpJUVg/wdWuX5gsrFU5YQU8s
+         0qGw==
+X-Gm-Message-State: ANoB5plXB0MbjPYRIBqZCvUjJjC4Nukk7g3toUBAUwJaHtARxa2psXj5
+        kFxz+yfOWZxw/zp2osf9tvqTtEP1McNQuEWB5Hw=
+X-Google-Smtp-Source: AA0mqf4b+VPcA6AqpCNtBGokMhqlDNFyErj9uM7KMot9shj9VAApF5gWlkGp/q1SeseSuWizlZ8bhA==
+X-Received: by 2002:a05:6a00:1a42:b0:572:4ea8:30b9 with SMTP id h2-20020a056a001a4200b005724ea830b9mr57430908pfv.15.1671505775091;
+        Mon, 19 Dec 2022 19:09:35 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i11-20020a056a00004b00b005756a67e227sm7637698pfk.90.2022.12.19.19.09.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Dec 2022 18:39:59 -0800 (PST)
-Received: by debian.me (Postfix, from userid 1000)
-        id 000021013F6; Tue, 20 Dec 2022 09:39:55 +0700 (WIB)
-Date:   Tue, 20 Dec 2022 09:39:55 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.15 00/17] 5.15.85-rc1 review
-Message-ID: <Y6Ege+tgN/m7CDkc@debian.me>
-References: <20221219182940.739981110@linuxfoundation.org>
+        Mon, 19 Dec 2022 19:09:34 -0800 (PST)
+Message-ID: <63a1276e.050a0220.9e958.d718@mx.google.com>
+Date:   Mon, 19 Dec 2022 19:09:34 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Rrk8ZYsz6jCGEj0V"
-Content-Disposition: inline
-In-Reply-To: <20221219182940.739981110@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.160
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Report-Type: test
+Subject: stable/linux-5.10.y baseline: 167 runs, 2 regressions (v5.10.160)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-5.10.y baseline: 167 runs, 2 regressions (v5.10.160)
 
---Rrk8ZYsz6jCGEj0V
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Regressions Summary
+-------------------
 
-On Mon, Dec 19, 2022 at 08:24:46PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.85 release.
-> There are 17 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+platform          | arch  | lab          | compiler | defconfig          | =
+regressions
+------------------+-------+--------------+----------+--------------------+-=
+-----------
+meson-g12a-sei510 | arm64 | lab-baylibre | gcc-10   | defconfig          | =
+1          =
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
+r8a7743-iwg20d-q7 | arm   | lab-cip      | gcc-10   | shmobile_defconfig | =
+1          =
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
---=20
-An old man doll... just what I always wanted! - Clara
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
+/v5.10.160/plan/baseline/
 
---Rrk8ZYsz6jCGEj0V
-Content-Type: application/pgp-signature; name="signature.asc"
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.10.y
+  Describe: v5.10.160
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      a2428a8dcb4f3eb80e7d38dba0bf71e4ff20cecd =
 
------BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY6EgcQAKCRD2uYlJVVFO
-oxZPAQDwlWNKOn75ziDIolWJ5XWOsr4sf3kYt8TYiNxbKzPKHgD/XefvnqTXWM6X
-0ATr5wznDHThjrbX/8n19Gaalz7n3ww=
-=QFob
------END PGP SIGNATURE-----
 
---Rrk8ZYsz6jCGEj0V--
+Test Regressions
+---------------- =
+
+
+
+platform          | arch  | lab          | compiler | defconfig          | =
+regressions
+------------------+-------+--------------+----------+--------------------+-=
+-----------
+meson-g12a-sei510 | arm64 | lab-baylibre | gcc-10   | defconfig          | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63a0f7750e1acdb5564eee22
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.160/=
+arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-g12a-sei510.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.160/=
+arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-g12a-sei510.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221216.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63a0f7750e1acdb5564ee=
+e23
+        new failure (last pass: v5.10.158) =
+
+ =
+
+
+
+platform          | arch  | lab          | compiler | defconfig          | =
+regressions
+------------------+-------+--------------+----------+--------------------+-=
+-----------
+r8a7743-iwg20d-q7 | arm   | lab-cip      | gcc-10   | shmobile_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63a0f50d6d420df0c64eee34
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: shmobile_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.160/=
+arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743-iwg20d-q7.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.160/=
+arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743-iwg20d-q7.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221216.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63a0f50d6d420df0c64ee=
+e35
+        failing since 24 days (last pass: v5.10.155, first fail: v5.10.156) =
+
+ =20
