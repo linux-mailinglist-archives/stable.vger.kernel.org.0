@@ -2,329 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 257EF651C6E
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 09:39:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C10B651CF8
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 10:16:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229571AbiLTIjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Dec 2022 03:39:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48132 "EHLO
+        id S233208AbiLTJQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Dec 2022 04:16:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229530AbiLTIjW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 03:39:22 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4341A1
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 00:39:21 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id s196so7894284pgs.3
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 00:39:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=E4wqUrpS76oGgY7oLcT4HTWSwOO2LEgnMgar0bldX7Y=;
-        b=AvmAEsqkAEDIe79u4m3ELnuztMH4/KAyAXaR7+DSHBM0CbBY1xmUMyxZ0yaXIjXyTJ
-         J7gKSKOf4naLlCFWBRlx0ZAg33/Ae0OuYrv6TCFNocpiqWIuK0ZDLGbHGEJMNVfqPqBS
-         Ps8wsGYA6sI3xrRIkoTE4P+6ili1o17nwogciVnGwhblsdjdVHLLRKaANlCwDO7Fne6y
-         /OG7PpRaRmP8klrZwqsxDG7AfvVwGRQK8zYjYvmRMpAmWeDiyWqvjaM0yxfnxFNM29gu
-         eK4EvWWuR7h6dps0Bq/qNQ3j+aQy8u/UckjKbamauKXo0JmrQSTIpRgU6RBqli/ajE/g
-         g6Kw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=E4wqUrpS76oGgY7oLcT4HTWSwOO2LEgnMgar0bldX7Y=;
-        b=Wi9eXKyEu+FfYcVQs8vT/WYYXdnmDBBiJOToQ0btfwP//Gxmwj11cIIm5fKS/B7zYx
-         IwP0xjmkdYurotEH0dIjzeR/g4j25GCOzIwAOXy8+sU9+gk0yFrZvZnJpNWkIgssQsIB
-         s6j1R3AOKTVr6jpEWmQFatcZnw+6e7kYIMy3kUnMWU4eYffEDLowTTapgBnxY7gBNcAu
-         wKv5JWDcMj6xSjUJpZQkNzUP82rTHzM6drkVKh4/hkkOmVdxiwvVMR4MnLRX33utWBZE
-         hcYMJ63+VudYQDcDucZMf/4IeKj1W6RGjk95D9RYpUokdKgAxzSTzCddnAavl9sJQOUl
-         cRAA==
-X-Gm-Message-State: ANoB5pmlwxN9DzyVe+bN/tF2EYa4MmVJWIAtiKZhwchMSHYGFcmR6+Xs
-        mCnYoVDCQ5tshoQOXykB9Io+vg==
-X-Google-Smtp-Source: AA0mqf7K1JJTdernGS6g9VGuY+9BUiAEgGYbfMArIt1TLaO+f769AF22VH1sxHjOCKssMxQVd2qi7w==
-X-Received: by 2002:a05:6a00:1c89:b0:576:e33e:cd63 with SMTP id y9-20020a056a001c8900b00576e33ecd63mr41223534pfw.30.1671525560638;
-        Tue, 20 Dec 2022 00:39:20 -0800 (PST)
-Received: from niej-dt-7B47 (80.251.214.228.16clouds.com. [80.251.214.228])
-        by smtp.gmail.com with ESMTPSA id y5-20020a623205000000b00575448ab0e9sm7981430pfy.123.2022.12.20.00.39.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Dec 2022 00:39:19 -0800 (PST)
-Date:   Tue, 20 Dec 2022 16:39:27 +0800
-From:   Jun Nie <jun.nie@linaro.org>
-To:     Theodore Ts'o <tytso@mit.edu>
-Cc:     stable@vger.kernel.org, djwong@kernel.org, jack@suse.cz,
-        jlayton@kernel.org, lczerner@redhat.com,
-        linux-ext4@vger.kernel.org, xuyang2018.jy@fujitsu.com
-Subject: Re: [PATCH v1] ext4: Remove deprecated noacl/nouser_xattr options
-Message-ID: <Y6F0vw1ZhuHPTlzQ@niej-dt-7B47>
-References: <166431556706.3511882.843791619431401636.b4-ty@mit.edu>
- <20221216034116.869864-1-jun.nie@linaro.org>
- <Y5wGZG05uicAPscI@mit.edu>
- <CABymUCOzpfivVMcyx_Ut7kznx-ARi=VTx4qzGytg69njbeq_-A@mail.gmail.com>
- <Y6CUJ29YOWtLyeVA@mit.edu>
+        with ESMTP id S229690AbiLTJQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 04:16:45 -0500
+Received: from EUR03-AM7-obe.outbound.protection.outlook.com (mail-am7eur03on2117.outbound.protection.outlook.com [40.107.105.117])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC0269FF1
+        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 01:16:42 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Kgap1nE4qUYmmNpxB+AtyONdh+M+V+QVg9VDGz8x9TdN5xj35IRM3TMcHwpEtWC9/Z00ElV2DEbZKdMX9W6Z+FziYCFsfDCoSYmLEvVviwuIkXyDkDQqSCGLGYIdEqCbRb/SonlhfeNlDizHGlovzGG0b0RqCLAhmjqe1zNoIUxZsH53Rvg66u8J9b1Co4B7ldOTdAd9VhBDlGmHdKpqFb8dHRf0Usuq5Z6i/qAE4Dm2XaGQOLxdexXe6zlU6SMG7lfG9E5ROS/9u1lfQjz1nQV77bShay+AWKuvXTARQ0oWhnnhqfk/25HvkJp5q+fT0eQMfHPoBjjcJdP+nzV6lw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=/n0lOhO0BNfmKSQVuTPheAFUmrAG42B9LZkNq6Ct20M=;
+ b=O38mjJ/lQlK4gj8z0UTHJMLc+Msj4qFk/ht6dWzsdVOwh0OfM05bh0ldGsAHmTRXp3vEe6+DGKE4RDajbRR1YTxW7wEk+tZSWq1HHFGiVF/JFhTPSCJlLY2yMiomI7hr6PgLIQP3nwAny1GamQTuvj5O09g8wVJ9O0dmcGKYJxnTJYy5cfKOWKd89XDDTkBkbI0f/2L7tJ56u/AszwQ+xRZ2pUOs77Gmbc2gi5buCPWpdI6SWhPABmoASyHLI3cgziiMX7URTrtOLwlNGP6AqHujndTliWGsHU477AproWz2ZwxFow1Qmv7CYaC2uw3aL6Tvs7haxNkriUHDtmM66Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=prevas.dk; dmarc=pass action=none header.from=prevas.dk;
+ dkim=pass header.d=prevas.dk; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=prevas.dk;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/n0lOhO0BNfmKSQVuTPheAFUmrAG42B9LZkNq6Ct20M=;
+ b=AvqIFiUxfipEcbkvPF4NQezjH3Vkfa/IhiHdiJWBZ3n6vVK91UxjV7JdWwnyY1YoQC8W3ZakQgf2HLhte7KJiXjH0EsRDDIN8Zdg6sJ/ds5jl3GecqHnyELUnBQwZ1xbfVb0t4D7cmmbhIsQKg6I0eO9OG3dAp05fWfWtHdPQ+A=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=prevas.dk;
+Received: from DU0PR10MB5266.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:34a::22)
+ by DB9PR10MB7122.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:45b::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5924.16; Tue, 20 Dec
+ 2022 09:16:40 +0000
+Received: from DU0PR10MB5266.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::722b:5d41:9862:10e5]) by DU0PR10MB5266.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::722b:5d41:9862:10e5%8]) with mapi id 15.20.5924.016; Tue, 20 Dec 2022
+ 09:16:40 +0000
+Message-ID: <38a93e7d-f716-e908-7fba-7570299a6fd3@prevas.dk>
+Date:   Tue, 20 Dec 2022 10:16:38 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Content-Language: en-US, da
+To:     Lukas Wunner <lukas@wunner.de>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From:   Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Subject: commit b079d3775237 in 5.15.y
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: MM0P280CA0053.SWEP280.PROD.OUTLOOK.COM
+ (2603:10a6:190:b::32) To DU0PR10MB5266.EURPRD10.PROD.OUTLOOK.COM
+ (2603:10a6:10:34a::22)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y6CUJ29YOWtLyeVA@mit.edu>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DU0PR10MB5266:EE_|DB9PR10MB7122:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4ae43247-0118-43c0-b127-08dae26ae73d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: XTLESP8lMENeRg8dXB5dRz0XiwlQKY1BGHH4X2VACdKKzcUBvEIEHbsnlP+18ErikK6SZELHteC1WXftEmy2e5tXF2uGoWoGPPSujeMEbFCCFrjWNloZ8EfoetV5humw57+HUPKQRITKZkDB3jx+AUzS5rkkJr76neDhHkanpO38fySgI8BYdpQ3eiq7FCA9C1rQuZlgaCXStQgKxUZNjLXD65DvVOaXfb9EdWXvjwVfTVzGKhLicx2oRqpzfrMLZMhJrWbz03miTc6m15uGXYhgNzxHbkuMG4L/Sb+ayPBujFzAHBDjiqwyzl3c1tAUge1gZK6n4xL42Nn3LWF0XaO12woFUEPsYVmfgMkz+LtzTIcQMXzw/NSY0ampZLOTEYWWZ7Mm1z6qZ41onHTFrd3kqJnZ7uGONLVSgo4+xav/6Uz9nPmZRLOSYOSgGRp0yVZoHDiRs8Zp8/6zZl5dCYoXVtGkRb5rfzqn2fy4REgKzG7muoswqsidwWZppzkSfXAwkVnNXDkDMg/A7ksqN+gyEtnB/TmLZ5fQPNxbZPRWKb8er/BnCIrkxB27bag1JT8pnW3b/7lqLtGlGttOES4DPZmwHeUA98wwJAY2AlhuPeY2a959G2XvPgA97O9MLYzJh3hYX9pNGCys+Qn+WA0eWJ14U9rVkqwtRVGSo2IY++7y0yqJXRIrrJC3pczbXD+grbi9jwKrW2FoJdDQodNPthhedPorCT+cXGyq5HviSh1ZaRvV0wpdgaPX5THC
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DU0PR10MB5266.EURPRD10.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230022)(39850400004)(366004)(376002)(396003)(346002)(136003)(451199015)(31686004)(2906002)(38100700002)(4744005)(38350700002)(44832011)(5660300002)(41300700001)(83380400001)(66476007)(8676002)(66556008)(66946007)(4326008)(8976002)(8936002)(36756003)(316002)(31696002)(6512007)(26005)(2616005)(6916009)(52116002)(186003)(54906003)(86362001)(478600001)(6506007)(6486002)(43740500002)(45980500001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?SjZVVjF5Skt1cXNyQXBKWHB1WEF2dHdGdUl4bGpqc1lEcnZuK2FhbmI4V2hN?=
+ =?utf-8?B?aXNUK1B1WldmSERteVdLcnlob2czRkZZazZCRmZLdytIZjBhODUyMTkwdTBU?=
+ =?utf-8?B?WnJPNHNndmIxMmd6dEtuUnpNNlJJZ0hHSlFDQ1k5cjJhUEpBQnMxcjZVaWpp?=
+ =?utf-8?B?dGFTeEhHdklQSEdUTFJSSEtVdTVMYnBNSGtrNlJtUlU3MkxGbmlUSEcwdHlt?=
+ =?utf-8?B?TWRHYTRFY1UzdWRrbHZnZ3d0T2g0S3h6aklaUkg2NHZkM1A3bUoxdFdOWWEz?=
+ =?utf-8?B?VlRPaFhReGpSTHJXNXZnbkZlNkF3eVdmN2laaUNYTzZnRThKMEFudEk3MkNv?=
+ =?utf-8?B?S2I1c0E4d1QzN3NzbjYrTnBFeGJ4TE51YUdGZ0ltWlNRaUV2VEtvbExNNE15?=
+ =?utf-8?B?Z0Y5TE9DaHNPS25abk1zRjNIM0lLRjcvdmQyTlN6MzljOWdSVHYweEwxejFV?=
+ =?utf-8?B?bzFPWDRNbCtzZ3VtL1VwMkNXampHZENQSmdLdUtIZUtKQ2lvQ2dWV0FXeUJy?=
+ =?utf-8?B?MnJ2TlR5VC8rZkEvdVczTkRkN1orY0VqM3c3Vk0rV1hzM1BvNWhGWkpBUTF6?=
+ =?utf-8?B?V0V6a3luelNDbjl0QXR4c3dNaEtsNGlHSmMxcHFNUVpvSllGLyt0a056Q1Js?=
+ =?utf-8?B?NDVXRTZDYjJWbzA3WDZGRythNTRCeXhKSVVkOHN6RWFrNUZzMHl3RUdhcjdm?=
+ =?utf-8?B?akZEakdiK0NuMTN6ck1Jd0tZdWIvNjB4blRRaFc5UHg4SG5CRHJhVEVlRkc0?=
+ =?utf-8?B?TnBKQjFFekRsVys2YW9XeS9zQm5WQnMxQXBOeUE0bnlHZlZlWlE5a1YvS1h2?=
+ =?utf-8?B?N0kzb3Z4K0JtSnUzYy82aEQ4aVpnNWhKaS81NEw4cE5tVzBLNzE0ZjdRQjN5?=
+ =?utf-8?B?UkQ5VGFJQ0llVWVkeS9vQkNBKzVhN3hmNGRNMDY5WjZobmcwbkpvVE16VGN5?=
+ =?utf-8?B?TkowcUlCVVJjVGRKa2xpN01KYllrMUIyS1llTjcrUVMrZ2QyM2EyOW95NlVq?=
+ =?utf-8?B?My93MGdIUVVxb3Boa1dlNk9ONGNRZzRZSGxORS8zbCs0QWZlRWpjRkZJMU12?=
+ =?utf-8?B?UEsveG5sdlN3M0RSMCtoOVlMcnJrbVdXRWlOZEQrNWoyeXhRZ3BOdlVUZEJr?=
+ =?utf-8?B?aHVmRG9TRVFFL3hxME1FU0ZHZnBJQjZSN2ZRS3dZdmREQ1dMWWlkWjFEZ1JO?=
+ =?utf-8?B?ek9SUnMwL1pjNmhtTG01UE4wTGR1UGlpazNaQndjSlVkVDFEbWdrLzJUbmVs?=
+ =?utf-8?B?RkdxSjF5dnkyTjVFTytsZHAwY2ZQMmladXFGamh6THJnK29Vam5jOStEaDJ2?=
+ =?utf-8?B?R2Z0VTJXaXM5b3JoYjVLa2UyeEFDNmlodlRvbWtSQWp3bHlsVkhEaTJJSHJZ?=
+ =?utf-8?B?TDgxT1ZJZXhEQ2ZsZks2RjVjZ01ndFI2dnNDdW9DQTFqZ2wvNW5ucVRySkhu?=
+ =?utf-8?B?cWNRT1BnMkFnTDZEa01IcEFjQlFlVmlaNVhSdTVDZFpyZFBiVDVtVUxSQ3Rx?=
+ =?utf-8?B?cVdLdTRES2xJWjhjc2R5eUM3a3BuWlBjbklDS3ZrV3JrTXJjT3JRSkdGNFVO?=
+ =?utf-8?B?N080eWxHc0RmbFpHTENWdm1CTkdrWm1HWXVFOTk0Q0lsekI0STdtMU16L0hH?=
+ =?utf-8?B?ZXB3NVZ2OFNPUmNVM2xYMU96ZHFXb0VxaW5ORTVIUWM5b0E4ajNBanlVUTNM?=
+ =?utf-8?B?c3QzKzIvbXZvR00yOExFcXEzT2V5ZTNsWEF6OTVuZFZSQmpqQVlYYjBXcVhK?=
+ =?utf-8?B?RktMZS9BNi82cmNiSXRUV2xtTHZLck44clFocHFobHJQYzFDQ0Q1aysvVHFO?=
+ =?utf-8?B?QVRFS0ZyRTZDY29SR0YyKzJMS0VPUFpVSEVIRzVmTldGcDZrOUVob2JtRkV6?=
+ =?utf-8?B?QmhQQ2g4WlFoemtJcFkxR0psNmNHUDhKd1dQU3JBblU0KzArQVZxeU9mNjJT?=
+ =?utf-8?B?UEhIWnorY0ZsdVBBYkswSDFwNkZDUVU1ckkrOTBYaWFEM2V5NGM1cUVsU3FO?=
+ =?utf-8?B?L2JhcmJwL3FQZThPODh1enpyQ29VNHBXTDdXRnlTS2Z5aEpuKzFyL0ZpSE5t?=
+ =?utf-8?B?WVdTL3hFWDZUdXhrdDEwRGtSTDJHUmNUamJucENpL3l3ZktHVWFvL2dCZ0hH?=
+ =?utf-8?B?b1NjcFI3MW8xcGM0NWdvcENzZjVINy9UYm80c3NnQmpJelVTU09GTHFDMk1D?=
+ =?utf-8?B?MUE9PQ==?=
+X-OriginatorOrg: prevas.dk
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4ae43247-0118-43c0-b127-08dae26ae73d
+X-MS-Exchange-CrossTenant-AuthSource: DU0PR10MB5266.EURPRD10.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Dec 2022 09:16:40.2524
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: d350cf71-778d-4780-88f5-071a4cb1ed61
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: LDF8x8ZyZv8aXWb1+RERuIz5DmfvRBl4b1ALKIx5fuPZYb+tdVM2xZH8ake7UlTfJU/LtCSaunRsnouPsHOcr9tig3NkDvgyzsJ7SBbg94A=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR10MB7122
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 19, 2022 at 11:41:11AM -0500, Theodore Ts'o wrote:
-> On Mon, Dec 19, 2022 at 05:23:18PM +0800, Jun Nie wrote:
-> > 
-> > Do you mean we have a chance to expand ea_inode in place for some
-> > cases? If so, a new ea_inode with larger space should be created
-> > to hold expanded ea_inode data, thus data have to be copied and written
-> > out through memory in my mind. Or anything other than CPU/memory can
-> > utilized for this to avoid memory usage, such as DMA?
-> 
-> There are two inodes in question here.  The first is the base inode,
-> which in this case is /file0.  The second is the ea_inode which stores
-> the value of one of the extended attributes.  In the syzkaller fuzzed
-> file system, there is an ea_inode field which is already created; it
-> contains a value which is too large to fit in the inode or the
-> extended attribute block; but that's OK, because we can put it in a
-> ea_inode.  Unfortunately, we are unnecessarily created and deleting
-> the ea_inode (which contains the xattr *value*) when we move the xattr
-> from in-inode storage to the external xattr block.
-> 
-> Extended attributes can be stored either in the on-disk inode, or in
-> an extended attribute block.  The storage in the on-disk inode is
-> limited, but extended attributes stored don't require a random access
-> 4k read as in the case of the extended attribute block.  So we try to
-> store extended attributes in the inode if possible --- especially the
-> ones which might be accessed frequently, such as a POSIX ACL or a
-> SELinux security id.
-> 
-> The ext4 inode is composed of two portions.  The base 128 byte inode,
-> which is always present, and which is what was originally used in
-> ext2.  And the "extra inode fields", which are these fields as
-> currently defined at the end of struct ext4_inode:
-> 
-> 	__le16	i_extra_isize;
-> 	__le16	i_checksum_hi;	/* crc32c(uuid+inum+inode) BE */
-> 	__le32  i_ctime_extra;  /* extra Change time      (nsec << 2 | epoch) */
-> 	__le32  i_mtime_extra;  /* extra Modification time(nsec << 2 | epoch) */
-> 	__le32  i_atime_extra;  /* extra Access time      (nsec << 2 | epoch) */
-> 	__le32  i_crtime;       /* File Creation time */
-> 	__le32  i_crtime_extra; /* extra FileCreationtime (nsec << 2 | epoch) */
-> 	__le32  i_version_hi;	/* high 32 bits for 64-bit version */
-> 	__le32	i_projid;	/* Project ID */
-> 
-> The i_extra_isize is the field that is always present for inodes
-> larger than 128 bytes and for which the ext4 file system feature
-> EXT4_FEATURE_RO_COMPAT_EXTRA_ISIZE is enabled.  The i_extra_isize
-> field tells us how many of the fields beyond the first 128 are
-> present.  These fields are necessary for various "advanced" (newer
-> than ext2) ext4 features, including metadata checksums, support for
-> dates beyond 2038 and sub-second timestamp granularity, file creation
-> time, 64-bit i_version, and the project id for project quotas.
-> Everything beyond i_extra_isize is used for in-inode extended
-> attributes.
-> 
-> Now, what if we need to add extra space for new ext4 features?  Well,
-> ext4 has a way of expanding the extra inode fields, and one of the
-> ways to trigger this is via the debugging mount option,
-> debug_want_extra_isize.  In this particular syzbot reproducer, the
-> mount option, "debug_want_extra_isize=128" sets the i_extra_isize
-> field to maximum allowable size for a 256 byte inode size, and this
-> means that all extended attributes should be ejected out from in-inode
-> storage to the external extended attribute block.  We do this on a
-> best efforts bases, when a modified inode is written back to the disk.
-> 
-> The lazytime mount option delays inode updates until the very last
-> minute.  The reason for this is to avoid multiple writes to the inode
-> table blocks.  This improves performance by reducing random 4k writes,
-> and for flash based storage, reducing flash wearout for flash-based
-> storage.  For hard drives (HDD's), it reducing random 4k writes
-> reduces the need to perform Adjacent Track Interference (ATI)
-> mitigations.  ATI mitigations can significantly increase the 99.9
-> percentile tail latency on file system operations, and decreasing tail
-> latency can be worth $$$ for some use cases[1].
-> 
-> [1] https://research.google/pubs/pub44830
-> 
-> The downside of using lazytime updates is that on a crash, the inode
-> timestamps might not get updated --- but very often, this is not a big
-> deal.  And normally, when some other inode in the same inode table
-> block is updated, we take that opportunity to update all of the
-> timestamps that were deferred.  Or, in the worst case, this will get
-> delayed until the file system is unounted.
-> 
-> Now, back to the extra space expansion.  Eexpanding to allow extra
-> inode fields to be used in the future is a "nice to have" sort of
-> thing.  It can fail for a number of reasons, including there not being
-> enough space in the extended attribute block to evict the extended
-> attributes in the inode; or if the file system is full, we might not
-> be able to allocate an external block for the extended attribute block
-> in the first place.
-> 
-> So it's OK for us to simply pass on making space for the extra inode
-> fields if it turns out we happen to be in the process of unmounting
-> file system.  However, that doesn't fix the performance problem of
-> unnecessarily deleting and creating the ea_inode when moving the xattr
-> from the inode to the exernal xattr block.  So fixing that performance
-> issue is the ideal solution.  Simply passing on the extra_isize
-> expansion is the second best issue.  Backporting an unrelated fix[2]
-> which papers over the problem by disallowing the mount option
-> nouser_xattr is the worst option, since it doesn't actually fix the
-> underlying file system bug.
-> 
-> [2] commit 2d544ec923dbe5 ("ext4: remove deprecated noacl/nouser_xattr
-> options")
-> 
-> Backporting [2] will shut up the syzbot reproducer, yes.  But that's
-> because the syzbot reproducer was inadequately minimized.  *This*
-> reproducer, which is a easier for a human to understand and which is
-> appropriately minimized will trigger exact same issue, with or without
-> 
-> #!/bin/bash -vx
-> #
-> # This reproduces an ext4 bug caused by an unfortunate interaction
-> # between lazytime updates happening when a file system is being
-> # unmounted and expand_extra_isize
-> #
-> # Initially discovered via syzkaller:
-> # https://syzkaller.appspot.com/bug?id=3613786cb88c93aa1c6a279b1df6a7b201347d08
-> #
-> img=/tmp/foo.img
-> dir=/mnt 
-> file=$dir/file0
-> 
-> rm -f $img
-> mke2fs -Fq -t ext4 -I 256 -O ea_inode -b 1024 $img 200k
-> mount $img $dir
-> v=$(dd if=/dev/zero bs=2000 count=1 2>/dev/null | tr '\0' =)
-> touch $file
-> attr -q -s test -V $v $file
-> umount $dir
-> mount -o debug_want_extra_isize=128,lazytime /tmp/foo.img $dir
-> cat $file
-> umount $dir
-> 
-> This is why your proposal to backport commit 2d544ec923dbe5 is not the
-> right answer.
-> 
-> > per general understanding of a subsystem uninitialization, a flag
-> > shall be marked to reject further operation on the sub-system and
-> > flush the pending operation, then free the resource. In such a
-> > general method, current handling to create a new ea_inode should not
-> > crash even it is stupid.  sb->s_root seems to be a key global
-> > resource in ext4 subsystem per my understanding, and should not be
-> > set as NULL until the last step of unmount operation.
-> 
-> That's true in general.  And yes, simply bypassing the extra_isize
-> expansion when the file system is being unmounted is certainly better
-> that backporting the unrelated commit[2].  But the true correct fix is
-> to optimize how we migrate the xattr from the in-inode storage to the
-> external xattr block.
-> 
-> This is also at *best* P2 bug, since (a) it's not real security issue;
-> just a null pointer derference, and there is no way this could be
-> leveraged into any kind of denial of service or privilege escalation
-> attack, and (b) it requires root access, and use of a debugging option
-> to enable a code path which is in practice never used in production.
-> It is a syzkaller report, and unfortunately, there seems to be this
-> assumption that all syzkaller issues are P0 or P1 issues that must be
-> remediated right away.  Which is not the case in this instance.  It's
-> a real bug, and so it should be fixed; but it's not a high priority
-> bug.
-> 
-> That being said, if you'd like ot become more experienced in a portion
-> of ext4 internals, I'd certainly invite you to try to understand how
-> ext4 extended attributes are managed, and try your hand at fixing this
-> bug.
-> 
-> Best regards,
-> 
-> 						- Ted
+Hi,
 
-Thanks for the elabration of the logic here. I guess below change is similiar
-with what we are expecting. There are 2 question in the change I do not have
-anwser yet.
+I think something went slightly wrong when 7c7f9bc98 (serial: Deassert
+Transmit Enable on probe in driver-specific way) got backported to
+5.15.y. In fsl_lpuart.c, the original had this
 
-But for the crash with NULL sb->s_root, below change does not impact anything
-because all functions are still called. So I guess the protection with
-rejecting further request during umount is still needed. Or I still missed
-something?
+ failed_irq_request:
+-failed_get_rs485:
+        uart_remove_one_port(&lpuart_reg, &sport->port);
+ failed_attach_port:
++failed_get_rs485:
+ failed_reset:
+        lpuart_disable_clks(sport);
+        return ret;
 
+in the error path, but that is missing in the backport. So if we now hit
+the 'goto failed_get_rs485;', we'll do uart_remove_one_port() while
+uart_add_one_port() hasn't been done.
 
- fs/ext4/xattr.c | 26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
-
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index 7decaaf27e82..546808dbbdd6 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2551,9 +2551,8 @@ static int ext4_xattr_move_to_block(handle_t *handle, struct inode *inode,
- 
- 	is = kzalloc(sizeof(struct ext4_xattr_ibody_find), GFP_NOFS);
- 	bs = kzalloc(sizeof(struct ext4_xattr_block_find), GFP_NOFS);
--	buffer = kvmalloc(value_size, GFP_NOFS);
- 	b_entry_name = kmalloc(entry->e_name_len + 1, GFP_NOFS);
--	if (!is || !bs || !buffer || !b_entry_name) {
-+	if (!is || !bs || !b_entry_name) {
- 		error = -ENOMEM;
- 		goto out;
- 	}
-@@ -2565,14 +2564,21 @@ static int ext4_xattr_move_to_block(handle_t *handle, struct inode *inode,
- 
- 	/* Save the entry name and the entry value */
- 	if (entry->e_value_inum) {
-+		buffer = kvmalloc(value_size, GFP_NOFS);
-+		if (!buffer) {
-+			error = -ENOMEM;
-+			goto out;
-+		}
-+
- 		error = ext4_xattr_inode_get(inode, entry, buffer, value_size);
- 		if (error)
- 			goto out;
- 	} else {
- 		size_t value_offs = le16_to_cpu(entry->e_value_offs);
--		memcpy(buffer, (void *)IFIRST(header) + value_offs, value_size);
-+		buffer = (void *)IFIRST(header) + value_offs;
- 	}
- 
-+	/* Can we reuse entry->e_name with assumption of \0 for all e_name? */
- 	memcpy(b_entry_name, entry->e_name, entry->e_name_len);
- 	b_entry_name[entry->e_name_len] = '\0';
- 	i.name = b_entry_name;
-@@ -2585,11 +2591,6 @@ static int ext4_xattr_move_to_block(handle_t *handle, struct inode *inode,
- 	if (error)
- 		goto out;
- 
--	/* Remove the chosen entry from the inode */
--	error = ext4_xattr_ibody_set(handle, inode, &i, is);
--	if (error)
--		goto out;
--
- 	i.value = buffer;
- 	i.value_len = value_size;
- 	error = ext4_xattr_block_find(inode, &i, bs);
-@@ -2597,13 +2598,18 @@ static int ext4_xattr_move_to_block(handle_t *handle, struct inode *inode,
- 		goto out;
- 
- 	/* Add entry which was removed from the inode into the block */
-+	/* Can this function remove in inode xattr automatically? */
- 	error = ext4_xattr_block_set(handle, inode, &i, bs);
- 	if (error)
- 		goto out;
--	error = 0;
-+
-+	/* Remove the chosen entry from the inode */
-+	error = ext4_xattr_ibody_set(handle, inode, &i, is);
-+
- out:
- 	kfree(b_entry_name);
--	kvfree(buffer);
-+	if (entry->e_value_inum && buffer)
-+		kvfree(buffer);
- 	if (is)
- 		brelse(is->iloc.bh);
- 	if (bs)
+Rasmus
