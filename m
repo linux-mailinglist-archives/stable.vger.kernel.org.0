@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B864B6517E3
+	by mail.lfdr.de (Postfix) with ESMTP id 62F586517E2
 	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 02:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233090AbiLTBWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Dec 2022 20:22:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52432 "EHLO
+        id S233089AbiLTBWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Dec 2022 20:22:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233118AbiLTBV7 (ORCPT
+        with ESMTP id S233115AbiLTBV7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 19 Dec 2022 20:21:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B829B7658;
-        Mon, 19 Dec 2022 17:21:28 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99517120AD;
+        Mon, 19 Dec 2022 17:21:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95205B810FA;
-        Tue, 20 Dec 2022 01:21:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9642EC433F1;
-        Tue, 20 Dec 2022 01:21:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 27EC761118;
+        Tue, 20 Dec 2022 01:21:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C33B0C433EF;
+        Tue, 20 Dec 2022 01:21:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671499286;
-        bh=xadfa5UUa/VvR7/Q+w8xXinb6FW7rp5NXKRfhIxiI8E=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YqyrRFT1RxUn5aEPX97TENyEqxpyPlnFRxKzQmbm41xRaj/6f9MpTZ7MWMn/YLnWA
-         yv+0e7V+K2ZxcKMhLKwrlPiLUHDXJ0wxAaJk71WdEJPkhbzSUAAou0RDbyVxetrUYd
-         +Io0m3j8cV8iLvg5W0/vS73ZjyO/zUY4eDSOQBakoaSsA8oPp/WCbD6BqCypzw8BN4
-         4++KNkiHTDPTAtt+gXwGuTyvY8nKDqPKHnPGUV6g5F7GRUM3QPngszNQqGZ2eu5+la
-         xhArqTjYIb24VhGFe6YqZbdr5p529Ic9UB6foEZgNglSyuoShN/xSicaHk3wTz1hAf
-         bjNNkar8uliuQ==
+        s=k20201202; t=1671499289;
+        bh=sOEQaiBYi+zp6/OlSa7oS1/xUx0Yez6SKBn9Qar5EPY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=SOSQVHJcF3+0gc8vVgRQNauTqrp0NsJQKidlzhmy24fW6wplX4XlHmm+wiRMniECa
+         Fu2163b1dEd8YWAJqtP2SV9bG8ZIgPgzwUigBdnOMsh9MgwlHk3oN2eHQZmo3uYY3m
+         HU4TyCQ5N2VQNIITSeFVPGS1/JqOAG4guxDHishgpij5o7IaUuWSeurihz/JV4WoPZ
+         CK71Tu+UPq0XAAGbh9uAH2ID2qJmSN9B1GZTULoh8jSbmauPK35SnN6c1TtwfbjzXO
+         QusHBvedkbsYb7GZu8BpYsd/foaTFJYeNy3JBlzYbydjpTmRXpsn0CpBs7ggsmmFTv
+         Xrzt27eiridJg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Mike Marshall <hubcap@omnibond.com>,
-        Sasha Levin <sashal@kernel.org>, devel@lists.orangefs.org
-Subject: [PATCH AUTOSEL 6.1 16/16] orangefs: Fix kmemleak in orangefs_{kernel,client}_debug_init()
-Date:   Mon, 19 Dec 2022 20:20:53 -0500
-Message-Id: <20221220012053.1222101-16-sashal@kernel.org>
+Cc:     Zhiqi Song <songzhiqi1@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, liulongfang@huawei.com,
+        davem@davemloft.net, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 01/16] crypto: hisilicon/hpre - fix resource leak in remove process
+Date:   Mon, 19 Dec 2022 20:21:11 -0500
+Message-Id: <20221220012127.1222311-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221220012053.1222101-1-sashal@kernel.org>
-References: <20221220012053.1222101-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,105 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Zhiqi Song <songzhiqi1@huawei.com>
 
-[ Upstream commit 31720a2b109b3080eb77e97b8f6f50a27b4ae599 ]
+[ Upstream commit 45e6319bd5f2154d8b8c9f1eaa4ac030ba0d330c ]
 
-When insert and remove the orangefs module, there are memory leaked
-as below:
+In hpre_remove(), when the disable operation of qm sriov failed,
+the following logic should continue to be executed to release the
+remaining resources that have been allocated, instead of returning
+directly, otherwise there will be resource leakage.
 
-unreferenced object 0xffff88816b0cc000 (size 2048):
-  comm "insmod", pid 783, jiffies 4294813439 (age 65.512s)
-  hex dump (first 32 bytes):
-    6e 6f 6e 65 0a 00 00 00 00 00 00 00 00 00 00 00  none............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000031ab7788>] kmalloc_trace+0x27/0xa0
-    [<000000005b405fee>] orangefs_debugfs_init.cold+0xaf/0x17f
-    [<00000000e5a0085b>] 0xffffffffa02780f9
-    [<000000004232d9f7>] do_one_initcall+0x87/0x2a0
-    [<0000000054f22384>] do_init_module+0xdf/0x320
-    [<000000003263bdea>] load_module+0x2f98/0x3330
-    [<0000000052cd4153>] __do_sys_finit_module+0x113/0x1b0
-    [<00000000250ae02b>] do_syscall_64+0x35/0x80
-    [<00000000f11c03c7>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Use the golbal variable as the buffer rather than dynamic allocate to
-slove the problem.
-
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+Signed-off-by: Zhiqi Song <songzhiqi1@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/orangefs/orangefs-debugfs.c | 26 +++-----------------------
- 1 file changed, 3 insertions(+), 23 deletions(-)
+ drivers/crypto/hisilicon/hpre/hpre_main.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
-index a848b6ef9599..1b508f543384 100644
---- a/fs/orangefs/orangefs-debugfs.c
-+++ b/fs/orangefs/orangefs-debugfs.c
-@@ -194,15 +194,10 @@ void orangefs_debugfs_init(int debug_mask)
-  */
- static void orangefs_kernel_debug_init(void)
+diff --git a/drivers/crypto/hisilicon/hpre/hpre_main.c b/drivers/crypto/hisilicon/hpre/hpre_main.c
+index 9d529df0eab9..13525793ff60 100644
+--- a/drivers/crypto/hisilicon/hpre/hpre_main.c
++++ b/drivers/crypto/hisilicon/hpre/hpre_main.c
+@@ -1287,18 +1287,12 @@ static int hpre_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ static void hpre_remove(struct pci_dev *pdev)
  {
--	int rc = -ENOMEM;
--	char *k_buffer = NULL;
-+	static char k_buffer[ORANGEFS_MAX_DEBUG_STRING_LEN] = { };
+ 	struct hisi_qm *qm = pci_get_drvdata(pdev);
+-	int ret;
  
- 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
+ 	hisi_qm_pm_uninit(qm);
+ 	hisi_qm_wait_task_finish(qm, &hpre_devices);
+ 	hisi_qm_alg_unregister(qm, &hpre_devices);
+-	if (qm->fun_type == QM_HW_PF && qm->vfs_num) {
+-		ret = hisi_qm_sriov_disable(pdev, true);
+-		if (ret) {
+-			pci_err(pdev, "Disable SRIOV fail!\n");
+-			return;
+-		}
+-	}
++	if (qm->fun_type == QM_HW_PF && qm->vfs_num)
++		hisi_qm_sriov_disable(pdev, true);
  
--	k_buffer = kzalloc(ORANGEFS_MAX_DEBUG_STRING_LEN, GFP_KERNEL);
--	if (!k_buffer)
--		goto out;
--
- 	if (strlen(kernel_debug_string) + 1 < ORANGEFS_MAX_DEBUG_STRING_LEN) {
- 		strcpy(k_buffer, kernel_debug_string);
- 		strcat(k_buffer, "\n");
-@@ -213,9 +208,6 @@ static void orangefs_kernel_debug_init(void)
- 
- 	debugfs_create_file(ORANGEFS_KMOD_DEBUG_FILE, 0444, debug_dir, k_buffer,
- 			    &kernel_debug_fops);
--
--out:
--	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
- }
- 
- 
-@@ -299,18 +291,13 @@ static int help_show(struct seq_file *m, void *v)
- /*
-  * initialize the client-debug file.
-  */
--static int orangefs_client_debug_init(void)
-+static void orangefs_client_debug_init(void)
- {
- 
--	int rc = -ENOMEM;
--	char *c_buffer = NULL;
-+	static char c_buffer[ORANGEFS_MAX_DEBUG_STRING_LEN] = { };
- 
- 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
- 
--	c_buffer = kzalloc(ORANGEFS_MAX_DEBUG_STRING_LEN, GFP_KERNEL);
--	if (!c_buffer)
--		goto out;
--
- 	if (strlen(client_debug_string) + 1 < ORANGEFS_MAX_DEBUG_STRING_LEN) {
- 		strcpy(c_buffer, client_debug_string);
- 		strcat(c_buffer, "\n");
-@@ -324,13 +311,6 @@ static int orangefs_client_debug_init(void)
- 						  debug_dir,
- 						  c_buffer,
- 						  &kernel_debug_fops);
--
--	rc = 0;
--
--out:
--
--	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
--	return rc;
- }
- 
- /* open ORANGEFS_KMOD_DEBUG_FILE or ORANGEFS_CLIENT_DEBUG_FILE.*/
+ 	hpre_debugfs_exit(qm);
+ 	hisi_qm_stop(qm, QM_NORMAL);
 -- 
 2.35.1
 
