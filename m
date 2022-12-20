@@ -2,70 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13603652340
-	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 15:58:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7D65652355
+	for <lists+stable@lfdr.de>; Tue, 20 Dec 2022 16:01:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233624AbiLTO6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Dec 2022 09:58:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49544 "EHLO
+        id S234205AbiLTPBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Dec 2022 10:01:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229628AbiLTO6t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 09:58:49 -0500
-Received: from mail-vs1-xe33.google.com (mail-vs1-xe33.google.com [IPv6:2607:f8b0:4864:20::e33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 479D4CF9
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 06:58:48 -0800 (PST)
-Received: by mail-vs1-xe33.google.com with SMTP id a66so11993414vsa.6
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 06:58:48 -0800 (PST)
+        with ESMTP id S234247AbiLTPBJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Dec 2022 10:01:09 -0500
+Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AF671ADA1;
+        Tue, 20 Dec 2022 07:00:51 -0800 (PST)
+Received: by mail-oi1-x236.google.com with SMTP id k189so10775478oif.7;
+        Tue, 20 Dec 2022 07:00:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=T9or8qu6JKMppO0BjvG4KREN0TsiXIo9VR7tBdWz3E0=;
-        b=sPle1K98siElwEnQSiMSRFrbgOEdMk7AXUbhOqXsaSV3Bw7f1zRzWc5v5zL8E23TQ8
-         v5FzdF6/flsDvwdOac02sbokPlxi3AZpf2hFVMMQo43etJX5x5oleEEQXg0EBhvajE13
-         pmfNGb8J0qWPH9LONzY4jRebTvPmrFuBQ2yKb7Ij16b63ccVWYUut/1XRE4P59a9bWew
-         mkkAOXCkbggcQTKhc0yZy1zTXmxMuSmW8um8sjLOtGw7kZkvr/rQPsBq2Pb1weUVL2Xn
-         j3Vxeo7Pm2E1o0Fyb8/fph9Jv1o8UaRuy8NtnjUzcFqVMZhLJVkxkazImisksnSpjstq
-         PADQ==
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ag0pUV7b8eAkjTjOY+RjV6R4uNkcaDWd0iSI1OL238M=;
+        b=cnmIQHeXOMtKyGY0j4hjCr5t8hSRsokfA8sMcZvoSpR6Nzw+D5XS+QHSvxPLVzXITU
+         415iHHZX3BaB7YbLaNI4Y11NICqiX9co8rkHK1olYrjMPhLMd0iENGBWt23GJ+gz2KHf
+         MxyTBhjl8q4EhQH41pbcDuKCRSQIdjDUAGQTm/Fb/ZXHMPTe4Waf6MhT35g7xIwRFnDA
+         cqu4fRotDiUHoUNcOoFkKhZ88m5TjKcL0hGni3VyxdMD0hVktTr4AP+Hzma98ZxMA6Z5
+         oeGxGo0v3If8IeN3123tHt3KbIyN138nYJ7I40tnq859joIF5zAmiAHf7LSs+j207Phz
+         Z1zw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=T9or8qu6JKMppO0BjvG4KREN0TsiXIo9VR7tBdWz3E0=;
-        b=c/cFSC+en4Kc+3eQHPL6hiFEUj9sotWK2VM1LniBW0Ihmeo/bW9QwSyxrJet1VfTVa
-         7fToNn3vXw/ZETmdoiot8XJVfM811JDfCla31iev+xHdIly1BS3z0wz2CX4hiHwKdTTt
-         IPnd+xUbG36GRtYbk7AaX7rwxJptltrtCzXXg39iSCeKH9KsQ96nNPNNKletLBlrLknr
-         lJ0dWrucmsE5lAhgARCceW9BR4Z7g2rNNre9LV6k3n8NJnJ0c3bYfbrK4XKp8nJ7Xq8a
-         XKDVsmVvYidR4DXEMdtSEjUHB10U6dO1x8Eu86ZLp27cU7ozOElhCUeoYbXIgyzHUgJZ
-         AIHQ==
-X-Gm-Message-State: ANoB5plqFk9SZL3hHLMMOz0OBv/KJdFvSMKjFE4jfp0MjbbmYqrTtC9s
-        rfAFJb2094TSpDyRc0mhPKnu3AO8/Yp4wcIBs9sHFQ==
-X-Google-Smtp-Source: AA0mqf5fv+7lxM44X5zQadpbNX4thXysP7TTw1cJN8453k0zXr+e2ecNZCtvPFF7CSoZc8hzKCodtgJ5Kzs6Mo72Y6M=
-X-Received: by 2002:a67:f04e:0:b0:3b1:1713:ba11 with SMTP id
- q14-20020a67f04e000000b003b11713ba11mr21573437vsm.76.1671548327302; Tue, 20
- Dec 2022 06:58:47 -0800 (PST)
-MIME-Version: 1.0
-References: <20221219191855.2010466-1-allenwebb@google.com>
- <20221219204619.2205248-1-allenwebb@google.com> <20221219204619.2205248-3-allenwebb@google.com>
- <Y6FaUynXTrYD6OYT@kroah.com>
-In-Reply-To: <Y6FaUynXTrYD6OYT@kroah.com>
-From:   Allen Webb <allenwebb@google.com>
-Date:   Tue, 20 Dec 2022 08:58:36 -0600
-Message-ID: <CAJzde04Hbd2+s-Bqog2V81dBEeZD7WWaFCf2BkesQS4yUAKiNA@mail.gmail.com>
-Subject: Re: [PATCH v9 02/10] rockchip-mailbox: Fix typo
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ag0pUV7b8eAkjTjOY+RjV6R4uNkcaDWd0iSI1OL238M=;
+        b=yBjwqaQB8wV+kvEuq09iRzLyGBOJ1gjZjeHmB0VNNha29u0BKTcN8D+2uoIa+xIwkP
+         XLv0Sz7Ts88kiWlJv4A048AeZcAhoMub5tSGREHo7PT8MAe5BB0S1UVRecoMMTFIffHf
+         bO2TufbGaRV0+Mn5eQQu2vvW0K54yFEajf2S4jbI8q0azrCUJCqcPMDEVsffFmoxMvcP
+         6njEsiNF7rWmYkGdae5iPJ0JjwqC9RHfTTFLSSCid0mjrOoPfEhKoOw0ag9FsxLK50ma
+         gzL+kwUb1ivsBSAK96Qiz9H6aj8fGRkbQX9kh4ppuOo8EozSheWMR6dGg2EdvYo0iNYI
+         lprA==
+X-Gm-Message-State: ANoB5pmbLRcMk2+BBRpuuK31JaSSV/bmTj+/nruBwu3ZbfOUtBcoFGLK
+        JyHarRmqFwqtnFojt6RskfiaM55s5Ig=
+X-Google-Smtp-Source: AA0mqf5xQF18meKRoEIf95umK8/98MauHZqK7XUa3ei/FAYezXlQxx52rdq7ZceAD/ZBRfhmXKAuYA==
+X-Received: by 2002:a05:6808:1804:b0:35e:22a4:883b with SMTP id bh4-20020a056808180400b0035e22a4883bmr27248741oib.38.1671548450978;
+        Tue, 20 Dec 2022 07:00:50 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id a23-20020a9d6e97000000b0066ca9001e68sm5724244otr.5.2022.12.20.07.00.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Dec 2022 07:00:50 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 20 Dec 2022 07:00:49 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>, stable@vger.kernel.org,
-        kernel test robot <lkp@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 00/25] 6.1.1-rc1 review
+Message-ID: <20221220150049.GE3748047@roeck-us.net>
+References: <20221219182943.395169070@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221219182943.395169070@linuxfoundation.org>
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -73,37 +77,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 20, 2022 at 12:46 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Dec 19, 2022 at 02:46:10PM -0600, Allen Webb wrote:
-> > A one character difference in the name supplied to MODULE_DEVICE_TABLE
-> > breaks a future patch set, so fix the typo.
-> >
-> > Cc: stable@vger.kernel.org
-> > Fixes: f70ed3b5dc8b ("mailbox: rockchip: Add Rockchip mailbox driver")
->
-> How has this been an issue since the 4.6 kernel and no one has noticed
-> it?  Can this code not be built as a module?  If not, then please
-> explain this.
+On Mon, Dec 19, 2022 at 08:22:39PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.1 release.
+> There are 25 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 21 Dec 2022 18:29:31 +0000.
+> Anything received after that time might be too late.
+> 
 
-As mentioned in a different sub-thread this cannot be built as a
-module so I updated the commit message to:
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 500 pass: 498 fail: 2
+Failed tests:
+	arm:xilinx-zynq-a9:multi_v7_defconfig:usb0:mem128:net,default:zynq-zc702:rootfs
+	arm:xilinx-zynq-a9:multi_v7_defconfig:usb0:mem128:zynq-zed:rootfs
 
-imx: Fix typo
+The failure bisects to commit e013ba1e4e12 ("usb: ulpi: defer ulpi_register on
+ulpi_read_id timeout") and is inherited from mainline. Reverting the offending
+patch fixes the problem.
 
-A one character difference in the name supplied to MODULE_DEVICE_TABLE
-breaks compilation for SOC_IMX8M after built-in modules can generate
-match-id based module aliases, so fix the typo.
+Guenter
 
-This was not caught earlier because SOC_IMX8M can not be built as a
-module and MODULE_DEVICE_TABLE is a no-op for built-in modules.
-
-Fixes: 556f5cf9568a ("soc: imx: add i.MX8MP HSIO blk-ctrl")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Allen Webb <allenwebb@google.com>
-
->
-> thanks,
->
-> greg k-h
+---
+# bad: [4478ff938eb5814bd2ae93b7e2d68c4fe54e9380] Linux 6.1.1-rc1
+# good: [830b3c68c1fb1e9176028d02ef86f3cf76aa2476] Linux 6.1
+git bisect start 'HEAD' 'v6.1'
+# good: [38b8e682acfa37b80cb947cecc743431c72a6c1d] USB: serial: option: add Quectel EM05-G modem
+git bisect good 38b8e682acfa37b80cb947cecc743431c72a6c1d
+# good: [8baa56d13f1bef9c621bc967c66b789022e9614e] staging: r8188eu: fix led register settings
+git bisect good 8baa56d13f1bef9c621bc967c66b789022e9614e
+# good: [aaac7e5db89b4f46c871b9a5c188bfbe6ae21b83] usb: dwc3: pci: Update PCIe device ID for USB3 controller on CPU sub-system for Raptor Lake
+git bisect good aaac7e5db89b4f46c871b9a5c188bfbe6ae21b83
+# good: [acbd8d17388466ea19eb52c2239c2e9d34906381] KEYS: encrypted: fix key instantiation with user-provided data
+git bisect good acbd8d17388466ea19eb52c2239c2e9d34906381
+# bad: [e013ba1e4e12b523bff42f600d598ff65a69c27b] usb: ulpi: defer ulpi_register on ulpi_read_id timeout
+git bisect bad e013ba1e4e12b523bff42f600d598ff65a69c27b
+# first bad commit: [e013ba1e4e12b523bff42f600d598ff65a69c27b] usb: ulpi: defer ulpi_register on ulpi_read_id timeout
