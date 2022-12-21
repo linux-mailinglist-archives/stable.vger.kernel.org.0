@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5299653602
-	for <lists+stable@lfdr.de>; Wed, 21 Dec 2022 19:19:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DC2C65360A
+	for <lists+stable@lfdr.de>; Wed, 21 Dec 2022 19:20:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230514AbiLUSTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Dec 2022 13:19:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35824 "EHLO
+        id S231263AbiLUSU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Dec 2022 13:20:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234711AbiLUSTH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 13:19:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55987F7C;
-        Wed, 21 Dec 2022 10:19:06 -0800 (PST)
+        with ESMTP id S229728AbiLUSUZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 13:20:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FE87BC4;
+        Wed, 21 Dec 2022 10:20:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E469B618A8;
-        Wed, 21 Dec 2022 18:19:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6DB0C433EF;
-        Wed, 21 Dec 2022 18:19:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B959618A8;
+        Wed, 21 Dec 2022 18:20:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E517EC433D2;
+        Wed, 21 Dec 2022 18:20:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1671646745;
-        bh=rgE/++iNjfIht0vkb5As1fT6+eAEzONl8QvRYMNWxVQ=;
+        s=korg; t=1671646823;
+        bh=EaL1FZjLFJ4p/Kw6JDysbkFcTcClZFXC8wsmE4QUj1I=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oMRdZG6EOZUl8QgrH3BqDc4jpU9852LGhM67FT6eK4weFV1b5hrLNI2mEJ2xI6My3
-         HISWJcIkYOGOmmOwbflsdr49nNthglwI3RWoKwRxBujIqunYhbmJYKeYgHXzecJkLU
-         kqmq4cfdY9Ov8QcOsMnt/9YA94vfu1Jc8WyBBTes=
-Date:   Wed, 21 Dec 2022 19:19:02 +0100
+        b=y0b/+0V0GXcWQHdrRu33PGYH0DmXMpXG6qg84EZ0JRauzqdfTqRtTNTcxbXu84JfZ
+         C5fmHMEPmZPZiTiBZyBEZW+ExFvfc2vGtyswlbyFyoZvrg9FMDMhwI35hpRKOtTxM4
+         HRMl1vc+5C6gujCacBy5T+06vipBA3t7u+wUTRjk=
+Date:   Wed, 21 Dec 2022 19:20:20 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
-        rwarsow@gmx.de
+To:     Jiri Slaby <jirislaby@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>, stable@vger.kernel.org,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
 Subject: Re: [PATCH 6.1 00/25] 6.1.1-rc1 review
-Message-ID: <Y6NOFisxidbxoOed@kroah.com>
+Message-ID: <Y6NOZEaDpod+9r/0@kroah.com>
 References: <20221219182943.395169070@linuxfoundation.org>
- <Y6Gp25YJ/m+DcgWH@debian>
- <CADVatmM9_d6gOo7VTM1ybVgNDM_w2+NdKM3DC67L9KjeWL7Ltg@mail.gmail.com>
+ <20221220150049.GE3748047@roeck-us.net>
+ <Y6HQfwEnw75iajYr@kroah.com>
+ <20221220161135.GA1983195@roeck-us.net>
+ <e3b06c93-1985-a958-871a-bfd73646c38a@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CADVatmM9_d6gOo7VTM1ybVgNDM_w2+NdKM3DC67L9KjeWL7Ltg@mail.gmail.com>
+In-Reply-To: <e3b06c93-1985-a958-871a-bfd73646c38a@kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -55,44 +58,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 20, 2022 at 02:31:20PM +0000, Sudip Mukherjee wrote:
-> Hi Greg,
+On Wed, Dec 21, 2022 at 07:34:04AM +0100, Jiri Slaby wrote:
+> On 20. 12. 22, 17:11, Guenter Roeck wrote:
+> > You probably didn't see any reports on mainline because I didn't report
+> > the issue there yet. There are so many failures in mainline that it is
+> > a bit difficult to keep up.
 > 
-> On Tue, 20 Dec 2022 at 12:26, Sudip Mukherjee (Codethink)
-> <sudipm.mukherjee@gmail.com> wrote:
-> >
-> > Hi Greg,
-> >
-> > On Mon, Dec 19, 2022 at 08:22:39PM +0100, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 6.1.1 release.
-> > > There are 25 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > >
-> > > Responses should be made by Wed, 21 Dec 2022 18:29:31 +0000.
-> > > Anything received after that time might be too late.
-> >
+> Just heads up, these are breakages in 6.1 known to me:
 > 
-> <snip>
+> an io_uring 32bit test crashes the kernel:
+> https://lore.kernel.org/all/c80c1e3f-800b-dc49-f2f5-acc8ceb34d51@gmail.com/
 > 
-> >
-> > Boot test:
-> > x86_64: Booted on my test laptop. No regression.
-> > x86_64: Booted on qemu. No regression. [1]
-> > arm64: Booted on rpi4b (4GB model). No regression. [2]
-> > mips: Booted on ci20 board. Regression.
-> >
-> > Note:
-> > networking.service is failing on mips ci20 boards. Issue seen on v6.1 also.
-> > Will report upstream after bisecting.
+> Fixed in io_uring tree.
 > 
-> This has already been fixed in mainline by:
-> ca637c0ece14 ("MIPS: DTS: CI20: fix reset line polarity of the
-> ethernet controller")
 > 
-> I have tested 6.1.1-rc1 with the above commit cherry-picked and it has
-> fixed the issue.
+> bind() of previously bound port no longer fails:
+> https://lore.kernel.org/all/6b971a4e-c7d8-411e-1f92-fda29b5b2fb9@kernel.org/
+> 
+> No fix available and revert close to impossible.
+> 
+> 
+> 
+> And most important, mremap() is broken in 6.1, so mostly everything fails in
+> some random way:
+> https://lore.kernel.org/all/20221216163227.24648-1-vbabka@suse.cz/T/#u
+> 
+> Fixed in -mm.
+> 
+> maybe it can help...
 
-Thanks for letting me know, now queued up.
+Thanks for the list, I'll keep an eye out for these...
 
 greg k-h
