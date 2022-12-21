@@ -2,77 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69B8F652D71
-	for <lists+stable@lfdr.de>; Wed, 21 Dec 2022 08:49:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57604652EA6
+	for <lists+stable@lfdr.de>; Wed, 21 Dec 2022 10:35:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233384AbiLUHt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Dec 2022 02:49:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37146 "EHLO
+        id S234366AbiLUJfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Dec 2022 04:35:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbiLUHtZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 02:49:25 -0500
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B269B20BDF
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 23:49:22 -0800 (PST)
-Received: by mail-lj1-x236.google.com with SMTP id a19so14846846ljk.0
-        for <stable@vger.kernel.org>; Tue, 20 Dec 2022 23:49:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=W4dufR/uux43jl3M8hYAD4DGGD+INaD7xhuItQ1sxqM=;
-        b=jyKvA4SA0BID+x3dPHPHetTx8uuU2Ufv5v0ipUrni4s75mswft8Zvab98BtnldYOry
-         KN9IADGNThpeJYPKUhhXrVL4uhfYxknL3ZKnjQxxV3zvbXUGGKirQ2zIRTrNbOReyhqy
-         q2VltiJkqRFnrwPuMj8hUJ3DcCi1xzQ1HL5fd8unnMhgGWCxEtht5Z6c+riMiiX+jVuC
-         Oc7+OtNVFhU4v5zH84NH33TEVCLFhdhywNZwVQMZxDffUB6Ur/+VzKR1Oln3tqRoWd2C
-         RogMQ7nrujwdFH4duJWEBflzR8bkd0nwUQShcVVrRiSI7w57XmauDfKG4OCS267QFPsr
-         pRkw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=W4dufR/uux43jl3M8hYAD4DGGD+INaD7xhuItQ1sxqM=;
-        b=dumXYPqqUyfAD/OqvuLzeSBN3Aky4saHszc0c6lrZ4G45vKKhoqkWpZV5rk2svm8/v
-         HWtdRRBGUjWd6FVWEZdlnInXk6aEXVreZ94YxfQtnFQFyPkkyAyrYo/9ubPJHwKWEpuu
-         RXGegB0qA6WMxcGAuWvPdQE+4jTshI9GqYx7h37H0xr4xvhbY7HZgrSru+w67srA2MGU
-         novzqu92da/GT80CRmac3dBlctEHhZE+Ir+6augsEg/q1gFuOKNuWXxJhF9mDKTn2JM4
-         zVz6PGCdbcoHcuJ5g/sGlXwwJCC/WRZvCbRSggNcfTon2allS8Md4byVHPSW6f+C96jo
-         0AQQ==
-X-Gm-Message-State: AFqh2krrUUGX5CmXxDg8W3MycGxou/ihCCAhhGgtMfzVA68DL6WFHvjf
-        ANPL3B1iUyXMf6o+NMaTTWL84Q==
-X-Google-Smtp-Source: AMrXdXuL8CIiSpj3KjFKlORDGshD2jdfuqOiS5wOIen9p5A4YK/CKXwv+XuGmNs1gZhtcEvzmJqFzQ==
-X-Received: by 2002:a2e:8503:0:b0:279:cd84:1f26 with SMTP id j3-20020a2e8503000000b00279cd841f26mr1325536lji.13.1671608961015;
-        Tue, 20 Dec 2022 23:49:21 -0800 (PST)
-Received: from [192.168.0.20] (088156142067.dynamic-2-waw-k-3-2-0.vectranet.pl. [88.156.142.67])
-        by smtp.gmail.com with ESMTPSA id m8-20020ac24288000000b004a2c3fd32edsm1762548lfh.144.2022.12.20.23.49.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 20 Dec 2022 23:49:20 -0800 (PST)
-Message-ID: <bdddd72f-a118-ff43-c53f-5ffd724fbd55@linaro.org>
-Date:   Wed, 21 Dec 2022 08:49:19 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH] tty: serial: qcom-geni-serial: fix slab-out-of-bounds on
- RX FIFO buffer
-To:     Jiri Slaby <jirislaby@kernel.org>, Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Satya Priya <quic_c_skakit@quicinc.com>,
-        linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20221220161530.2098299-1-krzysztof.kozlowski@linaro.org>
- <b21a17c7-df9c-ce20-f986-8f093a33278c@kernel.org>
-Content-Language: en-US
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <b21a17c7-df9c-ce20-f986-8f093a33278c@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        with ESMTP id S234063AbiLUJfN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Dec 2022 04:35:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18BB5205D8;
+        Wed, 21 Dec 2022 01:35:09 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AE286172B;
+        Wed, 21 Dec 2022 09:35:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E35C433D2;
+        Wed, 21 Dec 2022 09:35:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1671615308;
+        bh=UUNY+TC8uH/w5Jhcrs2UNbTIXKI3gO1njZcObFLjccA=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=JHHiYkJ+Su5hEWsch8CueGjPmBurDb2a2J3w996Qsd3OOVTJE7GDn/0/70rfyaKNL
+         U0Gj2WnJogoVC2JquvVotR0utgZ+ricNT7jhAAWJPJngdlglwlB+6LzNB7QCC87bc+
+         stH2wElrDv+6KUtlu5TuM+YAJwv9kgmU6W6Z3zi5/XemE5DNFs1+oR67h7K4ACkF+F
+         gwjipq8AH8SmBxVPIM8gyqDbQc902fjjAZ1iaZ+NGSZCQrKyuE2S14zeqfmvxL5nzn
+         nes6fP3HOCU7H0VXS7MIKSUMCf9+PGiq1vlMp6BFvmXcfvXbFC7t9yyD5siLr5cRfo
+         cu321N5oyZ01w==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1p7vVC-00E7Dl-Ce;
+        Wed, 21 Dec 2022 09:35:06 +0000
+Date:   Wed, 21 Dec 2022 09:35:06 +0000
+Message-ID: <86pmcdaylx.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Oliver Upton <oliver.upton@linux.dev>
+Cc:     kvmarm@lists.cs.columbia.edu, kvmarm@lists.linux.dev,
+        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Quentin Perret <qperret@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] KVM: arm64: Fix S1PTW handling on RO memslots
+In-Reply-To: <Y6IteDoK406o9pM+@google.com>
+References: <20221220200923.1532710-1-maz@kernel.org>
+        <20221220200923.1532710-2-maz@kernel.org>
+        <Y6IteDoK406o9pM+@google.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/28.2
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: oliver.upton@linux.dev, kvmarm@lists.cs.columbia.edu, kvmarm@lists.linux.dev, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, james.morse@arm.com, suzuki.poulose@arm.com, alexandru.elisei@arm.com, ardb@kernel.org, will@kernel.org, qperret@google.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -80,64 +72,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21/12/2022 07:43, Jiri Slaby wrote:
-> On 20. 12. 22, 17:15, Krzysztof Kozlowski wrote:
->> Driver's probe allocates memory for RX FIFO (port->rx_fifo) based on
->> default RX FIFO depth, e.g. 16.  Later during serial startup the
->> qcom_geni_serial_port_setup() updates the RX FIFO depth
->> (port->rx_fifo_depth) to match real device capabilities, e.g. to 32.
-> ...
->> If the RX FIFO depth changes after probe, be sure to resize the buffer.
->>
->> Fixes: f9d690b6ece7 ("tty: serial: qcom_geni_serial: Allocate port->rx_fifo buffer in probe")
->> Cc: <stable@vger.kernel.org>
->> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+On Tue, 20 Dec 2022 21:47:36 +0000,
+Oliver Upton <oliver.upton@linux.dev> wrote:
 > 
-> Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+> Hi Marc,
 > 
-> This patch LGTM, I only wonder:
+> On Tue, Dec 20, 2022 at 08:09:21PM +0000, Marc Zyngier wrote:
+> > A recent development on the EFI front has resulted in guests having
+> > their page tables baked in the firmware binary, and mapped into
+> > the IPA space as part as a read-only memslot.
 > 
->> --- a/drivers/tty/serial/qcom_geni_serial.c
->> +++ b/drivers/tty/serial/qcom_geni_serial.c
->> @@ -864,9 +864,10 @@ static irqreturn_t qcom_geni_serial_isr(int isr, void *dev)
->>   	return IRQ_HANDLED;
->>   }
->>   
->> -static void get_tx_fifo_size(struct qcom_geni_serial_port *port)
->> +static int get_tx_fifo_size(struct qcom_geni_serial_port *port)
+> as part of a
 > 
-> ... why is this function dubbed get_tx_fifo_size(), provided it handles 
-> rx fifo too? And it does not "get" the tx fifo size. In fact, the 
-> function sets that :).
+> > Not only this is legitimate, but it also results in added security,
+> > so thumbs up. However, this clashes mildly with our handling of a S1PTW
+> > as a write to correctly handle AF/DB updates to the S1 PTs, and results
+> > in the guest taking an abort it won't recover from (the PTs mapping the
+> > vectors will suffer freom the same problem...).
+> 
+> To be clear, the read-only page tables already have the AF set,
+> right?  They certainly must, or else the guest isn't getting far :)
 
-I reads the FIFO sizes from the device registers, so I guess that was
-behind the naming.
+Yes, the guest definitely has the AF set in the PT, and is not trying
+to use the HW-assisted AF (which obviously wouldn't work).
 
+>
+> I understand you're trying to describe _why_ we promote S1PTW to a
+> write, but doing it inline with the context of the EFI issue makes
+> it slightly unclear. Could you break these ideas up into two
+> paragraphs and maybe spell out the fault conditions a bit more?
 > 
->>   {
->>   	struct uart_port *uport;
->> +	u32 old_rx_fifo_depth = port->rx_fifo_depth;
->>   
->>   	uport = &port->uport;
->>   	port->tx_fifo_depth = geni_se_get_tx_fifo_depth(&port->se);
->> @@ -874,6 +875,16 @@ static void get_tx_fifo_size(struct qcom_geni_serial_port *port)
->>   	port->rx_fifo_depth = geni_se_get_rx_fifo_depth(&port->se);
->>   	uport->fifosize =
->>   		(port->tx_fifo_depth * port->tx_fifo_width) / BITS_PER_BYTE;
->> +
->> +	if (port->rx_fifo && (old_rx_fifo_depth != port->rx_fifo_depth) && port->rx_fifo_depth) {
->> +		port->rx_fifo = devm_krealloc(uport->dev, port->rx_fifo,
->> +					      port->rx_fifo_depth * sizeof(u32),
->> +					      GFP_KERNEL);
+>   A recent development on the EFI front has resulted in guests having
+>   their page tables baked in the firmware binary, and mapped into the
+>   IPA space as part of a read-only memslot. Not only is this legitimate,
+>   but it also results in added security, so thumbs up.
 > 
-> And now it even allocates memory.
+>   It is possible to take an S1PTW translation fault if the S1 PTs are
+>   unmapped at stage-2. However, KVM unconditionally treats S1PTW as a
+>   write to correctly handle hardware AF/DB updates to the S1 PTs.
+>   Furthermore, KVM injects a data abort into the guest for S1PTW writes.
+>   In the aforementioned case this results in the guest taking an abort
+>   it won't recover from, as the S1 PTs mapping the vectors suffer from
+>   the same problem.
 > 
-> So more appropriate name should be setup_fifos() or similar.
+> Dunno, maybe I stink at reading which is why I got confused in the
+> first place.
 
-Sure, I'll rename it and keep your Rb tag.
+Nothing wrong with you, just that my write-up is indeed sloppy. I'll
+copy paste the above, thanks!
 
 > 
+> > So clearly our handling is... wrong.
+> > 
+> > Instead, switch to a two-pronged approach:
+> > 
+> > - On S1PTW translation fault, handle the fault as a read
+> > 
+> > - On S1PTW permission fault, handle the fault as a write
+> > 
+> > This is of no consequence to SW that *writes* to its PTs (the write
+> > will trigger a non-S1PTW fault), and SW that uses RO PTs will not
+> > use AF/DB anyway, as that'd be wrong.
+> > 
+> > Only in the case described in c4ad98e4b72c ("KVM: arm64: Assume write
+> > fault on S1PTW permission fault on instruction fetch") do we end-up
+> > with two back-to-back faults (page being evicted and faulted back).
+> > I don't think this is a case worth optimising for.
+> > 
+> > Fixes: c4ad98e4b72c ("KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch")
+> > Signed-off-by: Marc Zyngier <maz@kernel.org>
+> > Cc: stable@vger.kernel.org
+> > ---
+> >  arch/arm64/include/asm/kvm_emulate.h | 22 ++++++++++++++++++++--
+> >  1 file changed, 20 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
+> > index 9bdba47f7e14..fd6ad8b21f85 100644
+> > --- a/arch/arm64/include/asm/kvm_emulate.h
+> > +++ b/arch/arm64/include/asm/kvm_emulate.h
+> > @@ -373,8 +373,26 @@ static __always_inline int kvm_vcpu_sys_get_rt(struct kvm_vcpu *vcpu)
+> >  
+> >  static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
+> >  {
+> > -	if (kvm_vcpu_abt_iss1tw(vcpu))
+> > -		return true;
+> > +	if (kvm_vcpu_abt_iss1tw(vcpu)) {
+> > +		/*
+> > +		 * Only a permission fault on a S1PTW should be
+> > +		 * considered as a write. Otherwise, page tables baked
+> > +		 * in a read-only memslot will result in an exception
+> > +		 * being delivered in the guest.
+> 
+> Somewhat of a tangent, but:
+> 
+> Aren't we somewhat unaligned with the KVM UAPI by injecting an
+> exception in this case? I know we've been doing it for a while, but it
+> flies in the face of the rules outlined in the
+> KVM_SET_USER_MEMORY_REGION documentation.
 
-Best regards,
-Krzysztof
+That's an interesting point, and I certainly haven't considered that
+for faults introduced by page table walks.
 
+I'm not sure what userspace can do with that though. The problem is
+that this is a write for which we don't have useful data: although we
+know it is a page-table walker access, we don't know what it was about
+to write. The instruction that caused the write is meaningless (it
+could either be a load, a store, or an instruction fetch). How do you
+populate the data[] field then?
+
+If anything, this is closer to KVM_EXIT_ARM_NISV, for which we give
+userspace the full ESR and ask it to sort it out. I doubt it will be
+able to, but hey, maybe it is worth a shot. This would need to be a
+different exit reason though, as NISV is explicitly for non-memslot
+stuff.
+
+In any case, the documentation for KVM_SET_USER_MEMORY_REGION needs to
+reflect the fact that KVM_EXIT_MMIO cannot represent a fault due to a
+S1 PTW.
+
+>
+> > +		 * The drawback is that we end-up fauling twice if the
+> 
+> typo: s/fauling/faulting/
+> 
+> > +		 * guest is using any of HW AF/DB: a translation fault
+> > +		 * to map the page containing the PT (read only at
+> > +		 * first), then a permission fault to allow the flags
+> > +		 * to be set.
+> > +		 */
+> > +		switch (kvm_vcpu_trap_get_fault_type(vcpu)) {
+> > +		case ESR_ELx_FSC_PERM:
+> > +			return true;
+> > +		default:
+> > +			return false;
+> > +		}
+> > +	}
+> >  
+> >  	if (kvm_vcpu_trap_is_iabt(vcpu))
+> >  		return false;
+> > -- 
+> > 2.34.1
+> > 
+> 
+> Besides the changelog/comment suggestions, the patch looks good to me.
+> 
+> Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
+
+Thanks for the quick review! I'll wait a bit before respinning the
+series, as I'd like to get closure on the UAPI point you have raised.
+
+Cheers,
+
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
